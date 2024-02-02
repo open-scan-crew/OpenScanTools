@@ -113,7 +113,7 @@
         </property>
         <property name="icon">
          <iconset resource="../../../openscantools.qrc">
-          <normaloff>:/icons/100x100/save.png</normaloff>:/icons/100x100/save.png</iconset>
+          <normaloff>:/icons/100x100/open_project.png</normaloff>:/icons/100x100/open_project.png</iconset>
         </property>
        </widget>
       </item>
