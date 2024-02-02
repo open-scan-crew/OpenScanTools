@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>toolbar_pipegroup</class>
+ <widget class="QWidget" name="toolbar_pipegroup">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>575</width>
+    <height>120</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <item row="0" column="1">
+    <widget class="QCheckBox" name="noExtendCheckBox">
+     <property name="text">
+      <string>No extension</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2" colspan="2">
+    <widget class="QCheckBox" name="insulatedCheckBox">
+     <property name="toolTip">
+      <string>Please enter the insulation thickness below</string>
+     </property>
+     <property name="text">
+      <string>Insulated pipe</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="5">
+    <widget class="QPushButton" name="managePushButton">
+     <property name="toolTip">
+      <string>Pipe standard manager. Create and edit your own lists of standard diameters.</string>
+     </property>
+     <property name="text">
+      <string>Manage Standards</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="0" column="0">
+    <widget class="QCheckBox" name="noisyCheckBox">
+     <property name="toolTip">
+      <string>Use it if you have noise in your point cloud.</string>
+     </property>
+     <property name="text">
+      <string>Noisy data</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QCheckBox" name="extendCheckBox">
+     <property name="text">
+      <string>Auto extend</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QCheckBox" name="manualExtendCheckBox">
+     <property name="text">
+      <string>Manual extension</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QRadioButton" name="optimizedRadioButton">
+     <property name="toolTip">
+      <string>More robust algorithm. Takes more time.</string>
+     </property>
+     <property name="text">
+      <string>Optimized</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QRadioButton" name="fastRadioButton">
+     <property name="toolTip">
+      <string>Fast algorithm. Works for most pipes</string>
+     </property>
+     <property name="text">
+      <string>Fast</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QDoubleEdit" name="insulatedLineEdit">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="toolTip">
+      <string>Please enter the insulation thickness</string>
+     </property>
+     <property name="inputMask">
+      <string/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="placeholderText">
+      <string>Thickness</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="4">
+    <widget class="QToolButton" name="robustToolButton">
+     <property name="toolTip">
+      <string>Use it for large pipes or pipes that are difficult to detect with the standard detection. Do 2 clics on the perimeter (not to close to eachother), and 2 clics along the axis.</string>
+     </property>
+     <property name="text">
+      <string>Robust mode</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../../openscantools.qrc">
+       <normaloff>:/icons/100x100/robust_pipe.png</normaloff>:/icons/100x100/robust_pipe.png</iconset>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="toolButtonStyle">
+      <enum>Qt::ToolButtonTextBesideIcon</enum>
+     </property>
+     <property name="autoRaise">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="4">
+    <widget class="QToolButton" name="pipeToolButton">
+     <property name="toolTip">
+      <string>Do a single click on a representative area of the pipe to detect it. Avoid clicking close to the elbows or accessoires.</string>
+     </property>
+     <property name="text">
+      <string>Detect pipe</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../../openscantools.qrc">
+       <normaloff>:/icons/100x100/pipe.png</normaloff>:/icons/100x100/pipe.png</iconset>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="toolButtonStyle">
+      <enum>Qt::ToolButtonTextBesideIcon</enum>
+     </property>
+     <property name="autoRaise">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="5">
+    <widget class="QComboBox" name="standardsComboBox"/>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QDoubleEdit</class>
+   <extends>QLineEdit</extends>
+   <header>qdoubleedit.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>noisyCheckBox</tabstop>
+  <tabstop>noExtendCheckBox</tabstop>
+  <tabstop>managePushButton</tabstop>
+ </tabstops>
+ <resources>
+  <include location="../../../openscantools.qrc"/>
+ </resources>
+ <connections/>
+</ui>

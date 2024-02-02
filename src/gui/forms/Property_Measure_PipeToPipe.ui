@@ -1,0 +1,518 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>property_PipeToPipeMeasure</class>
+ <widget class="QWidget" name="property_PipeToPipeMeasure">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>300</width>
+    <height>668</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>600</width>
+    <height>16777215</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Pipe to pipe properties</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_3">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item row="0" column="0">
+    <widget class="QScrollArea" name="scrollArea">
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>298</width>
+        <height>666</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="9" column="2">
+        <widget class="QDoubleEdit" name="Hori2Infield">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="frame">
+          <bool>true</bool>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLabel" name="ValuesLabel">
+         <property name="text">
+          <string>Values</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QLabel" name="VertiLabel">
+         <property name="text">
+          <string>Vertical</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Minimum</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>10</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="11" column="2">
+        <widget class="QDoubleEdit" name="C1DiamInfield">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="frame">
+          <bool>true</bool>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="2">
+        <widget class="QDoubleEdit" name="DbetweenAxisInfield">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="frame">
+          <bool>true</bool>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Minimum</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>10</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="13" column="1" colspan="3">
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="2" column="1">
+          <widget class="QDoubleEdit" name="Pipe2CenterXInfield">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="Pipe2CenterLabel">
+           <property name="text">
+            <string>Pipe 2 center</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="3">
+          <widget class="QDoubleEdit" name="Pipe2CenterZInfield">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="ProjectedPointLabel">
+           <property name="text">
+            <string>Projected point</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QDoubleEdit" name="Pipe2CenterYInfield">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLabel" name="YLabel">
+           <property name="text">
+            <string>Y</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QDoubleEdit" name="Pipe1CenterYInfield">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QDoubleEdit" name="ProjPointXInfield">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2">
+          <widget class="QDoubleEdit" name="ProjPointYInfield">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <widget class="QLabel" name="Zlabel">
+           <property name="text">
+            <string>Z</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="Pipe1CenterLabel">
+           <property name="text">
+            <string>Pipe 1 center</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLabel" name="XLabel">
+           <property name="text">
+            <string>X</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="3">
+          <widget class="QDoubleEdit" name="Pipe1CenterZInfield">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QDoubleEdit" name="Pipe1CenterXInfield">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="3">
+          <widget class="QDoubleEdit" name="ProjPointZInfield">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="9" column="1">
+        <widget class="QLabel" name="Hori2Label">
+         <property name="text">
+          <string>Horizontal</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLabel" name="DBetwenAxis">
+         <property name="text">
+          <string>Center pipe1 to axis pipe2</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="2">
+        <widget class="QDoubleEdit" name="FreeIdstBetCInfield">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="frame">
+          <bool>true</bool>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="1">
+        <widget class="QLabel" name="FDbetCLabel">
+         <property name="text">
+          <string>Free distance</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0" rowspan="2" colspan="4">
+        <widget class="GenericPropertiesHead" name="genericPropsHeadWidget" native="true"/>
+       </item>
+       <item row="17" column="0">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="4" column="1">
+        <widget class="QLabel" name="HoriLabel">
+         <property name="text">
+          <string>Horizontal</string>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="1">
+        <widget class="QLabel" name="Verti2Label">
+         <property name="text">
+          <string>Vertical</string>
+         </property>
+        </widget>
+       </item>
+       <item row="12" column="1">
+        <widget class="QLabel" name="C2DiameterLabel">
+         <property name="text">
+          <string>Pipe 2 diameter</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="2">
+        <widget class="QDoubleEdit" name="VertiInfield">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="frame">
+          <bool>true</bool>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="14" column="1" colspan="3">
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QLabel" name="P2CenterToProjLabel">
+           <property name="text">
+            <string>Pipe 2 center to projected</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDoubleEdit" name="P2CenterToProjInfield">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="frame">
+            <bool>true</bool>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="10" column="2">
+        <widget class="QDoubleEdit" name="Verti2Infield">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="frame">
+          <bool>true</bool>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="1">
+        <widget class="QLabel" name="C1DiameterLabel">
+         <property name="text">
+          <string>Pipe 1 diameter</string>
+         </property>
+        </widget>
+       </item>
+       <item row="16" column="0" colspan="4">
+        <widget class="GenericPropertiesFeet" name="genericPropsFeetWidget" native="true"/>
+       </item>
+       <item row="7" column="1">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Total footprint</string>
+         </property>
+        </widget>
+       </item>
+       <item row="12" column="2">
+        <widget class="QDoubleEdit" name="C2DiamInfield">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="frame">
+          <bool>true</bool>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="2">
+        <widget class="QDoubleEdit" name="HoriInfield">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="frame">
+          <bool>true</bool>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="15" column="1" colspan="3">
+        <widget class="Line" name="line_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="2">
+        <widget class="QDoubleEdit" name="totalFootprintLineEdit">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>GenericPropertiesHead</class>
+   <extends>QWidget</extends>
+   <header location="global">GenericPropertiesHead.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>GenericPropertiesFeet</class>
+   <extends>QWidget</extends>
+   <header>GenericPropertiesFeet.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QDoubleEdit</class>
+   <extends>QLineEdit</extends>
+   <header>qdoubleedit.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>DbetweenAxisInfield</tabstop>
+  <tabstop>HoriInfield</tabstop>
+  <tabstop>VertiInfield</tabstop>
+  <tabstop>totalFootprintLineEdit</tabstop>
+  <tabstop>FreeIdstBetCInfield</tabstop>
+  <tabstop>Hori2Infield</tabstop>
+  <tabstop>Verti2Infield</tabstop>
+  <tabstop>C1DiamInfield</tabstop>
+  <tabstop>C2DiamInfield</tabstop>
+  <tabstop>Pipe1CenterXInfield</tabstop>
+  <tabstop>Pipe1CenterYInfield</tabstop>
+  <tabstop>Pipe1CenterZInfield</tabstop>
+  <tabstop>Pipe2CenterXInfield</tabstop>
+  <tabstop>Pipe2CenterYInfield</tabstop>
+  <tabstop>Pipe2CenterZInfield</tabstop>
+  <tabstop>ProjPointXInfield</tabstop>
+  <tabstop>ProjPointYInfield</tabstop>
+  <tabstop>ProjPointZInfield</tabstop>
+  <tabstop>P2CenterToProjInfield</tabstop>
+ </tabstops>
+ <resources>
+  <include location="../../../openscantools.qrc"/>
+ </resources>
+ <connections/>
+</ui>

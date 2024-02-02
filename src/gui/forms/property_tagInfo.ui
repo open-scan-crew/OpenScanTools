@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>property_tagInfo</class>
+ <widget class="QWidget" name="property_tagInfo">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>339</width>
+    <height>612</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>600</width>
+    <height>16777215</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="leftMargin">
+    <number>6</number>
+   </property>
+   <property name="topMargin">
+    <number>6</number>
+   </property>
+   <property name="rightMargin">
+    <number>6</number>
+   </property>
+   <property name="bottomMargin">
+    <number>6</number>
+   </property>
+   <item row="5" column="0">
+    <widget class="QLabel" name="labelColor">
+     <property name="text">
+      <string>Color</string>
+     </property>
+    </widget>
+   </item>
+   <item row="15" column="0" colspan="2">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="11" column="1">
+    <widget class="QLineEdit" name="lineEditHyperlink"/>
+   </item>
+   <item row="8" column="1">
+    <widget class="QComboBox" name="comboBoxStatus"/>
+   </item>
+   <item row="12" column="1">
+    <widget class="QLabel" name="labelHyperlinkLink">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="labelIndex">
+     <property name="text">
+      <string>Tag Index</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="labelPrefix">
+     <property name="text">
+      <string>Tag prefix</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="labelPosX">
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="labelPosY">
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="labelPosZ">
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="4" column="1">
+    <widget class="QLineEdit" name="lineEditName"/>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="labelTagName">
+     <property name="text">
+      <string>Tag name</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="labelCategory">
+     <property name="text">
+      <string>Category</string>
+     </property>
+    </widget>
+   </item>
+   <item row="13" column="1">
+    <widget class="QLabel" name="labelDateCreated"/>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="labelPosition">
+     <property name="text">
+      <string>Position</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="labelAuthor">
+     <property name="text">
+      <string>Author</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="0">
+    <widget class="QLabel" name="labelHyperlink">
+     <property name="text">
+      <string>Hyperlink</string>
+     </property>
+    </widget>
+   </item>
+   <item row="13" column="0">
+    <widget class="QLabel" name="labelCreationDate">
+     <property name="text">
+      <string>Creation date</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QComboBox" name="comboPrefix"/>
+   </item>
+   <item row="9" column="0">
+    <widget class="QLabel" name="labelDescription">
+     <property name="text">
+      <string>Description</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0" colspan="2">
+    <widget class="QPlainTextEdit" name="plainTextEditDescription">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QIntegerEdit" name="lineEditIndex"/>
+   </item>
+   <item row="0" column="1">
+    <widget class="QLineEdit" name="lineEditAuthor">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="frame">
+      <bool>true</bool>
+     </property>
+     <property name="readOnly">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1">
+    <widget class="QComboBox" name="comboBoxAction"/>
+   </item>
+   <item row="6" column="1">
+    <widget class="QComboBox" name="comboBoxCategory"/>
+   </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="labelAction">
+     <property name="text">
+      <string>Action</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="QLabel" name="labelStatus">
+     <property name="text">
+      <string>Status</string>
+     </property>
+    </widget>
+   </item>
+   <item row="14" column="0" colspan="2">
+    <widget class="QPushButton" name="addAskeyPointButton">
+     <property name="text">
+      <string>Add as animation keypoint</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QIntegerEdit</class>
+   <extends>QLineEdit</extends>
+   <header>qintegeredit.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>lineEditAuthor</tabstop>
+  <tabstop>comboPrefix</tabstop>
+  <tabstop>lineEditIndex</tabstop>
+  <tabstop>lineEditName</tabstop>
+  <tabstop>comboBoxCategory</tabstop>
+  <tabstop>comboBoxAction</tabstop>
+  <tabstop>comboBoxStatus</tabstop>
+  <tabstop>plainTextEditDescription</tabstop>
+  <tabstop>lineEditHyperlink</tabstop>
+  <tabstop>addAskeyPointButton</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,6 @@
+*.exe filter=lfs diff=lfs merge=lfs -text
+*.dll filter=lfs diff=lfs merge=lfs -text
+*.lib filter=lfs diff=lfs merge=lfs -text
+ext/libe57/lib/libe57-d.lib filter=lfs diff=lfs merge=lfs -text
+ext/E1871_FARO_LS_SDK_2019.2.4.3806_Setup.exe filter=lfs diff=lfs merge=lfs -text
+ext/vc_redist.x64.exe filter=lfs diff=lfs merge=lfs -text

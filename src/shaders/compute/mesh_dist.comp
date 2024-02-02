@@ -1,0 +1,143 @@
+#version 450
+// minimum garanted local_size = (128, 128, 64)
+layout (local_size_x = 16, local_size_y = 16) in;
+
+layout(set = 0, binding = 0) uniform Model {
+    mat4 transfo;
+} uModel;
+
+layout(set = 1, binding = 1) buffer vertices
+{
+   vec3 position[ ];
+};
+
+layout(set = 1, binding = 2) buffer distances
+{
+   float dist[ ];
+};
+
+layout(push_constant) uniform PC {
+   layout(offset = 0) uint vertexCount;
+   layout(offset = 4) uint vertexOffset;
+   layout(offset = 8) int topology;
+   layout(offset = 16) vec3 point;
+} pc;
+
+float dot2(in vec3 v) { return dot(v, v); }
+
+void main()
+{
+   uvec3 globalOffsets = uvec3(0, gl_NumWorkGroups.x * gl_WorkGroupSize.x, gl_NumWorkGroups.y * gl_WorkGroupSize.y * gl_NumWorkGroups.x * gl_WorkGroupSize.x);
+   uvec3 lineOffsets = gl_GlobalInvocationID * globalOffsets;
+   uint offset = pc.vertexOffset + lineOffsets.x + lineOffsets.y + lineOffsets.z;
+
+   if (offset * 3 >= pc.vertexCount)
+      return;
+
+   // Topology is TRIANGLE_LIST
+   vec3 A = (uModel.transfo * vec4(position[offset * 3], 1.0)).xyz;
+   vec3 B = (uModel.transfo * vec4(position[offset * 3 + 1], 1.0)).xyz;
+   vec3 C = (uModel.transfo * vec4(position[offset * 3 + 2], 1.0)).xyz;
+
+   // Vecteurs utiles
+   vec3 M = pc.point;
+   vec3 AB = B - A;
+   vec3 BC = C - B;
+   vec3 CA = A - C;
+   vec3 AM = M - A;
+   vec3 BM = M - B;
+   vec3 CM = M - C;
+
+   // Calcul de la normale du triangle ABC dans le sens direct
+   vec3 n = cross(AB, BC);
+
+   // Get the projection P of M on the plane (A, n)
+   // PM = n * dot(AM, n)
+   // M - P = n * dot(AM, n)
+   vec3 P;
+
+
+   // On distingue trois cas de figure :
+   //  (a) P est à l’intèrieur du triangle
+   //  (b) P est proche d’un côté
+   //  (c) P est proche d’un sommet
+
+   // Valeurs utiles pour la projection sur un côté
+   float t_ab = dot(AB, AM) / dot(AB, AB);
+   float t_bc = dot(BC, BM) / dot(BC, BC);
+   float t_ca = dot(CA, CM) / dot(CA, CA);
+
+   if (dot(cross(AB, AM), n) > 0.0 &&
+       dot(cross(BC, BM), n) > 0.0 &&
+       dot(cross(CA, CM), n) > 0.0)
+      // On est à l’intèrieur
+      P = (M - n * dot(AM, n) / dot(n, n));
+   else if (t_ab > 0.0)
+   {
+      if (t_ab < 1.0)
+      {
+          P = (A + AB * t_ab);
+      }
+      else if (t_bc < 0.0)
+      {
+          P = B;
+      }
+   }
+   if (t_bc > 0.0)
+   {
+      if (t_bc < 1.0)
+      {
+         P = (B + BC * t_bc);
+      }
+      else if (t_ca < 0.0)
+      {
+         P = C;
+      }
+   }
+   if (t_ca > 0.0)
+   {
+      if (t_ca < 1.0)
+      {
+         P = (C + CA * t_ca);
+      }
+      else if (t_ab < 0.0)
+      {
+         P = A;
+      }
+   }
+
+
+   // La distance au triangle
+   float dist = length(P - M);
+
+   // ******* Méthode de Inigo Quilez ******* //
+   // https://iquilezles.org/articles/triangledistance/ 
+   /*
+   vec3 nor = cross(AB, CA);
+   float d;
+   if (sign(dot(cross(AB, nor), AP)) +
+       sign(dot(cross(BC, nor), BP)) +
+       sign(dot(cross(CA, nor), CP)) < 2.0)
+   {
+      d = min(min(
+          dot2(AB * clamp(dot(AB, AP) / dot2(AB), 0.0, 1.0) - AP),
+          dot2(BC * clamp(dot(BC, BP) / dot2(BC), 0.0, 1.0) - BP)),
+          dot2(CA * clamp(dot(CA, CP) / dot2(CA), 0.0, 1.0) - CP));
+   }
+   else
+   {
+      d = dot(nor, AP) * dot(nor, AP) / dot2(nor);
+   }
+   d = sqrt(d);
+   */
+
+
+   // ******* Résultat ******** //
+   // On peut soit garder le point projeté comme résultat soit sa distance.
+   // Dans certains cas le point projeté peut être utile comme résultat final.
+   // Mais ce qui nous intéresse ici c'est de comparer tout les points projetés
+   //  pour trouver le plus proche.
+   // On va donc garder la distance uniquement.
+
+
+}

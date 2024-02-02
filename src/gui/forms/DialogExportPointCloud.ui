@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DialogExportPointCloud</class>
+ <widget class="QWidget" name="DialogExportPointCloud">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>529</width>
+    <height>582</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Point cloud export</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="4" column="1">
+    <widget class="QComboBox" name="comboBox_format"/>
+   </item>
+   <item row="17" column="0">
+    <widget class="QLabel" name="label_temp">
+     <property name="text">
+      <string>Temp Folder</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QComboBox" name="comboBox_clippings"/>
+   </item>
+   <item row="3" column="1">
+    <widget class="QComboBox" name="comboBox_method"/>
+   </item>
+   <item row="23" column="0" colspan="3">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_method">
+     <property name="text">
+      <string>Method</string>
+     </property>
+    </widget>
+   </item>
+   <item row="12" column="1">
+    <widget class="QLineEdit" name="lineEdit_density"/>
+   </item>
+   <item row="19" column="0" colspan="3">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QPushButton" name="pushButton_export">
+       <property name="text">
+        <string>Export</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_cancel">
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="12" column="0">
+    <widget class="QLabel" name="label_density">
+     <property name="text">
+      <string>Decimation</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QComboBox" name="comboBox_pointClouds"/>
+   </item>
+   <item row="12" column="2">
+    <widget class="QLabel" name="label_density_unit">
+     <property name="text">
+      <string>mm</string>
+     </property>
+    </widget>
+   </item>
+   <item row="18" column="0" colspan="3">
+    <widget class="QCheckBox" name="checkBox_openFolderAfterExport">
+     <property name="text">
+      <string>Open folder after export</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="16" column="2">
+    <widget class="QToolButton" name="toolButton_folder">
+     <property name="text">
+      <string>Select Out Folder</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../../openscantools.qrc">
+       <normaloff>:/icons/100x100/open_project.png</normaloff>:/icons/100x100/open_project.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="13" column="0" colspan="2">
+    <widget class="QCheckBox" name="checkBox_addOriginCube">
+     <property name="text">
+      <string>Add origin cube for each RCP</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QListWidget" name="listWidget_clippingNames">
+     <property name="selectionMode">
+      <enum>QAbstractItemView::NoSelection</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="20" column="0" colspan="3">
+    <widget class="QLabel" name="label_msg">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="15" column="2">
+    <widget class="QToolButton" name="toolButton_outFile">
+     <property name="text">
+      <string>...</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../../openscantools.qrc">
+       <normaloff>:/icons/100x100/save.png</normaloff>:/icons/100x100/save.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="17" column="2">
+    <widget class="QToolButton" name="toolButton_tempFolder">
+     <property name="text">
+      <string>Select Temp Folder</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../../openscantools.qrc">
+       <normaloff>:/icons/100x100/open_project.png</normaloff>:/icons/100x100/open_project.png</iconset>
+     </property>
+     <property name="autoRaise">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="15" column="1">
+    <widget class="QLineEdit" name="lineEdit_fileName">
+     <property name="placeholderText">
+      <string>Enter output file name</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="label_format">
+     <property name="text">
+      <string>Format</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_clippings">
+     <property name="text">
+      <string>Clippings</string>
+     </property>
+    </widget>
+   </item>
+   <item row="16" column="0">
+    <widget class="QLabel" name="label_folder">
+     <property name="text">
+      <string>Folder</string>
+     </property>
+    </widget>
+   </item>
+   <item row="17" column="1">
+    <widget class="QLineEdit" name="lineEdit_tempFolder">
+     <property name="placeholderText">
+      <string>Enter Temporary Folder</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label_pointClouds">
+     <property name="text">
+      <string>Point clouds</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="1">
+    <widget class="QComboBox" name="comboBox_precision"/>
+   </item>
+   <item row="9" column="0" colspan="2">
+    <widget class="QGroupBox" name="groupBox_maxScan">
+     <property name="title">
+      <string>Limit scan number per project</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+       <widget class="QLabel" name="label_maxScan">
+        <property name="text">
+         <string>Max Scan</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lineEdit_maxScan"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="10" column="0">
+    <widget class="QLabel" name="label_precision">
+     <property name="text">
+      <string>TLS Precision</string>
+     </property>
+    </widget>
+   </item>
+   <item row="15" column="0">
+    <widget class="QLabel" name="label_fileName">
+     <property name="text">
+      <string>File Name</string>
+     </property>
+    </widget>
+   </item>
+   <item row="16" column="1">
+    <widget class="QLineEdit" name="lineEdit_folder">
+     <property name="placeholderText">
+      <string>Enter Output Folder</string>
+     </property>
+    </widget>
+   </item>
+   <item row="14" column="0" colspan="2">
+    <widget class="QCheckBox" name="checkBox_restoreOriginalCoordinates">
+     <property name="text">
+      <string>Truncated coordinates: restore original coordinates</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>comboBox_pointClouds</tabstop>
+  <tabstop>comboBox_clippings</tabstop>
+  <tabstop>listWidget_clippingNames</tabstop>
+  <tabstop>comboBox_method</tabstop>
+  <tabstop>comboBox_format</tabstop>
+  <tabstop>groupBox_maxScan</tabstop>
+  <tabstop>lineEdit_maxScan</tabstop>
+  <tabstop>comboBox_precision</tabstop>
+  <tabstop>lineEdit_density</tabstop>
+  <tabstop>checkBox_addOriginCube</tabstop>
+  <tabstop>lineEdit_fileName</tabstop>
+  <tabstop>lineEdit_folder</tabstop>
+  <tabstop>toolButton_folder</tabstop>
+  <tabstop>lineEdit_tempFolder</tabstop>
+  <tabstop>toolButton_tempFolder</tabstop>
+  <tabstop>pushButton_export</tabstop>
+  <tabstop>pushButton_cancel</tabstop>
+ </tabstops>
+ <resources>
+  <include location="../../../openscantools.qrc"/>
+ </resources>
+ <connections/>
+</ui>

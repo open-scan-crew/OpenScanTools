@@ -1,0 +1,118 @@
+#ifndef DATA_H_
+#define DATA_H_
+
+#include <string>
+#include <ctime>
+#include <set>
+#include "crossguid/guid.hpp"
+#include "models/Types.hpp"
+#include "models/OpenScanToolsModelEssentials.h"
+#include "utils/Color32.hpp"
+#include "gui/texts/DefaultNameTexts.hpp"
+#include "utils/ProjectColor.hpp"
+
+#include <unordered_map>
+
+#define DISCIPLINE_ID "a82120c8-d1c7-479c-8b5e-000000000001"
+#define PREFIX_ID "a82120c8-d1c7-479c-8b5e-000000000002"
+#define PHASE_ID "0f150ae6-7c12-4f08-8fd4-bc92b5eb507a"
+
+typedef xg::Guid hLinkId;
+
+class Author;
+
+struct s_hyperlink
+{
+	std::wstring hyperlink;
+	std::wstring name;
+
+	bool operator== (const s_hyperlink& s1) const
+	{
+		if (s1.hyperlink == this->hyperlink && s1.name == this->name)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+};
+
+class ControllerContext;
+class OpenScanToolsGraphManager;
+
+class Data
+{
+public:
+	Data();
+    Data(const Data& data);
+	virtual ~Data();
+
+	void copyUIData(const Data& data, bool copyId);
+
+	void setId(xg::Guid id);
+	void setVisible(bool visible);
+	void setSelected(bool selected);
+
+	void setAuthor(SafePtr<Author> author);
+	void setCreationTime(time_t time);
+	void setModificationTime(time_t time);
+	void setUserIndex(uint32_t userIndex);
+
+	void setName(const std::wstring& name);
+	void setDescription(const std::wstring& desc);
+	void setDescription_str(const std::string& desc);
+	void setDiscipline(const std::wstring& discipline);
+	void setPhase(const std::wstring& phase);
+	void setIdentifier(const std::wstring& identifier);
+	void setHyperlinks(const std::unordered_map<hLinkId, s_hyperlink>& links);
+	virtual void setColor(const Color32& color);
+
+	void setDefaultData(const ControllerContext& context);
+
+	bool operator==(const Data& data) const;
+
+	virtual bool isVisible() const;
+	virtual bool isSelected() const;
+
+	xg::Guid getId() const;
+	SafePtr<Author> getAuthor() const;
+	time_t getCreationTime() const;
+	time_t getModificationTime() const;
+	uint32_t getUserIndex() const;
+
+	const std::wstring& getName() const;
+	virtual std::wstring getComposedName() const;
+	std::wstring getStringTimeCreated() const;
+	std::wstring getStringTimeModified() const;
+	std::wstring getDescription() const;
+	std::wstring getDiscipline() const;
+	std::wstring getPhase() const;
+	std::wstring getIdentifier() const;
+	const std::unordered_map<hLinkId, s_hyperlink>& getHyperlinks() const;
+	const Color32& getColor() const;
+
+protected:
+	bool m_visible = true;
+	bool m_selected;
+	xg::Guid m_id;
+	SafePtr<Author> m_author;
+
+	uint32_t m_userIndex;
+	std::wstring m_name;
+	std::wstring m_description;
+
+	std::wstring m_discipline;
+	std::wstring m_phase;
+
+	std::wstring m_identifier;
+
+	std::time_t m_timeCreated;
+	std::time_t m_timeModified;
+	std::unordered_map<hLinkId, s_hyperlink> m_hyperlinks;
+
+	Color32 m_color = ProjectColor::getColor("BLUE");
+};
+
+#endif // !UIDATA_H_

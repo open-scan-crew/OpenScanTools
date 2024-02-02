@@ -1,0 +1,52 @@
+#version 450
+#extension GL_GOOGLE_include_directive : enable
+#include "../blocks/block_hsv_functions.glsl"
+
+layout (local_size_x = 16, local_size_y = 16) in;
+
+layout(set = 0, binding = 0, rgba16) uniform image2D inOutColorImage;
+
+layout(push_constant) uniform PC {
+   layout(offset = 0) float transparency;
+   layout(offset = 4) int substractiveMode;
+   layout(offset = 8) ivec2 screenSize;
+   layout(offset = 16) vec3 background;
+   layout(offset = 28) int noFlash;
+} pc;
+
+void main() 
+{
+   if (gl_GlobalInvocationID.x >= pc.screenSize.x ||
+       gl_GlobalInvocationID.y >= pc.screenSize.y)
+      return;
+
+   vec4 inColor = imageLoad(inOutColorImage, ivec2(gl_GlobalInvocationID.xy));
+   float n = inColor.a;
+   float a = 1.f - pow(pc.transparency, n);
+   vec3 c_rgb = n > 0.f ? inColor.rgb / n : vec3(0.0, 0.0, 0.0);
+
+   // Traitement HDR
+   if (pc.noFlash != 0)
+   {
+      float S = 0.5f;  // seuil
+      vec3 c_hsl = rgb2hsl(c_rgb);
+      if (a > S)
+      {
+         c_hsl.z = mix(c_hsl.z, 1.f, (a - S) / (1.0 - S));
+         a = 1.0;
+      }
+      else
+      {
+         a = a / S;
+      }
+      c_rgb = hsl2rgb(c_hsl);
+   
+   }
+   // ***** Inversion des couleurs *****
+   if (pc.substractiveMode == 1)
+      c_rgb = vec3(1.0) - c_rgb;
+
+   vec4 outColor = vec4(mix(pc.background, c_rgb, a), a);
+
+   imageStore(inOutColorImage, ivec2(gl_GlobalInvocationID.xy), outColor);
+}

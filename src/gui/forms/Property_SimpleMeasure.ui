@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>property_SimpleMeasure</class>
+ <widget class="QWidget" name="property_SimpleMeasure">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>312</width>
+    <height>684</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>600</width>
+    <height>16777215</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Simple measurement properties</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_2">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item row="0" column="0">
+    <widget class="QScrollArea" name="scrollArea">
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>310</width>
+        <height>682</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_6">
+       <item row="4" column="1">
+        <widget class="QDoubleEdit" name="VerticalInfield">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="frame">
+          <bool>true</bool>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="13" column="0" colspan="3">
+        <widget class="GenericPropertiesFeet" name="genericPropsFeetWidget" native="true"/>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="alongXLabel">
+         <property name="text">
+          <string>Along X</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0">
+        <widget class="QLabel" name="alongYLabel">
+         <property name="text">
+          <string>Along Y</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QDoubleEdit" name="HorizontalInfield">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="frame">
+          <bool>true</bool>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="1">
+        <widget class="QDoubleEdit" name="AngleInfield">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="frame">
+          <bool>true</bool>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="0" colspan="3">
+        <layout class="QHBoxLayout" name="PointsLayout">
+         <item>
+          <layout class="QVBoxLayout" name="XPosLayout">
+           <item>
+            <widget class="QLabel" name="X1Label">
+             <property name="text">
+              <string>X1</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleEdit" name="X1Infield">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="frame">
+              <bool>true</bool>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="X2Label">
+             <property name="text">
+              <string>X2</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleEdit" name="X2Infield">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="frame">
+              <bool>true</bool>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="YPosLayout">
+           <item>
+            <widget class="QLabel" name="Y1Label">
+             <property name="text">
+              <string>Y1</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleEdit" name="Y1Infield">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="frame">
+              <bool>true</bool>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="Y2Label">
+             <property name="text">
+              <string>Y2</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleEdit" name="Y2Infield">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="frame">
+              <bool>true</bool>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="ZPosLayout">
+           <item>
+            <widget class="QLabel" name="Z1Label">
+             <property name="text">
+              <string>Z1</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleEdit" name="Z1Infield">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="frame">
+              <bool>true</bool>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="Z2Label">
+             <property name="text">
+              <string>Z2</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleEdit" name="Z2Infield">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="frame">
+              <bool>true</bool>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+       <item row="2" column="1">
+        <widget class="QDoubleEdit" name="TotalInfield">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="frame">
+          <bool>true</bool>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="0">
+        <widget class="QLabel" name="coordinatesLabel">
+         <property name="text">
+          <string>Points coordinates</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <widget class="QDoubleEdit" name="AlongYInfield">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="frame">
+          <bool>true</bool>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="totalLabel">
+         <property name="text">
+          <string>Total</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="horizontalLabel">
+         <property name="text">
+          <string>Horizontal</string>
+         </property>
+        </widget>
+       </item>
+       <item row="12" column="0" colspan="3">
+        <widget class="Line" name="line_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="14" column="0">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="ValuesLabel">
+         <property name="text">
+          <string>Values</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="0" colspan="3">
+        <widget class="Line" name="line">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="0">
+        <widget class="QLabel" name="angleHorizontalLabel">
+         <property name="text">
+          <string>Angle with horiz.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0" colspan="3">
+        <widget class="GenericPropertiesHead" name="genericPropsHeadWidget" native="true"/>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="verticalLabel">
+         <property name="text">
+          <string>Vertical</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QDoubleEdit" name="AlongXInfield">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="frame">
+          <bool>true</bool>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="0" colspan="3">
+        <widget class="SubPropertyClipping" name="subPropertyClipping" native="true"/>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>GenericPropertiesHead</class>
+   <extends>QWidget</extends>
+   <header location="global">GenericPropertiesHead.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>GenericPropertiesFeet</class>
+   <extends>QWidget</extends>
+   <header>GenericPropertiesFeet.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QDoubleEdit</class>
+   <extends>QLineEdit</extends>
+   <header>qdoubleedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>SubPropertyClipping</class>
+   <extends>QWidget</extends>
+   <header>SubPropertyClipping.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>TotalInfield</tabstop>
+  <tabstop>HorizontalInfield</tabstop>
+  <tabstop>VerticalInfield</tabstop>
+  <tabstop>AlongXInfield</tabstop>
+  <tabstop>AlongYInfield</tabstop>
+  <tabstop>AngleInfield</tabstop>
+  <tabstop>X1Infield</tabstop>
+  <tabstop>Y1Infield</tabstop>
+  <tabstop>Z1Infield</tabstop>
+  <tabstop>X2Infield</tabstop>
+  <tabstop>Y2Infield</tabstop>
+  <tabstop>Z2Infield</tabstop>
+ </tabstops>
+ <resources>
+  <include location="../../../openscantools.qrc"/>
+ </resources>
+ <connections/>
+</ui>

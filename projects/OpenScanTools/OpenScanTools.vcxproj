@@ -1,0 +1,2471 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug_License|x64">
+      <Configuration>Debug_License</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Portable_Prod|x64">
+      <Configuration>Portable_Prod</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Portable|x64">
+      <Configuration>Portable</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_Prod|x64">
+      <Configuration>Release_Prod</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{E926ED99-3692-4A5A-ABC0-CCB4686767E9}</ProjectGuid>
+    <Keyword>QtVS_v304</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>OpenScanTools</ProjectName>
+    <QtMsBuild Condition="'$(QtMsBuild)'=='' or !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Portable|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
+    <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
+  </Target>
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt_defaults.props')">
+    <Import Project="$(QtMsBuild)\qt_defaults.props" />
+  </ImportGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)build\$(Configuration)\</OutDir>
+    <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
+    <IntDir>build\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">
+    <OutDir>$(SolutionDir)build\$(Configuration)\</OutDir>
+    <ExecutablePath>$(VC_ExecutablePath_x64_x64);$(ExecutablePath)</ExecutablePath>
+    <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
+    <IntDir>build\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">
+    <OutDir>$(SolutionDir)build\$(Configuration)\</OutDir>
+    <ExecutablePath>$(VC_ExecutablePath_x64_x64);$(ExecutablePath)</ExecutablePath>
+    <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
+    <IntDir>build\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">
+    <OutDir>$(SolutionDir)build\$(Configuration)\</OutDir>
+    <ExecutablePath>$(VC_ExecutablePath_x64_x64);$(ExecutablePath)</ExecutablePath>
+    <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
+    <IntDir>build\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)build\$(Configuration)\</OutDir>
+    <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
+    <IntDir>build\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">
+    <OutDir>$(SolutionDir)build\$(Configuration)\</OutDir>
+    <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
+    <IntDir>build\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <QtInstall>$(DefaultQtVersion)</QtInstall>
+    <QtModules>core;gui;widgets</QtModules>
+  </PropertyGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">
+    <QtInstall>$(DefaultQtVersion)</QtInstall>
+    <QtModules>core;gui;widgets</QtModules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'" Label="QtSettings">
+    <QtInstall>$(DefaultQtVersion)</QtInstall>
+    <QtModules>core;gui;widgets</QtModules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Portable|x64'" Label="QtSettings">
+    <QtInstall>$(DefaultQtVersion)</QtInstall>
+    <QtModules>core;gui;widgets</QtModules>
+  </PropertyGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <QtInstall>$(DefaultQtVersion)</QtInstall>
+    <QtModules>core;gui;widgets</QtModules>
+  </PropertyGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">
+    <QtInstall>$(DefaultQtVersion)</QtInstall>
+    <QtModules>core;gui;widgets</QtModules>
+    <QtBuildConfig>debug</QtBuildConfig>
+  </PropertyGroup>
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
+    <Import Project="$(QtMsBuild)\qt.props" />
+  </ImportGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>FBXSDK_SHARED;_DEBUG_;NOMINMAX;BENCHMARK_;GLM_FORCE_XYZW_ONLY;VK_NO_PROTOTYPES;_CRT_SECURE_NO_WARNINGS;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;$(SolutionDir)\include\gui\widgets\CustomWidgets;$(SolutionDir)ext;$(SolutionDir)ext\SQLiteCpp\include;$(SolutionDir)ext\3DxWare\inc;$(SolutionDir)ext\tiny_obj_loader;$(SolutionDir)ext\ifcplusplus\include;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\include;$(SolutionDir)ext\ReCapSDK\include\realdwg;$(SolutionDir)ext\OCCT\inc;$(SolutionDir)ext\cpr\include;$(SolutionDir)ext\fbxSdk-2020.0.1\inc;$(SolutionDir)ext\dxflibs\;.\GeneratedShaders;.\..\..\include;.\..\..\src;$(VULKAN_SDK)\include;.;.\..\..\include\gui\Dialog;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Optimization>Disabled</Optimization>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <SDLCheck>true</SDLCheck>
+      <OpenMPSupport>true</OpenMPSupport>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
+      <AdditionalLibraryDirectories>$(SolutionDir)ext\ifcplusplus;$(SolutionDir)ext\3DxWare\lib\x64;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\lib;$(SolutionDir)ext\OCCT\lib;$(SolutionDir)ext\fbxSdk-2020.0.1\lib;$(SolutionDir)ext\SQLiteCpp\lib;$(SolutionDir)ext\cpr\lib;$(SolutionDir)ext\fmt\</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>SQLiteCppd.lib;sqlite3d.lib;fmtd.lib;IfcPlusPlusd.lib;carved.lib;zlib-md.lib;libxml2-md.lib;libfbxsdk.lib;TDxNavLib.lib;TKBin.lib;TKBinL.lib;TKBinXCAF.lib;TKBO.lib;TKBool.lib;TKBRep.lib;TKCAF.lib;TKCDF.lib;TKernel.lib;TKG3d.lib;TKG2d.lib;TKGeomAlgo.lib;TKGeomBase.lib;TKHLR.lib;TKIGES.lib;TKLCAF.lib;TKMath.lib;TKMesh.lib;TKPrim.lib;TKRWMesh.lib;TKService.lib;TKShHealing.lib;TKSTEP.lib;TKSTEP209.lib;TKSTEPAttr.lib;TKSTEPBase.lib;TKSTL.lib;TKTopAlgo.lib;TKV3d.lib;TKVCAF.lib;TKVRML.lib;TKXCAF.lib;TKXDEIGES.lib;TKXDESTEP.lib;TKXml.lib;TKXmlL.lib;TKXmlXCAF.lib;TKXSBase.lib;freetype.lib;openE57-d.lib;xerces-c_3D.lib;AdskRcCommon.lib;AdskRcData.lib;AdskRcProjectIO.lib;AdskRcImport.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>msvcrt.lib</IgnoreSpecificDefaultLibraries>
+      <LinkStatus>true</LinkStatus>
+      <Profile>true</Profile>
+    </Link>
+    <QtMoc>
+      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
+      <QtMocDir>.\GeneratedFiles\$(ConfigurationName)</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
+    </QtMoc>
+    <QtUic>
+      <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
+      <QtUicDir>.\GeneratedFiles</QtUicDir>
+      <QtUicFileName>ui_%(Filename).h</QtUicFileName>
+    </QtUic>
+    <QtRcc>
+      <ExecutionDescription>Rcc'ing %(Identity)...</ExecutionDescription>
+      <QtRccDir>.\GeneratedFiles</QtRccDir>
+      <QtRccFileName>qrc_%(Filename).cpp</QtRccFileName>
+    </QtRcc>
+    <PostBuildEvent>
+      <Command>xcopy /y /q "$(SolutionDir)resources\*.dll" "$(SolutionDir)build\$(Configuration)"
+xcopy /y /b /q "$(SolutionDir)ext\OCCT\bin\*.dll" "$(SolutionDir)build\$(Configuration)"
+xcopy /y /b /q "$(SolutionDir)ext\fbxSdk-2020.0.1\dll\*.dll" "$(SolutionDir)build\$(Configuration)"
+xcopy /y /b /q "$(SolutionDir)ext\ifcplusplus\*.dll" "$(SolutionDir)build\$(Configuration)"</Command>
+      <Message>Copying Resources to $(SolutionDir)build\$(Configuration)</Message>
+    </PostBuildEvent>
+    <CustomBuild>
+      <Command>glslangValidator -V -x %(FullPath) -o .\GeneratedShaders\%(Filename)%(Extension).spv</Command>
+    </CustomBuild>
+    <CustomBuild>
+      <Message>Compiling GLSL Shader</Message>
+    </CustomBuild>
+    <CustomBuild>
+      <Outputs>.\GeneratedShaders\%(Filename)%(Extension).spv</Outputs>
+    </CustomBuild>
+    <CustomBuild>
+      <LinkObjects>false</LinkObjects>
+    </CustomBuild>
+    <CustomBuildStep>
+      <Message />
+    </CustomBuildStep>
+    <ResourceCompile />
+    <QtTranslation>
+      <BuildAction>lrelease</BuildAction>
+      <QmOutputDir>$(SolutionDir)translations</QmOutputDir>
+    </QtTranslation>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">
+    <ClCompile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>FBXSDK_SHARED;LICENSE_MANAGER_BUILD;QT_MODAL_LICENSE;_DEBUG_;NOMINMAX;BENCHMARK_;GLM_FORCE_XYZW_ONLY;VK_NO_PROTOTYPES;_CRT_SECURE_NO_WARNINGS;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;$(SolutionDir)\include\gui\widgets\CustomWidgets;$(SolutionDir)ext;$(SolutionDir)ext\SQLiteCpp\include;$(SolutionDir)ext\3DxWare\inc;$(SolutionDir)ext\tiny_obj_loader;$(SolutionDir)ext\ifcplusplus\include;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\include;$(SolutionDir)ext\ReCapSDK\include\realdwg;$(SolutionDir)ext\OCCT\inc;$(SolutionDir)ext\cpr\include;$(SolutionDir)ext\fbxSdk-2020.0.1\inc;$(SolutionDir)ext\dxflibs\;.\GeneratedShaders;.\..\..\include;.\..\..\src;$(VULKAN_SDK)\include;.;.\..\..\include\gui\Dialog;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Optimization>Disabled</Optimization>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <SDLCheck>true</SDLCheck>
+      <OpenMPSupport>true</OpenMPSupport>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
+      <AdditionalLibraryDirectories>$(SolutionDir)ext\ifcplusplus;$(SolutionDir)ext\3DxWare\lib\x64;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\lib;$(SolutionDir)ext\OCCT\lib;$(SolutionDir)ext\fbxSdk-2020.0.1\lib;$(SolutionDir)ext\SQLiteCpp\lib;$(SolutionDir)ext\cpr\lib;$(SolutionDir)ext\fmt\</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>SQLiteCppd.lib;sqlite3d.lib;fmtd.lib;zlib.lib;libcurl.lib;cpr-d.lib;IfcPlusPlusd.lib;Carved.lib;zlib-md.lib;libxml2-md.lib;libfbxsdk.lib;TDxNavLib.lib;TKBin.lib;TKBinL.lib;TKBinXCAF.lib;TKBO.lib;TKBool.lib;TKBRep.lib;TKCAF.lib;TKCDF.lib;TKernel.lib;TKG3d.lib;TKG2d.lib;TKGeomAlgo.lib;TKGeomBase.lib;TKHLR.lib;TKIGES.lib;TKLCAF.lib;TKMath.lib;TKMesh.lib;TKPrim.lib;TKRWMesh.lib;TKService.lib;TKShHealing.lib;TKSTEP.lib;TKSTEP209.lib;TKSTEPAttr.lib;TKSTEPBase.lib;TKSTL.lib;TKTopAlgo.lib;TKV3d.lib;TKVCAF.lib;TKVRML.lib;TKXCAF.lib;TKXDEIGES.lib;TKXDESTEP.lib;TKXml.lib;TKXmlL.lib;TKXmlXCAF.lib;TKXSBase.lib;freetype.lib;openE57-d.lib;xerces-c_3D.lib;AdskRcCommon.lib;AdskRcData.lib;AdskRcProjectIO.lib;AdskRcImport.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>msvcrt.lib</IgnoreSpecificDefaultLibraries>
+      <LinkStatus>true</LinkStatus>
+    </Link>
+    <QtMoc>
+      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
+      <QtMocDir>.\GeneratedFiles\$(ConfigurationName)</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
+    </QtMoc>
+    <QtUic>
+      <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
+      <QtUicDir>.\GeneratedFiles</QtUicDir>
+      <QtUicFileName>ui_%(Filename).h</QtUicFileName>
+    </QtUic>
+    <QtRcc>
+      <ExecutionDescription>Rcc'ing %(Identity)...</ExecutionDescription>
+      <QtRccDir>.\GeneratedFiles</QtRccDir>
+      <QtRccFileName>qrc_%(Filename).cpp</QtRccFileName>
+    </QtRcc>
+    <PostBuildEvent>
+      <Command>xcopy /y /q "$(SolutionDir)resources\*.dll" "$(SolutionDir)build\$(Configuration)"
+xcopy /y /b /q "$(SolutionDir)ext\OCCT\bin\*.dll" "$(SolutionDir)build\$(Configuration)"
+xcopy /y /b /q "$(SolutionDir)ext\fbxSdk-2020.0.1\dll\*.dll" "$(SolutionDir)build\$(Configuration)"
+xcopy /y /b /q "$(SolutionDir)ext\ifcplusplus\*.dll" "$(SolutionDir)build\$(Configuration)"
+
+xcopy /y /b /q "$(SolutionDir)ext\cpr\bin\*.dll" "$(SolutionDir)build\$(Configuration)"
+xcopy /y /b /q "$(SolutionDir)ext\CryptlexLib\LexActivator\libs\*.dll" "$(SolutionDir)build\$(Configuration)"</Command>
+      <Message>Copying Resources to $(SolutionDir)build\$(Configuration)</Message>
+    </PostBuildEvent>
+    <CustomBuild>
+      <Command>glslangValidator -V -x %(FullPath) -o .\GeneratedShaders\%(Filename)%(Extension).spv</Command>
+    </CustomBuild>
+    <CustomBuild>
+      <Message>Compiling GLSL Shader</Message>
+    </CustomBuild>
+    <CustomBuild>
+      <Outputs>.\GeneratedShaders\%(Filename)%(Extension).spv</Outputs>
+    </CustomBuild>
+    <CustomBuild>
+      <LinkObjects>false</LinkObjects>
+    </CustomBuild>
+    <CustomBuildStep>
+      <Message>
+      </Message>
+    </CustomBuildStep>
+    <QtTranslation>
+      <BuildAction>lrelease</BuildAction>
+      <QmOutputDir>$(SolutionDir)translations</QmOutputDir>
+    </QtTranslation>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>FBXSDK_SHARED;_SCANSAP_;QT_NO_DEBUG;NDEBUG;NOMINMAX;VK_NO_PROTOTYPES;_CRT_SECURE_NO_WARNINGS;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;$(SolutionDir)\include\gui\widgets\CustomWidgets;$(SolutionDir)ext;$(SolutionDir)ext\SQLiteCpp\include;$(SolutionDir)ext\3DxWare\inc;$(SolutionDir)ext\tiny_obj_loader;$(SolutionDir)ext\ifcplusplus\include;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\include;$(SolutionDir)ext\ReCapSDK\include\realdwg;$(SolutionDir)ext\OCCT\inc;$(SolutionDir)ext\cpr\include;$(SolutionDir)ext\fbxSdk-2020.0.1\inc;$(SolutionDir)ext\dxflibs\;.\GeneratedShaders;.\..\..\include;.\..\..\src;$(VULKAN_SDK)\include;.;.\..\..\include\gui\Dialog;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat />
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalOptions>/w34800 %(AdditionalOptions)</AdditionalOptions>
+      <OpenMPSupport>true</OpenMPSupport>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
+      <AdditionalLibraryDirectories>$(SolutionDir)ext\ifcplusplus;$(SolutionDir)ext\3DxWare\lib\x64;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\lib;$(SolutionDir)ext\OCCT\lib;$(SolutionDir)ext\fbxSdk-2020.0.1\lib;$(SolutionDir)ext\SQLiteCpp\lib;$(SolutionDir)ext\cpr\lib;$(SolutionDir)ext\fmt\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SQLiteCpp.lib;sqlite3.lib;fmt.lib;IfcPlusPlus.lib;Carve.lib;zlib-md.lib;libxml2-md.lib;libfbxsdk.lib;TDxNavLib.lib;TKBin.lib;TKBinL.lib;TKBinXCAF.lib;TKBO.lib;TKBool.lib;TKBRep.lib;TKCAF.lib;TKCDF.lib;TKernel.lib;TKG3d.lib;TKG2d.lib;TKGeomAlgo.lib;TKGeomBase.lib;TKHLR.lib;TKIGES.lib;TKLCAF.lib;TKMath.lib;TKMesh.lib;TKPrim.lib;TKRWMesh.lib;TKService.lib;TKShHealing.lib;TKSTEP.lib;TKSTEP209.lib;TKSTEPAttr.lib;TKSTEPBase.lib;TKSTL.lib;TKTopAlgo.lib;TKV3d.lib;TKVCAF.lib;TKVRML.lib;TKXCAF.lib;TKXDEIGES.lib;TKXDESTEP.lib;TKXml.lib;TKXmlL.lib;TKXmlXCAF.lib;TKXSBase.lib;freetype.lib;openE57.lib;xerces-c_3.lib;AdskRcCommon.lib;AdskRcData.lib;AdskRcProjectIO.lib;AdskRcImport.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <LinkStatus>true</LinkStatus>
+    </Link>
+    <QtMoc>
+      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
+      <QtMocDir>.\GeneratedFiles\$(ConfigurationName)</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
+    </QtMoc>
+    <QtUic>
+      <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
+      <QtUicDir>.\GeneratedFiles</QtUicDir>
+      <QtUicFileName>ui_%(Filename).h</QtUicFileName>
+    </QtUic>
+    <QtRcc>
+      <ExecutionDescription>Rcc'ing %(Identity)...</ExecutionDescription>
+      <QtRccDir>.\GeneratedFiles</QtRccDir>
+      <QtRccFileName>qrc_%(Filename).cpp</QtRccFileName>
+    </QtRcc>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>
+      </Message>
+    </CustomBuildStep>
+    <PostBuildEvent>
+      <Command>xcopy /y /q "$(SolutionDir)resources\*.dll" "$(SolutionDir)build\$(Configuration)"
+xcopy /y /b /q "$(SolutionDir)ext\OCCT\bin\*.dll" "$(SolutionDir)build\$(Configuration)"
+xcopy /y /b /q "$(SolutionDir)ext\fbxSdk-2020.0.1\dll\*.dll" "$(SolutionDir)build\$(Configuration)"
+xcopy /y /b /q "$(SolutionDir)ext\ifcplusplus\*.dll" "$(SolutionDir)build\$(Configuration)"</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copying Resources to $(SolutionDir)build\$(Configuration)</Message>
+    </PostBuildEvent>
+    <CustomBuild>
+      <Command>glslangValidator -V -x %(FullPath) -o .\GeneratedShaders\%(Filename)%(Extension).spv</Command>
+    </CustomBuild>
+    <CustomBuild>
+      <Message>Compiling GLSL Shader</Message>
+    </CustomBuild>
+    <CustomBuild>
+      <Outputs>.\GeneratedShaders\%(Filename)%(Extension).spv</Outputs>
+    </CustomBuild>
+    <CustomBuild>
+      <LinkObjects>false</LinkObjects>
+    </CustomBuild>
+    <QtTranslation>
+      <BuildAction>lrelease</BuildAction>
+      <QmOutputDir>$(SolutionDir)translations</QmOutputDir>
+    </QtTranslation>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>QT_MODAL_LICENSE;FBXSDK_SHARED;NOMINMAX;QT_NO_DEBUG;NDEBUG;VK_NO_PROTOTYPES;_CRT_SECURE_NO_WARNINGS;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;$(SolutionDir)\include\gui\widgets\CustomWidgets;$(SolutionDir)ext;$(SolutionDir)ext\SQLiteCpp\include;$(SolutionDir)ext\3DxWare\inc;$(SolutionDir)ext\tiny_obj_loader;$(SolutionDir)ext\ifcplusplus\include;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\include;$(SolutionDir)ext\ReCapSDK\include\realdwg;$(SolutionDir)ext\OCCT\inc;$(SolutionDir)ext\cpr\include;$(SolutionDir)ext\fbxSdk-2020.0.1\inc;$(SolutionDir)ext\dxflibs\;.\GeneratedShaders;.\..\..\include;.\..\..\src;$(VULKAN_SDK)\include;.;.\..\..\include\gui\Dialog;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <SDLCheck>true</SDLCheck>
+      <OpenMPSupport>true</OpenMPSupport>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
+      <AdditionalLibraryDirectories>$(SolutionDir)ext\ifcplusplus;$(SolutionDir)ext\3DxWare\lib\x64;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\lib;$(SolutionDir)ext\OCCT\lib;$(SolutionDir)ext\fbxSdk-2020.0.1\lib;$(SolutionDir)ext\SQLiteCpp\lib;$(SolutionDir)ext\cpr\lib;$(SolutionDir)ext\fmt\</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AdditionalDependencies>SQLiteCpp.lib;sqlite3.lib;fmt.lib;zlib.lib;libcurl.lib;cpr.lib;IfcPlusPlus.lib;Carve.lib;TDxNavLib.lib;libfbxsdk.lib;libxml2-md.lib;zlib-md.lib;TKBin.lib;TKBinL.lib;TKBinXCAF.lib;TKBO.lib;TKBool.lib;TKBRep.lib;TKCAF.lib;TKCDF.lib;TKernel.lib;TKG3d.lib;TKG2d.lib;TKGeomAlgo.lib;TKGeomBase.lib;TKHLR.lib;TKIGES.lib;TKLCAF.lib;TKMath.lib;TKMesh.lib;TKPrim.lib;TKRWMesh.lib;TKService.lib;TKShHealing.lib;TKSTEP.lib;TKSTEP209.lib;TKSTEPAttr.lib;TKSTEPBase.lib;TKSTL.lib;TKTopAlgo.lib;TKV3d.lib;TKVCAF.lib;TKVRML.lib;TKXCAF.lib;TKXDEIGES.lib;TKXDESTEP.lib;TKXml.lib;TKXmlL.lib;TKXmlXCAF.lib;TKXSBase.lib;freetype.lib;openE57.lib;xerces-c_3.lib;AdskRcCommon.lib;AdskRcData.lib;AdskRcProjectIO.lib;AdskRcImport.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <LinkStatus>true</LinkStatus>
+    </Link>
+    <QtMoc>
+      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
+      <QtMocDir>.\GeneratedFiles\$(ConfigurationName)</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
+    </QtMoc>
+    <QtUic>
+      <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
+      <QtUicDir>.\GeneratedFiles</QtUicDir>
+      <QtUicFileName>ui_%(Filename).h</QtUicFileName>
+    </QtUic>
+    <QtRcc>
+      <ExecutionDescription>Rcc'ing %(Identity)...</ExecutionDescription>
+      <QtRccDir>.\GeneratedFiles</QtRccDir>
+      <QtRccFileName>qrc_%(Filename).cpp</QtRccFileName>
+    </QtRcc>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>
+      </Message>
+    </CustomBuildStep>
+    <PostBuildEvent>
+      <Command>xcopy /y /q "$(SolutionDir)resources\*.dll" "$(SolutionDir)build\$(Configuration)"
+xcopy /y /b /q "$(SolutionDir)ext\OCCT\bin\*.dll" "$(SolutionDir)build\$(Configuration)"
+xcopy /y /b /q "$(SolutionDir)ext\fbxSdk-2020.0.1\dll\*.dll" "$(SolutionDir)build\$(Configuration)"
+xcopy /y /b /q "$(SolutionDir)ext\ifcplusplus\*.dll" "$(SolutionDir)build\$(Configuration)"
+
+xcopy /y /b /q "$(SolutionDir)ext\cpr\bin\*.dll" "$(SolutionDir)build\$(Configuration)"
+xcopy /y /b /q "$(SolutionDir)ext\CryptlexLib\LexActivator\libs\*.dll" "$(SolutionDir)build\$(Configuration)"
+
+md "$(SolutionDir)build\install"
+xcopy /y "$(SolutionDir)build\$(Configuration)\OpenScanTools.exe" "$(SolutionDir)build\install"
+windeployqt $(SolutionDir)build\install\OpenScanTools.exe
+xcopy /y "$(SolutionDir)translations\" "$(SolutionDir)build\install\translations"
+
+signtool sign /sha1 "881d9294e1fdd77049171ada940dd511b709674f" /tr "http://time.certum.pl" /td sha256 /fd sha256 /v "$(SolutionDir)build\install\OpenScanTools.exe"</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copying Resources to $(SolutionDir)build\Release_Prod</Message>
+    </PostBuildEvent>
+    <CustomBuild>
+      <Command>glslangValidator -V -x %(FullPath) -o .\GeneratedShaders\%(Filename)%(Extension).spv</Command>
+    </CustomBuild>
+    <CustomBuild>
+      <Message>Compiling GLSL Shader</Message>
+    </CustomBuild>
+    <CustomBuild>
+      <Outputs>.\GeneratedShaders\%(Filename)%(Extension).spv</Outputs>
+    </CustomBuild>
+    <CustomBuild>
+      <LinkObjects>false</LinkObjects>
+    </CustomBuild>
+    <QtTranslation>
+      <BuildAction>lrelease</BuildAction>
+      <QmOutputDir>$(SolutionDir)translations</QmOutputDir>
+    </QtTranslation>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>QT_MODAL_LICENSE;FBXSDK_SHARED;PORTABLE;_SCANSAP_;NOMINMAX;QT_NO_DEBUG;NDEBUG;VK_NO_PROTOTYPES;_CRT_SECURE_NO_WARNINGS;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;$(SolutionDir)\include\gui\widgets\CustomWidgets;$(SolutionDir)ext;$(SolutionDir)ext\SQLiteCpp\include;$(SolutionDir)ext\3DxWare\inc;$(SolutionDir)ext\fbxSdk-2020.0.1\inc;$(SolutionDir)ext\dxflibs\;.\GeneratedShaders;.\..\..\include;.\..\..\src;$(VULKAN_SDK)\include;.;.\..\..\include\gui\Dialog;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <SDLCheck>true</SDLCheck>
+      <OpenMPSupport>true</OpenMPSupport>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
+      <AdditionalLibraryDirectories>$(SolutionDir)ext\ifcplusplus;$(SolutionDir)ext\3DxWare\lib\x64;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\lib;$(SolutionDir)ext\OCCT\lib;$(SolutionDir)ext\fbxSdk-2020.0.1\lib;$(SolutionDir)ext\SQLiteCpp\lib;$(SolutionDir)ext\cpr\lib;$(SolutionDir)ext\fmt\</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AdditionalDependencies>SQLiteCpp.lib;sqlite3.lib;fmt.lib;zlib.lib;libcurl.lib;TDxNavLib.lib;libfbxsdk.lib;libxml2-md.lib;zlib-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <LinkStatus>true</LinkStatus>
+    </Link>
+    <QtMoc>
+      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
+      <QtMocDir>.\GeneratedFiles\$(ConfigurationName)</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
+    </QtMoc>
+    <QtUic>
+      <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
+      <QtUicDir>.\GeneratedFiles</QtUicDir>
+      <QtUicFileName>ui_%(Filename).h</QtUicFileName>
+    </QtUic>
+    <QtRcc>
+      <ExecutionDescription>Rcc'ing %(Identity)...</ExecutionDescription>
+      <QtRccDir>.\GeneratedFiles</QtRccDir>
+      <QtRccFileName>qrc_%(Filename).cpp</QtRccFileName>
+    </QtRcc>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>
+      </Message>
+    </CustomBuildStep>
+    <PostBuildEvent>
+      <Command>xcopy /y /b /q "$(SolutionDir)ext\fbxSdk-2020.0.1\dll\*.dll" "$(SolutionDir)build\$(Configuration)"
+
+windeployqt $(SolutionDir)build\$(Configuration)\OpenScanTools.exe
+
+xcopy /y "$(SolutionDir)resources\fonts\*" "$(SolutionDir)build\$(Configuration)\Resources\fonts"
+xcopy /y "$(SolutionDir)resources\obj\*" "$(SolutionDir)build\$(Configuration)\Resources\obj"
+xcopy /y "$(SolutionDir)translations\*" "$(SolutionDir)build\$(Configuration)\translations"
+xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir)build\$(Configuration)"
+
+signtool sign /a /fd sha256 /tr http://timestamp.comodoca.com /td sha256 $(SolutionDir)build\Portable_Prod\OpenScanTools.exe</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copying Resources to $(SolutionDir)build\Portable_Prod</Message>
+    </PostBuildEvent>
+    <CustomBuild>
+      <Command>glslangValidator -V -x %(FullPath) -o .\GeneratedShaders\%(Filename)%(Extension).spv</Command>
+    </CustomBuild>
+    <CustomBuild>
+      <Message>Compiling GLSL Shader</Message>
+    </CustomBuild>
+    <CustomBuild>
+      <Outputs>.\GeneratedShaders\%(Filename)%(Extension).spv</Outputs>
+    </CustomBuild>
+    <CustomBuild>
+      <LinkObjects>false</LinkObjects>
+    </CustomBuild>
+    <QtTranslation>
+      <BuildAction>lrelease</BuildAction>
+      <QmOutputDir>$(SolutionDir)translations</QmOutputDir>
+    </QtTranslation>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>QT_MODAL_LICENSE;FBXSDK_SHARED;PORTABLE;_SCANSAP_;NOMINMAX;QT_NO_DEBUG;NDEBUG;VK_NO_PROTOTYPES;_CRT_SECURE_NO_WARNINGS;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;$(SolutionDir)\include\gui\widgets\CustomWidgets;$(SolutionDir)ext;$(SolutionDir)ext\SQLiteCpp\include;$(SolutionDir)ext\3DxWare\inc;$(SolutionDir)ext\fbxSdk-2020.0.1\inc;$(SolutionDir)ext\dxflibs\;.\GeneratedShaders;.\..\..\include;.\..\..\src;$(VULKAN_SDK)\include;.;.\..\..\include\gui\Dialog;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <SDLCheck>true</SDLCheck>
+      <OpenMPSupport>true</OpenMPSupport>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
+      <AdditionalLibraryDirectories>$(SolutionDir)ext\ifcplusplus;$(SolutionDir)ext\3DxWare\lib\x64;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\lib;$(SolutionDir)ext\OCCT\lib;$(SolutionDir)ext\fbxSdk-2020.0.1\lib;$(SolutionDir)ext\SQLiteCpp\lib;$(SolutionDir)ext\cpr\lib;$(SolutionDir)ext\fmt\</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AdditionalDependencies>SQLiteCpp.lib;sqlite3.lib;fmt.lib;zlib.lib;libcurl.lib;TDxNavLib.lib;libfbxsdk.lib;libxml2-md.lib;zlib-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <LinkStatus>true</LinkStatus>
+    </Link>
+    <QtMoc>
+      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
+      <QtMocDir>.\GeneratedFiles\$(ConfigurationName)</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
+    </QtMoc>
+    <QtUic>
+      <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
+      <QtUicDir>.\GeneratedFiles</QtUicDir>
+      <QtUicFileName>ui_%(Filename).h</QtUicFileName>
+    </QtUic>
+    <QtRcc>
+      <ExecutionDescription>Rcc'ing %(Identity)...</ExecutionDescription>
+      <QtRccDir>.\GeneratedFiles</QtRccDir>
+      <QtRccFileName>qrc_%(Filename).cpp</QtRccFileName>
+    </QtRcc>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>
+      </Message>
+    </CustomBuildStep>
+    <PostBuildEvent>
+      <Command>xcopy /y /b /q "$(SolutionDir)ext\fbxSdk-2020.0.1\dll\*.dll" "$(SolutionDir)build\$(Configuration)"
+
+windeployqt $(SolutionDir)build\$(Configuration)\OpenScanTools.exe
+
+xcopy /y "$(SolutionDir)resources\fonts\*" "$(SolutionDir)build\$(Configuration)\Resources\fonts"
+xcopy /y "$(SolutionDir)resources\obj\*" "$(SolutionDir)build\$(Configuration)\Resources\obj"
+xcopy /y "$(SolutionDir)translations\*" "$(SolutionDir)build\$(Configuration)\translations"
+xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir)build\$(Configuration)"
+</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copying Resources to $(SolutionDir)build\Portable</Message>
+    </PostBuildEvent>
+    <CustomBuild>
+      <Command>glslangValidator -V -x %(FullPath) -o .\GeneratedShaders\%(Filename)%(Extension).spv</Command>
+    </CustomBuild>
+    <CustomBuild>
+      <Message>Compiling GLSL Shader</Message>
+    </CustomBuild>
+    <CustomBuild>
+      <Outputs>.\GeneratedShaders\%(Filename)%(Extension).spv</Outputs>
+    </CustomBuild>
+    <CustomBuild>
+      <LinkObjects>false</LinkObjects>
+    </CustomBuild>
+    <QtTranslation>
+      <BuildAction>lrelease</BuildAction>
+      <QmOutputDir>$(SolutionDir)translations</QmOutputDir>
+    </QtTranslation>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\ext\crossguid\guid.cpp">
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">GUID_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">GUID_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">GUID_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">GUID_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">GUID_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">GUID_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\ext\dxflibs\dl_dxf.cpp" />
+    <ClCompile Include="..\..\ext\dxflibs\dl_writer_ascii.cpp" />
+    <ClCompile Include="..\..\ext\imgui\imgui.cpp" />
+    <ClCompile Include="..\..\ext\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\..\ext\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\..\ext\imgui\imgui_impl_vulkan.cpp" />
+    <ClCompile Include="..\..\ext\imgui\imgui_tables.cpp" />
+    <ClCompile Include="..\..\ext\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="..\..\include\controller\messages\DataIdListMessage.cpp" />
+    <ClCompile Include="..\..\src\controller\Controller.cpp" />
+    <ClCompile Include="..\..\src\controller\ControllerContext.cpp" />
+    <ClCompile Include="..\..\src\controller\Controller_p.cpp" />
+    <ClCompile Include="..\..\src\controller\ControlListener.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\AEditionControl.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlCreationAttributesEdition.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlCylinderEdition.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlDataEdition.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlDuplication.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlFunctionPiping.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlMetaControl.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlObject3DEdition.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlAnimation.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlApplication.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlClippingEdition.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlExportPC.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlFunction.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlFunctionClipping.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlFunctionMeasure.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlFunctionTag.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlIO.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlModal.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlPCObject.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlPicking.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlProjectTemplate.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlStandards.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlProject.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlScanEdition.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlSignals.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlSpecial.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlTagEdition.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlTemplateEdit.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlTest.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlTree.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlUserList.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlUserOrientation.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlViewPoint.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlViewport.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlMeasure.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlMeshObject.cpp" />
+    <ClCompile Include="..\..\src\controller\FilterSystem.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\AContext.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\AContextAlignView.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\AContextCreateAttached.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ADuplication.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ARayTracingContext.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\Context4ClicsSphere.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextAlignView2P.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextAlignView3P.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextAlignViewBox.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextBeamBending.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextBeamDetection.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextBoxAttachedCreation.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextBoxDuplication.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextClippingBoxCreation.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextBigCylinderFit.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextColumnTilt.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextConvertionScan.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextCreateTag.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextCylinderToCylinderMeasure.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextDataGeneration.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextDeletePoints.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextDeleteTag.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextCylinderToPlaneMeasure.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextCylinderToPlane3Measure.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextDuplicateTag.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextExportDxf.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextExportFbx.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextExportObj.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextExportPC.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextExportCSV.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextExportOSTObjects.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextExportStep.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextExportVideoHD.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextExtendCylinderMeasure.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextFindScan.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextFitTorus.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextImportOSTObjects.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextManipulateObjects.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextMoveManip.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextMultipleCylindersMeasure.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextPCODuplication.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextPeopleRemover.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextPipeDetectionConnexion.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextPipePostConnexion.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextPlaneConnexion.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextPlaneDetection.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextPoint.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextPCOCreation.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextPointCreation.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextPointToPlane3Measure.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextPointToPlaneMeasure.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextSetOfPoints.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextSimpleMeasure.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextExamine.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextExperiment.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextFactory.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextFitCylinder.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextImportScan.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextSlab1Click.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextSlabDetection.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextTrajectory.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextViewPointAnimation.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextMoveTag.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextPointsMeasure.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextPointToCylinderMeasure.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextSaveCloseLoadProject.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextSphere.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextTemplateListModification.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextStepSimplification.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextTemplateModification.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextMeshObjectCreation.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextMeshObjectDuplication.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextViewPoint.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\FunctionManager.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ABackgroundContext.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\mesh\ContextMeshDistance.cpp" />
+    <ClCompile Include="..\..\src\controller\messages\CameraMessage.cpp" />
+    <ClCompile Include="..\..\src\controller\messages\ClickMessage.cpp" />
+    <ClCompile Include="..\..\src\controller\messages\ClippingExportParametersMessage.cpp" />
+    <ClCompile Include="..\..\src\controller\messages\ColorAvailableListMessage.cpp" />
+    <ClCompile Include="..\..\src\controller\messages\ColorMessage.cpp" />
+    <ClCompile Include="..\..\src\controller\messages\ConvertionMessage.cpp" />
+    <ClCompile Include="..\..\src\controller\messages\DeletePointsMessage.cpp" />
+    <ClCompile Include="..\..\src\controller\messages\FilesMessage.cpp" />
+    <ClCompile Include="..\..\src\controller\messages\GeneralMessage.cpp" />
+    <ClCompile Include="..\..\src\controller\messages\GridExportMessage.cpp" />
+    <ClCompile Include="..\..\src\controller\messages\ImportMeshObjectMessage.cpp" />
+    <ClCompile Include="..\..\src\controller\messages\ManipulateMessage.cpp" />
+    <ClCompile Include="..\..\src\controller\messages\ModalMessage.cpp" />
+    <ClCompile Include="..\..\src\controller\messages\NewProjectMessage.cpp" />
+    <ClCompile Include="..\..\src\controller\messages\PipeMessage.cpp" />
+    <ClCompile Include="..\..\src\controller\messages\PlaneMessage.cpp" />
+    <ClCompile Include="..\..\src\controller\messages\PointCloudObjectCreationParametersMessage.cpp" />
+    <ClCompile Include="..\..\src\controller\messages\FullClickMessage.cpp" />
+    <ClCompile Include="..\..\src\controller\messages\PrimitivesExportParametersMessage.cpp" />
+    <ClCompile Include="..\..\src\controller\messages\RenderContextMessage.cpp" />
+    <ClCompile Include="..\..\src\controller\messages\SimpleNumberMessage.cpp" />
+    <ClCompile Include="..\..\src\controller\messages\TemplateListMessage.cpp" />
+    <ClCompile Include="..\..\src\controller\messages\TemplateMessage.cpp" />
+    <ClCompile Include="..\..\src\controller\messages\UndoRedoMessages.cpp" />
+    <ClCompile Include="..\..\src\controller\messages\Vec3Message.cpp" />
+    <ClCompile Include="..\..\src\controller\messages\VideoExportParametersMessage.cpp" />
+    <ClCompile Include="..\..\src\core\SignalHandler.cpp" />
+    <ClCompile Include="..\..\src\gui\DataDispatcher.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\AListListDialog.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\AListModifierDialog.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\AListNameDialog.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\AuthorCreateDialog.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\AuthorListDialog.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\CalendarDialog.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogDeletePoints.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogDeleteScanTypeSelect.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogAbout.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogDeviceSelection.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogExportFileObject.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogExportPointCloud.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogExportPrimitives.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogExportSubProject.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogExportVideo.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogGizmo.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogImageHD.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogImportAsciiPC.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogImportFileObject.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogImportImage.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogImportMeshObject.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogImportStepSimplification.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogOpenProjectCentral.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogPointCloudObjectCreation.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogProjectCreation.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogRecentProjects.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogSearchedObjects.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogSetOfPoints.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogSettings.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogShortcuts.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogSubProjectInfo.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\HyperlinkAddDialog.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\ListListDialog.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\ListModifierDialog.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\ListNameDialog.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\MarkerIconSelectionDialog.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\MessageSplashScreen.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\ProcessingSplashScreen.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\ProjectTemplateNameDialog.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\ProjectTemplateListDialog.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\StandardListDialog.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\StandardModifierDialog.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\StandardNameDialog.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\ADialog.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\ABlockingDialog.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\Dialog\TagTemplateNameDialog.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\TemplateEditorDialog.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\TemplateManagerDialog.cpp" />
+    <ClCompile Include="..\..\src\gui\Gui.cpp">
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">input</DynamicSource>
+      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">%(Filename).moc</QtMocFileName>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">input</DynamicSource>
+      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">%(Filename).moc</QtMocFileName>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
+      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).moc</QtMocFileName>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|x64'">input</DynamicSource>
+      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).moc</QtMocFileName>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">input</DynamicSource>
+      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">%(Filename).moc</QtMocFileName>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">input</DynamicSource>
+      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">%(Filename).moc</QtMocFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\GuiData\GuiData3dObjects.cpp" />
+    <ClCompile Include="..\..\src\gui\GuiData\GuiDataClipping.cpp" />
+    <ClCompile Include="..\..\src\gui\GuiData\GuiDataContextRequest.cpp" />
+    <ClCompile Include="..\..\src\gui\GuiData\GuiDataGeneralProject.cpp" />
+    <ClCompile Include="..\..\src\gui\GuiData\GuiDataHD.cpp" />
+    <ClCompile Include="..\..\src\gui\GuiData\GuiDataIO.cpp" />
+    <ClCompile Include="..\..\src\gui\GuiData\GuiDataList.cpp" />
+    <ClCompile Include="..\..\src\gui\GuiData\GuiDataMeasure.cpp" />
+    <ClCompile Include="..\..\src\gui\GuiData\GuiDataMessages.cpp" />
+    <ClCompile Include="..\..\src\gui\GuiData\GuiDataRendering.cpp" />
+    <ClCompile Include="..\..\src\gui\GuiData\GuiDataTag.cpp" />
+    <ClCompile Include="..\..\src\gui\GuiData\GuiDataTemplate.cpp" />
+    <ClCompile Include="..\..\src\gui\GuiData\GuiDataTree.cpp" />
+    <ClCompile Include="..\..\src\gui\GuiData\GuiDataUserOrientation.cpp" />
+    <ClCompile Include="..\..\src\gui\ribbon\ribbon.cpp" />
+    <ClCompile Include="..\..\src\gui\ribbon\ribbonbuttongroup.cpp" />
+    <ClCompile Include="..\..\src\gui\ribbon\ribbontabcontent.cpp" />
+    <ClCompile Include="..\..\src\gui\ShortcutSystem.cpp" />
+    <ClCompile Include="..\..\src\gui\style\CustomQtThemes.cpp" />
+    <ClCompile Include="..\..\src\gui\style\IconObject.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\MainToolBar.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarAttributesGroup.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarAutoSeeding.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarBeamDetection.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarClippingGroup.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarClippingParameters.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarConnectPipeGroup.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarConvertImage.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarExportGroup.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarExportPointCloud.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarExportVideo.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarFilterGroup.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarFindScan.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarFOV.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarImportObjects.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarImportScantra.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarListGroup.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarLucasExperimentGroup.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarManipulateObjects.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarMarkerDisplayOptions.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarMeasureGroup.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarMeasureShowOptions.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarMeasureSimple.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarNavigationConstraint.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarOrthoGrid.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarOthersModelsGroup.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarPipeGroup.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarPointCloudObjectGroup.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarPointEdition.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarProjectGroup.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarRampDefaultValues.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderNormals.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderRampGroup.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderTransparency.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarShareGroup.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarShowHideGroup.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderSettings.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarAnimationGroup.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarSlabGroup.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarSphereGroup.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarStructureAnalysis.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarTagGroup.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarImageGroup.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarTemplateGroup.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarTextDisplay.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarUserOrientations.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarMeshObjectGroup.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarViewPoint.cpp" />
+    <ClCompile Include="..\..\src\gui\Translator.cpp" />
+    <ClCompile Include="..\..\src\gui\UITransparencyConverter.cpp" />
+    <ClCompile Include="..\..\src\gui\UnitConverter.cpp" />
+    <ClCompile Include="..\..\src\gui\UrlHandler.cpp" />
+    <ClCompile Include="..\..\src\gui\UnitUsage.cpp" />
+    <ClCompile Include="..\..\src\gui\viewport\PickingManager.cpp" />
+    <ClCompile Include="..\..\src\gui\viewport\QuickBarNavigation.cpp" />
+    <ClCompile Include="..\..\src\gui\viewport\ViewportOrganizer.cpp" />
+    <ClCompile Include="..\..\src\gui\viewport\VulkanViewport.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\AuthorListNode.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\ClickableLabel.cpp" />
+    <ClCompile Include="..\..\src\gui\viewport\EventManagerViewport.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\ConvertionOptionsBox.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\widgets\CustomWidgets\ACustomLineEdit.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\CustomWidgets\ANumericLineEdit.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\CustomWidgets\ColorPicker.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\CustomWidgets\GenericPropertiesFeet.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\CustomWidgets\regexpedit.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\CustomWidgets\qdoubleedit.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\CustomWidgets\qintegeredit.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\CustomWidgets\GlobalColorPicker.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\CustomWidgets\GenericPropertiesHead.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\CustomWidgets\SubPropertyClipping.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\E57TreeWidget.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\widgets\FocusWatcher.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\ListsNode.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\MultiProperty.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\PropertiesClusterPanel.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\PropertiesProjectPanel.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\PropertyPointCloud.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\PropertyBeamBendingMeasure.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\PropertyBox.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\PropertyClippingSettings.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\PropertyColumnTiltMeasure.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\PropertyDuplcationSettings.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\PropertyElbow.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\APropertyGeneral.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\PropertyMeshObject.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\PropertyPipe.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\PropertyPipeToPipeMeasure.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\PropertyPipeToPlaneMeasure.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\PropertyPoint.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\PropertyPointToPipeMeasure.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\PropertyPointToPlaneMeasure.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\PropertyPolylineMeasure.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\PropertySimpleMeasure.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\PropertySphere.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\PropertyUserOrientation.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\PropertyViewpoint.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\QPFields\AQPField.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\QPFields\QPDateField.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\QPFields\QPFactory.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\QPFields\QPHyperLinkField.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\QPFields\QPListField.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\QPFields\QPNumberField.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\QPFields\QPStringField.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\QPFields\TemplatePropertiesPanel.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\SplashScreen.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\StatusPanel.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\ProjectTreePanel.cpp">
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\widgets\TempFieldNode.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\TemplatesNode.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\TreeNodeSystem\TreeModel.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\TreeNodeSystem\TreeNode.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\TreeNodeSystem\TreeNodeFactory.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\TreeNodeSystem\TreeView.cpp" />
+    <ClCompile Include="..\..\src\impl\imgui_impl_qt.cpp" />
+    <ClCompile Include="..\..\src\impl\Vma_impl.cpp" />
+    <ClCompile Include="..\..\src\io\DataComparator.cpp" />
+    <ClCompile Include="..\..\src\io\DataEditor.cpp" />
+    <ClCompile Include="..\..\src\io\E57Utils.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\io\exports\CSVWriter.cpp" />
+    <ClCompile Include="..\..\src\io\exports\DataSerializer.cpp" />
+    <ClCompile Include="..\..\src\io\exports\dxfExport.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\io\exports\E57FileWriter.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\io\exports\ifcExport.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\io\exports\ImageWriter.cpp" />
+    <ClCompile Include="..\..\src\io\exports\IScanFileWriter.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\io\exports\PTSFileWriter.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\io\exports\RcpFileWriter.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\io\exports\stepExport.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\io\exports\TlsFileWriter.cpp" />
+    <ClCompile Include="..\..\src\io\exports\TlsWriter.cpp" />
+    <ClCompile Include="..\..\src\io\exports\txtExport.cpp" />
+    <ClCompile Include="..\..\src\io\imports\DataDeserializer.cpp" />
+    <ClCompile Include="..\..\src\io\imports\dxfFileReader.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\io\imports\E57FileReader.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\io\imports\fbxWriterReader.cpp" />
+    <ClCompile Include="..\..\src\io\imports\FlsFileReader.cpp">
+      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</MultiProcessorCompilation>
+      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">false</MultiProcessorCompilation>
+      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</MultiProcessorCompilation>
+      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">false</MultiProcessorCompilation>
+      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">false</MultiProcessorCompilation>
+      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">false</MultiProcessorCompilation>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\io\imports\ifcFileReader.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\io\imports\IMeshReader.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\io\imports\IScanFileReader.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\io\imports\objFileReader.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\io\imports\PtsFileReader.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\io\imports\RcpFileReader.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\io\imports\RcsFileReader.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\io\imports\step-simplification\classification\ClassificationByComplexity.cpp" />
+    <ClCompile Include="..\..\src\io\imports\step-simplification\classification\ClassificationByVolumeMBB.cpp" />
+    <ClCompile Include="..\..\src\io\imports\step-simplification\classification\QuickClassificationBySimilarity.cpp" />
+    <ClCompile Include="..\..\src\io\imports\step-simplification\classification\ReliableClassificationBySimilarity.cpp" />
+    <ClCompile Include="..\..\src\io\imports\step-simplification\deletePiece\DeleteClass.cpp" />
+    <ClCompile Include="..\..\src\io\imports\step-simplification\deletePiece\DeletePiece.cpp" />
+    <ClCompile Include="..\..\src\io\imports\step-simplification\deletePiece\DeletePieceChildren.cpp" />
+    <ClCompile Include="..\..\src\io\imports\step-simplification\deletePiece\InfoDeletionPiece.cpp" />
+    <ClCompile Include="..\..\src\io\imports\step-simplification\deletePiece\SmartDeletion.cpp" />
+    <ClCompile Include="..\..\src\io\imports\step-simplification\deletePiece\UpdatePieceParents.cpp" />
+    <ClCompile Include="..\..\src\io\imports\step-simplification\step-simplification.cpp" />
+    <ClCompile Include="..\..\src\io\imports\step-simplification\stepGraph\Entity.cpp" />
+    <ClCompile Include="..\..\src\io\imports\step-simplification\stepGraph\EntityFactory.cpp" />
+    <ClCompile Include="..\..\src\io\imports\step-simplification\stepGraph\Entity_Adv_B_Sh_Rep.cpp" />
+    <ClCompile Include="..\..\src\io\imports\step-simplification\stepGraph\Entity_Mech_D_Geo_P_Rep.cpp" />
+    <ClCompile Include="..\..\src\io\imports\step-simplification\stepGraph\Entity_P_L_Ass.cpp" />
+    <ClCompile Include="..\..\src\io\imports\step-simplification\stepGraph\Entity_Sh_Rep_Rel.cpp" />
+    <ClCompile Include="..\..\src\io\imports\step-simplification\stepGraph\Entity_Styled_Item.cpp" />
+    <ClCompile Include="..\..\src\io\imports\step-simplification\stepGraph\InfoPiece.cpp" />
+    <ClCompile Include="..\..\src\io\imports\step-simplification\stepGraph\MBBVolumeCalculation.cpp" />
+    <ClCompile Include="..\..\src\io\imports\step-simplification\stepGraph\StepFile.cpp" />
+    <ClCompile Include="..\..\src\io\imports\step-simplification\stepGraph\StepGraph.cpp" />
+    <ClCompile Include="..\..\src\io\imports\step-simplification\stepGraph\StepPiece.cpp" />
+    <ClCompile Include="..\..\src\io\imports\stepFileReader.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\io\imports\TlsFileReader.cpp" />
+    <ClCompile Include="..\..\src\io\imports\TlsReader.cpp" />
+    <ClCompile Include="..\..\src\io\SaveLoadSystem.cpp" />
+    <ClCompile Include="..\..\src\main.cpp" />
+    <ClCompile Include="..\..\src\models\3d\ProjectionData.cpp" />
+    <ClCompile Include="..\..\src\models\3d\DisplayParameters.cpp" />
+    <ClCompile Include="..\..\src\models\3d\GeometryGenerator.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\AClippingNode.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\AGraphNode.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\APointCloudNode.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\BeamBendingMeasureNode.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\CameraNode.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\ClusterNode.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\ColumnTiltMeasureNode.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\CylinderNode.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\AMeasureNode.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\ObjectNodeVisitor.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\PipeToPipeMeasureNode.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\PipeToPlaneMeasureNode.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\PointNode.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\PointToPipeMeasureNode.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\PointToPlaneMeasureNode.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\PolylineMeasureNode.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\ScanObjectNode.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\OpenScanToolsGraphManager.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\SimpleMeasureNode.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\SimpleObjectNode.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\BoxNode.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\ManipulatorNode.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\AObjectNode.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\ReferentialNode.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\ScanNode.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\SphereNode.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\TagNode.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\TorusNode.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\TransformationModule.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\MeshObjectNode.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\ViewPointNode.cpp" />
+    <ClCompile Include="..\..\src\models\3d\GridBox.cpp" />
+    <ClCompile Include="..\..\src\models\3d\GridCalculation.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Measures.cpp" />
+    <ClCompile Include="..\..\src\models\3d\MeshBuffer.cpp" />
+    <ClCompile Include="..\..\src\models\3d\NodeFunctions.cpp" />
+    <ClCompile Include="..\..\src\models\3d\OpticalFunctions.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Primitives.cpp" />
+    <ClCompile Include="..\..\src\models\3d\RenderingParameters.cpp" />
+    <ClCompile Include="..\..\src\models\3d\UniformClippingData.cpp" />
+    <ClCompile Include="..\..\src\models\application\Author.cpp" />
+    <ClCompile Include="..\..\src\models\application\List.cpp" />
+    <ClCompile Include="..\..\src\models\application\TagTemplate.cpp" />
+    <ClCompile Include="..\..\src\models\application\UserOrientation.cpp" />
+    <ClCompile Include="..\..\src\models\data\BeamBendingMeasure\BeamBendingMeasureData.cpp" />
+    <ClCompile Include="..\..\src\models\data\Clipping\ClippingGeometry.cpp" />
+    <ClCompile Include="..\..\src\models\data\Clipping\ClippingData.cpp" />
+    <ClCompile Include="..\..\src\models\data\Cluster\ClusterData.cpp" />
+    <ClCompile Include="..\..\src\models\data\ColumnTiltMeasure\ColumnTiltMeasureData.cpp" />
+    <ClCompile Include="..\..\src\models\data\Grid\GridData.cpp" />
+    <ClCompile Include="..\..\src\models\data\MeshObject\MeshObjectData.cpp" />
+    <ClCompile Include="..\..\src\models\data\PipeToPipeMeasure\PipeToPipeMeasureData.cpp" />
+    <ClCompile Include="..\..\src\models\data\PipeToPlaneMeasure\PipeToPlaneMeasureData.cpp" />
+    <ClCompile Include="..\..\src\models\data\Piping\InsulationData.cpp" />
+    <ClCompile Include="..\..\src\models\data\Piping\StandardRadiusData.cpp" />
+    <ClCompile Include="..\..\src\models\data\PointToPipeMeasure\PointToPipeMeasureData.cpp" />
+    <ClCompile Include="..\..\src\models\data\PointToPlaneMeasure\PointToPlaneMeasureData.cpp" />
+    <ClCompile Include="..\..\src\models\data\PolylineMeasure\PolylineMeasureData.cpp" />
+    <ClCompile Include="..\..\src\models\data\Scan\ScanData.cpp" />
+    <ClCompile Include="..\..\src\models\data\Data.cpp" />
+    <ClCompile Include="..\..\src\models\data\SimpleMeasure\SimpleMeasureData.cpp" />
+    <ClCompile Include="..\..\src\models\data\Tag\TagData.cpp" />
+    <ClCompile Include="..\..\src\models\data\Torus\TorusData.cpp" />
+    <ClCompile Include="..\..\src\models\data\ViewPoint\ViewPointData.cpp" />
+    <ClCompile Include="..\..\src\models\project\ProjectInfos.cpp" />
+    <ClCompile Include="..\..\src\impl\PCE_impl.cpp" />
+    <ClCompile Include="..\..\src\pointCloudEngine\Delaunay.cpp" />
+    <ClCompile Include="..\..\src\pointCloudEngine\EmbeddedScan.cpp" />
+    <ClCompile Include="..\..\src\pointCloudEngine\MultipleMeasures.cpp" />
+    <ClCompile Include="..\..\src\pointCloudEngine\NormalEstimation.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pointCloudEngine\OctreeBase.cpp" />
+    <ClCompile Include="..\..\src\pointCloudEngine\OctreeCtor.cpp" />
+    <ClCompile Include="..\..\src\pointCloudEngine\OctreeDecoder.cpp" />
+    <ClCompile Include="..\..\src\pointCloudEngine\OctreeRayTracing.cpp" />
+    <ClCompile Include="..\..\src\pointCloudEngine\OctreeShredder.cpp" />
+    <ClCompile Include="..\..\src\pointCloudEngine\PCE_core.cpp" />
+    <ClCompile Include="..\..\src\pointCloudEngine\RenderingEcoSystem.cpp" />
+    <ClCompile Include="..\..\src\pointCloudEngine\RenderingEngine.cpp" />
+    <ClCompile Include="..\..\src\pointCloudEngine\RenderingTypes.cpp" />
+    <ClCompile Include="..\..\src\pointCloudEngine\SmartBufferWorkload.cpp" />
+    <ClCompile Include="..\..\src\pointCloudEngine\TargetMarkerFactory.cpp" />
+    <ClCompile Include="..\..\src\pointCloudEngine\TlScanOverseer.cpp" />
+    <ClCompile Include="..\..\src\pointCloudEngine\TlStreamer.cpp" />
+    <ClCompile Include="..\..\src\test\SafeDataTests.cpp" />
+    <ClCompile Include="..\..\src\utils\3DConnexion\3DConnexion.cpp">
+      <EnableModules Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</EnableModules>
+      <EnableModules Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">true</EnableModules>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\ColorConversion.cpp" />
+    <ClCompile Include="..\..\src\utils\ImGuiUtils.cpp" />
+    <ClCompile Include="..\..\src\utils\JsonWriter.cpp" />
+    <ClCompile Include="..\..\src\utils\math\glm_extended.cpp" />
+    <ClCompile Include="..\..\src\utils\math\geometry.cpp" />
+    <ClCompile Include="..\..\src\utils\QtUtils.cpp" />
+    <ClCompile Include="..\..\src\vulkan\Compute\ComputePrograms.cpp" />
+    <ClCompile Include="..\..\src\vulkan\Graph\MemoryReturnCode.cpp" />
+    <ClCompile Include="..\..\src\vulkan\MeshManager.cpp" />
+    <ClCompile Include="..\..\src\vulkan\Renderers\ManipulatorRenderer.cpp" />
+    <ClCompile Include="..\..\src\vulkan\Renderers\MarkerRenderer.cpp" />
+    <ClCompile Include="..\..\src\vulkan\Renderers\MeasureRenderer.cpp" />
+    <ClCompile Include="..\..\src\vulkan\Renderers\PostRenderer.cpp" />
+    <ClCompile Include="..\..\src\vulkan\Renderers\Renderer.cpp" />
+    <ClCompile Include="..\..\src\vulkan\Renderers\SimpleObjectRenderer.cpp" />
+    <ClCompile Include="..\..\src\vulkan\ViewportManager.cpp" />
+    <ClCompile Include="..\..\src\vulkan\VkUniformAllocator.cpp" />
+    <ClCompile Include="..\..\src\vulkan\VulkanHelperFunctions.cpp" />
+    <None Include="..\..\src\shaders\blocks\block_hsv_functions.glsl">
+      <FileType>Document</FileType>
+    </None>
+    <ClCompile Include="..\..\src\sql\SQLiteRegister.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\test\PerformanceMonitor.cpp" />
+    <ClCompile Include="..\..\src\utils\Config.cpp" />
+    <ClCompile Include="..\..\src\utils\Logger.cpp" />
+    <ClCompile Include="..\..\src\utils\math\basic_functions.cpp" />
+    <ClCompile Include="..\..\src\utils\math\trigo.cpp" />
+    <ClCompile Include="..\..\src\utils\System.cpp" />
+    <ClCompile Include="..\..\src\utils\time.cpp" />
+    <ClCompile Include="..\..\src\utils\Utils.cpp" />
+    <ClCompile Include="..\..\src\vulkan\RenderingSwitchConfiguration.cpp" />
+    <ClCompile Include="..\..\src\vulkan\Shader.cpp" />
+    <ClCompile Include="..\..\src\vulkan\VulkanFunctions.cpp" />
+    <ClCompile Include="..\..\src\vulkan\VulkanManager.cpp" />
+    <ClCompile Include="..\..\src\vulkan\VulkanPlatform.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\ext\3DxWare\inc\3DxWareVersionNumbers.h" />
+    <ClInclude Include="..\..\ext\3DxWare\inc\navlib\navlib.h" />
+    <ClInclude Include="..\..\ext\3DxWare\inc\navlib\navlib_defines.h" />
+    <ClInclude Include="..\..\ext\3DxWare\inc\navlib\navlib_error.h" />
+    <ClInclude Include="..\..\ext\3DxWare\inc\navlib\navlib_operators.h" />
+    <ClInclude Include="..\..\ext\3DxWare\inc\navlib\navlib_ostream.h" />
+    <ClInclude Include="..\..\ext\3DxWare\inc\navlib\navlib_templates.h" />
+    <ClInclude Include="..\..\ext\3DxWare\inc\navlib\navlib_types.h" />
+    <ClInclude Include="..\..\ext\3DxWare\inc\siappcmd_types.h" />
+    <ClInclude Include="..\..\ext\3DxWare\inc\V3DCMD.h" />
+    <ClInclude Include="..\..\ext\Baduit\Timer.hpp" />
+    <ClInclude Include="..\..\ext\crossguid\guid.hpp" />
+    <ClInclude Include="..\..\ext\dxflibs\dl_attributes.h" />
+    <ClInclude Include="..\..\ext\dxflibs\dl_codes.h" />
+    <ClInclude Include="..\..\ext\dxflibs\dl_creationadapter.h" />
+    <ClInclude Include="..\..\ext\dxflibs\dl_creationinterface.h" />
+    <ClInclude Include="..\..\ext\dxflibs\dl_dxf.h" />
+    <ClInclude Include="..\..\ext\dxflibs\dl_entities.h" />
+    <ClInclude Include="..\..\ext\dxflibs\dl_exception.h" />
+    <ClInclude Include="..\..\ext\dxflibs\dl_extrusion.h" />
+    <ClInclude Include="..\..\ext\dxflibs\dl_global.h" />
+    <ClInclude Include="..\..\ext\dxflibs\dl_writer.h" />
+    <ClInclude Include="..\..\ext\dxflibs\dl_writer_ascii.h" />
+    <ClInclude Include="..\..\ext\fmt\core.h" />
+    <ClInclude Include="..\..\ext\imgui\imconfig.h" />
+    <ClInclude Include="..\..\ext\imgui\imgui.h" />
+    <ClInclude Include="..\..\ext\imgui\imgui_impl_vulkan.h" />
+    <ClInclude Include="..\..\ext\imgui\imgui_internal.h" />
+    <ClInclude Include="..\..\ext\imgui\imstb_rectpack.h" />
+    <ClInclude Include="..\..\ext\imgui\imstb_textedit.h" />
+    <ClInclude Include="..\..\ext\imgui\imstb_truetype.h" />
+    <ClInclude Include="..\..\ext\magic_enum\magic_enum.hpp" />
+    <ClInclude Include="..\..\ext\nlohmannJson\json.hpp" />
+    <ClInclude Include="..\..\ext\openE57\openE57.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">false</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">false</DeploymentContent>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\openE57\openE57las.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\VulkanMemoryAllocator\vk_mem_alloc.h" />
+    <ClInclude Include="..\..\include\controller\Controller.h" />
+    <ClInclude Include="..\..\include\controller\ControllerContext.h" />
+    <ClInclude Include="..\..\include\controller\Controller_p.h" />
+    <ClInclude Include="..\..\include\controller\ControlListener.h" />
+    <ClInclude Include="..\..\include\controller\controls\AEditionControl.h" />
+    <ClInclude Include="..\..\include\controller\controls\AEditionControl.hxx" />
+    <ClInclude Include="..\..\include\controller\controls\ControlCreationAttributesEdition.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlCylinderEdition.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlDataEdition.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlDuplication.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlFunctionPiping.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlObject3DEdition.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlAnimation.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlApplication.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlClippingEdition.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlExportPC.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlFunction.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlFunctionClipping.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlFunctionMeasure.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlFunctionTag.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlIO.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlMeasure.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlModal.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlPCObject.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlPicking.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlProjectTemplate.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlStandards.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlProject.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlScanEdition.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlSignals.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlSpecial.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlTagEdition.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlTemplateEdit.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlTest.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlTree.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlUserList.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlUserOrientation.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlViewPoint.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlViewport.h" />
+    <ClInclude Include="..\..\include\controller\controls\ControlMeshObject.h" />
+    <ClInclude Include="..\..\include\controller\controls\IControl.h" />
+    <ClInclude Include="..\..\include\controller\FilteredFonctionnalities.h" />
+    <ClInclude Include="..\..\include\controller\FilterSystem.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ABackgroundContext.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\AContextCreateAttached.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ADuplication.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\AContextAlignView.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ARayTracingContext.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\Context4ClicsSphere.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextAlignView2P.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextAlignView3P.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextAlignViewBox.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextBeamBending.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextBeamDetection.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextBoxAttachedCreation.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextBoxDuplication.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextClippingBoxCreation.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextBigCylinderFit.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextConvertionScan.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextCreateTag.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextCylinderToCylinderMeasure.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextCylinderToPlane3Measure.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextCylinderToPlaneMeasure.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextDataGeneration.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextDeletePoints.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextDeleteTag.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextDuplicateTag.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextColumnTilt.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextExamine.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextExperiment.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextExportDxf.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextExportFbx.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextExportObj.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextExportPC.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextExportCSV.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextExportOSTObjects.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextExportStep.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextExportVideoHD.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextExtendCylinderMeasure.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextFindScan.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextFitCylinder.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextFitTorus.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextImportOSTObjects.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextManipulateObjects.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextMoveManip.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextMultipleCylindersMeasure.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextPCODuplication.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextPeopleRemover.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextPipeDetectionConnexion.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextPipePostConnexion.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextPlaneConnexion.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextPlaneDetection.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextPoint.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextPCOCreation.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextPointCreation.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextPointToCylinderMeasure.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextPointsMeasure.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextPointToPlane3Measure.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextPointToPlaneMeasure.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextImportScan.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextFactory.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextSetOfPoints.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextSlab1Click.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextSlabDetection.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextTrajectory.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextViewPointAnimation.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextMoveTag.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextSaveCloseLoadProject.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextSimpleMeasure.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextSphere.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextStepSimplification.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextTemplateListModification.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextTemplateModification.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextMeshObjectCreation.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextMeshObjectDuplication.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextViewPoint.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\FunctionManager.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\AContext.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\PipeDetectionOptions.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\PlaneDetectionOptions.h" />
+    <ClInclude Include="..\..\include\controller\IControlListener.h" />
+    <ClInclude Include="..\..\include\controller\messages\CameraMessage.h" />
+    <ClInclude Include="..\..\include\controller\messages\ClippingExportParametersMessage.h" />
+    <ClInclude Include="..\..\include\controller\messages\ColorAvailableListMessage.h" />
+    <ClInclude Include="..\..\include\controller\messages\ColorMessage.h" />
+    <ClInclude Include="..\..\include\controller\messages\DataIdListMessage.h" />
+    <ClInclude Include="..\..\include\controller\messages\DeletePointsMessage.h" />
+    <ClInclude Include="..\..\include\controller\messages\GeneralMessage.h" />
+    <ClInclude Include="..\..\include\controller\messages\ImportMeshObjectMessage.h" />
+    <ClInclude Include="..\..\include\controller\messages\ManipulateMessage.h" />
+    <ClInclude Include="..\..\include\controller\messages\NewProjectMessage.h" />
+    <ClInclude Include="..\..\include\controller\messages\PipeMessage.h" />
+    <ClInclude Include="..\..\include\controller\messages\PlaneMessage.h" />
+    <ClInclude Include="..\..\include\controller\messages\PointCloudObjectCreationParametersMessage.h" />
+    <ClInclude Include="..\..\include\controller\messages\PrimitivesExportParametersMessage.h" />
+    <ClInclude Include="..\..\include\controller\messages\ScansRandomColorInfoMessage.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarImportObjects.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogExportFileObject.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogImportFileObject.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogOpenProjectCentral.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogExportSubProject.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogSubProjectInfo.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogImportAsciiPC.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogSetOfPoints.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogShortcuts.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogSearchedObjects.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogExportVideo.h" />
+    <ClInclude Include="..\..\include\controller\messages\VideoExportParametersMessage.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogImportImage.h" />
+    <ClInclude Include="..\..\include\gui\style\CustomCursors.h" />
+    <ClInclude Include="..\..\include\gui\style\IconObject.h" />
+    <ClInclude Include="..\..\include\gui\texts\DefaultNameTexts.hpp" />
+    <ClInclude Include="..\..\include\gui\texts\MarkerTexts.hpp" />
+    <ClInclude Include="..\..\include\gui\texts\RenderingTexts.hpp" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarShareGroup.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarMeasureSimple.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarRenderRampGroup.h" />
+    <ClInclude Include="..\..\include\gui\texts\TreePanelTexts.hpp" />
+    <QtMoc Include="..\..\include\gui\UrlHandler.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarImportScantra.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarFindScan.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarOrthoGrid.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarExportVideo.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarAutoSeeding.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarManipulateObjects.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarConvertImage.h" />
+    <ClInclude Include="..\..\include\gui\UITransparencyConverter.h" />
+    <ClInclude Include="..\..\include\gui\widgets\APropertyGeneral.h" />
+    <QtMoc Include="..\..\include\gui\widgets\QPFields\TemplatePropertiesPanel.h" />
+    <QtMoc Include="..\..\include\gui\widgets\MultiProperty.h" />
+    <QtMoc Include="..\..\include\gui\widgets\CustomWidgets\SubPropertyClipping.h" />
+    <ClInclude Include="..\..\include\io\DataComparator.h" />
+    <ClInclude Include="..\..\include\gui\texts\AlignViewTexts.hpp" />
+    <ClInclude Include="..\..\include\gui\texts\ExportTexts.hpp" />
+    <ClInclude Include="..\..\include\gui\texts\FileTypeTexts.hpp" />
+    <ClInclude Include="..\..\include\gui\texts\ListTexts.hpp" />
+    <ClInclude Include="..\..\include\gui\texts\MeshObjectTexts.hpp" />
+    <ClInclude Include="..\..\include\gui\texts\PointCloudTexts.hpp" />
+    <ClInclude Include="..\..\include\gui\texts\RayTracingTexts.hpp" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarSlabGroup.h">
+    </QtMoc>
+    <ClInclude Include="..\..\include\io\DataEditor.h" />
+    <ClInclude Include="..\..\include\gui\texts\ScreenshotTexts.hpp" />
+    <ClInclude Include="..\..\include\gui\texts\SplashScreenTexts.hpp" />
+    <ClInclude Include="..\..\include\gui\texts\SystemTexts.hpp" />
+    <ClInclude Include="..\..\include\gui\texts\TlsTexts.hpp" />
+    <ClInclude Include="..\..\include\io\exports\CSVWriter.h" />
+    <ClInclude Include="..\..\include\io\exports\CSVWriter.hxx" />
+    <ClInclude Include="..\..\include\io\exports\ifcExport.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\include\io\exports\PTSFileWriter.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\include\io\imports\DataDeserializer.hxx" />
+    <ClInclude Include="..\..\include\io\imports\dxfFileReader.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\include\io\imports\ifcFileReader.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\include\io\imports\IMeshReader.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\include\io\imports\ImportTypes.h" />
+    <ClInclude Include="..\..\include\io\imports\objFileReader.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarRenderTransparency.h" />
+    <ClInclude Include="..\..\include\io\imports\PtsFileReader.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\3d\UniformClippingData.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\OpenScanToolsGraphManager.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\OpenScanToolsGraphManager.hxx" />
+    <ClInclude Include="..\..\include\models\3d\MarkerDrawData.h" />
+    <ClInclude Include="..\..\include\models\3d\MeasureData.h" />
+    <ClInclude Include="..\..\include\models\3d\PointCloudDrawData.h" />
+    <ClInclude Include="..\..\include\models\3d\SegmentDrawData.h" />
+    <ClInclude Include="..\..\include\models\3d\MeshDrawData.h" />
+    <ClInclude Include="..\..\include\models\3d\MeshId.h" />
+    <ClInclude Include="..\..\include\models\3d\NodeFunctions.h" />
+    <ClInclude Include="..\..\include\models\3d\OpticalFunctions.h" />
+    <ClInclude Include="..\..\include\models\application\Author.h" />
+    <ClInclude Include="..\..\include\models\data\BeamBendingMeasure\BeamBendingMeasureData.h" />
+    <ClInclude Include="..\..\include\models\data\Clipping\ClippingTypes.h" />
+    <ClInclude Include="..\..\include\models\data\Cluster\ClusterData.h" />
+    <ClInclude Include="..\..\include\models\data\Measure\MeasureData.h" />
+    <ClInclude Include="..\..\include\models\data\Piping\InsulationData.h" />
+    <ClInclude Include="..\..\include\models\data\Piping\StandardRadiusData.h" />
+    <ClInclude Include="..\..\include\models\data\PolylineMeasure\PolyLineTypes.h" />
+    <ClInclude Include="..\..\include\models\LicenceTypes.h" />
+    <ClInclude Include="..\..\include\pointCloudEngine\GuiRenderingTypes.h" />
+    <ClInclude Include="..\..\include\pointCloudEngine\RenderingEcoSystem.h" />
+    <ClInclude Include="..\..\include\utils\ColorConversion.h" />
+    <ClInclude Include="..\..\include\utils\ImGuiUtils.h" />
+    <ClInclude Include="..\..\include\utils\JsonWriter.h" />
+    <ClInclude Include="..\..\include\utils\math\basic_define.h" />
+    <ClInclude Include="..\..\include\test\SafeDataTests.h" />
+    <ClInclude Include="..\..\include\utils\safe_ptr.h" />
+    <ClInclude Include="..\..\include\utils\math\geometry.h" />
+    <ClInclude Include="..\..\include\utils\OpenScanToolsVersion.h" />
+    <ClInclude Include="..\..\include\vulkan\ImageTransferEvent.h" />
+    <ClInclude Include="..\..\src\controller\functionSystem\mesh\ContextMeshDistance.h" />
+    <QtMoc Include="..\..\src\gui\Dialog\StandardNameDialog.h" />
+    <QtMoc Include="..\..\src\gui\toolBars\ToolBarRampDefaultValues.h" />
+    <ClInclude Include="..\..\src\models\3d\MeshBuffer.h" />
+    <ClInclude Include="..\..\src\vulkan\Compute\ComputePrograms.h" />
+    <ClInclude Include="..\..\src\vulkan\VulkanHelperFunctions.h" />
+    <ClInclude Include="resource.h" />
+    <QtMoc Include="..\..\include\gui\widgets\FocusWatcher.h" />
+    <ClInclude Include="..\..\src\controller\controls\ControlMetaControl.h" />
+    <ClInclude Include="..\..\src\vulkan\Graph\MemoryReturnCode.h" />
+    <ClInclude Include="..\..\src\vulkan\Renderers\ManipulatorRenderer.h" />
+    <ClInclude Include="..\..\src\vulkan\Renderers\MarkerRenderer.h" />
+    <ClInclude Include="..\..\src\vulkan\Renderers\MeasureRenderer.h" />
+    <ClInclude Include="..\..\src\vulkan\Renderers\PostRenderer.h" />
+    <ClInclude Include="..\..\src\vulkan\Renderers\Renderer.h" />
+    <ClInclude Include="..\..\src\vulkan\Renderers\SimpleObjectRenderer.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarAnimationGroup.h" />
+    <QtMoc Include="..\..\include\gui\widgets\QPFields\AQPField.h" />
+    <ClInclude Include="..\..\include\controller\messages\SimpleNumberMessage.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarMeasureShowOptions.h" />
+    <ClInclude Include="..\..\include\controller\messages\TemplateListMessage.h" />
+    <ClInclude Include="..\..\include\controller\messages\TemplateMessage.h" />
+    <ClInclude Include="..\..\include\controller\messages\UndoRedoMessages.h" />
+    <ClInclude Include="..\..\include\controller\messages\Vec3Message.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogExportPointCloud.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\AuthorListDialog.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\AuthorCreateDialog.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogImportMeshObject.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogExportPrimitives.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogImageHD.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogImportStepSimplification.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogGizmo.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogDeviceSelection.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\HyperlinkAddDialog.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogSettings.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogDeleteScanTypeSelect.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogAbout.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\AListModifierDialog.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\StandardModifierDialog.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\AListListDialog.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\AListNameDialog.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\StandardListDialog.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\ADialog.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogProjectCreation.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogPointCloudObjectCreation.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogDeletePoints.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogRecentProjects.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\ProcessingSplashScreen.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\MessageSplashScreen.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\ProjectTemplateListDialog.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\ProjectTemplateNameDialog.h" />
+    <ClInclude Include="..\..\include\gui\GuiData\GuiDataClipping.h" />
+    <ClInclude Include="..\..\include\gui\GuiData\GuiDataContextRequest.h" />
+    <ClInclude Include="..\..\include\gui\GuiData\GuiDataIO.h" />
+    <ClInclude Include="..\..\include\gui\GuiData\GuiDataHD.h" />
+    <ClInclude Include="..\..\include\gui\GuiData\GuiDataMessages.h" />
+    <ClInclude Include="..\..\include\gui\GuiData\GuiDataTag.h" />
+    <ClInclude Include="..\..\include\gui\GuiData\GuiDataUserOrientation.h" />
+    <ClInclude Include="..\..\include\gui\Texts.hpp" />
+    <QtMoc Include="..\..\include\gui\widgets\PropertySimpleMeasure.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarClippingGroup.h" />
+    <QtMoc Include="..\..\include\gui\widgets\PropertyClippingSettings.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarLucasExperimentGroup.h" />
+    <QtMoc Include="..\..\include\gui\widgets\PropertyBox.h" />
+    <QtMoc Include="..\..\include\gui\widgets\CustomWidgets\ACustomLineEdit.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarExportPointCloud.h" />
+    <QtMoc Include="..\..\include\gui\widgets\CustomWidgets\ColorPicker.h" />
+    <ClInclude Include="..\..\include\gui\texts\AboutTexts.hpp" />
+    <ClInclude Include="..\..\include\gui\texts\ContextTexts.hpp" />
+    <ClInclude Include="..\..\include\gui\texts\DefaultTemplatesTexts.hpp" />
+    <ClInclude Include="..\..\include\gui\texts\DefaultUserLists.hpp" />
+    <ClInclude Include="..\..\include\gui\texts\ImageSettings_txt.hpp" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarOthersModelsGroup.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarStructureAnalysis.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarPointCloudObjectGroup.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarPipeGroup.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarMeshObjectGroup.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarAttributesGroup.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarTemplateGroup.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarNavigationConstraint.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarFOV.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarClippingParameters.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarTextDisplay.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarUserOrientations.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarMarkerDisplayOptions.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarPointEdition.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarSphereGroup.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarConnectPipeGroup.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarBeamDetection.h" />
+    <ClInclude Include="..\..\include\gui\texts\ProjectTemplateTexts.hpp" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarRenderNormals.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarViewPoint.h" />
+    <ClInclude Include="..\..\include\gui\texts\VulkanTexts.hpp" />
+    <ClInclude Include="..\..\include\gui\Translator.h" />
+    <QtMoc Include="..\..\include\gui\viewport\ViewportOrganizer.h" />
+    <QtMoc Include="..\..\include\gui\viewport\QuickBarNavigation.h" />
+    <ClInclude Include="..\..\include\gui\UnitConverter.h" />
+    <ClInclude Include="..\..\include\gui\UnitUsage.h" />
+    <ClInclude Include="..\..\include\gui\viewport\PickingManager.h" />
+    <ClInclude Include="..\..\include\gui\widgets\AuthorListNode.h" />
+    <ClInclude Include="..\..\include\gui\widgets\CustomWidgets\ANumericLineEdit.h" />
+    <ClInclude Include="..\..\include\gui\widgets\CustomWidgets\GenericPropertiesFeet.h" />
+    <ClInclude Include="..\..\include\gui\widgets\CustomWidgets\GenericPropertiesHead.h" />
+    <ClInclude Include="..\..\include\gui\widgets\CustomWidgets\GlobalColorPicker.h" />
+    <ClInclude Include="..\..\include\gui\widgets\CustomWidgets\regexpedit.h" />
+    <ClInclude Include="..\..\include\gui\widgets\CustomWidgets\qdoubleedit.h" />
+    <ClInclude Include="..\..\include\gui\widgets\CustomWidgets\qintegeredit.h" />
+    <QtMoc Include="..\..\include\gui\widgets\PropertyBeamBendingMeasure.h" />
+    <QtMoc Include="..\..\include\gui\widgets\PropertyPipeToPipeMeasure.h" />
+    <QtMoc Include="..\..\include\gui\widgets\PropertyPointToPlaneMeasure.h" />
+    <QtMoc Include="..\..\include\gui\widgets\PropertyPipeToPlaneMeasure.h" />
+    <QtMoc Include="..\..\include\gui\widgets\PropertyColumnTiltMeasure.h" />
+    <QtMoc Include="..\..\include\gui\widgets\PropertyPointToPipeMeasure.h" />
+    <QtMoc Include="..\..\include\gui\widgets\PropertyPipe.h" />
+    <QtMoc Include="..\..\include\gui\widgets\PropertyPolylineMeasure.h" />
+    <QtMoc Include="..\..\include\gui\widgets\PropertyPoint.h" />
+    <QtMoc Include="..\..\include\gui\widgets\PropertyDuplicationSettings.h" />
+    <QtMoc Include="..\..\include\gui\widgets\PropertyMeshObject.h" />
+    <QtMoc Include="..\..\include\gui\widgets\PropertyUserOrientation.h" />
+    <QtMoc Include="..\..\include\gui\widgets\PropertySphere.h" />
+    <QtMoc Include="..\..\include\gui\widgets\PropertyElbow.h" />
+    <QtMoc Include="..\..\include\gui\widgets\E57TreeWidget.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </QtMoc>
+    <QtMoc Include="..\..\include\gui\widgets\PropertyViewpoint.h" />
+    <ClInclude Include="..\..\include\gui\widgets\QPFields\QPDateField.h" />
+    <ClInclude Include="..\..\include\gui\widgets\QPFields\QPFactory.h" />
+    <ClInclude Include="..\..\include\gui\widgets\QPFields\QPHyperLinkField.h" />
+    <ClInclude Include="..\..\include\gui\widgets\QPFields\QPListField.h" />
+    <ClInclude Include="..\..\include\gui\widgets\QPFields\QPNumberField.h" />
+    <ClInclude Include="..\..\include\gui\widgets\QPFields\QPStringField.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\MarkerIconSelectionDialog.h" />
+    <QtMoc Include="..\..\include\gui\widgets\TreeNodeSystem\TreeModel.h" />
+    <ClInclude Include="..\..\include\gui\widgets\TreeNodeSystem\TreeNode.h" />
+    <QtMoc Include="..\..\include\gui\widgets\TreeNodeSystem\TreeView.h" />
+    <ClInclude Include="..\..\include\gui\widgets\TreeNodeSystem\TreeNodeFactory.hxx" />
+    <ClInclude Include="..\..\include\io\ConvertProperties.h" />
+    <ClInclude Include="..\..\include\io\E57AdditionalTypes.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\include\io\exports\DataSerializer.h" />
+    <ClInclude Include="..\..\include\io\exports\ExportParameters.hpp" />
+    <ClInclude Include="..\..\include\gui\widgets\TreeNodeSystem\TreeNodeFactory.h" />
+    <ClInclude Include="..\..\include\io\exports\RcpFileWriter.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\include\io\exports\stepExport.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">false</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">false</DeploymentContent>
+    </ClInclude>
+    <ClInclude Include="..\..\include\io\ImageWriter.h" />
+    <ClInclude Include="..\..\include\io\ImageTypes.h" />
+    <ClInclude Include="..\..\include\io\imports\DataDeserializer.h" />
+    <ClInclude Include="..\..\include\io\imports\fbxWriterReader.h" />
+    <ClInclude Include="..\..\include\io\imports\RcpFileReader.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\include\io\imports\RcsFileReader.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\include\io\imports\step-simplification\classification\ClassificationByComplexity.h" />
+    <ClInclude Include="..\..\include\io\imports\step-simplification\classification\ClassificationByVolumeMBB.h" />
+    <ClInclude Include="..\..\include\io\imports\step-simplification\classification\ClassificationStrategy.h" />
+    <ClInclude Include="..\..\include\io\imports\step-simplification\classification\QuickClassificationBySimilarity.h" />
+    <ClInclude Include="..\..\include\io\imports\step-simplification\classification\ReliableClassificationBySimilarity.h" />
+    <ClInclude Include="..\..\include\io\imports\step-simplification\deletePiece\DeleteClass.h" />
+    <ClInclude Include="..\..\include\io\imports\step-simplification\deletePiece\DeletePiece.h" />
+    <ClInclude Include="..\..\include\io\imports\step-simplification\deletePiece\DeletePieceChildren.h" />
+    <ClInclude Include="..\..\include\io\imports\step-simplification\deletePiece\InfoDeletionPiece.h" />
+    <ClInclude Include="..\..\include\io\imports\step-simplification\deletePiece\SmartDeletion.h" />
+    <ClInclude Include="..\..\include\io\imports\step-simplification\deletePiece\UpdatePieceParents.h" />
+    <ClInclude Include="..\..\include\io\imports\step-simplification\step-simplification.h" />
+    <ClInclude Include="..\..\include\io\imports\step-simplification\step-simplificationTypes.h" />
+    <ClInclude Include="..\..\include\io\imports\step-simplification\stepGraph\Entity.h" />
+    <ClInclude Include="..\..\include\io\imports\step-simplification\stepGraph\EntityFactory.h" />
+    <ClInclude Include="..\..\include\io\imports\step-simplification\stepGraph\Entity_Adv_B_Sh_Rep.h" />
+    <ClInclude Include="..\..\include\io\imports\step-simplification\stepGraph\Entity_Mech_D_Geo_P_Rep.h" />
+    <ClInclude Include="..\..\include\io\imports\step-simplification\stepGraph\Entity_P_L_Ass.h" />
+    <ClInclude Include="..\..\include\io\imports\step-simplification\stepGraph\Entity_Sh_Rep_Rel.h" />
+    <ClInclude Include="..\..\include\io\imports\step-simplification\stepGraph\Entity_Styled_Item.h" />
+    <ClInclude Include="..\..\include\io\imports\step-simplification\stepGraph\InfoPiece.h" />
+    <ClInclude Include="..\..\include\io\imports\step-simplification\stepGraph\MBBVolumeCalculation.h" />
+    <ClInclude Include="..\..\include\io\imports\step-simplification\stepGraph\StepFile.h" />
+    <ClInclude Include="..\..\include\io\imports\step-simplification\stepGraph\StepGraph.h" />
+    <ClInclude Include="..\..\include\io\imports\step-simplification\stepGraph\StepPiece.h" />
+    <ClInclude Include="..\..\include\io\imports\stepFileReader.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\include\io\MeshObjectTypes.h" />
+    <ClInclude Include="..\..\include\io\SaveLoadSystem.hxx" />
+    <ClInclude Include="..\..\include\io\SerializerKeys.h" />
+    <ClInclude Include="..\..\include\io\StagingBuffers.h" />
+    <ClInclude Include="..\..\include\models\3d\ProjectionData.h" />
+    <ClInclude Include="..\..\include\models\3d\ClickInfo.h" />
+    <ClInclude Include="..\..\include\models\3d\DisplayParameters.h" />
+    <ClInclude Include="..\..\include\models\3d\DuplicationTypes.h" />
+    <ClInclude Include="..\..\include\models\3d\GeometryGenerator.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\AClippingNode.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\AGraphNode.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\APointCloudNode.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\BeamBendingMeasureNode.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\CameraNode.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\ClusterNode.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\ColumnTiltMeasureNode.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\CylinderNode.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\AMeasureNode.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\ObjectNodeVisitor.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\PipeToPipeMeasureNode.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\PipeToPlaneMeasureNode.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\PointNode.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\PointToPipeMeasureNode.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\PointToPlaneMeasureNode.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\PolylineMeasureNode.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\ScanObjectNode.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\SimpleMeasureNode.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\SimpleObjectNode.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\BoxNode.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\ManipulatorNode.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\AObjectNode.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\ReferentialNode.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\ScanNode.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\SphereNode.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\TagNode.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\TorusNode.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\TransformationModule.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\MeshObjectNode.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\ViewPointNode.h" />
+    <ClInclude Include="..\..\include\models\3d\GridBox.h" />
+    <ClInclude Include="..\..\include\models\3d\GridCalculation.h" />
+    <ClInclude Include="..\..\include\models\3d\ManipulationTypes.h" />
+    <ClInclude Include="..\..\include\models\3d\Measures.h" />
+    <ClInclude Include="..\..\include\models\3d\NavigationTypes.h" />
+    <ClInclude Include="..\..\include\models\3d\RenderingParameters.h" />
+    <ClInclude Include="..\..\include\models\application\Ids.hpp" />
+    <ClInclude Include="..\..\include\models\application\List.hxx" />
+    <ClInclude Include="..\..\include\models\application\UserOrientation.h" />
+    <ClInclude Include="..\..\include\models\data\Box\ClippingBoxSettings.h" />
+    <ClInclude Include="..\..\include\models\data\Clipping\ClippingGeometry.h" />
+    <ClInclude Include="..\..\include\models\data\Clipping\ClippingData.h" />
+    <ClInclude Include="..\..\include\models\data\ColumnTiltMeasure\ColumnTiltMeasureData.h" />
+    <ClInclude Include="..\..\include\models\data\Grid\GridData.h" />
+    <ClInclude Include="..\..\include\models\data\MeshObject\MeshObjectData.h" />
+    <ClInclude Include="..\..\include\models\data\PipeToPipeMeasure\PipeToPipeMeasureData.h" />
+    <ClInclude Include="..\..\include\models\data\PipeToPlaneMeasure\PipeToPlaneMeasureData.h" />
+    <ClInclude Include="..\..\include\models\data\PointToPipeMeasure\PointToPipeMeasureData.h" />
+    <ClInclude Include="..\..\include\models\data\PointToPlaneMeasure\PointToPlaneMeasureData.h" />
+    <ClInclude Include="..\..\include\models\data\PolylineMeasure\PolylineMeasureData.h" />
+    <ClInclude Include="..\..\include\models\data\Scan\ScanData.h" />
+    <ClInclude Include="..\..\include\models\data\SimpleMeasure\SimpleMeasureData.h" />
+    <ClInclude Include="..\..\include\models\data\Data.h" />
+    <ClInclude Include="..\..\include\models\data\Tag\TagData.h" />
+    <ClInclude Include="..\..\include\models\data\Torus\TorusData.h" />
+    <ClInclude Include="..\..\include\models\data\ViewPoint\ViewPointData.h" />
+    <ClInclude Include="..\..\include\models\impl_Types.hpp" />
+    <ClInclude Include="..\..\include\models\pointCloud\PointXYZIRGB.h" />
+    <ClInclude Include="..\..\include\models\project\ProjectTypes.h" />
+    <ClInclude Include="..\..\include\models\Types.hpp" />
+    <ClInclude Include="..\..\include\pointCloudEngine\FrameStats.h" />
+    <ClInclude Include="..\..\include\pointCloudEngine\RenderingLimits.h" />
+    <ClInclude Include="..\..\include\pointCloudEngine\Delaunay.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pointCloudEngine\EmbeddedScan.h" />
+    <ClInclude Include="..\..\include\pointCloudEngine\IRenderingEngine.h" />
+    <ClInclude Include="..\..\include\pointCloudEngine\NormalEstimation.h" />
+    <ClInclude Include="..\..\include\pointCloudEngine\OctreeShredder.h" />
+    <ClInclude Include="..\..\include\pointCloudEngine\RenderingEngine.h" />
+    <ClInclude Include="..\..\include\pointCloudEngine\ShowTypes.h" />
+    <ClInclude Include="..\..\include\pointCloudEngine\SmartBuffer.h" />
+    <ClInclude Include="..\..\include\pointCloudEngine\SmartBufferWorkload.h" />
+    <ClInclude Include="..\..\include\pointCloudEngine\TargetMarkerFactory.h" />
+    <ClInclude Include="..\..\include\services\MarkerDefinitions.hpp" />
+    <ClInclude Include="..\..\include\utils\3DConnexion\3DConnexion.h" />
+    <ClInclude Include="..\..\include\utils\FilesAndFoldersDefinitions.h" />
+    <ClInclude Include="..\..\include\utils\math\basic_functions.h" />
+    <ClInclude Include="..\..\include\utils\QtUtils.h" />
+    <ClInclude Include="..\..\include\utils\ThreadPool.h" />
+    <ClInclude Include="..\..\include\vulkan\MeshManager.h" />
+    <ClInclude Include="..\..\include\utils\OpenScanToolsModelEssentials_impl.hpp" />
+    <ClInclude Include="..\..\include\vulkan\ShaderCompiler.h" />
+    <ClInclude Include="..\..\include\vulkan\TlFramebuffer.h" />
+    <ClInclude Include="..\..\include\vulkan\ViewportManager.h" />
+    <ClInclude Include="..\..\include\vulkan\VkUniform.h" />
+    <ClInclude Include="..\..\include\vulkan\VkUniformAllocator.h" />
+    <ClInclude Include="..\..\src\controller\messages\ScansRandomColorInfoMessage.cpp" />
+    <QtMoc Include="..\..\include\gui\DataDispatcher.h" />
+    <ClInclude Include="..\..\include\controller\messages\ClickMessage.h" />
+    <ClInclude Include="..\..\include\controller\messages\ConvertionMessage.h" />
+    <ClInclude Include="..\..\include\controller\messages\FullClickMessage.h" />
+    <ClInclude Include="..\..\include\controller\messages\GridExportMessage.h" />
+    <ClInclude Include="..\..\include\controller\messages\IMessage.h" />
+    <ClInclude Include="..\..\include\controller\messages\FilesMessage.h" />
+    <ClInclude Include="..\..\include\controller\messages\ModalMessage.h" />
+    <ClInclude Include="..\..\include\controller\messages\RenderContextMessage.h" />
+    <ClInclude Include="..\..\include\core\SignalHandler.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\ListListDialog.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\ListModifierDialog.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\ListNameDialog.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\CalendarDialog.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\TemplateManagerDialog.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\TagTemplateNameDialog.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\TemplateEditorDialog.h" />
+    <ClInclude Include="..\..\include\gui\GuiData\GuiData3dObjects.h" />
+    <ClInclude Include="..\..\include\gui\GuiData\GuiDataGeneralProject.h" />
+    <ClInclude Include="..\..\include\gui\GuiData\GuiDataList.h" />
+    <ClInclude Include="..\..\include\gui\GuiData\GuiDataMeasure.h" />
+    <ClInclude Include="..\..\include\gui\GuiData\GuiDataRendering.h" />
+    <ClInclude Include="..\..\include\gui\GuiData\GuiDataTemplate.h" />
+    <ClInclude Include="..\..\include\gui\GuiData\GuiDataTree.h" />
+    <ClInclude Include="..\..\include\gui\GuiData\IGuiData.h" />
+    <QtMoc Include="..\..\include\gui\ribbon\ribbon.h" />
+    <QtMoc Include="..\..\include\gui\ribbon\ribbonbuttongroup.h" />
+    <QtMoc Include="..\..\include\gui\ribbon\ribbontabcontent.h" />
+    <ClInclude Include="..\..\include\gui\IDataDispatcher.h" />
+    <ClInclude Include="..\..\include\gui\IPanel.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarProjectGroup.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarTagGroup.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarFilterGroup.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarExportGroup.h" />
+    <ClInclude Include="..\..\include\gui\ShortcutSystem.h" />
+    <QtMoc Include="..\..\include\gui\style\CustomQtThemes.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarListGroup.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarRenderSettings.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarImageGroup.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarMeasureGroup.h" />
+    <QtMoc Include="..\..\include\gui\widgets\ConvertionOptionsBox.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </QtMoc>
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarShowHideGroup.h" />
+    <QtMoc Include="..\..\include\gui\widgets\ClickableLabel.h" />
+    <ClInclude Include="..\..\include\gui\widgets\ListsNode.h" />
+    <ClInclude Include="..\..\include\gui\viewport\EventManagerViewport.h" />
+    <ClInclude Include="..\..\include\gui\widgets\SplashScreen.h" />
+    <ClInclude Include="..\..\include\gui\widgets\TempFieldNode.h" />
+    <ClInclude Include="..\..\include\gui\widgets\TemplatesNode.h" />
+    <ClInclude Include="..\..\include\impl\imgui_impl_qt.h" />
+    <ClInclude Include="..\..\include\io\E57Utils.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\include\io\exports\E57FileWriter.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\include\io\exports\IScanFileWriter.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\include\io\exports\TlsFileWriter.h" />
+    <ClInclude Include="..\..\include\io\exports\TlsWriter.h" />
+    <ClInclude Include="..\..\include\io\FileUtils.h" />
+    <ClInclude Include="..\..\include\io\imports\E57FileReader.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\include\io\imports\FlsFileReader.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\include\io\imports\IScanFileReader.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\include\io\imports\TlsFileReader.h" />
+    <ClInclude Include="..\..\include\io\imports\TlsReader.h" />
+    <ClInclude Include="..\..\include\io\TlsMap.h" />
+    <ClInclude Include="..\..\include\models\application\TagTemplate.h" />
+    <ClInclude Include="..\..\include\models\application\List.h" />
+    <ClInclude Include="..\..\include\models\pointCloud\TLS.h" />
+    <ClInclude Include="..\..\include\models\project\ProjectInfos.h" />
+    <ClInclude Include="..\..\include\models\OpenScanToolsModelEssentials.h" />
+    <ClInclude Include="..\..\include\pointCloudEngine\OctreeCtor.h" />
+    <ClInclude Include="..\..\include\pointCloudEngine\OctreeDecoder.h" />
+    <ClInclude Include="..\..\include\pointCloudEngine\OctreeRayTracing.h" />
+    <ClInclude Include="..\..\include\pointCloudEngine\PCE_graphics.h" />
+    <ClInclude Include="..\..\include\pointCloudEngine\PCE_stream.h" />
+    <ClInclude Include="..\..\include\pointCloudEngine\RenderingTypes.h" />
+    <ClInclude Include="..\..\include\pointCloudEngine\TlScanOverseer.h" />
+    <ClInclude Include="..\..\include\sql\Impl\SQLiteRegister.hxx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\include\sql\SQLiteRegister.hpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\include\test\testLogger.h" />
+    <ClInclude Include="..\..\include\utils\ProjectStringSets.hpp" />
+    <ClInclude Include="..\..\include\utils\StrCompare.h" />
+    <ClInclude Include="..\..\include\utils\System.h" />
+    <ClInclude Include="..\..\include\utils\time.h" />
+    <QtMoc Include="..\..\include\gui\viewport\VulkanViewport.h" />
+    <ClInclude Include="..\..\include\pointCloudEngine\OctreeBase.h" />
+    <ClInclude Include="..\..\include\pointCloudEngine\PCE_core.h" />
+    <ClInclude Include="..\..\include\pointCloudEngine\TlStreamer.h" />
+    <ClInclude Include="..\..\include\utils\math\glm_extended.h" />
+    <ClInclude Include="..\..\include\utils\math\trigo.h" />
+    <ClInclude Include="..\..\include\utils\Utils.h" />
+    <ClInclude Include="..\..\include\vulkan\RenderingSwitchConfiguration.h" />
+    <ClInclude Include="..\..\include\vulkan\TlFramebuffer_T.h" />
+    <ClInclude Include="..\..\include\vulkan\VulkanFunctions.h" />
+    <ClInclude Include="..\..\include\vulkan\VulkanPlatform.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\MainToolBar.h" />
+    <QtMoc Include="..\..\include\gui\widgets\StatusPanel.h" />
+    <QtMoc Include="..\..\include\gui\widgets\ProjectTreePanel.h" />
+    <QtMoc Include="..\..\include\gui\widgets\PropertiesClusterPanel.h" />
+    <QtMoc Include="..\..\include\gui\widgets\PropertiesProjectPanel.h" />
+    <QtMoc Include="..\..\include\gui\widgets\PropertyPointCloud.h" />
+    <ClInclude Include="..\..\include\impl\PCE_impl.h" />
+    <ClInclude Include="..\..\include\models\3d\Primitives.h" />
+    <ClInclude Include="..\..\include\test\PerformanceMonitor.h" />
+    <ClInclude Include="..\..\include\test\testMarkers.hpp" />
+    <ClInclude Include="..\..\include\utils\IdGiver.hpp" />
+    <ClInclude Include="..\..\include\utils\QtLogStream.hpp" />
+    <ClInclude Include="..\..\include\vulkan\Shader.h" />
+    <ClInclude Include="..\..\include\vulkan\VulkanManager.h" />
+    <QtMoc Include="..\..\include\gui\Gui.h" />
+    <ClInclude Include="..\..\include\io\exports\dxfExport.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\include\io\exports\txtExport.h" />
+    <ClInclude Include="..\..\include\io\SaveLoadSystem.h" />
+    <ClInclude Include="..\..\include\models\project\Marker.h" />
+    <ClInclude Include="..\..\include\utils\ClockLock.hpp" />
+    <ClInclude Include="..\..\include\utils\Color32.hpp" />
+    <ClInclude Include="..\..\include\utils\Config.h" />
+    <ClInclude Include="..\..\include\utils\Logger.h" />
+    <ClInclude Include="..\..\include\utils\ProjectColor.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="..\..\openscantools.qrc" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="..\..\src\gui\forms\AddHyperlinkDialog.ui" />
+    <QtUic Include="..\..\src\gui\forms\AuthorCreateDialog.ui" />
+    <QtUic Include="..\..\src\gui\forms\AuthorDialog.ui" />
+    <QtUic Include="..\..\src\gui\forms\Calendar_Dialog.ui" />
+    <QtUic Include="..\..\src\gui\forms\convertion_options.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogDeletePoints.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogDeleteScanTypeSelection.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogAbout.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogDeviceSelection.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogExportFileObject.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogExportPointCloud.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogExportPrimitives.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogExportSubProject.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogExportVideo.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogGizmo.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogImageHD.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogImportFileObject.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogImportImage.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogImportMeshObject.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogImportAsciiPC.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogImportStepSimplification.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogNewOSTVersion.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogOpenProjectCentral.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogPointCloudObjectCreation.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogProjectCreation.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogProjectTemplate.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogRecentProjects.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogSearchedObjects.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogSetOfPoints.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogSettings.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogShortcuts.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogSubProjectInfo.ui" />
+    <QtUic Include="..\..\src\gui\forms\Message_Splashscreen.ui" />
+    <QtUic Include="..\..\src\gui\forms\MultiProperty.ui" />
+    <QtUic Include="..\..\src\gui\forms\processing_splashscreen.ui" />
+    <QtUic Include="..\..\src\gui\forms\Property_Box.ui" />
+    <QtUic Include="..\..\src\gui\forms\Property_Clipping_Settings.ui" />
+    <QtUic Include="..\..\src\gui\forms\Property_Cluster.ui" />
+    <QtUic Include="..\..\src\gui\forms\Property_Duplication_Settings.ui" />
+    <QtUic Include="..\..\src\gui\forms\Property_Elbow.ui" />
+    <QtUic Include="..\..\src\gui\forms\Property_Measure_BeamBending.ui" />
+    <QtUic Include="..\..\src\gui\forms\Property_Measure_ColumnTilt.ui" />
+    <QtUic Include="..\..\src\gui\forms\Property_Measure_PipeToPipe.ui" />
+    <QtUic Include="..\..\src\gui\forms\Property_Measure_PipeToPlane.ui" />
+    <QtUic Include="..\..\src\gui\forms\Property_Measure_PointToPipe.ui" />
+    <QtUic Include="..\..\src\gui\forms\Property_Measure_PointToPlane.ui" />
+    <QtUic Include="..\..\src\gui\forms\Property_Measure_Polyline.ui" />
+    <QtUic Include="..\..\src\gui\forms\Property_Pipe.ui" />
+    <QtUic Include="..\..\src\gui\forms\Property_Piping.ui" />
+    <QtUic Include="..\..\src\gui\forms\Property_Point.ui" />
+    <QtUic Include="..\..\src\gui\forms\Property_Project.ui" />
+    <QtUic Include="..\..\src\gui\forms\Property_Scan.ui" />
+    <QtUic Include="..\..\src\gui\forms\Property_SimpleMeasure.ui" />
+    <QtUic Include="..\..\src\gui\forms\Property_Sphere.ui" />
+    <QtUic Include="..\..\src\gui\forms\Property_Tag.ui" />
+    <QtUic Include="..\..\src\gui\forms\property_tagInfo.ui" />
+    <QtUic Include="..\..\src\gui\forms\Property_User_Orientation.ui">
+      <FileType>Document</FileType>
+    </QtUic>
+    <QtUic Include="..\..\src\gui\forms\Property_MeshObject.ui" />
+    <QtUic Include="..\..\src\gui\forms\Property_Viewpoint.ui" />
+    <QtUic Include="..\..\src\gui\forms\SubProperty_Clipping.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_attributesgroup.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_autoSeeding.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_beamDetection.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_clippingGroup.ui" />
+    <QtUic Include="..\..\src\gui\forms\ListListDialog.ui" />
+    <QtUic Include="..\..\src\gui\forms\ListModifierDialog.ui" />
+    <QtUic Include="..\..\src\gui\forms\ListNameDialog.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_animationgroup.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_clippingParameters.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_connectpipegroup.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_convertImage.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_exportPointCloud.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_exportVideo.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_findScan.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_fov.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_importObjects.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_manipulateObjects.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_markerdisplayoptions.ui">
+      <SubType>Designer</SubType>
+    </QtUic>
+    <QtUic Include="..\..\src\gui\forms\toolbar_measureshowoptions.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_lucasExperiment.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_measuressimple.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_navigationconstraint.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_orthoGrid.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_othersmodelsgroup.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_pcobjectgroup.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_pipegroup.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_pointEdition.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_ramp_default_values.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_rendersettingsgroup.ui" />
+    <QtUic Include="..\..\src\gui\forms\TagTemplateNameDialog.ui" />
+    <QtUic Include="..\..\src\gui\forms\TemplateEditorDialog.ui" />
+    <QtUic Include="..\..\src\gui\forms\TemplateManagerDialog.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_exportgroup.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_filtergroup.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_imagegroup.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_listGroup.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_measuregroup.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_projectgroup.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_rendernormalsgroup.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_rendertransparencygroup.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_render_ramp_group.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_importScantra.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_sharegroup.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_showhidegroup.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_slabgroup.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_spheregroup.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_structAnalysis.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_taggroup.ui" />
+    <QtUic Include="..\..\src\gui\forms\ribbonbuttongroup.ui" />
+    <QtUic Include="..\..\src\gui\forms\ribbontabcontent.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_templategroup.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_textdisplay.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_userOrientation.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_meshObjectgroup.ui" />
+    <QtUic Include="..\..\src\gui\forms\quickbar_navigation.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_viewPoint.ui" />
+    <QtUic Include="..\..\src\gui\forms\widget_colorpicker.ui" />
+    <QtUic Include="..\..\src\gui\forms\widget_generic_properties_feet.ui" />
+    <QtUic Include="..\..\src\gui\forms\widget_generic_properties_head.ui" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\src\shaders\blocks\block_point_i_main_fake_color_vert.glsl" />
+    <CustomBuild Include="..\..\src\shaders\blend.frag">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\blend.vert">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\point_i_fake_color.vert">
+      <FileType>Document</FileType>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_fake_color_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_fake_color_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_fake_color_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_fake_color_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_fake_color_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_fake_color_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\point_i_fake_color_clip.vert">
+      <FileType>Document</FileType>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_fake_color_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_fake_color_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_fake_color_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_fake_color_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_fake_color_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_fake_color_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\measure_point.geom">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\mesh_face.vert">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\mesh_face.geom">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\v2\fillingGap.comp">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\v2\normal_shading.comp">
+      <FileType>Document</FileType>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\v2\normal_functions.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\v2\normal_functions.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\v2\normal_functions.glsl</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\v2\normal_colored.comp">
+      <FileType>Document</FileType>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\v2\normal_functions.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\v2\normal_functions.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\v2\normal_functions.glsl</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\post_rendering\transparency_hdr.comp">
+      <FileType>Document</FileType>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)/src/shaders/blocks/block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)/src/shaders/blocks/block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)/src/shaders/blocks/block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)/src/shaders/blocks/block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)/src/shaders/blocks/block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)/src/shaders/blocks/block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\mesh_face_normals.vert">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\compute\mesh_dist.comp">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\marker.frag">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\marker.vert">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\marker.geom">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <None Include="..\..\src\shaders\v2\normal_functions.glsl" />
+    <QtTranslation Include="ost_fr.ts">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</DeploymentContent>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">false</DeploymentContent>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</DeploymentContent>
+      <BuildAction Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">lrelease</BuildAction>
+      <BuildAction Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">lrelease</BuildAction>
+      <BuildAction Condition="'$(Configuration)|$(Platform)'=='Release|x64'">lrelease</BuildAction>
+      <BuildAction Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">lrelease</BuildAction>
+      <BuildAction Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">lrelease</BuildAction>
+      <BuildAction Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">lrelease</BuildAction>
+      <QmOutputDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)translations</QmOutputDir>
+      <QmOutputDir Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)translations</QmOutputDir>
+      <QmOutputDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)translations</QmOutputDir>
+      <QmOutputDir Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)translations</QmOutputDir>
+      <QmOutputDir Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)translations</QmOutputDir>
+      <QmOutputDir Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)translations</QmOutputDir>
+      <QmOutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">qt_fr.qm</QmOutputFile>
+      <QmOutputFile Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">qt_fr.qm</QmOutputFile>
+      <QmOutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">qt_fr.qm</QmOutputFile>
+      <QmOutputFile Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">qt_fr.qm</QmOutputFile>
+      <QmOutputFile Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">qt_fr.qm</QmOutputFile>
+      <QmOutputFile Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">qt_fr.qm</QmOutputFile>
+      <NoObsolete Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</NoObsolete>
+      <NoObsolete Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">true</NoObsolete>
+      <NoObsolete Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</NoObsolete>
+      <NoObsolete Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">true</NoObsolete>
+      <NoObsolete Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</NoObsolete>
+      <NoObsolete Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</NoObsolete>
+    </QtTranslation>
+    <CustomBuild Include="..\..\src\shaders\measure_line.frag" />
+    <CustomBuild Include="..\..\src\shaders\measure_line.vert" />
+    <CustomBuild Include="..\..\src\shaders\measure_point.frag" />
+    <CustomBuild Include="..\..\src\shaders\measure_point.vert" />
+    <CustomBuild Include="..\..\src\shaders\overlay.frag" />
+    <CustomBuild Include="..\..\src\shaders\overlay.vert" />
+    <CustomBuild Include="..\..\src\shaders\point.frag" />
+    <CustomBuild Include="..\..\src\shaders\point_i_standard.vert">
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_standard_vert.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_standard_vert.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_standard_vert.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_standard_vert.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_standard_vert.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_standard_vert.glsl</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\point_rgbi_standard.vert">
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgbi_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgbi_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgbi_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\point_rgb_standard.vert">
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\point_i_colored.vert">
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x %(FullPath) -o .\GeneratedShaders\%(Filename)%(Extension).spv</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">glslangValidator -V -x %(FullPath) -o .\GeneratedShaders\%(Filename)%(Extension).spv</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\point_i_colored_clip.vert">
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
+      <FileType>Document</FileType>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/P %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">/P %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\point_i_standard_clip.vert">
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_standard_vert.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_standard_vert.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_standard_vert.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_standard_vert.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_standard_vert.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_standard_vert.glsl</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\point_rgbi_standard_clip.vert">
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgbi_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgbi_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgbi_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\point_rgb_colored.vert">
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_colored_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_colored_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_colored_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\point_rgb_colored_clip.vert">
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_colored_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_colored_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_colored_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\point_rgb_standard_clip.vert">
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\point_flat.vert">
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\point_flat_clip.vert">
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_flat_vert.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_flat_vert.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_flat_vert.glsl</AdditionalInputs>
+    </CustomBuild>
+    <None Include="..\..\src\shaders\blocks\block_point_input_geom.glsl" />
+    <None Include="..\..\src\shaders\blocks\block_point_input_vert.glsl" />
+    <None Include="..\..\src\shaders\blocks\block_point_i_main_colored_vert.glsl" />
+    <None Include="..\..\src\shaders\blocks\block_point_i_main_standard_vert.glsl" />
+    <None Include="..\..\src\shaders\blocks\block_point_main_flat_vert.glsl" />
+    <None Include="..\..\src\shaders\blocks\block_point_main_ramp_vert.glsl" />
+    <None Include="..\..\src\shaders\blocks\block_point_rgbi_main_standard_vert.glsl" />
+    <None Include="..\..\src\shaders\blocks\block_point_rgb_main_colored_vert.glsl" />
+    <None Include="..\..\src\shaders\blocks\block_point_rgb_main_standard_vert.glsl" />
+    <CustomBuild Include="..\..\src\shaders\measure_line.geom">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\point_clip.geom">
+      <FileType>Document</FileType>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_geom.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_geom.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_geom.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_geom.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_geom.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_geom.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\manipulators.frag">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\manipulators.vert">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\mesh_edge.frag">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\mesh_edge.vert">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\point_i_ramp_dist.vert">
+      <FileType>Document</FileType>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\point_i_ramp_dist_clip.vert">
+      <FileType>Document</FileType>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\point_i_ramp_dist_flat.vert">
+      <FileType>Document</FileType>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\point_i_ramp_dist_flat_clip.vert">
+      <FileType>Document</FileType>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\point_rgb_ramp_dist.vert">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\point_rgb_ramp_dist_clip.vert">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\point_rgb_ramp_dist_flat.vert">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\point_rgb_ramp_dist_flat_clip.vert">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\mesh_face.frag">
+      <FileType>Document</FileType>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="OpenScanTools.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
+    <Import Project="$(QtMsBuild)\qt.targets" />
+  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties />
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

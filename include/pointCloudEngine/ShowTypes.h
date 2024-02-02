@@ -1,0 +1,48 @@
+#ifndef SHOW_TYPES_H
+#define SHOW_TYPES_H
+
+typedef enum MeasureShowBits
+{
+    SHOW_MAIN_SEGMENT = 0x00000001,
+    SHOW_VERTICAL_SEGMENT = 0x00000002,
+    SHOW_HORIZONTAL_SEGMENT = 0x00000004,
+    SHOW_ALL_SEGMENT = SHOW_MAIN_SEGMENT | SHOW_VERTICAL_SEGMENT | SHOW_HORIZONTAL_SEGMENT,
+    SHOW_VALUES = 0x00000008
+} MeasureShowBits;
+
+typedef unsigned int MeasureShowMask;
+
+typedef enum MarkerShowBits
+{
+    SHOW_SCAN_MARKER = 0x00000001,
+    SHOW_TAG_MARKER = 0x00000002,
+    SHOW_ALL_MARKER = SHOW_SCAN_MARKER | SHOW_TAG_MARKER
+} MarkerShowBits;
+
+typedef unsigned int MarkerShowMask;
+
+typedef enum TextFilterBits
+{
+    TEXT_SHOW_INDEX_BIT       = 0x00000001,
+    TEXT_SHOW_AUTHOR_BIT      = 0x00000002,
+    TEXT_SHOW_IDENTIFIER_BIT  = 0x00000004,
+    TEXT_SHOW_NAME_BIT        = 0x00000008,
+    TEXT_SHOW_DISCIPLINE_BIT  = 0x00000010,
+    TEXT_SHOW_PHASE_BIT       = 0x00000020,
+    TEXT_SHOW_DIAMETER_BIT    = 0x00000040,
+    TEXT_SHOW_LENGTH_BIT      = 0x00000080,
+    TEXT_SHOW_COORD_BIT       = 0x00000100,
+    TEXT_SHOW_INIT_BIT        = TEXT_SHOW_INDEX_BIT | TEXT_SHOW_IDENTIFIER_BIT | TEXT_SHOW_NAME_BIT,
+    TEXT_SHOW_STANDARD_BIT    = TEXT_SHOW_INDEX_BIT | TEXT_SHOW_AUTHOR_BIT | TEXT_SHOW_IDENTIFIER_BIT | TEXT_SHOW_NAME_BIT | TEXT_SHOW_DISCIPLINE_BIT | TEXT_SHOW_PHASE_BIT
+} TextFilterBits;
+
+typedef unsigned int TextFilter;
+
+struct TextDisplayOptions
+{
+    TextFilter m_filter = TEXT_SHOW_INIT_BIT;
+    int m_textTheme = 0;
+    float m_textFontSize = 13.f;
+};
+
+#endif

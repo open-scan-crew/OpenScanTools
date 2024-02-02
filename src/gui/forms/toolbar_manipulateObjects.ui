@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ToolBarManipulateObjects</class>
+ <widget class="QWidget" name="ToolBarManipulateObjects">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>582</width>
+    <height>268</height>
+   </rect>
+  </property>
+  <property name="contextMenuPolicy">
+   <enum>Qt::NoContextMenu</enum>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="leftMargin">
+    <number>3</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>3</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <property name="spacing">
+    <number>6</number>
+   </property>
+   <item row="0" column="2">
+    <widget class="QPushButton" name="translate">
+     <property name="toolTip">
+      <string>Click a base point and a target point to move the object.</string>
+     </property>
+     <property name="text">
+      <string>Translate</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QPushButton" name="translateLockZ">
+     <property name="toolTip">
+      <string>Click a base point and a target point to move the object. Z value is kept.</string>
+     </property>
+     <property name="text">
+      <string>Translate keeping Z</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="2">
+    <widget class="QPushButton" name="translateAlongZ">
+     <property name="toolTip">
+      <string>Click a base point and a target point. The object will move along Z only</string>
+     </property>
+     <property name="text">
+      <string>Translate along Z</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1" rowspan="2">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QPushButton" name="rotate2points">
+     <property name="toolTip">
+      <string>2 points: click 2 points on the object and 2 points in the point cloud to orient the object. 
+Example: orient an object along a wall.</string>
+     </property>
+     <property name="text">
+      <string>Rotation along Z</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QPushButton" name="rotate3points">
+     <property name="toolTip">
+      <string>3 points: click 3 points on an object and 3 points in the point cloud to orient the object.
+Example: orient an object along a slope.</string>
+     </property>
+     <property name="text">
+      <string>Rotation along plane</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

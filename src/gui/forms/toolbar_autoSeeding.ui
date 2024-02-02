@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>toolbar_autoSeeding</class>
+ <widget class="QWidget" name="toolbar_autoSeeding">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>657</width>
+    <height>86</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="topMargin">
+    <number>9</number>
+   </property>
+   <property name="bottomMargin">
+    <number>9</number>
+   </property>
+   <property name="spacing">
+    <number>6</number>
+   </property>
+   <item row="0" column="3">
+    <widget class="QPushButton" name="pushButton2top">
+     <property name="toolTip">
+      <string>Automated sowing. Please go to our website to download the explanations</string>
+     </property>
+     <property name="text">
+      <string>2-top</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3">
+    <widget class="QPushButton" name="pushButton2bottom">
+     <property name="toolTip">
+      <string>Automated sowing. Please go to our website to download the explanations</string>
+     </property>
+     <property name="text">
+      <string>2-bottom</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="6">
+    <widget class="QPushButton" name="pushButton6vertical">
+     <property name="toolTip">
+      <string>Automated sowing. Please go to our website to download the explanations</string>
+     </property>
+     <property name="text">
+      <string>6-vertical</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="3">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="5">
+    <widget class="QPushButton" name="pushButton5slope">
+     <property name="toolTip">
+      <string>Automated sowing. Please go to our website to download the explanations</string>
+     </property>
+     <property name="text">
+      <string>5-slope</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QDoubleEdit" name="spacingLineEdit">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QDoubleEdit" name="thresholdLineEdit">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Spacing</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="5">
+    <widget class="QPushButton" name="pushButton4horizontal">
+     <property name="toolTip">
+      <string>Automated sowing. Please go to our website to download the explanations</string>
+     </property>
+     <property name="text">
+      <string>4-horizontal</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Threshold</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="6">
+    <widget class="QPushButton" name="pushButton7slope">
+     <property name="toolTip">
+      <string>Automated sowing. Please go to our website to download the explanations</string>
+     </property>
+     <property name="text">
+      <string>7-slope</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <widget class="QPushButton" name="pushButton1top">
+     <property name="toolTip">
+      <string>Automated sowing. Please go to our website to download the explanations</string>
+     </property>
+     <property name="text">
+      <string>1-top</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QPushButton" name="pushButton1bottom">
+     <property name="toolTip">
+      <string>Automated sowing. Please go to our website to download the explanations</string>
+     </property>
+     <property name="text">
+      <string>1-bottom</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="7">
+    <widget class="QPushButton" name="pushButton8horizontal">
+     <property name="toolTip">
+      <string>Automated sowing. Please go to our website to download the explanations</string>
+     </property>
+     <property name="text">
+      <string>8-horizontal</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="7">
+    <widget class="QPushButton" name="pushButton8plane">
+     <property name="toolTip">
+      <string>Automated sowing. Please go to our website to download the explanations</string>
+     </property>
+     <property name="text">
+      <string>8-plane</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="4">
+    <widget class="QPushButton" name="pushButton3plane">
+     <property name="toolTip">
+      <string>Automated sowing. Please go to our website to download the explanations</string>
+     </property>
+     <property name="text">
+      <string>3-plane</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QDoubleEdit</class>
+   <extends>QLineEdit</extends>
+   <header>qdoubleedit.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../../../openscantools.qrc"/>
+ </resources>
+ <connections/>
+</ui>

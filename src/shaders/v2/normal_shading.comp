@@ -1,0 +1,75 @@
+#version 450
+#extension GL_GOOGLE_include_directive : enable
+
+layout (local_size_x = 16, local_size_y = 16) in;
+
+layout(set = 0, binding = 0, rgba8) uniform image2D inOutColorImage;
+layout(set = 1, binding = 2) buffer correctedDepth
+{
+    float inDepth[ ];
+};
+
+layout(set = 2, binding = 4) uniform uniformCamera {
+    mat4 inversedView;
+} uCam;
+
+layout(push_constant) uniform PC {
+   layout(offset = 0) vec2 nearFar;
+   layout(offset = 8) ivec2 screenSize;
+   layout(offset = 16) vec2 screenOffset;
+   layout(offset = 24) vec2 pxSize;
+   layout(offset = 32) int projMode;
+   layout(offset = 36) int inverseTone;
+   layout(offset = 40) float ka;
+   layout(offset = 48) float diffuse_pow;
+   layout(offset = 52) int blendColor;
+} pc;
+
+#include "./normal_functions.glsl"
+
+vec4 imageColor;
+float imageDepth[9];
+
+void main() 
+{
+   if (gl_GlobalInvocationID.x - 1 >= pc.screenSize.x - 2 ||
+       gl_GlobalInvocationID.y - 1 >= pc.screenSize.y - 2)
+      return;
+
+   imageColor = imageLoad(inOutColorImage, ivec2(gl_GlobalInvocationID.xy));
+   if (imageColor.a == 0)
+      return;
+
+   float diffFarNear = pc.nearFar.y - pc.nearFar.x;
+   float mulFarNear = pc.nearFar.y * pc.nearFar.x;
+
+   int n = -1;
+   for (int i = -1; i < 2; ++i)
+   {
+      for (int j = -1; j < 2; ++j)
+      {
+         ++n;
+         uint index = int(gl_GlobalInvocationID.x + i) + int(gl_GlobalInvocationID.y + j) * pc.screenSize.x;
+         float rawDepth = inDepth[index];
+         // projMode : 0 == perspective ; 1 == orthographic
+         if (pc.projMode == 0)
+            imageDepth[n] = mulFarNear / (pc.nearFar.y - rawDepth * diffFarNear);
+         else
+            imageDepth[n] = rawDepth * diffFarNear + pc.nearFar.x;
+      }
+   }
+
+   // Calcule la normale
+
+   vec3 normal = (pc.projMode == 0) ? computeNormal_perspective(imageDepth) : computeNormal_ortho(imageDepth);
+
+   // Take cosinus or sinus
+   float diffuse_base = (pc.inverseTone == 0) ? normal.z : length(normal.xy);
+
+   if (diffuse_base < 0.0)
+      diffuse_base = 0.0;
+
+   float id = pow(diffuse_base, pc.diffuse_pow);
+   vec3 shade = (pc.blendColor == 1) ? vec3(id) : imageColor.rgb * id;
+   imageStore(inOutColorImage, ivec2(gl_GlobalInvocationID.xy), vec4(mix(imageColor.rgb, shade, pc.ka), imageColor.a));
+}

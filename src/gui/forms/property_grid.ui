@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>property_grid</class>
+ <widget class="QWidget" name="property_grid">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>365</width>
+    <height>291</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Grille</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0">
+   <property name="sizeConstraint">
+    <enum>QLayout::SetDefaultConstraint</enum>
+   </property>
+   <item row="5" column="1">
+    <widget class="QLineEdit" name="lineEdit_high"/>
+   </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="label_name">
+     <property name="text">
+      <string>Nom</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="label_high">
+     <property name="text">
+      <string>Largeur (L)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <widget class="QLabel" name="label_coordY">
+     <property name="text">
+      <string>Y</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <widget class="QLineEdit" name="lineEdit_finalY"/>
+   </item>
+   <item row="3" column="1">
+    <widget class="QLineEdit" name="lineEdit_minZ"/>
+   </item>
+   <item row="0" column="1">
+    <widget class="QLabel" name="label_coordX">
+     <property name="text">
+      <string>X</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="2">
+    <widget class="QPushButton" name="cancelButton">
+     <property name="text">
+      <string>Annuler</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="label_maxZ">
+     <property name="text">
+      <string>Z max</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QLineEdit" name="lineEdit_originY"/>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_origin">
+     <property name="text">
+      <string>Origine (Ori)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="1">
+    <widget class="QPushButton" name="okButton">
+     <property name="text">
+      <string>Valider</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_final">
+     <property name="text">
+      <string>Finale (Fin)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="lineEdit_originX"/>
+   </item>
+   <item row="3" column="2" rowspan="5">
+    <widget class="QLabel" name="label_image">
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_size">
+     <property name="text">
+      <string>Box size (S)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1">
+    <widget class="QLineEdit" name="lineEdit_sizeXYZ"/>
+   </item>
+   <item row="4" column="1">
+    <widget class="QLineEdit" name="lineEdit_maxZ"/>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLineEdit" name="lineEdit_finalX"/>
+   </item>
+   <item row="0" column="0">
+    <widget class="QCheckBox" name="checkBox_global">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>Grille Global</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1">
+    <widget class="QLineEdit" name="lineEdit_name">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_minZ">
+     <property name="text">
+      <string>Z min</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>lineEdit_originX</tabstop>
+  <tabstop>lineEdit_originY</tabstop>
+  <tabstop>lineEdit_finalX</tabstop>
+  <tabstop>lineEdit_finalY</tabstop>
+  <tabstop>lineEdit_minZ</tabstop>
+  <tabstop>lineEdit_maxZ</tabstop>
+  <tabstop>lineEdit_high</tabstop>
+  <tabstop>lineEdit_sizeXYZ</tabstop>
+  <tabstop>lineEdit_name</tabstop>
+  <tabstop>cancelButton</tabstop>
+  <tabstop>okButton</tabstop>
+  <tabstop>checkBox_global</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

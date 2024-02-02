@@ -1,0 +1,2997 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>TDx.SpaceMouse.Navigation3D</name>
+    </assembly>
+    <members>
+        <member name="T:TDx.SpaceMouse.Navigation3D.Command">
+            <summary>
+            A command action.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Command.#ctor(System.String,System.String,System.String,TDx.SpaceMouse.Navigation3D.Image)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Command"/> class.
+            </summary>
+            <param name="name">The string used to identity the command.</param>
+            <param name="label">The label of the command presented to the user in the UI.</param>
+            <param name="description">A text that is used as a tool tip.</param>
+            <param name="image">The image to display to the user on a toolbar.</param>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Command.Image">
+            <summary>
+            Gets or sets the <see cref="F:TDx.SpaceMouse.Navigation3D.Command.image"/> associated with the command.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Command.Children">
+            <summary>
+            Gets the Children list.
+            </summary>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.CommandTreeNode">
+            <summary>
+            The structure represents siActionNodeEx_s a node of the command tree for the command set.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.CommandTreeNode.children">
+            <summary>
+            The list of child nodes.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.CommandTreeNode.id">
+            <summary>
+            The id field specifies a string identifier for the commands set,
+            category, or command represented by the node.The field is always non-NULL.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.CommandTreeNode.label">
+            <summary>
+            The Label field specifies a localized/internationalized name
+            for the commands set, category, or command represented by the node.The label
+            field can be NULL for the root and intermediate category nodes that are not
+             explicitly presented to users.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.CommandTreeNode.description">
+            <summary>
+            The Description field specifies a localized/internationalized tooltip
+            for the commands set, category, or command represented by the node.The description
+            field can be NULL for the root and intermediate category nodes that are not
+            explicitly presented to users.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.CommandTreeNode.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.CommandTreeNode"/> class.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.CommandTreeNode.#ctor(TDx.SpaceMouse.Navigation3D.Utf8String,TDx.SpaceMouse.Navigation3D.Utf8String,TDx.SpaceMouse.Navigation3D.Utf8String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.CommandTreeNode"/> class.
+            </summary>
+            <param name="id">The node identifier.</param>
+            <param name="label">The text displayed to the user in the UI.</param>
+            <param name="description">Description of the node used as a tooltip.</param>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.CommandTreeNode.Description">
+            <summary>
+            Gets or sets the Id of the node.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.CommandTreeNode.Id">
+            <summary>
+            Gets or sets the Label of the node.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.CommandTreeNode.Label">
+            <summary>
+            Gets or sets the label of the node.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.CommandTreeNode.Children">
+            <summary>
+            Gets or sets the children field.
+            </summary>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.CommandSet">
+            <summary>
+            The root node of a collection of commands.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.CommandSet.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.CommandSet"/> class.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.CommandSet.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.CommandSet"/> class.
+            </summary>
+            <param name="name">The string used to identity the commands set.</param>
+            <param name="label">The label of the commands set presented to the user in the UI.</param>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.CommandSet.Item(System.Int32)">
+            <summary>
+            Gets or sets the element at the specified index.
+            </summary>
+            <param name="index">The zero-based index of the element to get or set.</param>
+            <returns>The <see cref="T:TDx.SpaceMouse.Navigation3D.CommandTreeNode"/> at the specified index.</returns>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.CommandSet.Add(TDx.SpaceMouse.Navigation3D.CommandTreeNode)">
+            <summary>
+            Adds an object to the end of the list of child nodes.
+            </summary>
+            <param name="node">The node to be added to the end of the list.</param>
+            <returns>The node added.</returns>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.CommandTree">
+            <summary>
+            Container class for the application commands.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.CommandTree.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.CommandTree"/> class that is empty and has the default initial capacity.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.CommandTree.#ctor(System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.CommandTree"/> class that is empty and has the specified initial capacity.
+            </summary>
+            <param name="capacity">The number of elements that the new list can initially store.</param>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.Category">
+            <summary>
+            The grouping node of a collection of actions and categories.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Category.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Category"/> class.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Category.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Category"/> class.
+            </summary>
+            <param name="name">The string used to identity the group of actions.</param>
+            <param name="label">The label of the group presented to the user in the UI.</param>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Category.Item(System.Int32)">
+            <summary>
+            Gets or sets the element at the specified index.
+            </summary>
+            <param name="index">The zero-based index of the element to get or set.</param>
+            <returns>The <see cref="T:TDx.SpaceMouse.Navigation3D.CommandTreeNode"/> at the specified index.</returns>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Category.Add(TDx.SpaceMouse.Navigation3D.CommandTreeNode)">
+            <summary>
+            Adds an object to the end of the list of child nodes.
+            </summary>
+            <param name="node">The node to be added to the end of the list.</param>
+            <returns>The node added.</returns>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.CommandEventArgs">
+            <summary>
+            Provides the event data for the CommandExecuted event.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.CommandEventArgs.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.CommandEventArgs"/> class.
+            </summary>
+            <param name="command">The command referenced by the event.</param>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.CommandEventArgs.Command">
+            <summary>
+            Gets the application command associated with the event.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.CommandEventArgs.TimeStamp">
+            <summary>
+            Gets the time when this event occurred.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.CommandEventArgs.Handled">
+            <summary>
+            Gets or sets a value indicating whether this event has been handled.
+            </summary>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.Constants">
+            <summary>
+            class for constants.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Constants.Epsilon">
+            <summary>
+            Gets <see cref="P:TDx.SpaceMouse.Navigation3D.Constants.Epsilon"/> used to test real values if equal.
+            </summary>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.IHit">
+            <summary>
+            The hit testing interface.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.IHit.GetLookAt">
+            <summary>
+            Is called when the Navigation3D instance needs the result of the hit test.
+            </summary>
+            <returns>The hit position in world coordinates.</returns>
+            <exception cref="T:TDx.SpaceMouse.Navigation3D.NoDataException">Nothing was hit.</exception>
+            <exception cref="T:System.NotImplementedException">The requested method or operation is not implemented.</exception>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.IHit.SetLookFrom(TDx.SpaceMouse.Navigation3D.Point)">
+            <summary>
+            Is called when the Navigation3D instance needs to set the source of the hit ray/cone.
+            </summary>
+            <param name="eye">The source of the hit cone <see cref="T:TDx.SpaceMouse.Navigation3D.Point"/>.</param>
+            <exception cref="T:System.InvalidOperationException">Call is invalid for the object's current state.</exception>
+            <exception cref="T:System.NotImplementedException">The requested method or operation is not implemented.</exception>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.IHit.SetLookDirection(TDx.SpaceMouse.Navigation3D.Vector)">
+            <summary>
+            Is called when the Navigation3D instance needs to set the direction of the hit ray/cone.
+            </summary>
+            <param name="direction">The direction of the ray/cone to set.</param>
+            <exception cref="T:System.InvalidOperationException">Call is invalid for the object's current state.</exception>
+            <exception cref="T:System.NotImplementedException">The requested method or operation is not implemented.</exception>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.IHit.SetLookAperture(System.Double)">
+            <summary>
+            Is called when the Navigation3D instance needs to set the aperture of the hit ray/cone.
+            </summary>
+            <param name="aperture">The aperture of the ray/cone on the near plane.</param>
+            <exception cref="T:System.InvalidOperationException">Call is invalid for the object's current state.</exception>
+            <exception cref="T:System.NotImplementedException">The requested method or operation is not implemented.</exception>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.IHit.SetSelectionOnly(System.Boolean)">
+            <summary>
+            Is called when the Navigation3D instance needs to set the selection filter.
+            </summary>
+            <param name="onlySelection">If true ignore non-selected items.</param>
+            <exception cref="T:System.InvalidOperationException">Call is invalid for the object's current state.</exception>
+            <exception cref="T:System.NotImplementedException">The requested method or operation is not implemented.</exception>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.IModel">
+            <summary>
+            Model interface.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.IModel.GetModelExtents">
+            <summary>
+            Is called when the Navigation3D instance needs to get the extents of the model.
+            </summary>
+            <returns>The extents of the model in world coordinates.</returns>
+            <exception cref="T:TDx.SpaceMouse.Navigation3D.NoDataException">There is no model in the scene.</exception>
+            <exception cref="T:System.NotImplementedException">The requested method or operation is not implemented.</exception>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.IModel.GetSelectionExtents">
+            <summary>
+            Is called when the Navigation3D instance needs to get the extents of the selection.
+            </summary>
+            <returns>The extents of the selection in world coordinates.</returns>
+            <exception cref="T:TDx.SpaceMouse.Navigation3D.NoDataException">There is no selection.</exception>
+            <exception cref="T:System.NotImplementedException">The requested method or operation is not implemented.</exception>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.IModel.IsSelectionEmpty">
+            <summary>
+            Is called when the Navigation3D instance needs to get the extents of the selection.
+            </summary>
+            <returns>true if the selection set is empty, otherwise false.</returns>
+            <exception cref="T:System.NotImplementedException">The requested method or operation is not implemented.</exception>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.IModel.SetSelectionTransform(TDx.SpaceMouse.Navigation3D.Matrix)">
+            <summary>
+            Is called when the Navigation3D instance needs to set the selections's transform matrix.
+            </summary>
+            <param name="matrix">The selection's transform <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/> in world coordinates.</param>
+            <exception cref="T:System.InvalidOperationException">Call is invalid for the object's current state.</exception>
+            <exception cref="T:System.NotImplementedException">The requested method or operation is not implemented.</exception>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.IModel.GetSelectionTransform">
+            <summary>
+            Is called when the Navigation3D instance needs to get the selections's transform matrix.
+            </summary>
+            <returns>The selection's transform <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/> in world coordinates or null.</returns>
+            <exception cref="T:TDx.SpaceMouse.Navigation3D.NoDataException">There is no selection.</exception>
+            <exception cref="T:System.NotImplementedException">The requested method or operation is not implemented.</exception>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.INavigation3D">
+            <summary>
+            The 3D navigation <see langword="interface"/>.
+            </summary>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.INavlibProperty">
+            <summary>
+            The interface exposed direct access to the navlib properties.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.INavlibProperty.Read(System.String)">
+            <summary>
+            Read the value of a property from the navlib.
+            </summary>
+            <param name="propertyName">The name of the property to read.</param>
+            <returns>the <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> result.</returns>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.INavlibProperty.ReadAsync(System.String)">
+            <summary>
+            Read the value of a property from the navlib asynchronously.
+            </summary>
+            <param name="propertyName">The name of the property to read.</param>
+            <returns>the <see cref="T:System.Threading.Tasks.Task`1"/> result.</returns>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.INavlibProperty.WriteAsync(System.String,TDx.SpaceMouse.Navigation3D.Value)">
+            <summary>
+            Asynchronously writes the value of a property to the navlib.
+            </summary>
+            <param name="propertyName">The name of the property to read.</param>
+            <param name="value">Value to receive the result.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.INavlibProperty.Write(System.String,TDx.SpaceMouse.Navigation3D.Value)">
+            <summary>
+            Writes the value of a property to the navlib.
+            </summary>
+            <param name="propertyName">The name of the property to read.</param>
+            <param name="value">Value to receive the result.</param>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.IPivot">
+            <summary>
+            Pivot interface.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.IPivot.GetPivotPosition">
+            <summary>
+            Is called when the Navigation3D instance needs to get the position of the rotation pivot.
+            </summary>
+            <returns>The position of the pivot.</returns>
+            <exception cref="T:TDx.SpaceMouse.Navigation3D.NoDataException">No pivot position.</exception>
+            <exception cref="T:System.InvalidOperationException">Call is invalid for the object's current state.</exception>
+            <exception cref="T:System.NotImplementedException">The requested method or operation is not implemented.</exception>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.IPivot.SetPivotPosition(TDx.SpaceMouse.Navigation3D.Point)">
+            <summary>
+            Is called when the Navigation3D instance needs to set the position of the rotation pivot.
+            </summary>
+            <param name="position">The pivot <see cref="T:TDx.SpaceMouse.Navigation3D.Point"/>.</param>
+            <exception cref="T:System.InvalidOperationException">Call is invalid for the object's current state.</exception>
+            <exception cref="T:System.NotImplementedException">The requested method or operation is not implemented.</exception>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.IPivot.SetPivotVisible(System.Boolean)">
+            <summary>
+            Occurs when the Navigation3D instance needs to set the visibility of the pivot point.
+            </summary>
+            <param name="visible">true if the pivot is visible otherwise false.</param>
+            <exception cref="T:System.InvalidOperationException">Call is invalid for the object's current state.</exception>
+            <exception cref="T:System.NotImplementedException">The requested method or operation is not implemented.</exception>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.IPivot.IsUserPivot">
+            <summary>
+            Is called when the Navigation3D instance needs to retrieve whether the user has manually set a pivot point.
+            </summary>
+            <returns>true if the user has set a pivot otherwise false.</returns>
+            <exception cref="T:System.InvalidOperationException">Call is invalid for the object's current state.</exception>
+            <exception cref="T:System.NotImplementedException">The requested method or operation is not implemented.</exception>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.ISpace3D">
+            <summary>
+            The 3D space.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.ISpace3D.GetCoordinateSystem">
+            <summary>
+            Is called when the Navigation3D instance needs to get the coordinate system used by the client.
+            </summary>
+            <returns>The coordinate system matrix.</returns>
+            <exception cref="T:System.InvalidOperationException">Call is invalid for the object's current state.</exception>
+            <exception cref="T:System.NotImplementedException">The requested method or operation is not implemented.</exception>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.ISpace3D.GetFrontView">
+            <summary>
+            Is called when the Navigation3D instance needs to get the orientation of the front view.
+            </summary>
+            <returns>The orientation matrix of the front view.</returns>
+            <exception cref="T:TDx.SpaceMouse.Navigation3D.NoDataException">No transform for the front view.</exception>
+            <exception cref="T:System.InvalidOperationException">Call is invalid for the object's current state.</exception>
+            <exception cref="T:System.NotImplementedException">The requested method or operation is not implemented.</exception>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.IView">
+            <summary>
+            View interface.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.IView.GetCameraMatrix">
+            <summary>
+            Is called when the Navigation3D instance needs to get the camera matrix from the view.
+            </summary>
+            <returns>The camera matrix.</returns>
+            <exception cref="T:System.InvalidOperationException">Call is invalid for the object's current state.</exception>
+            <exception cref="T:System.NotImplementedException">The requested method or operation is not implemented.</exception>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.IView.SetCameraMatrix(TDx.SpaceMouse.Navigation3D.Matrix)">
+            <summary>
+            Is called when the Navigation3D instance needs to set the view's camera matrix.
+            </summary>
+            <param name="matrix">The camera <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/>.</param>
+            <exception cref="T:System.InvalidOperationException">Call is invalid for the object's current state.</exception>
+            <exception cref="T:System.NotImplementedException">The requested method or operation is not implemented.</exception>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.IView.GetViewExtents">
+            <summary>
+            Is called when the Navigation3D instance needs to get the extents of the view.
+            </summary>
+            <returns>The view's extents as a box.</returns>
+            <exception cref="T:System.InvalidOperationException">Call is invalid for the object's current state.</exception>
+            <exception cref="T:System.NotImplementedException">The requested method or operation is not implemented.</exception>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.IView.SetViewExtents(TDx.SpaceMouse.Navigation3D.Box)">
+            <summary>
+            Is called when the Navigation3D instance needs to set the view's extents.
+            </summary>
+            <param name="extents">The view's extents to set.</param>
+            <exception cref="T:System.InvalidOperationException">Call is invalid for the object's current state.</exception>
+            <exception cref="T:System.NotImplementedException">The requested method or operation is not implemented.</exception>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.IView.GetViewFOV">
+            <summary>
+            Is called when the Navigation3D instance needs to get the views's field of view.
+            </summary>
+            <returns>The view's field of view.</returns>
+            <exception cref="T:System.InvalidOperationException">Call is invalid for the object's current state.</exception>
+            <exception cref="T:System.NotImplementedException">The requested method or operation is not implemented.</exception>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.IView.SetViewFOV(System.Double)">
+            <summary>
+            Is called when the Navigation3D instance needs to set the camera's field of view.
+            </summary>
+            <param name="fov">The camera field of view to set.</param>
+            <exception cref="T:System.InvalidOperationException">Call is invalid for the object's current state.</exception>
+            <exception cref="T:System.NotImplementedException">The requested method or operation is not implemented.</exception>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.IView.GetViewFrustum">
+            <summary>
+            Is called when the Navigation3D instance needs to get the view frustum.
+            </summary>
+            <returns>The view's frustum or null.</returns>
+            <exception cref="T:System.InvalidOperationException">Call is invalid for the object's current state.</exception>
+            <exception cref="T:System.NotImplementedException">The requested method or operation is not implemented.</exception>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.IView.SetViewFrustum(TDx.SpaceMouse.Navigation3D.Frustum)">
+            <summary>
+            Is invoked when the Navigation3D instance needs to set the view frustum.
+            </summary>
+            <param name="frustum">The view <see cref="T:TDx.SpaceMouse.Navigation3D.Frustum"/> to set.</param>
+            <exception cref="T:System.InvalidOperationException">Call is invalid for the object's current state.</exception>
+            <exception cref="T:System.NotImplementedException">The requested method or operation is not implemented.</exception>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.IView.IsViewPerspective">
+            <summary>
+            Is invoked when the Navigation3D instance needs to get the view's projection type.
+            </summary>
+            <returns>true for a perspective view, false for an orthographic view, otherwise null.</returns>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.IView.GetCameraTarget">
+            <summary>
+            Is invoked when the Navigation3D instance needs to get the camera's target.
+            </summary>
+            <returns>The position of the camera's target.</returns>
+            <exception cref="T:TDx.SpaceMouse.Navigation3D.NoDataException">The camera does not have a target.</exception>
+            <exception cref="T:System.InvalidOperationException">Call is invalid for the object's current state.</exception>
+            <exception cref="T:System.NotImplementedException">The requested method or operation is not implemented.</exception>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.IView.SetCameraTarget(TDx.SpaceMouse.Navigation3D.Point)">
+            <summary>
+            Is invoked when the Navigation3D instance needs to set the camera's target.
+            </summary>
+            <param name="target">The location of the camera's target to set.</param>
+            <exception cref="T:System.InvalidOperationException">Call is invalid for the object's current state.</exception>
+            <exception cref="T:System.NotImplementedException">The requested method or operation is not implemented.</exception>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.IView.GetViewConstructionPlane">
+            <summary>
+            Is invoked when the Navigation3D instance needs to get the view's construction plane.
+            </summary>
+            <returns>The <see cref="T:TDx.SpaceMouse.Navigation3D.Plane"/> equation of the construction plane, otherwise null.</returns>
+            <exception cref="T:TDx.SpaceMouse.Navigation3D.NoDataException">The view does not have a target.</exception>
+            <exception cref="T:System.InvalidOperationException">Call is invalid for the object's current state.</exception>
+            <exception cref="T:System.NotImplementedException">The requested method or operation is not implemented.</exception>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.IView.IsViewRotatable">
+            <summary>
+            Is invoked when the Navigation3D instance needs to know whether the view can be rotated.
+            </summary>
+            <returns>true if the view can be rotated false if not, otherwise null.</returns>
+            <exception cref="T:System.NotImplementedException">The requested method or operation is not implemented.</exception>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.IView.SetPointerPosition(TDx.SpaceMouse.Navigation3D.Point)">
+            <summary>
+            Is invoked when the Navigation3D instance needs to set the position of the pointer.
+            </summary>
+            <param name="position">The location of the pointer in world coordinates to set.</param>
+            <exception cref="T:System.InvalidOperationException">Call is invalid for the object's current state.</exception>
+            <exception cref="T:System.NotImplementedException">The requested method or operation is not implemented.</exception>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.IView.GetPointerPosition">
+            <summary>
+            Is invoked when the Navigation3D instance needs to get the position of the pointer.
+            </summary>
+            <returns>The <see cref="T:TDx.SpaceMouse.Navigation3D.Point"/> in world coordinates of the pointer on the projection plane.</returns>
+            <exception cref="T:TDx.SpaceMouse.Navigation3D.NoDataException">The view does not have a pointer.</exception>
+            <exception cref="T:System.InvalidOperationException">Call is invalid for the object's current state.</exception>
+            <exception cref="T:System.NotImplementedException">The requested method or operation is not implemented.</exception>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.Key">
+            <summary>
+            Specifies the possible key values on a 3D Mouse.
+            </summary>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.KeyEventArgs">
+            <summary>
+            Provides the event data for the KeyDown and KeyUp events.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.KeyEventArgs.#ctor(System.Boolean,System.Int32,TDx.SpaceMouse.Navigation3D.Key)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.KeyEventArgs"/> class.
+            </summary>
+            <param name="isDown">Whether the key referenced by the event is in the down state.</param>
+            <param name="timestamp">The time when the input occurred.</param>
+            <param name="key">The key referenced by the event.</param>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.KeyEventArgs.IsDown">
+            <summary>
+            Gets a value indicating whether the key referenced by the event is in the down state.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.KeyEventArgs.IsUp">
+            <summary>
+            Gets a value indicating whether the key referenced by the event is in the up state.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.KeyEventArgs.Key">
+            <summary>
+            Gets the 3dmouse key associated with the event.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.KeyEventArgs.TimeStamp">
+            <summary>
+            Gets the time when this event occurred.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.KeyEventArgs.Handled">
+            <summary>
+            Gets or sets a value indicating whether the event has already been handled.
+            </summary>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.MotionEventArgs">
+            <summary>
+            Provides the event data for the MotionChanged event.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.MotionEventArgs.#ctor(System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.MotionEventArgs"/> class.
+            </summary>
+            <param name="isNavigating">true if the model/scene is being navigated.</param>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.MotionEventArgs.IsNavigating">
+            <summary>
+            Gets a value indicating whether the scene is being navigated.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.MotionEventArgs.op_Implicit(TDx.SpaceMouse.Navigation3D.MotionEventArgs)~System.Boolean">
+            <summary>
+            User-defined conversion from <see cref="T:TDx.SpaceMouse.Navigation3D.MotionEventArgs"/> to <see cref="T:System.Boolean"/>.
+            </summary>
+            <param name="args">The <see cref="T:TDx.SpaceMouse.Navigation3D.MotionEventArgs"/> to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.MotionEventArgs.op_Implicit(System.Boolean)~TDx.SpaceMouse.Navigation3D.MotionEventArgs">
+            <summary>
+            User-defined conversion from <see cref="T:System.Boolean"/> to <see cref="T:TDx.SpaceMouse.Navigation3D.MotionEventArgs"/>.
+            </summary>
+            <param name="isNavigating">The <see cref="T:System.Boolean"/> to convert.</param>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.NativeNavlibWrapper">
+            <summary>
+            Class <see cref="T:TDx.SpaceMouse.Navigation3D.NativeNavlibWrapper"/>wraps the native navlib assembly.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.NativeNavlibWrapper.Finalize">
+            <summary>
+            Finalizes an instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.NativeNavlibWrapper"/> class.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.NativeNavlibWrapper.Close">
+            <summary>
+            Close the connexion to the navigation library.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.NativeNavlibWrapper.Open(System.String,TDx.SpaceMouse.Navigation3D.Accessor[],TDx.SpaceMouse.Navigation3D.CreateOptions)">
+            <summary>
+            Open the connexion to the navigation library.
+            </summary>
+            <param name="applicationName">The name of the application. This is used to select the 3DMouse profile.</param>
+            <param name="propertyAccessors">The property getter and setter <see cref="T:TDx.SpaceMouse.Navigation3D.Accessor"/> array.</param>
+            <param name="navlibOptions">Optional navigation library configuration options.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.NativeNavlibWrapper.ReadAsync(System.String)">
+            <summary>
+            Read the value of a property from the navlib asynchronously.
+            </summary>
+            <param name="propertyName">The name of the property to read.</param>
+            <returns>the <see cref="T:System.Threading.Tasks.Task`1"/> result.</returns>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.NativeNavlibWrapper.Read(System.String)">
+            <summary>
+            Read the value of a property from the navlib.
+            </summary>
+            <param name="propertyName">The name of the property to read.</param>
+            <returns>the <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> result.</returns>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.NativeNavlibWrapper.WriteAsync(System.String,TDx.SpaceMouse.Navigation3D.Value)">
+            <summary>
+            Asynchronously writes the value of a property to the navlib.
+            </summary>
+            <param name="propertyName">The name of the property to read.</param>
+            <param name="value">Value to receive the result.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.NativeNavlibWrapper.Write(System.String,TDx.SpaceMouse.Navigation3D.Value)">
+            <summary>
+            Writes the value of a property to the navlib.
+            </summary>
+            <param name="propertyName">The name of the property to read.</param>
+            <param name="value">Value to receive the result.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.NativeNavlibWrapper.System#IDisposable#Dispose">
+            <summary>
+            Provides a mechanism for releasing unmanaged resources.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.NativeNavlibWrapper.Dispose(System.Boolean)">
+            <summary>
+            Clean up resources.
+            </summary>
+            <param name="disposing">true, the method has been called directly or indirectly by user code. Managed and unmanaged resources can be disposed.</param>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.NativeNavlibWrapper.NativeMethods">
+            <summary>
+            Defines the <see cref="T:TDx.SpaceMouse.Navigation3D.NativeNavlibWrapper.NativeMethods"/> used by the <see cref="T:TDx.SpaceMouse.Navigation3D.NativeNavlibWrapper"/> class.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.NativeNavlibWrapper.NativeMethods.NlCreate(System.UInt64@,System.String,TDx.SpaceMouse.Navigation3D.NativeNavlibWrapper.NativeMethods.Accessor[],System.Int32,TDx.SpaceMouse.Navigation3D.CreateOptions)">
+            <summary>
+            The NlCreate.
+            </summary>
+            <param name="handle">The <see cref="T:System.UInt64"/>.</param>
+            <param name="name">The <see cref="T:System.String"/>.</param>
+            <param name="propertyAccessors">The <see cref="T:TDx.SpaceMouse.Navigation3D.NativeNavlibWrapper.NativeMethods.Accessor"/>.</param>
+            <param name="size">The <see cref="T:System.UInt32"/>.</param>
+            <param name="options">The <see cref="T:TDx.SpaceMouse.Navigation3D.CreateOptions"/>.</param>
+            <returns>The <see cref="T:System.Int32"/>.</returns>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.NativeNavlibWrapper.NativeMethods.NlClose(System.UInt64)">
+            <summary>
+            The NlClose.
+            </summary>
+            <param name="handle">The <see cref="T:System.UInt64"/>.</param>
+            <returns>The <see cref="T:System.Int32"/>.</returns>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.NativeNavlibWrapper.NativeMethods.NlReadValue(System.UInt64,System.String,TDx.SpaceMouse.Navigation3D.Value)">
+            <summary>
+            The NlReadValue.
+            </summary>
+            <param name="handle">The <see cref="T:System.UInt64"/>.</param>
+            <param name="property">The <see cref="T:System.String"/>.</param>
+            <param name="value">The <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/>.</param>
+            <returns>The <see cref="T:System.Int32"/>.</returns>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.NativeNavlibWrapper.NativeMethods.NlWriteValue(System.UInt64,System.String,TDx.SpaceMouse.Navigation3D.Value)">
+            <summary>
+            The NlWriteValue.
+            </summary>
+            <param name="handle">The <see cref="T:System.UInt64"/>.</param>
+            <param name="property">The <see cref="T:System.String"/>.</param>
+            <param name="value">The <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/>.</param>
+            <returns>The <see cref="T:System.Int32"/>.</returns>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.NativeNavlibWrapper.NativeMethods.Accessor">
+            <summary>
+            Definition of the accessor and mutator for a property.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.NativeNavlibWrapper.NativeMethods.Accessor.name">
+            <summary>
+            The name of the property.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.NativeNavlibWrapper.NativeMethods.Accessor.fnGet">
+            <summary>
+            The accessor function pointer called by the navlib to get the value of the property.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.NativeNavlibWrapper.NativeMethods.Accessor.fnSet">
+            <summary>
+            The mutator function pointer called by the navlib to set the value of the property.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.NativeNavlibWrapper.NativeMethods.Accessor.param">
+            <summary>
+            A client defined value that the navlib includes in the accessor/mutator call.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.NativeNavlibWrapper.NativeMethods.Accessor.#ctor(System.String,System.IntPtr,System.IntPtr,System.Int64)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.NativeNavlibWrapper.NativeMethods.Accessor"/> struct.
+            </summary>
+            <param name="name">The name of the property.</param>
+            <param name="fnGetProperty">The accessor method.</param>
+            <param name="fnSetProperty">The mutator method.</param>
+            <param name="param">An application defined value.</param>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.GetPropertyValue">
+            <summary>
+            The delegate for the native navlib to get the value of a property.
+            </summary>
+            <param name="param">The param member of the <see cref="F:TDx.SpaceMouse.Navigation3D.Accessor.param"/> accessor struct.</param>
+            <param name="property">The name of the property<see cref="F:TDx.SpaceMouse.Navigation3D.Accessor.name"/>.</param>
+            <param name="variant">The value of the property <see cref="T:TDx.SpaceMouse.Navigation3D.Variant"/>.</param>
+            <returns>The <see cref="T:TDx.SpaceMouse.Navigation3D.AccessorResult"/> of the accessor.</returns>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.SetPropertyValue">
+            <summary>
+            The delegate for the native navlib to set the value of a property.
+            </summary>
+            <param name="param">The param member of the <see cref="F:TDx.SpaceMouse.Navigation3D.Accessor.param"/> struct passed in.</param>
+            <param name="property">The name of the property<see cref="F:TDx.SpaceMouse.Navigation3D.Accessor.name"/>.</param>
+            <param name="variant">The new value of the property <see cref="T:TDx.SpaceMouse.Navigation3D.Variant"/>.</param>
+            <returns>The <see cref="T:TDx.SpaceMouse.Navigation3D.AccessorResult"/> of the mutator.</returns>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.AccessorResult">
+            <summary>
+            Error codes.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.AccessorResult.NoError">
+            <summary>
+            No error
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.AccessorResult.ErrorNotImplemented">
+            <summary>
+            no access
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.AccessorResult.ErrorInvalidOperation">
+            <summary>
+            Cannot access the property
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.AccessorResult.ErrorInvalidData">
+            <summary>
+            Invalid Data
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.AccessorResult.ErrorInsufficientBuffer">
+            <summary>
+            Buffer too small
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.AccessorResult.ErrorNoDataAvailable">
+            <summary>
+            No data available
+            </summary>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.Accessor">
+            <summary>
+            Definition of the accessor and mutator for a property.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Accessor.name">
+            <summary>
+            The name of the property.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Accessor.fnGet">
+            <summary>
+            The accessor method called by the navlib to get the value of the property.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Accessor.fnSet">
+            <summary>
+            The mutator method called by the navlib to set the value of the property.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Accessor.param">
+            <summary>
+            A client defined value that the navlib includes in the accessor/mutator call.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Accessor.#ctor(System.String,TDx.SpaceMouse.Navigation3D.GetPropertyValue,TDx.SpaceMouse.Navigation3D.SetPropertyValue,System.Int64)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Accessor"/> struct.
+            </summary>
+            <param name="name">The name of the property.</param>
+            <param name="fnGetProperty">The accessor method.</param>
+            <param name="fnSetProperty">The mutator method.</param>
+            <param name="param">An application defined value.</param>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Accessor.Name">
+            <summary>
+            Gets the property name the <see cref="T:TDx.SpaceMouse.Navigation3D.Accessor"/> refers to.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Accessor.ReadDelegate">
+            <summary>
+            Gets the <see cref="T:TDx.SpaceMouse.Navigation3D.GetPropertyValue"/> read delegate.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Accessor.WriteDelegate">
+            <summary>
+            Gets the <see cref="T:TDx.SpaceMouse.Navigation3D.SetPropertyValue"/> write delegate.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Accessor.Param">
+            <summary>
+            Gets the param passed to the delegates.
+            </summary>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.Box">
+            <summary>
+            Structure defined by two opposite vertices representing a box.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Box.Min">
+            <summary>
+            Vertex with the smallest coordinates.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Box.Max">
+            <summary>
+            Vertex with the largest coordinates.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Box.#ctor(TDx.SpaceMouse.Navigation3D.Point,TDx.SpaceMouse.Navigation3D.Point)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Box"/> struct from two vertices.
+            </summary>
+            <param name="min">Vertex with the smallest coordinates.</param>
+            <param name="max">Vertex with the largest coordinates.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Box.#ctor(System.Double,System.Double,System.Double,System.Double,System.Double,System.Double)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Box"/> struct from
+            6 values.
+            </summary>
+            <param name="minX">Minimum X coordinate of the box.</param>
+            <param name="minY">Minimum Y coordinate of the box.</param>
+            <param name="minZ">Minimum Z coordinate of the box.</param>
+            <param name="maxX">Maximum X coordinate of the box.</param>
+            <param name="maxY">Maximum Y coordinate of the box.</param>
+            <param name="maxZ">Maximum Z coordinate of the box.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Box.#ctor(System.Double[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Box"/> struct from a
+            one-dimensional array of 6 elements:
+            {min_x, min_y, min_z, max_x, max_y, max_z}.
+            </summary>
+            <param name="box">one-dimensional array of 6 elements.</param>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.Options">
+            <summary>
+            Navlib options.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Options.None">
+            <summary>
+            No options - the native navlib library should use it's defaults.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Options.NonQueuedMessages">
+            <summary>
+            Enable the use of non-queued messages in the windows navlib library.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Options.ColumnVectors">
+            <summary>
+            The matrices are to be communicated as arrays using row major order, the default is
+            column major order.
+            </summary>
+            <remarks>The  default (column major) order matrices correspond to row vectors. Arrays
+            using row major order correspond to column vectors. Most 3D applications use row vectors.
+            </remarks>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.CreateOptions">
+            <summary>
+            Options passed to the navlib when creating a connexion.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.CreateOptions.#ctor(System.Boolean,TDx.SpaceMouse.Navigation3D.Options)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.CreateOptions"/> class.
+            </summary>
+            <param name="multiThreaded">Allow multi-threading.</param>
+            <param name="options">The navlib options to set see <see cref="T:TDx.SpaceMouse.Navigation3D.Options"/>.</param>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.Frustum">
+            <summary>
+            Structure to hold a frustum.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Frustum.#ctor(System.Double,System.Double,System.Double,System.Double,System.Double,System.Double)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Frustum"/> struct.
+            </summary>
+            <param name="left">frustum left.</param>
+            <param name="right">frustum right.</param>
+            <param name="bottom">frustum bottom.</param>
+            <param name="top">frustum top.</param>
+            <param name="nearVal">frustum near.</param>
+            <param name="farVal">frustum far.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Frustum.#ctor(System.Double[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Frustum"/> struct.
+            Creates an instance from one-dimensional zero-based array of 6 elements
+            that represent 'left, right, bottom, top, near, far' plane offsets form
+            origin respectively.
+            </summary>
+            <param name="frustum">array of values.</param>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Frustum.Left">
+            <summary>
+            Gets the Left value.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Frustum.Right">
+            <summary>
+            Gets the Right value.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Frustum.Bottom">
+            <summary>
+            Gets the Bottom value.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Frustum.Top">
+            <summary>
+            Gets the Bottom value.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Frustum.Near">
+            <summary>
+            Gets the Bottom value.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Frustum.Far">
+            <summary>
+            Gets the Bottom value.
+            </summary>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.Image">
+            <summary>
+            Image structure that acts as a wrapper for <see cref="T:TDx.SpaceMouse.Navigation3D.SiImage"/>.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Image.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Image"/> class.
+            </summary>
+            <param name="id">A unique identifier for the images.</param>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Image.Id">
+            <summary>
+            Gets or sets the id field. The id specifies the <see langword="string"/> identifier for the image.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Image.FromFile(System.String,System.Int32,System.String)">
+            <summary>
+             Create a <see cref="T:TDx.SpaceMouse.Navigation3D.Image"/> for an image file.
+            </summary>
+            <param name="filename">The name of the image file.</param>
+            <param name="index">The index of the image in a multi image.</param>
+            <param name="id">A unique identifier for the <see cref="T:TDx.SpaceMouse.Navigation3D.SiImage"/>.</param>
+            <returns>The new <see cref="T:TDx.SpaceMouse.Navigation3D.SiImage"/>.</returns>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Image.FromResource(System.String,System.String,System.String,System.Int32,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.ImageResource"/> class.
+            </summary>
+            <param name="resourceFile">The name of the resource file.</param>
+            <param name="resourceType">The type of the resource in the resource file.</param>
+            <param name="resourceName">The name of the image in the resource file.</param>
+            <param name="index">The index of the image in a multi image.</param>
+            <param name="id">A unique identifier for the <see cref="T:TDx.SpaceMouse.Navigation3D.SiImage"/>.</param>
+            <returns>The new <see cref="T:TDx.SpaceMouse.Navigation3D.SiImage"/>.</returns>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Image.FromData(System.Byte[],System.Int32,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.ImageData"/> class.
+            </summary>
+            <param name="data">The image as a sequence of bytes.</param>
+            <param name="index">The index of the image in a multi image.</param>
+            <param name="id">A unique identifier for the <see cref="T:TDx.SpaceMouse.Navigation3D.SiImage"/>.</param>
+            <returns>The new <see cref="T:TDx.SpaceMouse.Navigation3D.SiImage"/>.</returns>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Image.FromImage(System.Drawing.Image,System.Int32,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.ImageData"/> class.
+            </summary>
+            <param name="image">The image as a <see cref="T:System.Drawing.Image"/>.</param>
+            <param name="index">The index of the image in a multi image.</param>
+            <param name="id">A unique identifier for the <see cref="T:TDx.SpaceMouse.Navigation3D.SiImage"/>.</param>
+            <returns>The new <see cref="T:TDx.SpaceMouse.Navigation3D.SiImage"/>.</returns>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Image.Copy">
+            <summary>
+            Creates a shallow copy of the Image.
+            </summary>
+            <returns>A copy of the <see cref="T:TDx.SpaceMouse.Navigation3D.Image"/>.</returns>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.ImageData">
+            <summary>
+            Image as data.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.ImageData.data">
+            <summary>
+            The byte array containing the image data.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.ImageData.index">
+            <summary>
+            Index of the image in a multi-image image.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.ImageData.#ctor(System.Byte[],System.Int32,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.ImageData"/> class.
+            </summary>
+            <param name="data">The image as a sequence of bytes.</param>
+            <param name="index">The index of the image in a multi image.</param>
+            <param name="id">A unique identifier for the <see cref="T:TDx.SpaceMouse.Navigation3D.SiImage"/>.</param>
+            <returns>The new <see cref="T:TDx.SpaceMouse.Navigation3D.SiImage"/>.</returns>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.ImageData.Data">
+            <summary>
+            Gets or sets the image data.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.ImageData.Index">
+            <summary>
+            Gets or sets the index of the image in a multi-image image.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.ImageData.Copy">
+            <inheritdoc/>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.ImageFile">
+            <summary>
+            Image file.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.ImageFile.filename">
+            <summary>
+            The name of the image file.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.ImageFile.index">
+            <summary>
+            Index of the image in a multi-image file.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.ImageFile.#ctor(System.String,System.Int32,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.ImageFile"/> class.
+            </summary>
+            <param name="filename">The name of the image file.</param>
+            <param name="id">A unique identifier for the <see cref="T:TDx.SpaceMouse.Navigation3D.SiImage"/>.</param>
+            <param name="index">The index of the image in a multi image.</param>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.ImageFile.Filename">
+            <summary>
+            Gets or sets the name of the image file.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.ImageFile.Index">
+            <summary>
+            Gets or sets index of the image in a multi-image file.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.ImageFile.Copy">
+            <inheritdoc/>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.ImageResource">
+            <summary>
+            Image stored in a resource file.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.ImageResource.filename">
+            <summary>
+            The name of the resource file.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.ImageResource.name">
+            <summary>
+            The id of the resource in the resource file.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.ImageResource.type">
+            <summary>
+            The resource type.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.ImageResource.index">
+            <summary>
+            Index of the image in a multi-image resource.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.ImageResource.#ctor(System.String,System.String,System.String,System.Int32,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.ImageResource"/> class.
+            </summary>
+            <param name="resourceFile">The name of the resource file.</param>
+            <param name="resourceType">The type of the resource in the resource file.</param>
+            <param name="resourceName">The name of the image in the resource file.</param>
+            <param name="index">The index of the image in a multi image.</param>
+            <param name="id">A unique identifier for the <see cref="T:TDx.SpaceMouse.Navigation3D.SiImage"/>.</param>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.ImageResource.Filename">
+            <summary>
+            Gets or sets the name of the resource file.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.ImageResource.Name">
+            <summary>
+            Gets or sets the name of the resource in the resource file.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.ImageResource.Type">
+            <summary>
+            Gets or sets type of the resource in the resource file.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.ImageResource.Index">
+            <summary>
+            Gets or sets index of the image in a multi-image file.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.ImageResource.Copy">
+            <inheritdoc/>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.SiActionNodeType">
+            <summary>
+            Enumeration for the types that <see cref="T:TDx.SpaceMouse.Navigation3D.Variant"/> can contain.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.SiActionNodeType.ActionSet">
+            <summary>
+            The root node of a set of commands defining the name of the set.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.SiActionNodeType.Category">
+            <summary>
+            The name of a group of commands.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.SiActionNodeType.Action">
+            <summary>
+            The node defining an application command.
+            </summary>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.SiActionNodeEx">
+            <summary>
+            The structure represents a siActionNodeEx_s node of the action tree for the action set.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.SiActionNodeEx.size">
+            <summary>
+            The size field must always be the byte size of siActionNodeEx_s.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.SiActionNodeEx.type">
+            <summary>
+            The type of node this structure represents.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.SiActionNodeEx.next">
+            <summary>
+            Pointer to the next node.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.SiActionNodeEx.children">
+            <summary>
+            Pointer to the child nodes.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.SiActionNodeEx.id">
+            <summary>
+            The Id field specifies a UTF8 string identifier for the action set,
+            category, or action represented by the node.The field is always non-NULL.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.SiActionNodeEx.label">
+            <summary>
+            The Label field specifies a UTF8 localized/internationalized name
+            for the action set, category, or action represented by the node.The label
+            field can be NULL for the root and intermediate category nodes that are not
+             explicitly presented to users.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.SiActionNodeEx.description">
+            <summary>
+            The Description field specifies a UTF8 localized/internationalized tooltip
+            for the action set, category, or action represented by the node.The description
+            field can be NULL for the root and intermediate category nodes that are not
+            explicitly presented to users.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.SiActionNodeEx.Type">
+            <summary>
+            Gets or sets the node type.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.SiActionNodeEx.Next">
+            <summary>
+            Gets or sets the next field.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.SiActionNodeEx.Children">
+            <summary>
+            Gets or sets the children field.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.SiActionNodeEx.Id">
+            <summary>
+            Gets or sets the id field.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.SiActionNodeEx.Label">
+            <summary>
+            Gets or sets the label field.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.SiActionNodeEx.Description">
+            <summary>
+            Gets or sets the description.
+            </summary>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.SiImageType">
+            <summary>
+            The type of image data that is referenced by the <see cref="T:TDx.SpaceMouse.Navigation3D.SiImage"/> struct.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.SiImageType.None">
+            <summary>
+            No image
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.SiImageType.ImageFile">
+            <summary>
+            The image data refers to an image file
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.SiImageType.ResourceFile">
+            <summary>
+            The image data refers to an resource file
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.SiImageType.Image">
+            <summary>
+            The image data contains the image
+            </summary>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.SiImage">
+            <summary>
+            Structure representing an Image.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.SiImage.Size">
+            <summary>
+            The size of the <see cref="T:TDx.SpaceMouse.Navigation3D.SiImage"/> struct in bytes.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.SiImage.Type">
+            <summary>
+            The type of image data stored in this struct see <see cref="T:TDx.SpaceMouse.Navigation3D.SiImageType"/>.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.SiImage.Id">
+            <summary>
+            The id field specifies a UTF8 string identifier for the image. The field is
+            always non-null.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.SiImage.U">
+            <summary>
+            The image variant.
+            </summary>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.SiImage.Union">
+            <summary>
+            Image variant.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.SiImage.Union.Image">
+            <summary>
+            The source of the image is image data.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.SiImage.Union.Resource">
+            <summary>
+            The source of the image is a resource in a resource file.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.SiImage.Union.File">
+            <summary>
+            The source of the image is an image file.
+            </summary>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.Array">
+            <summary>
+            Array of images.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Array.#ctor(System.IntPtr,System.UIntPtr)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Array"/> struct.
+            </summary>
+            <param name="pointer"><see cref="T:System.IntPtr"/> to the beginning of the array.</param>
+            <param name="length">Number of elements in the array.</param>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Array.Pointer">
+            <summary>
+            Gets or sets the native pointer.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Array.Length">
+            <summary>
+            Gets or sets the <see cref="F:TDx.SpaceMouse.Navigation3D.Array.length"/> of the array.
+            </summary>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.SiImageData">
+            <summary>
+            Image as data.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.SiImageData.Data">
+            <summary>
+            Pointer to byte array.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.SiImageData.Size">
+            <summary>
+            The size of the byte array.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.SiImageData.Index">
+            <summary>
+            Index of the image in a multi-image data.
+            </summary>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.Matrix">
+            <summary>
+            Structure representing a 4x4 transformation matrix.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Matrix.M11">
+            <summary>
+            Gets or sets the value of the first row and first column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/>.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Matrix.M12">
+            <summary>
+            Gets or sets the value of the first row and second column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/>.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Matrix.M13">
+            <summary>
+            Gets or sets the value of the first row and third column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/>.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Matrix.M14">
+            <summary>
+            Gets or sets the value of the first row and fourth column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/>.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Matrix.M21">
+            <summary>
+            Gets or sets the value of the second row and first column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/>.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Matrix.M22">
+            <summary>
+            Gets or sets the value of the second row and second column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/>.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Matrix.M23">
+            <summary>
+            Gets or sets the value of the second row and third column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/>.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Matrix.M24">
+            <summary>
+            Gets or sets the value of the second row and fourth column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/>.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Matrix.M31">
+            <summary>
+            Gets or sets the value of the third row and first column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/>.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Matrix.M32">
+            <summary>
+            Gets or sets the value of the third row and second column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/>.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Matrix.M33">
+            <summary>
+            Gets or sets the value of the third row and third column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/>.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Matrix.M34">
+            <summary>
+            Gets or sets the value of the third row and fourth column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/>.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Matrix.M41">
+            <summary>
+            Gets or sets the value of the fourth row and first column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/>.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Matrix.M42">
+            <summary>
+            Gets or sets the value of the fourth row and second column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/>.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Matrix.M43">
+            <summary>
+            Gets or sets the value of the fourth row and third column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/>.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Matrix.M44">
+            <summary>
+            Gets or sets the value of the fourth row and fourth column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/>.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Matrix.#ctor(System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/> struct.
+            Constructor that sets the matrix's initial values.
+            </summary>
+            <param name="m11">value of the first row and first column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/> structure.</param>
+            <param name="m12">value of the first row and second column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/> structure.</param>
+            <param name="m13">the value of the first row and third column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/> structure.</param>
+            <param name="m14">the value of the first row and fourth column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/> structure.</param>
+            <param name="m21">the value of the second row and first column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/> structure.</param>
+            <param name="m22">the value of the second row and second column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/> structure.</param>
+            <param name="m23">the value of the second row and third column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/> structure.</param>
+            <param name="m24">the value of the second row and fourth column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/> structure.</param>
+            <param name="m31">the value of the third row and first column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/> structure.</param>
+            <param name="m32">the value of the third row and second column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/> structure.</param>
+            <param name="m33">the value of the third row and third column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/> structure.</param>
+            <param name="m34">the value of the third row and fourth column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/> structure.</param>
+            <param name="m41">the value of the fourth row and first column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/> structure.</param>
+            <param name="m42">the value of the fourth row and second column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/> structure.</param>
+            <param name="m43">the value of the fourth row and third column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/> structure.</param>
+            <param name="m44">the value of the fourth row and fourth column of this <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/> structure.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Matrix.#ctor(System.Double[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Matrix"/> struct.
+            Constructor that sets the matrix's initial values from an array[16].
+            </summary>
+            <param name="array">The 16 values of the matrix.</param>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Matrix.Identity">
+            <summary>
+            Gets the identity matrix.
+            </summary>
+            <returns>An identity matrix.</returns>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.Navigation3D">
+            <summary>
+            Class for navigating in 3D.
+            </summary>
+            <summary>
+            Accessor interface for the NativeNavlibWrapper instance.
+            </summary>
+            <summary>
+            Events implementation for the NativeNavlibWrapper instance.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Navigation3D.#ctor(TDx.SpaceMouse.Navigation3D.INavigation3D,System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Navigation3D"/> class.
+            </summary>
+            <param name="sink">The instance of the implementation of the <see cref="P:TDx.SpaceMouse.Navigation3D.Navigation3D.INavigation3D"/> interface.</param>
+            <param name="multiThreaded">Whether the Navigation3D instance is multi-threaded.</param>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.Navigation3D.TimingSource">
+            <summary>
+            The timing source for the frame time.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Navigation3D.TimingSource.SpaceMouse">
+            <summary>
+            The space mouse is the source of the frame timing.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Navigation3D.TimingSource.Application">
+            <summary>
+            The application is the source of the frame timing.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Navigation3D.Active">
+            <summary>
+            Sets a value indicating whether the connection is active.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Navigation3D.Focus">
+            <summary>
+            Sets a value indicating whether the application has keyboard focus.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Navigation3D.FrameTiming">
+            <summary>
+            Sets the animation frame timing source.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Navigation3D.FrameTime">
+            <summary>
+            Gets or sets the animation frame time.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Navigation3D.Motion">
+            <summary>
+            Gets or sets a value indicating whether the navlib 3D mouse is navigating.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Navigation3D.MultiThreaded">
+            <summary>
+            Gets or sets a value indicating whether the Navigation3D instance is multi-threaded.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Navigation3D.RowVectors">
+            <summary>
+            Gets or sets a value indicating whether the Navigation3D client uses row or column vectors.
+            </summary>
+            <remarks>
+            With row vectors, matrix transformations reconfiguring n-space are be applied on the right.
+            </remarks>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Navigation3D.Properties">
+            <summary>
+            Gets the navlib property interface.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Navigation3D.ActiveCommandSet">
+            <summary>
+            Gets or sets the active set of commands.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Navigation3D.Name">
+            <summary>
+            Gets the name of 3Dconnexion profile.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Navigation3D.INavigation3D">
+            <summary>
+            Gets or sets the interface for the 3d navigation callbacks.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Navigation3D.AddCommands(TDx.SpaceMouse.Navigation3D.CommandTree)">
+            <summary>
+            Add to the commands available to the 3D mouse.
+            </summary>
+            <param name="commands">The tree of commands to add.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Navigation3D.AddImages(System.Collections.Generic.List{TDx.SpaceMouse.Navigation3D.Image})">
+            <summary>
+            Add to the images available to the 3D mouse.
+            </summary>
+            <param name="images">The <see cref="T:System.Collections.Generic.List`1"/> containing the images to add.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Navigation3D.Close">
+            <summary>
+            Close the connection to the 3D Mouse.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Navigation3D.Open3DMouse">
+            <summary>
+            Opens a connection to the 3D mouse.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Navigation3D.Open3DMouse(System.String)">
+            <summary>
+            Opens a connection to the 3D mouse.
+            </summary>
+            <param name="profileName">The name of the 3Dconnexion profile to use.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Navigation3D.System#IDisposable#Dispose">
+            <summary>
+            Provides a mechanism for releasing unmanaged resources.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Navigation3D.Dispose(System.Boolean)">
+            <summary>
+            Clean up resources.
+            </summary>
+            <param name="disposing">true, the method has been called directly or indirectly by user
+            code. Managed and unmanaged resources can be disposed.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Navigation3D.SetNavlibProperty(System.String,TDx.SpaceMouse.Navigation3D.Value)">
+            <summary>
+            Sets the value of a property in the navlib either synchronously or asynchronously
+            depending on the value of the Multithreaded property.
+            </summary>
+            <param name="propertyName">The name of the property to read.</param>
+            <param name="value">Value to receive the result.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> representing the asynchronous operation, or null if the
+            write was synchronous.</returns>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Navigation3D.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Navigation3D"/> class using the defaults.
+            This is a workaround for CS0027.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Navigation3D.ConvertException(System.Action)">
+            <summary>
+            Exception handling wrapper for the INavigation3D interface getters and mutators.
+            </summary>
+            <param name="fn">Method to invoke.</param>
+            <returns><see cref="T:TDx.SpaceMouse.Navigation3D.AccessorResult"/> to pass to the native implementation.</returns>
+        </member>
+        <member name="E:TDx.SpaceMouse.Navigation3D.Navigation3D.MotionChanged">
+            <summary>
+            Is invoked when the 3dmouse starts or stops sending 3D input data.
+            </summary>
+        </member>
+        <member name="E:TDx.SpaceMouse.Navigation3D.Navigation3D.TransactionChanged">
+            <summary>
+            Is invoked when the Navigation3D starts or stops a navigation transaction.
+            </summary>
+        </member>
+        <member name="E:TDx.SpaceMouse.Navigation3D.Navigation3D.SettingsChanged">
+            <summary>
+            Is invoked when the Navigation3D setting changed
+            </summary>
+        </member>
+        <member name="E:TDx.SpaceMouse.Navigation3D.Navigation3D.ExecuteCommand">
+            <summary>
+            Is invoked when the user invokes an application command
+            </summary>
+        </member>
+        <member name="E:TDx.SpaceMouse.Navigation3D.Navigation3D.KeyDown">
+            <summary>
+            Is invoked when the user presses a key on the 3D Mouse
+            </summary>
+        </member>
+        <member name="E:TDx.SpaceMouse.Navigation3D.Navigation3D.KeyUp">
+            <summary>
+            Is invoked when the user releases a key on the 3D Mouse
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Navigation3D.EnableRaisingEvents">
+            <summary>
+            Gets or sets a value indicating whether the component is enabled.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Navigation3D.OnMotionChanged(TDx.SpaceMouse.Navigation3D.MotionEventArgs)">
+            <summary>
+            Raises the MotionChanged event.
+            </summary>
+            <param name="e">A MotionEventArgs that contains the event data.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Navigation3D.OnTransactionChanged(TDx.SpaceMouse.Navigation3D.TransactionEventArgs)">
+            <summary>
+            Raises the TransactionChanged event.
+            </summary>
+            <param name="e">A TransactionEventArgs that contains the event data.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Navigation3D.OnSettingsChanged(System.EventArgs)">
+            <summary>
+            Raises the SettingsChanged event.
+            </summary>
+            <param name="e">An EventArgs that contains the event data.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Navigation3D.OnExecuteCommand(TDx.SpaceMouse.Navigation3D.CommandEventArgs)">
+            <summary>
+            Raises the CommandExecuted event.
+            </summary>
+            <param name="e">A CommandEventArgs that contains the event data.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Navigation3D.OnKeyDown(TDx.SpaceMouse.Navigation3D.KeyEventArgs)">
+            <summary>
+            Raises the KeyDown event.
+            </summary>
+            <param name="e">A KeyEventArgs that contains the event data.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Navigation3D.OnKeyUp(TDx.SpaceMouse.Navigation3D.KeyEventArgs)">
+            <summary>
+            Raises the KeyUp event.
+            </summary>
+            <param name="e">A KeyEventArgs that contains the event data.</param>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.NavlibErrc">
+            <summary>
+            This class mirrors std::errc Posix error codes.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.NavlibErrc.AlreadyConnected">
+            <summary>
+            EISCONN
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.NavlibErrc.IoError">
+            <summary>
+            EIO
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.NavlibErrc.FunctionNotSupported">
+            <summary>
+            ENOSYS
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.NavlibErrc.InvalidArgument">
+            <summary>
+            EINVAL
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.NavlibErrc.NoDataAvailable">
+            <summary>
+            ENODATA
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.NavlibErrc.NotEnoughMemory">
+            <summary>
+            ENOMEM
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.NavlibErrc.InsufficientBuffer">
+            <summary>
+            ENOBUFS
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.NavlibErrc.InvalidOperation">
+            <summary>
+            EPERM
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.NavlibErrc.PermissionDenied">
+            <summary>
+            EACCES
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.NavlibErrc.PropertyNotFound">
+            <summary>
+            0x201
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.NavlibErrc.InvalidFunction">
+            <summary>
+            0x202
+            </summary>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.GetPropertyValueEventHandler">
+            <summary>
+            Represents the method that will handle GetPropertyValue events.
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">The container for event data provided by the handler.</param>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.SetPropertyValueEventHandler">
+            <summary>
+            Represents the method that will handle SetPropertyValue events.
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">An object that contains the event data.</param>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.PropertyValueChangedEventHandler">
+            <summary>
+            Represents the method that will handle PropertyValueChanged events.
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">An object that contains the event data.</param>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.NavLibEventArgs">
+            <summary>
+            Provides the event data for the GetProperty SetProperty and PropertyChanged events.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.NavLibEventArgs.#ctor(System.String,TDx.SpaceMouse.Navigation3D.Value)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.NavLibEventArgs"/> class.
+            </summary>
+            <param name="property">The name of the property.</param>
+            <param name="value">The property's <see cref="P:TDx.SpaceMouse.Navigation3D.NavLibEventArgs.Value"/>.</param>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.NavLibEventArgs.Value">
+            <summary>
+            Gets or sets the properties value.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.NavLibEventArgs.Property">
+            <summary>
+            Gets the property field.
+            </summary>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.CallbackResult`1">
+            <summary>
+            Provides the result for the <see cref="T:TDx.SpaceMouse.Navigation3D.GetPropertyValue"/> and <see cref="T:TDx.SpaceMouse.Navigation3D.SetPropertyValue"/>
+            delegates.
+            </summary>
+            <typeparam name="TResult">The data type of the result.</typeparam>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.CallbackResult`1.value">
+            <summary>
+            The value of the result.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.CallbackResult`1.Value">
+            <summary>
+            Gets or sets the results value.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.CallbackResult`1.op_Implicit(TDx.SpaceMouse.Navigation3D.CallbackResult{`0})~`0">
+            <summary>
+            User-defined conversion from <see cref="T:TDx.SpaceMouse.Navigation3D.CallbackResult`1"/> to TResult.
+            </summary>
+            <param name="result">The <see cref="T:TDx.SpaceMouse.Navigation3D.CallbackResult`1"/> to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.CallbackResult`1.op_Implicit(`0)~TDx.SpaceMouse.Navigation3D.CallbackResult{`0}">
+            <summary>
+            User-defined conversion from TResult to <see cref="T:TDx.SpaceMouse.Navigation3D.CallbackResult`1"/>.
+            </summary>
+            <param name="value">The value to convert.</param>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.NoDataException">
+            <summary>
+            The exception that is thrown when a method call to get a property's value is invalid for the object's current state.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.NoDataException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.NoDataException"/> class.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.NoDataException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.NoDataException"/> class with a specified error message.
+            </summary>
+            <param name="message">The message that describes the error.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.NoDataException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.NoDataException"/> class with a specified error
+            message and a reference to the inner exception that is the cause of this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+            <param name="innerException">The exception that is the cause of the current exception, or a null reference
+            if no inner exception is specified.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.NoDataException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.NoDataException"/> class with serialized data.
+            </summary>
+            <param name="info">The System.Runtime.Serialization.SerializationInfo that holds the serialized
+            object data about the exception being thrown.</param>
+            <param name="context">The System.Runtime.Serialization.StreamingContext that contains contextual information
+             about the source or destination.</param>
+            <exception cref="T:System.ArgumentNullException">The info parameter is null.</exception>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">The class name is null or System.Exception.HResult is zero (0).</exception>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.Plane">
+            <summary>
+            Structure to hold a plane equation.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Plane.unitNormal">
+            <summary>
+            The unit normal of the plane.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Plane.distance">
+            <summary>
+            The shortest distance of the plane to the origin.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Plane.#ctor(TDx.SpaceMouse.Navigation3D.Vector@,System.Double)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Plane"/> struct.
+            </summary>
+            <param name="unitNormal">unit normal to the plane.</param>
+            <param name="distance">negative distance along normal to origin.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Plane.#ctor(System.Double[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Plane"/> struct.
+            </summary>
+            <param name="plane">plane equation.</param>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Plane.X">
+            <summary>
+            Gets or sets the X component of the plane's normal.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Plane.Y">
+            <summary>
+            Gets or sets the Y component of the plane's normal.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Plane.Z">
+            <summary>
+            Gets or sets the Z component of the plane's normal.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Plane.D">
+            <summary>
+            Gets or sets the D component of the plane equation
+            D is the negative distance of the plane to the origin.
+            </summary>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.Point">
+            <summary>
+            Structure representing a 3D point.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Point.X">
+            <summary>
+            X coordinate of the <see cref="T:TDx.SpaceMouse.Navigation3D.Point"/>.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Point.Y">
+            <summary>
+            Y coordinate of the <see cref="T:TDx.SpaceMouse.Navigation3D.Point"/>.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Point.Z">
+            <summary>
+            Z coordinate of the <see cref="T:TDx.SpaceMouse.Navigation3D.Point"/>.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Point.#ctor(System.Double,System.Double,System.Double)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Point"/> struct.
+            </summary>
+            <param name="x">x value.</param>
+            <param name="y">z value.</param>
+            <param name="z">y value.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Point.#ctor(System.Double[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Point"/> struct from
+            an array of three values.
+            </summary>
+            <param name="point">The x,y and z values of the point.</param>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.PropertyNames">
+            <summary>
+            The names of the properties used in the navlib.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.Active">
+            <summary>
+            navlib property that a client sets to indicate the connection focus.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.Focus">
+            <summary>
+            navlib property that a client sets to indicate it has keyboard focus.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.Motion">
+            <summary>
+            Property that the navlib sets when 3dmouse data is being input.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.CoordinateSystem">
+            <summary>
+            The affine of the clients coordinate system. This is the matrix that converts the clients
+            coordinates to the Y-up, X-right, right-handed coordinate system used in the navlib.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.Transaction">
+            <summary>
+            Transaction either begin (!=0) or end (==0).
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.FrameTime">
+            <summary>
+            Time point of the frame in milliseconds.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.FrameTimingSource">
+            <summary>
+            Timing source used for the frame time.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.DevicePresent">
+            <summary>
+            Property that the program can query to determine if an input device is attached.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.CommandsTree">
+            <summary>
+            Tree of commands.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.CommandsActiveCommand">
+            <summary>
+            Command the user has activated.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.CommandsActiveSet">
+            <summary>
+            The active command set.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.Images">
+            <summary>
+            Images.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.ViewAffine">
+            <summary>
+            The Affine of the view camera.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.ViewConstructionPlane">
+            <summary>
+            The construction plane of the view camera.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.ViewExtents">
+            <summary>
+            The extents of the orthographic view camera.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.ViewFOV">
+            <summary>
+            The field of view of the perspective view camera.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.ViewFrustum">
+            <summary>
+            The frustum of the perspective view camera.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.ViewPerspective">
+            <summary>
+            Whether the view camera has a perspective or orthographic projection.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.ViewTarget">
+            <summary>
+            The target of the view camera.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.ViewRotatable">
+            <summary>
+            Whether the view can be rotated.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.ViewsFront">
+            <summary>
+            Affine of the front view.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.PivotPosition">
+            <summary>
+            The position of the rotation pivot.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.PivotUser">
+            <summary>
+            Whether the user has manually set a rotation pivot.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.PivotVisible">
+            <summary>
+            The visibility of the rotation pivot.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.HitLookfrom">
+            <summary>
+            Position of the source of the hit test cone/beam.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.HitDirection">
+            <summary>
+            Direction of the hit test cone/beam.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.HitAperture">
+            <summary>
+            Aperture of the cone/beam on the near plane.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.HitLookat">
+            <summary>
+            The position of the hit.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.HitSelectionOnly">
+            <summary>
+            Only test the selection set.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.SelectionAffine">
+            <summary>
+            Affine of the selection set.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.SelectionEmpty">
+            <summary>
+            Selection set empty.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.SelectionExtents">
+            <summary>
+            The extents of the selection set.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.ModelExtents">
+            <summary>
+            The extents of the model.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.PointerPosition">
+            <summary>
+            Position of the pointer.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.EventsKeyPress">
+            <summary>
+            Property that the navlib sets when a 3dmouse key is pressed.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.EventsKeyRelease">
+            <summary>
+            Property that the navlib sets when a 3dmouse key is released.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.Settings">
+            <summary>
+            Prefix for the settings properties.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.PropertyNames.SettingsChanged">
+            <summary>
+            Settings changed property.
+            </summary>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.SiImageFile">
+            <summary>
+            Image file.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.SiImageFile.Filename">
+            <summary>
+            The name of the image file.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.SiImageFile.Index">
+            <summary>
+            Index of the image in a multi-image file.
+            </summary>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.SiImageResource">
+            <summary>
+            Image stored in a resource file.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.SiImageResource.Filename">
+            <summary>
+            string utf8.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.SiImageResource.Id">
+            <summary>
+            string utf8.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.SiImageResource.Type">
+            <summary>
+            string utf8.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.SiImageResource.Index">
+            <summary>
+            Index of the image in a multi-image resource.
+            </summary>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.TaskExtensions">
+            <summary>
+            Extension methods for the <see cref="T:System.Threading.Tasks.Task"/> class.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.TaskExtensions.NoAwait(System.Threading.Tasks.Task)">
+            <summary>
+            Suppress warning CS4014: 'Because this call is not awaited, execution of the current
+            method continues before the call is completed. Consider applying the 'await' operator
+            to the result of the call.'.
+            </summary>
+            <param name="task">The <see cref="T:System.Threading.Tasks.Task"/> not to await.</param>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.TransactionEventArgs">
+            <summary>
+            Provides the event data for the TransactionChanged event.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.TransactionEventArgs.#ctor(System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.TransactionEventArgs"/> class.
+            </summary>
+            <param name="transaction">The transaction number or 0.</param>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.TransactionEventArgs.Transaction">
+            <summary>
+            Gets a the transaction number.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.TransactionEventArgs.IsBegin">
+            <summary>
+            Gets a value indicating whether this is the begin of a transaction.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.TransactionEventArgs.IsEnd">
+            <summary>
+            Gets a value indicating whether this is the end of a transaction.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.TransactionEventArgs.op_Implicit(TDx.SpaceMouse.Navigation3D.TransactionEventArgs)~System.Boolean">
+            <summary>
+            User-defined conversion from <see cref="T:TDx.SpaceMouse.Navigation3D.TransactionEventArgs"/> to <see cref="T:System.Boolean"/>.
+            </summary>
+            <param name="args">The <see cref="T:TDx.SpaceMouse.Navigation3D.TransactionEventArgs"/> to convert.</param>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.Utf8String">
+            <summary>
+            Utf8String.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Utf8String.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Utf8String"/> class.
+            </summary>
+            <param name="string">The string to set the instance to.</param>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Utf8String.String">
+            <summary>
+            Gets or sets the <see langword="string"/>.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Utf8String.Utf8">
+            <summary>
+            Gets the utf8 <see langword="byte[]"/>.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Utf8String.op_Implicit(System.String)~TDx.SpaceMouse.Navigation3D.Utf8String">
+            <summary>
+            User-defined conversion from <see cref="T:System.String"/> to <see cref="T:TDx.SpaceMouse.Navigation3D.Utf8String"/>.
+            </summary>
+            <param name="string">The <see cref="T:System.String"/> to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Utf8String.op_Implicit(TDx.SpaceMouse.Navigation3D.Utf8String)~System.String">
+            <summary>
+            User-defined conversion from <see cref="T:TDx.SpaceMouse.Navigation3D.Utf8String"/> to <see cref="T:System.String"/>.
+            </summary>
+            <param name="utf8String">The <see cref="T:TDx.SpaceMouse.Navigation3D.Utf8String"/> to convert.</param>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.Value">
+            <summary>
+            Class used to pass values between the client and the navlib.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> class.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.#ctor(System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> class that
+            contains a bool value.
+            </summary>
+            <param name="b">the value.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.#ctor(System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> class that
+            contains an int value.
+            </summary>
+            <param name="i">the value.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.#ctor(System.Single)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> class that
+            contains an float value.
+            </summary>
+            <param name="f">the value.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.#ctor(System.Double)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> class that
+            contains a double value.
+            </summary>
+            <param name="d">the value.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.#ctor(TDx.SpaceMouse.Navigation3D.Point@)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> class that
+            contains a <see cref="P:TDx.SpaceMouse.Navigation3D.Value.Point"/> value.
+            </summary>
+            <param name="point">the <see cref="P:TDx.SpaceMouse.Navigation3D.Value.Point"/> to initialize the value from.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.#ctor(TDx.SpaceMouse.Navigation3D.Vector@)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> class that
+            contains a <see cref="P:TDx.SpaceMouse.Navigation3D.Value.Vector"/> value.
+            </summary>
+            <param name="vector">the <see cref="P:TDx.SpaceMouse.Navigation3D.Value.Vector"/> to initialize the value from.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.#ctor(TDx.SpaceMouse.Navigation3D.Plane@)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> class that
+            contains a <see cref="P:TDx.SpaceMouse.Navigation3D.Value.Plane"/> value.
+            </summary>
+            <param name="plane">the <see cref="P:TDx.SpaceMouse.Navigation3D.Value.Plane"/> to initialize the value from.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.#ctor(TDx.SpaceMouse.Navigation3D.Box@)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> class that
+            contains a <see cref="P:TDx.SpaceMouse.Navigation3D.Value.Box"/> value.
+            </summary>
+            <param name="box">the <see cref="P:TDx.SpaceMouse.Navigation3D.Value.Box"/> to initialize the value from.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.#ctor(TDx.SpaceMouse.Navigation3D.Matrix@)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> class that
+            contains a <see cref="P:TDx.SpaceMouse.Navigation3D.Value.Matrix"/> value.
+            </summary>
+            <param name="matrix">the <see cref="P:TDx.SpaceMouse.Navigation3D.Value.Matrix"/> to initialize the value from.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.#ctor(TDx.SpaceMouse.Navigation3D.Frustum@)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> class that
+            contains a <see cref="P:TDx.SpaceMouse.Navigation3D.Value.Frustum"/> value.
+            </summary>
+            <param name="frustum">the <see cref="P:TDx.SpaceMouse.Navigation3D.Value.Frustum"/> to initialize the value from.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> class that
+            contains a <see cref="T:System.String"/>.
+            </summary>
+            <param name="string">the <see cref="T:System.String"/> to initialize the value from.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.#ctor(System.Collections.Generic.List{TDx.SpaceMouse.Navigation3D.Image})">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> class that
+            contains an <see cref="T:TDx.SpaceMouse.Navigation3D.SiImage"/> array.
+            </summary>
+            <param name="images">the <seealso cref="P:TDx.SpaceMouse.Navigation3D.Value.Array"/> of <see cref="T:TDx.SpaceMouse.Navigation3D.SiImage"/>s to initialize the value from.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.#ctor(TDx.SpaceMouse.Navigation3D.CommandSet)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> class that
+            contains an <see cref="T:TDx.SpaceMouse.Navigation3D.SiActionNodeEx"/> tree.
+            </summary>
+            <param name="commands">the <see cref="T:TDx.SpaceMouse.Navigation3D.CommandSet"/>s to initialize the value from.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.#ctor(TDx.SpaceMouse.Navigation3D.CommandTree)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> class that
+            contains an <see cref="T:TDx.SpaceMouse.Navigation3D.SiActionNodeEx"/> tree.
+            </summary>
+            <param name="commands">the <see cref="T:TDx.SpaceMouse.Navigation3D.CommandTree"/>s to initialize the value from.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.#ctor(System.Byte[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> class that
+            contains a <see cref="T:System.Byte"/> array.
+            </summary>
+            <param name="bytes">the <see cref="P:TDx.SpaceMouse.Navigation3D.Value.Array"/> to initialize the value from.</param>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Value.Array">
+            <summary>
+            Gets the managed array <see langword="object"/>.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Value.Commands">
+            <summary>
+            Gets the managed action tree.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Value.Images">
+            <summary>
+            Gets the managed image list.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Value.Variant">
+            <summary>
+            Gets the variant <see langword="object"/>.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Value.String">
+            <summary>
+            Gets or sets the <see langword="string"/> value.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Value.Point">
+            <summary>
+            Gets or sets point value.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Value.Vector">
+            <summary>
+            Gets or sets vector value.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Value.Plane">
+            <summary>
+            Gets or sets plane value.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Value.Box">
+            <summary>
+            Gets or sets box value.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Value.Matrix">
+            <summary>
+            Gets or sets matrix value.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Value.Frustum">
+            <summary>
+            Gets or sets frustum value.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.op_Implicit(TDx.SpaceMouse.Navigation3D.Value)~System.Boolean">
+            <summary>
+            User-defined conversion from <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> to bool.
+            </summary>
+            <param name="v">The <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.op_Implicit(TDx.SpaceMouse.Navigation3D.Value)~System.Int32">
+            <summary>
+            User-defined conversion from <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> to int.
+            </summary>
+            <param name="v">The <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.op_Implicit(TDx.SpaceMouse.Navigation3D.Value)~System.Double">
+            <summary>
+            User-defined conversion from <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> to double.
+            </summary>
+            <param name="v">The <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.op_Implicit(TDx.SpaceMouse.Navigation3D.Value)~TDx.SpaceMouse.Navigation3D.Point">
+            <summary>
+            User-defined conversion from <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> to <see cref="P:TDx.SpaceMouse.Navigation3D.Value.Point"/>.
+            </summary>
+            <param name="v">The <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.op_Implicit(TDx.SpaceMouse.Navigation3D.Value)~TDx.SpaceMouse.Navigation3D.Vector">
+            <summary>
+            User-defined conversion from <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> to <see cref="P:TDx.SpaceMouse.Navigation3D.Value.Vector"/>.
+            </summary>
+            <param name="v">The <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.op_Implicit(TDx.SpaceMouse.Navigation3D.Value)~TDx.SpaceMouse.Navigation3D.Plane">
+            <summary>
+            User-defined conversion from <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> to <see cref="P:TDx.SpaceMouse.Navigation3D.Value.Plane"/>.
+            </summary>
+            <param name="v">The <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.op_Implicit(TDx.SpaceMouse.Navigation3D.Value)~TDx.SpaceMouse.Navigation3D.Matrix">
+            <summary>
+            User-defined conversion from <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> to <see cref="P:TDx.SpaceMouse.Navigation3D.Value.Matrix"/>.
+            </summary>
+            <param name="v">The <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.op_Implicit(TDx.SpaceMouse.Navigation3D.Value)~TDx.SpaceMouse.Navigation3D.Frustum">
+            <summary>
+            User-defined conversion from <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> to <see cref="P:TDx.SpaceMouse.Navigation3D.Value.Frustum"/>.
+            </summary>
+            <param name="v">The <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.op_Implicit(TDx.SpaceMouse.Navigation3D.Value)~System.String">
+            <summary>
+            User-defined conversion from <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> to <see cref="T:System.String"/>.
+            </summary>
+            <param name="v">The <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/> to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.op_Implicit(System.Boolean)~TDx.SpaceMouse.Navigation3D.Value">
+            <summary>
+            User-defined conversion from bool to <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/>.
+            </summary>
+            <param name="b">The bool to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.op_Implicit(System.Int32)~TDx.SpaceMouse.Navigation3D.Value">
+            <summary>
+            User-defined conversion from int to <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/>.
+            </summary>
+            <param name="i">The int to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.op_Implicit(System.Single)~TDx.SpaceMouse.Navigation3D.Value">
+            <summary>
+            User-defined conversion from float to <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/>.
+            </summary>
+            <param name="f">The float to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.op_Implicit(System.Double)~TDx.SpaceMouse.Navigation3D.Value">
+            <summary>
+            User-defined conversion from double to <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/>.
+            </summary>
+            <param name="d">The double to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.op_Implicit(TDx.SpaceMouse.Navigation3D.Point)~TDx.SpaceMouse.Navigation3D.Value">
+            <summary>
+            User-defined conversion from <see cref="P:TDx.SpaceMouse.Navigation3D.Value.Point"/> to <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/>.
+            </summary>
+            <param name="point">The <see cref="P:TDx.SpaceMouse.Navigation3D.Value.Point"/> to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.op_Implicit(TDx.SpaceMouse.Navigation3D.Vector)~TDx.SpaceMouse.Navigation3D.Value">
+            <summary>
+            User-defined conversion from <see cref="P:TDx.SpaceMouse.Navigation3D.Value.Vector"/> to <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/>.
+            </summary>
+            <param name="vector">The <see cref="P:TDx.SpaceMouse.Navigation3D.Value.Vector"/> to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.op_Implicit(TDx.SpaceMouse.Navigation3D.Plane)~TDx.SpaceMouse.Navigation3D.Value">
+            <summary>
+            User-defined conversion from <see cref="P:TDx.SpaceMouse.Navigation3D.Value.Plane"/> to <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/>.
+            </summary>
+            <param name="plane">The <see cref="P:TDx.SpaceMouse.Navigation3D.Value.Plane"/> to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.op_Implicit(TDx.SpaceMouse.Navigation3D.Box)~TDx.SpaceMouse.Navigation3D.Value">
+            <summary>
+            User-defined conversion from <see cref="P:TDx.SpaceMouse.Navigation3D.Value.Box"/> to <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/>.
+            </summary>
+            <param name="box">The <see cref="P:TDx.SpaceMouse.Navigation3D.Value.Box"/> to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.op_Implicit(TDx.SpaceMouse.Navigation3D.Matrix)~TDx.SpaceMouse.Navigation3D.Value">
+            <summary>
+            User-defined conversion from <see cref="P:TDx.SpaceMouse.Navigation3D.Value.Matrix"/> to <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/>.
+            </summary>
+            <param name="matrix">The <see cref="P:TDx.SpaceMouse.Navigation3D.Value.Matrix"/> to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.op_Implicit(TDx.SpaceMouse.Navigation3D.Frustum)~TDx.SpaceMouse.Navigation3D.Value">
+            <summary>
+            User-defined conversion from <see cref="P:TDx.SpaceMouse.Navigation3D.Value.Frustum"/> to <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/>.
+            </summary>
+            <param name="frustum">The <see cref="P:TDx.SpaceMouse.Navigation3D.Value.Frustum"/> to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.op_Implicit(System.String)~TDx.SpaceMouse.Navigation3D.Value">
+            <summary>
+            User-defined conversion from <see cref="T:System.String"/> to <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/>.
+            </summary>
+            <param name="string">The <see cref="T:System.String"/> to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.op_Implicit(System.Collections.Generic.List{TDx.SpaceMouse.Navigation3D.Image})~TDx.SpaceMouse.Navigation3D.Value">
+            <summary>
+            User-defined conversion from <see cref="T:TDx.SpaceMouse.Navigation3D.SiImage"/>[] to <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/>.
+            </summary>
+            <param name="images">The <see cref="T:System.Collections.Generic.List`1"/> to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.op_Implicit(TDx.SpaceMouse.Navigation3D.CommandSet)~TDx.SpaceMouse.Navigation3D.Value">
+            <summary>
+            User-defined conversion from <see cref="T:TDx.SpaceMouse.Navigation3D.CommandSet"/> to <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/>.
+            </summary>
+            <param name="commands">The <see cref="T:TDx.SpaceMouse.Navigation3D.CommandSet"/> to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Value.op_Implicit(TDx.SpaceMouse.Navigation3D.CommandTree)~TDx.SpaceMouse.Navigation3D.Value">
+            <summary>
+            User-defined conversion from <see cref="T:TDx.SpaceMouse.Navigation3D.CommandTree"/> to <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/>.
+            </summary>
+            <param name="commands">The <see cref="T:TDx.SpaceMouse.Navigation3D.CommandTree"/> to convert.</param>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.ValueType">
+            <summary>
+            Enumeration for the types that <see cref="T:TDx.SpaceMouse.Navigation3D.Variant"/> can contain.
+            </summary>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.Variant">
+            <summary>
+            Class used to pass values between the client and the native navlib.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Variant.type">
+            <summary>
+            The type of the value contained in <see cref="T:TDx.SpaceMouse.Navigation3D.Variant.ValueUnion"/>.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Variant.u">
+            <summary>
+            Variant <see cref="T:TDx.SpaceMouse.Navigation3D.Variant.ValueUnion"/>.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Variant.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Variant"/> class.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Variant.IsSimpleType">
+            <summary>
+            Gets a value indicating whether the contained type is a simple type.
+            </summary>
+            <returns>true if the type is a simple type, otherwise false.</returns>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Variant.IsArrayType">
+            <summary>
+            Gets a value indicating whether the contained type is an array type.
+            </summary>
+            <returns>true if the type is a array type, otherwise false.</returns>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Variant.IsStringType">
+            <summary>
+            Gets a value indicating whether the contained type is a string type.
+            </summary>
+            <returns>true if the type is a string type, otherwise false.</returns>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Variant.Type">
+            <summary>
+            Gets or sets the type of the value <see cref="T:TDx.SpaceMouse.Navigation3D.ValueType"/>.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Variant.U">
+            <summary>
+            Gets a reference to the value union.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Variant.Bool">
+            <summary>
+            Gets or sets the bool value.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Variant.Int">
+            <summary>
+            Gets or sets integer value.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Variant.Float">
+            <summary>
+            Gets or sets float value.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Variant.Double">
+            <summary>
+            Gets or sets double value.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Variant.Point">
+            <summary>
+            Gets or sets point value.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Variant.Vector">
+            <summary>
+            Gets or sets vector value.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Variant.Plane">
+            <summary>
+            Gets or sets plane value.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Variant.Box">
+            <summary>
+            Gets or sets box value.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Variant.Matrix">
+            <summary>
+            Gets or sets matrix value.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Variant.Frustum">
+            <summary>
+            Gets or sets frustum value.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Variant.Array">
+            <summary>
+            Gets or sets the Array value.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Variant.ActionNodes">
+            <summary>
+            Gets or sets the ActionNodes value.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.Variant.String">
+            <summary>
+            Gets the String value.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Variant.op_Implicit(TDx.SpaceMouse.Navigation3D.Variant)~System.Boolean">
+            <summary>
+            User-defined conversion from <see cref="T:TDx.SpaceMouse.Navigation3D.Variant"/> to bool.
+            </summary>
+            <param name="v">The <see cref="T:TDx.SpaceMouse.Navigation3D.Variant"/> to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Variant.op_Implicit(TDx.SpaceMouse.Navigation3D.Variant)~System.Int32">
+            <summary>
+            User-defined conversion from <see cref="T:TDx.SpaceMouse.Navigation3D.Variant"/> to int.
+            </summary>
+            <param name="v">The <see cref="T:TDx.SpaceMouse.Navigation3D.Variant"/> to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Variant.op_Implicit(TDx.SpaceMouse.Navigation3D.Variant)~System.Double">
+            <summary>
+            User-defined conversion from <see cref="T:TDx.SpaceMouse.Navigation3D.Variant"/> to double.
+            </summary>
+            <param name="v">The <see cref="T:TDx.SpaceMouse.Navigation3D.Variant"/> to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Variant.op_Implicit(TDx.SpaceMouse.Navigation3D.Variant)~TDx.SpaceMouse.Navigation3D.Point">
+            <summary>
+            User-defined conversion from <see cref="T:TDx.SpaceMouse.Navigation3D.Variant"/> to <see cref="P:TDx.SpaceMouse.Navigation3D.Variant.Point"/>.
+            </summary>
+            <param name="v">The <see cref="T:TDx.SpaceMouse.Navigation3D.Variant"/> to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Variant.op_Implicit(TDx.SpaceMouse.Navigation3D.Variant)~TDx.SpaceMouse.Navigation3D.Vector">
+            <summary>
+            User-defined conversion from <see cref="T:TDx.SpaceMouse.Navigation3D.Variant"/> to <see cref="P:TDx.SpaceMouse.Navigation3D.Variant.Vector"/>.
+            </summary>
+            <param name="v">The <see cref="T:TDx.SpaceMouse.Navigation3D.Variant"/> to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Variant.op_Implicit(TDx.SpaceMouse.Navigation3D.Variant)~TDx.SpaceMouse.Navigation3D.Plane">
+            <summary>
+            User-defined conversion from <see cref="T:TDx.SpaceMouse.Navigation3D.Variant"/> to <see cref="P:TDx.SpaceMouse.Navigation3D.Variant.Plane"/>.
+            </summary>
+            <param name="v">The <see cref="T:TDx.SpaceMouse.Navigation3D.Variant"/> to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Variant.op_Implicit(TDx.SpaceMouse.Navigation3D.Variant)~TDx.SpaceMouse.Navigation3D.Matrix">
+            <summary>
+            User-defined conversion from <see cref="T:TDx.SpaceMouse.Navigation3D.Variant"/> to <see cref="P:TDx.SpaceMouse.Navigation3D.Variant.Matrix"/>.
+            </summary>
+            <param name="v">The <see cref="T:TDx.SpaceMouse.Navigation3D.Variant"/> to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Variant.op_Implicit(TDx.SpaceMouse.Navigation3D.Variant)~TDx.SpaceMouse.Navigation3D.Frustum">
+            <summary>
+            User-defined conversion from <see cref="T:TDx.SpaceMouse.Navigation3D.Variant"/> to <see cref="P:TDx.SpaceMouse.Navigation3D.Variant.Frustum"/>.
+            </summary>
+            <param name="v">The <see cref="T:TDx.SpaceMouse.Navigation3D.Variant"/> to convert.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Variant.op_Implicit(TDx.SpaceMouse.Navigation3D.Variant)~System.String">
+            <summary>
+            User-defined conversion from <see cref="T:TDx.SpaceMouse.Navigation3D.Variant"/> to <see cref="T:System.String"/>.
+            </summary>
+            <param name="v">The <see cref="T:TDx.SpaceMouse.Navigation3D.Variant"/> to convert.</param>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.Variant.ValueUnion">
+            <summary>
+            Union of types used as a variant in <see cref="T:TDx.SpaceMouse.Navigation3D.Variant"/>.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Variant.ValueUnion.B">
+            <summary>
+            bool type.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Variant.ValueUnion.I">
+            <summary>
+            Integer type.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Variant.ValueUnion.F">
+            <summary>
+            float type.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Variant.ValueUnion.D">
+            <summary>
+            double type.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Variant.ValueUnion.Point">
+            <summary>
+            Point type.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Variant.ValueUnion.Vector">
+            <summary>
+            Vector type.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Variant.ValueUnion.Plane">
+            <summary>
+            Plane type.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Variant.ValueUnion.Box">
+            <summary>
+            Box type.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Variant.ValueUnion.Matrix">
+            <summary>
+            Matrix type.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Variant.ValueUnion.Frustum">
+            <summary>
+            Frustum type.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Variant.ValueUnion.Array">
+            <summary>
+            ImageArray type.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Variant.ValueUnion.ActionNodes">
+            <summary>
+            SiActionNodes type.
+            </summary>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.ValueMarshalerData">
+            <summary>
+            Class that holds the marshaling data.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.ValueMarshalerData.ObjectHandles">
+            <summary>
+            Gets or sets the list of object handles.
+            </summary>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.ValueMarshalerData.Value">
+            <summary>
+            Gets or sets the Value being marshaled.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.ValueMarshalerData.System#IDisposable#Dispose">
+            <summary>
+            Provides a mechanism for releasing unmanaged resources.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.ValueMarshalerData.Dispose(System.Boolean)">
+            <summary>
+            Clean up resources.
+            </summary>
+            <param name="disposing">true, the method has been called directly or indirectly by user code. Managed and unmanaged resources can be disposed.</param>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.ValueWrapper">
+            <summary>
+            Wrapper class handed out by the <see cref="T:TDx.SpaceMouse.Navigation3D.ValueMarshaler"/> when marshaling from native to managed.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.ValueWrapper.#ctor(System.IntPtr)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.ValueWrapper"/> class.
+            </summary>
+            <param name="nativeObject">The native object this instance references.</param>
+        </member>
+        <member name="P:TDx.SpaceMouse.Navigation3D.ValueWrapper.NativeObject">
+            <summary>
+            Gets the native object this instance references.
+            </summary>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.Vector">
+            <summary>
+            A 3D vector.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Vector.X">
+            <summary>
+            X component of the <see cref="T:TDx.SpaceMouse.Navigation3D.Vector"/>.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Vector.Y">
+            <summary>
+            Y component of the <see cref="T:TDx.SpaceMouse.Navigation3D.Vector"/>.
+            </summary>
+        </member>
+        <member name="F:TDx.SpaceMouse.Navigation3D.Vector.Z">
+            <summary>
+            Z component of the <see cref="T:TDx.SpaceMouse.Navigation3D.Vector"/>.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Vector.#ctor(System.Double,System.Double,System.Double)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Vector"/> struct.
+            </summary>
+            <param name="x">x component.</param>
+            <param name="y">z component.</param>
+            <param name="z">y component.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.Vector.#ctor(System.Double[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:TDx.SpaceMouse.Navigation3D.Vector"/> struct from
+            an array of three values.
+            </summary>
+            <param name="vector">The x,y and z components of the vector.</param>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.StringToUtf8Marshaler">
+            <summary>
+            Custom marshaler for utf8.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.StringToUtf8Marshaler.GetInstance(System.String)">
+            <summary>
+            Instantiate an instance of the custom marshaler.
+            </summary>
+            <param name="cookie">A cookie that the method can use to customize the returned custom marshaler.</param>
+            <returns>A new instance of the marshaler.</returns>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.StringToUtf8Marshaler.CleanUpManagedData(System.Object)">
+            <summary>
+            Performs necessary cleanup of the managed data when it is no longer needed.
+            </summary>
+            <param name="managedObj">The managed object to be destroyed.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.StringToUtf8Marshaler.CleanUpNativeData(System.IntPtr)">
+            <summary>
+            Performs necessary cleanup of the unmanaged data when it is no longer needed.
+            </summary>
+            <param name="nativeData">A pointer to the unmanaged data to be destroyed.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.StringToUtf8Marshaler.GetNativeDataSize">
+            <summary>
+            Returns the size of the native data to be marshaled.
+            </summary>
+            <returns>the size, in bytes, of the native data.</returns>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.StringToUtf8Marshaler.MarshalManagedToNative(System.Object)">
+            <summary>
+            Converts the managed data to unmanaged data.
+            </summary>
+            <param name="managedObj">The managed object to be converted.</param>
+            <returns>A pointer to the native view of the managed object.</returns>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.StringToUtf8Marshaler.MarshalNativeToManaged(System.IntPtr)">
+            <summary>
+            Converts the unmanaged data to managed data.
+            </summary>
+            <param name="nativeData">A pointer to the unmanaged data to be wrapped.</param>
+            <returns>An object that represents the managed view of the native data.</returns>
+        </member>
+        <member name="T:TDx.SpaceMouse.Navigation3D.ValueMarshaler">
+            <summary>
+            Custom marshaler for <see cref="T:TDx.SpaceMouse.Navigation3D.Value"/>.
+            </summary>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.ValueMarshaler.GetInstance(System.String)">
+            <summary>
+            Instantiate an instance of the custom marshaler.
+            </summary>
+            <param name="cookie">A cookie that the method can use to customize the returned custom marshaler.</param>
+            <returns>A new instance of the marshaler.</returns>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.ValueMarshaler.CleanUpManagedData(System.Object)">
+            <summary>
+            Performs necessary cleanup of the managed data when it is no longer needed.
+            </summary>
+            <param name="managedObj">The managed object to be destroyed.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.ValueMarshaler.CleanUpNativeData(System.IntPtr)">
+            <summary>
+            Performs necessary cleanup of the unmanaged data when it is no longer needed.
+            </summary>
+            <param name="nativeData">A pointer to the unmanaged data to be destroyed.</param>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.ValueMarshaler.GetNativeDataSize">
+            <summary>
+            Returns the size of the native data to be marshaled.
+            </summary>
+            <returns>the size, in bytes, of the native data.</returns>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.ValueMarshaler.MarshalManagedToNative(System.Object)">
+            <summary>
+            Converts the managed data to unmanaged data.
+            </summary>
+            <param name="managedObj">The managed object to be converted.</param>
+            <returns>A pointer to the native view of the managed object.</returns>
+        </member>
+        <member name="M:TDx.SpaceMouse.Navigation3D.ValueMarshaler.MarshalNativeToManaged(System.IntPtr)">
+            <summary>
+            Converts the unmanaged data to managed data.
+            </summary>
+            <param name="nativeData">A pointer to the unmanaged data to be wrapped.</param>
+            <returns>An object that represents the managed view of the native data.</returns>
+        </member>
+    </members>
+</doc>

@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ToolBarImageGroup</class>
+ <widget class="QWidget" name="ToolBarImageGroup">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>897</width>
+    <height>101</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="leftMargin">
+    <number>3</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>3</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <property name="horizontalSpacing">
+    <number>6</number>
+   </property>
+   <property name="verticalSpacing">
+    <number>0</number>
+   </property>
+   <item row="2" column="9">
+    <widget class="QLabel" name="label_imageH">
+     <property name="text">
+      <string>Image height</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="10">
+    <widget class="QLineEdit" name="lineEdit_imageW"/>
+   </item>
+   <item row="2" column="12">
+    <widget class="QComboBox" name="comboBox_dpi"/>
+   </item>
+   <item row="1" column="2" rowspan="2">
+    <widget class="QWidget" name="widget_ratios" native="true">
+     <layout class="QGridLayout" name="gridLayout_2">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>3</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>3</number>
+      </property>
+      <property name="spacing">
+       <number>6</number>
+      </property>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="comboBox_ratioImage"/>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="comboBox_print"/>
+      </item>
+      <item row="0" column="0">
+       <widget class="QRadioButton" name="radioButton_ratioImage">
+        <property name="text">
+         <string>Ratio - image</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+        <property name="autoExclusive">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QRadioButton" name="radioButton_print">
+        <property name="text">
+         <string>Ratio - print</string>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="6">
+    <widget class="QLineEdit" name="lineEdit_areaH">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="6">
+    <widget class="QComboBox" name="formatComboBox"/>
+   </item>
+   <item row="1" column="3" rowspan="2">
+    <widget class="QWidget" name="widget_layout" native="true">
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <property name="spacing">
+       <number>6</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QRadioButton" name="radioButton_portrait">
+        <property name="text">
+         <string>Portrait</string>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radioButton_landscape">
+        <property name="text">
+         <string>Landscape</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="11">
+    <widget class="QLabel" name="label_scale">
+     <property name="text">
+      <string>Scale</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="12">
+    <widget class="QComboBox" name="comboBox_scale"/>
+   </item>
+   <item row="1" column="4">
+    <widget class="QLabel" name="label_viewportW">
+     <property name="text">
+      <string>Area width</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <widget class="QCheckBox" name="checkBox_frame">
+     <property name="text">
+      <string>Use frame</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="4">
+    <widget class="QLabel" name="label_viewportH">
+     <property name="text">
+      <string>Area  height</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="4">
+    <widget class="QLabel" name="formatLabel">
+     <property name="text">
+      <string>Format:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="9">
+    <widget class="QLabel" name="label_imageW">
+     <property name="text">
+      <string>Image width</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="10">
+    <widget class="QLineEdit" name="lineEdit_imageH"/>
+   </item>
+   <item row="5" column="8">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="6">
+    <widget class="QLineEdit" name="lineEdit_areaW">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="11">
+    <widget class="QLabel" name="label_dpi">
+     <property name="text">
+      <string>DPI</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="15">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="0" column="14" rowspan="3">
+    <widget class="QToolButton" name="toolButton_screenshot">
+     <property name="toolTip">
+      <string>Export a simple screenshot from the viewport area</string>
+     </property>
+     <property name="text">
+      <string>Screenshot</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../../openscantools.qrc">
+       <normaloff>:/icons/100x100/image.png</normaloff>:/icons/100x100/image.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>42</width>
+       <height>42</height>
+      </size>
+     </property>
+     <property name="toolButtonStyle">
+      <enum>Qt::ToolButtonTextUnderIcon</enum>
+     </property>
+     <property name="autoRaise">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="13" rowspan="3">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="9" colspan="2">
+    <widget class="QToolButton" name="toolButton_createImage">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="toolTip">
+      <string>Export HD Image with current image settings</string>
+     </property>
+     <property name="text">
+      <string>Create HD Image</string>
+     </property>
+     <property name="autoRaise">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="11">
+    <widget class="QLabel" name="label">
+     <property name="toolTip">
+      <string>If you have problems creating an image, lower the value.
+However, the creation time will be increased.</string>
+     </property>
+     <property name="text">
+      <string>Tiles Size</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="12">
+    <widget class="QComboBox" name="comboBox_hdtilesize">
+     <property name="toolTip">
+      <string>If you have problems creating an image, lower the value.
+However, the creation time will be increased.</string>
+     </property>
+     <property name="currentIndex">
+      <number>2</number>
+     </property>
+     <item>
+      <property name="text">
+       <string>64</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>128</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>256</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>512</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>1024</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>checkBox_frame</tabstop>
+  <tabstop>radioButton_ratioImage</tabstop>
+  <tabstop>radioButton_print</tabstop>
+  <tabstop>comboBox_ratioImage</tabstop>
+  <tabstop>comboBox_print</tabstop>
+  <tabstop>radioButton_portrait</tabstop>
+  <tabstop>radioButton_landscape</tabstop>
+  <tabstop>lineEdit_areaW</tabstop>
+  <tabstop>lineEdit_areaH</tabstop>
+  <tabstop>lineEdit_imageW</tabstop>
+  <tabstop>lineEdit_imageH</tabstop>
+  <tabstop>comboBox_scale</tabstop>
+  <tabstop>comboBox_dpi</tabstop>
+  <tabstop>formatComboBox</tabstop>
+  <tabstop>toolButton_createImage</tabstop>
+  <tabstop>toolButton_screenshot</tabstop>
+ </tabstops>
+ <resources>
+  <include location="../../../openscantools.qrc"/>
+ </resources>
+ <connections/>
+</ui>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ListModifierDialog</class>
+ <widget class="QWidget" name="ListModifierDialog">
+  <property name="windowModality">
+   <enum>Qt::ApplicationModal</enum>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>404</width>
+    <height>618</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>List editor</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="3" column="0">
+    <widget class="QLineEdit" name="NewElemLineEdit"/>
+   </item>
+   <item row="2" column="0" colspan="2">
+    <widget class="QListView" name="listView"/>
+   </item>
+   <item row="4" column="0">
+    <widget class="QPushButton" name="RemoveBtn">
+     <property name="text">
+      <string>Remove selected</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLineEdit" name="NameLineEdit">
+     <property name="font">
+      <font>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QPushButton" name="FinishBtn">
+     <property name="text">
+      <string>Ok</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QPushButton" name="AddElemBtn">
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
+     </property>
+     <property name="text">
+      <string>Add element</string>
+     </property>
+     <property name="autoDefault">
+      <bool>true</bool>
+     </property>
+     <property name="default">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QPushButton" name="ClearBtn">
+     <property name="text">
+      <string>Clear list</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="indLabel">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>NameLineEdit</tabstop>
+  <tabstop>listView</tabstop>
+  <tabstop>NewElemLineEdit</tabstop>
+  <tabstop>RemoveBtn</tabstop>
+  <tabstop>ClearBtn</tabstop>
+  <tabstop>FinishBtn</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

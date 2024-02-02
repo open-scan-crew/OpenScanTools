@@ -1,0 +1,5 @@
+build/
+x64/
+GeneratedFiles/
+GeneratedShaders/
+imgui.ini

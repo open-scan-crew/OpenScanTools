@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DialogProjectCreation</class>
+ <widget class="QDialog" name="DialogProjectCreation">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>471</width>
+    <height>488</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Project Creation</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="9" column="0" colspan="3">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QRegExpEdit" name="lineEditBuisness"/>
+   </item>
+   <item row="1" column="1">
+    <widget class="QRegExpEdit" name="lineEditPath"/>
+   </item>
+   <item row="6" column="1" colspan="2">
+    <widget class="QComboBox" name="comboBoxProjectTemplate"/>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="labelProjectTemplate">
+     <property name="text">
+      <string>Template :</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="labelLocation">
+     <property name="text">
+      <string>Location :</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0" colspan="2">
+    <widget class="QCheckBox" name="checkCentralProject">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="text">
+      <string> Define as central project</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QRegExpEdit" name="lineEditLocation"/>
+   </item>
+   <item row="0" column="1">
+    <widget class="QRegExpEdit" name="lineEditName"/>
+   </item>
+   <item row="5" column="1" colspan="2">
+    <widget class="QTextEdit" name="textEditDescription"/>
+   </item>
+   <item row="1" column="2">
+    <widget class="QToolButton" name="toolButtonPath">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="../../../openscantools.qrc">
+       <normaloff>:/icons/100x100/open_project.png</normaloff>:/icons/100x100/open_project.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>20</width>
+       <height>20</height>
+      </size>
+     </property>
+     <property name="autoRaise">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="labelDescription">
+     <property name="text">
+      <string>Description :</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="labelName">
+     <property name="text">
+      <string>Enter project name :</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="labelBuisness">
+     <property name="text">
+      <string>Company :</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="labelPath">
+     <property name="text">
+      <string>Enter project folder :</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QCheckBox" name="checkBoxCustomScanFolder">
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
+     </property>
+     <property name="text">
+      <string>Set scan folder path :</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QRegExpEdit" name="lineEditCustomScanFolder"/>
+   </item>
+   <item row="2" column="2">
+    <widget class="QToolButton" name="toolButtonCustomScanFolder">
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
+     </property>
+     <property name="text">
+      <string>...</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../../openscantools.qrc">
+       <normaloff>:/icons/100x100/open_project.png</normaloff>:/icons/100x100/open_project.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>20</width>
+       <height>20</height>
+      </size>
+     </property>
+     <property name="autoRaise">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QRegExpEdit</class>
+   <extends>QLineEdit</extends>
+   <header>regexpedit.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>lineEditName</tabstop>
+  <tabstop>lineEditPath</tabstop>
+  <tabstop>toolButtonPath</tabstop>
+  <tabstop>lineEditBuisness</tabstop>
+  <tabstop>lineEditLocation</tabstop>
+  <tabstop>textEditDescription</tabstop>
+  <tabstop>comboBoxProjectTemplate</tabstop>
+  <tabstop>checkCentralProject</tabstop>
+ </tabstops>
+ <resources>
+  <include location="../../../openscantools.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>DialogProjectCreation</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>DialogProjectCreation</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

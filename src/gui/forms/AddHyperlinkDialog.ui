@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AddHyperlinkDialog</class>
+ <widget class="QDialog" name="AddHyperlinkDialog">
+  <property name="windowModality">
+   <enum>Qt::ApplicationModal</enum>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>580</width>
+    <height>128</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Add Hyperlink</string>
+  </property>
+  <property name="sizeGripEnabled">
+   <bool>true</bool>
+  </property>
+  <property name="modal">
+   <bool>false</bool>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="1">
+    <widget class="QRadioButton" name="URLRadio">
+     <property name="text">
+      <string>URL</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="4">
+    <widget class="QPushButton" name="CancelBtn">
+     <property name="text">
+      <string>Cancel</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <widget class="QLineEdit" name="FileInfield"/>
+   </item>
+   <item row="0" column="1">
+    <widget class="QLabel" name="NameLabel">
+     <property name="text">
+      <string>Link name</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="3">
+    <widget class="QPushButton" name="FileBtn">
+     <property name="text">
+      <string>...</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <widget class="QPushButton" name="OkBtn">
+     <property name="text">
+      <string>Validate</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="4">
+    <widget class="QCheckBox" name="isRelativePathCheckBox">
+     <property name="text">
+      <string>Relative Path</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2" colspan="3">
+    <widget class="QLineEdit" name="NameInfield"/>
+   </item>
+   <item row="1" column="2" colspan="3">
+    <widget class="QLineEdit" name="URLInfield"/>
+   </item>
+   <item row="2" column="1">
+    <widget class="QRadioButton" name="FileRadio">
+     <property name="text">
+      <string>File</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>NameInfield</tabstop>
+  <tabstop>URLRadio</tabstop>
+  <tabstop>URLInfield</tabstop>
+  <tabstop>FileRadio</tabstop>
+  <tabstop>FileInfield</tabstop>
+  <tabstop>FileBtn</tabstop>
+  <tabstop>OkBtn</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

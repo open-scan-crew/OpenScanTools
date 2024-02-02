@@ -1,0 +1,268 @@
+#include "controller/functionSystem/ContextExportVideoHD.h"
+#include "controller/Controller.h"
+#include "controller/ControllerContext.h"
+
+#include "models/3d/Graph/OpenScanToolsGraphManager.h"
+#include "models/3d/Graph/CameraNode.h"
+#include "models/3d/Graph/ViewPointNode.h"
+
+#include "controller/messages/FilesMessage.h"
+#include "controller/messages/GeneralMessage.h"
+
+#include "gui/GuiData/GuiDataMessages.h"
+#include "gui/GuiData/GuiDataIO.h"
+#include "gui/GuiData/GuiDataMeasure.h"
+#include "gui/GuiData/GuiDataHD.h"
+#include "gui/GuiData/GuiDataRendering.h"
+
+#include "gui/texts/ContextTexts.hpp"
+
+#include "utils/Logger.h"
+#include "utils/Utils.h"
+#include "utils/math/basic_define.h"
+
+ContextExportVideoHD::ContextExportVideoHD(const ContextId& id)
+	: AContext(id)
+    , m_precedentOptions()
+{
+}
+
+ContextExportVideoHD::~ContextExportVideoHD()
+{}
+
+ContextState ContextExportVideoHD::start(Controller& controller)
+{
+    m_precedentOptions = controller.getContext().getDecimationOptions();
+    DecimationOptions noDecimation = m_precedentOptions;
+    noDecimation.mode = DecimationMode::None;
+    controller.updateInfo(new GuiDataRenderDecimationOptions(noDecimation));
+    return m_state = ContextState::waiting_for_input;
+}
+
+ContextState ContextExportVideoHD::feedMessage(IMessage* message, Controller& controller)
+{
+    switch (message->getType())
+    {
+        case IMessage::MessageType::VIDEO_EXPORT_PARAMETERS:
+        {
+            VideoExportParametersMessage* out = static_cast<VideoExportParametersMessage*>(message);
+            m_parameters = out->m_parameters;
+            m_state = m_exportPath.empty() ? ContextState::waiting_for_input : ContextState::ready_for_using;
+        }
+        break;
+        case IMessage::MessageType::FILES:
+        {
+            FilesMessage* out = static_cast<FilesMessage*>(message);
+            if (out->m_inputFiles.size() != 1)
+                break;
+            m_exportPath = out->m_inputFiles[0];
+            m_state = m_parameters.animMode == VideoAnimationMode::NONE ? ContextState::waiting_for_input : ContextState::ready_for_using;
+        }
+        break;
+        case IMessage::MessageType::GENERALMESSAGE:
+        {
+            GeneralMessage* out = static_cast<GeneralMessage*>(message);
+            if (out->m_info == GeneralInfo::ANIMATIONEND && m_exportState == 1)
+            {
+                m_state = ContextState::ready_for_using;
+            }
+            if (out->m_info == GeneralInfo::IMAGEEND && (m_exportState == 2 || m_exportState == 3))
+            {
+                m_animFrame++;
+                if (m_animFrame >= m_totalFrames)
+                    m_exportState = 4;
+                m_state = ContextState::ready_for_using;
+            }
+            if (out->m_info == GeneralInfo::ANIMATIONEND && m_exportState == 2 && m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS)
+            {
+                m_exportState = 3;
+                m_state = ContextState::ready_for_using;
+            }
+        }
+        break;
+    }
+    return m_state;
+}
+
+ContextState ContextExportVideoHD::launch(Controller& controller)
+{
+    if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS && m_parameters.start == m_parameters.finish)
+        return abort(controller);
+
+    //Start - Move to start position
+    if (m_exportState == 0)
+    {
+        SafePtr<CameraNode> cam = controller.getOpenScanToolsGraphManager().getCameraNode();
+        WritePtr<CameraNode> wCam = cam.get();
+        if (!wCam)
+            return abort(controller);
+
+        wCam->setProjectionMode(ProjectionMode::Perspective);
+        m_exportState = 1;
+
+        if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS)
+        {
+            wCam->moveToData(m_parameters.start);
+            return m_state = ContextState::waiting_for_input;
+        }
+
+    }
+
+    //Calcul camera move delta
+    if (m_exportState == 1)
+    {
+        SafePtr<CameraNode> cam = controller.getOpenScanToolsGraphManager().getCameraNode();
+        ReadPtr<CameraNode> rCam = cam.cget();
+        if (!rCam)
+            return abort(controller);
+        m_totalFrames = (long)m_parameters.length * (long)m_parameters.fps;
+        m_animFrame = 0;
+
+        controller.updateInfo(new GuiDataProcessingSplashScreenStart(m_totalFrames, TEXT_CONTEXT_EXPORT_VIDEO, TEXT_CONTEXT_EXPORT_VIDEO_STEPS.arg(m_animFrame).arg(m_totalFrames)));
+        m_tpStart = std::chrono::steady_clock::now();
+
+        if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS)
+        {
+            ReadPtr<ViewPointNode> rStart;
+            ReadPtr<ViewPointNode> rFinish;
+            multi_cget(m_parameters.start, m_parameters.finish, rStart, rFinish);
+            if (!rStart || !rFinish)
+                return abort(controller);
+
+            glm::dvec3 finishLookDir = glm::dvec4(0.0, 0.0, 1.0, 1.0) * rFinish->getInverseTransformation();
+
+            double endTheta;
+            if (finishLookDir.x == 0.0 && finishLookDir.y == 0.0)   // Must we change the test to x < epsilon ?
+                endTheta = 0.;
+            else
+                endTheta = atan2(-finishLookDir.x, finishLookDir.y);
+
+            double normXY = sqrt(finishLookDir.x * finishLookDir.x + finishLookDir.y * finishLookDir.y);
+            double endPhi = atan2(-normXY, finishLookDir.z);
+
+            CameraNode::modulo2Pi(rCam->getTheta(), endTheta);
+
+            m_addPosition = (rFinish->getCenter() - rStart->getCenter()) / (double)m_totalFrames;
+            m_addTheta = (endTheta - rCam->getTheta()) / m_totalFrames;
+            m_addPhi = (endPhi - rCam->getPhi()) / m_totalFrames;
+        }
+        else
+            m_addTheta = 2 * M_PI / m_totalFrames;
+
+        m_animFrame = 1;
+        controller.updateInfo(new GuiDataCallImage(m_parameters.hdImage, getNextFramePath()));
+        m_exportState = 2;
+
+        return m_state = ContextState::waiting_for_input;
+    }
+
+    //Mouvement and Image
+    if (m_exportState == 2)
+    {
+        controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(TEXT_CONTEXT_EXPORT_VIDEO_STEPS.arg(m_animFrame).arg(m_totalFrames), m_animFrame));
+
+        SafePtr<CameraNode> cam = controller.getOpenScanToolsGraphManager().getCameraNode();
+        WritePtr<CameraNode> wCam = cam.get();
+        if (!wCam)
+            return abort(controller);
+
+        switch (m_parameters.animMode)
+        {
+            case VideoAnimationMode::BETWEENVIEWPOINTS:
+            {
+                if (m_animFrame == m_totalFrames - 1)
+                {
+                    wCam->moveToData(m_parameters.finish);
+                    return m_state = ContextState::waiting_for_input;
+                }
+                else
+                {
+                    wCam->addGlobalTranslation(m_addPosition);
+                    wCam->yaw(m_addTheta);
+                    wCam->pitch(m_addPhi);
+                }
+            }
+            break;
+            case VideoAnimationMode::ORBITAL:
+            {
+                if (wCam->isExamineActive())
+                    wCam->moveAroundExamine(0.0, m_addTheta, 0.0);
+                else
+                    wCam->yaw(m_addTheta);
+            }
+            break;
+        }
+
+        controller.updateInfo(new GuiDataCallImage(m_parameters.hdImage, getNextFramePath()));
+        return m_state = ContextState::waiting_for_input;
+    }
+
+    //Last frame between 2 viewpoints
+    if (m_exportState == 3)
+    {
+        controller.updateInfo(new GuiDataCallImage(m_parameters.hdImage, getNextFramePath()));
+        return m_state = ContextState::waiting_for_input;
+    }
+
+    if (m_exportState == 4)
+    {
+        if(m_parameters.openFolderAfterExport)
+            controller.updateInfo(new GuiDataOpenInExplorer(m_exportPath));
+        return validate(controller);
+    }
+
+    return abort(controller);
+}
+
+ContextState ContextExportVideoHD::abort(Controller& controller)
+{
+    controller.updateInfo(new GuiDataRenderDecimationOptions(m_precedentOptions));
+
+    std::chrono::steady_clock::time_point tpEnd = std::chrono::steady_clock::now();
+    double totalDurationSeconds = std::chrono::duration<double>(tpEnd - m_tpStart).count();
+
+    controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(TEXT_CONTEXT_EXPORT_VIDEO_TIME.arg(QString::fromStdString(Utils::roundFloat(totalDurationSeconds)))));
+    controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_CONTEXT_EXPORT_VIDEO_FAIL));
+
+    return AContext::validate(controller);
+}
+
+ContextState ContextExportVideoHD::validate(Controller& controller)
+{
+    controller.updateInfo(new GuiDataRenderDecimationOptions(m_precedentOptions));
+
+    std::chrono::steady_clock::time_point tpEnd = std::chrono::steady_clock::now();
+    double totalDurationSeconds = std::chrono::duration<double>(tpEnd - m_tpStart).count();
+
+    controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(TEXT_CONTEXT_EXPORT_VIDEO_TIME.arg(QString::fromStdString(Utils::roundFloat(totalDurationSeconds)))));
+    controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_CONTEXT_EXPORT_VIDEO_DONE));
+
+    return AContext::validate(controller);
+}
+
+bool ContextExportVideoHD::canAutoRelaunch() const
+{
+	return false;
+}
+
+std::filesystem::path ContextExportVideoHD::getNextFramePath()
+{
+    std::filesystem::path nextPath = m_exportPath;
+    std::wstring filename = m_exportPath.stem().wstring();
+    uint8_t size = std::log10(m_totalFrames) + 1;
+    nextPath = nextPath / (filename + L"_" + Utils::wCompleteWithZeros(m_animFrame, size));
+    try
+    {
+        std::filesystem::create_directories(nextPath.parent_path());
+    }
+    catch (std::exception e)
+    {
+        assert(false);
+    }
+    return nextPath;
+}
+
+ContextType ContextExportVideoHD::getType() const
+{
+	return ContextType::exportVideoHD;
+}

@@ -1,0 +1,115 @@
+#version 450
+
+layout (local_size_x = 16, local_size_y = 16) in;
+
+layout(set = 0, binding = 0, rgba8) uniform image2D inOutColorImage;
+layout(set = 0, binding = 1) uniform sampler2D rawDepthImage;
+layout(set = 1, binding = 2) buffer correctedDepth
+{
+    float depth[ ];
+};
+
+layout(push_constant) uniform PC {
+   layout(offset = 0) vec2 nearFar;
+   layout(offset = 8) ivec2 screenSize;
+   layout(offset = 16) float pxSize;
+   layout(offset = 20) int projMode;
+} pc;
+
+void fillIn(in vec4[9] color, in float[9] depth, in int texelThreshold, out vec4 newColor, out float newDepth)
+{
+   // Methode A : AVEC boucle for
+   //float nearest = depth[1];
+   //for (int i = 2; i < 9; ++i)
+   //   nearest = min(nearest, depth[i]);
+   
+   // Methode B : SANS boucle for
+   float nearest = min(min(min(depth[1], depth[2]), min(depth[3], depth[4])),
+                       min(min(depth[5], depth[6]), min(depth[7], depth[8])));
+
+   // Conclusion en A et B :
+   //   * RenderDoc donne des temps d'execution parfaitement similaires
+   //   * Le shader pèse 300 octets de plus avec B.
+   //   * La methode B est plus souple pour l'organisation interne des pixels
+
+   int validTexel = 0;
+   float deltaDepth = pc.projMode == 0 ? pc.pxSize * nearest * 8.0 : pc.pxSize * 8.0;
+   vec4 cumulColor = vec4(0.0, 0.0, 0.0, 0.0);
+   float cumulDepth = 0.0;
+   if (depth[0] > nearest + deltaDepth)
+   {
+      for (int i = 1; i < 9; ++i)
+      {
+         if (depth[i] < nearest + deltaDepth)
+         {
+            validTexel++;
+            cumulColor += color[i];
+            cumulDepth += depth[i];
+         }
+      }
+   }
+
+   if (validTexel >= texelThreshold)
+   {
+      newColor = cumulColor / validTexel;
+      newDepth = cumulDepth / validTexel;
+   }
+   else
+   {
+      newColor = color[0];
+      newDepth = depth[0];
+   }
+}
+
+int bindingIJ[9] = {
+   5, 1, 6,
+   2, 0, 3,
+   7, 4, 8
+};
+
+struct ImageData 
+{
+   vec4 color[9];
+   float depth[9];
+} imageData;
+
+void main() 
+{
+   if (gl_GlobalInvocationID.x >= pc.screenSize.x ||
+       gl_GlobalInvocationID.y >= pc.screenSize.y)
+      return;
+
+   float diffFarNear = pc.nearFar.y - pc.nearFar.x;
+   float mulFarNear = pc.nearFar.y * pc.nearFar.x;
+
+   int n = -1;
+   for (int i = -1; i < 2; ++i)
+   {
+      for (int j = -1; j < 2; ++j)
+      {
+         ++n;
+         int m = bindingIJ[n];
+         ivec2 iUV = ivec2(gl_GlobalInvocationID.x + i, gl_GlobalInvocationID.y + j);
+         imageData.color[m] = imageLoad(inOutColorImage, iUV);
+         float rawDepth = texture(rawDepthImage, iUV).r;
+         if (pc.projMode == 0)
+            // Perspective
+            imageData.depth[m] = mulFarNear / (pc.nearFar.y - diffFarNear * rawDepth);
+         else
+            // Orthographic
+            imageData.depth[m] = rawDepth * diffFarNear + pc.nearFar.x;
+      }
+   }
+
+   // Calcule la couleur et la profondeur par extrapolation des pixels voisins
+   vec4 newC;
+   float newZ;
+   fillIn(imageData.color, imageData.depth, 4, newC, newZ);
+   float newD = pc.projMode == 0 ?
+                (pc.nearFar.y - mulFarNear / newZ) / diffFarNear :
+                (newZ - pc.nearFar.x) / diffFarNear;
+
+   imageStore(inOutColorImage, ivec2(gl_GlobalInvocationID.xy), newC);
+   uint index = gl_GlobalInvocationID.x + gl_GlobalInvocationID.y * pc.screenSize.x;
+   depth[index] = newD;
+}

@@ -1,0 +1,8 @@
+[Icon Theme]
+Name=scansap
+Comment=ScanSap Icon Theme
+
+[100x100]
+Size=100
+Context=Actions
+Type=Fixed

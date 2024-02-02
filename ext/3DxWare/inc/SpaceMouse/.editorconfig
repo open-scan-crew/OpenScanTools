@@ -1,0 +1,10 @@
+# Rules in this file were initially inferred by Visual Studio IntelliCode from the D:\Users\mbonk\Development\3dconnexion\SVN\3dxmaya\branches\navlib\plug-in\src\SpaceMouse\ codebase based on best match to current usage at 4/3/2019
+# You can modify the rules from these initially generated values to suit your own policies
+# You can learn more about editorconfig here: https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference
+[*.{h,hpp,c,cpp}]
+charset = utf-8
+end_of_line = crlf
+indent_size = 2
+indent_style = space
+trim_trailing_whitespace = true
+
