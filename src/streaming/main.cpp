@@ -6,7 +6,7 @@
 // **Prefer using the code in the opengl3_example/ folder**
 // See imgui_impl_glfw.cpp for details.
 
-// NOTE(nico) le world space ScanSAP est right-handed, Z up
+// NOTE(nico) le world space est right-handed, Z up
 
 // FIXME(nico) bug, parfois crash au démarrage, j'ai l'impression qu'il y a un pb de synchro/mutex sur '_transfertsScheduled' de StreamCPU
 
