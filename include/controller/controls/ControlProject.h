@@ -201,17 +201,15 @@ namespace control
 		class ImportScan: public AControl
 		{
 		public:
-			ImportScan(std::vector<std::filesystem::path> paths, const std::map<std::filesystem::path, AsciiImport::Info>& mapAsciiInfo);
+			ImportScan(const Import::ScanInfo& importInfo);
 			~ImportScan();
 			void doFunction(Controller& controller) override;
 			bool canUndo() const override;
 			void undoFunction(Controller& controller) override;
 			ControlType getType() const override;
+
 		private:
-            ImportScan() {};
-		private:
-			std::vector<std::filesystem::path> m_filePaths;
-			std::map<std::filesystem::path, AsciiImport::Info> m_mapAsciiInfo;
+			Import::ScanInfo m_importInfo;
 		};
 
 		class ConvertScan: public AControl

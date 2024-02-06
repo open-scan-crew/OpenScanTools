@@ -195,9 +195,9 @@ void ConvertionOptionsBox::sendConvertionInfo()
 
     if (m_ui.groupBox_truncate->isChecked())
     {
-        prop.truncateX = m_ui.lineEdit_truncateX->getValue();
-        prop.truncateY = m_ui.lineEdit_truncateY->getValue();
-        prop.truncateZ = m_ui.lineEdit_truncateZ->getValue();
+        prop.truncate.x = m_ui.lineEdit_truncateX->getValue();
+        prop.truncate.y = m_ui.lineEdit_truncateY->getValue();
+        prop.truncate.z = m_ui.lineEdit_truncateZ->getValue();
     }
 
 	if (m_isBrowsingFolder && !prop.output.has_extension() || !m_isBrowsingFolder && prop.output.has_extension())

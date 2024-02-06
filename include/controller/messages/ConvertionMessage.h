@@ -31,13 +31,13 @@ public:
 class AsciiInfoMessage : public IMessage
 {
 public:
-	AsciiInfoMessage(const std::map<std::filesystem::path, AsciiImport::Info>& asciiColumnValues);
+	AsciiInfoMessage(const std::map<std::filesystem::path, Import::AsciiInfo>& asciiColumnValues);
 	~AsciiInfoMessage();
 	MessageType getType() const;
 	IMessage* copy() const;
 
 public:
-	std::map<std::filesystem::path, AsciiImport::Info> m_asciiInfo;
+	std::map<std::filesystem::path, Import::AsciiInfo> m_asciiInfo;
 };
 
 #endif //! CONVERTIONMESSAGE_H_

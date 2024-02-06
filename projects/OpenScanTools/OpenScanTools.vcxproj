@@ -782,7 +782,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\controller\messages\FilesMessage.cpp" />
     <ClCompile Include="..\..\src\controller\messages\GeneralMessage.cpp" />
     <ClCompile Include="..\..\src\controller\messages\GridExportMessage.cpp" />
-    <ClCompile Include="..\..\src\controller\messages\ImportMeshObjectMessage.cpp" />
+    <ClCompile Include="..\..\src\controller\messages\ImportMessage.cpp" />
     <ClCompile Include="..\..\src\controller\messages\ManipulateMessage.cpp" />
     <ClCompile Include="..\..\src\controller\messages\ModalMessage.cpp" />
     <ClCompile Include="..\..\src\controller\messages\NewProjectMessage.cpp" />
@@ -821,6 +821,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\gui\Dialog\DialogImportFileObject.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogImportImage.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogImportMeshObject.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogImportPCObject.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogImportStepSimplification.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogOpenProjectCentral.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogPointCloudObjectCreation.cpp" />
@@ -1476,7 +1477,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\controller\messages\DataIdListMessage.h" />
     <ClInclude Include="..\..\include\controller\messages\DeletePointsMessage.h" />
     <ClInclude Include="..\..\include\controller\messages\GeneralMessage.h" />
-    <ClInclude Include="..\..\include\controller\messages\ImportMeshObjectMessage.h" />
+    <ClInclude Include="..\..\include\controller\messages\ImportMessage.h" />
     <ClInclude Include="..\..\include\controller\messages\ManipulateMessage.h" />
     <ClInclude Include="..\..\include\controller\messages\NewProjectMessage.h" />
     <ClInclude Include="..\..\include\controller\messages\PipeMessage.h" />
@@ -1497,6 +1498,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtMoc Include="..\..\include\gui\Dialog\DialogExportVideo.h" />
     <ClInclude Include="..\..\include\controller\messages\VideoExportParametersMessage.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogImportImage.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogImportPCObject.h" />
     <ClInclude Include="..\..\include\gui\style\CustomCursors.h" />
     <ClInclude Include="..\..\include\gui\style\IconObject.h" />
     <ClInclude Include="..\..\include\gui\texts\DefaultNameTexts.hpp" />
@@ -2070,6 +2072,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtUic Include="..\..\src\gui\forms\DialogImportImage.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogImportMeshObject.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogImportAsciiPC.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogImportPCObject.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogImportStepSimplification.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogNewOSTVersion.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogOpenProjectCentral.ui" />

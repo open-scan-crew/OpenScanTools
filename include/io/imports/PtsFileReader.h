@@ -7,7 +7,7 @@
 class PtsFileReader : public IScanFileReader
 {
 public:
-    static bool getReader(const std::filesystem::path& filepath, std::wstring& log, IScanFileReader** reader, const AsciiImport::Info& asciiInfo);
+    static bool getReader(const std::filesystem::path& filepath, std::wstring& log, IScanFileReader** reader, const Import::AsciiInfo& asciiInfo);
     ~PtsFileReader();
     FileType getType() const override;
     uint32_t getScanCount() const override;
@@ -21,10 +21,10 @@ public:
 
 
 private:
-    PtsFileReader(const std::filesystem::path& filepath, const AsciiImport::Info& asciiInfo);
+    PtsFileReader(const std::filesystem::path& filepath, const Import::AsciiInfo& asciiInfo);
 
     bool getNextPoint(const std::string& line, PointXYZIRGB& point);
-    bool fillPoint(const std::string& value, PointXYZIRGB& point, const AsciiImport::ValueRole& valueRole);
+    bool fillPoint(const std::string& value, PointXYZIRGB& point, const Import::AsciiValueRole& valueRole);
 
 private:
     uint64_t totalPointCount;
@@ -34,7 +34,7 @@ private:
 
     std::ifstream m_streamReadScan;
 
-    AsciiImport::Info m_asciiInfo;
+    Import::AsciiInfo m_asciiInfo;
 };
 
 #endif

@@ -1432,7 +1432,7 @@
     <ClCompile Include="..\..\src\controller\functionSystem\ContextMeshObjectDuplication.cpp">
       <Filter>src\controller\contexts</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\controller\messages\ImportMeshObjectMessage.cpp">
+    <ClCompile Include="..\..\src\controller\messages\ImportMessage.cpp">
       <Filter>src\controller\messages</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\models\data\MeshObject\MeshObjectData.cpp">
@@ -2008,6 +2008,12 @@
     <ClCompile Include="..\..\src\gui\Dialog\DialogImportImage.cpp">
       <Filter>src\gui\Dialog</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\gui\Dialog\DialogImportPCObject.cpp">
+      <Filter>src\gui\Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\include\controller\messages\ImportMessage.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="..\..\include\gui\Gui.h">
@@ -2442,6 +2448,9 @@
     <QtMoc Include="..\..\include\gui\Dialog\DialogImportImage.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarConvertImage.h">
       <Filter>include\gui\toolBars</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\include\gui\Dialog\DialogImportPCObject.h">
+      <Filter>include\gui\Dialog</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -3348,7 +3357,7 @@
     <ClInclude Include="..\..\include\io\imports\stepFileReader.h">
       <Filter>include\io\imports</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\controller\messages\ImportMeshObjectMessage.h">
+    <ClInclude Include="..\..\include\controller\messages\ImportMessage.h">
       <Filter>include\controller\messages</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\io\imports\step-simplification\classification\ClassificationByComplexity.h">
@@ -4358,6 +4367,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\toolbar_convertImage.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="..\..\src\gui\forms\DialogImportPCObject.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

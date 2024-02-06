@@ -16,6 +16,7 @@
 ToolBarMeshObjectGroup::ToolBarMeshObjectGroup(IDataDispatcher& dataDispatcher, QWidget* parent, float guiScale)
 	: QWidget(parent)
 	, m_dataDispatcher(dataDispatcher)
+	, m_dialog(dataDispatcher, parent)
 {
 	m_ui.setupUi(this);
 	setEnabled(false);
@@ -86,7 +87,7 @@ void ToolBarMeshObjectGroup::clickWavefrontProperties()
 void ToolBarMeshObjectGroup::clickFromFile()
 {
 	if (m_ui.importFromFileBtn->isChecked())
-		m_dataDispatcher.updateInformation(new GuiDataImportMeshObject());
+		m_dialog.show();
 	else
 		m_dataDispatcher.sendControl(new control::function::Abort());
 }

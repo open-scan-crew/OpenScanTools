@@ -3,7 +3,7 @@
 
 #include "gui/Dialog/ADialog.h"
 #include "ui_DialogImportStepSimplification.h"
-#include "controller/messages/ImportMeshObjectMessage.h"
+#include "controller/messages/ImportMessage.h"
 
 enum class Selection;
 

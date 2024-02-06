@@ -2,6 +2,7 @@
 #define TOOLBAR_WAVEFRONT_GROUP_H
 
 #include <QtWidgets/QWidget>
+#include "gui/Dialog/DialogImportMeshObject.h"
 #include "ui_toolbar_meshobjectgroup.h"
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
@@ -37,6 +38,8 @@ private:
 	QString   m_openPath;
 	Ui::toolbar_meshObjectGroup m_ui;
 	IDataDispatcher& m_dataDispatcher;
+
+	DialogImportMeshObject m_dialog;
 };
 
 #endif // TOOLBAR_WAVEFRONT_GROUP_H

@@ -7,7 +7,6 @@
 
 #include "io/FileUtils.h"
 #include "gui/Dialog/DialogImportStepSimplification.h"
-#include "models/LicenceTypes.h"
 
 #include <set>
 
@@ -52,7 +51,7 @@ private:
     FileType                        m_storedExtension;
     QString							m_openPath;
 	DialogImportStepSimplification	m_dialogStepSimplification;
-    glm::dvec3                       m_storedScanTruncateCoor;
+    glm::dvec3                      m_storedScanTruncateCoor;
 
     Selection                       m_forward;
     Selection                       m_up;

@@ -17,7 +17,7 @@ std::filesystem::path IScanFileReader::getFilePath() const
     return m_filepath;
 }
 
-bool getScanFileReader(const std::filesystem::path& filepath, std::wstring& log, IScanFileReader** scanFileReader, const AsciiImport::Info& asciiInfo, const bool forceColor)
+bool getScanFileReader(const std::filesystem::path& filepath, std::wstring& log, IScanFileReader** scanFileReader, const Import::AsciiInfo& asciiInfo, const bool forceColor)
 {
     switch (ExtensionDictionnary.at(filepath.extension().string()))
     {

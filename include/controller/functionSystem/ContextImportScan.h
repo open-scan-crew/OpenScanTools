@@ -1,13 +1,14 @@
 #ifndef CONTEXT_IMPORT_SCAN_H_
 #define CONTEXT_IMPORT_SCAN_H_
 
-#include "controller/functionSystem/AContext.h"
+#include "controller/functionSystem/ARayTracingContext.h"
 
-#include <filesystem>
-#include <vector>
 #include <qstring.h>
+#include "io/imports/ImportTypes.h"
 
-class ContextImportScan: public AContext
+
+
+class ContextImportScan: public ARayTracingContext
 {
 public:
 	ContextImportScan(const ContextId& id);
@@ -23,7 +24,7 @@ private:
 	void updateStep(Controller& controller, const QString& state, const uint64_t& step);
 
 private:
-	std::vector<std::filesystem::path>		m_inputFiles;
+	Import::ScanInfo						m_scanInfo;
 	uint64_t								m_currentStep;
 };
 

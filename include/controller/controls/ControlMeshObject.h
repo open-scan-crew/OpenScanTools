@@ -2,7 +2,7 @@
 #define CONTROL_WAVEFRONT_H_
 
 #include "controller/controls/IControl.h"
-#include "controller/messages/ImportMeshObjectMessage.h"
+#include "controller/messages/ImportMessage.h"
 #include "models/OpenScanToolsModelEssentials.h"
 #include <filesystem>
 

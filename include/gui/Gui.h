@@ -19,7 +19,6 @@
 #include "gui/Dialog/MessageSplashScreen.h"
 #include "gui/Dialog/DialogImportAsciiPC.h"
 #include "gui/Dialog/DialogProjectCreation.h"
-#include "gui/Dialog/DialogImportMeshObject.h"
 #include "gui/Dialog/DialogImportFileObject.h"
 #include "gui/Dialog/DialogOpenProjectCentral.h"
 #include "gui/Dialog/ProjectTemplateListDialog.h"
@@ -124,7 +123,6 @@ private:
 	void onDeleteScanDialog(IGuiData* data);
 	void onImportFileObject(IGuiData* data);
 	void onExportFileObject(IGuiData* data);
-	void onImportMeshObject(IGuiData* data);
 	void onProjectTemplateDialog(IGuiData* data);
 	void onObject3DPropertySettings(IGuiData* data);
 	void onOpenInExplorer(IGuiData* data);
@@ -167,7 +165,6 @@ private:
 	DialogAbout m_dAbout;
 	MessageSplashScreen m_messageScreen;
 	SplashScreen m_splashScreen;
-	DialogImportMeshObject m_importMeshObject;
 	DialogImportFileObject m_importFileObject;
 	DialogOpenProjectCentral m_openCentralProject;
 	ProjectTemplateListDialog m_projectTemplatesDialog;

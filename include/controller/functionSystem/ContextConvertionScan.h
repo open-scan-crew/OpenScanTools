@@ -1,7 +1,7 @@
 #ifndef CONTEXT_CONVERT_SCAN_H_
 #define CONTEXT_CONVERT_SCAN_H_
 
-#include "controller/functionSystem/AContext.h"
+#include "controller/functionSystem/ARayTracingContext.h"
 #include "io/ConvertProperties.h"
 #include "io/imports/ImportTypes.h"
 
@@ -19,7 +19,7 @@ namespace tls {
 class IScanFileReader;
 class IScanFileWriter;
 
-class ContextConvertionScan: public AContext
+class ContextConvertionScan: public ARayTracingContext
 {
 public:
 	enum CheckState { OK, WARNING, FORCE, RENAME, FAIL };
@@ -35,7 +35,7 @@ public:
 	ContextType getType() const override;
 
 private:
-	void registerConvertedScan(Controller& controller, const std::filesystem::path& filename, const bool& overwritedFile, const float& time);
+	void registerConvertedScan(Controller& controller, const std::filesystem::path& filename, bool overwritedFile, bool asObject, float time);
 
     void convertFile(Controller& controller, const std::filesystem::path& inputFile, const tls::PrecisionType& uprecision);
 
@@ -47,14 +47,13 @@ private:
 
 
 private:
-	std::vector<std::filesystem::path>										m_inputFiles;
+	Import::ScanInfo														m_scanInfo;
 	std::vector<glm::dvec3>													m_importScanPosition;
     ConvertProperties														m_properties;
 	QString																	m_log;
 	uint64_t																m_currentStep;
     bool																	m_userEdits;
     bool																	m_keepOnlyVisiblePoints;
-	std::map<std::filesystem::path, AsciiImport::Info>						m_mapAsciiInfo;
 };
 
 #endif // !CONTEXT_CONVERT_SCAN_H_

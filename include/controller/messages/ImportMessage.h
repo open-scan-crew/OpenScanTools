@@ -3,7 +3,20 @@
 
 #include "controller/messages/IMessage.h"
 #include "io/MeshObjectTypes.h"
+#include "io/imports/ImportTypes.h"
 #include "io/imports/step-simplification/step-simplification.h"
+
+class ImportScanMessage : public IMessage
+{
+public:
+	ImportScanMessage(const Import::ScanInfo& data);
+	~ImportScanMessage();
+	MessageType getType() const;
+	IMessage* copy() const;
+
+public:
+	Import::ScanInfo m_data;
+};
 
 class ImportMeshObjectMessage : public IMessage
 {

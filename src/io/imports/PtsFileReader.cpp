@@ -4,7 +4,7 @@
 #include "utils/Utils.h"
 #include "utils/Logger.h"
 
-bool PtsFileReader::getReader(const std::filesystem::path& filepath, std::wstring& log, IScanFileReader** reader, const AsciiImport::Info& asciiInfo)
+bool PtsFileReader::getReader(const std::filesystem::path& filepath, std::wstring& log, IScanFileReader** reader, const Import::AsciiInfo& asciiInfo)
 {
 	if (!std::filesystem::exists(filepath))
 		return false;
@@ -22,7 +22,7 @@ bool PtsFileReader::getReader(const std::filesystem::path& filepath, std::wstrin
 	return true;
 }
 
-PtsFileReader::PtsFileReader(const std::filesystem::path& filepath, const AsciiImport::Info& asciiInfo)
+PtsFileReader::PtsFileReader(const std::filesystem::path& filepath, const Import::AsciiInfo& asciiInfo)
 	: IScanFileReader(filepath)
 	, m_asciiInfo(asciiInfo)
 	, totalPointCount(0)
@@ -62,17 +62,17 @@ PtsFileReader::PtsFileReader(const std::filesystem::path& filepath, const AsciiI
 
 	m_scanHeader.transfo = { { 0.0, 0.0, 0.0, 1.0}, { translationPoint.x, translationPoint.y, translationPoint.z} };
 
-	const std::vector<AsciiImport::ValueRole>& format = m_asciiInfo.columnsRole;
+	const std::vector<Import::AsciiValueRole>& format = m_asciiInfo.columnsRole;
 
-	bool containX = std::find(format.begin(), format.end(), AsciiImport::ValueRole::X) != format.end();
-	bool containY = std::find(format.begin(), format.end(), AsciiImport::ValueRole::Y) != format.end();
-	bool containZ = std::find(format.begin(), format.end(), AsciiImport::ValueRole::Z) != format.end();
+	bool containX = std::find(format.begin(), format.end(), Import::AsciiValueRole::X) != format.end();
+	bool containY = std::find(format.begin(), format.end(), Import::AsciiValueRole::Y) != format.end();
+	bool containZ = std::find(format.begin(), format.end(), Import::AsciiValueRole::Z) != format.end();
 
-	bool containR = std::find(format.begin(), format.end(), AsciiImport::ValueRole::R) != format.end() || std::find(format.begin(), format.end(), AsciiImport::ValueRole::Rf) != format.end();
-	bool containG = std::find(format.begin(), format.end(), AsciiImport::ValueRole::G) != format.end() || std::find(format.begin(), format.end(), AsciiImport::ValueRole::Gf) != format.end();
-	bool containB = std::find(format.begin(), format.end(), AsciiImport::ValueRole::B) != format.end() || std::find(format.begin(), format.end(), AsciiImport::ValueRole::Bf) != format.end();
+	bool containR = std::find(format.begin(), format.end(), Import::AsciiValueRole::R) != format.end() || std::find(format.begin(), format.end(), Import::AsciiValueRole::Rf) != format.end();
+	bool containG = std::find(format.begin(), format.end(), Import::AsciiValueRole::G) != format.end() || std::find(format.begin(), format.end(), Import::AsciiValueRole::Gf) != format.end();
+	bool containB = std::find(format.begin(), format.end(), Import::AsciiValueRole::B) != format.end() || std::find(format.begin(), format.end(), Import::AsciiValueRole::Bf) != format.end();
 	
-	bool containI = std::find(format.begin(), format.end(), AsciiImport::ValueRole::I) != format.end();
+	bool containI = std::find(format.begin(), format.end(), Import::AsciiValueRole::I) != format.end();
 
 	m_scanHeader.format = tls::PointFormat::TL_POINT_NOT_COMPATIBLE;
 
@@ -185,7 +185,7 @@ bool PtsFileReader::getNextPoint(const std::string& line, PointXYZIRGB& point)
 			if (valueInd >= m_asciiInfo.columnsRole.size())
 				return false;
 
-			AsciiImport::ValueRole role = m_asciiInfo.columnsRole[valueInd];
+			Import::AsciiValueRole role = m_asciiInfo.columnsRole[valueInd];
 
 			if (!fillPoint(temp, point, role))
 				return false;
@@ -208,7 +208,7 @@ bool PtsFileReader::getNextPoint(const std::string& line, PointXYZIRGB& point)
 		if (valueInd != m_asciiInfo.columnsRole.size() - 1)
 			return false;
 
-		AsciiImport::ValueRole role = m_asciiInfo.columnsRole[valueInd];
+		Import::AsciiValueRole role = m_asciiInfo.columnsRole[valueInd];
 
 		if (!fillPoint(temp, point, role))
 			return false;
@@ -216,30 +216,30 @@ bool PtsFileReader::getNextPoint(const std::string& line, PointXYZIRGB& point)
 	}
 }
 
-bool PtsFileReader::fillPoint(const std::string& value, PointXYZIRGB& point, const AsciiImport::ValueRole& valueRole)
+bool PtsFileReader::fillPoint(const std::string& value, PointXYZIRGB& point, const Import::AsciiValueRole& valueRole)
 {
 	try {
 		switch (valueRole)
 		{
-			case AsciiImport::ValueRole::X:
+			case Import::AsciiValueRole::X:
 			{
 				point.x = std::stof(value);
 			}
 			break;
-			case AsciiImport::ValueRole::Y:
+			case Import::AsciiValueRole::Y:
 			{
 				point.y = std::stof(value);
 			}
 			break;
-			case AsciiImport::ValueRole::Z:
+			case Import::AsciiValueRole::Z:
 			{
 				point.z = std::stof(value);
 			}
 			break;
-			case AsciiImport::ValueRole::R:
-			case AsciiImport::ValueRole::G:
-			case AsciiImport::ValueRole::B:
-			case AsciiImport::ValueRole::I:
+			case Import::AsciiValueRole::R:
+			case Import::AsciiValueRole::G:
+			case Import::AsciiValueRole::B:
+			case Import::AsciiValueRole::I:
 			{
 				int val = std::stoi(value);
 				if (val > 255)
@@ -248,24 +248,24 @@ bool PtsFileReader::fillPoint(const std::string& value, PointXYZIRGB& point, con
 					val = 0;
 				switch (valueRole)
 				{
-					case AsciiImport::ValueRole::R:
+					case Import::AsciiValueRole::R:
 						point.r = val;
 						break;
-					case AsciiImport::ValueRole::G:
+					case Import::AsciiValueRole::G:
 						point.g = val;
 						break;
-					case AsciiImport::ValueRole::B:
+					case Import::AsciiValueRole::B:
 						point.b = val;
 						break;
-					case AsciiImport::ValueRole::I:
+					case Import::AsciiValueRole::I:
 						point.i = val;
 						break;
 				}
 			}
 			break;
-			case AsciiImport::ValueRole::Rf:
-			case AsciiImport::ValueRole::Gf:
-			case AsciiImport::ValueRole::Bf:
+			case Import::AsciiValueRole::Rf:
+			case Import::AsciiValueRole::Gf:
+			case Import::AsciiValueRole::Bf:
 			{
 				double val = std::stod(value);
 				if (val > 1.)
@@ -276,19 +276,19 @@ bool PtsFileReader::fillPoint(const std::string& value, PointXYZIRGB& point, con
 				int ival = (int)(255. * val);
 				switch (valueRole)
 				{
-				case AsciiImport::ValueRole::Rf:
+				case Import::AsciiValueRole::Rf:
 					point.r = ival;
 					break;
-				case AsciiImport::ValueRole::Gf:
+				case Import::AsciiValueRole::Gf:
 					point.g = ival;
 					break;
-				case AsciiImport::ValueRole::Bf:
+				case Import::AsciiValueRole::Bf:
 					point.b = ival;
 					break;
 				}
 			}
 			break;
-			case AsciiImport::ValueRole::Ignore:
+			case Import::AsciiValueRole::Ignore:
 			{}
 			break;
 			default:

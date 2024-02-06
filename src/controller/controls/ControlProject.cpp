@@ -8,6 +8,7 @@
 #include "controller/ControlListener.h"
 #include "controller/messages/ConvertionMessage.h"
 #include "controller/messages/FilesMessage.h"
+#include "controller/messages/ImportMessage.h"
 #include "io/SaveLoadSystem.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataRendering.h"
@@ -689,10 +690,9 @@ namespace control
 		** ImportScan
 		*/
 
-		ImportScan::ImportScan(std::vector<std::filesystem::path> paths, const std::map<std::filesystem::path, AsciiImport::Info>& mapAsciiInfo)
+		ImportScan::ImportScan(const Import::ScanInfo& importInfo)
 		{
-			m_filePaths = paths;
-			m_mapAsciiInfo = mapAsciiInfo;
+			m_importInfo = importInfo;
 		}
 
 		ImportScan::~ImportScan()
@@ -708,7 +708,7 @@ namespace control
 			std::vector<std::filesystem::path> toConvert;
 			std::vector<std::filesystem::path> toImport;
 
-			for (auto it_file = m_filePaths.begin(); it_file != m_filePaths.end(); it_file++)
+			for (auto it_file = m_importInfo.paths.begin(); it_file != m_importInfo.paths.end(); it_file++)
 			{
                 auto it = ExtensionDictionnary.find(it_file->extension().string());
                 if (it == ExtensionDictionnary.end())
@@ -726,7 +726,7 @@ namespace control
 
 				case FileType::PTS:
 					{
-						if (m_mapAsciiInfo.find(*it_file) != m_mapAsciiInfo.end())
+						if (m_importInfo.mapAsciiInfo.find(*it_file) != m_importInfo.mapAsciiInfo.end())
 							toConvert.push_back(*it_file);
 					}
 					break;
@@ -742,19 +742,15 @@ namespace control
 			if (!toConvert.empty())
 			{
 				controller.getFunctionManager().launchFunction(controller, ContextType::scanConversion);
-				if (!m_mapAsciiInfo.empty())
-				{
-					AsciiInfoMessage message(m_mapAsciiInfo);
-					controller.getFunctionManager().feedMessage(controller, &message);
-				}
-
-				FilesMessage message(toConvert);
+				m_importInfo.paths = toConvert;
+				ImportScanMessage message(m_importInfo);
 				controller.getFunctionManager().feedMessage(controller, &message);
 			}
 			if (!toImport.empty())
 			{
 				controller.getFunctionManager().launchFunction(controller, ContextType::scanImport);
-				FilesMessage message(toImport);
+				m_importInfo.paths = toImport; 
+				ImportScanMessage message(m_importInfo);
 				controller.getFunctionManager().feedMessage(controller, &message);
 			}
 

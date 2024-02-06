@@ -3,7 +3,6 @@
 
 #include <QObject>
 
-
 //ContextPointObject duplications
 #define TEXT_POINT_CLOUD_OBJECT_START QObject::tr("Ready to create point cloud object. Click on the desired area in the point cloud.")
 #define TEXT_POINT_CLOUD_OBJECT_DUPLICATION_DONE QObject::tr("Cloud object duplicated. Ready for the next one.")

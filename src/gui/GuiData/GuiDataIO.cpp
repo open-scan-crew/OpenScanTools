@@ -44,19 +44,6 @@ guiDType GuiDataImportScans::getType()
 	return (guiDType::importScans);
 }
 
-// **** GuiDataImportScans ****
-
-GuiDataImportMeshObject::GuiDataImportMeshObject()
-{ }
-
-GuiDataImportMeshObject::~GuiDataImportMeshObject()
-{ }
-
-guiDType GuiDataImportMeshObject::getType()
-{
-	return (guiDType::importMeshObject);
-}
-
 // **** Conversion Options Display ****
 
 GuiDataConversionOptionsDisplay::GuiDataConversionOptionsDisplay(const uint64_t& fileType, const glm::dvec3& translation)

@@ -4,12 +4,11 @@
 #include "models/3d/ManipulationTypes.h"
 #include "io/FileUtils.h"
 #include "models/3d/MeshId.h"
+#include "io/imports/ImportTypes.h"
 
 #include <filesystem>
 #include <glm/glm.hpp>
 #include "utils/math/basic_functions.h"
-
-enum class PositionOptions { KeepModel, ClickPosition, GivenCoordinates };
 
 //value between 1 and 100
 typedef int LODValue; 

@@ -43,17 +43,21 @@ void EventManagerViewport::dropEvent(QDropEvent* event)
 				pathList.push_back(file);
 		}
 
-
 		DialogImportAsciiPC importAsciiDialog(m_widget);
 		if (importAsciiDialog.setInfoAsciiPC(pathList))
 			importAsciiDialog.exec();
 
-		std::map<std::filesystem::path, AsciiImport::Info> mapAsciiInfo;
+		std::map<std::filesystem::path, Import::AsciiInfo> mapAsciiInfo;
 		if (importAsciiDialog.isFinished())
 			mapAsciiInfo = importAsciiDialog.getFileImportInfo();
 
+		Import::ScanInfo info;
+		info.asObject = false;
+		info.paths = pathList;
+		info.mapAsciiInfo = mapAsciiInfo;
+
 		// call a function to open the files
 		if(pathList.size())
-			m_dataDispatcher.sendControl(new control::project::ImportScan(pathList, mapAsciiInfo));
+			m_dataDispatcher.sendControl(new control::project::ImportScan(info));
 	}
 }

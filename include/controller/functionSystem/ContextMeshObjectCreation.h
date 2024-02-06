@@ -2,7 +2,7 @@
 #define CONTEXT_WAVEFRONT_CREATION_H_
 
 #include "controller/functionSystem/ARayTracingContext.h"
-#include "controller/messages/ImportMeshObjectMessage.h"
+#include "controller/messages/ImportMessage.h"
 
 #include <glm/glm.hpp>
 #include <filesystem>

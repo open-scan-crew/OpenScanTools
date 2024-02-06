@@ -5,7 +5,7 @@
 #include "io/exports/IScanFileWriter.h"
 #include "controller/messages/ConvertionMessage.h"
 #include "controller/Controller.h"
-#include "controller/messages/FilesMessage.h"
+#include "controller/messages/ImportMessage.h"
 #include "controller/controls/ControlProject.h"
 #include "controller/controls/ControlApplication.h"
 #include "controller/controls/ControlTree.h"
@@ -21,12 +21,14 @@
 #include "gui/GuiData/GuiData3dObjects.h"
 #include "gui/texts/SplashScreenTexts.hpp"
 #include "gui/texts/ContextTexts.hpp"
+#include "gui/texts/PointCloudTexts.hpp"
 #include "controller/messages/ModalMessage.h"
 #include "pointCloudEngine/PCE_core.h"
 #include "gui/widgets/ConvertionOptionsBox.h"
 #include "utils/Utils.h"
 
 #include "models/3d/Graph/ScanNode.h"
+#include "models/3d/Graph/ScanObjectNode.h"
 #include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
 // Temporary for large coordinates
 #include "io/exports/TlsFileWriter.h"
@@ -64,7 +66,7 @@ tls::TBoundingBox<double> getScansBoundingBox(const std::vector<glm::dvec3>& sca
 }
 
 ContextConvertionScan::ContextConvertionScan(const ContextId& id)
-	: AContext(id)
+	: ARayTracingContext(id)
     , m_userEdits(true)
     , m_keepOnlyVisiblePoints(true)
 {}
@@ -81,36 +83,24 @@ ContextState ContextConvertionScan::feedMessage(IMessage* message, Controller& c
 {
     switch (message->getType())
     {
-    case IMessage::MessageType::ASCII_INFO:
+    case IMessage::MessageType::IMPORT_SCAN:
     {
-        AsciiInfoMessage* out = dynamic_cast<AsciiInfoMessage*>(message);
-        if(out == nullptr)
-        {
-            FUNCLOG << "failed to convert in importMessage" << LOGENDL;
-            return (m_state);
-        }
-
-        m_mapAsciiInfo = out->m_asciiInfo;
-    }
-    break;
-    case IMessage::MessageType::FILES:
-    {
-        FilesMessage* out = dynamic_cast<FilesMessage*>(message);
+        ImportScanMessage* out = dynamic_cast<ImportScanMessage*>(message);
         if (out == nullptr)
         {
             FUNCLOG << "failed to convert in importMessage" << LOGENDL;
             return (m_state);
         }
-        if (out->m_inputFiles.empty())
+        if (out->m_data.paths.empty())
             break;
-        m_inputFiles = out->m_inputFiles;
+        m_scanInfo = out->m_data;
         uint64_t maskType(ConvertionOptionsBox::BoxOptions::TRUNCATE_COORDINATES);
         bool force(false);
         std::vector<std::filesystem::path> outputFiles;
         std::filesystem::path scanDir = controller.getContext().cgetProjectInternalInfo().getScansFolderPath();
 
         controller.updateInfo(new GuiDataSplashScreenStart(TEXT_MESSAGE_SPLASH_SCREEN_READING_DATA, GuiDataSplashScreenStart::SplashScreenType::Message));
-        for (const std::filesystem::path& file : m_inputFiles)
+        for (const std::filesystem::path& file : m_scanInfo.paths)
         {
             //Note (Aurélien) Brute force to try to fix #227
             std::vector<tls::ScanHeader> headers;
@@ -183,7 +173,7 @@ ContextState ContextConvertionScan::feedMessage(IMessage* message, Controller& c
             scanTranslation = controller.getContext().getProjectInfo().m_importScanTranslation;
 
         controller.updateInfo(new GuiDataConversionOptionsDisplay(maskType, scanTranslation));
-        controller.updateInfo(new GuiDataConversionFilePaths(m_inputFiles));
+        controller.updateInfo(new GuiDataConversionFilePaths(m_scanInfo.paths));
 
         m_state = ContextState::waiting_for_input;
         break;
@@ -197,11 +187,20 @@ ContextState ContextConvertionScan::feedMessage(IMessage* message, Controller& c
             return (m_state);
         }
         m_properties = castedMsg->m_properties;
-        m_state = ContextState::ready_for_using;
+
+        if (m_scanInfo.positionOption == PositionOptions::ClickPosition)
+        {
+            m_usages.push_back({ true, {ElementType::Point, ElementType::Tag}, TEXT_POINT_CLOUD_OBJECT_START });
+            return ARayTracingContext::start(controller);
+        }
+        else
+            return (m_state = ContextState::ready_for_using);
+
         break;
     }
     default:
     {
+        return ARayTracingContext::feedMessage(message, controller);
         FUNCLOG << "wrong message type" << LOGENDL;
         break;
     }
@@ -211,6 +210,14 @@ ContextState ContextConvertionScan::feedMessage(IMessage* message, Controller& c
 
 ContextState ContextConvertionScan::launch(Controller& controller)
 {
+    // --- Ray Tracing ---
+    if (m_scanInfo.positionOption == PositionOptions::ClickPosition) {
+        ARayTracingContext::getNextPosition(controller);
+        if (pointMissing())
+            return waitForNextPoint(controller);
+    }
+    // -!- Ray Tracing -!-
+
     OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
 
     std::unordered_set<SafePtr<AGraphNode>> scans = graphManager.getNodesByTypes({ ElementType::Scan, ElementType::PCO });
@@ -227,9 +234,9 @@ ContextState ContextConvertionScan::launch(Controller& controller)
 
     for (glm::dvec3 position : m_importScanPosition)
     {
-        position.x += m_properties.truncateX;
-        position.y += m_properties.truncateY;
-        position.z += m_properties.truncateZ;
+        position.x += m_properties.truncate.x;
+        position.y += m_properties.truncate.y;
+        position.z += m_properties.truncate.z;
 
         allScansPosition.push_back(position);
     }
@@ -254,7 +261,7 @@ ContextState ContextConvertionScan::launch(Controller& controller)
 	auto start = std::chrono::steady_clock::now();
 
     uint64_t nbScanBeforeImport = graphManager.getNodesByTypes({ ElementType::Scan }).size();
-	for (const std::filesystem::path& inputFile : m_inputFiles)
+	for (const std::filesystem::path& inputFile : m_scanInfo.paths)
 	{
 		if (m_state != ContextState::running)
 			return ContextState::abort;
@@ -293,12 +300,33 @@ ContextType ContextConvertionScan::getType() const
 	return ContextType::scanConversion;
 }
 
-void ContextConvertionScan::registerConvertedScan(Controller& controller, const std::filesystem::path& filename, const bool& overwritedFile, const float& time)
+void ContextConvertionScan::registerConvertedScan(Controller& controller, const std::filesystem::path& filename, bool overwritedFile, bool asObject, float time)
 {
-	SafePtr<ScanNode> scan;
+    bool importSuccess = false;
 	SaveLoadSystem::ErrorCode error;
-	//TODO (Aur?lien) remove null case when UI update is correctly updated
-	if (!(scan = SaveLoadSystem::ImportNewTlsFile(filename, controller, error)))
+
+    if (m_scanInfo.asObject)
+    {
+        SafePtr<ScanObjectNode> scanObj = SaveLoadSystem::ImportTlsFileAsObject(filename, controller, error);
+        if (scanObj)
+        {
+            WritePtr<ScanObjectNode> wScanObj = scanObj.get();
+            switch (m_scanInfo.positionOption)
+            {
+            case PositionOptions::ClickPosition:
+                wScanObj->setPosition(m_clickResults[0].position);
+                break;
+            case PositionOptions::GivenCoordinates:
+                wScanObj->setPosition(m_scanInfo.positionAsObject);
+                break;
+            }
+            importSuccess = true;
+        }
+    }
+    else
+        importSuccess = bool(SaveLoadSystem::ImportNewTlsFile(filename, controller, error));
+
+	if (!importSuccess)
 	{
 		QString log;
 		if (overwritedFile == false)
@@ -325,13 +353,13 @@ void ContextConvertionScan::convertFile(Controller& controller, const std::files
 {
     std::wstring wlog;
 
-    controller.updateInfo(new GuiDataProcessingSplashScreenStart(m_inputFiles.size(), TEXT_CONVERTION_CONVERTING, QString()));
+    controller.updateInfo(new GuiDataProcessingSplashScreenStart(m_scanInfo.paths.size(), TEXT_CONVERTION_CONVERTING, QString()));
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString::fromStdWString(inputFile.wstring())));
     IScanFileReader* fileReader = nullptr;
 
-    AsciiImport::Info asciiInfo;
-    if (m_mapAsciiInfo.find(inputFile) != m_mapAsciiInfo.end())
-        asciiInfo = m_mapAsciiInfo.at(inputFile);
+    Import::AsciiInfo asciiInfo;
+    if (m_scanInfo.mapAsciiInfo.find(inputFile) != m_scanInfo.mapAsciiInfo.end())
+        asciiInfo = m_scanInfo.mapAsciiInfo.at(inputFile);
 
     if (getScanFileReader(inputFile, wlog, &fileReader, asciiInfo, m_properties.readFlsColor) == false)
     {
@@ -392,10 +420,10 @@ void ContextConvertionScan::convertFile(Controller& controller, const std::files
         convertOne(fileReader, s, fileWriter, precision);
 
         // Truncate the coordinates after conversion (Temporary solution for large coords)
-        static_cast<TlsFileWriter*>(fileWriter)->translateOrigin(m_properties.truncateX, m_properties.truncateY, m_properties.truncateZ);
+        static_cast<TlsFileWriter*>(fileWriter)->translateOrigin(m_properties.truncate.x, m_properties.truncate.y, m_properties.truncate.z);
 
         float time = std::chrono::duration<float, std::ratio<1>>(std::chrono::steady_clock::now() - start).count();
-        registerConvertedScan(controller, fileWriter->getFilePath(), m_properties.overwriteExisting, time);
+        registerConvertedScan(controller, fileWriter->getFilePath(), m_properties.overwriteExisting, false, time);
 
         delete fileWriter;
     }
@@ -451,9 +479,9 @@ int ContextConvertionScan::checkScansExist(const std::filesystem::path& inputFil
     IScanFileReader* fileReader = nullptr;
     int retCode(0);
 
-    AsciiImport::Info asciiInfo;
-    if (m_mapAsciiInfo.find(inputFile) != m_mapAsciiInfo.end())
-        asciiInfo = m_mapAsciiInfo.at(inputFile);
+    Import::AsciiInfo asciiInfo;
+    if (m_scanInfo.mapAsciiInfo.find(inputFile) != m_scanInfo.mapAsciiInfo.end())
+        asciiInfo = m_scanInfo.mapAsciiInfo.at(inputFile);
 
     if (getScanFileReader(inputFile, log, &fileReader, asciiInfo) == false)
     {

@@ -24,7 +24,7 @@ public:
 	bool setInfoAsciiPC(std::vector<std::filesystem::path> filePaths);
 
 	bool isFinished();
-	std::map<std::filesystem::path, AsciiImport::Info> getFileImportInfo();
+	std::map<std::filesystem::path, Import::AsciiInfo> getFileImportInfo();
 
 	void onOk(bool all);
 	void changeSeparator(char sep);
@@ -39,7 +39,7 @@ private:
 private:
 	Ui::ImportAsciiPC m_ui;
 
-	std::vector<std::pair<std::filesystem::path, AsciiImport::Info>> m_filesValuesRoles;
+	std::vector<std::pair<std::filesystem::path, Import::AsciiInfo>> m_filesValuesRoles;
 
 	int m_fileIndex;
 	bool m_isFinished;

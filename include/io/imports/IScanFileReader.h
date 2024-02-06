@@ -34,6 +34,6 @@ protected:
 
 };
 
-bool getScanFileReader(const std::filesystem::path& filepath, std::wstring& log, IScanFileReader**, const AsciiImport::Info& asciiInfo, const bool forceColor = true);
+bool getScanFileReader(const std::filesystem::path& filepath, std::wstring& log, IScanFileReader**, const Import::AsciiInfo& asciiInfo, const bool forceColor = true);
 
 #endif

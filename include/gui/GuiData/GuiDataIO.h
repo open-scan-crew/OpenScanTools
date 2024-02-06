@@ -46,14 +46,6 @@ public:
 	guiDType getType() override;
 };
 
-class GuiDataImportMeshObject : public IGuiData
-{
-public:
-	GuiDataImportMeshObject();
-	~GuiDataImportMeshObject();
-	guiDType getType() override;
-};
-
 class GuiDataConversionOptionsDisplay : public IGuiData
 {
 public:

@@ -1,4 +1,4 @@
-#include "controller/messages/ImportMeshObjectMessage.h"
+#include "controller/messages/ImportMessage.h"
 
 /*
 * ImportMeshObjectMessage
@@ -41,4 +41,22 @@ IMessage::MessageType StepSimplificationMessage::getType() const
 IMessage * StepSimplificationMessage::copy() const
 {
 	return new StepSimplificationMessage(*this);
+}
+
+ImportScanMessage::ImportScanMessage(const Import::ScanInfo& data)
+	: m_data(data)
+{
+}
+
+ImportScanMessage::~ImportScanMessage()
+{}
+
+IMessage::MessageType ImportScanMessage::getType() const
+{
+	return MessageType::IMPORT_SCAN;
+}
+
+IMessage* ImportScanMessage::copy() const
+{
+	return new ImportScanMessage(*this);
 }

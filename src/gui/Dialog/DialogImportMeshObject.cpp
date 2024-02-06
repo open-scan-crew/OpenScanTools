@@ -1,5 +1,5 @@
 #include "gui/Dialog/DialogImportMeshObject.h"
-#include "controller/messages/ImportMeshObjectMessage.h"
+#include "controller/messages/ImportMessage.h"
 #include "gui/widgets/CustomWidgets/qdoubleedit.h"
 #include "gui/widgets/CustomWidgets/regexpedit.h"
 
@@ -46,7 +46,6 @@ DialogImportMeshObject::DialogImportMeshObject(IDataDispatcher& dataDispatcher, 
 
     m_ui.scaleLineEdit->getValue();
     m_ui.scaleLineEdit->setType(NumericType::DISTANCE);
-
 
     initComboBoxes();
     m_dataDispatcher.registerObserverOnKey(this, guiDType::projectPath);

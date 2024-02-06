@@ -77,7 +77,7 @@ const std::filesystem::path& ConvertionMessage::getOutput() const
 	return m_properties.output;
 }
 
-AsciiInfoMessage::AsciiInfoMessage(const std::map<std::filesystem::path, AsciiImport::Info>& asciiInfo)
+AsciiInfoMessage::AsciiInfoMessage(const std::map<std::filesystem::path, Import::AsciiInfo>& asciiInfo)
 	: m_asciiInfo(asciiInfo)
 {}
 

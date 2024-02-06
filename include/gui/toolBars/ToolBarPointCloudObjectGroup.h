@@ -7,6 +7,8 @@
 #include "gui/IDataDispatcher.h"
 #include "utils/Color32.hpp"
 
+#include "gui/Dialog/DialogImportPCObject.h"
+
 class ToolBarPointCloudObjectGroup;
 
 typedef void (ToolBarPointCloudObjectGroup::* PCOGroupMethod)(IGuiData*);
@@ -39,6 +41,8 @@ private:
 	QString   m_openPath;
 	Ui::toolbar_pcObjectGroup m_ui;
 	IDataDispatcher& m_dataDispatcher;
+
+	DialogImportPCObject m_dialog;
 };
 
 #endif // TOOLBAR_POINT_CLOUD_OBJECT_GROUP_H

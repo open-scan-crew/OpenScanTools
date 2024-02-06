@@ -5,7 +5,7 @@
 #include "io/imports/step-simplification/step-simplification.h"
 
 
-#include "controller/messages/ImportMeshObjectMessage.h"
+#include "controller/messages/ImportMessage.h"
 
 class ContextStepSimplification : public ARayTracingContext
 {

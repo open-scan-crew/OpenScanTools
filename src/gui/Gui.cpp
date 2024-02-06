@@ -156,7 +156,6 @@ Gui::Gui(Controller& controller, Translator* translator)
 	, m_dShortcuts(this)
 	, m_dAbout(m_dataDispatcher, this)
 	, m_messageScreen(this)
-	, m_importMeshObject(m_dataDispatcher, this)
 	, m_importFileObject(m_dataDispatcher, this)
 	, m_projectTemplatesDialog(m_dataDispatcher, this)
 	, m_object3DPropertySettings(m_dataDispatcher, this)
@@ -420,7 +419,6 @@ Gui::Gui(Controller& controller, Translator* translator)
 	//registerGuiDataFunction(guiDType::openProjectCentral, &Gui::onOpenProjectCentral);
 
     registerGuiDataFunction(guiDType::importScans, &Gui::onImportScans);
-	registerGuiDataFunction(guiDType::importMeshObject, &Gui::onImportMeshObject);
     registerGuiDataFunction(guiDType::splashScreenStart, &Gui::onSplashScreenStart);
     registerGuiDataFunction(guiDType::splashScreenEnd, &Gui::onSplashScreenEnd);
     registerGuiDataFunction(guiDType::projectPath, &Gui::onProjectPath);
@@ -648,11 +646,6 @@ void Gui::showAuthorManager()
 	m_projectGroup->manageAuthors(false);
 }
 
-void Gui::onImportMeshObject(IGuiData* data)
-{
-	m_importMeshObject.show();
-}
-
 //new
 /*
 void Gui::onOpenProjectCentral(IGuiData* data)
@@ -701,16 +694,20 @@ void Gui::onImportScans(IGuiData *data)
     for (const QString& it : paths)
         filePaths.push_back(it.toStdWString());
 
-
 	DialogImportAsciiPC importAsciiDialog(this);
 	if(importAsciiDialog.setInfoAsciiPC(filePaths))
 		importAsciiDialog.exec();
 
-	std::map<std::filesystem::path, AsciiImport::Info> mapAsciiInfo;
+	std::map<std::filesystem::path, Import::AsciiInfo> mapAsciiInfo;
 	if (importAsciiDialog.isFinished())
 		mapAsciiInfo = importAsciiDialog.getFileImportInfo();
 
-    m_dataDispatcher.sendControl(new control::project::ImportScan(filePaths, mapAsciiInfo));
+	Import::ScanInfo info;
+	info.asObject = false;
+	info.paths = filePaths;
+	info.mapAsciiInfo = mapAsciiInfo;
+
+    m_dataDispatcher.sendControl(new control::project::ImportScan(info));
 }
 
 void Gui::onSplashScreenStart(IGuiData* data)

@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <filesystem>
+#include <glm/glm.hpp>
 
 struct ConvertProperties
 {
@@ -14,9 +15,10 @@ struct ConvertProperties
     bool                    readFlsColor;
     bool                    overwriteExisting;
     std::filesystem::path	output;
-    double                  truncateX;
-    double                  truncateY;
-    double                  truncateZ;
+    glm::dvec3              truncate;
+
+    bool                    importAsObject;
+    glm::dvec3              positionAsObject;
 };
 
 #endif

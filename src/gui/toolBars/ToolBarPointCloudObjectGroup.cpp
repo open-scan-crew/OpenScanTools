@@ -18,7 +18,7 @@ ToolBarPointCloudObjectGroup::ToolBarPointCloudObjectGroup(IDataDispatcher& data
 	: QWidget(parent)
 	, m_dataDispatcher(dataDispatcher)
 	, m_openPath(QStandardPaths::locate(QStandardPaths::DocumentsLocation, QString(), QStandardPaths::LocateDirectory))
-
+	, m_dialog(dataDispatcher, parent)
 {
 	m_ui.setupUi(this);
 	setEnabled(false);
@@ -117,18 +117,7 @@ void ToolBarPointCloudObjectGroup::clickFromBox()
 
 void ToolBarPointCloudObjectGroup::clickFromFile()
 {
-	QStringList files = QFileDialog::getOpenFileNames(this, TEXT_SELECT_DIRECTORY,
-		m_openPath, TEXT_FILE_TYPE_TLS, nullptr);
-
-	std::list<std::filesystem::path> listing;
-	for (const auto& iterator : files)
-		listing.push_back(iterator.toStdWString());
-
-	if (!listing.empty())
-	{
-		m_dataDispatcher.sendControl(new control::pcObject::CreatePCObjectFromFile(listing));
-		m_openPath = std::filesystem::path(files.begin()->toStdWString()).parent_path().string().c_str();
-	}
+	m_dialog.show();
 	m_ui.importFromFileBtn->setChecked(false);
 }
 

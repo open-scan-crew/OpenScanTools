@@ -8,19 +8,19 @@
 #include "gui/Texts.hpp"
 #include <array>
 
-static std::vector<std::pair<QString, AsciiImport::ValueRole>> comboBoxContent = { 
+static std::vector<std::pair<QString, Import::AsciiValueRole>> comboBoxContent = { 
 
-																					{TEXT_ASCII_IGNORE, AsciiImport::ValueRole::Ignore},
-																					{"X", AsciiImport::ValueRole::X}, 
-																					{"Y", AsciiImport::ValueRole::Y}, 
-																					{"Z", AsciiImport::ValueRole::Z}, 
-																					{TEXT_ASCII_RED, AsciiImport::ValueRole::R}, 
-																					{TEXT_ASCII_GREEN, AsciiImport::ValueRole::G},
-																					{TEXT_ASCII_BLUE, AsciiImport::ValueRole::B},
-																					{TEXT_ASCII_INTENSITY, AsciiImport::ValueRole::I},
-																					{TEXT_ASCII_RED_FLOAT, AsciiImport::ValueRole::Rf},
-																					{TEXT_ASCII_GREEN_FLOAT, AsciiImport::ValueRole::Gf},
-																					{TEXT_ASCII_BLUE_FLOAT, AsciiImport::ValueRole::Bf}
+																					{TEXT_ASCII_IGNORE, Import::AsciiValueRole::Ignore},
+																					{"X", Import::AsciiValueRole::X}, 
+																					{"Y", Import::AsciiValueRole::Y}, 
+																					{"Z", Import::AsciiValueRole::Z}, 
+																					{TEXT_ASCII_RED, Import::AsciiValueRole::R}, 
+																					{TEXT_ASCII_GREEN, Import::AsciiValueRole::G},
+																					{TEXT_ASCII_BLUE, Import::AsciiValueRole::B},
+																					{TEXT_ASCII_INTENSITY, Import::AsciiValueRole::I},
+																					{TEXT_ASCII_RED_FLOAT, Import::AsciiValueRole::Rf},
+																					{TEXT_ASCII_GREEN_FLOAT, Import::AsciiValueRole::Gf},
+																					{TEXT_ASCII_BLUE_FLOAT, Import::AsciiValueRole::Bf}
 
 };
 
@@ -61,7 +61,7 @@ bool DialogImportAsciiPC::setInfoAsciiPC(std::vector<std::filesystem::path> file
 	{
 		FileType type = ExtensionDictionnary.at(path.extension().string());
 		if (type == FileType::PTS)
-			m_filesValuesRoles.push_back({ path,  AsciiImport::Info() });
+			m_filesValuesRoles.push_back({ path,  Import::AsciiInfo() });
 	}
 
 	m_fileIndex = 0;
@@ -78,9 +78,9 @@ bool DialogImportAsciiPC::isFinished()
 	return m_isFinished;
 }
 
-std::map<std::filesystem::path, AsciiImport::Info> DialogImportAsciiPC::getFileImportInfo()
+std::map<std::filesystem::path, Import::AsciiInfo> DialogImportAsciiPC::getFileImportInfo()
 {
-	std::map<std::filesystem::path, AsciiImport::Info> mapAsciiValuesRoles;
+	std::map<std::filesystem::path, Import::AsciiInfo> mapAsciiValuesRoles;
 	for (auto el : m_filesValuesRoles)
 	{
 		mapAsciiValuesRoles[el.first] = el.second;
@@ -290,17 +290,17 @@ void DialogImportAsciiPC::changeSeparator(char sep)
 
 void DialogImportAsciiPC::onOk(bool all)
 {
-	AsciiImport::Info info;
-	std::vector<AsciiImport::ValueRole> values;
+	Import::AsciiInfo info;
+	std::vector<Import::AsciiValueRole> values;
 	std::array<bool, 3> containXYZ = { false, false, false };
 	for (int colInd = 0; colInd < m_ui.columnPtsTableWidget->columnCount(); colInd++)
 	{
-		AsciiImport::ValueRole role = AsciiImport::ValueRole(static_cast<QComboBox*>(m_ui.columnPtsTableWidget->cellWidget(0, colInd))->currentData().toInt());
-		if (role == AsciiImport::ValueRole::X)
+		Import::AsciiValueRole role = Import::AsciiValueRole(static_cast<QComboBox*>(m_ui.columnPtsTableWidget->cellWidget(0, colInd))->currentData().toInt());
+		if (role == Import::AsciiValueRole::X)
 			containXYZ[0] = true;
-		if (role == AsciiImport::ValueRole::Y)
+		if (role == Import::AsciiValueRole::Y)
 			containXYZ[1] = true;
-		if (role == AsciiImport::ValueRole::Z)
+		if (role == Import::AsciiValueRole::Z)
 			containXYZ[2] = true;
 		values.push_back(role);
 	}
