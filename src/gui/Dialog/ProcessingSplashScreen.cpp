@@ -55,6 +55,7 @@ void ProcessingSplashScreen::informData(IGuiData *keyValue)
 	{
 		case  guiDType::processingSplashScreenStart:
 		{
+			ui->cancelButton->setEnabled(true);
 			GuiDataProcessingSplashScreenStart* info = static_cast<GuiDataProcessingSplashScreenStart*>(keyValue);
 			show();
 			emit onLabelValueChange(info->m_label);
