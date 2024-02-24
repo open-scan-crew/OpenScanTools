@@ -29,7 +29,7 @@ ContextImportScan::~ContextImportScan()
 
 ContextState ContextImportScan::start(Controller& controller)
 {
-	return ARayTracingContext::start(controller);
+	return (m_state = ContextState::waiting_for_input);
 }
 
 ContextState ContextImportScan::feedMessage(IMessage* message, Controller& controller)
