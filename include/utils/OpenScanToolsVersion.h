@@ -2,6 +2,6 @@
 
 #define TEXT_OPENSCANTOOLS QString::fromStdString("OpenScanTools")
 #define OPENSCANTOOLS_YEAR "2024"
-#define OPENSCANTOOLS_VERSION "1.0.2"
-#define W_OPENSCANTOOLS_VERSION L"1.0.2"
+#define OPENSCANTOOLS_VERSION "1.0.3"
+#define W_OPENSCANTOOLS_VERSION L"1.0.3"
 #define OPENSCANTOOLS_CONTACT_URL "https://www.openscantools.com/"
