@@ -159,8 +159,8 @@ void ToolBarRenderSettings::onRenderLuminance(IGuiData* idata)
 void ToolBarRenderSettings::onRenderBlending(IGuiData* idata)
 {
 	GuiDataRenderBlending* data = static_cast<GuiDataRenderBlending*>(idata);
-	m_ui.falseColorSpinBox->setValue(data->m_blending);
-	m_ui.falseColorSlider->setValue(data->m_blending);
+	m_ui.falseColorSpinBox->setValue(data->m_hue);
+	m_ui.falseColorSlider->setValue(data->m_hue);
 }
 
 void ToolBarRenderSettings::onRenderPointSize(IGuiData* idata)
@@ -251,8 +251,8 @@ void ToolBarRenderSettings::onActiveCamera(IGuiData* idata)
 		m_ui.contrastSaturationSlider->setValue(displayParameters.m_saturation);
 	}
 
-	m_ui.falseColorSpinBox->setValue(displayParameters.m_blending);
-	m_ui.falseColorSlider->setValue(displayParameters.m_blending);
+	m_ui.falseColorSpinBox->setValue(displayParameters.m_hue);
+	m_ui.falseColorSlider->setValue(displayParameters.m_hue);
 
 	if (displayParameters.m_pointSize != m_ui.spinBox_pointSize->value())
 		m_ui.spinBox_pointSize->setValue(displayParameters.m_pointSize);

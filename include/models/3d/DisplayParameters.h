@@ -27,7 +27,7 @@ public:
     float          m_brightness = 0.f;
     float          m_saturation = 0.f;
     float          m_luminance = 0.f;
-    float          m_blending = 0.f;
+    float          m_hue = 0.f;
     glm::vec3      m_flatColor = glm::vec3(0.5f);
 
     // Ramp Distance

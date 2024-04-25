@@ -35,6 +35,18 @@ private:
 	double m_addTheta = 0.;
 	double m_addPhi = 0.;
 
+	float m_addTransp = 0.f;
+	float m_addNGloss = 0.f;
+	float m_addNStren = 0.f;
+	float m_addHue = 0.f;
+	float m_addBright = 0.f;
+	float m_addSatur = 0.f;
+	float m_addLumi = 0.f;
+	float m_addContr = 0.f;
+	float m_addAlpha = 0.f;
+
+	double m_addFovy = 0.;
+
 	std::chrono::steady_clock::time_point m_tpStart;
 	DecimationOptions m_precedentOptions;
 

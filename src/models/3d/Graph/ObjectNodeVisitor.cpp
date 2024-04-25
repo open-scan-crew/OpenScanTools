@@ -1589,7 +1589,7 @@ void ObjectNodeVisitor::draw_baked_pointClouds(VkCommandBuffer cmdBuffer, Render
     renderer.setConstantPointSize(m_displayParameters.m_pointSize, cmdBuffer);
     renderer.setConstantContrastBrightness((float)m_displayParameters.m_contrast, (float)m_displayParameters.m_brightness, cmdBuffer);
     renderer.setConstantSaturationLuminance((float)m_displayParameters.m_saturation, (float)m_displayParameters.m_luminance, cmdBuffer);
-    renderer.setConstantBlending((float)m_displayParameters.m_blending, cmdBuffer);
+    renderer.setConstantBlending((float)m_displayParameters.m_hue, cmdBuffer);
 
     if (m_displayParameters.m_mode == UiRenderMode::Distance_Ramp ||
         m_displayParameters.m_mode == UiRenderMode::Flat_Distance_Ramp)

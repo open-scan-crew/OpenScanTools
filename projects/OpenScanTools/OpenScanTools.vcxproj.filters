@@ -2011,9 +2011,6 @@
     <ClCompile Include="..\..\src\gui\Dialog\DialogImportPCObject.cpp">
       <Filter>src\gui\Dialog</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\controller\messages\ImportMessage.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="..\..\include\gui\Gui.h">

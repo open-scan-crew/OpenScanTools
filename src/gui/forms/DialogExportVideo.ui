@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>473</width>
-    <height>418</height>
+    <width>471</width>
+    <height>444</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -44,7 +44,48 @@
       <property name="bottomMargin">
        <number>6</number>
       </property>
-      <item row="2" column="0">
+      <item row="1" column="0">
+       <widget class="QWidget" name="betweenViewpointsWidget" native="true">
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="lineEditViewPoint2">
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="lineEditViewPoint1">
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QPushButton" name="pushButtonViewPoint2">
+           <property name="text">
+            <string>Select viewpoint 2</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QPushButton" name="pushButtonViewPoint1">
+           <property name="text">
+            <string>Select viewpoint 1</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QCheckBox" name="interpolateCheckBox">
+           <property name="text">
+            <string>Interpolate rendering values</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="3" column="0">
        <widget class="QRadioButton" name="orbital360RadioButton">
         <property name="text">
          <string>Orbital 360</string>
@@ -59,40 +100,6 @@
         <property name="checked">
          <bool>true</bool>
         </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QWidget" name="betweenViewpointsWidget" native="true">
-        <layout class="QGridLayout" name="gridLayout_2">
-         <item row="1" column="0">
-          <widget class="QPushButton" name="pushButtonViewPoint1">
-           <property name="text">
-            <string>Select viewpoint 1</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QLineEdit" name="lineEditViewPoint2">
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QPushButton" name="pushButtonViewPoint2">
-           <property name="text">
-            <string>Select viewpoint 2</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLineEdit" name="lineEditViewPoint1">
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
        </widget>
       </item>
      </layout>

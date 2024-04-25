@@ -145,6 +145,31 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
             m_addPosition = (rFinish->getCenter() - rStart->getCenter()) / (double)m_totalFrames;
             m_addTheta = (endTheta - rCam->getTheta()) / m_totalFrames;
             m_addPhi = (endPhi - rCam->getPhi()) / m_totalFrames;
+
+            if (rStart->m_blendMode == rFinish->m_blendMode &&
+                rStart->m_postRenderingNormals.show == rFinish->m_postRenderingNormals.show &&
+                rStart->m_postRenderingNormals.blendColor == rFinish->m_postRenderingNormals.blendColor &&
+                rStart->m_postRenderingNormals.inverseTone == rFinish->m_postRenderingNormals.inverseTone &&
+                rStart->m_mode == rFinish->m_mode &&
+                rStart->m_negativeEffect == rFinish->m_negativeEffect &&
+                rStart->m_reduceFlash == rFinish->m_reduceFlash
+                )
+            {
+                m_addTransp = (rFinish->m_transparency - rStart->m_transparency) / m_totalFrames;
+
+                m_addNStren = (rFinish->m_postRenderingNormals.normalStrength - rStart->m_postRenderingNormals.normalStrength) / m_totalFrames;
+                m_addNGloss = (rFinish->m_postRenderingNormals.gloss - rStart->m_postRenderingNormals.gloss) / m_totalFrames;
+
+                m_addHue = (rFinish->m_hue - rStart->m_hue) / m_totalFrames;
+
+                m_addBright = (rFinish->m_brightness - rStart->m_brightness) / m_totalFrames;
+                m_addSatur = (rFinish->m_saturation - rStart->m_saturation) / m_totalFrames;
+                m_addLumi = (rFinish->m_luminance - rStart->m_luminance) / m_totalFrames;
+                m_addContr = (rFinish->m_contrast - rStart->m_contrast) / m_totalFrames;
+                m_addAlpha = (rFinish->m_alphaObject - rStart->m_alphaObject) / m_totalFrames;
+
+                m_addFovy = (rFinish->getFovy() - rStart->getFovy()) / m_totalFrames;
+            }
         }
         else
             m_addTheta = 2 * M_PI / m_totalFrames;
@@ -180,6 +205,20 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
                     wCam->addGlobalTranslation(m_addPosition);
                     wCam->yaw(m_addTheta);
                     wCam->pitch(m_addPhi);
+
+                    if (m_parameters.interpolateRenderingBetweenViewpoints)
+                    {
+                        wCam->m_transparency += m_addTransp;
+                        wCam->m_postRenderingNormals.normalStrength += m_addNStren;
+                        wCam->m_postRenderingNormals.gloss += m_addNGloss;
+                        wCam->m_contrast += m_addContr;
+                        wCam->m_brightness += m_addBright;
+                        wCam->m_luminance += m_addLumi;
+                        wCam->m_saturation += m_addSatur;
+                        wCam->m_hue += m_addHue;
+                        wCam->m_alphaObject += m_addAlpha;
+                        wCam->setFovy(wCam->getFovy() + m_addFovy);
+                    }
                 }
             }
             break;

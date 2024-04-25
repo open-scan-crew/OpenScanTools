@@ -97,8 +97,8 @@ void ToolBarRenderNormals::updateNormals(const PostRenderingNormals& normalsPara
 	m_ui.doubleSpinBox_sharpness->setEnabled(normalState != Qt::CheckState::Unchecked);
 	m_ui.checkBox_blendColor->setEnabled(normalState != Qt::CheckState::Unchecked);
 
-	// sharpness
-	m_ui.doubleSpinBox_sharpness->setValue(normalsParams.sharpness);
+	// gloss
+	m_ui.doubleSpinBox_sharpness->setValue(normalsParams.gloss);
 
 	// blend
 	m_ui.checkBox_blendColor->setChecked(normalsParams.blendColor);
@@ -127,7 +127,7 @@ void ToolBarRenderNormals::slotNormalsChanged()
 	lighting.show = enable;
 	lighting.inverseTone = (m_ui.normals_checkBox->checkState() == Qt::CheckState::PartiallyChecked);
 	lighting.normalStrength = m_ui.spinBox_normalStrength->value() / 100.f;
-	lighting.sharpness = m_ui.doubleSpinBox_sharpness->value();
+	lighting.gloss = m_ui.doubleSpinBox_sharpness->value();
 	lighting.blendColor = m_ui.checkBox_blendColor->isChecked();
 
 	m_dataDispatcher.updateInformation(new GuiDataPostRenderingNormals(lighting, false, m_focusCamera), this);

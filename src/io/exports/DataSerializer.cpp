@@ -351,7 +351,7 @@ void ExportRenderingParameters(nlohmann::json& json, const RenderingParameters& 
 	json[Key_Brightness] = params.m_brightness;
 	json[Key_Saturation] = params.m_saturation;
 	json[Key_Luminance] = params.m_luminance;
-	json[Key_Blending] = params.m_blending;
+	json[Key_Blending] = params.m_hue;
 	json[Key_Flat_Color] = { params.m_flatColor.x, params.m_flatColor.y, params.m_flatColor.z };
 
 	json[Key_DistRamp] = { params.m_distRampMin, params.m_distRampMax };
@@ -362,7 +362,7 @@ void ExportRenderingParameters(nlohmann::json& json, const RenderingParameters& 
 	json[Key_ReduceFlash] = params.m_reduceFlash;
 	json[Key_Transparency] = params.m_transparency;
 
-	json[Key_Post_Rendering_Normals] = { params.m_postRenderingNormals.show, params.m_postRenderingNormals.inverseTone, params.m_postRenderingNormals.blendColor, params.m_postRenderingNormals.normalStrength, params.m_postRenderingNormals.sharpness };
+	json[Key_Post_Rendering_Normals] = { params.m_postRenderingNormals.show, params.m_postRenderingNormals.inverseTone, params.m_postRenderingNormals.blendColor, params.m_postRenderingNormals.normalStrength, params.m_postRenderingNormals.gloss };
 
 	json[Key_Display_Guizmo] = params.m_displayGizmo;
 	json[Key_Ramp_Scale_Options] = { params.m_rampScale.showScale, params.m_rampScale.graduationCount, params.m_rampScale.centerBoxScale };

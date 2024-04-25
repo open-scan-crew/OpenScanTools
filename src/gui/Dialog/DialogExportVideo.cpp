@@ -179,6 +179,7 @@ void DialogExportVideo::startGeneration()
 	m_parameters.fps = m_ui.fpsSpinBox->value();
 	m_parameters.hdImage = m_ui.imageHDRadioButton->isChecked();
 	m_parameters.openFolderAfterExport = m_ui.openExplorerFolderCheckBox->isChecked();
+	m_parameters.interpolateRenderingBetweenViewpoints = m_ui.interpolateCheckBox->isChecked();
 
 	m_dataDispatcher.sendControl(new control::io::GenerateVideoHD(exportFolder / filename, m_parameters));
 
