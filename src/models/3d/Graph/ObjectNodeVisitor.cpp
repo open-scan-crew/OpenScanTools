@@ -1357,7 +1357,7 @@ void ObjectNodeVisitor::bakeGraphics(const SafePtr<AGraphNode>& node, const Tran
 
         wScan->uploadUniform(transfoMat, m_uniformSwapIndex);
         if(wScan->getScanGuid().isValid())
-            m_bakedPointCloud.push_back({ transfoMat, wScan->getScanGuid(), color, wScan->getUniform(m_uniformSwapIndex) , wScan->getClippable() });
+            m_bakedPointCloud.push_back({ transfoMat, wScan->getScanGuid(), color, wScan->getUniform(m_uniformSwapIndex) , wScan->getClippable(), false });
         break;
     }
     case ElementType::PCO:
@@ -1368,7 +1368,7 @@ void ObjectNodeVisitor::bakeGraphics(const SafePtr<AGraphNode>& node, const Tran
         Color32 color = pco->getColor();
         pco->uploadUniform(transfoMat, m_uniformSwapIndex);
         if (pco->getScanGuid().isValid())
-            m_bakedPointCloud.push_back({ transfoMat, pco->getScanGuid(), color, pco->getUniform(m_uniformSwapIndex) , pco->getClippable() });
+            m_bakedPointCloud.push_back({ transfoMat, pco->getScanGuid(), color, pco->getUniform(m_uniformSwapIndex) , pco->getClippable(), true });
         break;
     }
     case ElementType::BeamBendingMeasure:
@@ -1619,9 +1619,9 @@ void ObjectNodeVisitor::clipAndDrawPointCloud(VkCommandBuffer _cmdBuffer, Render
     drawInfo.modelUni = bakedPC.uniform;
     drawInfo.color = bakedPC.color.toVector();
 
-    if ((m_displayParameters.m_mode == UiRenderMode::Flat) ||
-        (m_displayParameters.m_mode == UiRenderMode::Grey_Colored))
-        /* && wScan->getType() != ElementType::PCO*/
+    if (((m_displayParameters.m_mode == UiRenderMode::Flat) ||
+        (m_displayParameters.m_mode == UiRenderMode::Grey_Colored)) &&
+        !bakedPC.isObject)
         renderer.setConstantPtColor(m_displayParameters.m_flatColor, _cmdBuffer);
     else
         renderer.setConstantPtColor(drawInfo.color, _cmdBuffer);
