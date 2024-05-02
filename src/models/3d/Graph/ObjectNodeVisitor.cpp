@@ -202,7 +202,7 @@ void ObjectNodeVisitor::getObjectMarkerText(const SafePtr<AObjectNode>& object, 
         }
         if (filter & TEXT_SHOW_LENGTH_BIT)
         {
-            double l = unit_converter::meterToX(rCylinder->getLength(), m_displayParameters.m_unitUsage.diameterUnit);
+            double l = unit_converter::meterToX(rCylinder->getLength(), m_displayParameters.m_unitUsage.distanceUnit);
             parameters[7] = fmt::format("len=" + m_length_format, l);
         }
     }
