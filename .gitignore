@@ -22,7 +22,7 @@ init.json
 *.pdb
 *.obj
 *.aps
-*.qm
+qt_fr.qm
 Scansap.VC.db
 UpgradeLog.htm
 /src/vulkan/shaders/shadersMap.hxx
