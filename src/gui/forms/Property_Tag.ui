@@ -190,6 +190,9 @@
        </item>
        <item row="6" column="0" colspan="4">
         <widget class="QPushButton" name="addAsKeyPoint">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="text">
           <string>Add as key point</string>
          </property>

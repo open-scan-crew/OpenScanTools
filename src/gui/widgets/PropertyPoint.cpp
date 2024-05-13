@@ -37,9 +37,9 @@ PropertyPoint::PropertyPoint(Controller& controller, QWidget* parent, float guiS
 	m_ui.YLineEdit->setType(NumericType::DISTANCE);
 	m_ui.ZLineEdit->setType(NumericType::DISTANCE);
 
-#ifndef ANIMATION
+
 	m_ui.addAsKeyPoint->setVisible(false);
-#endif 
+
 
 }
 
