@@ -31,6 +31,13 @@ Add the path where Qt is installed on your machine in:
 
 WARNING : The version 2.6.0.7 is stable but some bugs have been observed after an update. It is recommended to disable the automatic update of this plugin.
 
+Change project working repo:
+==============================================================================
+* Right-click project "OpenScanTools" in Visual Studio solution tree and click "Properties"
+* In "Debug", change the working repositery value "$(ProjectDir)" into "$(SolutionDir)"
+* Do this for every compilation configuration
+
+
 Generate doc:
 ==============================================================================
 * Download the doxygen 1.9.1 at https://www.doxygen.nl/download.html
