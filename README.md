@@ -11,6 +11,7 @@ Install the Vulkan SDK
 
 * Download the version 1.2.148 (or higher) at https://vulkan.lunarg.com/sdk/home
 * Install the SDK. You can let the default installation location or choose another. In any case the ENV variables are automatically configured.
+* Warning: if your user name (in Windows) contains a space, you may have shaders compiling errors in case the code is copied in your user folder. If so, move the code in a path with no space.
 
 Configure Visual Studio
 ==============================================================================
