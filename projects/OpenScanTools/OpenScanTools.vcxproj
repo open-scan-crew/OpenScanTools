@@ -2076,9 +2076,19 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <None Include="..\..\src\shaders\blocks\block_point_i_main_fake_color_vert.glsl" />
     <CustomBuild Include="..\..\src\shaders\blend.frag">
       <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\blend.vert">
       <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_i_fake_color.vert">
       <FileType>Document</FileType>
@@ -2087,6 +2097,11 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_fake_color_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_fake_color_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_fake_color_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_i_fake_color_clip.vert">
       <FileType>Document</FileType>
@@ -2095,28 +2110,63 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_fake_color_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_fake_color_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_fake_color_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\measure_point.geom">
       <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\mesh_face.vert">
       <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\mesh_face.geom">
       <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\v2\fillingGap.comp">
       <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\v2\normal_shading.comp">
       <FileType>Document</FileType>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\v2\normal_functions.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\v2\normal_functions.glsl</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\v2\normal_colored.comp">
       <FileType>Document</FileType>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\v2\normal_functions.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\v2\normal_functions.glsl</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\post_rendering\transparency_hdr.comp">
       <FileType>Document</FileType>
@@ -2125,21 +2175,51 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)/src/shaders/blocks/block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)/src/shaders/blocks/block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)/src/shaders/blocks/block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\mesh_face_normals.vert">
       <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\compute\mesh_dist.comp">
       <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\marker.frag">
       <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\marker.vert">
       <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\marker.geom">
       <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <None Include="..\..\src\shaders\v2\normal_functions.glsl" />
     <QtTranslation Include="ost_fr.ts">
@@ -2169,35 +2249,96 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <NoObsolete Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</NoObsolete>
       <NoObsolete Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</NoObsolete>
     </QtTranslation>
-    <CustomBuild Include="..\..\src\shaders\measure_line.frag" />
-    <CustomBuild Include="..\..\src\shaders\measure_line.vert" />
-    <CustomBuild Include="..\..\src\shaders\measure_point.frag" />
-    <CustomBuild Include="..\..\src\shaders\measure_point.vert" />
-    <CustomBuild Include="..\..\src\shaders\overlay.frag" />
-    <CustomBuild Include="..\..\src\shaders\overlay.vert" />
-    <CustomBuild Include="..\..\src\shaders\point.frag" />
+    <CustomBuild Include="..\..\src\shaders\measure_line.frag">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\measure_line.vert">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\measure_point.frag">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\measure_point.vert">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\overlay.frag">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\overlay.vert">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\point.frag">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+    </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_i_standard.vert">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_standard_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_standard_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_standard_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_standard_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_standard_vert.glsl</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_rgbi_standard.vert">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgbi_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgbi_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_rgb_standard.vert">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_i_colored.vert">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x %(FullPath) -o .\GeneratedShaders\%(Filename)%(Extension).spv</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_i_colored_clip.vert">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
@@ -2207,6 +2348,11 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_i_standard_clip.vert">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_standard_vert.glsl</AdditionalInputs>
@@ -2214,22 +2360,47 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_standard_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_standard_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_standard_vert.glsl</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_rgbi_standard_clip.vert">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgbi_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgbi_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_rgb_colored.vert">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_colored_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_colored_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_rgb_colored_clip.vert">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_colored_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_colored_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_rgb_standard_clip.vert">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_flat.vert">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl</AdditionalInputs>
@@ -2237,10 +2408,20 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_flat_clip.vert">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_flat_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_flat_vert.glsl</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <None Include="..\..\src\shaders\blocks\block_point_input_geom.glsl" />
     <None Include="..\..\src\shaders\blocks\block_point_input_vert.glsl" />
@@ -2253,6 +2434,11 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <None Include="..\..\src\shaders\blocks\block_point_rgb_main_standard_vert.glsl" />
     <CustomBuild Include="..\..\src\shaders\measure_line.geom">
       <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_clip.geom">
       <FileType>Document</FileType>
@@ -2261,18 +2447,43 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_geom.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_geom.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_geom.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\manipulators.frag">
       <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\manipulators.vert">
       <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\mesh_edge.frag">
       <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\mesh_edge.vert">
       <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_i_ramp_dist.vert">
       <FileType>Document</FileType>
@@ -2281,6 +2492,11 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_i_ramp_dist_clip.vert">
       <FileType>Document</FileType>
@@ -2289,6 +2505,11 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_i_ramp_dist_flat.vert">
       <FileType>Document</FileType>
@@ -2297,6 +2518,11 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_i_ramp_dist_flat_clip.vert">
       <FileType>Document</FileType>
@@ -2305,21 +2531,51 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_rgb_ramp_dist.vert">
       <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_rgb_ramp_dist_clip.vert">
       <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_rgb_ramp_dist_flat.vert">
       <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_rgb_ramp_dist_flat_clip.vert">
       <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\mesh_face.frag">
       <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
