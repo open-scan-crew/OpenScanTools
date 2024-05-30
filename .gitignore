@@ -20,7 +20,6 @@ init.json
 *.log
 *.idb
 *.pdb
-*.obj
 *.aps
 qt_fr.qm
 Scansap.VC.db
