@@ -1,10 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug_License|x64">
-      <Configuration>Debug_License</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
@@ -39,11 +35,6 @@
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v142</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
@@ -71,9 +62,6 @@
   <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Label="Shared" />
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -111,11 +99,6 @@
     <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
     <IntDir>build\$(Configuration)\</IntDir>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">
-    <OutDir>$(SolutionDir)build\$(Configuration)\</OutDir>
-    <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
-    <IntDir>build\$(Configuration)\</IntDir>
-  </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <QtInstall>$(DefaultQtVersion)</QtInstall>
     <QtModules>core;gui;widgets</QtModules>
@@ -135,11 +118,6 @@
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <QtInstall>$(DefaultQtVersion)</QtInstall>
     <QtModules>core;gui;widgets</QtModules>
-  </PropertyGroup>
-  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">
-    <QtInstall>$(DefaultQtVersion)</QtInstall>
-    <QtModules>core;gui;widgets</QtModules>
-    <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
     <Import Project="$(QtMsBuild)\qt.props" />
@@ -209,78 +187,6 @@ xcopy /y /b /q "$(SolutionDir)ext\ifcplusplus\*.dll" "$(SolutionDir)build\$(Conf
       <Message />
     </CustomBuildStep>
     <ResourceCompile />
-    <QtTranslation>
-      <BuildAction>lrelease</BuildAction>
-      <QmOutputDir>$(SolutionDir)translations</QmOutputDir>
-    </QtTranslation>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">
-    <ClCompile>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>FBXSDK_SHARED;LICENSE_MANAGER_BUILD;QT_MODAL_LICENSE;_DEBUG_;NOMINMAX;BENCHMARK_;GLM_FORCE_XYZW_ONLY;VK_NO_PROTOTYPES;_CRT_SECURE_NO_WARNINGS;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;$(SolutionDir)\include\gui\widgets\CustomWidgets;$(SolutionDir)ext;$(SolutionDir)ext\SQLiteCpp\include;$(SolutionDir)ext\3DxWare\inc;$(SolutionDir)ext\tiny_obj_loader;$(SolutionDir)ext\ifcplusplus\include;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\include;$(SolutionDir)ext\ReCapSDK\include\realdwg;$(SolutionDir)ext\OCCT\inc;$(SolutionDir)ext\cpr\include;$(SolutionDir)ext\fbxSdk-2020.0.1\inc;$(SolutionDir)ext\dxflibs\;.\GeneratedShaders;.\..\..\include;.\..\..\src;$(VULKAN_SDK)\include;.;.\..\..\include\gui\Dialog;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <Optimization>Disabled</Optimization>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <WarningLevel>Level3</WarningLevel>
-      <TreatWarningAsError>false</TreatWarningAsError>
-      <SDLCheck>true</SDLCheck>
-      <OpenMPSupport>true</OpenMPSupport>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
-      <AdditionalLibraryDirectories>$(SolutionDir)ext\ifcplusplus;$(SolutionDir)ext\3DxWare\lib\x64;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\lib;$(SolutionDir)ext\OCCT\lib;$(SolutionDir)ext\fbxSdk-2020.0.1\lib;$(SolutionDir)ext\SQLiteCpp\lib;$(SolutionDir)ext\cpr\lib;$(SolutionDir)ext\fmt\</AdditionalLibraryDirectories>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SQLiteCppd.lib;sqlite3d.lib;fmtd.lib;zlib.lib;libcurl.lib;cpr-d.lib;IfcPlusPlusd.lib;Carved.lib;zlib-md.lib;libxml2-md.lib;libfbxsdk.lib;TDxNavLib.lib;TKBin.lib;TKBinL.lib;TKBinXCAF.lib;TKBO.lib;TKBool.lib;TKBRep.lib;TKCAF.lib;TKCDF.lib;TKernel.lib;TKG3d.lib;TKG2d.lib;TKGeomAlgo.lib;TKGeomBase.lib;TKHLR.lib;TKIGES.lib;TKLCAF.lib;TKMath.lib;TKMesh.lib;TKPrim.lib;TKRWMesh.lib;TKService.lib;TKShHealing.lib;TKSTEP.lib;TKSTEP209.lib;TKSTEPAttr.lib;TKSTEPBase.lib;TKSTL.lib;TKTopAlgo.lib;TKV3d.lib;TKVCAF.lib;TKVRML.lib;TKXCAF.lib;TKXDEIGES.lib;TKXDESTEP.lib;TKXml.lib;TKXmlL.lib;TKXmlXCAF.lib;TKXSBase.lib;freetype.lib;openE57-d.lib;xerces-c_3D.lib;AdskRcCommon.lib;AdskRcData.lib;AdskRcProjectIO.lib;AdskRcImport.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <IgnoreSpecificDefaultLibraries>msvcrt.lib</IgnoreSpecificDefaultLibraries>
-      <LinkStatus>true</LinkStatus>
-    </Link>
-    <QtMoc>
-      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
-      <QtMocDir>.\GeneratedFiles\$(ConfigurationName)</QtMocDir>
-      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
-    </QtMoc>
-    <QtUic>
-      <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
-      <QtUicDir>.\GeneratedFiles</QtUicDir>
-      <QtUicFileName>ui_%(Filename).h</QtUicFileName>
-    </QtUic>
-    <QtRcc>
-      <ExecutionDescription>Rcc'ing %(Identity)...</ExecutionDescription>
-      <QtRccDir>.\GeneratedFiles</QtRccDir>
-      <QtRccFileName>qrc_%(Filename).cpp</QtRccFileName>
-    </QtRcc>
-    <PostBuildEvent>
-      <Command>xcopy /y /q "$(SolutionDir)resources\*.dll" "$(SolutionDir)build\$(Configuration)"
-xcopy /y /b /q "$(SolutionDir)ext\OCCT\bin\*.dll" "$(SolutionDir)build\$(Configuration)"
-xcopy /y /b /q "$(SolutionDir)ext\fbxSdk-2020.0.1\dll\*.dll" "$(SolutionDir)build\$(Configuration)"
-xcopy /y /b /q "$(SolutionDir)ext\ifcplusplus\*.dll" "$(SolutionDir)build\$(Configuration)"
-
-xcopy /y /b /q "$(SolutionDir)ext\cpr\bin\*.dll" "$(SolutionDir)build\$(Configuration)"
-xcopy /y /b /q "$(SolutionDir)ext\CryptlexLib\LexActivator\libs\*.dll" "$(SolutionDir)build\$(Configuration)"</Command>
-      <Message>Copying Resources to $(SolutionDir)build\$(Configuration)</Message>
-    </PostBuildEvent>
-    <CustomBuild>
-      <Command>glslangValidator -V -x %(FullPath) -o .\GeneratedShaders\%(Filename)%(Extension).spv</Command>
-    </CustomBuild>
-    <CustomBuild>
-      <Message>Compiling GLSL Shader</Message>
-    </CustomBuild>
-    <CustomBuild>
-      <Outputs>.\GeneratedShaders\%(Filename)%(Extension).spv</Outputs>
-    </CustomBuild>
-    <CustomBuild>
-      <LinkObjects>false</LinkObjects>
-    </CustomBuild>
-    <CustomBuildStep>
-      <Message>
-      </Message>
-    </CustomBuildStep>
     <QtTranslation>
       <BuildAction>lrelease</BuildAction>
       <QmOutputDir>$(SolutionDir)translations</QmOutputDir>
@@ -610,7 +516,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
   <ItemGroup>
     <ClCompile Include="..\..\ext\crossguid\guid.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">GUID_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">GUID_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">GUID_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">GUID_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">GUID_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -852,8 +757,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\gui\Dialog\TemplateEditorDialog.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\TemplateManagerDialog.cpp" />
     <ClCompile Include="..\..\src\gui\Gui.cpp">
-      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">input</DynamicSource>
-      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">%(Filename).moc</QtMocFileName>
       <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">input</DynamicSource>
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">%(Filename).moc</QtMocFileName>
       <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
@@ -1000,7 +903,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\gui\widgets\StatusPanel.cpp" />
     <ClCompile Include="..\..\src\gui\widgets\ProjectTreePanel.cpp">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
@@ -1066,7 +968,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\io\imports\fbxWriterReader.cpp" />
     <ClCompile Include="..\..\src\io\imports\FlsFileReader.cpp">
       <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</MultiProcessorCompilation>
-      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">false</MultiProcessorCompilation>
       <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</MultiProcessorCompilation>
       <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">false</MultiProcessorCompilation>
       <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">false</MultiProcessorCompilation>
@@ -1207,7 +1108,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\pointCloudEngine\MultipleMeasures.cpp" />
     <ClCompile Include="..\..\src\pointCloudEngine\NormalEstimation.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
@@ -1229,7 +1129,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\test\SafeDataTests.cpp" />
     <ClCompile Include="..\..\src\utils\3DConnexion\3DConnexion.cpp">
       <EnableModules Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</EnableModules>
-      <EnableModules Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">true</EnableModules>
     </ClCompile>
     <ClCompile Include="..\..\src\utils\ColorConversion.cpp" />
     <ClCompile Include="..\..\src\utils\ImGuiUtils.cpp" />
@@ -1255,7 +1154,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\sql\SQLiteRegister.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
@@ -1869,7 +1767,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\pointCloudEngine\RenderingLimits.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\Delaunay.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="..\..\include\pointCloudEngine\EmbeddedScan.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\IRenderingEngine.h" />
@@ -1990,7 +1887,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\pointCloudEngine\TlScanOverseer.h" />
     <ClInclude Include="..\..\include\sql\Impl\SQLiteRegister.hxx">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
@@ -1998,7 +1894,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     </ClInclude>
     <ClInclude Include="..\..\include\sql\SQLiteRegister.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
@@ -2188,7 +2083,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <CustomBuild Include="..\..\src\shaders\point_i_fake_color.vert">
       <FileType>Document</FileType>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_fake_color_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_fake_color_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_fake_color_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_fake_color_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_fake_color_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
@@ -2197,7 +2091,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <CustomBuild Include="..\..\src\shaders\point_i_fake_color_clip.vert">
       <FileType>Document</FileType>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_fake_color_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_fake_color_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_fake_color_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_fake_color_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_fake_color_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
@@ -2218,19 +2111,16 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <CustomBuild Include="..\..\src\shaders\v2\normal_shading.comp">
       <FileType>Document</FileType>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\v2\normal_functions.glsl</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\v2\normal_functions.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\v2\normal_functions.glsl</AdditionalInputs>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\v2\normal_colored.comp">
       <FileType>Document</FileType>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\v2\normal_functions.glsl</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\v2\normal_functions.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\v2\normal_functions.glsl</AdditionalInputs>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\post_rendering\transparency_hdr.comp">
       <FileType>Document</FileType>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)/src/shaders/blocks/block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)/src/shaders/blocks/block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)/src/shaders/blocks/block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)/src/shaders/blocks/block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)/src/shaders/blocks/block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
@@ -2256,30 +2146,24 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</DeploymentContent>
       <FileType>Document</FileType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">false</ExcludedFromBuild>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">false</DeploymentContent>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</DeploymentContent>
       <BuildAction Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">lrelease</BuildAction>
-      <BuildAction Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">lrelease</BuildAction>
       <BuildAction Condition="'$(Configuration)|$(Platform)'=='Release|x64'">lrelease</BuildAction>
       <BuildAction Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">lrelease</BuildAction>
       <BuildAction Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">lrelease</BuildAction>
       <BuildAction Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">lrelease</BuildAction>
       <QmOutputDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)translations</QmOutputDir>
-      <QmOutputDir Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)translations</QmOutputDir>
       <QmOutputDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)translations</QmOutputDir>
       <QmOutputDir Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)translations</QmOutputDir>
       <QmOutputDir Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)translations</QmOutputDir>
       <QmOutputDir Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)translations</QmOutputDir>
       <QmOutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">qt_fr.qm</QmOutputFile>
-      <QmOutputFile Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">qt_fr.qm</QmOutputFile>
       <QmOutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">qt_fr.qm</QmOutputFile>
       <QmOutputFile Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">qt_fr.qm</QmOutputFile>
       <QmOutputFile Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">qt_fr.qm</QmOutputFile>
       <QmOutputFile Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">qt_fr.qm</QmOutputFile>
       <NoObsolete Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</NoObsolete>
-      <NoObsolete Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">true</NoObsolete>
       <NoObsolete Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</NoObsolete>
       <NoObsolete Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">true</NoObsolete>
       <NoObsolete Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</NoObsolete>
@@ -2294,7 +2178,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <CustomBuild Include="..\..\src\shaders\point.frag" />
     <CustomBuild Include="..\..\src\shaders\point_i_standard.vert">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_standard_vert.glsl</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_standard_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_standard_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_standard_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_standard_vert.glsl</AdditionalInputs>
@@ -2302,20 +2185,16 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_rgbi_standard.vert">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgbi_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgbi_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgbi_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_rgb_standard.vert">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_i_colored.vert">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x %(FullPath) -o .\GeneratedShaders\%(Filename)%(Extension).spv</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">glslangValidator -V -x %(FullPath) -o .\GeneratedShaders\%(Filename)%(Extension).spv</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
@@ -2324,16 +2203,13 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
       <FileType>Document</FileType>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/P %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">/P %(AdditionalOptions)</AdditionalOptions>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_colored_vert.glsl</AdditionalInputs>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_i_standard_clip.vert">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_standard_vert.glsl</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_standard_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_standard_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_standard_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_i_main_standard_vert.glsl</AdditionalInputs>
@@ -2341,27 +2217,22 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_rgbi_standard_clip.vert">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgbi_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgbi_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgbi_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_rgb_colored.vert">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_colored_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_colored_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_colored_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_rgb_colored_clip.vert">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_colored_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_colored_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_colored_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_rgb_standard_clip.vert">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_rgb_main_standard_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_flat.vert">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl</AdditionalInputs>
@@ -2369,7 +2240,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_flat_clip.vert">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_flat_vert.glsl</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_flat_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_flat_vert.glsl</AdditionalInputs>
     </CustomBuild>
     <None Include="..\..\src\shaders\blocks\block_point_input_geom.glsl" />
@@ -2387,7 +2257,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <CustomBuild Include="..\..\src\shaders\point_clip.geom">
       <FileType>Document</FileType>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_geom.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_geom.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_geom.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_geom.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_geom.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl</AdditionalInputs>
@@ -2408,7 +2277,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <CustomBuild Include="..\..\src\shaders\point_i_ramp_dist.vert">
       <FileType>Document</FileType>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl</AdditionalInputs>
@@ -2417,7 +2285,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <CustomBuild Include="..\..\src\shaders\point_i_ramp_dist_clip.vert">
       <FileType>Document</FileType>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
@@ -2426,7 +2293,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <CustomBuild Include="..\..\src\shaders\point_i_ramp_dist_flat.vert">
       <FileType>Document</FileType>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
@@ -2435,7 +2301,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <CustomBuild Include="..\..\src\shaders\point_i_ramp_dist_flat_clip.vert">
       <FileType>Document</FileType>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_License|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">$(SolutionDir)src\shaders\blocks\block_point_input_vert.glsl;$(SolutionDir)src\shaders\blocks\block_hsv_functions.glsl;$(SolutionDir)src\shaders\blocks\block_point_main_ramp_vert.glsl;%(AdditionalInputs)</AdditionalInputs>
