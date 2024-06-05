@@ -2,6 +2,7 @@
 #include "models/pointCloud/PointXYZIRGB.h"
 #include "utils/time.h"
 #include "utils/logger.h"
+#include "utils/math/trigo.h"
 
 // SDK Autodesk ReCap
 #include <data/RCScan.h>
@@ -165,9 +166,8 @@ bool RcsFileReader::readPoints(PointXYZIRGB* dstBuf, uint64_t bufSize, uint64_t&
     Autodesk::RealityComputing::Data::RCPointIteratorSettings settings;
     settings.setDensity(-1.0); // highest density
     settings.setIsVisiblePointsOnly(true);
-    double tr_x = m_scanHeader.transfo.translation[0];
-    double tr_y = m_scanHeader.transfo.translation[1];
-    double tr_z = m_scanHeader.transfo.translation[2];
+
+    glm::dmat4 invTransfo = tls::math::getInverseTransformDMatrix(m_scanHeader.transfo.translation, m_scanHeader.transfo.quaternion);
 
     // Method Point by Point
     {
@@ -183,9 +183,12 @@ bool RcsFileReader::readPoints(PointXYZIRGB* dstBuf, uint64_t bufSize, uint64_t&
         {
             auto& pt = itPt->getPoint();
             auto& pos = pt.getPosition();
-            dstBuf[localIndex].x = (float)(pos.x - tr_x);
-            dstBuf[localIndex].y = (float)(pos.y - tr_y);
-            dstBuf[localIndex].z = (float)(pos.z - tr_z);
+
+            glm::dvec4 glPos = invTransfo * glm::dvec4(pos.x, pos.y, pos.z, 1.0);
+
+            dstBuf[localIndex].x = (float)(glPos.x);
+            dstBuf[localIndex].y = (float)(glPos.y);
+            dstBuf[localIndex].z = (float)(glPos.z);
 
             if (m_rcScan->hasColors())
             {
