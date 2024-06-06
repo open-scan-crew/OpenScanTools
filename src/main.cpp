@@ -74,7 +74,7 @@ int main(int argc, char** argv)
 	std::filesystem::path programPath(argv[0]);
 
 	Logger::init(programPath);
-	Logger::log() << "\n" << HEADER(TL_BUILD, OPENSCANTOOLS_VERSION, "25/04/2024") << LOGENDL;
+	Logger::log() << "\n" << HEADER(TL_BUILD, OPENSCANTOOLS_VERSION, "06/06/2024") << LOGENDL;
 
 	// Disable the high dpi scaling because it causes rendering problems with Vulkan
 	QCoreApplication::setAttribute(Qt::AA_DisableHighDpiScaling);
