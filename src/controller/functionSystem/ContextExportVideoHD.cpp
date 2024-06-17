@@ -16,6 +16,7 @@
 #include "gui/GuiData/GuiDataRendering.h"
 
 #include "gui/texts/ContextTexts.hpp"
+#include "gui/UITransparencyConverter.h"
 
 #include "utils/Logger.h"
 #include "utils/Utils.h"
@@ -155,7 +156,7 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
                 rStart->m_reduceFlash == rFinish->m_reduceFlash
                 )
             {
-                m_addTransp = (rFinish->m_transparency - rStart->m_transparency) / m_totalFrames;
+                m_addTranspUIScale = (ui::transparency::trueValue_to_uiValue(rFinish->m_transparency) - ui::transparency::trueValue_to_uiValue(rStart->m_transparency)) / m_totalFrames;
 
                 m_addNStren = (rFinish->m_postRenderingNormals.normalStrength - rStart->m_postRenderingNormals.normalStrength) / m_totalFrames;
                 m_addNGloss = (rFinish->m_postRenderingNormals.gloss - rStart->m_postRenderingNormals.gloss) / m_totalFrames;
@@ -208,7 +209,8 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
 
                     if (m_parameters.interpolateRenderingBetweenViewpoints)
                     {
-                        wCam->m_transparency += m_addTransp;
+                        
+                        wCam->m_transparency = ui::transparency::uiValue_to_trueValue(ui::transparency::trueValue_to_uiValue(wCam->m_transparency) + m_addTranspUIScale);
                         wCam->m_postRenderingNormals.normalStrength += m_addNStren;
                         wCam->m_postRenderingNormals.gloss += m_addNGloss;
                         wCam->m_contrast += m_addContr;
