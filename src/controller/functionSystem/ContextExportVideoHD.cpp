@@ -70,7 +70,7 @@ ContextState ContextExportVideoHD::feedMessage(IMessage* message, Controller& co
             if (out->m_info == GeneralInfo::IMAGEEND && (m_exportState == 2 || m_exportState == 3))
             {
                 m_animFrame++;
-                if (m_animFrame >= m_totalFrames)
+                if (m_animFrame > m_totalFrames)
                     m_exportState = 4;
                 m_state = ContextState::ready_for_using;
             }
@@ -196,7 +196,7 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
         {
             case VideoAnimationMode::BETWEENVIEWPOINTS:
             {
-                if (m_animFrame == m_totalFrames - 1)
+                if (m_animFrame == m_totalFrames)
                 {
                     wCam->moveToData(m_parameters.finish);
                     return m_state = ContextState::waiting_for_input;
