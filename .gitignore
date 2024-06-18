@@ -9,8 +9,6 @@ hooks/
 
 imgui.ini
 *.user
-*.exe
-init.json
 *.sdf
 *.suo
 *.ick
