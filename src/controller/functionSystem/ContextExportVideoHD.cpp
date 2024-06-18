@@ -196,7 +196,7 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
         {
             case VideoAnimationMode::BETWEENVIEWPOINTS:
             {
-                if (m_animFrame == m_totalFrames - 1)
+                if (m_animFrame == m_totalFrames - 1) // check if it is necessary to keep -1
                 {
                     wCam->moveToData(m_parameters.finish);
                     return m_state = ContextState::waiting_for_input;
