@@ -35,7 +35,7 @@ private:
 	double m_addTheta = 0.;
 	double m_addPhi = 0.;
 
-	float m_addTranspUIScale = 0.f;
+	float m_addTransp = 0.f;
 	float m_addNGloss = 0.f;
 	float m_addNStren = 0.f;
 	float m_addHue = 0.f;
