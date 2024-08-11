@@ -11,6 +11,8 @@ Install Qt
     -> Qt Creator 13.0.0
     -> Debugging Tools for Windows
 
+* Add the path "<qt_install_dir>/bin/" to your environment variable "PATH"
+
 Install the Vulkan SDK
 ==============================================================================
 

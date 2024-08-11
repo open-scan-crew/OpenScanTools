@@ -44,8 +44,7 @@ Name: desktopicon; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm
 Source: "{#MyRepo}\product_vcda0a5cb-c2a3-45a2-9a07-30fd3af02c0a.dat"; DestDir: "{app}"; Flags: onlyifdoesntexist;
 Source: "{#MyRepo}\init.json"; DestDir: "{commonappdata}\OpenScanTools"; Flags: onlyifdoesntexist; Permissions: users-modify;
 Source: "{#MyRepo}\resources\fonts\*"; DestDir: "{app}\Resources\fonts"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "{#MyRepo}\resources\obj\*"; DestDir: "{app}\Resources\obj"; Flags: ignoreversion     
-Source: "{#MyRepo}\resources\*.dll"; DestDir: "{app}\"; Flags: ignoreversion
+Source: "{#MyRepo}\resources\meshes\*"; DestDir: "{app}\Resources\meshes"; Flags: ignoreversion     
 Source: "{#MyRepo}\projects\OpenScanTools\OpenScanTools.ico"; DestDir: "{app}\"; Flags: ignoreversion
 Source: "{#MyRepo}\build\install\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#MyRepo}\ext\{#SDKFaro}"; DestDir: "{app}"; Flags: ignoreversion

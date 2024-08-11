@@ -239,10 +239,7 @@
       </Message>
     </CustomBuildStep>
     <PostBuildEvent>
-      <Command>xcopy /y /q "$(SolutionDir)resources\*.dll" "$(SolutionDir)build\$(Configuration)"
-xcopy /y /b /q "$(SolutionDir)ext\OCCT\bin\*.dll" "$(SolutionDir)build\$(Configuration)"
-xcopy /y /b /q "$(SolutionDir)ext\fbxSdk-2020.0.1\dll\*.dll" "$(SolutionDir)build\$(Configuration)"
-xcopy /y /b /q "$(SolutionDir)ext\ifcplusplus\*.dll" "$(SolutionDir)build\$(Configuration)"</Command>
+      <Command>xcopy /y /q "$(SolutionDir)resources\meshes\" "$(SolutionDir)build\$(Configuration)\resources\meshes\"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copying Resources to $(SolutionDir)build\$(Configuration)</Message>
@@ -314,13 +311,9 @@ xcopy /y /b /q "$(SolutionDir)ext\ifcplusplus\*.dll" "$(SolutionDir)build\$(Conf
       </Message>
     </CustomBuildStep>
     <PostBuildEvent>
-      <Command>xcopy /y /q "$(SolutionDir)resources\*.dll" "$(SolutionDir)build\$(Configuration)"
-xcopy /y /b /q "$(SolutionDir)ext\OCCT\bin\*.dll" "$(SolutionDir)build\$(Configuration)"
-xcopy /y /b /q "$(SolutionDir)ext\fbxSdk-2020.0.1\dll\*.dll" "$(SolutionDir)build\$(Configuration)"
-xcopy /y /b /q "$(SolutionDir)ext\ifcplusplus\*.dll" "$(SolutionDir)build\$(Configuration)"
+      <Command>xcopy /y /q "$(SolutionDir)resources\meshes\" "$(SolutionDir)build\$(Configuration)\resources\meshes\"
 
 xcopy /y /b /q "$(SolutionDir)ext\cpr\bin\*.dll" "$(SolutionDir)build\$(Configuration)"
-xcopy /y /b /q "$(SolutionDir)ext\CryptlexLib\LexActivator\libs\*.dll" "$(SolutionDir)build\$(Configuration)"
 
 md "$(SolutionDir)build\install"
 xcopy /y "$(SolutionDir)build\$(Configuration)\OpenScanTools.exe" "$(SolutionDir)build\install"
@@ -399,12 +392,11 @@ signtool sign /sha1 "881d9294e1fdd77049171ada940dd511b709674f" /tr "http://time.
       </Message>
     </CustomBuildStep>
     <PostBuildEvent>
-      <Command>xcopy /y /b /q "$(SolutionDir)ext\fbxSdk-2020.0.1\dll\*.dll" "$(SolutionDir)build\$(Configuration)"
+      <Command>xcopy /y /q "$(SolutionDir)resources\meshes\" "$(SolutionDir)build\$(Configuration)\resources\meshes\"
 
 windeployqt $(SolutionDir)build\$(Configuration)\OpenScanTools.exe
 
 xcopy /y "$(SolutionDir)resources\fonts\*" "$(SolutionDir)build\$(Configuration)\Resources\fonts"
-xcopy /y "$(SolutionDir)resources\obj\*" "$(SolutionDir)build\$(Configuration)\Resources\obj"
 xcopy /y "$(SolutionDir)translations\*" "$(SolutionDir)build\$(Configuration)\translations"
 xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir)build\$(Configuration)"
 
@@ -480,12 +472,11 @@ signtool sign /a /fd sha256 /tr http://timestamp.comodoca.com /td sha256 $(Solut
       </Message>
     </CustomBuildStep>
     <PostBuildEvent>
-      <Command>xcopy /y /b /q "$(SolutionDir)ext\fbxSdk-2020.0.1\dll\*.dll" "$(SolutionDir)build\$(Configuration)"
+      <Command>xcopy /y /q "$(SolutionDir)resources\meshes\" "$(SolutionDir)build\$(Configuration)\resources\meshes\"
 
 windeployqt $(SolutionDir)build\$(Configuration)\OpenScanTools.exe
 
 xcopy /y "$(SolutionDir)resources\fonts\*" "$(SolutionDir)build\$(Configuration)\Resources\fonts"
-xcopy /y "$(SolutionDir)resources\obj\*" "$(SolutionDir)build\$(Configuration)\Resources\obj"
 xcopy /y "$(SolutionDir)translations\*" "$(SolutionDir)build\$(Configuration)\translations"
 xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir)build\$(Configuration)"
 </Command>
