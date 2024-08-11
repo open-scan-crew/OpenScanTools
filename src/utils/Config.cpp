@@ -19,6 +19,7 @@
 #include <codecvt>
 #include <string>
 
+#include <direct.h> // WIN32
 
 #define LOG_JSON_KEY "logs"
 #define LICENSE_JSON_KEY "license"
@@ -323,6 +324,11 @@ namespace Config
 		jsonConfig[TEMP_JSON_KEY] = Utils::to_utf8(type.wstring());
 		return saveConfigFile(filePath);
 	}
+
+    std::filesystem::path getResourcesPath()
+    {
+        return applicationDirPath / "resources";
+    }
 
     DecimationOptions getDecimationOptions()
     {

@@ -4,7 +4,12 @@ Install Qt
 ==============================================================================
 
 * Download the installer at https://www.qt.io/download-qt-installer
-* Choose any of the version 5.15.x proposed (5.15 is a LTS)
+* Minimum install :
+  * Qt 5.15.2
+    -> MSVC 2019 64-bit
+  * Developer and Designer Tools
+    -> Qt Creator 13.0.0
+    -> Debugging Tools for Windows
 
 Install the Vulkan SDK
 ==============================================================================
@@ -46,4 +51,3 @@ Build with Inno Setup:
 * Launch OpenScanTools.iss in \tools\InstallScripts with Inno Setup
 * Run (F9) the script
 * The .exe setup is generated in \tools\InstallScript\Output\
-

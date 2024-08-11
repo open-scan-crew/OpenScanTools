@@ -32,8 +32,6 @@
 #include "io/FileUtils.h"
 #include "utils/Logger.h"
 
-
-
 #define SGLog Logger::log(LoggerMode::SceneGraphLog)
 #define IOLog Logger::log(LoggerMode::IOLog)
 
@@ -111,22 +109,14 @@ MeshManager::~MeshManager()
 void MeshManager::initManipMesh()
 {
 	std::unordered_map<ManipulationMode, std::filesystem::path> manipulatorsObjects;
-#ifndef PROD_BUILD
+
+	std::filesystem::path dir(Config::getResourcesPath());
 	manipulatorsObjects = std::unordered_map<ManipulationMode, std::filesystem::path>({
-			{ManipulationMode::Translation, "resources/obj/axis_arrow.obj"},
-			{ManipulationMode::Rotation, "resources/obj/rotation_ring.obj"},
-			{ManipulationMode::Scale, "resources/obj/extrusion_arrow.obj"},
-			{ManipulationMode::Extrusion, "resources/obj/extrusion_arrow.obj"}
+			{ManipulationMode::Translation, dir / "meshes/axis_arrow.obj"},
+			{ManipulationMode::Rotation, dir / "meshes/rotation_ring.obj"},
+			{ManipulationMode::Scale, dir / "meshes/extrusion_arrow.obj"},
+			{ManipulationMode::Extrusion, dir / "meshes/extrusion_arrow.obj"}
 		});
-#else
-	std::filesystem::path dir(Config::getApplicationDirPath());
-	manipulatorsObjects = std::unordered_map<ManipulationMode, std::filesystem::path>({
-			{ManipulationMode::Translation, dir / "resources/obj/axis_arrow.obj"},
-			{ManipulationMode::Rotation, dir / "resources/obj/rotation_ring.obj"},
-			{ManipulationMode::Scale, dir / "resources/obj/extrusion_arrow.obj"},
-			{ManipulationMode::Extrusion, dir / "resources/obj/extrusion_arrow.obj"}
-		});
-#endif // _DEBUG
 
 	std::unordered_map<ManipulationMode, MeshId> manips;
 	for (const auto& obj : manipulatorsObjects)

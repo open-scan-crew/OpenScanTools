@@ -187,10 +187,7 @@
       <QtRccFileName>qrc_%(Filename).cpp</QtRccFileName>
     </QtRcc>
     <PostBuildEvent>
-      <Command>xcopy /y /q "$(SolutionDir)resources\*.dll" "$(SolutionDir)build\$(Configuration)"
-xcopy /y /b /q "$(SolutionDir)ext\OCCT\bin\*.dll" "$(SolutionDir)build\$(Configuration)"
-xcopy /y /b /q "$(SolutionDir)ext\fbxSdk-2020.0.1\dll\*.dll" "$(SolutionDir)build\$(Configuration)"
-xcopy /y /b /q "$(SolutionDir)ext\ifcplusplus\*.dll" "$(SolutionDir)build\$(Configuration)"</Command>
+      <Command>xcopy /y /q "$(SolutionDir)resources\meshes\" "$(SolutionDir)build\$(Configuration)\resources\meshes\"</Command>
       <Message>Copying Resources to $(SolutionDir)build\$(Configuration)</Message>
     </PostBuildEvent>
     <CustomBuild>
