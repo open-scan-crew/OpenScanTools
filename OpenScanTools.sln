@@ -9,7 +9,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TLSGenerator", "projects\TL
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug_License|x64 = Debug_License|x64
 		Debug|x64 = Debug|x64
 		Portable_Prod|x64 = Portable_Prod|x64
 		Portable|x64 = Portable|x64
@@ -17,8 +16,6 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{E926ED99-3692-4A5A-ABC0-CCB4686767E9}.Debug_License|x64.ActiveCfg = Debug_License|x64
-		{E926ED99-3692-4A5A-ABC0-CCB4686767E9}.Debug_License|x64.Build.0 = Debug_License|x64
 		{E926ED99-3692-4A5A-ABC0-CCB4686767E9}.Debug|x64.ActiveCfg = Debug|x64
 		{E926ED99-3692-4A5A-ABC0-CCB4686767E9}.Debug|x64.Build.0 = Debug|x64
 		{E926ED99-3692-4A5A-ABC0-CCB4686767E9}.Portable_Prod|x64.ActiveCfg = Portable_Prod|x64
@@ -29,7 +26,6 @@ Global
 		{E926ED99-3692-4A5A-ABC0-CCB4686767E9}.Release_Prod|x64.Build.0 = Release_Prod|x64
 		{E926ED99-3692-4A5A-ABC0-CCB4686767E9}.Release|x64.ActiveCfg = Release|x64
 		{E926ED99-3692-4A5A-ABC0-CCB4686767E9}.Release|x64.Build.0 = Release|x64
-		{73728057-B603-4D8C-83D3-CEE552AD7E56}.Debug_License|x64.ActiveCfg = Debug_License|x64
 		{73728057-B603-4D8C-83D3-CEE552AD7E56}.Debug|x64.ActiveCfg = Debug|x64
 		{73728057-B603-4D8C-83D3-CEE552AD7E56}.Portable_Prod|x64.ActiveCfg = Portable_Prod|x64
 		{73728057-B603-4D8C-83D3-CEE552AD7E56}.Portable|x64.ActiveCfg = Portable|x64
@@ -40,7 +36,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {44916CD4-3139-4A29-A5F6-C871956FFFE6}
 		Qt5Version = 5.12.1_msvc2017_64
+		SolutionGuid = {44916CD4-3139-4A29-A5F6-C871956FFFE6}
 	EndGlobalSection
 EndGlobal

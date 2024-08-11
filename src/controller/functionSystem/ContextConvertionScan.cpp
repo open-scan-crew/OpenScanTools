@@ -379,7 +379,14 @@ void ContextConvertionScan::convertFile(Controller& controller, const std::files
         }
         auto start = std::chrono::steady_clock::now();
         IScanFileWriter* fileWriter = nullptr;
-        std::filesystem::path outputDir(controller.getContext().cgetProjectInternalInfo().getScansFolderPath());
+
+        std::filesystem::path outputDir;
+
+        if(!m_scanInfo.asObject)
+            outputDir = controller.getContext().cgetProjectInternalInfo().getScansFolderPath();
+        else
+            outputDir = controller.getContext().cgetProjectInternalInfo().getObjectsFilesFolderPath();
+
        
         std::wstring outputName;
         if (fileReader->getScanCount() > 1)

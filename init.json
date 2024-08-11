@@ -1,0 +1,22 @@
+{
+  "license": {
+    "type":"Empty"
+  },
+  "logs": {
+    "TreeLog": true,
+    "IOLog": true,
+    "VKLog": true,
+    "ControlLog": true,
+    "DataLog": true,
+    "ControllerLog": true,
+    "HistoricLog": false,
+    "GuiLog": true,
+    "LicenseLog": true,
+    "GTLog": true,
+    "GTExtraLog": false,
+    "FunctionLog": true,
+    "rayTracingLog": true,
+    "SceneGraphLog": true,
+    "TranslatorLog": true
+  }
+}

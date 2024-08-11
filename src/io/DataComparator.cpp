@@ -1063,7 +1063,7 @@ std::set<std::string> DataComparator::Compare(const UIViewPoint& data1, const UI
 	{
 		diff.insert(Key_Luminance);
 	}
-	if (data1.getDisplayParameters().m_blending != data2.getDisplayParameters().m_blending)
+	if (data1.getDisplayParameters().m_hue != data2.getDisplayParameters().m_hue)
 	{
 		diff.insert(Key_Blending);
 	}
@@ -1103,7 +1103,7 @@ std::set<std::string> DataComparator::Compare(const UIViewPoint& data1, const UI
 	{
 		diff.insert(Key_Marker_Rendering_Parameters);
 	}
-	if (data1.getDisplayParameters().m_postRenderingNormals.show != data2.getDisplayParameters().m_postRenderingNormals.show || data1.getDisplayParameters().m_postRenderingNormals.inverseTone != data2.getDisplayParameters().m_postRenderingNormals.inverseTone || data1.getDisplayParameters().m_postRenderingNormals.blendColor != data2.getDisplayParameters().m_postRenderingNormals.blendColor || data1.getDisplayParameters().m_postRenderingNormals.normalStrength != data2.getDisplayParameters().m_postRenderingNormals.normalStrength || data1.getDisplayParameters().m_postRenderingNormals.sharpness != data2.getDisplayParameters().m_postRenderingNormals.sharpness)
+	if (data1.getDisplayParameters().m_postRenderingNormals.show != data2.getDisplayParameters().m_postRenderingNormals.show || data1.getDisplayParameters().m_postRenderingNormals.inverseTone != data2.getDisplayParameters().m_postRenderingNormals.inverseTone || data1.getDisplayParameters().m_postRenderingNormals.blendColor != data2.getDisplayParameters().m_postRenderingNormals.blendColor || data1.getDisplayParameters().m_postRenderingNormals.normalStrength != data2.getDisplayParameters().m_postRenderingNormals.normalStrength || data1.getDisplayParameters().m_postRenderingNormals.gloss != data2.getDisplayParameters().m_postRenderingNormals.gloss)
 	{
 		diff.insert(Key_Post_Rendering_Normals);
 	}

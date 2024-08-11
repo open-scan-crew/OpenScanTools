@@ -53,6 +53,7 @@ struct VideoExportParameters
     VideoAnimationMode animMode = VideoAnimationMode::NONE;
     SafePtr<ViewPointNode> start;
     SafePtr<ViewPointNode> finish;
+    bool interpolateRenderingBetweenViewpoints = false;
     bool openFolderAfterExport = false;
 
 };

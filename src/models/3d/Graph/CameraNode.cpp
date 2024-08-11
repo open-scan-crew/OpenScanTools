@@ -1407,7 +1407,7 @@ void CameraNode::onRenderSaturation(IGuiData* data)
 
 void CameraNode::onRenderBlending(IGuiData* data)
 {
-    m_blending = static_cast<GuiDataRenderBlending*>(data)->m_blending;
+    m_hue = static_cast<GuiDataRenderBlending*>(data)->m_hue;
 }
 
 void CameraNode::onRenderTransparency(IGuiData* data)

@@ -202,7 +202,7 @@ void ObjectNodeVisitor::getObjectMarkerText(const SafePtr<AObjectNode>& object, 
         }
         if (filter & TEXT_SHOW_LENGTH_BIT)
         {
-            double l = unit_converter::meterToX(rCylinder->getLength(), m_displayParameters.m_unitUsage.diameterUnit);
+            double l = unit_converter::meterToX(rCylinder->getLength(), m_displayParameters.m_unitUsage.distanceUnit);
             parameters[7] = fmt::format("len=" + m_length_format, l);
         }
     }
@@ -1357,7 +1357,7 @@ void ObjectNodeVisitor::bakeGraphics(const SafePtr<AGraphNode>& node, const Tran
 
         wScan->uploadUniform(transfoMat, m_uniformSwapIndex);
         if(wScan->getScanGuid().isValid())
-            m_bakedPointCloud.push_back({ transfoMat, wScan->getScanGuid(), color, wScan->getUniform(m_uniformSwapIndex) , wScan->getClippable() });
+            m_bakedPointCloud.push_back({ transfoMat, wScan->getScanGuid(), color, wScan->getUniform(m_uniformSwapIndex) , wScan->getClippable(), false });
         break;
     }
     case ElementType::PCO:
@@ -1368,7 +1368,7 @@ void ObjectNodeVisitor::bakeGraphics(const SafePtr<AGraphNode>& node, const Tran
         Color32 color = pco->getColor();
         pco->uploadUniform(transfoMat, m_uniformSwapIndex);
         if (pco->getScanGuid().isValid())
-            m_bakedPointCloud.push_back({ transfoMat, pco->getScanGuid(), color, pco->getUniform(m_uniformSwapIndex) , pco->getClippable() });
+            m_bakedPointCloud.push_back({ transfoMat, pco->getScanGuid(), color, pco->getUniform(m_uniformSwapIndex) , pco->getClippable(), true });
         break;
     }
     case ElementType::BeamBendingMeasure:
@@ -1589,7 +1589,7 @@ void ObjectNodeVisitor::draw_baked_pointClouds(VkCommandBuffer cmdBuffer, Render
     renderer.setConstantPointSize(m_displayParameters.m_pointSize, cmdBuffer);
     renderer.setConstantContrastBrightness((float)m_displayParameters.m_contrast, (float)m_displayParameters.m_brightness, cmdBuffer);
     renderer.setConstantSaturationLuminance((float)m_displayParameters.m_saturation, (float)m_displayParameters.m_luminance, cmdBuffer);
-    renderer.setConstantBlending((float)m_displayParameters.m_blending, cmdBuffer);
+    renderer.setConstantBlending((float)m_displayParameters.m_hue, cmdBuffer);
 
     if (m_displayParameters.m_mode == UiRenderMode::Distance_Ramp ||
         m_displayParameters.m_mode == UiRenderMode::Flat_Distance_Ramp)
@@ -1619,9 +1619,9 @@ void ObjectNodeVisitor::clipAndDrawPointCloud(VkCommandBuffer _cmdBuffer, Render
     drawInfo.modelUni = bakedPC.uniform;
     drawInfo.color = bakedPC.color.toVector();
 
-    if ((m_displayParameters.m_mode == UiRenderMode::Flat) ||
-        (m_displayParameters.m_mode == UiRenderMode::Grey_Colored))
-        /* && wScan->getType() != ElementType::PCO*/
+    if (((m_displayParameters.m_mode == UiRenderMode::Flat) ||
+        (m_displayParameters.m_mode == UiRenderMode::Grey_Colored)) &&
+        !bakedPC.isObject)
         renderer.setConstantPtColor(m_displayParameters.m_flatColor, _cmdBuffer);
     else
         renderer.setConstantPtColor(drawInfo.color, _cmdBuffer);

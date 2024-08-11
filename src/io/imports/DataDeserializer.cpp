@@ -519,7 +519,7 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
 
 	if (json.find(Key_Blending) != json.end())
 	{
-		data.m_blending = json.at(Key_Blending).get<float>();
+		data.m_hue = json.at(Key_Blending).get<float>();
 	}
 	else
 	{

@@ -211,7 +211,7 @@ public:
 	virtual guiDType getType() override;
 
 public:
-	int m_blending;
+	int m_hue;
 };
 
 

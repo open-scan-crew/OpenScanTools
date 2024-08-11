@@ -243,7 +243,7 @@ guiDType GuiDataRenderTransparencyOptions::getType()
 
 GuiDataRenderBlending::GuiDataRenderBlending(int blending, SafePtr<CameraNode> camera)
 	: GuiDataActiveCamera(camera)
-	, m_blending(blending)
+	, m_hue(blending)
 {}
 
 guiDType GuiDataRenderBlending::getType()

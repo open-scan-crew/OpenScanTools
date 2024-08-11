@@ -13,6 +13,8 @@ struct PointCloudDrawData
     Color32 color;
     VkUniformOffset uniform;
     bool clippable;
+
+    bool isObject;
     // #ClippingAssembly ?
 }; // size (128 + 16 + 4 + 4) = 152
 

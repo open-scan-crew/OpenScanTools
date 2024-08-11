@@ -51,7 +51,6 @@ TemplatePropertiesPanel::TemplatePropertiesPanel(Controller& controller, QWidget
 	m_ui.subPropertyClipping->setDataDispatcher(&controller.getDataDispatcher());
 
 	connect(m_ui.ShapeToolButton, &QPushButton::released, this, &TemplatePropertiesPanel::onShapePress);
-	connect(m_ui.addAsKeyPoint, SIGNAL(pressed()), this, SLOT(addAsAnimationViewPoint()));
 
 	connect(m_ui.XLineEdit, &QLineEdit::editingFinished, this, &TemplatePropertiesPanel::onXEdit);
 	connect(m_ui.YLineEdit, &QLineEdit::editingFinished, this, &TemplatePropertiesPanel::onYEdit);

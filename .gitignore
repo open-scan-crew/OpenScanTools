@@ -9,8 +9,6 @@ hooks/
 
 imgui.ini
 *.user
-*.exe
-init.json
 *.sdf
 *.suo
 *.ick
@@ -20,9 +18,8 @@ init.json
 *.log
 *.idb
 *.pdb
-*.obj
 *.aps
-*.qm
+qt_fr.qm
 Scansap.VC.db
 UpgradeLog.htm
 /src/vulkan/shaders/shadersMap.hxx

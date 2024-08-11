@@ -770,7 +770,7 @@ void DataEditor::Edit(const ViewPoint& input, ViewPoint& output, const std::unor
 		}
 		if (i == Key_Blending)
 		{
-			output.m_blending = input.m_blending;
+			output.m_hue = input.m_hue;
 		}
 		if (i == Key_Flat_Color)
 		{
@@ -823,7 +823,7 @@ void DataEditor::Edit(const ViewPoint& input, ViewPoint& output, const std::unor
 			output.m_postRenderingNormals.inverseTone = input.getDisplayParameters().m_postRenderingNormals.inverseTone;
 			output.m_postRenderingNormals.blendColor = input.getDisplayParameters().m_postRenderingNormals.blendColor;
 			output.m_postRenderingNormals.normalStrength = input.getDisplayParameters().m_postRenderingNormals.normalStrength;
-			output.m_postRenderingNormals.sharpness = input.getDisplayParameters().m_postRenderingNormals.sharpness;
+			output.m_postRenderingNormals.gloss = input.getDisplayParameters().m_postRenderingNormals.gloss;
 		}
 		if (i == Key_Display_Guizmo)
 		{

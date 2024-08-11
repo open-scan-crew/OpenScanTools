@@ -16,6 +16,7 @@
 #include "gui/GuiData/GuiDataRendering.h"
 
 #include "gui/texts/ContextTexts.hpp"
+#include "gui/UITransparencyConverter.h"
 
 #include "utils/Logger.h"
 #include "utils/Utils.h"
@@ -66,16 +67,12 @@ ContextState ContextExportVideoHD::feedMessage(IMessage* message, Controller& co
             {
                 m_state = ContextState::ready_for_using;
             }
-            if (out->m_info == GeneralInfo::IMAGEEND && (m_exportState == 2 || m_exportState == 3))
+            if (out->m_info == GeneralInfo::IMAGEEND && m_exportState == 2)
             {
+                controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(TEXT_CONTEXT_EXPORT_VIDEO_STEPS.arg(m_animFrame).arg(m_totalFrames), m_animFrame));
                 m_animFrame++;
-                if (m_animFrame >= m_totalFrames)
-                    m_exportState = 4;
-                m_state = ContextState::ready_for_using;
-            }
-            if (out->m_info == GeneralInfo::ANIMATIONEND && m_exportState == 2 && m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS)
-            {
-                m_exportState = 3;
+                if (m_animFrame > m_totalFrames)
+                    m_exportState = 3;
                 m_state = ContextState::ready_for_using;
             }
         }
@@ -116,9 +113,9 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
         if (!rCam)
             return abort(controller);
         m_totalFrames = (long)m_parameters.length * (long)m_parameters.fps;
-        m_animFrame = 0;
+        m_animFrame = 1;
 
-        controller.updateInfo(new GuiDataProcessingSplashScreenStart(m_totalFrames, TEXT_CONTEXT_EXPORT_VIDEO, TEXT_CONTEXT_EXPORT_VIDEO_STEPS.arg(m_animFrame).arg(m_totalFrames)));
+        controller.updateInfo(new GuiDataProcessingSplashScreenStart(m_totalFrames, TEXT_CONTEXT_EXPORT_VIDEO, TEXT_CONTEXT_EXPORT_VIDEO_STEPS.arg(0).arg(m_totalFrames)));
         m_tpStart = std::chrono::steady_clock::now();
 
         if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS)
@@ -145,11 +142,35 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
             m_addPosition = (rFinish->getCenter() - rStart->getCenter()) / (double)m_totalFrames;
             m_addTheta = (endTheta - rCam->getTheta()) / m_totalFrames;
             m_addPhi = (endPhi - rCam->getPhi()) / m_totalFrames;
+
+            if (rStart->m_blendMode == rFinish->m_blendMode &&
+                rStart->m_postRenderingNormals.show == rFinish->m_postRenderingNormals.show &&
+                rStart->m_postRenderingNormals.blendColor == rFinish->m_postRenderingNormals.blendColor &&
+                rStart->m_postRenderingNormals.inverseTone == rFinish->m_postRenderingNormals.inverseTone &&
+                rStart->m_mode == rFinish->m_mode &&
+                rStart->m_negativeEffect == rFinish->m_negativeEffect &&
+                rStart->m_reduceFlash == rFinish->m_reduceFlash
+                )
+            {
+                m_addTransp = (rFinish->m_transparency - rStart->m_transparency) / m_totalFrames;
+
+                m_addNStren = (rFinish->m_postRenderingNormals.normalStrength - rStart->m_postRenderingNormals.normalStrength) / m_totalFrames;
+                m_addNGloss = (rFinish->m_postRenderingNormals.gloss - rStart->m_postRenderingNormals.gloss) / m_totalFrames;
+
+                m_addHue = (rFinish->m_hue - rStart->m_hue) / m_totalFrames;
+
+                m_addBright = (rFinish->m_brightness - rStart->m_brightness) / m_totalFrames;
+                m_addSatur = (rFinish->m_saturation - rStart->m_saturation) / m_totalFrames;
+                m_addLumi = (rFinish->m_luminance - rStart->m_luminance) / m_totalFrames;
+                m_addContr = (rFinish->m_contrast - rStart->m_contrast) / m_totalFrames;
+                m_addAlpha = (rFinish->m_alphaObject - rStart->m_alphaObject) / m_totalFrames;
+
+                m_addFovy = (rFinish->getFovy() - rStart->getFovy()) / m_totalFrames;
+            }
         }
         else
             m_addTheta = 2 * M_PI / m_totalFrames;
 
-        m_animFrame = 1;
         controller.updateInfo(new GuiDataCallImage(m_parameters.hdImage, getNextFramePath()));
         m_exportState = 2;
 
@@ -159,7 +180,6 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
     //Mouvement and Image
     if (m_exportState == 2)
     {
-        controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(TEXT_CONTEXT_EXPORT_VIDEO_STEPS.arg(m_animFrame).arg(m_totalFrames), m_animFrame));
 
         SafePtr<CameraNode> cam = controller.getOpenScanToolsGraphManager().getCameraNode();
         WritePtr<CameraNode> wCam = cam.get();
@@ -170,16 +190,23 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
         {
             case VideoAnimationMode::BETWEENVIEWPOINTS:
             {
-                if (m_animFrame == m_totalFrames - 1)
+                wCam->addGlobalTranslation(m_addPosition);
+                wCam->yaw(m_addTheta);
+                wCam->pitch(m_addPhi);
+
+                if (m_parameters.interpolateRenderingBetweenViewpoints)
                 {
-                    wCam->moveToData(m_parameters.finish);
-                    return m_state = ContextState::waiting_for_input;
-                }
-                else
-                {
-                    wCam->addGlobalTranslation(m_addPosition);
-                    wCam->yaw(m_addTheta);
-                    wCam->pitch(m_addPhi);
+                    
+                    wCam->m_transparency += m_addTransp;
+                    wCam->m_postRenderingNormals.normalStrength += m_addNStren;
+                    wCam->m_postRenderingNormals.gloss += m_addNGloss;
+                    wCam->m_contrast += m_addContr;
+                    wCam->m_brightness += m_addBright;
+                    wCam->m_luminance += m_addLumi;
+                    wCam->m_saturation += m_addSatur;
+                    wCam->m_hue += m_addHue;
+                    wCam->m_alphaObject += m_addAlpha;
+                    wCam->setFovy(wCam->getFovy() + m_addFovy);
                 }
             }
             break;
@@ -197,14 +224,7 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
         return m_state = ContextState::waiting_for_input;
     }
 
-    //Last frame between 2 viewpoints
     if (m_exportState == 3)
-    {
-        controller.updateInfo(new GuiDataCallImage(m_parameters.hdImage, getNextFramePath()));
-        return m_state = ContextState::waiting_for_input;
-    }
-
-    if (m_exportState == 4)
     {
         if(m_parameters.openFolderAfterExport)
             controller.updateInfo(new GuiDataOpenInExplorer(m_exportPath));

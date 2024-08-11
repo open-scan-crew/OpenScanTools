@@ -16,6 +16,7 @@ Install the Vulkan SDK
 
 * Download the version 1.2.148 (or higher) at https://vulkan.lunarg.com/sdk/home
 * Install the SDK. You can let the default installation location or choose another. In any case the ENV variables are automatically configured.
+* Warning: if your user name (in Windows) contains a space, you may have shaders compiling errors in case the code is copied in your user folder. If so, move the code in a path with no space.
 
 Configure Visual Studio
 ==============================================================================
@@ -35,6 +36,13 @@ Add the path where Qt is installed on your machine in:
 * Qt VS Tools->Qt Options->Qt Versions->Add (i.e. `C:\Qt\5.12.x\msvc2017_64`)
 
 WARNING : The version 2.6.0.7 is stable but some bugs have been observed after an update. It is recommended to disable the automatic update of this plugin.
+
+Change project working repo:
+==============================================================================
+* Right-click project "OpenScanTools" in Visual Studio solution tree and click "Properties"
+* In "Debug", change the working repositery value "$(ProjectDir)" into "$(SolutionDir)"
+* Do this for every compilation configuration
+
 
 Generate doc:
 ==============================================================================

@@ -16,9 +16,6 @@ struct ConvertProperties
     bool                    overwriteExisting;
     std::filesystem::path	output;
     glm::dvec3              truncate;
-
-    bool                    importAsObject;
-    glm::dvec3              positionAsObject;
 };
 
 #endif

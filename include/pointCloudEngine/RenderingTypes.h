@@ -76,7 +76,7 @@ struct PostRenderingNormals
     bool inverseTone;
     bool blendColor;
     float normalStrength;
-    float sharpness;
+    float gloss;
 };
 
 enum class ProjectionMode
