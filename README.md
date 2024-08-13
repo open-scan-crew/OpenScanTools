@@ -57,7 +57,11 @@ Build with Inno Setup:
 ==============================================================================
 * Download and install the last version of Inno Setup : https://jrsoftware.org/isdl.php
 * Launch OpenScanTools.sln solution with Visual Studio
-* Generate solution with "Release_Prod" configuration.
-* Launch OpenScanTools.iss in \tools\InstallScripts with Inno Setup
-* Run (F9) the script
-* The .exe setup is generated in \tools\InstallScript\Output\
+
+Dev team:
+==============================================================================
+* Yan Koch: Founder - Product manager, specialist of industrial 3D scanning,
+* Robin Kervadec: Senior Developer, creator of the 3D point cloud engine (Vulkan) and many other cool features...
+* Quentin Moiteaux: Junior Developer: many features like the import export of 3D models, tree structure, annotations, animation module...
+* Lucas Silve: advanced Maths, object detection,
+* Aurelien Milliat: Senior Developer: clipping, multi-clipping, gridded boxes, VR specialist (I'm sorry we didn't create a VR module in OST).
