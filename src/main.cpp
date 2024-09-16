@@ -6,7 +6,7 @@
 #include "gui/Translator.h"
 #include "gui/DataDispatcher.h"
 #include "gui/widgets/SplashScreen.h"
-//#include "gui/widgets/FocusWatcher.h"
+#include "gui/widgets/FocusWatcher.h"
 
 #include "core/SignalHandler.h"
 #include "impl/PCE_impl.h"
@@ -15,6 +15,8 @@
 #include "models/3d/Graph/OpenScanToolsGraphManager.h"
 
 #include <thread>
+#include <qevent.h>
+#include <QGuiApplication>
 
 #ifdef _DEBUG_
 constexpr bool VK_VALIDATION_ENABLED = true;
@@ -44,8 +46,6 @@ LRESULT CALLBACK MyLowLevelKeyBoardProc(int nCode, WPARAM wParam, LPARAM lParam)
     return CallNextHookEx(hHook, nCode, wParam, lParam);
 }
 #endif
-
-#include <QGuiApplication>
 
 int main(int argc, char** argv)
 {
@@ -127,9 +127,7 @@ int main(int argc, char** argv)
         std::filesystem::path path(argv[1]);
         if (path.extension() == ".tlp" || path.extension() == ".TLP")
         {
-
             splash.showMessage("Loading Project");
-
             controller.getControlListener()->notifyUIControl(new control::project::DropLoad(path));
         }
     }
