@@ -2,6 +2,7 @@
 #include "utils/Config.h"
 #include "utils/System.h"
 #include "utils/FilesAndFoldersDefinitions.h"
+#include "utils/OpenScanToolsVersion.h"
 #include <magic_enum/magic_enum.hpp>
 
 #include <chrono>
@@ -22,6 +23,20 @@
 #else
 #include <sys/time.h>
 #endif
+
+#ifdef _DEBUG_
+#define TL_BUILD "Debug  "
+#else
+#define TL_BUILD "Release"
+#endif
+
+#define HEADER(build, vers, date) "\
+*******************************************************************************\n\
+** OpenScanTools - OST                                                       **\n\
+** "##build" v"##vers"  "##date"                                                **\n\
+** (C)OpenScanTools 2024                                                     **\n\
+*******************************************************************************\n"
+
 
 std::mutex Logger::loggerMutex;
 std::ofstream Logger::out;
@@ -70,6 +85,8 @@ void Logger::init(std::filesystem::path execPath)
     {
         Logger::setStatusToMode(mods.first, mods.second);
     }
+
+    Logger::log() << "\n" << HEADER(TL_BUILD, OPENSCANTOOLS_VERSION, BUILD_DATE) << LOGENDL;
 }
 
 void Logger::log(const LoggerMode& mode, std::string message)
