@@ -126,7 +126,7 @@
     <ClCompile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>FBXSDK_SHARED;_DEBUG_;NOMINMAX;BENCHMARK_;GLM_FORCE_XYZW_ONLY;VK_NO_PROTOTYPES;_CRT_SECURE_NO_WARNINGS;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;$(SolutionDir)\include\gui\widgets\CustomWidgets;$(SolutionDir)ext;$(SolutionDir)ext\SQLiteCpp\include;$(SolutionDir)ext\3DxWare\inc;$(SolutionDir)ext\tiny_obj_loader;$(SolutionDir)ext\ifcplusplus\include;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\include;$(SolutionDir)ext\ReCapSDK\include\realdwg;$(SolutionDir)ext\OCCT\inc;$(SolutionDir)ext\cpr\include;$(SolutionDir)ext\fbxSdk-2020.0.1\inc;$(SolutionDir)ext\dxflibs\;.\GeneratedShaders;.\..\..\include;.\..\..\src;$(VULKAN_SDK)\include;.;.\..\..\include\gui\Dialog;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;$(SolutionDir)\include\gui\widgets\CustomWidgets;$(SolutionDir)ext;$(SolutionDir)ext\SQLiteCpp\include;$(SolutionDir)ext\3DxWare\inc;$(BOOST_ROOT);$(SolutionDir)ext\tiny_obj_loader;$(SolutionDir)ext\ifcplusplus\include;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\include;$(SolutionDir)ext\ReCapSDK\include\realdwg;$(SolutionDir)ext\OCCT\inc;$(SolutionDir)ext\cpr\include;$(SolutionDir)ext\fbxSdk-2020.0.1\inc;$(SolutionDir)ext\dxflibs\;.\GeneratedShaders;.\..\..\include;.\..\..\src;$(VULKAN_SDK)\include;.;.\..\..\include\gui\Dialog;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -196,7 +196,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>FBXSDK_SHARED;_SCANSAP_;QT_NO_DEBUG;NDEBUG;NOMINMAX;VK_NO_PROTOTYPES;_CRT_SECURE_NO_WARNINGS;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;$(SolutionDir)\include\gui\widgets\CustomWidgets;$(SolutionDir)ext;$(SolutionDir)ext\SQLiteCpp\include;$(SolutionDir)ext\3DxWare\inc;$(SolutionDir)ext\tiny_obj_loader;$(SolutionDir)ext\ifcplusplus\include;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\include;$(SolutionDir)ext\ReCapSDK\include\realdwg;$(SolutionDir)ext\OCCT\inc;$(SolutionDir)ext\cpr\include;$(SolutionDir)ext\fbxSdk-2020.0.1\inc;$(SolutionDir)ext\dxflibs\;.\GeneratedShaders;.\..\..\include;.\..\..\src;$(VULKAN_SDK)\include;.;.\..\..\include\gui\Dialog;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;$(SolutionDir)\include\gui\widgets\CustomWidgets;$(SolutionDir)ext;$(SolutionDir)ext\SQLiteCpp\include;$(SolutionDir)ext\3DxWare\inc;$(BOOST_ROOT);$(SolutionDir)ext\tiny_obj_loader;$(SolutionDir)ext\ifcplusplus\include;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\include;$(SolutionDir)ext\ReCapSDK\include\realdwg;$(SolutionDir)ext\OCCT\inc;$(SolutionDir)ext\cpr\include;$(SolutionDir)ext\fbxSdk-2020.0.1\inc;$(SolutionDir)ext\dxflibs\;.\GeneratedShaders;.\..\..\include;.\..\..\src;$(VULKAN_SDK)\include;.;.\..\..\include\gui\Dialog;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat />
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
@@ -268,7 +268,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>QT_MODAL_LICENSE;FBXSDK_SHARED;NOMINMAX;PROD_BUILD;QT_NO_DEBUG;NDEBUG;VK_NO_PROTOTYPES;_CRT_SECURE_NO_WARNINGS;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;$(SolutionDir)\include\gui\widgets\CustomWidgets;$(SolutionDir)ext;$(SolutionDir)ext\SQLiteCpp\include;$(SolutionDir)ext\3DxWare\inc;$(SolutionDir)ext\tiny_obj_loader;$(SolutionDir)ext\ifcplusplus\include;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\include;$(SolutionDir)ext\ReCapSDK\include\realdwg;$(SolutionDir)ext\OCCT\inc;$(SolutionDir)ext\cpr\include;$(SolutionDir)ext\fbxSdk-2020.0.1\inc;$(SolutionDir)ext\dxflibs\;.\GeneratedShaders;.\..\..\include;.\..\..\src;$(VULKAN_SDK)\include;.;.\..\..\include\gui\Dialog;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;$(SolutionDir)\include\gui\widgets\CustomWidgets;$(SolutionDir)ext;$(SolutionDir)ext\SQLiteCpp\include;$(SolutionDir)ext\3DxWare\inc;$(BOOST_ROOT);$(SolutionDir)ext\tiny_obj_loader;$(SolutionDir)ext\ifcplusplus\include;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\include;$(SolutionDir)ext\ReCapSDK\include\realdwg;$(SolutionDir)ext\OCCT\inc;$(SolutionDir)ext\cpr\include;$(SolutionDir)ext\fbxSdk-2020.0.1\inc;$(SolutionDir)ext\dxflibs\;.\GeneratedShaders;.\..\..\include;.\..\..\src;$(VULKAN_SDK)\include;.;.\..\..\include\gui\Dialog;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>
       </DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -349,7 +349,7 @@ signtool sign /sha1 "881d9294e1fdd77049171ada940dd511b709674f" /tr "http://time.
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>QT_MODAL_LICENSE;FBXSDK_SHARED;PORTABLE;PROD_BUILD;_SCANSAP_;NOMINMAX;QT_NO_DEBUG;NDEBUG;VK_NO_PROTOTYPES;_CRT_SECURE_NO_WARNINGS;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;$(SolutionDir)\include\gui\widgets\CustomWidgets;$(SolutionDir)ext;$(SolutionDir)ext\SQLiteCpp\include;$(SolutionDir)ext\3DxWare\inc;$(SolutionDir)ext\fbxSdk-2020.0.1\inc;$(SolutionDir)ext\dxflibs\;.\GeneratedShaders;.\..\..\include;.\..\..\src;$(VULKAN_SDK)\include;.;.\..\..\include\gui\Dialog;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;$(SolutionDir)\include\gui\widgets\CustomWidgets;$(SolutionDir)ext;$(SolutionDir)ext\SQLiteCpp\include;$(SolutionDir)ext\3DxWare\inc;$(BOOST_ROOT);$(SolutionDir)ext\fbxSdk-2020.0.1\inc;$(SolutionDir)ext\dxflibs\;.\GeneratedShaders;.\..\..\include;.\..\..\src;$(VULKAN_SDK)\include;.;.\..\..\include\gui\Dialog;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>
       </DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -429,7 +429,7 @@ signtool sign /a /fd sha256 /tr http://timestamp.comodoca.com /td sha256 $(Solut
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>QT_MODAL_LICENSE;FBXSDK_SHARED;PORTABLE;_SCANSAP_;NOMINMAX;QT_NO_DEBUG;NDEBUG;VK_NO_PROTOTYPES;_CRT_SECURE_NO_WARNINGS;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;$(SolutionDir)\include\gui\widgets\CustomWidgets;$(SolutionDir)ext;$(SolutionDir)ext\SQLiteCpp\include;$(SolutionDir)ext\3DxWare\inc;$(SolutionDir)ext\fbxSdk-2020.0.1\inc;$(SolutionDir)ext\dxflibs\;.\GeneratedShaders;.\..\..\include;.\..\..\src;$(VULKAN_SDK)\include;.;.\..\..\include\gui\Dialog;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;$(SolutionDir)\include\gui\widgets\CustomWidgets;$(SolutionDir)ext;$(SolutionDir)ext\SQLiteCpp\include;$(SolutionDir)ext\3DxWare\inc;$(BOOST_ROOT);$(SolutionDir)ext\fbxSdk-2020.0.1\inc;$(SolutionDir)ext\dxflibs\;.\GeneratedShaders;.\..\..\include;.\..\..\src;$(VULKAN_SDK)\include;.;.\..\..\include\gui\Dialog;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>
       </DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -1020,6 +1020,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     </ClCompile>
     <ClCompile Include="..\..\src\io\imports\TlsFileReader.cpp" />
     <ClCompile Include="..\..\src\io\imports\TlsReader.cpp" />
+    <ClCompile Include="..\..\src\io\ScantraInterface.cpp" />
     <ClCompile Include="..\..\src\io\SaveLoadSystem.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
     <ClCompile Include="..\..\src\models\3d\ProjectionData.cpp" />
@@ -1489,6 +1490,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\src\controller\functionSystem\mesh\ContextMeshDistance.h" />
     <QtMoc Include="..\..\src\gui\Dialog\StandardNameDialog.h" />
     <QtMoc Include="..\..\src\gui\toolBars\ToolBarRampDefaultValues.h" />
+    <ClInclude Include="..\..\src\io\ScantraInterface.h" />
     <ClInclude Include="..\..\src\models\3d\MeshBuffer.h" />
     <ClInclude Include="..\..\src\vulkan\Compute\ComputePrograms.h" />
     <ClInclude Include="..\..\src\vulkan\VulkanHelperFunctions.h" />

@@ -94,6 +94,9 @@ public:
 	bool startAutosaveThread(const uint64_t& timing);
 	bool stopAutosaveThread();
 
+	void startScantraInterface();
+	void stopScantraInterface();
+	
 	uint32_t getNextUserId(ElementType type) const;
 	std::vector<uint32_t> getMultipleUserId(ElementType type, int indexAmount) const;
 

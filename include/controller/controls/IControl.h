@@ -101,7 +101,8 @@ enum class ControlType
 	generateVideoHD,
 	linkOSTObjectsContext,
 	refreshScanLink,
-	importScanTraModifications,
+	importScantraModifications,
+	startScantraInterprocess,
 	convertImage,
 
     // control::exportPC

@@ -21,6 +21,7 @@ private:
 
 public slots:
 	void slotImportScanTra();
+	void slotStartInterprocess();
 
 private:
 	Ui::ToolBarImportScantra m_ui;

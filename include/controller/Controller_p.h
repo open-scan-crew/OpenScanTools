@@ -11,6 +11,7 @@
 #include "controller/FilterSystem.h"
 #include "models/3d/Graph/OpenScanToolsGraphManager.h"
 #include "utils/ClockLock.hpp"
+#include "io/ScantraInterface.h"
 
 class Controller_p
 {
@@ -38,6 +39,8 @@ public:
     FunctionManager funcManager;
     ControllerContext context;
     FilterSystem filterSystem;
+
+    ScantraInterface scantra_interface_;
 private:
     bool                    m_autoSaveThreadRunning;
     std::thread*            m_autosaveThread;

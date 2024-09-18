@@ -131,7 +131,7 @@ void Logger::setStatusToMode(const LoggerMode& mode, bool state)
         std::lock_guard<std::mutex> lock(loggerMutex);
         modeEnabled[(size_t)mode] = state;
     }
-    std::string modestr = std::string(magic_enum::enum_name(mode));
+    std::string modestr(magic_enum::enum_name(mode));
     std::string message = state ? modestr + " Enabled" : modestr + " Disabled";
     log(LoggerMode::LogConfig) << message << Logger::endl;
 }

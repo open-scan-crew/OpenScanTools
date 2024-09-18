@@ -19,7 +19,7 @@
 #include <QGuiApplication>
 
 #ifdef _DEBUG_
-constexpr bool VK_VALIDATION_ENABLED = true;
+constexpr bool VK_VALIDATION_ENABLED = false;
 #else
 constexpr bool VK_VALIDATION_ENABLED = false;
 #endif
@@ -82,7 +82,7 @@ int main(int argc, char** argv)
 
     for (int i = 0; i < argc; i++)
     {
-        Logger::log() << "arg[" << i << "] : [" << argv[i] << "]" << LOGENDL;
+        Logger::log(LoggerMode::LogConfig) << "arg[" << i << "] : [" << argv[i] << "]" << LOGENDL;
         if (strcmp(argv[i], "--vulkan-validation") == 0)
             vk_validation_enabled = true;
         if (strcmp(argv[i], "--select-device") == 0)

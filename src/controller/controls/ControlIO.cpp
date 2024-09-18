@@ -583,7 +583,7 @@ namespace control::io
 	}
 
 	/*
-	** SetupImageHD
+	** ImportScanModifications
 	*/
 
 	ImportScantraModifications::ImportScantraModifications(std::filesystem::path sqliteDbPath)
@@ -744,7 +744,24 @@ namespace control::io
 
 	ControlType ImportScantraModifications::getType() const
 	{
-		return ControlType::importScanTraModifications;
+		return ControlType::importScantraModifications;
+	}
+
+	/*
+	** StartScantraInterprocess
+	*/
+
+	StartScantraInterprocess::StartScantraInterprocess()
+	{}
+
+	void StartScantraInterprocess::doFunction(Controller& controller)
+	{
+		controller.startScantraInterface();
+	}
+
+	ControlType StartScantraInterprocess::getType() const
+	{
+		return ControlType::startScantraInterprocess;
 	}
 
 	/*
