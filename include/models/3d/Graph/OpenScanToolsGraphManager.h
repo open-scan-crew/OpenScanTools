@@ -107,8 +107,13 @@ public:
 	uint64_t getProjectPointsCount() const;
 
 	template<typename T>
-	std::unordered_set<SafePtr<T>> getNodesOnFilter(std::function<bool(ReadPtr<AGraphNode>&)> graphNodeFilter, std::function<bool(ReadPtr<T>&)> objectFilter = [](ReadPtr<T>&) {return true; }) const;
-	std::unordered_set<SafePtr<AGraphNode>> getNodesOnFilter(std::function<bool(const SafePtr<AGraphNode>&)> graphNodeFilter) const;
+	std::unordered_set<SafePtr<T>> getNodesOnFilter(
+		std::function<bool(ReadPtr<AGraphNode>&)> graphNodeFilter,
+		std::function<bool(ReadPtr<T>&)> objectFilter = [](ReadPtr<T>&) {return true;}
+	) const;
+	std::unordered_set<SafePtr<AGraphNode>> getNodesOnFilter(
+		std::function<bool(const SafePtr<AGraphNode>&)> graphNodeFilter
+	) const;
 
 	/******/
 private:

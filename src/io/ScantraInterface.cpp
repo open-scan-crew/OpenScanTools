@@ -1,10 +1,13 @@
 #include "ScantraInterface.h"
+#include "models/3d/Graph/OpenScanToolsGraphManager.h"
+#include "models/3d/graph/ClusterNode.h"
 #include "utils/Logger.h"
 
 #include <wchar.h>
 
-ScantraInterface::ScantraInterface(IDataDispatcher& data_dispatcher)
+ScantraInterface::ScantraInterface(IDataDispatcher& data_dispatcher, OpenScanToolsGraphManager& graph)
     : data_dispatcher_(data_dispatcher)
+    , graph_(graph)
 {
 }
 
@@ -16,7 +19,10 @@ ScantraInterface::~ScantraInterface()
 int ScantraInterface::startInterface()
 {
     if (data_)
+    {
+        Logger::log(LoggerMode::IOLog) << "Already connected to Scantra Interface." << Logger::endl;
         return -1;
+    }
 
     // ----------------------------------
     // Creates or opens the shared memory
@@ -42,6 +48,7 @@ int ScantraInterface::startInterface()
         }
         catch (...)
         {
+            Logger::log(LoggerMode::IOLog) << "Failed to create the Scantra Interface." << Logger::endl;
             return -2;
         }
     }
@@ -77,7 +84,7 @@ int ScantraInterface::startInterface()
 
         {
             scoped_lock<interprocess_mutex> lock(data_->mutex);
-            wcsncpy_s(data_->w_array[0], L"OST Interprocess", 256);
+            wcsncpy_s(data_->w_array[0], L"OpenScanTools", 256);
             observer_->message_ = ScantraInterprocessObserver::hasConnected;
         }
         data_->update(observer_);
@@ -114,7 +121,7 @@ int ScantraInterface::stopInterface()
     {
         {
             scoped_lock<interprocess_mutex> lock(data_->mutex);
-            wcsncpy_s(data_->w_array[0], L"OST Interprocess", 256);
+            wcsncpy_s(data_->w_array[0], L"OpenScanTools", 256);
             observer_->message_ = ScantraInterprocessObserver::hasDisconnected;
         }
         data_->update(observer_);
@@ -167,72 +174,155 @@ void ScantraInterface::run()
         }
         case ScantraInterprocessObserver::stationChanged:
         {
-            log << "+++ Station changed +++" << Logger::endl;
-
-            std::wstring station_id = data_->w_array[0];
-            std::wstring group_id = data_->w_array[1];
-            std::wstring point_cloud = data_->w_array[2];
-
-            log << "station id:  " << station_id << Logger::endl;
-            log << "group id:    " << group_id << Logger::endl;
-            log << "point cloud: " << point_cloud << Logger::endl;
-
-            int is_active = data_->i_array[0];
-            int is_on = data_->i_array[1];
-            int type = data_->i_array[2];
-            int planes_detected = data_->i_array[3];
-            int spheres_detected = data_->i_array[4];
-            int targets_detected = data_->i_array[5];
-
-            log << "is active:   " << is_active << Logger::endl;
-            log << "is on:       " << is_on << Logger::endl;
-            log << "type:        " << type << Logger::endl;
-            log << "planes detected:  " << planes_detected << Logger::endl;
-            log << "spheres detected: " << spheres_detected << Logger::endl;
-            log << "targets detected: " << targets_detected << Logger::endl;
-            log << Logger::endl;
-
+            editStationChanged();
             break;
         }
         case ScantraInterprocessObserver::intersectionPlane:
         {
-            log << "+++ intersection plane +++" << Logger::endl;
-
-            double q0 = data_->d_array[0];
-            double qx = data_->d_array[1];
-            double qy = data_->d_array[2];
-            double qz = data_->d_array[3];
-            double tx = data_->d_array[4];
-            double ty = data_->d_array[5];
-            double tz = data_->d_array[6];
-
-            log << q0 << Logger::endl;
-            log << qx << Logger::endl;
-            log << qy << Logger::endl;
-            log << qz << Logger::endl;
-            log << tx << Logger::endl;
-            log << ty << Logger::endl;
-            log << tz << Logger::endl;
-            log << Logger::endl;
+            editIntersectionPlane();
             break;
         }
         case ScantraInterprocessObserver::stationColor:
         {
-            log << "+++ station color +++" << Logger::endl;
-
-            std::wstring station_id = data_->w_array[0];
-            log << "station id: " << station_id << Logger::endl;
-
-            int r = data_->i_array[0];
-            int g = data_->i_array[1];
-            int b = data_->i_array[2];
-
-            log << "(" << r << ", " << g << ", " << b << ")" << Logger::endl;
-
+            editStationColor();
             break;
         }
+        default:
+            break;
         }
 
         observer_->setReturn(return_value);
+    }
+}
+
+void ScantraInterface::editStationChanged()
+{
+    SubLogger& log = Logger::log(LoggerMode::IOLog);
+    log << "+++ Station changed +++\n";
+
+    std::wstring station_id = data_->w_array[0];
+    std::wstring group_id = data_->w_array[1];
+    std::wstring point_cloud = data_->w_array[2];
+
+    log << "station id:  " << station_id << "\n";
+    log << "group id:    " << group_id << "\n";
+    log << "point cloud: " << point_cloud << "\n";
+
+    int is_active = data_->i_array[0];
+    int is_on = data_->i_array[1];
+    int type = data_->i_array[2];
+    int planes_detected = data_->i_array[3];
+    int spheres_detected = data_->i_array[4];
+    int targets_detected = data_->i_array[5];
+
+    log << "is active:   " << is_active << "\n";
+    log << "is on:       " << is_on << "\n";
+    log << "type:        " << type << "\n";
+    log << "planes detected:  " << planes_detected << "\n";
+    log << "spheres detected: " << spheres_detected << "\n";
+    log << "targets detected: " << targets_detected << "\n";
+    log << Logger::endl;
+
+    bool exist = graph_.isFilePathOrScanExists(station_id, point_cloud);
+    Logger::log(LoggerMode::IOLog) << "Scan found:" << exist << Logger::endl;
+
+    std::function<bool(const SafePtr<AGraphNode>&)> filter_scan =
+        [station_id](const SafePtr<AGraphNode>& node) {
+        ReadPtr<AGraphNode> rPtr = node.cget();
+        if (!rPtr)
+            return false;
+        return (rPtr->getType() == ElementType::Scan) &&
+               (rPtr->getName().compare(station_id) == 0);
+        };
+
+    auto scan = graph_.getNodesOnFilter(filter_scan);
+
+    std::function<bool(const SafePtr<AGraphNode>&)> filter_group =
+        [group_id](const SafePtr<AGraphNode>& node) {
+        ReadPtr<AGraphNode> rPtr = node.cget();
+        if (!rPtr)
+            return false;
+        return (rPtr->getType() == ElementType::Cluster) &&
+               (rPtr->getName().compare(group_id) == 0);
+        };
+
+    auto group = graph_.getNodesOnFilter(filter_group);
+
+    if (scan.size() != 1)
+        return;
+    {
+        WritePtr<AGraphNode> wPtr = scan.begin()->get();
+        wPtr->setVisible(is_active);
+
+    }
+
+    // TODO - add a test for (TreeType == Hierarchy)
+    if (group.size() == 0)
+    {
+        SafePtr<ClusterNode> new_group = make_safe<ClusterNode>();
+        {
+            WritePtr<ClusterNode> w_new_group = new_group.get();
+            if (!w_new_group)
+                return;
+            w_new_group->setName(group_id);
+        }
+        // Do not work
+        graph_.addNodesToGraph({ new_group });
+        group.insert(new_group);
+    }
+    else if (group.size() == 1)
+    {
+        AGraphNode::addOwningLink(*group.begin(), *scan.begin());
+    }
+}
+
+void ScantraInterface::editIntersectionPlane()
+{
+    SubLogger& log = Logger::log(LoggerMode::IOLog);
+    log << "+++ intersection plane +++\n";
+
+    double q0 = data_->d_array[0];
+    double qx = data_->d_array[1];
+    double qy = data_->d_array[2];
+    double qz = data_->d_array[3];
+    double tx = data_->d_array[4];
+    double ty = data_->d_array[5];
+    double tz = data_->d_array[6];
+
+    log << "q = (" << q0 << ", " << qx << ", " << qy << ", " << qz << ")\n";
+    log << "t = (" << tx << ", " << ty << ", " << tz << ")\n";
+    log << Logger::endl;
+}
+
+void ScantraInterface::editStationColor()
+{
+    SubLogger& log = Logger::log(LoggerMode::IOLog);
+    log << "+++ station color +++\n";
+
+    std::wstring station_id = data_->w_array[0];
+    log << "station id: " << station_id << "\n";
+
+    int r = data_->i_array[0];
+    int g = data_->i_array[1];
+    int b = data_->i_array[2];
+
+    log << "(" << r << ", " << g << ", " << b << ")" << Logger::endl;
+
+    std::function<bool(const SafePtr<AGraphNode>&)> filter_scan =
+        [station_id](const SafePtr<AGraphNode>& node) {
+        ReadPtr<AGraphNode> rPtr = node.cget();
+        if (!rPtr)
+            return false;
+        return (rPtr->getType() == ElementType::Scan) &&
+            (rPtr->getName().compare(station_id) == 0);
+        };
+
+    auto scan = graph_.getNodesOnFilter(filter_scan);
+
+    if (scan.size() != 1)
+        return;
+    {
+        WritePtr<AGraphNode> wPtr = scan.begin()->get();
+        wPtr->setColor(Color32(r, g, b));
     }
 }

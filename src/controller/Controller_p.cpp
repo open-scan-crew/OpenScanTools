@@ -7,7 +7,7 @@ Controller_p::Controller_p(IDataDispatcher& dataDispatcher, OpenScanToolsGraphMa
     , dataDispatcher(dataDispatcher)
 	, graphManager(graphManager)
     , controlListener()
-	, scantra_interface_(dataDispatcher)
+	, scantra_interface_(dataDispatcher, graphManager)
 	, m_autosaveThread(nullptr)
 	, m_autoSaveThreadRunning(false)
 {

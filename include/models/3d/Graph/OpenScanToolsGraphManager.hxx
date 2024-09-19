@@ -19,7 +19,9 @@ inline SafePtr<MeasureClass> OpenScanToolsGraphManager::createMeasureNode()
 }
 
 template<typename T>
-inline std::unordered_set<SafePtr<T>> OpenScanToolsGraphManager::getNodesOnFilter(std::function<bool(ReadPtr<AGraphNode>&)> graphNodeFilter, std::function<bool(ReadPtr<T>&)> objectFilter) const
+inline std::unordered_set<SafePtr<T>> OpenScanToolsGraphManager::getNodesOnFilter(
+	std::function<bool(ReadPtr<AGraphNode>&)> graphNodeFilter,
+	std::function<bool(ReadPtr<T>&)> objectFilter) const
 {
 	std::unordered_set<SafePtr<T>> nodes;
 
