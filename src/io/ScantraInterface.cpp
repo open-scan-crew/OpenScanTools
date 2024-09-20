@@ -1,6 +1,9 @@
 #include "ScantraInterface.h"
 #include "models/3d/Graph/OpenScanToolsGraphManager.h"
+#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
 #include "models/3d/graph/ClusterNode.h"
+#include "gui/DataDispatcher.h"
+#include "gui/GuiData/GuiDataTree.h"
 #include "utils/Logger.h"
 
 #include <wchar.h>
@@ -239,41 +242,40 @@ void ScantraInterface::editStationChanged()
 
     std::function<bool(const SafePtr<AGraphNode>&)> filter_group =
         [group_id](const SafePtr<AGraphNode>& node) {
-        ReadPtr<AGraphNode> rPtr = node.cget();
-        if (!rPtr)
+        ReadPtr<AGraphNode> r_node = node.cget();
+        if (!r_node)
             return false;
-        return (rPtr->getType() == ElementType::Cluster) &&
-               (rPtr->getName().compare(group_id) == 0);
+        return (r_node->getType() == ElementType::Cluster) &&
+               (r_node->getName().compare(group_id) == 0);
+        };
+    auto group = graph_.getNodesOnFilter(filter_group);
+
+    std::function<bool(ReadPtr<AGraphNode>&)> filter_type =
+        [group_id](ReadPtr<AGraphNode>& r_node) {
+            return (r_node->getType() == ElementType::Cluster) &&
+                   (r_node->getName().compare(group_id) == 0);
         };
 
-    auto group = graph_.getNodesOnFilter(filter_group);
+    std::function<bool(ReadPtr<ClusterNode>&)> filter_tree_type =
+        [](const ReadPtr<ClusterNode>& node) {
+            return (node->getClusterTreeType() == TreeType::Hierarchy);
+        };
+
+    auto clusters = graph_.getNodesOnFilter<ClusterNode>(filter_type, filter_tree_type);
 
     if (scan.size() != 1)
         return;
     {
         WritePtr<AGraphNode> wPtr = scan.begin()->get();
-        wPtr->setVisible(is_active);
-
+        wPtr->setVisible(is_on);
     }
 
-    // TODO - add a test for (TreeType == Hierarchy)
-    if (group.size() == 0)
+    if (clusters.size() == 1)
     {
-        SafePtr<ClusterNode> new_group = make_safe<ClusterNode>();
-        {
-            WritePtr<ClusterNode> w_new_group = new_group.get();
-            if (!w_new_group)
-                return;
-            w_new_group->setName(group_id);
-        }
-        // Do not work
-        graph_.addNodesToGraph({ new_group });
-        group.insert(new_group);
+        AGraphNode::addOwningLink(*clusters.begin(), *scan.begin());
     }
-    else if (group.size() == 1)
-    {
-        AGraphNode::addOwningLink(*group.begin(), *scan.begin());
-    }
+
+    data_dispatcher_.updateInformation(new GuiDataTreeActualizeNodes(scan));
 }
 
 void ScantraInterface::editIntersectionPlane()

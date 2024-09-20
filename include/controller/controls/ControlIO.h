@@ -238,12 +238,14 @@ namespace control::io
         std::filesystem::path m_sqliteDbPath;
     };
 
-    class StartScantraInterprocess : public AControl
+    class SwitchScantraConnexion : public AControl
     {
     public:
-        StartScantraInterprocess();
+        SwitchScantraConnexion(bool start);
         void doFunction(Controller& controller) override;
         ControlType getType() const override;
+    private:
+        bool start_;
     };
 
 

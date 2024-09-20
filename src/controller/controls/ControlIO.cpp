@@ -751,17 +751,21 @@ namespace control::io
 	** StartScantraInterprocess
 	*/
 
-	StartScantraInterprocess::StartScantraInterprocess()
+	SwitchScantraConnexion::SwitchScantraConnexion(bool start)
+		: start_(start)
 	{}
 
-	void StartScantraInterprocess::doFunction(Controller& controller)
+	void SwitchScantraConnexion::doFunction(Controller& controller)
 	{
-		controller.startScantraInterface();
+		if (start_)
+			controller.startScantraInterface();
+		else
+			controller.stopScantraInterface();
 	}
 
-	ControlType StartScantraInterprocess::getType() const
+	ControlType SwitchScantraConnexion::getType() const
 	{
-		return ControlType::startScantraInterprocess;
+		return ControlType::switchScantraConnexion;
 	}
 
 	/*
