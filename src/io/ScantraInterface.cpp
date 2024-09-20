@@ -2,6 +2,7 @@
 #include "models/3d/Graph/OpenScanToolsGraphManager.h"
 #include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
 #include "models/3d/graph/ClusterNode.h"
+#include "models/3d/Graph/BoxNode.h"
 #include "gui/DataDispatcher.h"
 #include "gui/GuiData/GuiDataTree.h"
 #include "utils/Logger.h"
@@ -294,6 +295,26 @@ void ScantraInterface::editIntersectionPlane()
     log << "q = (" << q0 << ", " << qx << ", " << qy << ", " << qz << ")\n";
     log << "t = (" << tx << ", " << ty << ", " << tz << ")\n";
     log << Logger::endl;
+
+    std::function<bool(const SafePtr<AGraphNode>&)> filter_box =
+        [](const SafePtr<AGraphNode>& node) {
+        ReadPtr<AGraphNode> rPtr = node.cget();
+        if (!rPtr)
+            return false;
+        return (rPtr->getType() == ElementType::Box) &&
+            (rPtr->getName().compare(L"Scantra_box") == 0);
+        };
+
+    auto boxes = graph_.getNodesOnFilter(filter_box);
+
+    if (boxes.size() >= 1)
+    {
+        WritePtr<AGraphNode> w_box = boxes.begin()->get();
+        if (!w_box)
+            return;
+        w_box->setPosition(glm::dvec3(tx, ty, tz));
+        w_box->setRotation(glm::dquat(q0, qx, qy, qz));
+    }
 }
 
 void ScantraInterface::editStationColor()
