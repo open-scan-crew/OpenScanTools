@@ -21,7 +21,7 @@ namespace control
 		SetMarkerIcon::SetMarkerIcon(SafePtr<TagNode> tag, scs::MarkerIcon newIcon)
 			: ATEditionControl({ tag }, newIcon, "SetMarkerIcon", &TagNode::setMarkerIcon, &TagNode::getMarkerIcon)
 		{
-			m_actualizeOptions = ActualizeOptions(true);
+			m_actualize_tree_view = true;
 		}
 
 		SetMarkerIcon::~SetMarkerIcon()

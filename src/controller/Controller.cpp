@@ -65,15 +65,14 @@ Controller::~Controller()
     delete m_p;
 }
 
-
-void Controller::actualizeNodes(const ActualizeOptions& options, const std::unordered_set<SafePtr<AGraphNode>>& toActualizeDatas)
+void Controller::actualizeTreeView(const std::unordered_set<SafePtr<AGraphNode>>& toActualizeDatas)
 {
-	m_p->actualizeNodes(options, toActualizeDatas);
+	m_p->addTreeViewActualization(toActualizeDatas);
 }
 
-void Controller::actualizeNodes(const ActualizeOptions& options, SafePtr<AGraphNode> toActualizeData)
+void Controller::actualizeTreeView(SafePtr<AGraphNode> toActualizeData)
 {
-	m_p->actualizeNodes(options, std::unordered_set<SafePtr<AGraphNode>>({ toActualizeData }));
+	m_p->addTreeViewActualization(std::unordered_set<SafePtr<AGraphNode>>({ toActualizeData }));
 }
 
 void Controller::undoLastAction()

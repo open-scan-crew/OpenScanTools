@@ -132,13 +132,9 @@ bool Controller_p::stopAutosaveThread()
     return true;
 }
 
-void Controller_p::actualizeNodes(const ActualizeOptions& options, const std::unordered_set<SafePtr<AGraphNode>>& toActualizeDatas)
+void Controller_p::addTreeViewActualization(const std::unordered_set<SafePtr<AGraphNode>>& toActualizeDatas)
 {
-    if (toActualizeDatas.empty())
-        return;
-    if (m_waitingActualizeNodes.find(options) == m_waitingActualizeNodes.end())
-        m_waitingActualizeNodes[options] = std::unordered_set<SafePtr<AGraphNode>>();
-    m_waitingActualizeNodes.at(options).insert(toActualizeDatas.begin(), toActualizeDatas.end());
+    pending_tree_actualization_.insert(toActualizeDatas.begin(), toActualizeDatas.end());
 }
 
 void Controller_p::update()
@@ -178,21 +174,13 @@ bool Controller_p::updateControls()
 
 void Controller_p::applyWaitingActualize()
 {
-    for (std::pair<const ActualizeOptions&, const std::unordered_set<SafePtr<AGraphNode>>&> actualizePair : m_waitingActualizeNodes)
-    {
-        const ActualizeOptions& options = actualizePair.first;
-        const std::unordered_set<SafePtr<AGraphNode>>& nodes = actualizePair.second;
-
-        // Actualize Tree
-        if (options.m_treeActualize)
-            dataDispatcher.updateInformation(new GuiDataTreeActualizeNodes(nodes));
-    }
-
     // Actualize Properties
-    if (!m_waitingActualizeNodes.empty())
+    if (!pending_tree_actualization_.empty())
+    {
+        dataDispatcher.updateInformation(new  GuiDataTreeActualizeNodes(pending_tree_actualization_));
         dataDispatcher.updateInformation(new GuiDataObjectSelected());
-
-    m_waitingActualizeNodes.clear();
+        pending_tree_actualization_.clear();
+    }
 }
 
 void Controller_p::logEndStats()

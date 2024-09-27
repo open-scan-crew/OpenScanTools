@@ -10,7 +10,6 @@
 #include "controller/ControllerContext.h"
 #include "controller/functionSystem/FunctionManager.h"
 #include "controller/FilterSystem.h"
-#include "controller/ActualizeOptions.h"
 #include "models/3d/Graph/OpenScanToolsGraphManager.h"
 #include "utils/ClockLock.hpp"
 #include "io/ScantraInterface.h"
@@ -40,7 +39,7 @@ public:
     bool startAutosaveThread(const uint64_t& timing, Controller& controller);
     bool stopAutosaveThread();
 
-    void actualizeNodes(const ActualizeOptions& options, const std::unordered_set<SafePtr<AGraphNode>>& toActualizeDatas);
+    void addTreeViewActualization(const std::unordered_set<SafePtr<AGraphNode>>& toActualizeDatas);
 
 private:
     /*!
@@ -71,7 +70,8 @@ public:
     bool meta_control_creation_;
     std::list<AControl*> meta_undo_;
 
-    std::unordered_map<ActualizeOptions, std::unordered_set<SafePtr<AGraphNode>>> m_waitingActualizeNodes;
+    // Waiting nodes to send to actualize the tree view
+    std::unordered_set<SafePtr<AGraphNode>> pending_tree_actualization_;
 
     // Dedecated module classes
     IDataDispatcher& dataDispatcher;

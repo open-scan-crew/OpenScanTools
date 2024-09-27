@@ -311,5 +311,5 @@ void ContextLinkOSTObjects::finish(Controller& controller)
 	for (const SafePtr<AGraphNode>& id : m_currentMissing)
 		linkedDataNodes.erase(id);
 
-	controller.actualizeNodes(true, linkedDataNodes);
+	controller.actualizeTreeView(linkedDataNodes);
 }

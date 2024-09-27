@@ -708,7 +708,7 @@ namespace control::io
 				}
 
 				controller.getOpenScanToolsGraphManager().addNodesToGraph(toAddNodes);
-				controller.actualizeNodes(ActualizeOptions(true), toActualizeNodes);
+				controller.actualizeTreeView(toActualizeNodes);
 			}
 
 
@@ -737,7 +737,6 @@ namespace control::io
 			controller.updateInfo(new GuiDataWarning(TEXT_SCANTRA_NOT_FOUND_SCANS));
 		}
 
-		controller.actualizeNodes(ActualizeOptions(), toActualizeNodes);
 		controller.getContext().setIsCurrentProjectSaved(false);
 
 	}

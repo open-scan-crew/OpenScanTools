@@ -245,7 +245,7 @@ namespace control::viewpoint
             }
         }
 
-            controller.actualizeNodes(ActualizeOptions(true), editedNodes);
+            controller.actualizeTreeView(editedNodes);
 
         CONTROLLOG << "control::viewpoint::UpdateViewPoint undo " << LOGENDL;
     }

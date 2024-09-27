@@ -46,7 +46,6 @@ namespace control
 			}
 
 			m_canUndo = true;
-			controller.actualizeNodes(ActualizeOptions(false), m_toEditData);
 
 			CONTROLLOG << "control::cylinderEdition::SetRadius do " << LOGENDL;
 		}
@@ -72,8 +71,6 @@ namespace control
 				wCyl->updateScale();
 				undoTimeModified(*&wCyl);
 			}
-
-			controller.actualizeNodes(ActualizeOptions(false), m_toEditData);
 
 			CONTROLLOG << "control::cylinderEdition::SetRadius undo " << LOGENDL;
 		}
@@ -114,8 +111,6 @@ namespace control
 
 			m_canUndo = true;
 
-			controller.actualizeNodes(ActualizeOptions(false), m_toEditData);
-
 			CONTROLLOG << "control::cylinderEdition::SetRadius do " << LOGENDL;
 		}
 
@@ -139,8 +134,6 @@ namespace control
 				wCyl->updateScale();
 				undoTimeModified(*&wCyl);
 			}
-
-			controller.actualizeNodes(ActualizeOptions(false), m_toEditData);
 
 			CONTROLLOG << "control::cylinderEdition::SetRadius undo " << LOGENDL;
 		}
@@ -190,8 +183,6 @@ namespace control
 
 			m_canUndo = true;
 
-			controller.actualizeNodes(ActualizeOptions(false), m_toEditData);
-
 			CONTROLLOG << "control::cylinderEdition::CheckStandard do " << LOGENDL;
 		}
 
@@ -216,8 +207,6 @@ namespace control
 				wCyl->updateScale();
 				undoTimeModified(*&wCyl);
 			}
-
-			controller.actualizeNodes(ActualizeOptions(false), m_toEditData);
 
 			CONTROLLOG << "control::cylinderEdition::CheckStandard undo " << LOGENDL;
 		}

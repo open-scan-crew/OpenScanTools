@@ -98,7 +98,7 @@ namespace control::tree
 			}
 		}
 
-		controller.actualizeNodes(ActualizeOptions(true), toActualizeItems);
+		controller.actualizeTreeView(toActualizeItems);
 	}
 
 	bool DropElements::canUndo() const
@@ -128,7 +128,7 @@ namespace control::tree
 			}
 		}
 
-		controller.actualizeNodes(ActualizeOptions(true), toActualizeItems);
+		controller.actualizeTreeView(toActualizeItems);
 	}
 
 	ControlType DropElements::getType() const
@@ -188,7 +188,7 @@ namespace control::tree
 				}
 			}
 
-			controller.actualizeNodes(ActualizeOptions(true), parent);
+			controller.actualizeTreeView(parent);
 		}
 	}
 
@@ -220,7 +220,7 @@ namespace control::tree
 				}
 			}
 
-			controller.actualizeNodes(ActualizeOptions(true), parent);
+			controller.actualizeTreeView(parent);
 		}
 	}
 

@@ -2,7 +2,6 @@
 #define A_EDITION_CONTROL_H
 
 #include "IControl.h"
-#include "controller/ActualizeOptions.h"
 #include "models/OpenScanToolsModelEssentials.h"
 #include <ctime>
 #include <unordered_set>
@@ -67,7 +66,7 @@ protected:
 	std::unordered_map<SafePtr<ObjectClass>, AttrClass> m_oldValues;
 
 	std::string m_controlName;
-	ActualizeOptions m_actualizeOptions;
+	bool m_actualize_tree_view;
 
 	std::function<void(ObjectClass&, const AttrClass&)> m_setterAttr;
 	std::function<AttrClass(const ObjectClass&)> m_getterAttr;

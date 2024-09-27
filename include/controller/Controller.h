@@ -5,7 +5,6 @@
 #include "utils/Color32.hpp"
 #include "models/Types.hpp"
 #include "models/LicenceTypes.h"
-#include "controller/ActualizeOptions.h"
 
 #include <unordered_set>
 
@@ -45,8 +44,8 @@ public:
      * de l'UI (si _updateGui_ est vraie) et du SceneGraph suite à la modification
      * d'un objet de xg::Guid _id_
 	 */
-    void actualizeNodes(const ActualizeOptions& options, const std::unordered_set<SafePtr<AGraphNode>>& toActualizeDatas);
-	void actualizeNodes(const ActualizeOptions& options, SafePtr<AGraphNode> toActualizeData);
+    void actualizeTreeView(const std::unordered_set<SafePtr<AGraphNode>>& toActualizeDatas);
+	void actualizeTreeView(SafePtr<AGraphNode> toActualizeData);
 
 	void undoLastAction(); //historic class
 	void redoLastAction(); //historic class
