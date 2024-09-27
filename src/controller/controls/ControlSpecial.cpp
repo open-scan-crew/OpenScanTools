@@ -133,6 +133,8 @@ namespace control::special
 			toActualize.insert(pElem);
 		}
 
+		m_elemsDeleted.clear();
+
 		SaveLoadSystem::LoadFileObjects(controller, fileObjectsToReload, "", false);
 
         controller.changeSelection({});
