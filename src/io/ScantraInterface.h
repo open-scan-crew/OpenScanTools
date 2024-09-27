@@ -2,7 +2,7 @@
 #define SCANTRA_INTERFACE_H
 
 
-#include "../../Scantra/TestScantraInterprocess/Frank_2024_09_03/ScantraInterprocessMemory.h"
+#include "../../Scantra/TestScantraInterprocess/Test_Frank/ScantraInterprocessMemory.h"
 
 #include <boost/interprocess/windows_shared_memory.hpp>
 #include <boost/interprocess/mapped_region.hpp>

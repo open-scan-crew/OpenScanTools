@@ -184,7 +184,6 @@ namespace control
 			{
 				controller.updateInfo(new GuiDataWarning(QString(TEXT_PROJECT_ERROR_LOADING).arg(errorMsg.c_str())));
 				controller.updateInfo(new GuiDataProjectLoaded(false, L"Error: unable to load project!"));
-				controller.updateInfo(new GuiDataUndoRedoAble(controller.isUndoPossible(), controller.isRedoPossible()));
 				return;
 			}
 
@@ -205,10 +204,7 @@ namespace control
 			controller.updateInfo(new GuiDataSendTemplateList(controller.getContext().getTemplates()));
 
 			controller.updateInfo(new GuiDataCameraInfo(controller.getOpenScanToolsGraphManager().getCameraNode()));
-			//controller.updateInfo(new GuiDataProjectTree(project->getTrees(), controller.getContext().getObjectsForGui()));
 
-			controller.updateInfo(new GuiDataUndoRedoAble(controller.isUndoPossible(), controller.isRedoPossible()));
-			
 			controller.updateInfo(new GuiDataGlobalColorPickerValue(controller.getContext().getActiveColor()));
 
 			controller.updateInfo(new GuiDataSendListsList(controller.getContext().getUserLists()));
@@ -399,7 +395,7 @@ namespace control
 			controller.getContext().setIsCurrentProjectSaved(true);
 			// Reset the project in the Controller
 
-			controller.cleanHistory();
+			controller.resetHistoric();
 
 			context.cleanProjectInfo();
 

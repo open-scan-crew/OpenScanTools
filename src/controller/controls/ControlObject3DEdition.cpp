@@ -185,8 +185,6 @@ namespace control
             object->addLocalTranslation(translation);
             object->addScale(deltaScale);
             doTimeModified(*&object);
-
-            controller.actualizeNodes(ActualizeOptions(false), m_toEditData);
         }
 
         bool Extrude::canUndo() const
@@ -221,7 +219,6 @@ namespace control
             std::unordered_set<SafePtr<AGraphNode>> toActualize;
             for (const SafePtr<AObjectNode>& target : m_targets)
                 toActualize.insert(target);
-            controller.actualizeNodes(ActualizeOptions(false), toActualize);
         }
 
         bool ManipulateObjects::canUndo() const
@@ -402,8 +399,6 @@ namespace control
                 object->addLocalTranslation(translation);
                 object->addScale(deltaScale);
                 doTimeModified(*&object);
-
-                controller.actualizeNodes(ActualizeOptions(false), m_toEditData);
             }
         }
 
@@ -454,8 +449,6 @@ namespace control
             object->addLocalTranslation(-translation);
             object->addScale(-deltaScale);
             undoTimeModified(*&object);
-
-            controller.actualizeNodes(ActualizeOptions(false), m_toEditData);
 
             m_undoDone = true;
         }

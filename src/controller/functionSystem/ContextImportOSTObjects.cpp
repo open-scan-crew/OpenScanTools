@@ -113,8 +113,7 @@ ContextState ContextImportOSTObjects::launch(Controller& controller)
 	else
 		addObjectsToProject(controller, m_importData);
 
-	controller.cleanHistory();
-	controller.updateInfo(new GuiDataUndoRedoAble(controller.isUndoPossible(), controller.isRedoPossible()));
+	controller.resetHistoric();
 
 	return m_state = ContextState::done;
 }
@@ -312,5 +311,5 @@ void ContextLinkOSTObjects::finish(Controller& controller)
 	for (const SafePtr<AGraphNode>& id : m_currentMissing)
 		linkedDataNodes.erase(id);
 
-	controller.actualizeNodes(true, linkedDataNodes);
+	controller.actualizeTreeView(linkedDataNodes);
 }

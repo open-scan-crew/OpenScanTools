@@ -98,7 +98,7 @@ namespace control::special
 		}
 
 		controller.changeSelection({});
-		controller.actualizeNodes(ActualizeOptions(true), m_elemsDeleted);
+		controller.actualizeTreeView(m_elemsDeleted);
 
         CONTROLLOG << "control::special::DeleteElement delete " << m_elemsDeleted.size() << " elements" << LOGENDL;
     }
@@ -133,10 +133,12 @@ namespace control::special
 			toActualize.insert(pElem);
 		}
 
+		m_elemsDeleted.clear();
+
 		SaveLoadSystem::LoadFileObjects(controller, fileObjectsToReload, "", false);
 
         controller.changeSelection({});
-		controller.actualizeNodes(ActualizeOptions(true), m_elemsDeleted);
+		controller.actualizeTreeView(m_elemsDeleted);
 
 
 		CONTROLLOG << "control::special::DeleteElement undo" << LOGENDL;
@@ -215,11 +217,10 @@ namespace control::special
 		}
 
 		controller.changeSelection({});
-		controller.actualizeNodes(ActualizeOptions(true), m_objectsToDelete);
+		controller.actualizeTreeView(m_objectsToDelete);
 
 		controller.getControlListener()->notifyUIControl(new control::project::StartSave());
-		controller.cleanHistory();
-		controller.updateInfo(new GuiDataUndoRedoAble(controller.isUndoPossible(), controller.isRedoPossible()));
+		controller.resetHistoric();
 	}
 
 	bool DeleteTotalData::canUndo() const
@@ -524,7 +525,7 @@ namespace control::special
 			}
 		}
 
-		controller.actualizeNodes(ActualizeOptions(true), m_toUndoDatas);
+		controller.actualizeTreeView(m_toUndoDatas);
 
 		CONTROLLOG << "control::special::ShowHideDatas do" << LOGENDL;
 	}
@@ -542,7 +543,7 @@ namespace control::special
 			writeData->setVisible(!m_state);
 		}
 
-		controller.actualizeNodes(ActualizeOptions(true), m_toUndoDatas);
+		controller.actualizeTreeView(m_toUndoDatas);
 
 		m_toUndoDatas.clear();
 
@@ -560,7 +561,7 @@ namespace control::special
 			}
 		}
 
-		controller.actualizeNodes(ActualizeOptions(true), m_datasToShowHide);
+		controller.actualizeTreeView(m_datasToShowHide);
 
 		CONTROLLOG << "control::special::ShowHideDatas redo" << LOGENDL;
 	}

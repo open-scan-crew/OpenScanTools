@@ -195,7 +195,7 @@ namespace control
 			controller.getOpenScanToolsGraphManager().addNodesToGraph(m_nodesToAdd);
 			if(m_select)
 				controller.changeSelection(m_nodesToAdd);
-			controller.actualizeNodes(ActualizeOptions(true), m_nodesToAdd);
+			controller.actualizeTreeView(m_nodesToAdd);
 		}
 
 		bool AddNodes::canUndo() const
@@ -217,7 +217,7 @@ namespace control
 			if (m_select)
 				controller.changeSelection(m_nodesToAdd);
 
-			controller.actualizeNodes(ActualizeOptions(true), m_nodesToAdd);
+			controller.actualizeTreeView(m_nodesToAdd);
 		}
 
 		void AddNodes::redoFunction(Controller& controller)
@@ -234,7 +234,7 @@ namespace control
 			if (m_select)
 				controller.changeSelection(m_nodesToAdd);
 
-			controller.actualizeNodes(ActualizeOptions(true), m_nodesToAdd);
+			controller.actualizeTreeView(m_nodesToAdd);
 		}
 
 		ControlType AddNodes::getType() const

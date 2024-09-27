@@ -53,8 +53,6 @@ namespace control::function::measure
 			controller.getFunctionManager().feedMessageToSpecificContext(controller, &message, m_contextId);
 		}
 
-		controller.actualizeNodes(ActualizeOptions(), m_polyline);
-
 		CONTROLLOG << "ccontrol::function::measure::AddMeasureToPolylineMeasure do elemid " << writePoly->getId() << LOGENDL;
 	}
 

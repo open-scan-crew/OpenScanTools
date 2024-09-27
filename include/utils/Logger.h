@@ -23,7 +23,6 @@ enum LoggerMode
     ControlLog,
     DataLog,
     ControllerLog,
-    HistoricLog,
     GuiLog,
     LicenseLog,
     GTLog,

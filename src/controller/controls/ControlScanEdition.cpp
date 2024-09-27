@@ -67,7 +67,7 @@ namespace control::scanEdition
 
         controller.getContext().setIsCurrentProjectSaved(false);
 
-        controller.actualizeNodes(ActualizeOptions(true), scanToEdit);
+        controller.actualizeTreeView(scanToEdit);
     }
 
     bool RandomScansColors::canUndo() const
