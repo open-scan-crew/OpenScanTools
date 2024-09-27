@@ -119,9 +119,6 @@ int main(int argc, char** argv)
     }
 #endif
 
-    // Launch the controller in a separate thread with a fixed framerate
-    std::thread controllerThread(&Controller::run, &controller, 60);
-
     if (argc >= 2)
     {
         std::filesystem::path path(argv[1]);
@@ -148,8 +145,7 @@ int main(int argc, char** argv)
     dataDispatcher.setActive(false);
 
     // Close the application
-    controller.stop();
-    controllerThread.join();
+    //controller.stop();
 
     // Close Vulkan application
     splash.showStatusMessage("Unloading GPU Resources");

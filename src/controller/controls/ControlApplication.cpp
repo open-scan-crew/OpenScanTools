@@ -74,8 +74,6 @@ namespace control
 
 			CONTROLLOG << "control::application::Undo" << LOGENDL;
 			controller.undoLastAction();
-
-
 		}
 
 		bool Undo::canUndo() const

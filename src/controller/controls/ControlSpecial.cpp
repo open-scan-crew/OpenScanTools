@@ -218,8 +218,7 @@ namespace control::special
 		controller.actualizeNodes(ActualizeOptions(true), m_objectsToDelete);
 
 		controller.getControlListener()->notifyUIControl(new control::project::StartSave());
-		controller.cleanHistory();
-		controller.updateInfo(new GuiDataUndoRedoAble(controller.isUndoPossible(), controller.isRedoPossible()));
+		controller.resetHistoric();
 	}
 
 	bool DeleteTotalData::canUndo() const

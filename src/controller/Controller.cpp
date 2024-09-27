@@ -48,9 +48,7 @@
 #define CONTROLLERLOG Logger::log(LoggerMode::ControllerLog)
 
 Controller::Controller(IDataDispatcher& dataDispatcher, OpenScanToolsGraphManager& graphManager)
-	: m_p(new Controller_p(dataDispatcher, graphManager))
-	, m_metaContralCreation(false)
-	, m_waitingActualizeNodes()
+	: m_p(new Controller_p(dataDispatcher, graphManager, *this))
 {
 	m_p->dataDispatcher.InitializeControlListener(&m_p->controlListener);
 
@@ -64,154 +62,33 @@ Controller::Controller(IDataDispatcher& dataDispatcher, OpenScanToolsGraphManage
 Controller::~Controller()
 {
 	Logger::log(LoggerMode::LogConfig) << "Destroying Controller..." << LOGENDL;
-	cleanHistory();
     delete m_p;
 }
 
-void Controller::run(int refreshPerSecond)
-{
-    // Guaranted to start the controller only once
-    bool valueFalse = false;
-    if (m_p->threadWorking.compare_exchange_strong(valueFalse, true) == false)
-        return;
-
-    m_p->clockLock.resetClock(refreshPerSecond);
-    m_p->continueRun.store(true);
-
-    while (m_p->continueRun.load() == true)
-    {
-		update();
-
-        m_p->clockLock.frame();
-    }
-
-    Logger::log(LoggerMode::LogConfig) << "Controller Thread stop frame per second : " << refreshPerSecond << LOGENDL;
-    Logger::log(LoggerMode::LogConfig) << "Nbr frame       : " << m_p->clockLock.getNbrFrame() << LOGENDL;
-    Logger::log(LoggerMode::LogConfig) << "tt Time elapsed : " << std::setprecision(6) << m_p->clockLock.getTotalTimeSeconds() << LOGENDL;
-    Logger::log(LoggerMode::LogConfig) << "Worked seconds  : " << std::setprecision(6) << m_p->clockLock.getSecondWorked() << LOGENDL;
-    Logger::log(LoggerMode::LogConfig) << "Sleeped seconds : " << std::setprecision(6) << m_p->clockLock.getSecondsSleeped() << LOGENDL;
-    Logger::log(LoggerMode::LogConfig) << "Average time(%) worked per frame : " << std::setprecision(6) << m_p->clockLock.getSecondWorked() / m_p->clockLock.getTotalTimeSeconds() * 100.0 << "%" << LOGENDL;
-
-    m_p->threadWorking.store(false);
-
-    return;
-}
-
-void Controller::stop()
-{
-    m_p->continueRun.store(false);
-}
-
-void Controller::update()
-{
-	updateControls();
-	m_p->funcManager.updateContexts(*this);
-}
-
-bool Controller::updateControls()
-{
-	std::list<AControl*> events = m_p->controlListener.popBlockControls();
-
-	if (events.size() > 0)
-	{
-		for (AControl* actualControl : events)
-		{
-			actualControl->doFunction(*this);
-			if (actualControl->canUndo() == false)
-				delete (actualControl);
-			else
-			{
-				m_p->context.setIsCurrentProjectSaved(false);
-
-				if (m_metaContralCreation)
-					m_metaToUndo.push_front(actualControl);
-				else
-					m_p->toUndo.push(actualControl);
-				cleanRedoStack();
-				updateInfo(new GuiDataUndoRedoAble(!m_p->toUndo.empty(), !m_p->toRedo.empty()));
-			}
-		}
-		logHistoric();
-		applyWaitingActualize();
-		return (true);
-	}
-	return (false);
-}
-
-
-void Controller::logHistoric()
-{
-	if (!m_p->toUndo.empty())
-		Logger::log(LoggerMode::HistoricLog) << "Undo stack size: " << m_p->toUndo.size() << "\tNext undo " << std::to_string((uint64_t)m_p->toUndo.top()->getType()) << LOGENDL;
-	if (!m_p->toRedo.empty())
-		Logger::log(LoggerMode::HistoricLog) << "Redo stack size: " << m_p->toRedo.size() << "\tNext redo " << std::to_string((uint64_t)m_p->toRedo.top()->getType()) << LOGENDL;
-}
 
 void Controller::actualizeNodes(const ActualizeOptions& options, const std::unordered_set<SafePtr<AGraphNode>>& toActualizeDatas)
 {
-	if (toActualizeDatas.empty())
-		return;
-	if (m_waitingActualizeNodes.find(options) == m_waitingActualizeNodes.end())
-		m_waitingActualizeNodes[options] = std::unordered_set<SafePtr<AGraphNode>>();
-	m_waitingActualizeNodes.at(options).insert(toActualizeDatas.begin(), toActualizeDatas.end());
+	m_p->actualizeNodes(options, toActualizeDatas);
 }
 
 void Controller::actualizeNodes(const ActualizeOptions& options, SafePtr<AGraphNode> toActualizeData)
 {
-	actualizeNodes(options, std::unordered_set<SafePtr<AGraphNode>>({ toActualizeData }));
-}
-
-void Controller::applyWaitingActualize()
-{
-	for (std::pair<const ActualizeOptions&, const std::unordered_set<SafePtr<AGraphNode>>&> actualizePair : m_waitingActualizeNodes)
-	{
-		const ActualizeOptions& options = actualizePair.first;
-		const std::unordered_set<SafePtr<AGraphNode>>& nodes = actualizePair.second;
-
-		// Actualize Tree
-		if(options.m_treeActualize)
-			updateInfo(new GuiDataTreeActualizeNodes(nodes));
-	}
-
-	// Actualize Properties
-	if(!m_waitingActualizeNodes.empty())
-		updateInfo(new GuiDataObjectSelected());
-
-	m_waitingActualizeNodes.clear();
+	m_p->actualizeNodes(options, std::unordered_set<SafePtr<AGraphNode>>({ toActualizeData }));
 }
 
 void Controller::undoLastAction()
 {
-	if (!m_metaContralCreation)
-	{
-		if (m_p->toUndo.empty())
-		{
-			updateInfo(new GuiDataUndoRedoAble(false, !m_p->toRedo.empty()));
-			return;
-		}
-		AControl* toUndoControl = m_p->toUndo.top();
-		m_p->toUndo.pop();
-		toUndoControl->undoFunction(*this);
-		m_p->toRedo.push(toUndoControl);
-		updateInfo(new GuiDataUndoRedoAble(!m_p->toUndo.empty(), true));
-	}
+	m_p->undoLastControl();
 }
 
 void Controller::redoLastAction()
 {
-	if (!m_metaContralCreation)
-	{
-		if (m_p->toRedo.empty())
-		{
-			updateInfo(new GuiDataUndoRedoAble(!m_p->toUndo.empty(), false));
-			return;
-		}
-		AControl* toRedoControl = m_p->toRedo.top();
-		m_p->toRedo.pop();
-		toRedoControl->redoFunction(*this);
-		m_p->toUndo.push(toRedoControl);
-		updateInfo(new GuiDataUndoRedoAble(true, !m_p->toRedo.empty()));
-	}
+	m_p->redoLastControl();
+}
+
+void Controller::resetHistoric()
+{
+	m_p->resetHistoric();
 }
 
 void Controller::changeSelection(const std::unordered_set<SafePtr<AGraphNode>>& newSelection, bool updateTree)
@@ -240,63 +117,30 @@ FunctionManager & Controller::getFunctionManager()
 	return (m_p->funcManager);
 }
 
-void Controller::cleanHistory()
-{
-	while (!m_p->toUndo.empty())
-	{
-		delete(m_p->toUndo.top());
-		m_p->toUndo.pop();
-	}
-	cleanRedoStack();
-}
-
-void Controller::cleanRedoStack()
-{
-	while (!m_p->toRedo.empty())
-	{
-		delete(m_p->toRedo.top());
-		m_p->toRedo.pop();
-	}
-}
-
-bool Controller::isUndoPossible()
-{
-	if (m_p->toUndo.empty() || m_metaContralCreation)
-		return (false);
-	return (true);
-}
-
-bool Controller::isRedoPossible()
-{
-	if (m_p->toRedo.empty() || m_metaContralCreation)
-		return (false);
-	return (true);
-}
-
 void Controller::startMetaControl()
 {
-	m_metaContralCreation = true;
+	m_p->meta_control_creation_ = true;
 }
 
 void Controller::stopMetaControl()
 {
-	if (!m_metaToUndo.empty())
+	if (!m_p->meta_undo_.empty())
 	{
-		control::meta::ControlMetaControl* meta = new control::meta::ControlMetaControl(m_metaToUndo);
-		m_metaToUndo.clear();
+		control::meta::ControlMetaControl* meta = new control::meta::ControlMetaControl(m_p->meta_undo_);
+		m_p->meta_undo_.clear();
 		if(meta->canUndo())
-			m_p->toUndo.push(meta);
-		updateInfo(new GuiDataUndoRedoAble(!m_p->toUndo.empty(), !m_p->toRedo.empty()));
+			m_p->to_undo_.push(meta);
+		updateInfo(new GuiDataUndoRedoAble(!m_p->to_undo_.empty(), !m_p->to_redo_.empty()));
 	}
-	m_metaContralCreation = false;
+	m_p->meta_control_creation_ = false;
 }
 
-void  Controller::abortMetaControl()
+void Controller::abortMetaControl()
 {
-	for (AControl* ctrl : m_metaToUndo)
+	for (AControl* ctrl : m_p->meta_undo_)
 		delete ctrl;
-	m_metaToUndo.clear();
-	m_metaContralCreation = false;
+	m_p->meta_undo_.clear();
+	m_p->meta_control_creation_ = false;
 }
 
 void Controller::saveCurrentProject(const SafePtr<CameraNode>& camera)

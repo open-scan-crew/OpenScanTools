@@ -67,7 +67,6 @@ static const std::vector<std::pair<LoggerMode, bool>> defaultLog = {
 	{LoggerMode::ControlLog, true},
 	{LoggerMode::DataLog, true},
 	{LoggerMode::ControllerLog, true},
-	{LoggerMode::HistoricLog, false},
 	{LoggerMode::GuiLog, true},
 	{LoggerMode::LicenseLog, true},
 	{LoggerMode::GTLog, true},

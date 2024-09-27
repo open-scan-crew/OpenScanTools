@@ -196,7 +196,7 @@ namespace control
 				DataListMessage message(nodes, ElementType::Tag);
 				controller.getFunctionManager().feedMessage(controller, &message);
 			}
-			controller.cleanHistory();
+			controller.resetHistoric();
 			CONTROLLOG << "control::tagTemplates::DeleteTagTemplate do" << LOGENDL;
 		}
 
