@@ -47,7 +47,7 @@
 
 #define CONTROLLERLOG Logger::log(LoggerMode::ControllerLog)
 
-Controller::Controller(IDataDispatcher& dataDispatcher, OpenScanToolsGraphManager& graphManager)
+Controller::Controller(IDataDispatcher& dataDispatcher, GraphManager& graphManager)
 	: m_p(new Controller_p(dataDispatcher, graphManager, *this))
 {
 	m_p->dataDispatcher.InitializeControlListener(&m_p->controlListener);
@@ -93,7 +93,7 @@ void Controller::resetHistoric()
 void Controller::changeSelection(const std::unordered_set<SafePtr<AGraphNode>>& newSelection, bool updateTree)
 {
     // 1. Change the selection status in the model
-    getOpenScanToolsGraphManager().replaceObjectsSelected(newSelection);
+    getGraphManager().replaceObjectsSelected(newSelection);
 	
     // 2.2 Tree Panel
 	if(updateTree)
@@ -145,7 +145,7 @@ void Controller::abortMetaControl()
 void Controller::saveCurrentProject(const SafePtr<CameraNode>& camera)
 {
 	bool saveDone;
-    if ((saveDone = !SaveLoadSystem::ExportProject(*this, getOpenScanToolsGraphManager().getProjectNodes(), getContext().cgetProjectInternalInfo(), getContext().getProjectInfo(), camera).empty()))
+    if ((saveDone = !SaveLoadSystem::ExportProject(*this, getGraphManager().getProjectNodes(), getContext().cgetProjectInternalInfo(), getContext().getProjectInfo(), camera).empty()))
     {
 		SaveLoadSystem::ErrorCode code;
 		SaveLoadSystem::ExportTemplates(m_p->context.getTemplates(), code, m_p->context.cgetProjectInternalInfo().getTemplatesFolderPath() / File_Templates);
@@ -164,7 +164,7 @@ void Controller::saveCurrentProject(const SafePtr<CameraNode>& camera)
 {
 	if (m_p->context.getIsCurrentProjectSaved())
 		return;
-	if (SaveLoadSystem::ExportProject(*this, getOpenScanToolsGraphManager().getProjectNodes(), getContext().cgetProjectInternalInfo(), getContext().getProjectInfo(), camera).empty())
+	if (SaveLoadSystem::ExportProject(*this, getGraphManager().getProjectNodes(), getContext().cgetProjectInternalInfo(), getContext().getProjectInfo(), camera).empty())
 		CONTROLLOG << "Controller Autosave [" << m_p->context.cgetProjectInfo().m_projectName << "] error : project not save" << LOGENDL;
 	else
 	{
@@ -194,12 +194,12 @@ FilterSystem & Controller::getFilterSystem()
 	return (m_p->filterSystem);
 }
 
-OpenScanToolsGraphManager& Controller::getOpenScanToolsGraphManager()
+GraphManager& Controller::getGraphManager()
 {
 	return (m_p->graphManager);
 }
 
-const OpenScanToolsGraphManager& Controller::cgetOpenScanToolsGraphManager() const
+const GraphManager& Controller::cgetGraphManager() const
 {
 	return (m_p->graphManager);
 }

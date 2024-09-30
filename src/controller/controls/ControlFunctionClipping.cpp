@@ -12,7 +12,7 @@
 #include "gui/Texts.hpp"
 #include "utils/Logger.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 #include "models/3d/Graph/BoxNode.h"
 
 namespace control::function::clipping
@@ -127,7 +127,7 @@ namespace control::function::clipping
 
     void CreateGlobal::doFunction(Controller& controller)
     {
-        OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+        GraphManager& graphManager = controller.getGraphManager();
 
         controller.updateInfo(new GuiDataActivatedFunctions(ContextType::none));
         controller.getFunctionManager().abort(controller);

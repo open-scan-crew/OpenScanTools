@@ -40,7 +40,7 @@ struct s_hyperlink
 };
 
 class ControllerContext;
-class OpenScanToolsGraphManager;
+class GraphManager;
 
 class Data
 {

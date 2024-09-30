@@ -17,7 +17,7 @@
 #include "controller/controls/ControlFunction.h"
 #include "controller/controls/ControlSpecial.h"
 #include "models/3d/Graph/BoxNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 
 ContextPlaneConnexion::ContextPlaneConnexion(const ContextId& id)
 	: ARayTracingContext(id)
@@ -72,7 +72,7 @@ ContextState ContextPlaneConnexion::launch(Controller& controller)
 	controller.updateInfo(new GuiDataTmpMessage(TEXT_LUCAS_SEARCH_ONGOING, 0));
 	bool success = false;
 
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
 
 	TlScanOverseer::setWorkingScansTransfo(graphManager.getVisiblePointCloudInstances(m_panoramic, true, true));
 	ClippingAssembly clippingAssembly;

@@ -4,7 +4,7 @@
 #include "controller/controls/ControlTree.h"
 
 #include "gui/widgets/ProjectTreePanel.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 #include "models/3d/Graph/TagNode.h"
 
 #include "models/3d/NodeFunctions.h"
@@ -20,7 +20,7 @@
 
 #define TREELOG Logger::log(LoggerMode::TreeLog)
 
-TreeNodeFactory::TreeNodeFactory(ProjectTreePanel* treePanel, OpenScanToolsGraphManager& graphManager)
+TreeNodeFactory::TreeNodeFactory(ProjectTreePanel* treePanel, GraphManager& graphManager)
 	: m_treePanel(treePanel)
 	, m_graphManager(graphManager)
 {}
@@ -30,8 +30,8 @@ TreeNodeFactory::~TreeNodeFactory()
 
 TreeNode* TreeNodeFactory::constructTreeNode(const SafePtr<AGraphNode>& data, TreeNode *parent, TreeType treetype)
 {
-	std::function<std::unordered_set<SafePtr<AGraphNode>>(const OpenScanToolsGraphManager&)> getChildFonction =
-		[data](const OpenScanToolsGraphManager& manager)
+	std::function<std::unordered_set<SafePtr<AGraphNode>>(const GraphManager&)> getChildFonction =
+		[data](const GraphManager& manager)
 	{
 		std::unordered_set<SafePtr<AGraphNode>> children = AGraphNode::getOwningChildren(data);
 		return children;
@@ -88,7 +88,7 @@ TreeNode* TreeNodeFactory::constructDisciplineNodes(const std::unordered_set<Ele
 	for (auto it = disciplines.begin(); it != disciplines.end(); it++)
 	{
 		std::wstring str = std::wstring(*it);
-		std::function<std::unordered_set<SafePtr<AGraphNode>>(const OpenScanToolsGraphManager&, const SafePtr<AGraphNode>&)> c_disciplineClip = [types, str](const SafePtr<AGraphNode>& data)
+		std::function<std::unordered_set<SafePtr<AGraphNode>>(const GraphManager&, const SafePtr<AGraphNode>&)> c_disciplineClip = [types, str](const SafePtr<AGraphNode>& data)
 		{
 			ReadPtr<AGraphNode> rData = data.cget();
 			if (!rData)
@@ -397,8 +397,8 @@ std::vector<TreeNode*> TreeNodeFactory::constructSubList(const std::unordered_ma
 	for (const std::pair<ElementType, QString>& iterator : values)
 	{
 		ElementType type(iterator.first);
-		std::function<std::unordered_set<SafePtr<AGraphNode>>(const OpenScanToolsGraphManager&)> getChildFonction = 
-		[type](const OpenScanToolsGraphManager& manager)
+		std::function<std::unordered_set<SafePtr<AGraphNode>>(const GraphManager&)> getChildFonction = 
+		[type](const GraphManager& manager)
 		{
 			return manager.getNodesByTypes({ type });
 		};
@@ -446,8 +446,8 @@ TreeNode* TreeNodeFactory::constructColorNodes(const std::unordered_set<ElementT
 				return (true);
 			return (false);
 		};
-		std::function<std::unordered_set<SafePtr<AGraphNode>>(const OpenScanToolsGraphManager&)> getChildFonction =
-			[childCondition](const OpenScanToolsGraphManager& manager)
+		std::function<std::unordered_set<SafePtr<AGraphNode>>(const GraphManager&)> getChildFonction =
+			[childCondition](const GraphManager& manager)
 		{
 			return manager.getNodesOnFilter<AGraphNode>(childCondition);
 		};
@@ -511,8 +511,8 @@ TreeNode* TreeNodeFactory::constructStatusNodes(const std::unordered_set<Element
 			return true;
 		};
 
-		std::function<std::unordered_set<SafePtr<AGraphNode>>(const OpenScanToolsGraphManager&)> getChildFonction =
-			[childCondition](const OpenScanToolsGraphManager& manager)
+		std::function<std::unordered_set<SafePtr<AGraphNode>>(const GraphManager&)> getChildFonction =
+			[childCondition](const GraphManager& manager)
 		{
 			return manager.getNodesOnFilter(childCondition);
 		};
@@ -579,8 +579,8 @@ TreeNode* TreeNodeFactory::constructClipMethodNodes(const std::unordered_set<Ele
 			return true;
 		};
 
-		std::function<std::unordered_set<SafePtr<AGraphNode>>(const OpenScanToolsGraphManager&)> getChildFonction =
-			[childCondition](const OpenScanToolsGraphManager& manager)
+		std::function<std::unordered_set<SafePtr<AGraphNode>>(const GraphManager&)> getChildFonction =
+			[childCondition](const GraphManager& manager)
 		{
 			return manager.getNodesOnFilter(childCondition);
 		};
@@ -615,7 +615,7 @@ TreeNode* TreeNodeFactory::constructClipMethodNodes(const std::unordered_set<Ele
 TreeNode* TreeNodeFactory::constructMasterNode(const QString& name, TreeType treeType)
 {
 	TreeNode* newItem = new TreeNode(SafePtr<AGraphNode>(),
-		[](const OpenScanToolsGraphManager& manager) { return std::unordered_set<SafePtr<AGraphNode>>(); },
+		[](const GraphManager& manager) { return std::unordered_set<SafePtr<AGraphNode>>(); },
 		[](const SafePtr<AGraphNode>& data) { return false; },
 		[](IDataDispatcher&, std::unordered_set<SafePtr<AGraphNode>>) { return; },
 		treeType);
@@ -631,7 +631,7 @@ TreeNode* TreeNodeFactory::constructMasterNode(const QString& name, TreeType tre
 TreeNode* TreeNodeFactory::constructPlaceholderNode(TreeType treeType)
 {
 	TreeNode* newItem = new TreeNode(SafePtr<AGraphNode>(),
-		[](const OpenScanToolsGraphManager& manager) { return std::unordered_set<SafePtr<AGraphNode>>(); },
+		[](const GraphManager& manager) { return std::unordered_set<SafePtr<AGraphNode>>(); },
 		[](const SafePtr<AGraphNode>& data) { return false; },
 		[](IDataDispatcher&, std::unordered_set<SafePtr<AGraphNode>>) { return; },
 		treeType);
@@ -645,7 +645,7 @@ TreeNode* TreeNodeFactory::constructPlaceholderNode(TreeType treeType)
 }
 
 TreeNode* TreeNodeFactory::constructStructNode(const QString& name,
-	std::function<std::unordered_set<SafePtr<AGraphNode>>(const OpenScanToolsGraphManager&)> getChildFonction, 
+	std::function<std::unordered_set<SafePtr<AGraphNode>>(const GraphManager&)> getChildFonction, 
 	std::function<bool(const SafePtr<AGraphNode>&)> dropFilter,
 	std::function<void(IDataDispatcher&, std::unordered_set<SafePtr<AGraphNode>> )> controlSender,
 	TreeNode *parent)

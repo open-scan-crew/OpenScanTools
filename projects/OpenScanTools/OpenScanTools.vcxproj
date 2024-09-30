@@ -1043,7 +1043,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\models\3d\Graph\PointToPlaneMeasureNode.cpp" />
     <ClCompile Include="..\..\src\models\3d\Graph\PolylineMeasureNode.cpp" />
     <ClCompile Include="..\..\src\models\3d\Graph\ScanObjectNode.cpp" />
-    <ClCompile Include="..\..\src\models\3d\Graph\OpenScanToolsGraphManager.cpp" />
+    <ClCompile Include="..\..\src\models\3d\Graph\GraphManager.cpp" />
     <ClCompile Include="..\..\src\models\3d\Graph\SimpleMeasureNode.cpp" />
     <ClCompile Include="..\..\src\models\3d\Graph\SimpleObjectNode.cpp" />
     <ClCompile Include="..\..\src\models\3d\Graph\BoxNode.cpp" />
@@ -1457,8 +1457,8 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="..\..\include\models\3d\UniformClippingData.h" />
-    <ClInclude Include="..\..\include\models\3d\Graph\OpenScanToolsGraphManager.h" />
-    <ClInclude Include="..\..\include\models\3d\Graph\OpenScanToolsGraphManager.hxx" />
+    <ClInclude Include="..\..\include\models\3d\Graph\GraphManager.h" />
+    <ClInclude Include="..\..\include\models\3d\Graph\GraphManager.hxx" />
     <ClInclude Include="..\..\include\models\3d\MarkerDrawData.h" />
     <ClInclude Include="..\..\include\models\3d\MeasureData.h" />
     <ClInclude Include="..\..\include\models\3d\PointCloudDrawData.h" />

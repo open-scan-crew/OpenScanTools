@@ -5,7 +5,7 @@
 #include "gui/texts/ContextTexts.hpp"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 #include "controller/ControlListener.h"
 #include "controller/functionSystem/FunctionManager.h"
 #include "pointCloudEngine/TlScanOverseer.h"
@@ -54,7 +54,7 @@ ContextState Context4ClicsSphere::launch(Controller& controller)
     m_state = ContextState::running;
 	controller.updateInfo(new GuiDataTmpMessage(TEXT_LUCAS_SEARCH_ONGOING, 0));
 
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
 
     ClippingAssembly clippingAssembly;
 	graphManager.getClippingAssembly(clippingAssembly, true, false);

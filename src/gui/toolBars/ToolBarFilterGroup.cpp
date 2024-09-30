@@ -9,13 +9,13 @@
 #include "utils/ProjectStringSets.hpp"
 
 #include "controller/Controller.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.h"
+#include "models/3d/Graph/GraphManager.h"
 
 ToolBarFilterGroup::ToolBarFilterGroup(IDataDispatcher& dataDispatcher, Controller& controller, QWidget* parent, float guiScale)
 	: QWidget(parent)
 	, m_dataDispatcher(dataDispatcher)
 	, m_filterSystem(controller.getFilterSystem())
-	, m_root(controller.getOpenScanToolsGraphManager().getRoot())
+	, m_root(controller.getGraphManager().getRoot())
 {
 	m_ui.setupUi(this);
 	setEnabled(false);

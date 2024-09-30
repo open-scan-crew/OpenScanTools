@@ -13,7 +13,7 @@
 #include "magic_enum/magic_enum.hpp"
 #include "pointCloudEngine/MeasureClass.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 #include "models/3d/Graph/BeamBendingMeasureNode.h"
 
 ContextBeamBending::ContextBeamBending(const ContextId& id)
@@ -85,7 +85,7 @@ ContextState ContextBeamBending::launch(Controller& controller)
 
 	FUNCLOG << "ContextBeamBending launch" << LOGENDL;
 	controller.updateInfo(new GuiDataTmpMessage(TEXT_LUCAS_SEARCH_ONGOING, 0));
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
     ClippingAssembly clippingAssembly;
 	graphManager.getClippingAssembly(clippingAssembly, true, false);
 	TlScanOverseer::setWorkingScansTransfo(graphManager.getVisiblePointCloudInstances(m_panoramic, true, true));

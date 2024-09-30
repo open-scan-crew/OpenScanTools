@@ -30,7 +30,7 @@
 #include "pointCloudEngine/RenderingEcoSystem.h"
 
 #include "vulkan/VulkanManager.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 #include "vulkan/MeshManager.h"
 #include "vulkan/Renderers/Renderer.h"
 #include "vulkan/Renderers/MeasureRenderer.h"
@@ -67,7 +67,7 @@ static const float fpi2 = (glm::pi<float>() / 2.0f);
 #define SELECTION_COLOR glm::vec3(1.0f, 1.0f, 0.8f)
 
 
-ObjectNodeVisitor::ObjectNodeVisitor(OpenScanToolsGraphManager& graph, VkExtent2D fbExtent, const float& guiScale, const CameraNode& camera)
+ObjectNodeVisitor::ObjectNodeVisitor(GraphManager& graph, VkExtent2D fbExtent, const float& guiScale, const CameraNode& camera)
     : m_graph(graph)
     , m_guiScale(guiScale)
     , m_fbExtent(fbExtent)

@@ -1,6 +1,6 @@
 #include "models/data/ViewPoint/ViewPointData.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 #include "controller/Controller.h"
 
 #include "models/3d/Graph/AClippingNode.h"
@@ -100,7 +100,7 @@ const std::unordered_map<SafePtr<AGraphNode>, Color32>& ViewPointData::getScanCl
 
 void ViewPointData::updateViewpointsObjectsValue(Controller& controller, SafePtr<ViewPointNode> viewpoint)
 {
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
 
 	std::unordered_set<SafePtr<AClippingNode>> activeClippings = graphManager.getClippingObjects(true, false);
 	std::unordered_set<SafePtr<AClippingNode>> interiors;

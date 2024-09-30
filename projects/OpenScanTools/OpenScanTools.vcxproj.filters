@@ -1843,7 +1843,7 @@
     <ClCompile Include="..\..\src\models\3d\Graph\ViewPointNode.cpp">
       <Filter>src\models\3d\Graph\Nodes</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\OpenScanToolsGraphManager.cpp">
+    <ClCompile Include="..\..\src\models\3d\Graph\GraphManager.cpp">
       <Filter>src\models\3d\Graph</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\io\exports\PTSFileWriter.cpp">
@@ -3786,7 +3786,7 @@
     <ClInclude Include="..\..\include\models\3d\Graph\ViewPointNode.h">
       <Filter>include\models\3d\Graph\Nodes</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\OpenScanToolsGraphManager.h">
+    <ClInclude Include="..\..\include\models\3d\Graph\GraphManager.h">
       <Filter>include\models\3d\Graph</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\models\data\BeamBendingMeasure\BeamBendingMeasureData.h">
@@ -3804,7 +3804,7 @@
     <ClInclude Include="..\..\include\controller\controls\AEditionControl.hxx">
       <Filter>include\controller\controls</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\OpenScanToolsGraphManager.hxx">
+    <ClInclude Include="..\..\include\models\3d\Graph\GraphManager.hxx">
       <Filter>include\models\3d\Graph</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\test\SafeDataTests.h">

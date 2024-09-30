@@ -6,7 +6,7 @@
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/PointCloudTexts.hpp"
 #include "models/3d/Graph/ScanObjectNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 #include "utils/Logger.h"
 
 
@@ -21,7 +21,7 @@ ContextPCODuplication::~ContextPCODuplication()
 ContextState ContextPCODuplication::start(Controller& controller)
 {
     m_mode = controller.getContext().CgetDuplicationSettings().type;
-    std::unordered_set<SafePtr<AGraphNode>> pcos = controller.getOpenScanToolsGraphManager().getNodesByTypes({ ElementType::PCO }, ObjectStatusFilter::SELECTED);
+    std::unordered_set<SafePtr<AGraphNode>> pcos = controller.getGraphManager().getNodesByTypes({ ElementType::PCO }, ObjectStatusFilter::SELECTED);
     if (pcos.size() == 1)
         m_pco = static_pointer_cast<ScanObjectNode>(SafePtr<AGraphNode>(*pcos.begin()));
     else
@@ -52,7 +52,7 @@ ContextState ContextPCODuplication::launch(Controller& controller)
 
     m_state = ContextState::running;
     FUNCLOG << "AContextPCODuplication launch" << LOGENDL;
-    OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+    GraphManager& graphManager = controller.getGraphManager();
 
     SafePtr<ScanObjectNode> newPco;
     glm::dvec3 scale;

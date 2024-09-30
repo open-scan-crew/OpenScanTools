@@ -1,5 +1,5 @@
-#ifndef OPENSCANTOOLS_GRAPH_MANAGER_H
-#define OPENSCANTOOLS_GRAPH_MANAGER_H
+#ifndef GRAPH_MANAGER_H
+#define GRAPH_MANAGER_H
 
 #include "models/3d/Graph/ReferentialNode.h" 
 #include "models/data/Clipping/ClippingGeometry.h"
@@ -22,18 +22,18 @@ class ScanNode;
 class ScanObjectNode;
 class TagNode;
 
-class OpenScanToolsGraphManager;
+class GraphManager;
 class IDataDispatcher;
 
 enum class IndexationMethod;
 
-typedef void (OpenScanToolsGraphManager::* OpenScanToolsGraphManagerMethod)(IGuiData*, bool);
+typedef void (GraphManager::* GraphManagerMethod)(IGuiData*, bool);
 
-class OpenScanToolsGraphManager : public IPanel
+class GraphManager : public IPanel
 {
 public:
-	OpenScanToolsGraphManager(IDataDispatcher& dataDispatcher);
-	~OpenScanToolsGraphManager();
+	GraphManager(IDataDispatcher& dataDispatcher);
+	~GraphManager();
 
     void informData(IGuiData* iGuiData);
     void refreshScene();
@@ -124,7 +124,7 @@ private:
 
 	void detachManipulator(AObjectNode* parent);
 
-	inline void registerGuiDataFunction(guiDType type, OpenScanToolsGraphManagerMethod fct);
+	inline void registerGuiDataFunction(guiDType type, GraphManagerMethod fct);
 
 private:
 	SafePtr<ReferentialNode> m_root;
@@ -137,7 +137,7 @@ private:
 	SafePtr<ClusterNode>									m_hierarchyMasterCluster;
 	IDataDispatcher&										m_dataDispatcher;
 	MeshManager*											m_meshManager;
-	std::unordered_map<guiDType, OpenScanToolsGraphManagerMethod>	m_methods;
+	std::unordered_map<guiDType, GraphManagerMethod>	m_methods;
 
     std::unordered_set<SafePtr<AObjectNode>>                m_objectsHovered;
 	std::unordered_set<uint32_t>							m_selectedIds;

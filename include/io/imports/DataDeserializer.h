@@ -46,7 +46,7 @@ namespace sma
 }
 
 class Controller;
-class OpenScanToolsGraphManager;
+class GraphManager;
 
 namespace DataDeserializer
 {

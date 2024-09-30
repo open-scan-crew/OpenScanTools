@@ -1,7 +1,7 @@
 #include "controller/controls/ControlFunctionTag.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 #include "controller/functionSystem/FunctionManager.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataTag.h"
@@ -203,7 +203,7 @@ namespace control::function::tag
     void DuplicateTag::doFunction(Controller& controller)
     {
         CONTROLLOG << "control::function::tag::DuplicateTag do " << LOGENDL;
-        OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+        GraphManager& graphManager = controller.getGraphManager();
 
         ReadPtr<TagNode> srcTag = m_srcTag.cget();
         WritePtr<TagNode> dstTag = m_dstTag.get();

@@ -2,7 +2,7 @@
 #include "controller/controls/ControlFunction.h"
 
 #include "models/3d/Graph/TagNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"

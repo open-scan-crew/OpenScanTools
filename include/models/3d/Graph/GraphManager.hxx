@@ -1,10 +1,10 @@
 #ifndef OPENSCANTOOLS_GRAPH_MANAGER_HXX
 #define OPENSCANTOOLS_GRAPH_MANAGER_HXX
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.h"
+#include "models/3d/Graph/GraphManager.h"
 
 template<class NodeClass>
-inline SafePtr<NodeClass> OpenScanToolsGraphManager::createCopyNode(const NodeClass& nodeClass)
+inline SafePtr<NodeClass> GraphManager::createCopyNode(const NodeClass& nodeClass)
 {
 	SafePtr<NodeClass> newNode = make_safe<NodeClass>(nodeClass);
 	//AGraphNode::duplicateLink(newNode, nodeClass);
@@ -12,14 +12,14 @@ inline SafePtr<NodeClass> OpenScanToolsGraphManager::createCopyNode(const NodeCl
 }
 
 template<class MeasureClass>
-inline SafePtr<MeasureClass> OpenScanToolsGraphManager::createMeasureNode()
+inline SafePtr<MeasureClass> GraphManager::createMeasureNode()
 {
 	SafePtr<MeasureClass> measureNode = make_safe<MeasureClass>();
 	return measureNode;
 }
 
 template<typename T>
-inline std::unordered_set<SafePtr<T>> OpenScanToolsGraphManager::getNodesOnFilter(
+inline std::unordered_set<SafePtr<T>> GraphManager::getNodesOnFilter(
 	std::function<bool(ReadPtr<AGraphNode>&)> graphNodeFilter,
 	std::function<bool(ReadPtr<T>&)> objectFilter) const
 {

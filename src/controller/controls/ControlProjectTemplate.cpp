@@ -15,7 +15,7 @@
 #include <filesystem>
 #include <Windows.h>
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 
 // control::projectTemplate::
 #define Yes 0x00004000

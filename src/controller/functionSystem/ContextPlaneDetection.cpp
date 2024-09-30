@@ -12,7 +12,7 @@
 #include "models/3d/Graph/BoxNode.h"
 #include "controller/controls/ControlFunctionClipping.h"
 #include "controller/controls/ControlFunction.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 
 
 #include <glm/gtx/quaternion.hpp>
@@ -88,7 +88,7 @@ ContextState ContextPlaneDetection::launch(Controller& controller)
 	controller.updateInfo(new GuiDataTmpMessage(TEXT_LUCAS_SEARCH_ONGOING, 0));
 	bool success = false;
 
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
 	ClippingAssembly clippingAssembly;
 	graphManager.getClippingAssembly(clippingAssembly, true, false);
 

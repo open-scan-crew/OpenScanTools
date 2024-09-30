@@ -3,7 +3,7 @@
 #include "controller/controls/ControlApplication.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.h"
+#include "models/3d/Graph/GraphManager.h"
 #include "controller/functionSystem/FunctionManager.h"
 #include "controller/ControlListener.h"
 #include "controller/messages/ConvertionMessage.h"
@@ -77,7 +77,7 @@ namespace control
 
 			if (!std::filesystem::exists(m_templatePath))
 			{
-				controller.getOpenScanToolsGraphManager().createHierarchyMasterCluster();
+				controller.getGraphManager().createHierarchyMasterCluster();
 				controller.saveCurrentProject(SafePtr<CameraNode>());
 
 				SaveLoadSystem::ErrorCode slsError;
@@ -102,7 +102,7 @@ namespace control
 						std::filesystem::copy_file(p, context.cgetProjectInternalInfo().getTemplatesFolderPath() / p.filename(), std::filesystem::copy_options::overwrite_existing, error);
 			}
 
-			controller.getOpenScanToolsGraphManager().cleanProjectObjects();
+			controller.getGraphManager().cleanProjectObjects();
 
 			controller.getControlListener()->notifyUIControl(new control::project::Load(context.cgetProjectInternalInfo().getProjectFilePath()));
 			CONTROLLOG << "control::project::create[end] " << m_folderPath / m_projectInfo.m_projectName << LOGENDL;
@@ -203,7 +203,7 @@ namespace control
 
 			controller.updateInfo(new GuiDataSendTemplateList(controller.getContext().getTemplates()));
 
-			controller.updateInfo(new GuiDataCameraInfo(controller.getOpenScanToolsGraphManager().getCameraNode()));
+			controller.updateInfo(new GuiDataCameraInfo(controller.getGraphManager().getCameraNode()));
 
 			controller.updateInfo(new GuiDataGlobalColorPickerValue(controller.getContext().getActiveColor()));
 
@@ -221,7 +221,7 @@ namespace control
 			controller.updateInfo(new GuiDataSendAuthorsList(controller.getContext().getProjectAuthors(), true));
 			controller.updateInfo(new GuiDataTmpMessage());
 
-			controller.updateInfo(new GuiDataProjectProperties(controller.getContext(), controller.getOpenScanToolsGraphManager(), false));
+			controller.updateInfo(new GuiDataProjectProperties(controller.getContext(), controller.getGraphManager(), false));
 
 			/*Note (Aurélien) : Temporary (or not), set default clipping parameters*/
 			const ProjectInfos& info(controller.getContext().cgetProjectInfo());
@@ -388,7 +388,7 @@ namespace control
 			controller.updateInfo(new GuiDataSplashScreenStart(TEXT_PROJECT_CLOSING, GuiDataSplashScreenStart::SplashScreenType::Display));
 
 			// Close all project info in the Gui
-			controller.getOpenScanToolsGraphManager().cleanProjectObjects();
+			controller.getGraphManager().cleanProjectObjects();
 			controller.updateInfo(new GuiDataUndoRedoAble(false, false));
 			if (context.isProjectLoaded())
 				controller.updateInfo(new GuiDataProjectLoaded(false, context.cgetProjectInfo().m_projectName));
@@ -636,7 +636,7 @@ namespace control
 			oldInfos = controller.getContext().getProjectInfo();
 
 			controller.getContext().setProjectInfo(newInfos);
-			controller.updateInfo(new GuiDataProjectProperties(controller.getContext(), controller.getOpenScanToolsGraphManager()));
+			controller.updateInfo(new GuiDataProjectProperties(controller.getContext(), controller.getGraphManager()));
 		}
 
 		bool Edit::canUndo() const
@@ -647,7 +647,7 @@ namespace control
 		void Edit::undoFunction(Controller& controller)
 		{
 			controller.getContext().setProjectInfo(oldInfos);
-			controller.updateInfo(new GuiDataProjectProperties(controller.getContext(), controller.getOpenScanToolsGraphManager()));
+			controller.updateInfo(new GuiDataProjectProperties(controller.getContext(), controller.getGraphManager()));
 		}
 
 		ControlType Edit::getType() const
@@ -870,7 +870,7 @@ namespace control
 
 		void ShowProperties::doFunction(Controller& controller)
 		{
-			controller.updateInfo(new GuiDataProjectProperties(controller.getContext(), controller.getOpenScanToolsGraphManager()));
+			controller.updateInfo(new GuiDataProjectProperties(controller.getContext(), controller.getGraphManager()));
 			CONTROLLOG << "control::project::ShowProperties" << LOGENDL;
 		}
 

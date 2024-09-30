@@ -12,7 +12,7 @@
 #include "controller/controls/ControlFunction.h"
 #include "utils/Logger.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 #include "models/3d/Graph/CylinderNode.h"
 
 #include <glm/gtx/quaternion.hpp>
@@ -61,7 +61,7 @@ ContextState ContextBigCylinderFit::launch(Controller& controller)
     FUNCLOG << "ContextBigCylinderFit launch" << LOGENDL;
 	controller.updateInfo(new GuiDataTmpMessage(TEXT_LUCAS_SEARCH_ONGOING, 0));
 
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
     ClippingAssembly clippingAssembly;
 	graphManager.getClippingAssembly(clippingAssembly, true, false);
 

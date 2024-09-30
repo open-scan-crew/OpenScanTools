@@ -8,7 +8,7 @@
 #include "controller/messages/CameraMessage.h"
 #include "controller/messages/DataIdListMessage.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 
 #include "models/3d/Graph/AClippingNode.h"
 #include "models/3d/Graph/CameraNode.h"

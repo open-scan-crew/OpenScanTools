@@ -8,7 +8,7 @@
 #include "utils/OpenScanToolsModelEssentials_impl.hpp"
 #include "utils/Logger.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 
 namespace control::picking
 {
@@ -31,7 +31,7 @@ namespace control::picking
         {
             if (m_clickInfo.ctrl)
             {
-                OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+                GraphManager& graphManager = controller.getGraphManager();
                 std::unordered_set<SafePtr<AGraphNode>> selected(graphManager.getSelectedNodes());
 
                 {

@@ -22,7 +22,7 @@
 #include <set>
 #include <stack>
 
-class OpenScanToolsGraphManager;
+class GraphManager;
 class ManipulatorNode;
 
 class AObjectNode;
@@ -70,7 +70,7 @@ private:
     };
 
 public:
-    ObjectNodeVisitor(OpenScanToolsGraphManager& graph, VkExtent2D fbExtent, const float& guiScale, const CameraNode& camera);
+    ObjectNodeVisitor(GraphManager& graph, VkExtent2D fbExtent, const float& guiScale, const CameraNode& camera);
     ~ObjectNodeVisitor();
 
     uint32_t getTextHoveredId() const;
@@ -175,7 +175,7 @@ private:
     VkExtent2D						m_fbExtent;
 
     // Handles
-    OpenScanToolsGraphManager&			m_graph;
+    GraphManager&			m_graph;
     const CameraNode&				m_camera;
     SafePtr<AGraphNode>             m_panoramicScan; // On utilise un AGraphNode pour pouvoir comparer le SafePtr avec les autres nodes
 

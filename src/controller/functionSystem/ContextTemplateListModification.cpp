@@ -9,7 +9,7 @@
 #include "gui/GuiData/GuiDataTemplate.h"
 
 #include "models/3d/Graph/TagNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 
 
 #include "utils/Logger.h"
@@ -83,7 +83,7 @@ ContextState ContextTemplateListModification::launch(Controller& controller)
 	m_state = ContextState::running;
 	FUNCLOG << "ContextTemplateListModification launch" << LOGENDL;
 
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
 
 	{
 		WritePtr<sma::TagTemplate> wTagTemp = m_temp.get();
@@ -111,7 +111,7 @@ ContextState ContextTemplateListModification::launch(Controller& controller)
 
 	FUNCLOG << "ContextTemplateListModification launch end" << LOGENDL;
 	/*
-	std::unordered_set<SafePtr<AGraphNode>> selected(controller.getOpenScanToolsGraphManager().getSelectedNodes());
+	std::unordered_set<SafePtr<AGraphNode>> selected(controller.getGraphManager().getSelectedNodes());
 	if (selected.empty() || selected.size() > 1)
 		return (m_state = ContextState::done);
 

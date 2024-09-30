@@ -4,7 +4,7 @@
 class IDataDispatcher;
 class VulkanViewport;
 class CameraNode;
-class OpenScanToolsGraphManager;
+class GraphManager;
 
 class IRenderingEngine
 {
@@ -21,7 +21,7 @@ public:
 
 namespace scs
 {
-    IRenderingEngine* createRenderingEngine(OpenScanToolsGraphManager& graphManager, IDataDispatcher& dataDispatcher, const float& guiScale);
+    IRenderingEngine* createRenderingEngine(GraphManager& graphManager, IDataDispatcher& dataDispatcher, const float& guiScale);
 };
 
 #endif //! RENDERING_ENGINE_H

@@ -14,12 +14,12 @@
 
 //class Controller;
 class IDataDispatcher;
-class OpenScanToolsGraphManager;
+class GraphManager;
 
 class ScantraInterface
 {
 public:
-    ScantraInterface(IDataDispatcher& data_dispatcher, OpenScanToolsGraphManager& graph);
+    ScantraInterface(IDataDispatcher& data_dispatcher, GraphManager& graph);
     ~ScantraInterface();
 
     int startInterface();
@@ -46,7 +46,7 @@ private:
     // OpenScanTools accessors
     //Controller& controller_;
     IDataDispatcher& data_dispatcher_;
-    OpenScanToolsGraphManager& graph_;
+    GraphManager& graph_;
 };
 
 #endif

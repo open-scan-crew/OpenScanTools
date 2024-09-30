@@ -6,7 +6,7 @@
 #include "models/3d/Graph/TagNode.h"
 #include "models/3d/Graph/SimpleMeasureNode.h"
 #include "models/3d/Graph/PolylineMeasureNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 
 #include "utils/Logger.h"
 #include "utils/ColorConversion.h"

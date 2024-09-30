@@ -32,7 +32,7 @@
 #include "models/3d/Graph/SimpleMeasureNode.h"
 #include "models/3d/Graph/PolylineMeasureNode.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.h"
+#include "models/3d/Graph/GraphManager.h"
 
 #include "controller/controls/ControlClippingEdition.h"
 
@@ -41,7 +41,7 @@
 #define GTLOG Logger::log(LoggerMode::GTLog)
 #define GTELOG Logger::log(LoggerMode::GTExtraLog)
 
-ProjectTreePanel::ProjectTreePanel(IDataDispatcher& dataDispatcher, OpenScanToolsGraphManager& graphManager, float guiScale)
+ProjectTreePanel::ProjectTreePanel(IDataDispatcher& dataDispatcher, GraphManager& graphManager, float guiScale)
 	: QTreeView()
 	, m_dataDispatcher(dataDispatcher)
 	, m_graphManager(graphManager)
@@ -438,8 +438,8 @@ TreeNode* ProjectTreePanel::buildTreeModelBranch(const QString& name, TreeType t
 			return false;
 		return (rData->getDefaultTreeType() == treetype && !hasParent);
 	};
-	std::function<std::unordered_set<SafePtr<AGraphNode>>(const OpenScanToolsGraphManager&)> getChildFonction =
-		[filter](const OpenScanToolsGraphManager& manager)
+	std::function<std::unordered_set<SafePtr<AGraphNode>>(const GraphManager&)> getChildFonction =
+		[filter](const GraphManager& manager)
 	{
 		return manager.getNodesOnFilter(filter);
 	};
@@ -648,7 +648,7 @@ void ProjectTreePanel::multiChangeAttributes()
 {
 	m_dataDispatcher.updateInformation(new GuiDataMultiObjectProperties(m_selectedNodes));
 }
-void recNodeToggle(TreeNode* node, OpenScanToolsGraphManager& graphManager, std::unordered_set<SafePtr<AGraphNode>>& nodeToToggle)
+void recNodeToggle(TreeNode* node, GraphManager& graphManager, std::unordered_set<SafePtr<AGraphNode>>& nodeToToggle)
 {
 
 	SafePtr<AGraphNode> nodeData = node->getData();

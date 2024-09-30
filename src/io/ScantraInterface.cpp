@@ -1,11 +1,11 @@
 #include "ScantraInterface.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.h"
+#include "models/3d/Graph/GraphManager.h"
 #include "models/3d/graph/ClusterNode.h"
 #include "utils/Logger.h"
 
 #include <wchar.h>
 
-ScantraInterface::ScantraInterface(IDataDispatcher& data_dispatcher, OpenScanToolsGraphManager& graph)
+ScantraInterface::ScantraInterface(IDataDispatcher& data_dispatcher, GraphManager& graph)
     : data_dispatcher_(data_dispatcher)
     , graph_(graph)
 {

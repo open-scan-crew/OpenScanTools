@@ -18,7 +18,7 @@
 #include "vulkan/Renderers/SimpleObjectRenderer.h"
 #include "vulkan/Compute/ComputePrograms.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 
 #include "io/ImageTypes.h"
 #include "io/exports/CSVWriter.hxx"
@@ -36,7 +36,7 @@ class ViewPointNode;
 class RenderingEngine : public IRenderingEngine, public IPanel
 {
 public:
-    RenderingEngine(OpenScanToolsGraphManager& graphManager, IDataDispatcher& dataDispatcher, float guiScale);
+    RenderingEngine(GraphManager& graphManager, IDataDispatcher& dataDispatcher, float guiScale);
     ~RenderingEngine();
 
     // Use start() and stop() ideally one time at the start and stop of the application.
@@ -110,7 +110,7 @@ private:
     std::mutex m_mutexViewports;
     std::set<VulkanViewport*> m_viewports;
 
-    OpenScanToolsGraphManager& m_graph;
+    GraphManager& m_graph;
 
     // Specific Renderers
     Renderer					m_pcRenderer;

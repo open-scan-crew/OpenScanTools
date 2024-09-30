@@ -8,7 +8,7 @@
 #include "utils/Logger.h"
 
 #include "models/3d/Graph/BoxNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 #include "gui/texts/RayTracingTexts.hpp"
 #include "gui/texts/ContextTexts.hpp"
 #include "gui/Texts.hpp"

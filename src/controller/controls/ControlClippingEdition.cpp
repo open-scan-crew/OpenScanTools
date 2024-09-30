@@ -9,7 +9,7 @@
 #include "utils/math/trigo.h" 
 #include "utils/Logger.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 #include "models/3d/Graph/BoxNode.h"
 #include "controller/controls/AEditionControl.hxx"
 
@@ -49,7 +49,7 @@ namespace control::clippingEdition
     {
         if (m_filterIsActive || m_filterIsSelected)
         {
-            OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+            GraphManager& graphManager = controller.getGraphManager();
             setToEditData(graphManager.getClippingObjects(m_filterIsActive, m_filterIsSelected), m_mode);
         }
         doSimpleEdition(controller);
@@ -91,7 +91,7 @@ namespace control::clippingEdition
 
     void SetClipActive::doFunction(Controller& controller)
     {
-        OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+        GraphManager& graphManager = controller.getGraphManager();
 
         uint32_t clipCount = graphManager.getActiveClippingAndRampCount();
 
@@ -137,7 +137,7 @@ namespace control::clippingEdition
 
     void SetRampActive::doFunction(Controller& controller)
     {
-        OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+        GraphManager& graphManager = controller.getGraphManager();
 
         uint32_t clipCount = graphManager.getActiveClippingAndRampCount();
 

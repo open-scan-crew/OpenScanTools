@@ -3,7 +3,7 @@
 
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.h"
+#include "models/3d/Graph/GraphManager.h"
 
 #define SGLog Logger::log(LoggerMode::SceneGraphLog)
 

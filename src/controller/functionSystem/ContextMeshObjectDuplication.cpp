@@ -8,7 +8,7 @@
 #include "utils/Logger.h"
 
 #include "models/3d/Graph/MeshObjectNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 
 ContextMeshObjectDuplication::ContextMeshObjectDuplication(const ContextId& id)
 	: ARayTracingContext(id)
@@ -43,12 +43,12 @@ ContextState ContextMeshObjectDuplication::launch(Controller& controller)
     }
     // -!- Ray Tracing -!-
     
-    OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+    GraphManager& graphManager = controller.getGraphManager();
 
     m_state = ContextState::running;
     FUNCLOG << "AContextWavefrontDuplication launch" << LOGENDL;
 
-    std::unordered_set<SafePtr<AGraphNode>> meshes = controller.getOpenScanToolsGraphManager().getNodesByTypes({ ElementType::MeshObject }, ObjectStatusFilter::SELECTED);
+    std::unordered_set<SafePtr<AGraphNode>> meshes = controller.getGraphManager().getNodesByTypes({ ElementType::MeshObject }, ObjectStatusFilter::SELECTED);
     if (meshes.size() != 1)
         return ARayTracingContext::abort(controller);
 

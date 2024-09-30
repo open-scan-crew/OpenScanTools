@@ -31,7 +31,7 @@
 
 #include "models/3d/Graph/CameraNode.h"
 #include "models/3d/Graph/ScanNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 #include "models/3d/Graph/BoxNode.h"
 
 #include "io/SaveLoadSystem.h"
@@ -71,7 +71,7 @@ ContextState ContextExportPC::start(Controller& controller)
 
 ContextState ContextExportPC::feedMessage(IMessage* message, Controller& controller)
 {
-    OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+    GraphManager& graphManager = controller.getGraphManager();
     switch (message->getType())
     {
     case IMessage::MessageType::MODAL:
@@ -305,7 +305,7 @@ bool ContextExportPC::processClippingExport(Controller& controller)
 
 bool ContextExportPC::exportClippingAndScanMerged(Controller& controller, CSVWriter* pCsvWriter)
 {
-    OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+    GraphManager& graphManager = controller.getGraphManager();
     TlScanOverseer& overseer = TlScanOverseer::getInstance();
 
     // Create the clipping assembly
@@ -373,7 +373,7 @@ bool ContextExportPC::exportClippingAndScanMerged(Controller& controller, CSVWri
 bool ContextExportPC::exportClippingSeparated(Controller& controller, CSVWriter* pCsvWriter)
 {
     bool resultOk = true;
-    OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+    GraphManager& graphManager = controller.getGraphManager();
 
     std::vector<SafePtr<AClippingNode>> filteredClippings;
     {
@@ -464,7 +464,7 @@ bool ContextExportPC::exportScanSeparated(Controller& controller, CSVWriter* pCs
     IOLOG << "Export PC scan separated" << LOGENDL;
 
     bool resultOk = true;
-    OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+    GraphManager& graphManager = controller.getGraphManager();
     TlScanOverseer& overseer = TlScanOverseer::getInstance();
 
 
@@ -535,7 +535,7 @@ bool ContextExportPC::processScanExport(Controller& controller)
 
     // Get the the visible scans
     TlScanOverseer& overseer = TlScanOverseer::getInstance();
-    std::vector<tls::PointCloudInstance> pcInfos = getPointCloudInstances(controller.getOpenScanToolsGraphManager());
+    std::vector<tls::PointCloudInstance> pcInfos = getPointCloudInstances(controller.getGraphManager());
 
     controller.updateInfo(new GuiDataProcessingSplashScreenStart(pcInfos.size(), TEXT_EXPORT_TITLE_NORMAL, TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(0).arg(pcInfos.size())));
 
@@ -665,7 +665,7 @@ bool ContextExportPC::processGridExport(Controller& controller)
     bool resultOk = true;
     auto start = std::chrono::steady_clock::now();
     // Create the clipping info lists
-    OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+    GraphManager& graphManager = controller.getGraphManager();
 
     std::unordered_set<SafePtr<BoxNode>> gridNodes = graphManager.getGrids();
 
@@ -928,7 +928,7 @@ bool ContextExportPC::prepareOutputDirectory(Controller& controller, const std::
     return true;
 }
 
-std::vector<tls::PointCloudInstance> ContextExportPC::getPointCloudInstances(OpenScanToolsGraphManager& graphManager)
+std::vector<tls::PointCloudInstance> ContextExportPC::getPointCloudInstances(GraphManager& graphManager)
 {
     if (m_selectedPcs.empty())
     {
@@ -1156,12 +1156,12 @@ ContextState ContextExportSubProject::feedMessage(IMessage* message, Controller&
 ContextState ContextExportSubProject::launch(Controller& controller)
 {
     Utils::System::createDirectoryIfNotExist(m_subProjectInternal.getScansFolderPath());
-    if (controller.getOpenScanToolsGraphManager().getActiveClippingCount() > 0)
+    if (controller.getGraphManager().getActiveClippingCount() > 0)
         ContextExportPC::processClippingExport(controller);
     else
         ContextExportPC::processScanExport(controller);
 
-    const OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+    const GraphManager& graphManager = controller.getGraphManager();
 
     std::unordered_set<SafePtr<AGraphNode>> fileObjects;
     std::unordered_set<SafePtr<AGraphNode>> exports = graphManager.getProjectNodesByFilterType(m_objectFilterType);

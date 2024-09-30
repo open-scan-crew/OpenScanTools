@@ -18,7 +18,7 @@ class IGuiData;
 class CameraInfo;
 class AControl;
 
-class OpenScanToolsGraphManager;
+class GraphManager;
 class AGraphNode;
 class CameraNode;
 
@@ -34,7 +34,7 @@ class CameraNode;
 class Controller
 {
 public:
-	Controller(IDataDispatcher& dataDispatcher, OpenScanToolsGraphManager& graphManager);
+	Controller(IDataDispatcher& dataDispatcher, GraphManager& graphManager);
 	~Controller();
 
     void changeSelection(const std::unordered_set<SafePtr<AGraphNode>> & newSelection, bool updateTree = true);
@@ -67,9 +67,9 @@ public:
 	FunctionManager& getFunctionManager();
 	ControllerContext& getContext();
 	FilterSystem& getFilterSystem();
-	OpenScanToolsGraphManager& getOpenScanToolsGraphManager();
+	GraphManager& getGraphManager();
 
-	const OpenScanToolsGraphManager& cgetOpenScanToolsGraphManager() const;
+	const GraphManager& cgetGraphManager() const;
 	const ControllerContext& cgetContext() const;
 
 	void startMetaControl();

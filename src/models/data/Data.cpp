@@ -1,6 +1,6 @@
 #include "models/data/Data.h"
 #include "controller/ControllerContext.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 
 #include "utils/Logger.h"
 #include "utils/Utils.h"

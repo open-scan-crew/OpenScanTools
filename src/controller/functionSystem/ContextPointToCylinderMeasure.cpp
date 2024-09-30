@@ -14,7 +14,7 @@
 
 #include "models/3d/Graph/PointToPipeMeasureNode.h"
 #include "models/3d/Graph/CylinderNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 
 #include "utils/Logger.h"
 
@@ -56,7 +56,7 @@ ContextState ContextPointToCylinderMeasure::launch(Controller& controller)
 	glm::dvec3 projectedPoint, projectedCylinderPoint, cylinderDirection, cylinderCenter;
 	double cylinderRadius;
 
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
 
     TlScanOverseer::setWorkingScansTransfo(graphManager.getVisiblePointCloudInstances(m_panoramic, true, true));
     ClippingAssembly clippingAssembly;

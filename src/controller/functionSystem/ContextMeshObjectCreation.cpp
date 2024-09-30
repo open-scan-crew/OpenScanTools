@@ -19,7 +19,7 @@
 
 #include "models/3d/Graph/MeshObjectNode.h"
 #include "models/3d/Graph/ClusterNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 
 #include "io/imports/stepFileReader.h"
 

@@ -12,7 +12,7 @@
 #include "utils/ProjectColor.hpp"
 #include "utils/Logger.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 #include "models/3d/Graph/ColumnTiltMeasureNode.h"
 
 ContextColumnTilt::ContextColumnTilt(const ContextId& id)
@@ -53,7 +53,7 @@ ContextState ContextColumnTilt::launch(Controller& controller)
 	double offset, ratio;
 	glm::dvec3 topPoint, bottomPoint;
 	
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
     TlScanOverseer::setWorkingScansTransfo(graphManager.getVisiblePointCloudInstances(m_panoramic, true, true));
 
     // Human readable references

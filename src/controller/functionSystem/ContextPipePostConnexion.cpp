@@ -21,7 +21,7 @@
 #include "controller/controls/ControlFunction.h"
 #include "controller/controls/ControlMetaControl.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 #include "models/3d/Graph/ClusterNode.h"
 
 
@@ -61,7 +61,7 @@ ContextState ContextPipePostConnexion::feedMessage(IMessage* message, Controller
 
 ContextState ContextPipePostConnexion::launch(Controller& controller)
 {
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
 
 	m_state = ContextState::running;
 	std::unordered_set<SafePtr<AGraphNode>> cylindersData = graphManager.getNodesByTypes({ ElementType::Cylinder }, ObjectStatusFilter::SELECTED);

@@ -1,4 +1,4 @@
-﻿#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+﻿#include "models/3d/Graph/GraphManager.hxx"
 #include "vulkan/VulkanManager.h"
 #include "utils/Logger.h"
 #include "gui/IDataDispatcher.h"
@@ -30,7 +30,7 @@
 
 #define SGLog Logger::log(LoggerMode::SceneGraphLog)
 
-OpenScanToolsGraphManager::OpenScanToolsGraphManager(IDataDispatcher& dataDispatcher)
+GraphManager::GraphManager(IDataDispatcher& dataDispatcher)
 	: m_root(make_safe<ReferentialNode>(L"Root", TransformationModule()))
 	, m_meshManager(&MeshManager::getInstance())
 	, m_dataDispatcher(dataDispatcher)
@@ -40,29 +40,29 @@ OpenScanToolsGraphManager::OpenScanToolsGraphManager(IDataDispatcher& dataDispat
 	//wRoot->setPosition(glm::dvec3(0.0, 5.0, 0.0));
 	//wRoot->setRotation(glm::dquat(-0.0012293305, 0.0038679366, 0.688302797, 0.725412149));
 
-	registerGuiDataFunction(guiDType::activatedFunctions, &OpenScanToolsGraphManager::onFunctionChanged);
-	registerGuiDataFunction(guiDType::renderTargetClick, &OpenScanToolsGraphManager::onClick);
-	registerGuiDataFunction(guiDType::projectTransformation, &OpenScanToolsGraphManager::onProjectTransformation);
-	registerGuiDataFunction(guiDType::manipulatorMode, &OpenScanToolsGraphManager::onManipulationMode);
+	registerGuiDataFunction(guiDType::activatedFunctions, &GraphManager::onFunctionChanged);
+	registerGuiDataFunction(guiDType::renderTargetClick, &GraphManager::onClick);
+	registerGuiDataFunction(guiDType::projectTransformation, &GraphManager::onProjectTransformation);
+	registerGuiDataFunction(guiDType::manipulatorMode, &GraphManager::onManipulationMode);
 }
 
-OpenScanToolsGraphManager::~OpenScanToolsGraphManager()
+GraphManager::~GraphManager()
 {
 	cleanProjectObjects();
 }
 
-void OpenScanToolsGraphManager::registerGuiDataFunction(guiDType type, OpenScanToolsGraphManagerMethod fct)
+void GraphManager::registerGuiDataFunction(guiDType type, GraphManagerMethod fct)
 {
 	m_dataDispatcher.registerObserverOnKey(this, type);
 	m_methods.insert({ type, fct });
 };
 
-void OpenScanToolsGraphManager::informData(IGuiData* data)
+void GraphManager::informData(IGuiData* data)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 	if (m_methods.find(data->getType()) != m_methods.end())
 	{
-		OpenScanToolsGraphManagerMethod method = m_methods.at(data->getType());
+		GraphManagerMethod method = m_methods.at(data->getType());
 		(this->*method)(data, true);
 	}
 }
@@ -79,27 +79,27 @@ void updateMeasure(AObjectNode* node)
 	static_cast<NodeType*>(node)->updateMeasure();
 }
 
-SafePtr<ReferentialNode> OpenScanToolsGraphManager::getRoot()
+SafePtr<ReferentialNode> GraphManager::getRoot()
 {
 	return m_root;
 }
 
-const SafePtr<ManipulatorNode>& OpenScanToolsGraphManager::getManipulatorNode()
+const SafePtr<ManipulatorNode>& GraphManager::getManipulatorNode()
 {
 	return m_manipulatorNode;
 }
 
-const SafePtr<ClusterNode>& OpenScanToolsGraphManager::getHierarchyMasterCluster() const
+const SafePtr<ClusterNode>& GraphManager::getHierarchyMasterCluster() const
 {
 	return m_hierarchyMasterCluster;
 }
 
-void OpenScanToolsGraphManager::setHierarchyMasterCluster(const SafePtr<ClusterNode>& hierarchy)
+void GraphManager::setHierarchyMasterCluster(const SafePtr<ClusterNode>& hierarchy)
 {
 	m_hierarchyMasterCluster = hierarchy;
 }
 
-void OpenScanToolsGraphManager::createHierarchyMasterCluster()
+void GraphManager::createHierarchyMasterCluster()
 {
 	SafePtr<ClusterNode> hierarchyMasterCluster = make_safe<ClusterNode>();
 	{
@@ -112,7 +112,7 @@ void OpenScanToolsGraphManager::createHierarchyMasterCluster()
 	setHierarchyMasterCluster(hierarchyMasterCluster);
 }
 
-void OpenScanToolsGraphManager::refreshScene()
+void GraphManager::refreshScene()
 {
 	std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -122,7 +122,7 @@ void OpenScanToolsGraphManager::refreshScene()
     {
         if (m_methods.find(data->getType()) != m_methods.end())
         {
-            OpenScanToolsGraphManagerMethod method = m_methods.at(data->getType());
+            GraphManagerMethod method = m_methods.at(data->getType());
             (this->*method)(data, false);
         }
         delete data;
@@ -130,7 +130,7 @@ void OpenScanToolsGraphManager::refreshScene()
     m_waitingDataToProceed.clear();
 }
 
-void OpenScanToolsGraphManager::cleanProjectObjects()
+void GraphManager::cleanProjectObjects()
 {
 	AGraphNode::cleanLinks(m_manipulatorNode);
 	m_manipulatorNode.destroy();
@@ -159,13 +159,13 @@ void OpenScanToolsGraphManager::cleanProjectObjects()
 	//m_meshManager->cleanSimpleGeometryMemory();
 }
 
-TargetMarkerFactory& OpenScanToolsGraphManager::getTargetFactory()
+TargetMarkerFactory& GraphManager::getTargetFactory()
 {
 	return m_targetMarkerFactory;
 }
 
 // Is this function synchrone or asynchrone ?
-void OpenScanToolsGraphManager::setObjectsHovered(std::unordered_set<uint32_t>&& objectsHovered)
+void GraphManager::setObjectsHovered(std::unordered_set<uint32_t>&& objectsHovered)
 {
     resetObjectsHovered();
 
@@ -182,7 +182,7 @@ void OpenScanToolsGraphManager::setObjectsHovered(std::unordered_set<uint32_t>&&
     }
 }
 
-SafePtr<AObjectNode> OpenScanToolsGraphManager::getSingleHoverObject() const
+SafePtr<AObjectNode> GraphManager::getSingleHoverObject() const
 {
     if (m_objectsHovered.size() == 1)
         return (*m_objectsHovered.begin());
@@ -190,7 +190,7 @@ SafePtr<AObjectNode> OpenScanToolsGraphManager::getSingleHoverObject() const
         return SafePtr<AObjectNode>();
 }
 
-void OpenScanToolsGraphManager::resetObjectsHovered()
+void GraphManager::resetObjectsHovered()
 {
     for (const SafePtr<AObjectNode>& object : m_objectsHovered)
     {
@@ -203,7 +203,7 @@ void OpenScanToolsGraphManager::resetObjectsHovered()
     m_objectsHovered.clear();
 }
 
-void OpenScanToolsGraphManager::onFunctionChanged(IGuiData* iGuiData, bool store)
+void GraphManager::onFunctionChanged(IGuiData* iGuiData, bool store)
 {
 	auto examineData = static_cast<GuiDataActivatedFunctions*>(iGuiData);
 
@@ -218,7 +218,7 @@ void OpenScanToolsGraphManager::onFunctionChanged(IGuiData* iGuiData, bool store
 	}
 }
 
-void OpenScanToolsGraphManager::onClick(IGuiData* iGuiData, bool store)
+void GraphManager::onClick(IGuiData* iGuiData, bool store)
 {
 	auto targetData = static_cast<GuiDataRenderTargetClick*>(iGuiData);
 
@@ -234,7 +234,7 @@ void OpenScanToolsGraphManager::onClick(IGuiData* iGuiData, bool store)
 		m_targetMarkerFactory.createClickTarget(glm::dvec4(targetData->m_position, 1.0), targetData->m_color);
 }
 
-void OpenScanToolsGraphManager::onProjectTransformation(IGuiData* iGuiData, bool store)
+void GraphManager::onProjectTransformation(IGuiData* iGuiData, bool store)
 {
 	if (store)
 	{
@@ -248,7 +248,7 @@ void OpenScanToolsGraphManager::onProjectTransformation(IGuiData* iGuiData, bool
     }
 }
 
-void OpenScanToolsGraphManager::onManipulationMode(IGuiData* data, bool store)
+void GraphManager::onManipulationMode(IGuiData* data, bool store)
 {
 	WritePtr<ManipulatorNode> wManip = m_manipulatorNode.get();
 	if (!wManip)
@@ -258,20 +258,20 @@ void OpenScanToolsGraphManager::onManipulationMode(IGuiData* data, bool store)
 	wManip->setManipulationMode(m_manipulationMode);
 }
 
-void OpenScanToolsGraphManager::addNodesToGraph(const std::unordered_set<SafePtr<AGraphNode>>& nodes)
+void GraphManager::addNodesToGraph(const std::unordered_set<SafePtr<AGraphNode>>& nodes)
 {
 	for(const SafePtr<AGraphNode>& node : nodes)
 		AGraphNode::addGeometricLink(m_root, node);
 }
 
-SafePtr<CameraNode> OpenScanToolsGraphManager::createCameraNode(const std::wstring& name)
+SafePtr<CameraNode> GraphManager::createCameraNode(const std::wstring& name)
 {
 	SafePtr<CameraNode> cameraNode = make_safe<CameraNode>(name, m_dataDispatcher);
 	m_cameraNode = cameraNode;
 	return cameraNode;
 }
 
-SafePtr<CameraNode> OpenScanToolsGraphManager::duplicateCamera(const SafePtr<CameraNode>& camera)
+SafePtr<CameraNode> GraphManager::duplicateCamera(const SafePtr<CameraNode>& camera)
 {
 	ReadPtr<CameraNode> rcam = camera.cget();
 	if (rcam)
@@ -280,7 +280,7 @@ SafePtr<CameraNode> OpenScanToolsGraphManager::duplicateCamera(const SafePtr<Cam
 		return SafePtr<CameraNode>();
 }
 
-void OpenScanToolsGraphManager::detachManipulator(AObjectNode* parent)
+void GraphManager::detachManipulator(AObjectNode* parent)
 {
 	/*
 	if (parent->isGeometricChild(m_manipulator->getId()))
@@ -288,7 +288,7 @@ void OpenScanToolsGraphManager::detachManipulator(AObjectNode* parent)
 	*/
 }
 
-std::unordered_set<SafePtr<AGraphNode>> OpenScanToolsGraphManager::getNodesFromGraphicIds(const std::unordered_set<uint32_t>& graphicIds) const
+std::unordered_set<SafePtr<AGraphNode>> GraphManager::getNodesFromGraphicIds(const std::unordered_set<uint32_t>& graphicIds) const
 {
     return getNodesOnFilter<AGraphNode>(
         [&graphicIds](ReadPtr<AGraphNode>& node) {
@@ -297,7 +297,7 @@ std::unordered_set<SafePtr<AGraphNode>> OpenScanToolsGraphManager::getNodesFromG
     );
 }
 
-SafePtr<AGraphNode> OpenScanToolsGraphManager::getNodeFromGraphicId(uint32_t graphicId) const
+SafePtr<AGraphNode> GraphManager::getNodeFromGraphicId(uint32_t graphicId) const
 {
     std::unordered_set<SafePtr<AGraphNode>> ret = getNodesOnFilter<AGraphNode>(
         [&graphicId](ReadPtr<AGraphNode>& node) {
@@ -312,7 +312,7 @@ SafePtr<AGraphNode> OpenScanToolsGraphManager::getNodeFromGraphicId(uint32_t gra
     return (*ret.begin());
 }
 
-void OpenScanToolsGraphManager::getMeshInfoForClick(ClickInfo& click)
+void GraphManager::getMeshInfoForClick(ClickInfo& click)
 {
 	click.mesh = nullptr;
 	click.meshTransfo = glm::dmat4();
@@ -386,7 +386,7 @@ bool isObjectFiltered(ReadPtr<AGraphNode>& rNode, ObjectStatusFilter filter)
 
 /*** From Project ****/
 
-uint32_t OpenScanToolsGraphManager::getNextUserId(ElementType type, const IndexationMethod& indexMethod) const
+uint32_t GraphManager::getNextUserId(ElementType type, const IndexationMethod& indexMethod) const
 {
 	uint32_t i = 1;
 
@@ -425,7 +425,7 @@ uint32_t OpenScanToolsGraphManager::getNextUserId(ElementType type, const Indexa
 	return (i);
 }
 
-std::vector<uint32_t> OpenScanToolsGraphManager::getNextMultipleUserId(ElementType type, const IndexationMethod& indexMethod, int indexAmount) const
+std::vector<uint32_t> GraphManager::getNextMultipleUserId(ElementType type, const IndexationMethod& indexMethod, int indexAmount) const
 {
 	std::vector<uint32_t> result(0);
 	uint32_t i = 1;
@@ -475,7 +475,7 @@ std::vector<uint32_t> OpenScanToolsGraphManager::getNextMultipleUserId(ElementTy
 	return result;
 }
 
-bool OpenScanToolsGraphManager::isIdAvailable(const std::unordered_set<ElementType>& types, uint32_t userid) const
+bool GraphManager::isIdAvailable(const std::unordered_set<ElementType>& types, uint32_t userid) const
 {
 	for (const SafePtr<AGraphNode>& node : getNodesByTypes(types, ObjectStatusFilter::ALL))
 	{
@@ -486,17 +486,17 @@ bool OpenScanToolsGraphManager::isIdAvailable(const std::unordered_set<ElementTy
 	return true;
 }
 
-SafePtr<CameraNode> OpenScanToolsGraphManager::getCameraNode() const
+SafePtr<CameraNode> GraphManager::getCameraNode() const
 {
 	return m_cameraNode;
 }
 
-std::unordered_set<SafePtr<AGraphNode>> OpenScanToolsGraphManager::getProjectNodes() const
+std::unordered_set<SafePtr<AGraphNode>> GraphManager::getProjectNodes() const
 {
 	return getProjectNodesByFilterType(ObjectStatusFilter::ALL);
 }
 
-SafePtr<AGraphNode> OpenScanToolsGraphManager::getNodeById(xg::Guid id) const
+SafePtr<AGraphNode> GraphManager::getNodeById(xg::Guid id) const
 {
 	std::unordered_set<SafePtr<AGraphNode>> sameIdNodes = getNodesOnFilter<AGraphNode>([&id](ReadPtr<AGraphNode>& node) { return node->getId() == id; });
 	if (sameIdNodes.empty())
@@ -507,27 +507,27 @@ SafePtr<AGraphNode> OpenScanToolsGraphManager::getNodeById(xg::Guid id) const
 	return *(sameIdNodes.begin());
 }
 
-std::unordered_set<SafePtr<AGraphNode>> OpenScanToolsGraphManager::getSelectedNodes() const
+std::unordered_set<SafePtr<AGraphNode>> GraphManager::getSelectedNodes() const
 {
 	return getNodesOnFilter<AGraphNode>([](ReadPtr<AGraphNode>& node) { return node->isSelected(); });
 }
 
-std::unordered_set<SafePtr<AGraphNode>> OpenScanToolsGraphManager::getUnSelectedNodes() const
+std::unordered_set<SafePtr<AGraphNode>> GraphManager::getUnSelectedNodes() const
 {
 	return getNodesOnFilter<AGraphNode>([](ReadPtr<AGraphNode>& node) { return !node->isSelected(); });
 }
 
-std::unordered_set<SafePtr<AGraphNode>> OpenScanToolsGraphManager::getProjectNodesByFilterType(ObjectStatusFilter filter) const
+std::unordered_set<SafePtr<AGraphNode>> GraphManager::getProjectNodesByFilterType(ObjectStatusFilter filter) const
 {
 	return getNodesOnFilter<AGraphNode>([&filter](ReadPtr<AGraphNode>& node) {return isObjectFiltered(node, filter) && node->getGraphType() == AGraphNode::Type::Object; });
 }
 
-std::unordered_set<SafePtr<AGraphNode>> OpenScanToolsGraphManager::getNodesByTypes(std::unordered_set<ElementType> types, ObjectStatusFilter filter) const
+std::unordered_set<SafePtr<AGraphNode>> GraphManager::getNodesByTypes(std::unordered_set<ElementType> types, ObjectStatusFilter filter) const
 {
 	return getNodesOnFilter<AGraphNode>([&types, &filter](ReadPtr<AGraphNode>& node) { return isObjectFiltered(node, filter) && types.find(node->getType()) != types.end(); });
 }
 
-std::unordered_set<SafePtr<AClippingNode>> OpenScanToolsGraphManager::getClippingObjects(bool filterActive, bool filterSelected) const
+std::unordered_set<SafePtr<AClippingNode>> GraphManager::getClippingObjects(bool filterActive, bool filterSelected) const
 {
 	return getNodesOnFilter<AClippingNode>(
 		[](ReadPtr<AGraphNode>& node) 
@@ -537,7 +537,7 @@ std::unordered_set<SafePtr<AClippingNode>> OpenScanToolsGraphManager::getClippin
 	{ return (!filterSelected || clip->isSelected()) && (!filterActive || clip->isClippingActive()); });
 }
 
-std::unordered_set<SafePtr<AClippingNode>> OpenScanToolsGraphManager::getRampObjects(bool filterActive, bool filterSelected) const
+std::unordered_set<SafePtr<AClippingNode>> GraphManager::getRampObjects(bool filterActive, bool filterSelected) const
 {
 	return getNodesOnFilter<AClippingNode>(
 		[](ReadPtr<AGraphNode>& node)
@@ -546,7 +546,7 @@ std::unordered_set<SafePtr<AClippingNode>> OpenScanToolsGraphManager::getRampObj
 	{ return (!filterSelected || clip->isSelected()) && (!filterActive || clip->isRampActive()); });
 }
 
-std::unordered_set<SafePtr<AClippingNode>> OpenScanToolsGraphManager::getActivatedOrSelectedClippingObjects() const
+std::unordered_set<SafePtr<AClippingNode>> GraphManager::getActivatedOrSelectedClippingObjects() const
 {
 	return getNodesOnFilter<AClippingNode>(
 		[](ReadPtr<AGraphNode>& node)
@@ -556,19 +556,19 @@ std::unordered_set<SafePtr<AClippingNode>> OpenScanToolsGraphManager::getActivat
 		{return (clip->isClippingActive() || clip->isSelected()); });
 }
 
-std::unordered_set<SafePtr<BoxNode>> OpenScanToolsGraphManager::getGrids() const
+std::unordered_set<SafePtr<BoxNode>> GraphManager::getGrids() const
 {
 	return getNodesOnFilter<BoxNode>(
 		[](ReadPtr<AGraphNode>& node)
 		{ return node->getType() == ElementType::Grid; });
 }
 
-uint32_t OpenScanToolsGraphManager::getActiveClippingCount() const
+uint32_t GraphManager::getActiveClippingCount() const
 {
 	return (uint32_t)getClippingObjects(true, false).size();
 }
 
-uint32_t OpenScanToolsGraphManager::getActiveClippingAndRampCount() const
+uint32_t GraphManager::getActiveClippingAndRampCount() const
 {
 	uint32_t count = 0;
 	getNodesOnFilter<AClippingNode>(
@@ -586,7 +586,7 @@ uint32_t OpenScanToolsGraphManager::getActiveClippingAndRampCount() const
 	return count;
 }
 
-uint32_t OpenScanToolsGraphManager::getPCOcounters(const tls::ScanGuid& scan) const
+uint32_t GraphManager::getPCOcounters(const tls::ScanGuid& scan) const
 {
 	return (uint32_t)getNodesOnFilter<APointCloudNode>(
 			[](ReadPtr<AGraphNode>& node)
@@ -598,7 +598,7 @@ uint32_t OpenScanToolsGraphManager::getPCOcounters(const tls::ScanGuid& scan) co
 		).size();
 }
 
-std::unordered_set<SafePtr<TagNode>> OpenScanToolsGraphManager::getTagsWithTemplate(SafePtr<sma::TagTemplate> tagTemplate) const
+std::unordered_set<SafePtr<TagNode>> GraphManager::getTagsWithTemplate(SafePtr<sma::TagTemplate> tagTemplate) const
 {
 	return getNodesOnFilter<TagNode>(
 		[](ReadPtr<AGraphNode>& node)
@@ -608,7 +608,7 @@ std::unordered_set<SafePtr<TagNode>> OpenScanToolsGraphManager::getTagsWithTempl
 		{return tagNode->getTemplate() == tagTemplate; });
 }
 
-bool OpenScanToolsGraphManager::isFilePathOrScanExists(const std::wstring& name, const std::filesystem::path& filePath) const
+bool GraphManager::isFilePathOrScanExists(const std::wstring& name, const std::filesystem::path& filePath) const
 {
 	//A remplacer avec un scanRootNode ?
 	for (const SafePtr<AGraphNode>& objectPtr : AGraphNode::getGeometricChildren(m_root)) //A utiliser autre chose que le lien géometrique
@@ -631,7 +631,7 @@ bool OpenScanToolsGraphManager::isFilePathOrScanExists(const std::wstring& name,
 	return (false);
 }
 
-void OpenScanToolsGraphManager::replaceObjectsSelected(std::unordered_set<SafePtr<AGraphNode>> toSelectDatas)
+void GraphManager::replaceObjectsSelected(std::unordered_set<SafePtr<AGraphNode>> toSelectDatas)
 {
 	for (const SafePtr<AGraphNode>& nodePtr : getSelectedNodes())
 	{
@@ -673,7 +673,7 @@ void OpenScanToolsGraphManager::replaceObjectsSelected(std::unordered_set<SafePt
 	}
 }
 
-void OpenScanToolsGraphManager::getClippingAssembly(ClippingAssembly& retAssembly, bool filterActive, bool filterSelected) const
+void GraphManager::getClippingAssembly(ClippingAssembly& retAssembly, bool filterActive, bool filterSelected) const
 {
 	std::unordered_set<SafePtr<AClippingNode>> clippings = getClippingObjects(filterActive, filterSelected);
 	for (const SafePtr<AClippingNode>& clip : clippings)
@@ -691,7 +691,7 @@ void OpenScanToolsGraphManager::getClippingAssembly(ClippingAssembly& retAssembl
 	return;
 }
 
-std::unordered_set<SafePtr<ScanNode>> OpenScanToolsGraphManager::getVisibleScans(const tls::ScanGuid& pano) const
+std::unordered_set<SafePtr<ScanNode>> GraphManager::getVisibleScans(const tls::ScanGuid& pano) const
 {
 	return getNodesOnFilter<ScanNode>(
 		[](ReadPtr<AGraphNode>& node) {
@@ -701,12 +701,12 @@ std::unordered_set<SafePtr<ScanNode>> OpenScanToolsGraphManager::getVisibleScans
 			);
 }
 
-std::vector<tls::PointCloudInstance> OpenScanToolsGraphManager::getVisiblePointCloudInstances(const tls::ScanGuid& pano, bool scans, bool pcos) const
+std::vector<tls::PointCloudInstance> GraphManager::getVisiblePointCloudInstances(const tls::ScanGuid& pano, bool scans, bool pcos) const
 {
 	return getPointCloudInstances(pano, scans, pcos, ObjectStatusFilter::VISIBLE);
 }
 
-std::vector<tls::PointCloudInstance> OpenScanToolsGraphManager::getPointCloudInstances(const tls::ScanGuid& pano, bool getScans, bool getPcos, ObjectStatusFilter filterStatus) const
+std::vector<tls::PointCloudInstance> GraphManager::getPointCloudInstances(const tls::ScanGuid& pano, bool getScans, bool getPcos, ObjectStatusFilter filterStatus) const
 {
 	std::vector<tls::PointCloudInstance> result;
 
@@ -761,7 +761,7 @@ std::vector<tls::PointCloudInstance> OpenScanToolsGraphManager::getPointCloudIns
 	return (result);
 }
 
-uint64_t OpenScanToolsGraphManager::getProjectPointsCount() const
+uint64_t GraphManager::getProjectPointsCount() const
 {
 	uint64_t points = 0;
 	for (const SafePtr<AGraphNode>& scan : getNodesByTypes({ ElementType::Scan }, ObjectStatusFilter::ALL))
@@ -775,7 +775,7 @@ uint64_t OpenScanToolsGraphManager::getProjectPointsCount() const
 	return (points);
 }
 
-std::unordered_set<SafePtr<AGraphNode>> OpenScanToolsGraphManager::getNodesOnFilter(std::function<bool(const SafePtr<AGraphNode>&)> graphNodeFilter) const
+std::unordered_set<SafePtr<AGraphNode>> GraphManager::getNodesOnFilter(std::function<bool(const SafePtr<AGraphNode>&)> graphNodeFilter) const
 {
 	std::unordered_set<SafePtr<AGraphNode>> nodes;
 

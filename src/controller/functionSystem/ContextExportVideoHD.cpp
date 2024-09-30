@@ -2,7 +2,7 @@
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.h"
+#include "models/3d/Graph/GraphManager.h"
 #include "models/3d/Graph/CameraNode.h"
 #include "models/3d/Graph/ViewPointNode.h"
 
@@ -89,7 +89,7 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
     //Start - Move to start position
     if (m_exportState == 0)
     {
-        SafePtr<CameraNode> cam = controller.getOpenScanToolsGraphManager().getCameraNode();
+        SafePtr<CameraNode> cam = controller.getGraphManager().getCameraNode();
         WritePtr<CameraNode> wCam = cam.get();
         if (!wCam)
             return abort(controller);
@@ -108,7 +108,7 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
     //Calcul camera move delta
     if (m_exportState == 1)
     {
-        SafePtr<CameraNode> cam = controller.getOpenScanToolsGraphManager().getCameraNode();
+        SafePtr<CameraNode> cam = controller.getGraphManager().getCameraNode();
         ReadPtr<CameraNode> rCam = cam.cget();
         if (!rCam)
             return abort(controller);
@@ -181,7 +181,7 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
     if (m_exportState == 2)
     {
 
-        SafePtr<CameraNode> cam = controller.getOpenScanToolsGraphManager().getCameraNode();
+        SafePtr<CameraNode> cam = controller.getGraphManager().getCameraNode();
         WritePtr<CameraNode> wCam = cam.get();
         if (!wCam)
             return abort(controller);

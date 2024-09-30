@@ -10,7 +10,7 @@
 
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 
 #include "utils/math/trigo.h"
 #include "utils/ProjectColor.hpp"

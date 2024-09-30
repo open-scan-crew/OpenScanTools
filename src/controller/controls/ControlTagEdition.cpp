@@ -1,7 +1,7 @@
 #include "controller/controls/ControlTagEdition.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 #include "gui/GuiData/GuiDataTag.h"
 #include "utils/Logger.h"
 

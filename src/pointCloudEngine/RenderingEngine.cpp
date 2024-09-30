@@ -44,12 +44,12 @@ constexpr double HD_MARGIN = 0.05;
 
 #define TEXT_ORTHO_GRID_SIZE QObject::tr("Grid cell size : %1 %2")
 
-IRenderingEngine* scs::createRenderingEngine(OpenScanToolsGraphManager& graphManager, IDataDispatcher& dataDispatcher, const float& guiScale)
+IRenderingEngine* scs::createRenderingEngine(GraphManager& graphManager, IDataDispatcher& dataDispatcher, const float& guiScale)
 {
     return new RenderingEngine(graphManager, dataDispatcher, guiScale);
 }
 
-RenderingEngine::RenderingEngine(OpenScanToolsGraphManager& graphManager, IDataDispatcher& dataDispatcher, float guiScale)
+RenderingEngine::RenderingEngine(GraphManager& graphManager, IDataDispatcher& dataDispatcher, float guiScale)
     : m_dataDispatcher(dataDispatcher)
     , m_graph(graphManager)
     , m_guiScale(guiScale)
@@ -79,7 +79,7 @@ RenderingEngine::~RenderingEngine()
     m_dataDispatcher.unregisterObserver(this);
     stop();
 
-    // - Try to clean the graph in the OpenScanToolsGraphManager.
+    // - Try to clean the graph in the GraphManager.
     // - Uncomment if any problem during shutdown
     //m_graph.cleanGraph(true);
     shutdownImGui();

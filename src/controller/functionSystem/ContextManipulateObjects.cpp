@@ -2,7 +2,7 @@
 #include "controller/controls/ControlObject3DEdition.h"
 #include "controller/Controller.h"
 #include "controller/ControlListener.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 #include "models/3d/Graph/ManipulatorNode.h"
 #include "utils/Logger.h"
 
@@ -21,7 +21,7 @@ ContextManipulateObjects::~ContextManipulateObjects()
 
 ContextState ContextManipulateObjects::start(Controller& controller)
 {
-	std::unordered_set<SafePtr<AGraphNode>> selects = controller.getOpenScanToolsGraphManager().getNodesByTypes(ManipulatorNode::getManipulableTypes(), ObjectStatusFilter::SELECTED);
+	std::unordered_set<SafePtr<AGraphNode>> selects = controller.getGraphManager().getNodesByTypes(ManipulatorNode::getManipulableTypes(), ObjectStatusFilter::SELECTED);
 	if (selects.empty())
 	{
 		controller.updateInfo(new GuiDataWarning(TEXT_NO_OBJECT_SELECTED));

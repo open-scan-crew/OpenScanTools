@@ -10,7 +10,7 @@
 #include "utils/Logger.h"
 #include "gui/texts/ContextTexts.hpp"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 
 ContextDuplicateTag::ContextDuplicateTag(const ContextId& id)
 	: ARayTracingContext(id)
@@ -60,7 +60,7 @@ ContextState ContextDuplicateTag::launch(Controller& controller)
 		return waitForNextPoint(controller);
 	}
 
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
 
 	if (isCreation)
 	{
@@ -132,7 +132,7 @@ bool ContextDuplicateTag::canAutoRelaunch() const
 
 bool ContextDuplicateTag::refreshDupId(Controller& controller)
 {
-	std::unordered_set<SafePtr<AGraphNode>> selectedTagNodes = controller.getOpenScanToolsGraphManager().getSelectedNodes();
+	std::unordered_set<SafePtr<AGraphNode>> selectedTagNodes = controller.getGraphManager().getSelectedNodes();
 	if (selectedTagNodes.size() != 1)
 		return false;
 	SafePtr<AGraphNode> selectObj = (*selectedTagNodes.begin());

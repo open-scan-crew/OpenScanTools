@@ -19,7 +19,7 @@
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataMessages.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 #include "models/3d/Graph/MeshObjectNode.h"
 #include "models/3d/Graph/ScanNode.h"
 #include "models/3d/Graph/ScanObjectNode.h"
@@ -191,7 +191,7 @@ ContextLinkOSTObjects::~ContextLinkOSTObjects()
 
 ContextState ContextLinkOSTObjects::start(Controller& controller)
 {
-	for (const SafePtr<AGraphNode>& projObj : controller.getOpenScanToolsGraphManager().getProjectNodes())
+	for (const SafePtr<AGraphNode>& projObj : controller.getGraphManager().getProjectNodes())
 	{
 		ElementType type;
 		{

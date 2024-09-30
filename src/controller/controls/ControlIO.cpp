@@ -29,7 +29,7 @@
 #include "controller/messages/VideoExportParametersMessage.h"
 #include "controller/messages/NewProjectMessage.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 #include "models/3d/Graph/ClusterNode.h"
 #include "models/3d/Graph/ScanNode.h"
 
@@ -220,7 +220,7 @@ namespace control::io
 
 	void RefreshScanLink::doFunction(Controller& controller)
 	{
-		std::unordered_set<SafePtr<AGraphNode>> scans = controller.cgetOpenScanToolsGraphManager().getNodesByTypes({ ElementType::Scan, ElementType::PCO });
+		std::unordered_set<SafePtr<AGraphNode>> scans = controller.cgetGraphManager().getNodesByTypes({ ElementType::Scan, ElementType::PCO });
 		for (const SafePtr<AGraphNode>& scan : scans)
 		{
 			WritePtr<APointCloudNode> wScan = static_pointer_cast<APointCloudNode>(scan).get();
@@ -285,7 +285,7 @@ namespace control::io
 	void ItemsTo::doFunction(Controller& controller)
 	{
 
-		std::unordered_set<SafePtr<AGraphNode>> items = controller.getOpenScanToolsGraphManager().getNodesByTypes(m_types, m_filter);
+		std::unordered_set<SafePtr<AGraphNode>> items = controller.getGraphManager().getNodesByTypes(m_types, m_filter);
 		
 		launchContext(controller);
 		std::vector<std::filesystem::path> path({ m_filePath });
@@ -606,7 +606,7 @@ namespace control::io
 			SQLite::Database  db(m_sqliteDbPath);
 
 			std::unordered_map<std::string, SafePtr<AGraphNode>> scansMap;
-			for (const SafePtr<AGraphNode>& node : controller.getOpenScanToolsGraphManager().getNodesByTypes({ ElementType::Scan }))
+			for (const SafePtr<AGraphNode>& node : controller.getGraphManager().getNodesByTypes({ ElementType::Scan }))
 			{
 				ReadPtr<AGraphNode> rNode = node.cget();
 				if (!rNode)
@@ -707,7 +707,7 @@ namespace control::io
 
 				}
 
-				controller.getOpenScanToolsGraphManager().addNodesToGraph(toAddNodes);
+				controller.getGraphManager().addNodesToGraph(toAddNodes);
 				controller.actualizeTreeView(toActualizeNodes);
 			}
 

@@ -29,7 +29,7 @@
 
 #include "models/3d/Graph/ScanNode.h"
 #include "models/3d/Graph/ScanObjectNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 // Temporary for large coordinates
 #include "io/exports/TlsFileWriter.h"
 
@@ -160,7 +160,7 @@ ContextState ContextConvertionScan::feedMessage(IMessage* message, Controller& c
 
         glm::dvec3 scanTranslation;
         //Si le projet ne contient pas encore de scans
-        if (controller.getOpenScanToolsGraphManager().getNodesByTypes({ ElementType::Scan }).size() == 0)
+        if (controller.getGraphManager().getNodesByTypes({ ElementType::Scan }).size() == 0)
         {
             double xTrans = (pbbox.xMax >= BIG_COORDINATES_THRESHOLD || pbbox.xMin <= -BIG_COORDINATES_THRESHOLD) ? round((pbbox.xMax + pbbox.xMin) / 200.0) * 100. : 0.;
             double yTrans = (pbbox.yMax >= BIG_COORDINATES_THRESHOLD || pbbox.yMin <= -BIG_COORDINATES_THRESHOLD) ? round((pbbox.yMax + pbbox.yMin) / 200.0) * 100. : 0.;
@@ -218,7 +218,7 @@ ContextState ContextConvertionScan::launch(Controller& controller)
     }
     // -!- Ray Tracing -!-
 
-    OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+    GraphManager& graphManager = controller.getGraphManager();
 
     std::unordered_set<SafePtr<AGraphNode>> scans = graphManager.getNodesByTypes({ ElementType::Scan, ElementType::PCO });
     std::vector<glm::dvec3> allScansPosition;

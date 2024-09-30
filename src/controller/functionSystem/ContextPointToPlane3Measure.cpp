@@ -12,7 +12,7 @@
 #include "controller/controls/ControlFunction.h"
 #include "utils/Logger.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 #include "models/3d/Graph/PointToPlaneMeasureNode.h"
 
 ContextPointToPlane3Measure::ContextPointToPlane3Measure(const ContextId& id)
@@ -50,7 +50,7 @@ ContextState ContextPointToPlane3Measure::launch(Controller& controller)
 	controller.updateInfo(new GuiDataTmpMessage(TEXT_LUCAS_SEARCH_ONGOING, 0));
 	bool success = false;
 
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
 
     TlScanOverseer::setWorkingScansTransfo(graphManager.getVisiblePointCloudInstances(m_panoramic, true, true));
 	std::vector<double> plane;

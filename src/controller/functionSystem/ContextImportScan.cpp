@@ -10,7 +10,7 @@
 
 #include "models/3d/Graph/ScanNode.h"
 #include "models/3d/Graph/ScanObjectNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataTree.h"
@@ -66,7 +66,7 @@ ContextState ContextImportScan::launch(Controller& controller)
 	// -!- Ray Tracing -!-
 
 	controller.updateInfo(new GuiDataProcessingSplashScreenStart(m_scanInfo.paths.size(), TEXT_IMPORTING_SCAN, QString()));
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
 
 
 	for (const std::filesystem::path& inputFile : m_scanInfo.paths)

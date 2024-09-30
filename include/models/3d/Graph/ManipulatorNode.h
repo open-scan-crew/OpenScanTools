@@ -2,7 +2,8 @@
 #define MANIPULATOR_NODE_H
 
 #include "models/3d/Graph/AObjectNode.h"
-#include <unordered_map>
+
+#include <unordered_set>
 
 class IDataDispatcher;
 class MeshBuffer;

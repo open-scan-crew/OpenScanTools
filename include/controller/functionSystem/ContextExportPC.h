@@ -16,7 +16,7 @@ enum PrecisionType;
 class IScanFileWriter;
 class CSVWriter;
 
-class OpenScanToolsGraphManager;
+class GraphManager;
 class CameraNode;
 
 class ContextExportPC : public AContext
@@ -45,7 +45,7 @@ private:
     void addOriginCube(IScanFileWriter* fileWriter, tls::PointFormat pointFormat, CSVWriter& csvWriter);
     bool ensureFileWriter(Controller& controller, std::unique_ptr<IScanFileWriter>& scanFileWriter, std::wstring name, CSVWriter* csvWriter);
     bool prepareOutputDirectory(Controller& controller, const std::filesystem::path& folderPath);
-    std::vector<tls::PointCloudInstance> getPointCloudInstances(OpenScanToolsGraphManager& graphManager);
+    std::vector<tls::PointCloudInstance> getPointCloudInstances(GraphManager& graphManager);
     void getBestOriginOrientationAndBBox(const ClippingAssembly& clippingAssembly, const tls::BoundingBox& scanBBox, glm::dvec3& bestOrigin, glm::dquat& bestOrientation);
     // Should be static functions for tls::BoundingBox
     static tls::BoundingBox getGlobalBoundingBox(const std::vector<tls::PointCloudInstance>& pcInstances);

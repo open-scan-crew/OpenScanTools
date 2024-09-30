@@ -8,7 +8,7 @@
 #include "controller/messages/DataIDListMessage.h"
 #include "controller/messages/ManipulateMessage.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 #include "models/3d/Graph/AClippingNode.h"
 #include "models/3d/Graph/ClusterNode.h"
 #include "models/3d/Graph/SphereNode.h"

@@ -17,7 +17,7 @@
 #include "gui/Texts.hpp"
 
 #include "models/3d/Graph/TagNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 
 #include "magic_enum/magic_enum.hpp"
 
@@ -178,7 +178,7 @@ namespace control
 
 		void DeleteTagTemplate::doFunction(Controller& controller)
 		{
-			OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+			GraphManager& graphManager = controller.getGraphManager();
 
 			std::unordered_set<SafePtr<TagNode>> tags = graphManager.getTagsWithTemplate(m_toDeleteTemplate);
 			if (tags.empty())
@@ -393,7 +393,7 @@ namespace control
 
 		void TemplateDeleteField::doFunction(Controller& controller)
 		{
-			OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+			GraphManager& graphManager = controller.getGraphManager();
 
 			{
 				WritePtr<sma::TagTemplate> wTagTemp = m_toChangeTemplate.get();
@@ -494,7 +494,7 @@ namespace control
 
 		void TemplateChangeTypeField::doFunction(Controller& controller)
 		{
-			OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+			GraphManager& graphManager = controller.getGraphManager();
 
 			std::unordered_set<SafePtr<TagNode>> tags = graphManager.getTagsWithTemplate(m_toChangeTemplate);
 			std::unordered_set<SafePtr<AGraphNode>> nodes;
@@ -538,7 +538,7 @@ namespace control
 
 		void TemplateChangeRefField::doFunction(Controller& controller)
 		{
-			OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+			GraphManager& graphManager = controller.getGraphManager();
 
 			std::unordered_set<SafePtr<TagNode>> tags = graphManager.getTagsWithTemplate(m_toChangeTemplate);
 			std::unordered_set<SafePtr<AGraphNode>> nodes;

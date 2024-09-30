@@ -6,7 +6,7 @@
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/Texts.hpp"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/3d/Graph/GraphManager.hxx"
 #include "models/3d/Graph/PointNode.h"
 
 ContextPointCreation::ContextPointCreation(const ContextId& id)

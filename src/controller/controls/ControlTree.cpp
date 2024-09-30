@@ -12,7 +12,7 @@
 #include "gui/Texts.hpp"
 
 #include "models/3d/Graph/ClusterNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.h"
+#include "models/3d/Graph/GraphManager.h"
 
 namespace control::tree
 {
