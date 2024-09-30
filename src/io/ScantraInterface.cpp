@@ -1,4 +1,5 @@
 #include "ScantraInterface.h"
+#include "controller/Controller.h"
 #include "models/3d/Graph/OpenScanToolsGraphManager.h"
 #include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
 #include "models/3d/graph/ClusterNode.h"
@@ -9,8 +10,9 @@
 
 #include <wchar.h>
 
-ScantraInterface::ScantraInterface(IDataDispatcher& data_dispatcher, OpenScanToolsGraphManager& graph)
-    : data_dispatcher_(data_dispatcher)
+ScantraInterface::ScantraInterface(Controller& controller, IDataDispatcher& data_dispatcher, OpenScanToolsGraphManager& graph)
+    : controller_(controller)
+    , data_dispatcher_(data_dispatcher)
     , graph_(graph)
 {
 }
@@ -191,6 +193,11 @@ void ScantraInterface::run()
             editStationColor();
             break;
         }
+        case ScantraInterprocessObserver::newAdjustmentResult:
+        {
+            editStationAdjustment();
+            break;
+        }
         default:
             break;
         }
@@ -241,16 +248,6 @@ void ScantraInterface::editStationChanged()
 
     auto scan = graph_.getNodesOnFilter(filter_scan);
 
-    std::function<bool(const SafePtr<AGraphNode>&)> filter_group =
-        [group_id](const SafePtr<AGraphNode>& node) {
-        ReadPtr<AGraphNode> r_node = node.cget();
-        if (!r_node)
-            return false;
-        return (r_node->getType() == ElementType::Cluster) &&
-               (r_node->getName().compare(group_id) == 0);
-        };
-    auto group = graph_.getNodesOnFilter(filter_group);
-
     std::function<bool(ReadPtr<AGraphNode>&)> filter_type =
         [group_id](ReadPtr<AGraphNode>& r_node) {
             return (r_node->getType() == ElementType::Cluster) &&
@@ -276,7 +273,7 @@ void ScantraInterface::editStationChanged()
         AGraphNode::addOwningLink(*clusters.begin(), *scan.begin());
     }
 
-    data_dispatcher_.updateInformation(new GuiDataTreeActualizeNodes(scan));
+    controller_.actualizeTreeView(scan);
 }
 
 void ScantraInterface::editIntersectionPlane()
@@ -348,4 +345,54 @@ void ScantraInterface::editStationColor()
         WritePtr<AGraphNode> wPtr = scan.begin()->get();
         wPtr->setColor(Color32(r, g, b));
     }
+}
+
+void ScantraInterface::editStationAdjustment()
+{
+    assert(data_->n_i == 2);
+    SubLogger& log = Logger::log(LoggerMode::IOLog);
+    log << "+++ Station adjustment (" << data_->i_array[0] + 1 << "/" << data_->i_array[1] << ") +++\n";
+
+    std::wstring station_id = data_->w_array[0];
+    std::wstring datum_id = data_->w_array[1];
+
+    log << "station id:  " << station_id << "\n";
+    log << "datum id:    " << datum_id << "\n";
+
+    if (data_->n_d != 7)
+        return;
+    double q0 = data_->d_array[0];
+    double qx = data_->d_array[1];
+    double qy = data_->d_array[2];
+    double qz = data_->d_array[3];
+    double tx = data_->d_array[4];
+    double ty = data_->d_array[5];
+    double tz = data_->d_array[6];
+
+    log << "q = (" << q0 << ", " << qx << ", " << qy << ", " << qz << ")\n";
+    log << "t = (" << tx << ", " << ty << ", " << tz << ")\n";
+    log << Logger::endl;
+
+    std::function<bool(const SafePtr<AGraphNode>&)> filter_scan =
+        [station_id](const SafePtr<AGraphNode>& node) {
+        ReadPtr<AGraphNode> rPtr = node.cget();
+        if (!rPtr)
+            return false;
+        return (rPtr->getType() == ElementType::Scan) &&
+            (rPtr->getName().compare(station_id) == 0);
+        };
+
+    auto scan = graph_.getNodesOnFilter(filter_scan);
+
+
+    // We try a naive approach, just place the scan at the coordinates received
+    if (scan.size() != 1)
+        return;
+    {
+        WritePtr<AGraphNode> wPtr = scan.begin()->get();
+        wPtr->setPosition(glm::dvec3(tx, ty, tz));
+        wPtr->setRotation(glm::dquat(q0, qx, qy, qz));
+    }
+
+    controller_.actualizeTreeView(scan);
 }

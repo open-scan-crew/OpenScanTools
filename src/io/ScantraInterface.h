@@ -12,14 +12,14 @@
 
 #include <thread>
 
-//class Controller;
+class Controller;
 class IDataDispatcher;
 class OpenScanToolsGraphManager;
 
 class ScantraInterface
 {
 public:
-    ScantraInterface(IDataDispatcher& data_dispatcher, OpenScanToolsGraphManager& graph);
+    ScantraInterface(Controller& controller, IDataDispatcher& data_dispatcher, OpenScanToolsGraphManager& graph);
     ~ScantraInterface();
 
     int startInterface();
@@ -31,6 +31,7 @@ private:
     void editStationChanged();
     void editIntersectionPlane();
     void editStationColor();
+    void editStationAdjustment();
 
 private:
     // interprocess memory
@@ -44,7 +45,7 @@ private:
     std::thread thread_;
 
     // OpenScanTools accessors
-    //Controller& controller_;
+    Controller& controller_;
     IDataDispatcher& data_dispatcher_;
     OpenScanToolsGraphManager& graph_;
 };
