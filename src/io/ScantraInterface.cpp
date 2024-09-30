@@ -373,26 +373,50 @@ void ScantraInterface::editStationAdjustment()
     log << "t = (" << tx << ", " << ty << ", " << tz << ")\n";
     log << Logger::endl;
 
-    std::function<bool(const SafePtr<AGraphNode>&)> filter_scan =
-        [station_id](const SafePtr<AGraphNode>& node) {
-        ReadPtr<AGraphNode> rPtr = node.cget();
-        if (!rPtr)
-            return false;
-        return (rPtr->getType() == ElementType::Scan) &&
-            (rPtr->getName().compare(station_id) == 0);
+    std::function<bool(ReadPtr<AGraphNode>&)> filter_type =
+        [](ReadPtr<AGraphNode>& r_node) {
+        return (r_node->getType() == ElementType::Scan);
         };
 
-    auto scan = graph_.getNodesOnFilter(filter_scan);
+    std::function<bool(ReadPtr<AGraphNode>&)> filter_station_name =
+        [station_id](const ReadPtr<AGraphNode>& r_node) {
+        return (r_node->getName().compare(station_id) == 0);
+        };
 
+    std::function<bool(ReadPtr<AGraphNode>&)> filter_datum_name =
+        [datum_id](const ReadPtr<AGraphNode>& r_node) {
+        return (r_node->getName().compare(datum_id) == 0);
+        };
+
+    auto scan_uset = graph_.getNodesOnFilter<AGraphNode>(filter_type, filter_station_name);
+    if (scan_uset.size() != 1)
+        return;
+    SafePtr<AGraphNode> scan = *scan_uset.begin();
 
     // We try a naive approach, just place the scan at the coordinates received
-    if (scan.size() != 1)
-        return;
+    if (datum_id.compare(L"GlobalCoordinateSystem") == 0)
     {
-        WritePtr<AGraphNode> wPtr = scan.begin()->get();
+        WritePtr<AGraphNode> wPtr = scan.get();
         wPtr->setPosition(glm::dvec3(tx, ty, tz));
         wPtr->setRotation(glm::dquat(q0, qx, qy, qz));
     }
+    else
+    {
+        auto datum_uset = graph_.getNodesOnFilter<AGraphNode>(filter_type, filter_datum_name);
+        if (scan_uset.size() != 1)
+            return;
+        SafePtr<AGraphNode> datum = *datum_uset.begin();
+        if (scan == datum)
+        {
+            Logger::log(LoggerMode::IOLog) << "This is the reference station." << Logger::endl;
+        }
+        else
+        {
+            AGraphNode::addGeometricLink(datum, scan);
+            WritePtr<AGraphNode> wPtr = scan.get();
+            wPtr->setPosition(glm::dvec3(tx, ty, tz));
+            wPtr->setRotation(glm::dquat(q0, qx, qy, qz));
+        }
+    }
 
-    controller_.actualizeTreeView(scan);
 }
