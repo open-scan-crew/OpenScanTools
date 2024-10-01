@@ -10,11 +10,15 @@
 #include <boost/interprocess/shared_memory_object.hpp>
 //#include <boost/date_time/posix_time/posix_time.hpp>
 
+#include "utils/safe_ptr.h"
+
 #include <thread>
+#include <unordered_set>
 
 class Controller;
 class IDataDispatcher;
 class OpenScanToolsGraphManager;
+class AGraphNode;
 
 class ScantraInterface
 {
@@ -33,6 +37,8 @@ private:
     void editStationColor();
     void editStationAdjustment();
 
+    void manageVisibility(int current_idx, int total_station, SafePtr<AGraphNode> scan);
+
 private:
     // interprocess memory
     boost::interprocess::windows_shared_memory shm_;
@@ -48,6 +54,8 @@ private:
     Controller& controller_;
     IDataDispatcher& data_dispatcher_;
     OpenScanToolsGraphManager& graph_;
+
+    std::unordered_set<SafePtr<AGraphNode>> scan_selection_;
 };
 
 #endif

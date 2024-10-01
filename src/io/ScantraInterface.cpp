@@ -3,6 +3,7 @@
 #include "models/3d/Graph/OpenScanToolsGraphManager.h"
 #include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
 #include "models/3d/graph/ClusterNode.h"
+#include "models/3d/graph/ScanNode.h"
 #include "models/3d/Graph/BoxNode.h"
 #include "gui/DataDispatcher.h"
 #include "gui/GuiData/GuiDataTree.h"
@@ -351,7 +352,9 @@ void ScantraInterface::editStationAdjustment()
 {
     assert(data_->n_i == 2);
     SubLogger& log = Logger::log(LoggerMode::IOLog);
-    log << "+++ Station adjustment (" << data_->i_array[0] + 1 << "/" << data_->i_array[1] << ") +++\n";
+    int current_entry = data_->i_array[0];
+    int total_entry = data_->i_array[1];
+    log << "+++ Station adjustment (" << current_entry + 1 << "/" << total_entry << ") +++\n";
 
     std::wstring station_id = data_->w_array[0];
     std::wstring datum_id = data_->w_array[1];
@@ -373,22 +376,19 @@ void ScantraInterface::editStationAdjustment()
     log << "t = (" << tx << ", " << ty << ", " << tz << ")\n";
     log << Logger::endl;
 
-    std::function<bool(ReadPtr<AGraphNode>&)> filter_type =
-        [](ReadPtr<AGraphNode>& r_node) {
-        return (r_node->getType() == ElementType::Scan);
-        };
-
-    std::function<bool(ReadPtr<AGraphNode>&)> filter_station_name =
+    std::function<bool(ReadPtr<AGraphNode>&)> filter_station =
         [station_id](const ReadPtr<AGraphNode>& r_node) {
-        return (r_node->getName().compare(station_id) == 0);
+        return (r_node->getType() == ElementType::Scan) &&
+               (r_node->getName().compare(station_id) == 0);
         };
 
-    std::function<bool(ReadPtr<AGraphNode>&)> filter_datum_name =
+    std::function<bool(ReadPtr<AGraphNode>&)> filter_datum =
         [datum_id](const ReadPtr<AGraphNode>& r_node) {
-        return (r_node->getName().compare(datum_id) == 0);
+        return (r_node->getType() == ElementType::Scan) &&
+               (r_node->getName().compare(datum_id) == 0);
         };
 
-    auto scan_uset = graph_.getNodesOnFilter<AGraphNode>(filter_type, filter_station_name);
+    auto scan_uset = graph_.getNodesOnFilter<AGraphNode>(filter_station);
     if (scan_uset.size() != 1)
         return;
     SafePtr<AGraphNode> scan = *scan_uset.begin();
@@ -402,7 +402,7 @@ void ScantraInterface::editStationAdjustment()
     }
     else
     {
-        auto datum_uset = graph_.getNodesOnFilter<AGraphNode>(filter_type, filter_datum_name);
+        auto datum_uset = graph_.getNodesOnFilter<AGraphNode>(filter_datum);
         if (scan_uset.size() != 1)
             return;
         SafePtr<AGraphNode> datum = *datum_uset.begin();
@@ -419,4 +419,60 @@ void ScantraInterface::editStationAdjustment()
         }
     }
 
+    // On recoit les stations une par une.
+    // Il faut rendre invisible les stations que l’on ne recevra pas
+    // -> On stocke les entrée que l’on reçoit
+    // -> On active/désactive la visibilité des scan lors de la dernière entrée.
+    manageVisibility(current_entry, total_entry, scan);
+}
+
+
+void ScantraInterface::manageVisibility(int current_station, int total_station, SafePtr<AGraphNode> scan)
+{
+    if (current_station == 0)
+        scan_selection_.clear();
+
+    // Ajoute le scan à la liste des scans à rendre visibles
+    scan_selection_.insert(scan);
+
+    // Change visibility when we have all the scans
+    if (current_station == total_station - 1)
+    {
+        std::unordered_set<SafePtr<AGraphNode>> tree_update;
+        
+        std::function<bool(ReadPtr<AGraphNode>&)> filter =
+            [](ReadPtr<AGraphNode>& r_node) {
+            return (r_node->getType() == ElementType::Scan) &&
+                   (r_node->isVisible());
+            };
+        // Mettre les scan visibles
+        auto visi_scans = graph_.getNodesOnFilter<AGraphNode>(filter);
+
+        // Hide scans that are not in the selection
+        for (SafePtr<AGraphNode> scan : visi_scans)
+        {
+            if (scan_selection_.find(scan) == scan_selection_.end())
+            {
+                WritePtr<AGraphNode> w_scan = scan.get();
+                if (!w_scan)
+                    continue;
+                w_scan->setVisible(false);
+                tree_update.insert(scan);
+            }
+        }
+
+        // Show scans in the selection
+        for (SafePtr<AGraphNode> scan : scan_selection_)
+        {
+            WritePtr<AGraphNode> w_scan = scan.get();
+            if (!w_scan)
+                continue;
+            if (w_scan->isVisible() == false)
+            {
+                w_scan->setVisible(true);
+                tree_update.insert(scan);
+            }
+        }
+        controller_.actualizeTreeView(tree_update);
+    }
 }
