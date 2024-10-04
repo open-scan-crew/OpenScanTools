@@ -1,5 +1,7 @@
 #include "ScantraInterface.h"
 #include "controller/Controller.h"
+#include "controller/ControlListener.h"
+#include "controller/controls/ControlViewport.h"
 #include "models/3d/Graph/OpenScanToolsGraphManager.h"
 #include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
 #include "models/3d/graph/ClusterNode.h"
@@ -294,25 +296,38 @@ void ScantraInterface::editIntersectionPlane()
     log << "t = (" << tx << ", " << ty << ", " << tz << ")\n";
     log << Logger::endl;
 
-    std::function<bool(const SafePtr<AGraphNode>&)> filter_box =
-        [](const SafePtr<AGraphNode>& node) {
-        ReadPtr<AGraphNode> rPtr = node.cget();
-        if (!rPtr)
-            return false;
-        return (rPtr->getType() == ElementType::Box) &&
-            (rPtr->getName().compare(L"Scantra_box") == 0);
-        };
-
-    auto boxes = graph_.getNodesOnFilter(filter_box);
-
-    if (boxes.size() >= 1)
+    SafePtr<BoxNode> box;
+    bool create_box = false;
+    // Retreive the box or create it
     {
-        WritePtr<AGraphNode> w_box = boxes.begin()->get();
-        if (!w_box)
-            return;
-        w_box->setPosition(glm::dvec3(tx, ty, tz));
-        w_box->setRotation(glm::dquat(q0, qx, qy, qz));
+        std::function<bool(const ReadPtr<AGraphNode>&)> filter_box =
+            [](const ReadPtr<AGraphNode>& r_node) {
+            return (r_node->getType() == ElementType::Box) &&
+                (r_node->getName().compare(L"intersection_plane") == 0);
+            };
+        auto boxes = graph_.getNodesOnFilter<BoxNode>(filter_box);
+
+        create_box = boxes.size() == 0;
+        box = create_box ? make_safe<BoxNode>(true) : *boxes.begin();
+        graph_.addNodesToGraph({ box });
     }
+
+    WritePtr<BoxNode> w_box = box.get();
+    if (!w_box)
+        return;
+    w_box->setPosition(glm::dvec3(tx, ty, tz));
+    w_box->setRotation(glm::dquat(q0, qx, qy, qz));
+    w_box->setVisible(false);
+    w_box->setClippingMode(ClippingMode::showInterior);
+    w_box->setClippingActive(true);
+    if (create_box)
+    {
+        w_box->setName(L"intersection_plane");
+        w_box->setSize(glm::dvec3(1000.0, 1000.0, 0.1));
+    }
+
+    controller_.actualizeTreeView(box);
+    controller_.getControlListener()->notifyUIControl(new control::viewport::AlignViewSide(AlignView::Top, SafePtr<CameraNode>()));
 }
 
 void ScantraInterface::editStationColor()
@@ -474,5 +489,6 @@ void ScantraInterface::manageVisibility(int current_station, int total_station, 
             }
         }
         controller_.actualizeTreeView(tree_update);
+        controller_.getControlListener()->notifyUIControl(new control::viewport::AlignViewSide(AlignView::Iso, SafePtr<CameraNode>()));
     }
 }
