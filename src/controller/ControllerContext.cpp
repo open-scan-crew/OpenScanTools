@@ -1,7 +1,7 @@
 #include "controller/ControllerContext.h"
 
 // Data Model
-#include "models/3d/Graph/ScanNode.h"
+#include "models/graph/ScanNode.h"
 
 #include "utils/ProjectColor.hpp"
 #include "utils/ProjectStringSets.hpp"

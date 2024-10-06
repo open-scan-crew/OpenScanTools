@@ -8,7 +8,7 @@
 #include "utils/math/trigo.h"
 #include "controller/Controller.h"
 
-#include "models/3d/Graph/MeshObjectNode.h"
+#include "models/graph/MeshObjectNode.h"
 
 PropertyMeshObject::PropertyMeshObject(Controller& controller, QWidget* parent, float guiScale)
 	: APropertyGeneral(controller.getDataDispatcher(), parent)

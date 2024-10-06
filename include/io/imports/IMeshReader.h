@@ -4,7 +4,7 @@
 #include "io/MeshObjectTypes.h"
 #include "vulkan/Graph/MemoryReturnCode.h"
 #include "utils/Logger.h"
-#include "models/3d/Graph/ClusterNode.h"
+#include "models/graph/ClusterNode.h"
 #include "models/OpenScanToolsModelEssentials.h"
 
 #define IOLOG Logger::log(LoggerMode::IOLog)

@@ -37,7 +37,7 @@ bool tlScanLeftToFree()
 	return TlScanOverseer::getInstance().isScanLeftTofree();
 }
 
-tls::TBoundingBox<double> tlScansBoundingBox()
+BoundingBoxD tlScansBoundingBox()
 {
     return TlScanOverseer::getInstance().getScansBoundingBox();
 }

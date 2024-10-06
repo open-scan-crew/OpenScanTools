@@ -11,8 +11,8 @@
 #include "utils/Logger.h"
 #include "gui/Texts.hpp"
 
-#include "models/3d/Graph/ClusterNode.h"
-#include "models/3d/Graph/GraphManager.h"
+#include "models/graph/ClusterNode.h"
+#include "models/graph/GraphManager.h"
 
 namespace control::tree
 {

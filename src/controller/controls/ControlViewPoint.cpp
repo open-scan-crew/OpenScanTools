@@ -7,10 +7,10 @@
 #include "utils/Logger.h"
 #include "controller/messages/DataIDListMessage.h"
 
-#include "models/3d/Graph/GraphManager.hxx"
-#include "models/3d/Graph/AClippingNode.h"
-#include "models/3d/Graph/ViewPointNode.h"
-#include "models/3d/Graph/CameraNode.h"
+#include "models/graph/GraphManager.hxx"
+#include "models/graph/AClippingNode.h"
+#include "models/graph/ViewPointNode.h"
+#include "models/graph/CameraNode.h"
 
 namespace control::viewpoint
 {

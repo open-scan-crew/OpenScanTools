@@ -2,9 +2,9 @@
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
 
-#include "models/3d/Graph/GraphManager.h"
-#include "models/3d/Graph/CameraNode.h"
-#include "models/3d/Graph/ViewPointNode.h"
+#include "models/graph/GraphManager.h"
+#include "models/graph/CameraNode.h"
+#include "models/graph/ViewPointNode.h"
 
 #include "controller/messages/FilesMessage.h"
 #include "controller/messages/GeneralMessage.h"

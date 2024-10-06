@@ -5,17 +5,17 @@
 #include "gui/texts/ContextTexts.hpp"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/GraphManager.hxx"
 #include "controller/ControlListener.h"
 #include "controller/functionSystem/FunctionManager.h"
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "controller/controls/ControlFunctionClipping.h"
 #include "controller/controls/ControlFunctionTag.h"
-#include "models/3d/Graph/SphereNode.h"
+#include "models/graph/SphereNode.h"
 #include "controller/controls/ControlFunction.h"
 #include "utils/Logger.h"
-#include "models/3d/Graph/PointNode.h"
+#include "models/graph/PointNode.h"
 
 
 Context4ClicsSphere::Context4ClicsSphere(const ContextId& id)

@@ -17,9 +17,9 @@
 #include "utils/Utils.h"
 #include "vulkan/Graph/MemoryReturnCode.h"
 
-#include "models/3d/Graph/MeshObjectNode.h"
-#include "models/3d/Graph/ClusterNode.h"
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/MeshObjectNode.h"
+#include "models/graph/ClusterNode.h"
+#include "models/graph/GraphManager.hxx"
 
 #include "io/imports/stepFileReader.h"
 

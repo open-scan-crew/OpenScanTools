@@ -2,7 +2,7 @@
 //#include "controller/controls/ControlFunctionClipping.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "models/3d/Graph/TransformationModule.h"
+#include "models/graph/TransformationModule.h"
 #include "utils/math/trigo.h"
 
 ADuplication::ADuplication(DuplicationMode mode)

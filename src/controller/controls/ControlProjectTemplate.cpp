@@ -15,7 +15,7 @@
 #include <filesystem>
 #include <Windows.h>
 
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/GraphManager.hxx"
 
 // control::projectTemplate::
 #define Yes 0x00004000

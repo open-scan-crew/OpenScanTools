@@ -3,7 +3,7 @@
 
 #include "controller/functionSystem/ARayTracingContext.h"
 #include "models/OpenScanToolsModelEssentials.h"
-#include "models/3d/graph/ClusterNode.h"
+#include "models/graph/ClusterNode.h"
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "pointCloudEngine/OctreeRayTracing.h"
 

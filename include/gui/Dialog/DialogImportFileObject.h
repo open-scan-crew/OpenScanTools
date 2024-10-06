@@ -9,7 +9,7 @@
 #include "gui/IDataDispatcher.h"
 #include <unordered_set>
 
-#include "models/3d/Graph/AGraphNode.h"
+#include "models/graph/AGraphNode.h"
 
 #define GUILOG Logger::log(LoggerMode::GuiLog)
 

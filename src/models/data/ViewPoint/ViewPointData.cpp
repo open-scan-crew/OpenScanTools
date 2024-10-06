@@ -1,10 +1,10 @@
 #include "models/data/ViewPoint/ViewPointData.h"
 
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/GraphManager.hxx"
 #include "controller/Controller.h"
 
-#include "models/3d/Graph/AClippingNode.h"
-#include "models/3d/Graph/ViewPointNode.h"
+#include "models/graph/AClippingNode.h"
+#include "models/graph/ViewPointNode.h"
 
 ViewPointData::ViewPointData()
 {}

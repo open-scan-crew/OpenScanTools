@@ -7,7 +7,7 @@
 
 #include "gui/GuiData/GuiDataMessages.h"
 
-#include "models/3d/Graph/AGraphNode.h"
+#include "models/graph/AGraphNode.h"
 
 // ATEditionControl
 

@@ -1,6 +1,6 @@
 #include "models/data/Data.h"
 #include "controller/ControllerContext.h"
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/GraphManager.hxx"
 
 #include "utils/Logger.h"
 #include "utils/Utils.h"

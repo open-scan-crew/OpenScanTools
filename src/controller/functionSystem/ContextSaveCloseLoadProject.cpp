@@ -10,7 +10,7 @@
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataContextRequest.h"
 #include "gui/GuiData/GuiDataIO.h"
-#include "models/3d/graph/CameraNode.h"
+#include "models/graph/CameraNode.h"
 #include "controller/controls/ControlProject.h"
 #include "controller/controls/ControlApplication.h"
 #include "Gui/Translator.h"

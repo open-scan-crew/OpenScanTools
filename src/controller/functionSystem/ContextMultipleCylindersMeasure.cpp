@@ -9,7 +9,7 @@
 #include "controller/functionSystem/FunctionManager.h"
 #include "pointCloudEngine/TlScanOverseer.h"
 
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/GraphManager.hxx"
 
 ContextMultipleCylinders::ContextMultipleCylinders(const ContextId& id)
 	: ARayTracingContext(id)

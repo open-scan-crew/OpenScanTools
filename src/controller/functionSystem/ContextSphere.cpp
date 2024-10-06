@@ -11,9 +11,9 @@
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "utils/Logger.h"
 #include "controller/controls/ControlFunction.h"
-#include "models/3d/Graph/PointNode.h"
-#include "models/3d/Graph/GraphManager.hxx"
-#include "models/3d/Graph/SphereNode.h"
+#include "models/graph/PointNode.h"
+#include "models/graph/GraphManager.hxx"
+#include "models/graph/SphereNode.h"
 
 #include "magic_enum/magic_enum.hpp"
 

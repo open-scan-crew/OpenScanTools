@@ -9,9 +9,10 @@
 #include <set>
 
 #include "models/pointCloud/TLS.h"
+#include "models/pointCloud/PointCloudInstance.h"
 #include "pointCloudEngine/PCE_stream.h"
 #include "models/data/clipping/ClippingGeometry.h"
-#include "models/3d/Graph/TransformationModule.h"
+#include "models/graph/TransformationModule.h"
 #include "models/3d/Measures.h"
 
 #include "models/OpenScanToolsModelEssentials.h"
@@ -198,8 +199,8 @@ public:
     void streamScans(uint64_t maxSize, char* stagingBuffer, std::vector<TlStagedTransferInfo>& vkTransfer);
 
     //PC Objects
-    tls::BoundingBox getActiveBoundingBox() const;
-    tls::TBoundingBox<double> getScansBoundingBox() const;
+    BoundingBoxD getActiveBoundingBox() const;
+    BoundingBoxD getScansBoundingBox() const;
 
 
     std::list<tls::ScanHeader> getScansHeaders() const;

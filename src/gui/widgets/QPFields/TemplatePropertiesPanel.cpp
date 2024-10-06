@@ -17,7 +17,7 @@
 
 #include <glm/gtx/norm.hpp>
 
-#include "models/3d/Graph/TagNode.h"
+#include "models/graph/TagNode.h"
 
 #include <cctype>
 #include <QHeaderView>

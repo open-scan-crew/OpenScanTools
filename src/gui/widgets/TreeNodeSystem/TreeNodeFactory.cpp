@@ -4,8 +4,8 @@
 #include "controller/controls/ControlTree.h"
 
 #include "gui/widgets/ProjectTreePanel.h"
-#include "models/3d/Graph/GraphManager.hxx"
-#include "models/3d/Graph/TagNode.h"
+#include "models/graph/GraphManager.hxx"
+#include "models/graph/TagNode.h"
 
 #include "models/3d/NodeFunctions.h"
 

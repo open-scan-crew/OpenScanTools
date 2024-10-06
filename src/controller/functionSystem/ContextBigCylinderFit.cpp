@@ -12,8 +12,8 @@
 #include "controller/controls/ControlFunction.h"
 #include "utils/Logger.h"
 
-#include "models/3d/Graph/GraphManager.hxx"
-#include "models/3d/Graph/CylinderNode.h"
+#include "models/graph/GraphManager.hxx"
+#include "models/graph/CylinderNode.h"
 
 #include <glm/gtx/quaternion.hpp>
 

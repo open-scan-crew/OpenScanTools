@@ -29,9 +29,9 @@
 #include "controller/messages/VideoExportParametersMessage.h"
 #include "controller/messages/NewProjectMessage.h"
 
-#include "models/3d/Graph/GraphManager.hxx"
-#include "models/3d/Graph/ClusterNode.h"
-#include "models/3d/Graph/ScanNode.h"
+#include "models/graph/GraphManager.hxx"
+#include "models/graph/ClusterNode.h"
+#include "models/graph/ScanNode.h"
 
 #include "io/exports/CSVWriter.h"
 #include "utils/time.h"

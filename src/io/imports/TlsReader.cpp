@@ -102,7 +102,7 @@ bool tls::reader::getScanInfo(std::ifstream& _is, FileVersion _version, ScanHead
         _is.read((char*)&_info.acquisitionDate, sizeof(_info.acquisitionDate));
 
         seekScanHeaderPos(_is, scanNumber, TL_SCAN_ADDR_BOUNDING_BOX);
-        _is.read((char*)&_info.bbox, sizeof(tls::BoundingBox));
+        _is.read((char*)&_info.bbox, sizeof(BoundingBox));
 
         seekScanHeaderPos(_is, scanNumber, TL_SCAN_ADDR_TRANSFORMATION);
         _is.read((char*)&_info.transfo.quaternion, 4 * sizeof(double));
@@ -145,7 +145,7 @@ bool tls::reader::getScanInfo(std::ifstream& _is, FileVersion _version, ScanHead
         _is.read((char*)&_info.acquisitionDate, sizeof(_info.acquisitionDate));
 
         _is.seekg(SCAN_ADDR_BOUNDING_BOX);
-        _is.read((char*)&_info.bbox, sizeof(tls::BoundingBox));
+        _is.read((char*)&_info.bbox, sizeof(BoundingBox));
 
         _is.seekg(SCAN_ADDR_TRANSFORMATION);
         _is.read((char*)&_info.transfo.quaternion, 4 * sizeof(double));
@@ -297,9 +297,9 @@ OctreeDecoder* tls::reader::getNewOctreeDecoder(std::ifstream& _is, const FileVe
     _is.read((char*)&pointDataOffset, sizeof(uint64_t));
     _is.read((char*)&instanceDataOffset, sizeof(uint64_t));
 
-    tls::BoundingBox bbox;
+    BoundingBox bbox;
     seekScanHeaderPos(_is, scanNumber, TL_SCAN_ADDR_BOUNDING_BOX);
-    _is.read((char*)&bbox, sizeof(tls::BoundingBox));
+    _is.read((char*)&bbox, sizeof(BoundingBox));
 
     OctreeDecoder* octreeDecoder = new OctreeDecoder(*base, bbox);
 

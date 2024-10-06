@@ -3199,13 +3199,14 @@ glm::dvec3 TlScanOverseer::computeAreaOfPolyline(std::vector<Measure> measures)
 
 }
 
-tls::BoundingBox TlScanOverseer::getActiveBoundingBox() const
+BoundingBoxD TlScanOverseer::getActiveBoundingBox() const
 {
-    tls::BoundingBox projectBBox = EMPTY_BOUNDING_BOX(float);
+	BoundingBoxD projectBBox;
+	projectBBox.setEmpty();
 
     for (const WorkingScanInfo& _pair : s_workingScansTransfo)
     {
-        tls::BoundingBox bb = _pair.scan.getBoundingBox(_pair.transfo.getTransformation());
+        BoundingBoxD bb = _pair.scan.getBoundingBox(_pair.transfo.getTransformation());
 
         projectBBox.xMax = bb.xMax > projectBBox.xMax ? bb.xMax : projectBBox.xMax;
         projectBBox.yMax = bb.yMax > projectBBox.yMax ? bb.yMax : projectBBox.yMax;
@@ -3218,24 +3219,19 @@ tls::BoundingBox TlScanOverseer::getActiveBoundingBox() const
     return projectBBox;
 }
 
-tls::TBoundingBox<double> TlScanOverseer::getScansBoundingBox() const
+BoundingBoxD TlScanOverseer::getScansBoundingBox() const
 {
     if (m_activeScans.empty())
     {
         return { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
     }
 
-    tls::TBoundingBox<double> projectBBox;
-    projectBBox.xMax = std::numeric_limits<double>::min();
-    projectBBox.yMax = std::numeric_limits<double>::min();
-    projectBBox.zMax = std::numeric_limits<double>::min();
-    projectBBox.xMin = std::numeric_limits<double>::max();
-    projectBBox.yMin = std::numeric_limits<double>::max();
-    projectBBox.zMin = std::numeric_limits<double>::max();
+    BoundingBoxD projectBBox;
+	projectBBox.setEmpty();
 
     for (const std::pair<tls::ScanGuid, EmbeddedScan*>& _pair : m_activeScans)
     {
-        const tls::BoundingBox bb = _pair.second->getLocalBoundingBox();
+        const BoundingBox bb = _pair.second->getLocalBoundingBox();
         tls::ScanHeader header;
         _pair.second->getInfo(header);
         const tls::Transformation& transfo(header.transfo);

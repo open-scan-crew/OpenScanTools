@@ -69,7 +69,7 @@ bool tls::writer::writeOctreeCtor(std::ofstream& _os, uint32_t _scanNumber, Octr
 
     // *** Bounding Box ***
     seekScanHeaderPos(_os, _scanNumber, TL_SCAN_ADDR_BOUNDING_BOX);
-    _os.write((char*)&_pOctree->m_bbox, sizeof(tls::BoundingBox));
+    _os.write((char*)&_pOctree->m_bbox, sizeof(BoundingBox));
 
     // *** Transformation ***
     seekScanHeaderPos(_os, _scanNumber, TL_SCAN_ADDR_TRANSFORMATION);
@@ -153,7 +153,7 @@ bool tls::writer::writeOctreeShredder(std::ofstream& _os, uint32_t _scanNumber, 
 
     // *** Bounding Box ***
     seekScanHeaderPos(_os, _scanNumber, TL_SCAN_ADDR_BOUNDING_BOX);
-    _os.write((char*)&_header.bbox, sizeof(tls::BoundingBox));
+    _os.write((char*)&_header.bbox, sizeof(BoundingBox));
 
     // *** Transformation ***
     seekScanHeaderPos(_os, _scanNumber, TL_SCAN_ADDR_TRANSFORMATION);

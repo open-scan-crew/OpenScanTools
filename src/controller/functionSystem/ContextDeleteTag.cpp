@@ -10,7 +10,7 @@
 #include "gui/GuiData/GuiData3dObjects.h"
 #include "gui/texts/ContextTexts.hpp"
 
-#include "models/3d/Graph/TagNode.h"
+#include "models/graph/TagNode.h"
 
 #include "utils/Logger.h"
 

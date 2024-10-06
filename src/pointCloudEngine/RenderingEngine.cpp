@@ -6,12 +6,12 @@
 #include "gui/viewport/VulkanViewport.h"
 #include "gui/viewport/PickingManager.h"
 
-#include "models/3d/Graph/ObjectNodeVisitor.h"
-#include "models/3d/Graph/CylinderNode.h" // For custom ramp
-#include "models/3d/Graph/SphereNode.h"   // For custom ramp
-#include "models/3d/Graph/ViewPointNode.h"
-#include "models/3d/Graph/ScanNode.h"
-#include "models/3d/Graph/CameraNode.h"
+#include "models/graph/ObjectNodeVisitor.h"
+#include "models/graph/CylinderNode.h" // For custom ramp
+#include "models/graph/SphereNode.h"   // For custom ramp
+#include "models/graph/ViewPointNode.h"
+#include "models/graph/ScanNode.h"
+#include "models/graph/CameraNode.h"
 
 #include "controller/controls/ControlFunction.h"
 #include "controller/controls/ControlViewport.h"

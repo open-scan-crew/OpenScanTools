@@ -1,7 +1,7 @@
 #include "controller/functionSystem/ContextMoveTag.h"
 #include "controller/controls/ControlObject3DEdition.h"
 #include "controller/Controller.h"
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/GraphManager.hxx"
 #include "controller/ControlListener.h"
 #include "controller/functionSystem/FunctionManager.h"
 #include "utils/Logger.h"

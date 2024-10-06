@@ -4,7 +4,7 @@
 #include <QDoubleSpinBox>
 #include "utils/math/trigo.h"
 
-#include "models/3d/Graph/CameraNode.h"
+#include "models/graph/CameraNode.h"
 
 ToolBarFOV::ToolBarFOV(IDataDispatcher &dataDispatcher, QWidget *parent, float guiScale) 
 	: QWidget(parent)

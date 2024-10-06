@@ -8,7 +8,7 @@
 #include "models/3d/NodeFunctions.h"
 #include "utils/math/trigo.h"
 
-#include "models/3d/Graph/BoxNode.h"
+#include "models/graph/BoxNode.h"
 #include "controller/Controller.h"
 
 void PropertyBox::hideEvent(QHideEvent* event)

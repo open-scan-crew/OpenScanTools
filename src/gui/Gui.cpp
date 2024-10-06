@@ -108,7 +108,7 @@
 #include "controller/controls/ControlIO.h"
 
 #include "models/project/ProjectTypes.h"
-#include "models/3d/Graph/CameraNode.h"
+#include "models/graph/CameraNode.h"
 
 #include <QtWidgets/QWidget>
 #include <QtWidgets/QApplication>

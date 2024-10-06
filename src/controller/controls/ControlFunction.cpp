@@ -4,8 +4,8 @@
 #include "controller/functionSystem/FunctionManager.h"
 #include "controller/messages/IMessage.h"
 
-#include "models/3d/Graph/AGraphNode.h"
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/AGraphNode.h"
+#include "models/graph/GraphManager.hxx"
 
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataTree.h"

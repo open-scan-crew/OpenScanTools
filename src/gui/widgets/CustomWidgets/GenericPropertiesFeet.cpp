@@ -5,7 +5,7 @@
 #include "gui/widgets/FocusWatcher.h"
 #include <QDoubleValidator>
 #include <QIntValidator>
-#include "models/3d/Graph/ClusterNode.h"
+#include "models/graph/ClusterNode.h"
 #include <QtWidgets/QMenu>
 #include <QDir>
 #include "gui/Texts.hpp"

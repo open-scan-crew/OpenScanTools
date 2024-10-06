@@ -4,8 +4,8 @@
 #include "controller/functionSystem/FunctionManager.h"
 #include "pointCloudEngine/PCE_core.h"
 
-#include "models/3d/Graph/GraphManager.hxx"
-#include "models/3d/Graph/ScanNode.h"
+#include "models/graph/GraphManager.hxx"
+#include "models/graph/ScanNode.h"
 #include "controller/controls/AEditionControl.hxx"
 
 #include "utils/ColorConversion.h"

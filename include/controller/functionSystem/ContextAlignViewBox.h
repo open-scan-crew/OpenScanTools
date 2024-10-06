@@ -2,7 +2,7 @@
 #define CONTEXT_ALIGN_VIEWBOX_H
 
 #include "controller/functionSystem/AContext.h"
-#include "models/3d/Graph/CameraNode.h"
+#include "models/graph/CameraNode.h"
 
 
 enum class ProjectionMode;

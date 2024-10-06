@@ -13,8 +13,8 @@
 #include "magic_enum/magic_enum.hpp"
 #include "pointCloudEngine/MeasureClass.h"
 
-#include "models/3d/Graph/GraphManager.hxx"
-#include "models/3d/Graph/BeamBendingMeasureNode.h"
+#include "models/graph/GraphManager.hxx"
+#include "models/graph/BeamBendingMeasureNode.h"
 
 ContextBeamBending::ContextBeamBending(const ContextId& id)
 	: ARayTracingContext(id)

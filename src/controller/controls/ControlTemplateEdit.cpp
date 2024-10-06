@@ -16,8 +16,8 @@
 #include "gui/GuiData/GuiDataTemplate.h"
 #include "gui/Texts.hpp"
 
-#include "models/3d/Graph/TagNode.h"
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/TagNode.h"
+#include "models/graph/GraphManager.hxx"
 
 #include "magic_enum/magic_enum.hpp"
 

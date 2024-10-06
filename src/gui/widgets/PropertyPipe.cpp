@@ -19,7 +19,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/quaternion.hpp>
 
-#include "models/3d/Graph/CylinderNode.h"
+#include "models/graph/CylinderNode.h"
 
 PropertyPipe::PropertyPipe(Controller& controller, QWidget *parent, float guiScale)
 	: APropertyGeneral(controller.getDataDispatcher(), parent)

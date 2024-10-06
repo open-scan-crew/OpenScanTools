@@ -8,7 +8,7 @@
 #include "io/imports/ImportTypes.h"
 #include <filesystem>
 
-#include "models/3d/Graph/CameraNode.h"
+#include "models/graph/CameraNode.h"
 
 class TransformationModule;
 

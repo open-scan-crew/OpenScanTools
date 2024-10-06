@@ -5,8 +5,8 @@
 #include "controller/ControlListener.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/PointCloudTexts.hpp"
-#include "models/3d/Graph/ScanObjectNode.h"
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/ScanObjectNode.h"
+#include "models/graph/GraphManager.hxx"
 #include "utils/Logger.h"
 
 

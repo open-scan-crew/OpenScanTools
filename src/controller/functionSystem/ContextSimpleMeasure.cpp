@@ -6,8 +6,8 @@
 #include "controller/ControlListener.h"
 #include "controller/controls/ControlFunction.h"
 
-#include "models/3d/Graph/SimpleMeasureNode.h"
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/SimpleMeasureNode.h"
+#include "models/graph/GraphManager.hxx"
 
 ContextSimpleMeasure::ContextSimpleMeasure(const ContextId& id)
 	: ContextPointsMeasure(id)

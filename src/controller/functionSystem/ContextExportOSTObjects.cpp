@@ -11,8 +11,8 @@
 #include "gui/GuiData/GuiDataIO.h"
 #include "io/SaveLoadSystem.h"
 
-#include "models/3d/Graph/MeshObjectNode.h"
-#include "models/3d/Graph/APointCloudNode.h"
+#include "models/graph/MeshObjectNode.h"
+#include "models/graph/APointCloudNode.h"
 
 #include "gui/Texts.hpp"
 

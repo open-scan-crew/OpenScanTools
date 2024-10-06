@@ -16,8 +16,8 @@
 #include "controller/controls/ControlFunctionClipping.h"
 #include "controller/controls/ControlFunction.h"
 #include "controller/controls/ControlSpecial.h"
-#include "models/3d/Graph/BoxNode.h"
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/BoxNode.h"
+#include "models/graph/GraphManager.hxx"
 
 ContextPlaneConnexion::ContextPlaneConnexion(const ContextId& id)
 	: ARayTracingContext(id)

@@ -12,7 +12,7 @@
 #include "controller/messages/PointCloudObjectCreationParametersMessage.h"
 #include "utils/Utils.h"
 
-#include "models/3d/Graph/ScanObjectNode.h"
+#include "models/graph/ScanObjectNode.h"
 
 namespace control
 {

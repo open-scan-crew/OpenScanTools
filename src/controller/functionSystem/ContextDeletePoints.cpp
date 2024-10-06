@@ -11,8 +11,8 @@
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "pointCloudEngine/PCE_core.h"
 
-#include "models/3d/Graph/ScanNode.h"
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/ScanNode.h"
+#include "models/graph/GraphManager.hxx"
 
 #include "gui/texts/ExportTexts.hpp"
 #include "gui/texts/SplashScreenTexts.hpp"

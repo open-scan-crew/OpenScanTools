@@ -10,36 +10,36 @@
 
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/GraphManager.hxx"
 
 #include "utils/math/trigo.h"
 #include "utils/ProjectColor.hpp"
 
-#include "models/3d/Graph/TagNode.h"
-#include "models/3d/Graph/PointNode.h"
+#include "models/graph/TagNode.h"
+#include "models/graph/PointNode.h"
 
-#include "models/3d/Graph/ScanNode.h"
-#include "models/3d/Graph/ScanObjectNode.h"
+#include "models/graph/ScanNode.h"
+#include "models/graph/ScanObjectNode.h"
 
-#include "models/3d/Graph/ViewPointNode.h"
-#include "models/3d/Graph/CameraNode.h"
+#include "models/graph/ViewPointNode.h"
+#include "models/graph/CameraNode.h"
 
-#include "models/3d/Graph/CylinderNode.h"
-#include "models/3d/Graph/SphereNode.h"
-#include "models/3d/Graph/TorusNode.h"
+#include "models/graph/CylinderNode.h"
+#include "models/graph/SphereNode.h"
+#include "models/graph/TorusNode.h"
 
-#include "models/3d/Graph/SimpleMeasureNode.h"
-#include "models/3d/Graph/PolylineMeasureNode.h"
-#include "models/3d/Graph/ColumnTiltMeasureNode.h"
-#include "models/3d/Graph/BeamBendingMeasureNode.h"
-#include "models/3d/Graph/PointToPipeMeasureNode.h"
-#include "models/3d/Graph/PointToPlaneMeasureNode.h"
-#include "models/3d/Graph/PipeToPipeMeasureNode.h"
-#include "models/3d/Graph/PipeToPlaneMeasureNode.h"
+#include "models/graph/SimpleMeasureNode.h"
+#include "models/graph/PolylineMeasureNode.h"
+#include "models/graph/ColumnTiltMeasureNode.h"
+#include "models/graph/BeamBendingMeasureNode.h"
+#include "models/graph/PointToPipeMeasureNode.h"
+#include "models/graph/PointToPlaneMeasureNode.h"
+#include "models/graph/PipeToPipeMeasureNode.h"
+#include "models/graph/PipeToPlaneMeasureNode.h"
 
-#include "models/3d/Graph/ClusterNode.h"
-#include "models/3d/Graph/BoxNode.h"
-#include "models/3d/Graph/MeshObjectNode.h"
+#include "models/graph/ClusterNode.h"
+#include "models/graph/BoxNode.h"
+#include "models/graph/MeshObjectNode.h"
 
 /*
 bool DataDeserializer::ImportModification(const nlohmann::json& json, std::set<xg::Guid>& object_deleted, std::set<xg::Guid>& object_added, std::map<xg::Guid, std::set<std::string>>& object_updated)

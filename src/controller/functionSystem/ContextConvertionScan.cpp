@@ -27,9 +27,9 @@
 #include "gui/widgets/ConvertionOptionsBox.h"
 #include "utils/Utils.h"
 
-#include "models/3d/Graph/ScanNode.h"
-#include "models/3d/Graph/ScanObjectNode.h"
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/ScanNode.h"
+#include "models/graph/ScanObjectNode.h"
+#include "models/graph/GraphManager.hxx"
 // Temporary for large coordinates
 #include "io/exports/TlsFileWriter.h"
 
@@ -40,15 +40,10 @@
 
 constexpr uint64_t POINTS_PER_READ = 2 * 1048576;
 
-tls::TBoundingBox<double> getScansBoundingBox(const std::vector<glm::dvec3>& scansPositions)
+BoundingBoxD getScansBoundingBox(const std::vector<glm::dvec3>& scansPositions)
 {
-    tls::TBoundingBox<double> projectBBox;
-    projectBBox.xMax = std::numeric_limits<double>::min();
-    projectBBox.yMax = std::numeric_limits<double>::min();
-    projectBBox.zMax = std::numeric_limits<double>::min();
-    projectBBox.xMin = std::numeric_limits<double>::max();
-    projectBBox.yMin = std::numeric_limits<double>::max();
-    projectBBox.zMin = std::numeric_limits<double>::max();
+    BoundingBoxD projectBBox;
+    projectBBox.setEmpty();
 
     for (const glm::dvec3& position : scansPositions)
     {
@@ -138,7 +133,7 @@ ContextState ContextConvertionScan::feedMessage(IMessage* message, Controller& c
         }
         controller.updateInfo(new GuiDataSplashScreenEnd(GuiDataSplashScreenEnd::SplashScreenType::Message));
 
-        tls::TBoundingBox<double> pbbox(getScansBoundingBox(m_importScanPosition));
+        BoundingBoxD pbbox(getScansBoundingBox(m_importScanPosition));
 
         if (force)
         {
@@ -241,13 +236,13 @@ ContextState ContextConvertionScan::launch(Controller& controller)
         allScansPosition.push_back(position);
     }
 
-    tls::TBoundingBox<double> pbbox(getScansBoundingBox(allScansPosition));
+    BoundingBoxD pbbox(getScansBoundingBox(allScansPosition));
     // FIXME - On doit comparer la bounding box avec maximum pour l'affichage.
     //       - On doit vérifier que les valeurs ne sont pas NaN ou Infinity.
     constexpr double bigFloat = 1.0e+6;
-    if (abs((double)pbbox.xMax - pbbox.xMin) > bigFloat ||
-        abs((double)pbbox.yMax - pbbox.yMin) > bigFloat ||
-        abs((double)pbbox.zMax - pbbox.zMin) > bigFloat)
+    if (abs(pbbox.xMax - pbbox.xMin) > bigFloat ||
+        abs(pbbox.yMax - pbbox.yMin) > bigFloat ||
+        abs(pbbox.zMax - pbbox.zMin) > bigFloat)
     {
         // NOTE - Si on ajoute les scans déjà présent dans le projet au scans que l'on veut convertir on aura toujours un problème d'envergure globale des scans.
         //  - Le message est trompeur car on aura toujours une limite avec la solution actuelle des "grandes coordonnées".

@@ -5,10 +5,10 @@
 #include "utils/StrCompare.h"
 #include "utils/Logger.h"
 
-#include "models/3d/Graph/AObjectNode.h"
+#include "models/graph/AObjectNode.h"
 #include "controller/controls/AEditionControl.hxx"
 
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/GraphManager.hxx"
 
 namespace control
 {

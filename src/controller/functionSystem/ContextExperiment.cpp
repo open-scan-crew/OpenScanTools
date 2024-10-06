@@ -10,7 +10,7 @@
 #include "gui/texts/ContextTexts.hpp"
 #include "utils/Logger.h"
 
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/GraphManager.hxx"
 
 
 ContextExperiment::ContextExperiment(const ContextId& id)

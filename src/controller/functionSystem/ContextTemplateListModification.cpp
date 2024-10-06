@@ -8,8 +8,8 @@
 #include "gui/texts/ContextTexts.hpp"
 #include "gui/GuiData/GuiDataTemplate.h"
 
-#include "models/3d/Graph/TagNode.h"
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/TagNode.h"
+#include "models/graph/GraphManager.hxx"
 
 
 #include "utils/Logger.h"

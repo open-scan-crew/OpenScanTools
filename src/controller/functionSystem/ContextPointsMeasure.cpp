@@ -11,8 +11,8 @@
 #include "gui/GuiData/GuiDataMeasure.h"
 #include "gui/texts/ContextTexts.hpp"
 
-#include "models/3d/Graph/PolylineMeasureNode.h"
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/PolylineMeasureNode.h"
+#include "models/graph/GraphManager.hxx"
 #include "utils/Logger.h"
 #include "magic_enum/magic_enum.hpp"
 

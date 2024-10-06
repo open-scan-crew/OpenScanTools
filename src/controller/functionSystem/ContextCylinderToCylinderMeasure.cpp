@@ -12,9 +12,9 @@
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ContextTexts.hpp"
 
-#include "models/3d/Graph/PipeToPipeMeasureNode.h"
-#include "models/3d/Graph/CylinderNode.h"
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/PipeToPipeMeasureNode.h"
+#include "models/graph/CylinderNode.h"
+#include "models/graph/GraphManager.hxx"
 
 #include "utils/Logger.h"
 

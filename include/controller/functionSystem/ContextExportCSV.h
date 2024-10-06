@@ -3,7 +3,7 @@
 
 #include "controller/functionSystem/AContext.h"
 #include <filesystem>
-#include "models/3d/Graph/AGraphNode.h"
+#include "models/graph/AGraphNode.h"
 #include "io/exports/ExportParameters.hpp"
 
 struct Measure;

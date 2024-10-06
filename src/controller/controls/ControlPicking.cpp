@@ -8,7 +8,7 @@
 #include "utils/OpenScanToolsModelEssentials_impl.hpp"
 #include "utils/Logger.h"
 
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/GraphManager.hxx"
 
 namespace control::picking
 {

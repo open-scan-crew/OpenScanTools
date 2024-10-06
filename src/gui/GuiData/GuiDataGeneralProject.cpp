@@ -1,8 +1,8 @@
 #include "gui/GuiData/GuiDataGeneralProject.h"
 
-#include "models/3d/Graph/AGraphNode.h"
+#include "models/graph/AGraphNode.h"
 #include "controller/ControllerContext.h"
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/GraphManager.hxx"
 
 #include "utils/Logger.h"
 #include "io/FileUtils.h"

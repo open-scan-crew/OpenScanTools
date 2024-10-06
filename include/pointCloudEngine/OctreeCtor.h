@@ -33,7 +33,7 @@ class OctreeCtor : public OctreeBase
 {
 public:
     OctreeCtor(const tls::PrecisionType& _precisionType, const tls::PointFormat& ptFormat);
-    OctreeCtor(OctreeBase const& base, tls::BoundingBox const& bbox);
+    OctreeCtor(OctreeBase const& base, BoundingBox const& bbox);
     ~OctreeCtor();
 
     //void insertPointsWithTransfo(PointXYZIRGB const* points, uint64_t pointCount, tls::Transformation inTransfo);
@@ -44,7 +44,7 @@ public:
     // Call encode() when all points have been inserted. No other point can be inserted after !
     void encode(tls::PointFormat ptFormat, std::ostream& _osResult);
 
-	const tls::BoundingBox& getBoundingBox() const;
+	const BoundingBox& getBoundingBox() const;
 
 protected:
     OctreeCtor() {};
@@ -82,7 +82,7 @@ private:
     int64_t m_redundantPointCount;
     uint64_t m_vertexDataSize;
 
-    tls::BoundingBox m_bbox;
+    BoundingBox m_bbox;
 
     // Temporary data - Not saved 
     std::vector<TempData> m_vTempData;

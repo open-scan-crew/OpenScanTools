@@ -12,8 +12,8 @@
 #include "utils/ProjectColor.hpp"
 #include "utils/Logger.h"
 
-#include "models/3d/Graph/GraphManager.hxx"
-#include "models/3d/Graph/ColumnTiltMeasureNode.h"
+#include "models/graph/GraphManager.hxx"
+#include "models/graph/ColumnTiltMeasureNode.h"
 
 ContextColumnTilt::ContextColumnTilt(const ContextId& id)
 	: ARayTracingContext(id)

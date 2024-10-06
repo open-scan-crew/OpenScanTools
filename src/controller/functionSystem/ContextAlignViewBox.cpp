@@ -7,8 +7,8 @@
 #include "gui/GuiData/GuiDataMeasure.h"
 #include "gui/GuiData/GuiDataRendering.h"
 
-#include "models/3d/Graph/CameraNode.h"
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/CameraNode.h"
+#include "models/graph/GraphManager.hxx"
 
 #include "utils/math/trigo.h"
 #include "utils/Logger.h"

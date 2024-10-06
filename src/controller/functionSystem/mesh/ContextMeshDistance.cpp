@@ -7,8 +7,8 @@
 #include "gui/DataDispatcher.h"
 #include "gui/GuiData/GuiDataContextRequest.h"
 
-#include "models/3d/Graph/SimpleMeasureNode.h"
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/SimpleMeasureNode.h"
+#include "models/graph/GraphManager.hxx"
 
 #include "vulkan/VulkanManager.h"
 

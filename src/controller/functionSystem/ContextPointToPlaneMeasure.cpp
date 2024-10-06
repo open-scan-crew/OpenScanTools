@@ -14,8 +14,8 @@
 #include "utils/Logger.h"
 #include "magic_enum/magic_enum.hpp"
 
-#include "models/3d/Graph/GraphManager.hxx"
-#include "models/3d/Graph/PointToPlaneMeasureNode.h"
+#include "models/graph/GraphManager.hxx"
+#include "models/graph/PointToPlaneMeasureNode.h"
 
 ContextPointToPlaneMeasure::ContextPointToPlaneMeasure(const ContextId& id)
 	: ARayTracingContext(id)

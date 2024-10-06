@@ -3,7 +3,7 @@
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/UITransparencyConverter.h"
 
-#include "models/3d/Graph/CameraNode.h"
+#include "models/graph/CameraNode.h"
 
 ToolBarRenderTransparency::ToolBarRenderTransparency(IDataDispatcher& dataDispatcher, QWidget* parent, float guiScale)
     : QWidget(parent)

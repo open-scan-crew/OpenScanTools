@@ -5,7 +5,7 @@
 #include "services/MarkerDefinitions.hpp"
 #include <QtCore/QStringList>
 
-#include "models/3d/Graph/AGraphNode.h"
+#include "models/graph/AGraphNode.h"
 
 #define GTLOG Logger::log(LoggerMode::GTLog)
 

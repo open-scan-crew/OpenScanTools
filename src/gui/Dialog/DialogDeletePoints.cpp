@@ -6,7 +6,7 @@
 #include "controller/messages/ClippingExportParametersMessage.h"
 #include "controller/messages/DeletePointsMessage.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
-#include "models/3d/Graph/BoxNode.h"
+#include "models/graph/BoxNode.h"
 
 
 DialogDeletePoints::DialogDeletePoints(IDataDispatcher& dataDispatcher, QWidget *parent)

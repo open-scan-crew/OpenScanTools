@@ -70,12 +70,11 @@ namespace control::function::clipping
 	class SetDefaultSize : public AControl
 	{
 	public:
+		SetDefaultSize() = delete;
 		SetDefaultSize(glm::vec3 size);
 		~SetDefaultSize();
 		void doFunction(Controller& controller) override;
 		ControlType getType() const override;
-	private:
-		SetDefaultSize();
 	private:
 		glm::vec3 m_size;
 	};

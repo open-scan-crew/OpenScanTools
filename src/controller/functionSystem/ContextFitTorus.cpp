@@ -1,8 +1,8 @@
 #include "controller/functionSystem/ContextFitTorus.h"
 #include "controller/controls/ControlFunction.h"
 
-#include "models/3d/Graph/TagNode.h"
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/TagNode.h"
+#include "models/graph/GraphManager.hxx"
 #include "pointCloudEngine/TlScanOverseer.h"
 
 #include "controller/Controller.h"
@@ -12,7 +12,7 @@
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ContextTexts.hpp"
-#include "models/3d/Graph/TorusNode.h"
+#include "models/graph/TorusNode.h"
 
 #include "utils/Logger.h"
 #include <glm/gtx/quaternion.hpp>

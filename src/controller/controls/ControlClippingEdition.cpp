@@ -9,8 +9,8 @@
 #include "utils/math/trigo.h" 
 #include "utils/Logger.h"
 
-#include "models/3d/Graph/GraphManager.hxx"
-#include "models/3d/Graph/BoxNode.h"
+#include "models/graph/GraphManager.hxx"
+#include "models/graph/BoxNode.h"
 #include "controller/controls/AEditionControl.hxx"
 
 #include "gui/Texts.hpp"

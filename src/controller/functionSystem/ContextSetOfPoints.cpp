@@ -20,11 +20,11 @@
 #include "pointCloudEngine/OctreeRayTracing.h"
 #include "controller/controls/ControlFunctionClipping.h"
 #include "controller/controls/ControlTree.h"
-#include "models/3d/Graph/GraphManager.hxx"
-#include "models/3d/Graph/PointNode.h"
+#include "models/graph/GraphManager.hxx"
+#include "models/graph/PointNode.h"
 #include "controller/controls/ControlFunction.h"
 #include "pointCloudEngine/MeasureClass.h"
-#include "models/3d/Graph/SimpleMeasureNode.h"
+#include "models/graph/SimpleMeasureNode.h"
 #include <chrono>
 #include <thread>
 

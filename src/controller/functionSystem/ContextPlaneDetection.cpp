@@ -9,10 +9,10 @@
 #include "controller/ControlListener.h"
 #include "controller/functionSystem/FunctionManager.h"
 #include "utils/Logger.h"
-#include "models/3d/Graph/BoxNode.h"
+#include "models/graph/BoxNode.h"
 #include "controller/controls/ControlFunctionClipping.h"
 #include "controller/controls/ControlFunction.h"
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/GraphManager.hxx"
 
 
 #include <glm/gtx/quaternion.hpp>

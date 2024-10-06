@@ -2,8 +2,8 @@
 #include "controller/controls/ControlObject3DEdition.h"
 #include "controller/Controller.h"
 #include "controller/ControlListener.h"
-#include "models/3d/Graph/GraphManager.hxx"
-#include "models/3d/Graph/ManipulatorNode.h"
+#include "models/graph/GraphManager.hxx"
+#include "models/graph/ManipulatorNode.h"
 #include "utils/Logger.h"
 
 #include "gui/texts/ContextTexts.hpp"

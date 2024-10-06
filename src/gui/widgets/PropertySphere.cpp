@@ -16,7 +16,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/quaternion.hpp>
 
-#include "models/3d/Graph/SphereNode.h"
+#include "models/graph/SphereNode.h"
 
 PropertySphere::PropertySphere(Controller& controller, QWidget* parent, float guiScale)
 	: APropertyGeneral(controller.getDataDispatcher(), parent)

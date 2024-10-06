@@ -19,11 +19,11 @@
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataMessages.h"
 
-#include "models/3d/Graph/GraphManager.hxx"
-#include "models/3d/Graph/MeshObjectNode.h"
-#include "models/3d/Graph/ScanNode.h"
-#include "models/3d/Graph/ScanObjectNode.h"
-#include "models/3d/Graph/ClusterNode.h"
+#include "models/graph/GraphManager.hxx"
+#include "models/graph/MeshObjectNode.h"
+#include "models/graph/ScanNode.h"
+#include "models/graph/ScanObjectNode.h"
+#include "models/graph/ClusterNode.h"
 
 #include "io/SaveLoadSystem.h"
 #include "gui/texts/ContextTexts.hpp"

@@ -7,8 +7,8 @@
 #include "gui/texts/MeshObjectTexts.hpp"
 #include "utils/Logger.h"
 
-#include "models/3d/Graph/MeshObjectNode.h"
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/MeshObjectNode.h"
+#include "models/graph/GraphManager.hxx"
 
 ContextMeshObjectDuplication::ContextMeshObjectDuplication(const ContextId& id)
 	: ARayTracingContext(id)

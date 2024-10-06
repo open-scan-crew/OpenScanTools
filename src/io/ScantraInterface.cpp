@@ -1,6 +1,6 @@
 #include "ScantraInterface.h"
-#include "models/3d/Graph/GraphManager.h"
-#include "models/3d/graph/ClusterNode.h"
+#include "models/graph/GraphManager.h"
+#include "models/graph/ClusterNode.h"
 #include "utils/Logger.h"
 
 #include <wchar.h>

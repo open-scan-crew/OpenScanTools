@@ -16,7 +16,7 @@
 #include <QtConcurrent/qtconcurrentrun.h>
 #include <cctype>
 
-#include "models/3d/Graph/TorusNode.h"
+#include "models/graph/TorusNode.h"
 #include "controller/Controller.h"
 
 #include <glm/gtx/quaternion.hpp>

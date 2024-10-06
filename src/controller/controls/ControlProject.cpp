@@ -3,7 +3,7 @@
 #include "controller/controls/ControlApplication.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "models/3d/Graph/GraphManager.h"
+#include "models/graph/GraphManager.h"
 #include "controller/functionSystem/FunctionManager.h"
 #include "controller/ControlListener.h"
 #include "controller/messages/ConvertionMessage.h"
@@ -30,8 +30,8 @@
 #include <filesystem>
 #include <Windows.h>
 
-#include "models/3d/Graph/CameraNode.h"
-#include "models/3d/Graph/ClusterNode.h"
+#include "models/graph/CameraNode.h"
+#include "models/graph/ClusterNode.h"
 
 #include "ui_DialogOpenProjectCentral.h"
 
@@ -809,8 +809,9 @@ namespace control
 
 		void ApplyProjectTransformation::doFunction(Controller& controller)
 		{
-			tls::TBoundingBox<double> bbox(tlScansBoundingBox());
-			controller.getContext().setProjectTransformation(-glm::dvec3((bbox.xMax + bbox.xMin) / 2.0, (bbox.yMax + bbox.yMin) / 2.0, (bbox.zMax + bbox.zMin) / 2.0));
+			BoundingBoxD bbox(tlScansBoundingBox());
+			// Question(robin_k) : Should we manage this transformation with the graph ?
+			controller.getContext().setProjectTransformation(-bbox.center());
 			controller.updateInfo(new GuiDataProjectTransformation(controller.getContext().getWorldTransformation()));
 		}
 

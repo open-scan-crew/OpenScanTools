@@ -1,8 +1,8 @@
 #include "controller/functionSystem/ContextCreateTag.h"
 #include "controller/controls/ControlFunction.h"
 
-#include "models/3d/Graph/TagNode.h"
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/TagNode.h"
+#include "models/graph/GraphManager.hxx"
 
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"

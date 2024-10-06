@@ -1,7 +1,7 @@
 #include "gui/widgets/CustomWidgets/SubPropertyClipping.h"
 #include "controller/controls/ControlClippingEdition.h"
 
-#include "models/3d/Graph/AClippingNode.h"
+#include "models/graph/AClippingNode.h"
 #include "controller/Controller.h"
 
 #include "models/LicenceTypes.h"

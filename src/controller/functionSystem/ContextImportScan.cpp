@@ -8,9 +8,9 @@
 #include "controller/ControlListener.h"
 #include "io/SaveLoadSystem.h"
 
-#include "models/3d/Graph/ScanNode.h"
-#include "models/3d/Graph/ScanObjectNode.h"
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/ScanNode.h"
+#include "models/graph/ScanObjectNode.h"
+#include "models/graph/GraphManager.hxx"
 
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataTree.h"

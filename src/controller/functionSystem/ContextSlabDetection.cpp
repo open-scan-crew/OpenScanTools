@@ -12,8 +12,8 @@
 #include "utils/Logger.h"
 #include "controller/controls/ControlFunction.h"
 
-#include "models/3d/Graph/GraphManager.hxx"
-#include "models/3d/Graph/BoxNode.h"
+#include "models/graph/GraphManager.hxx"
+#include "models/graph/BoxNode.h"
 
 #include <glm/gtx/quaternion.hpp>
 

@@ -15,10 +15,10 @@
 #include "gui/texts/SplashScreenTexts.hpp"
 #include "gui/texts/PointCloudTexts.hpp"
 
-#include "models/3d/Graph/CameraNode.h"
-#include "models/3d/Graph/ScanNode.h"
-#include "models/3d/Graph/BoxNode.h"
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/CameraNode.h"
+#include "models/graph/ScanNode.h"
+#include "models/graph/BoxNode.h"
+#include "models/graph/GraphManager.hxx"
 
 #include "controller/messages/PointCloudObjectCreationParametersMessage.h"
 #include "controller/messages/CameraMessage.h"

@@ -1,6 +1,6 @@
 #include "controller/functionSystem/ContextMoveManip.h"
 #include "controller/Controller.h"
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/GraphManager.hxx"
 #include "utils/Logger.h"
 
 #include "gui/texts/ContextTexts.hpp"

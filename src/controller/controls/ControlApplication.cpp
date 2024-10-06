@@ -1,8 +1,8 @@
 #include "controller/controls/ControlApplication.h"
 #include "utils/Logger.h"
 #include "controller/Controller.h"
-#include "models/3d/Graph/GraphManager.h"
-#include "models/3d/Graph/ManipulatorNode.h"
+#include "models/graph/GraphManager.h"
+#include "models/graph/ManipulatorNode.h"
 
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataRendering.h"

@@ -10,7 +10,7 @@
 #include "controller/ControllerContext.h"
 #include "controller/functionSystem/FunctionManager.h"
 #include "controller/FilterSystem.h"
-#include "models/3d/Graph/GraphManager.h"
+#include "models/graph/GraphManager.h"
 #include "utils/ClockLock.hpp"
 #include "io/ScantraInterface.h"
 

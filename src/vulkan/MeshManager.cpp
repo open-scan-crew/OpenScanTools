@@ -25,7 +25,7 @@
 #include "controller/ControllerContext.h"
 #include "controller/functionSystem/FunctionManager.h"
 
-#include "models/3d/Graph/MeshObjectNode.h"
+#include "models/graph/MeshObjectNode.h"
 
 #include "utils/System.h"
 

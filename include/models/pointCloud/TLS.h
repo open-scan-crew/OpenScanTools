@@ -2,13 +2,12 @@
 #define TLS_H
 
 #include "crossguid/guid.hpp"
-#include "models/3d/Graph/TransformationModule.h"
+#include "models/3d/BoundingBox.h"
+#include "models/graph/TransformationModule.h"
+
 #include <cstdint>
 #include <string>
-
-#include "models/OpenScanToolsModelEssentials.h"
-
-class APointCloudNode;
+#include <list>
 
 namespace tls
 {
@@ -112,29 +111,6 @@ namespace tls
         }
     }
 
-    template<typename Type>
-    struct TBoundingBox
-    {
-        Type xMin;
-        Type xMax;
-        Type yMin;
-        Type yMax;
-        Type zMin;
-        Type zMax;
-    };
-
-    typedef TBoundingBox<float> BoundingBox;
-
-#define EMPTY_BOUNDING_BOX(T) \
-    { std::numeric_limits<T>::infinity(), -std::numeric_limits<T>::infinity(),\
-      std::numeric_limits<T>::infinity(), -std::numeric_limits<T>::infinity(),\
-      std::numeric_limits<T>::infinity(), -std::numeric_limits<T>::infinity() }
-
-#define MAX_BOUNDING_BOX(T) \
-    { -std::numeric_limits<T>::infinity(), std::numeric_limits<T>::infinity(),\
-      -std::numeric_limits<T>::infinity(), std::numeric_limits<T>::infinity(),\
-      -std::numeric_limits<T>::infinity(), std::numeric_limits<T>::infinity() }
-
     struct ScanHeader
     {
         // File/encoding infos
@@ -161,18 +137,10 @@ namespace tls
         uint32_t scanCount; // TODO - remove the scan count in version 0.5
     };
 
-	struct FileInfo
-	{
-		FileHeader fileHeader;
-		std::list<ScanHeader> scansHeaders;
-	};
-
-    struct PointCloudInstance
+    struct FileInfo
     {
-        SafePtr<APointCloudNode> scanNode;
-        ScanHeader header;
-        TransformationModule transfo;
-        bool isClippable;
+        FileHeader fileHeader;
+        std::list<ScanHeader> scansHeaders;
     };
 }
 

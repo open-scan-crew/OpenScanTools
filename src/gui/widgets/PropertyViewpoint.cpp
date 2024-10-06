@@ -11,7 +11,7 @@
 #include "models/3d/ManipulationTypes.h"
 #include "utils/math/trigo.h"
 
-#include "models/3d/Graph/ViewPointNode.h"
+#include "models/graph/ViewPointNode.h"
 
 PropertyViewpoint::PropertyViewpoint(Controller& controller, QWidget* parent, float guiScale)
 	: APropertyGeneral(controller.getDataDispatcher(), parent)

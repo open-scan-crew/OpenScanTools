@@ -4,7 +4,7 @@
 #include "controller/controls/IControl.h"
 #include "models/3d/DisplayParameters.h"
 
-#include "models/3d/Graph/TransformationModule.h"
+#include "models/graph/TransformationModule.h"
 #include "models/data/ViewPoint/ViewPointData.h"
 
 class CameraNode;

@@ -12,7 +12,7 @@
 #include "impl/PCE_impl.h"
 #include "controller/controls/ControlProject.h"
 
-#include "models/3d/Graph/GraphManager.h"
+#include "models/graph/GraphManager.h"
 
 #include <thread>
 #include <qevent.h>

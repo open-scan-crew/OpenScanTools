@@ -4,7 +4,7 @@
 #include "models/application/TagTemplate.h"
 #include "controller/controls/AEditionControl.h"
 #include "utils/Color32.hpp"
-#include "models/3d/Graph/TagNode.h"
+#include "models/graph/TagNode.h"
 
 namespace control
 {

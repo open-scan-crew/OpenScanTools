@@ -1,7 +1,7 @@
 #include "controller/controls/ControlFunctionTag.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/GraphManager.hxx"
 #include "controller/functionSystem/FunctionManager.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataTag.h"

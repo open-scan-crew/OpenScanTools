@@ -18,7 +18,7 @@
 #include "vulkan/Renderers/SimpleObjectRenderer.h"
 #include "vulkan/Compute/ComputePrograms.h"
 
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/GraphManager.hxx"
 
 #include "io/ImageTypes.h"
 #include "io/exports/CSVWriter.hxx"

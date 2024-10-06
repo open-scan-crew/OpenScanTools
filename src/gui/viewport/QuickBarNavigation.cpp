@@ -8,7 +8,7 @@
 #include "models/3d/ManipulationTypes.h"
 #include "gui/GuiData/GuiData3dObjects.h"
 
-#include "models/3d/Graph/CameraNode.h"
+#include "models/graph/CameraNode.h"
 
 #include "controller/controls/ControlViewport.h"
 
@@ -130,7 +130,7 @@ void QuickBarNavigation::connectCamera(SafePtr<CameraNode> camera)
         m_ui.toolButton_perspective->setChecked(false);
     });
 
-    connect(m_ui.toolButton_zoomExtent, &QToolButton::released, [this]() { this->m_dataDispatcher.sendControl(new control::viewport::AlignViewSide(AlignView::Reset, m_camera)); });
+    connect(m_ui.toolButton_zoomExtent, &QToolButton::released, [this]() { this->m_dataDispatcher.sendControl(new control::viewport::AlignViewSide(AlignView::ZoomOut, m_camera)); });
 
     connect(m_ui.comboBox_views, QOverload<int>::of(&QComboBox::activated), [this](int i) {
         AlignView align = (AlignView)m_ui.comboBox_views->currentData().toInt();

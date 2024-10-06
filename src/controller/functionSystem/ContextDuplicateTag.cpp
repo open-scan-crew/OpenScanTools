@@ -10,7 +10,7 @@
 #include "utils/Logger.h"
 #include "gui/texts/ContextTexts.hpp"
 
-#include "models/3d/Graph/GraphManager.hxx"
+#include "models/graph/GraphManager.hxx"
 
 ContextDuplicateTag::ContextDuplicateTag(const ContextId& id)
 	: ARayTracingContext(id)
