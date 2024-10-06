@@ -1,6 +1,4 @@
 #include "models/graph/ScanNode.h"
-#include "utils/Logger.h"
-#include "vulkan/VulkanManager.h"
 #include "models/3d/ManipulationTypes.h"
 #include "services/MarkerDefinitions.hpp"
 

@@ -1,7 +1,6 @@
 #ifndef GRAPH_MANAGER_H
 #define GRAPH_MANAGER_H
 
-#include "models/graph/ReferentialNode.h" 
 #include "models/data/Clipping/ClippingGeometry.h"
 #include "models/graph/ManipulatorNode.h"
 #include "models/3d/CLickInfo.h"
@@ -43,7 +42,7 @@ public:
     void refreshScene();
 	void cleanProjectObjects(); // Scan, tag, clippings, measures, etc
 
-	SafePtr<ReferentialNode> getRoot();
+	SafePtr<AGraphNode> getRoot();
 	const SafePtr<ManipulatorNode>& getManipulatorNode();
 
 	const SafePtr<ClusterNode>& getHierarchyMasterCluster() const;
@@ -131,7 +130,7 @@ private:
 	inline void registerGuiDataFunction(guiDType type, GraphManagerMethod fct);
 
 private:
-	SafePtr<ReferentialNode> m_root;
+	SafePtr<AGraphNode> m_root;
     std::mutex m_mutex;
     std::deque<IGuiData*> m_waitingDataToProceed;
 
@@ -154,4 +153,4 @@ private:
 
 };
 
-#endif //! OPENSCANTOOLS_GRAPH_MANAGER_H
+#endif //! GRAPH_MANAGER_H

@@ -11,7 +11,7 @@ class Controller;
 class AGraphNode : public Data, public TransformationModule
 {
 public:
-	enum class Type{ Object, Referential, Manipulator, Camera };
+	enum class Type{ Default, Object, Manipulator, Camera };
 
 public:
 	AGraphNode(const AGraphNode& node);
@@ -28,7 +28,7 @@ public:
 
 	uint32_t getGraphicId() const;
 
-	virtual Type getGraphType() const = 0;
+	virtual Type getGraphType() const;
 
 	glm::dvec3 getTranslation(const bool& cumulated = true) const;
 	glm::dquat getRotation(const bool& cumulated = true) const;

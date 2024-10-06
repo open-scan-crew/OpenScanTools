@@ -1469,6 +1469,10 @@ void ObjectNodeVisitor::bakeGraphics(const SafePtr<AGraphNode>& node, const Tran
 
     switch (graphType)
     {
+    case AGraphNode::Type::Default:
+    {
+        break;
+    }
     case AGraphNode::Type::Object:
     {
         if (!drawImguitext)
@@ -1495,10 +1499,6 @@ void ObjectNodeVisitor::bakeGraphics(const SafePtr<AGraphNode>& node, const Tran
         if (text == "")
             break;
         m_bakedTexts.push_back(BakedText{ text, wx, wy, selected, hovered, graphicId });
-        break;
-    }
-    case AGraphNode::Type::Referential:
-    {
         break;
     }
     case AGraphNode::Type::Manipulator:

@@ -1975,9 +1975,6 @@
     <ClCompile Include="..\..\src\models\graph\PolylineMeasureNode.cpp">
       <Filter>src\models\graph</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\models\graph\ReferentialNode.cpp">
-      <Filter>src\models\graph</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\models\graph\ScanNode.cpp">
       <Filter>src\models\graph</Filter>
     </ClCompile>
@@ -3958,9 +3955,6 @@
       <Filter>include\models\graph</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\models\graph\PolylineMeasureNode.h">
-      <Filter>include\models\graph</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\graph\ReferentialNode.h">
       <Filter>include\models\graph</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\models\graph\ScanNode.h">

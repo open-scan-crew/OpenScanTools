@@ -1079,7 +1079,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\models\graph\PointToPipeMeasureNode.cpp" />
     <ClCompile Include="..\..\src\models\graph\PointToPlaneMeasureNode.cpp" />
     <ClCompile Include="..\..\src\models\graph\PolylineMeasureNode.cpp" />
-    <ClCompile Include="..\..\src\models\graph\ReferentialNode.cpp" />
     <ClCompile Include="..\..\src\models\graph\ScanNode.cpp" />
     <ClCompile Include="..\..\src\models\graph\ScanObjectNode.cpp" />
     <ClCompile Include="..\..\src\models\graph\SimpleMeasureNode.cpp" />
@@ -1495,7 +1494,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\models\graph\PointToPipeMeasureNode.h" />
     <ClInclude Include="..\..\include\models\graph\PointToPlaneMeasureNode.h" />
     <ClInclude Include="..\..\include\models\graph\PolylineMeasureNode.h" />
-    <ClInclude Include="..\..\include\models\graph\ReferentialNode.h" />
     <ClInclude Include="..\..\include\models\graph\ScanNode.h" />
     <ClInclude Include="..\..\include\models\graph\ScanObjectNode.h" />
     <ClInclude Include="..\..\include\models\graph\SimpleMeasureNode.h" />

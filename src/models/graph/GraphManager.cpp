@@ -31,10 +31,12 @@
 #define SGLog Logger::log(LoggerMode::SceneGraphLog)
 
 GraphManager::GraphManager(IDataDispatcher& dataDispatcher)
-	: m_root(make_safe<ReferentialNode>(L"Root", TransformationModule()))
+	: m_root(make_safe<AGraphNode>())
 	, m_meshManager(&MeshManager::getInstance())
 	, m_dataDispatcher(dataDispatcher)
 {
+	WritePtr<AGraphNode> w_root = m_root.get();
+	if (w_root)	w_root->setName(L"I_Am_Root");
 	// Uncomment this code to test a root different than zero.
 	//WritePtr<ReferentialNode> wRoot = m_root.get();
 	//wRoot->setPosition(glm::dvec3(0.0, 5.0, 0.0));
@@ -79,7 +81,7 @@ void updateMeasure(AObjectNode* node)
 	static_cast<NodeType*>(node)->updateMeasure();
 }
 
-SafePtr<ReferentialNode> GraphManager::getRoot()
+SafePtr<AGraphNode> GraphManager::getRoot()
 {
 	return m_root;
 }

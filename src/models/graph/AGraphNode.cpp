@@ -489,6 +489,11 @@ uint32_t AGraphNode::getGraphicId() const
 	return m_graphicId;
 }
 
+AGraphNode::Type AGraphNode::getGraphType() const
+{
+	return Type::Default;
+}
+
 bool AGraphNode::isDead() const
 {
 	return m_isDead;
