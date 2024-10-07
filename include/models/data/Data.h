@@ -40,7 +40,6 @@ struct s_hyperlink
 };
 
 class ControllerContext;
-class OpenScanToolsGraphManager;
 
 class Data
 {
@@ -69,7 +68,7 @@ public:
 	void setHyperlinks(const std::unordered_map<hLinkId, s_hyperlink>& links);
 	virtual void setColor(const Color32& color);
 
-	void setDefaultData(const ControllerContext& context);
+	virtual void setDefaultData(const ControllerContext& context);
 
 	bool operator==(const Data& data) const;
 

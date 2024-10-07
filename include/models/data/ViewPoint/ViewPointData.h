@@ -2,12 +2,13 @@
 #define VIEWPOINT_DATA_H
 
 #include "models/3d/RenderingParameters.h"
-#include <unordered_set>
-
 #include "utils/safe_ptr.h"
 #include "utils/Color32.hpp"
 
+#include <unordered_set>
+
 class ScanNode;
+class AGraphNode;
 class AObjectNode;
 class AClippingNode;
 class ViewPointNode;

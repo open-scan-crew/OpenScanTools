@@ -3,15 +3,12 @@
 
 #include <QtWidgets/QListView>
 #include <qdialog.h>
-#include "utils/Logger.h"
 #include "ui_DialogExportFileObject.h"
 #include "models/data/Data.h"
 
 #include "gui/IDataDispatcher.h"
 
-#include <unordered_set>
-
-#define GUILOG Logger::log(LoggerMode::GuiLog)
+#include <unordered_map>
 
 class DialogExportFileObject : public QDialog
 {
@@ -33,4 +30,4 @@ private:
 	Ui::ExportFileObject m_ui;
 };
 
-#endif // !DELETE_TYPE_DIALOG_H_
+#endif

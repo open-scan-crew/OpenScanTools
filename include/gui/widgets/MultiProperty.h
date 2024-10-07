@@ -10,7 +10,7 @@
 #include "models/OpenScanToolsModelEssentials.h"
 #include "gui/Dialog/HyperlinkAddDialog.h"
 
-#include "models/3d/Graph/AObjectNode.h"
+#include "models/graph/AObjectNode.h"
 
 class Controller;
 

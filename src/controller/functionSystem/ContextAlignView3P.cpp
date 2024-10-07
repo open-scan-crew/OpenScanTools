@@ -7,7 +7,7 @@
 #include "gui/texts/AlignViewTexts.hpp"
 #include "gui/texts/RayTracingTexts.hpp"
 
-#include "models/3d/Graph/CameraNode.h"
+#include "models/graph/CameraNode.h"
 
 #include "utils/math/trigo.h"
 

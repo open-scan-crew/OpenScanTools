@@ -8,7 +8,7 @@
 #include "controller/ControllerContext.h"
 #include "models/Types.hpp"
 
-class OpenScanToolsGraphManager;
+class GraphManager;
 class AGraphNode;
 
 namespace control

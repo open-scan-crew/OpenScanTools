@@ -7,7 +7,7 @@
 #include "controller/ControllerContext.h"
 #include "models/application/List.h"
 
-#include "models/3d/Graph/AObjectNode.h"
+#include "models/graph/AObjectNode.h"
 
 class Controller;
 

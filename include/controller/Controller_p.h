@@ -10,14 +10,14 @@
 #include "controller/ControllerContext.h"
 #include "controller/functionSystem/FunctionManager.h"
 #include "controller/FilterSystem.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.h"
+#include "models/graph/GraphManager.h"
 #include "utils/ClockLock.hpp"
 #include "io/ScantraInterface.h"
 
 class Controller_p
 {
 public:
-    Controller_p(IDataDispatcher& dataDispatcher, OpenScanToolsGraphManager& graphManager, Controller& publicController);
+    Controller_p(IDataDispatcher& dataDispatcher, GraphManager& graphManager, Controller& publicController);
     ~Controller_p();
 
     /*! \brief this function launch a thread that run the update() at a fixed refresh rate
@@ -75,7 +75,7 @@ public:
 
     // Dedecated module classes
     IDataDispatcher& dataDispatcher;
-    OpenScanToolsGraphManager& graphManager;
+    GraphManager& graphManager;
     Controller& public_controller_;
 
     ControlListener controlListener;

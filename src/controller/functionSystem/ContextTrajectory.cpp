@@ -10,8 +10,8 @@
 #include "controller/controls/ControlFunction.h"
 #include "utils/Logger.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
-#include "models/3d/Graph/CylinderNode.h"
+#include "models/graph/GraphManager.hxx"
+#include "models/graph/CylinderNode.h"
 
 #include <glm/gtx/quaternion.hpp>
 
@@ -56,7 +56,7 @@ ContextState ContextTrajectory::launch(Controller& controller)
 
 	controller.updateInfo(new GuiDataTmpMessage(TEXT_LUCAS_SEARCH_ONGOING, 0));
 
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
 
 	glm::dvec3 cylinderDirection, cylinderCenter;
 	double cylinderRadius(0.005);

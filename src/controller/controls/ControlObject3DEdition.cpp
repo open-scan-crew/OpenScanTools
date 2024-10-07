@@ -8,10 +8,10 @@
 #include "controller/messages/DataIDListMessage.h"
 #include "controller/messages/ManipulateMessage.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
-#include "models/3d/Graph/AClippingNode.h"
-#include "models/3d/Graph/ClusterNode.h"
-#include "models/3d/Graph/SphereNode.h"
+#include "models/graph/GraphManager.hxx"
+#include "models/graph/AClippingNode.h"
+#include "models/graph/ClusterNode.h"
+#include "models/graph/SphereNode.h"
 #include "controller/controls/AEditionControl.hxx"
 
 #include "utils/math/trigo.h"

@@ -5,12 +5,12 @@
 #include "services/MarkerDefinitions.hpp"
 #include <QtCore/QStringList>
 
-#include "models/3d/Graph/AGraphNode.h"
+#include "models/graph/AGraphNode.h"
 
 #define GTLOG Logger::log(LoggerMode::GTLog)
 
 TreeNode::TreeNode(const SafePtr<AGraphNode>& data,
-					std::function<std::unordered_set<SafePtr<AGraphNode>>(const OpenScanToolsGraphManager&)> getChildFonction,
+					std::function<std::unordered_set<SafePtr<AGraphNode>>(const GraphManager&)> getChildFonction,
 					std::function<bool(SafePtr<AGraphNode>)> canBeDropFilter,
 					std::function<void(IDataDispatcher&, std::unordered_set<SafePtr<AGraphNode>>)> onDropFunction,
 					TreeType treeType
@@ -70,7 +70,7 @@ void TreeNode::setType(ElementType type)
 	m_elemType = type;
 }
 
-std::unordered_set<SafePtr<AGraphNode>> TreeNode::getChildren(const OpenScanToolsGraphManager& manager)
+std::unordered_set<SafePtr<AGraphNode>> TreeNode::getChildren(const GraphManager& manager)
 {
 	return (m_getChildFonction(manager));
 }

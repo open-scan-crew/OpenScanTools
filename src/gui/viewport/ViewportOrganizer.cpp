@@ -4,7 +4,7 @@
 #include "gui/IDataDispatcher.h"
 #include "gui/ShortcutSystem.h"
 #include "pointCloudEngine/IRenderingEngine.h"
-#include "models/3d/Graph/CameraNode.h"
+#include "models/graph/CameraNode.h"
 #include "gui/viewport/EventManagerViewport.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataRendering.h"
@@ -45,7 +45,7 @@ ViewportOrganizer::ViewportOrganizer(QWidget* parent, IDataDispatcher& dataDispa
 
     addShortcut(Qt::Key_F11, this, Qt::ShortcutContext::WindowShortcut, &ViewportOrganizer::onToggleFullScreen);
 
-    addShortcut(Qt::Key_0, this, Qt::ShortcutContext::WindowShortcut, [this]() {onAlignView(AlignView::Reset); });
+    addShortcut(Qt::Key_0, this, Qt::ShortcutContext::WindowShortcut, [this]() {onAlignView(AlignView::ZoomOut); });
     addShortcut(Qt::Key_2, this, Qt::ShortcutContext::WindowShortcut, [this]() {onAlignView(AlignView::Bottom); });
     addShortcut(Qt::Key_3, this, Qt::ShortcutContext::WindowShortcut, [this]() {onAlignView(AlignView::Front); });
     addShortcut(Qt::Key_4, this, Qt::ShortcutContext::WindowShortcut, [this]() {onAlignView(AlignView::Left); });
@@ -316,7 +316,7 @@ void ViewportOrganizer::onDisableFullScreen()
 
 void ViewportOrganizer::onCancel()
 {
-    PANELLOG << "shortcut cancel" << LOGENDL;
+    GUI_LOG << "shortcut cancel" << LOGENDL;
     m_dataDispatcher.sendControl(new control::function::Validate());
 }
 

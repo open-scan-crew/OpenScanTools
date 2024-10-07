@@ -1,7 +1,7 @@
 #ifndef GRID_BOX_H
 #define GRID_BOX_H
 
-#include "models/3d/Graph/TransformationModule.h"
+#include "models/graph/TransformationModule.h"
 
 class GridBox : public TransformationModule
 {

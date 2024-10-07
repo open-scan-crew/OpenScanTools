@@ -10,7 +10,7 @@
 #include "gui/texts/ContextTexts.hpp"
 #include "utils/Logger.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/graph/GraphManager.hxx"
 
 
 ContextExperiment::ContextExperiment(const ContextId& id)
@@ -49,7 +49,7 @@ ContextState ContextExperiment::launch(Controller& controller)
 	double beamHeight(0);
 
 
-    TlScanOverseer::setWorkingScansTransfo(controller.getOpenScanToolsGraphManager().getVisiblePointCloudInstances(xg::Guid(), true, true));
+    TlScanOverseer::setWorkingScansTransfo(controller.getGraphManager().getVisiblePointCloudInstances(xg::Guid(), true, true));
 
 	TlScanOverseer::getInstance().estimateNormals();
 	/*if (manager->computeBeamHeight(m_point,beamHeight))

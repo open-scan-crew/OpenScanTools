@@ -1,11 +1,11 @@
 #include "controller/controls/ControlTagEdition.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/graph/GraphManager.hxx"
 #include "gui/GuiData/GuiDataTag.h"
 #include "utils/Logger.h"
 
-#include "models/3d/Graph/TagNode.h"
+#include "models/graph/TagNode.h"
 #include "controller/controls/AEditionControl.hxx"
 
 // control::tagEdition::

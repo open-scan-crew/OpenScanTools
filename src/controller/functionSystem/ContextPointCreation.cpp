@@ -6,8 +6,8 @@
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/Texts.hpp"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
-#include "models/3d/Graph/PointNode.h"
+#include "models/graph/GraphManager.hxx"
+#include "models/graph/PointNode.h"
 
 ContextPointCreation::ContextPointCreation(const ContextId& id)
 	: ARayTracingContext(id)

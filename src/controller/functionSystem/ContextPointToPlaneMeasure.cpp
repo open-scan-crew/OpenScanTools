@@ -14,8 +14,8 @@
 #include "utils/Logger.h"
 #include "magic_enum/magic_enum.hpp"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
-#include "models/3d/Graph/PointToPlaneMeasureNode.h"
+#include "models/graph/GraphManager.hxx"
+#include "models/graph/PointToPlaneMeasureNode.h"
 
 ContextPointToPlaneMeasure::ContextPointToPlaneMeasure(const ContextId& id)
 	: ARayTracingContext(id)
@@ -51,7 +51,7 @@ ContextState ContextPointToPlaneMeasure::launch(Controller& controller)
 
 	controller.updateInfo(new GuiDataTmpMessage(TEXT_LUCAS_SEARCH_ONGOING, 0));
 	bool success = false;
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
 	glm::dvec3 normalVector;
 
     TlScanOverseer::setWorkingScansTransfo(graphManager.getVisiblePointCloudInstances(m_panoramic, true, true));

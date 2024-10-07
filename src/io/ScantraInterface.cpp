@@ -1,19 +1,21 @@
 #include "ScantraInterface.h"
+
 #include "controller/Controller.h"
 #include "controller/ControlListener.h"
 #include "controller/controls/ControlViewport.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
-#include "models/3d/graph/ClusterNode.h"
-#include "models/3d/graph/ScanNode.h"
-#include "models/3d/Graph/BoxNode.h"
+#include "models/graph/GraphManager.hxx"
+#include "models/graph/ClusterNode.h"
+#include "models/graph/ScanNode.h"
+#include "models/graph/BoxNode.h"
+#include "models/graph/ClusterNode.h"
 #include "gui/DataDispatcher.h"
 #include "gui/GuiData/GuiDataTree.h"
+
 #include "utils/Logger.h"
 
 #include <wchar.h>
 
-ScantraInterface::ScantraInterface(Controller& controller, IDataDispatcher& data_dispatcher, OpenScanToolsGraphManager& graph)
+ScantraInterface::ScantraInterface(Controller& controller, IDataDispatcher& data_dispatcher, GraphManager& graph)
     : controller_(controller)
     , data_dispatcher_(data_dispatcher)
     , graph_(graph)
@@ -440,7 +442,6 @@ void ScantraInterface::editStationAdjustment()
     // -> On active/désactive la visibilité des scan lors de la dernière entrée.
     manageVisibility(current_entry, total_entry, scan);
 }
-
 
 void ScantraInterface::manageVisibility(int current_station, int total_station, SafePtr<AGraphNode> scan)
 {

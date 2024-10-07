@@ -14,9 +14,9 @@
 
 #include "pointCloudEngine/PCE_core.h"
 
-#include "models/3d/Graph/ScanNode.h"
-#include "models/3d/Graph/ScanObjectNode.h"
-#include "models/3d/Graph/MeshObjectNode.h"
+#include "models/graph/ScanNode.h"
+#include "models/graph/ScanObjectNode.h"
+#include "models/graph/MeshObjectNode.h"
 
 #include "controller/controls/ControlMeshObject.h"
 #include "vulkan/MeshManager.h"
@@ -27,7 +27,7 @@
 #include <QMessageBox>
 
 #include "io/SaveLoadSystem.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/graph/GraphManager.hxx"
 
 
 namespace control::special
@@ -86,7 +86,7 @@ namespace control::special
 					scanGuid = rScan->getScanGuid();
 				}
 
-				if (controller.getOpenScanToolsGraphManager().getPCOcounters(scanGuid) == 0)
+				if (controller.getGraphManager().getPCOcounters(scanGuid) == 0)
 				{
 					WritePtr<ScanObjectNode> wScan = scan.get();
 					if (!wScan)
@@ -251,7 +251,7 @@ namespace control::special
 
     void DeleteSelectedElements::doFunction(Controller& controller)
     {
-		OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+		GraphManager& graphManager = controller.getGraphManager();
 
 		std::unordered_set<SafePtr<AGraphNode>> toDeletes;
 		
@@ -588,7 +588,7 @@ namespace control::special
 
     void ShowHideObjects::doFunction(Controller& controller)
     {
-		m_datasToShowHide = controller.getOpenScanToolsGraphManager().getNodesByTypes(m_types);
+		m_datasToShowHide = controller.getGraphManager().getNodesByTypes(m_types);
         ShowHideDatas::doFunction(controller);
 		
 	    CONTROLLOG << "control::special::ShowHideObjects to " << m_state << LOGENDL;
@@ -624,7 +624,7 @@ namespace control::special
 
     void ShowHideCurrentObjects::doFunction(Controller& controller)
     {
-		m_datasToShowHide = controller.getOpenScanToolsGraphManager().getSelectedNodes();
+		m_datasToShowHide = controller.getGraphManager().getSelectedNodes();
         ShowHideDatas::doFunction(controller);
         CONTROLLOG << "control::special::ShowHideCurrentObjects to " << m_state << LOGENDL;
     }
@@ -660,9 +660,9 @@ namespace control::special
 
     void ShowHideUncurrentObjects::doFunction(Controller& controller)
     {
-		m_datasToShowHide = controller.getOpenScanToolsGraphManager().getUnSelectedNodes();
+		m_datasToShowHide = controller.getGraphManager().getUnSelectedNodes();
 
-		for (const SafePtr<AGraphNode>& data : controller.getOpenScanToolsGraphManager().getSelectedNodes())
+		for (const SafePtr<AGraphNode>& data : controller.getGraphManager().getSelectedNodes())
 		{
 			std::unordered_set<SafePtr<AGraphNode>> recOwningParents = AGraphNode::getOwningParents_rec(data);
 			for (const SafePtr<AGraphNode>& parent : recOwningParents)
@@ -704,7 +704,7 @@ namespace control::special
 
     void ShowAll::doFunction(Controller& controller)
     {
-		m_datasToShowHide = controller.getOpenScanToolsGraphManager().getProjectNodes();
+		m_datasToShowHide = controller.getGraphManager().getProjectNodes();
         ShowHideDatas::doFunction(controller);
         
         CONTROLLOG << "control::special::ShowAll to " << m_state << LOGENDL;

@@ -7,7 +7,7 @@
 class OctreeDecoder : public OctreeBase // IPointReader
 {
 public:
-    OctreeDecoder(OctreeBase const& base, tls::BoundingBox const& bbox);
+    OctreeDecoder(OctreeBase const& base, BoundingBox const& bbox);
 	OctreeDecoder(OctreeBase const& base);
     ~OctreeDecoder();
 
@@ -21,7 +21,7 @@ public:
     const PointXYZIRGB* getCellPoints(uint32_t cellId, uint64_t& pointCount);
     bool copyCellPoints(uint32_t cellId, PointXYZIRGB* dstPoints, uint64_t dstSize, uint64_t& dstOffset);
 
-	const tls::BoundingBox& getBBox() const;
+	const BoundingBox& getBBox() const;
 protected:
     OctreeDecoder() {};
 	void cleanBuffers();
@@ -35,7 +35,7 @@ protected:
 
     bool m_isEncodedBuffered;
     bool m_isDecoded;
-	tls::BoundingBox m_bbox;
+	BoundingBox m_bbox;
 };
 
 #endif // !OCTREE_READER_H

@@ -16,7 +16,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/quaternion.hpp>
 
-#include "models/3d/Graph/SphereNode.h"
+#include "models/graph/SphereNode.h"
 
 PropertySphere::PropertySphere(Controller& controller, QWidget* parent, float guiScale)
 	: APropertyGeneral(controller.getDataDispatcher(), parent)
@@ -92,7 +92,6 @@ void PropertySphere::setObject3DParameters(const TransformationModule& data)
 
 void PropertySphere::onDiameterChange()
 {
-	PANELLOG << "on diameter edit" << LOGENDL;
 	double diameter(m_ui.diameterInputField->getValue());
 	m_dataDispatcher.sendControl(new control::object3DEdition::SetSphereRadius(m_sphere, diameter / 2.0));
 }

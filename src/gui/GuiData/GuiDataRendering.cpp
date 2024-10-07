@@ -60,7 +60,7 @@ guiDType GuiDataRenderBackgroundColor::getType()
 }
 
 //*** Reset View ***//
-GuiDataRenderAlignView::GuiDataRenderAlignView(const AlignView& align, const tls::BoundingBox& sceneBBox, SafePtr<CameraNode> camera, bool isBboxEmpty)
+GuiDataRenderAlignView::GuiDataRenderAlignView(const AlignView& align, const BoundingBoxD& sceneBBox, SafePtr<CameraNode> camera, bool isBboxEmpty)
 	: GuiDataActiveCamera(camera)
     , m_bbox(sceneBBox)
     , m_align(align)

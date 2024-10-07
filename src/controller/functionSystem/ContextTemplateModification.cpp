@@ -8,8 +8,8 @@
 #include "gui/GuiData/GuiDataTemplate.h"
 #include "gui/texts/ContextTexts.hpp"
 
-#include "models/3d/Graph/TagNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/graph/TagNode.h"
+#include "models/graph/GraphManager.hxx"
 
 #include "utils/Logger.h"
 
@@ -83,7 +83,7 @@ ContextState ContextTemplateModification::launch(Controller& controller)
 	m_state = ContextState::running;
 	FUNCLOG << "ContextTemplateModification launch" << LOGENDL;
 
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
 
 	{
 		WritePtr<sma::TagTemplate> wTagTemp = m_temp.get();

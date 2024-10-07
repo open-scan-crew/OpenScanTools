@@ -3,8 +3,8 @@
 #include "controller/ControllerContext.h"
 #include "gui/GuiData/GuiData3dObjects.h"
 
-#include "models/3d/Graph/CylinderNode.h"
-#include "models/3d/Graph/SphereNode.h"
+#include "models/graph/CylinderNode.h"
+#include "models/graph/SphereNode.h"
 #include "controller/controls/AEditionControl.hxx"
 
 #include "utils/Logger.h"

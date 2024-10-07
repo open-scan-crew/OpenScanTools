@@ -3,7 +3,7 @@
 #include "controller/Controller.h"
 #include "controller/controls/ControlDataEdition.h"
 
-#include "models/3d/Graph/PointToPlaneMeasureNode.h"
+#include "models/graph/PointToPlaneMeasureNode.h"
 
 PropertyPointToPlanMeasure::PropertyPointToPlanMeasure(Controller& controller, QWidget *parent, float guiScale)
 	: APropertyGeneral(controller.getDataDispatcher(), parent)

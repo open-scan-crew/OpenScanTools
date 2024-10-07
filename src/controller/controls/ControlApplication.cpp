@@ -1,8 +1,8 @@
 #include "controller/controls/ControlApplication.h"
 #include "utils/Logger.h"
 #include "controller/Controller.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.h"
-#include "models/3d/Graph/ManipulatorNode.h"
+#include "models/graph/GraphManager.h"
+#include "models/graph/ManipulatorNode.h"
 
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataRendering.h"
@@ -1078,7 +1078,7 @@ namespace control
 
 		void SetOrthoGridParameters::doFunction(Controller& controller)
 		{
-			const SafePtr<CameraNode>& camera = controller.getOpenScanToolsGraphManager().getCameraNode();
+			const SafePtr<CameraNode>& camera = controller.getGraphManager().getCameraNode();
 			WritePtr<CameraNode> wCamera = camera.get();
 			if (!wCamera)
 				return;

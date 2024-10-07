@@ -5,6 +5,7 @@
 #include "gui/widgets/QPFields/QPHyperLinkField.h"
 #include "gui/widgets/QPFields/QPListField.h"
 #include "gui/IPanel.h"
+#include "utils/Logger.h"
 
 #include "magic_enum/magic_enum.hpp"
 
@@ -34,7 +35,7 @@ AQPField* QPFactory::getField(const sma::tField field)
 			return new QPHyperLinkField(field, nullptr);
 			break;
 		default:
-			PANELLOG << "field creation : field not recognized : " << magic_enum::enum_name(field.m_type) << LOGENDL;
+			GUI_LOG << "field creation : field not recognized : " << magic_enum::enum_name(field.m_type) << LOGENDL;
 			return nullptr;
 	}
 	return nullptr;

@@ -12,8 +12,8 @@
 #include "utils/Logger.h"
 #include "controller/controls/ControlFunction.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
-#include "models/3d/Graph/BoxNode.h"
+#include "models/graph/GraphManager.hxx"
+#include "models/graph/BoxNode.h"
 
 #include <glm/gtx/quaternion.hpp>
 
@@ -68,7 +68,7 @@ ContextState ContextSlabDetection::launch(Controller& controller)
 	m_state = ContextState::running;
 	FUNCLOG << "ContextSlabDetection launch" << LOGENDL;
 
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
 
 	controller.updateInfo(new GuiDataTmpMessage(TEXT_LUCAS_SEARCH_ONGOING, 0));
 	

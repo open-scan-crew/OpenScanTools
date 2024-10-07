@@ -7,10 +7,10 @@
 #include "utils/Logger.h"
 #include "controller/messages/DataIDListMessage.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
-#include "models/3d/Graph/AClippingNode.h"
-#include "models/3d/Graph/ViewPointNode.h"
-#include "models/3d/Graph/CameraNode.h"
+#include "models/graph/GraphManager.hxx"
+#include "models/graph/AClippingNode.h"
+#include "models/graph/ViewPointNode.h"
+#include "models/graph/CameraNode.h"
 
 namespace control::viewpoint
 {
@@ -62,7 +62,7 @@ namespace control::viewpoint
     {
         if (!m_viewpointToUpdate.cget())
         {
-            OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+            GraphManager& graphManager = controller.getGraphManager();
 
             std::unordered_set<SafePtr<AGraphNode>> viewpointToUpdate = graphManager.getNodesByTypes({ ElementType::ViewPoint }, ObjectStatusFilter::SELECTED);
             if (viewpointToUpdate.size() != 1)
@@ -190,7 +190,7 @@ namespace control::viewpoint
             colorList = readViewpoint->getScanClusterColors();
         }
 
-        OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+        GraphManager& graphManager = controller.getGraphManager();
 
         std::unordered_set<SafePtr<AClippingNode>> clippings = graphManager.getClippingObjects(false, false);
 

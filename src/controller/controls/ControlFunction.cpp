@@ -4,8 +4,8 @@
 #include "controller/functionSystem/FunctionManager.h"
 #include "controller/messages/IMessage.h"
 
-#include "models/3d/Graph/AGraphNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/graph/AGraphNode.h"
+#include "models/graph/GraphManager.hxx"
 
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataTree.h"
@@ -192,7 +192,7 @@ namespace control
 
 		void AddNodes::doFunction(Controller& controller)
 		{
-			controller.getOpenScanToolsGraphManager().addNodesToGraph(m_nodesToAdd);
+			controller.getGraphManager().addNodesToGraph(m_nodesToAdd);
 			if(m_select)
 				controller.changeSelection(m_nodesToAdd);
 			controller.actualizeTreeView(m_nodesToAdd);

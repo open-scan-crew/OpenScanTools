@@ -4,7 +4,7 @@
 #include "vulkan/VulkanManager.h"
 #include "utils/Logger.h"
 #include "utils/Utils.h"
-#include "models/3d/Graph/TransformationModule.h"
+#include "models/graph/TransformationModule.h"
 
 #include <chrono>
 #include <iostream>
@@ -420,14 +420,14 @@ void EmbeddedScan::setComputeTransfo(const glm::dvec3& t, const glm::dquat& q)
     };
 }
 
-tls::BoundingBox EmbeddedScan::getLocalBoundingBox() const
+BoundingBox EmbeddedScan::getLocalBoundingBox() const
 {
     return m_scanHeader.bbox;
 }
 
-tls::BoundingBox EmbeddedScan::getBoundingBox(const glm::dmat4 modelMat) const
+BoundingBoxD EmbeddedScan::getBoundingBox(const glm::dmat4 modelMat) const
 {
-    const tls::BoundingBox& bb = m_scanHeader.bbox;
+    const BoundingBox& bb = m_scanHeader.bbox;
 
     glm::dvec4 vec1(modelMat * glm::dvec4(bb.xMax, bb.yMax, bb.zMax, 1.0));
     glm::dvec4 vec2(modelMat * glm::dvec4(bb.xMax, bb.yMax, bb.zMin, 1.0));
@@ -441,7 +441,7 @@ tls::BoundingBox EmbeddedScan::getBoundingBox(const glm::dmat4 modelMat) const
     glm::dvec4 min(glm::min(glm::min(glm::min(glm::min(glm::min(glm::min(glm::min(vec1, vec2), vec3), vec4), vec5), vec6), vec7), vec8));
     glm::dvec4 max(glm::max(glm::max(glm::max(glm::max(glm::max(glm::max(glm::max(vec1, vec2), vec3), vec4), vec5), vec6), vec7), vec8));
 
-    return (tls::BoundingBox{ (float)min.x, (float)max.x, (float)min.y, (float)max.y, (float)min.z, (float)max.z });
+    return (BoundingBoxD{ min.x, max.x, min.y, max.y, min.z, max.z });
 }
 
 void EmbeddedScan::assumeWorkload()

@@ -7,7 +7,7 @@
 #include "gui/Texts.hpp"
 #include "gui/UnitConverter.h"
 
-#include "models/3d/Graph/PolylineMeasureNode.h"
+#include "models/graph/PolylineMeasureNode.h"
 
 PropertyPolylineMeasure::PropertyPolylineMeasure(Controller& controller, QWidget* parent, float guiScale)
 	: APropertyGeneral(controller.getDataDispatcher(), parent)

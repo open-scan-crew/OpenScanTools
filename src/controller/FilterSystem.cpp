@@ -1,8 +1,8 @@
 #include "controller/FilterSystem.h"
 #include "controller/Controller.h"
 #include "utils/Logger.h"
-#include "models/3d/Graph/TagNode.h"
-#include "models/3d/Graph/ScanNode.h"
+#include "models/graph/TagNode.h"
+#include "models/graph/ScanNode.h"
 #include "models/application/Author.h"
 
 #include "magic_enum/magic_enum.hpp"

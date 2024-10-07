@@ -124,8 +124,8 @@ public:
     // For changing the local referential (in case of multiple scene instance)
     void setComputeTransfo(const glm::dvec3& t, const glm::dquat& q);
 
-    tls::BoundingBox getLocalBoundingBox() const;
-    tls::BoundingBox getBoundingBox(const glm::dmat4 modelMat) const;
+    BoundingBox getLocalBoundingBox() const;
+    BoundingBoxD getBoundingBox(const glm::dmat4 modelMat) const;
 
     // For streaming
     void assumeWorkload();

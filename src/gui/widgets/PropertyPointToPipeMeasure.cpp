@@ -4,7 +4,7 @@
 #include "controller/Controller.h"
 #include "controller/controls/ControlDataEdition.h"
 
-#include "models/3d/Graph/PointToPipeMeasureNode.h"
+#include "models/graph/PointToPipeMeasureNode.h"
 
 PropertyPointToPipeMeasure::PropertyPointToPipeMeasure(Controller& controller, QWidget *parent, float guiScale)
 	: APropertyGeneral(controller.getDataDispatcher(), parent)

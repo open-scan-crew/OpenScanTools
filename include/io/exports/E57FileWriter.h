@@ -42,7 +42,7 @@ private:
     tls::ScanHeader m_scanHeader;
     StagingBuffers m_stagingBufs;
     CVWriterWrapper* m_storedWriter;
-    tls::BoundingBox m_bbox;
+    BoundingBox m_bbox;
 };
 
 #endif

@@ -5,6 +5,8 @@
 #include "ui_AddHyperlinkDialog.h"
 #include "models/data/Data.h"
 
+#include <filesystem>
+
 class AObjectNode;
 
 class HyperlinkAddDialog : public ADialog

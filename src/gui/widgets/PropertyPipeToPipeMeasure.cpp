@@ -4,7 +4,7 @@
 #include "controller/controls/ControlDataEdition.h"
 #include "gui/widgets/FocusWatcher.h"
 
-#include "models/3d/Graph/PipeToPipeMeasureNode.h"
+#include "models/graph/PipeToPipeMeasureNode.h"
 
 PropertyPipeToPipeMeasure::PropertyPipeToPipeMeasure(Controller& controller, QWidget *parent, float guiScale)
 	: APropertyGeneral(controller.getDataDispatcher(), parent)

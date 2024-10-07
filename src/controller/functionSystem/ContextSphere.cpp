@@ -11,9 +11,9 @@
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "utils/Logger.h"
 #include "controller/controls/ControlFunction.h"
-#include "models/3d/Graph/PointNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
-#include "models/3d/Graph/SphereNode.h"
+#include "models/graph/PointNode.h"
+#include "models/graph/GraphManager.hxx"
+#include "models/graph/SphereNode.h"
 
 #include "magic_enum/magic_enum.hpp"
 
@@ -51,7 +51,7 @@ ContextState ContextSphere::launch(Controller& controller)
 	m_state = ContextState::running;
 	FUNCLOG << "ContextFitSphere launch" << LOGENDL;
 
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
 
 	controller.updateInfo(new GuiDataTmpMessage(TEXT_LUCAS_SEARCH_ONGOING, 0));
 	bool success = false;

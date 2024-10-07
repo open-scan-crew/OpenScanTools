@@ -11,7 +11,7 @@
 #include "models/application/TagTemplate.h"
 #include "models/Types.hpp"
 
-#include "models/3d/Graph/CameraNode.h"
+#include "models/graph/CameraNode.h"
 
 class AGraphNode;
 

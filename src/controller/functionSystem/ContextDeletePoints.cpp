@@ -11,8 +11,8 @@
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "pointCloudEngine/PCE_core.h"
 
-#include "models/3d/Graph/ScanNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/graph/ScanNode.h"
+#include "models/graph/GraphManager.hxx"
 
 #include "gui/texts/ExportTexts.hpp"
 #include "gui/texts/SplashScreenTexts.hpp"
@@ -41,7 +41,7 @@ ContextState ContextDeletePoints::start(Controller& controller)
     if (controller.getContext().getIsCurrentProjectSaved() == false)
         controller.updateInfo(new GuiDataModal(Yes | No, TEXT_DELETE_SAVE_BEFORE_QUESTION));
 
-    OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+    GraphManager& graphManager = controller.getGraphManager();
 
     std::vector<SafePtr<AClippingNode>> vClips;
     std::unordered_set<SafePtr<AClippingNode>> clips = graphManager.getActivatedOrSelectedClippingObjects();
@@ -140,7 +140,7 @@ ContextState ContextDeletePoints::feedMessage(IMessage* message, Controller& con
 // * redémarrer le rendu
 ContextState ContextDeletePoints::launch(Controller& controller)
 {
-    OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+    GraphManager& graphManager = controller.getGraphManager();
 
     std::filesystem::path outFolder = controller.getContext().cgetProjectInternalInfo().getScansFolderPath() / "temp";
     prepareOutputDirectory(controller, outFolder);

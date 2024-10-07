@@ -5,10 +5,10 @@
 #include "utils/StrCompare.h"
 #include "utils/Logger.h"
 
-#include "models/3d/Graph/AObjectNode.h"
+#include "models/graph/AObjectNode.h"
 #include "controller/controls/AEditionControl.hxx"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/graph/GraphManager.hxx"
 
 namespace control
 {
@@ -54,7 +54,7 @@ namespace control
 
 		bool SetUserId::changeId(Controller & controller, uint32_t toChangeId, std::string actionText)
 		{
-			if (!controller.getOpenScanToolsGraphManager().isIdAvailable({ m_type }, toChangeId))
+			if (!controller.getGraphManager().isIdAvailable({ m_type }, toChangeId))
 			{
 				CONTROLLOG << "control::SetUserId " << actionText << " : id unavailable" << Logger::endl;
 				return false;

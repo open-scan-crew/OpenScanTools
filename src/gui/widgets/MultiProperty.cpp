@@ -9,7 +9,7 @@
 #include "gui/Texts.hpp"
 
 #include "models/application/Author.h"
-#include "models/3d/Graph/AClippingNode.h"
+#include "models/graph/AClippingNode.h"
 
 #include "gui/texts/DefaultUserLists.hpp"
 
@@ -262,7 +262,6 @@ void MultiProperty::addHyperlink(std::wstring hyperlink, std::wstring name)
 
 void MultiProperty::handleContextHyperlink(int linkIndex)
 {
-	PANELLOG << "context custom" << LOGENDL;
 	if (linkIndex < 0)
 		return;
 

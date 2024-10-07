@@ -12,7 +12,7 @@
 #include "impl/PCE_impl.h"
 #include "controller/controls/ControlProject.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.h"
+#include "models/graph/GraphManager.h"
 
 #include <thread>
 #include <qevent.h>
@@ -99,7 +99,7 @@ int main(int argc, char** argv)
     // Set the Config before the initializing the other modules
     Config::setApplicationDirPath(QCoreApplication::applicationDirPath().toStdWString());
     DataDispatcher dataDispatcher;
-    OpenScanToolsGraphManager graphManager(dataDispatcher);
+    GraphManager graphManager(dataDispatcher);
     Controller controller(dataDispatcher, graphManager);
     SignalHandler signalHandler(&dataDispatcher);
 

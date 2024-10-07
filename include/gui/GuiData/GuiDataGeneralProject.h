@@ -18,7 +18,7 @@ class AGraphNode;
 class AClippingNode;
 class CameraNode;
 
-class OpenScanToolsGraphManager;
+class GraphManager;
 class ControllerContext;
 
 class QString;
@@ -180,7 +180,7 @@ public:
 class GuiDataProjectProperties : public IGuiData
 {
 public:
-	GuiDataProjectProperties(const ControllerContext& context, const OpenScanToolsGraphManager& graphManager, bool openProperties = true);
+	GuiDataProjectProperties(const ControllerContext& context, const GraphManager& graphManager, bool openProperties = true);
 	guiDType getType() override;
 public:
     ProjectInfos m_projectInfo;

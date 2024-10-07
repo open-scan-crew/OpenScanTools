@@ -17,13 +17,14 @@
 
 class Controller;
 class IDataDispatcher;
-class OpenScanToolsGraphManager;
+class GraphManager;
 class AGraphNode;
+
 
 class ScantraInterface
 {
 public:
-    ScantraInterface(Controller& controller, IDataDispatcher& data_dispatcher, OpenScanToolsGraphManager& graph);
+    ScantraInterface(Controller& controller, IDataDispatcher& data_dispatcher, GraphManager& graph);
     ~ScantraInterface();
 
     int startInterface();
@@ -53,9 +54,9 @@ private:
     // OpenScanTools accessors
     Controller& controller_;
     IDataDispatcher& data_dispatcher_;
-    OpenScanToolsGraphManager& graph_;
 
     std::unordered_set<SafePtr<AGraphNode>> scan_selection_;
+    GraphManager& graph_;
 };
 
 #endif

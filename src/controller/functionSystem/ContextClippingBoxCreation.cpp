@@ -9,8 +9,8 @@
 #include "utils/math/trigo.h"
 #include "utils/Logger.h"
 
-#include "models/3d/Graph/BoxNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/graph/BoxNode.h"
+#include "models/graph/GraphManager.hxx"
 
 ContextClippingBoxCreation::ContextClippingBoxCreation(const ContextId& id)
 	: ARayTracingContext(id)

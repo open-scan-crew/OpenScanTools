@@ -4,7 +4,7 @@
 
 #include <chrono>
 
-Controller_p::Controller_p(IDataDispatcher& dataDispatcher, OpenScanToolsGraphManager& graphManager, Controller& publicController)
+Controller_p::Controller_p(IDataDispatcher& dataDispatcher, GraphManager& graphManager, Controller& publicController)
     : clock_lock_(1)
     , dataDispatcher(dataDispatcher)
     , graphManager(graphManager)

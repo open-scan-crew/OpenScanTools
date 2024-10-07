@@ -10,8 +10,8 @@
 #include "controller/functionSystem/FunctionManager.h"
 #include "pointCloudEngine/TlScanOverseer.h"
 
-#include "models/3d/Graph/CylinderNode.h"
-#include "models/3d/Graph/TorusNode.h"
+#include "models/graph/CylinderNode.h"
+#include "models/graph/TorusNode.h"
 
 #include "controller/controls/ControlFunctionClipping.h"
 #include "utils/Logger.h"
@@ -21,8 +21,8 @@
 #include "controller/controls/ControlFunction.h"
 #include "controller/controls/ControlMetaControl.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
-#include "models/3d/Graph/ClusterNode.h"
+#include "models/graph/GraphManager.hxx"
+#include "models/graph/ClusterNode.h"
 
 
 #include <glm/gtx/quaternion.hpp>
@@ -61,7 +61,7 @@ ContextState ContextPipePostConnexion::feedMessage(IMessage* message, Controller
 
 ContextState ContextPipePostConnexion::launch(Controller& controller)
 {
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
 
 	m_state = ContextState::running;
 	std::unordered_set<SafePtr<AGraphNode>> cylindersData = graphManager.getNodesByTypes({ ElementType::Cylinder }, ObjectStatusFilter::SELECTED);

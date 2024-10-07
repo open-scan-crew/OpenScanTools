@@ -11,7 +11,7 @@
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataIO.h"
 
-#include "models/3d/Graph/AClippingNode.h"
+#include "models/graph/AClippingNode.h"
 
 #include <QtWidgets/QFileDialog>
 #include <QtCore/QStandardPaths>

@@ -40,7 +40,6 @@ void ToolBarListGroup::onProjectLoad(IGuiData* data)
 
 void ToolBarListGroup::manageLists()
 {
-	PANELLOG << "manage lists" << LOGENDL;
 	ListListDialog *dialog = new ListListDialog(m_dataDispatcher, static_cast<QWidget*>(this->parent()), true);
 	m_dataDispatcher.sendControl(new control::userlist::SendUserLists());
 	dialog->show();
@@ -48,7 +47,6 @@ void ToolBarListGroup::manageLists()
 
 void ToolBarListGroup::manageTemplate()
 {
-	PANELLOG << "manage templates" << LOGENDL;
 	TemplateManagerDialog *dialog = new TemplateManagerDialog(m_dataDispatcher, static_cast<QWidget*>(this->parent()), true);
 	m_dataDispatcher.sendControl(new control::tagTemplate::SendTemplateList());
 	dialog->show();

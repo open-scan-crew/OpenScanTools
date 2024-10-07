@@ -1,4 +1,5 @@
 #include "gui/Dialog/CalendarDialog.h"
+#include "utils/Logger.h"
 
 CalendarDialog::CalendarDialog(QWidget *parent)
 	: QDialog(parent)
@@ -26,17 +27,17 @@ void CalendarDialog::setCurrentDate(QDate date)
 void CalendarDialog::dateUpdate()
 {
 	_savedDate = ui->DateCalendar->selectedDate();
-	PANELLOG << "User click on date " << _savedDate.toString().toStdString() << LOGENDL;
+	GUI_LOG << "User click on date " << _savedDate.toString().toStdString() << LOGENDL;
 }
 
 void CalendarDialog::validateClick()
 {
 	emit finished(_savedDate);
-	PANELLOG << "Validate date at " << _savedDate.toString().toStdString() << LOGENDL;
+	GUI_LOG << "Validate date at " << _savedDate.toString().toStdString() << LOGENDL;
 }
 
 void CalendarDialog::cancelClick()
 {
 	emit cancel();
-	PANELLOG << "Cancel date" << LOGENDL;
+	GUI_LOG << "Cancel date" << LOGENDL;
 }

@@ -1,10 +1,6 @@
 #ifndef I_PANEL_H
 #define I_PANEL_H
 
-#include "utils/Logger.h"
-
-#define PANELLOG Logger::log(LoggerMode::GuiLog)
-
 class IGuiData;
 
 class IPanel

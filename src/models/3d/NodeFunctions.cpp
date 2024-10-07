@@ -1,10 +1,10 @@
 #include "models/3d/NodeFunctions.h"
-#include "models/3d/Graph/TorusNode.h"
-#include "models/3d/Graph/SphereNode.h"
-#include "models/3d/Graph/BoxNode.h"
-#include "models/3d/Graph/CylinderNode.h"
-#include "models/3d/Graph/APointCloudNode.h"
-#include "models/3d/Graph/MeshObjectNode.h"
+#include "models/graph/TorusNode.h"
+#include "models/graph/SphereNode.h"
+#include "models/graph/BoxNode.h"
+#include "models/graph/CylinderNode.h"
+#include "models/graph/APointCloudNode.h"
+#include "models/graph/MeshObjectNode.h"
 
 #include "utils/math/basic_define.h"
 

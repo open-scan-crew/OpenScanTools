@@ -7,9 +7,9 @@
 #include "controller/ControlListener.h"
 #include "controller/functionSystem/FunctionManager.h"
 #include "pointCloudEngine/TlScanOverseer.h"
-#include "models/3d/Graph/CylinderNode.h"
-#include "models/3d/Graph/TorusNode.h"
-#include "models/3d/Graph/ClusterNode.h"
+#include "models/graph/CylinderNode.h"
+#include "models/graph/TorusNode.h"
+#include "models/graph/ClusterNode.h"
 #include "controller/controls/ControlFunctionClipping.h"
 #include "utils/Logger.h"
 #include "gui/GuiData/GuiData3dObjects.h"
@@ -18,7 +18,7 @@
 #include "controller/controls/ControlSpecial.h"
 #include "controller/controls/ControlMetaControl.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/graph/GraphManager.hxx"
 
 #include <glm/gtx/quaternion.hpp>
 
@@ -92,7 +92,7 @@ ContextState ContextPipeDetectionConnexion::launch(Controller& controller)
 		return waitForNextPoint(controller);
 	// -!- Ray Tracing -!-
 
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
 
 	bool isAutoExtend = m_options.extendMode == PipeDetectionExtendMode::Auto;
 	bool isManualExtend = m_options.extendMode == PipeDetectionExtendMode::Manual;
@@ -104,7 +104,7 @@ ContextState ContextPipeDetectionConnexion::launch(Controller& controller)
 		controller.updateInfo(new GuiDataTmpMessage(TEXT_LUCAS_SEARCH_ONGOING, 0));
 		bool success = false;
 		ClippingAssembly clippingAssembly;
-		OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+		GraphManager& graphManager = controller.getGraphManager();
 
 		graphManager.getClippingAssembly(clippingAssembly, true, false);
 		glm::dvec3 cylinderDirection, cylinderCenter;

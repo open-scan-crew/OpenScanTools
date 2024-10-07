@@ -10,7 +10,7 @@
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "pointCloudEngine/TlScanOverseer.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/graph/GraphManager.hxx"
 
 namespace control
 {
@@ -95,9 +95,9 @@ namespace control
 
         void AlignViewSide::doFunction(Controller& controller)
         {
-            std::vector<tls::PointCloudInstance> scanInfos = controller.getOpenScanToolsGraphManager().getVisiblePointCloudInstances(xg::Guid(), true, true);
+            std::vector<tls::PointCloudInstance> scanInfos = controller.getGraphManager().getVisiblePointCloudInstances(xg::Guid(), true, true);
             TlScanOverseer::getInstance().setWorkingScansTransfo(scanInfos);
-            tls::BoundingBox projectBoundingBox = TlScanOverseer::getInstance().getActiveBoundingBox();
+            BoundingBoxD projectBoundingBox = TlScanOverseer::getInstance().getActiveBoundingBox();
 
             controller.updateInfo(new GuiDataRenderAlignView(m_side, projectBoundingBox, m_destCamera, scanInfos.empty()));
         }

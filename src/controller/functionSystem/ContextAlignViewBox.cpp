@@ -7,8 +7,8 @@
 #include "gui/GuiData/GuiDataMeasure.h"
 #include "gui/GuiData/GuiDataRendering.h"
 
-#include "models/3d/Graph/CameraNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/graph/CameraNode.h"
+#include "models/graph/GraphManager.hxx"
 
 #include "utils/math/trigo.h"
 #include "utils/Logger.h"
@@ -63,7 +63,7 @@ ContextState ContextAlignViewBox::feedMessage(IMessage* message, Controller& con
 ContextState ContextAlignViewBox::launch(Controller& controller)
 {
 	FUNCLOG << "ContextAlignViewBox launch" << LOGENDL;
-    OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+    GraphManager& graphManager = controller.getGraphManager();
 	std::unordered_set<SafePtr<AGraphNode>> selected = graphManager.getSelectedNodes();
 	if (selected.empty()|| selected.size() > 1)
 		return (m_state = ContextState::abort);

@@ -1,8 +1,8 @@
 #include "test/SafeDataTests.h"
 
 #include "utils/safe_ptr.h"
-#include "models/3d/Graph/AGraphNode.h"
-#include "models/3d/Graph/TorusNode.h"
+#include "models/graph/AGraphNode.h"
+#include "models/graph/TorusNode.h"
 
 void tl::tests::data::upcastTest()
 {
