@@ -34,6 +34,10 @@ enum LoggerMode
     LOGGER_MODE_MAX_ENUM
 };
 
+#define IOLOG Logger::log(LoggerMode::IOLog)
+#define GUI_LOG Logger::log(LoggerMode::GuiLog)
+#define GRAPH_LOG Logger::log(LoggerMode::SceneGraphLog)
+
 class SubLogger;
 
 class EndLog

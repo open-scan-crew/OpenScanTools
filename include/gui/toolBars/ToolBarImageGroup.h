@@ -9,6 +9,8 @@
 
 #include "models/OpenScanToolsModelEssentials.h"
 
+#include <filesystem>
+
 class CameraNode;
 
 class ToolBarImageGroup;

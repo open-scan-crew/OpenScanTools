@@ -1,5 +1,6 @@
 #include "gui/Dialog/TagTemplateNameDialog.h"
 #include "controller/controls/ControlTemplateEdit.h"
+#include "utils/Logger.h"
 
 TagTemplateNameDialog::TagTemplateNameDialog(IDataDispatcher& dataDispatcher, QWidget *parent)
 	: QDialog(parent)
@@ -10,12 +11,12 @@ TagTemplateNameDialog::TagTemplateNameDialog(IDataDispatcher& dataDispatcher, QW
 
 	QObject::connect(ui->CancelBtn, SIGNAL(clicked()), this, SLOT(cancelCreation()));
 	QObject::connect(ui->okBtn, SIGNAL(clicked()), this, SLOT(acceptCreation()));
-	PANELLOG << "create TagTemplateNameDialog" << LOGENDL;
+	GUI_LOG << "create TagTemplateNameDialog" << LOGENDL;
 }
 
 TagTemplateNameDialog::~TagTemplateNameDialog()
 {
-	PANELLOG << "destroy TagTemplateNameDialog" << LOGENDL;
+	GUI_LOG << "destroy TagTemplateNameDialog" << LOGENDL;
 	m_dataDispatcher.unregisterObserver(this);
 }
 

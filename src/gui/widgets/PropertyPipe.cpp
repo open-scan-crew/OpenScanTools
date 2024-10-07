@@ -270,7 +270,6 @@ void PropertyPipe::onDiameterChange()
 
 void  PropertyPipe::onDiameterEdit()
 {
-	PANELLOG << "on diameter edit" << LOGENDL;
 	double diameter(m_ui.forceDiameterField->getValue());
 
 	m_forcedDiameter = diameter; 

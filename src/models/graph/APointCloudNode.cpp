@@ -1,13 +1,11 @@
 #include "models/graph/APointCloudNode.h"
 #include "pointCloudEngine/PCE_core.h"
-
+#include "vulkan/VulkanManager.h"
 
 APointCloudNode::APointCloudNode(const APointCloudNode& data)
 	: AObjectNode(data)
 	, ScanData(data)
 {
-	SGLog << "APointCloudNode -> created with dataid" << m_id << Logger::endl;
-
 	// FIXME(robin) - We should get the image count from the framebuffer, it is not always 2
 	VulkanManager::getInstance().allocUniform(sizeof(glm::mat4), 2, m_modelUni);
 	m_clippable = static_cast<const ScanData&>(data).getClippable();

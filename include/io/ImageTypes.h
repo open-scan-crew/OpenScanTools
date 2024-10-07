@@ -3,6 +3,7 @@
 
 #include <map>
 #include <glm/glm.hpp>
+#include <string>
 
 enum class ImageFormat {
     BMP = 0,

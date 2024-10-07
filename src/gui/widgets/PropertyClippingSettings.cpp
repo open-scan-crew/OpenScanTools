@@ -8,6 +8,7 @@
 #include "controller/controls/ControlFunctionClipping.h"
 #include "gui/widgets/FocusWatcher.h"
 #include "gui/Texts.hpp"
+#include "utils/Logger.h"
 
 #include <cctype>
 #include <glm/gtx/vector_angle.hpp>
@@ -203,7 +204,7 @@ bool PropertyClippingSettings::sendSize()
 
 void PropertyClippingSettings::onXSizeEdit()
 {
-	PANELLOG << "x edit" << LOGENDL;
+	GUI_LOG << "x edit" << LOGENDL;
 	float xOffset = (float)m_ui->XInfield->getValue();
 	if (m_xStored != xOffset) {
 		m_xStored = xOffset;
@@ -213,7 +214,7 @@ void PropertyClippingSettings::onXSizeEdit()
 
 void PropertyClippingSettings::onYSizeEdit()
 {
-	PANELLOG << "y edit" << LOGENDL;
+	GUI_LOG << "y edit" << LOGENDL;
 	float yOffset = (float)m_ui->YInfield->getValue();
 	if (m_yStored != yOffset) {
 		m_yStored = yOffset;
@@ -223,7 +224,7 @@ void PropertyClippingSettings::onYSizeEdit()
 
 void PropertyClippingSettings::onZSizeEdit()
 {
-	PANELLOG << "z edit" << LOGENDL;
+	GUI_LOG << "z edit" << LOGENDL;
 	float zOffset = (float)m_ui->ZInfield->getValue();
 	if (m_zStored != zOffset) {
 		m_zStored = zOffset;
@@ -233,7 +234,7 @@ void PropertyClippingSettings::onZSizeEdit()
 
 void PropertyClippingSettings::onCenterClick()
 {
-	PANELLOG << "center click" << LOGENDL;
+	GUI_LOG << "center click" << LOGENDL;
 	m_ui->BottomFaceRadio->setChecked(false);
 	m_ui->TopFaceRadio->setChecked(false);
 	m_ui->CenterRadio->setChecked(true);
@@ -242,7 +243,7 @@ void PropertyClippingSettings::onCenterClick()
 
 void PropertyClippingSettings::onBottomClick()
 {
-	PANELLOG << "bot click" << LOGENDL;
+	GUI_LOG << "bot click" << LOGENDL;
 	m_ui->CenterRadio->setChecked(false);
 	m_ui->TopFaceRadio->setChecked(false);
 	m_ui->BottomFaceRadio->setChecked(true);
@@ -251,7 +252,7 @@ void PropertyClippingSettings::onBottomClick()
 
 void PropertyClippingSettings::onTopClick()
 {
-	PANELLOG << "top click" << LOGENDL;
+	GUI_LOG << "top click" << LOGENDL;
 	m_ui->BottomFaceRadio->setChecked(false);
 	m_ui->CenterRadio->setChecked(false);
 	m_ui->TopFaceRadio->setChecked(true);
@@ -260,14 +261,14 @@ void PropertyClippingSettings::onTopClick()
 
 void PropertyClippingSettings::onProjectAxis()
 {
-	PANELLOG << "onProjectAxis" << LOGENDL;
+	GUI_LOG << "onProjectAxis" << LOGENDL;
 	m_ui->pointsRadioButton->setChecked(false);
 	m_ui->userRadioButton->setChecked(false);
 	m_dataDispatcher.sendControl(new control::function::clipping::SetAlignementValue(0.0));
 }
 
 void PropertyClippingSettings::onUserOrientation() {
-	PANELLOG << "onUserOrientation" << LOGENDL;
+	GUI_LOG << "onUserOrientation" << LOGENDL;
 	m_ui->pointsRadioButton->setChecked(false);
 	m_ui->projectAxisRadioButton->setChecked(false);
 	m_dataDispatcher.sendControl(new control::function::clipping::SetAlignementValue(m_userAngle));
@@ -275,7 +276,7 @@ void PropertyClippingSettings::onUserOrientation() {
 
 void PropertyClippingSettings::on2Points()
 {
-	PANELLOG << "on2Points" << LOGENDL;
+	GUI_LOG << "on2Points" << LOGENDL;
 	m_ui->projectAxisRadioButton->setChecked(false);
 	m_ui->userRadioButton->setChecked(false);
 	m_dataDispatcher.sendControl(new control::function::clipping::SetAlignementValue(m_angle));
@@ -309,7 +310,7 @@ void PropertyClippingSettings::CleanP2()
 
 void PropertyClippingSettings::onPoint1Click()
 {
-	PANELLOG << "Point 1 Click" << LOGENDL;
+	GUI_LOG << "Point 1 Click" << LOGENDL;
 	m_point = 1;
 	CleanP1();
 	m_dataDispatcher.sendControl(new control::measure::ActivatePointMeasure());
@@ -318,7 +319,7 @@ void PropertyClippingSettings::onPoint1Click()
 
 void PropertyClippingSettings::onPoint2Click()
 {
-	PANELLOG << "Point 2 Click" << LOGENDL;
+	GUI_LOG << "Point 2 Click" << LOGENDL;
 	m_point = 2;
 	CleanP2();
 	m_dataDispatcher.sendControl(new control::measure::ActivatePointMeasure());

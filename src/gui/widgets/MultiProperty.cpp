@@ -262,7 +262,6 @@ void MultiProperty::addHyperlink(std::wstring hyperlink, std::wstring name)
 
 void MultiProperty::handleContextHyperlink(int linkIndex)
 {
-	PANELLOG << "context custom" << LOGENDL;
 	if (linkIndex < 0)
 		return;
 

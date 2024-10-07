@@ -8,6 +8,7 @@
 #include "gui/texts/ListTexts.hpp"
 #include "gui/widgets/CustomWidgets/qdoubleedit.h"
 #include "utils/QtUtils.h"
+#include "utils/Logger.h"
 
 ListModifierDialog::ListModifierDialog(IDataDispatcher& dataDispatcher, QDialog *parent)
 	: AListModifierDialog(dataDispatcher, parent)
@@ -18,7 +19,7 @@ ListModifierDialog::ListModifierDialog(IDataDispatcher& dataDispatcher, QDialog 
 
 ListModifierDialog::~ListModifierDialog()
 {
-	PANELLOG << "destroy ListModifierDialog" << LOGENDL;
+	GUI_LOG << "destroy ListModifierDialog" << LOGENDL;
 }
 
 void ListModifierDialog::getList(IGuiData *data)
@@ -65,12 +66,12 @@ void ListModifierDialog::getList(IGuiData *data)
 
 	m_ui.listView->setModel(model);
 	model->blockSignals(false);
-	PANELLOG << "userlist : " << rList->getName() << " with " << rList->clist().size() << " elems is shown" << LOGENDL;
+	GUI_LOG << "userlist : " << rList->getName() << " with " << rList->clist().size() << " elems is shown" << LOGENDL;
 }
 
 void ListModifierDialog::showElemMenu(QPoint p)
 {
-	PANELLOG << "show elem menu" << LOGENDL;
+	GUI_LOG << "show elem menu" << LOGENDL;
 	QMenu *menu = new QMenu(this);
 
 	QAction *deleteAct = new QAction(TEXT_DELETE_ELEMENT, this);
@@ -89,7 +90,7 @@ void ListModifierDialog::addNewElem()
 	}
 	m_ui.NewElemLineEdit->setText("");
 	m_ui.NewElemLineEdit->blockSignals(false);
-	PANELLOG << "add a new elem" << LOGENDL;
+	GUI_LOG << "add a new elem" << LOGENDL;
 }
 
 void ListModifierDialog::renameListViewElem(QStandardItem *item)
@@ -97,7 +98,7 @@ void ListModifierDialog::renameListViewElem(QStandardItem *item)
 	ItemNode *list = static_cast<ItemNode*>(item);
 
 	m_dataDispatcher.sendControl(new control::userlist::RenameItemFromList(m_list, list->getWStrData(), item->text().toStdWString()));
-	PANELLOG << "rename elem " << list->text().toStdString() << LOGENDL;
+	GUI_LOG << "rename elem " << list->text().toStdString() << LOGENDL;
 }
 
 void ListModifierDialog::renameElem()
@@ -114,7 +115,7 @@ void ListModifierDialog::renameElem()
 		m_ui.NameLineEdit->setText(QString::fromStdWString(rList->getName()));
 		m_ui.NameLineEdit->blockSignals(false);
 	}
-	PANELLOG << "rename elem" << LOGENDL;
+	GUI_LOG << "rename elem" << LOGENDL;
 }
 
 void ListModifierDialog::deleteElem()
@@ -131,12 +132,12 @@ void ListModifierDialog::deleteElem()
 		ss << element->getWStrData();
 		m_dataDispatcher.sendControl(new control::userlist::RemoveItemFromList(m_list, element->getWStrData()));
 	}
-	PANELLOG << "delete " << ss.str() << LOGENDL;
+	GUI_LOG << "delete " << ss.str() << LOGENDL;
 }
 
 void ListModifierDialog::clearList()
 {
-	PANELLOG << "clear items of list " << LOGENDL;
+	GUI_LOG << "clear items of list " << LOGENDL;
 	QMessageBox::StandardButton reply;
 
 	reply = QMessageBox::question(this, TEXT_TITLE_CLEAN_LIST_BOX, TEXT_TITLE_CLEAN_LIST_BOX, QMessageBox::Yes | QMessageBox::No);
@@ -145,5 +146,5 @@ void ListModifierDialog::clearList()
 		m_dataDispatcher.sendControl(new control::userlist::ClearItemFromList(m_list));
 	}
 	else
-		PANELLOG << "click no to clear list" << LOGENDL;
+		GUI_LOG << "click no to clear list" << LOGENDL;
 }

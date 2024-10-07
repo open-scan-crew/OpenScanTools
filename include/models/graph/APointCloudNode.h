@@ -5,8 +5,6 @@
 #include "models/pointCloud/TLS.h"
 #include "models/data/Scan/ScanData.h"
 #include "vulkan/VkUniform.h"
-#include "utils/Logger.h"
-#include "vulkan/VulkanManager.h"
 
 class APointCloudNode : public AObjectNode, public ScanData
 {

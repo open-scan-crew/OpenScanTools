@@ -12,6 +12,7 @@
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ListTexts.hpp"
+#include "utils/Logger.h"
 
 ListListDialog::ListListDialog(IDataDispatcher& dataDispatcher, QWidget *parent, const bool& deleteOnClose)
 	: AListListDialog(dataDispatcher, parent, deleteOnClose)
@@ -67,7 +68,7 @@ void ListListDialog::receiveListList(IGuiData *data)
 	m_ui.DuplicateBtn->setEnabled(false);
 	m_ui.ExportBtn->setEnabled(false);
 
-	PANELLOG << "List list Dialog : " << m_model->rowCount() << " elements" << LOGENDL;
+	GUI_LOG << "List list Dialog : " << m_model->rowCount() << " elements" << LOGENDL;
 }
 
 void ListListDialog::clickOnItem(const QModelIndex &idx)
@@ -89,12 +90,12 @@ void ListListDialog::clickOnItem(const QModelIndex &idx)
 		m_ui.DuplicateBtn->setEnabled(true);
 		m_ui.ExportBtn->setEnabled(true);
 	}
-	PANELLOG << "click on item" << LOGENDL;
+	GUI_LOG << "click on item" << LOGENDL;
 }
 
 void ListListDialog::addNewList()
 {
-	PANELLOG << "add new list" << LOGENDL;
+	GUI_LOG << "add new list" << LOGENDL;
 	m_nameDial.show();
 }
 
@@ -117,7 +118,7 @@ void ListListDialog::deleteList()
 		}
 	}
 	else
-		PANELLOG << "list not deleted" << LOGENDL;
+		GUI_LOG << "list not deleted" << LOGENDL;
 }
 
 void ListListDialog::listViewSelect()

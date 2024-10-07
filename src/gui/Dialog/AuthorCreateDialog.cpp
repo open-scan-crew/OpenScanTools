@@ -1,6 +1,7 @@
 #include "gui/Dialog/AuthorCreateDialog.h"
 #include "controller/controls/ControlApplication.h"
 #include "gui/Texts.hpp"
+#include "utils/Logger.h"
 
 AuthorCreateDialog::AuthorCreateDialog(IDataDispatcher& dataDispatcher, QWidget *parent)
 	: ADialog(dataDispatcher, parent)
@@ -15,12 +16,12 @@ AuthorCreateDialog::AuthorCreateDialog(IDataDispatcher& dataDispatcher, QWidget 
 
 	QObject::connect(ui->CancelBtn, SIGNAL(clicked()), this, SLOT(cancelCreation()));
 	QObject::connect(ui->OkBtn, SIGNAL(clicked()), this, SLOT(acceptCreation()));
-	PANELLOG << "create AuthorCreateDialog" << LOGENDL;
+	GUI_LOG << "create AuthorCreateDialog" << LOGENDL;
 }
 
 AuthorCreateDialog::~AuthorCreateDialog()
 {
-	PANELLOG << "destroy AuthorCreateDialog" << LOGENDL;
+	GUI_LOG << "destroy AuthorCreateDialog" << LOGENDL;
 	m_dataDispatcher.unregisterObserver(this);
 }
 

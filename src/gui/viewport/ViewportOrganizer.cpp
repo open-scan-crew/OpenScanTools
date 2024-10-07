@@ -316,7 +316,7 @@ void ViewportOrganizer::onDisableFullScreen()
 
 void ViewportOrganizer::onCancel()
 {
-    PANELLOG << "shortcut cancel" << LOGENDL;
+    GUI_LOG << "shortcut cancel" << LOGENDL;
     m_dataDispatcher.sendControl(new control::function::Validate());
 }
 

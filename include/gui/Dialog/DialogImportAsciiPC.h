@@ -2,14 +2,11 @@
 #define IMPORT_ASCII_PC_H_
 
 #include <QtWidgets/QDialog>
-#include "utils/Logger.h"
 #include "ui_DialogImportAsciiPC.h"
 #include "io/imports/ImportTypes.h"
 
 #include <vector>
 #include <filesystem>
-
-#define GUILOG Logger::log(LoggerMode::GuiLog)
 
 class QComboBox;
 

@@ -13,13 +13,14 @@
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ListTexts.hpp"
+#include "utils/Logger.h"
 
 AListListDialog::AListListDialog(IDataDispatcher& dataDispatcher, QWidget *parent, const bool& deleteOnClose)
 	: ADialog(dataDispatcher, parent)
 	, m_openPath(QStandardPaths::locate(QStandardPaths::DocumentsLocation, QString(), QStandardPaths::LocateDirectory))
 {
 	m_ui.setupUi(this);
-	PANELLOG << "create AListListDialog" << LOGENDL;
+	GUI_LOG << "create AListListDialog" << LOGENDL;
 
 	m_ui.RemoveBtn->setEnabled(false);
 	m_ui.EditBtn->setEnabled(false);
@@ -57,7 +58,7 @@ AListListDialog::AListListDialog(IDataDispatcher& dataDispatcher, QWidget *paren
 
 AListListDialog::~AListListDialog()
 {
-	PANELLOG << "destroy AListListDialog" << LOGENDL;
+	GUI_LOG << "destroy AListListDialog" << LOGENDL;
 	m_dataDispatcher.unregisterObserver(this);
 }
 
@@ -78,7 +79,7 @@ void AListListDialog::onProjectPath(IGuiData* data)
 
 void AListListDialog::showTreeMenu(QPoint p)
 {
-	//PANELLOG << "show Tree Menu" << LOGENDL;
+	//GUI_LOG << "show Tree Menu" << LOGENDL;
 	m_idSaved = m_ui.listListView->indexAt(p);
 	if (m_idSaved.isValid() == false)
 		return;

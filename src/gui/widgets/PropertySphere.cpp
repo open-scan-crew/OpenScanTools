@@ -92,7 +92,6 @@ void PropertySphere::setObject3DParameters(const TransformationModule& data)
 
 void PropertySphere::onDiameterChange()
 {
-	PANELLOG << "on diameter edit" << LOGENDL;
 	double diameter(m_ui.diameterInputField->getValue());
 	m_dataDispatcher.sendControl(new control::object3DEdition::SetSphereRadius(m_sphere, diameter / 2.0));
 }

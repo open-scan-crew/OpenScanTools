@@ -10,6 +10,8 @@
 #include <QDir>
 #include "gui/Texts.hpp"
 
+#include "utils/Logger.h"
+
 GenericPropertiesFeet::GenericPropertiesFeet(QWidget* parent, float pixelRatio)
 	: QWidget(parent)
 	, m_stored()
@@ -219,7 +221,7 @@ void GenericPropertiesFeet::getClusterPath(std::wstring& hName, std::wstring& hP
 
 void GenericPropertiesFeet::handleContextHyperlink(hLinkId link)
 {
-	PANELLOG << "context custom" << LOGENDL;
+	GUI_LOG << "context custom" << LOGENDL;
 	if (link.isValid() == false)
 		return;
 

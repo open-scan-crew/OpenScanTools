@@ -7,6 +7,7 @@
 #include "utils/math/basic_functions.h"
 #include "utils/math/glm_extended.h"
 #include "utils/Utils.h"
+#include "utils/Logger.h"
 
 
 #include <BRepTools.hxx>

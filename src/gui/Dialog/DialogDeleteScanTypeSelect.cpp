@@ -25,7 +25,6 @@ DialogDeleteScanTypeSelect::DialogDeleteScanTypeSelect(IDataDispatcher& dataDisp
 	flags ^= Qt::WindowContextHelpButtonHint;
 	setWindowFlags(flags);
 	// ------------------------------------
-	GUILOG << "create DialogDeleteScanTypeSelect" << LOGENDL;
 
 	m_ui.tableWidget->setRowCount((int)m_importantData.size());
 	m_ui.tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::ResizeToContents);
@@ -61,9 +60,7 @@ DialogDeleteScanTypeSelect::DialogDeleteScanTypeSelect(IDataDispatcher& dataDisp
 }
 
 DialogDeleteScanTypeSelect::~DialogDeleteScanTypeSelect()
-{
-	GUILOG << "destroy DialogDeleteScanTypeSelect" << LOGENDL;
-}
+{}
 
 
 bool DialogDeleteScanTypeSelect::getWaitUser()

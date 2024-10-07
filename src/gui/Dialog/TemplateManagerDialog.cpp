@@ -12,6 +12,7 @@
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/FileTypeTexts.hpp"
 #include "gui/Texts.hpp"
+#include "utils/Logger.h"
 
 TemplateManagerDialog::TemplateManagerDialog(IDataDispatcher &dataDispacher, QWidget *parent, const bool& deleteOnClose)
 	: ADialog(dataDispacher, parent)
@@ -22,7 +23,7 @@ TemplateManagerDialog::TemplateManagerDialog(IDataDispatcher &dataDispacher, QWi
 	m_ui->setupUi(this);
 	m_templateEditorDialog.hide();
 	m_templateNameDialog.hide();
-	PANELLOG << "create TemplateManagerDialog" << LOGENDL;
+	GUI_LOG << "create TemplateManagerDialog" << LOGENDL;
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::sendTemplateList);
 	m_ui->templateList->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
@@ -44,7 +45,7 @@ TemplateManagerDialog::TemplateManagerDialog(IDataDispatcher &dataDispacher, QWi
 
 TemplateManagerDialog::~TemplateManagerDialog()
 {
-	PANELLOG << "delete TemplateManagerDialog" << LOGENDL;
+	GUI_LOG << "delete TemplateManagerDialog" << LOGENDL;
 	m_dataDispatcher.sendControl(new control::tagTemplate::SaveTemplates);
 	m_dataDispatcher.unregisterObserver(this);
 }
@@ -75,7 +76,7 @@ void TemplateManagerDialog::clickOnItem(const QModelIndex &idx)
 		m_ui->ExportBtn->setEnabled(false);
 	}
 
-	PANELLOG << "click on item " << tempNode->text().toStdWString() << LOGENDL;
+	GUI_LOG << "click on item " << tempNode->text().toStdWString() << LOGENDL;
 }
 
 void TemplateManagerDialog::receiveTemplateList(IGuiData * data)
@@ -106,7 +107,7 @@ void TemplateManagerDialog::receiveTemplateList(IGuiData * data)
 	m_ui->DuplicateBtn->setEnabled(false);
 	m_ui->ExportBtn->setEnabled(false);
 
-	PANELLOG << "Template manager dialog : " << lData->m_templates.size() << " elements received" << LOGENDL;
+	GUI_LOG << "Template manager dialog : " << lData->m_templates.size() << " elements received" << LOGENDL;
 }
 
 void TemplateManagerDialog::deleteTemplate()
@@ -128,12 +129,12 @@ void TemplateManagerDialog::deleteTemplate()
 		}
 	}
 	else
-		PANELLOG << "template not deleted" << LOGENDL;
+		GUI_LOG << "template not deleted" << LOGENDL;
 }
 
 void TemplateManagerDialog::showTreeMenu(QPoint p)
 {
-	PANELLOG << "show Tree Menu" << LOGENDL;
+	GUI_LOG << "show Tree Menu" << LOGENDL;
 
 	m_idSaved = m_ui->templateList->indexAt(p);
 	if (m_idSaved.isValid() == false)
@@ -158,7 +159,7 @@ void TemplateManagerDialog::showTreeMenu(QPoint p)
 
 void TemplateManagerDialog::newTemplate()
 {
-	PANELLOG << "add new template" << LOGENDL;
+	GUI_LOG << "add new template" << LOGENDL;
 	m_templateNameDialog.show();
 }
 

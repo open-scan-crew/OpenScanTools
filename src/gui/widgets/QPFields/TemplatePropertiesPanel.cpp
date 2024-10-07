@@ -14,6 +14,7 @@
 #include "controller/Controls/ControlObject3DEdition.h"
 
 #include "utils/math/trigo.h"
+#include "utils/Logger.h"
 
 #include <glm/gtx/norm.hpp>
 
@@ -165,7 +166,7 @@ bool TemplatePropertiesPanel::updateTag()
 
 void TemplatePropertiesPanel::getFieldModification(sma::tFieldId id, std::wstring newData)
 {
-	PANELLOG << "data received on field : " << id.str() << " : " << newData << LOGENDL;
+	GUI_LOG << "data received on field : " << id.str() << " : " << newData << LOGENDL;
 	m_dataDispatcher.sendControl(new control::tagEdition::SetFieldData(m_tag, id, newData));
 }
 

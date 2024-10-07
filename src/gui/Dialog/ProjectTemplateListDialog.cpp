@@ -17,6 +17,7 @@
 
 #include "utils/System.h"
 #include "utils/Utils.h"
+#include "utils/Logger.h"
 
 ProjectTemplateListDialog::ProjectTemplateListDialog(IDataDispatcher& dataDispatcher, QWidget *parent)
 	: ADialog(dataDispatcher, parent)
@@ -91,7 +92,7 @@ void ProjectTemplateListDialog::receiveProjectTemplateList(IGuiData *data)
 	m_ui.RemoveBtn->setEnabled(false);
 	m_ui.updateBtn->setEnabled(false);
 
-	PANELLOG << "receive list of project templates of " << lData->m_templates.size() << "elems" << LOGENDL;
+	GUI_LOG << "receive list of project templates of " << lData->m_templates.size() << "elems" << LOGENDL;
 }
 
 void ProjectTemplateListDialog::onProjectLoaded(IGuiData* data)
@@ -120,7 +121,7 @@ void ProjectTemplateListDialog::clickOnItem(const QModelIndex &idx)
 		m_ui.updateBtn->setEnabled(false);
 		m_ui.RenameBtn->setEnabled(false);
 	}
-	PANELLOG << "click on item" << LOGENDL;
+	GUI_LOG << "click on item" << LOGENDL;
 }
 
 
@@ -147,7 +148,7 @@ void ProjectTemplateListDialog::onNameRecieved(const std::wstring& name)
 
 void ProjectTemplateListDialog::addNewTemplate()
 {
-	PANELLOG << "add new list" << LOGENDL;
+	GUI_LOG << "add new list" << LOGENDL;
 	m_waitFor = WaitForName::Creation;
 	m_nameDial.show(QString::fromStdWString(m_projectName));
 }
@@ -165,10 +166,10 @@ void ProjectTemplateListDialog::deleteTemplate()
 			ItemNode* item = static_cast<ItemNode*>(m_model->itemFromIndex(index));
 			m_dataDispatcher.sendControl(new control::projectTemplate::DeleteTemplate(item->getWStrData()));
 		}
-		PANELLOG << "delete " << list.size() << " templates." << LOGENDL;
+		GUI_LOG << "delete " << list.size() << " templates." << LOGENDL;
 	}
 	else
-		PANELLOG << "templates not deleted" << LOGENDL;
+		GUI_LOG << "templates not deleted" << LOGENDL;
 }
 
 void ProjectTemplateListDialog::updateTemplate()

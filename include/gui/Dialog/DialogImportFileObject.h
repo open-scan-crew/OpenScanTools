@@ -3,15 +3,12 @@
 
 #include <QtWidgets/QListView>
 #include "gui/Dialog/ADialog.h"
-#include "utils/Logger.h"
 #include "ui_DialogImportFileObject.h"
 
 #include "gui/IDataDispatcher.h"
-#include <unordered_set>
-
 #include "models/graph/AGraphNode.h"
 
-#define GUILOG Logger::log(LoggerMode::GuiLog)
+#include <unordered_set>
 
 class DialogImportFileObject : public ADialog
 {

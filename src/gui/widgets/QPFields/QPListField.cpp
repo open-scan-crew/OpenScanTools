@@ -1,7 +1,6 @@
-#include <exception>
-
 #include "gui/widgets/QPFields/QPListField.h"
 #include "gui/IPanel.h"
+#include "utils/Logger.h"
 
 QPListField::QPListField(const sma::tField& field, QWidget* parent)
 	: AQPField(field, parent)
@@ -32,14 +31,14 @@ void QPListField::setValue(QString value)
 {
 	int i = 0;
 
-	PANELLOG << "list received value : " << value.toStdString() << LOGENDL;
+	GUI_LOG << "list received value : " << value.toStdString() << LOGENDL;
 	m_listCombo->blockSignals(true);
 	m_listCombo->setCurrentIndex(0);
 	for (auto it = m_list.list().begin(); it != m_list.list().end(); it++)
 	{
 		if (value.toStdWString() == (*it))
 		{
-			PANELLOG << "list change to " << i << " : " << m_listCombo->itemText(i).toStdString() << LOGENDL;
+			GUI_LOG << "list change to " << i << " : " << m_listCombo->itemText(i).toStdString() << LOGENDL;
 			m_listCombo->setCurrentIndex(i);
 			m_listCombo->blockSignals(false);
 			return;

@@ -12,6 +12,7 @@
 #include <cctype>
 #include <glm/gtx/vector_angle.hpp>
 #include "utils/math/trigo.h"
+#include "utils/Logger.h"
 
 #include <QMessageBox>
 #include <QtGui/QHideEvent>
@@ -87,7 +88,7 @@ PropertyUserOrientation::PropertyUserOrientation(IDataDispatcher& dataDispatcher
 
 PropertyUserOrientation::~PropertyUserOrientation()
 {
-	PANELLOG << "destructor UserOrientations" << LOGENDL;
+	GUI_LOG << "destructor UserOrientations" << LOGENDL;
 	m_dataDispatcher.unregisterObserver(this);
 }
 
@@ -204,7 +205,7 @@ void PropertyUserOrientation::updateCustomAxisFrame()
 
 void PropertyUserOrientation::onPoint1Click()
 {
-	PANELLOG << "UserOrientation : Point 1 Click" << LOGENDL;
+	GUI_LOG << "UserOrientation : Point 1 Click" << LOGENDL;
 	m_currentEditPoint = &m_axisPoints[0];
 	m_axisPoints[0] = glm::dvec3();
 	updateUO();
@@ -213,7 +214,7 @@ void PropertyUserOrientation::onPoint1Click()
 
 void PropertyUserOrientation::onPoint2Click()
 {
-	PANELLOG << "UserOrientation : Point 2 Click" << LOGENDL;
+	GUI_LOG << "UserOrientation : Point 2 Click" << LOGENDL;
 	m_currentEditPoint = &m_axisPoints[1];
 	m_axisPoints[1] = glm::dvec3();
 	updateUO();

@@ -243,7 +243,6 @@ void MainToolBar::slotWindowResized(bool maximized, bool fullScreen)
 
 void MainToolBar::slotOpenRecentSave()
 {
-	PANELLOG << "open recent projects" << LOGENDL;
 	DialogRecentProjects *dialog = new DialogRecentProjects(m_dataDispatcher, this->parentWidget());
 	m_dataDispatcher.sendControl(new control::application::SendRecentProjects());
 	dialog->show();

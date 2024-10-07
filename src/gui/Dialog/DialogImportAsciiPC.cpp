@@ -1,27 +1,27 @@
 #include "gui\Dialog\DialogImportAsciiPC.h"
 #include "gui/texts/PointCloudTexts.hpp"
+#include "gui/Texts.hpp"
 #include "io/FileUtils.h"
+
 #include <QtWidgets/QMessageBox>
 #include "qcombobox.h"
 
 #include <regex>
-#include "gui/Texts.hpp"
 #include <array>
+#include <fstream>
 
-static std::vector<std::pair<QString, Import::AsciiValueRole>> comboBoxContent = { 
-
-																					{TEXT_ASCII_IGNORE, Import::AsciiValueRole::Ignore},
-																					{"X", Import::AsciiValueRole::X}, 
-																					{"Y", Import::AsciiValueRole::Y}, 
-																					{"Z", Import::AsciiValueRole::Z}, 
-																					{TEXT_ASCII_RED, Import::AsciiValueRole::R}, 
-																					{TEXT_ASCII_GREEN, Import::AsciiValueRole::G},
-																					{TEXT_ASCII_BLUE, Import::AsciiValueRole::B},
-																					{TEXT_ASCII_INTENSITY, Import::AsciiValueRole::I},
-																					{TEXT_ASCII_RED_FLOAT, Import::AsciiValueRole::Rf},
-																					{TEXT_ASCII_GREEN_FLOAT, Import::AsciiValueRole::Gf},
-																					{TEXT_ASCII_BLUE_FLOAT, Import::AsciiValueRole::Bf}
-
+static std::vector<std::pair<QString, Import::AsciiValueRole>> comboBoxContent = {
+	{TEXT_ASCII_IGNORE, Import::AsciiValueRole::Ignore},
+	{"X", Import::AsciiValueRole::X},
+	{"Y", Import::AsciiValueRole::Y},
+	{"Z", Import::AsciiValueRole::Z},
+	{TEXT_ASCII_RED, Import::AsciiValueRole::R},
+	{TEXT_ASCII_GREEN, Import::AsciiValueRole::G},
+	{TEXT_ASCII_BLUE, Import::AsciiValueRole::B},
+	{TEXT_ASCII_INTENSITY, Import::AsciiValueRole::I},
+	{TEXT_ASCII_RED_FLOAT, Import::AsciiValueRole::Rf},
+	{TEXT_ASCII_GREEN_FLOAT, Import::AsciiValueRole::Gf},
+	{TEXT_ASCII_BLUE_FLOAT, Import::AsciiValueRole::Bf}
 };
 
 DialogImportAsciiPC::DialogImportAsciiPC(QWidget* parent)
