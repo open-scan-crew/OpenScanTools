@@ -1203,6 +1203,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="..\..\ext\scantra\ScantraInterprocessMemory.h" />
     <ClInclude Include="..\..\ext\VulkanMemoryAllocator\vk_mem_alloc.h" />
     <ClInclude Include="..\..\include\controller\Controller.h" />
     <ClInclude Include="..\..\include\controller\ControllerContext.h" />

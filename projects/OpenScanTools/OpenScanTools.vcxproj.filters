@@ -443,6 +443,9 @@
     <Filter Include="src\models\graph">
       <UniqueIdentifier>{1ba69385-ccbc-44d5-a844-ecc75bdfab89}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ext\scantra">
+      <UniqueIdentifier>{4780d1aa-9caa-4287-a12f-643708707dfb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\io\exports\txtExport.cpp">
@@ -3986,6 +3989,9 @@
     </ClInclude>
     <ClInclude Include="..\..\include\models\pointCloud\PointCloudInstance.h">
       <Filter>include\models\pointCloud</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\scantra\ScantraInterprocessMemory.h">
+      <Filter>ext\scantra</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

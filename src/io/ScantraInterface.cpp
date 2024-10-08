@@ -8,9 +8,11 @@
 #include "models/graph/ScanNode.h"
 #include "models/graph/BoxNode.h"
 #include "models/graph/ClusterNode.h"
+#include "models/graph/CameraNode.h"
 #include "gui/DataDispatcher.h"
 #include "gui/GuiData/GuiDataTree.h"
 
+#include "utils/math/trigo.h"
 #include "utils/Logger.h"
 
 #include <wchar.h>
@@ -286,17 +288,18 @@ void ScantraInterface::editIntersectionPlane()
     SubLogger& log = Logger::log(LoggerMode::IOLog);
     log << "+++ intersection plane +++\n";
 
-    double q0 = data_->d_array[0];
-    double qx = data_->d_array[1];
-    double qy = data_->d_array[2];
-    double qz = data_->d_array[3];
-    double tx = data_->d_array[4];
-    double ty = data_->d_array[5];
-    double tz = data_->d_array[6];
+    double q[4];
+    double t[3];
+    memcpy(q, data_->d_array, 4 * sizeof(double));
+    memcpy(t, data_->d_array + 4, 3 * sizeof(double));
 
-    log << "q = (" << q0 << ", " << qx << ", " << qy << ", " << qz << ")\n";
-    log << "t = (" << tx << ", " << ty << ", " << tz << ")\n";
+    log << "t = (" << t[0] << ", " << t[1] << ", " << t[2] << ")\n";
+    log << "q = (" << q[0] << ", " << q[1] << ", " << q[2] << ", " << q[3] << ")\n";
     log << Logger::endl;
+
+    glm::dquat inv_q = glm::conjugate(glm::dquat(q[0], q[1], q[2], q[3]));
+    glm::dvec3 pos(t[0], t[1], t[2]);
+    glm::dvec3 plane_pos = glm::mat3_cast(inv_q) * -pos;
 
     SafePtr<BoxNode> box;
     bool create_box = false;
@@ -314,22 +317,35 @@ void ScantraInterface::editIntersectionPlane()
         graph_.addNodesToGraph({ box });
     }
 
-    WritePtr<BoxNode> w_box = box.get();
-    if (!w_box)
-        return;
-    w_box->setPosition(glm::dvec3(tx, ty, tz));
-    w_box->setRotation(glm::dquat(q0, qx, qy, qz));
-    w_box->setVisible(false);
-    w_box->setClippingMode(ClippingMode::showInterior);
-    w_box->setClippingActive(true);
-    if (create_box)
     {
-        w_box->setName(L"intersection_plane");
-        w_box->setSize(glm::dvec3(1000.0, 1000.0, 0.1));
+        WritePtr<BoxNode> w_box = box.get();
+        if (!w_box)
+            return;
+        w_box->setPosition(plane_pos);
+        w_box->setRotation(inv_q);
+        w_box->setVisible(false);
+        w_box->setClippingMode(ClippingMode::showInterior);
+        w_box->setClippingActive(true);
+        if (create_box)
+        {
+            w_box->setName(L"intersection_plane");
+            w_box->setSize(glm::dvec3(1000.0, 1000.0, 0.1));
+        }
     }
 
     controller_.actualizeTreeView(box);
-    controller_.getControlListener()->notifyUIControl(new control::viewport::AlignViewSide(AlignView::Top, SafePtr<CameraNode>()));
+
+    // Move and align the camera
+    {
+        SafePtr<CameraNode> camera = graph_.getCameraNode();
+        WritePtr<CameraNode> w_cam = camera.get();
+        if (!w_cam)
+            return;
+        w_cam->setProjectionMode(ProjectionMode::Orthographic);
+        w_cam->setRotation(inv_q);
+        w_cam->addPreRotation(glm::dquat(0.0, 1.0, 0.0, 0.0));
+        w_cam->setPosition(plane_pos);
+    }
 }
 
 void ScantraInterface::editStationColor()
@@ -423,13 +439,9 @@ void ScantraInterface::editStationAdjustment()
         if (scan_uset.size() != 1)
             return;
         SafePtr<AGraphNode> datum = *datum_uset.begin();
-        if (scan == datum)
         {
-            Logger::log(LoggerMode::IOLog) << "This is the reference station." << Logger::endl;
-        }
-        else
-        {
-            AGraphNode::addGeometricLink(datum, scan);
+            if (datum != scan)
+                AGraphNode::addGeometricLink(datum, scan);
             WritePtr<AGraphNode> wPtr = scan.get();
             wPtr->setPosition(glm::dvec3(tx, ty, tz));
             wPtr->setRotation(glm::dquat(q0, qx, qy, qz));
