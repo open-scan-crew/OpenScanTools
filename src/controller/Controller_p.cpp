@@ -11,8 +11,9 @@ Controller_p::Controller_p(IDataDispatcher& dataDispatcher, GraphManager& graphM
     , public_controller_(publicController)
     , controlListener()
     , scantra_interface_(dataDispatcher, graphManager)
-    , m_autosaveThread(nullptr)
-    , m_autoSaveThreadRunning(false)
+    , autosave_active_(false)
+    , autosave_period_min_(5)
+    , autosave_tp_(std::chrono::system_clock::now())
 {
     // Launch the controller in a separate thread with a fixed framerate
     main_thread_ = std::thread(&Controller_p::run, this, 60);
@@ -23,8 +24,6 @@ Controller_p::~Controller_p()
     stop();
     resetHistoric();
     main_thread_.join();
-    if (m_autosaveThread)
-        stopAutosaveThread();
 }
 
 void Controller_p::run(int refreshPerSecond)
@@ -88,48 +87,27 @@ void Controller_p::redoLastControl()
     }
 }
 
-bool Controller_p::startAutosaveThread(const uint64_t& timing, Controller& controller)
+void Controller_p::activateAutosave(const uint64_t& period_min)
 {
-    if (!timing)
-        return false;
-    if (m_autosaveThread)
-        stopAutosaveThread();
-    m_autoSaveThreadRunning = true;
-    m_autosaveThread = new std::thread([this, &controller, timing]()
-        {
-            while (m_autoSaveThreadRunning)
-            {
-                auto chrono = std::chrono::minutes(timing);
-                bool sleep(true);
-                while (sleep)
-                {
-                    auto microSleep = std::chrono::microseconds(100);
-                    std::this_thread::sleep_for(microSleep);
-                    chrono -= std::chrono::duration_cast<std::chrono::minutes>(microSleep);
-                    if (chrono.count() <= 0)
-                    {
-                        sleep = false;
-                        break;
-                    }
-                    sleep = m_autoSaveThreadRunning;
-                }
-                if (!m_autoSaveThreadRunning)
-                    return;
-                funcManager.launchBackgroundFunction(controller, ContextType::autosaveProject, 0);
-            }
-        });
-    return true;
+    autosave_active_ = true;
+    autosave_period_min_ = period_min == 0 ? 5 : period_min;
 }
 
-bool Controller_p::stopAutosaveThread()
+void Controller_p::deactivateAutosave()
 {
-    if (!m_autosaveThread)
-        return false;
-    m_autoSaveThreadRunning = false;
-    m_autosaveThread->join();
-    delete m_autosaveThread;
-    m_autosaveThread = nullptr;
-    return true;
+    autosave_active_ = false;
+}
+
+void Controller_p::autosave()
+{
+    if (!autosave_active_)
+        return;
+    int mins_elapsed = std::chrono::duration_cast<std::chrono::minutes>(std::chrono::system_clock::now() - autosave_tp_).count();
+    if (mins_elapsed > autosave_period_min_)
+    {
+        funcManager.launchBackgroundFunction(public_controller_, ContextType::autosaveProject, 0);
+        autosave_tp_ = std::chrono::system_clock::now();
+    }
 }
 
 void Controller_p::addTreeViewActualization(const std::unordered_set<SafePtr<AGraphNode>>& toActualizeDatas)
@@ -139,6 +117,7 @@ void Controller_p::addTreeViewActualization(const std::unordered_set<SafePtr<AGr
 
 void Controller_p::update()
 {
+    autosave();
     updateControls();
     applyWaitingActualize();
     funcManager.updateContexts(public_controller_);

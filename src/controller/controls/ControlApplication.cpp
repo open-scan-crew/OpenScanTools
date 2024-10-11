@@ -803,17 +803,13 @@ namespace control
 		{
 			if (m_isActivate)
 			{
-				if (controller.startAutosaveThread(m_timing))
-					CONTROLLOG << "control::application::SetAutoSaveParameters thread started." << LOGENDL;
-				else
-					CONTROLLOG << "control::application::SetAutoSaveParameters FAILED to start thread." << LOGENDL;
+				controller.activateAutosave(m_timing);
+				CONTROLLOG << "control::application::SetAutoSaveParameters started." << LOGENDL;
 			}
 			else
 			{
-				if (controller.stopAutosaveThread())
-					CONTROLLOG << "control::application::SetAutoSaveParameters thread stoped." << LOGENDL;
-				else
-					CONTROLLOG << "control::application::SetAutoSaveParameters FAILED to stop thread." << LOGENDL;
+				controller.deactivateAutosave();
+				CONTROLLOG << "control::application::SetAutoSaveParameters stoped." << LOGENDL;
 			}
 
 			if (m_save && !Config::setIsAutoSaveActive(m_isActivate) && !Config::setAutoSaveTiming(m_timing))

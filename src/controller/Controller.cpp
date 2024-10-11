@@ -209,14 +209,14 @@ const ControllerContext& Controller::cgetContext() const
 	return (m_p->context);
 }
 
-bool Controller::startAutosaveThread(const uint64_t& timing)
+void Controller::activateAutosave(uint64_t period_min)
 {
-	return (m_p->startAutosaveThread(timing, *this));
+	m_p->activateAutosave(period_min);
 }
 
-bool Controller::stopAutosaveThread()
+void Controller::deactivateAutosave()
 {
-	return (m_p->stopAutosaveThread());
+	m_p->deactivateAutosave();
 }
 
 void Controller::startScantraInterface()

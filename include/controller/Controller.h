@@ -76,8 +76,8 @@ public:
 	void stopMetaControl();
 	void abortMetaControl();
 
-	bool startAutosaveThread(const uint64_t& timing);
-	bool stopAutosaveThread();
+	void activateAutosave(uint64_t period_min);
+	void deactivateAutosave();
 
 	void startScantraInterface();
 	void stopScantraInterface();

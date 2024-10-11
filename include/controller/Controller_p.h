@@ -36,8 +36,9 @@ public:
     void redoLastControl();
     void resetHistoric();
 
-    bool startAutosaveThread(const uint64_t& timing, Controller& controller);
-    bool stopAutosaveThread();
+    void activateAutosave(const uint64_t& timing);
+    void deactivateAutosave();
+    void autosave();
 
     void addTreeViewActualization(const std::unordered_set<SafePtr<AGraphNode>>& toActualizeDatas);
 
@@ -84,9 +85,10 @@ public:
     FilterSystem filterSystem;
 
     ScantraInterface scantra_interface_;
-private:
-    bool                    m_autoSaveThreadRunning;
-    std::thread*            m_autosaveThread;
+
+    bool autosave_active_;
+    double autosave_period_min_;
+    std::chrono::system_clock::time_point autosave_tp_;
 };
 
 #endif
