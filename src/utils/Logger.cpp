@@ -63,7 +63,7 @@ std::filesystem::path Logger::getOpenScanToolsPath()
     return (path);
 }
 
-void Logger::init(std::filesystem::path execPath)
+void Logger::init()
 {
     for (uint32_t iterator(0); iterator == LoggerMode::LOGGER_MODE_MAX_ENUM; iterator++)
         Logger::setStatusToMode((LoggerMode)iterator, false);

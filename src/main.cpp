@@ -14,7 +14,6 @@
 
 #include "models/graph/GraphManager.h"
 
-#include <thread>
 #include <qevent.h>
 #include <QGuiApplication>
 
@@ -53,9 +52,7 @@ int main(int argc, char** argv)
     // /!\ Ne pas enlever, c'est important pour l'import/export de fichiers 
     std::setlocale(LC_NUMERIC, "C");
 
-    std::filesystem::path programPath(argv[0]);
-
-    Logger::init(programPath);
+    Logger::init();
 
     // Disable the high dpi scaling because it causes rendering problems with Vulkan
     QCoreApplication::setAttribute(Qt::AA_DisableHighDpiScaling);

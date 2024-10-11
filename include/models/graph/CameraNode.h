@@ -52,10 +52,6 @@ public:
     SafePtr<ScanNode> getPanoramicScan() const;
     void resetPanoramicScan();
 
-    // Override from TransformationModule
-    void setPosition(const glm::dvec3& position) override;
-    void setRotation(const glm::dquat& quat) override;
-
     void informData(IGuiData* guiData) override;
 
     // Rendering matrices

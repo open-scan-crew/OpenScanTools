@@ -53,7 +53,7 @@ class Logger
 public:
     static std::filesystem::path getOpenScanToolsPath();
 
-    static void init(std::filesystem::path path);
+    static void init();
     static void setStatusToMode(const LoggerMode& mode, bool state);
     static void log(const LoggerMode& mode, std::string message);
     static void log(const LoggerMode& mode, std::stringstream& message);

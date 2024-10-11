@@ -132,21 +132,6 @@ void CameraNode::applyProjection(const ProjectionData& projectionData)
     ProjectionData::setRatioW_H(oldRatio);
 }
 
-
-// **********************************************
-//         Override TransformationModule
-// **********************************************
-
-void CameraNode::setPosition(const glm::dvec3& newPos)
-{
-    TransformationModule::setPosition(newPos);
-}
-
-void CameraNode::setRotation(const glm::dquat& _quat)
-{
-    TransformationModule::setRotation(_quat);
-}
-
 // *************************************
 //         Rendering matrices
 // *************************************
