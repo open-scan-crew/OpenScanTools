@@ -5,8 +5,6 @@
 #include "models/graph/CameraNode.h"
 
 
-enum class ProjectionMode;
-
 class TransformationModule;
 
 

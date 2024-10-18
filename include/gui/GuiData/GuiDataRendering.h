@@ -74,17 +74,25 @@ public:
 	const Color32 m_color;
 };
 
+class GuiDataRenderAdjustZoom : public GuiDataActiveCamera
+{
+public:
+	GuiDataRenderAdjustZoom(const BoundingBoxD& sceneBBox, SafePtr<CameraNode> camera);
+	virtual guiDType getType() override;
+
+public:
+	const BoundingBoxD scene_bbox_;
+};
+
 class GuiDataRenderAlignView : public GuiDataActiveCamera
 {
 public:
-	GuiDataRenderAlignView(const AlignView& align, const BoundingBoxD& sceneBBox, SafePtr<CameraNode> camera, bool isBboxEmpty);
+	GuiDataRenderAlignView(const AlignView& align, SafePtr<CameraNode> camera);
 	~GuiDataRenderAlignView() {};
 	virtual guiDType getType() override;
 
 public:
 	const AlignView m_align;
-    const BoundingBoxD m_bbox;
-	bool m_isBboxEmpty;
 };
 
 class GuiDataRenderCameraMoveTo : public GuiDataActiveCamera

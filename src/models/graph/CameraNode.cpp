@@ -72,6 +72,7 @@ CameraNode::CameraNode(const std::wstring& name, IDataDispatcher& dataDispatcher
     registerGuiDataFunction(guiDType::moveToData, &CameraNode::onMoveToData);
     registerGuiDataFunction(guiDType::renderActiveCamera, &CameraNode::onCameraToViewPoint);
     registerGuiDataFunction(guiDType::renderGuizmo, &CameraNode::onDisplayGizmo);
+    registerGuiDataFunction(guiDType::renderAdjustZoom, &CameraNode::onAdjustZoomToScene);
     registerGuiDataFunction(guiDType::renderAlignView, &CameraNode::onAlignView);
     registerGuiDataFunction(guiDType::renderCameraMoveTo, &CameraNode::onRenderCameraMoveTo);
     registerGuiDataFunction(guiDType::renderRotateThetaPhiView, &CameraNode::onRenderRotateCamera);
@@ -207,129 +208,90 @@ bool CameraNode::updateAnimation()
     return true;
 }
 
-void CameraNode::alignView(const AlignView & align, const BoundingBoxD & sceneBBox, bool isBboxEmpty)
+glm::dvec3 CameraNode::getViewAxis() const
 {
-    double midX;
-    double midY;
-    double midZ = ((double)sceneBBox.zMax + (double)sceneBBox.zMin) / 2.0;
+    return (glm::mat3_cast(m_quaternion) * glm::dvec3(0, 0, 1));
+}
 
-    double decalX;
-    double decalY;
-    double decalZ = ((double)sceneBBox.zMax - (double)sceneBBox.zMin);
-    double decalTheta = 0.0;
-    
+// adjust the camera to view the entirety of the scene
+void CameraNode::adjustToScene(const BoundingBoxD& sceneBBox)
+{
+    if (!sceneBBox.isValid())
+        return;
+
+    if (getProjectionMode() == ProjectionMode::Orthographic)
+    {
+        // rotate the bounding box
+        glm::dmat3 matrix = glm::mat3_cast(glm::conjugate(getRotation()));
+        BoundingBoxD rot_bbox = sceneBBox.rotate(matrix);
+        glm::dvec3 size = rot_bbox.size();
+        setOrthoZoom(size.x, size.y, sceneBBox.center(), 1.5);
+    }
+    else
+    {
+        // new position = center - r * view_axis
+        glm::dvec3 new_pos = sceneBBox.center() - glm::length(sceneBBox.size()) * getViewAxis();
+        translateTo(new_pos, 1.2);
+    }
+    return;
+}
+
+void CameraNode::alignView(const AlignView& align)
+{
     UserOrientation uo = getUserOrientation();
     bool useUo = getApplyUserOrientation();
 
-    if (useUo) {
+    double theta = useUo ? uo.getAngle() : 0.0;
+    double phi = 0.0;
 
-        decalTheta = uo.getAngle();
-        std::array<glm::dvec3, 2> points(uo.getAxisPoints());
-
-        double mx = (points[0].x + points[1].x) / 2.0;
-        double my = (points[0].y + points[1].y) / 2.0;
-        
-        double r = glm::length(points[1] - points[0])/2.;
-
-        midX = mx - (my - points[0].y);
-        midY = my + (mx - points[0].x);
-
-        decalX = -2.0 * r * sin(-decalTheta);
-        decalY = -2.0 * r * cos(decalTheta);
-    }
-    else {
-        midX = ((double)sceneBBox.xMax + (double)sceneBBox.xMin) / 2.0;
-        midY = ((double)sceneBBox.yMax + (double)sceneBBox.yMin) / 2.0;
-
-        decalX = ((double)sceneBBox.xMax - (double)sceneBBox.xMin);
-        decalY = ((double)sceneBBox.yMax - (double)sceneBBox.yMin);
-    }
-
-    glm::dvec3 decalPosition;
     switch (align)
     {
     case AlignView::Top:
     {
-        decalPosition = glm::dvec3(0, 0, decalZ);
-        setThetaAndPhi(decalTheta, -M_PI);
+        theta += 0.0;
+        phi = -M_PI;
     }
     break;
     case AlignView::Bottom:
     {
-        decalPosition = glm::dvec3(0, 0, -decalZ);
-        setThetaAndPhi(decalTheta, 0.0);
+        theta += 0.0;
+        phi = 0.0;
     }
     break;
     case AlignView::Front:
     {
-        if (useUo)
-            decalPosition = glm::dvec3(decalX, decalY, 0);
-        else
-            decalPosition = glm::dvec3(0, -decalY, 0);
-        setThetaAndPhi(decalTheta, -M_PI / 2.0);
+        theta += 0.0;
+        phi = -M_PI / 2.0;
     }
     break;
     case AlignView::Back:
     {
-        if (useUo)
-            decalPosition = glm::dvec3(-decalX, -decalY, 0);
-        else
-            decalPosition = glm::dvec3(0, decalY, 0);
-        setThetaAndPhi(M_PI + decalTheta, -M_PI / 2.0);
+        theta += M_PI;
+        phi = -M_PI / 2.0;
     }
     break;
     case AlignView::Left:
     {
-        if (useUo)
-            decalPosition = glm::dvec3(decalY, -decalX, 0);
-        else
-            decalPosition = glm::dvec3(-decalX, 0, 0);
-        setThetaAndPhi(3 * M_PI / 2 + decalTheta, -M_PI / 2.0);
+        theta += 3 * M_PI / 2;
+        phi = -M_PI / 2.0;
     }
     break;
     case AlignView::Right:
     {
-        if (useUo)
-            decalPosition = glm::dvec3(-decalY, decalX, 0);
-        else
-            decalPosition = glm::dvec3(decalX, 0, 0);
-        setThetaAndPhi(M_PI / 2 + decalTheta, -M_PI / 2.0);
+        theta += M_PI / 2;
+        phi = -M_PI / 2;
     }
     break;
-    case AlignView::ZoomOut:
-        if (getProjectionMode() == ProjectionMode::Orthographic)
-        {
-            setOrthoZoom(decalX, decalY, glm::dvec3(midX, midY, midZ), 1.5);
-        }
-        else
-        {
-            if (!isBboxEmpty)
-                setPosition(glm::dvec3(sceneBBox.xMax, sceneBBox.yMax, sceneBBox.zMax));
-            lookAt(glm::dvec3(sceneBBox.xMin, sceneBBox.yMin, sceneBBox.zMin), 1.5);
-        }
-        return;
-
     case AlignView::Iso:
     {
         //Utilise la troncature pour calculer l'angle théta (avec un décalage) sur les différentes diagonales
-        double theta = ceil((getTheta()) / (M_PI / 2))*(M_PI / 2) - M_PI / 4;
-        double phi = (getPhi() > -M_PI / 2 ? atan2(1, sqrt(2)) - M_PI / 2 : -atan2(1, sqrt(2)) - M_PI / 2);
-        setThetaAndPhi(theta + decalTheta, phi);
+        theta += ceil((getTheta()) / (M_PI / 2))*(M_PI / 2) - M_PI / 4;
+        phi = (getPhi() > -M_PI / 2 ? atan2(1, sqrt(2)) - M_PI / 2 : -atan2(1, sqrt(2)) - M_PI / 2);
     }
     break;
     }
-
-    if (!isBboxEmpty)
-    {
-        if (getProjectionMode() == ProjectionMode::Perspective)
-        {
-            setPosition(glm::dvec3(midX, midY, midZ) + decalPosition);
-        }
-        else if (align != AlignView::Iso) // && ProjectionMode::Orthographic
-        {
-            setPosition(glm::vec3(midX, midY, midZ));
-        }
-    }
+    lookAt(theta, phi, 1.2);
+    //setThetaAndPhi(theta, phi);
 }
 
 bool CameraNode::isAnimated() const
@@ -1492,11 +1454,18 @@ void CameraNode::onBackgroundColor(IGuiData* data)
     m_backgroundColor = static_cast<GuiDataRenderBackgroundColor*>(data)->m_color;
 }
 
+void CameraNode::onAdjustZoomToScene(IGuiData* data)
+{
+    auto cast_data = static_cast<GuiDataRenderAdjustZoom*>(data);
+
+    adjustToScene(cast_data->scene_bbox_);
+}
+
 void CameraNode::onAlignView(IGuiData* data)
 {
     auto viewData = static_cast<GuiDataRenderAlignView*>(data);
 
-    alignView(viewData->m_align, viewData->m_bbox, viewData->m_isBboxEmpty);
+    alignView(viewData->m_align);
 
     if (viewData->m_align == AlignView::Iso)
     {

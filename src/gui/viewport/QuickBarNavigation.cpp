@@ -130,7 +130,7 @@ void QuickBarNavigation::connectCamera(SafePtr<CameraNode> camera)
         m_ui.toolButton_perspective->setChecked(false);
     });
 
-    connect(m_ui.toolButton_zoomExtent, &QToolButton::released, [this]() { this->m_dataDispatcher.sendControl(new control::viewport::AlignViewSide(AlignView::ZoomOut, m_camera)); });
+    connect(m_ui.toolButton_zoomExtent, &QToolButton::released, [this]() { this->m_dataDispatcher.sendControl(new control::viewport::AdjustZoomToScene(m_camera)); });
 
     connect(m_ui.comboBox_views, QOverload<int>::of(&QComboBox::activated), [this](int i) {
         AlignView align = (AlignView)m_ui.comboBox_views->currentData().toInt();

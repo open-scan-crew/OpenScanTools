@@ -45,7 +45,7 @@ ViewportOrganizer::ViewportOrganizer(QWidget* parent, IDataDispatcher& dataDispa
 
     addShortcut(Qt::Key_F11, this, Qt::ShortcutContext::WindowShortcut, &ViewportOrganizer::onToggleFullScreen);
 
-    addShortcut(Qt::Key_0, this, Qt::ShortcutContext::WindowShortcut, [this]() {onAlignView(AlignView::ZoomOut); });
+    addShortcut(Qt::Key_0, this, Qt::ShortcutContext::WindowShortcut, [this]() { onAdjustZoomToScene(); });
     addShortcut(Qt::Key_2, this, Qt::ShortcutContext::WindowShortcut, [this]() {onAlignView(AlignView::Bottom); });
     addShortcut(Qt::Key_3, this, Qt::ShortcutContext::WindowShortcut, [this]() {onAlignView(AlignView::Front); });
     addShortcut(Qt::Key_4, this, Qt::ShortcutContext::WindowShortcut, [this]() {onAlignView(AlignView::Left); });
@@ -179,6 +179,12 @@ void ViewportOrganizer::onCursorChange(IGuiData* data)
 
     for (auto viewports : m_viewports)
         viewports.second.vulkanViewport->setCursor(c);
+}
+
+void ViewportOrganizer::onAdjustZoomToScene()
+{
+    if (m_viewports.find(m_activeViewport) != m_viewports.end())
+        m_dataDispatcher.sendControl(new control::viewport::AdjustZoomToScene(m_viewports[m_activeViewport].vulkanViewport->getCamera()));
 }
 
 void ViewportOrganizer::onAlignView(AlignView align)

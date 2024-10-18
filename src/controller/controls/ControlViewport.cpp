@@ -82,6 +82,28 @@ namespace control
         }
 
         //
+        // AdjustZoomToScene
+        //
+
+        AdjustZoomToScene::AdjustZoomToScene(SafePtr<CameraNode> dest_camera)
+            : dest_camera_(dest_camera)
+        {}
+
+        void AdjustZoomToScene::doFunction(Controller& controller)
+        {
+            std::vector<tls::PointCloudInstance> scanInfos = controller.getGraphManager().getVisiblePointCloudInstances(xg::Guid(), true, true);
+            TlScanOverseer::getInstance().setWorkingScansTransfo(scanInfos);
+            BoundingBoxD projectBoundingBox = TlScanOverseer::getInstance().getActiveBoundingBox();
+
+            controller.updateInfo(new GuiDataRenderAdjustZoom(projectBoundingBox, dest_camera_));
+        }
+
+        ControlType AdjustZoomToScene::getType() const
+        {
+            return ControlType::adjustZoomToScene;
+        }
+
+        //
         // AlignViewSide
         //
 
@@ -95,21 +117,7 @@ namespace control
 
         void AlignViewSide::doFunction(Controller& controller)
         {
-            std::vector<tls::PointCloudInstance> scanInfos = controller.getGraphManager().getVisiblePointCloudInstances(xg::Guid(), true, true);
-            TlScanOverseer::getInstance().setWorkingScansTransfo(scanInfos);
-            BoundingBoxD projectBoundingBox = TlScanOverseer::getInstance().getActiveBoundingBox();
-
-            controller.updateInfo(new GuiDataRenderAlignView(m_side, projectBoundingBox, m_destCamera, scanInfos.empty()));
-        }
-
-        bool AlignViewSide::canUndo() const
-        {
-            return (false);
-        }
-
-        void AlignViewSide::undoFunction(Controller& controller)
-        {
-
+            controller.updateInfo(new GuiDataRenderAlignView(m_side, m_destCamera));
         }
 
         ControlType AlignViewSide::getType() const

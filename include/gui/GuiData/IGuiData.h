@@ -28,6 +28,7 @@ enum class guiDType
 	pointCountData,
 	renderActiveCamera,
 	renderBackgroundColor,
+	renderAdjustZoom,
 	renderAlignView,
     renderCameraMoveTo,
 	renderRotateThetaPhiView,

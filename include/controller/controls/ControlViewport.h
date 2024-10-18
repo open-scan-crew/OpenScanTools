@@ -44,14 +44,22 @@ namespace control
             ControlType getType() const override;
         };
 
+        class AdjustZoomToScene : public AControl
+        {
+        public:
+            AdjustZoomToScene(SafePtr<CameraNode> dest_camera);
+            void doFunction(Controller& controller) override;
+            ControlType getType() const override;
+        private:
+            SafePtr<CameraNode> dest_camera_;
+        };
+
         class AlignViewSide : public AControl
         {
         public:
             AlignViewSide(AlignView sideToAlign, SafePtr<CameraNode> destCamera);
             ~AlignViewSide();
             void doFunction(Controller& controller) override;
-            bool canUndo() const override;
-            void undoFunction(Controller& controller) override;
             ControlType getType() const override;
 
         private:

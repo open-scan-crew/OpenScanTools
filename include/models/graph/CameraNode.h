@@ -72,7 +72,9 @@ public:
     bool updateAnimation();
     bool isAnimated() const;
 
-    void alignView(const AlignView& align, const BoundingBoxD& sceneBBox, bool isBboxEmpty);
+    glm::dvec3 getViewAxis() const; // or front axis ?
+    void adjustToScene(const BoundingBoxD& sceneBBox);
+    void alignView(const AlignView& align);
     //Simple animation
     void lookAt(glm::dvec3 lookPoint, double dt_sec);
     void lookAt(double endTheta, double endPhi, double dt_sec);
@@ -228,6 +230,7 @@ private:
     void onRenderNormals(IGuiData* data);
     void onRenderRampScale(IGuiData* data);
     void onBackgroundColor(IGuiData* data);
+    void onAdjustZoomToScene(IGuiData* data);
     void onAlignView(IGuiData* data);
     void onRenderCameraMoveTo(IGuiData* data);
     void onRenderRotateCamera(IGuiData* data);

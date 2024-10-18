@@ -5164,9 +5164,9 @@ void TlScanOverseer::createClustersOfDynamicOctreeVoxels(const OctreeVoxelGrid& 
 {
 	clusterInfo.clear();
 	//intitialize labels
-	std::vector<int> temp((1<<octreeVoxelGrid.m_maxDepth), 0);
-	std::vector<std::vector<int>> temp1((1 << octreeVoxelGrid.m_maxDepth), temp);
-	clusterLabels = std::vector<std::vector<std::vector<int>>>((1 << octreeVoxelGrid.m_maxDepth), temp1);
+	std::vector<int> temp((1ull << octreeVoxelGrid.m_maxDepth), 0);
+	std::vector<std::vector<int>> temp1((1ull << octreeVoxelGrid.m_maxDepth), temp);
+	clusterLabels = std::vector<std::vector<std::vector<int>>>((1ull << octreeVoxelGrid.m_maxDepth), temp1);
 	int currentLabel = 1;
 
 	// label dynamicVoxels in cluster, using breadthFirstSearch
@@ -7282,17 +7282,17 @@ double TlScanOverseer::findMedian(const std::vector<double>& values) {
 	// Sort the values in ascending order
 	std::sort(sortedValues.begin(), sortedValues.end());
 
-	int n = sortedValues.size();
+	size_t n = sortedValues.size();
 
 	if (n % 2 == 0) {
 		// If the number of values is even, average the middle two values
-		int middle1 = (n - 1) / 2;
-		int middle2 = n / 2;
+		size_t middle1 = (n - 1) / 2;
+		size_t middle2 = n / 2;
 		return (sortedValues[middle1] + sortedValues[middle2]) / 2.0;
 	}
 	else {
 		// If the number of values is odd, return the middle value
-		int middle = n / 2;
+		size_t middle = n / 2;
 		return sortedValues[middle];
 	}
 }

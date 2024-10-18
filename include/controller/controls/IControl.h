@@ -242,6 +242,7 @@ enum class ControlType
 	multiSelect,
 	examine,
 	changeBackgroundColor,
+	adjustZoomToScene,
     alignViewSide,
 	alignView2PointsFunction,
 	alignView3PointsFunction,

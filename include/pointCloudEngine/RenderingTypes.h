@@ -94,7 +94,6 @@ enum class AlignView
     Right,
     Front,
     Back,
-    ZoomOut,
     Iso
 };
 
