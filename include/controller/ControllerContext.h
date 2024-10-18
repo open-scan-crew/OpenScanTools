@@ -123,8 +123,6 @@ public:
 	void setRecentProjects(std::vector<std::pair<std::filesystem::path, time_t>> projects);
 	void setIndexationMethod(IndexationMethod method);
 
-	glm::dmat4 getWorldTransformation() const;
-	void setUserTranformation(const glm::dmat4& userTransformation);
 	void setProjectTransformation(const glm::dvec3& projectTransformation);
 
 	void setDefaultScanId(SafePtr<ScanNode> defaultScan);
@@ -187,9 +185,7 @@ private:
 	std::filesystem::path m_temporaryPath;
 	std::filesystem::path m_projectsPath;
 
-	glm::dmat4 m_worldTransformation;
 	glm::dvec3 m_projectTransformation;
-	glm::dmat4 m_activeUserTransformation;
 
 	PolyLineOptions m_polyLineOptions;
 

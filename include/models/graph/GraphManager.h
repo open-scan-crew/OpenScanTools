@@ -122,7 +122,6 @@ public:
 private:
 	void onFunctionChanged(IGuiData* iGuiData, bool store);
 	void onClick(IGuiData* iGuiData, bool store);
-	void onProjectTransformation(IGuiData* iGuiData, bool store);
 	void onManipulationMode(IGuiData* data, bool store);
 
 	void detachManipulator(AObjectNode* parent);

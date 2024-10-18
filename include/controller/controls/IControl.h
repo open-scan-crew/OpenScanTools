@@ -71,7 +71,6 @@ enum class ControlType
 	functionImportScanProject,
 	importScanProject,
 	applyProjectTransformation, //Free
-	applyUserTransformation, //Free
 	deleteScanProject,
 	showPropertiesProject, //Free
 

@@ -89,15 +89,4 @@ public:
 	const ImageFormat m_format;
 };
 
-class GuiDataProjectTransformation : public IGuiData
-{
-public:
-    GuiDataProjectTransformation(const glm::dmat4& transfo);
-    ~GuiDataProjectTransformation() {};
-    virtual guiDType getType() { return (guiDType::projectTransformation); };
-
-public:
-    const glm::dmat4 m_projectTransformation;
-};
-
 #endif

@@ -809,10 +809,10 @@ namespace control
 
 		void ApplyProjectTransformation::doFunction(Controller& controller)
 		{
+			// FIXME - la fonction tlScansBoundingBox() ne renvoie prends pas en compte les transfos des scan dans le graph.
 			BoundingBoxD bbox(tlScansBoundingBox());
 			// Question(robin_k) : Should we manage this transformation with the graph ?
 			controller.getContext().setProjectTransformation(-bbox.center());
-			controller.updateInfo(new GuiDataProjectTransformation(controller.getContext().getWorldTransformation()));
 		}
 
 		bool ApplyProjectTransformation::canUndo() const
@@ -828,35 +828,6 @@ namespace control
 			return (ControlType::applyProjectTransformation);
 		}
 	
-		/*
-		** ApplyProjectTransformation
-		*/
-
-		ApplyUserTransformation::ApplyUserTransformation(const TransformationModule& transfo)
-			: m_transfo(transfo)
-		{}
-
-		ApplyUserTransformation::~ApplyUserTransformation()
-		{}
-
-		void ApplyUserTransformation::doFunction(Controller& controller)
-		{
-			controller.getContext().setUserTranformation(m_transfo.getTransformation());
-			controller.updateInfo(new GuiDataProjectTransformation(controller.getContext().getWorldTransformation()));
-		}
-
-		bool ApplyUserTransformation::canUndo() const
-		{
-			return false;
-		}
-
-		void ApplyUserTransformation::undoFunction(Controller& controller)
-		{}
-
-		ControlType ApplyUserTransformation::getType() const
-		{
-			return (ControlType::applyUserTransformation);
-		}
 		/*
 		** ShowProperties
 		*/

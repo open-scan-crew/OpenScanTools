@@ -13,8 +13,6 @@ ControllerContext::ControllerContext()
 	, m_backgroundColors({ Color32(0,0,0,255), Color32(96,96,96,255), Color32(255,255,255,255) })
 	, m_currentBackgroundColor(0)
 	, m_showClusterColor(false)
-	, m_worldTransformation(glm::dmat4(1.0))
-	, m_activeUserTransformation(glm::dmat4(1.0))
 	, m_activeAuthor()
 {
 	ProjectColor::registerColor("GREEN", Color32(32, 123, 64, 255));
@@ -617,25 +615,9 @@ SafePtr<StandardList> ControllerContext::getCurrentStandard(const StandardType& 
 	return SafePtr<StandardList>();
 }
 
-glm::dmat4 ControllerContext::getWorldTransformation() const
-{
-	return m_worldTransformation;
-}
-
-void ControllerContext::setUserTranformation(const glm::dmat4& userTransformation)
-{
-	m_activeUserTransformation = userTransformation;
-	//FixMe (Aurélien) : uncomment or delete #160
-	//m_worldTranformation = glm::translate(userTransformation, m_currentProject->cgetProjectInfo().m_projectTransformation);
-	m_worldTransformation = glm::translate(userTransformation, m_projectTransformation);
-}
-
 void ControllerContext::setProjectTransformation(const glm::dvec3& projectTransformation)
 {
 	m_projectTransformation = projectTransformation;
-	//FixMe (Aurélien) : uncomment or delete #160
-	//m_currentProject->getProjectInfo().m_projectTransformation = projectTransformation;
-	m_worldTransformation = glm::translate(m_activeUserTransformation, projectTransformation);
 }
 
 void ControllerContext::setDefaultScanId(SafePtr<ScanNode> defaultScan)

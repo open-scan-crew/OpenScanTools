@@ -239,19 +239,6 @@ namespace control
 			ControlType getType() const override;
 		};
 
-		class ApplyUserTransformation : public AControl
-		{
-		public:
-			ApplyUserTransformation(const TransformationModule& transfo);
-			~ApplyUserTransformation();
-			void doFunction(Controller& controller) override;
-			bool canUndo() const override;
-			void undoFunction(Controller& controller) override;
-			ControlType getType() const override;
-		private:
-			const TransformationModule& m_transfo;
-		};
-
 		class ShowProperties : public AControl
 		{
 		public:

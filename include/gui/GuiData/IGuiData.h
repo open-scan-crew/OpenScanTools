@@ -138,7 +138,6 @@ enum class guiDType
 	resetScans,
     moveToData,
 	point,
-	projectTransformation,
 	selectElems,
 
 	cleanTree,

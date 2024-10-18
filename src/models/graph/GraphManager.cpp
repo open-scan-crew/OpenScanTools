@@ -44,7 +44,6 @@ GraphManager::GraphManager(IDataDispatcher& dataDispatcher)
 
 	registerGuiDataFunction(guiDType::activatedFunctions, &GraphManager::onFunctionChanged);
 	registerGuiDataFunction(guiDType::renderTargetClick, &GraphManager::onClick);
-	registerGuiDataFunction(guiDType::projectTransformation, &GraphManager::onProjectTransformation);
 	registerGuiDataFunction(guiDType::manipulatorMode, &GraphManager::onManipulationMode);
 }
 
@@ -234,20 +233,6 @@ void GraphManager::onClick(IGuiData* iGuiData, bool store)
 		m_targetMarkerFactory.freeClickMarkers();
 	else if (!isnan(targetData->m_position.x))
 		m_targetMarkerFactory.createClickTarget(glm::dvec4(targetData->m_position, 1.0), targetData->m_color);
-}
-
-void GraphManager::onProjectTransformation(IGuiData* iGuiData, bool store)
-{
-	if (store)
-	{
-		m_waitingDataToProceed.push_back(new GuiDataProjectTransformation(static_cast<GuiDataProjectTransformation*>(iGuiData)->m_projectTransformation));
-		return;
-	}
-    else
-    {
-        // ----- Désactivé -----
-        //setRootTransformation(static_cast<GuiDataProjectTransformation*>(iGuiData)->m_projectTransformation);
-    }
 }
 
 void GraphManager::onManipulationMode(IGuiData* data, bool store)

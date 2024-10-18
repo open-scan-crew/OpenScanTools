@@ -33,7 +33,3 @@ GuiDataScreenshot::GuiDataScreenshot(const std::filesystem::path& filename, cons
 	: m_filename(filename)
 	, m_format(format)
 {}
-
-GuiDataProjectTransformation::GuiDataProjectTransformation(const glm::dmat4& transfo)
-    : m_projectTransformation(transfo)
-{}

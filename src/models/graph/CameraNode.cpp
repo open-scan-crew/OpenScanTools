@@ -221,7 +221,7 @@ void CameraNode::adjustToScene(const BoundingBoxD& sceneBBox)
 
     if (getProjectionMode() == ProjectionMode::Orthographic)
     {
-        // rotate the bounding box
+        // rotate the bounding box in the camera space
         glm::dmat3 matrix = glm::mat3_cast(glm::conjugate(getRotation()));
         BoundingBoxD rot_bbox = sceneBBox.rotate(matrix);
         glm::dvec3 size = rot_bbox.size();
