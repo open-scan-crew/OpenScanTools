@@ -228,17 +228,6 @@ namespace control
 			ConvertProperties m_prop;
 		};
 
-		class ApplyProjectTransformation : public AControl
-		{
-		public:
-			ApplyProjectTransformation();
-			~ApplyProjectTransformation();
-			void doFunction(Controller& controller) override;
-			bool canUndo() const override;
-			void undoFunction(Controller& controller) override;
-			ControlType getType() const override;
-		};
-
 		class ShowProperties : public AControl
 		{
 		public:

@@ -615,11 +615,6 @@ SafePtr<StandardList> ControllerContext::getCurrentStandard(const StandardType& 
 	return SafePtr<StandardList>();
 }
 
-void ControllerContext::setProjectTransformation(const glm::dvec3& projectTransformation)
-{
-	m_projectTransformation = projectTransformation;
-}
-
 void ControllerContext::setDefaultScanId(SafePtr<ScanNode> defaultScan)
 {
 	m_defaultScan = defaultScan;

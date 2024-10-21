@@ -125,7 +125,6 @@ public:
     void setComputeTransfo(const glm::dvec3& t, const glm::dquat& q);
 
     BoundingBox getLocalBoundingBox() const;
-    BoundingBoxD getBoundingBox(const glm::dmat4& modelMat) const;
 
     // For streaming
     void assumeWorkload();

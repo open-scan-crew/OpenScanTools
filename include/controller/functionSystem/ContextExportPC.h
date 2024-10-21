@@ -46,13 +46,10 @@ private:
     bool ensureFileWriter(Controller& controller, std::unique_ptr<IScanFileWriter>& scanFileWriter, std::wstring name, CSVWriter* csvWriter);
     bool prepareOutputDirectory(Controller& controller, const std::filesystem::path& folderPath);
     std::vector<tls::PointCloudInstance> getPointCloudInstances(GraphManager& graphManager);
-    void getBestOriginOrientationAndBBox(const ClippingAssembly& clippingAssembly, const BoundingBox& scanBBox, glm::dvec3& bestOrigin, glm::dquat& bestOrientation);
+    void getBestOriginOrientationAndBBox(const ClippingAssembly& clippingAssembly, const BoundingBoxD& scanBBox, glm::dvec3& bestOrigin, glm::dquat& bestOrientation);
     // Should be static functions for BoundingBox
-    static BoundingBox getGlobalBoundingBox(const std::vector<tls::PointCloudInstance>& pcInstances);
-    static BoundingBox extractBBox(const IClippingGeometry& clippingGeom);
-    static BoundingBox transformBoundingBox(const BoundingBox& bbox, glm::dmat4 transfo);
-    static void unionBoundingBox(BoundingBox& dstBBox, const BoundingBox& srcBBox);
-    static void intersectBoundingBox(BoundingBox& dstBBox, const BoundingBox& srcBBox);
+    static BoundingBoxD getGlobalBoundingBox(const std::vector<tls::PointCloudInstance>& pcInstances);
+    static BoundingBoxD extractBBox(const IClippingGeometry& clippingGeom);
     // !! static //
     tls::Transformation getCommonTransformation(const std::vector<tls::PointCloudInstance>& pcInfos);
     tls::PointFormat getCommonFormat(const std::vector<tls::PointCloudInstance>& pcInfos);

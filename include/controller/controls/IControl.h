@@ -242,7 +242,6 @@ enum class ControlType
 	examine,
 	changeBackgroundColor,
 	adjustZoomToScene,
-    alignViewSide,
 	alignView2PointsFunction,
 	alignView3PointsFunction,
 	alignViewBoxFunction,

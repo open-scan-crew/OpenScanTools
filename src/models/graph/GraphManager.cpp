@@ -678,6 +678,20 @@ void GraphManager::getClippingAssembly(ClippingAssembly& retAssembly, bool filte
 	return;
 }
 
+BoundingBoxD GraphManager::getGlobalBoundingBox() const
+{
+	auto pc_instances = getPointCloudInstances(xg::Guid(), true, true, ObjectStatusFilter::ALL);
+
+	BoundingBoxD project_bbox;
+	project_bbox.setEmpty();
+
+	for (const tls::PointCloudInstance inst : pc_instances)
+	{
+		project_bbox.extend(inst.header.bbox.transform(inst.transfo.getTransformation()));
+	}
+	return project_bbox;
+}
+
 std::unordered_set<SafePtr<ScanNode>> GraphManager::getVisibleScans(const tls::ScanGuid& pano) const
 {
 	return getNodesOnFilter<ScanNode>(

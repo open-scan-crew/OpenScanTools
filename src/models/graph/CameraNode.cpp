@@ -73,7 +73,6 @@ CameraNode::CameraNode(const std::wstring& name, IDataDispatcher& dataDispatcher
     registerGuiDataFunction(guiDType::renderActiveCamera, &CameraNode::onCameraToViewPoint);
     registerGuiDataFunction(guiDType::renderGuizmo, &CameraNode::onDisplayGizmo);
     registerGuiDataFunction(guiDType::renderAdjustZoom, &CameraNode::onAdjustZoomToScene);
-    registerGuiDataFunction(guiDType::renderAlignView, &CameraNode::onAlignView);
     registerGuiDataFunction(guiDType::renderCameraMoveTo, &CameraNode::onRenderCameraMoveTo);
     registerGuiDataFunction(guiDType::renderRotateThetaPhiView, &CameraNode::onRenderRotateCamera);
     registerGuiDataFunction(guiDType::renderNavigationConstraint, &CameraNode::onRenderNavigationConstraint);
@@ -236,7 +235,7 @@ void CameraNode::adjustToScene(const BoundingBoxD& sceneBBox)
     return;
 }
 
-void CameraNode::alignView(const AlignView& align)
+void CameraNode::alignView(AlignView align)
 {
     UserOrientation uo = getUserOrientation();
     bool useUo = getApplyUserOrientation();
@@ -292,6 +291,13 @@ void CameraNode::alignView(const AlignView& align)
     }
     lookAt(theta, phi, 1.2);
     //setThetaAndPhi(theta, phi);
+
+    if (align == AlignView::Iso)
+    {
+        // Inform the viewport and the quickbar
+        //TODO INFORM m_dataDispatcher.updateInformation(new GuiDataRenderProjectionMode(ProjectionMode::Orthographic, null_tlid/*m_id*/), this);
+        setProjectionMode(ProjectionMode::Orthographic);
+    }
 }
 
 bool CameraNode::isAnimated() const
@@ -1459,20 +1465,6 @@ void CameraNode::onAdjustZoomToScene(IGuiData* data)
     auto cast_data = static_cast<GuiDataRenderAdjustZoom*>(data);
 
     adjustToScene(cast_data->scene_bbox_);
-}
-
-void CameraNode::onAlignView(IGuiData* data)
-{
-    auto viewData = static_cast<GuiDataRenderAlignView*>(data);
-
-    alignView(viewData->m_align);
-
-    if (viewData->m_align == AlignView::Iso)
-    {
-        // Inform the viewport and the quickbar
-        //TODO INFORM m_dataDispatcher.updateInformation(new GuiDataRenderProjectionMode(ProjectionMode::Orthographic, null_tlid/*m_id*/), this);
-        setProjectionMode(ProjectionMode::Orthographic);
-    }
 }
 
 void CameraNode::onRenderCameraMoveTo(IGuiData* data)

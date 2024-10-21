@@ -317,7 +317,7 @@ bool ContextExportPC::exportClippingAndScanMerged(Controller& controller, CSVWri
     // Get the best origin and bbox based on the clipping used to merge scans.
     glm::dvec3 bestOrigin; // By default, it is the center of the bbox
     glm::dquat bestOrientation;
-    BoundingBox scanBbox = getGlobalBoundingBox(pcInfos);
+    BoundingBoxD scanBbox = getGlobalBoundingBox(pcInfos);
     getBestOriginOrientationAndBBox(clippingAssembly, scanBbox, bestOrigin, bestOrientation);
     bestOrigin += m_scanTranslationToAdd;
 
@@ -423,7 +423,7 @@ bool ContextExportPC::exportClippingSeparated(Controller& controller, CSVWriter*
             rClip->pushClippingGeometries(clippingAssembly, transfo);
             glm::dvec3 bestOrigin; // By default, it is the center of the bbox
             glm::dquat bestOrientation;
-            BoundingBox scanBbox = getGlobalBoundingBox(pcInfos);
+            BoundingBoxD scanBbox = getGlobalBoundingBox(pcInfos);
             getBestOriginOrientationAndBBox(clippingAssembly, scanBbox, bestOrigin, bestOrientation);
             bestOrigin += m_scanTranslationToAdd;
 
@@ -952,50 +952,39 @@ std::vector<tls::PointCloudInstance> ContextExportPC::getPointCloudInstances(Gra
     }
 }
 
-void ContextExportPC::getBestOriginOrientationAndBBox(const ClippingAssembly& _clippingAssembly, const BoundingBox& _scanBBox, glm::dvec3& _bestOrigin, glm::dquat& _bestOrientation)
+void ContextExportPC::getBestOriginOrientationAndBBox(const ClippingAssembly& _clippingAssembly, const BoundingBoxD& _scanBBox, glm::dvec3& _bestOrigin, glm::dquat& _bestOrientation)
 {
-    BoundingBox unionBBox;
-    unionBBox.setEmpty();
+    BoundingBoxD union_bbox;
+    union_bbox.setEmpty();
     for (const std::shared_ptr<IClippingGeometry>& geom : _clippingAssembly.clippingUnion)
     {
         if (geom->mode == ClippingMode::showInterior)
         {
-            BoundingBox bbox = extractBBox(*geom);
-            unionBoundingBox(unionBBox, bbox);
-        }
-        else // showExterior
-        {
-            // NOTE - Par convention, nous n'avons pas de box exterieure dans l'union
-            unionBoundingBox(unionBBox, _scanBBox);
+            BoundingBoxD bbox = extractBBox(*geom);
+            union_bbox.extend(bbox);
         }
     }
 
-    BoundingBox interBBox;
-    interBBox.setInfinite(); // ou tout l'espace
+    BoundingBoxD inter_bbox;
+    inter_bbox.setInfinite(); // ou tout l'espace
     for (const std::shared_ptr<IClippingGeometry>& geom : _clippingAssembly.clippingIntersection)
     {
         if (geom->mode == ClippingMode::showInterior)
         {
             // NOTE - Par convention, nous n'avons pas de box interieure dans l'intersection
-            BoundingBox bbox = extractBBox(*geom);
-            intersectBoundingBox(interBBox, bbox);
-        }
-        else
-        {
-            intersectBoundingBox(interBBox, _scanBBox);
+            BoundingBoxD bbox = extractBBox(*geom);
+            inter_bbox.intersect(bbox);
         }
     }
 
-    BoundingBox totalBBox = _scanBBox;
+    BoundingBoxD total_bbox = _scanBBox;
     if (!_clippingAssembly.clippingUnion.empty())
-        intersectBoundingBox(totalBBox, unionBBox);
+        total_bbox.intersect(union_bbox);
 
     if (!_clippingAssembly.clippingIntersection.empty())
-        intersectBoundingBox(totalBBox, interBBox);
+        total_bbox.intersect(inter_bbox);
 
-    _bestOrigin = glm::dvec3((totalBBox.xMin + totalBBox.xMax) / 2,
-                             (totalBBox.yMin + totalBBox.yMax) / 2,
-                             (totalBBox.zMin + totalBBox.zMax) / 2);
+    _bestOrigin = total_bbox.center();
     // NOTE(robin) - Ce n'est pas la meilleure façon de récupérer la rotation.
     //             - On pourrait avoir directement accès au quaternion de la clipping originale, mais cela demanderai un rework de l'interface IClippingGeometry.
     if (_clippingAssembly.clippingUnion.size() == 1)
@@ -1005,93 +994,29 @@ void ContextExportPC::getBestOriginOrientationAndBBox(const ClippingAssembly& _c
 
 }
 
-BoundingBox ContextExportPC::getGlobalBoundingBox(const std::vector<tls::PointCloudInstance>& pcInstances)
+BoundingBoxD ContextExportPC::getGlobalBoundingBox(const std::vector<tls::PointCloudInstance>& pcInstances)
 {
-    BoundingBox globalBBox;
-    globalBBox.setEmpty();
+    BoundingBoxD global_bbox;
+    global_bbox.setEmpty();
+
     for (const tls::PointCloudInstance& pcInst : pcInstances)
     {
-        unionBoundingBox(globalBBox, transformBoundingBox(pcInst.header.bbox, pcInst.transfo.getTransformation()));
+        BoundingBoxD&& t_bbox = pcInst.header.bbox.transform(pcInst.transfo.getTransformation());
+        global_bbox.extend(t_bbox);
     }
-    return globalBBox;
+    return global_bbox;
 }
 
-BoundingBox ContextExportPC::extractBBox(const IClippingGeometry& clippingGeom)
+BoundingBoxD ContextExportPC::extractBBox(const IClippingGeometry& clippingGeom)
 {
     // NOTE(robin) - Ceci ne fonctionne que pour les clippings de type box
     float x = (float)clippingGeom.params.x;
     float y = (float)clippingGeom.params.y;
     float z = (float)clippingGeom.params.z;
 
-    BoundingBox bbox = { -x, x, -y, y, -z, z };
+    BoundingBoxD bbox = { -x, x, -y, y, -z, z };
 
-    return transformBoundingBox(bbox, glm::inverse(clippingGeom.matRT_inv));
-}
-
-BoundingBox ContextExportPC::transformBoundingBox(const BoundingBox& bbox, glm::dmat4 transfo)
-{
-    const glm::dvec4 corners[8] = {
-        { bbox.xMin, bbox.yMin, bbox.zMin, 1 },
-        { bbox.xMin, bbox.yMin, bbox.zMax, 1 },
-        { bbox.xMin, bbox.yMax, bbox.zMin, 1 },
-        { bbox.xMin, bbox.yMax, bbox.zMax, 1 },
-        { bbox.xMax, bbox.yMin, bbox.zMin, 1 },
-        { bbox.xMax, bbox.yMin, bbox.zMax, 1 },
-        { bbox.xMax, bbox.yMax, bbox.zMin, 1 },
-        { bbox.xMax, bbox.yMax, bbox.zMax, 1 }
-    };
-
-    BoundingBox result;
-    result.setEmpty();
-    for (int i = 0; i < 8; ++i)
-    {
-        glm::dvec4 c = transfo * corners[i];
-        if (c.x < result.xMin) result.xMin = c.x;
-        if (c.x > result.xMax) result.xMax = c.x;
-        if (c.y < result.yMin) result.yMin = c.y;
-        if (c.y > result.yMax) result.yMax = c.y;
-        if (c.z < result.zMin) result.zMin = c.z;
-        if (c.z > result.zMax) result.zMax = c.z;
-    }
-    return result;
-}
-
-void ContextExportPC::unionBoundingBox(BoundingBox& dstBBox, const BoundingBox& srcBBox)
-{
-    // x
-    dstBBox.xMin = std::min(dstBBox.xMin, srcBBox.xMin);
-    dstBBox.xMax = std::max(dstBBox.xMax, srcBBox.xMax);
-    // y
-    dstBBox.yMin = std::min(dstBBox.yMin, srcBBox.yMin);
-    dstBBox.yMax = std::max(dstBBox.yMax, srcBBox.yMax);
-    // z
-    dstBBox.zMin = std::min(dstBBox.zMin, srcBBox.zMin);
-    dstBBox.zMax = std::max(dstBBox.zMax, srcBBox.zMax);
-}
-
-void ContextExportPC::intersectBoundingBox(BoundingBox& dstBBox, const BoundingBox& srcBBox)
-{
-    // X
-    dstBBox.xMin = std::max(dstBBox.xMin, srcBBox.xMin);
-    dstBBox.xMax = std::min(dstBBox.xMax, srcBBox.xMax);
-    // Y
-    dstBBox.yMin = std::max(dstBBox.yMin, srcBBox.yMin);
-    dstBBox.yMax = std::min(dstBBox.yMax, srcBBox.yMax);
-    // Z
-    dstBBox.zMin = std::max(dstBBox.zMin, srcBBox.zMin);
-    dstBBox.zMax = std::min(dstBBox.zMax, srcBBox.zMax);
-
-    if (dstBBox.xMin > dstBBox.xMax ||
-        dstBBox.yMin > dstBBox.yMax ||
-        dstBBox.zMin > dstBBox.zMax)
-    {
-        // la bounding box est vide
-        dstBBox = {
-            std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(),
-            std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(),
-            std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity()
-        };
-    }
+    return bbox.transform(glm::inverse(clippingGeom.matRT_inv));
 }
 
 tls::Transformation ContextExportPC::getCommonTransformation(const std::vector<tls::PointCloudInstance>& pcInfos)

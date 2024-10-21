@@ -198,11 +198,6 @@ public:
     void resumeStream();
     void streamScans(uint64_t maxSize, char* stagingBuffer, std::vector<TlStagedTransferInfo>& vkTransfer);
 
-    //PC Objects
-    BoundingBoxD getActiveBoundingBox() const;
-    BoundingBoxD getScansBoundingBox() const;
-
-
     std::list<tls::ScanHeader> getScansHeaders() const;
 
     // Compute

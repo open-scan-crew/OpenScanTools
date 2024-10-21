@@ -9,7 +9,6 @@
 #include "controller/controls/ControlProject.h"
 #include "controller/controls/ControlApplication.h"
 #include "controller/controls/ControlTree.h"
-#include "controller/Controller.h"
 #include "controller/ControllerContext.h"
 #include "controller/ControlListener.h"
 #include "io/SaveLoadSystem.h"
@@ -270,7 +269,6 @@ ContextState ContextConvertionScan::launch(Controller& controller)
 	controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(log));
 	controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));
 
-    controller.getControlListener()->notifyUIControl(new control::project::ApplyProjectTransformation());
 	controller.getControlListener()->notifyUIControl(new control::project::StartSave());
     
     if (nbScanBeforeImport == 0)

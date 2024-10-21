@@ -47,8 +47,6 @@ bool tlGetCurrentScanPath(tls::ScanGuid scanGuid, std::filesystem::path& current
 
 bool tlScanLeftToFree();
 
-BoundingBoxD tlScansBoundingBox();
-
 std::list<tls::ScanHeader> tlScansHeaders();
 
 class TlStreamLock

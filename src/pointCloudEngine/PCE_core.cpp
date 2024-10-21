@@ -37,11 +37,6 @@ bool tlScanLeftToFree()
 	return TlScanOverseer::getInstance().isScanLeftTofree();
 }
 
-BoundingBoxD tlScansBoundingBox()
-{
-    return TlScanOverseer::getInstance().getScansBoundingBox();
-}
-
 std::list<tls::ScanHeader> tlScansHeaders()
 {
     return TlScanOverseer::getInstance().getScansHeaders();

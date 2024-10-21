@@ -74,7 +74,7 @@ public:
 
     glm::dvec3 getViewAxis() const; // or front axis ?
     void adjustToScene(const BoundingBoxD& sceneBBox);
-    void alignView(const AlignView& align);
+    void alignView(AlignView align);
     //Simple animation
     void lookAt(glm::dvec3 lookPoint, double dt_sec);
     void lookAt(double endTheta, double endPhi, double dt_sec);
@@ -231,7 +231,6 @@ private:
     void onRenderRampScale(IGuiData* data);
     void onBackgroundColor(IGuiData* data);
     void onAdjustZoomToScene(IGuiData* data);
-    void onAlignView(IGuiData* data);
     void onRenderCameraMoveTo(IGuiData* data);
     void onRenderRotateCamera(IGuiData* data);
     void onRenderExamine(IGuiData* data);

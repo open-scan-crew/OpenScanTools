@@ -84,17 +84,6 @@ public:
 	const BoundingBoxD scene_bbox_;
 };
 
-class GuiDataRenderAlignView : public GuiDataActiveCamera
-{
-public:
-	GuiDataRenderAlignView(const AlignView& align, SafePtr<CameraNode> camera);
-	~GuiDataRenderAlignView() {};
-	virtual guiDType getType() override;
-
-public:
-	const AlignView m_align;
-};
-
 class GuiDataRenderCameraMoveTo : public GuiDataActiveCamera
 {
 public:

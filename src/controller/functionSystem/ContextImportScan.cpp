@@ -112,8 +112,6 @@ ContextState ContextImportScan::launch(Controller& controller)
 		updateStep(controller, QString(TEXT_SCAN_IMPORT_DONE_TEXT).arg(QString::fromStdWString(inputFile.stem().wstring())), 1);
 	}
 
-
-	controller.getControlListener()->notifyUIControl(new control::project::ApplyProjectTransformation());
 	controller.getControlListener()->notifyUIControl(new control::project::StartSave());
 		
 	controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));

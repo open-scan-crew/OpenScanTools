@@ -3199,54 +3199,6 @@ glm::dvec3 TlScanOverseer::computeAreaOfPolyline(std::vector<Measure> measures)
 
 }
 
-BoundingBoxD TlScanOverseer::getActiveBoundingBox() const
-{
-	BoundingBoxD projectBBox;
-	projectBBox.setEmpty();
-
-    for (const WorkingScanInfo& _pair : s_workingScansTransfo)
-    {
-        BoundingBoxD bb = _pair.scan.getBoundingBox(_pair.transfo.getTransformation());
-
-        projectBBox.xMax = bb.xMax > projectBBox.xMax ? bb.xMax : projectBBox.xMax;
-        projectBBox.yMax = bb.yMax > projectBBox.yMax ? bb.yMax : projectBBox.yMax;
-        projectBBox.zMax = bb.zMax > projectBBox.zMax ? bb.zMax : projectBBox.zMax;
-        projectBBox.zMin = bb.zMin < projectBBox.zMin ? bb.zMin : projectBBox.zMin;
-        projectBBox.xMin = bb.xMin < projectBBox.xMin ? bb.xMin : projectBBox.xMin;
-        projectBBox.yMin = bb.yMin < projectBBox.yMin ? bb.yMin : projectBBox.yMin;
-    }
-
-    return projectBBox;
-}
-
-BoundingBoxD TlScanOverseer::getScansBoundingBox() const
-{
-    if (m_activeScans.empty())
-    {
-        return { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-    }
-
-    BoundingBoxD projectBBox;
-	projectBBox.setEmpty();
-
-    for (const std::pair<tls::ScanGuid, EmbeddedScan*>& _pair : m_activeScans)
-    {
-        const BoundingBox bb = _pair.second->getLocalBoundingBox();
-        tls::ScanHeader header;
-        _pair.second->getInfo(header);
-        const tls::Transformation& transfo(header.transfo);
-
-        projectBBox.xMax = (transfo.translation[0] + bb.xMax) > projectBBox.xMax ? (transfo.translation[0] + bb.xMax) : projectBBox.xMax;
-        projectBBox.yMax = (transfo.translation[1] + bb.yMax) > projectBBox.yMax ? (transfo.translation[1] + bb.yMax) : projectBBox.yMax;
-        projectBBox.zMax = (transfo.translation[2] + bb.zMax) > projectBBox.zMax ? (transfo.translation[2] + bb.zMax) : projectBBox.zMax;
-        projectBBox.zMin = (transfo.translation[2] + bb.zMin) < projectBBox.zMin ? (transfo.translation[2] + bb.zMin) : projectBBox.zMin;
-        projectBBox.xMin = (transfo.translation[0] + bb.xMin) < projectBBox.xMin ? (transfo.translation[0] + bb.xMin) : projectBBox.xMin;
-        projectBBox.yMin = (transfo.translation[1] + bb.yMin) < projectBBox.yMin ? (transfo.translation[1] + bb.yMin) : projectBBox.yMin;
-    }
-
-    return projectBBox;
-}
-
 std::list<tls::ScanHeader> TlScanOverseer::getScansHeaders() const
 {
     std::list<tls::ScanHeader> headers;

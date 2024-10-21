@@ -4,6 +4,7 @@
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
 #include "models/graph/GraphManager.h"
+#include "pointCloudEngine/TlScanOverseer.h"
 #include "controller/functionSystem/FunctionManager.h"
 #include "controller/ControlListener.h"
 #include "controller/messages/ConvertionMessage.h"
@@ -24,6 +25,7 @@
 #include "gui/texts/ContextTexts.hpp"
 #include "io/FileUtils.h"
 #include "Gui/Translator.h"
+
 
 #include <iostream>
 #include <fstream>
@@ -191,11 +193,6 @@ namespace control
 			controller.getContext().setIsCurrentProjectSaved(true);
 			controller.updateInfo(new GuiDataProjectLoaded(true, context.cgetProjectInfo().m_projectName));
 			
-			// Utilisation d'un contrôle en dehors de la pile d'undo-redo.
-			// Après tout rien n'empêche de le faire car on ne veut pas undo.
-			control::project::ApplyProjectTransformation controlSynchrone;
-			controlSynchrone.doFunction(controller);
-
 			controller.updateInfo(new GuiDataProjectPath(m_loadPath.parent_path()));
 
 			controller.updateInfo(new GuiDataRenderBackgroundColor(SafePtr<CameraNode>(), controller.getContext().getActiveBackgroundColor()));
@@ -797,37 +794,6 @@ namespace control
 			return (ControlType::showConvertionOptions);
 		}
 
-		/*
-		** ApplyProjectTransformation
-		*/
-	
-		ApplyProjectTransformation::ApplyProjectTransformation()
-		{}
-
-		ApplyProjectTransformation::~ApplyProjectTransformation()
-		{}
-
-		void ApplyProjectTransformation::doFunction(Controller& controller)
-		{
-			// FIXME - la fonction tlScansBoundingBox() ne renvoie prends pas en compte les transfos des scan dans le graph.
-			BoundingBoxD bbox(tlScansBoundingBox());
-			// Question(robin_k) : Should we manage this transformation with the graph ?
-			controller.getContext().setProjectTransformation(-bbox.center());
-		}
-
-		bool ApplyProjectTransformation::canUndo() const
-		{
-			return false;
-		}
-
-		void ApplyProjectTransformation::undoFunction(Controller& controller)
-		{}
-
-		ControlType ApplyProjectTransformation::getType() const 
-		{
-			return (ControlType::applyProjectTransformation);
-		}
-	
 		/*
 		** ShowProperties
 		*/

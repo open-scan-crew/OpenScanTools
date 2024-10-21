@@ -134,7 +134,8 @@ void QuickBarNavigation::connectCamera(SafePtr<CameraNode> camera)
 
     connect(m_ui.comboBox_views, QOverload<int>::of(&QComboBox::activated), [this](int i) {
         AlignView align = (AlignView)m_ui.comboBox_views->currentData().toInt();
-        m_dataDispatcher.sendControl(new control::viewport::AlignViewSide(align, m_camera));
+        WritePtr<CameraNode> wCam = m_camera.get();
+        wCam->alignView(align);
     });
 
     connect(m_ui.toolButton_align2Points, &QToolButton::released, [this]() {

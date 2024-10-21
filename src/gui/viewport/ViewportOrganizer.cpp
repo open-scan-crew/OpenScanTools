@@ -190,7 +190,10 @@ void ViewportOrganizer::onAdjustZoomToScene()
 void ViewportOrganizer::onAlignView(AlignView align)
 {
     if (m_viewports.find(m_activeViewport) != m_viewports.end())
-        m_dataDispatcher.sendControl(new control::viewport::AlignViewSide(align, m_viewports[m_activeViewport].vulkanViewport->getCamera()));
+    {
+        WritePtr<CameraNode> wCam = m_viewports[m_activeViewport].vulkanViewport->getCamera().get();
+        wCam->alignView(align);
+    }
 }
 
 void ViewportOrganizer::onRotation90()

@@ -70,18 +70,6 @@ guiDType GuiDataRenderAdjustZoom::getType()
     return guiDType::renderAdjustZoom;
 }
 
-
-//*** Reset View ***//
-GuiDataRenderAlignView::GuiDataRenderAlignView(const AlignView& align, SafePtr<CameraNode> camera)
-	: GuiDataActiveCamera(camera)
-    , m_align(align)
-{}
-
-guiDType GuiDataRenderAlignView::getType()
-{
-	return guiDType::renderAlignView;
-}
-
 //*** Move Camera to Position ***//
 GuiDataRenderCameraMoveTo::GuiDataRenderCameraMoveTo(glm::dvec3 position, SafePtr<CameraNode> destViewport)
 	: GuiDataActiveCamera(destViewport)

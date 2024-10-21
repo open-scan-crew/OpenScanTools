@@ -17,6 +17,10 @@ struct TBoundingBox
 
     void setEmpty();
     void setInfinite();
+
+    void extend(const TBoundingBox<T>& rhs);
+    void intersect(const TBoundingBox<T>& rhs);
+
     [[nodiscard]] TBoundingBox<T> rotate(glm::mat<3, 3, T, glm::defaultp> rotation_matrix) const;
     [[nodiscard]] TBoundingBox<double> transform(glm::dmat4 transfo_matrix) const;
 
@@ -48,6 +52,45 @@ void TBoundingBox<T>::setInfinite()
     yMax = std::numeric_limits<T>::infinity();
     zMin = -std::numeric_limits<T>::infinity();
     zMax = std::numeric_limits<T>::infinity();
+}
+
+template<typename T>
+void TBoundingBox<T>::extend(const TBoundingBox<T>& rhs)
+{
+    xMin = rhs.xMin < xMin ? rhs.xMin : xMin;
+    xMax = rhs.xMax > xMax ? rhs.xMax : xMax;
+    yMin = rhs.yMin < yMin ? rhs.yMin : yMin;
+    yMax = rhs.yMax > yMax ? rhs.yMax : yMax;
+    zMin = rhs.zMin < zMin ? rhs.zMin : zMin;
+    zMax = rhs.zMax > zMax ? rhs.zMax : zMax;
+}
+
+template<typename T>
+void TBoundingBox<T>::intersect(const TBoundingBox<T>& rhs)
+{
+    xMin = rhs.xMin > xMin ? rhs.xMin : xMin;
+    xMax = rhs.xMax < xMax ? rhs.xMax : xMax;
+    if (xMin > xMax)
+    {
+        xMin = std::numeric_limits<T>::infinity();
+        xMax = -std::numeric_limits<T>::infinity();
+    }
+
+    yMin = rhs.yMin > yMin ? rhs.yMin : yMin;
+    yMax = rhs.yMax < yMax ? rhs.yMax : yMax;
+    if (yMin > yMax)
+    {
+        yMin = std::numeric_limits<T>::infinity();
+        yMax = -std::numeric_limits<T>::infinity();
+    }
+
+    zMin = rhs.zMin > zMin ? rhs.zMin : zMin;
+    zMax = rhs.zMax < zMax ? rhs.zMax : zMax;
+    if (zMin > zMax)
+    {
+        zMin = std::numeric_limits<T>::infinity();
+        zMax = -std::numeric_limits<T>::infinity();
+    }
 }
 
 template<typename T>
@@ -98,6 +141,8 @@ template<typename T>
 
     return ret_bbox;
 }
+
+
 
 template<typename T>
 bool TBoundingBox<T>::isValid() const

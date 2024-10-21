@@ -29,7 +29,6 @@ enum class guiDType
 	renderActiveCamera,
 	renderBackgroundColor,
 	renderAdjustZoom,
-	renderAlignView,
     renderCameraMoveTo,
 	renderRotateThetaPhiView,
 	renderExamine,

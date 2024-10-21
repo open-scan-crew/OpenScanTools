@@ -185,8 +185,6 @@ private:
 	std::filesystem::path m_temporaryPath;
 	std::filesystem::path m_projectsPath;
 
-	glm::dvec3 m_projectTransformation;
-
 	PolyLineOptions m_polyLineOptions;
 
 	PipeDetectionOptions m_pipeDetectionOptions;

@@ -54,19 +54,6 @@ namespace control
             SafePtr<CameraNode> dest_camera_;
         };
 
-        class AlignViewSide : public AControl
-        {
-        public:
-            AlignViewSide(AlignView sideToAlign, SafePtr<CameraNode> destCamera);
-            ~AlignViewSide();
-            void doFunction(Controller& controller) override;
-            ControlType getType() const override;
-
-        private:
-            AlignView m_side;
-            SafePtr<CameraNode> m_destCamera;
-        };
-
         class AlignView2PointsFunction : public AControl
         {
         public:

@@ -7,7 +7,6 @@
 #include "gui/GuiData/GuiDataTree.h"
 #include "gui/GuiData/GuiData3dObjects.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
-#include "pointCloudEngine/TlScanOverseer.h"
 
 #include "gui/Texts.hpp"
 #include "utils/Logger.h"
@@ -133,8 +132,7 @@ namespace control::function::clipping
         controller.getFunctionManager().abort(controller);
 
         // Compute the bounding box based on the current scan transformation
-        TlScanOverseer::getInstance().setWorkingScansTransfo(graphManager.getVisiblePointCloudInstances(xg::Guid(), true, true));
-        BoundingBoxD projectBoundingBox = TlScanOverseer::getInstance().getActiveBoundingBox();
+        BoundingBoxD project_bbox = graphManager.getGlobalBoundingBox();
 
         SafePtr<BoxNode> box = make_safe<BoxNode>(true);
         {
@@ -143,8 +141,8 @@ namespace control::function::clipping
                 return;
 
             wBox->setDefaultData(controller);
-            wBox->setSize(projectBoundingBox.size());
-            wBox->setPosition(projectBoundingBox.center());
+            wBox->setSize(project_bbox.size());
+            wBox->setPosition(project_bbox.center());
         }
 
         controller.getControlListener()->notifyUIControl(new control::function::AddNodes(box));

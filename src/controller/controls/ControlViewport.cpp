@@ -91,9 +91,7 @@ namespace control
 
         void AdjustZoomToScene::doFunction(Controller& controller)
         {
-            std::vector<tls::PointCloudInstance> scanInfos = controller.getGraphManager().getVisiblePointCloudInstances(xg::Guid(), true, true);
-            TlScanOverseer::getInstance().setWorkingScansTransfo(scanInfos);
-            BoundingBoxD projectBoundingBox = TlScanOverseer::getInstance().getActiveBoundingBox();
+            BoundingBoxD projectBoundingBox = controller.cgetGraphManager().getGlobalBoundingBox();
 
             controller.updateInfo(new GuiDataRenderAdjustZoom(projectBoundingBox, dest_camera_));
         }
@@ -101,28 +99,6 @@ namespace control
         ControlType AdjustZoomToScene::getType() const
         {
             return ControlType::adjustZoomToScene;
-        }
-
-        //
-        // AlignViewSide
-        //
-
-        AlignViewSide::AlignViewSide(AlignView sideToAlign, SafePtr<CameraNode> destCamera)
-            : m_side(sideToAlign)
-            , m_destCamera(destCamera)
-        {}
-
-        AlignViewSide::~AlignViewSide()
-        {}
-
-        void AlignViewSide::doFunction(Controller& controller)
-        {
-            controller.updateInfo(new GuiDataRenderAlignView(m_side, m_destCamera));
-        }
-
-        ControlType AlignViewSide::getType() const
-        {
-            return ControlType::alignViewSide;
         }
 
         //

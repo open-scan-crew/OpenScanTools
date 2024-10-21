@@ -425,11 +425,6 @@ BoundingBox EmbeddedScan::getLocalBoundingBox() const
     return m_scanHeader.bbox;
 }
 
-BoundingBoxD EmbeddedScan::getBoundingBox(const glm::dmat4& modelMat) const
-{
-    return m_scanHeader.bbox.transform(modelMat);
-}
-
 void EmbeddedScan::assumeWorkload()
 {
     SmartBufferWorkload* sbw;
