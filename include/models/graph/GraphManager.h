@@ -103,8 +103,7 @@ public:
 
 	void getClippingAssembly(ClippingAssembly& retAssembly, bool filterActive, bool filterSelected) const;
 
-	// Replace the TlScanOverseer::getActiveBoundingBox() & getScansBoundingBox()
-	BoundingBoxD getGlobalBoundingBox() const;
+	BoundingBoxD getScanBoundingBox(ObjectStatusFilter status) const;
 	std::unordered_set<SafePtr<ScanNode>> getVisibleScans(const tls::ScanGuid& pano) const;
 	std::vector<tls::PointCloudInstance> getVisiblePointCloudInstances(const tls::ScanGuid& pano, bool scans, bool pcos) const;
 	std::vector<tls::PointCloudInstance> getPointCloudInstances(const tls::ScanGuid& pano, bool scans, bool pcos, ObjectStatusFilter status) const;

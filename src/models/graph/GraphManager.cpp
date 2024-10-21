@@ -678,9 +678,9 @@ void GraphManager::getClippingAssembly(ClippingAssembly& retAssembly, bool filte
 	return;
 }
 
-BoundingBoxD GraphManager::getGlobalBoundingBox() const
+BoundingBoxD GraphManager::getScanBoundingBox(ObjectStatusFilter status) const
 {
-	auto pc_instances = getPointCloudInstances(xg::Guid(), true, true, ObjectStatusFilter::ALL);
+	auto pc_instances = getPointCloudInstances(xg::Guid(), true, true, status);
 
 	BoundingBoxD project_bbox;
 	project_bbox.setEmpty();
@@ -755,8 +755,8 @@ std::vector<tls::PointCloudInstance> GraphManager::getPointCloudInstances(const 
 			continue;
 
 		tls::ScanHeader header;
-		tlGetScanHeader(rPc->getScanGuid(), header);
-		result.emplace_back(pc, header, rPc->getTransformationModule(), rPc->getClippable());
+		if (tlGetScanHeader(rPc->getScanGuid(), header))
+			result.emplace_back(pc, header, rPc->getTransformationModule(), rPc->getClippable());
 	}
 
 	return (result);

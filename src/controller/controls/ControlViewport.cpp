@@ -91,7 +91,7 @@ namespace control
 
         void AdjustZoomToScene::doFunction(Controller& controller)
         {
-            BoundingBoxD projectBoundingBox = controller.cgetGraphManager().getGlobalBoundingBox();
+            BoundingBoxD projectBoundingBox = controller.cgetGraphManager().getScanBoundingBox(ObjectStatusFilter::VISIBLE);
 
             controller.updateInfo(new GuiDataRenderAdjustZoom(projectBoundingBox, dest_camera_));
         }

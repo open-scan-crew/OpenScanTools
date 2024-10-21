@@ -132,7 +132,7 @@ namespace control::function::clipping
         controller.getFunctionManager().abort(controller);
 
         // Compute the bounding box based on the current scan transformation
-        BoundingBoxD project_bbox = graphManager.getGlobalBoundingBox();
+        BoundingBoxD project_bbox = graphManager.getScanBoundingBox(ObjectStatusFilter::ALL);
 
         SafePtr<BoxNode> box = make_safe<BoxNode>(true);
         {
