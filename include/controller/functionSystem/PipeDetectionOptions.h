@@ -1,8 +1,6 @@
 #ifndef PIPE_DETECTION_OPTIONS_H
 #define PIPE_DETECTION_OPTIONS_H
 
-#include <glm/glm.hpp>
-
 enum class PipeDetectionExtendMode
 {
     Default,

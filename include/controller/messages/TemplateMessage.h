@@ -2,7 +2,6 @@
 #define TEMPLATE_MESSAGE_H_
 
 #include "controller/messages/IMessage.h"
-#include "pointCloudEngine/RenderingTypes.h"
 #include "models/application/TagTemplate.h"
 
 class TemplateMessage : public IMessage

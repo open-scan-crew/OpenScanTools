@@ -1,10 +1,8 @@
 #include "controller/functionSystem/ContextPoint.h"
 #include "controller/Controller.h"
-#include "controller/functionSystem/FunctionManager.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataMeasure.h"
 #include "gui/Texts.hpp"
-#include "utils/Logger.h"
 
 ContextPoint::ContextPoint(const ContextId& id)
 	: ARayTracingContext(id)

@@ -1,7 +1,7 @@
 #include "controller/functionSystem/ContextDeletePoints.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "controller/functionSystem/FunctionManager.h"
 #include "controller/Controls/ControlScanEdition.h"
 #include "controller/messages/DeletePointsMessage.h"
@@ -12,7 +12,7 @@
 #include "pointCloudEngine/PCE_core.h"
 
 #include "models/graph/ScanNode.h"
-#include "models/graph/GraphManager.hxx"
+#include "models/graph/GraphManager.h"
 
 #include "gui/texts/ExportTexts.hpp"
 #include "gui/texts/SplashScreenTexts.hpp"

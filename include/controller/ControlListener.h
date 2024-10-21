@@ -3,7 +3,6 @@
 
 #include "controller/IControlListener.h"
 
-#include <unordered_set>
 #include <list>
 #include <mutex>
 

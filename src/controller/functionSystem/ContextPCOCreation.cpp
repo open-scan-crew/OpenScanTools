@@ -1,12 +1,9 @@
 #include "controller/functionSystem/ContextPCOCreation.h"
-#include "pointCloudEngine/PCE_core.h"
 #include "pointCloudEngine/TlScanOverseer.h"
-#include "controller/controls/ControlProject.h"
 #include "controller/controls/ControlPCObject.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "io/exports/IScanFileWriter.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataClipping.h"
@@ -18,11 +15,10 @@
 #include "models/graph/CameraNode.h"
 #include "models/graph/ScanNode.h"
 #include "models/graph/BoxNode.h"
-#include "models/graph/GraphManager.hxx"
+#include "models/graph/GraphManager.h"
 
 #include "controller/messages/PointCloudObjectCreationParametersMessage.h"
 #include "controller/messages/CameraMessage.h"
-#include "utils/math/trigo.h"
 #include "utils/Logger.h"
 
 

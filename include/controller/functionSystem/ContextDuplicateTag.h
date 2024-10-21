@@ -2,7 +2,7 @@
 #define CONTEXT_DUPLICATE_TAG_H
 
 #include "controller/functionSystem/ARayTracingContext.h"
-#include "models/OpenScanToolsModelEssentials.h"
+#include "utils/safe_ptr.h"
 
 class AGraphNode;
 

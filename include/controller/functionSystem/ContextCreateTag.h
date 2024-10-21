@@ -2,7 +2,6 @@
 #define CONTEXT_CREATE_TAG_H_
 
 #include "controller/functionSystem/ARayTracingContext.h"
-#include "models/OpenScanToolsModelEssentials.h"
 
 class ContextCreateTag : public ARayTracingContext
 {

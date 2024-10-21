@@ -1,16 +1,11 @@
 #include "controller/functionSystem/ContextExperiment.h"
-#include "controller/controls/ControlFunctionTag.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
-#include "controller/functionSystem/FunctionManager.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "pointCloudEngine/TlScanOverseer.h"
-#include "pointCloudEngine/NormalEstimation.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ContextTexts.hpp"
-#include "utils/Logger.h"
 
-#include "models/graph/GraphManager.hxx"
+#include "models/graph/GraphManager.h"
 
 
 ContextExperiment::ContextExperiment(const ContextId& id)

@@ -1,6 +1,7 @@
 #include "controller/functionSystem/ContextBeamBending.h"
 #include "controller/controls/ControlFunction.h"
 #include "controller/messages/ClickMessage.h"
+#include "controller/messages/PlaneMessage.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ContextTexts.hpp"
 #include "controller/Controller.h"
@@ -10,7 +11,6 @@
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "utils/ProjectColor.hpp"
 #include "utils/Logger.h"
-#include "magic_enum/magic_enum.hpp"
 #include "pointCloudEngine/MeasureClass.h"
 
 #include "models/graph/GraphManager.hxx"

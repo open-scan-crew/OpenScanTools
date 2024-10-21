@@ -1,14 +1,10 @@
 #include "controller/functionSystem/ContextPointsMeasure.h"
 #include "controller/controls/ControlFunctionMeasure.h"
 #include "controller/controls/ControlFunction.h"
-#include "controller/messages/ClickMessage.h"
-#include "gui/GuiData/GuiDataRendering.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
-#include "controller/functionSystem/FunctionManager.h"
-#include "gui/GuiData/GuiDataMessages.h"
-#include "gui/GuiData/GuiDataMeasure.h"
+#include "controller/ControlListener.h" // forward declaration
+#include "controller/messages/IMessage.h"
 #include "gui/texts/ContextTexts.hpp"
 
 #include "models/graph/PolylineMeasureNode.h"

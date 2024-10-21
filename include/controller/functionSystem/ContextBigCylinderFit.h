@@ -2,8 +2,6 @@
 #define CONTEXT_BIG_CYLINDER_FIT_H
 
 #include "controller/functionSystem/ARayTracingContext.h"
-#include "controller/functionSystem/PipeDetectionOptions.h"
-#include <glm/glm.hpp>
 
 class ContextBigCylinderFit : public ARayTracingContext
 {

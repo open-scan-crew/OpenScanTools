@@ -2,13 +2,10 @@
 #define CONTEXT_PLANE_CONNEXION_H_
 
 #include "controller/functionSystem/ARayTracingContext.h"
-#include "models/pointCloud/TLS.h"
-#include "controller/controls/ControlFunctionClipping.h"
 #include "pointCloudEngine/OctreeRayTracing.h"
 #include "models/graph/BoxNode.h"
 
 #include <glm/glm.hpp>
-#include <queue>
 
 class ContextPlaneConnexion : public ARayTracingContext
 {

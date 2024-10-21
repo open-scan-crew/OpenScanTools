@@ -2,13 +2,11 @@
 #include "controller/messages/CameraMessage.h"
 #include "gui/GuiData/GuiDataContextRequest.h"
 #include "controller/Controller.h"
-#include "controller/functionSystem/FunctionManager.h"
 #include "gui/GuiData/GuiDataMessages.h"
 
 #include "gui/texts/AlignViewTexts.hpp"
 
 #include "utils/Logger.h"
-#include "utils/math/trigo.h"
 #include "magic_enum/magic_enum.hpp"
 
 AContextAlignView::AContextAlignView(const ContextId& id)

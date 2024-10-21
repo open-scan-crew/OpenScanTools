@@ -2,19 +2,13 @@
 #include "controller/messages/CameraMessage.h"
 #include "gui/GuiData/GuiDataContextRequest.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
-#include "gui/GuiData/GuiDataMessages.h"
-#include "gui/GuiData/GuiDataMeasure.h"
 #include "gui/GuiData/GuiDataRendering.h"
 
 #include "models/graph/CameraNode.h"
-#include "models/graph/GraphManager.hxx"
-
-#include "utils/math/trigo.h"
+#include "models/graph/GraphManager.h"
 #include "utils/Logger.h"
 #include "magic_enum/magic_enum.hpp"
 
-#include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/vector_angle.hpp>
 
 ContextAlignViewBox::ContextAlignViewBox(const ContextId& id)

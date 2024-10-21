@@ -4,9 +4,9 @@
 #include "controller/functionSystem/AContext.h"
 #include "models/graph/AGraphNode.h"
 #include "io/exports/stepExport.h"
-#include <filesystem>
-#include <glm/glm.hpp>
 #include "io/exports/ExportParameters.hpp"
+
+#include <filesystem>
 
 struct Measure;
 

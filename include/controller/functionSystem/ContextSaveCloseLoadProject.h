@@ -4,7 +4,6 @@
 #include "controller/functionSystem/AContext.h"
 #include "models/project/ProjectInfos.h"
 #include "models/project/ProjectTypes.h"
-#include "pointCloudEngine/RenderingTypes.h"
 
 class CameraNode;
 

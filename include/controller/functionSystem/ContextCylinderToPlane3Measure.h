@@ -3,8 +3,6 @@
 
 #include "controller/functionSystem/ARayTracingContext.h"
 #include <glm/glm.hpp>
-#include <map>
-#include <list>
 
 class ContextCylinderToPlane3Measure : public ARayTracingContext
 {

@@ -1,9 +1,7 @@
 #include "controller/functionSystem/ContextSimpleMeasure.h"
-#include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ContextTexts.hpp"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "controller/controls/ControlFunction.h"
 
 #include "models/graph/SimpleMeasureNode.h"

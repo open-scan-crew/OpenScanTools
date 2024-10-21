@@ -1,14 +1,9 @@
 #include "controller/functionSystem/ContextCylinderToPlane3Measure.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
-#include "controller/functionSystem/FunctionManager.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "controller/controls/ControlFunction.h"
-
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "pointCloudEngine/MeasureClass.h"
-
-#include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ContextTexts.hpp"
 

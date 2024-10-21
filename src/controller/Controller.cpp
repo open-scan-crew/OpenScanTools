@@ -1,49 +1,15 @@
 #include "controller/Controller.h"
 #include "controller/Controller_p.h"
+#include "controller/ControllerContext.h"
 #include "io/SaveLoadSystem.h"
 #include "gui/Texts.hpp"
 #include "gui/GuiData/GuiDataGeneralProject.h" //
-#include "gui/GuiData/GuiDataTag.h"
-#include "gui/GuiData/GuiData3dObjects.h"
-#include "gui/GuiData/GuiDataRendering.h"
-#include "gui/GuiData/GuiDataTree.h"
-#include "gui/GuiData/GuiDataTemplate.h" //
 #include "gui/GuiData/GuiDataMessages.h"
-#include "controller/controls/ControlApplication.h"
-#include "controller/controls/ControlTagEdition.h"
-#include "controller/controls/ControlScanEdition.h"
-#include "controller/controls/ControlPicking.h"
-#include "controller/controls/ControlTree.h"
-#include "controller/controls/ControlProject.h"
-#include "controller/ControllerContext.h"
+
 #include "controls/ControlMetaControl.h"
-#include "pointCloudEngine/RenderingTypes.h"
-
-//~~~~~~~~~~~~~~~~ Data Model ~~~~~~~~~~~~~~~~~//
-
-#include "models/graph/TagNode.h"
 #include "models/graph/CameraNode.h"
-#include "models/graph/CylinderNode.h"
-#include "models/graph/TorusNode.h"
-#include "models/graph/SphereNode.h"
-#include "models/graph/MeshObjectNode.h"
-#include "models/graph/BeamBendingMeasureNode.h"
-#include "models/graph/ColumnTiltMeasureNode.h"
-#include "models/graph/ScanObjectNode.h"
-#include "models/graph/ScanNode.h"
-#include "models/graph/ViewPointNode.h"
-#include "models/graph/BoxNode.h"
-#include "models/graph/ClusterNode.h"
-#include "models/graph/PointNode.h"
-#include "models/graph/SimpleMeasureNode.h"
-#include "models/graph/PolylineMeasureNode.h"
-#include "models/graph/PipeToPipeMeasureNode.h"
-#include "models/graph/PipeToPlaneMeasureNode.h"
-#include "models/graph/PointToPlaneMeasureNode.h"
-#include "models/graph/PointToPipeMeasureNode.h"
 
 #include "utils/Logger.h"
-#include <magic_enum/magic_enum.hpp>
 
 #define CONTROLLERLOG Logger::log(LoggerMode::ControllerLog)
 

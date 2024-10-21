@@ -1,16 +1,17 @@
 #ifndef FILTER_SYSTEM_CONTROLLER_H
 #define FILTER_SYSTEM_CONTROLLER_H
 
-#include "models/data/Data.h"
+#include "models/Types.hpp"
 #include "utils/Color32.hpp"
+#include "utils/safe_ptr.h"
 #include "models/project/Marker.h"
 
 #include <list>
-#include <vector>
-#include <map>
 #include <set>
-
 #include <unordered_set>
+#include <unordered_map>
+
+#include <crossguid/guid.hpp>
 
 class FilterSystem;
 class AObjectNode;

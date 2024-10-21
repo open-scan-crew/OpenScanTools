@@ -2,9 +2,8 @@
 #define CONTEXT_PEOPLE_REMOVER_H_
 
 #include "controller/functionSystem/ARayTracingContext.h"
-#include "models/OpenScanToolsModelEssentials.h"
+#include "utils/safe_ptr.h"
 #include "models/graph/ClusterNode.h"
-#include "pointCloudEngine/TlScanOverseer.h"
 #include "pointCloudEngine/OctreeRayTracing.h"
 
 class ContextPeopleRemover : public ARayTracingContext

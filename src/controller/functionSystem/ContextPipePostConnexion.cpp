@@ -1,29 +1,21 @@
 #include "controller/functionSystem/ContextPipePostConnexion.h"
 #include "controller/controls/ControlObject3DEdition.h"
 #include "controller/controls/ControlCylinderEdition.h"
-#include "controller/controls/ControlDataEdition.h"
-#include "gui/GuiData/GuiDataMessages.h"
-#include "gui/Texts.hpp"
+#include "controller/controls/ControlFunction.h"
+#include "controller/controls/ControlMetaControl.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
-#include "controller/functionSystem/FunctionManager.h"
+#include "controller/ControlListener.h" // forward declaration
+#include "controller/messages/PipeMessage.h"
+
 #include "pointCloudEngine/TlScanOverseer.h"
 
+#include "models/graph/GraphManager.h"
+#include "models/graph/ClusterNode.h"
 #include "models/graph/CylinderNode.h"
 #include "models/graph/TorusNode.h"
 
-#include "controller/controls/ControlFunctionClipping.h"
 #include "utils/Logger.h"
-#include "gui/GuiData/GuiData3dObjects.h"
-#include "controller/messages/PipeMessage.h"
-#include "controller/controls/ControlSpecial.h"
-#include "controller/controls/ControlFunction.h"
-#include "controller/controls/ControlMetaControl.h"
-
-#include "models/graph/GraphManager.hxx"
-#include "models/graph/ClusterNode.h"
-
 
 #include <glm/gtx/quaternion.hpp>
 

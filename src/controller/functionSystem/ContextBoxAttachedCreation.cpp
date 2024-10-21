@@ -4,11 +4,9 @@
 #include "controller/ControllerContext.h"
 #include "controller/ControlListener.h"
 #include "gui/GuiData/GuiDataMessages.h"
-#include "utils/math/trigo.h"
 #include "utils/Logger.h"
 
 #include "models/graph/BoxNode.h"
-#include "models/graph/GraphManager.hxx"
 #include "gui/texts/RayTracingTexts.hpp"
 #include "gui/texts/ContextTexts.hpp"
 #include "gui/Texts.hpp"

@@ -2,7 +2,6 @@
 #define CONTEXT_FIT_TORUS_H_
 
 #include "controller/functionSystem/ARayTracingContext.h"
-#include "models/OpenScanToolsModelEssentials.h"
 
 class ContextFitTorus : public ARayTracingContext
 {

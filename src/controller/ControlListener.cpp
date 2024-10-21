@@ -1,8 +1,6 @@
 #include "controller/ControlListener.h"
-#include "controller/FilteredFonctionnalities.h"
-#include "models/LicenceTypes.h"
-#include <iostream>
-#include <assert.h> 
+//#include "controller/FilteredFonctionnalities.h"
+
 
 ControlListener::ControlListener()
 {

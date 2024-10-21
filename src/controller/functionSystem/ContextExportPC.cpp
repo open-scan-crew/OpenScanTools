@@ -1,7 +1,6 @@
 #include "controller/functionSystem/ContextExportPC.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/controls/ControlProject.h"
 #include "controller/functionSystem/FunctionManager.h"
 
 #include "controller/messages/ClippingExportParametersMessage.h"
@@ -9,7 +8,7 @@
 #include "controller/messages/ModalMessage.h"
 #include "controller/messages/NewProjectMessage.h"
 
-#include "gui/GuiData/GuiDataGeneralProject.h"
+
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataIO.h"
 #include "gui/GuiData/GuiDataContextRequest.h"
@@ -31,14 +30,11 @@
 
 #include "models/graph/CameraNode.h"
 #include "models/graph/ScanNode.h"
-#include "models/graph/GraphManager.hxx"
+#include "models/graph/GraphManager.h"
 #include "models/graph/BoxNode.h"
-
 #include "io/SaveLoadSystem.h"
-
 #include "utils/Logger.h"
 
-#include "magic_enum/magic_enum.hpp"
 
 // Note (Aurélien) QT::StandardButtons enum values in qmessagebox.h
 #define Yes 0x00004000

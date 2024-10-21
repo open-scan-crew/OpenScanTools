@@ -1,12 +1,11 @@
 #ifndef CONTROLLER_CONTEXT_H
 #define CONTROLLER_CONTEXT_H
 
-#include "models/3d/ManipulationTypes.h"
+//#include "models/3d/ManipulationTypes.h"
 #include "models/3d/DuplicationTypes.h"
 #include "models/application/List.h"
 #include "models/application/TagTemplate.h"
 #include "models/project/Marker.h"
-//#include "models/pointCloud/TLS.h"
 #include "pointCloudEngine/RenderingTypes.h"
 #include "models/project/ProjectTypes.h"
 #include "models/data/PolylineMeasure/PolyLineTypes.h"
@@ -14,7 +13,7 @@
 #include "gui/UnitUsage.h"
 
 #include "models/data/Box/ClippingBoxSettings.h"
-#include "models/application/Ids.hpp"
+//#include "models/application/Ids.hpp"
 #include "models/project/ProjectInfos.h"
 
 #include "models/application/UserOrientation.h"

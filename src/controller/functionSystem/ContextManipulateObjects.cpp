@@ -1,8 +1,8 @@
 #include "controller/functionSystem/ContextManipulateObjects.h"
 #include "controller/controls/ControlObject3DEdition.h"
 #include "controller/Controller.h"
-#include "controller/ControlListener.h"
-#include "models/graph/GraphManager.hxx"
+#include "controller/ControlListener.h" // forward declaration
+#include "models/graph/GraphManager.h"
 #include "models/graph/ManipulatorNode.h"
 #include "utils/Logger.h"
 

@@ -2,10 +2,8 @@
 #define CONTEXT_STEP_SIMPLIFICATION_H
 
 #include "controller/functionSystem/ARayTracingContext.h"
-#include "io/imports/step-simplification/step-simplification.h"
-
-
-#include "controller/messages/ImportMessage.h"
+#include "io/imports/step-simplification/step-simplificationTypes.h"
+#include "io/MeshObjectTypes.h"
 
 class ContextStepSimplification : public ARayTracingContext
 {

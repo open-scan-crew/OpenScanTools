@@ -1,21 +1,16 @@
 #include "controller/functionSystem/ContextSphere.h"
-#include "controller/messages/FullClickMessage.h"
-#include "controller/messages/ClickMessage.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/RayTracingTexts.hpp"
 #include "gui/texts/ContextTexts.hpp"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
-#include "controller/functionSystem/FunctionManager.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "utils/Logger.h"
 #include "controller/controls/ControlFunction.h"
 #include "models/graph/PointNode.h"
-#include "models/graph/GraphManager.hxx"
+#include "models/graph/GraphManager.h"
 #include "models/graph/SphereNode.h"
 
-#include "magic_enum/magic_enum.hpp"
 
 ContextSphere::ContextSphere(const ContextId& id)
 	: ARayTracingContext(id)

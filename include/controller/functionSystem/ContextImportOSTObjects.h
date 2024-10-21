@@ -2,13 +2,11 @@
 #define CONTEXT_IMPORT_OST_H_
 
 #include "controller/functionSystem/AContext.h"
-#include "models/OpenScanToolsModelEssentials.h"
+#include "utils/safe_ptr.h"
 
 #include <filesystem>
-#include <glm/glm.hpp>
 
 #include <unordered_set>
-#include <unordered_map>
 
 class AGraphNode;
 

@@ -61,7 +61,7 @@
 #include "models/graph/PipeToPipeMeasureNode.h"
 #include "models/graph/PipeToPlaneMeasureNode.h"
 #include "models/application/Author.h"
-
+#include "models/application/Ids.hpp"
 #include "models/graph/CameraNode.h"
 
 #include "models/application/List.h"

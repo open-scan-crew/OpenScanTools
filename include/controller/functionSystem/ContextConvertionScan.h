@@ -8,8 +8,6 @@
 #include "models/pointCloud/TLS.h"
 
 #include <qstring.h>
-#include <sstream>
-#include <map>
 
 enum FileType;
 namespace tls {

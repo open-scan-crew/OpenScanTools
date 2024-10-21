@@ -3,8 +3,6 @@
 
 #include "controller/functionSystem/AContextCreateAttached.h"
 
-#include <glm/glm.hpp>
-
 class ContextCreateBoxAttached3Points : public AContextCreateAttached
 {
 public:

@@ -1,7 +1,6 @@
 #include "controller/functionSystem/AContextCreateAttached.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "utils/math/trigo.h"
 #include "gui/texts/RayTracingTexts.hpp"
 
 #include "models/graph/CameraNode.h"

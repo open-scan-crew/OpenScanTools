@@ -2,7 +2,7 @@
 #define CONTEXT_VIEWPOINT_H_
 
 #include "controller/functionSystem/AContext.h"
-#include "models/OpenScanToolsModelEssentials.h"
+#include "utils/safe_ptr.h"
 
 class ViewPointNode;
 class CameraNode;

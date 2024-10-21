@@ -1,15 +1,15 @@
 #include "controller/functionSystem/ContextTemplateListModification.h"
-#include "controller/controls/ControlTemplateEdit.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
 #include "controller/messages/DataIdListMessage.h"
 #include "controller/messages/ModalMessage.h"
+#include "controller/messages/TemplateListMessage.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ContextTexts.hpp"
 #include "gui/GuiData/GuiDataTemplate.h"
 
 #include "models/graph/TagNode.h"
-#include "models/graph/GraphManager.hxx"
+#include "models/graph/GraphManager.h"
 
 
 #include "utils/Logger.h"

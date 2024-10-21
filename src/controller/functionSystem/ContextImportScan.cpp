@@ -1,24 +1,18 @@
 #include "controller/functionSystem/ContextImportScan.h"
 #include "controller/messages/ImportMessage.h"
 #include "controller/controls/ControlProject.h"
-#include "controller/controls/ControlTree.h"
-#include "controller/controls/ControlMetaControl.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "io/SaveLoadSystem.h"
 
-#include "models/graph/ScanNode.h"
 #include "models/graph/ScanObjectNode.h"
-#include "models/graph/GraphManager.hxx"
+#include "models/graph/GraphManager.h"
 
 #include "gui/GuiData/GuiDataMessages.h"
-#include "gui/GuiData/GuiDataTree.h"
-#include "gui/GuiData/GuiData3dObjects.h"
 #include "gui/texts/ContextTexts.hpp"
 #include "gui/texts/SplashScreenTexts.hpp"
 #include "gui/texts/PointCloudTexts.hpp"
-#include "magic_enum/magic_enum.hpp"
+
 
 ContextImportScan::ContextImportScan(const ContextId& id)
 	: ARayTracingContext(id)

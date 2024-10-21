@@ -1,10 +1,8 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-#include "models/OpenScanToolsModelEssentials.h"
-#include "utils/Color32.hpp"
+#include "utils/safe_ptr.h"
 #include "models/Types.hpp"
-#include "models/LicenceTypes.h"
 
 #include <unordered_set>
 

@@ -2,9 +2,6 @@
 #define CONTEXT_EXTEND_CYLINDER_H_
 
 #include "controller/functionSystem/ARayTracingContext.h"
-#include <glm/glm.hpp>
-#include <list>
-#include <map>
 
 class ContextExtendCylinder : public ARayTracingContext
 {

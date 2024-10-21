@@ -1,12 +1,10 @@
 #include "controller/functionSystem/ContextPointCreation.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "controller/controls/ControlFunction.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/Texts.hpp"
 
-#include "models/graph/GraphManager.hxx"
 #include "models/graph/PointNode.h"
 
 ContextPointCreation::ContextPointCreation(const ContextId& id)

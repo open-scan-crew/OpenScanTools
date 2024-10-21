@@ -1,28 +1,18 @@
 #include "controller/functionSystem/ContextImportOSTObjects.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
 #include "controller/controls/ControlFunction.h"
-#include "controller/controls/ControlIO.h"
-
-#include "controller/ControlListener.h"
-
+#include "controller/ControlListener.h" // forward declaration
 #include "controller/messages/FilesMessage.h"
 #include "controller/messages/ModalMessage.h"
-#include "controller/messages/DataIdListMessage.h"
-
-#include "controller/controls/ControlTemplateEdit.h"
 
 #include "gui/GuiData/GuiDataIO.h"
-#include "gui/GuiData/GuiDataTree.h"
-#include "gui/GuiData/GuiDataTemplate.h"
-#include "gui/GuiData/GuiDataList.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataMessages.h"
 
-#include "models/graph/GraphManager.hxx"
+#include "models/application/Author.h"
+#include "models/graph/GraphManager.h"
 #include "models/graph/MeshObjectNode.h"
-#include "models/graph/ScanNode.h"
-#include "models/graph/ScanObjectNode.h"
+#include "models/graph/AGraphNode.h"
+#include "models/graph/APointCloudNode.h"
 #include "models/graph/ClusterNode.h"
 
 #include "io/SaveLoadSystem.h"

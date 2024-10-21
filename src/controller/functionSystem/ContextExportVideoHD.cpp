@@ -8,6 +8,7 @@
 
 #include "controller/messages/FilesMessage.h"
 #include "controller/messages/GeneralMessage.h"
+#include "controller/messages/VideoExportParametersMessage.h"
 
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataIO.h"

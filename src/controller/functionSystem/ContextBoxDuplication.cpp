@@ -2,10 +2,9 @@
 #include "controller/controls/ControlFunction.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ContextTexts.hpp"
-#include "utils/math/trigo.h"
 #include "utils/Logger.h"
 
 #include "models/graph/GraphManager.hxx"

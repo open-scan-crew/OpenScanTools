@@ -2,7 +2,7 @@
 #define CONTEXT_EXPORT_VIDEO_HD_H_
 
 #include "controller/functionSystem/AContext.h"
-#include "controller/messages/VideoExportParametersMessage.h"
+#include "io/exports/ExportParameters.hpp"
 #include "pointCloudEngine/RenderingTypes.h"
 
 class ContextExportVideoHD : public AContext

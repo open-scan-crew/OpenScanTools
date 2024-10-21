@@ -10,17 +10,7 @@
 #include "controller/messages/DataIdListMessage.h"
 #include "controller/messages/FilesMessage.h"
 #include "controller/messages/PrimitivesExportParametersMessage.h"
-
-#include "models/graph/SimpleMeasureNode.h"
-#include "models/graph/PolylineMeasureNode.h"
-#include "models/graph/PipeToPipeMeasureNode.h"
-#include "models/graph/PipeToPlaneMeasureNode.h"
-#include "models/graph/PointToPipeMeasureNode.h"
-#include "models/graph/PointToPlaneMeasureNode.h"
-#include "models/graph/BeamBendingMeasureNode.h"
-#include "models/graph/ColumnTiltMeasureNode.h"
-#include "models/graph/ScanNode.h"
-#include "models/graph/PointNode.h"
+#include "models/graph/AMeasureNode.h"
 #include "models/graph/CylinderNode.h"
 #include "models/graph/SphereNode.h"
 #include "models/graph/TorusNode.h"
@@ -28,7 +18,6 @@
 #include "models/application/Author.h"
 
 #include "utils/Logger.h"
-#include "utils/Utils.h"
 
 #include <glm/gtx/quaternion.hpp>
 

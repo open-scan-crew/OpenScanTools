@@ -1,12 +1,10 @@
 #include "controller/functionSystem/ContextMeshObjectCreation.h"
-#include "controller/controls/ControlMeshObject.h"
+#include "controller/messages/ImportMessage.h"
 #include "controller/controls/ControlFunction.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
-#include "controller/functionSystem/FunctionManager.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "gui/GuiData/GuiDataMessages.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
 #include "models/3d/ManipulationTypes.h"
 #include "vulkan/MeshManager.h"
 #include "gui/texts/MeshObjectTexts.hpp"
@@ -19,7 +17,6 @@
 
 #include "models/graph/MeshObjectNode.h"
 #include "models/graph/ClusterNode.h"
-#include "models/graph/GraphManager.hxx"
 
 #include "io/imports/stepFileReader.h"
 

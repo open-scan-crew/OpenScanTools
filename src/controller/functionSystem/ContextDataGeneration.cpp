@@ -1,15 +1,11 @@
 #include "controller/functionSystem/ContextDataGeneration.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "controller/controls/ControlFunction.h"
-#include "models/graph/TagNode.h"
 #include "models/graph/SimpleMeasureNode.h"
 #include "models/graph/PolylineMeasureNode.h"
-#include "models/graph/GraphManager.hxx"
 
 #include "utils/Logger.h"
-#include "utils/ColorConversion.h"
 
 ContextDataGeneration::ContextDataGeneration(const ContextId& id)
     : AContext(id)

@@ -2,7 +2,6 @@
 #define CONTEXT_DATA_GENERATION_H
 
 #include "controller/functionSystem/AContext.h"
-#include "models/OpenScanToolsModelEssentials.h"
 
 class ContextDataGeneration : public AContext
 {

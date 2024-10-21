@@ -3,8 +3,6 @@
 
 #include "controller/functionSystem/ARayTracingContext.h"
 
-#include <glm/glm.hpp>
-
 class Context4ClicsSphere : public ARayTracingContext
 {
 public:

@@ -1,5 +1,4 @@
 #include "controller/functionSystem/ADuplication.h"
-//#include "controller/controls/ControlFunctionClipping.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
 #include "models/graph/TransformationModule.h"

@@ -3,11 +3,10 @@
 #include "controller/controls/ControlSpecial.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "controller/messages/DataIdListMessage.h"
 #include "controller/messages/ModalMessage.h"
 #include "gui/GuiData/GuiDataMessages.h"
-#include "gui/GuiData/GuiData3dObjects.h"
 #include "gui/texts/ContextTexts.hpp"
 
 #include "models/graph/TagNode.h"

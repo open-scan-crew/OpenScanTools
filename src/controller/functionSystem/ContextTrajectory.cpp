@@ -1,16 +1,11 @@
 #include "controller/functionSystem/ContextTrajectory.h"
-#include "controller/controls/ControlFunctionTag.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ContextTexts.hpp"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
-#include "controller/functionSystem/FunctionManager.h"
-#include "pointCloudEngine/TlScanOverseer.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "controller/controls/ControlFunction.h"
-#include "utils/Logger.h"
 
-#include "models/graph/GraphManager.hxx"
+#include "models/graph/GraphManager.h"
 #include "models/graph/CylinderNode.h"
 
 #include <glm/gtx/quaternion.hpp>

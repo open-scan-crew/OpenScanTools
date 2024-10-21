@@ -4,30 +4,16 @@
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/Texts.hpp"
 #include "gui/GuiData/GuiDataIO.h"
-
 #include "controller/messages/DataIdListMessage.h"
 #include "controller/messages/FilesMessage.h"
 #include "controller/messages/PrimitivesExportParametersMessage.h"
-
 #include "utils/Utils.h"
 #include "utils/math/trigo.h"
-
+#include "models/graph/AMeasureNode.h"
 #include "models/graph/MeshObjectNode.h"
-#include "models/graph/CylinderNode.h"
-#include "models/graph/SphereNode.h"
 #include "models/graph/TorusNode.h"
-#include "models/graph/BoxNode.h"
-
-#include "models/graph/PipeToPipeMeasureNode.h"
-#include "models/graph/PipeToPlaneMeasureNode.h"
-#include "models/graph/PointToPipeMeasureNode.h"
-#include "models/graph/PointToPlaneMeasureNode.h"
-#include "models/graph/SimpleMeasureNode.h"
-#include "models/graph/PolylineMeasureNode.h"
-
 #include "vulkan/MeshManager.h"
 
-#include <fbxsdk/utils/fbxgeometryconverter.h>
 #include <fbxsdk/fileio/fbxiosettings.h>
 
 #include <magic_enum/magic_enum.hpp>

@@ -1,7 +1,7 @@
 #include "utils/Config.h"
 #include "utils/Logger.h"
 #include "controller/Controller.h"
-#include "controller/ControlListener.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "gui/Gui.h"
 #include "gui/Translator.h"
 #include "gui/DataDispatcher.h"
@@ -14,9 +14,6 @@
 
 #include "models/graph/GraphManager.h"
 
-#include <qevent.h>
-#include <QGuiApplication>
-
 #ifdef _DEBUG_
 constexpr bool VK_VALIDATION_ENABLED = false;
 #else
@@ -26,6 +23,7 @@ constexpr bool VK_VALIDATION_ENABLED = false;
 
 #if !defined(_DEBUG_) && defined(_WIN32)
 #include <windows.h>
+#include <qevent.h>
 HHOOK hHook = NULL;
 QApplication* myApp = nullptr;
 Gui* myTarget = nullptr;

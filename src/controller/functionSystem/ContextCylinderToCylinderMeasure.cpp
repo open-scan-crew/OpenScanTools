@@ -1,22 +1,15 @@
 #include "controller/functionSystem/ContextCylinderToCylinderMeasure.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
-#include "controller/functionSystem/FunctionManager.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "controller/controls/ControlFunction.h"
-
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "pointCloudEngine/MeasureClass.h"
-
-#include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ContextTexts.hpp"
 
 #include "models/graph/PipeToPipeMeasureNode.h"
 #include "models/graph/CylinderNode.h"
 #include "models/graph/GraphManager.hxx"
-
-#include "utils/Logger.h"
 
 #include <glm/gtx/quaternion.hpp>
 
