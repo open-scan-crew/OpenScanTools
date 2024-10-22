@@ -1,23 +1,10 @@
 #include "controller/controls/ControlFunctionMeasure.h"
-#include "gui/GuiData/GuiDataTree.h"
 #include "controller/Controller.h"
 #include "controller/functionSystem/FunctionManager.h"
-#include "controller/messages/SimpleNumberMessage.h"
 #include "controller/messages/UndoRedoMessages.h"
-#include "gui/GuiData/GuiData3dObjects.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
 
-#include "models/graph/SimpleMeasureNode.h"
 #include "models/graph/PolylineMeasureNode.h"
-#include "models/graph/BeamBendingMeasureNode.h"
-#include "models/graph/PointToPipeMeasureNode.h"
-#include "models/graph/ColumnTiltMeasureNode.h"
-#include "models/graph/PipeToPipeMeasureNode.h"
-#include "models/graph/PipeToPlaneMeasureNode.h"
-#include "models/graph/PointToPlaneMeasureNode.h"
 
-#include "controller/ControllerContext.h"
-#include "gui/Texts.hpp"
 #include "utils/Logger.h"
 
 namespace control::function::measure

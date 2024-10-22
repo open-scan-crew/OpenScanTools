@@ -1,10 +1,11 @@
 #include "models/graph/ClusterNode.h"
 #include "models/3d/ManipulationTypes.h"
-#include "models/graph/PointNode.h"
-#include "models/graph/ScanNode.h"
-#include "models/graph/TagNode.h"
-#include "controller/controls/ControlObject3DEdition.h"
-#include "gui/DataDispatcher.h"
+//#include "models/graph/PointNode.h"
+//#include "models/graph/ScanNode.h"
+//#include "models/graph/TagNode.h"
+//#include "controller/controls/ControlObject3DEdition.h"
+//#include "gui/DataDispatcher.h"
+#include "gui/texts/DefaultNameTexts.hpp"
 
 ClusterNode::ClusterNode(const ClusterNode& node)
 	: AObjectNode(node)

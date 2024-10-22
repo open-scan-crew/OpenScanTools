@@ -1,15 +1,16 @@
-#include <QtWidgets/QWidget>
-#include <QtGui/QScreen>
 #include "gui/toolBars/ToolBarFilterGroup.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/Dialog/DialogSearchedObjects.h"
 #include "services/MarkerDefinitions.hpp"
 #include "gui/GuiData/GuiDataList.h"
-#include "models/data/Data.h"
+#include "models/application/Ids.hpp"
 #include "utils/ProjectStringSets.hpp"
 
 #include "controller/Controller.h"
 #include "models/graph/GraphManager.h"
+
+#include <QtWidgets/QWidget>
+#include <QtGui/QScreen>
 
 ToolBarFilterGroup::ToolBarFilterGroup(IDataDispatcher& dataDispatcher, Controller& controller, QWidget* parent, float guiScale)
 	: QWidget(parent)
@@ -159,10 +160,10 @@ void ToolBarFilterGroup::onList(IGuiData * data)
 			continue;
 		xg::Guid id = rList->getId();
 
-		if (id == listId(DISCIPLINE_ID))
+		if (id == listId(LIST_DISCIPLINE_ID))
 			m_disciplineList = list;
 
-		if (id == listId(PHASE_ID))
+		if (id == listId(LIST_PHASE_ID))
 			m_phaseList = list;
 	}
 

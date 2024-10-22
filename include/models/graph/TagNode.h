@@ -1,11 +1,11 @@
 #ifndef TAG_NODE_H
 #define TAG_NODE_H
 
-#include "AObjectNode.h"
-#include "models/3d/MarkerDrawData.h"
-#include "models/project/Marker.h"
 #include "models/graph/AClippingNode.h"
 #include "models/data/Tag/TagData.h"
+
+#include "models/3d/MarkerDrawData.h"
+#include "models/project/Marker.h"
 
 class TagNode : public AClippingNode, public TagData
 {

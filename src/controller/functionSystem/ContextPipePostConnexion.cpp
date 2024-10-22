@@ -15,6 +15,8 @@
 #include "models/graph/CylinderNode.h"
 #include "models/graph/TorusNode.h"
 
+#include "gui/texts/DefaultNameTexts.hpp"
+
 #include "utils/Logger.h"
 
 #include <glm/gtx/quaternion.hpp>

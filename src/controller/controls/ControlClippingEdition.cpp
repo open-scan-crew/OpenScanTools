@@ -1,19 +1,16 @@
 #include "controller/Controls/ControlClippingEdition.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
-#include "gui/GuiData/GuiDataMessages.h"
-#include "gui/GuiData/GuiData3dObjects.h"
-#include "gui/GuiData/GuiDataTree.h"
-#include "pointCloudEngine/RenderingLimits.h"
-#include "utils/math/trigo.h" 
-#include "utils/Logger.h"
-
-#include "models/graph/GraphManager.hxx"
-#include "models/graph/BoxNode.h"
 #include "controller/controls/AEditionControl.hxx"
 
+#include "pointCloudEngine/RenderingLimits.h"
+
+#include "models/graph/GraphManager.h"
+#include "models/graph/BoxNode.h"
+
 #include "gui/Texts.hpp"
+
+#include "utils/Logger.h"
 
 namespace control::clippingEdition
 {

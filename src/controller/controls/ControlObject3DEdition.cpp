@@ -1,22 +1,12 @@
 #include "controller/Controls/ControlObject3DEdition.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
-#include "gui/GuiData/GuiData3dObjects.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
-#include "gui/GuiData/GuiDataTree.h"
 #include "controller/functionSystem/FunctionManager.h"
-#include "controller/messages/DataIDListMessage.h"
 #include "controller/messages/ManipulateMessage.h"
 
-#include "models/graph/GraphManager.hxx"
-#include "models/graph/AClippingNode.h"
-#include "models/graph/ClusterNode.h"
 #include "models/graph/SphereNode.h"
 #include "controller/controls/AEditionControl.hxx"
 
-#include "utils/math/trigo.h"
-#include "utils/math/glm_extended.h"
-#include "utils/Logger.h"
+#include "utils/math/basic_define.h"
 
 namespace control
 {

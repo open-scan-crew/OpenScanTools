@@ -1,12 +1,12 @@
 #ifndef CONTROL_PIPESTANDARDS_H_
 #define CONTROL_PIPESTANDARDS_H_
 
-#include <filesystem>
 
 #include "controller/controls/IControl.h"
 #include "models/application/List.h"
-#include "models/OpenScanToolsModelEssentials.h"
+#include "utils/safe_ptr.h"
 
+#include <filesystem>
 namespace control
 {
 	namespace standards

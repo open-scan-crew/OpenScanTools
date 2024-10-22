@@ -9,6 +9,7 @@
 #include "controls/ControlMetaControl.h"
 #include "models/graph/CameraNode.h"
 
+#include "utils/FilesAndFoldersDefinitions.h"
 #include "utils/Logger.h"
 
 #define CONTROLLERLOG Logger::log(LoggerMode::ControllerLog)

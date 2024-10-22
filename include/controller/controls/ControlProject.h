@@ -13,8 +13,6 @@
 
 class TransformationModule;
 
-struct ProjectTemplate;
-
 namespace control
 {
 	namespace project

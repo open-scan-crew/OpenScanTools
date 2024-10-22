@@ -24,6 +24,7 @@
 
 #include "utils/math/trigo.h"
 #include "utils/Utils.h"
+#include "utils/system.h"
 
 #include "models/pointCloud/PointXYZIRGB.h"
 #include "models/3d/GridCalculation.h"

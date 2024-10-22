@@ -5,7 +5,7 @@
 #include "controller/functionSystem/PipeDetectionOptions.h"
 
 #include "models/data/PolylineMeasure/PolyLineTypes.h"
-#include "controller/messages/PlaneMessage.h"
+#include "controller/functionSystem/PlaneDetectionOptions.h"
 
 namespace control
 {

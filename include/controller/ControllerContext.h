@@ -1,7 +1,6 @@
 #ifndef CONTROLLER_CONTEXT_H
 #define CONTROLLER_CONTEXT_H
 
-//#include "models/3d/ManipulationTypes.h"
 #include "models/3d/DuplicationTypes.h"
 #include "models/application/List.h"
 #include "models/application/TagTemplate.h"
@@ -13,10 +12,15 @@
 #include "gui/UnitUsage.h"
 
 #include "models/data/Box/ClippingBoxSettings.h"
-//#include "models/application/Ids.hpp"
 #include "models/project/ProjectInfos.h"
-
 #include "models/application/UserOrientation.h"
+
+#include "utils/Color32.hpp"
+
+#include <filesystem>
+#include <string>
+#include <unordered_set>
+#include <vector>
 
 class Author;
 class ScanNode;

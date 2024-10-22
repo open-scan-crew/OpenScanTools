@@ -10,6 +10,7 @@
 #include "models/graph/ViewPointNode.h"
 
 #include "gui/GuiData/GuiDataContextRequest.h"
+#include "gui/texts/DefaultNameTexts.hpp"
 
 
 /*

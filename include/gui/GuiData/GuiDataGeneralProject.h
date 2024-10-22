@@ -6,13 +6,12 @@
 #include "models/Types.hpp"
 #include "models/project/ProjectInfos.h"
 #include "models/OpenScanToolsModelEssentials.h"
-#include "controller/controls/IControl.h"
-#include "models/application/List.h"
 #include "models/application/Author.h"
 #include "controller/functionSystem/AContext.h"
 
+#include "utils/Color32.hpp"
+
 #include <unordered_set>
-#include <map>
 
 class AGraphNode;
 class AClippingNode;

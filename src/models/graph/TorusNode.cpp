@@ -1,9 +1,7 @@
 #include "models/graph/TorusNode.h"
 #include "models/3d/ManipulationTypes.h"
 #include "vulkan/MeshManager.h"
-
-#include "controller/Controller.h"
-#include "controller/ControllerContext.h"
+#include "gui/texts/DefaultNameTexts.hpp"
 
 TorusNode::TorusNode(const TorusNode& node)
     : AClippingNode(node)

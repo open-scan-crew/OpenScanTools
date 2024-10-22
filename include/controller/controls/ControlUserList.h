@@ -1,11 +1,11 @@
 #ifndef CONTROL_USER_LIST_H
 #define CONTROL_USER_LIST_H
 
-#include <filesystem>
-
 #include "controller/controls/IControl.h"
 #include "models/application/List.h"
-#include "models/OpenScanToolsModelEssentials.h"
+#include "utils/safe_ptr.h"
+
+#include <filesystem>
 
 namespace control
 {

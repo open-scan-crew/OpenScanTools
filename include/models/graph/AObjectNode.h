@@ -2,7 +2,6 @@
 #define AOBJECT_NODE_H_
 
 #include "models/graph/AGraphNode.h"
-#include "models/OpenScanToolsModelEssentials.h"
 #include "models/3d/MeshDrawData.h"
 
 #include <unordered_set>

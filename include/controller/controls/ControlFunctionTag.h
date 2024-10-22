@@ -2,8 +2,7 @@
 #define CONTROL_FUNCTION_TAG_H_
 
 #include "models/application/TagTemplate.h"
-#include "controller/controls/AEditionControl.h"
-#include "utils/Color32.hpp"
+#include "controller/controls/IControl.h"
 #include "models/graph/TagNode.h"
 
 namespace control

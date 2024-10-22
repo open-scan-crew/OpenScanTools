@@ -146,7 +146,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>SQLiteCppd.lib;sqlite3d.lib;fmtd.lib;IfcPlusPlusd.lib;carved.lib;zlib-md.lib;libxml2-md.lib;libfbxsdk.lib;TDxNavLib.lib;TKBin.lib;TKBinL.lib;TKBinXCAF.lib;TKBO.lib;TKBool.lib;TKBRep.lib;TKCAF.lib;TKCDF.lib;TKernel.lib;TKG3d.lib;TKG2d.lib;TKGeomAlgo.lib;TKGeomBase.lib;TKHLR.lib;TKIGES.lib;TKLCAF.lib;TKMath.lib;TKMesh.lib;TKPrim.lib;TKRWMesh.lib;TKService.lib;TKShHealing.lib;TKSTEP.lib;TKSTEP209.lib;TKSTEPAttr.lib;TKSTEPBase.lib;TKSTL.lib;TKTopAlgo.lib;TKV3d.lib;TKVCAF.lib;TKVRML.lib;TKXCAF.lib;TKXDEIGES.lib;TKXDESTEP.lib;TKXml.lib;TKXmlL.lib;TKXmlXCAF.lib;TKXSBase.lib;freetype.lib;openE57-d.lib;xerces-c_3D.lib;AdskRcCommon.lib;AdskRcData.lib;AdskRcProjectIO.lib;AdskRcImport.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>msvcrt.lib</IgnoreSpecificDefaultLibraries>
-      <LinkStatus>true</LinkStatus>
       <Profile>true</Profile>
     </Link>
     <QtMoc>
@@ -213,7 +212,6 @@
       <AdditionalLibraryDirectories>$(SolutionDir)ext\ifcplusplus;$(SolutionDir)ext\3DxWare\lib\x64;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\lib;$(SolutionDir)ext\OCCT\lib;$(SolutionDir)ext\fbxSdk-2020.0.1\lib;$(SolutionDir)ext\SQLiteCpp\lib;$(SolutionDir)ext\cpr\lib;$(SolutionDir)ext\fmt\</AdditionalLibraryDirectories>
       <AdditionalDependencies>SQLiteCpp.lib;sqlite3.lib;fmt.lib;IfcPlusPlus.lib;Carve.lib;zlib-md.lib;libxml2-md.lib;libfbxsdk.lib;TDxNavLib.lib;TKBin.lib;TKBinL.lib;TKBinXCAF.lib;TKBO.lib;TKBool.lib;TKBRep.lib;TKCAF.lib;TKCDF.lib;TKernel.lib;TKG3d.lib;TKG2d.lib;TKGeomAlgo.lib;TKGeomBase.lib;TKHLR.lib;TKIGES.lib;TKLCAF.lib;TKMath.lib;TKMesh.lib;TKPrim.lib;TKRWMesh.lib;TKService.lib;TKShHealing.lib;TKSTEP.lib;TKSTEP209.lib;TKSTEPAttr.lib;TKSTEPBase.lib;TKSTL.lib;TKTopAlgo.lib;TKV3d.lib;TKVCAF.lib;TKVRML.lib;TKXCAF.lib;TKXDEIGES.lib;TKXDESTEP.lib;TKXml.lib;TKXmlL.lib;TKXmlXCAF.lib;TKXSBase.lib;freetype.lib;openE57.lib;xerces-c_3.lib;AdskRcCommon.lib;AdskRcData.lib;AdskRcProjectIO.lib;AdskRcImport.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-      <LinkStatus>true</LinkStatus>
     </Link>
     <QtMoc>
       <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
@@ -285,7 +283,6 @@
       <AdditionalLibraryDirectories>$(SolutionDir)ext\ifcplusplus;$(SolutionDir)ext\3DxWare\lib\x64;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\lib;$(SolutionDir)ext\OCCT\lib;$(SolutionDir)ext\fbxSdk-2020.0.1\lib;$(SolutionDir)ext\SQLiteCpp\lib;$(SolutionDir)ext\cpr\lib;$(SolutionDir)ext\fmt\</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <AdditionalDependencies>SQLiteCpp.lib;sqlite3.lib;fmt.lib;zlib.lib;libcurl.lib;cpr.lib;IfcPlusPlus.lib;Carve.lib;TDxNavLib.lib;libfbxsdk.lib;libxml2-md.lib;zlib-md.lib;TKBin.lib;TKBinL.lib;TKBinXCAF.lib;TKBO.lib;TKBool.lib;TKBRep.lib;TKCAF.lib;TKCDF.lib;TKernel.lib;TKG3d.lib;TKG2d.lib;TKGeomAlgo.lib;TKGeomBase.lib;TKHLR.lib;TKIGES.lib;TKLCAF.lib;TKMath.lib;TKMesh.lib;TKPrim.lib;TKRWMesh.lib;TKService.lib;TKShHealing.lib;TKSTEP.lib;TKSTEP209.lib;TKSTEPAttr.lib;TKSTEPBase.lib;TKSTL.lib;TKTopAlgo.lib;TKV3d.lib;TKVCAF.lib;TKVRML.lib;TKXCAF.lib;TKXDEIGES.lib;TKXDESTEP.lib;TKXml.lib;TKXmlL.lib;TKXmlXCAF.lib;TKXSBase.lib;freetype.lib;openE57.lib;xerces-c_3.lib;AdskRcCommon.lib;AdskRcData.lib;AdskRcProjectIO.lib;AdskRcImport.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <LinkStatus>true</LinkStatus>
     </Link>
     <QtMoc>
       <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
@@ -366,7 +363,6 @@ signtool sign /sha1 "881d9294e1fdd77049171ada940dd511b709674f" /tr "http://time.
       <AdditionalLibraryDirectories>$(SolutionDir)ext\ifcplusplus;$(SolutionDir)ext\3DxWare\lib\x64;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\lib;$(SolutionDir)ext\OCCT\lib;$(SolutionDir)ext\fbxSdk-2020.0.1\lib;$(SolutionDir)ext\SQLiteCpp\lib;$(SolutionDir)ext\cpr\lib;$(SolutionDir)ext\fmt\</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <AdditionalDependencies>SQLiteCpp.lib;sqlite3.lib;fmt.lib;zlib.lib;libcurl.lib;TDxNavLib.lib;libfbxsdk.lib;libxml2-md.lib;zlib-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <LinkStatus>true</LinkStatus>
     </Link>
     <QtMoc>
       <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
@@ -446,7 +442,6 @@ signtool sign /a /fd sha256 /tr http://timestamp.comodoca.com /td sha256 $(Solut
       <AdditionalLibraryDirectories>$(SolutionDir)ext\ifcplusplus;$(SolutionDir)ext\3DxWare\lib\x64;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\lib;$(SolutionDir)ext\OCCT\lib;$(SolutionDir)ext\fbxSdk-2020.0.1\lib;$(SolutionDir)ext\SQLiteCpp\lib;$(SolutionDir)ext\cpr\lib;$(SolutionDir)ext\fmt\</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <AdditionalDependencies>SQLiteCpp.lib;sqlite3.lib;fmt.lib;zlib.lib;libcurl.lib;TDxNavLib.lib;libfbxsdk.lib;libxml2-md.lib;zlib-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <LinkStatus>true</LinkStatus>
     </Link>
     <QtMoc>
       <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
@@ -1773,7 +1768,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\utils\QtUtils.h" />
     <ClInclude Include="..\..\include\utils\ThreadPool.h" />
     <ClInclude Include="..\..\include\vulkan\MeshManager.h" />
-    <ClInclude Include="..\..\include\utils\OpenScanToolsModelEssentials_impl.hpp" />
     <ClInclude Include="..\..\include\vulkan\ShaderCompiler.h" />
     <ClInclude Include="..\..\include\vulkan\TlFramebuffer.h" />
     <ClInclude Include="..\..\include\vulkan\ViewportManager.h" />

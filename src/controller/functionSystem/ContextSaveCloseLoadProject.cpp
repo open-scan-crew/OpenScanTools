@@ -12,7 +12,9 @@
 #include "gui/GuiData/GuiDataIO.h"
 #include "controller/controls/ControlProject.h"
 #include "controller/controls/ControlApplication.h"
+#include "utils/FilesAndFoldersDefinitions.h"
 #include "utils/Logger.h"
+#include "utils/system.h"
 #include "gui/texts/ContextTexts.hpp"
 #include "io/SaveLoadSystem.h"
 

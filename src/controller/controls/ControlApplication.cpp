@@ -1,21 +1,21 @@
 #include "controller/controls/ControlApplication.h"
-#include "utils/Logger.h"
 #include "controller/Controller.h"
+#include "controller/ControllerContext.h"
+
 #include "models/graph/GraphManager.h"
 #include "models/graph/ManipulatorNode.h"
+#include "models/graph/CameraNode.h"
 
+#include "gui/GuiData/GuiDataIO.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataRendering.h"
 #include "gui/GuiData/GuiData3dObjects.h"
-#include "controller/ControllerContext.h"
-#include "controller/controls/ControlProject.h"
-#include "controller/functionSystem/FunctionManager.h"
-#include "controller/messages/UndoRedoMessages.h"
-#include "io/SaveLoadSystem.h"
 #include "gui/GuiData/GuiDataMessages.h"
-#include "gui/GuiData/GuiDataIO.h"
 #include "gui/Translator.h"
 #include "gui/Texts.hpp"
+
+#include "io/SaveLoadSystem.h"
+
 #include "utils/Config.h"
 #include "utils/Logger.h"
 

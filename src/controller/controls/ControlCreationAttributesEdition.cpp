@@ -1,8 +1,6 @@
 #include "controller/controls/ControlCreationAttributesEdition.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "gui/GuiData/GuiDataTree.h"
-#include "utils/StrCompare.h"
 #include "utils/Logger.h"
 
 // control::attributesEdition::

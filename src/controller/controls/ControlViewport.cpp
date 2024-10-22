@@ -2,15 +2,10 @@
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
 #include "controller/functionSystem/FunctionManager.h"
-#include "controller/controls/ControlTree.h"
-#include "controller/controls/ControlPicking.h"
 #include "controller/messages/FullClickMessage.h"
-#include "controller/messages/SimpleNumberMessage.h"
 #include "gui/GuiData/GuiDataRendering.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
-#include "pointCloudEngine/TlScanOverseer.h"
 
-#include "models/graph/GraphManager.hxx"
+#include "models/graph/GraphManager.h"
 
 namespace control
 {

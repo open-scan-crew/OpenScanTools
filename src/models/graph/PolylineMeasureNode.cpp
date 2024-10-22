@@ -1,5 +1,6 @@
 #include "models/graph/PolylineMeasureNode.h"
-#include <glm/gtx/rotate_vector.hpp>
+#include "gui/texts/DefaultNameTexts.hpp"
+//#include <glm/gtx/rotate_vector.hpp>
 
 PolylineMeasureNode::PolylineMeasureNode()
     : AMeasureNode()
@@ -34,8 +35,8 @@ void PolylineMeasureNode::getSegmentDrawData(const glm::dmat4& gTransfo, std::ve
         glm::dvec4 gOri = gTransfo * glm::dvec4(measure.origin, 1.0);
         glm::dvec4 gFin = gTransfo * glm::dvec4(measure.final, 1.0);
         segments.push_back(SegmentDrawData(
-            { gOri.x, gOri.y, gOri.z },
-            { gFin.x, gFin.y, gFin.z },
+            gOri,
+            gFin,
             0x555555AA,
             m_graphicId,
             SHOW_MAIN_SEGMENT));
@@ -45,8 +46,8 @@ void PolylineMeasureNode::getSegmentDrawData(const glm::dmat4& gTransfo, std::ve
     glm::dvec4 last = gTransfo * glm::dvec4(getLastPos(), 1.0);
 
     segments.push_back(SegmentDrawData(
-        { first.x, first.y, first.z },
-        { last.x, last.y, last.z },
+        first,
+        last,
         0x00AABBCC,
         m_graphicId,
         SHOW_HORIZONTAL_SEGMENT | SHOW_VERTICAL_SEGMENT));

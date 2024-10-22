@@ -1,18 +1,14 @@
 #ifndef SAVE_LOAD_SYSTEM_H
 #define SAVE_LOAD_SYSTEM_H
 
-#include "models/application/List.h"
-#include "models/application/TagTemplate.h"
-#include "models/OpenScanToolsModelEssentials.h"
+#include "utils/safe_ptr.h"
 #include "controller/Controller.h"
-#include "pointCloudEngine/RenderingTypes.h"
+#include "models/project/ProjectInfos.h"
+#include "models/application/TagTemplate.h"
 
 #include <string>
 #include <filesystem>
-#include <fstream>
 #include <unordered_set>
-
-class Controller;
 
 class CameraNode;
 class APointCloudNode;

@@ -1,5 +1,6 @@
 #include "models/graph/ColumnTiltMeasureNode.h"
 #include "services/MarkerDefinitions.hpp"
+#include "gui/texts/DefaultNameTexts.hpp"
 
 ColumnTiltMeasureNode::ColumnTiltMeasureNode(const ColumnTiltMeasureNode& node)
 	: AObjectNode(node)

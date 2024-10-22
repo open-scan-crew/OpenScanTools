@@ -4,7 +4,7 @@
 #include "controller/ControllerContext.h"
 #include "controller/messages/PipeMessage.h"
 #include "controller/messages/SimpleNumberMessage.h"
-#include "gui/GuiData/GuiDataMeasure.h"
+#include "controller/messages/PlaneMessage.h"
 #include "utils/Logger.h"
 
 

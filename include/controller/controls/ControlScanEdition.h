@@ -3,7 +3,6 @@
 
 #include "controller/controls/AEditionControl.h"
 #include "models/pointCloud/TLS.h"
-#include "utils/Color32.hpp"
 #include "utils/safe_ptr.h"
 
 class ScanNode;

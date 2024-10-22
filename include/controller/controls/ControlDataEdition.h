@@ -3,6 +3,7 @@
 
 #include "controller/controls/AEditionControl.h"
 #include "models/data/Data.h"
+#include "models/Types.hpp"
 
 class AObjectNode;
 

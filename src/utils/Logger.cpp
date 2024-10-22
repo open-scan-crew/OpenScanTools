@@ -6,13 +6,10 @@
 #include <magic_enum/magic_enum.hpp>
 
 #include <chrono>
-#include <ctime>
 #include <thread>
-#include <sys/stat.h>
-#include <sys/types.h>
 #include <windows.h>
-#include <initguid.h>
 #include <mutex>
+#include <iostream>
 
 #ifdef WIN32
 #if defined(_MSC_VER) || defined(_MSC_EXTENSIONS)

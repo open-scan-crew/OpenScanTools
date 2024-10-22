@@ -2,8 +2,6 @@
 #define CONTROL_VIEWPOINT_H_
 
 #include "controller/controls/IControl.h"
-#include "models/3d/DisplayParameters.h"
-
 #include "models/graph/TransformationModule.h"
 #include "models/data/ViewPoint/ViewPointData.h"
 

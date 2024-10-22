@@ -1,16 +1,10 @@
 #include "controller/controls/ControlFunctionTag.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "models/graph/GraphManager.hxx"
+#include "models/graph/GraphManager.h"
 #include "controller/functionSystem/FunctionManager.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataTag.h"
-#include "gui/GuiData/GuiData3dObjects.h"
-#include "gui/GuiData/GuiDataTree.h"
-#include "utils/OpenScanToolsModelEssentials_impl.hpp"
 #include "utils/Logger.h"
-#include "gui/Texts.hpp"
-#include "magic_enum/magic_enum.hpp"
 
 namespace control::function::tag
 {
@@ -165,7 +159,6 @@ namespace control::function::tag
 
     void SetDefaultIcon::doFunction(Controller& controller)
     {
-        CONTROLLOG << "control::function::tag::SetDefaultIcon " << magic_enum::enum_name(_newIcon) << LOGENDL;
         controller.getContext().setActiveIcon(_newIcon);
         controller.updateInfo(new GuiDataTagDefaultIcon(_newIcon));
     }

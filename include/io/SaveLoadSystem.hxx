@@ -1,14 +1,14 @@
+#ifndef SAVE_LOAD_SYSTEM_HXX
+#define SAVE_LOAD_SYSTEM_HXX
 #include "nlohmannJson/json.hpp"
-#include "utils/Logger.h"
-#include "utils/System.h"
-#include "utils/Utils.h"
-#include "utils/JsonWriter.h"
+
 #include "io/imports/DataDeserializer.hxx"
 #include "io/exports/DataSerializer.h"
 #include "io/SerializerKeys.h"
-#include "SaveLoadSystem.h"
+#include "io/SaveLoadSystem.h"
 
-#define IOLOG Logger::log(LoggerMode::IOLog)
+#include "utils/Logger.h"
+#include "utils/JsonWriter.h"
 
 template<typename ListType>
 std::filesystem::path SaveLoadSystem::ExportCSVList(ListType list, std::filesystem::path path)
@@ -158,3 +158,5 @@ std::vector<ListType> SaveLoadSystem::ImportLists(const std::filesystem::path& f
 	IOLOG << "import " << lists.size() << " lists" << LOGENDL;
 	return (lists);
 }
+
+#endif

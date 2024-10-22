@@ -1,7 +1,6 @@
 #ifndef SCANDATA_H_
 #define SCANDATA_H_
 
-#include "models/OpenScanToolsModelEssentials.h"
 #include "models/pointCloud/TLS.h"
 
 #include <filesystem>
@@ -50,7 +49,7 @@ protected:
 
 	std::wstring m_sensorModel = L"";
 	std::wstring m_sensorSerialNumber = L"";
-	uint32_t m_acquisitionTime = 0;
+	time_t m_acquisitionTime = 0;
 };
 
 

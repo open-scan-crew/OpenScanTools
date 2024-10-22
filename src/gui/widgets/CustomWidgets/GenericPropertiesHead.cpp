@@ -2,10 +2,10 @@
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
 #include "controller/controls/ControlDataEdition.h"
-#include "controller/controls/ControlMetaControl.h"
 #include "gui/widgets/FocusWatcher.h"
 
 #include "models/application/Author.h"
+#include "models/application/Ids.hpp"
 #include "gui/texts/DefaultUserLists.hpp"
 
 GenericPropertiesHead::GenericPropertiesHead(QWidget* parent, float pixelRatio)
@@ -149,8 +149,8 @@ void GenericPropertiesHead::updatePhaseDiscipline(ReadPtr<AObjectNode>& rObject)
 	if (!m_controllerContext)
 		return;
 
-	SafePtr<UserList> disciplineList = m_controllerContext->getUserList(listId(DISCIPLINE_ID));
-	SafePtr<UserList> phaseList = m_controllerContext->getUserList(listId(PHASE_ID));
+	SafePtr<UserList> disciplineList = m_controllerContext->getUserList(listId(LIST_DISCIPLINE_ID));
+	SafePtr<UserList> phaseList = m_controllerContext->getUserList(listId(LIST_PHASE_ID));
 
 	std::wstring disciplineDefault = NA_FIELD_NAME.toStdWString();
 	std::wstring phaseDefault = NA_FIELD_NAME.toStdWString();

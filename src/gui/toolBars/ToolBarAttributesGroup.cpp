@@ -2,14 +2,11 @@
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataList.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
 #include "controller/controls/ControlCreationAttributesEdition.h"
-#include "io/FileUtils.h"
 #include "gui/widgets/CustomWidgets/GlobalColorPicker.h"
+#include "models/application/Ids.hpp"
 #include <QtWidgets/qlineedit.h>
-#include <QtWidgets/QComboBox>
-#include <QtWidgets/QPushButton.h>
-#include <QtGui/QScreen>
+
 
 ToolBarAttributesGroup::ToolBarAttributesGroup(Controller& controller, QWidget* parent,const float& guiScale)
 	: QWidget(parent)
@@ -74,10 +71,10 @@ void ToolBarAttributesGroup::onList(IGuiData* data)
 			continue;
 		xg::Guid id = rList->getId();
 
-		if (id == listId(DISCIPLINE_ID))
+		if (id == listId(LIST_DISCIPLINE_ID))
 			m_disciplineList = list;
 
-		if (id == listId(PHASE_ID))
+		if (id == listId(LIST_PHASE_ID))
 			m_phaseList = list;
 	}
 

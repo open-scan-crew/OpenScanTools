@@ -1,14 +1,12 @@
 #include "controller/controls/ControlPicking.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
 #include "controller/functionSystem/FunctionManager.h"
 #include "controller/messages/FullClickMessage.h"
 #include "gui/GuiData/GuiDataMeasure.h"
 #include "gui/GuiData/GuiDataRendering.h"
-#include "utils/OpenScanToolsModelEssentials_impl.hpp"
 #include "utils/Logger.h"
 
-#include "models/graph/GraphManager.hxx"
+#include "models/graph/GraphManager.h"
 
 namespace control::picking
 {

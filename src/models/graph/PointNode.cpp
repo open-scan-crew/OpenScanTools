@@ -1,5 +1,6 @@
 #include "models/graph/PointNode.h"
 #include "services/MarkerDefinitions.hpp"
+#include "gui/texts/DefaultNameTexts.hpp"
 
 PointNode::PointNode(const PointNode& node)
     : AClippingNode(node)

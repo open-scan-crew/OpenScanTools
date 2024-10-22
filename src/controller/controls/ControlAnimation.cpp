@@ -1,14 +1,6 @@
 #include "controller/controls/ControlAnimation.h"
 #include "controller/Controller.h"
-#include "controller/messages/ClickMessage.h"
-#include "controller/ControllerContext.h"
-#include "controller/functionSystem/FunctionManager.h"
 
-#include "gui/GuiData/GuiData3dObjects.h"
-#include "gui/GuiData/GuiDataRendering.h"
-
-#include "utils/Logger.h"
-#include "gui/IPanel.h"
 
 namespace control
 {

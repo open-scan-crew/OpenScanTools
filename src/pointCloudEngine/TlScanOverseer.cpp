@@ -6671,7 +6671,9 @@ void TlScanOverseer::naiveTorus(const GeometricBox& box, const ClippingAssembly&
 	//sample planes
 	double step(0.01);
 	glm::dvec3 dirX(box.getDirX()), dirY(box.getDirY()), dirZ(box.getDirZ());
-	int sizeX(glm::length(box.m_corners[1] - box.m_corners[0]) / step), sizeY(glm::length(box.m_corners[2] - box.m_corners[0]) / step), sizeZ(glm::length(box.m_corners[3] - box.m_corners[0]) / step);
+	int sizeX = (int)(glm::length(box.m_corners[1] - box.m_corners[0]) / step);
+	int sizeY = (int)(glm::length(box.m_corners[2] - box.m_corners[0]) / step);
+	int sizeZ = (int)(glm::length(box.m_corners[3] - box.m_corners[0]) / step);
 	std::vector<std::vector<std::vector<bool>>> populated(sizeX,std::vector<std::vector<bool>>(sizeY,std::vector<bool>(sizeZ,false)));
 	std::vector<std::vector<std::vector<bool>>> resetPopulated = populated;
 	std::vector<std::vector<std::vector<AbstractPlane>>> planes(sizeX, std::vector<std::vector<AbstractPlane>>(sizeY, std::vector<AbstractPlane>(sizeZ, AbstractPlane(glm::dvec3(1.0,0.0,0.0),glm::dvec3(0.0,0.0,0.0)))));
@@ -6680,7 +6682,9 @@ void TlScanOverseer::naiveTorus(const GeometricBox& box, const ClippingAssembly&
 	for (int i = 0; i < (int)dataPoints.size(); i++)
 	{
 		//find voxel coordinate
-		int dataX(abs(glm::dot(dirX, dataPoints[i] - box.m_corners[0])) / step), dataY(abs(glm::dot(dirY, dataPoints[i] - box.m_corners[0])) / step), dataZ(abs(glm::dot(dirZ, dataPoints[i] - box.m_corners[0])) / step);
+		int dataX = (int)(abs(glm::dot(dirX, dataPoints[i] - box.m_corners[0])) / step);
+		int dataY = (int)(abs(glm::dot(dirY, dataPoints[i] - box.m_corners[0])) / step);
+		int dataZ = (int)(abs(glm::dot(dirZ, dataPoints[i] - box.m_corners[0])) / step);
 
 		//check if wrong coordinates
 		if (!testIndices(dataX, dataY, dataZ, sizeX, sizeY, sizeZ))

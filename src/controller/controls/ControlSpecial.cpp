@@ -1,33 +1,22 @@
 #include "controller/controls/ControlSpecial.h"
 #include "controller/controls/ControlProject.h"
-#include "controller/messages/UndoRedoMessages.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
-#include "gui/GuiData/GuiDataRendering.h"
-#include "gui/GuiData/GuiDataTree.h"
-#include "gui/GuiData/GuiData3dObjects.h"
-#include "gui/Texts.hpp"
-
 #include "controller/Controller.h"
-#include "controller/FilterSystem.h"
-#include "controller/functionSystem/FunctionManager.h"
-#include "controller/ControlListener.h"
+#include "controller/ControlListener.h" // forward declaration
+#include "controller/ControllerContext.h"
 
-#include "pointCloudEngine/PCE_core.h"
+#include "io/SaveLoadSystem.h"
 
+#include "gui/GuiData/GuiDataGeneralProject.h"
+
+#include "models/graph/GraphManager.h"
 #include "models/graph/ScanNode.h"
 #include "models/graph/ScanObjectNode.h"
 #include "models/graph/MeshObjectNode.h"
+#include "models/Types.hpp"
 
-#include "controller/controls/ControlMeshObject.h"
 #include "vulkan/MeshManager.h"
 
-#include "models/Types.hpp"
 #include "utils/Logger.h"
-
-#include <QMessageBox>
-
-#include "io/SaveLoadSystem.h"
-#include "models/graph/GraphManager.hxx"
 
 
 namespace control::special

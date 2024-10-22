@@ -2,13 +2,12 @@
 #define A_EDITION_CONTROL_H
 
 #include "IControl.h"
-#include "models/OpenScanToolsModelEssentials.h"
-#include <ctime>
+#include "utils/safe_ptr.h"
 #include <unordered_set>
 #include <unordered_map>
 #include <functional>
 #include <string>
-#include <QString>
+#include <qstring.h>
 
 class Data;
 

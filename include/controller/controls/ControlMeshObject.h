@@ -2,11 +2,10 @@
 #define CONTROL_WAVEFRONT_H_
 
 #include "controller/controls/IControl.h"
-#include "controller/messages/ImportMessage.h"
-#include "models/OpenScanToolsModelEssentials.h"
+#include "io/MeshObjectTypes.h"
+#include "io/imports/step-simplification/step-simplificationTypes.h"
 #include <filesystem>
 
-#include <unordered_set>
 
 class MeshObjectNode;
 class ClusterNode;

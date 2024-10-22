@@ -2,8 +2,7 @@
 #define CONTROL_TREE_H
 
 #include "controller/controls/IControl.h"
-#include "models/OpenScanToolsModelEssentials.h"
-#include "controller/ControllerContext.h"
+#include "utils/safe_ptr.h"
 #include "gui/widgets/TreeNodeSystem/TreeNode.h"
 #include "models/Types.hpp"
 

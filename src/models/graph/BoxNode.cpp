@@ -1,6 +1,7 @@
 #include "models/graph/BoxNode.h"
 #include "models/3d/ManipulationTypes.h"
 #include "models/3d/GridCalculation.h"
+#include "gui/texts/DefaultNameTexts.hpp"
 #include "vulkan/MeshManager.h"
 
 BoxNode::BoxNode(const BoxNode& node)

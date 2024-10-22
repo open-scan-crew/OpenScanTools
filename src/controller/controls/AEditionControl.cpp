@@ -1,8 +1,6 @@
 #include "controller/controls/AEditionControl.h"
 #include "models/data/Data.h"
 
-#include "controller/Controller.h"
-#include "utils/Logger.h"
 
 AEditionControl::AEditionControl()
 	: m_doTimeModified(0)

@@ -1,8 +1,6 @@
 #include "models/graph/SphereNode.h"
 #include "vulkan/MeshManager.h"
-#include "models/3d/ManipulationTypes.h"
-#include "controller/Controller.h"
-#include "controller/ControllerContext.h"
+#include "gui/texts/DefaultNameTexts.hpp"
 
 SphereNode::SphereNode(const SphereNode& node)
     : SimpleObjectNode(node)

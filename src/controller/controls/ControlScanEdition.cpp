@@ -1,10 +1,9 @@
 #include "controller/controls/ControlScanEdition.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/functionSystem/FunctionManager.h"
 #include "pointCloudEngine/PCE_core.h"
 
-#include "models/graph/GraphManager.hxx"
+#include "models/graph/GraphManager.h"
 #include "models/graph/ScanNode.h"
 #include "controller/controls/AEditionControl.hxx"
 

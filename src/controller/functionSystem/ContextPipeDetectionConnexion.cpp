@@ -2,6 +2,7 @@
 #include "controller/controls/ControlFunction.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ContextTexts.hpp"
+#include "gui/texts/DefaultNameTexts.hpp"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
 #include "controller/ControlListener.h" // forward declaration

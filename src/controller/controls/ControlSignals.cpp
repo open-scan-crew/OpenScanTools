@@ -3,7 +3,6 @@
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "utils/Logger.h"
-#include <csignal>
 
 #include "gui/texts/SystemTexts.hpp"
 

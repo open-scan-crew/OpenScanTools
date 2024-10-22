@@ -1,11 +1,7 @@
 #include "controller/controls/ControlCylinderEdition.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
-#include "gui/GuiData/GuiData3dObjects.h"
-
-#include "models/graph/CylinderNode.h"
-#include "models/graph/SphereNode.h"
 #include "controller/controls/AEditionControl.hxx"
+#include "models/graph/CylinderNode.h"
 
 #include "utils/Logger.h"
 

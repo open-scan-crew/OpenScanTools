@@ -7,8 +7,6 @@
 #include "magic_enum/magic_enum.hpp"
 #include <string>
 
-#define CONTROLLOG Logger::log(LoggerMode::ControlLog)
-
 FilterSystem::FilterSystem()
 	: m_isKeywordFiltered(false)
 	, m_isDisciplineFiltered(false)

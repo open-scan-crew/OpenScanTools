@@ -1,9 +1,8 @@
 #include "models/graph/CylinderNode.h"
 #include "vulkan/MeshManager.h"
-#include "models/3d/ManipulationTypes.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-
+#include "gui/texts/DefaultNameTexts.hpp"
 
 CylinderNode::CylinderNode(const CylinderNode& node)
     : SimpleObjectNode(node)

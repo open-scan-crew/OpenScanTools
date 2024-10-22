@@ -1,11 +1,13 @@
 #include "controller/functionSystem/ContextSimpleMeasure.h"
 #include "gui/texts/ContextTexts.hpp"
+#include "gui/texts/DefaultNameTexts.hpp"
 #include "controller/Controller.h"
 #include "controller/ControlListener.h" // forward declaration
 #include "controller/controls/ControlFunction.h"
 
 #include "models/graph/SimpleMeasureNode.h"
 #include "models/graph/GraphManager.hxx"
+
 
 ContextSimpleMeasure::ContextSimpleMeasure(const ContextId& id)
 	: ContextPointsMeasure(id)

@@ -2,7 +2,6 @@
 #define MANIPULATOR_NODE_H
 
 #include "models/graph/AObjectNode.h"
-
 #include <unordered_set>
 
 class IDataDispatcher;

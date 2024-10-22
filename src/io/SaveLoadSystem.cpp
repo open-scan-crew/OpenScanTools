@@ -1,46 +1,26 @@
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <streambuf>
-#include <set>
-#include <map>
-#include <iomanip>
-#include <filesystem>
-#include <stdexcept>
-#include <algorithm>
-
-#include <nlohmannJson/json.hpp>
-
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
 #include "controller/ControlListener.h"
 #include "controller/controls/ControlFunction.h"
-
-#include "io/DataEditor.h"
 #include "io/SaveLoadSystem.h"
-#include "io/exports/dxfExport.h"
-#include "io/exports/txtExport.h"
 #include "pointCloudEngine/PCE_core.h"
-#include "magic_enum/magic_enum.hpp"
-#include "utils/ProjectColor.hpp"
-#include "utils/math/trigo.h"
-#include "utils/time.h"
+
 #include "utils/Utils.h"
+#include "utils/system.h"
 #include "utils/JsonWriter.h"
 #include "utils/safe_ptr.h"
 #include "utils/OpenScanToolsVersion.h"
+#include "utils/FilesAndFoldersDefinitions.h"
 
 #include "vulkan/MeshManager.h"
 #include "vulkan/Graph/MemoryReturnCode.h"
-#include "gui/GuiData/GuiDataRendering.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataUserOrientation.h"
 #include "gui/GuiData/GuiData3dObjects.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/Texts.hpp"
 
 // Model
-
+#include "models/graph/GraphManager.hxx"
 #include "models/graph/ScanNode.h"
 #include "models/graph/ScanObjectNode.h"
 #include "models/graph/SphereNode.h"
@@ -60,15 +40,20 @@
 #include "models/graph/PointToPlaneMeasureNode.h"
 #include "models/graph/PipeToPipeMeasureNode.h"
 #include "models/graph/PipeToPlaneMeasureNode.h"
+#include "models/graph/CameraNode.h"
 #include "models/application/Author.h"
 #include "models/application/Ids.hpp"
-#include "models/graph/CameraNode.h"
-
 #include "models/application/List.h"
 
-#include "models/graph/GraphManager.hxx"
 
-#include "io/DataComparator.h"
+// External libs
+#include "magic_enum/magic_enum.hpp"
+#include <nlohmannJson/json.hpp>
+
+// Standard libs
+#include <set>
+#include <filesystem>
+#include <algorithm>
 
 #define SAVELOADSYSTEMVERSION 2.0f
 
@@ -2021,8 +2006,8 @@ bool SaveLoadSystem::ExportAuthorObjects(const Controller& controller, const std
 		if (exportListTemplateWith)
 		{
 			std::unordered_set<SafePtr<UserList>> lists;
-			lists.insert(context.getUserList(listId(DISCIPLINE_ID)));
-			lists.insert(context.getUserList(listId(PHASE_ID)));
+			lists.insert(context.getUserList(listId(LIST_DISCIPLINE_ID)));
+			lists.insert(context.getUserList(listId(LIST_PHASE_ID)));
 			
 			nlohmann::json templatesArray = nlohmann::json::array();
 			for (const SafePtr<sma::TagTemplate>& temp : templates)

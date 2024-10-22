@@ -2,7 +2,6 @@
 #define CONTROL_PCOBJECT_H_
 
 #include "controller/controls/IControl.h"
-#include "models/OpenScanToolsModelEssentials.h"
 #include <filesystem>
 
 class PCObject;

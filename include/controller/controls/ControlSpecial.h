@@ -1,14 +1,15 @@
 #ifndef CONTROL_SPECIAL_H_
 #define CONTROL_SPECIAL_H_
 
-#include <list>
+#include "controller/controls/IControl.h"
+#include "models/Types.hpp"
+#include "utils/safe_ptr.h"
+
+#include "crossguid/guid.hpp"
+
 #include <unordered_set>
 #include <unordered_map>
-#include "controller/controls/IControl.h"
-#include "controller/ControllerContext.h"
-#include "models/Types.hpp"
 
-class GraphManager;
 class AGraphNode;
 
 namespace control

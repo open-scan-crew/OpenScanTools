@@ -1,14 +1,11 @@
 #include "controller/controls/ControlDataEdition.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
-#include "gui/GuiData/GuiDataTree.h"
-#include "utils/StrCompare.h"
 #include "utils/Logger.h"
 
 #include "models/graph/AObjectNode.h"
 #include "controller/controls/AEditionControl.hxx"
 
-#include "models/graph/GraphManager.hxx"
+#include "models/graph/GraphManager.h"
 
 namespace control
 {

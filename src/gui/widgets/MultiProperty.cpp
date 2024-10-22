@@ -4,15 +4,13 @@
 #include "controller/controls/ControlDataEdition.h"
 #include "controller/controls/ControlClippingEdition.h"
 #include "controller/controls/ControlMetaControl.h"
-#include <qmessagebox.h>
-#include <QtWidgets/QMenu>
 #include "gui/Texts.hpp"
 
-#include "models/application/Author.h"
 #include "models/graph/AClippingNode.h"
+#include "models/application/Ids.hpp"
 
-#include "gui/texts/DefaultUserLists.hpp"
-
+#include <QtWidgets/QMenu>
+#include <qmessagebox.h>
 
 std::unordered_set<SafePtr<AClippingNode>> getClippingsNodes(const std::unordered_set<SafePtr<AObjectNode>>& nodes)
 {
@@ -137,8 +135,8 @@ void MultiProperty::updateToolButton(QToolButton* button)
 
 void MultiProperty::updatePhaseDiscipline()
 {
-	SafePtr<UserList> disciplineList = m_context.getUserList(listId(DISCIPLINE_ID));
-	SafePtr<UserList> phaseList = m_context.getUserList(listId(PHASE_ID));
+	SafePtr<UserList> disciplineList = m_context.getUserList(listId(LIST_DISCIPLINE_ID));
+	SafePtr<UserList> phaseList = m_context.getUserList(listId(LIST_PHASE_ID));
 
 	{
 		m_ui.comboDiscipline->clear();

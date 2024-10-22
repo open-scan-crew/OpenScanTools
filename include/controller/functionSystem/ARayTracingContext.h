@@ -10,7 +10,7 @@
 #include <deque>
 #include <mutex>
 #include <unordered_set>
-#include <QString>
+#include <qstring.h>
 
 class MeshBuffer;
 

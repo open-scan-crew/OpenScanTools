@@ -2,7 +2,6 @@
 #include "controller/Controller.h"
 #include "controller/functionSystem/FunctionManager.h"
 
-#include "utils/Logger.h"
 
 namespace control
 {

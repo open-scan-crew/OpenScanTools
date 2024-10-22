@@ -1,5 +1,6 @@
 #include "models/graph/BeamBendingMeasureNode.h"
 #include "services/MarkerDefinitions.hpp"
+#include "gui/texts/DefaultNameTexts.hpp"
 
 BeamBendingMeasureNode::BeamBendingMeasureNode(const BeamBendingMeasureNode& node)
 	: AObjectNode(node)

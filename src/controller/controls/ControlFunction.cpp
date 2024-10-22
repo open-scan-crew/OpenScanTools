@@ -1,14 +1,12 @@
 #include "controller/controls/ControlFunction.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
 #include "controller/functionSystem/FunctionManager.h"
 #include "controller/messages/IMessage.h"
 
 #include "models/graph/AGraphNode.h"
-#include "models/graph/GraphManager.hxx"
+#include "models/graph/GraphManager.h"
 
 #include "gui/GuiData/GuiDataGeneralProject.h"
-#include "gui/GuiData/GuiDataTree.h"
 #include "utils/Logger.h"
 
 // control::function::

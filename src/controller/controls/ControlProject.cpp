@@ -1,41 +1,34 @@
 #include "controller/controls/ControlProject.h"
-#include "controller/controls/ControlModal.h"
 #include "controller/controls/ControlApplication.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "models/graph/GraphManager.h"
-#include "pointCloudEngine/TlScanOverseer.h"
 #include "controller/functionSystem/FunctionManager.h"
-#include "controller/ControlListener.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "controller/messages/ConvertionMessage.h"
 #include "controller/messages/FilesMessage.h"
 #include "controller/messages/ImportMessage.h"
-#include "io/SaveLoadSystem.h"
+
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataRendering.h"
-#include "gui/GuiData/GuiDataTree.h"
 #include "gui/GuiData/GuiDataList.h"
 #include "gui/GuiData/GuiDataMessages.h"
-#include "gui/GuiData/GuiData3dObjects.h"
 #include "gui/GuiData/GuiDataTemplate.h"
 #include "gui/GuiData/GuiDataIO.h"
-#include "pointCloudEngine/PCE_core.h"
-#include "pointCloudEngine/RenderingTypes.h"
 #include "gui/Texts.hpp"
 #include "gui/texts/ContextTexts.hpp"
+
 #include "io/FileUtils.h"
-#include "Gui/Translator.h"
-
-
-#include <iostream>
-#include <fstream>
-#include <filesystem>
-#include <Windows.h>
+#include "io/SaveLoadSystem.h"
 
 #include "models/graph/CameraNode.h"
-#include "models/graph/ClusterNode.h"
+#include "models/graph/GraphManager.h"
 
-#include "ui_DialogOpenProjectCentral.h"
+#include "pointCloudEngine/PCE_core.h"
+
+#include "utils/FilesAndFoldersDefinitions.h"
+
+#include <iostream>
+#include <filesystem>
 
 // control::project::
 #define Yes 0x00004000

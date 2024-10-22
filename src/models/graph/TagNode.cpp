@@ -1,8 +1,9 @@
 #include "models/graph/TagNode.h"
 #include "services/MarkerDefinitions.hpp"
-#include "utils/ColorConversion.h"
+//#include "utils/ColorConversion.h"
 
 #include "controller/Controller.h"
+#include "gui/texts/DefaultNameTexts.hpp"
 
 TagNode::TagNode(const TagNode& node)
     : AClippingNode(node)

@@ -5,6 +5,7 @@
 #include "models/graph/TransformationModule.h"
 #include "models/3d/ManipulationTypes.h"
 #include "models/data/Data.h"
+#include "models/Types.hpp"
 
 class Controller;
 

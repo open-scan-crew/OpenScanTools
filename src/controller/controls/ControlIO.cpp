@@ -2,24 +2,18 @@
 #include "controller/Controller.h"
 #include "controller/IControlListener.h"
 #include "controller/ControllerContext.h"
-#include "controller/FilterSystem.h"
 #include "controller/functionSystem/FunctionManager.h"
 
 #include "controller/controls/ControlTemplateEdit.h"
-#include "controller/controls/ControlFunction.h"
 
 #include "io/SaveLoadSystem.h"
 
-#include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiData3dObjects.h"
 #include "gui/GuiData/GuiDataRendering.h"
-#include "gui/GuiData/GuiDataTree.h"
 #include "gui/GuiData/GuiDataHD.h"
 #include "gui/GuiData/GuiDataIO.h"
-#include "gui/GuiData/GuiDataList.h"
 #include "gui/Texts.hpp"
-#include "gui/texts/ExportTexts.hpp"
 #include "gui/texts/SplashScreenTexts.hpp"
 
 #include "controller/messages/DataIdListMessage.h"
@@ -29,9 +23,8 @@
 #include "controller/messages/VideoExportParametersMessage.h"
 #include "controller/messages/NewProjectMessage.h"
 
-#include "models/graph/GraphManager.hxx"
+#include "models/graph/GraphManager.h"
 #include "models/graph/ClusterNode.h"
-#include "models/graph/ScanNode.h"
 
 #include "io/exports/CSVWriter.h"
 #include "utils/time.h"

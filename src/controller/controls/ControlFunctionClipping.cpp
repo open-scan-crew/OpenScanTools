@@ -2,16 +2,13 @@
 #include "controller/controls/ControlFunction.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/functionSystem/FunctionManager.h"
 #include "controller/ControlListener.h"
-#include "gui/GuiData/GuiDataTree.h"
-#include "gui/GuiData/GuiData3dObjects.h"
+#include "controller/functionSystem/FunctionManager.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 
-#include "gui/Texts.hpp"
 #include "utils/Logger.h"
 
-#include "models/graph/GraphManager.hxx"
+#include "models/graph/GraphManager.h"
 #include "models/graph/BoxNode.h"
 
 namespace control::function::clipping

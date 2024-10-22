@@ -6,7 +6,6 @@
 #include "models/3d/ManipulationTypes.h"
 #include "models/graph/ManipulatorNode.h"
 #include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
 #include <unordered_map>
 
 #include "controller/messages/ManipulateMessage.h"

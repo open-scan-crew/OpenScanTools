@@ -1,5 +1,6 @@
 #include "models/graph/SimpleMeasureNode.h"
-#include "utils/math/trigo.h"
+//#include "utils/math/trigo.h"
+#include "gui/texts/DefaultNameTexts.hpp"
 #include <glm/gtx/rotate_vector.hpp>
 
 SimpleMeasureNode::SimpleMeasureNode()
@@ -47,8 +48,8 @@ void SimpleMeasureNode::getSegmentDrawData(const glm::dmat4& gTransfo, std::vect
     glm::dvec4 gOri = gTransfo * glm::dvec4(m_measure.origin, 1.0);
     glm::dvec4 gFin = gTransfo * glm::dvec4(m_measure.final, 1.0);
     segments.push_back(SegmentDrawData(
-        { gOri.x, gOri.y, gOri.z },
-        { gFin.x, gFin.y, gFin.z },
+        gOri,
+        gFin,
         0xFF00DDFF,
         m_graphicId,
         SHOW_ALL_SEGMENT));

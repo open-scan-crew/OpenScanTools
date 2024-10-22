@@ -2,13 +2,7 @@
 #define CONTROL_VIEWPORT_H_
 
 #include "controller/controls/IControl.h"
-#include "models/OpenScanToolsModelEssentials.h"
-#include "pointCloudEngine/RenderingTypes.h"
-#include "models/pointCloud/TLS.h"
 #include "models/3d/ClickInfo.h"
-
-#include <vector>
-#include <unordered_set>
 
 class IPanel;
 

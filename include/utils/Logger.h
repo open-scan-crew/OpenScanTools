@@ -2,8 +2,6 @@
 #define LOGGER_H
 
 #include <string>
-#include <iostream>
-#include <fstream>
 #include <sstream>
 #include <ostream>
 #include <mutex>
@@ -37,6 +35,7 @@ enum LoggerMode
 #define IOLOG Logger::log(LoggerMode::IOLog)
 #define GUI_LOG Logger::log(LoggerMode::GuiLog)
 #define GRAPH_LOG Logger::log(LoggerMode::SceneGraphLog)
+#define CONTROLLOG Logger::log(LoggerMode::ControlLog)
 
 class SubLogger;
 
@@ -112,7 +111,7 @@ public:
         return (*this);
     }
 
-    SubLogger& operator<<(const glm::dvec3& value)
+    SubLogger& operator<<(glm::dvec3 value)
     {
         if (isActive)
             outStream << "x: " << value.x << ",y: " << value.y << ",z: " << value.z;

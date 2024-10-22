@@ -14,6 +14,8 @@
 
 #include "models/graph/GraphManager.h"
 
+#include <qapplication.h>
+
 #ifdef _DEBUG_
 constexpr bool VK_VALIDATION_ENABLED = false;
 #else

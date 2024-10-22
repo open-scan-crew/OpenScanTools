@@ -1,16 +1,14 @@
 #include "controller/controls/ControlViewPoint.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
 #include "controller/functionSystem/FunctionManager.h"
-
-#include "utils/Logger.h"
 #include "controller/messages/DataIDListMessage.h"
 
-#include "models/graph/GraphManager.hxx"
+#include "models/graph/GraphManager.h"
 #include "models/graph/AClippingNode.h"
 #include "models/graph/ViewPointNode.h"
 #include "models/graph/CameraNode.h"
+
+#include "utils/Logger.h"
 
 namespace control::viewpoint
 {

@@ -1,18 +1,10 @@
 #include "controller/controls/ControlTree.h"
 #include "controller/controls/ControlFunction.h"
 #include "controller/Controller.h"
-#include "controller/ControlListener.h"
-#include "controller/functionSystem/FunctionManager.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
-#include "gui/GuiData/GuiDataRendering.h"
-#include "gui/GuiData/GuiDataTree.h"
-#include "gui/GuiData/GuiData3dObjects.h"
-#include "magic_enum/magic_enum.hpp"
+#include "controller/ControlListener.h" // forward declaration
 #include "utils/Logger.h"
-#include "gui/Texts.hpp"
 
 #include "models/graph/ClusterNode.h"
-#include "models/graph/GraphManager.h"
 
 namespace control::tree
 {

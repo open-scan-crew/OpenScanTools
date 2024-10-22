@@ -2,6 +2,7 @@
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
 #include "controller/ControlListener.h" // forward declaration
+#include "controller/messages/ImportMessage.h"
 #include "utils/Logger.h"
 #include "utils/Utils.h"
 

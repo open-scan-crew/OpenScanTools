@@ -5,8 +5,7 @@
 #include <unordered_set>
 #include "glm/glm.hpp"
 #include "vulkan/TlFramebuffer.h"
-
-struct Rect2D;
+#include "models/OpenScanToolsModelEssentials.h"
 
 class PickingManager
 {
