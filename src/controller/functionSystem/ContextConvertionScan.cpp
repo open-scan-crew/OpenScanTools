@@ -206,41 +206,6 @@ ContextState ContextConvertionScan::launch(Controller& controller)
 
     GraphManager& graphManager = controller.getGraphManager();
 
-    std::unordered_set<SafePtr<AGraphNode>> scans = graphManager.getNodesByTypes({ ElementType::Scan, ElementType::PCO });
-    std::vector<glm::dvec3> allScansPosition;
-
-    for (const SafePtr<AGraphNode>& scan : scans)
-    {
-        ReadPtr<AGraphNode> rScan = scan.cget();
-        if (!rScan)
-            continue;
-
-        allScansPosition.push_back(rScan->getCenter());
-    }
-
-    for (glm::dvec3 position : m_importScanPosition)
-    {
-        position.x += m_properties.truncate.x;
-        position.y += m_properties.truncate.y;
-        position.z += m_properties.truncate.z;
-
-        allScansPosition.push_back(position);
-    }
-
-    BoundingBoxD pbbox(getScansBoundingBox(allScansPosition));
-    // FIXME - On doit comparer la bounding box avec maximum pour l'affichage.
-    //       - On doit vérifier que les valeurs ne sont pas NaN ou Infinity.
-    constexpr double bigFloat = 1.0e+6;
-    if (abs(pbbox.xMax - pbbox.xMin) > bigFloat ||
-        abs(pbbox.yMax - pbbox.yMin) > bigFloat ||
-        abs(pbbox.zMax - pbbox.zMin) > bigFloat)
-    {
-        // NOTE - Si on ajoute les scans déjà présent dans le projet au scans que l'on veut convertir on aura toujours un problème d'envergure globale des scans.
-        //  - Le message est trompeur car on aura toujours une limite avec la solution actuelle des "grandes coordonnées".
-        controller.updateInfo(new GuiDataModal(Ok, TEXT_CONVERTION_SCAN_PROJECT_TOO_BIG));
-        return (m_state = ContextState::abort);
-    }
-
     controller.getContext().getProjectInfo().m_importScanTranslation = m_properties.truncate;
 
 	//NOTE (Aur?lien) Not Good... but don't want to have that in .h (2)

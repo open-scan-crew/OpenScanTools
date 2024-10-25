@@ -114,7 +114,6 @@
 #define TEXT_BIG_COORDINATES_DETECTED QObject::tr("The detected coordinates are too large, which may deteriorate the navigation.\nWe advise you to truncate them. Suggested values:");
 #define TEXT_TRANSLATE_COORDINATES QObject::tr("You can either translate the coordinates to work on a local system, or keep them")
 #define TEXT_CONVERTION_SCAN_ERR_FORMAT_NOT_SUPPORTED QObject::tr("The format of the scan is not supported.")
-#define TEXT_CONVERTION_SCAN_PROJECT_TOO_BIG QObject::tr("OpenScanTools cannot handle the cumulated dimension of scans, try with a smaller set.")
 #define TEXT_CONVERTION_SCAN_FAILED QObject::tr("%1 could not be converted.")
 #define TEXT_CONVERTION_CONVERTING QObject::tr("Conversion in progress")
 #define TEXT_CONVERTION_FILE_ALREADY_EXIST QObject::tr("Some files already exist in the project folder:\n %1 \nYou can overwrite them by setting the overwrite option.")
