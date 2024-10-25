@@ -4,8 +4,6 @@
 #include "controller/functionSystem/AContext.h"
 #include "io/exports/ExportParameters.hpp"
 
-class Scan;
-
 class ContextDeletePoints : public AContext
 {
 public:

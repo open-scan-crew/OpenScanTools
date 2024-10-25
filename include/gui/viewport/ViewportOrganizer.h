@@ -81,6 +81,7 @@ private:
     void onContextRequestActiveCamera(IGuiData* data);
     void onCursorChange(IGuiData* data);
 
+    void onAdjustZoomToScene();
     void onAlignView(AlignView align);
     void onRotation90();
     void onProjectionMode(ProjectionMode proj);

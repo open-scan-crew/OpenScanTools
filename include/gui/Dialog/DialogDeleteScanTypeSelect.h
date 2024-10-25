@@ -4,15 +4,13 @@
 #include <QtWidgets/QListView>
 #include <QtGui/QStandardItemModel>
 #include <QDialog>
-#include "utils/Logger.h"
 #include "ui_DialogDeleteScanTypeSelection.h"
 #include "models/data/Data.h"
 
 #include "gui/IDataDispatcher.h"
 
+#include <unordered_map>
 #include <unordered_set>
-
-#define GUILOG Logger::log(LoggerMode::GuiLog)
 
 class AGraphNode;
 

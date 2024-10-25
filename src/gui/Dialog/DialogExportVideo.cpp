@@ -9,7 +9,7 @@
 #include "gui/GuiData/GuiDataIO.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 
-#include "models/3d/Graph/ViewPointNode.h"
+#include "models/graph/ViewPointNode.h"
 
 #include <QtWidgets/QFileDialog>
 #include <QtCore/QStandardPaths>

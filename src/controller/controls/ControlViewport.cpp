@@ -2,15 +2,10 @@
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
 #include "controller/functionSystem/FunctionManager.h"
-#include "controller/controls/ControlTree.h"
-#include "controller/controls/ControlPicking.h"
 #include "controller/messages/FullClickMessage.h"
-#include "controller/messages/SimpleNumberMessage.h"
 #include "gui/GuiData/GuiDataRendering.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
-#include "pointCloudEngine/TlScanOverseer.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/graph/GraphManager.h"
 
 namespace control
 {
@@ -82,39 +77,23 @@ namespace control
         }
 
         //
-        // AlignViewSide
+        // AdjustZoomToScene
         //
 
-        AlignViewSide::AlignViewSide(AlignView sideToAlign, SafePtr<CameraNode> destCamera)
-            : m_side(sideToAlign)
-            , m_destCamera(destCamera)
+        AdjustZoomToScene::AdjustZoomToScene(SafePtr<CameraNode> dest_camera)
+            : dest_camera_(dest_camera)
         {}
 
-        AlignViewSide::~AlignViewSide()
-        {}
-
-        void AlignViewSide::doFunction(Controller& controller)
+        void AdjustZoomToScene::doFunction(Controller& controller)
         {
-            std::vector<tls::PointCloudInstance> scanInfos = controller.getOpenScanToolsGraphManager().getVisiblePointCloudInstances(xg::Guid(), true, true);
-            TlScanOverseer::getInstance().setWorkingScansTransfo(scanInfos);
-            tls::BoundingBox projectBoundingBox = TlScanOverseer::getInstance().getActiveBoundingBox();
+            BoundingBoxD projectBoundingBox = controller.cgetGraphManager().getScanBoundingBox(ObjectStatusFilter::VISIBLE);
 
-            controller.updateInfo(new GuiDataRenderAlignView(m_side, projectBoundingBox, m_destCamera, scanInfos.empty()));
+            controller.updateInfo(new GuiDataRenderAdjustZoom(projectBoundingBox, dest_camera_));
         }
 
-        bool AlignViewSide::canUndo() const
+        ControlType AdjustZoomToScene::getType() const
         {
-            return (false);
-        }
-
-        void AlignViewSide::undoFunction(Controller& controller)
-        {
-
-        }
-
-        ControlType AlignViewSide::getType() const
-        {
-            return ControlType::alignViewSide;
+            return ControlType::adjustZoomToScene;
         }
 
         //

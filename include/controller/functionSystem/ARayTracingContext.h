@@ -2,15 +2,15 @@
 #define A_RAY_TRACING_CONTEXT_H
 
 #include "controller/functionSystem/AContext.h"
-#include "models/OpenScanToolsModelEssentials.h"
 #include "models/pointCloud/TLS.h"
 #include "models/3d/ClickInfo.h"
 #include "models/Types.hpp"
+#include "utils/safe_ptr.h"
 
 #include <deque>
 #include <mutex>
 #include <unordered_set>
-#include <QString>
+#include <qstring.h>
 
 class MeshBuffer;
 

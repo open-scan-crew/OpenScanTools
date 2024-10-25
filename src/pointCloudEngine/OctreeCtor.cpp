@@ -27,7 +27,7 @@ OctreeCtor::OctreeCtor(const tls::PrecisionType& _precisionType, const tls::Poin
     m_uRootCell = 0;
 }
 
-OctreeCtor::OctreeCtor(OctreeBase const& _base, tls::BoundingBox const& _bbox)
+OctreeCtor::OctreeCtor(OctreeBase const& _base, BoundingBox const& _bbox)
     : OctreeBase(_base)
     , m_vertexData(nullptr)
     , m_instData(nullptr)
@@ -1141,7 +1141,7 @@ void QSPT16::fetchLayers_XYZ_I_RGB(QSptCell const& _cell, Coord16* _pXYZ, uint8_
     }
 }
 
-const tls::BoundingBox& OctreeCtor::getBoundingBox() const
+const BoundingBox& OctreeCtor::getBoundingBox() const
 {
 	return m_bbox;
 }

@@ -2,8 +2,6 @@
 #define CONTEXT_SLAB_DETECTION_H
 
 #include "controller/functionSystem/ARayTracingContext.h"
-#include <glm/glm.hpp>
-
 
 class ContextSlabDetection : public ARayTracingContext
 {

@@ -1,10 +1,9 @@
 #ifndef CONTROL_PROJECT_TEMPLATE_H_
 #define CONTROL_PROJECT_TEMPLATE_H_
 
-#include <qstring.h>
 #include "controller/controls/IControl.h"
-#include "io/ConvertProperties.h"
-#include <filesystem>
+
+#include <string>
 
 namespace control
 {

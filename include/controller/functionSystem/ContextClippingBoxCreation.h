@@ -2,9 +2,6 @@
 #define CONTEXT_CLIPPING_BOX_CREATION_H
 
 #include "controller/functionSystem/ARayTracingContext.h"
-#include "models/pointCloud/TLS.h"
-
-#include <glm/glm.hpp>
 
 class ContextClippingBoxCreation : public ARayTracingContext
 {

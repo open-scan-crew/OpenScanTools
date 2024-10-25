@@ -4,7 +4,14 @@ Install Qt
 ==============================================================================
 
 * Download the installer at https://www.qt.io/download-qt-installer
-* Choose any of the version 5.15.x proposed (5.15 is a LTS)
+* Minimum install :
+  * Qt 5.15.2
+    -> MSVC 2019 64-bit
+  * Developer and Designer Tools
+    -> Qt Creator 13.0.0
+    -> Debugging Tools for Windows
+
+* Add the path "<qt_install_dir>/bin/" to your environment variable "PATH"
 
 Install the Vulkan SDK
 ==============================================================================
@@ -17,7 +24,9 @@ Configure Visual Studio
 ==============================================================================
 
 * General project properties:
-    * right-click on the project "OpenScanTools" -> Properties -> Debugging -> Working Directory -> set to `$(SolutionDir)`
+    * right-click on the project "OpenScanTools" -> Properties
+    * Debugging -> Working Directory -> set to `$(SolutionDir)`
+    * Do this for every compilation configuration
 
 Install Qt VS Tool:
 ==============================================================================
@@ -32,13 +41,6 @@ Add the path where Qt is installed on your machine in:
 
 WARNING : The version 2.6.0.7 is stable but some bugs have been observed after an update. It is recommended to disable the automatic update of this plugin.
 
-Change project working repo:
-==============================================================================
-* Right-click project "OpenScanTools" in Visual Studio solution tree and click "Properties"
-* In "Debug", change the working repositery value "$(ProjectDir)" into "$(SolutionDir)"
-* Do this for every compilation configuration
-
-
 Generate doc:
 ==============================================================================
 * Download the doxygen 1.9.1 at https://www.doxygen.nl/download.html
@@ -50,8 +52,11 @@ Build with Inno Setup:
 ==============================================================================
 * Download and install the last version of Inno Setup : https://jrsoftware.org/isdl.php
 * Launch OpenScanTools.sln solution with Visual Studio
-* Generate solution with "Release_Prod" configuration.
-* Launch OpenScanTools.iss in \tools\InstallScripts with Inno Setup
-* Run (F9) the script
-* The .exe setup is generated in \tools\InstallScript\Output\
 
+Dev team:
+==============================================================================
+* Yan Koch: Founder - Product manager, specialist of industrial 3D scanning, compulsive creator of user stories :-),
+* Robin Kervadec: Senior Developer, creator of the 3D point cloud engine (Vulkan), 3D rendering, software architecture, scan conversion, and many cool features...
+* Quentin Moiteaux: Junior Developer: many features like the import export of 3D models, tree structure, annotations, animation module...
+* Lucas Silve: advanced Maths, objects detection, raytracing, analysis tools...
+* Aurélien Milliat: Senior Developer: software architecture, clipping & multi-clipping features, gridded boxes, VR specialist and Teacher (I'm sorry we didn't create a VR module in OST).

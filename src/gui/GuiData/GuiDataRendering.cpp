@@ -59,17 +59,15 @@ guiDType GuiDataRenderBackgroundColor::getType()
 	return guiDType::renderBackgroundColor;
 }
 
-//*** Reset View ***//
-GuiDataRenderAlignView::GuiDataRenderAlignView(const AlignView& align, const tls::BoundingBox& sceneBBox, SafePtr<CameraNode> camera, bool isBboxEmpty)
-	: GuiDataActiveCamera(camera)
-    , m_bbox(sceneBBox)
-    , m_align(align)
-	, m_isBboxEmpty(isBboxEmpty)
+//*** AdjustZoom ***//
+GuiDataRenderAdjustZoom::GuiDataRenderAdjustZoom(const BoundingBoxD& scene_bbox, SafePtr<CameraNode> camera)
+    : GuiDataActiveCamera(camera)
+    , scene_bbox_(scene_bbox)
 {}
 
-guiDType GuiDataRenderAlignView::getType()
+guiDType GuiDataRenderAdjustZoom::getType()
 {
-	return guiDType::renderAlignView;
+    return guiDType::renderAdjustZoom;
 }
 
 //*** Move Camera to Position ***//

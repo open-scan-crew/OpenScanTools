@@ -32,10 +32,10 @@
 #include <math.h>
 #include <list>
 
-#include "models/3d/Graph/CameraNode.h"
-#include "models/3d/Graph/ScanNode.h"
-#include "models/3d/Graph/ViewPointNode.h"
-#include "models/3d/Graph/ManipulatorNode.h"
+#include "models/graph/CameraNode.h"
+#include "models/graph/ScanNode.h"
+#include "models/graph/ViewPointNode.h"
+#include "models/graph/ManipulatorNode.h"
 
 #include "gui/widgets/FocusWatcher.h"
 

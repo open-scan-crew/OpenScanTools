@@ -1,29 +1,19 @@
 #include "controller/functionSystem/ContextImportOSTObjects.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
 #include "controller/controls/ControlFunction.h"
-#include "controller/controls/ControlIO.h"
-
-#include "controller/ControlListener.h"
-
+#include "controller/ControlListener.h" // forward declaration
 #include "controller/messages/FilesMessage.h"
 #include "controller/messages/ModalMessage.h"
-#include "controller/messages/DataIdListMessage.h"
-
-#include "controller/controls/ControlTemplateEdit.h"
 
 #include "gui/GuiData/GuiDataIO.h"
-#include "gui/GuiData/GuiDataTree.h"
-#include "gui/GuiData/GuiDataTemplate.h"
-#include "gui/GuiData/GuiDataList.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataMessages.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
-#include "models/3d/Graph/MeshObjectNode.h"
-#include "models/3d/Graph/ScanNode.h"
-#include "models/3d/Graph/ScanObjectNode.h"
-#include "models/3d/Graph/ClusterNode.h"
+#include "models/application/Author.h"
+#include "models/graph/GraphManager.h"
+#include "models/graph/MeshObjectNode.h"
+#include "models/graph/AGraphNode.h"
+#include "models/graph/APointCloudNode.h"
+#include "models/graph/ClusterNode.h"
 
 #include "io/SaveLoadSystem.h"
 #include "gui/texts/ContextTexts.hpp"
@@ -113,8 +103,7 @@ ContextState ContextImportOSTObjects::launch(Controller& controller)
 	else
 		addObjectsToProject(controller, m_importData);
 
-	controller.cleanHistory();
-	controller.updateInfo(new GuiDataUndoRedoAble(controller.isUndoPossible(), controller.isRedoPossible()));
+	controller.resetHistoric();
 
 	return m_state = ContextState::done;
 }
@@ -192,7 +181,7 @@ ContextLinkOSTObjects::~ContextLinkOSTObjects()
 
 ContextState ContextLinkOSTObjects::start(Controller& controller)
 {
-	for (const SafePtr<AGraphNode>& projObj : controller.getOpenScanToolsGraphManager().getProjectNodes())
+	for (const SafePtr<AGraphNode>& projObj : controller.getGraphManager().getProjectNodes())
 	{
 		ElementType type;
 		{
@@ -312,5 +301,5 @@ void ContextLinkOSTObjects::finish(Controller& controller)
 	for (const SafePtr<AGraphNode>& id : m_currentMissing)
 		linkedDataNodes.erase(id);
 
-	controller.actualizeNodes(true, linkedDataNodes);
+	controller.actualizeTreeView(linkedDataNodes);
 }

@@ -2,11 +2,9 @@
 #define GUI_DATA_TREE_H
 
 #include "gui/GuiData/IGuiData.h"
+#include "utils/safe_ptr.h"
 
-#include "models/data/Data.h"
-
-#include <map>
-#include <vector>
+#include <unordered_set>
 
 class AGraphNode;
 

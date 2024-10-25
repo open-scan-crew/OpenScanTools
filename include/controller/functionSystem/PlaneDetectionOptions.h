@@ -1,8 +1,6 @@
 #ifndef PLANE_DETECTION_OPTIONS_H
 #define PLANE_DETECTION_OPTIONS_H
 
-#include <glm/glm.hpp>
-
 enum class PlaneDetectionOptions
 {
 	multipleSeeds,

@@ -1,74 +1,59 @@
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <streambuf>
-#include <set>
-#include <map>
-#include <iomanip>
-#include <filesystem>
-#include <stdexcept>
-#include <algorithm>
-
-#include <nlohmannJson/json.hpp>
-
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
 #include "controller/ControlListener.h"
 #include "controller/controls/ControlFunction.h"
-
-#include "io/DataEditor.h"
 #include "io/SaveLoadSystem.h"
-#include "io/exports/dxfExport.h"
-#include "io/exports/txtExport.h"
 #include "pointCloudEngine/PCE_core.h"
-#include "magic_enum/magic_enum.hpp"
-#include "utils/ProjectColor.hpp"
-#include "utils/math/trigo.h"
-#include "utils/time.h"
+
 #include "utils/Utils.h"
+#include "utils/system.h"
 #include "utils/JsonWriter.h"
 #include "utils/safe_ptr.h"
 #include "utils/OpenScanToolsVersion.h"
+#include "utils/FilesAndFoldersDefinitions.h"
 
 #include "vulkan/MeshManager.h"
 #include "vulkan/Graph/MemoryReturnCode.h"
-#include "gui/GuiData/GuiDataRendering.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataUserOrientation.h"
 #include "gui/GuiData/GuiData3dObjects.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/Texts.hpp"
 
 // Model
-
-#include "models/3d/Graph/ScanNode.h"
-#include "models/3d/Graph/ScanObjectNode.h"
-#include "models/3d/Graph/SphereNode.h"
-#include "models/3d/Graph/TagNode.h"
-#include "models/3d/Graph/PointNode.h"
-#include "models/3d/Graph/MeshObjectNode.h"
-#include "models/3d/Graph/ClusterNode.h"
-#include "models/3d/Graph/BoxNode.h"
-#include "models/3d/Graph/CylinderNode.h"
-#include "models/3d/Graph/TorusNode.h"
-#include "models/3d/Graph/BeamBendingMeasureNode.h"
-#include "models/3d/Graph/ColumnTiltMeasureNode.h"
-#include "models/3d/Graph/ViewPointNode.h"
-#include "models/3d/Graph/SimpleMeasureNode.h"
-#include "models/3d/Graph/PolylineMeasureNode.h"
-#include "models/3d/Graph/PointToPipeMeasureNode.h"
-#include "models/3d/Graph/PointToPlaneMeasureNode.h"
-#include "models/3d/Graph/PipeToPipeMeasureNode.h"
-#include "models/3d/Graph/PipeToPlaneMeasureNode.h"
+#include "models/graph/GraphManager.hxx"
+#include "models/graph/ScanNode.h"
+#include "models/graph/ScanObjectNode.h"
+#include "models/graph/SphereNode.h"
+#include "models/graph/TagNode.h"
+#include "models/graph/PointNode.h"
+#include "models/graph/MeshObjectNode.h"
+#include "models/graph/ClusterNode.h"
+#include "models/graph/BoxNode.h"
+#include "models/graph/CylinderNode.h"
+#include "models/graph/TorusNode.h"
+#include "models/graph/BeamBendingMeasureNode.h"
+#include "models/graph/ColumnTiltMeasureNode.h"
+#include "models/graph/ViewPointNode.h"
+#include "models/graph/SimpleMeasureNode.h"
+#include "models/graph/PolylineMeasureNode.h"
+#include "models/graph/PointToPipeMeasureNode.h"
+#include "models/graph/PointToPlaneMeasureNode.h"
+#include "models/graph/PipeToPipeMeasureNode.h"
+#include "models/graph/PipeToPlaneMeasureNode.h"
+#include "models/graph/CameraNode.h"
 #include "models/application/Author.h"
-
-#include "models/3d/Graph/CameraNode.h"
-
+#include "models/application/Ids.hpp"
 #include "models/application/List.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
 
-#include "io/DataComparator.h"
+// External libs
+#include "magic_enum/magic_enum.hpp"
+#include <nlohmannJson/json.hpp>
+
+// Standard libs
+#include <set>
+#include <filesystem>
+#include <algorithm>
 
 #define SAVELOADSYSTEMVERSION 2.0f
 
@@ -145,7 +130,7 @@ std::unordered_map<StandardType, std::vector<StandardList>> ImportStandards(cons
 
 std::string importJsonTree(Controller& controller, const nlohmann::json& json, const TreeType& treeType, SafePtr<AGraphNode> parent, std::unordered_map<xg::Guid, SafePtr<AGraphNode>>& nodeById)
 {
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
 	SafePtr<AGraphNode> child;
 	if (json.find(Key_Type) == json.end())
 		return std::string();
@@ -158,8 +143,8 @@ std::string importJsonTree(Controller& controller, const nlohmann::json& json, c
 		{
 			if (treeType == TreeType::Hierarchy)
 			{
-				controller.getOpenScanToolsGraphManager().createHierarchyMasterCluster();
-				child = controller.getOpenScanToolsGraphManager().getHierarchyMasterCluster();
+				controller.getGraphManager().createHierarchyMasterCluster();
+				child = controller.getGraphManager().getHierarchyMasterCluster();
 			}
 		}
 		break;
@@ -300,7 +285,7 @@ void importAllTrees(Controller& controller, const nlohmann::json& jsonProject, s
 
 int getNumberOfTElemTypeInProject(const Controller& controller, ElementType typeWanted)
 {
-	return (int)controller.cgetOpenScanToolsGraphManager().getNodesByTypes({ typeWanted }).size();
+	return (int)controller.cgetGraphManager().getNodesByTypes({ typeWanted }).size();
 }
 
 SafePtr<Author> LoadAuthor(Controller& controller, const nlohmann::json& json)
@@ -462,7 +447,7 @@ std::unordered_set<SafePtr<AGraphNode>> SaveLoadSystem::LoadFileObjects(Controll
 
 void SaveLoadSystem::ExportToProjectFileObjects(Controller& controller, const ProjectInternalInfo& exportProjectInfo, const std::unordered_set<SafePtr<AGraphNode>>& objectsToExport)
 {
-	const OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	const GraphManager& graphManager = controller.getGraphManager();
 	const ControllerContext& context = controller.getContext();
 	for (const SafePtr<AGraphNode>& object : objectsToExport)
 	{
@@ -563,7 +548,7 @@ void LoadObjFile(Controller& controller, std::unordered_map<SafePtr<AGraphNode>,
 	if (jsonProject.find(Key_Objects) == jsonProject.end())
 		key = "objs";
 
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
 
 	if (jsonProject.find(key) != jsonProject.end() && jsonProject.at(key).is_array())
 	{
@@ -924,7 +909,7 @@ bool SaveLoadSystem::readProjectTypes(const Controller& controller, const std::f
 void SaveLoadSystem::ImportJsonProject(const std::filesystem::path& importPath, Controller& controller, std::string& errorMsg)
 {
 	ControllerContext& context = controller.getContext();
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
 
 	IOLOG << "Loading file [" << importPath.string() << "]" << LOGENDL;
     std::ifstream fileStream(importPath);
@@ -971,7 +956,7 @@ void SaveLoadSystem::ImportJsonProject(const std::filesystem::path& importPath, 
 		return;
 	}
 
-	SafePtr<CameraNode> cameraNode = controller.getOpenScanToolsGraphManager().getCameraNode();
+	SafePtr<CameraNode> cameraNode = controller.getGraphManager().getCameraNode();
 	{
 		WritePtr<CameraNode> wCamera = cameraNode.get();
 		if (wCamera)
@@ -1068,7 +1053,7 @@ void SaveLoadSystem::ImportJsonProject(const std::filesystem::path& importPath, 
 			wHmc->setTreeType(TreeType::Hierarchy);
 			wHmc->m_isMasterCluster = true;
 		}
-		controller.getOpenScanToolsGraphManager().setHierarchyMasterCluster(hmc);
+		controller.getGraphManager().setHierarchyMasterCluster(hmc);
 	}
 
 	std::unordered_map<SafePtr<AGraphNode>, std::pair<xg::Guid, nlohmann::json>> loadObjs;
@@ -1207,7 +1192,7 @@ SafePtr<ScanNode> SaveLoadSystem::ImportNewTlsFile(const std::filesystem::path& 
 	}
 
     // Check the availability of the name in the project model
-	if (controller.getOpenScanToolsGraphManager().isFilePathOrScanExists(filePath.stem().wstring(), filePath) == true)
+	if (controller.getGraphManager().isFilePathOrScanExists(filePath.stem().wstring(), filePath) == true)
 	{
 		IOLOG << "Error : file or name already exists in the project : " << filePath.stem().string() << LOGENDL;
         // FIXME - Ask the user if he want to save the Scanunder an other name (or append it)
@@ -1223,7 +1208,7 @@ SafePtr<ScanNode> SaveLoadSystem::ImportNewTlsFile(const std::filesystem::path& 
 	else
 		IOLOG << "INFO: " << filePath << " already exist." << LOGENDL;
 
-	uint64_t nbScanBeforeImport = controller.getOpenScanToolsGraphManager().getNodesByTypes({ ElementType::Scan }).size();
+	uint64_t nbScanBeforeImport = controller.getGraphManager().getNodesByTypes({ ElementType::Scan }).size();
 	SafePtr<ScanNode> scan = make_safe<ScanNode>();
 	{
 		WritePtr<ScanNode> wScan = scan.get();
@@ -1262,7 +1247,7 @@ SafePtr<ScanNode> SaveLoadSystem::ImportNewTlsFile(const std::filesystem::path& 
 
 SafePtr<ScanObjectNode> SaveLoadSystem::ImportTlsFileAsObject(const std::filesystem::path& filePath, Controller& controller, ErrorCode& errorCode)
 {
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
 	ControllerContext& context = controller.getContext();
 
 	tls::ScanGuid scanGuid;
@@ -1552,7 +1537,7 @@ std::filesystem::path SaveLoadSystem::ExportProject(Controller& controller, cons
 	jsonProject[Key_DefaultScanId] = rDefaultScan ? rDefaultScan->getId() : xg::Guid();
 
 	nlohmann::json hierarchyMasterCluster;
-	DataSerializer::Serialize(hierarchyMasterCluster, controller.getOpenScanToolsGraphManager().getHierarchyMasterCluster());
+	DataSerializer::Serialize(hierarchyMasterCluster, controller.getGraphManager().getHierarchyMasterCluster());
 	jsonProject[Key_HierarchyMasterCluster] = hierarchyMasterCluster;
 
 	//Camera
@@ -1745,7 +1730,7 @@ void SaveLoadSystem::loadArboFile(Controller& controller, const std::filesystem:
 			std::unordered_set<SafePtr<AGraphNode>> toAddNodes;
 			for (const auto& pair : dumpNodeById)
 				toAddNodes.insert(pair.second);
-			controller.getOpenScanToolsGraphManager().addNodesToGraph(toAddNodes);
+			controller.getGraphManager().addNodesToGraph(toAddNodes);
 		}
 		else
 		{
@@ -1763,10 +1748,10 @@ void SaveLoadSystem::loadArboFile(Controller& controller, const std::filesystem:
 					wHmc->setId(xg::newGuid());
 					wHmc->setAuthor(activeAuthor);
 				}
-				controller.getOpenScanToolsGraphManager().setHierarchyMasterCluster(hmc);
+				controller.getGraphManager().setHierarchyMasterCluster(hmc);
 			}
 			else
-				controller.getOpenScanToolsGraphManager().createHierarchyMasterCluster();
+				controller.getGraphManager().createHierarchyMasterCluster();
 
 			std::unordered_set<SafePtr<AGraphNode>> toAddNodes;
 			std::unordered_map<SafePtr<AGraphNode>, nlohmann::json> toPostDeserialize;
@@ -1793,7 +1778,7 @@ void SaveLoadSystem::loadArboFile(Controller& controller, const std::filesystem:
 
 			for (const std::pair<SafePtr<AGraphNode>, nlohmann::json>& postDeser : toPostDeserialize)
 				DataDeserializer::PostDeserializeNode(postDeser.second, postDeser.first, nodeById);
-			controller.getOpenScanToolsGraphManager().addNodesToGraph(toAddNodes);
+			controller.getGraphManager().addNodesToGraph(toAddNodes);
 		}
 	}
 }
@@ -1805,10 +1790,10 @@ void SaveLoadSystem::exportArboFile(const std::filesystem::path& folderPath, con
 	jsonArboFile[Key_SaveLoadSystemVersion] = SAVELOADSYSTEMVERSION;
 
 	nlohmann::json hierarchyMasterCluster;
-	DataSerializer::Serialize(hierarchyMasterCluster, controller.cgetOpenScanToolsGraphManager().getHierarchyMasterCluster());
+	DataSerializer::Serialize(hierarchyMasterCluster, controller.cgetGraphManager().getHierarchyMasterCluster());
 	jsonArboFile[Key_HierarchyMasterCluster] = hierarchyMasterCluster;
 
-	std::unordered_set<SafePtr<AGraphNode>> clusters = controller.cgetOpenScanToolsGraphManager().getNodesByTypes({ ElementType::Cluster });
+	std::unordered_set<SafePtr<AGraphNode>> clusters = controller.cgetGraphManager().getNodesByTypes({ ElementType::Cluster });
 
 	nlohmann::json clusIn = nlohmann::json::array();
 	for (const SafePtr<AGraphNode>& cluster : clusters)
@@ -2021,8 +2006,8 @@ bool SaveLoadSystem::ExportAuthorObjects(const Controller& controller, const std
 		if (exportListTemplateWith)
 		{
 			std::unordered_set<SafePtr<UserList>> lists;
-			lists.insert(context.getUserList(listId(DISCIPLINE_ID)));
-			lists.insert(context.getUserList(listId(PHASE_ID)));
+			lists.insert(context.getUserList(listId(LIST_DISCIPLINE_ID)));
+			lists.insert(context.getUserList(listId(LIST_PHASE_ID)));
 			
 			nlohmann::json templatesArray = nlohmann::json::array();
 			for (const SafePtr<sma::TagTemplate>& temp : templates)
@@ -2110,7 +2095,7 @@ void SaveLoadSystem::ImportAuthorObjects(const std::vector<std::filesystem::path
 	}
 
 	std::unordered_map<xg::Guid, SafePtr<AGraphNode>> nodeById;
-	for (SafePtr<AGraphNode> node : controller.getOpenScanToolsGraphManager().getProjectNodes())
+	for (SafePtr<AGraphNode> node : controller.getGraphManager().getProjectNodes())
 	{
 		ReadPtr<AGraphNode> rNode = node.cget();
 		if(rNode)
@@ -2123,7 +2108,7 @@ void SaveLoadSystem::ImportAuthorObjects(const std::vector<std::filesystem::path
 		nodeById[loadObj.second.first] = loadObj.first;
 	}
 
-	SafePtr<ClusterNode> hmc = controller.getOpenScanToolsGraphManager().getHierarchyMasterCluster();
+	SafePtr<ClusterNode> hmc = controller.getGraphManager().getHierarchyMasterCluster();
 	{
 		ReadPtr<ClusterNode> rHmc = hmc.cget();
 		if (rHmc)

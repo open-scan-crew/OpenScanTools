@@ -6,7 +6,7 @@
 #include "controller/Controller.h"
 #include "controller/controls/ControlDataEdition.h"
 
-#include "models/3d/Graph/ClusterNode.h"
+#include "models/graph/ClusterNode.h"
 #include "models/3d/NodeFunctions.h"
 
 #include <QtWidgets/QGridLayout>

@@ -1,13 +1,11 @@
 #include "controller/functionSystem/ContextPointCreation.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "controller/controls/ControlFunction.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/Texts.hpp"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
-#include "models/3d/Graph/PointNode.h"
+#include "models/graph/PointNode.h"
 
 ContextPointCreation::ContextPointCreation(const ContextId& id)
 	: ARayTracingContext(id)

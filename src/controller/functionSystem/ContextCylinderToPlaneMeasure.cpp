@@ -1,23 +1,16 @@
 #include "controller/functionSystem/ContextCylinderToPlaneMeasure.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
 #include "controller/ControlListener.h"
-#include "controller/functionSystem/FunctionManager.h"
 #include "controller/controls/ControlFunction.h"
-
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "pointCloudEngine/MeasureClass.h"
-
-#include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ContextTexts.hpp"
 
-#include "models/3d/Graph/PipeToPlaneMeasureNode.h"
-#include "models/3d/Graph/CylinderNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
-
+#include "models/graph/PipeToPlaneMeasureNode.h"
+#include "models/graph/CylinderNode.h"
+#include "models/graph/GraphManager.hxx"
 #include "utils/Logger.h"
-#include "magic_enum/magic_enum.hpp"
 
 #include <glm/gtx/quaternion.hpp>
 
@@ -51,7 +44,7 @@ ContextState ContextCylinderToPlaneMeasure::launch(Controller& controller)
 		return waitForNextPoint(controller);
     // -!- Ray Tracing -!-
 
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
 
 	if (m_clickResults.size() == 1) {
 		controller.updateInfo(new GuiDataTmpMessage(TEXT_LUCAS_SEARCH_ONGOING, 0));

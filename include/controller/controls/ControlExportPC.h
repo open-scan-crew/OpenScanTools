@@ -3,11 +3,6 @@
 
 #include "controller/controls/IControl.h"
 #include "controller/messages/ClippingExportParametersMessage.h"
-#include "models/OpenScanToolsModelEssentials.h"
-#include "io/FileUtils.h"
-
-#include <filesystem>
-#include <unordered_set>
 
 namespace control
 {

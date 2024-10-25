@@ -108,7 +108,7 @@
 #include "controller/controls/ControlIO.h"
 
 #include "models/project/ProjectTypes.h"
-#include "models/3d/Graph/CameraNode.h"
+#include "models/graph/CameraNode.h"
 
 #include <QtWidgets/QWidget>
 #include <QtWidgets/QApplication>
@@ -366,7 +366,7 @@ Gui::Gui(Controller& controller, Translator* translator)
 	ShortcutSystem* shortSys = new ShortcutSystem(m_dataDispatcher, this);
 	connect(this, &Gui::sigIsEditing, shortSys, &ShortcutSystem::slotEdition);
 
-	m_workspaceDock->setWidget(new ProjectTreePanel(m_dataDispatcher, controller.getOpenScanToolsGraphManager(), m_guiScale));
+	m_workspaceDock->setWidget(new ProjectTreePanel(m_dataDispatcher, controller.getGraphManager(), m_guiScale));
 	
     this->addDockWidget(Qt::TopDockWidgetArea, m_FunctionsBarDock);
 	this->addDockWidget(Qt::LeftDockWidgetArea, m_workspaceDock);
@@ -387,7 +387,7 @@ Gui::Gui(Controller& controller, Translator* translator)
 	m_propertiesDock->setAllowedAreas(Qt::DockWidgetArea::RightDockWidgetArea | Qt::DockWidgetArea::LeftDockWidgetArea);
 
     // Rendering Engine - NOTE(robin) can be created in the main.cpp
-    m_renderingEngine = scs::createRenderingEngine(controller.getOpenScanToolsGraphManager(), m_dataDispatcher, m_guiScale);
+    m_renderingEngine = scs::createRenderingEngine(controller.getGraphManager(), m_dataDispatcher, m_guiScale);
 
     // Central Viewport - Test multiple viewport
 	m_centralWrapper = new ViewportOrganizer(this, m_dataDispatcher, *m_renderingEngine, *shortSys, m_guiScale);

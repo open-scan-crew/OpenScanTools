@@ -2,7 +2,6 @@
 #define CONTEXT_COLUMN_TILT_H
 
 #include "controller/functionSystem/ARayTracingContext.h"
-#include <glm/glm.hpp>
 
 class ContextColumnTilt : public ARayTracingContext
 {

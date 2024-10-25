@@ -2,11 +2,8 @@
 #define CONTEXT_POINTS_MEASURE_H_
 
 #include "controller/functionSystem/ARayTracingContext.h"
-#include "models/pointCloud/TLS.h"
-#include "models/3d/Measures.h"
 
 #include <glm/glm.hpp>
-#include <queue>
 
 class PolylineMeasureNode;
 

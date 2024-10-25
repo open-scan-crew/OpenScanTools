@@ -19,6 +19,7 @@
 #include <codecvt>
 #include <string>
 
+#include <direct.h> // WIN32
 
 #define LOG_JSON_KEY "logs"
 #define LICENSE_JSON_KEY "license"
@@ -66,7 +67,6 @@ static const std::vector<std::pair<LoggerMode, bool>> defaultLog = {
 	{LoggerMode::ControlLog, true},
 	{LoggerMode::DataLog, true},
 	{LoggerMode::ControllerLog, true},
-	{LoggerMode::HistoricLog, false},
 	{LoggerMode::GuiLog, true},
 	{LoggerMode::LicenseLog, true},
 	{LoggerMode::GTLog, true},
@@ -323,6 +323,11 @@ namespace Config
 		jsonConfig[TEMP_JSON_KEY] = Utils::to_utf8(type.wstring());
 		return saveConfigFile(filePath);
 	}
+
+    std::filesystem::path getResourcesPath()
+    {
+        return applicationDirPath / "resources";
+    }
 
     DecimationOptions getDecimationOptions()
     {

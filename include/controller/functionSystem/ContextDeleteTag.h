@@ -2,8 +2,7 @@
 #define CONTEXT_DELETE_TAG_H_
 
 #include "controller/functionSystem/AContext.h"
-#include "models/OpenScanToolsModelEssentials.h"
-
+#include "utils/safe_ptr.h"
 #include <unordered_set>
 
 class AGraphNode;

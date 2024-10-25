@@ -1,11 +1,7 @@
 #include "controller/controls/ControlCylinderEdition.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
-#include "gui/GuiData/GuiData3dObjects.h"
-
-#include "models/3d/Graph/CylinderNode.h"
-#include "models/3d/Graph/SphereNode.h"
 #include "controller/controls/AEditionControl.hxx"
+#include "models/graph/CylinderNode.h"
 
 #include "utils/Logger.h"
 
@@ -46,7 +42,6 @@ namespace control
 			}
 
 			m_canUndo = true;
-			controller.actualizeNodes(ActualizeOptions(false), m_toEditData);
 
 			CONTROLLOG << "control::cylinderEdition::SetRadius do " << LOGENDL;
 		}
@@ -72,8 +67,6 @@ namespace control
 				wCyl->updateScale();
 				undoTimeModified(*&wCyl);
 			}
-
-			controller.actualizeNodes(ActualizeOptions(false), m_toEditData);
 
 			CONTROLLOG << "control::cylinderEdition::SetRadius undo " << LOGENDL;
 		}
@@ -114,8 +107,6 @@ namespace control
 
 			m_canUndo = true;
 
-			controller.actualizeNodes(ActualizeOptions(false), m_toEditData);
-
 			CONTROLLOG << "control::cylinderEdition::SetRadius do " << LOGENDL;
 		}
 
@@ -139,8 +130,6 @@ namespace control
 				wCyl->updateScale();
 				undoTimeModified(*&wCyl);
 			}
-
-			controller.actualizeNodes(ActualizeOptions(false), m_toEditData);
 
 			CONTROLLOG << "control::cylinderEdition::SetRadius undo " << LOGENDL;
 		}
@@ -190,8 +179,6 @@ namespace control
 
 			m_canUndo = true;
 
-			controller.actualizeNodes(ActualizeOptions(false), m_toEditData);
-
 			CONTROLLOG << "control::cylinderEdition::CheckStandard do " << LOGENDL;
 		}
 
@@ -216,8 +203,6 @@ namespace control
 				wCyl->updateScale();
 				undoTimeModified(*&wCyl);
 			}
-
-			controller.actualizeNodes(ActualizeOptions(false), m_toEditData);
 
 			CONTROLLOG << "control::cylinderEdition::CheckStandard undo " << LOGENDL;
 		}

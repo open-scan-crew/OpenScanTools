@@ -1,14 +1,11 @@
 #include "controller/functionSystem/ContextAlignView2P.h"
 #include "gui/GuiData/GuiDataRendering.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/AlignViewTexts.hpp"
 #include "gui/texts/RayTracingTexts.hpp"
-
-#include "models/3d/Graph/CameraNode.h"
-
-#include "utils/math/trigo.h"
+#include "models/graph/CameraNode.h"
+#include "utils/math/basic_define.h"
 
 ContextAlignView2P::ContextAlignView2P(const ContextId& id)
     : AContextAlignView(id)

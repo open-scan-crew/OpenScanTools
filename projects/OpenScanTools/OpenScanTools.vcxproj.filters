@@ -122,9 +122,6 @@
       <Extensions>ts</Extensions>
       <ParseFiles>false</ParseFiles>
     </Filter>
-    <Filter Include="src\models\3d\Graph">
-      <UniqueIdentifier>{bf8f2de8-5aa5-4eac-bf5b-10bc0d96f189}</UniqueIdentifier>
-    </Filter>
     <Filter Include="shaders\glsl_blocks">
       <UniqueIdentifier>{55c98619-e7dd-4f32-a29f-0d7b13768f1f}</UniqueIdentifier>
     </Filter>
@@ -299,9 +296,6 @@
     <Filter Include="include\models\3d">
       <UniqueIdentifier>{2f55faa8-1d70-40c6-a613-641e14c02bd5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="include\models\3d\Graph">
-      <UniqueIdentifier>{59674951-4347-4abf-952d-bf53c8e94ef8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="include\models\application">
       <UniqueIdentifier>{c5ae48ba-b04c-48d4-833b-409c1c29bd1d}</UniqueIdentifier>
     </Filter>
@@ -422,12 +416,6 @@
     <Filter Include="ext\openE57">
       <UniqueIdentifier>{22afba76-2c35-4de9-a964-e8ab2fdd606a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\models\3d\Graph\Nodes">
-      <UniqueIdentifier>{698ae981-ada1-4825-a9e2-3b51aba0efce}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="include\models\3d\Graph\Nodes">
-      <UniqueIdentifier>{1a5adcc5-5bf4-429a-83ae-dda5b56013d4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\models\data\Cluster">
       <UniqueIdentifier>{0be2c2f2-daf9-498a-8ae9-21d66fc85011}</UniqueIdentifier>
     </Filter>
@@ -448,6 +436,12 @@
     </Filter>
     <Filter Include="include\vulkan\GraphSpec\Renderers">
       <UniqueIdentifier>{ca8a8a1e-ce27-4495-a2ba-7715e68295c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\models\graph">
+      <UniqueIdentifier>{1eaa5cd9-4ef6-41a3-9f13-e7ef734503aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\models\graph">
+      <UniqueIdentifier>{1ba69385-ccbc-44d5-a844-ecc75bdfab89}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -879,9 +873,6 @@
     </ClCompile>
     <ClCompile Include="..\..\src\controller\functionSystem\AContext.cpp">
       <Filter>src\controller\contexts</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\TransformationModule.cpp">
-      <Filter>src\models\3d\Graph</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\gui\GuiData\GuiDataClipping.cpp">
       <Filter>src\gui\GuiData</Filter>
@@ -1408,9 +1399,6 @@
     <ClCompile Include="..\..\src\controller\messages\PrimitivesExportParametersMessage.cpp">
       <Filter>src\controller\messages</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\ObjectNodeVisitor.cpp">
-      <Filter>src\models\3d\Graph</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\io\exports\DataSerializer.cpp">
       <Filter>src\io\exports</Filter>
     </ClCompile>
@@ -1545,9 +1533,6 @@
     </ClCompile>
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderNormals.cpp">
       <Filter>src\gui\toolBars</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\DisplayParameters.cpp">
-      <Filter>src\models\3d</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\models\data\ViewPoint\ViewPointData.cpp">
       <Filter>src\models\data\ViewPoint</Filter>
@@ -1762,90 +1747,6 @@
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarMeasureSimple.cpp">
       <Filter>src\gui\toolBars</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\AGraphNode.cpp">
-      <Filter>src\models\3d\Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\AMeasureNode.cpp">
-      <Filter>src\models\3d\Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\AObjectNode.cpp">
-      <Filter>src\models\3d\Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\APointCloudNode.cpp">
-      <Filter>src\models\3d\Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\BeamBendingMeasureNode.cpp">
-      <Filter>src\models\3d\Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\CameraNode.cpp">
-      <Filter>src\models\3d\Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\BoxNode.cpp">
-      <Filter>src\models\3d\Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\ClusterNode.cpp">
-      <Filter>src\models\3d\Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\ColumnTiltMeasureNode.cpp">
-      <Filter>src\models\3d\Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\CylinderNode.cpp">
-      <Filter>src\models\3d\Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\MeshObjectNode.cpp">
-      <Filter>src\models\3d\Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\ManipulatorNode.cpp">
-      <Filter>src\models\3d\Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\PipeToPipeMeasureNode.cpp">
-      <Filter>src\models\3d\Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\PipeToPlaneMeasureNode.cpp">
-      <Filter>src\models\3d\Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\PointNode.cpp">
-      <Filter>src\models\3d\Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\PointToPipeMeasureNode.cpp">
-      <Filter>src\models\3d\Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\PointToPlaneMeasureNode.cpp">
-      <Filter>src\models\3d\Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\PolylineMeasureNode.cpp">
-      <Filter>src\models\3d\Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\ReferentialNode.cpp">
-      <Filter>src\models\3d\Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\ScanNode.cpp">
-      <Filter>src\models\3d\Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\ScanObjectNode.cpp">
-      <Filter>src\models\3d\Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\SimpleMeasureNode.cpp">
-      <Filter>src\models\3d\Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\SimpleObjectNode.cpp">
-      <Filter>src\models\3d\Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\SphereNode.cpp">
-      <Filter>src\models\3d\Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\TagNode.cpp">
-      <Filter>src\models\3d\Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\TorusNode.cpp">
-      <Filter>src\models\3d\Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\ViewPointNode.cpp">
-      <Filter>src\models\3d\Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\OpenScanToolsGraphManager.cpp">
-      <Filter>src\models\3d\Graph</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\io\exports\PTSFileWriter.cpp">
       <Filter>src\io\exports</Filter>
     </ClCompile>
@@ -1854,9 +1755,6 @@
     </ClCompile>
     <ClCompile Include="..\..\src\controller\functionSystem\ContextExportFbx.cpp">
       <Filter>src\controller\contexts</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\3d\Graph\AClippingNode.cpp">
-      <Filter>src\models\3d\Graph\Nodes</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\test\SafeDataTests.cpp">
       <Filter>src\test</Filter>
@@ -2010,6 +1908,99 @@
     </ClCompile>
     <ClCompile Include="..\..\src\gui\Dialog\DialogImportPCObject.cpp">
       <Filter>src\gui\Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\io\ScantraInterface.cpp">
+      <Filter>src\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\AClippingNode.cpp">
+      <Filter>src\models\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\AGraphNode.cpp">
+      <Filter>src\models\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\AMeasureNode.cpp">
+      <Filter>src\models\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\AObjectNode.cpp">
+      <Filter>src\models\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\APointCloudNode.cpp">
+      <Filter>src\models\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\BeamBendingMeasureNode.cpp">
+      <Filter>src\models\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\BoxNode.cpp">
+      <Filter>src\models\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\CameraNode.cpp">
+      <Filter>src\models\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\ClusterNode.cpp">
+      <Filter>src\models\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\ColumnTiltMeasureNode.cpp">
+      <Filter>src\models\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\CylinderNode.cpp">
+      <Filter>src\models\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\GraphManager.cpp">
+      <Filter>src\models\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\ManipulatorNode.cpp">
+      <Filter>src\models\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\MeshObjectNode.cpp">
+      <Filter>src\models\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\ObjectNodeVisitor.cpp">
+      <Filter>src\models\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\PipeToPipeMeasureNode.cpp">
+      <Filter>src\models\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\PipeToPlaneMeasureNode.cpp">
+      <Filter>src\models\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\PointNode.cpp">
+      <Filter>src\models\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\PointToPipeMeasureNode.cpp">
+      <Filter>src\models\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\PointToPlaneMeasureNode.cpp">
+      <Filter>src\models\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\PolylineMeasureNode.cpp">
+      <Filter>src\models\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\ScanNode.cpp">
+      <Filter>src\models\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\ScanObjectNode.cpp">
+      <Filter>src\models\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\SimpleMeasureNode.cpp">
+      <Filter>src\models\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\SimpleObjectNode.cpp">
+      <Filter>src\models\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\SphereNode.cpp">
+      <Filter>src\models\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\TagNode.cpp">
+      <Filter>src\models\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\TorusNode.cpp">
+      <Filter>src\models\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\TransformationModule.cpp">
+      <Filter>src\models\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\ViewPointNode.cpp">
+      <Filter>src\models\graph</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2877,14 +2868,8 @@
     <ClInclude Include="..\..\include\controller\functionSystem\AContext.h">
       <Filter>include\controller\contexts</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\TransformationModule.h">
-      <Filter>include\models\3d\Graph</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\models\OpenScanToolsModelEssentials.h">
       <Filter>include\models</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\utils\OpenScanToolsModelEssentials_impl.hpp">
-      <Filter>include\utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\gui\GuiData\GuiDataClipping.h">
       <Filter>include\gui\GuiData</Filter>
@@ -3315,9 +3300,6 @@
     <ClInclude Include="..\..\include\controller\functionSystem\ContextPipePostConnexion.h">
       <Filter>include\controller\contexts</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\ObjectNodeVisitor.h">
-      <Filter>include\models\3d\Graph</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\io\exports\DataSerializer.h">
       <Filter>include\io\exports</Filter>
     </ClInclude>
@@ -3699,93 +3681,6 @@
     <ClInclude Include="..\..\include\models\data\PolylineMeasure\PolyLineTypes.h">
       <Filter>include\models\data\PolylineMeasure</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\AClippingNode.h">
-      <Filter>include\models\3d\Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\AGraphNode.h">
-      <Filter>include\models\3d\Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\AMeasureNode.h">
-      <Filter>include\models\3d\Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\APointCloudNode.h">
-      <Filter>include\models\3d\Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\AObjectNode.h">
-      <Filter>include\models\3d\Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\BeamBendingMeasureNode.h">
-      <Filter>include\models\3d\Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\CameraNode.h">
-      <Filter>include\models\3d\Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\BoxNode.h">
-      <Filter>include\models\3d\Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\ClusterNode.h">
-      <Filter>include\models\3d\Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\ColumnTiltMeasureNode.h">
-      <Filter>include\models\3d\Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\CylinderNode.h">
-      <Filter>include\models\3d\Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\ManipulatorNode.h">
-      <Filter>include\models\3d\Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\MeshObjectNode.h">
-      <Filter>include\models\3d\Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\PipeToPipeMeasureNode.h">
-      <Filter>include\models\3d\Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\PipeToPlaneMeasureNode.h">
-      <Filter>include\models\3d\Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\PointNode.h">
-      <Filter>include\models\3d\Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\PointToPipeMeasureNode.h">
-      <Filter>include\models\3d\Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\PointToPlaneMeasureNode.h">
-      <Filter>include\models\3d\Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\PolylineMeasureNode.h">
-      <Filter>include\models\3d\Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\ReferentialNode.h">
-      <Filter>include\models\3d\Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\ScanNode.h">
-      <Filter>include\models\3d\Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\ScanObjectNode.h">
-      <Filter>include\models\3d\Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\SimpleMeasureNode.h">
-      <Filter>include\models\3d\Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\SimpleObjectNode.h">
-      <Filter>include\models\3d\Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\SphereNode.h">
-      <Filter>include\models\3d\Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\TagNode.h">
-      <Filter>include\models\3d\Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\TorusNode.h">
-      <Filter>include\models\3d\Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\ViewPointNode.h">
-      <Filter>include\models\3d\Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\OpenScanToolsGraphManager.h">
-      <Filter>include\models\3d\Graph</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\models\data\BeamBendingMeasure\BeamBendingMeasureData.h">
       <Filter>include\models\data\BeamBendingMeasure</Filter>
     </ClInclude>
@@ -3800,9 +3695,6 @@
     </ClInclude>
     <ClInclude Include="..\..\include\controller\controls\AEditionControl.hxx">
       <Filter>include\controller\controls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\Graph\OpenScanToolsGraphManager.hxx">
-      <Filter>include\models\3d\Graph</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\test\SafeDataTests.h">
       <Filter>include\test</Filter>
@@ -3989,6 +3881,108 @@
     </ClInclude>
     <ClInclude Include="..\..\include\controller\messages\ManipulateMessage.h">
       <Filter>include\controller\messages</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\io\ScantraInterface.h">
+      <Filter>include\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\3d\BoundingBox.h">
+      <Filter>include\models\3d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\AClippingNode.h">
+      <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\AGraphNode.h">
+      <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\AMeasureNode.h">
+      <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\AObjectNode.h">
+      <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\APointCloudNode.h">
+      <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\BeamBendingMeasureNode.h">
+      <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\BoxNode.h">
+      <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\CameraNode.h">
+      <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\ClusterNode.h">
+      <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\ColumnTiltMeasureNode.h">
+      <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\CylinderNode.h">
+      <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\GraphManager.h">
+      <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\GraphManager.hxx">
+      <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\ManipulatorNode.h">
+      <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\MeshObjectNode.h">
+      <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\ObjectNodeVisitor.h">
+      <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\PipeToPipeMeasureNode.h">
+      <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\PipeToPlaneMeasureNode.h">
+      <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\PointNode.h">
+      <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\PointToPipeMeasureNode.h">
+      <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\PointToPlaneMeasureNode.h">
+      <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\PolylineMeasureNode.h">
+      <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\ScanNode.h">
+      <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\ScanObjectNode.h">
+      <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\SimpleMeasureNode.h">
+      <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\SimpleObjectNode.h">
+      <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\SphereNode.h">
+      <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\TagNode.h">
+      <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\TorusNode.h">
+      <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\TransformationModule.h">
+      <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\ViewPointNode.h">
+      <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\pointCloud\PointCloudInstance.h">
+      <Filter>include\models\pointCloud</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

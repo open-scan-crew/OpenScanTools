@@ -4,6 +4,9 @@
 #include "gui/Dialog/ADialog.h"
 #include "ui_DialogImportPCObject.h"
 
+#include <glm/glm.hpp>
+#include <filesystem>
+
 class DialogImportPCObject : public ADialog
 {
     Q_OBJECT

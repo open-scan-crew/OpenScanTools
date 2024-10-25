@@ -1,11 +1,16 @@
 #include "controller/controls/ControlStandards.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
+
 #include "gui/GuiData/GuiDataList.h"
 #include "gui/GuiData/GuiDataMessages.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
-#include "io/SaveLoadSystem.h"
 #include "gui/Texts.hpp"
+
+#include "io/SaveLoadSystem.hxx"
+
+#include "models/application/List.h"
+
+#include "utils/Logger.h"
 
 #define PIPE_FILE "Pipes_standards.tll"
 #define SPHERE_FILE "Spheres_standards.tll"

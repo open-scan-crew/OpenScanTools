@@ -1,22 +1,12 @@
 #include "controller/Controls/ControlObject3DEdition.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
-#include "gui/GuiData/GuiData3dObjects.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
-#include "gui/GuiData/GuiDataTree.h"
 #include "controller/functionSystem/FunctionManager.h"
-#include "controller/messages/DataIDListMessage.h"
 #include "controller/messages/ManipulateMessage.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
-#include "models/3d/Graph/AClippingNode.h"
-#include "models/3d/Graph/ClusterNode.h"
-#include "models/3d/Graph/SphereNode.h"
+#include "models/graph/SphereNode.h"
 #include "controller/controls/AEditionControl.hxx"
 
-#include "utils/math/trigo.h"
-#include "utils/math/glm_extended.h"
-#include "utils/Logger.h"
+#include "utils/math/basic_define.h"
 
 namespace control
 {
@@ -185,8 +175,6 @@ namespace control
             object->addLocalTranslation(translation);
             object->addScale(deltaScale);
             doTimeModified(*&object);
-
-            controller.actualizeNodes(ActualizeOptions(false), m_toEditData);
         }
 
         bool Extrude::canUndo() const
@@ -221,7 +209,6 @@ namespace control
             std::unordered_set<SafePtr<AGraphNode>> toActualize;
             for (const SafePtr<AObjectNode>& target : m_targets)
                 toActualize.insert(target);
-            controller.actualizeNodes(ActualizeOptions(false), toActualize);
         }
 
         bool ManipulateObjects::canUndo() const
@@ -402,8 +389,6 @@ namespace control
                 object->addLocalTranslation(translation);
                 object->addScale(deltaScale);
                 doTimeModified(*&object);
-
-                controller.actualizeNodes(ActualizeOptions(false), m_toEditData);
             }
         }
 
@@ -454,8 +439,6 @@ namespace control
             object->addLocalTranslation(-translation);
             object->addScale(-deltaScale);
             undoTimeModified(*&object);
-
-            controller.actualizeNodes(ActualizeOptions(false), m_toEditData);
 
             m_undoDone = true;
         }

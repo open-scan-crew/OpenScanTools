@@ -2,18 +2,14 @@
 #include "controller/controls/ControlFunction.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/functionSystem/FunctionManager.h"
 #include "controller/ControlListener.h"
-#include "gui/GuiData/GuiDataTree.h"
-#include "gui/GuiData/GuiData3dObjects.h"
+#include "controller/functionSystem/FunctionManager.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
-#include "pointCloudEngine/TlScanOverseer.h"
 
-#include "gui/Texts.hpp"
 #include "utils/Logger.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
-#include "models/3d/Graph/BoxNode.h"
+#include "models/graph/GraphManager.h"
+#include "models/graph/BoxNode.h"
 
 namespace control::function::clipping
 {
@@ -127,14 +123,13 @@ namespace control::function::clipping
 
     void CreateGlobal::doFunction(Controller& controller)
     {
-        OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+        GraphManager& graphManager = controller.getGraphManager();
 
         controller.updateInfo(new GuiDataActivatedFunctions(ContextType::none));
         controller.getFunctionManager().abort(controller);
 
         // Compute the bounding box based on the current scan transformation
-        TlScanOverseer::getInstance().setWorkingScansTransfo(graphManager.getVisiblePointCloudInstances(xg::Guid(), true, true));
-        tls::BoundingBox projectBoundingBox = TlScanOverseer::getInstance().getActiveBoundingBox();
+        BoundingBoxD project_bbox = graphManager.getScanBoundingBox(ObjectStatusFilter::ALL);
 
         SafePtr<BoxNode> box = make_safe<BoxNode>(true);
         {
@@ -143,9 +138,8 @@ namespace control::function::clipping
                 return;
 
             wBox->setDefaultData(controller);
-
-            wBox->setSize(glm::dvec3(projectBoundingBox.xMax - projectBoundingBox.xMin, projectBoundingBox.yMax - projectBoundingBox.yMin, projectBoundingBox.zMax - projectBoundingBox.zMin));
-            wBox->setPosition(glm::dvec3((projectBoundingBox.xMin + projectBoundingBox.xMax) / 2.0, (projectBoundingBox.yMin + projectBoundingBox.yMax) / 2.0, (projectBoundingBox.zMin + projectBoundingBox.zMax) / 2.0));
+            wBox->setSize(project_bbox.size());
+            wBox->setPosition(project_bbox.center());
         }
 
         controller.getControlListener()->notifyUIControl(new control::function::AddNodes(box));
@@ -202,8 +196,6 @@ namespace control::function::clipping
     {
         return (ControlType::setDefaultSizeFunctionClipping);
     }
-
-    SetDefaultSize::SetDefaultSize() { }
 
     /*
     ** SetDefaultOffset

@@ -88,14 +88,13 @@ enum class ProjectionMode
 
 enum class AlignView
 {
-	Reset,
-	Top,
-	Bottom,
-	Left,
-	Right,
-	Front,
-	Back,
-	Iso
+    Top,
+    Bottom,
+    Left,
+    Right,
+    Front,
+    Back,
+    Iso
 };
 
 enum class DecimationMode

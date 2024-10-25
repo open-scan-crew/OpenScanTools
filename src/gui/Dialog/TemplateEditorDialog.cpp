@@ -11,6 +11,7 @@
 
 #include "gui/Texts.hpp"
 #include "gui/texts/MarkerTexts.hpp"
+#include "utils/Logger.h"
 
 #include "magic_enum/magic_enum.hpp"
 
@@ -29,7 +30,7 @@ TemplateEditorDialog::TemplateEditorDialog(IDataDispatcher &dataDispacher, QWidg
 							{sma::tFieldType::string, TEXT_TEMPLATEEDITOR_STRING }, })
 {
 	ui->setupUi(this);
-	PANELLOG << "create TemplateEditorDialog" << LOGENDL;
+	GUI_LOG << "create TemplateEditorDialog" << LOGENDL;
 
 	m_defaultValueManagers.insert(std::pair<sma::tFieldType, std::pair<defaultValueWidgetGenerator, defaultValueGatherer>>(sma::tFieldType::string,
 		std::pair<defaultValueWidgetGenerator, defaultValueGatherer>(&TemplateEditorDialog::generateStringWidget, &TemplateEditorDialog::gatherStringWidget)));
@@ -113,14 +114,14 @@ void TemplateEditorDialog::receiveTagTemplate(IGuiData * data)
 	ui->TemplateWidgetTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
 	m_listLink.clear();
-	//PANELLOG << "GENERATE LISTS" << LOGENDL;
+	//GUI_LOG << "GENERATE LISTS" << LOGENDL;
 	for (SafePtr<UserList> list : lData->m_lists)
 		m_listLink.push_back(list);
 
-	//PANELLOG << "GENERATE FIELDS" << LOGENDL;
+	//GUI_LOG << "GENERATE FIELDS" << LOGENDL;
 	for (sma::tField& field : fields)
 	{
-		//PANELLOG << "generate field " << *it << LOGENDL;
+		//GUI_LOG << "generate field " << *it << LOGENDL;
 
 		QLineEdit *nameInfield = new QLineEdit(ui->TemplateWidgetTable);
 		nameInfield->setMaxLength(20);
@@ -187,7 +188,7 @@ void TemplateEditorDialog::receiveTagTemplate(IGuiData * data)
 	ui->TemplateWidgetTable->show();
 	ui->TemplateNameInfield->blockSignals(false);
 
-	PANELLOG << "receive template " << rTemp->getName() << LOGENDL;
+	GUI_LOG << "receive template " << rTemp->getName() << LOGENDL;
 }
 
 void TemplateEditorDialog::createCreationField()
@@ -210,7 +211,7 @@ void TemplateEditorDialog::renameTemplate()
 	if (!rTemp)
 		return;
 
-	PANELLOG << "renameTemplate" << LOGENDL;
+	GUI_LOG << "renameTemplate" << LOGENDL;
 	if (ui->TemplateNameInfield->text() != "" && ui->TemplateNameInfield->text().toStdWString() != rTemp->getName())
 		m_dataDispatcher.sendControl(new control::tagTemplate::RenameTagTemplate(m_template, ui->TemplateNameInfield->text().toStdWString()));
 	else
@@ -256,7 +257,7 @@ void TemplateEditorDialog::modifyName(int line)
 {
 	ui->TemplateWidgetTable->sortItems(0);
 	ui->TemplateWidgetTable->setSortingEnabled(false);
-	PANELLOG << "modifyName" << LOGENDL;
+	GUI_LOG << "modifyName" << LOGENDL;
 
 	std::vector<sma::tField> fields;
 	{
@@ -285,7 +286,7 @@ void TemplateEditorDialog::modifyName(int line)
 void TemplateEditorDialog::modifyType(int line)
 {
 	ui->TemplateWidgetTable->setSortingEnabled(false);
-	PANELLOG << "modifyType" << LOGENDL; 
+	GUI_LOG << "modifyType" << LOGENDL; 
 	
 	std::vector<sma::tField> fields;
 	{
@@ -316,7 +317,7 @@ void TemplateEditorDialog::modifyType(int line)
 void TemplateEditorDialog::modifyRef(int line)
 {
 	ui->TemplateWidgetTable->setSortingEnabled(false);
-	PANELLOG << "modifyRef" << LOGENDL;
+	GUI_LOG << "modifyRef" << LOGENDL;
 
 	std::vector<sma::tField> fields;
 	{
@@ -346,7 +347,7 @@ void TemplateEditorDialog::modifyRef(int line)
 void TemplateEditorDialog::modifyDefaultValue(int line)
 {
 	ui->TemplateWidgetTable->setSortingEnabled(false);
-	PANELLOG << "modifyDefaultValue" << LOGENDL;
+	GUI_LOG << "modifyDefaultValue" << LOGENDL;
 
 	std::vector<sma::tField> fields;
 	{
@@ -376,7 +377,7 @@ void TemplateEditorDialog::modifyDefaultValue(int line)
 void TemplateEditorDialog::deleteField(int line)
 {
 	ui->TemplateWidgetTable->setSortingEnabled(false);
-	PANELLOG << "deleteField" << LOGENDL;
+	GUI_LOG << "deleteField" << LOGENDL;
 	QMessageBox::StandardButton reply = QMessageBox::question(this, TEXT_TITLE_FIELD_REMOVAL_BOX, TEXT_MESSAGE_FIELD_REMOVAL_BOX,
 		QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Cancel);
 	if (reply == QMessageBox::Yes)
@@ -402,7 +403,7 @@ void TemplateEditorDialog::deleteField(int line)
 void TemplateEditorDialog::TryToAddNewLine()
 {
 	ui->TemplateWidgetTable->setSortingEnabled(false);
-	PANELLOG << "add new line" << LOGENDL;
+	GUI_LOG << "add new line" << LOGENDL;
 	QWidget *newWidget = ui->TemplateWidgetTable->cellWidget(ui->TemplateWidgetTable->rowCount() - 1, 0);
 	QLineEdit *lEdit = static_cast<QLineEdit*>(newWidget);
 

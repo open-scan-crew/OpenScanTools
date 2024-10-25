@@ -1,17 +1,15 @@
 #include "controller/functionSystem/ContextExtendCylinderMeasure.h"
 #include "controller/controls/ControlFunction.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
-#include "controller/functionSystem/FunctionManager.h"
+#include "controller/ControlListener.h" // forward declaration
 
 #include "pointCloudEngine/TlScanOverseer.h"
 
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ContextTexts.hpp"
 
-#include "models/3d/Graph/CylinderNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/graph/CylinderNode.h"
+#include "models/graph/GraphManager.h"
 
 #include "utils/Logger.h"
 
@@ -49,7 +47,7 @@ ContextState ContextExtendCylinder::launch(Controller& controller)
 		return waitForNextPoint(controller);
     // -!- Ray Tracing -!-
 
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
 
 	controller.updateInfo(new GuiDataTmpMessage(TEXT_LUCAS_SEARCH_ONGOING, 0));
 	bool success = false;

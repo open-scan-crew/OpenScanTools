@@ -1,22 +1,17 @@
 #include "controller/functionSystem/ContextViewPoint.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "controller/controls/ControlFunction.h"
 #include "controller/controls/ControlViewpoint.h"
-#include "controller/messages/RenderContextMessage.h"
 #include "controller/messages/CameraMessage.h"
 #include "controller/messages/DataIdListMessage.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
-
-#include "models/3d/Graph/AClippingNode.h"
-#include "models/3d/Graph/CameraNode.h"
-#include "models/3d/Graph/ViewPointNode.h"
+#include "models/graph/CameraNode.h"
+#include "models/graph/ViewPointNode.h"
 
 #include "gui/GuiData/GuiDataContextRequest.h"
+#include "gui/texts/DefaultNameTexts.hpp"
 
-#include "gui/Texts.hpp"
 
 /*
 * ContextViewPointCreation

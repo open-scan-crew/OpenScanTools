@@ -2,8 +2,6 @@
 #define ACONTEXT_ALIGN_VIEW_H_
 
 #include "controller/functionSystem/ARayTracingContext.h"
-#include <glm/glm.hpp>
-#include <deque>
 
 class CameraNode;
 

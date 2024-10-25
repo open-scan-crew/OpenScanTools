@@ -2,9 +2,11 @@
 #define CLICK_INFO_H
 
 #include "models/pointCloud/TLS.h"
-#include "models/OpenScanToolsModelEssentials.h"
+#include "utils/safe_ptr.h"
 
-#include <glm/glm.hpp>
+
+//#include <glm/glm.hpp>
+#include <glm/fwd.hpp>
 
 class MeshBuffer;
 

@@ -2,10 +2,9 @@
 #define CONTROL_CLIPPING_EDITION_H_
 
 #include "controller/controls/AEditionControl.h"
-#include "models/data/Clipping/ClippingData.h"
+#include "models/data/Clipping/ClippingTypes.h"
 #include "models/data/Grid/GridData.h"
 #include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
 #include <unordered_set>
 
 class BoxNode;

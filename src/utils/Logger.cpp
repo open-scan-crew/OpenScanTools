@@ -2,16 +2,14 @@
 #include "utils/Config.h"
 #include "utils/System.h"
 #include "utils/FilesAndFoldersDefinitions.h"
+#include "utils/OpenScanToolsVersion.h"
 #include <magic_enum/magic_enum.hpp>
 
 #include <chrono>
-#include <ctime>
 #include <thread>
-#include <sys/stat.h>
-#include <sys/types.h>
 #include <windows.h>
-#include <initguid.h>
 #include <mutex>
+#include <iostream>
 
 #ifdef WIN32
 #if defined(_MSC_VER) || defined(_MSC_EXTENSIONS)
@@ -22,6 +20,20 @@
 #else
 #include <sys/time.h>
 #endif
+
+#ifdef _DEBUG_
+#define TL_BUILD "Debug  "
+#else
+#define TL_BUILD "Release"
+#endif
+
+#define HEADER(build, vers, date) "\
+*******************************************************************************\n\
+** OpenScanTools - OST                                                       **\n\
+** "##build" v"##vers"  "##date"                                                **\n\
+** (C)OpenScanTools 2024                                                     **\n\
+*******************************************************************************\n"
+
 
 std::mutex Logger::loggerMutex;
 std::ofstream Logger::out;
@@ -48,7 +60,7 @@ std::filesystem::path Logger::getOpenScanToolsPath()
     return (path);
 }
 
-void Logger::init(std::filesystem::path execPath)
+void Logger::init()
 {
     for (uint32_t iterator(0); iterator == LoggerMode::LOGGER_MODE_MAX_ENUM; iterator++)
         Logger::setStatusToMode((LoggerMode)iterator, false);
@@ -70,6 +82,8 @@ void Logger::init(std::filesystem::path execPath)
     {
         Logger::setStatusToMode(mods.first, mods.second);
     }
+
+    Logger::log() << "\n" << HEADER(TL_BUILD, OPENSCANTOOLS_VERSION, BUILD_DATE) << LOGENDL;
 }
 
 void Logger::log(const LoggerMode& mode, std::string message)
@@ -114,7 +128,7 @@ void Logger::setStatusToMode(const LoggerMode& mode, bool state)
         std::lock_guard<std::mutex> lock(loggerMutex);
         modeEnabled[(size_t)mode] = state;
     }
-    std::string modestr = std::string(magic_enum::enum_name(mode));
+    std::string modestr(magic_enum::enum_name(mode));
     std::string message = state ? modestr + " Enabled" : modestr + " Disabled";
     log(LoggerMode::LogConfig) << message << Logger::endl;
 }

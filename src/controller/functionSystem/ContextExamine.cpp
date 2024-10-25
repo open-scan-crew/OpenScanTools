@@ -1,11 +1,8 @@
 #include "controller/functionSystem/ContextExamine.h"
 #include "controller/messages/FullClickMessage.h"
 #include "gui/GuiData/GuiDataRendering.h"
-#include "gui/GuiData/GuiDataMeasure.h"
 #include "controller/Controller.h"
-#include "controller/functionSystem/FunctionManager.h"
 #include "utils/Logger.h"
-#include "controller/ControllerContext.h"
 
 ContextExamine::ContextExamine(const ContextId& id)
 	: ARayTracingContext(id)

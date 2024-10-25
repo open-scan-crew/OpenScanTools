@@ -1,21 +1,21 @@
 #include "controller/controls/ControlApplication.h"
-#include "utils/Logger.h"
 #include "controller/Controller.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.h"
-#include "models/3d/Graph/ManipulatorNode.h"
+#include "controller/ControllerContext.h"
 
+#include "models/graph/GraphManager.h"
+#include "models/graph/ManipulatorNode.h"
+#include "models/graph/CameraNode.h"
+
+#include "gui/GuiData/GuiDataIO.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataRendering.h"
 #include "gui/GuiData/GuiData3dObjects.h"
-#include "controller/ControllerContext.h"
-#include "controller/controls/ControlProject.h"
-#include "controller/functionSystem/FunctionManager.h"
-#include "controller/messages/UndoRedoMessages.h"
-#include "io/SaveLoadSystem.h"
 #include "gui/GuiData/GuiDataMessages.h"
-#include "gui/GuiData/GuiDataIO.h"
 #include "gui/Translator.h"
 #include "gui/Texts.hpp"
+
+#include "io/SaveLoadSystem.h"
+
 #include "utils/Config.h"
 #include "utils/Logger.h"
 
@@ -74,8 +74,6 @@ namespace control
 
 			CONTROLLOG << "control::application::Undo" << LOGENDL;
 			controller.undoLastAction();
-
-
 		}
 
 		bool Undo::canUndo() const
@@ -805,17 +803,13 @@ namespace control
 		{
 			if (m_isActivate)
 			{
-				if (controller.startAutosaveThread(m_timing))
-					CONTROLLOG << "control::application::SetAutoSaveParameters thread started." << LOGENDL;
-				else
-					CONTROLLOG << "control::application::SetAutoSaveParameters FAILED to start thread." << LOGENDL;
+				controller.activateAutosave(m_timing);
+				CONTROLLOG << "control::application::SetAutoSaveParameters started." << LOGENDL;
 			}
 			else
 			{
-				if (controller.stopAutosaveThread())
-					CONTROLLOG << "control::application::SetAutoSaveParameters thread stoped." << LOGENDL;
-				else
-					CONTROLLOG << "control::application::SetAutoSaveParameters FAILED to stop thread." << LOGENDL;
+				controller.deactivateAutosave();
+				CONTROLLOG << "control::application::SetAutoSaveParameters stoped." << LOGENDL;
 			}
 
 			if (m_save && !Config::setIsAutoSaveActive(m_isActivate) && !Config::setAutoSaveTiming(m_timing))
@@ -1080,7 +1074,7 @@ namespace control
 
 		void SetOrthoGridParameters::doFunction(Controller& controller)
 		{
-			const SafePtr<CameraNode>& camera = controller.getOpenScanToolsGraphManager().getCameraNode();
+			const SafePtr<CameraNode>& camera = controller.getGraphManager().getCameraNode();
 			WritePtr<CameraNode> wCamera = camera.get();
 			if (!wCamera)
 				return;

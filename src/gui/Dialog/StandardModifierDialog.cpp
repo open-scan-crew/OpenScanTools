@@ -8,6 +8,7 @@
 #include "gui/texts/ListTexts.hpp"
 #include "gui/widgets/CustomWidgets/qdoubleedit.h"
 #include "utils/QtUtils.h"
+#include "utils/Logger.h"
 
 StandardModifierDialog::StandardModifierDialog(IDataDispatcher& dataDispatcher, const StandardType& type, QDialog *parent)
 	: AListModifierDialog(dataDispatcher, parent)
@@ -34,7 +35,7 @@ StandardModifierDialog::StandardModifierDialog(IDataDispatcher& dataDispatcher, 
 
 StandardModifierDialog::~StandardModifierDialog()
 {
-	PANELLOG << "destroy StandardModifierDialog" << LOGENDL;
+	GUI_LOG << "destroy StandardModifierDialog" << LOGENDL;
 }
 
 void StandardModifierDialog::getList(IGuiData *data)
@@ -82,12 +83,12 @@ void StandardModifierDialog::getList(IGuiData *data)
 
 	m_ui.listView->setModel(model);
 	model->blockSignals(false);
-	PANELLOG << "userlist : " << rList->getName() << " with " << rList->clist().size() << " elems is shown" << LOGENDL;
+	GUI_LOG << "userlist : " << rList->getName() << " with " << rList->clist().size() << " elems is shown" << LOGENDL;
 }
 
 void StandardModifierDialog::showElemMenu(QPoint p)
 {
-	PANELLOG << "show elem menu" << LOGENDL;
+	GUI_LOG << "show elem menu" << LOGENDL;
 	QMenu *menu = new QMenu(this);
 
 	QAction *deleteAct = new QAction(TEXT_DELETE_ELEMENT, this);
@@ -105,7 +106,7 @@ void StandardModifierDialog::addNewElem()
 		m_dataDispatcher.sendControl(new control::standards::AddItemToStandard(m_list, doubleEdit->getValue(), m_type));
 	m_ui.NewElemLineEdit->clear();
 	m_ui.NewElemLineEdit->blockSignals(false);
-	PANELLOG << "add a new elem" << LOGENDL;
+	GUI_LOG << "add a new elem" << LOGENDL;
 }
 
 void StandardModifierDialog::renameListViewElem(QStandardItem *item)
@@ -113,7 +114,7 @@ void StandardModifierDialog::renameListViewElem(QStandardItem *item)
 	ItemNode *list = static_cast<ItemNode*>(item);
 
 	m_dataDispatcher.sendControl(new control::standards::RenameItemFromList(m_list, std::stod(list->getWStrData()), item->text().toDouble(), m_type));
-	PANELLOG << "rename elem " << list->text().toStdString() << LOGENDL;
+	GUI_LOG << "rename elem " << list->text().toStdString() << LOGENDL;
 }
 
 void StandardModifierDialog::renameElem()
@@ -137,7 +138,7 @@ void StandardModifierDialog::renameElem()
 			m_ui.NameLineEdit->blockSignals(false);
 		}
 	}
-	PANELLOG << "rename elem" << LOGENDL;
+	GUI_LOG << "rename elem" << LOGENDL;
 }
 
 void StandardModifierDialog::deleteElem()
@@ -154,12 +155,12 @@ void StandardModifierDialog::deleteElem()
 		ss << element->getWStrData();
 		m_dataDispatcher.sendControl(new control::standards::RemoveItemFromList(m_list, std::stod(element->getWStrData()), m_type));
 	}
-	PANELLOG << "delete " << ss.str() << LOGENDL;
+	GUI_LOG << "delete " << ss.str() << LOGENDL;
 }
 
 void StandardModifierDialog::clearList()
 {
-	PANELLOG << "clear items of list " << LOGENDL;
+	GUI_LOG << "clear items of list " << LOGENDL;
 	QMessageBox::StandardButton reply;
 
 	reply = QMessageBox::question(this, TEXT_TITLE_CLEAN_LIST_BOX, TEXT_TITLE_CLEAN_LIST_BOX, QMessageBox::Yes | QMessageBox::No);
@@ -168,5 +169,5 @@ void StandardModifierDialog::clearList()
 		m_dataDispatcher.sendControl(new control::standards::ClearItemFromList(m_list, m_type));
 	}
 	else
-		PANELLOG << "click no to clear list" << LOGENDL;
+		GUI_LOG << "click no to clear list" << LOGENDL;
 }

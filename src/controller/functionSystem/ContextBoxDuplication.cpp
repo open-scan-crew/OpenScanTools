@@ -2,14 +2,13 @@
 #include "controller/controls/ControlFunction.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ContextTexts.hpp"
-#include "utils/math/trigo.h"
 #include "utils/Logger.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
-#include "models/3d/Graph/BoxNode.h"
+#include "models/graph/GraphManager.hxx"
+#include "models/graph/BoxNode.h"
 
 ContextBoxDuplication::ContextBoxDuplication(const ContextId& id)
     : ARayTracingContext(id)
@@ -42,7 +41,7 @@ ContextState ContextBoxDuplication::launch(Controller& controller)
     // -!- Ray Tracing -!-
 
     FUNCLOG << "ContextBoxDuplication launch" << LOGENDL;
-    OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+    GraphManager& graphManager = controller.getGraphManager();
     std::unordered_set<SafePtr<AGraphNode>> boxes = graphManager.getNodesByTypes({ ElementType::Box, ElementType::Grid }, ObjectStatusFilter::SELECTED);
 
     if (boxes.empty() || boxes.size() > 1)

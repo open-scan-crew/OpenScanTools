@@ -9,13 +9,11 @@
 
 #include <glm/glm.hpp>
 
-class AGraphNode;
-
 class DisplayParameters
 {
 public:
-    DisplayParameters();
-    ~DisplayParameters();
+    DisplayParameters() {};
+    ~DisplayParameters() {};
 
 public:
     // Point Attributes

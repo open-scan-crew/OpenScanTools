@@ -2,9 +2,6 @@
 #define POINT_TO_PLANE_H
 
 #include "controller/functionSystem/ARayTracingContext.h"
-#include <glm/glm.hpp>
-#include <list>
-#include <map>
 
 class ContextPointToPlaneMeasure : public ARayTracingContext
 {

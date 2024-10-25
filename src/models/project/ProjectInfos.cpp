@@ -1,5 +1,7 @@
 #include "models/project/ProjectInfos.h"
 #include "models/application/Author.h"
+#include "utils/FilesAndFoldersDefinitions.h"
+
 
 ProjectInfos::ProjectInfos()
 	: m_beamBendingTolerance(200.0)

@@ -4,41 +4,16 @@
 #include "windows.h"  // for CoInitialize() ??
 #include <ctime>
 
-#import "C:\Windows\WinSxS\amd64_faro.ls_1d23f5635ba800ab_1.1.904.0_none_36a2d78167a840a1\iQOpen.dll" no_namespace
-//#import "..\..\resources\faro\iQOpen.dll" no_namespace
-//#import "..\..\resources\amd64_faro.ls_1d23f5635ba800ab_1.1.904.0_none_36a2d78167a840a1\iQOpen.dll" no_namespace
+//#import "C:\Windows\WinSxS\amd64_faro.ls_1d23f5635ba800ab_1.1.904.0_none_36a2d78167a840a1\iQOpen.dll" no_namespace
+#import "..\..\ext\faro\iQOpen.dll" no_namespace
 
 #define LicenseCode   L"FARO Open Runtime License\nKey:G38WLPNMTCKXFK6TY3ZUSPVPL\n\nThe software is the registered property of FARO Scanner Production GmbH, Stuttgart, Germany.\nAll rights reserved.\nThis software may only be used with written permission of FARO Scanner Production GmbH, Stuttgart, Germany."
 
-//void* h_dll_iqopen = NULL;
 IiQLibIfPtr libRef;
 
-/*
-bool loadDLL()
-{
-    if (h_dll_iqopen != NULL)
-        return true;
-
-    DWORD error = GetLastError();
-
-    h_dll_iqopen = LoadLibrary("../../resources/faro/iQOpen.dll");
-
-    error = GetLastError();
-
-    if (h_dll_iqopen == NULL)
-    {
-        MessageBox(NULL, "Error: iQOpen.dll is missing.", "DLL not found!", MB_OK | MB_ICONERROR);
-        return false;
-    }
-    return true;
-}
-*/
 
 bool FlsFileReader::getReader(const std::filesystem::path& filepath, std::wstring& log, FlsFileReader** reader, const bool forceColor)
 {
-    //if (!loadDLL())
-    //    return false;
-
     try {
         if (libRef == NULL)
         {

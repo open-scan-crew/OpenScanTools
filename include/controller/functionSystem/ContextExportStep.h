@@ -2,11 +2,11 @@
 #define CONTEXT_EXPORT_STEP_H_
 
 #include "controller/functionSystem/AContext.h"
-#include "models/3d/Graph/AGraphNode.h"
+#include "models/graph/AGraphNode.h"
 #include "io/exports/stepExport.h"
-#include <filesystem>
-#include <glm/glm.hpp>
 #include "io/exports/ExportParameters.hpp"
+
+#include <filesystem>
 
 struct Measure;
 

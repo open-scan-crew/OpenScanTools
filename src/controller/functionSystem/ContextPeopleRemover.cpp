@@ -1,16 +1,10 @@
 #include "controller/functionSystem/ContextCreateTag.h"
-#include "controller/controls/ControlFunctionTag.h"
-#include "models/3d/graph/OpenScanToolsGraphManager.h"
-#include "models/3d/graph/BoxNode.h"
-#include "models/3d/graph/ClusterNode.h"
+#include "models/graph/GraphManager.h"
+#include "models/graph/BoxNode.h"
+#include "models/graph/ClusterNode.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
 #include "controller/ControlListener.h"
-#include "controller/functionSystem/FunctionManager.h"
 #include "controller/functionSystem/ContextPeopleRemover.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
-#include "gui/GuiData/GuiDataMessages.h"
-#include "gui/Texts.hpp"
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "pointCloudEngine/OctreeRayTracing.h"
 #include "controller/controls/ControlFunction.h"
@@ -46,9 +40,9 @@ ContextState ContextPeopleRemover::launch(Controller& controller)
 		Logger::log(LoggerMode::rayTracingLog) << "people remover starting..." << Logger::endl;
 		auto start = high_resolution_clock::now();
 		ClippingAssembly clippingAssembly;
-		controller.getOpenScanToolsGraphManager().getClippingAssembly(clippingAssembly, true, false);
+		controller.getGraphManager().getClippingAssembly(clippingAssembly, true, false);
 
-		TlScanOverseer::setWorkingScansTransfo(controller.getOpenScanToolsGraphManager().getVisiblePointCloudInstances(m_panoramic, true, true));
+		TlScanOverseer::setWorkingScansTransfo(controller.getGraphManager().getVisiblePointCloudInstances(m_panoramic, true, true));
 		double voxelSize = 0.1;
 	
 		int numberOfScans = TlScanOverseer::getInstance().getNumberOfScans();
@@ -284,7 +278,7 @@ ContextState ContextPeopleRemover::launch(Controller& controller)
 			
 			TransformationModule mod;
 			ClippingAssembly clippingAssembly;
-			controller.getOpenScanToolsGraphManager().getClippingAssembly(clippingAssembly, true, false);
+			controller.getGraphManager().getClippingAssembly(clippingAssembly, true, false);
 			glm::dmat4 mat = glm::inverse(clippingAssembly.clippingUnion[0]->matRT_inv);
 			mod.setTransformation(mat);
 			

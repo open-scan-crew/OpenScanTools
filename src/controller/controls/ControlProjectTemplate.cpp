@@ -1,21 +1,16 @@
 #include "controller/controls/ControlProjectTemplate.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "io/SaveLoadSystem.h"
-#include "gui/GuiData/GuiDataList.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataMessages.h"
-#include "gui/GuiData/GuiDataTemplate.h"
 #include "gui/texts/ProjectTemplateTexts.hpp"
-#include "io/FileUtils.h"
-#include "Gui/Translator.h"
-#include <iostream>
-#include <fstream>
-#include <filesystem>
-#include <Windows.h>
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "utils/FilesAndFoldersDefinitions.h"
+#include "utils/system.h"
+#include <filesystem>
+
 
 // control::projectTemplate::
 #define Yes 0x00004000

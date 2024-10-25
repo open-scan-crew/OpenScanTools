@@ -18,7 +18,7 @@
 
 #include "io/ImageTypes.h"
 
-#include "models/3d/Graph/CameraNode.h"
+#include "models/graph/CameraNode.h"
 
 /*
 enum class PrintSize

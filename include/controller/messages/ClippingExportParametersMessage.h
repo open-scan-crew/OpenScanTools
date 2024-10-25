@@ -3,7 +3,7 @@
 
 #include "io/exports/ExportParameters.hpp"
 #include "controller/messages/IMessage.h"
-#include "models/OpenScanToolsModelEssentials.h"
+#include "utils/safe_ptr.h"
 
 #include <unordered_set>
 

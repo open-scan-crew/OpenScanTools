@@ -2,7 +2,6 @@
 #define CONTROL_CREATION_ATTRIBUTES_EDITION_H_
 
 #include "controller/controls/IControl.h"
-#include "models/data/Data.h"
 #include "utils/Color32.hpp"
 
 namespace control

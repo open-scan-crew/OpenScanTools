@@ -7,8 +7,9 @@
 #include "pointCloudEngine/GuiRenderingTypes.h"
 #include "pointCloudEngine/ShowTypes.h"
 #include "io/ImageTypes.h"
-#include "models/pointCloud/TLS.h"
+#include "models/3d/BoundingBox.h"
 #include "utils/Color32.hpp"
+#include "utils/safe_ptr.h"
 #include "models/3d/DisplayParameters.h"
 #include "models/3d/NavigationTypes.h"
 
@@ -73,17 +74,14 @@ public:
 	const Color32 m_color;
 };
 
-class GuiDataRenderAlignView : public GuiDataActiveCamera
+class GuiDataRenderAdjustZoom : public GuiDataActiveCamera
 {
 public:
-	GuiDataRenderAlignView(const AlignView& align, const tls::BoundingBox& sceneBBox, SafePtr<CameraNode> camera, bool isBboxEmpty);
-	~GuiDataRenderAlignView() {};
+	GuiDataRenderAdjustZoom(const BoundingBoxD& sceneBBox, SafePtr<CameraNode> camera);
 	virtual guiDType getType() override;
 
 public:
-	const AlignView m_align;
-    const tls::BoundingBox m_bbox;
-	bool m_isBboxEmpty;
+	const BoundingBoxD scene_bbox_;
 };
 
 class GuiDataRenderCameraMoveTo : public GuiDataActiveCamera

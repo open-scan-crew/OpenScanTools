@@ -6,19 +6,18 @@
 #include "models/Types.hpp"
 #include "models/project/ProjectInfos.h"
 #include "models/OpenScanToolsModelEssentials.h"
-#include "controller/controls/IControl.h"
-#include "models/application/List.h"
 #include "models/application/Author.h"
 #include "controller/functionSystem/AContext.h"
 
+#include "utils/Color32.hpp"
+
 #include <unordered_set>
-#include <map>
 
 class AGraphNode;
 class AClippingNode;
 class CameraNode;
 
-class OpenScanToolsGraphManager;
+class GraphManager;
 class ControllerContext;
 
 class QString;
@@ -180,7 +179,7 @@ public:
 class GuiDataProjectProperties : public IGuiData
 {
 public:
-	GuiDataProjectProperties(const ControllerContext& context, const OpenScanToolsGraphManager& graphManager, bool openProperties = true);
+	GuiDataProjectProperties(const ControllerContext& context, const GraphManager& graphManager, bool openProperties = true);
 	guiDType getType() override;
 public:
     ProjectInfos m_projectInfo;

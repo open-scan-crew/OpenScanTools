@@ -1,22 +1,15 @@
 #include "controller/functionSystem/ContextCylinderToCylinderMeasure.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
-#include "controller/functionSystem/FunctionManager.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "controller/controls/ControlFunction.h"
-
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "pointCloudEngine/MeasureClass.h"
-
-#include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ContextTexts.hpp"
 
-#include "models/3d/Graph/PipeToPipeMeasureNode.h"
-#include "models/3d/Graph/CylinderNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
-
-#include "utils/Logger.h"
+#include "models/graph/PipeToPipeMeasureNode.h"
+#include "models/graph/CylinderNode.h"
+#include "models/graph/GraphManager.hxx"
 
 #include <glm/gtx/quaternion.hpp>
 
@@ -116,7 +109,7 @@ ContextState ContextCylinderToCylinderMeasure::launch(Controller& controller)
     createCylinder(controller, cylinder2Radius, correctedCenter2, cylinder2Direction, lenght2);
 
 	//create measure
-    SafePtr<PipeToPipeMeasureNode> measure = controller.getOpenScanToolsGraphManager().createMeasureNode<PipeToPipeMeasureNode>();
+    SafePtr<PipeToPipeMeasureNode> measure = controller.getGraphManager().createMeasureNode<PipeToPipeMeasureNode>();
     WritePtr<PipeToPipeMeasureNode> wMeasure = measure.get();
     if (!wMeasure)
     {
@@ -167,7 +160,7 @@ ContextType ContextCylinderToCylinderMeasure::getType() const
 
 bool ContextCylinderToCylinderMeasure::findCylinder(Controller& controller, const glm::dvec3& seedPoint, double& _cylinderRadius, glm::dvec3& _cylinderCenter, glm::dvec3& _cylinderDir)
 {
-    OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+    GraphManager& graphManager = controller.getGraphManager();
     ClippingAssembly clippingAssembly;
     graphManager.getClippingAssembly(clippingAssembly, true, false);
 
@@ -186,7 +179,7 @@ bool ContextCylinderToCylinderMeasure::findCylinder(Controller& controller, cons
 
 void ContextCylinderToCylinderMeasure::createCylinder(Controller& controller, double radius, glm::dvec3 correctedCenter, glm::dvec3 direction, double lenght)
 {
-    OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+    GraphManager& graphManager = controller.getGraphManager();
     //create cylinders
     SafePtr<CylinderNode> cylinder = make_safe<CylinderNode>(radius);
     WritePtr<CylinderNode> wCylinder = cylinder.get();

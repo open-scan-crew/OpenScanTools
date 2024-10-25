@@ -1,7 +1,6 @@
 #ifndef TYPES_HPP
 #define TYPES_HPP
 
-#include <unordered_map>
 #include <unordered_set>
 /*!Type des éléments dans l'arbre
 

@@ -1,19 +1,16 @@
 #include "controller/Controls/ControlClippingEdition.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
-#include "gui/GuiData/GuiDataMessages.h"
-#include "gui/GuiData/GuiData3dObjects.h"
-#include "gui/GuiData/GuiDataTree.h"
-#include "pointCloudEngine/RenderingLimits.h"
-#include "utils/math/trigo.h" 
-#include "utils/Logger.h"
-
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
-#include "models/3d/Graph/BoxNode.h"
 #include "controller/controls/AEditionControl.hxx"
 
+#include "pointCloudEngine/RenderingLimits.h"
+
+#include "models/graph/GraphManager.h"
+#include "models/graph/BoxNode.h"
+
 #include "gui/Texts.hpp"
+
+#include "utils/Logger.h"
 
 namespace control::clippingEdition
 {
@@ -32,13 +29,13 @@ namespace control::clippingEdition
     SetMode::SetMode(SafePtr<AClippingNode> toEditData, ClippingMode mode)
         : ATEditionControl({ toEditData }, mode, "SetMode", & ClippingData::setClippingMode, & ClippingData::getClippingMode)
     {
-        m_actualizeOptions = ActualizeOptions(true);
+        m_actualize_tree_view = true;
     }
 
     SetMode::SetMode(const std::unordered_set<SafePtr<AClippingNode>>& toEditDatas, const ClippingMode& mode)
         : ATEditionControl(toEditDatas, mode, "SetMode", &ClippingData::setClippingMode, &ClippingData::getClippingMode)
     {
-        m_actualizeOptions = ActualizeOptions(true);
+        m_actualize_tree_view = true;
     }
 
     SetMode::~SetMode()
@@ -49,7 +46,7 @@ namespace control::clippingEdition
     {
         if (m_filterIsActive || m_filterIsSelected)
         {
-            OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+            GraphManager& graphManager = controller.getGraphManager();
             setToEditData(graphManager.getClippingObjects(m_filterIsActive, m_filterIsSelected), m_mode);
         }
         doSimpleEdition(controller);
@@ -71,19 +68,19 @@ namespace control::clippingEdition
         m_filterClipActive = filterClipActive;
         m_filterSelected = filterSelected;
 
-        m_actualizeOptions = ActualizeOptions(true);
+        m_actualize_tree_view = true;
     }
 
     SetClipActive::SetClipActive(SafePtr<AClippingNode> toEditData, bool active)
         : ATEditionControl({ toEditData }, active, "SetClipActive", & ClippingData::setClippingActive, & ClippingData::isClippingActive)
     {
-        m_actualizeOptions = ActualizeOptions(true);
+        m_actualize_tree_view = true;
     }
 
     SetClipActive::SetClipActive(const std::unordered_set<SafePtr<AClippingNode>>& toEditDatas, bool active)
         : ATEditionControl(toEditDatas, active, "SetClipActive", &ClippingData::setClippingActive, &ClippingData::isClippingActive)
     {
-        m_actualizeOptions = ActualizeOptions(true);
+        m_actualize_tree_view = true;
     }
 
     SetClipActive::~SetClipActive()
@@ -91,7 +88,7 @@ namespace control::clippingEdition
 
     void SetClipActive::doFunction(Controller& controller)
     {
-        OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+        GraphManager& graphManager = controller.getGraphManager();
 
         uint32_t clipCount = graphManager.getActiveClippingAndRampCount();
 
@@ -137,7 +134,7 @@ namespace control::clippingEdition
 
     void SetRampActive::doFunction(Controller& controller)
     {
-        OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+        GraphManager& graphManager = controller.getGraphManager();
 
         uint32_t clipCount = graphManager.getActiveClippingAndRampCount();
 
@@ -314,13 +311,13 @@ namespace control::clippingEdition
     SwitchBoxGrid::SwitchBoxGrid(SafePtr<BoxNode> box, bool upgrade)
         : ATEditionControl({ box }, upgrade, "SwitchBoxGrid", & BoxNode::setIsSimpleBox, & BoxNode::isSimpleBox)
     {
-        m_actualizeOptions = ActualizeOptions(true);
+        m_actualize_tree_view = true;
     }
 
     SwitchBoxGrid::SwitchBoxGrid(const std::unordered_set<SafePtr<BoxNode>>& boxs, bool upgrade)
         : ATEditionControl(boxs, upgrade, "SwitchBoxGrid", &BoxNode::setIsSimpleBox, &BoxNode::isSimpleBox)
     {
-        m_actualizeOptions = ActualizeOptions(true);
+        m_actualize_tree_view = true;
     }
 
     SwitchBoxGrid::~SwitchBoxGrid()

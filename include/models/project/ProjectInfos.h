@@ -3,12 +3,12 @@
 
 #include <string>
 #include <filesystem>
-#include "utils/Color32.hpp"
-#include "utils/FilesAndFoldersDefinitions.h"
 #include "crossguid/guid.hpp"
 #include "models/data/Clipping/ClippingTypes.h"
 
 #include "utils/safe_ptr.h"
+
+#include <glm/glm.hpp>
 
 class Author;
 

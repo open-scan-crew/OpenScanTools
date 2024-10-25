@@ -5,12 +5,12 @@
 
 class QString;
 class ProjectTreePanel;
-class OpenScanToolsGraphManager;
+class GraphManager;
 
 class TreeNodeFactory
 {
 public:
-	TreeNodeFactory(ProjectTreePanel* treePanel, OpenScanToolsGraphManager& graphManager);
+	TreeNodeFactory(ProjectTreePanel* treePanel, GraphManager& graphManager);
 	~TreeNodeFactory();
 
 	TreeNode* constructTreeNode(const SafePtr<AGraphNode>& data, TreeNode *parent, TreeType treetype);
@@ -18,7 +18,7 @@ public:
 	TreeNode* constructMasterNode(const QString& name, TreeType treeType);
 	TreeNode* constructPlaceholderNode(TreeType treeType);
 	TreeNode* constructStructNode(const QString& name, 
-		std::function<std::unordered_set<SafePtr<AGraphNode>>(const OpenScanToolsGraphManager&)> getChildFonction,
+		std::function<std::unordered_set<SafePtr<AGraphNode>>(const GraphManager&)> getChildFonction,
 		std::function<bool(const SafePtr<AGraphNode>&)> dropFilter,
 		std::function<void(IDataDispatcher&, std::unordered_set<SafePtr<AGraphNode>>)> controlSender,
 		TreeNode *parent = nullptr);
@@ -43,7 +43,7 @@ private:
 	Qt::CheckState recGetNodeState(TreeNode* node);
 
 private:
-	OpenScanToolsGraphManager& m_graphManager;
+	GraphManager& m_graphManager;
 	ProjectTreePanel* m_treePanel;
 };
 

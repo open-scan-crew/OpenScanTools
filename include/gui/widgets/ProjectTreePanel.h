@@ -26,7 +26,7 @@ class ProjectTreePanel : public QTreeView, public IPanel
 	friend class TreeNodeFactory;
 public:
 
-	ProjectTreePanel(IDataDispatcher& dataDispatcher, OpenScanToolsGraphManager& graphManager, float guiScale);
+	ProjectTreePanel(IDataDispatcher& dataDispatcher, GraphManager& graphManager, float guiScale);
 	~ProjectTreePanel();
 
 	void informData(IGuiData* keyValue) override;
@@ -106,7 +106,7 @@ private:
 private:
 
 	IDataDispatcher& m_dataDispatcher;
-	OpenScanToolsGraphManager& m_graphManager;
+	GraphManager& m_graphManager;
 
 	QStandardItem* m_highlightNode;
 	QBrush m_lastHighLightBrush;

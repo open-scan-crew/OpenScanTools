@@ -5,6 +5,7 @@
 #include "gui/IPanel.h"
 #include "gui/Dialog/HyperlinkAddDialog.h"
 #include "gui/IDataDispatcher.h"
+#include "models/Types.hpp"
 
 class AObjectNode;
 

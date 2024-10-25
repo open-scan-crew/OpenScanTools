@@ -1,16 +1,14 @@
 #include "controller/controls/ControlViewPoint.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
 #include "controller/functionSystem/FunctionManager.h"
-
-#include "utils/Logger.h"
 #include "controller/messages/DataIDListMessage.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
-#include "models/3d/Graph/AClippingNode.h"
-#include "models/3d/Graph/ViewPointNode.h"
-#include "models/3d/Graph/CameraNode.h"
+#include "models/graph/GraphManager.h"
+#include "models/graph/AClippingNode.h"
+#include "models/graph/ViewPointNode.h"
+#include "models/graph/CameraNode.h"
+
+#include "utils/Logger.h"
 
 namespace control::viewpoint
 {
@@ -62,7 +60,7 @@ namespace control::viewpoint
     {
         if (!m_viewpointToUpdate.cget())
         {
-            OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+            GraphManager& graphManager = controller.getGraphManager();
 
             std::unordered_set<SafePtr<AGraphNode>> viewpointToUpdate = graphManager.getNodesByTypes({ ElementType::ViewPoint }, ObjectStatusFilter::SELECTED);
             if (viewpointToUpdate.size() != 1)
@@ -190,7 +188,7 @@ namespace control::viewpoint
             colorList = readViewpoint->getScanClusterColors();
         }
 
-        OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+        GraphManager& graphManager = controller.getGraphManager();
 
         std::unordered_set<SafePtr<AClippingNode>> clippings = graphManager.getClippingObjects(false, false);
 
@@ -245,7 +243,7 @@ namespace control::viewpoint
             }
         }
 
-            controller.actualizeNodes(ActualizeOptions(true), editedNodes);
+            controller.actualizeTreeView(editedNodes);
 
         CONTROLLOG << "control::viewpoint::UpdateViewPoint undo " << LOGENDL;
     }

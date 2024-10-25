@@ -12,19 +12,18 @@
 #include "utils/Logger.h"
 #include "utils/ProjectColor.hpp"
 #include "controller/messages/SimpleNumberMessage.h"
+#include "controller/messages/PlaneMessage.h"
 #include "controller/controls/ControlTree.h"
 #include "controller/functionSystem/ContextPeopleRemover.h"
 #include "controller/functionSystem/ContextCreateTag.h"
 #include "gui/Texts.hpp"
-#include "pointCloudEngine/TlScanOverseer.h"
 #include "pointCloudEngine/OctreeRayTracing.h"
 #include "controller/controls/ControlFunctionClipping.h"
-#include "controller/controls/ControlTree.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
-#include "models/3d/Graph/PointNode.h"
+#include "models/graph/GraphManager.hxx"
+#include "models/graph/PointNode.h"
 #include "controller/controls/ControlFunction.h"
 #include "pointCloudEngine/MeasureClass.h"
-#include "models/3d/Graph/SimpleMeasureNode.h"
+#include "models/graph/SimpleMeasureNode.h"
 #include <chrono>
 #include <thread>
 
@@ -106,7 +105,7 @@ ContextState ContextSetOfPoints::launch(Controller& controller)
 	controller.updateInfo(new GuiDataTmpMessage(TEXT_LUCAS_SEARCH_ONGOING, 0));
 	bool success = false;
 
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
 	ClippingAssembly clippingAssembly;
 	graphManager.getClippingAssembly(clippingAssembly, true, false);
 
@@ -242,7 +241,7 @@ ContextState ContextSetOfPoints::launch(Controller& controller)
 					newMeasure.origin = createdPoints[i];
 					newMeasure.final = createdPoints2[i];
 
-					SafePtr<SimpleMeasureNode> measure = controller.getOpenScanToolsGraphManager().createMeasureNode<SimpleMeasureNode>();
+					SafePtr<SimpleMeasureNode> measure = controller.getGraphManager().createMeasureNode<SimpleMeasureNode>();
 					WritePtr<SimpleMeasureNode> wMeasure = measure.get();
 					if (!wMeasure)
 					{
@@ -530,7 +529,7 @@ ContextState ContextSetOfPoints::launch(Controller& controller)
 					newMeasure.origin = createdPointStart[i];
 					newMeasure.final = createdPointEnd[i];
 
-					SafePtr<SimpleMeasureNode> measure = controller.getOpenScanToolsGraphManager().createMeasureNode<SimpleMeasureNode>();
+					SafePtr<SimpleMeasureNode> measure = controller.getGraphManager().createMeasureNode<SimpleMeasureNode>();
 					WritePtr<SimpleMeasureNode> wMeasure = measure.get();
 					if (!wMeasure)
 					{
@@ -626,7 +625,7 @@ ContextState ContextSetOfPoints::launch(Controller& controller)
 					newMeasure.origin = createdPointStart[i];
 					newMeasure.final = createdPointEnd[i];
 
-					SafePtr<SimpleMeasureNode> measure = controller.getOpenScanToolsGraphManager().createMeasureNode<SimpleMeasureNode>();
+					SafePtr<SimpleMeasureNode> measure = controller.getGraphManager().createMeasureNode<SimpleMeasureNode>();
 					WritePtr<SimpleMeasureNode> wMeasure = measure.get();
 					if (!wMeasure)
 					{
@@ -713,7 +712,7 @@ ContextState ContextSetOfPoints::launch(Controller& controller)
 					newMeasure.origin = createdPointStart[i];
 					newMeasure.final = createdPointEnd[i];
 
-					SafePtr<SimpleMeasureNode> measure = controller.getOpenScanToolsGraphManager().createMeasureNode<SimpleMeasureNode>();
+					SafePtr<SimpleMeasureNode> measure = controller.getGraphManager().createMeasureNode<SimpleMeasureNode>();
 					WritePtr<SimpleMeasureNode> wMeasure = measure.get();
 					if (!wMeasure)
 					{
@@ -815,7 +814,7 @@ ContextState ContextSetOfPoints::launch(Controller& controller)
 					newMeasure.origin = createdPointStart[i];
 					newMeasure.final = createdPointEnd[i];
 
-					SafePtr<SimpleMeasureNode> measure = controller.getOpenScanToolsGraphManager().createMeasureNode<SimpleMeasureNode>();
+					SafePtr<SimpleMeasureNode> measure = controller.getGraphManager().createMeasureNode<SimpleMeasureNode>();
 					WritePtr<SimpleMeasureNode> wMeasure = measure.get();
 					if (!wMeasure)
 					{
@@ -927,7 +926,7 @@ ContextState ContextSetOfPoints::launch(Controller& controller)
 					newMeasure.origin = createdPointStart[i];
 					newMeasure.final = createdPointEnd[i];
 
-					SafePtr<SimpleMeasureNode> measure = controller.getOpenScanToolsGraphManager().createMeasureNode<SimpleMeasureNode>();
+					SafePtr<SimpleMeasureNode> measure = controller.getGraphManager().createMeasureNode<SimpleMeasureNode>();
 					WritePtr<SimpleMeasureNode> wMeasure = measure.get();
 					if (!wMeasure)
 					{

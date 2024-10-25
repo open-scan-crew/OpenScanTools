@@ -3199,58 +3199,6 @@ glm::dvec3 TlScanOverseer::computeAreaOfPolyline(std::vector<Measure> measures)
 
 }
 
-tls::BoundingBox TlScanOverseer::getActiveBoundingBox() const
-{
-    tls::BoundingBox projectBBox = EMPTY_BOUNDING_BOX(float);
-
-    for (const WorkingScanInfo& _pair : s_workingScansTransfo)
-    {
-        tls::BoundingBox bb = _pair.scan.getBoundingBox(_pair.transfo.getTransformation());
-
-        projectBBox.xMax = bb.xMax > projectBBox.xMax ? bb.xMax : projectBBox.xMax;
-        projectBBox.yMax = bb.yMax > projectBBox.yMax ? bb.yMax : projectBBox.yMax;
-        projectBBox.zMax = bb.zMax > projectBBox.zMax ? bb.zMax : projectBBox.zMax;
-        projectBBox.zMin = bb.zMin < projectBBox.zMin ? bb.zMin : projectBBox.zMin;
-        projectBBox.xMin = bb.xMin < projectBBox.xMin ? bb.xMin : projectBBox.xMin;
-        projectBBox.yMin = bb.yMin < projectBBox.yMin ? bb.yMin : projectBBox.yMin;
-    }
-
-    return projectBBox;
-}
-
-tls::TBoundingBox<double> TlScanOverseer::getScansBoundingBox() const
-{
-    if (m_activeScans.empty())
-    {
-        return { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-    }
-
-    tls::TBoundingBox<double> projectBBox;
-    projectBBox.xMax = std::numeric_limits<double>::min();
-    projectBBox.yMax = std::numeric_limits<double>::min();
-    projectBBox.zMax = std::numeric_limits<double>::min();
-    projectBBox.xMin = std::numeric_limits<double>::max();
-    projectBBox.yMin = std::numeric_limits<double>::max();
-    projectBBox.zMin = std::numeric_limits<double>::max();
-
-    for (const std::pair<tls::ScanGuid, EmbeddedScan*>& _pair : m_activeScans)
-    {
-        const tls::BoundingBox bb = _pair.second->getLocalBoundingBox();
-        tls::ScanHeader header;
-        _pair.second->getInfo(header);
-        const tls::Transformation& transfo(header.transfo);
-
-        projectBBox.xMax = (transfo.translation[0] + bb.xMax) > projectBBox.xMax ? (transfo.translation[0] + bb.xMax) : projectBBox.xMax;
-        projectBBox.yMax = (transfo.translation[1] + bb.yMax) > projectBBox.yMax ? (transfo.translation[1] + bb.yMax) : projectBBox.yMax;
-        projectBBox.zMax = (transfo.translation[2] + bb.zMax) > projectBBox.zMax ? (transfo.translation[2] + bb.zMax) : projectBBox.zMax;
-        projectBBox.zMin = (transfo.translation[2] + bb.zMin) < projectBBox.zMin ? (transfo.translation[2] + bb.zMin) : projectBBox.zMin;
-        projectBBox.xMin = (transfo.translation[0] + bb.xMin) < projectBBox.xMin ? (transfo.translation[0] + bb.xMin) : projectBBox.xMin;
-        projectBBox.yMin = (transfo.translation[1] + bb.yMin) < projectBBox.yMin ? (transfo.translation[1] + bb.yMin) : projectBBox.yMin;
-    }
-
-    return projectBBox;
-}
-
 std::list<tls::ScanHeader> TlScanOverseer::getScansHeaders() const
 {
     std::list<tls::ScanHeader> headers;
@@ -5168,9 +5116,9 @@ void TlScanOverseer::createClustersOfDynamicOctreeVoxels(const OctreeVoxelGrid& 
 {
 	clusterInfo.clear();
 	//intitialize labels
-	std::vector<int> temp((1<<octreeVoxelGrid.m_maxDepth), 0);
-	std::vector<std::vector<int>> temp1((1 << octreeVoxelGrid.m_maxDepth), temp);
-	clusterLabels = std::vector<std::vector<std::vector<int>>>((1 << octreeVoxelGrid.m_maxDepth), temp1);
+	std::vector<int> temp((1ull << octreeVoxelGrid.m_maxDepth), 0);
+	std::vector<std::vector<int>> temp1((1ull << octreeVoxelGrid.m_maxDepth), temp);
+	clusterLabels = std::vector<std::vector<std::vector<int>>>((1ull << octreeVoxelGrid.m_maxDepth), temp1);
 	int currentLabel = 1;
 
 	// label dynamicVoxels in cluster, using breadthFirstSearch
@@ -6723,7 +6671,9 @@ void TlScanOverseer::naiveTorus(const GeometricBox& box, const ClippingAssembly&
 	//sample planes
 	double step(0.01);
 	glm::dvec3 dirX(box.getDirX()), dirY(box.getDirY()), dirZ(box.getDirZ());
-	int sizeX(glm::length(box.m_corners[1] - box.m_corners[0]) / step), sizeY(glm::length(box.m_corners[2] - box.m_corners[0]) / step), sizeZ(glm::length(box.m_corners[3] - box.m_corners[0]) / step);
+	int sizeX = (int)(glm::length(box.m_corners[1] - box.m_corners[0]) / step);
+	int sizeY = (int)(glm::length(box.m_corners[2] - box.m_corners[0]) / step);
+	int sizeZ = (int)(glm::length(box.m_corners[3] - box.m_corners[0]) / step);
 	std::vector<std::vector<std::vector<bool>>> populated(sizeX,std::vector<std::vector<bool>>(sizeY,std::vector<bool>(sizeZ,false)));
 	std::vector<std::vector<std::vector<bool>>> resetPopulated = populated;
 	std::vector<std::vector<std::vector<AbstractPlane>>> planes(sizeX, std::vector<std::vector<AbstractPlane>>(sizeY, std::vector<AbstractPlane>(sizeZ, AbstractPlane(glm::dvec3(1.0,0.0,0.0),glm::dvec3(0.0,0.0,0.0)))));
@@ -6732,7 +6682,9 @@ void TlScanOverseer::naiveTorus(const GeometricBox& box, const ClippingAssembly&
 	for (int i = 0; i < (int)dataPoints.size(); i++)
 	{
 		//find voxel coordinate
-		int dataX(abs(glm::dot(dirX, dataPoints[i] - box.m_corners[0])) / step), dataY(abs(glm::dot(dirY, dataPoints[i] - box.m_corners[0])) / step), dataZ(abs(glm::dot(dirZ, dataPoints[i] - box.m_corners[0])) / step);
+		int dataX = (int)(abs(glm::dot(dirX, dataPoints[i] - box.m_corners[0])) / step);
+		int dataY = (int)(abs(glm::dot(dirY, dataPoints[i] - box.m_corners[0])) / step);
+		int dataZ = (int)(abs(glm::dot(dirZ, dataPoints[i] - box.m_corners[0])) / step);
 
 		//check if wrong coordinates
 		if (!testIndices(dataX, dataY, dataZ, sizeX, sizeY, sizeZ))
@@ -7286,17 +7238,17 @@ double TlScanOverseer::findMedian(const std::vector<double>& values) {
 	// Sort the values in ascending order
 	std::sort(sortedValues.begin(), sortedValues.end());
 
-	int n = sortedValues.size();
+	size_t n = sortedValues.size();
 
 	if (n % 2 == 0) {
 		// If the number of values is even, average the middle two values
-		int middle1 = (n - 1) / 2;
-		int middle2 = n / 2;
+		size_t middle1 = (n - 1) / 2;
+		size_t middle2 = n / 2;
 		return (sortedValues[middle1] + sortedValues[middle2]) / 2.0;
 	}
 	else {
 		// If the number of values is odd, return the middle value
-		int middle = n / 2;
+		size_t middle = n / 2;
 		return sortedValues[middle];
 	}
 }

@@ -1,15 +1,15 @@
 #include "controller/functionSystem/ContextTemplateModification.h"
-#include "controller/controls/ControlTemplateEdit.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
 #include "controller/messages/DataIdListMessage.h"
 #include "controller/messages/ModalMessage.h"
+#include "controller/messages/TemplateMessage.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataTemplate.h"
 #include "gui/texts/ContextTexts.hpp"
 
-#include "models/3d/Graph/TagNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/graph/TagNode.h"
+#include "models/graph/GraphManager.h"
 
 #include "utils/Logger.h"
 
@@ -83,7 +83,7 @@ ContextState ContextTemplateModification::launch(Controller& controller)
 	m_state = ContextState::running;
 	FUNCLOG << "ContextTemplateModification launch" << LOGENDL;
 
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
 
 	{
 		WritePtr<sma::TagTemplate> wTagTemp = m_temp.get();

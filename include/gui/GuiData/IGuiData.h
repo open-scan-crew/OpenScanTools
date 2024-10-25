@@ -28,7 +28,7 @@ enum class guiDType
 	pointCountData,
 	renderActiveCamera,
 	renderBackgroundColor,
-	renderAlignView,
+	renderAdjustZoom,
     renderCameraMoveTo,
 	renderRotateThetaPhiView,
 	renderExamine,
@@ -137,7 +137,6 @@ enum class guiDType
 	resetScans,
     moveToData,
 	point,
-	projectTransformation,
 	selectElems,
 
 	cleanTree,

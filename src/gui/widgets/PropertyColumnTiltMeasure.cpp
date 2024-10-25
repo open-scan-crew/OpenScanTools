@@ -4,7 +4,7 @@
 #include "controller/controls/ControlDataEdition.h"
 #include "gui/widgets/FocusWatcher.h"
 #include "gui/Texts.hpp"
-#include "models/3d/Graph/ColumnTiltMeasureNode.h"
+#include "models/graph/ColumnTiltMeasureNode.h"
 #include "controller/Controller.h"
 
 PropertyColumnTiltMeasure::PropertyColumnTiltMeasure(Controller& controller, QWidget *parent, float guiScale)

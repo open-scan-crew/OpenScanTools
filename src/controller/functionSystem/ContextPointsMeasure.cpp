@@ -1,18 +1,14 @@
 #include "controller/functionSystem/ContextPointsMeasure.h"
 #include "controller/controls/ControlFunctionMeasure.h"
 #include "controller/controls/ControlFunction.h"
-#include "controller/messages/ClickMessage.h"
-#include "gui/GuiData/GuiDataRendering.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
-#include "controller/functionSystem/FunctionManager.h"
-#include "gui/GuiData/GuiDataMessages.h"
-#include "gui/GuiData/GuiDataMeasure.h"
+#include "controller/ControlListener.h" // forward declaration
+#include "controller/messages/IMessage.h"
 #include "gui/texts/ContextTexts.hpp"
 
-#include "models/3d/Graph/PolylineMeasureNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/graph/PolylineMeasureNode.h"
+#include "models/graph/GraphManager.hxx"
 #include "utils/Logger.h"
 #include "magic_enum/magic_enum.hpp"
 
@@ -104,7 +100,7 @@ ContextState ContextPointsMeasure::launch(Controller& controller)
 		ReadPtr<PolylineMeasureNode> readPoly = m_polylineToEdit.cget();
 		if (!readPoly || readPoly->isDead())
 		{
-			m_polylineToEdit = controller.getOpenScanToolsGraphManager().createMeasureNode<PolylineMeasureNode>();
+			m_polylineToEdit = controller.getGraphManager().createMeasureNode<PolylineMeasureNode>();
 			WritePtr<PolylineMeasureNode> wMeasure = m_polylineToEdit.get();
 			m_isPolylineCreated = true;
 

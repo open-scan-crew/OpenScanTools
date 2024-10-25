@@ -3,9 +3,6 @@
 
 #include "controller/functionSystem/AContextAlignView.h"
 
-#include <glm/glm.hpp>
-#include <deque>
-
 class ContextAlignView2P : public AContextAlignView
 {
 public:

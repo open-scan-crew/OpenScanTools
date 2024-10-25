@@ -9,6 +9,7 @@
 #include "controller/controls/ControlTest.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiData3dObjects.h"
+#include "utils/Logger.h"
 
 ShortcutSystem::ShortcutSystem(IDataDispatcher& dataDispacher, QWidget* parent)
 	: m_dataDispatcher(dataDispacher)
@@ -46,12 +47,12 @@ ShortcutSystem::ShortcutSystem(IDataDispatcher& dataDispacher, QWidget* parent)
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::activatedFunctions);
-	PANELLOG << "shortcut built" << LOGENDL;
+	GUI_LOG << "shortcut built" << LOGENDL;
 }
 
 ShortcutSystem::~ShortcutSystem()
 {
-	PANELLOG << "destroy shortcut" << LOGENDL;
+	GUI_LOG << "destroy shortcut" << LOGENDL;
 }
 
 void ShortcutSystem::changeParent(QWidget* parent)
@@ -89,13 +90,13 @@ void ShortcutSystem::onActivatedFunctions(IGuiData* data)
 
 void ShortcutSystem::slotDelete()
 {
-	PANELLOG << "shortcut delete" << LOGENDL;
+	GUI_LOG << "shortcut delete" << LOGENDL;
 	m_dataDispatcher.sendControl(new control::special::DeleteSelectedElements(false));
 }
 
 void ShortcutSystem::slotAbort()
 {
-	PANELLOG << "shortcut abort" << LOGENDL;
+	GUI_LOG << "shortcut abort" << LOGENDL;
 	if (m_notInContext)
 		m_dataDispatcher.updateInformation(new GuiDataDisableFullScreen());
 	m_dataDispatcher.sendControl(new control::function::Abort());
@@ -104,14 +105,14 @@ void ShortcutSystem::slotAbort()
 
 void ShortcutSystem::slotEdition(const bool& isEditing)
 {
-	PANELLOG << "slotEdition " << isEditing << LOGENDL;
+	GUI_LOG << "slotEdition " << isEditing << LOGENDL;
 	for (QShortcut* shortcut : m_shortcuts)
 		shortcut->setEnabled(!isEditing);
 }
 
 void ShortcutSystem::slotBackground()
 {
-	PANELLOG << "slotBackground " << LOGENDL;
+	GUI_LOG << "slotBackground " << LOGENDL;
 	m_dataDispatcher.sendControl(new control::viewport::ChangeBackgroundColor());
 }
 

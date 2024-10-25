@@ -2,8 +2,6 @@
 #define CONTEXT_SPHERE_H_
 
 #include "controller/functionSystem/ARayTracingContext.h"
-#include <glm/glm.hpp>
-
 
 class ContextSphere : public ARayTracingContext
 {

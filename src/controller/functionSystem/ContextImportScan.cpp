@@ -1,24 +1,18 @@
 #include "controller/functionSystem/ContextImportScan.h"
 #include "controller/messages/ImportMessage.h"
 #include "controller/controls/ControlProject.h"
-#include "controller/controls/ControlTree.h"
-#include "controller/controls/ControlMetaControl.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "io/SaveLoadSystem.h"
 
-#include "models/3d/Graph/ScanNode.h"
-#include "models/3d/Graph/ScanObjectNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/graph/ScanObjectNode.h"
+#include "models/graph/GraphManager.h"
 
 #include "gui/GuiData/GuiDataMessages.h"
-#include "gui/GuiData/GuiDataTree.h"
-#include "gui/GuiData/GuiData3dObjects.h"
 #include "gui/texts/ContextTexts.hpp"
 #include "gui/texts/SplashScreenTexts.hpp"
 #include "gui/texts/PointCloudTexts.hpp"
-#include "magic_enum/magic_enum.hpp"
+
 
 ContextImportScan::ContextImportScan(const ContextId& id)
 	: ARayTracingContext(id)
@@ -66,7 +60,7 @@ ContextState ContextImportScan::launch(Controller& controller)
 	// -!- Ray Tracing -!-
 
 	controller.updateInfo(new GuiDataProcessingSplashScreenStart(m_scanInfo.paths.size(), TEXT_IMPORTING_SCAN, QString()));
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
 
 
 	for (const std::filesystem::path& inputFile : m_scanInfo.paths)
@@ -112,8 +106,6 @@ ContextState ContextImportScan::launch(Controller& controller)
 		updateStep(controller, QString(TEXT_SCAN_IMPORT_DONE_TEXT).arg(QString::fromStdWString(inputFile.stem().wstring())), 1);
 	}
 
-
-	controller.getControlListener()->notifyUIControl(new control::project::ApplyProjectTransformation());
 	controller.getControlListener()->notifyUIControl(new control::project::StartSave());
 		
 	controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));

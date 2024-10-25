@@ -3,7 +3,6 @@
 
 #include "controller/controls/AEditionControl.h"
 #include "models/data/Piping/StandardRadiusData.h"
-#include "glm/glm.hpp"
 
 class CylinderNode;
 class AGraphNode;

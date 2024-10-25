@@ -2,13 +2,7 @@
 #define CONTROL_VIEWPORT_H_
 
 #include "controller/controls/IControl.h"
-#include "models/OpenScanToolsModelEssentials.h"
-#include "pointCloudEngine/RenderingTypes.h"
-#include "models/pointCloud/TLS.h"
 #include "models/3d/ClickInfo.h"
-
-#include <vector>
-#include <unordered_set>
 
 class IPanel;
 
@@ -44,19 +38,14 @@ namespace control
             ControlType getType() const override;
         };
 
-        class AlignViewSide : public AControl
+        class AdjustZoomToScene : public AControl
         {
         public:
-            AlignViewSide(AlignView sideToAlign, SafePtr<CameraNode> destCamera);
-            ~AlignViewSide();
+            AdjustZoomToScene(SafePtr<CameraNode> dest_camera);
             void doFunction(Controller& controller) override;
-            bool canUndo() const override;
-            void undoFunction(Controller& controller) override;
             ControlType getType() const override;
-
         private:
-            AlignView m_side;
-            SafePtr<CameraNode> m_destCamera;
+            SafePtr<CameraNode> dest_camera_;
         };
 
         class AlignView2PointsFunction : public AControl

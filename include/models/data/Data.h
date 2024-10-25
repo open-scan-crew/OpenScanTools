@@ -2,20 +2,12 @@
 #define DATA_H_
 
 #include <string>
-#include <ctime>
-#include <set>
 #include "crossguid/guid.hpp"
-#include "models/Types.hpp"
-#include "models/OpenScanToolsModelEssentials.h"
+#include "utils/safe_ptr.h"
 #include "utils/Color32.hpp"
-#include "gui/texts/DefaultNameTexts.hpp"
 #include "utils/ProjectColor.hpp"
 
 #include <unordered_map>
-
-#define DISCIPLINE_ID "a82120c8-d1c7-479c-8b5e-000000000001"
-#define PREFIX_ID "a82120c8-d1c7-479c-8b5e-000000000002"
-#define PHASE_ID "0f150ae6-7c12-4f08-8fd4-bc92b5eb507a"
 
 typedef xg::Guid hLinkId;
 
@@ -40,7 +32,6 @@ struct s_hyperlink
 };
 
 class ControllerContext;
-class OpenScanToolsGraphManager;
 
 class Data
 {
@@ -69,7 +60,7 @@ public:
 	void setHyperlinks(const std::unordered_map<hLinkId, s_hyperlink>& links);
 	virtual void setColor(const Color32& color);
 
-	void setDefaultData(const ControllerContext& context);
+	virtual void setDefaultData(const ControllerContext& context);
 
 	bool operator==(const Data& data) const;
 

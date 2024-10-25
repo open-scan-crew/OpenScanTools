@@ -3,8 +3,6 @@
 
 #include "controller/functionSystem/ARayTracingContext.h"
 
-#include <glm/glm.hpp>
-
 class ContextPointToPlane3Measure : public ARayTracingContext
 {
 public:

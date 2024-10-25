@@ -1,9 +1,6 @@
 #include "controller/functionSystem/ContextViewPointAnimation.h"
-#include "gui/GuiData/GuiDataRendering.h"
 #include "controller/Controller.h"
-#include "controller/messages/ClickMessage.h"
 #include "controller/messages/RenderContextMessage.h"
-#include <glm/glm.hpp>
 
 ContextViewPointAnimation::ContextViewPointAnimation(const ContextId& id)
 	: AContext(id)

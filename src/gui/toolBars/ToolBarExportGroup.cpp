@@ -4,6 +4,7 @@
 #include "gui/GuiData/GuiDataGeneralProject.h"
 
 #include "models/Types.hpp"
+#include "utils/Logger.h"
 
 ToolBarExportGroup::ToolBarExportGroup(IDataDispatcher &dataDispatcher, QWidget *parent, const float& guiScale)
 	: QWidget(parent)
@@ -51,7 +52,7 @@ void ToolBarExportGroup::slotExportCsv()
 	m_dataDispatcher.sendControl(new control::function::Abort());
 	m_primitivesExportDialog->setFormat(ObjectExportType::CSV);
 	m_primitivesExportDialog->show();
-	PANELLOG << "exportCSV click" << LOGENDL;
+	GUI_LOG << "exportCSV click" << LOGENDL;
 }
 
 void ToolBarExportGroup::slotExportDxf()
@@ -59,7 +60,7 @@ void ToolBarExportGroup::slotExportDxf()
 	m_dataDispatcher.sendControl(new control::function::Abort());
 	m_primitivesExportDialog->setFormat(ObjectExportType::DXF);
 	m_primitivesExportDialog->show();
-	PANELLOG << "exportDxf click" << LOGENDL;
+	GUI_LOG << "exportDxf click" << LOGENDL;
 }
 
 void ToolBarExportGroup::slotExportStep()
@@ -67,7 +68,7 @@ void ToolBarExportGroup::slotExportStep()
 	m_dataDispatcher.sendControl(new control::function::Abort());
 	m_primitivesExportDialog->setFormat(ObjectExportType::STEP);
 	m_primitivesExportDialog->show();
-	PANELLOG << "exportStep click" << LOGENDL;
+	GUI_LOG << "exportStep click" << LOGENDL;
 }
 
 void ToolBarExportGroup::slotExportObj()
@@ -75,7 +76,7 @@ void ToolBarExportGroup::slotExportObj()
 	m_dataDispatcher.sendControl(new control::function::Abort());
 	m_primitivesExportDialog->setFormat(ObjectExportType::OBJ);
 	m_primitivesExportDialog->show();
-	PANELLOG << "exportStep click" << LOGENDL;
+	GUI_LOG << "exportStep click" << LOGENDL;
 }
 
 void ToolBarExportGroup::slotExportFbx()
@@ -83,5 +84,5 @@ void ToolBarExportGroup::slotExportFbx()
 	m_dataDispatcher.sendControl(new control::function::Abort());
 	m_primitivesExportDialog->setFormat(ObjectExportType::FBX);
 	m_primitivesExportDialog->show();
-	PANELLOG << "exportStep click" << LOGENDL;
+	GUI_LOG << "exportStep click" << LOGENDL;
 }

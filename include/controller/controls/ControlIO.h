@@ -11,7 +11,7 @@
 #include "models/application/TagTemplate.h"
 #include "models/Types.hpp"
 
-#include "models/3d/Graph/CameraNode.h"
+#include "models/graph/CameraNode.h"
 
 class AGraphNode;
 
@@ -236,6 +236,14 @@ namespace control::io
         ControlType getType() const override;
     private:
         std::filesystem::path m_sqliteDbPath;
+    };
+
+    class StartScantraInterprocess : public AControl
+    {
+    public:
+        StartScantraInterprocess();
+        void doFunction(Controller& controller) override;
+        ControlType getType() const override;
     };
 
 

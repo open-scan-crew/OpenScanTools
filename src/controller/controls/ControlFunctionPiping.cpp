@@ -1,15 +1,7 @@
 #include "controller/controls/ControlFunctionPiping.h"
-#include "controller/controls/ControlSpecial.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
-#include "gui/GuiData/GuiDataTree.h"
-#include "gui/GuiData/GuiData3dObjects.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
-#include "gui/GuiData/GuiDataTree.h"
 
 #include <unordered_set>
-#include "utils/Logger.h"
 
 namespace control::function::piping
 {

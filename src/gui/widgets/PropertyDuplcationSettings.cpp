@@ -6,6 +6,7 @@
 #include "controller/controls/ControlDuplication.h"
 #include "gui/widgets/FocusWatcher.h"
 #include "models/3d/DuplicationTypes.h"
+#include "utils/Logger.h"
 
 #include <cctype>
 #include <glm/gtx/vector_angle.hpp>
@@ -99,7 +100,7 @@ void PropertyDuplicationSettings::sendOffset()
 
 void PropertyDuplicationSettings::onXOffsetEdit()
 {
-	PANELLOG << "x edit" << LOGENDL;
+	GUI_LOG << "x edit" << LOGENDL;
 
 	float xOffset = (float)m_ui.XOffsetfield->getValue();
 	if (m_xOffsetStored != xOffset) {
@@ -110,7 +111,7 @@ void PropertyDuplicationSettings::onXOffsetEdit()
 
 void PropertyDuplicationSettings::onYOffsetEdit()
 {
-	PANELLOG << "y edit" << LOGENDL;
+	GUI_LOG << "y edit" << LOGENDL;
 	float yOffset = (float)m_ui.YOffsetfield->getValue();
 	if (m_yOffsetStored != yOffset) {
 		m_yOffsetStored = yOffset;
@@ -120,7 +121,7 @@ void PropertyDuplicationSettings::onYOffsetEdit()
 
 void PropertyDuplicationSettings::onZOffsetEdit()
 {
-	PANELLOG << "z edit" << LOGENDL;
+	GUI_LOG << "z edit" << LOGENDL;
 	float zOffset = m_ui.ZOffsetfield->getValue();
 	if (m_zOffsetStored != zOffset) {
 		m_zOffsetStored = zOffset;
@@ -130,7 +131,7 @@ void PropertyDuplicationSettings::onZOffsetEdit()
 
 void PropertyDuplicationSettings::duplicationOnClick()
 {
-	PANELLOG << "duplication click" << LOGENDL;
+	GUI_LOG << "duplication click" << LOGENDL;
 	m_ui.duplicateClicked->setChecked(true);
 	m_ui.duplicateOffsetValue->setChecked(false);
 	m_ui.duplicateSizeStep->setChecked(false);
@@ -139,7 +140,7 @@ void PropertyDuplicationSettings::duplicationOnClick()
 
 void PropertyDuplicationSettings::duplicationOnStepSize()
 {
-	PANELLOG << "duplication step" << LOGENDL;
+	GUI_LOG << "duplication step" << LOGENDL;
 	m_ui.duplicateClicked->setChecked(false);
 	m_ui.duplicateOffsetValue->setChecked(false);
 	m_ui.duplicateSizeStep->setChecked(true);
@@ -148,7 +149,7 @@ void PropertyDuplicationSettings::duplicationOnStepSize()
 
 void PropertyDuplicationSettings::duplicationOnOffset()
 {
-	PANELLOG << "duplication offset" << LOGENDL;
+	GUI_LOG << "duplication offset" << LOGENDL;
 	m_ui.duplicateClicked->setChecked(false);
 	m_ui.duplicateOffsetValue->setChecked(true);
 	m_ui.duplicateSizeStep->setChecked(false);
@@ -157,14 +158,14 @@ void PropertyDuplicationSettings::duplicationOnOffset()
 
 void PropertyDuplicationSettings::onOffsetLocal()
 {
-	PANELLOG << "duplication local" << LOGENDL;
+	GUI_LOG << "duplication local" << LOGENDL;
 	m_ui.offsetValueGlobal->setChecked(false);
 	m_dataDispatcher->sendControl(new control::duplication::SetDuplicationIsLocal(true));
 }
 
 void PropertyDuplicationSettings::onOffsetGlobal()
 {
-	PANELLOG << "duplication global" << LOGENDL;
+	GUI_LOG << "duplication global" << LOGENDL;
 	m_ui.offsetValueLocal->setChecked(false);
 	m_dataDispatcher->sendControl(new control::duplication::SetDuplicationIsLocal(false));
 }
@@ -193,42 +194,42 @@ void PropertyDuplicationSettings::updateUI()
 
 void PropertyDuplicationSettings::onXStepSizeClick()
 {
-	PANELLOG << "duplication step X" << LOGENDL;
+	GUI_LOG << "duplication step X" << LOGENDL;
 	m_ui.stepSizeX_Neg->setChecked(false);
 	m_dataDispatcher->sendControl(new control::duplication::SetDuplicationStepSize(glm::ivec3((!m_ui.stepSizeX->isChecked()) ? 2 : 0, getStepY(), getStepZ())));
 }
 
 void PropertyDuplicationSettings::onYStepSizeClick()
 {
-	PANELLOG << "duplication step Y" << LOGENDL;
+	GUI_LOG << "duplication step Y" << LOGENDL;
 	m_ui.stepSizeY_Neg->setChecked(false);
 	m_dataDispatcher->sendControl(new control::duplication::SetDuplicationStepSize(glm::ivec3(getStepX(), (!m_ui.stepSizeY->isChecked()) ? 2 : 0, getStepZ())));
 }
 
 void PropertyDuplicationSettings::onZStepSizeClick()
 {
-	PANELLOG << "duplication step Z" << LOGENDL;
+	GUI_LOG << "duplication step Z" << LOGENDL;
 	m_ui.stepSizeZ_Neg->setChecked(false);
 	m_dataDispatcher->sendControl(new control::duplication::SetDuplicationStepSize(glm::ivec3(getStepX(), getStepY(), (!m_ui.stepSizeZ->isChecked()) ? 2 : 0)));
 }
 
 void PropertyDuplicationSettings::onXNStepSizeClick()
 {
-	PANELLOG << "duplication step X" << LOGENDL;
+	GUI_LOG << "duplication step X" << LOGENDL;
 	m_ui.stepSizeX->setChecked(false);
 	m_dataDispatcher->sendControl(new control::duplication::SetDuplicationStepSize(glm::ivec3((!m_ui.stepSizeX_Neg->isChecked()) ? -2 : 0, getStepY(), getStepZ())));
 }
 
 void PropertyDuplicationSettings::onYNStepSizeClick()
 {
-	PANELLOG << "duplication step Y" << LOGENDL;
+	GUI_LOG << "duplication step Y" << LOGENDL;
 	m_ui.stepSizeY->setChecked(false);
 	m_dataDispatcher->sendControl(new control::duplication::SetDuplicationStepSize(glm::ivec3(getStepX(), (!m_ui.stepSizeY_Neg->isChecked()) ? -2 : 0, getStepZ())));
 }
 
 void PropertyDuplicationSettings::onZNStepSizeClick()
 {
-	PANELLOG << "duplication step Z" << LOGENDL;
+	GUI_LOG << "duplication step Z" << LOGENDL;
 	m_ui.stepSizeZ->setChecked(false);
 	m_dataDispatcher->sendControl(new control::duplication::SetDuplicationStepSize(glm::ivec3(getStepX(), getStepY(), (!m_ui.stepSizeZ_Neg->isChecked()) ? -2 : 0)));
 }

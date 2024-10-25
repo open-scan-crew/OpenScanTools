@@ -1,8 +1,6 @@
 #ifndef CONTROL_TEMPLATEEDIT_H_
 #define CONTROL_TEMPLATEEDIT_H_
 
-#include <filesystem>
-
 #include "controller/controls/AEditionControl.h"
 #include "models/application/TagTemplate.h"
 

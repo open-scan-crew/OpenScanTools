@@ -1,19 +1,12 @@
+#include "controller\controls\ControlUserOrientation.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
-#include "controller/controls/ControlProject.h"
 #include "gui/GuiData/GuiDataUserOrientation.h"
 #include "gui/GuiData/GuiDataMessages.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
-#include "gui/GuiData/GuiData3dObjects.h"
 #include "gui/Texts.hpp"
-#include "controller\controls\ControlUserOrientation.h"
 
-#include <QMessageBox>
-#include "utils/math/trigo.h"
+
 //***	UserOrientationProperties	***//
-
-
 
 control::userOrientation::UserOrientationsProperties::UserOrientationsProperties(userOrientationId id) : _userOrientationId(id)
 {}

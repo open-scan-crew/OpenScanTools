@@ -2,15 +2,13 @@
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ContextTexts.hpp"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
-#include "controller/functionSystem/FunctionManager.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "controller/controls/ControlFunction.h"
 #include "utils/Logger.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
-#include "models/3d/Graph/BoxNode.h"
+#include "models/graph/GraphManager.h"
+#include "models/graph/BoxNode.h"
 
 #include <glm/gtx/quaternion.hpp>
 
@@ -48,7 +46,7 @@ ContextState ContextBeamDetection::launch(Controller& controller)
 		return waitForNextPoint(controller);
     // -!- Ray Tracing -!-
 
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
 
 	std::vector<std::vector<double>> directionRange;
 	double beamHeight;

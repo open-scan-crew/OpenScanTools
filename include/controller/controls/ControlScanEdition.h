@@ -2,11 +2,11 @@
 #define CONTROL_SCAN_EDITION_H
 
 #include "controller/controls/AEditionControl.h"
-#include "models/OpenScanToolsModelEssentials.h"
 #include "models/pointCloud/TLS.h"
-#include "utils/Color32.hpp"
+#include "utils/safe_ptr.h"
 
 class ScanNode;
+class APointCloudNode;
 
 namespace control
 {

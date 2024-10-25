@@ -2,8 +2,6 @@
 #define CONTEXT_SLAB_1_CLICK_H
 
 #include "controller/functionSystem/ARayTracingContext.h"
-#include <glm/glm.hpp>
-
 
 class ContextSlab1Click : public ARayTracingContext
 {

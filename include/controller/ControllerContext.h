@@ -1,12 +1,10 @@
 #ifndef CONTROLLER_CONTEXT_H
 #define CONTROLLER_CONTEXT_H
 
-#include "models/3d/ManipulationTypes.h"
 #include "models/3d/DuplicationTypes.h"
 #include "models/application/List.h"
 #include "models/application/TagTemplate.h"
 #include "models/project/Marker.h"
-#include "models/pointCloud/TLS.h"
 #include "pointCloudEngine/RenderingTypes.h"
 #include "models/project/ProjectTypes.h"
 #include "models/data/PolylineMeasure/PolyLineTypes.h"
@@ -14,10 +12,15 @@
 #include "gui/UnitUsage.h"
 
 #include "models/data/Box/ClippingBoxSettings.h"
-#include "models/application/Ids.hpp"
 #include "models/project/ProjectInfos.h"
-
 #include "models/application/UserOrientation.h"
+
+#include "utils/Color32.hpp"
+
+#include <filesystem>
+#include <string>
+#include <unordered_set>
+#include <vector>
 
 class Author;
 class ScanNode;
@@ -123,8 +126,6 @@ public:
 	void setRecentProjects(std::vector<std::pair<std::filesystem::path, time_t>> projects);
 	void setIndexationMethod(IndexationMethod method);
 
-	glm::dmat4 getWorldTransformation() const;
-	void setUserTranformation(const glm::dmat4& userTransformation);
 	void setProjectTransformation(const glm::dvec3& projectTransformation);
 
 	void setDefaultScanId(SafePtr<ScanNode> defaultScan);
@@ -186,10 +187,6 @@ private:
 
 	std::filesystem::path m_temporaryPath;
 	std::filesystem::path m_projectsPath;
-
-	glm::dmat4 m_worldTransformation;
-	glm::dvec3 m_projectTransformation;
-	glm::dmat4 m_activeUserTransformation;
 
 	PolyLineOptions m_polyLineOptions;
 

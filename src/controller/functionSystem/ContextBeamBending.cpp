@@ -1,6 +1,7 @@
 #include "controller/functionSystem/ContextBeamBending.h"
 #include "controller/controls/ControlFunction.h"
 #include "controller/messages/ClickMessage.h"
+#include "controller/messages/PlaneMessage.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ContextTexts.hpp"
 #include "controller/Controller.h"
@@ -10,11 +11,10 @@
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "utils/ProjectColor.hpp"
 #include "utils/Logger.h"
-#include "magic_enum/magic_enum.hpp"
 #include "pointCloudEngine/MeasureClass.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
-#include "models/3d/Graph/BeamBendingMeasureNode.h"
+#include "models/graph/GraphManager.hxx"
+#include "models/graph/BeamBendingMeasureNode.h"
 
 ContextBeamBending::ContextBeamBending(const ContextId& id)
 	: ARayTracingContext(id)
@@ -85,7 +85,7 @@ ContextState ContextBeamBending::launch(Controller& controller)
 
 	FUNCLOG << "ContextBeamBending launch" << LOGENDL;
 	controller.updateInfo(new GuiDataTmpMessage(TEXT_LUCAS_SEARCH_ONGOING, 0));
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
     ClippingAssembly clippingAssembly;
 	graphManager.getClippingAssembly(clippingAssembly, true, false);
 	TlScanOverseer::setWorkingScansTransfo(graphManager.getVisiblePointCloudInstances(m_panoramic, true, true));

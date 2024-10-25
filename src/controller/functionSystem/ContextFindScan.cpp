@@ -1,12 +1,8 @@
 #include "controller/functionSystem/ContextFindScan.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
-#include "controller/functionSystem/FunctionManager.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ContextTexts.hpp"
 
-#include "utils/Logger.h"
 
 ContextFindScan::ContextFindScan(const ContextId& id)
 	: ARayTracingContext(id)
@@ -23,7 +19,7 @@ ContextState ContextFindScan::start(Controller&  controller)
 	return ARayTracingContext::start(controller);
 }
 
-ContextState  ContextFindScan::feedMessage(IMessage* message, Controller& controller)
+ContextState ContextFindScan::feedMessage(IMessage* message, Controller& controller)
 {
     ARayTracingContext::feedMessage(message, controller);
     return m_state;

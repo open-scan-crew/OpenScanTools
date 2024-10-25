@@ -1,16 +1,11 @@
 #include "controller/functionSystem/ContextExperiment.h"
-#include "controller/controls/ControlFunctionTag.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
-#include "controller/functionSystem/FunctionManager.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "pointCloudEngine/TlScanOverseer.h"
-#include "pointCloudEngine/NormalEstimation.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ContextTexts.hpp"
-#include "utils/Logger.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/graph/GraphManager.h"
 
 
 ContextExperiment::ContextExperiment(const ContextId& id)
@@ -49,7 +44,7 @@ ContextState ContextExperiment::launch(Controller& controller)
 	double beamHeight(0);
 
 
-    TlScanOverseer::setWorkingScansTransfo(controller.getOpenScanToolsGraphManager().getVisiblePointCloudInstances(xg::Guid(), true, true));
+    TlScanOverseer::setWorkingScansTransfo(controller.getGraphManager().getVisiblePointCloudInstances(xg::Guid(), true, true));
 
 	TlScanOverseer::getInstance().estimateNormals();
 	/*if (manager->computeBeamHeight(m_point,beamHeight))

@@ -1,14 +1,12 @@
 #include "controller/controls/ControlPicking.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
 #include "controller/functionSystem/FunctionManager.h"
 #include "controller/messages/FullClickMessage.h"
 #include "gui/GuiData/GuiDataMeasure.h"
 #include "gui/GuiData/GuiDataRendering.h"
-#include "utils/OpenScanToolsModelEssentials_impl.hpp"
 #include "utils/Logger.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/graph/GraphManager.h"
 
 namespace control::picking
 {
@@ -31,7 +29,7 @@ namespace control::picking
         {
             if (m_clickInfo.ctrl)
             {
-                OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+                GraphManager& graphManager = controller.getGraphManager();
                 std::unordered_set<SafePtr<AGraphNode>> selected(graphManager.getSelectedNodes());
 
                 {

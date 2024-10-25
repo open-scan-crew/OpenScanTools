@@ -2,8 +2,6 @@
 #define CONTEXT_BEAM_DETECTION_H_
 
 #include "controller/functionSystem/ARayTracingContext.h"
-#include <glm/glm.hpp>
-
 
 class ContextBeamDetection : public ARayTracingContext
 {

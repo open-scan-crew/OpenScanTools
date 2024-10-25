@@ -1,33 +1,22 @@
 #include "controller/controls/ControlSpecial.h"
 #include "controller/controls/ControlProject.h"
-#include "controller/messages/UndoRedoMessages.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
-#include "gui/GuiData/GuiDataRendering.h"
-#include "gui/GuiData/GuiDataTree.h"
-#include "gui/GuiData/GuiData3dObjects.h"
-#include "gui/Texts.hpp"
-
 #include "controller/Controller.h"
-#include "controller/FilterSystem.h"
-#include "controller/functionSystem/FunctionManager.h"
-#include "controller/ControlListener.h"
-
-#include "pointCloudEngine/PCE_core.h"
-
-#include "models/3d/Graph/ScanNode.h"
-#include "models/3d/Graph/ScanObjectNode.h"
-#include "models/3d/Graph/MeshObjectNode.h"
-
-#include "controller/controls/ControlMeshObject.h"
-#include "vulkan/MeshManager.h"
-
-#include "models/Types.hpp"
-#include "utils/Logger.h"
-
-#include <QMessageBox>
+#include "controller/ControlListener.h" // forward declaration
+#include "controller/ControllerContext.h"
 
 #include "io/SaveLoadSystem.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+
+#include "gui/GuiData/GuiDataGeneralProject.h"
+
+#include "models/graph/GraphManager.h"
+#include "models/graph/ScanNode.h"
+#include "models/graph/ScanObjectNode.h"
+#include "models/graph/MeshObjectNode.h"
+#include "models/Types.hpp"
+
+#include "vulkan/MeshManager.h"
+
+#include "utils/Logger.h"
 
 
 namespace control::special
@@ -86,7 +75,7 @@ namespace control::special
 					scanGuid = rScan->getScanGuid();
 				}
 
-				if (controller.getOpenScanToolsGraphManager().getPCOcounters(scanGuid) == 0)
+				if (controller.getGraphManager().getPCOcounters(scanGuid) == 0)
 				{
 					WritePtr<ScanObjectNode> wScan = scan.get();
 					if (!wScan)
@@ -98,7 +87,7 @@ namespace control::special
 		}
 
 		controller.changeSelection({});
-		controller.actualizeNodes(ActualizeOptions(true), m_elemsDeleted);
+		controller.actualizeTreeView(m_elemsDeleted);
 
         CONTROLLOG << "control::special::DeleteElement delete " << m_elemsDeleted.size() << " elements" << LOGENDL;
     }
@@ -133,10 +122,12 @@ namespace control::special
 			toActualize.insert(pElem);
 		}
 
+		m_elemsDeleted.clear();
+
 		SaveLoadSystem::LoadFileObjects(controller, fileObjectsToReload, "", false);
 
         controller.changeSelection({});
-		controller.actualizeNodes(ActualizeOptions(true), m_elemsDeleted);
+		controller.actualizeTreeView(m_elemsDeleted);
 
 
 		CONTROLLOG << "control::special::DeleteElement undo" << LOGENDL;
@@ -215,11 +206,10 @@ namespace control::special
 		}
 
 		controller.changeSelection({});
-		controller.actualizeNodes(ActualizeOptions(true), m_objectsToDelete);
+		controller.actualizeTreeView(m_objectsToDelete);
 
 		controller.getControlListener()->notifyUIControl(new control::project::StartSave());
-		controller.cleanHistory();
-		controller.updateInfo(new GuiDataUndoRedoAble(controller.isUndoPossible(), controller.isRedoPossible()));
+		controller.resetHistoric();
 	}
 
 	bool DeleteTotalData::canUndo() const
@@ -250,7 +240,7 @@ namespace control::special
 
     void DeleteSelectedElements::doFunction(Controller& controller)
     {
-		OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+		GraphManager& graphManager = controller.getGraphManager();
 
 		std::unordered_set<SafePtr<AGraphNode>> toDeletes;
 		
@@ -524,7 +514,7 @@ namespace control::special
 			}
 		}
 
-		controller.actualizeNodes(ActualizeOptions(true), m_toUndoDatas);
+		controller.actualizeTreeView(m_toUndoDatas);
 
 		CONTROLLOG << "control::special::ShowHideDatas do" << LOGENDL;
 	}
@@ -542,7 +532,7 @@ namespace control::special
 			writeData->setVisible(!m_state);
 		}
 
-		controller.actualizeNodes(ActualizeOptions(true), m_toUndoDatas);
+		controller.actualizeTreeView(m_toUndoDatas);
 
 		m_toUndoDatas.clear();
 
@@ -560,7 +550,7 @@ namespace control::special
 			}
 		}
 
-		controller.actualizeNodes(ActualizeOptions(true), m_datasToShowHide);
+		controller.actualizeTreeView(m_datasToShowHide);
 
 		CONTROLLOG << "control::special::ShowHideDatas redo" << LOGENDL;
 	}
@@ -587,7 +577,7 @@ namespace control::special
 
     void ShowHideObjects::doFunction(Controller& controller)
     {
-		m_datasToShowHide = controller.getOpenScanToolsGraphManager().getNodesByTypes(m_types);
+		m_datasToShowHide = controller.getGraphManager().getNodesByTypes(m_types);
         ShowHideDatas::doFunction(controller);
 		
 	    CONTROLLOG << "control::special::ShowHideObjects to " << m_state << LOGENDL;
@@ -623,7 +613,7 @@ namespace control::special
 
     void ShowHideCurrentObjects::doFunction(Controller& controller)
     {
-		m_datasToShowHide = controller.getOpenScanToolsGraphManager().getSelectedNodes();
+		m_datasToShowHide = controller.getGraphManager().getSelectedNodes();
         ShowHideDatas::doFunction(controller);
         CONTROLLOG << "control::special::ShowHideCurrentObjects to " << m_state << LOGENDL;
     }
@@ -659,9 +649,9 @@ namespace control::special
 
     void ShowHideUncurrentObjects::doFunction(Controller& controller)
     {
-		m_datasToShowHide = controller.getOpenScanToolsGraphManager().getUnSelectedNodes();
+		m_datasToShowHide = controller.getGraphManager().getUnSelectedNodes();
 
-		for (const SafePtr<AGraphNode>& data : controller.getOpenScanToolsGraphManager().getSelectedNodes())
+		for (const SafePtr<AGraphNode>& data : controller.getGraphManager().getSelectedNodes())
 		{
 			std::unordered_set<SafePtr<AGraphNode>> recOwningParents = AGraphNode::getOwningParents_rec(data);
 			for (const SafePtr<AGraphNode>& parent : recOwningParents)
@@ -703,7 +693,7 @@ namespace control::special
 
     void ShowAll::doFunction(Controller& controller)
     {
-		m_datasToShowHide = controller.getOpenScanToolsGraphManager().getProjectNodes();
+		m_datasToShowHide = controller.getGraphManager().getProjectNodes();
         ShowHideDatas::doFunction(controller);
         
         CONTROLLOG << "control::special::ShowAll to " << m_state << LOGENDL;

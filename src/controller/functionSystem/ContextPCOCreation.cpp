@@ -1,12 +1,9 @@
 #include "controller/functionSystem/ContextPCOCreation.h"
-#include "pointCloudEngine/PCE_core.h"
 #include "pointCloudEngine/TlScanOverseer.h"
-#include "controller/controls/ControlProject.h"
 #include "controller/controls/ControlPCObject.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "io/exports/IScanFileWriter.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataClipping.h"
@@ -15,14 +12,13 @@
 #include "gui/texts/SplashScreenTexts.hpp"
 #include "gui/texts/PointCloudTexts.hpp"
 
-#include "models/3d/Graph/CameraNode.h"
-#include "models/3d/Graph/ScanNode.h"
-#include "models/3d/Graph/BoxNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/graph/CameraNode.h"
+#include "models/graph/ScanNode.h"
+#include "models/graph/BoxNode.h"
+#include "models/graph/GraphManager.h"
 
 #include "controller/messages/PointCloudObjectCreationParametersMessage.h"
 #include "controller/messages/CameraMessage.h"
-#include "utils/math/trigo.h"
 #include "utils/Logger.h"
 
 
@@ -38,7 +34,7 @@ ContextState ContextPCOCreation::start(Controller& controller)
     // Ask for camera infos
     controller.updateInfo(new GuiDataContextRequestActiveCamera(m_id));
     // Create the clipping info lists
-    OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+    GraphManager& graphManager = controller.getGraphManager();
 
     std::unordered_set<SafePtr<AGraphNode>> selectBoxes = graphManager.getNodesByTypes({ ElementType::Box , ElementType::Grid }, ObjectStatusFilter::SELECTED);
     if (selectBoxes.empty() || selectBoxes.size() != 1)
@@ -104,7 +100,7 @@ ContextState ContextPCOCreation::launch(Controller& controller)
 {
     m_state = ContextState::running;
     auto start = std::chrono::steady_clock::now();
-    OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+    GraphManager& graphManager = controller.getGraphManager();
 
     ClippingAssembly clipAssembly;
     clipAssembly.clippingUnion = m_geometry;

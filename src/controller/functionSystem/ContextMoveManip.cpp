@@ -1,6 +1,6 @@
 #include "controller/functionSystem/ContextMoveManip.h"
 #include "controller/Controller.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/graph/GraphManager.h"
 #include "utils/Logger.h"
 
 #include "gui/texts/ContextTexts.hpp"
@@ -38,7 +38,7 @@ ContextState ContextMoveManip::launch(Controller& controller)
 	if(m_clickResults.size() != 1)
 		ARayTracingContext::abort(controller);
 
-	SafePtr<ManipulatorNode> manipNode = controller.getOpenScanToolsGraphManager().getManipulatorNode();
+	SafePtr<ManipulatorNode> manipNode = controller.getGraphManager().getManipulatorNode();
 	{
 		WritePtr<ManipulatorNode> wManipNode = manipNode.get();
 		if(wManipNode)

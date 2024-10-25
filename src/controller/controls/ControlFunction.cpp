@@ -1,14 +1,12 @@
 #include "controller/controls/ControlFunction.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
 #include "controller/functionSystem/FunctionManager.h"
 #include "controller/messages/IMessage.h"
 
-#include "models/3d/Graph/AGraphNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/graph/AGraphNode.h"
+#include "models/graph/GraphManager.h"
 
 #include "gui/GuiData/GuiDataGeneralProject.h"
-#include "gui/GuiData/GuiDataTree.h"
 #include "utils/Logger.h"
 
 // control::function::
@@ -192,10 +190,10 @@ namespace control
 
 		void AddNodes::doFunction(Controller& controller)
 		{
-			controller.getOpenScanToolsGraphManager().addNodesToGraph(m_nodesToAdd);
+			controller.getGraphManager().addNodesToGraph(m_nodesToAdd);
 			if(m_select)
 				controller.changeSelection(m_nodesToAdd);
-			controller.actualizeNodes(ActualizeOptions(true), m_nodesToAdd);
+			controller.actualizeTreeView(m_nodesToAdd);
 		}
 
 		bool AddNodes::canUndo() const
@@ -217,7 +215,7 @@ namespace control
 			if (m_select)
 				controller.changeSelection(m_nodesToAdd);
 
-			controller.actualizeNodes(ActualizeOptions(true), m_nodesToAdd);
+			controller.actualizeTreeView(m_nodesToAdd);
 		}
 
 		void AddNodes::redoFunction(Controller& controller)
@@ -234,7 +232,7 @@ namespace control
 			if (m_select)
 				controller.changeSelection(m_nodesToAdd);
 
-			controller.actualizeNodes(ActualizeOptions(true), m_nodesToAdd);
+			controller.actualizeTreeView(m_nodesToAdd);
 		}
 
 		ControlType AddNodes::getType() const

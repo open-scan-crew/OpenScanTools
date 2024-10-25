@@ -2,10 +2,7 @@
 #define CONTEXT_PLANE_DETECTION_H
 
 #include "controller/functionSystem/ARayTracingContext.h"
-#include <glm/glm.hpp>
-#include <list>
-#include <map>
-#include "controller/messages/PlaneMessage.h"
+#include "controller/functionSystem/PlaneDetectionOptions.h"
 
 class ContextPlaneDetection : public ARayTracingContext
 {

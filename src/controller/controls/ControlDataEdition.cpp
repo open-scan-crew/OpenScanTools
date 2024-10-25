@@ -1,14 +1,11 @@
 #include "controller/controls/ControlDataEdition.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
-#include "gui/GuiData/GuiDataTree.h"
-#include "utils/StrCompare.h"
 #include "utils/Logger.h"
 
-#include "models/3d/Graph/AObjectNode.h"
+#include "models/graph/AObjectNode.h"
 #include "controller/controls/AEditionControl.hxx"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/graph/GraphManager.h"
 
 namespace control
 {
@@ -21,13 +18,13 @@ namespace control
 		SetColor::SetColor(SafePtr<AObjectNode> toEditData, const Color32& newColor)
 			: ATEditionControl({ toEditData }, newColor, "SetColor", &Data::setColor, &Data::getColor)
 		{
-			m_actualizeOptions = ActualizeOptions(true);
+			m_actualize_tree_view = true;
 		}
 
 		SetColor::SetColor(const std::unordered_set<SafePtr<AObjectNode>> & toEditDatas, const Color32& newColor)
 			: ATEditionControl(toEditDatas, newColor, "SetColor", &AObjectNode::setColor, &AObjectNode::getColor)
 		{
-			m_actualizeOptions = ActualizeOptions(true);
+			m_actualize_tree_view = true;
 		}
 
 		SetColor::~SetColor()
@@ -54,7 +51,7 @@ namespace control
 
 		bool SetUserId::changeId(Controller & controller, uint32_t toChangeId, std::string actionText)
 		{
-			if (!controller.getOpenScanToolsGraphManager().isIdAvailable({ m_type }, toChangeId))
+			if (!controller.getGraphManager().isIdAvailable({ m_type }, toChangeId))
 			{
 				CONTROLLOG << "control::SetUserId " << actionText << " : id unavailable" << Logger::endl;
 				return false;
@@ -78,7 +75,7 @@ namespace control
 				doTimeModified(*&doWriteData);
 			}
 
-			controller.actualizeNodes(ActualizeOptions(true), m_toEditData);
+			controller.actualizeTreeView(m_toEditData);
 
 			return true;
 		}
@@ -213,13 +210,13 @@ namespace control
 		SetIdentifier::SetIdentifier(SafePtr<AObjectNode> toEditData, const std::wstring& identifer)
 			: ATEditionControl({ toEditData }, identifer, "SetIdentifier", &AObjectNode::setIdentifier, &AObjectNode::getIdentifier)
 		{
-			m_actualizeOptions = ActualizeOptions(true);
+			m_actualize_tree_view = true;
 		}
 
 		SetIdentifier::SetIdentifier(const std::unordered_set<SafePtr<AObjectNode>>& toEditDatas, const std::wstring& identifer)
 			: ATEditionControl(toEditDatas, identifer, "SetIdentifier", &AObjectNode::setIdentifier, &AObjectNode::getIdentifier)
 		{
-			m_actualizeOptions = ActualizeOptions(true);
+			m_actualize_tree_view = true;
 		}
 
 		SetIdentifier::~SetIdentifier()
@@ -237,13 +234,13 @@ namespace control
 		SetName::SetName(SafePtr<AObjectNode> toEditData, const std::wstring& name)
 			: ATEditionControl({ toEditData }, name, "SetName", &AObjectNode::setName, &AObjectNode::getName)
 		{
-			m_actualizeOptions = ActualizeOptions(true);
+			m_actualize_tree_view = true;
 		}
 
 		SetName::SetName(const std::unordered_set<SafePtr<AObjectNode>>& toEditDatas, const std::wstring& name)
 			: ATEditionControl(toEditDatas, name, "SetName", &AObjectNode::setName, &AObjectNode::getName)
 		{
-			m_actualizeOptions = ActualizeOptions(true);
+			m_actualize_tree_view = true;
 		}
 
 		SetName::~SetName()
@@ -339,8 +336,6 @@ namespace control
 				toActualize.insert(dataPtr);
 			}
 
-			controller.actualizeNodes(ActualizeOptions(false), toActualize);
-
 			CONTROLLOG << "control::dataEdition::addHyperlink do linkId to " << m_link << LOGENDL;
 		}
 
@@ -367,8 +362,6 @@ namespace control
 				undoTimeModified(*&writeData);
 				toActualize.insert(pairDataPtrLink.first);
 			}
-
-			controller.actualizeNodes(ActualizeOptions(false), toActualize);
 
 			CONTROLLOG << "control::dataEdition::addHyperlink undo" << LOGENDL;
 		}
@@ -414,8 +407,6 @@ namespace control
 			writeData->setHyperlinks(links);
 			doTimeModified(*&writeData);
 
-			controller.actualizeNodes(ActualizeOptions(false), m_dataPtr);
-
 			CONTROLLOG << "control::dataEdition::removeHyperlink do elemid link " << m_link << LOGENDL;
 		}
 
@@ -438,8 +429,6 @@ namespace control
 			links.insert(std::pair<hLinkId, s_hyperlink>(m_idToDel, { m_link, m_name }));
 			writeData->setHyperlinks(links);
 			undoTimeModified(*&writeData);
-
-			controller.actualizeNodes(ActualizeOptions(false), m_dataPtr);
 
 			CONTROLLOG << "control::dataEdition::removeHyperlink undo linkId " << m_idToDel << " to " << m_link << LOGENDL;
 		}

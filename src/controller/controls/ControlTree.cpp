@@ -1,18 +1,10 @@
 #include "controller/controls/ControlTree.h"
 #include "controller/controls/ControlFunction.h"
 #include "controller/Controller.h"
-#include "controller/ControlListener.h"
-#include "controller/functionSystem/FunctionManager.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
-#include "gui/GuiData/GuiDataRendering.h"
-#include "gui/GuiData/GuiDataTree.h"
-#include "gui/GuiData/GuiData3dObjects.h"
-#include "magic_enum/magic_enum.hpp"
+#include "controller/ControlListener.h" // forward declaration
 #include "utils/Logger.h"
-#include "gui/Texts.hpp"
 
-#include "models/3d/Graph/ClusterNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.h"
+#include "models/graph/ClusterNode.h"
 
 namespace control::tree
 {
@@ -98,7 +90,7 @@ namespace control::tree
 			}
 		}
 
-		controller.actualizeNodes(ActualizeOptions(true), toActualizeItems);
+		controller.actualizeTreeView(toActualizeItems);
 	}
 
 	bool DropElements::canUndo() const
@@ -128,7 +120,7 @@ namespace control::tree
 			}
 		}
 
-		controller.actualizeNodes(ActualizeOptions(true), toActualizeItems);
+		controller.actualizeTreeView(toActualizeItems);
 	}
 
 	ControlType DropElements::getType() const
@@ -188,7 +180,7 @@ namespace control::tree
 				}
 			}
 
-			controller.actualizeNodes(ActualizeOptions(true), parent);
+			controller.actualizeTreeView(parent);
 		}
 	}
 
@@ -220,7 +212,7 @@ namespace control::tree
 				}
 			}
 
-			controller.actualizeNodes(ActualizeOptions(true), parent);
+			controller.actualizeTreeView(parent);
 		}
 	}
 

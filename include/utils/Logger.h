@@ -2,8 +2,6 @@
 #define LOGGER_H
 
 #include <string>
-#include <iostream>
-#include <fstream>
 #include <sstream>
 #include <ostream>
 #include <mutex>
@@ -23,7 +21,6 @@ enum LoggerMode
     ControlLog,
     DataLog,
     ControllerLog,
-    HistoricLog,
     GuiLog,
     LicenseLog,
     GTLog,
@@ -34,6 +31,11 @@ enum LoggerMode
     TranslatorLog,
     LOGGER_MODE_MAX_ENUM
 };
+
+#define IOLOG Logger::log(LoggerMode::IOLog)
+#define GUI_LOG Logger::log(LoggerMode::GuiLog)
+#define GRAPH_LOG Logger::log(LoggerMode::SceneGraphLog)
+#define CONTROLLOG Logger::log(LoggerMode::ControlLog)
 
 class SubLogger;
 
@@ -50,7 +52,7 @@ class Logger
 public:
     static std::filesystem::path getOpenScanToolsPath();
 
-    static void init(std::filesystem::path path);
+    static void init();
     static void setStatusToMode(const LoggerMode& mode, bool state);
     static void log(const LoggerMode& mode, std::string message);
     static void log(const LoggerMode& mode, std::stringstream& message);
@@ -109,7 +111,7 @@ public:
         return (*this);
     }
 
-    SubLogger& operator<<(const glm::dvec3& value)
+    SubLogger& operator<<(glm::dvec3 value)
     {
         if (isActive)
             outStream << "x: " << value.x << ",y: " << value.y << ",z: " << value.z;

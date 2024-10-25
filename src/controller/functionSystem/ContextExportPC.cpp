@@ -1,7 +1,6 @@
 #include "controller/functionSystem/ContextExportPC.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/controls/ControlProject.h"
 #include "controller/functionSystem/FunctionManager.h"
 
 #include "controller/messages/ClippingExportParametersMessage.h"
@@ -9,7 +8,7 @@
 #include "controller/messages/ModalMessage.h"
 #include "controller/messages/NewProjectMessage.h"
 
-#include "gui/GuiData/GuiDataGeneralProject.h"
+
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataIO.h"
 #include "gui/GuiData/GuiDataContextRequest.h"
@@ -25,20 +24,18 @@
 
 #include "utils/math/trigo.h"
 #include "utils/Utils.h"
+#include "utils/system.h"
 
 #include "models/pointCloud/PointXYZIRGB.h"
 #include "models/3d/GridCalculation.h"
 
-#include "models/3d/Graph/CameraNode.h"
-#include "models/3d/Graph/ScanNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
-#include "models/3d/Graph/BoxNode.h"
-
+#include "models/graph/CameraNode.h"
+#include "models/graph/ScanNode.h"
+#include "models/graph/GraphManager.h"
+#include "models/graph/BoxNode.h"
 #include "io/SaveLoadSystem.h"
-
 #include "utils/Logger.h"
 
-#include "magic_enum/magic_enum.hpp"
 
 // Note (Aurélien) QT::StandardButtons enum values in qmessagebox.h
 #define Yes 0x00004000
@@ -71,7 +68,7 @@ ContextState ContextExportPC::start(Controller& controller)
 
 ContextState ContextExportPC::feedMessage(IMessage* message, Controller& controller)
 {
-    OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+    GraphManager& graphManager = controller.getGraphManager();
     switch (message->getType())
     {
     case IMessage::MessageType::MODAL:
@@ -305,7 +302,7 @@ bool ContextExportPC::processClippingExport(Controller& controller)
 
 bool ContextExportPC::exportClippingAndScanMerged(Controller& controller, CSVWriter* pCsvWriter)
 {
-    OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+    GraphManager& graphManager = controller.getGraphManager();
     TlScanOverseer& overseer = TlScanOverseer::getInstance();
 
     // Create the clipping assembly
@@ -317,7 +314,7 @@ bool ContextExportPC::exportClippingAndScanMerged(Controller& controller, CSVWri
     // Get the best origin and bbox based on the clipping used to merge scans.
     glm::dvec3 bestOrigin; // By default, it is the center of the bbox
     glm::dquat bestOrientation;
-    tls::BoundingBox scanBbox = getGlobalBoundingBox(pcInfos);
+    BoundingBoxD scanBbox = getGlobalBoundingBox(pcInfos);
     getBestOriginOrientationAndBBox(clippingAssembly, scanBbox, bestOrigin, bestOrientation);
     bestOrigin += m_scanTranslationToAdd;
 
@@ -338,7 +335,7 @@ bool ContextExportPC::exportClippingAndScanMerged(Controller& controller, CSVWri
     mergedHeader.precision = m_parameters.encodingPrecision;
     mergedHeader.pointCount = 0;
     mergedHeader.transfo = tls::Transformation{ {bestOrientation.x, bestOrientation.y, bestOrientation.z, bestOrientation.w}, {bestOrigin.x, bestOrigin.y, bestOrigin.z} };
-    mergedHeader.bbox = EMPTY_BOUNDING_BOX(float);
+    mergedHeader.bbox.setEmpty();
     mergedHeader.format = getCommonFormat(pcInfos);
     scanFileWriter->appendPointCloud(mergedHeader);
 
@@ -373,7 +370,7 @@ bool ContextExportPC::exportClippingAndScanMerged(Controller& controller, CSVWri
 bool ContextExportPC::exportClippingSeparated(Controller& controller, CSVWriter* pCsvWriter)
 {
     bool resultOk = true;
-    OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+    GraphManager& graphManager = controller.getGraphManager();
 
     std::vector<SafePtr<AClippingNode>> filteredClippings;
     {
@@ -423,7 +420,7 @@ bool ContextExportPC::exportClippingSeparated(Controller& controller, CSVWriter*
             rClip->pushClippingGeometries(clippingAssembly, transfo);
             glm::dvec3 bestOrigin; // By default, it is the center of the bbox
             glm::dquat bestOrientation;
-            tls::BoundingBox scanBbox = getGlobalBoundingBox(pcInfos);
+            BoundingBoxD scanBbox = getGlobalBoundingBox(pcInfos);
             getBestOriginOrientationAndBBox(clippingAssembly, scanBbox, bestOrigin, bestOrientation);
             bestOrigin += m_scanTranslationToAdd;
 
@@ -431,7 +428,7 @@ bool ContextExportPC::exportClippingSeparated(Controller& controller, CSVWriter*
             dstScanHeader.precision = m_parameters.encodingPrecision;
             dstScanHeader.pointCount = 0;
             dstScanHeader.transfo = tls::Transformation{ {bestOrientation.x, bestOrientation.y, bestOrientation.z, bestOrientation.w}, {bestOrigin.x, bestOrigin.y, bestOrigin.z} };
-            dstScanHeader.bbox = EMPTY_BOUNDING_BOX(float);
+            dstScanHeader.bbox.setEmpty();
             dstScanHeader.format = getCommonFormat(pcInfos);
             scanFileWriter->appendPointCloud(dstScanHeader);
         }
@@ -464,7 +461,7 @@ bool ContextExportPC::exportScanSeparated(Controller& controller, CSVWriter* pCs
     IOLOG << "Export PC scan separated" << LOGENDL;
 
     bool resultOk = true;
-    OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+    GraphManager& graphManager = controller.getGraphManager();
     TlScanOverseer& overseer = TlScanOverseer::getInstance();
 
 
@@ -535,7 +532,7 @@ bool ContextExportPC::processScanExport(Controller& controller)
 
     // Get the the visible scans
     TlScanOverseer& overseer = TlScanOverseer::getInstance();
-    std::vector<tls::PointCloudInstance> pcInfos = getPointCloudInstances(controller.getOpenScanToolsGraphManager());
+    std::vector<tls::PointCloudInstance> pcInfos = getPointCloudInstances(controller.getGraphManager());
 
     controller.updateInfo(new GuiDataProcessingSplashScreenStart(pcInfos.size(), TEXT_EXPORT_TITLE_NORMAL, TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(0).arg(pcInfos.size())));
 
@@ -665,7 +662,7 @@ bool ContextExportPC::processGridExport(Controller& controller)
     bool resultOk = true;
     auto start = std::chrono::steady_clock::now();
     // Create the clipping info lists
-    OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+    GraphManager& graphManager = controller.getGraphManager();
 
     std::unordered_set<SafePtr<BoxNode>> gridNodes = graphManager.getGrids();
 
@@ -928,7 +925,7 @@ bool ContextExportPC::prepareOutputDirectory(Controller& controller, const std::
     return true;
 }
 
-std::vector<tls::PointCloudInstance> ContextExportPC::getPointCloudInstances(OpenScanToolsGraphManager& graphManager)
+std::vector<tls::PointCloudInstance> ContextExportPC::getPointCloudInstances(GraphManager& graphManager)
 {
     if (m_selectedPcs.empty())
     {
@@ -952,48 +949,39 @@ std::vector<tls::PointCloudInstance> ContextExportPC::getPointCloudInstances(Ope
     }
 }
 
-void ContextExportPC::getBestOriginOrientationAndBBox(const ClippingAssembly& _clippingAssembly, const tls::BoundingBox& _scanBBox, glm::dvec3& _bestOrigin, glm::dquat& _bestOrientation)
+void ContextExportPC::getBestOriginOrientationAndBBox(const ClippingAssembly& _clippingAssembly, const BoundingBoxD& _scanBBox, glm::dvec3& _bestOrigin, glm::dquat& _bestOrientation)
 {
-    tls::BoundingBox unionBBox = EMPTY_BOUNDING_BOX(float);
+    BoundingBoxD union_bbox;
+    union_bbox.setEmpty();
     for (const std::shared_ptr<IClippingGeometry>& geom : _clippingAssembly.clippingUnion)
     {
         if (geom->mode == ClippingMode::showInterior)
         {
-            tls::BoundingBox bbox = extractBBox(*geom);
-            unionBoundingBox(unionBBox, bbox);
-        }
-        else // showExterior
-        {
-            // NOTE - Par convention, nous n'avons pas de box exterieure dans l'union
-            unionBoundingBox(unionBBox, _scanBBox);
+            BoundingBoxD bbox = extractBBox(*geom);
+            union_bbox.extend(bbox);
         }
     }
 
-    tls::BoundingBox interBBox = MAX_BOUNDING_BOX(float); // ou tout l'espace
+    BoundingBoxD inter_bbox;
+    inter_bbox.setInfinite(); // ou tout l'espace
     for (const std::shared_ptr<IClippingGeometry>& geom : _clippingAssembly.clippingIntersection)
     {
         if (geom->mode == ClippingMode::showInterior)
         {
             // NOTE - Par convention, nous n'avons pas de box interieure dans l'intersection
-            tls::BoundingBox bbox = extractBBox(*geom);
-            intersectBoundingBox(interBBox, bbox);
-        }
-        else
-        {
-            intersectBoundingBox(interBBox, _scanBBox);
+            BoundingBoxD bbox = extractBBox(*geom);
+            inter_bbox.intersect(bbox);
         }
     }
 
-    tls::BoundingBox totalBBox = _scanBBox;
+    BoundingBoxD total_bbox = _scanBBox;
     if (!_clippingAssembly.clippingUnion.empty())
-        intersectBoundingBox(totalBBox, unionBBox);
+        total_bbox.intersect(union_bbox);
 
     if (!_clippingAssembly.clippingIntersection.empty())
-        intersectBoundingBox(totalBBox, interBBox);
+        total_bbox.intersect(inter_bbox);
 
-    _bestOrigin = glm::dvec3((totalBBox.xMin + totalBBox.xMax) / 2,
-                             (totalBBox.yMin + totalBBox.yMax) / 2,
-                             (totalBBox.zMin + totalBBox.zMax) / 2);
+    _bestOrigin = total_bbox.center();
     // NOTE(robin) - Ce n'est pas la meilleure façon de récupérer la rotation.
     //             - On pourrait avoir directement accès au quaternion de la clipping originale, mais cela demanderai un rework de l'interface IClippingGeometry.
     if (_clippingAssembly.clippingUnion.size() == 1)
@@ -1003,91 +991,29 @@ void ContextExportPC::getBestOriginOrientationAndBBox(const ClippingAssembly& _c
 
 }
 
-tls::BoundingBox ContextExportPC::getGlobalBoundingBox(const std::vector<tls::PointCloudInstance>& pcInstances)
+BoundingBoxD ContextExportPC::getGlobalBoundingBox(const std::vector<tls::PointCloudInstance>& pcInstances)
 {
-    tls::BoundingBox globalBBox = EMPTY_BOUNDING_BOX(float);
+    BoundingBoxD global_bbox;
+    global_bbox.setEmpty();
+
     for (const tls::PointCloudInstance& pcInst : pcInstances)
     {
-        unionBoundingBox(globalBBox, transformBoundingBox(pcInst.header.bbox, pcInst.transfo.getTransformation()));
+        BoundingBoxD&& t_bbox = pcInst.header.bbox.transform(pcInst.transfo.getTransformation());
+        global_bbox.extend(t_bbox);
     }
-    return globalBBox;
+    return global_bbox;
 }
 
-tls::BoundingBox ContextExportPC::extractBBox(const IClippingGeometry& clippingGeom)
+BoundingBoxD ContextExportPC::extractBBox(const IClippingGeometry& clippingGeom)
 {
     // NOTE(robin) - Ceci ne fonctionne que pour les clippings de type box
     float x = (float)clippingGeom.params.x;
     float y = (float)clippingGeom.params.y;
     float z = (float)clippingGeom.params.z;
 
-    tls::BoundingBox bbox = { -x, x, -y, y, -z, z };
+    BoundingBoxD bbox = { -x, x, -y, y, -z, z };
 
-    return transformBoundingBox(bbox, glm::inverse(clippingGeom.matRT_inv));
-}
-
-tls::BoundingBox ContextExportPC::transformBoundingBox(const tls::BoundingBox& bbox, glm::dmat4 transfo)
-{
-    const glm::dvec4 corners[8] = {
-        { bbox.xMin, bbox.yMin, bbox.zMin, 1 },
-        { bbox.xMin, bbox.yMin, bbox.zMax, 1 },
-        { bbox.xMin, bbox.yMax, bbox.zMin, 1 },
-        { bbox.xMin, bbox.yMax, bbox.zMax, 1 },
-        { bbox.xMax, bbox.yMin, bbox.zMin, 1 },
-        { bbox.xMax, bbox.yMin, bbox.zMax, 1 },
-        { bbox.xMax, bbox.yMax, bbox.zMin, 1 },
-        { bbox.xMax, bbox.yMax, bbox.zMax, 1 }
-    };
-
-    tls::BoundingBox result = EMPTY_BOUNDING_BOX(float);
-    for (int i = 0; i < 8; ++i)
-    {
-        glm::dvec4 c = transfo * corners[i];
-        if (c.x < result.xMin) result.xMin = c.x;
-        if (c.x > result.xMax) result.xMax = c.x;
-        if (c.y < result.yMin) result.yMin = c.y;
-        if (c.y > result.yMax) result.yMax = c.y;
-        if (c.z < result.zMin) result.zMin = c.z;
-        if (c.z > result.zMax) result.zMax = c.z;
-    }
-    return result;
-}
-
-void ContextExportPC::unionBoundingBox(tls::BoundingBox& dstBBox, const tls::BoundingBox& srcBBox)
-{
-    // x
-    dstBBox.xMin = std::min(dstBBox.xMin, srcBBox.xMin);
-    dstBBox.xMax = std::max(dstBBox.xMax, srcBBox.xMax);
-    // y
-    dstBBox.yMin = std::min(dstBBox.yMin, srcBBox.yMin);
-    dstBBox.yMax = std::max(dstBBox.yMax, srcBBox.yMax);
-    // z
-    dstBBox.zMin = std::min(dstBBox.zMin, srcBBox.zMin);
-    dstBBox.zMax = std::max(dstBBox.zMax, srcBBox.zMax);
-}
-
-void ContextExportPC::intersectBoundingBox(tls::BoundingBox& dstBBox, const tls::BoundingBox& srcBBox)
-{
-    // X
-    dstBBox.xMin = std::max(dstBBox.xMin, srcBBox.xMin);
-    dstBBox.xMax = std::min(dstBBox.xMax, srcBBox.xMax);
-    // Y
-    dstBBox.yMin = std::max(dstBBox.yMin, srcBBox.yMin);
-    dstBBox.yMax = std::min(dstBBox.yMax, srcBBox.yMax);
-    // Z
-    dstBBox.zMin = std::max(dstBBox.zMin, srcBBox.zMin);
-    dstBBox.zMax = std::min(dstBBox.zMax, srcBBox.zMax);
-
-    if (dstBBox.xMin > dstBBox.xMax ||
-        dstBBox.yMin > dstBBox.yMax ||
-        dstBBox.zMin > dstBBox.zMax)
-    {
-        // la bounding box est vide
-        dstBBox = {
-            std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(),
-            std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(),
-            std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity()
-        };
-    }
+    return bbox.transform(glm::inverse(clippingGeom.matRT_inv));
 }
 
 tls::Transformation ContextExportPC::getCommonTransformation(const std::vector<tls::PointCloudInstance>& pcInfos)
@@ -1156,12 +1082,12 @@ ContextState ContextExportSubProject::feedMessage(IMessage* message, Controller&
 ContextState ContextExportSubProject::launch(Controller& controller)
 {
     Utils::System::createDirectoryIfNotExist(m_subProjectInternal.getScansFolderPath());
-    if (controller.getOpenScanToolsGraphManager().getActiveClippingCount() > 0)
+    if (controller.getGraphManager().getActiveClippingCount() > 0)
         ContextExportPC::processClippingExport(controller);
     else
         ContextExportPC::processScanExport(controller);
 
-    const OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+    const GraphManager& graphManager = controller.getGraphManager();
 
     std::unordered_set<SafePtr<AGraphNode>> fileObjects;
     std::unordered_set<SafePtr<AGraphNode>> exports = graphManager.getProjectNodesByFilterType(m_objectFilterType);

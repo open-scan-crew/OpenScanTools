@@ -2,7 +2,7 @@
 #define CONTEXT_EXPORT_FBX_H
 
 #include "controller/functionSystem/AContext.h"
-#include "models/OpenScanToolsModelEssentials.h"
+#include "utils/safe_ptr.h"
 #include "io/exports/ExportParameters.hpp"
 
 #include <filesystem>

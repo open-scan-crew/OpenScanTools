@@ -1,9 +1,9 @@
 #ifndef CONTROL_APPLICATION_H
 #define CONTROL_APPLICATION_H
 
-
 #include "controller/controls/IControl.h"
 #include "utils/Color32.hpp"
+#include "utils/safe_ptr.h"
 #include "pointCloudEngine/RenderingTypes.h"
 #include "gui/UnitUsage.h"
 #include "models/project/ProjectTypes.h"
@@ -11,7 +11,6 @@
 #include "models/3d/NavigationTypes.h"
 #include <filesystem>
 
-#include "models/OpenScanToolsModelEssentials.h"
 
 enum LangageType;
 

@@ -7,6 +7,7 @@
 #include "controller/controls/ControlUserList.h"
 #include "gui/texts/ListTexts.hpp"
 #include "utils/QtUtils.h"
+#include "utils/Logger.h"
 
 AListModifierDialog::AListModifierDialog(IDataDispatcher& dataDispatcher, QDialog *parent)
 	: ADialog(dataDispatcher, parent)
@@ -23,12 +24,12 @@ AListModifierDialog::AListModifierDialog(IDataDispatcher& dataDispatcher, QDialo
 	//connect(m_ui.lineEditIndex, SIGNAL(editingFinished()), this, SLOT(changeUserIndex()));
 	QObject::connect(m_ui.NameLineEdit, SIGNAL(editingFinished()), this, SLOT(renameElem()));
 	QObject::connect(m_ui.RemoveBtn, SIGNAL(clicked()), this, SLOT(deleteElem()));
-	PANELLOG << "create AListModifierDialog" << LOGENDL;
+	GUI_LOG << "create AListModifierDialog" << LOGENDL;
 }
 
 AListModifierDialog::~AListModifierDialog()
 {
-	PANELLOG << "destroy AListModifierDialog" << LOGENDL;
+	GUI_LOG << "destroy AListModifierDialog" << LOGENDL;
 	m_dataDispatcher.unregisterObserver(this);
 }
 
@@ -39,7 +40,7 @@ void AListModifierDialog::informData(IGuiData *data)
 		ListModifierMethod method = m_methods.at(data->getType());
 		(this->*method)(data);
 	}
-	PANELLOG << "informdata ListModifier" << LOGENDL;
+	GUI_LOG << "informdata ListModifier" << LOGENDL;
 }
 
 void AListModifierDialog::show()
@@ -51,7 +52,7 @@ void AListModifierDialog::show()
 
 void AListModifierDialog::showElemMenu(QPoint p)
 {
-	PANELLOG << "show elem menu" << LOGENDL;
+	GUI_LOG << "show elem menu" << LOGENDL;
 	QMenu *menu = new QMenu(this);
 
 	QAction *deleteAct = new QAction(TEXT_DELETE_ELEMENT, this);

@@ -1,21 +1,22 @@
-#include <QtWidgets/QWidget>
-#include <QtGui/QScreen>
 #include "gui/toolBars/ToolBarFilterGroup.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/Dialog/DialogSearchedObjects.h"
 #include "services/MarkerDefinitions.hpp"
 #include "gui/GuiData/GuiDataList.h"
-#include "models/data/Data.h"
+#include "models/application/Ids.hpp"
 #include "utils/ProjectStringSets.hpp"
 
 #include "controller/Controller.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.h"
+#include "models/graph/GraphManager.h"
+
+#include <QtWidgets/QWidget>
+#include <QtGui/QScreen>
 
 ToolBarFilterGroup::ToolBarFilterGroup(IDataDispatcher& dataDispatcher, Controller& controller, QWidget* parent, float guiScale)
 	: QWidget(parent)
 	, m_dataDispatcher(dataDispatcher)
 	, m_filterSystem(controller.getFilterSystem())
-	, m_root(controller.getOpenScanToolsGraphManager().getRoot())
+	, m_root(controller.getGraphManager().getRoot())
 {
 	m_ui.setupUi(this);
 	setEnabled(false);
@@ -159,10 +160,10 @@ void ToolBarFilterGroup::onList(IGuiData * data)
 			continue;
 		xg::Guid id = rList->getId();
 
-		if (id == listId(DISCIPLINE_ID))
+		if (id == listId(LIST_DISCIPLINE_ID))
 			m_disciplineList = list;
 
-		if (id == listId(PHASE_ID))
+		if (id == listId(LIST_PHASE_ID))
 			m_phaseList = list;
 	}
 
@@ -222,13 +223,13 @@ void ToolBarFilterGroup::onList(IGuiData * data)
 
 void ToolBarFilterGroup::filterOnKeyWord()
 {
-	PANELLOG << "filter on keyWord " << m_ui.keyWordLineEdit->text().toStdString() << LOGENDL;
+	GUI_LOG << "filter on keyWord " << m_ui.keyWordLineEdit->text().toStdString() << LOGENDL;
 	m_filterSystem.applyNewKeyWord(m_ui.keyWordLineEdit->text().toStdWString());
 }
 
 void ToolBarFilterGroup::toggleScanFilter()
 {
-	PANELLOG << "toogle scan" << ((m_ui.ScanCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
+	GUI_LOG << "toogle scan" << ((m_ui.ScanCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
 	toggleTypeFilter({ ElementType::Scan }, m_ui.ScanCheckBox);
 }
 
@@ -271,57 +272,57 @@ void ToolBarFilterGroup::toggleAllFilter()
 	m_ui.MeshCheckBox->blockSignals(false);
 	m_ui.PcoCheckBox->blockSignals(false);
 
-	PANELLOG << "toogle all" << ((m_ui.AllCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
+	GUI_LOG << "toogle all" << ((m_ui.AllCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
 }
 
 void ToolBarFilterGroup::toggleTagFilter()
 {
-	PANELLOG << "toogle tag " << ((m_ui.TagCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
+	GUI_LOG << "toogle tag " << ((m_ui.TagCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
 	toggleTypeFilter({ ElementType::Tag }, m_ui.TagCheckBox);
 }
 
 void ToolBarFilterGroup::toggleClippingBoxFilter()
 {
-	PANELLOG << "toogle CBox" << ((m_ui.ClippingBoxCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
+	GUI_LOG << "toogle CBox" << ((m_ui.ClippingBoxCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
 	toggleTypeFilter({ ElementType::Grid, ElementType::Box }, m_ui.ClippingBoxCheckBox);
 }
 
 void ToolBarFilterGroup::togglePipeFilter()
 {
-	PANELLOG << "toogle pipe " << ((m_ui.PipeCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
+	GUI_LOG << "toogle pipe " << ((m_ui.PipeCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
 	toggleTypeFilter({ ElementType::Cylinder, ElementType::Torus }, m_ui.PipeCheckBox);
 }
 
 //new
 void ToolBarFilterGroup::toggleSphereFilter()
 {
-	PANELLOG << "toogle sphere " << ((m_ui.SphereCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
+	GUI_LOG << "toogle sphere " << ((m_ui.SphereCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
 	toggleTypeFilter({ ElementType::Sphere }, m_ui.SphereCheckBox);
 }
 
 //new
 void ToolBarFilterGroup::toggleMeshFilter()
 {
-	PANELLOG << "toogle Mesh " << ((m_ui.MeshCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
+	GUI_LOG << "toogle Mesh " << ((m_ui.MeshCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
 	toggleTypeFilter({ ElementType::MeshObject }, m_ui.MeshCheckBox);
 }
 
 //new
 void ToolBarFilterGroup::togglePcoObjectFilter()
 {
-	PANELLOG << "toogle Pco Object " << ((m_ui.PcoCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
+	GUI_LOG << "toogle Pco Object " << ((m_ui.PcoCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
 	toggleTypeFilter({ ElementType::PCO }, m_ui.PcoCheckBox);
 }
 
 void ToolBarFilterGroup::togglePointFilter()
 {
-	PANELLOG << "toogle point" << ((m_ui.PointsCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
+	GUI_LOG << "toogle point" << ((m_ui.PointsCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
 	toggleTypeFilter({ ElementType::PCO }, m_ui.PointsCheckBox);
 }
 
 void ToolBarFilterGroup::toggleMeasureFilter()
 {
-	PANELLOG << "toogle measure " << ((m_ui.MeasureCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
+	GUI_LOG << "toogle measure " << ((m_ui.MeasureCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
 	toggleTypeFilter({ ElementType::BeamBendingMeasure, ElementType::ColumnTiltMeasure, ElementType::SimpleMeasure,
 					   ElementType::PolylineMeasure, ElementType::PipeToPipeMeasure, ElementType::PointToPipeMeasure, 
 						ElementType::PipeToPlaneMeasure, ElementType::PointToPlaneMeasure }, m_ui.MeasureCheckBox);
@@ -329,7 +330,7 @@ void ToolBarFilterGroup::toggleMeasureFilter()
 
 void ToolBarFilterGroup::toggleViewpointFilter()
 {
-	PANELLOG << "toogle viewpoint" << ((m_ui.ViewpointCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
+	GUI_LOG << "toogle viewpoint" << ((m_ui.ViewpointCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
 	toggleTypeFilter({ ElementType::ViewPoint }, m_ui.ViewpointCheckBox);
 }
 
@@ -365,7 +366,7 @@ void ToolBarFilterGroup::launchToCalendar()
 
 void ToolBarFilterGroup::getResultToCalendar(QDate date)
 {
-	PANELLOG << "receive TO calendar " << date.toString().toStdString() << LOGENDL;
+	GUI_LOG << "receive TO calendar " << date.toString().toStdString() << LOGENDL;
 	QTime time;
 	time.setHMS(23, 59, 59);
 	m_storedToDate.setTime(time);
@@ -397,55 +398,55 @@ void ToolBarFilterGroup::clickIconTag()
 
 void ToolBarFilterGroup::toogleIconFilter()
 {
-	PANELLOG << "toogle icon filter " << ((m_ui.IconFilter->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
+	GUI_LOG << "toogle icon filter " << ((m_ui.IconFilter->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
 	m_filterSystem.setIconFilterStatus(m_ui.IconFilter->isChecked());
 }
 
 void ToolBarFilterGroup::toogleDateFilter()
 {
-	PANELLOG << "toogle date filter " << ((m_ui.DateCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
+	GUI_LOG << "toogle date filter " << ((m_ui.DateCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
 	m_filterSystem.setTimeFilterStatus(m_ui.DateCheckBox->isChecked());
 }
 
 void ToolBarFilterGroup::toogleKeywordFilter()
 {
-	PANELLOG << "toogle keyword filter " << ((m_ui.KeyWordCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
+	GUI_LOG << "toogle keyword filter " << ((m_ui.KeyWordCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
 	m_filterSystem.setKeywordFilterStatus(m_ui.KeyWordCheckBox->isChecked());
 }
 
 void ToolBarFilterGroup::toogleDisciplineFilter()
 {
-	PANELLOG << "toogle discipline filter " << ((m_ui.DisciplineCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
+	GUI_LOG << "toogle discipline filter " << ((m_ui.DisciplineCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
 	m_filterSystem.setDisciplineFilterStatus(m_ui.DisciplineCheckBox->isChecked());
 }
 
 void ToolBarFilterGroup::tooglePhaseFilter()
 {
-	PANELLOG << "toogle phase filter " << ((m_ui.PhaseCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
+	GUI_LOG << "toogle phase filter " << ((m_ui.PhaseCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
 	m_filterSystem.setPhaseFilterStatus(m_ui.PhaseCheckBox->isChecked());
 }
 
 void ToolBarFilterGroup::toogleUserFilter()
 {
-	PANELLOG << "toogle user filter " << ((m_ui.UserCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
+	GUI_LOG << "toogle user filter " << ((m_ui.UserCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
 	m_filterSystem.setUserFilterStatus(m_ui.UserCheckBox->isChecked());
 }
 
 void ToolBarFilterGroup::onPhaseChange(int i)
 {
-	PANELLOG << "change phase filter " << m_ui.PhaseCombo->currentText().toStdString() << LOGENDL;
+	GUI_LOG << "change phase filter " << m_ui.PhaseCombo->currentText().toStdString() << LOGENDL;
 	m_filterSystem.setPhaseFilter(m_ui.PhaseCombo->currentText().toStdWString());
 }
 
 void ToolBarFilterGroup::onDisciplineChange(int i)
 {
-	PANELLOG << "change discipline filter " << m_ui.DisciplineCombo->currentText().toStdString() << LOGENDL;
+	GUI_LOG << "change discipline filter " << m_ui.DisciplineCombo->currentText().toStdString() << LOGENDL;
 	m_filterSystem.setDisciplineFilter(m_ui.DisciplineCombo->currentText().toStdWString());
 }
 
 void ToolBarFilterGroup::onUserChange(int i)
 {
-	PANELLOG << "change user filter " << m_ui.UserCombo->currentText().toStdString() << LOGENDL;
+	GUI_LOG << "change user filter " << m_ui.UserCombo->currentText().toStdString() << LOGENDL;
 	m_filterSystem.setUserFilter(xg::Guid(m_ui.UserCombo->currentData().toString().toStdString()));
 }
 

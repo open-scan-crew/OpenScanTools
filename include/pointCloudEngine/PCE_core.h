@@ -14,7 +14,6 @@
 
 #include "stdint.h"
 #include <filesystem>
-#include <vector>
 
 //******* Notes on how to use a TlScan***********
 // Use a smart pointer as a TlScanref. If there is no more instance of the smart pointer, the Scanis freed
@@ -47,8 +46,6 @@ bool tlGetScanHeader(tls::ScanGuid scanGuid, tls::ScanHeader &scanHeader);
 bool tlGetCurrentScanPath(tls::ScanGuid scanGuid, std::filesystem::path& currentPath);
 
 bool tlScanLeftToFree();
-
-tls::TBoundingBox<double> tlScansBoundingBox();
 
 std::list<tls::ScanHeader> tlScansHeaders();
 

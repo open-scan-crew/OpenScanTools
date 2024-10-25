@@ -9,6 +9,7 @@
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/Texts.hpp"
+#include "utils/Logger.h"
 
 AuthorListDialog::AuthorListDialog(IDataDispatcher& dataDispatcher, QWidget *parent)
 	: ADialog(dataDispatcher, parent)
@@ -17,7 +18,7 @@ AuthorListDialog::AuthorListDialog(IDataDispatcher& dataDispatcher, QWidget *par
 	m_ui.setupUi(this);
 	this->show();
 	
-	PANELLOG << "create AuthorListDialog" << LOGENDL;
+	GUI_LOG << "create AuthorListDialog" << LOGENDL;
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::sendAuthorsList);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::closeAuthorList);
@@ -31,7 +32,7 @@ AuthorListDialog::AuthorListDialog(IDataDispatcher& dataDispatcher, QWidget *par
 
 AuthorListDialog::~AuthorListDialog()
 {
-	PANELLOG << "destroy AuthorListDialog" << LOGENDL;
+	GUI_LOG << "destroy AuthorListDialog" << LOGENDL;
 	m_dataDispatcher.sendControl(new control::application::author::SaveAndQuitAuthors());
 	m_dataDispatcher.unregisterObserver(this);
 }
@@ -100,7 +101,7 @@ void AuthorListDialog::receiveAuthorList(IGuiData *data)
 
 	m_ui.AuthorListView->setModel(model);
 	ListConnect = QObject::connect(m_ui.AuthorListView, &QListView::clicked, this, &AuthorListDialog::authorViewSelect);
-	PANELLOG << "receive list of author of " << lData->m_authors.size() << "elems" << LOGENDL;
+	GUI_LOG << "receive list of author of " << lData->m_authors.size() << "elems" << LOGENDL;
 }
 
 void AuthorListDialog::receiveCloseAuthorDialog(IGuiData * data)
@@ -114,7 +115,7 @@ void AuthorListDialog::receiveCloseAuthorDialog(IGuiData * data)
 
 void AuthorListDialog::addNewAuthor()
 {
-	PANELLOG << "add new list" << LOGENDL;
+	GUI_LOG << "add new list" << LOGENDL;
 	QDialog * dial = new AuthorCreateDialog(m_dataDispatcher, this);
 	dial->show();
 }
@@ -139,10 +140,10 @@ void AuthorListDialog::deleteAuthor()
 			m_dataDispatcher.sendControl(new control::application::author::DeleteAuthor(list->getAuthor()));
 		}
 		m_haveToQuit = (i != 0) ? true : false;
-		PANELLOG << "delete " << ss.str() << LOGENDL;
+		GUI_LOG << "delete " << ss.str() << LOGENDL;
 	}
 	else
-		PANELLOG << "list not deleted" << LOGENDL;
+		GUI_LOG << "list not deleted" << LOGENDL;
 }
 
 void AuthorListDialog::authorViewSelect()

@@ -2,24 +2,18 @@
 #include "controller/Controller.h"
 #include "controller/IControlListener.h"
 #include "controller/ControllerContext.h"
-#include "controller/FilterSystem.h"
 #include "controller/functionSystem/FunctionManager.h"
 
 #include "controller/controls/ControlTemplateEdit.h"
-#include "controller/controls/ControlFunction.h"
 
 #include "io/SaveLoadSystem.h"
 
-#include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiData3dObjects.h"
 #include "gui/GuiData/GuiDataRendering.h"
-#include "gui/GuiData/GuiDataTree.h"
 #include "gui/GuiData/GuiDataHD.h"
 #include "gui/GuiData/GuiDataIO.h"
-#include "gui/GuiData/GuiDataList.h"
 #include "gui/Texts.hpp"
-#include "gui/texts/ExportTexts.hpp"
 #include "gui/texts/SplashScreenTexts.hpp"
 
 #include "controller/messages/DataIdListMessage.h"
@@ -29,9 +23,8 @@
 #include "controller/messages/VideoExportParametersMessage.h"
 #include "controller/messages/NewProjectMessage.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
-#include "models/3d/Graph/ClusterNode.h"
-#include "models/3d/Graph/ScanNode.h"
+#include "models/graph/GraphManager.h"
+#include "models/graph/ClusterNode.h"
 
 #include "io/exports/CSVWriter.h"
 #include "utils/time.h"
@@ -220,7 +213,7 @@ namespace control::io
 
 	void RefreshScanLink::doFunction(Controller& controller)
 	{
-		std::unordered_set<SafePtr<AGraphNode>> scans = controller.cgetOpenScanToolsGraphManager().getNodesByTypes({ ElementType::Scan, ElementType::PCO });
+		std::unordered_set<SafePtr<AGraphNode>> scans = controller.cgetGraphManager().getNodesByTypes({ ElementType::Scan, ElementType::PCO });
 		for (const SafePtr<AGraphNode>& scan : scans)
 		{
 			WritePtr<APointCloudNode> wScan = static_pointer_cast<APointCloudNode>(scan).get();
@@ -285,7 +278,7 @@ namespace control::io
 	void ItemsTo::doFunction(Controller& controller)
 	{
 
-		std::unordered_set<SafePtr<AGraphNode>> items = controller.getOpenScanToolsGraphManager().getNodesByTypes(m_types, m_filter);
+		std::unordered_set<SafePtr<AGraphNode>> items = controller.getGraphManager().getNodesByTypes(m_types, m_filter);
 		
 		launchContext(controller);
 		std::vector<std::filesystem::path> path({ m_filePath });
@@ -583,7 +576,7 @@ namespace control::io
 	}
 
 	/*
-	** SetupImageHD
+	** ImportScanModifications
 	*/
 
 	ImportScantraModifications::ImportScantraModifications(std::filesystem::path sqliteDbPath)
@@ -606,7 +599,7 @@ namespace control::io
 			SQLite::Database  db(m_sqliteDbPath);
 
 			std::unordered_map<std::string, SafePtr<AGraphNode>> scansMap;
-			for (const SafePtr<AGraphNode>& node : controller.getOpenScanToolsGraphManager().getNodesByTypes({ ElementType::Scan }))
+			for (const SafePtr<AGraphNode>& node : controller.getGraphManager().getNodesByTypes({ ElementType::Scan }))
 			{
 				ReadPtr<AGraphNode> rNode = node.cget();
 				if (!rNode)
@@ -707,8 +700,8 @@ namespace control::io
 
 				}
 
-				controller.getOpenScanToolsGraphManager().addNodesToGraph(toAddNodes);
-				controller.actualizeNodes(ActualizeOptions(true), toActualizeNodes);
+				controller.getGraphManager().addNodesToGraph(toAddNodes);
+				controller.actualizeTreeView(toActualizeNodes);
 			}
 
 
@@ -737,14 +730,30 @@ namespace control::io
 			controller.updateInfo(new GuiDataWarning(TEXT_SCANTRA_NOT_FOUND_SCANS));
 		}
 
-		controller.actualizeNodes(ActualizeOptions(), toActualizeNodes);
 		controller.getContext().setIsCurrentProjectSaved(false);
 
 	}
 
 	ControlType ImportScantraModifications::getType() const
 	{
-		return ControlType::importScanTraModifications;
+		return ControlType::importScantraModifications;
+	}
+
+	/*
+	** StartScantraInterprocess
+	*/
+
+	StartScantraInterprocess::StartScantraInterprocess()
+	{}
+
+	void StartScantraInterprocess::doFunction(Controller& controller)
+	{
+		controller.startScantraInterface();
+	}
+
+	ControlType StartScantraInterprocess::getType() const
+	{
+		return ControlType::startScantraInterprocess;
 	}
 
 	/*

@@ -1,23 +1,10 @@
 #include "controller/controls/ControlFunctionMeasure.h"
-#include "gui/GuiData/GuiDataTree.h"
 #include "controller/Controller.h"
 #include "controller/functionSystem/FunctionManager.h"
-#include "controller/messages/SimpleNumberMessage.h"
 #include "controller/messages/UndoRedoMessages.h"
-#include "gui/GuiData/GuiData3dObjects.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
 
-#include "models/3d/Graph/SimpleMeasureNode.h"
-#include "models/3d/Graph/PolylineMeasureNode.h"
-#include "models/3d/Graph/BeamBendingMeasureNode.h"
-#include "models/3d/Graph/PointToPipeMeasureNode.h"
-#include "models/3d/Graph/ColumnTiltMeasureNode.h"
-#include "models/3d/Graph/PipeToPipeMeasureNode.h"
-#include "models/3d/Graph/PipeToPlaneMeasureNode.h"
-#include "models/3d/Graph/PointToPlaneMeasureNode.h"
+#include "models/graph/PolylineMeasureNode.h"
 
-#include "controller/ControllerContext.h"
-#include "gui/Texts.hpp"
 #include "utils/Logger.h"
 
 namespace control::function::measure
@@ -52,8 +39,6 @@ namespace control::function::measure
 			RedoMessage message;
 			controller.getFunctionManager().feedMessageToSpecificContext(controller, &message, m_contextId);
 		}
-
-		controller.actualizeNodes(ActualizeOptions(), m_polyline);
 
 		CONTROLLOG << "ccontrol::function::measure::AddMeasureToPolylineMeasure do elemid " << writePoly->getId() << LOGENDL;
 	}

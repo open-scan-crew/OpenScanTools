@@ -10,6 +10,7 @@
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ListTexts.hpp"
+#include "utils/Logger.h"
 
 StandardListDialog::StandardListDialog(IDataDispatcher& dataDispatcher, const StandardType& type, QWidget *parent, const bool& deleteOnClose)
 	: AListListDialog(dataDispatcher, parent, deleteOnClose)
@@ -78,7 +79,7 @@ void StandardListDialog::receiveListList(IGuiData *data)
 	m_ui.DuplicateBtn->setEnabled(false);
 	m_ui.ExportBtn->setEnabled(false);
 
-	PANELLOG << "Standard list dialog : " << m_model->rowCount() << " elements received" << LOGENDL;
+	GUI_LOG << "Standard list dialog : " << m_model->rowCount() << " elements received" << LOGENDL;
 }
 
 void StandardListDialog::clickOnItem(const QModelIndex &idx)
@@ -100,12 +101,12 @@ void StandardListDialog::clickOnItem(const QModelIndex &idx)
 		m_ui.DuplicateBtn->setEnabled(true);
 		m_ui.ExportBtn->setEnabled(true);
 	}
-	PANELLOG << "click on item" << LOGENDL;
+	GUI_LOG << "click on item" << LOGENDL;
 }
 
 void StandardListDialog::addNewList()
 {
-	PANELLOG << "add new list" << LOGENDL;
+	GUI_LOG << "add new list" << LOGENDL;
 	m_nameDial.show();
 }
 
@@ -128,7 +129,7 @@ void StandardListDialog::deleteList()
 		}
 	}
 	else
-		PANELLOG << "list not deleted" << LOGENDL;
+		GUI_LOG << "list not deleted" << LOGENDL;
 }
 
 void StandardListDialog::listViewSelect()

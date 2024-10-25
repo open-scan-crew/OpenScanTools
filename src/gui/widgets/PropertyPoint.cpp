@@ -14,7 +14,7 @@
 #include <QtConcurrent/qtconcurrentrun.h>
 #include <cctype>
 
-#include "models/3d/Graph/PointNode.h"
+#include "models/graph/PointNode.h"
 
 PropertyPoint::PropertyPoint(Controller& controller, QWidget* parent, float guiScale)
 	: APropertyGeneral(controller.getDataDispatcher(), parent)

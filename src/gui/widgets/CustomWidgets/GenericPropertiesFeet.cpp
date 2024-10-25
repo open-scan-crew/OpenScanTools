@@ -5,10 +5,12 @@
 #include "gui/widgets/FocusWatcher.h"
 #include <QDoubleValidator>
 #include <QIntValidator>
-#include "models/3d/Graph/ClusterNode.h"
+#include "models/graph/ClusterNode.h"
 #include <QtWidgets/QMenu>
 #include <QDir>
 #include "gui/Texts.hpp"
+
+#include "utils/Logger.h"
 
 GenericPropertiesFeet::GenericPropertiesFeet(QWidget* parent, float pixelRatio)
 	: QWidget(parent)
@@ -219,7 +221,7 @@ void GenericPropertiesFeet::getClusterPath(std::wstring& hName, std::wstring& hP
 
 void GenericPropertiesFeet::handleContextHyperlink(hLinkId link)
 {
-	PANELLOG << "context custom" << LOGENDL;
+	GUI_LOG << "context custom" << LOGENDL;
 	if (link.isValid() == false)
 		return;
 

@@ -19,6 +19,7 @@ ToolBarImportScantra::ToolBarImportScantra(IDataDispatcher &dataDispatcher, QWid
 	m_openPath = QStandardPaths::locate(QStandardPaths::DocumentsLocation, QString(), QStandardPaths::LocateDirectory);
 
 	connect(m_ui.importScanTraButton, &QPushButton::released, this, &ToolBarImportScantra::slotImportScanTra);
+	connect(m_ui.start_interprocess, &QPushButton::released, this, &ToolBarImportScantra::slotStartInterprocess);
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectPath);
@@ -63,4 +64,9 @@ void ToolBarImportScantra::slotImportScanTra()
 	m_openPath = qFilepath;
 
 	m_dataDispatcher.sendControl(new control::io::ImportScantraModifications(filePath));
+}
+
+void ToolBarImportScantra::slotStartInterprocess()
+{
+	m_dataDispatcher.sendControl(new control::io::StartScantraInterprocess());
 }

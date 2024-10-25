@@ -1,22 +1,17 @@
 #include "controller/functionSystem/ContextPointToCylinderMeasure.h"
-#include "controller/controls/ControlFunctionTag.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
-#include "controller/functionSystem/FunctionManager.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "controller/controls/ControlFunction.h"
 
 #include "pointCloudEngine/TlScanOverseer.h"
 
-#include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ContextTexts.hpp"
 
-#include "models/3d/Graph/PointToPipeMeasureNode.h"
-#include "models/3d/Graph/CylinderNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/graph/PointToPipeMeasureNode.h"
+#include "models/graph/CylinderNode.h"
+#include "models/graph/GraphManager.hxx"
 
-#include "utils/Logger.h"
 
 #include <glm/gtx/quaternion.hpp>
 
@@ -56,7 +51,7 @@ ContextState ContextPointToCylinderMeasure::launch(Controller& controller)
 	glm::dvec3 projectedPoint, projectedCylinderPoint, cylinderDirection, cylinderCenter;
 	double cylinderRadius;
 
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
 
     TlScanOverseer::setWorkingScansTransfo(graphManager.getVisiblePointCloudInstances(m_panoramic, true, true));
     ClippingAssembly clippingAssembly;

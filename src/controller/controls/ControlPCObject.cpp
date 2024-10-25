@@ -1,18 +1,9 @@
 #include "controller/controls/ControlPCObject.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
 #include "controller/functionSystem/FunctionManager.h"
 #include "io/SaveLoadSystem.h"
-#include "models/3d/DuplicationTypes.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/Texts.hpp"
-#include "gui/GuiData/GuiDataGeneralProject.h"
-#include "gui/GuiData/GuiDataTree.h"
-#include "gui/GuiData/GuiData3dObjects.h"
-#include "controller/messages/PointCloudObjectCreationParametersMessage.h"
-#include "utils/Utils.h"
-
-#include "models/3d/Graph/ScanObjectNode.h"
 
 namespace control
 {

@@ -1,7 +1,7 @@
 #ifndef CONTEXT_TEXTS_HPP
 #define CONTEXT_TEXTS_HPP
 
-#include <qstring.h>
+#include <qobject.h>
 
 //ContextPointMeasure
 #define TEXT_POINT_MEASURE_START QObject::tr("Ready for first point.")

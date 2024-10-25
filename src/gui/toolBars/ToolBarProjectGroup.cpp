@@ -58,7 +58,7 @@ ToolBarProjectGroup::~ToolBarProjectGroup()
 
 void ToolBarProjectGroup::manageAuthors(bool displayCloseButton)
 {
-	PANELLOG << "manage authors" << LOGENDL;
+	GUI_LOG << "manage authors" << LOGENDL;
 	AuthorListDialog *dialog = new AuthorListDialog(m_dataDispatcher, this->parentWidget());
 	m_dataDispatcher.sendControl(new control::application::author::SendAuthorList());
     dialog->setWindowFlag(Qt::WindowCloseButtonHint, displayCloseButton);
@@ -67,7 +67,7 @@ void ToolBarProjectGroup::manageAuthors(bool displayCloseButton)
 
 void ToolBarProjectGroup::openRecentSave()
 {
-	PANELLOG << "open recent projects" << LOGENDL;
+	GUI_LOG << "open recent projects" << LOGENDL;
 	DialogRecentProjects *dialog = new DialogRecentProjects(m_dataDispatcher, this->parentWidget());
 	m_dataDispatcher.sendControl(new control::application::SendRecentProjects());
 	dialog->show();

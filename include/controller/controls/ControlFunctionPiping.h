@@ -2,10 +2,9 @@
 #define CONTROL_FUNCTION_PIPING_H_
 
 #include "controller/controls/IControl.h"
-#include "models/OpenScanToolsModelEssentials.h"
-#include <list>
-#include "models/data/Data.h"
-#include "glm/glm.hpp"
+#include "utils/safe_ptr.h"
+
+#include <unordered_set>
 
 class PipingNode;
 class AGraphNode;

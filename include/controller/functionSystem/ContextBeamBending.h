@@ -2,8 +2,7 @@
 #define CONTEXT_BEAM_BENDING_H_
 
 #include "controller/functionSystem/ARayTracingContext.h"
-#include <glm/glm.hpp>
-#include "controller/messages/PlaneMessage.h"
+#include "controller/functionSystem/PlaneDetectionOptions.h"
 
 
 class ContextBeamBending: public ARayTracingContext

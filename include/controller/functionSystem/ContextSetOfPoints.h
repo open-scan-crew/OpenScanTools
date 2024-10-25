@@ -2,10 +2,7 @@
 #define CONTEXT_SET_OF_POINTS_H_
 
 #include "controller/functionSystem/ARayTracingContext.h"
-#include "models/OpenScanToolsModelEssentials.h"
-#include "pointCloudEngine/TlScanOverseer.h"
-#include "pointCloudEngine/OctreeRayTracing.h"
-#include "controller/messages/PlaneMessage.h"
+#include "controller/functionSystem/PlaneDetectionOptions.h"
 
 
 class ContextSetOfPoints : public ARayTracingContext

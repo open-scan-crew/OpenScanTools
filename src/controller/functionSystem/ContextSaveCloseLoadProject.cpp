@@ -1,7 +1,7 @@
 #include "controller/functionSystem/ContextSaveCloseLoadProject.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "controller/messages/FilesMessage.h"
 #include "controller/messages/ModalMessage.h"
 #include "controller/messages/NewProjectMessage.h"
@@ -10,11 +10,11 @@
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataContextRequest.h"
 #include "gui/GuiData/GuiDataIO.h"
-#include "models/3d/graph/CameraNode.h"
 #include "controller/controls/ControlProject.h"
 #include "controller/controls/ControlApplication.h"
-#include "Gui/Translator.h"
+#include "utils/FilesAndFoldersDefinitions.h"
 #include "utils/Logger.h"
+#include "utils/system.h"
 #include "gui/texts/ContextTexts.hpp"
 #include "io/SaveLoadSystem.h"
 

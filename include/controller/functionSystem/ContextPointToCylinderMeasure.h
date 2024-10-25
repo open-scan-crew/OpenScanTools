@@ -2,9 +2,6 @@
 #define PLANE_TO_CYLINDER_H
 
 #include "controller/functionSystem/ARayTracingContext.h"
-#include <glm/glm.hpp>
-#include <list>
-#include <map>
 
 class ContextPointToCylinderMeasure : public ARayTracingContext
 {

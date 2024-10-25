@@ -10,6 +10,7 @@
 #include "gui/GuiData/GuiDataIO.h"
 
 #include "utils/time.h"
+#include "utils/Logger.h"
 
 DialogRecentProjects::DialogRecentProjects(IDataDispatcher& dataDispatcher, QWidget *parent)
 	: ADialog(dataDispatcher, parent)
@@ -18,7 +19,7 @@ DialogRecentProjects::DialogRecentProjects(IDataDispatcher& dataDispatcher, QWid
 	this->show();
 	setModal(true);
 	
-	PANELLOG << "create DialogRecentProjects" << LOGENDL;
+	GUI_LOG << "create DialogRecentProjects" << LOGENDL;
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::sendRecentProjects);
 
@@ -30,7 +31,7 @@ DialogRecentProjects::DialogRecentProjects(IDataDispatcher& dataDispatcher, QWid
 
 DialogRecentProjects::~DialogRecentProjects()
 {
-	PANELLOG << "destroy DialogRecentProjects " << LOGENDL;
+	GUI_LOG << "destroy DialogRecentProjects " << LOGENDL;
 	m_dataDispatcher.unregisterObserver(this);
 }
 

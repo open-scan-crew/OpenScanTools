@@ -2,10 +2,8 @@
 #define TAG_TEMPLATE_H
 
 #include <string>
-#include <iostream>
 #include "crossguid/guid.hpp"
-#include <unordered_set>
-#include "models/OpenScanToolsModelEssentials.h"
+#include "utils/safe_ptr.h"
 
 #include "models/application/List.h"
 

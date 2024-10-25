@@ -1,11 +1,6 @@
 #include "controller/functionSystem/ARayTracingContext.h"
 #include "models/3d/Measures.h"
-#include "models/3d/Graph/SimpleMeasureNode.h"
-#include "models/3d/Graph/PolylineMeasureNode.h"
-#include "models/3d/Graph/PipeToPipeMeasureNode.h"
-#include "models/3d/Graph/PipeToPlaneMeasureNode.h"
-#include "models/3d/Graph/PointToPipeMeasureNode.h"
-#include "models/3d/Graph/PointToPlaneMeasureNode.h"
+#include "models/graph/AMeasureNode.h"
 #include "models/3d/MeshBuffer.h"
 
 #include "gui/GuiData/GuiDataMessages.h"
@@ -13,10 +8,9 @@
 #include "gui/texts/RayTracingTexts.hpp"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "controller/controls/ControlMetaControl.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
-#include "controller/functionSystem/FunctionManager.h"
+#include "models/graph/GraphManager.h"
 #include "controller/messages/FullClickMessage.h"
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "pointCloudEngine/PCE_core.h"
@@ -56,7 +50,7 @@ ContextState ARayTracingContext::feedMessage(IMessage* message, Controller& cont
         m_panoramic = clickInfo.panoramic;
         m_lastCameraPos = clickInfo.rayOrigin;
 
-        controller.getOpenScanToolsGraphManager().getMeshInfoForClick(clickInfo);
+        controller.getGraphManager().getMeshInfoForClick(clickInfo);
 
         if (clickInfo.mesh != nullptr &&
             clickInfo.hover != m_meshSelected)
@@ -521,10 +515,10 @@ glm::dvec3 ARayTracingContext::rayTracePointClouds(Controller& controller, Click
     pointSize += 2.0;
 
     ClippingAssembly clipAssembly;
-    controller.getOpenScanToolsGraphManager().getClippingAssembly(clipAssembly, true, false);
+    controller.getGraphManager().getClippingAssembly(clipAssembly, true, false);
 
     bool isOrtho = (std::fabs(abs(clickInfo.fov)) <= std::numeric_limits<double>::epsilon());
-    TlScanOverseer::setWorkingScansTransfo(controller.getOpenScanToolsGraphManager().getVisiblePointCloudInstances(clickInfo.panoramic, true, true));
+    TlScanOverseer::setWorkingScansTransfo(controller.getGraphManager().getVisiblePointCloudInstances(clickInfo.panoramic, true, true));
 
     double cosAngleThreshold = atan(clickInfo.heightAt1m * pointSize / (1.0 * clickInfo.height)); // angle across a visible point in the viewport
     //if orthographic view, cosAngleThreshold represents the distance between the edges of a point, in a plane orthogonal to the view

@@ -5,10 +5,10 @@
 #include "io/exports/ExportParameters.hpp"
 #include "models/data/Clipping/ClippingGeometry.h"
 #include "models/project/ProjectInfos.h"
+#include "models/pointCloud/PointCloudInstance.h"
 
 #include <vector>
 #include <glm/glm.hpp>
-#include <map>
 #include <unordered_set>
 
 enum FileType;
@@ -16,7 +16,7 @@ enum PrecisionType;
 class IScanFileWriter;
 class CSVWriter;
 
-class OpenScanToolsGraphManager;
+class GraphManager;
 class CameraNode;
 
 class ContextExportPC : public AContext
@@ -45,14 +45,11 @@ private:
     void addOriginCube(IScanFileWriter* fileWriter, tls::PointFormat pointFormat, CSVWriter& csvWriter);
     bool ensureFileWriter(Controller& controller, std::unique_ptr<IScanFileWriter>& scanFileWriter, std::wstring name, CSVWriter* csvWriter);
     bool prepareOutputDirectory(Controller& controller, const std::filesystem::path& folderPath);
-    std::vector<tls::PointCloudInstance> getPointCloudInstances(OpenScanToolsGraphManager& graphManager);
-    void getBestOriginOrientationAndBBox(const ClippingAssembly& clippingAssembly, const tls::BoundingBox& scanBBox, glm::dvec3& bestOrigin, glm::dquat& bestOrientation);
-    // Should be static functions for tls::BoundingBox
-    static tls::BoundingBox getGlobalBoundingBox(const std::vector<tls::PointCloudInstance>& pcInstances);
-    static tls::BoundingBox extractBBox(const IClippingGeometry& clippingGeom);
-    static tls::BoundingBox transformBoundingBox(const tls::BoundingBox& bbox, glm::dmat4 transfo);
-    static void unionBoundingBox(tls::BoundingBox& dstBBox, const tls::BoundingBox& srcBBox);
-    static void intersectBoundingBox(tls::BoundingBox& dstBBox, const tls::BoundingBox& srcBBox);
+    std::vector<tls::PointCloudInstance> getPointCloudInstances(GraphManager& graphManager);
+    void getBestOriginOrientationAndBBox(const ClippingAssembly& clippingAssembly, const BoundingBoxD& scanBBox, glm::dvec3& bestOrigin, glm::dquat& bestOrientation);
+    // Should be static functions for BoundingBox
+    static BoundingBoxD getGlobalBoundingBox(const std::vector<tls::PointCloudInstance>& pcInstances);
+    static BoundingBoxD extractBBox(const IClippingGeometry& clippingGeom);
     // !! static //
     tls::Transformation getCommonTransformation(const std::vector<tls::PointCloudInstance>& pcInfos);
     tls::PointFormat getCommonFormat(const std::vector<tls::PointCloudInstance>& pcInfos);
@@ -88,8 +85,6 @@ public:
     bool canAutoRelaunch() const;
 
     ContextType getType() const override;
-private:
-    //void recGetObjectsClusters(std::unordered_map<xg::Guid, const Data*>& dataMap, const Data* data, Project* project);
 
 private:
     ProjectInfos m_subProjectInfo;

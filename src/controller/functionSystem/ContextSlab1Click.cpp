@@ -1,24 +1,19 @@
 #include "controller/functionSystem/ContextSlab1Click.h"
-#include "controller/messages/FullClickMessage.h"
-#include "controller/messages/ClickMessage.h"
 #include "controller/messages/SimpleNumberMessage.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/RayTracingTexts.hpp"
 #include "gui/texts/ContextTexts.hpp"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
-#include "controller/functionSystem/FunctionManager.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "utils/Logger.h"
 #include "controller/controls/ControlFunction.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
-#include "models/3d/Graph/BoxNode.h"
+#include "models/graph/GraphManager.h"
+#include "models/graph/BoxNode.h"
 
 #include <glm/gtx/quaternion.hpp>
 
-#include "magic_enum/magic_enum.hpp"
 
 ContextSlab1Click::ContextSlab1Click(const ContextId& id)
 	: ARayTracingContext(id)
@@ -66,7 +61,7 @@ ContextState ContextSlab1Click::launch(Controller& controller)
 	m_state = ContextState::running;
 	FUNCLOG << "ContextSlabDetection launch" << LOGENDL;
 
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
 
 	controller.updateInfo(new GuiDataTmpMessage(TEXT_LUCAS_SEARCH_ONGOING, 0));
 

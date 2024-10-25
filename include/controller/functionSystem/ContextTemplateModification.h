@@ -2,8 +2,9 @@
 #define CONTEXT_TEMPLATE_MODIFICATION_H_
 
 #include "controller/functionSystem/AContext.h"
-#include "models/OpenScanToolsModelEssentials.h"
-#include "controller/messages/TemplateMessage.h"
+#include "models/application/TagTemplate.h"
+#include "utils/safe_ptr.h"
+
 #include <unordered_set>
 
 class AGraphNode;

@@ -4,7 +4,7 @@
 #include "gui/IDataDispatcher.h"
 #include "gui/ShortcutSystem.h"
 #include "pointCloudEngine/IRenderingEngine.h"
-#include "models/3d/Graph/CameraNode.h"
+#include "models/graph/CameraNode.h"
 #include "gui/viewport/EventManagerViewport.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataRendering.h"
@@ -45,7 +45,7 @@ ViewportOrganizer::ViewportOrganizer(QWidget* parent, IDataDispatcher& dataDispa
 
     addShortcut(Qt::Key_F11, this, Qt::ShortcutContext::WindowShortcut, &ViewportOrganizer::onToggleFullScreen);
 
-    addShortcut(Qt::Key_0, this, Qt::ShortcutContext::WindowShortcut, [this]() {onAlignView(AlignView::Reset); });
+    addShortcut(Qt::Key_0, this, Qt::ShortcutContext::WindowShortcut, [this]() { onAdjustZoomToScene(); });
     addShortcut(Qt::Key_2, this, Qt::ShortcutContext::WindowShortcut, [this]() {onAlignView(AlignView::Bottom); });
     addShortcut(Qt::Key_3, this, Qt::ShortcutContext::WindowShortcut, [this]() {onAlignView(AlignView::Front); });
     addShortcut(Qt::Key_4, this, Qt::ShortcutContext::WindowShortcut, [this]() {onAlignView(AlignView::Left); });
@@ -181,10 +181,19 @@ void ViewportOrganizer::onCursorChange(IGuiData* data)
         viewports.second.vulkanViewport->setCursor(c);
 }
 
+void ViewportOrganizer::onAdjustZoomToScene()
+{
+    if (m_viewports.find(m_activeViewport) != m_viewports.end())
+        m_dataDispatcher.sendControl(new control::viewport::AdjustZoomToScene(m_viewports[m_activeViewport].vulkanViewport->getCamera()));
+}
+
 void ViewportOrganizer::onAlignView(AlignView align)
 {
     if (m_viewports.find(m_activeViewport) != m_viewports.end())
-        m_dataDispatcher.sendControl(new control::viewport::AlignViewSide(align, m_viewports[m_activeViewport].vulkanViewport->getCamera()));
+    {
+        WritePtr<CameraNode> wCam = m_viewports[m_activeViewport].vulkanViewport->getCamera().get();
+        wCam->alignView(align);
+    }
 }
 
 void ViewportOrganizer::onRotation90()
@@ -316,7 +325,7 @@ void ViewportOrganizer::onDisableFullScreen()
 
 void ViewportOrganizer::onCancel()
 {
-    PANELLOG << "shortcut cancel" << LOGENDL;
+    GUI_LOG << "shortcut cancel" << LOGENDL;
     m_dataDispatcher.sendControl(new control::function::Validate());
 }
 

@@ -6,13 +6,12 @@
 #include "models/project/ProjectTypes.h"
 #include "io/ConvertProperties.h"
 #include "io/imports/ImportTypes.h"
+
 #include <filesystem>
 
-#include "models/3d/Graph/CameraNode.h"
+#include "models/graph/CameraNode.h"
 
 class TransformationModule;
-
-struct ProjectTemplate;
 
 namespace control
 {
@@ -225,30 +224,6 @@ namespace control
 			ConvertScan() {};
 		private:
 			ConvertProperties m_prop;
-		};
-
-		class ApplyProjectTransformation : public AControl
-		{
-		public:
-			ApplyProjectTransformation();
-			~ApplyProjectTransformation();
-			void doFunction(Controller& controller) override;
-			bool canUndo() const override;
-			void undoFunction(Controller& controller) override;
-			ControlType getType() const override;
-		};
-
-		class ApplyUserTransformation : public AControl
-		{
-		public:
-			ApplyUserTransformation(const TransformationModule& transfo);
-			~ApplyUserTransformation();
-			void doFunction(Controller& controller) override;
-			bool canUndo() const override;
-			void undoFunction(Controller& controller) override;
-			ControlType getType() const override;
-		private:
-			const TransformationModule& m_transfo;
 		};
 
 		class ShowProperties : public AControl

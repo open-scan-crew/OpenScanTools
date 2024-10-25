@@ -2,8 +2,6 @@
 #define CONTEXT_MULTIPLE_CYLINDERS_MEASURE_H
 
 #include "controller/functionSystem/ARayTracingContext.h"
-#include <glm/glm.hpp>
-
 
 class ContextMultipleCylinders : public ARayTracingContext
 {
@@ -16,9 +14,6 @@ public:
 	bool canAutoRelaunch() const;
 
 	ContextType getType() const override;
-
-private:
-
 };
 
 #endif // !CCONTEXT_MULTIPLE_CYLINDERS_MEASURE_H

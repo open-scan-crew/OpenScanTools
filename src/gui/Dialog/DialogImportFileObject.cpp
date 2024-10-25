@@ -11,8 +11,8 @@
 
 #include "controller/messages/FilesMessage.h"
 
-#include "models/3d/Graph/MeshObjectNode.h"
-#include "models/3d/Graph/ScanNode.h"
+#include "models/graph/MeshObjectNode.h"
+#include "models/graph/ScanNode.h"
 
 #include "gui/Dialog/DialogImportFileObject.h"
 #include "gui/Texts.hpp"

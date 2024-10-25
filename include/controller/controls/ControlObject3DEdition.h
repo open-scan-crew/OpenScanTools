@@ -4,9 +4,8 @@
 #include "models/OpenScanToolsModelEssentials.h"
 #include "controller/controls/AEditionControl.h"
 #include "models/3d/ManipulationTypes.h"
-#include "models/3d/Graph/ManipulatorNode.h"
+#include "models/graph/ManipulatorNode.h"
 #include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
 #include <unordered_map>
 
 #include "controller/messages/ManipulateMessage.h"

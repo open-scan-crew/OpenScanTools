@@ -1,18 +1,13 @@
 #include "controller/functionSystem/ContextFitTorus.h"
 #include "controller/controls/ControlFunction.h"
-
-#include "models/3d/Graph/TagNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/graph/GraphManager.h"
 #include "pointCloudEngine/TlScanOverseer.h"
 
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
-#include "controller/functionSystem/FunctionManager.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ContextTexts.hpp"
-#include "models/3d/Graph/TorusNode.h"
+#include "models/graph/TorusNode.h"
 
 #include "utils/Logger.h"
 #include <glm/gtx/quaternion.hpp>
@@ -51,7 +46,7 @@ ContextState ContextFitTorus::launch(Controller& controller)
 	controller.updateInfo(new GuiDataTmpMessage(TEXT_LUCAS_SEARCH_ONGOING, 0));
 	bool success = false;
 
-	OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+	GraphManager& graphManager = controller.getGraphManager();
 
 	ClippingAssembly clippingAssembly;
 	graphManager.getClippingAssembly(clippingAssembly, true, false);

@@ -3,7 +3,7 @@
 
 #include "controller/functionSystem/AContext.h"
 #include "io/exports/dxfExport.h"
-#include "models/3d/Graph/AGraphNode.h"
+#include "models/graph/AGraphNode.h"
 #include "io/exports/ExportParameters.hpp"
 
 

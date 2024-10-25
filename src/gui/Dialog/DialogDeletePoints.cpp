@@ -1,13 +1,13 @@
 #include "gui/Dialog/DialogDeletePoints.h"
 
-#include "gui/texts/ExportTexts.hpp"
-#include "io/FileUtils.h"
 #include "controller/controls/ControlFunction.h"
-#include "controller/messages/ClippingExportParametersMessage.h"
 #include "controller/messages/DeletePointsMessage.h"
+#include "gui/texts/ExportTexts.hpp"
 #include "gui/GuiData/GuiDataGeneralProject.h"
-#include "models/3d/Graph/BoxNode.h"
+#include "io/exports/ExportParameters.hpp"
+#include "models/graph/AClippingNode.h"
 
+#include <set>
 
 DialogDeletePoints::DialogDeletePoints(IDataDispatcher& dataDispatcher, QWidget *parent)
     : ADialog(dataDispatcher, parent)

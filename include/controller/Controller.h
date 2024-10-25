@@ -1,11 +1,8 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-#include "models/OpenScanToolsModelEssentials.h"
-#include "utils/Color32.hpp"
+#include "utils/safe_ptr.h"
 #include "models/Types.hpp"
-#include "models/LicenceTypes.h"
-#include "controller/ActualizeOptions.h"
 
 #include <unordered_set>
 
@@ -19,7 +16,7 @@ class IGuiData;
 class CameraInfo;
 class AControl;
 
-class OpenScanToolsGraphManager;
+class GraphManager;
 class AGraphNode;
 class CameraNode;
 
@@ -35,32 +32,22 @@ class CameraNode;
 class Controller
 {
 public:
-	Controller(IDataDispatcher& dataDispatcher, OpenScanToolsGraphManager& graphManager);
+	Controller(IDataDispatcher& dataDispatcher, GraphManager& graphManager);
 	~Controller();
-
-    /*! \brief this function launch a thread that run the update() at a fixed refresh rate
-     * Can only be called once per Controller instance.
-     * The function stop() must be called before the Controller is destroyed.
-     */
-    void run(int refreshPerSecond);
-
-    /*!
-     * \brief this function stop the thread launched by run().
-     * If there is no thread running, does nothing.
-     */
-    void stop();
 
     void changeSelection(const std::unordered_set<SafePtr<AGraphNode>> & newSelection, bool updateTree = true);
 
 	//void actualizeClippingObjectWithUserValue(const double& value, const std::unordered_set<ElementType>& elementsType);
-	/*! Permet d'envoyer les messages GuiData de rafraîchissement de l'affichage de l'UI (si _updateGui_ est vraie)
-							et du SceneGraph suite à la modification d'un objet de xg::Guid  _id_ */
-    void actualizeNodes(const ActualizeOptions& options, const std::unordered_set<SafePtr<AGraphNode>>& toActualizeDatas);
-	void actualizeNodes(const ActualizeOptions& options, SafePtr<AGraphNode> toActualizeData);
-	void applyWaitingActualize();
+    /*! Permet d'envoyer les messages GuiData de rafraîchissement de l'affichage
+     * de l'UI (si _updateGui_ est vraie) et du SceneGraph suite à la modification
+     * d'un objet de xg::Guid _id_
+	 */
+    void actualizeTreeView(const std::unordered_set<SafePtr<AGraphNode>>& toActualizeDatas);
+	void actualizeTreeView(SafePtr<AGraphNode> toActualizeData);
 
 	void undoLastAction(); //historic class
 	void redoLastAction(); //historic class
+	void resetHistoric();
 
     void saveCurrentProject(const SafePtr<CameraNode>& camera);
 	//void autosaveCurrentProject(const SafePtr<CameraNode>& camera);
@@ -78,44 +65,28 @@ public:
 	FunctionManager& getFunctionManager();
 	ControllerContext& getContext();
 	FilterSystem& getFilterSystem();
-	OpenScanToolsGraphManager& getOpenScanToolsGraphManager();
+	GraphManager& getGraphManager();
 
-	const OpenScanToolsGraphManager& cgetOpenScanToolsGraphManager() const;
+	const GraphManager& cgetGraphManager() const;
 	const ControllerContext& cgetContext() const;
 
 	void startMetaControl();
 	void stopMetaControl();
 	void abortMetaControl();
-	void cleanHistory(); //historic class
 
-	bool isUndoPossible(); //historic class
-	bool isRedoPossible(); //historic class
+	void activateAutosave(uint64_t period_min);
+	void deactivateAutosave();
 
-	bool startAutosaveThread(const uint64_t& timing);
-	bool stopAutosaveThread();
-
+	void startScantraInterface();
+	void stopScantraInterface();
+	
 	uint32_t getNextUserId(ElementType type) const;
 	std::vector<uint32_t> getMultipleUserId(ElementType type, int indexAmount) const;
 
 	void setDefaultAuthor();
-private:
-    /*!
-    ** \brief this method is the method that will allow all the subsystem of the controller to be updated
-    ** This method must be called every frame.
-    */
-    void update();
-
-	void logHistoric(); //historic class
-
-	bool updateControls();
-
-	void cleanRedoStack();
 
 private:
     Controller_p* m_p;
-	bool m_metaContralCreation;
-	std::list<AControl*> m_metaToUndo;
-	std::unordered_map<ActualizeOptions, std::unordered_set<SafePtr<AGraphNode>>> m_waitingActualizeNodes;
 };
 
 #endif // !_CONTROLLER_H_

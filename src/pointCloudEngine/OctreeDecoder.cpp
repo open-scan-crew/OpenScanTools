@@ -1,7 +1,7 @@
 #include "pointCloudEngine/OctreeDecoder.h"
 #include <map>
 
-OctreeDecoder::OctreeDecoder(OctreeBase const& _base, tls::BoundingBox const& _bbox)
+OctreeDecoder::OctreeDecoder(OctreeBase const& _base, BoundingBox const& _bbox)
     : OctreeBase(_base)
     , m_isEncodedBuffered(false)
     , m_isDecoded(false)
@@ -237,7 +237,7 @@ bool OctreeDecoder::copyCellPoints(uint32_t cellId, PointXYZIRGB* dstPoints, uin
     }
 }
 
-const tls::BoundingBox&  OctreeDecoder::getBBox() const
+const BoundingBox&  OctreeDecoder::getBBox() const
 {
 	return m_bbox;
 }

@@ -1,6 +1,6 @@
 #include "gui/Dialog/DialogSearchedObjects.h"
 #include "gui/style/IconObject.h"
-#include "models/3d/Graph/TagNode.h"
+#include "models/graph/TagNode.h"
 #include "controller/controls/ControlSpecial.h"
 #include "gui/GuiData/GuiData3dObjects.h"
 

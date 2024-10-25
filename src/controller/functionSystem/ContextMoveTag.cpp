@@ -1,9 +1,8 @@
 #include "controller/functionSystem/ContextMoveTag.h"
 #include "controller/controls/ControlObject3DEdition.h"
 #include "controller/Controller.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
-#include "controller/ControlListener.h"
-#include "controller/functionSystem/FunctionManager.h"
+#include "models/graph/GraphManager.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "utils/Logger.h"
 
 ContextMoveTag::ContextMoveTag(const ContextId& id)
@@ -17,7 +16,7 @@ ContextMoveTag::~ContextMoveTag()
 
 ContextState ContextMoveTag::start(Controller& controller)
 {
-	std::unordered_set<SafePtr<AGraphNode>> selects = controller.getOpenScanToolsGraphManager().getSelectedNodes();
+	std::unordered_set<SafePtr<AGraphNode>> selects = controller.getGraphManager().getSelectedNodes();
 	if (selects.size() != 1)
 		return ARayTracingContext::abort(controller);
 

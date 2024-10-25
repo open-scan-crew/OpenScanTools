@@ -2,7 +2,6 @@
 #define CONTEXT_TRAJECTORY_H
 
 #include "controller/functionSystem/ARayTracingContext.h"
-#include <glm/glm.hpp>
 
 class ContextTrajectory : public ARayTracingContext
 {

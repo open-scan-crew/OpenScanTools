@@ -1,15 +1,12 @@
 #include "controller/functionSystem/ContextAlignView3P.h"
 #include "gui/GuiData/GuiDataRendering.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
 #include "gui/GuiData/GuiDataMessages.h"
-
 #include "gui/texts/AlignViewTexts.hpp"
 #include "gui/texts/RayTracingTexts.hpp"
 
-#include "models/3d/Graph/CameraNode.h"
+#include "models/graph/CameraNode.h"
 
-#include "utils/math/trigo.h"
 
 ContextAlignView3P::ContextAlignView3P(const ContextId& id)
     : AContextAlignView(id)

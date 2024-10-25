@@ -1,7 +1,7 @@
 #ifndef DEFAULT_NAME_TEXTS_HPP
 #define DEFAULT_NAME_TEXTS_HPP
 
-#include <QObject>
+#include <qobject.h>
 
 //Default object name
 #define TEXT_DEFAULT_NAME_POINT QObject::tr("Point")

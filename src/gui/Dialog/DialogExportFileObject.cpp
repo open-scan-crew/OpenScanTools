@@ -22,7 +22,6 @@ DialogExportFileObject::DialogExportFileObject(IDataDispatcher& dataDispatcher, 
 	flags ^= Qt::WindowContextHelpButtonHint;
 	setWindowFlags(flags);
 	// ------------------------------------
-	GUILOG << "create DialogDeleteScanTypeSelect" << LOGENDL;
 
 	m_ui.tableWidget->setRowCount((int)infoFileObjects.size());
 	m_ui.tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::ResizeToContents);
@@ -51,9 +50,7 @@ DialogExportFileObject::DialogExportFileObject(IDataDispatcher& dataDispatcher, 
 }
 
 DialogExportFileObject::~DialogExportFileObject()
-{
-	GUILOG << "destroy DialogDeleteScanTypeSelect" << LOGENDL;
-}
+{}
 
 void DialogExportFileObject::Ok()
 {

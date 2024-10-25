@@ -6,6 +6,8 @@
 #include "gui/Dialog/ADialog.h"
 #include "ui_DialogRecentProjects.h"
 
+#include <filesystem>
+
 class DialogRecentProjects : public ADialog
 {
 	Q_OBJECT

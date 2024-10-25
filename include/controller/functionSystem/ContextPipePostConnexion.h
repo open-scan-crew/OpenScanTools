@@ -2,7 +2,6 @@
 #define CONTEXT_PIPE_POST_CONNEXION_H_
 
 #include "controller/functionSystem/AContext.h"
-#include <glm/glm.hpp>
 #include <vector>
 
 class ContextPipePostConnexion : public AContext

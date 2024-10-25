@@ -52,7 +52,6 @@ void ToolBarShareGroup::slotExportToShareObjects()
 	m_dataDispatcher.sendControl(new control::function::Abort());
 	m_primitivesExportDialog->setFormat(ObjectExportType::OST);
 	m_primitivesExportDialog->show();
-	PANELLOG << "exportObjects click" << LOGENDL;
 }
 
 

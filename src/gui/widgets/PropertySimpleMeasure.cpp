@@ -4,7 +4,7 @@
 #include "controller/controls/ControlDataEdition.h"
 #include "controller/controls/ControlClippingEdition.h"
 
-#include "models/3d/Graph/SimpleMeasureNode.h"
+#include "models/graph/SimpleMeasureNode.h"
 
 PropertySimpleMeasure::PropertySimpleMeasure(Controller& controller, QWidget *parent, float guiScale)
 	: APropertyGeneral(controller.getDataDispatcher(), parent)

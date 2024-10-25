@@ -2,7 +2,6 @@
 #define _ICONTROL_LISTENER_H_
 
 #include "controls/IControl.h"
-#include <stdint.h>
 
 class IControlListener
 {

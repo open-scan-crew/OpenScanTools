@@ -50,6 +50,8 @@ namespace Config
 	std::filesystem::path getTemporaryPath();
 	bool setTemporaryPath(const std::filesystem::path& type);
 
+    std::filesystem::path getResourcesPath();
+
     DecimationOptions getDecimationOptions();
     bool setDecimationOptions(const DecimationOptions& options);
 

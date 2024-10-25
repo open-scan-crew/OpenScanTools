@@ -9,14 +9,14 @@
 
 class AGraphNode;
 class IDataDispatcher;
-class OpenScanToolsGraphManager;
+class GraphManager;
 
 /*! TreeNode fais le lien entre un element d'arbre Qt et un TreeElement */
 class TreeNode : public QStandardItem
 {
 public:
 	TreeNode(const SafePtr<AGraphNode>& data,
-				std::function<std::unordered_set<SafePtr<AGraphNode>>(const OpenScanToolsGraphManager&)> getChildFonction,
+				std::function<std::unordered_set<SafePtr<AGraphNode>>(const GraphManager&)> getChildFonction,
 				std::function<bool(SafePtr<AGraphNode>)> canBeDropFilter,
 				std::function<void(IDataDispatcher&, std::unordered_set<SafePtr<AGraphNode>>)> onDropFunction,
 				TreeType treeType
@@ -32,7 +32,7 @@ public:
 
 	void setType(ElementType type);
 
-	std::unordered_set<SafePtr<AGraphNode>> getChildren(const OpenScanToolsGraphManager& manager);
+	std::unordered_set<SafePtr<AGraphNode>> getChildren(const GraphManager& manager);
 	bool canDataDrop(const SafePtr<AGraphNode>& data);
 	void dropControl(IDataDispatcher& dataDispatcher, const std::unordered_set<SafePtr<AGraphNode>>& datas);
 
@@ -46,7 +46,7 @@ protected:
 	TreeType	m_treeType;
 	ElementType m_elemType;
 
-	std::function<std::unordered_set<SafePtr<AGraphNode>>(const OpenScanToolsGraphManager&)> m_getChildFonction;
+	std::function<std::unordered_set<SafePtr<AGraphNode>>(const GraphManager&)> m_getChildFonction;
 	std::function<bool(const SafePtr<AGraphNode>&)> m_canBeDropFilter;
 	std::function<void(IDataDispatcher&, std::unordered_set<SafePtr<AGraphNode>>)> m_onDropFunction;
 

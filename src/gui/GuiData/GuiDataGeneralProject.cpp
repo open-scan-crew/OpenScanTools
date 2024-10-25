@@ -1,8 +1,8 @@
 #include "gui/GuiData/GuiDataGeneralProject.h"
 
-#include "models/3d/Graph/AGraphNode.h"
+#include "models/graph/AGraphNode.h"
 #include "controller/ControllerContext.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/graph/GraphManager.hxx"
 
 #include "utils/Logger.h"
 #include "io/FileUtils.h"
@@ -242,7 +242,7 @@ guiDType GuiDataDefaultRampParams::getType()
 
 // **** Project Properties ****
 
-GuiDataProjectProperties::GuiDataProjectProperties(const ControllerContext& context, const OpenScanToolsGraphManager& graphManager, bool openProperties)
+GuiDataProjectProperties::GuiDataProjectProperties(const ControllerContext& context, const GraphManager& graphManager, bool openProperties)
 	: m_scans(graphManager.getNodesByTypes({ ElementType::Scan }))
 {
 	m_projectInfo = context.cgetProjectInfo();

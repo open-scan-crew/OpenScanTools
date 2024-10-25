@@ -1,7 +1,6 @@
 #ifndef UTILS_SYSTEM_H_
 #define UTILS_SYSTEM_H_
 
-#include <fstream>
 #include <filesystem>
 
 namespace Utils

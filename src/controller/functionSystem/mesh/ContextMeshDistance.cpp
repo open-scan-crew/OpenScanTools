@@ -7,8 +7,8 @@
 #include "gui/DataDispatcher.h"
 #include "gui/GuiData/GuiDataContextRequest.h"
 
-#include "models/3d/Graph/SimpleMeasureNode.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
+#include "models/graph/SimpleMeasureNode.h"
+#include "models/graph/GraphManager.hxx"
 
 #include "vulkan/VulkanManager.h"
 
@@ -75,7 +75,7 @@ ContextState ContextMeshDistance::launch(Controller& controller)
     Logger::log(LoggerMode::FunctionLog) << "CPU projection on triangles : " << dta << "[ms]." << Logger::endl;
 
     // Crée une mesure simple entre le point de départ et le point projeté
-    SafePtr<SimpleMeasureNode> measure = controller.getOpenScanToolsGraphManager().createMeasureNode<SimpleMeasureNode>();
+    SafePtr<SimpleMeasureNode> measure = controller.getGraphManager().createMeasureNode<SimpleMeasureNode>();
     WritePtr<SimpleMeasureNode> wMeasure = measure.get();
     if (!wMeasure)
     {

@@ -1,39 +1,34 @@
 #include "controller/controls/ControlProject.h"
-#include "controller/controls/ControlModal.h"
 #include "controller/controls/ControlApplication.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "models/3d/Graph/OpenScanToolsGraphManager.h"
 #include "controller/functionSystem/FunctionManager.h"
-#include "controller/ControlListener.h"
+#include "controller/ControlListener.h" // forward declaration
 #include "controller/messages/ConvertionMessage.h"
 #include "controller/messages/FilesMessage.h"
 #include "controller/messages/ImportMessage.h"
-#include "io/SaveLoadSystem.h"
+
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataRendering.h"
-#include "gui/GuiData/GuiDataTree.h"
 #include "gui/GuiData/GuiDataList.h"
 #include "gui/GuiData/GuiDataMessages.h"
-#include "gui/GuiData/GuiData3dObjects.h"
 #include "gui/GuiData/GuiDataTemplate.h"
 #include "gui/GuiData/GuiDataIO.h"
-#include "pointCloudEngine/PCE_core.h"
-#include "pointCloudEngine/RenderingTypes.h"
 #include "gui/Texts.hpp"
 #include "gui/texts/ContextTexts.hpp"
+
 #include "io/FileUtils.h"
-#include "Gui/Translator.h"
+#include "io/SaveLoadSystem.h"
+
+#include "models/graph/CameraNode.h"
+#include "models/graph/GraphManager.h"
+
+#include "pointCloudEngine/PCE_core.h"
+
+#include "utils/FilesAndFoldersDefinitions.h"
 
 #include <iostream>
-#include <fstream>
 #include <filesystem>
-#include <Windows.h>
-
-#include "models/3d/Graph/CameraNode.h"
-#include "models/3d/Graph/ClusterNode.h"
-
-#include "ui_DialogOpenProjectCentral.h"
 
 // control::project::
 #define Yes 0x00004000
@@ -77,7 +72,7 @@ namespace control
 
 			if (!std::filesystem::exists(m_templatePath))
 			{
-				controller.getOpenScanToolsGraphManager().createHierarchyMasterCluster();
+				controller.getGraphManager().createHierarchyMasterCluster();
 				controller.saveCurrentProject(SafePtr<CameraNode>());
 
 				SaveLoadSystem::ErrorCode slsError;
@@ -102,7 +97,7 @@ namespace control
 						std::filesystem::copy_file(p, context.cgetProjectInternalInfo().getTemplatesFolderPath() / p.filename(), std::filesystem::copy_options::overwrite_existing, error);
 			}
 
-			controller.getOpenScanToolsGraphManager().cleanProjectObjects();
+			controller.getGraphManager().cleanProjectObjects();
 
 			controller.getControlListener()->notifyUIControl(new control::project::Load(context.cgetProjectInternalInfo().getProjectFilePath()));
 			CONTROLLOG << "control::project::create[end] " << m_folderPath / m_projectInfo.m_projectName << LOGENDL;
@@ -184,7 +179,6 @@ namespace control
 			{
 				controller.updateInfo(new GuiDataWarning(QString(TEXT_PROJECT_ERROR_LOADING).arg(errorMsg.c_str())));
 				controller.updateInfo(new GuiDataProjectLoaded(false, L"Error: unable to load project!"));
-				controller.updateInfo(new GuiDataUndoRedoAble(controller.isUndoPossible(), controller.isRedoPossible()));
 				return;
 			}
 
@@ -192,11 +186,6 @@ namespace control
 			controller.getContext().setIsCurrentProjectSaved(true);
 			controller.updateInfo(new GuiDataProjectLoaded(true, context.cgetProjectInfo().m_projectName));
 			
-			// Utilisation d'un contrôle en dehors de la pile d'undo-redo.
-			// Après tout rien n'empêche de le faire car on ne veut pas undo.
-			control::project::ApplyProjectTransformation controlSynchrone;
-			controlSynchrone.doFunction(controller);
-
 			controller.updateInfo(new GuiDataProjectPath(m_loadPath.parent_path()));
 
 			controller.updateInfo(new GuiDataRenderBackgroundColor(SafePtr<CameraNode>(), controller.getContext().getActiveBackgroundColor()));
@@ -204,11 +193,8 @@ namespace control
 
 			controller.updateInfo(new GuiDataSendTemplateList(controller.getContext().getTemplates()));
 
-			controller.updateInfo(new GuiDataCameraInfo(controller.getOpenScanToolsGraphManager().getCameraNode()));
-			//controller.updateInfo(new GuiDataProjectTree(project->getTrees(), controller.getContext().getObjectsForGui()));
+			controller.updateInfo(new GuiDataCameraInfo(controller.getGraphManager().getCameraNode()));
 
-			controller.updateInfo(new GuiDataUndoRedoAble(controller.isUndoPossible(), controller.isRedoPossible()));
-			
 			controller.updateInfo(new GuiDataGlobalColorPickerValue(controller.getContext().getActiveColor()));
 
 			controller.updateInfo(new GuiDataSendListsList(controller.getContext().getUserLists()));
@@ -225,7 +211,7 @@ namespace control
 			controller.updateInfo(new GuiDataSendAuthorsList(controller.getContext().getProjectAuthors(), true));
 			controller.updateInfo(new GuiDataTmpMessage());
 
-			controller.updateInfo(new GuiDataProjectProperties(controller.getContext(), controller.getOpenScanToolsGraphManager(), false));
+			controller.updateInfo(new GuiDataProjectProperties(controller.getContext(), controller.getGraphManager(), false));
 
 			/*Note (Aurélien) : Temporary (or not), set default clipping parameters*/
 			const ProjectInfos& info(controller.getContext().cgetProjectInfo());
@@ -392,14 +378,14 @@ namespace control
 			controller.updateInfo(new GuiDataSplashScreenStart(TEXT_PROJECT_CLOSING, GuiDataSplashScreenStart::SplashScreenType::Display));
 
 			// Close all project info in the Gui
-			controller.getOpenScanToolsGraphManager().cleanProjectObjects();
+			controller.getGraphManager().cleanProjectObjects();
 			controller.updateInfo(new GuiDataUndoRedoAble(false, false));
 			if (context.isProjectLoaded())
 				controller.updateInfo(new GuiDataProjectLoaded(false, context.cgetProjectInfo().m_projectName));
 			controller.getContext().setIsCurrentProjectSaved(true);
 			// Reset the project in the Controller
 
-			controller.cleanHistory();
+			controller.resetHistoric();
 
 			context.cleanProjectInfo();
 
@@ -640,7 +626,7 @@ namespace control
 			oldInfos = controller.getContext().getProjectInfo();
 
 			controller.getContext().setProjectInfo(newInfos);
-			controller.updateInfo(new GuiDataProjectProperties(controller.getContext(), controller.getOpenScanToolsGraphManager()));
+			controller.updateInfo(new GuiDataProjectProperties(controller.getContext(), controller.getGraphManager()));
 		}
 
 		bool Edit::canUndo() const
@@ -651,7 +637,7 @@ namespace control
 		void Edit::undoFunction(Controller& controller)
 		{
 			controller.getContext().setProjectInfo(oldInfos);
-			controller.updateInfo(new GuiDataProjectProperties(controller.getContext(), controller.getOpenScanToolsGraphManager()));
+			controller.updateInfo(new GuiDataProjectProperties(controller.getContext(), controller.getGraphManager()));
 		}
 
 		ControlType Edit::getType() const
@@ -802,65 +788,6 @@ namespace control
 		}
 
 		/*
-		** ApplyProjectTransformation
-		*/
-	
-		ApplyProjectTransformation::ApplyProjectTransformation()
-		{}
-
-		ApplyProjectTransformation::~ApplyProjectTransformation()
-		{}
-
-		void ApplyProjectTransformation::doFunction(Controller& controller)
-		{
-			tls::TBoundingBox<double> bbox(tlScansBoundingBox());
-			controller.getContext().setProjectTransformation(-glm::dvec3((bbox.xMax + bbox.xMin) / 2.0, (bbox.yMax + bbox.yMin) / 2.0, (bbox.zMax + bbox.zMin) / 2.0));
-			controller.updateInfo(new GuiDataProjectTransformation(controller.getContext().getWorldTransformation()));
-		}
-
-		bool ApplyProjectTransformation::canUndo() const
-		{
-			return false;
-		}
-
-		void ApplyProjectTransformation::undoFunction(Controller& controller)
-		{}
-
-		ControlType ApplyProjectTransformation::getType() const 
-		{
-			return (ControlType::applyProjectTransformation);
-		}
-	
-		/*
-		** ApplyProjectTransformation
-		*/
-
-		ApplyUserTransformation::ApplyUserTransformation(const TransformationModule& transfo)
-			: m_transfo(transfo)
-		{}
-
-		ApplyUserTransformation::~ApplyUserTransformation()
-		{}
-
-		void ApplyUserTransformation::doFunction(Controller& controller)
-		{
-			controller.getContext().setUserTranformation(m_transfo.getTransformation());
-			controller.updateInfo(new GuiDataProjectTransformation(controller.getContext().getWorldTransformation()));
-		}
-
-		bool ApplyUserTransformation::canUndo() const
-		{
-			return false;
-		}
-
-		void ApplyUserTransformation::undoFunction(Controller& controller)
-		{}
-
-		ControlType ApplyUserTransformation::getType() const
-		{
-			return (ControlType::applyUserTransformation);
-		}
-		/*
 		** ShowProperties
 		*/
 
@@ -874,7 +801,7 @@ namespace control
 
 		void ShowProperties::doFunction(Controller& controller)
 		{
-			controller.updateInfo(new GuiDataProjectProperties(controller.getContext(), controller.getOpenScanToolsGraphManager()));
+			controller.updateInfo(new GuiDataProjectProperties(controller.getContext(), controller.getGraphManager()));
 			CONTROLLOG << "control::project::ShowProperties" << LOGENDL;
 		}
 

@@ -2,7 +2,7 @@
 #include "gui/GuiData/GuiDataRendering.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 
-#include "models/3d/Graph/CameraNode.h"
+#include "models/graph/CameraNode.h"
 
 ToolBarRenderRampGroup::ToolBarRenderRampGroup(IDataDispatcher& dataDispatcher, QWidget* parent, float guiScale)
 	: QWidget(parent)

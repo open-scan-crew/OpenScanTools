@@ -1,11 +1,10 @@
 #include "controller/controls/ControlScanEdition.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/functionSystem/FunctionManager.h"
 #include "pointCloudEngine/PCE_core.h"
 
-#include "models/3d/Graph/OpenScanToolsGraphManager.hxx"
-#include "models/3d/Graph/ScanNode.h"
+#include "models/graph/GraphManager.h"
+#include "models/graph/ScanNode.h"
 #include "controller/controls/AEditionControl.hxx"
 
 #include "utils/ColorConversion.h"
@@ -47,7 +46,7 @@ namespace control::scanEdition
         time(&seed_t);
         srand(seed_t * 239);
 
-        OpenScanToolsGraphManager& graphManager = controller.getOpenScanToolsGraphManager();
+        GraphManager& graphManager = controller.getGraphManager();
         std::unordered_set<SafePtr<AGraphNode>> scanToEdit = graphManager.getNodesByTypes({ ElementType::Scan });
         // On prend une base assez grande (>240) pour faire les modulo de hue et saturation.
         int base = 1031;
@@ -67,7 +66,7 @@ namespace control::scanEdition
 
         controller.getContext().setIsCurrentProjectSaved(false);
 
-        controller.actualizeNodes(ActualizeOptions(true), scanToEdit);
+        controller.actualizeTreeView(scanToEdit);
     }
 
     bool RandomScansColors::canUndo() const

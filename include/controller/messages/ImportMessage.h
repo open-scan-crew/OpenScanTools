@@ -4,7 +4,7 @@
 #include "controller/messages/IMessage.h"
 #include "io/MeshObjectTypes.h"
 #include "io/imports/ImportTypes.h"
-#include "io/imports/step-simplification/step-simplification.h"
+#include "io/imports/step-simplification/step-simplificationTypes.h"
 
 class ImportScanMessage : public IMessage
 {

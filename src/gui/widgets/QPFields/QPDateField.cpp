@@ -1,6 +1,5 @@
-#include <exception>
-
 #include "gui/widgets/QPFields/QPDateField.h"
+#include "utils/Logger.h"
 
 QPDateField::QPDateField(const sma::tField& field, QWidget* parent)
 	: AQPField(field, parent)
@@ -49,7 +48,7 @@ void QPDateField::launchCalendar()
 
 void QPDateField::getCalendarResult(QDate date)
 {
-	PANELLOG << "receive TO calendar " << date.toString().toStdString() << LOGENDL;
+	GUI_LOG << "receive TO calendar " << date.toString().toStdString() << LOGENDL;
 	QDateTime dt;
 	QTime time;
 	time.setHMS(12, 0, 0);
