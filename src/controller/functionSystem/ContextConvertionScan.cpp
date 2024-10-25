@@ -154,7 +154,6 @@ ContextState ContextConvertionScan::feedMessage(IMessage* message, Controller& c
             double zTrans = (pbbox.zMax >= BIG_COORDINATES_THRESHOLD || pbbox.zMin <= -BIG_COORDINATES_THRESHOLD) ? round((pbbox.zMax + pbbox.zMin) / 200.0) * 100. : 0.;
 
             scanTranslation = -glm::dvec3(xTrans, yTrans, zTrans);
-            controller.getContext().getProjectInfo().m_importScanTranslation = scanTranslation;
         }
         else
             scanTranslation = controller.getContext().getProjectInfo().m_importScanTranslation;
@@ -241,6 +240,8 @@ ContextState ContextConvertionScan::launch(Controller& controller)
         controller.updateInfo(new GuiDataModal(Ok, TEXT_CONVERTION_SCAN_PROJECT_TOO_BIG));
         return (m_state = ContextState::abort);
     }
+
+    controller.getContext().getProjectInfo().m_importScanTranslation = m_properties.truncate;
 
 	//NOTE (Aur?lien) Not Good... but don't want to have that in .h (2)
 	tls::PrecisionType precision = (tls::PrecisionType)m_properties.filePrecision;
