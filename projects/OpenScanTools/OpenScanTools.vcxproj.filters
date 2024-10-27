@@ -152,9 +152,6 @@
     <Filter Include="ext\glm">
       <UniqueIdentifier>{ed234e98-ef57-49a8-ad75-c6609220bb6b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\models\data\Grid">
-      <UniqueIdentifier>{18dfb83a-afa0-41ca-85fc-227de307bf8b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\models\data\PipeToPipeMeasure">
       <UniqueIdentifier>{43e92990-9316-4c42-b616-4fe325ded21b}</UniqueIdentifier>
     </Filter>
@@ -313,9 +310,6 @@
     </Filter>
     <Filter Include="include\models\data\Tag">
       <UniqueIdentifier>{b11a9344-af63-4e6d-8acd-094aac7a6f2d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="include\models\data\Grid">
-      <UniqueIdentifier>{be84f687-b603-4f0a-9613-d117d6e6d850}</UniqueIdentifier>
     </Filter>
     <Filter Include="include\models\data\BeamBendingMeasure">
       <UniqueIdentifier>{ba439aa7-8d81-4795-9421-3f371aa90a82}</UniqueIdentifier>
@@ -969,9 +963,6 @@
     </ClCompile>
     <ClCompile Include="..\..\src\models\3d\GridCalculation.cpp">
       <Filter>src\models\3d</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\data\Grid\GridData.cpp">
-      <Filter>src\models\data\Grid</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\models\3d\GridBox.cpp">
       <Filter>src\models\3d</Filter>
@@ -2957,9 +2948,6 @@
     </ClInclude>
     <ClInclude Include="..\..\include\models\3d\GridCalculation.h">
       <Filter>include\models\3d</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\data\Grid\GridData.h">
-      <Filter>include\models\data\Grid</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\models\3d\GridBox.h">
       <Filter>include\models\3d</Filter>

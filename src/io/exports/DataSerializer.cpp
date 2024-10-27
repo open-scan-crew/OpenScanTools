@@ -191,7 +191,7 @@ void ExportClusterData(nlohmann::json& json, const ClusterData& data)
 	json[Key_TreeType] = magic_enum::enum_name(data.getClusterTreeType());
 }
 
-void ExportGridData(nlohmann::json& json, const GridData& data)
+void ExportGridData(nlohmann::json& json, const BoxNode& data)
 {
 	json[Key_GridType] = magic_enum::enum_name(data.getGridType());
 	json[Key_Division] = { data.getGridDivision().x, data.getGridDivision().y , data.getGridDivision().z };

@@ -841,7 +841,7 @@ bool ImportClusterData(const nlohmann::json& json, ClusterData& data)
 	return retVal;
 }
 
-bool ImportGridData(const nlohmann::json& json, GridData& data)
+bool ImportGridData(const nlohmann::json& json, BoxNode& data)
 {
 	bool retVal(true);
 	if (json.find(Key_GridType) != json.end())
@@ -853,7 +853,7 @@ bool ImportGridData(const nlohmann::json& json, GridData& data)
 	}
 	else
 	{
-		IOLOG << "Grid GridType read error" << LOGENDL;
+		IOLOG << "Box GridType read error" << LOGENDL;
 	}
 
 	if (json.find(Key_Division) != json.end())
@@ -864,7 +864,7 @@ bool ImportGridData(const nlohmann::json& json, GridData& data)
 	}
 	else
 	{
-		IOLOG << "Grid Division read error" << LOGENDL;
+		IOLOG << "Box grid_division read error" << LOGENDL;
 	}
 
 	return retVal;

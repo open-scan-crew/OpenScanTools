@@ -332,12 +332,12 @@ namespace control::clippingEdition
     ** GridDivisionType
     */
 
-    GridDivisionType::GridDivisionType(SafePtr<BoxNode> box, const GridType& type)
+    GridDivisionType::GridDivisionType(SafePtr<BoxNode> box, GridType type)
         : ATEditionControl({ box }, type, "GridDivisionType", & BoxNode::setGridType, & BoxNode::getGridType)
     {
     }
 
-    GridDivisionType::GridDivisionType(const std::unordered_set<SafePtr<BoxNode>>& boxs, const GridType& type)
+    GridDivisionType::GridDivisionType(const std::unordered_set<SafePtr<BoxNode>>& boxs, GridType type)
         : ATEditionControl(boxs, type, "GridDivisionType", &BoxNode::setGridType, &BoxNode::getGridType)
     {
     }

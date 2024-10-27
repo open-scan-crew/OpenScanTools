@@ -6,17 +6,20 @@
 
 BoxNode::BoxNode(const BoxNode& node)
     : SimpleObjectNode(node)
-    , GridData(node)
-    , m_isSimpleBox(node.m_isSimpleBox)
-    , m_gridSBuf(nullptr)
+    , grid_need_update(true)
+    , grid_type(GridType::NoGrid)
+    , grid_division(1.f, 1.f, 1.f)
+    , grid_sbuf(nullptr)
 {
     addGenericMeshInstance();
 }
 
 BoxNode::BoxNode(bool isSimpleBox)
     : SimpleObjectNode()
-    , m_isSimpleBox(isSimpleBox)
-    , m_gridSBuf(nullptr)
+    , grid_need_update(true)
+    , grid_type(isSimpleBox ? GridType::NoGrid : GridType::ByMultiple)
+    , grid_division(1.f, 1.f, 1.f)
+    , grid_sbuf(nullptr)
 {
     setName(TEXT_DEFAULT_NAME_BOX.toStdWString());
     addGenericMeshInstance();
@@ -24,13 +27,13 @@ BoxNode::BoxNode(bool isSimpleBox)
 
 BoxNode::~BoxNode()
 {
-    MeshManager::getInstance().removeGridMesh(m_gridSBuf);
-    m_gridSBuf.reset();
+    MeshManager::getInstance().removeGridMesh(grid_sbuf);
+    grid_sbuf.reset();
 }
 
 ElementType BoxNode::getType() const
 {
-    return m_isSimpleBox ? ElementType::Box : ElementType::Grid;
+    return isSimpleBox() ? ElementType::Box : ElementType::Grid;
 }
 
 TreeType BoxNode::getDefaultTreeType() const
@@ -40,7 +43,7 @@ TreeType BoxNode::getDefaultTreeType() const
 
 ClippingMode BoxNode::getClippingMode() const
 {
-    return m_isSimpleBox ? m_clippingMode : ClippingMode::showInterior;
+    return isSimpleBox() ? m_clippingMode : ClippingMode::showInterior;
 }
 
 void BoxNode::pushClippingGeometries(ClippingAssembly& clipAssembly, const TransformationModule& transfo) const
@@ -97,51 +100,62 @@ std::unordered_set<ManipulationMode> BoxNode::getAcceptableManipulationModes() c
     return { ManipulationMode::Translation,	ManipulationMode::Rotation, ManipulationMode::Scale, ManipulationMode::Extrusion };
 }
 
-void BoxNode::setIsSimpleBox(bool isSimpleBox)
+void BoxNode::setIsSimpleBox(bool simpleBox)
 {
-    m_isSimpleBox = isSimpleBox;
+    grid_need_update = true;
+    grid_type = simpleBox ? GridType::NoGrid : GridType::ByMultiple;
+}
+
+void BoxNode::setGridType(GridType type)
+{
+    grid_need_update = (grid_type != type);
+    grid_type = type;
+}
+
+void BoxNode::setGridDivision(const glm::vec3& division)
+{
+    grid_need_update = (grid_division != division);
+    grid_division = division;
 }
 
 bool BoxNode::isSimpleBox() const
 {
-    return m_isSimpleBox;
+    return (grid_type == GridType::NoGrid);
 }
 
-std::shared_ptr<MeshBuffer> BoxNode::getGridBuffer()
+GridType BoxNode::getGridType() const
 {
-    if (m_isSimpleBox)
-        return nullptr;
-
-    // TODO : mettre à jour à un autre moment ?
-    updateGrid();
-
-    if (m_gridAllocationSucces)
-        return m_gridSBuf;
-    else
-        return std::shared_ptr<MeshBuffer>();
+    return grid_type;
 }
-
-void BoxNode::setNeedUpdate(bool needUpdate)
+const glm::vec3& BoxNode::getGridDivision() const
 {
-    m_gridNeedUpdate = needUpdate;
+    return grid_division;
 }
 
 MeshDrawData BoxNode::getGridMeshDrawData(const glm::dmat4& gTransfo)
 {
     MeshDrawData meshDrawData = AObjectNode::getMeshDrawData(gTransfo);
-    meshDrawData.meshBuffer = getGridBuffer();
+    updateGrid();
+    meshDrawData.meshBuffer = grid_sbuf;
     return meshDrawData;
 }
 
 void BoxNode::updateGrid()
 {
-    MeshManager::getInstance().removeGridMesh(m_gridSBuf);
-    m_gridSBuf = std::make_shared<MeshBuffer>();
+    if (!grid_need_update)
+        return;
 
-    if (m_gridType == GridType::ByStep)
-        m_gridAllocationSucces = GridCalculation::allocGridMeshByStep(*m_gridSBuf, *this, m_gridDivision);
-    else
-        m_gridAllocationSucces = GridCalculation::allocGridMeshByMultiple(*m_gridSBuf, *this, m_gridDivision);
+    MeshManager::getInstance().removeGridMesh(grid_sbuf);
+    grid_sbuf = std::make_shared<MeshBuffer>();
 
-    m_gridNeedUpdate = false;
+    switch (grid_type) {
+    case GridType::ByStep:
+        GridCalculation::allocGridMeshByStep(*grid_sbuf, *this, grid_division);
+        break;
+    case GridType::ByMultiple:
+        GridCalculation::allocGridMeshByMultiple(*grid_sbuf, *this, grid_division);
+        break;
+    }
+
+    grid_need_update = false;
 }

@@ -3,11 +3,11 @@
 
 #include "controller/controls/AEditionControl.h"
 #include "models/data/Clipping/ClippingTypes.h"
-#include "models/data/Grid/GridData.h"
+#include "models/graph/BoxNode.h"
 #include <glm/glm.hpp>
 #include <unordered_set>
 
-class BoxNode;
+
 class AClippingNode;
 
 
@@ -139,8 +139,8 @@ namespace control::clippingEdition
     class GridDivisionType : public ATEditionControl<BoxNode, GridType>
     {
     public:
-        GridDivisionType(SafePtr<BoxNode> toEditData, const GridType& type);
-        GridDivisionType(const std::unordered_set<SafePtr<BoxNode>>& toEditDatas, const GridType& type);
+        GridDivisionType(SafePtr<BoxNode> toEditData, GridType type);
+        GridDivisionType(const std::unordered_set<SafePtr<BoxNode>>& toEditDatas, GridType type);
         ~GridDivisionType();
         ControlType getType() const override;
     };

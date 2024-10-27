@@ -1038,7 +1038,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\models\data\Clipping\ClippingData.cpp" />
     <ClCompile Include="..\..\src\models\data\Cluster\ClusterData.cpp" />
     <ClCompile Include="..\..\src\models\data\ColumnTiltMeasure\ColumnTiltMeasureData.cpp" />
-    <ClCompile Include="..\..\src\models\data\Grid\GridData.cpp" />
     <ClCompile Include="..\..\src\models\data\MeshObject\MeshObjectData.cpp" />
     <ClCompile Include="..\..\src\models\data\PipeToPipeMeasure\PipeToPipeMeasureData.cpp" />
     <ClCompile Include="..\..\src\models\data\PipeToPlaneMeasure\PipeToPlaneMeasureData.cpp" />
@@ -1730,7 +1729,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\models\data\Clipping\ClippingGeometry.h" />
     <ClInclude Include="..\..\include\models\data\Clipping\ClippingData.h" />
     <ClInclude Include="..\..\include\models\data\ColumnTiltMeasure\ColumnTiltMeasureData.h" />
-    <ClInclude Include="..\..\include\models\data\Grid\GridData.h" />
     <ClInclude Include="..\..\include\models\data\MeshObject\MeshObjectData.h" />
     <ClInclude Include="..\..\include\models\data\PipeToPipeMeasure\PipeToPipeMeasureData.h" />
     <ClInclude Include="..\..\include\models\data\PipeToPlaneMeasure\PipeToPlaneMeasureData.h" />
