@@ -4,7 +4,7 @@
 #include "models/3d/GridBox.h"
 #include "models/graph/BoxNode.h"
 #include <glm/glm.hpp>
-#include <deque>
+#include <vector>
 
 #define MAX_BOXES 2000000
 
@@ -16,9 +16,9 @@ public:
 	GridCalculation();
 	~GridCalculation();
 
-	static bool calculateBoxes(std::deque<GridBox>& grid, const TransformationModule& box, const glm::vec3& value, GridType type);
-	static bool calculateBoxesByStep(std::deque<GridBox>& grid, const TransformationModule& box, const glm::vec3& step);
-	static bool calculateBoxesByMultiple(std::deque<GridBox>& grid, const TransformationModule& box, const glm::ivec3& division);
+	static bool calculateBoxes(std::vector<GridBox>& ret_grid, const BoxNode& box);
+	static bool calculateBoxesByStep(std::vector<GridBox>& grid, const TransformationModule& transfo, const glm::vec3& step);
+	static bool calculateBoxesByMultiple(std::vector<GridBox>& grid, const TransformationModule& transfo, const glm::ivec3& division);
 
 	static bool allocGridMeshByStep(MeshBuffer& meshBuf, const TransformationModule& box, const glm::vec3& step);
 	static bool allocGridMeshByMultiple(MeshBuffer& meshBuf, const TransformationModule& box, const glm::ivec3& division);

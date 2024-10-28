@@ -265,7 +265,6 @@ ContextType ContextExportPC::getType() const
 
 bool ContextExportPC::processClippingExport(Controller& controller)
 {
-
     auto start = std::chrono::steady_clock::now();
     bool resultOk;
 
@@ -443,7 +442,7 @@ bool ContextExportPC::exportClippingSeparated(Controller& controller, CSVWriter*
         scanFileWriter->flushWrite();
         // CSV separated
         dstScanHeader.pointCount = scanFileWriter->getScanPointCount();
-         writeHeaderInCSV(*pCsvWriter, dstScanHeader);
+        writeHeaderInCSV(*pCsvWriter, dstScanHeader);
 
         // Log GUI
         clippingExported++;
@@ -497,7 +496,7 @@ bool ContextExportPC::exportScanSeparated(Controller& controller, CSVWriter* pCs
         dstScanHeader.name = dstScanHeader.name + (m_forSubProject ? L"" : L"_clipped");
         dstScanHeader.precision = m_parameters.encodingPrecision;
         dstScanHeader.pointCount = 0;
-        dstScanHeader.format = getCommonFormat(pcInfos);
+        dstScanHeader.format = pcInfo.header.format;
         glm::dvec3 position = pcInfo.transfo.getCenter() + m_scanTranslationToAdd;
         glm::dquat orientation = pcInfo.transfo.getOrientation();
         dstScanHeader.transfo = tls::Transformation{ {orientation.x, orientation.y, orientation.z, orientation.w}, {position.x, position.y, position.z} };;
@@ -662,38 +661,15 @@ bool ContextExportPC::processGridExport(Controller& controller)
     bool resultOk = true;
     auto start = std::chrono::steady_clock::now();
     // Create the clipping info lists
+    TlScanOverseer& overseer = TlScanOverseer::getInstance();
     GraphManager& graphManager = controller.getGraphManager();
 
-    std::unordered_set<SafePtr<BoxNode>> gridNodes = graphManager.getGrids();
-
-    std::map<std::wstring, std::deque<GridBox>> grids;
-    std::map<std::wstring, glm::dvec3> gridsSize;
-    uint64_t totalBoxes = 0;
-    for (const SafePtr<BoxNode>& gridNode : gridNodes)
-    {
-        ReadPtr<BoxNode> rGrid = gridNode.cget();
-        // Only the Grid activated or selected (depending on the source parameter)
-        if (rGrid->isSelected() == false)
-            continue;
-
-        const TransformationModule& transfo = rGrid->getTransformationModule();
-        if (!GridCalculation::calculateBoxes(grids[rGrid->getComposedName()], transfo, rGrid->getGridDivision(), rGrid->getGridType()))
-        {
-            //TO DO error check
-            controller.updateInfo(new GuiDataWarning(TEXT_EXPORT_GRID_SELECT_FIRST));
-            return false;
-        }
-        totalBoxes += grids[rGrid->getComposedName()].size();
-        gridsSize[rGrid->getComposedName()] = transfo.getScale();
-    }
+    std::unordered_set<SafePtr<BoxNode>> grid_nodes = graphManager.getGrids();
 
     // Get the the visible scans
-    TlScanOverseer& overseer = TlScanOverseer::getInstance();
     std::vector<tls::PointCloudInstance> pcInfos = getPointCloudInstances(graphManager);
     std::unique_ptr<IScanFileWriter> scanFileWriter = nullptr;
     tls::PointFormat commonFormat = getCommonFormat(pcInfos);
-
-    controller.updateInfo(new GuiDataProcessingSplashScreenStart(totalBoxes, TEXT_EXPORT_GRID_TITLE_PROGESS, TEXT_SPLASH_SCREEN_BOXE_PROCESSING.arg(0).arg(totalBoxes)));
 
     // TODO - Treat the particular case of converting a TLS to a TLS?with the same precision.
 
@@ -701,7 +677,7 @@ bool ContextExportPC::processGridExport(Controller& controller)
     bool fileIsProject = (m_parameters.outFileType == FileType::RCP);
     uint64_t subProjectCount = 0;
     std::wstring log;
-    for (const auto& grid : grids)
+    for (const SafePtr<BoxNode>& grid_node : grid_nodes)
     {
         if (m_state != ContextState::running)
         {
@@ -709,36 +685,49 @@ bool ContextExportPC::processGridExport(Controller& controller)
             break;
         }
 
-        std::filesystem::path gridPath = m_parameters.outFolder;
+        ReadPtr<BoxNode> r_grid = grid_node.cget();
+        // Only the Grid activated or selected (depending on the source parameter)
+        std::vector<GridBox> extracted_boxes;
+        if (r_grid->isSelected() == false ||
+            !GridCalculation::calculateBoxes(extracted_boxes, *&r_grid))
+        {
+            continue;
+        }
+
+        size_t boxes_count = extracted_boxes.size();
+        controller.updateInfo(new GuiDataProcessingSplashScreenStart(boxes_count, TEXT_EXPORT_GRID_TITLE_PROGESS, TEXT_SPLASH_SCREEN_BOXE_PROCESSING.arg(0).arg(boxes_count)));
+
+        std::filesystem::path out_folder = m_parameters.outFolder;
         if (fileIsProject)
-            gridPath /= m_parameters.fileName;
+            out_folder /= m_parameters.fileName;
         else
-            gridPath /= grid.first;
-        if (prepareOutputDirectory(controller, gridPath) == false)
+            out_folder /= r_grid->getComposedName();
+        if (prepareOutputDirectory(controller, out_folder) == false)
             return false;
 
         // On reset le file writer (si il y plusieurs grilles avec limitation du nombre de scan)
         uint64_t boxesExported = 0;
         scanFileWriter.reset();
-        CSVWriter csvWriter(gridPath / "summary.csv");
+        CSVWriter csvWriter(out_folder / "summary.csv");
         csvWriter << "Name;Point_Count;X;Y;Z;SizeX;SizeY;SizeZ;RotationX;RotationY;RotationZ" << CSVWriter::endl;
-        for (const GridBox& boxe : grid.second)
+        for (const GridBox& box : extracted_boxes)
         {
             if (m_state != ContextState::running)
             {
                 m_state = ContextState::abort;
                 break;
             }
-            std::wostringstream stringStream;
-            stringStream << grid.first << L"_" << Utils::wCompleteWithZeros(boxe.position.x) << L"_" << Utils::wCompleteWithZeros(boxe.position.y) << L"_" << Utils::wCompleteWithZeros(boxe.position.z);
-            std::filesystem::path converter(stringStream.str());
-            std::wstring pointCloudName = converter.wstring();
-            std::wstring fileWName = m_parameters.fileName.empty() ? std::filesystem::path(converter.wstring()) : m_parameters.fileName;
+
+            std::wstring box_xyz_name;
+            box_xyz_name = r_grid->getComposedName() 
+                + L"_" + Utils::wCompleteWithZeros(box.position.x) 
+                + L"_" + Utils::wCompleteWithZeros(box.position.y)
+                + L"_" + Utils::wCompleteWithZeros(box.position.z);
 
             // Create a Writer per scan or per project or per N boxes
             if (scanFileWriter == nullptr)
             {
-                std::wstring outFileName = fileIsProject ? fileWName : pointCloudName;
+                std::wstring outFileName = fileIsProject ? m_parameters.fileName.wstring() : box_xyz_name;
                 if (fileIsProject && m_parameters.maxScanPerProject > 0)
                 {
                     subProjectCount++;
@@ -747,7 +736,7 @@ bool ContextExportPC::processGridExport(Controller& controller)
                 }
 
                 IScanFileWriter* ptr;
-                if (getScanFileWriter(gridPath, outFileName, m_parameters.outFileType, log, &ptr) == false)
+                if (getScanFileWriter(out_folder, outFileName, m_parameters.outFileType, log, &ptr) == false)
                 {
                     FUNCLOG << "Export: Failed to create the destination file" << LOGENDL;
                     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString(TEXT_EXPORT_ERROR_FILE).arg(outFileName)));
@@ -763,10 +752,10 @@ bool ContextExportPC::processGridExport(Controller& controller)
             }
 
             tls::ScanHeader dstScanHeader;
-            dstScanHeader.name = stringStream.str();
-            // QUESTION(robin) - Why not take the box orientation ?
-            glm::quat q = boxe.getOrientation();
-            dstScanHeader.transfo = tls::Transformation{ {q.x, q.y, q.z, q.w}, {boxe.getCenter().x, boxe.getCenter().y, boxe.getCenter().z} };
+            dstScanHeader.name = box_xyz_name;
+            glm::dvec3 t = box.getCenter() + m_scanTranslationToAdd;
+            glm::quat q = box.getOrientation();
+            dstScanHeader.transfo = tls::Transformation{ {q.x, q.y, q.z, q.w}, {t.x, t.y, t.z} };
             // Initialize precision and point count
             dstScanHeader.precision = m_parameters.encodingPrecision;
             dstScanHeader.pointCount = 0;
@@ -775,8 +764,8 @@ bool ContextExportPC::processGridExport(Controller& controller)
             // ClippingAssembly for the only box
             ClippingAssembly clipAssembly;
             clipAssembly.clippingUnion.push_back(std::make_shared<BoxClippingGeometry>(ClippingMode::showInterior,
-                boxe.getInverseRotationTranslation(),
-                glm::vec4(boxe.getScale().x, boxe.getScale().y, boxe.getScale().z, 0.f), 0));
+                box.getInverseRotationTranslation(),
+                glm::vec4(box.getScale().x, box.getScale().y, box.getScale().z, 0.f), 0));
 
             scanFileWriter->appendPointCloud(dstScanHeader);
             for (auto pcInfo : pcInfos)
@@ -795,23 +784,12 @@ bool ContextExportPC::processGridExport(Controller& controller)
             }
             scanFileWriter->flushWrite();
             boxesExported++; 
-            controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(TEXT_SPLASH_SCREEN_BOXE_PROCESSING.arg(boxesExported).arg(totalBoxes), boxesExported));
+            controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(TEXT_SPLASH_SCREEN_BOXE_PROCESSING.arg(boxesExported).arg(boxes_count), boxesExported));
 
             dstScanHeader.pointCount = scanFileWriter->getScanPointCount();
-            uint64_t pointCount(scanFileWriter->getScanPointCount());
-            csvWriter << (stringStream.str());
-            csvWriter << (pointCount);
-            csvWriter << (boxe.getCenter().x);
-            csvWriter << (boxe.getCenter().y);
-            csvWriter << (boxe.getCenter().z);
-            csvWriter << (boxe.getScale().x * 2.0);
-            csvWriter << (boxe.getScale().y * 2.0);
-            csvWriter << (boxe.getScale().z * 2.0);
-            glm::dvec3 eulers(tls::math::quat_to_euler_zyx_deg(boxe.getOrientation()));
-            csvWriter << (eulers.x);
-            csvWriter << (eulers.y);
-            csvWriter << (eulers.z);
-            csvWriter.endLine();
+            glm::vec3 scale = box.getScale();
+            dstScanHeader.bbox = { -scale.x, scale.x , -scale.y, scale.y, -scale.z, scale.z };
+            writeHeaderInCSV(csvWriter, dstScanHeader);
 
             if (fileIsProject == false ||
                 (m_parameters.maxScanPerProject > 0 && (boxesExported % m_parameters.maxScanPerProject) == 0))

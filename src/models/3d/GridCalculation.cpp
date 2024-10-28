@@ -11,24 +11,24 @@ GridCalculation::GridCalculation()
 GridCalculation::~GridCalculation()
 {}
 
-bool GridCalculation::calculateBoxes(std::deque<GridBox>& grid, const TransformationModule& box, const glm::vec3& value, GridType type)
+bool GridCalculation::calculateBoxes(std::vector<GridBox>& ret_grid, const BoxNode& box)
 {
-    switch (type)
+    switch (box.getGridType())
     {
     case GridType::ByStep:
-        return calculateBoxesByStep(grid, box, value);
+        return calculateBoxesByStep(ret_grid, (TransformationModule)box, box.getGridDivision());
     case GridType::ByMultiple:
-        return calculateBoxesByMultiple(grid, box, value);
+        return calculateBoxesByMultiple(ret_grid, (TransformationModule)box, box.getGridDivision());
     default:
         return false;
     }
 }
 
-bool GridCalculation::calculateBoxesByStep(std::deque<GridBox>& grid, const TransformationModule& box, const glm::vec3& step)
+bool GridCalculation::calculateBoxesByStep(std::vector<GridBox>& grid, const TransformationModule& transfo, const glm::vec3& step)
 {
     grid.clear();
-    const glm::dvec3& scale = box.getScale();
-    const glm::dvec3& center = box.getCenter();
+    const glm::dvec3& scale = transfo.getScale();
+    const glm::dvec3& center = transfo.getCenter();
     glm::dvec3 step2(step / 2.0f);
 
     glm::dvec3 maxIteration(glm::floor(scale / step2));
@@ -38,8 +38,8 @@ bool GridCalculation::calculateBoxesByStep(std::deque<GridBox>& grid, const Tran
     if (maxIteration.x * maxIteration.y * maxIteration.z > MAX_BOXES)
         return false;
 
-    GridBox gbox(glm::vec3(0.f), box.getOrientation(), step2);
-    glm::dmat4 rotation(glm::toMat4(box.getOrientation()));
+    GridBox gbox(glm::vec3(0.f), transfo.getOrientation(), step2);
+    glm::dmat4 rotation(glm::toMat4(transfo.getOrientation()));
     for (uint64_t iteratorZ(0); iteratorZ <= gridSize.z; iteratorZ++)
     {
         for (uint64_t iteratorY(0); iteratorY <= gridSize.y; iteratorY++)
@@ -96,12 +96,12 @@ bool GridCalculation::calculateBoxesByStep(std::deque<GridBox>& grid, const Tran
     return true;
 }
 
-bool GridCalculation::calculateBoxesByMultiple(std::deque<GridBox>& grid, const TransformationModule& box, const glm::ivec3& division)
+bool GridCalculation::calculateBoxesByMultiple(std::vector<GridBox>& grid, const TransformationModule& transfo, const glm::ivec3& division)
 {
     grid.clear();
 
-    const glm::dvec3& size = box.getScale();
-    const glm::dvec3& center = box.getCenter();
+    const glm::dvec3& size = transfo.getScale();
+    const glm::dvec3& center = transfo.getCenter();
 
     float sizeX((float)size.x / division.x);
     float sizeY((float)size.y / division.y);
@@ -110,8 +110,8 @@ bool GridCalculation::calculateBoxesByMultiple(std::deque<GridBox>& grid, const 
     if (division.x * division.y * division.z > MAX_BOXES)
         return false;
 
-    GridBox gbox(glm::vec3(0.f), box.getOrientation(), glm::vec3(sizeX, sizeY, sizeZ));
-    glm::dmat4 rotation(glm::toMat4(box.getOrientation()));
+    GridBox gbox(glm::vec3(0.f), transfo.getOrientation(), glm::vec3(sizeX, sizeY, sizeZ));
+    glm::dmat4 rotation(glm::toMat4(transfo.getOrientation()));
     for (uint64_t iteratorZ(0); iteratorZ < division.z; iteratorZ++)
     {
         for (uint64_t iteratorY(0); iteratorY < division.y; iteratorY++)
