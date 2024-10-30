@@ -1900,9 +1900,6 @@
     <ClCompile Include="..\..\src\gui\Dialog\DialogImportPCObject.cpp">
       <Filter>src\gui\Dialog</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\io\ScantraInterface.cpp">
-      <Filter>src\io</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\models\graph\AClippingNode.cpp">
       <Filter>src\models\graph</Filter>
     </ClCompile>
@@ -3869,9 +3866,6 @@
     </ClInclude>
     <ClInclude Include="..\..\include\controller\messages\ManipulateMessage.h">
       <Filter>include\controller\messages</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\io\ScantraInterface.h">
-      <Filter>include\io</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\models\3d\BoundingBox.h">
       <Filter>include\models\3d</Filter>

@@ -186,16 +186,6 @@ void Controller::deactivateAutosave()
 	m_p->deactivateAutosave();
 }
 
-void Controller::startScantraInterface()
-{
-	m_p->scantra_interface_.startInterface();
-}
-
-void Controller::stopScantraInterface()
-{
-	m_p->scantra_interface_.stopInterface();
-}
-
 uint32_t Controller::getNextUserId(ElementType type) const
 {
 	return m_p->graphManager.getNextUserId({ type }, m_p->context.getIndexationMethod());

@@ -740,23 +740,6 @@ namespace control::io
 	}
 
 	/*
-	** StartScantraInterprocess
-	*/
-
-	StartScantraInterprocess::StartScantraInterprocess()
-	{}
-
-	void StartScantraInterprocess::doFunction(Controller& controller)
-	{
-		controller.startScantraInterface();
-	}
-
-	ControlType StartScantraInterprocess::getType() const
-	{
-		return ControlType::startScantraInterprocess;
-	}
-
-	/*
 	** ConvertImageToPointCloud
 	*/
 

@@ -76,9 +76,6 @@ public:
 
 	void activateAutosave(uint64_t period_min);
 	void deactivateAutosave();
-
-	void startScantraInterface();
-	void stopScantraInterface();
 	
 	uint32_t getNextUserId(ElementType type) const;
 	std::vector<uint32_t> getMultipleUserId(ElementType type, int indexAmount) const;

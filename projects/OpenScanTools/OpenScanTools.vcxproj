@@ -1015,7 +1015,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     </ClCompile>
     <ClCompile Include="..\..\src\io\imports\TlsFileReader.cpp" />
     <ClCompile Include="..\..\src\io\imports\TlsReader.cpp" />
-    <ClCompile Include="..\..\src\io\ScantraInterface.cpp" />
     <ClCompile Include="..\..\src\io\SaveLoadSystem.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
     <ClCompile Include="..\..\src\models\3d\ProjectionData.cpp" />
@@ -1513,7 +1512,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\src\controller\functionSystem\mesh\ContextMeshDistance.h" />
     <QtMoc Include="..\..\src\gui\Dialog\StandardNameDialog.h" />
     <QtMoc Include="..\..\src\gui\toolBars\ToolBarRampDefaultValues.h" />
-    <ClInclude Include="..\..\src\io\ScantraInterface.h" />
     <ClInclude Include="..\..\src\models\3d\MeshBuffer.h" />
     <ClInclude Include="..\..\src\vulkan\Compute\ComputePrograms.h" />
     <ClInclude Include="..\..\src\vulkan\VulkanHelperFunctions.h" />

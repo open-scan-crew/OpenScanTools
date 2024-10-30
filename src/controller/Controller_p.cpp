@@ -10,7 +10,6 @@ Controller_p::Controller_p(IDataDispatcher& dataDispatcher, GraphManager& graphM
     , graphManager(graphManager)
     , public_controller_(publicController)
     , controlListener()
-    , scantra_interface_(dataDispatcher, graphManager)
     , autosave_active_(false)
     , autosave_period_min_(5)
     , autosave_tp_(std::chrono::system_clock::now())

@@ -238,15 +238,6 @@ namespace control::io
         std::filesystem::path m_sqliteDbPath;
     };
 
-    class StartScantraInterprocess : public AControl
-    {
-    public:
-        StartScantraInterprocess();
-        void doFunction(Controller& controller) override;
-        ControlType getType() const override;
-    };
-
-
     class ConvertImageToPointCloud : public AControl
     {
     public:

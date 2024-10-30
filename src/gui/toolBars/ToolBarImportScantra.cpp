@@ -68,5 +68,5 @@ void ToolBarImportScantra::slotImportScanTra()
 
 void ToolBarImportScantra::slotStartInterprocess()
 {
-	m_dataDispatcher.sendControl(new control::io::StartScantraInterprocess());
+	//m_dataDispatcher.sendControl(new control::io::StartScantraInterprocess());
 }

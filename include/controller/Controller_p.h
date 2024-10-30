@@ -84,8 +84,6 @@ public:
     ControllerContext context;
     FilterSystem filterSystem;
 
-    ScantraInterface scantra_interface_;
-
     bool autosave_active_;
     double autosave_period_min_;
     std::chrono::system_clock::time_point autosave_tp_;
