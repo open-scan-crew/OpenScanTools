@@ -110,7 +110,7 @@ public:
 
 #ifndef PORTABLE
     // For File Clipping
-    bool clipAndWrite(const glm::dmat4& modelMat, const ClippingAssembly& clippingAssembly, IScanFileWriter* writer, bool merging);
+    bool clipAndWrite(const glm::dmat4& modelMat, const ClippingAssembly& clippingAssembly, IScanFileWriter* writer);
 #endif
 
     void decodePointXYZIRGB(uint32_t cellId, std::vector<PointXYZIRGB>& dstPoints);

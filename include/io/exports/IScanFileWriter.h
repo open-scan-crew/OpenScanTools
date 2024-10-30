@@ -5,7 +5,6 @@
 #include "models/pointCloud/TLS.h"
 
 #include <string>
-#include <vector>
 #include <filesystem>
 
 
@@ -25,7 +24,7 @@ public:
 
     virtual bool appendPointCloud(const tls::ScanHeader& header) = 0;
     virtual bool addPoints(PointXYZIRGB const* srcBuf, uint64_t srcSize) = 0;
-    virtual bool mergePoints(PointXYZIRGB const* srcBuf, uint64_t srcSize, const glm::dmat4& srcTransfo, tls::PointFormat srcFormat) = 0;
+    virtual bool mergePoints(PointXYZIRGB const* srcBuf, uint64_t srcSize, const glm::dmat4& src_transfo, tls::PointFormat srcFormat) = 0;
 
     // TODO(robin) - Rename function
     virtual bool flushWrite() = 0;

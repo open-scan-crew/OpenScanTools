@@ -239,12 +239,24 @@ ContextState ContextExportPC::launch(Controller& controller)
     bool result = false;
 
     if (m_parameters.clippingFilter == ExportClippingFilter::NONE)
+    {
+        // Scans separated, no clippings
+        // Scans merged, no clippings
         result = processScanExport(controller);
-    else if (m_parameters.clippingFilter == ExportClippingFilter::SELECTED || 
+    }
+    else if (m_parameters.clippingFilter == ExportClippingFilter::SELECTED ||
         m_parameters.clippingFilter == ExportClippingFilter::ACTIVE)
+    {
+        // Scans separated, clippings active, clipping separated
+        // Scans merged, clippings active, clipping separated
+        // Scans merged, clippings active, clipping merged
         result = processClippingExport(controller);
+    }
     else if (m_parameters.clippingFilter == ExportClippingFilter::GRIDS)
+    {
+        // Scans merged, grids active, clipping separated
         result = processGridExport(controller);
+    }
 
     m_state = result ? ContextState::done : ContextState::abort;
     if (result && m_parameters.openFolderAfterExport && !m_forSubProject)
@@ -347,7 +359,7 @@ bool ContextExportPC::exportClippingAndScanMerged(Controller& controller, CSVWri
         }
 
         glm::dmat4 modelMatrix = pcInfo.transfo.getTransformation();
-        resultOk &= overseer.clipScan(pcInfo.header.guid, modelMatrix, clippingAssembly, scanFileWriter.get(), true);
+        resultOk &= overseer.clipScan(pcInfo.header.guid, modelMatrix, clippingAssembly, scanFileWriter.get()); // [old] merging == true
 
         // Log GUI
         scanExported++;
@@ -436,7 +448,7 @@ bool ContextExportPC::exportClippingSeparated(Controller& controller, CSVWriter*
         for (auto pcInfo : pcInfos)
         {
             glm::dmat4 modelMatrix = pcInfo.transfo.getTransformation();
-            resultOk &= overseer.clipScan(pcInfo.header.guid, modelMatrix, clippingAssembly, scanFileWriter.get(), true);
+            resultOk &= overseer.clipScan(pcInfo.header.guid, modelMatrix, clippingAssembly, scanFileWriter.get()); // [old] merging == true
         }
 
         scanFileWriter->flushWrite();
@@ -503,7 +515,7 @@ bool ContextExportPC::exportScanSeparated(Controller& controller, CSVWriter* pCs
         scanFileWriter->appendPointCloud(dstScanHeader);
 
         glm::dmat4 modelMatrix = pcInfo.transfo.getTransformation();
-        resultOk &= overseer.clipScan(pcInfo.header.guid, modelMatrix, clippingAssembly, scanFileWriter.get(), false);
+        resultOk &= overseer.clipScan(pcInfo.header.guid, modelMatrix, clippingAssembly, scanFileWriter.get()); // [old] merging == false
 
         scanFileWriter->flushWrite(); // Rule: 1 flush for 1 append
         // CSV separated
@@ -629,7 +641,7 @@ bool ContextExportPC::processScanExport(Controller& controller)
             }
 
             glm::dmat4 modelMatrix = pcInfo.transfo.getTransformation();
-            resultOk &= overseer.clipScan(pcInfo.header.guid, modelMatrix, emptyClipAssembly, scanFileWriter.get(), mergeScans);
+            resultOk &= overseer.clipScan(pcInfo.header.guid, modelMatrix, emptyClipAssembly, scanFileWriter.get()); // [old] merging == mergeScans
 
             if (!mergeScans)
                 scanFileWriter->flushWrite(); // Rule: 1 flush for 1 append
@@ -780,7 +792,7 @@ bool ContextExportPC::processGridExport(Controller& controller)
 
                 // NOTE(robin) - Si on veut utiliser une autre transformation pour le scan que celle d'origine il faut changer la ligne suivante.
                 glm::dmat4 modelMatrix = pcInfo.transfo.getTransformation();
-                resultOk &= overseer.clipScan(pcInfo.header.guid, modelMatrix, clipAssembly, scanFileWriter.get(), true);
+                resultOk &= overseer.clipScan(pcInfo.header.guid, modelMatrix, clipAssembly, scanFileWriter.get()); // [old] merging == true
             }
             scanFileWriter->flushWrite();
             boxesExported++; 

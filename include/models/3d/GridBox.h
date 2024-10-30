@@ -9,10 +9,6 @@ public:
 	GridBox();
 	GridBox(const glm::vec3& _center, const glm::quat& _orientation, const glm::vec3& _size);
 public:
-	union
-	{
-		uint64_t id;
-		glm::lowp_i16vec4 position;
-	};
+	glm::lowp_i16vec4 position;
 };
 #endif

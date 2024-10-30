@@ -81,48 +81,58 @@ bool TlsFileWriter::addPoints(PointXYZIRGB const* srcBuf, uint64_t srcSize)
     return true;
 }
 
-bool TlsFileWriter::mergePoints(PointXYZIRGB const* srcBuf, uint64_t srcSize, const glm::dmat4& srcTransfo, tls::PointFormat srcFormat)
+bool TlsFileWriter::mergePoints(PointXYZIRGB const* srcBuf, uint64_t srcSize, const glm::dmat4& src_transfo, tls::PointFormat srcFormat)
 {
-#ifdef _DEBUG
+    assert(m_octree != nullptr);
     if (m_octree == nullptr)
-        assert(0);
-#endif
+        return false;
 
-    glm::dmat4 finalMatrix = tls::math::getInverseTransformDMatrix(m_header.transfo.translation, m_header.transfo.quaternion);
-    {
-        //glm::mat4 srcMatrix = tls::math::getTransformMatrix(srcTransfo.translation, srcTransfo.quaternion);
-        finalMatrix *= srcTransfo;
-    }
+    glm::dmat4 cmp_transfo = tls::math::getTransformDMatrix(m_header.transfo.translation, m_header.transfo.quaternion);
 
-    if (srcFormat == m_header.format)
+    // compare destination and source transformation
+    if (cmp_transfo != src_transfo)
     {
-        for (uint64_t n = 0; n < srcSize; ++n)
+        glm::dmat4 dst_transfo = tls::math::getInverseTransformDMatrix(m_header.transfo.translation, m_header.transfo.quaternion);
+        glm::dmat4 total_transfo = dst_transfo * src_transfo;
+
+        // Select the correct conversion function
+        typedef PointXYZIRGB(*convert_fn_t)(const PointXYZIRGB &, const glm::dmat4 &);
+        convert_fn_t convert_fn = convert_keepIRGB;
+        if (srcFormat == m_header.format)
         {
-            PointXYZIRGB point = convert_keepIRGB(srcBuf[n], finalMatrix);
-            m_octree->insertPoint(point);
+            convert_fn = convert_keepIRGB;
         }
-    }
-    else if (srcFormat == tls::PointFormat::TL_POINT_XYZ_RGB)
-    {
-        for (uint64_t n = 0; n < srcSize; ++n)
+        else if (srcFormat == tls::PointFormat::TL_POINT_XYZ_RGB)
         {
-            PointXYZIRGB point = convert_overwriteI(srcBuf[n], finalMatrix);
-            m_octree->insertPoint(point);
+            convert_fn = convert_overwriteI;
         }
-    }
-    else if (srcFormat == tls::PointFormat::TL_POINT_XYZ_I)
-    {
+        else if (srcFormat == tls::PointFormat::TL_POINT_XYZ_I)
+        {
+            convert_fn = convert_overwriteRGB;
+        }
+
         for (uint64_t n = 0; n < srcSize; ++n)
         {
-            PointXYZIRGB point = convert_overwriteRGB(srcBuf[n], finalMatrix);
+            PointXYZIRGB point = convert_fn(srcBuf[n], total_transfo);
             m_octree->insertPoint(point);
         }
     }
     else
     {
-        // ERROR
-        return false;
+        glm::dmat4 dst_transfo = tls::math::getInverseTransformDMatrix(m_header.transfo.translation, m_header.transfo.quaternion);
+        glm::dmat4 result = dst_transfo * src_transfo;
+        // For debugging
+        assert(result[0][0] == 1.0);
+        assert(result[1][1] == 1.0);
+        assert(result[2][2] == 1.0);
+        assert(result[3][3] == 1.0);
+
+        for (uint64_t n = 0; n < srcSize; ++n)
+        {
+            m_octree->insertPoint(srcBuf[n]);
+        }
     }
+
     m_scanPointCount = m_octree->getPointCount();
     return true;
 }

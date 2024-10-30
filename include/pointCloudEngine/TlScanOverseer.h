@@ -202,7 +202,7 @@ public:
 
     // Compute
 #ifndef PORTABLE
-    bool clipScan(tls::ScanGuid scanGuid, const glm::dmat4& modelMat, const ClippingAssembly& clippingAssembly, IScanFileWriter* outScan, bool merging);
+    bool clipScan(tls::ScanGuid scanGuid, const glm::dmat4& modelMat, const ClippingAssembly& clippingAssembly, IScanFileWriter* outScan);
 #endif
     tls::ScanGuid clipNewScan(tls::ScanGuid scanGuid, const glm::dmat4& modelMat, const ClippingAssembly& clippingAssembly, const std::filesystem::path& outPath, uint64_t& pointDeletedCount);
 

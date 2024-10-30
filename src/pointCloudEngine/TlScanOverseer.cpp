@@ -310,7 +310,7 @@ void TlScanOverseer::streamScans(uint64_t maxSize, char* stagingBuffer, std::vec
 }
 
 #ifndef PORTABLE
-bool TlScanOverseer::clipScan(tls::ScanGuid _scanGuid, const glm::dmat4& _modelMat, const ClippingAssembly& _clippingAssembly, IScanFileWriter* _outScan, bool merging)
+bool TlScanOverseer::clipScan(tls::ScanGuid _scanGuid, const glm::dmat4& _modelMat, const ClippingAssembly& _clippingAssembly, IScanFileWriter* _outScan)
 {
     EmbeddedScan* scan;
     {
@@ -329,7 +329,7 @@ bool TlScanOverseer::clipScan(tls::ScanGuid _scanGuid, const glm::dmat4& _modelM
     }
 
     // Send the fileWriter to the TlScan and let it do the points/cells specific job.
-    bool resultOk = scan->clipAndWrite(_modelMat, _clippingAssembly, _outScan, merging);
+    bool resultOk = scan->clipAndWrite(_modelMat, _clippingAssembly, _outScan);
 
     return (resultOk);
 }

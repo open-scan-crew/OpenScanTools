@@ -40,10 +40,10 @@ struct Color24 {
 
 
 
-inline PointXYZIRGB convert_keepIRGB(const PointXYZIRGB& point)
-{
-    return { point.x, point.y, point.z, point.i, point.r, point.g, point.b };
-}
+//inline PointXYZIRGB convert_keepIRGB(const PointXYZIRGB& point)
+//{
+//    return { point.x, point.y, point.z, point.i, point.r, point.g, point.b };
+//}
 
 inline PointXYZIRGB convert_overwriteI(const PointXYZIRGB& point)
 {
@@ -58,26 +58,26 @@ inline PointXYZIRGB convert_overwriteRGB(const PointXYZIRGB& point)
 }
 
 
-inline PointXYZIRGB convert_keepIRGB(const PointXYZIRGB& point, const glm::mat4& matrix)
+inline PointXYZIRGB convert_keepIRGB(const PointXYZIRGB& point, const glm::dmat4& matrix)
 {
-    glm::vec4 newPos = matrix * glm::vec4(point.x, point.y, point.z, 1.0);
+    glm::dvec4 newPos = matrix * glm::dvec4(point.x, point.y, point.z, 1.0);
 
-    return { newPos.x, newPos.y, newPos.z, point.i, point.r, point.g, point.b };
+    return { (float)newPos.x, (float)newPos.y, (float)newPos.z, point.i, point.r, point.g, point.b };
 }
 
-inline PointXYZIRGB convert_overwriteI(const PointXYZIRGB& point, const glm::mat4& matrix)
+inline PointXYZIRGB convert_overwriteI(const PointXYZIRGB& point, const glm::dmat4& matrix)
 {
-    glm::vec4 newPos = matrix * glm::vec4(point.x, point.y, point.z, 1.0);
+    glm::dvec4 newPos = matrix * glm::dvec4(point.x, point.y, point.z, 1.0);
     uint8_t newI = (point.r + point.g + point.b) / 3;
 
-    return { newPos.x, newPos.y, newPos.z, newI, point.r, point.g, point.b };
+    return { (float)newPos.x, (float)newPos.y, (float)newPos.z, newI, point.r, point.g, point.b };
 }
 
-inline PointXYZIRGB convert_overwriteRGB(const PointXYZIRGB& point, const glm::mat4& matrix)
+inline PointXYZIRGB convert_overwriteRGB(const PointXYZIRGB& point, const glm::dmat4& matrix)
 {
-    glm::vec4 newPos = matrix * glm::vec4(point.x, point.y, point.z, 1.0);
+    glm::dvec4 newPos = matrix * glm::dvec4(point.x, point.y, point.z, 1.0);
 
-    return { newPos.x, newPos.y, newPos.z, point.i, point.i, point.i, point.i };
+    return { (float)newPos.x, (float)newPos.y, (float)newPos.z, point.i, point.i, point.i, point.i };
 }
 
 #endif

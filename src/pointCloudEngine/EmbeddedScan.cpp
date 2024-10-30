@@ -190,11 +190,11 @@ void clipIndividualPoints(const std::vector<PointXYZIRGB>& inPoints, std::vector
 }
 
 #ifndef PORTABLE
-bool EmbeddedScan::clipAndWrite(const glm::dmat4& _modelMat, const ClippingAssembly& _clippingAssembly, IScanFileWriter* _writer, bool _merging)
+bool EmbeddedScan::clipAndWrite(const glm::dmat4& src_transfo, const ClippingAssembly& _clippingAssembly, IScanFileWriter* _writer)
 {
     ClippingAssembly localAssembly = _clippingAssembly;
     localAssembly.clearMatrix();
-    localAssembly.addTransformation(_modelMat);
+    localAssembly.addTransformation(src_transfo);
 
     // Do the clipping in 2 phases:
     //   a. Determine the cells inside the clipping (whole and partial)
@@ -228,26 +228,12 @@ bool EmbeddedScan::clipAndWrite(const glm::dmat4& _modelMat, const ClippingAssem
         if (cell.second)
         {
             std::vector<PointXYZIRGB> pointsClipped;
-
-            if (_merging)
-            {
-                clipIndividualPoints(points, pointsClipped, localAssembly);
-                //resultOk &= _writer->mergePoints(pointsClipped.data(), pointsClipped.size(), m_scanHeader.transfo, m_scanHeader.format);
-                resultOk &= _writer->mergePoints(pointsClipped.data(), pointsClipped.size(), _modelMat, m_scanHeader.format);
-            }
-            else
-            {
-                clipIndividualPoints(points, pointsClipped, localAssembly);
-                resultOk &= _writer->addPoints(pointsClipped.data(), pointsClipped.size());
-            }
+            clipIndividualPoints(points, pointsClipped, localAssembly);
+            resultOk &= _writer->mergePoints(pointsClipped.data(), pointsClipped.size(), src_transfo, m_scanHeader.format);
         }
         else
         {
-            if (_merging)
-                //resultOk &= _writer->mergePoints(points.data(), points.size(), m_scanHeader.transfo, m_scanHeader.format);
-                resultOk &= _writer->mergePoints(points.data(), points.size(), _modelMat, m_scanHeader.format);
-            else
-                resultOk &= _writer->addPoints(points.data(), points.size());
+            resultOk &= _writer->mergePoints(points.data(), points.size(), src_transfo, m_scanHeader.format);
         }
     }
 

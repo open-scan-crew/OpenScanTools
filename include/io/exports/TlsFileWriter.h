@@ -5,7 +5,6 @@
 #include "models/pointCloud/TLS.h"
 
 #include <filesystem>
-#include <vector>
 #include <fstream>
 
 struct PointXYZIRGB;

@@ -30,18 +30,21 @@ public:
     bool canAutoRelaunch() const;
 
     ContextType getType() const override;
+
 protected:
+    // specific export functions
     bool processClippingExport(Controller& controller);
     bool processScanExport(Controller& controller);
 
 private:
-
+    // all combinations with clipping active
     bool exportClippingAndScanMerged(Controller& controller, CSVWriter* csvWriter);
     bool exportClippingSeparated(Controller& controller, CSVWriter* csvWriter);
     bool exportScanSeparated(Controller& controller, CSVWriter* csvWriter);
 
     bool processGridExport(Controller& controller);
 
+    // helper functions
     void addOriginCube(IScanFileWriter* fileWriter, tls::PointFormat pointFormat, CSVWriter& csvWriter);
     bool ensureFileWriter(Controller& controller, std::unique_ptr<IScanFileWriter>& scanFileWriter, std::wstring name, CSVWriter* csvWriter);
     bool prepareOutputDirectory(Controller& controller, const std::filesystem::path& folderPath);
