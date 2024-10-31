@@ -46,16 +46,18 @@ ContextState ContextPCOCreation::start(Controller& controller)
         FUNCLOG << "ContextPCOCreation failed do find clippingbox " << LOGENDL;
         return (m_state = ContextState::abort);
     }
-    ClippingAssembly clipAssembly;
-    TransformationModule transfo = (TransformationModule)(*&clipping);
-    clipping->pushClippingGeometries(clipAssembly, transfo);
-    m_geometry = clipAssembly.clippingUnion;
-    m_geometry.insert(m_geometry.end(), clipAssembly.clippingIntersection.begin(), clipAssembly.clippingIntersection.end());
 
-    assert(!m_geometry.empty());
+    point_cloud_transfo_ = (TransformationModule)(*&clipping);
+    point_cloud_transfo_.setScale(glm::dvec3(1.0, 1.0, 1.0));
+
+    clipping_assembly_ = ClippingAssembly();
+    clipping->pushClippingGeometries(clipping_assembly_, point_cloud_transfo_);
+
     // On force la création des PCO sur l'intérieur des clippings.
     // C'est sûrement discutable, on pourrait avoir envie un jour de créer un PCO à partir d'une clipping extèrieure.
-    for (auto geom : m_geometry)
+    clipping_assembly_.clippingUnion.insert(clipping_assembly_.clippingUnion.end(), clipping_assembly_.clippingIntersection.begin(), clipping_assembly_.clippingIntersection.end());
+    clipping_assembly_.clippingIntersection.clear();
+    for (auto geom : clipping_assembly_.clippingUnion)
     {
         geom->mode = ClippingMode::showInterior;
     }
@@ -102,9 +104,6 @@ ContextState ContextPCOCreation::launch(Controller& controller)
     auto start = std::chrono::steady_clock::now();
     GraphManager& graphManager = controller.getGraphManager();
 
-    ClippingAssembly clipAssembly;
-    clipAssembly.clippingUnion = m_geometry;
-  
     // Get the the visible scans
     std::vector<tls::PointCloudInstance> scanInstances = graphManager.getVisiblePointCloudInstances(m_panoramic, true, false);
 
@@ -129,10 +128,6 @@ ContextState ContextPCOCreation::launch(Controller& controller)
 
     tls::ScanHeader dstScanHeader;
     dstScanHeader.name = m_parameters.fileName;
-    glm::dmat4 directRT = glm::inverse(m_geometry[0]->matRT_inv);
-    glm::dvec3 center = glm::dvec3(directRT * glm::dvec4(0.0, 0.0, 0.0, 1.0));
-    glm::dquat orientation = glm::quat_cast(directRT);
-    dstScanHeader.transfo = tls::Transformation{ {orientation.x, orientation.y, orientation.z, orientation.w}, {center.x, center.y, center.z} };
     // The bounding box should be calculated by the scan writer (for the TLS it is the octreeCtor, for the e57 ??)
     dstScanHeader.bbox;
     // Initialize precision and point count
@@ -145,12 +140,12 @@ ContextState ContextPCOCreation::launch(Controller& controller)
         tls::getCompatibleFormat(dstScanHeader.format, pcInst.header.format);
     }
 
-    scanFileWriter->appendPointCloud(dstScanHeader);
+    scanFileWriter->appendPointCloud(dstScanHeader, point_cloud_transfo_);
 
     for (tls::PointCloudInstance pcInst : scanInstances)
     {
         glm::dmat4 modelMatrix = pcInst.transfo.getTransformation();
-        resultOk &= TlScanOverseer::getInstance().clipScan(pcInst.header.guid, modelMatrix, clipAssembly, scanFileWriter); // [old] merging == true
+        resultOk &= TlScanOverseer::getInstance().clipScan(pcInst.header.guid, modelMatrix, clipping_assembly_, scanFileWriter); // [old] merging == true
         scanExported++;
         controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(scanExported).arg(scanInstances.size()), scanExported));
     }

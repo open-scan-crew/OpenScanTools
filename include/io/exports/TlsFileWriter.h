@@ -18,9 +18,11 @@ public:
     static bool getWriter(const std::filesystem::path& dirPath, const std::wstring& fileName, std::wstring& log, IScanFileWriter** writer);
 
     FileType getType() const override;
-    bool appendPointCloud(const tls::ScanHeader& info) override;
+    bool appendPointCloud(const tls::ScanHeader& info, const TransformationModule& transfo) override;
     bool addPoints(PointXYZIRGB const* srcBuf, uint64_t srcSize) override;
-    bool mergePoints(PointXYZIRGB const* srcBuf, uint64_t srcSize, const glm::dmat4& srcTransfo, tls::PointFormat srcFormat) override;
+    bool mergePoints(PointXYZIRGB const* srcBuf, uint64_t srcSize, const TransformationModule& srcTransfo, tls::PointFormat srcFormat) override;
+    void addTranslation(const glm::dvec3& translation) override;
+
     bool flushWrite() override;
 
     // Temporary for large coordinates
@@ -33,6 +35,7 @@ private:
     std::ofstream m_ostream;
     // current write
     tls::ScanHeader m_header;
+    TransformationModule scan_transfo;
     OctreeCtor* m_octree;
 };
 

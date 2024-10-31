@@ -322,12 +322,14 @@ bool ContextExportPC::exportClippingAndScanMerged(Controller& controller, CSVWri
     ClippingAssembly clippingAssembly;
     graphManager.getClippingAssembly(clippingAssembly, filterActive, filterSelected);
     std::vector<tls::PointCloudInstance> pcInfos = getPointCloudInstances(graphManager);
+
     // Get the best origin and bbox based on the clipping used to merge scans.
-    glm::dvec3 bestOrigin; // By default, it is the center of the bbox
-    glm::dquat bestOrientation;
+    //glm::dvec3 bestOrigin; // By default, it is the center of the bbox
+    //glm::dquat bestOrientation;
     BoundingBoxD scanBbox = getGlobalBoundingBox(pcInfos);
-    getBestOriginOrientationAndBBox(clippingAssembly, scanBbox, bestOrigin, bestOrientation);
-    bestOrigin += m_scanTranslationToAdd;
+    //getBestOriginOrientationAndBBox(clippingAssembly, scanBbox, bestOrigin, bestOrientation);
+    //bestOrigin += m_scanTranslationToAdd;
+    TransformationModule best_transfo = getBestTransformation(clippingAssembly, scanBbox);
 
     controller.updateInfo(new GuiDataProcessingSplashScreenStart(pcInfos.size(), TEXT_EXPORT_CLIPPING_TITLE_PROGESS, TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(0).arg(pcInfos.size())));
 
@@ -345,10 +347,10 @@ bool ContextExportPC::exportClippingAndScanMerged(Controller& controller, CSVWri
     mergedHeader.name = filename;
     mergedHeader.precision = m_parameters.encodingPrecision;
     mergedHeader.pointCount = 0;
-    mergedHeader.transfo = tls::Transformation{ {bestOrientation.x, bestOrientation.y, bestOrientation.z, bestOrientation.w}, {bestOrigin.x, bestOrigin.y, bestOrigin.z} };
+    //mergedHeader.transfo = tls::Transformation{ {bestOrientation.x, bestOrientation.y, bestOrientation.z, bestOrientation.w}, {bestOrigin.x, bestOrigin.y, bestOrigin.z} };
     mergedHeader.bbox.setEmpty();
     mergedHeader.format = getCommonFormat(pcInfos);
-    scanFileWriter->appendPointCloud(mergedHeader);
+    scanFileWriter->appendPointCloud(mergedHeader, best_transfo);
 
     for (const auto pcInfo : pcInfos)
     {
@@ -429,21 +431,20 @@ bool ContextExportPC::exportClippingSeparated(Controller& controller, CSVWriter*
             // Clip all the scans for this box
             TransformationModule transfo = (TransformationModule)(*&rClip);
             rClip->pushClippingGeometries(clippingAssembly, transfo);
-            glm::dvec3 bestOrigin; // By default, it is the center of the bbox
-            glm::dquat bestOrientation;
-            BoundingBoxD scanBbox = getGlobalBoundingBox(pcInfos);
-            getBestOriginOrientationAndBBox(clippingAssembly, scanBbox, bestOrigin, bestOrientation);
-            bestOrigin += m_scanTranslationToAdd;
+            //glm::dvec3 bestOrigin; // By default, it is the center of the bbox
+            //glm::dquat bestOrientation;
+            BoundingBoxD scan_bbox = getGlobalBoundingBox(pcInfos);
+            //getBestOriginOrientationAndBBox(clippingAssembly, scan_bbox, bestOrigin, bestOrientation);
+            //bestOrigin += m_scanTranslationToAdd;
 
             dstScanHeader.name = rClip->getComposedName();
             dstScanHeader.precision = m_parameters.encodingPrecision;
             dstScanHeader.pointCount = 0;
-            dstScanHeader.transfo = tls::Transformation{ {bestOrientation.x, bestOrientation.y, bestOrientation.z, bestOrientation.w}, {bestOrigin.x, bestOrigin.y, bestOrigin.z} };
+            //dstScanHeader.transfo = tls::Transformation{ {bestOrientation.x, bestOrientation.y, bestOrientation.z, bestOrientation.w}, {bestOrigin.x, bestOrigin.y, bestOrigin.z} };
             dstScanHeader.bbox.setEmpty();
             dstScanHeader.format = getCommonFormat(pcInfos);
-            scanFileWriter->appendPointCloud(dstScanHeader);
+            scanFileWriter->appendPointCloud(dstScanHeader, getBestTransformation(clippingAssembly, scan_bbox));
         }
-        
 
         for (auto pcInfo : pcInfos)
         {
@@ -509,10 +510,10 @@ bool ContextExportPC::exportScanSeparated(Controller& controller, CSVWriter* pCs
         dstScanHeader.precision = m_parameters.encodingPrecision;
         dstScanHeader.pointCount = 0;
         dstScanHeader.format = pcInfo.header.format;
-        glm::dvec3 position = pcInfo.transfo.getCenter() + m_scanTranslationToAdd;
-        glm::dquat orientation = pcInfo.transfo.getOrientation();
-        dstScanHeader.transfo = tls::Transformation{ {orientation.x, orientation.y, orientation.z, orientation.w}, {position.x, position.y, position.z} };;
-        scanFileWriter->appendPointCloud(dstScanHeader);
+        //glm::dvec3 position = pcInfo.transfo.getCenter() + m_scanTranslationToAdd;
+        //glm::dquat orientation = pcInfo.transfo.getOrientation();
+        //dstScanHeader.transfo = tls::Transformation{ {orientation.x, orientation.y, orientation.z, orientation.w}, {position.x, position.y, position.z} };;
+        scanFileWriter->appendPointCloud(dstScanHeader, pcInfo.transfo);
 
         glm::dmat4 modelMatrix = pcInfo.transfo.getTransformation();
         resultOk &= overseer.clipScan(pcInfo.header.guid, modelMatrix, clippingAssembly, scanFileWriter.get()); // [old] merging == false
@@ -619,25 +620,25 @@ bool ContextExportPC::processScanExport(Controller& controller)
                 if (scanExported == 0)
                 {
                     dstScanHeader.name = m_parameters.fileName.wstring();
-                    dstScanHeader.transfo = getCommonTransformation(pcInfos);
+                    //dstScanHeader.transfo = getCommonTransformation(pcInfos);
                     dstScanHeader.format = getCommonFormat(pcInfos);
-                    scanFileWriter->appendPointCloud(dstScanHeader);
+                    scanFileWriter->appendPointCloud(dstScanHeader, getCommonTransformation_EX(pcInfos));
                     mergedHeader = dstScanHeader;
                 }
             }
             else
             {
                 dstScanHeader.name = uniqueName;
-                glm::dvec3 position = pcInfo.transfo.getCenter() + m_scanTranslationToAdd;
-                glm::dquat orientation = pcInfo.transfo.getOrientation();
-                dstScanHeader.transfo.quaternion[0] = orientation.x;
-                dstScanHeader.transfo.quaternion[1] = orientation.y;
-                dstScanHeader.transfo.quaternion[2] = orientation.z;
-                dstScanHeader.transfo.quaternion[3] = orientation.w;
-                dstScanHeader.transfo.translation[0] = position.x;
-                dstScanHeader.transfo.translation[1] = position.y;
-                dstScanHeader.transfo.translation[2] = position.z;
-                scanFileWriter->appendPointCloud(dstScanHeader);
+                //glm::dvec3 position = pcInfo.transfo.getCenter() + m_scanTranslationToAdd;
+                //glm::dquat orientation = pcInfo.transfo.getOrientation();
+                //dstScanHeader.transfo.quaternion[0] = orientation.x;
+                //dstScanHeader.transfo.quaternion[1] = orientation.y;
+                //dstScanHeader.transfo.quaternion[2] = orientation.z;
+                //dstScanHeader.transfo.quaternion[3] = orientation.w;
+                //dstScanHeader.transfo.translation[0] = position.x;
+                //dstScanHeader.transfo.translation[1] = position.y;
+                //dstScanHeader.transfo.translation[2] = position.z;
+                scanFileWriter->appendPointCloud(dstScanHeader, pcInfo.transfo);
             }
 
             glm::dmat4 modelMatrix = pcInfo.transfo.getTransformation();
@@ -765,7 +766,7 @@ bool ContextExportPC::processGridExport(Controller& controller)
 
             tls::ScanHeader dstScanHeader;
             dstScanHeader.name = box_xyz_name;
-            glm::dvec3 t = box.getCenter() + m_scanTranslationToAdd;
+            glm::dvec3 t = box.getCenter();// +m_scanTranslationToAdd;
             glm::quat q = box.getOrientation();
             dstScanHeader.transfo = tls::Transformation{ {q.x, q.y, q.z, q.w}, {t.x, t.y, t.z} };
             // Initialize precision and point count
@@ -779,7 +780,7 @@ bool ContextExportPC::processGridExport(Controller& controller)
                 box.getInverseRotationTranslation(),
                 glm::vec4(box.getScale().x, box.getScale().y, box.getScale().z, 0.f), 0));
 
-            scanFileWriter->appendPointCloud(dstScanHeader);
+            scanFileWriter->appendPointCloud(dstScanHeader, (TransformationModule)box);
             for (auto pcInfo : pcInfos)
             {
                 if (pcInfo.header.guid == tls::ScanGuid())
@@ -827,7 +828,9 @@ void ContextExportPC::addOriginCube(IScanFileWriter* fileWriter, tls::PointForma
     scanHeader.pointCount = 0;
     scanHeader.format = pointFormat;
 
-    fileWriter->appendPointCloud(scanHeader);
+    TransformationModule base_transfo;
+
+    fileWriter->appendPointCloud(scanHeader, base_transfo);
     PointXYZIRGB pointBuffer[8] = {
         {0.0, 0.0, 0.0, 255, 0, 0, 0},
         {1.0, 0.0, 0.0, 255, 255, 0, 0},
@@ -981,6 +984,51 @@ void ContextExportPC::getBestOriginOrientationAndBBox(const ClippingAssembly& _c
 
 }
 
+TransformationModule ContextExportPC::getBestTransformation(const ClippingAssembly& clipping_assembly, const BoundingBoxD& scan_bbox)
+{
+    TransformationModule best_transfo;
+
+    BoundingBoxD union_bbox;
+    union_bbox.setEmpty();
+    for (const std::shared_ptr<IClippingGeometry>& geom : clipping_assembly.clippingUnion)
+    {
+        if (geom->mode == ClippingMode::showInterior)
+        {
+            BoundingBoxD bbox = extractBBox(*geom);
+            union_bbox.extend(bbox);
+        }
+    }
+
+    BoundingBoxD inter_bbox;
+    inter_bbox.setInfinite(); // ou tout l'espace
+    for (const std::shared_ptr<IClippingGeometry>& geom : clipping_assembly.clippingIntersection)
+    {
+        if (geom->mode == ClippingMode::showInterior)
+        {
+            // NOTE - Par convention, nous n'avons pas de box interieure dans l'intersection
+            BoundingBoxD bbox = extractBBox(*geom);
+            inter_bbox.intersect(bbox);
+        }
+    }
+
+    BoundingBoxD total_bbox = scan_bbox;
+    if (!clipping_assembly.clippingUnion.empty())
+        total_bbox.intersect(union_bbox);
+
+    if (!clipping_assembly.clippingIntersection.empty())
+        total_bbox.intersect(inter_bbox);
+
+    best_transfo.setPosition(total_bbox.center());
+    // NOTE(robin) - Ce n'est pas la meilleure façon de récupérer la rotation.
+    //             - On pourrait avoir directement accès au quaternion de la clipping originale, mais cela demanderai un rework de l'interface IClippingGeometry.
+    if (clipping_assembly.clippingUnion.size() == 1)
+        best_transfo.setRotation(glm::quat_cast(glm::inverse(clipping_assembly.clippingUnion[0]->matRT_inv)));
+    else
+        best_transfo.setRotation(glm::dquat(0.0, 0.0, 0.0, 1.0));
+
+    return best_transfo;
+}
+
 BoundingBoxD ContextExportPC::getGlobalBoundingBox(const std::vector<tls::PointCloudInstance>& pcInstances)
 {
     BoundingBoxD global_bbox;
@@ -1018,6 +1066,22 @@ tls::Transformation ContextExportPC::getCommonTransformation(const std::vector<t
     barycenter /= pcInfos.size();
     barycenter += m_scanTranslationToAdd;
     return tls::Transformation{ {0, 0, 0, 1}, {barycenter.x, barycenter.y, barycenter.z} };
+}
+
+TransformationModule ContextExportPC::getCommonTransformation_EX(const std::vector<tls::PointCloudInstance>& pcInfos)
+{
+    // Approximative but it works enough for now
+    // FIXME - use the bounding box
+    glm::dvec3 barycenter(0.0, 0.0, 0.0);
+    for (auto pcInfo : pcInfos)
+    {
+        barycenter += pcInfo.transfo.getCenter();
+    }
+    barycenter /= pcInfos.size();
+
+    TransformationModule common_transfo;
+    common_transfo.setPosition(barycenter);
+    return common_transfo;
 }
 
 tls::PointFormat ContextExportPC::getCommonFormat(const std::vector<tls::PointCloudInstance>& pcInfos)

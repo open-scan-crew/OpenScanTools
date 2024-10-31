@@ -120,7 +120,7 @@ FileType E57FileWriter::getType() const
     return FileType::E57;
 }
 
-bool E57FileWriter::appendPointCloud(const tls::ScanHeader& info)
+bool E57FileWriter::appendPointCloud(const tls::ScanHeader& info, const TransformationModule& transfo)
 {
     // We can store only one writer at a time
     if (m_storedWriter)
@@ -130,6 +130,7 @@ bool E57FileWriter::appendPointCloud(const tls::ScanHeader& info)
     }
 
     m_scanHeader = info;
+    scan_transfo = transfo;
     m_scanPointCount = 0;
 
     e57::StructureNode root = m_imf.root();
@@ -146,7 +147,7 @@ bool E57FileWriter::appendPointCloud(const tls::ScanHeader& info)
     pointCloud.set("guid", e57::StringNode(m_imf, newGuid.str()));
 
     // Add name [optional]
-    pointCloud.set("name", e57::StringNode(m_imf, Utils::to_utf8(info.name)));
+    pointCloud.set("name", e57::StringNode(m_imf, Utils::to_utf8(m_scanHeader.name)));
 
     // Add description [optional]
 
@@ -157,11 +158,11 @@ bool E57FileWriter::appendPointCloud(const tls::ScanHeader& info)
     proto.set("cartesianX", e57::FloatNode(m_imf, 0, e57::E57_SINGLE, -2048.f, 2048.f));
     proto.set("cartesianY", e57::FloatNode(m_imf, 0, e57::E57_SINGLE, -2048.f, 2048.f));
     proto.set("cartesianZ", e57::FloatNode(m_imf, 0, e57::E57_SINGLE, -2048.f, 2048.f));
-    if (info.format == tls::TL_POINT_XYZ_I || info.format == tls::TL_POINT_XYZ_I_RGB)
+    if (m_scanHeader.format == tls::TL_POINT_XYZ_I || m_scanHeader.format == tls::TL_POINT_XYZ_I_RGB)
     {
         proto.set("intensity", e57::IntegerNode(m_imf, 0, 0, 255));
     }
-    if (info.format == tls::TL_POINT_XYZ_RGB || info.format == tls::TL_POINT_XYZ_I_RGB)
+    if (m_scanHeader.format == tls::TL_POINT_XYZ_RGB || m_scanHeader.format == tls::TL_POINT_XYZ_I_RGB)
     {
         proto.set("colorRed", e57::IntegerNode(m_imf, 0, 0, 255));
         proto.set("colorGreen", e57::IntegerNode(m_imf, 0, 0, 255));
@@ -172,7 +173,7 @@ bool E57FileWriter::appendPointCloud(const tls::ScanHeader& info)
     e57::VectorNode codecs(m_imf, true);
 
     // Add "intensityLimits" if available in format
-    if (info.format == tls::TL_POINT_XYZ_I || info.format == tls::TL_POINT_XYZ_I_RGB)
+    if (m_scanHeader.format == tls::TL_POINT_XYZ_I || m_scanHeader.format == tls::TL_POINT_XYZ_I_RGB)
     {
         e57::StructureNode intensityLimits(m_imf);
         pointCloud.set("intensityLimits", intensityLimits);
@@ -181,7 +182,7 @@ bool E57FileWriter::appendPointCloud(const tls::ScanHeader& info)
     }
 
     // Add "colorLimits" if available in format
-    if (info.format == tls::TL_POINT_XYZ_RGB || info.format == tls::TL_POINT_XYZ_I_RGB)
+    if (m_scanHeader.format == tls::TL_POINT_XYZ_RGB || m_scanHeader.format == tls::TL_POINT_XYZ_I_RGB)
     {
         e57::StructureNode colorLimits(m_imf);
         pointCloud.set("colorLimits", colorLimits);
@@ -195,22 +196,22 @@ bool E57FileWriter::appendPointCloud(const tls::ScanHeader& info)
 
     e57::StructureNode bboxNode(m_imf);
     pointCloud.set("cartesianBounds", bboxNode);
-    m_bbox = info.bbox;
+    m_bbox = m_scanHeader.bbox;
 
     // Create "pose" structure to record the transformation
     e57::StructureNode pose(m_imf);
     pointCloud.set("pose", pose);
     e57::StructureNode rotation(m_imf);
     pose.set("rotation", rotation);
-    rotation.set("w", e57::FloatNode(m_imf, info.transfo.quaternion[3]));
-    rotation.set("x", e57::FloatNode(m_imf, info.transfo.quaternion[0]));
-    rotation.set("y", e57::FloatNode(m_imf, info.transfo.quaternion[1]));
-    rotation.set("z", e57::FloatNode(m_imf, info.transfo.quaternion[2]));
+    rotation.set("w", e57::FloatNode(m_imf, scan_transfo.getOrientation().w));
+    rotation.set("x", e57::FloatNode(m_imf, scan_transfo.getOrientation().x));
+    rotation.set("y", e57::FloatNode(m_imf, scan_transfo.getOrientation().y));
+    rotation.set("z", e57::FloatNode(m_imf, scan_transfo.getOrientation().z));
     e57::StructureNode translation(m_imf);
     pose.set("translation", translation);
-    translation.set("x", e57::FloatNode(m_imf, info.transfo.translation[0]));
-    translation.set("y", e57::FloatNode(m_imf, info.transfo.translation[1]));
-    translation.set("z", e57::FloatNode(m_imf, info.transfo.translation[2]));
+    translation.set("x", e57::FloatNode(m_imf, scan_transfo.getCenter().x));
+    translation.set("y", e57::FloatNode(m_imf, scan_transfo.getCenter().y));
+    translation.set("z", e57::FloatNode(m_imf, scan_transfo.getCenter().z));
 
     // No point grouping scheme
 
@@ -244,7 +245,7 @@ bool E57FileWriter::appendPointCloud(const tls::ScanHeader& info)
     }
 
     // Create the writer from the sourceBuffers and the "points" node
-    m_storedWriter = new CVWriterWrapper{ points.writer(sourceBuffers), info.format };
+    m_storedWriter = new CVWriterWrapper{ points.writer(sourceBuffers), m_scanHeader.format };
 
     return true;
 }
@@ -290,83 +291,74 @@ bool E57FileWriter::addPoints(PointXYZIRGB const* srcBuf, uint64_t srcSize)
     return true;
 }
 
-// NOTE - equivalent of IPointCloudWriter::addPoints_localSrc()
-bool E57FileWriter::mergePoints(PointXYZIRGB const* srcBuf, uint64_t srcSize, const glm::dmat4& srcTransfo, tls::PointFormat srcFormat)
+bool E57FileWriter::mergePoints(PointXYZIRGB const* srcBuf, uint64_t srcSize, const TransformationModule& src_transfo, tls::PointFormat src_format)
 {
     if (m_storedWriter == nullptr)
         return false;
 
-    glm::dmat4 finalMatrix = tls::math::getInverseTransformDMatrix(m_scanHeader.transfo.translation, m_scanHeader.transfo.quaternion);
+    if (scan_transfo == src_transfo)
     {
-        finalMatrix *= srcTransfo;
+        // check point format ??
+        addPoints(srcBuf, srcSize);
     }
-
-    uint64_t srcOffset = 0;
-    while (srcOffset < srcSize)
+    else
     {
-        uint64_t writeSize = std::min(m_stagingBufs.size, srcSize - srcOffset);
-        if (srcFormat == m_scanHeader.format)
+        glm::dmat4 total_transfo = scan_transfo.getInverseTransformation() * src_transfo.getTransformation();
+
+        typedef PointXYZIRGB(*convert_fn_t)(const PointXYZIRGB&, const glm::dmat4&);
+        convert_fn_t convert_fn = convert_transfo;
+
+        if (src_format == m_scanHeader.format)
         {
-            for (uint64_t n = 0; n < writeSize; ++n)
-            {
-                PointXYZIRGB newPoint = convert_keepIRGB(srcBuf[srcOffset + n], finalMatrix);
-
-                m_stagingBufs.cartesianX[n] = newPoint.x;
-                m_stagingBufs.cartesianY[n] = newPoint.y;
-                m_stagingBufs.cartesianZ[n] = newPoint.z;
-                m_stagingBufs.uIntensity[n] = newPoint.i;
-                m_stagingBufs.colorRed[n] = newPoint.r;
-                m_stagingBufs.colorGreen[n] = newPoint.g;
-                m_stagingBufs.colorBlue[n] = newPoint.b;
-
-                updateBoundingBox(newPoint);
-            }
+            convert_fn = convert_transfo;
         }
-        else if (srcFormat == tls::PointFormat::TL_POINT_XYZ_RGB)
+        else if (src_format == tls::PointFormat::TL_POINT_XYZ_RGB)
         {
-            for (uint64_t n = 0; n < writeSize; ++n)
-            {
-                PointXYZIRGB newPoint = convert_overwriteI(srcBuf[srcOffset + n], finalMatrix);
-
-                m_stagingBufs.cartesianX[n] = newPoint.x;
-                m_stagingBufs.cartesianY[n] = newPoint.y;
-                m_stagingBufs.cartesianZ[n] = newPoint.z;
-                m_stagingBufs.uIntensity[n] = newPoint.i;
-                m_stagingBufs.colorRed[n] = newPoint.r;
-                m_stagingBufs.colorGreen[n] = newPoint.g;
-                m_stagingBufs.colorBlue[n] = newPoint.b;
-
-                updateBoundingBox(newPoint);
-            }
+            convert_fn = convert_RGB_to_I_transfo;
         }
-        else if (srcFormat == tls::PointFormat::TL_POINT_XYZ_I)
+        else if (src_format == tls::PointFormat::TL_POINT_XYZ_I)
         {
-            for (uint64_t n = 0; n < writeSize; ++n)
-            {
-                PointXYZIRGB newPoint = convert_overwriteRGB(srcBuf[srcOffset + n], finalMatrix);
-
-                m_stagingBufs.cartesianX[n] = newPoint.x;
-                m_stagingBufs.cartesianY[n] = newPoint.y;
-                m_stagingBufs.cartesianZ[n] = newPoint.z;
-                m_stagingBufs.uIntensity[n] = newPoint.i;
-                m_stagingBufs.colorRed[n] = newPoint.r;
-                m_stagingBufs.colorGreen[n] = newPoint.g;
-                m_stagingBufs.colorBlue[n] = newPoint.b;
-
-                updateBoundingBox(newPoint);
-            }
+            convert_fn = convert_I_to_RGB_transfo;
         }
         else
-        {
-            // ERROR
             return false;
-        }
 
-        m_storedWriter->cvw.write(writeSize);
-        srcOffset += writeSize;
+        uint64_t srcOffset = 0;
+        while (srcOffset < srcSize)
+        {
+            uint64_t writeSize = std::min(m_stagingBufs.size, srcSize - srcOffset);
+            for (uint64_t n = 0; n < writeSize; ++n)
+            {
+                PointXYZIRGB newPoint = convert_fn(srcBuf[srcOffset + n], total_transfo);
+
+                m_stagingBufs.cartesianX[n] = newPoint.x;
+                m_stagingBufs.cartesianY[n] = newPoint.y;
+                m_stagingBufs.cartesianZ[n] = newPoint.z;
+                m_stagingBufs.uIntensity[n] = newPoint.i;
+                m_stagingBufs.colorRed[n] = newPoint.r;
+                m_stagingBufs.colorGreen[n] = newPoint.g;
+                m_stagingBufs.colorBlue[n] = newPoint.b;
+
+                updateBoundingBox(newPoint);
+            }
+
+            m_storedWriter->cvw.write(writeSize);
+            srcOffset += writeSize;
+        }
     }
     m_scanPointCount += srcSize;
     return true;
+}
+
+void E57FileWriter::addTranslation(const glm::dvec3& t)
+{
+    e57::StructureNode root = m_imf.root();
+    e57::VectorNode data3D(root.get("/data3D"));
+    e57::StructureNode pointCloud(data3D.get(data3D.childCount() - 1));
+    e57::StructureNode translation_node(pointCloud.get("pose/translation"));
+    translation_node.set("x", e57::FloatNode(m_imf, scan_transfo.getCenter().x + t.x));
+    translation_node.set("y", e57::FloatNode(m_imf, scan_transfo.getCenter().y + t.y));
+    translation_node.set("z", e57::FloatNode(m_imf, scan_transfo.getCenter().z + t.z));
 }
 
 void E57FileWriter::updateBoundingBox(const PointXYZIRGB& point)

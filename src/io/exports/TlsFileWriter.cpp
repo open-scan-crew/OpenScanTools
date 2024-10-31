@@ -52,7 +52,7 @@ FileType TlsFileWriter::getType() const
     return FileType::TLS;
 }
 
-bool TlsFileWriter::appendPointCloud(const tls::ScanHeader& scanHeader)
+bool TlsFileWriter::appendPointCloud(const tls::ScanHeader& scanHeader, const TransformationModule& transfo)
 {
     // Flush the octree and destroy it before creating a new one
     if (m_octree != nullptr)
@@ -64,6 +64,7 @@ bool TlsFileWriter::appendPointCloud(const tls::ScanHeader& scanHeader)
     m_header.guid = xg::newGuid();
     m_header.version = tls::ScanVersion::SCAN_V_0_4;
     m_octree = new OctreeCtor(scanHeader.precision, scanHeader.format);
+    scan_transfo = transfo;
     m_scanPointCount = 0;
     return true;
 }
@@ -81,34 +82,35 @@ bool TlsFileWriter::addPoints(PointXYZIRGB const* srcBuf, uint64_t srcSize)
     return true;
 }
 
-bool TlsFileWriter::mergePoints(PointXYZIRGB const* srcBuf, uint64_t srcSize, const glm::dmat4& src_transfo, tls::PointFormat srcFormat)
+bool TlsFileWriter::mergePoints(PointXYZIRGB const* srcBuf, uint64_t srcSize, const TransformationModule& src_transfo, tls::PointFormat srcFormat)
 {
     assert(m_octree != nullptr);
     if (m_octree == nullptr)
         return false;
 
-    glm::dmat4 cmp_transfo = tls::math::getTransformDMatrix(m_header.transfo.translation, m_header.transfo.quaternion);
-
     // compare destination and source transformation
-    if (cmp_transfo != src_transfo)
+    if (scan_transfo == src_transfo)
     {
-        glm::dmat4 dst_transfo = tls::math::getInverseTransformDMatrix(m_header.transfo.translation, m_header.transfo.quaternion);
-        glm::dmat4 total_transfo = dst_transfo * src_transfo;
+        glm::dmat4 total_transfo = scan_transfo.getInverseTransformation() * src_transfo.getTransformation();
+        // Or use the multiply in the (pos, quat, scale) space
+        TransformationModule transfo_bis(src_transfo);
+        transfo_bis.compose_inverse_left(scan_transfo);
+        glm::dmat4 total_transfo_bis = transfo_bis.getTransformation();
 
         // Select the correct conversion function
         typedef PointXYZIRGB(*convert_fn_t)(const PointXYZIRGB &, const glm::dmat4 &);
-        convert_fn_t convert_fn = convert_keepIRGB;
+        convert_fn_t convert_fn = convert_transfo;
         if (srcFormat == m_header.format)
         {
-            convert_fn = convert_keepIRGB;
+            convert_fn = convert_transfo;
         }
         else if (srcFormat == tls::PointFormat::TL_POINT_XYZ_RGB)
         {
-            convert_fn = convert_overwriteI;
+            convert_fn = convert_RGB_to_I_transfo;
         }
         else if (srcFormat == tls::PointFormat::TL_POINT_XYZ_I)
         {
-            convert_fn = convert_overwriteRGB;
+            convert_fn = convert_I_to_RGB_transfo;
         }
 
         for (uint64_t n = 0; n < srcSize; ++n)
@@ -119,14 +121,6 @@ bool TlsFileWriter::mergePoints(PointXYZIRGB const* srcBuf, uint64_t srcSize, co
     }
     else
     {
-        glm::dmat4 dst_transfo = tls::math::getInverseTransformDMatrix(m_header.transfo.translation, m_header.transfo.quaternion);
-        glm::dmat4 result = dst_transfo * src_transfo;
-        // For debugging
-        assert(result[0][0] == 1.0);
-        assert(result[1][1] == 1.0);
-        assert(result[2][2] == 1.0);
-        assert(result[3][3] == 1.0);
-
         for (uint64_t n = 0; n < srcSize; ++n)
         {
             m_octree->insertPoint(srcBuf[n]);
@@ -135,6 +129,11 @@ bool TlsFileWriter::mergePoints(PointXYZIRGB const* srcBuf, uint64_t srcSize, co
 
     m_scanPointCount = m_octree->getPointCount();
     return true;
+}
+
+void TlsFileWriter::addTranslation(const glm::dvec3& translation)
+{
+    scan_transfo.addGlobalTranslation(translation);
 }
 
 bool TlsFileWriter::flushWrite()
@@ -159,6 +158,16 @@ bool TlsFileWriter::flushWrite()
         if (m_octree != nullptr) {
             m_octree->encode(m_header.format, logStream);
         }
+
+        tls::ScanHeader writeHeader = m_header;
+        writeHeader.transfo.translation[0] = scan_transfo.getCenter().x;
+        writeHeader.transfo.translation[1] = scan_transfo.getCenter().y;
+        writeHeader.transfo.translation[2] = scan_transfo.getCenter().z;
+        glm::dquat q = scan_transfo.getOrientation();
+        writeHeader.transfo.quaternion[0] = q.x;
+        writeHeader.transfo.quaternion[1] = q.y;
+        writeHeader.transfo.quaternion[2] = q.z;
+        writeHeader.transfo.quaternion[3] = q.w;
 
         if (!tls::writer::writeOctreeCtor(m_ostream, 0, m_octree, m_header)) {
             std::cerr << "pcc: An error occured while saving the point cloud." << std::endl;

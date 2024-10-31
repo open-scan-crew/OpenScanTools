@@ -7,7 +7,6 @@
 #include "io/StagingBuffers.h"
 
 #include <filesystem>
-#include <vector>
 
 struct PointXYZIRGB;
 
@@ -25,9 +24,10 @@ public:
     static bool getWriter(const std::filesystem::path& dirPath, const std::wstring& fileName, std::wstring& log, IScanFileWriter** writer);
 
     FileType getType() const override;
-    bool appendPointCloud(const tls::ScanHeader& info) override;
+    bool appendPointCloud(const tls::ScanHeader& header, const TransformationModule& transfo) override;
     bool addPoints(PointXYZIRGB const* srcBuf, uint64_t srcSize) override;
-    bool mergePoints(PointXYZIRGB const* srcBuf, uint64_t srcSize, const glm::dmat4& srcTransfo, tls::PointFormat srcFormat) override;
+    bool mergePoints(PointXYZIRGB const* srcBuf, uint64_t srcSize, const TransformationModule& src_transfo, tls::PointFormat srcFormat) override;
+    void addTranslation(const glm::dvec3& translation) override;
     void updateBoundingBox(const PointXYZIRGB& point);
     bool flushWrite() override;
 
@@ -40,6 +40,7 @@ private:
 
     // current write
     tls::ScanHeader m_scanHeader;
+    TransformationModule scan_transfo;
     StagingBuffers m_stagingBufs;
     CVWriterWrapper* m_storedWriter;
     BoundingBox m_bbox;

@@ -39,33 +39,27 @@ struct Color24 {
 };
 
 
-
-//inline PointXYZIRGB convert_keepIRGB(const PointXYZIRGB& point)
-//{
-//    return { point.x, point.y, point.z, point.i, point.r, point.g, point.b };
-//}
-
-inline PointXYZIRGB convert_overwriteI(const PointXYZIRGB& point)
+inline PointXYZIRGB convert_RGB_to_I(const PointXYZIRGB& point)
 {
     uint8_t newI = (point.r + point.g + point.b) / 3;
 
     return { point.x, point.y, point.z, newI, point.r, point.g, point.b };
 }
 
-inline PointXYZIRGB convert_overwriteRGB(const PointXYZIRGB& point)
+inline PointXYZIRGB convert_I_to_RGB(const PointXYZIRGB& point)
 {
     return { point.x, point.y, point.z, point.i, point.i, point.i, point.i };
 }
 
 
-inline PointXYZIRGB convert_keepIRGB(const PointXYZIRGB& point, const glm::dmat4& matrix)
+inline PointXYZIRGB convert_transfo(const PointXYZIRGB& point, const glm::dmat4& matrix)
 {
     glm::dvec4 newPos = matrix * glm::dvec4(point.x, point.y, point.z, 1.0);
 
     return { (float)newPos.x, (float)newPos.y, (float)newPos.z, point.i, point.r, point.g, point.b };
 }
 
-inline PointXYZIRGB convert_overwriteI(const PointXYZIRGB& point, const glm::dmat4& matrix)
+inline PointXYZIRGB convert_RGB_to_I_transfo(const PointXYZIRGB& point, const glm::dmat4& matrix)
 {
     glm::dvec4 newPos = matrix * glm::dvec4(point.x, point.y, point.z, 1.0);
     uint8_t newI = (point.r + point.g + point.b) / 3;
@@ -73,7 +67,7 @@ inline PointXYZIRGB convert_overwriteI(const PointXYZIRGB& point, const glm::dma
     return { (float)newPos.x, (float)newPos.y, (float)newPos.z, newI, point.r, point.g, point.b };
 }
 
-inline PointXYZIRGB convert_overwriteRGB(const PointXYZIRGB& point, const glm::dmat4& matrix)
+inline PointXYZIRGB convert_I_to_RGB_transfo(const PointXYZIRGB& point, const glm::dmat4& matrix)
 {
     glm::dvec4 newPos = matrix * glm::dvec4(point.x, point.y, point.z, 1.0);
 

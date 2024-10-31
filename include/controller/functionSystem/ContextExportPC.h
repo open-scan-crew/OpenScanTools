@@ -49,12 +49,16 @@ private:
     bool ensureFileWriter(Controller& controller, std::unique_ptr<IScanFileWriter>& scanFileWriter, std::wstring name, CSVWriter* csvWriter);
     bool prepareOutputDirectory(Controller& controller, const std::filesystem::path& folderPath);
     std::vector<tls::PointCloudInstance> getPointCloudInstances(GraphManager& graphManager);
+    // [[deprecated]]
     void getBestOriginOrientationAndBBox(const ClippingAssembly& clippingAssembly, const BoundingBoxD& scanBBox, glm::dvec3& bestOrigin, glm::dquat& bestOrientation);
+    TransformationModule getBestTransformation(const ClippingAssembly& clipping_assembly, const BoundingBoxD& scan_bbox);
     // Should be static functions for BoundingBox
     static BoundingBoxD getGlobalBoundingBox(const std::vector<tls::PointCloudInstance>& pcInstances);
     static BoundingBoxD extractBBox(const IClippingGeometry& clippingGeom);
     // !! static //
+    // [[deprecated]]
     tls::Transformation getCommonTransformation(const std::vector<tls::PointCloudInstance>& pcInfos);
+    TransformationModule getCommonTransformation_EX(const std::vector<tls::PointCloudInstance>& pcInfos);
     tls::PointFormat getCommonFormat(const std::vector<tls::PointCloudInstance>& pcInfos);
 
 protected:

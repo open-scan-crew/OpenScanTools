@@ -18,10 +18,16 @@ void PTSFileWriter::insertPoint(const PointXYZIRGB& point)
     pointStr += Utils::roundFloat(point.x, decimalsNumber) + separator;
     pointStr += Utils::roundFloat(point.y, decimalsNumber) + separator;
     pointStr += Utils::roundFloat(point.z, decimalsNumber) + separator;
-    pointStr += std::to_string(point.r) + separator;
-    pointStr += std::to_string(point.g) + separator;
-    pointStr += std::to_string(point.b) + separator;
-    pointStr += std::to_string(point.i) + separator;
+    if (has_color)
+    {
+        pointStr += std::to_string(point.r) + separator;
+        pointStr += std::to_string(point.g) + separator;
+        pointStr += std::to_string(point.b) + separator;
+    }
+    if (has_intensity)
+    {
+        pointStr += std::to_string(point.i) + separator;
+    }
 
     pointStr += '\n';
 
@@ -68,85 +74,60 @@ FileType PTSFileWriter::getType() const
     return FileType::PTS;
 }
 
-bool PTSFileWriter::appendPointCloud(const tls::ScanHeader& info)
+bool PTSFileWriter::appendPointCloud(const tls::ScanHeader& info, const TransformationModule& transfo)
 {
     m_scanHeader = info;
+    scan_transfo = transfo;
     m_scanPointCount = 0;
 
-    m_hasIntensity = (info.format == tls::PointFormat::TL_POINT_XYZ_I || info.format == tls::PointFormat::TL_POINT_XYZ_I_RGB) ? true : false;
-    m_hasColor = (info.format == tls::PointFormat::TL_POINT_XYZ_RGB || info.format == tls::PointFormat::TL_POINT_XYZ_I_RGB) ? true : false;
+    // FIXME - Where is the header ??
+    // X Y Z (optional) r g b (optional) i
+
+    has_intensity = (info.format == tls::PointFormat::TL_POINT_XYZ_I || info.format == tls::PointFormat::TL_POINT_XYZ_I_RGB) ? true : false;
+    has_color = (info.format == tls::PointFormat::TL_POINT_XYZ_RGB || info.format == tls::PointFormat::TL_POINT_XYZ_I_RGB) ? true : false;
     return true;
 }
 
 bool PTSFileWriter::addPoints(PointXYZIRGB const* srcBuf, uint64_t srcSize)
 {
-    glm::mat4 finalMatrix = tls::math::getTransformMatrix(m_scanHeader.transfo.translation, m_scanHeader.transfo.quaternion);
-
-    try
-    {
-        for (uint64_t n = 0; n < srcSize; ++n)
-        {
-            PointXYZIRGB point = convert_keepIRGB(srcBuf[n], finalMatrix);
-            if (!m_hasColor)
-                point = convert_overwriteRGB(point);
-            if(!m_hasIntensity)
-                point = convert_overwriteI(point);
-            insertPoint(point);
-        }
-        m_scanPointCount += srcSize;
-    }
-    catch (std::exception& ex) {
-        std::cerr << "Got an std::excetion, what=" << ex.what() << std::endl;
-        return false;
-    }
-    catch (...) {
-        std::cerr << "Got an unknown exception" << std::endl;
-        return false;
-    }
-    return true;
+    // In a PTS, all points are in global system coordinates
+    return mergePoints(srcBuf, srcSize, scan_transfo, m_scanHeader.format);
 }
 
-// NOTE - equivalent of IPointCloudWriter::addPoints_localSrc()
-bool PTSFileWriter::mergePoints(PointXYZIRGB const* srcBuf, uint64_t srcSize, const glm::dmat4& srcTransfo, tls::PointFormat srcFormat)
+bool PTSFileWriter::mergePoints(PointXYZIRGB const* srcBuf, uint64_t srcSize, const TransformationModule& src_transfo, tls::PointFormat srcFormat)
 {
+    glm::dmat4 total_transfo = src_transfo.getTransformation();
 
-    glm::dmat4 finalMatrix = srcTransfo;
-
+    // Select the correct conversion function
+    typedef PointXYZIRGB(*convert_fn_t)(const PointXYZIRGB&, const glm::dmat4&);
+    convert_fn_t convert_fn = convert_transfo;
     if (srcFormat == m_scanHeader.format)
     {
-        for (uint64_t n = 0; n < srcSize; ++n)
-        {
-            PointXYZIRGB point = convert_keepIRGB(srcBuf[n], finalMatrix);
-            if (!m_hasColor)
-                point = convert_overwriteRGB(point);
-            if (!m_hasIntensity)
-                point = convert_overwriteI(point);
-            insertPoint(point);
-        }
+        convert_fn = convert_transfo;
     }
     else if (srcFormat == tls::PointFormat::TL_POINT_XYZ_RGB)
     {
-        for (uint64_t n = 0; n < srcSize; ++n)
-        {
-            PointXYZIRGB point = convert_overwriteI(srcBuf[n], finalMatrix);
-            insertPoint(point);
-        }
+        convert_fn = convert_RGB_to_I_transfo;
     }
     else if (srcFormat == tls::PointFormat::TL_POINT_XYZ_I)
     {
-        for (uint64_t n = 0; n < srcSize; ++n)
-        {
-            PointXYZIRGB point = convert_overwriteRGB(srcBuf[n], finalMatrix);
-            insertPoint(point);
-        }
+        convert_fn = convert_I_to_RGB_transfo;
     }
-    else
+
+    for (uint64_t n = 0; n < srcSize; ++n)
     {
-        assert(false);
-        return false;
+        PointXYZIRGB point = convert_fn(srcBuf[n], total_transfo);
+        insertPoint(point);
     }
+
     m_scanPointCount += srcSize;
     return true;
+}
+
+void PTSFileWriter::addTranslation(const glm::dvec3& translation)
+{
+    // Pour le PTS, il est trop tard pour faire une translation une fois que les points sont déjà importés.
+    // Les points sont encodés en coordonnées globale.
 }
 
 bool PTSFileWriter::flushWrite()

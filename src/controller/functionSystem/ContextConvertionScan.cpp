@@ -407,9 +407,14 @@ bool ContextConvertionScan::convertOne(IScanFileReader* reader, uint32_t readerO
 
     // Define the metadata of the future point cloud
     outHeader.precision = outPrec;
+    TransformationModule transfo;
+    double* t = inHeader.transfo.translation;
+    transfo.setPosition(glm::dvec3(t[0], t[1], t[2]));
+    double* q = inHeader.transfo.quaternion;
+    transfo.setRotation(glm::dquat(q[3], q[0], q[1], q[2]));
 
     // Begin new point cloud in file
-    writer->appendPointCloud(outHeader);
+    writer->appendPointCloud(outHeader, transfo);
 
     reader->startReadingScan(readerOffset);
 

@@ -23,9 +23,10 @@ public:
     static bool getWriter(const std::filesystem::path& filePath, const std::wstring& projectName, std::wstring& log, IScanFileWriter** writer);
 
     FileType getType() const override;
-    bool appendPointCloud(const tls::ScanHeader& info) override;
-    bool addPoints(PointXYZIRGB const* srcBuf, uint64_t srcSize) override;
-    bool mergePoints(PointXYZIRGB const* srcBuf, uint64_t srcSize, const glm::dmat4& srcTransfo, tls::PointFormat srcFormat) override;
+    bool appendPointCloud(const tls::ScanHeader& header, const TransformationModule& transfo) override;
+    bool addPoints(PointXYZIRGB const* src_buf, uint64_t src_size) override;
+    bool mergePoints(PointXYZIRGB const* src_buf, uint64_t src_size, const TransformationModule& src_transfo, tls::PointFormat src_format) override;
+    void addTranslation(const glm::dvec3& translation) override;
     bool flushWrite() override;
 
     void setExportDensity(double density);
@@ -41,6 +42,7 @@ private:
 
     // current write
     tls::ScanHeader m_scanHeader;
+    TransformationModule scan_transfo;
     std::list<Autodesk::RealityComputing::Data::RCPointBuffer> m_pointBuffers;
 };
 

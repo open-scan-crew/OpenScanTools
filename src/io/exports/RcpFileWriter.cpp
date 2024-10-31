@@ -101,7 +101,7 @@ FileType RcpFileWriter::getType() const
     return FileType::RCP;
 }
 
-bool RcpFileWriter::appendPointCloud(const tls::ScanHeader& info)
+bool RcpFileWriter::appendPointCloud(const tls::ScanHeader& info, const TransformationModule& transfo)
 {
     m_scanHeader = info;
     m_scanPointCount = 0;
@@ -113,24 +113,24 @@ bool RcpFileWriter::appendPointCloud(const tls::ScanHeader& info)
     return true;
 }
 
-bool RcpFileWriter::addPoints(PointXYZIRGB const* srcBuf, uint64_t srcSize)
+bool RcpFileWriter::addPoints(PointXYZIRGB const* src_buf, uint64_t src_size)
 {
     // NOTE - When the points are inserted in local space, we choose to apply the transform here.
     //      - The Recap API allow to apply the transform when we process the scan, but because 
     //        the writer can also be used with global coordinates (via mergePoints()) we have 
     //        to choose one space or an other.
-    glm::dmat4 transfo = tls::math::getTransformDMatrix(m_scanHeader.transfo.translation, m_scanHeader.transfo.quaternion);
+    glm::dmat4 transfo_mat = scan_transfo.getTransformation();
 
-    //return mergePoints(srcBuf, srcSize, glm::dmat4(1.0), m_scanHeader.format);
-    return mergePoints(srcBuf, srcSize, transfo, m_scanHeader.format);
+    //return mergePoints(src_buf, src_size, glm::dmat4(1.0), m_scanHeader.format);
+    return mergePoints(src_buf, src_size, transfo_mat, m_scanHeader.format);
 }
 
 // NOTE - equivalent of IPointCloudWriter::addPoints_localSrc()
-bool RcpFileWriter::mergePoints(PointXYZIRGB const* srcBuf, uint64_t srcSize, const glm::dmat4& srcTransfo, tls::PointFormat srcFormat)
+bool RcpFileWriter::mergePoints(PointXYZIRGB const* src_buf, uint64_t src_size, const TransformationModule& src_transfo, tls::PointFormat src_format)
 {
-    m_scanPointCount += srcSize;
+    m_scanPointCount += src_size;
 
-    glm::dmat4 matrix = srcTransfo;
+    glm::dmat4 transfo_mat = src_transfo.getTransformation();
 
     auto rcBuffer = std::make_shared<RCPointBuffer>();
     rcBuffer->setCoordinateType(RCCoordinateType::Cartesian);
@@ -141,29 +141,35 @@ bool RcpFileWriter::mergePoints(PointXYZIRGB const* srcBuf, uint64_t srcSize, co
     if (m_hasColor)
         rcBuffer->addAttribute(RCAttributeType::Color);
 
-    rcBuffer->resize((unsigned int)srcSize);
+    rcBuffer->resize((unsigned int)src_size);
 
-    for (unsigned int i = 0; i < srcSize; ++i)
+    for (unsigned int i = 0; i < src_size; ++i)
     {
-        glm::dvec4 gPt = matrix * glm::dvec4(srcBuf[i].x, srcBuf[i].y, srcBuf[i].z, 1.0);
+        glm::dvec4 gPt = transfo_mat * glm::dvec4(src_buf[i].x, src_buf[i].y, src_buf[i].z, 1.0);
         rcBuffer->setPositionAt(i, RCVector3d(gPt.x, gPt.y, gPt.z));
     }
 
     if (m_hasIntensity)
     {
-        for (unsigned int i = 0; i < srcSize; ++i)
-            rcBuffer->setIntensityAt(i, srcBuf[i].i);
+        for (unsigned int i = 0; i < src_size; ++i)
+            rcBuffer->setIntensityAt(i, src_buf[i].i);
     }
 
     if (m_hasColor)
     {
-        for (unsigned int i = 0; i < srcSize; ++i)
-            rcBuffer->setColorAt(i, RCVector4ub(srcBuf[i].r, srcBuf[i].g, srcBuf[i].b, 255));
+        for (unsigned int i = 0; i < src_size; ++i)
+            rcBuffer->setColorAt(i, RCVector4ub(src_buf[i].r, src_buf[i].g, src_buf[i].b, 255));
     }
 
     m_pointBuffers.push_back(*rcBuffer);
 
     return true;
+}
+
+void RcpFileWriter::addTranslation(const glm::dvec3& translation)
+{
+    // Si on garde le choix de passer les points en coordonnées globales on ne peut pas changer leurs coordonnées après l’import.
+    // Il faut soit indiquer la translation supplémentaire avant l’import, soit repasser en coordonnées local (et changer la translation du scan).
 }
 
 bool RcpFileWriter::flushWrite()

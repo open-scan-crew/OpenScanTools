@@ -19,7 +19,8 @@ public:
 
 private:
 	PointCloudObjectParameters m_parameters;
-	std::vector<std::shared_ptr<IClippingGeometry>> m_geometry;
+	TransformationModule point_cloud_transfo_;
+	ClippingAssembly clipping_assembly_;
 	tls::ScanGuid m_panoramic;
 };
 
