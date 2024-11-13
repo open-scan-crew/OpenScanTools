@@ -49,7 +49,6 @@ ContextExportPC::ContextExportPC(const ContextId& id)
     : AContext(id)
     , m_saveContext(0)
     , m_viewportId(xg::Guid())
-    , m_currentStep(0)
     , m_neededMessageCount(3)
 {
     m_state = ContextState::waiting_for_input;
@@ -96,7 +95,6 @@ ContextState ContextExportPC::feedMessage(IMessage* message, Controller& control
         m_selectedPcs = decodedMsg->m_exportPcs;
 
         m_neededMessageCount--;
-
         break;
     }
     case IMessage::MessageType::CLIPPING_EXPORT_PARAMETERS:
@@ -127,11 +125,8 @@ ContextState ContextExportPC::feedMessage(IMessage* message, Controller& control
         }
 
         m_neededMessageCount--;
-
         break;
     }
-    break;
-
     default:
     {
         FUNCLOG << "wrong message type" << LOGENDL;
@@ -217,52 +212,37 @@ ContextState ContextExportPC::feedMessage(IMessage* message, Controller& control
     return (m_state);
 }
 
-void writeHeaderInCSV(CSVWriter& csvWriter, const tls::ScanHeader& header)
+void writeHeaderInCSV(CSVWriter* csvWriter, const tls::ScanHeader& header)
 {
-    csvWriter << header.name;
-    csvWriter << (header.pointCount);
-    csvWriter << (header.transfo.translation[0]);
-    csvWriter << (header.transfo.translation[1]);
-    csvWriter << (header.transfo.translation[2]);
-    csvWriter << (header.bbox.xMax - header.bbox.xMin);
-    csvWriter << (header.bbox.yMax - header.bbox.yMin);
-    csvWriter << (header.bbox.zMax - header.bbox.zMin);
+    if (csvWriter == nullptr)
+        return;
+
+    *csvWriter << header.name;
+    *csvWriter << (header.pointCount);
+    *csvWriter << (header.transfo.translation[0]);
+    *csvWriter << (header.transfo.translation[1]);
+    *csvWriter << (header.transfo.translation[2]);
+    *csvWriter << (header.bbox.xMax - header.bbox.xMin);
+    *csvWriter << (header.bbox.yMax - header.bbox.yMin);
+    *csvWriter << (header.bbox.zMax - header.bbox.zMin);
     glm::dvec3 eulers(tls::math::quat_to_euler_zyx_deg(glm::dquat(header.transfo.quaternion[3], header.transfo.quaternion[0], header.transfo.quaternion[1], header.transfo.quaternion[2])));
-    csvWriter << (eulers.x);
-    csvWriter << (eulers.y);
-    csvWriter << (eulers.z);
-    csvWriter.endLine();
+    *csvWriter << (eulers.x);
+    *csvWriter << (eulers.y);
+    *csvWriter << (eulers.z);
+    csvWriter->endLine();
 }
 
 ContextState ContextExportPC::launch(Controller& controller)
 {
-    bool result = false;
+    CSVWriter* csv_writer = new CSVWriter(m_parameters.outFolder / "summary.csv");
+    *csv_writer << "Name;Point_Count;X;Y;Z;SizeX;SizeY;SizeZ;RotationX;RotationY;RotationZ";
+    csv_writer->endLine();
 
-    if (m_parameters.clippingFilter == ExportClippingFilter::NONE)
-    {
-        // Scans separated, no clippings
-        // Scans merged, no clippings
-        result = processScanExport(controller);
-    }
-    else if (m_parameters.clippingFilter == ExportClippingFilter::SELECTED ||
-        m_parameters.clippingFilter == ExportClippingFilter::ACTIVE)
-    {
-        // Scans separated, clippings active, clipping separated
-        // Scans merged, clippings active, clipping separated
-        // Scans merged, clippings active, clipping merged
-        result = processClippingExport(controller);
-    }
-    else if (m_parameters.clippingFilter == ExportClippingFilter::GRIDS)
-    {
-        // Scans merged, grids active, clipping separated
-        result = processGridExport(controller);
-    }
+    bool result = processExport(controller, csv_writer);
 
-    m_state = result ? ContextState::done : ContextState::abort;
-    if (result && m_parameters.openFolderAfterExport && !m_forSubProject)
-        controller.updateInfo(new GuiDataOpenInExplorer(m_parameters.outFolder));
+    delete csv_writer;
 
-    return (m_state);
+    return (m_state = result ? ContextState::done : ContextState::abort);
 }
 
 bool ContextExportPC::canAutoRelaunch() const
@@ -275,398 +255,334 @@ ContextType ContextExportPC::getType() const
     return (ContextType::exportPC);
 }
 
-bool ContextExportPC::processClippingExport(Controller& controller)
+void ContextExportPC::copyTls(Controller& controller, CopyTask task)
 {
-    auto start = std::chrono::steady_clock::now();
-    bool resultOk;
-
-    CSVWriter* pCsvWriter = nullptr;
-    if(!m_forSubProject)
+    try
     {
-        pCsvWriter = new CSVWriter(m_parameters.outFolder / "summary.csv");
-        *pCsvWriter << "Name;Point_Count;X;Y;Z;SizeX;SizeY;SizeZ;RotationX;RotationY;RotationZ";
-        pCsvWriter->endLine();
+        std::filesystem::copy(task.src_path, task.dst_path, std::filesystem::copy_options::overwrite_existing);
+    }
+    catch (const std::filesystem::filesystem_error&)
+    {
+        controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString(TEXT_EXPORT_ERROR_FILE).arg(QString::fromStdWString(task.dst_path))));
+        return;
     }
 
-    switch (m_parameters.method)
+    std::ofstream os;
+    os.open(task.dst_path, std::ios::out | std::ios::in | std::ios::binary);
+    if (os.fail())
     {
-        case ExportClippingMethod::SCAN_SEPARATED:
-            resultOk = exportScanSeparated(controller, pCsvWriter);
-            break;
-        case ExportClippingMethod::CLIPPING_SEPARATED:
-            resultOk = exportClippingSeparated(controller, pCsvWriter);
-            break;
-        case ExportClippingMethod::CLIPPING_AND_SCAN_MERGED:
-            resultOk = exportClippingAndScanMerged(controller, pCsvWriter);
-            break;
+        controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString(TEXT_EXPORT_ERROR_FILE).arg(QString::fromStdWString(task.dst_path))));
+        return;
     }
 
-    if (pCsvWriter != nullptr)
-        delete pCsvWriter;
-
-    float time = std::chrono::duration<float, std::ratio<1>>(std::chrono::steady_clock::now() - start).count();
-    controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString(resultOk ? TEXT_EXPORT_CLIPPING_SUCCESS_TIME : TEXT_EXPORT_CLIPPING_ERROR_TIME).arg(time)));
-    controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));
-
-    return resultOk;
+    tls::writer::overwriteTransformation(os, task.dst_transfo.translation, task.dst_transfo.quaternion);
 }
 
-bool ContextExportPC::exportClippingAndScanMerged(Controller& controller, CSVWriter* pCsvWriter)
+bool ContextExportPC::processExport(Controller& controller, CSVWriter* csv_writer)
 {
-    GraphManager& graphManager = controller.getGraphManager();
-    TlScanOverseer& overseer = TlScanOverseer::getInstance();
-
-    // Create the clipping assembly
-    bool filterActive = (m_parameters.clippingFilter == ExportClippingFilter::ACTIVE);
-    bool filterSelected = (m_parameters.clippingFilter == ExportClippingFilter::SELECTED);
-    ClippingAssembly clippingAssembly;
-    graphManager.getClippingAssembly(clippingAssembly, filterActive, filterSelected);
-    std::vector<tls::PointCloudInstance> pcInfos = getPointCloudInstances(graphManager);
-
-    // Get the best origin and bbox based on the clipping used to merge scans.
-    //glm::dvec3 bestOrigin; // By default, it is the center of the bbox
-    //glm::dquat bestOrientation;
-    BoundingBoxD scanBbox = getGlobalBoundingBox(pcInfos);
-    //getBestOriginOrientationAndBBox(clippingAssembly, scanBbox, bestOrigin, bestOrientation);
-    //bestOrigin += m_scanTranslationToAdd;
-    TransformationModule best_transfo = getBestTransformation(clippingAssembly, scanBbox);
-
-    controller.updateInfo(new GuiDataProcessingSplashScreenStart(pcInfos.size(), TEXT_EXPORT_CLIPPING_TITLE_PROGESS, TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(0).arg(pcInfos.size())));
-
-    // Processing
-    bool resultOk = true;
-    bool fileIsProject = (m_parameters.outFileType == FileType::RCP);
-    uint64_t scanExported = 0;
-
+    bool success = true;
     std::unique_ptr<IScanFileWriter> scanFileWriter = nullptr;
-    std::wstring filename = m_parameters.fileName.wstring();
-    // Create a Writer per scan or per project
-    if (ensureFileWriter(controller, scanFileWriter, filename, pCsvWriter) == false)
-        return false;
-    tls::ScanHeader mergedHeader;
-    mergedHeader.name = filename;
-    mergedHeader.precision = m_parameters.encodingPrecision;
-    mergedHeader.pointCount = 0;
-    //mergedHeader.transfo = tls::Transformation{ {bestOrientation.x, bestOrientation.y, bestOrientation.z, bestOrientation.w}, {bestOrigin.x, bestOrigin.y, bestOrigin.z} };
-    mergedHeader.bbox.setEmpty();
-    mergedHeader.format = getCommonFormat(pcInfos);
-    scanFileWriter->appendPointCloud(mergedHeader, best_transfo);
+    std::vector<ExportTask> export_tasks;
+    std::vector<CopyTask> copy_tasks;
+    prepareExportTasks(controller, export_tasks);
+    prepareCopyTasks(controller, copy_tasks);
 
-    for (const auto pcInfo : pcInfos)
+    logStart(controller, export_tasks.size());
+
+    // For each new output file
+    for (const ExportTask& task : export_tasks)
     {
-        if (m_state != ContextState::running)
-        {
-            m_state = ContextState::abort;
+        // Check process state
+        if (m_state != ContextState::running || !success)
             break;
+
+        // Prepare the file writer
+        // Reuse the FileWriter if the 'file_name' is the same
+        if (ensureFileWriter(controller, scanFileWriter, task.file_name, csv_writer) == false)
+            return false;
+
+        scanFileWriter->appendPointCloud(task.header, task.transfo);
+        scanFileWriter->setPostTranslation(m_scanTranslationToAdd); // !!
+
+        // Process each input PC
+        for (const tls::PointCloudInstance& pc : task.input_pcs)
+        {
+            if (m_state != ContextState::running || !success)
+                break;
+
+            success &= TlScanOverseer::getInstance().clipScan(pc.header.guid, pc.transfo, task.clippings, scanFileWriter.get());
         }
 
-        glm::dmat4 modelMatrix = pcInfo.transfo.getTransformation();
-        resultOk &= overseer.clipScan(pcInfo.header.guid, modelMatrix, clippingAssembly, scanFileWriter.get()); // [old] merging == true
+        // TODO - FileType::RCP & m_parameters.pointDensity
+        scanFileWriter->finalizePointCloud();
 
-        // Log GUI
-        scanExported++;
-        controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(scanExported).arg(pcInfos.size()), scanExported));
+        writeHeaderInCSV(csv_writer, scanFileWriter->getLastScanHeader());
+
+        logProgress(controller);
     }
 
-    // CSV - merged
-    mergedHeader.pointCount = scanFileWriter->getScanPointCount();
-    writeHeaderInCSV(*pCsvWriter, mergedHeader);
+    for (const CopyTask& task : copy_tasks)
+    {
+        copyTls(controller, task);
+    }
 
-    // Close writer
-    scanFileWriter->flushWrite();
-    scanFileWriter.reset();
+    logEnd(controller, success);
 
-    return resultOk;
+    return success;
 }
 
-// NOTE - Pour l'export de clipping séparées, on n'utilise que les clipping en affichage intérieur.
-bool ContextExportPC::exportClippingSeparated(Controller& controller, CSVWriter* pCsvWriter)
+void ContextExportPC::prepareExportTasks(Controller& controller, std::vector<ContextExportPC::ExportTask>& export_tasks)
 {
-    bool resultOk = true;
-    GraphManager& graphManager = controller.getGraphManager();
+    std::vector<tls::PointCloudInstance> pcInfos = getPointCloudInstances(controller);
+    tls::PointFormat common_format = getCommonFormat(pcInfos);
+    GraphManager& graph = controller.getGraphManager();
 
-    std::vector<SafePtr<AClippingNode>> filteredClippings;
+    ClippingAssembly clipping_assembly;
+    graph.getClippingAssembly(clipping_assembly,
+        m_parameters.clippingFilter == ExportClippingFilter::ACTIVE,
+        m_parameters.clippingFilter == ExportClippingFilter::SELECTED
+    );
+    bool is_rcp = (m_parameters.outFileType == FileType::RCP);
+
+    // The output files are based on the grid
+    if (m_parameters.clippingFilter == ExportClippingFilter::GRIDS)
     {
-        std::unordered_set<SafePtr<AClippingNode>> clippings = graphManager.getClippingObjects(false, false);
-        for (const SafePtr<AClippingNode>& clip : clippings)
+        std::unordered_set<SafePtr<BoxNode>> grid_nodes = graph.getGrids();
+
+        for (const SafePtr<BoxNode>& grid_node : grid_nodes)
         {
-            ReadPtr<AClippingNode> rClip = clip.cget();
-            // Only the CB selected
-            if (rClip && ((rClip->isSelected() && m_parameters.clippingFilter == ExportClippingFilter::SELECTED) || (rClip->isClippingActive() && m_parameters.clippingFilter == ExportClippingFilter::ACTIVE)) &&
-                rClip->getClippingMode() == ClippingMode::showInterior)
-            {
-                filteredClippings.push_back(clip);
-            }
-        }
-    }
-
-    TlScanOverseer& overseer = TlScanOverseer::getInstance();
-    std::vector<tls::PointCloudInstance> pcInfos = getPointCloudInstances(graphManager);
-    std::unique_ptr<IScanFileWriter> scanFileWriter = nullptr;
-    uint32_t clippingExported = 0;
-    bool fileIsProject = (m_parameters.outFileType == FileType::RCP);
-
-    controller.updateInfo(new GuiDataProcessingSplashScreenStart(filteredClippings.size(), TEXT_EXPORT_CLIPPING_TITLE_PROGESS, TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(0).arg(filteredClippings.size())));
-
-    for (const SafePtr<AClippingNode>& clip : filteredClippings)
-    {
-        if (m_state != ContextState::running)
-        {
-            m_state = ContextState::abort;
-            break;
-        }
-
-        ClippingAssembly clippingAssembly;
-        tls::ScanHeader dstScanHeader;
-
-        {
-            ReadPtr<AClippingNode> rClip = clip.cget();
-            if (!rClip)
+            std::vector<GridBox> extracted_boxes;
+            ReadPtr<BoxNode> r_grid = grid_node.cget();
+            if (!r_grid || r_grid->isSelected() == false ||
+                !GridCalculation::calculateBoxes(extracted_boxes, *&r_grid))
                 continue;
 
-            // Create a Writer per scan or per project
-            if (ensureFileWriter(controller, scanFileWriter, rClip->getComposedName(), pCsvWriter) == false)
-                continue;
+            size_t box_per_sub_project = 0;
 
-            // Clip all the scans for this box
-            TransformationModule transfo = (TransformationModule)(*&rClip);
-            rClip->pushClippingGeometries(clippingAssembly, transfo);
-            //glm::dvec3 bestOrigin; // By default, it is the center of the bbox
-            //glm::dquat bestOrientation;
-            BoundingBoxD scan_bbox = getGlobalBoundingBox(pcInfos);
-            //getBestOriginOrientationAndBBox(clippingAssembly, scan_bbox, bestOrigin, bestOrientation);
-            //bestOrigin += m_scanTranslationToAdd;
-
-            dstScanHeader.name = rClip->getComposedName();
-            dstScanHeader.precision = m_parameters.encodingPrecision;
-            dstScanHeader.pointCount = 0;
-            //dstScanHeader.transfo = tls::Transformation{ {bestOrientation.x, bestOrientation.y, bestOrientation.z, bestOrientation.w}, {bestOrigin.x, bestOrigin.y, bestOrigin.z} };
-            dstScanHeader.bbox.setEmpty();
-            dstScanHeader.format = getCommonFormat(pcInfos);
-            scanFileWriter->appendPointCloud(dstScanHeader, getBestTransformation(clippingAssembly, scan_bbox));
-        }
-
-        for (auto pcInfo : pcInfos)
-        {
-            glm::dmat4 modelMatrix = pcInfo.transfo.getTransformation();
-            resultOk &= overseer.clipScan(pcInfo.header.guid, modelMatrix, clippingAssembly, scanFileWriter.get()); // [old] merging == true
-        }
-
-        scanFileWriter->flushWrite();
-        // CSV separated
-        dstScanHeader.pointCount = scanFileWriter->getScanPointCount();
-        writeHeaderInCSV(*pCsvWriter, dstScanHeader);
-
-        // Log GUI
-        clippingExported++;
-        controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(QString("Clipping : %1/%2").arg(clippingExported).arg(filteredClippings.size()), clippingExported));
-
-        if (fileIsProject == false)
-            scanFileWriter.reset();
-    }
-
-    return resultOk;
-}
-
-bool ContextExportPC::exportScanSeparated(Controller& controller, CSVWriter* pCsvWriter)
-{
-    IOLOG << "Export PC scan separated" << LOGENDL;
-
-    bool resultOk = true;
-    GraphManager& graphManager = controller.getGraphManager();
-    TlScanOverseer& overseer = TlScanOverseer::getInstance();
-
-
-    // On récupère les clippings à utiliser depuis le projet
-    bool filterActive = (m_parameters.clippingFilter == ExportClippingFilter::ACTIVE);
-    bool filterSelected = (m_parameters.clippingFilter == ExportClippingFilter::SELECTED);
-    ClippingAssembly clippingAssembly;
-    graphManager.getClippingAssembly(clippingAssembly, filterActive, filterSelected);
-
-    std::vector<tls::PointCloudInstance> pcInfos = getPointCloudInstances(graphManager);
-
-    controller.updateInfo(new GuiDataProcessingSplashScreenStart(pcInfos.size(), TEXT_EXPORT_CLIPPING_TITLE_PROGESS, TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(0).arg(pcInfos.size())));
-
-    // Processing
-    bool fileIsProject = (m_parameters.outFileType == FileType::RCP);
-    uint64_t scanExported = 0;
-
-    std::unique_ptr<IScanFileWriter> scanFileWriter = nullptr;
-
-    IOLOG << "pcInfos size : " << pcInfos.size() << LOGENDL;
-    for (const auto pcInfo : pcInfos)
-    {
-        if (m_state != ContextState::running)
-        {
-            m_state = ContextState::abort;
-            break;
-        }
-        // Create a Writer per scan or per project
-        if (!ensureFileWriter(controller, scanFileWriter, pcInfo.header.name + (m_forSubProject ? L"" : L"_clipped"), pCsvWriter))
-            continue;
-
-        tls::ScanHeader dstScanHeader = pcInfo.header;
-        dstScanHeader.name = dstScanHeader.name + (m_forSubProject ? L"" : L"_clipped");
-        dstScanHeader.precision = m_parameters.encodingPrecision;
-        dstScanHeader.pointCount = 0;
-        dstScanHeader.format = pcInfo.header.format;
-        //glm::dvec3 position = pcInfo.transfo.getCenter() + m_scanTranslationToAdd;
-        //glm::dquat orientation = pcInfo.transfo.getOrientation();
-        //dstScanHeader.transfo = tls::Transformation{ {orientation.x, orientation.y, orientation.z, orientation.w}, {position.x, position.y, position.z} };;
-        scanFileWriter->appendPointCloud(dstScanHeader, pcInfo.transfo);
-
-        glm::dmat4 modelMatrix = pcInfo.transfo.getTransformation();
-        resultOk &= overseer.clipScan(pcInfo.header.guid, modelMatrix, clippingAssembly, scanFileWriter.get()); // [old] merging == false
-
-        scanFileWriter->flushWrite(); // Rule: 1 flush for 1 append
-        // CSV separated
-        if (!m_forSubProject)
-        {
-            dstScanHeader.pointCount = scanFileWriter->getScanPointCount();
-            writeHeaderInCSV(*pCsvWriter, dstScanHeader);
-        }
-
-        // Log GUI
-        scanExported++;
-        controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(QString("Scan : %1/%2").arg(scanExported).arg(pcInfos.size()), scanExported));
-
-        if (fileIsProject == false)
-            scanFileWriter.reset();
-    }
-
-    return resultOk;
-}
-
-bool ContextExportPC::processScanExport(Controller& controller)
-{
-    auto start = std::chrono::steady_clock::now();
-    bool resultOk = true;
-
-    // Get the the visible scans
-    TlScanOverseer& overseer = TlScanOverseer::getInstance();
-    std::vector<tls::PointCloudInstance> pcInfos = getPointCloudInstances(controller.getGraphManager());
-
-    controller.updateInfo(new GuiDataProcessingSplashScreenStart(pcInfos.size(), TEXT_EXPORT_TITLE_NORMAL, TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(0).arg(pcInfos.size())));
-
-    // Processing
-    bool mergeScans = (m_parameters.method == ExportClippingMethod::CLIPPING_AND_SCAN_MERGED);
-    bool fileIsProject = (m_parameters.outFileType == FileType::RCP);
-    uint64_t scanExported = 0;
-
-    std::unique_ptr<IScanFileWriter> scanFileWriter = nullptr;
-    tls::ScanHeader mergedHeader;
-    ClippingAssembly emptyClipAssembly;
-
-    for (auto pcInfo : pcInfos)
-    {
-        if (m_state != ContextState::running)
-        {
-            m_state = ContextState::abort;
-            break;
-        }
-
-
-        ReadPtr<APointCloudNode> rScan = pcInfo.scanNode.cget();
-        if (!rScan)
-            continue;
-        std::wstring uniqueName = rScan->getType() == ElementType::Scan ? rScan->getName() : rScan->getComposedName();
-        // Particular case of the output TLS
-        // Simply copy the tls files (with the same precision required)
-        if (m_parameters.outFileType == FileType::TLS && !mergeScans &&
-            pcInfo.header.precision == m_parameters.encodingPrecision)
-        {
-            std::filesystem::path oldPath;
-            oldPath = rScan->getCurrentScanPath();
-
-            std::filesystem::path newPath = m_parameters.outFolder / (uniqueName + L".tls");
-            try
+            for (const GridBox& box : extracted_boxes)
             {
-                std::filesystem::copy(oldPath, newPath, std::filesystem::copy_options::overwrite_existing);
-            }
-            catch (const std::filesystem::filesystem_error&)
-            {
-                controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString(TEXT_EXPORT_ERROR_FILE).arg(QString::fromStdWString(newPath))));
-                continue;
-            }
-            
-            std::ofstream os;
-            os.open(newPath, std::ios::out | std::ios::in | std::ios::binary);
-            if (os.fail())
-            {
-                controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString(TEXT_EXPORT_ERROR_FILE).arg(QString::fromStdWString(newPath))));
-                continue;
-            }
+                ExportTask task;
+                std::wstring box_xyz_name;
+                box_xyz_name = r_grid->getComposedName()
+                    + L"_" + Utils::wCompleteWithZeros(box.position.x)
+                    + L"_" + Utils::wCompleteWithZeros(box.position.y)
+                    + L"_" + Utils::wCompleteWithZeros(box.position.z);
 
-            glm::dvec3 position = pcInfo.transfo.getCenter();
-            glm::dquat orientation = pcInfo.transfo.getOrientation();
-            double newOrigin[] = { position.x, position.y, position.z };
-            double newOrientation[] = { orientation.x, orientation.y, orientation.z, orientation.w };
-            tls::writer::overwriteTransformation(os, newOrigin, newOrientation);
-
-            //overseer.addCopyScanFile(pcInfo.header.guid, m_parameters.outFolder / (uniqueName + L".tls"), false, false, false);
-        }
-        else
-        {
-            // Create a Writer per scan or per project
-            if (ensureFileWriter(controller, scanFileWriter, uniqueName, nullptr) == false)
-                continue;
-
-            tls::ScanHeader dstScanHeader = pcInfo.header;
-            dstScanHeader.precision = m_parameters.encodingPrecision;
-            dstScanHeader.pointCount = 0;
-            // ------------  Merged Header -------------
-            if (mergeScans)
-            {
-                if (scanExported == 0)
+                if (is_rcp)
                 {
-                    dstScanHeader.name = m_parameters.fileName.wstring();
-                    //dstScanHeader.transfo = getCommonTransformation(pcInfos);
-                    dstScanHeader.format = getCommonFormat(pcInfos);
-                    scanFileWriter->appendPointCloud(dstScanHeader, getCommonTransformation_EX(pcInfos));
-                    mergedHeader = dstScanHeader;
+                    task.file_name += m_parameters.fileName.wstring();
+                    if (m_parameters.maxScanPerProject > 0)
+                        task.file_name += L"_" + std::to_wstring(box_per_sub_project++ / m_parameters.maxScanPerProject);
                 }
+                else
+                    task.file_name += box_xyz_name;
+
+                task.header.name = box_xyz_name;
+                task.header.precision = m_parameters.encodingPrecision;
+                task.header.format = common_format;
+
+                task.transfo = (TransformationModule)box;
+                task.transfo.setScale(glm::dvec3(1.0));
+
+                task.input_pcs = pcInfos;
+                task.clippings.clippingUnion.push_back(std::make_shared<BoxClippingGeometry>(ClippingMode::showInterior,
+                    box.getInverseRotationTranslation(),
+                    glm::vec4(box.getScale(), 0.f), 0));
+
+                export_tasks.push_back(task);
             }
-            else
-            {
-                dstScanHeader.name = uniqueName;
-                //glm::dvec3 position = pcInfo.transfo.getCenter() + m_scanTranslationToAdd;
-                //glm::dquat orientation = pcInfo.transfo.getOrientation();
-                //dstScanHeader.transfo.quaternion[0] = orientation.x;
-                //dstScanHeader.transfo.quaternion[1] = orientation.y;
-                //dstScanHeader.transfo.quaternion[2] = orientation.z;
-                //dstScanHeader.transfo.quaternion[3] = orientation.w;
-                //dstScanHeader.transfo.translation[0] = position.x;
-                //dstScanHeader.transfo.translation[1] = position.y;
-                //dstScanHeader.transfo.translation[2] = position.z;
-                scanFileWriter->appendPointCloud(dstScanHeader, pcInfo.transfo);
-            }
-
-            glm::dmat4 modelMatrix = pcInfo.transfo.getTransformation();
-            resultOk &= overseer.clipScan(pcInfo.header.guid, modelMatrix, emptyClipAssembly, scanFileWriter.get()); // [old] merging == mergeScans
-
-            if (!mergeScans)
-                scanFileWriter->flushWrite(); // Rule: 1 flush for 1 append
-
-            if (mergeScans == false && fileIsProject == false)
-                scanFileWriter.reset();
         }
-        // Log GUI
-        scanExported++; 
-        controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(scanExported).arg(pcInfos.size()), scanExported));
     }
-
-    if (scanFileWriter != nullptr)
+    // The output files are based on the clippings
+    else if (m_parameters.method == ExportClippingMethod::CLIPPING_SEPARATED)
     {
-        // Close writer
-        scanFileWriter->flushWrite();
-        scanFileWriter.reset();
+        std::unordered_set<SafePtr<AClippingNode>> clippings_to_export = graph.getClippingObjects(
+            m_parameters.clippingFilter == ExportClippingFilter::ACTIVE,
+            m_parameters.clippingFilter == ExportClippingFilter::SELECTED
+        );
+
+        for (SafePtr<AClippingNode> clipping : clippings_to_export)
+        {
+            ReadPtr<AClippingNode> r_clipping = clipping.cget();
+            if (!r_clipping)
+                continue;
+
+            ExportTask task;
+            task.file_name = r_clipping->getComposedName();
+
+            task.header.name = r_clipping->getComposedName();
+            task.header.precision = m_parameters.encodingPrecision;
+            task.header.format = common_format;
+
+            task.transfo = (TransformationModule)(*&r_clipping);
+            task.transfo.setScale(glm::dvec3(1.0));
+
+            task.input_pcs = pcInfos;
+            r_clipping->pushClippingGeometries(task.clippings, *&r_clipping);
+
+            export_tasks.push_back(task);
+        }
+    }
+    // The output files are based on the scans
+    else if (m_parameters.method == ExportClippingMethod::CLIPPING_AND_SCAN_MERGED)
+    {
+        ExportTask task;
+        task.file_name = m_parameters.fileName.wstring();
+
+        task.header.name = m_parameters.fileName.wstring();
+        task.header.precision = m_parameters.encodingPrecision;
+        task.header.format = common_format;
+
+        task.transfo = getBestTransformation(clipping_assembly, pcInfos);
+
+        task.input_pcs = pcInfos;
+        task.clippings = clipping_assembly;
+
+        export_tasks.push_back(task);
+    }
+    // Scan separated (with or without clipping)
+    else
+    {
+        for (const tls::PointCloudInstance& pcInfo : pcInfos)
+        {
+            // Filter out the tls that we can copy
+            if (m_parameters.outFileType == FileType::TLS &&
+                pcInfo.header.precision == m_parameters.encodingPrecision)
+                continue;
+
+            ExportTask task;
+            task.file_name = pcInfo.header.name + (m_forSubProject ? L"" : L"_clipped");
+
+            task.header = pcInfo.header;
+            task.header.name = task.header.name + (m_forSubProject ? L"" : L"_clipped");
+            task.header.precision = m_parameters.encodingPrecision;
+            task.header.format = pcInfo.header.format;
+
+            task.transfo = pcInfo.transfo;
+
+            task.input_pcs = { pcInfo };
+            task.clippings = clipping_assembly;
+
+            export_tasks.push_back(task);
+        }
+    }
+}
+
+void ContextExportPC::prepareCopyTasks(Controller& controller, std::vector<CopyTask>& copy_tasks)
+{
+    if (m_parameters.outFileType != FileType::TLS)
+        return;
+
+    bool is_scan = m_exportScans;
+    bool is_pco = m_exportPCOs;
+    ObjectStatusFilter status = m_parameters.pointCloudFilter;
+    // This is the same function as 'getPointCloudInstances' but with 'APointCloudNode'
+    std::unordered_set<SafePtr<APointCloudNode>> point_clouds = controller.cgetGraphManager().getNodesOnFilter<APointCloudNode>([is_scan, is_pco, status](ReadPtr<AGraphNode>& node)
+        {
+            bool verifType = is_scan && node->getType() == ElementType::Scan
+                || is_pco && node->getType() == ElementType::PCO;
+            bool verifState = (status == ObjectStatusFilter::ALL ||
+                (status == ObjectStatusFilter::VISIBLE && node->isVisible()) ||
+                (status == ObjectStatusFilter::SELECTED && node->isSelected()));
+            return verifType && verifState;
+        }
+    );
+
+    for (const SafePtr<APointCloudNode>& pc : point_clouds)
+    {
+        ReadPtr<APointCloudNode> r_pc = pc.cget();
+        if (!r_pc)
+            continue;
+
+        tls::ScanHeader header;
+        tlGetScanHeader(r_pc->getScanGuid(), header);
+
+        if (header.precision == m_parameters.encodingPrecision)
+        {
+            CopyTask task;
+            task.src_path = r_pc->getCurrentScanPath();
+
+            std::wstring name = r_pc->getType() == ElementType::Scan ? r_pc->getName() : r_pc->getComposedName();
+            task.dst_path = m_parameters.outFolder / (name + L".tls");
+
+            glm::dvec3 pos = r_pc->getCenter() + m_scanTranslationToAdd;
+            glm::dquat rot = r_pc->getOrientation();
+            task.dst_transfo = { { rot.x, rot.y, rot.z, rot.w }, { pos.x, pos.y, pos.z } };
+
+            copy_tasks.push_back(task);
+        }
+    }
+}
+
+void ContextExportPC::logStart(Controller& controller, size_t total_steps)
+{
+    process_time_ = std::chrono::steady_clock::now();
+    total_steps_ = total_steps;
+    current_step_ = 0;
+
+    QString title_text;
+    QString state_text;
+    switch (m_parameters.clippingFilter)
+    {
+    case ExportClippingFilter::SELECTED:
+    case ExportClippingFilter::ACTIVE:
+        title_text = TEXT_EXPORT_CLIPPING_TITLE_PROGESS;
+        state_text = TEXT_SPLASH_SCREEN_SCAN_PROCESSING;
+        break;
+    case ExportClippingFilter::GRIDS:
+        title_text = TEXT_EXPORT_GRID_TITLE_PROGESS;
+        state_text = TEXT_SPLASH_SCREEN_BOX_PROCESSING;
+        break;
+    case ExportClippingFilter::NONE:
+        title_text = TEXT_EXPORT_TITLE_NORMAL;
+        state_text = TEXT_SPLASH_SCREEN_SCAN_PROCESSING;
+        break;
     }
 
-    float time = std::chrono::duration<float, std::ratio<1>>(std::chrono::steady_clock::now() - start).count();
-    controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString(resultOk ? TEXT_EXPORT_SUCCESS_TIME : TEXT_EXPORT_ERROR_TIME).arg(time)));
-    controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));
+    controller.updateInfo(new GuiDataProcessingSplashScreenStart(total_steps_, title_text, state_text.arg(0).arg(total_steps_)));
+}
 
-    return resultOk;
+void ContextExportPC::logProgress(Controller& controller)
+{
+    current_step_++;
+
+    QString state_text;
+    switch (m_parameters.clippingFilter)
+    {
+    case ExportClippingFilter::SELECTED:
+    case ExportClippingFilter::ACTIVE:
+        state_text = m_parameters.method == ExportClippingMethod::CLIPPING_SEPARATED ? TEXT_SPLASH_SCREEN_CLIPPING_PROCESSING : TEXT_SPLASH_SCREEN_SCAN_PROCESSING;
+        break;
+    case ExportClippingFilter::GRIDS:
+        state_text = TEXT_SPLASH_SCREEN_BOX_PROCESSING;
+        break;
+    case ExportClippingFilter::NONE:
+        state_text = TEXT_SPLASH_SCREEN_SCAN_PROCESSING;
+        break;
+    }
+
+    controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(state_text.arg(current_step_).arg(total_steps_), current_step_));
+}
+
+void ContextExportPC::logEnd(Controller& controller, bool success)
+{
+    float time = std::chrono::duration<float, std::ratio<1>>(std::chrono::steady_clock::now() - process_time_).count();
+
+    QString log_text;
+    switch (m_parameters.clippingFilter)
+    {
+    case ExportClippingFilter::SELECTED:
+    case ExportClippingFilter::ACTIVE:
+        log_text = success ? TEXT_EXPORT_CLIPPING_SUCCESS_TIME : TEXT_EXPORT_CLIPPING_ERROR_TIME;
+        break;
+    case ExportClippingFilter::GRIDS:
+    case ExportClippingFilter::NONE:
+        log_text = success ? TEXT_EXPORT_SUCCESS_TIME : TEXT_EXPORT_ERROR_TIME;
+        break;
+    }
+
+    controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(log_text.arg(time)));
+    controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));
 }
 
 bool ContextExportPC::processGridExport(Controller& controller)
@@ -680,7 +596,7 @@ bool ContextExportPC::processGridExport(Controller& controller)
     std::unordered_set<SafePtr<BoxNode>> grid_nodes = graphManager.getGrids();
 
     // Get the the visible scans
-    std::vector<tls::PointCloudInstance> pcInfos = getPointCloudInstances(graphManager);
+    std::vector<tls::PointCloudInstance> pcInfos = getPointCloudInstances(controller);
     std::unique_ptr<IScanFileWriter> scanFileWriter = nullptr;
     tls::PointFormat commonFormat = getCommonFormat(pcInfos);
 
@@ -708,7 +624,7 @@ bool ContextExportPC::processGridExport(Controller& controller)
         }
 
         size_t boxes_count = extracted_boxes.size();
-        controller.updateInfo(new GuiDataProcessingSplashScreenStart(boxes_count, TEXT_EXPORT_GRID_TITLE_PROGESS, TEXT_SPLASH_SCREEN_BOXE_PROCESSING.arg(0).arg(boxes_count)));
+        controller.updateInfo(new GuiDataProcessingSplashScreenStart(boxes_count, TEXT_EXPORT_GRID_TITLE_PROGESS, TEXT_SPLASH_SCREEN_BOX_PROCESSING.arg(0).arg(boxes_count)));
 
         std::filesystem::path out_folder = m_parameters.outFolder;
         if (fileIsProject)
@@ -778,7 +694,7 @@ bool ContextExportPC::processGridExport(Controller& controller)
             ClippingAssembly clipAssembly;
             clipAssembly.clippingUnion.push_back(std::make_shared<BoxClippingGeometry>(ClippingMode::showInterior,
                 box.getInverseRotationTranslation(),
-                glm::vec4(box.getScale().x, box.getScale().y, box.getScale().z, 0.f), 0));
+                glm::vec4(box.getScale(), 0.f), 0));
 
             scanFileWriter->appendPointCloud(dstScanHeader, (TransformationModule)box);
             for (auto pcInfo : pcInfos)
@@ -791,18 +707,16 @@ bool ContextExportPC::processGridExport(Controller& controller)
                     break;
                 }
 
-                // NOTE(robin) - Si on veut utiliser une autre transformation pour le scan que celle d'origine il faut changer la ligne suivante.
-                glm::dmat4 modelMatrix = pcInfo.transfo.getTransformation();
-                resultOk &= overseer.clipScan(pcInfo.header.guid, modelMatrix, clipAssembly, scanFileWriter.get()); // [old] merging == true
+                resultOk &= overseer.clipScan(pcInfo.header.guid, pcInfo.transfo, clipAssembly, scanFileWriter.get()); // [old] merging == true
             }
-            scanFileWriter->flushWrite();
+            scanFileWriter->finalizePointCloud();
             boxesExported++; 
-            controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(TEXT_SPLASH_SCREEN_BOXE_PROCESSING.arg(boxesExported).arg(boxes_count), boxesExported));
+            controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(TEXT_SPLASH_SCREEN_BOX_PROCESSING.arg(boxesExported).arg(boxes_count), boxesExported));
 
             dstScanHeader.pointCount = scanFileWriter->getScanPointCount();
             glm::vec3 scale = box.getScale();
             dstScanHeader.bbox = { -scale.x, scale.x , -scale.y, scale.y, -scale.z, scale.z };
-            writeHeaderInCSV(csvWriter, dstScanHeader);
+            writeHeaderInCSV(&csvWriter, dstScanHeader);
 
             if (fileIsProject == false ||
                 (m_parameters.maxScanPerProject > 0 && (boxesExported % m_parameters.maxScanPerProject) == 0))
@@ -842,7 +756,7 @@ void ContextExportPC::addOriginCube(IScanFileWriter* fileWriter, tls::PointForma
         {1.0, 1.0, 1.0, 255, 255, 255, 255}
     };
     fileWriter->addPoints(pointBuffer, 8);
-    fileWriter->flushWrite();
+    fileWriter->finalizePointCloud();
 
     // name;point count;origin;size;orientation
     csvWriter << "box_origin;8;0.0;0.0;0.0;1.0;1.0;1.0;0;0;0" << CSVWriter::endl;
@@ -850,38 +764,31 @@ void ContextExportPC::addOriginCube(IScanFileWriter* fileWriter, tls::PointForma
 
 bool ContextExportPC::ensureFileWriter(Controller& controller, std::unique_ptr<IScanFileWriter>& scanFileWriter, std::wstring name, CSVWriter* csvWriter)
 {
-    if (scanFileWriter == nullptr)
+    if (scanFileWriter != nullptr &&
+        scanFileWriter->getFilePath().stem() == name)
     {
-        std::wstring outName;
-        // Name for merged Scans
-        if (m_parameters.method == ExportClippingMethod::CLIPPING_AND_SCAN_MERGED ||
-            m_parameters.outFileType == FileType::RCP)
-        {
-            outName = m_parameters.fileName;
-        }
-        // Name for other case
-        else
-        {
-            outName = name;
-        }
-
-        std::wstring log;
-        IScanFileWriter* ptr;
-        if (getScanFileWriter(m_parameters.outFolder, outName, m_parameters.outFileType, log, &ptr) == false)
-        {
-            FUNCLOG << "Export: Failed to create the destination file" << LOGENDL;
-            controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString(TEXT_EXPORT_ERROR_FILE).arg(QString::fromStdWString(outName))));
-            return false;
-        }
-        else
-            scanFileWriter.reset(ptr);
-
-        if (m_parameters.outFileType == FileType::RCP)
-            static_cast<RcpFileWriter*>(scanFileWriter.get())->setExportDensity(m_parameters.pointDensity);
-        if ((m_parameters.outFileType == FileType::RCP) && m_parameters.addOriginCube && csvWriter != nullptr)
-            addOriginCube(scanFileWriter.get(), tls::PointFormat::TL_POINT_XYZ_I_RGB, *csvWriter);
+        return true;
     }
-    return (true);
+    else
+        scanFileWriter.reset();
+
+    std::wstring log;
+    IScanFileWriter* ptr;
+    if (getScanFileWriter(m_parameters.outFolder, name, m_parameters.outFileType, log, &ptr) == false)
+    {
+        FUNCLOG << "Export: Failed to create the destination file" << LOGENDL;
+        controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString(TEXT_EXPORT_ERROR_FILE).arg(QString::fromStdWString(m_parameters.outFolder / name))));
+        return false;
+    }
+    else
+        scanFileWriter.reset(ptr);
+
+    if (m_parameters.outFileType == FileType::RCP)
+        static_cast<RcpFileWriter*>(scanFileWriter.get())->setExportDensity(m_parameters.pointDensity);
+    if ((m_parameters.outFileType == FileType::RCP) && m_parameters.addOriginCube && csvWriter != nullptr)
+        addOriginCube(scanFileWriter.get(), tls::PointFormat::TL_POINT_XYZ_I_RGB, *csvWriter);
+
+    return true;
 }
 
 bool ContextExportPC::prepareOutputDirectory(Controller& controller, const std::filesystem::path& folderPath)
@@ -918,12 +825,12 @@ bool ContextExportPC::prepareOutputDirectory(Controller& controller, const std::
     return true;
 }
 
-std::vector<tls::PointCloudInstance> ContextExportPC::getPointCloudInstances(GraphManager& graphManager)
+std::vector<tls::PointCloudInstance> ContextExportPC::getPointCloudInstances(Controller& controller)
 {
     if (m_selectedPcs.empty())
     {
         IOLOG << "Get all PCInstance, exportScan ? " << m_exportScans << " exportPcos ? " << m_exportPCOs << " scanFilter ? " << (int)m_parameters.pointCloudFilter << LOGENDL;
-        return (graphManager.getPointCloudInstances(xg::Guid(), m_exportScans, m_exportPCOs, m_parameters.pointCloudFilter));
+        return (controller.cgetGraphManager().getPointCloudInstances(xg::Guid(), m_exportScans, m_exportPCOs, m_parameters.pointCloudFilter));
     }
     else
     {
@@ -936,57 +843,24 @@ std::vector<tls::PointCloudInstance> ContextExportPC::getPointCloudInstances(Gra
 
             tls::ScanHeader header;
             tlGetScanHeader(rPc->getScanGuid(), header);
-            pcis.emplace_back(pc, header, rPc->getTransformationModule(), rPc->getClippable());
+            pcis.emplace_back(header, rPc->getTransformationModule(), rPc->getClippable());
         }
         return pcis;
     }
 }
 
-void ContextExportPC::getBestOriginOrientationAndBBox(const ClippingAssembly& _clippingAssembly, const BoundingBoxD& _scanBBox, glm::dvec3& _bestOrigin, glm::dquat& _bestOrientation)
-{
-    BoundingBoxD union_bbox;
-    union_bbox.setEmpty();
-    for (const std::shared_ptr<IClippingGeometry>& geom : _clippingAssembly.clippingUnion)
-    {
-        if (geom->mode == ClippingMode::showInterior)
-        {
-            BoundingBoxD bbox = extractBBox(*geom);
-            union_bbox.extend(bbox);
-        }
-    }
-
-    BoundingBoxD inter_bbox;
-    inter_bbox.setInfinite(); // ou tout l'espace
-    for (const std::shared_ptr<IClippingGeometry>& geom : _clippingAssembly.clippingIntersection)
-    {
-        if (geom->mode == ClippingMode::showInterior)
-        {
-            // NOTE - Par convention, nous n'avons pas de box interieure dans l'intersection
-            BoundingBoxD bbox = extractBBox(*geom);
-            inter_bbox.intersect(bbox);
-        }
-    }
-
-    BoundingBoxD total_bbox = _scanBBox;
-    if (!_clippingAssembly.clippingUnion.empty())
-        total_bbox.intersect(union_bbox);
-
-    if (!_clippingAssembly.clippingIntersection.empty())
-        total_bbox.intersect(inter_bbox);
-
-    _bestOrigin = total_bbox.center();
-    // NOTE(robin) - Ce n'est pas la meilleure façon de récupérer la rotation.
-    //             - On pourrait avoir directement accès au quaternion de la clipping originale, mais cela demanderai un rework de l'interface IClippingGeometry.
-    if (_clippingAssembly.clippingUnion.size() == 1)
-        _bestOrientation = glm::quat_cast(glm::inverse(_clippingAssembly.clippingUnion[0]->matRT_inv));
-    else
-        _bestOrientation = glm::dquat(0.0, 0.0, 0.0, 1.0);
-
-}
-
-TransformationModule ContextExportPC::getBestTransformation(const ClippingAssembly& clipping_assembly, const BoundingBoxD& scan_bbox)
+TransformationModule ContextExportPC::getBestTransformation(const ClippingAssembly& clipping_assembly, const std::vector<tls::PointCloudInstance>& pc_instances)
 {
     TransformationModule best_transfo;
+
+    BoundingBoxD scan_bbox;
+    scan_bbox.setEmpty();
+
+    for (const tls::PointCloudInstance& pc : pc_instances)
+    {
+        BoundingBoxD&& t_bbox = pc.header.bbox.transform(pc.transfo.getTransformation());
+        scan_bbox.extend(t_bbox);
+    }
 
     BoundingBoxD union_bbox;
     union_bbox.setEmpty();
@@ -1029,19 +903,6 @@ TransformationModule ContextExportPC::getBestTransformation(const ClippingAssemb
     return best_transfo;
 }
 
-BoundingBoxD ContextExportPC::getGlobalBoundingBox(const std::vector<tls::PointCloudInstance>& pcInstances)
-{
-    BoundingBoxD global_bbox;
-    global_bbox.setEmpty();
-
-    for (const tls::PointCloudInstance& pcInst : pcInstances)
-    {
-        BoundingBoxD&& t_bbox = pcInst.header.bbox.transform(pcInst.transfo.getTransformation());
-        global_bbox.extend(t_bbox);
-    }
-    return global_bbox;
-}
-
 BoundingBoxD ContextExportPC::extractBBox(const IClippingGeometry& clippingGeom)
 {
     // NOTE(robin) - Ceci ne fonctionne que pour les clippings de type box
@@ -1052,36 +913,6 @@ BoundingBoxD ContextExportPC::extractBBox(const IClippingGeometry& clippingGeom)
     BoundingBoxD bbox = { -x, x, -y, y, -z, z };
 
     return bbox.transform(glm::inverse(clippingGeom.matRT_inv));
-}
-
-tls::Transformation ContextExportPC::getCommonTransformation(const std::vector<tls::PointCloudInstance>& pcInfos)
-{
-    // Approximative but it works enough for now
-    // FIXME - use the bounding box
-    glm::dvec3 barycenter(0.0, 0.0, 0.0);
-    for (auto pcInfo : pcInfos)
-    {
-        barycenter += pcInfo.transfo.getCenter();
-    }
-    barycenter /= pcInfos.size();
-    barycenter += m_scanTranslationToAdd;
-    return tls::Transformation{ {0, 0, 0, 1}, {barycenter.x, barycenter.y, barycenter.z} };
-}
-
-TransformationModule ContextExportPC::getCommonTransformation_EX(const std::vector<tls::PointCloudInstance>& pcInfos)
-{
-    // Approximative but it works enough for now
-    // FIXME - use the bounding box
-    glm::dvec3 barycenter(0.0, 0.0, 0.0);
-    for (auto pcInfo : pcInfos)
-    {
-        barycenter += pcInfo.transfo.getCenter();
-    }
-    barycenter /= pcInfos.size();
-
-    TransformationModule common_transfo;
-    common_transfo.setPosition(barycenter);
-    return common_transfo;
 }
 
 tls::PointFormat ContextExportPC::getCommonFormat(const std::vector<tls::PointCloudInstance>& pcInfos)
@@ -1105,8 +936,7 @@ ContextExportSubProject::ContextExportSubProject(const ContextId& id)
 }
 
 ContextExportSubProject::~ContextExportSubProject()
-{
-}
+{}
 
 ContextState ContextExportSubProject::start(Controller& controller)
 {
@@ -1136,11 +966,23 @@ ContextState ContextExportSubProject::feedMessage(IMessage* message, Controller&
 ContextState ContextExportSubProject::launch(Controller& controller)
 {
     Utils::System::createDirectoryIfNotExist(m_subProjectInternal.getScansFolderPath());
-    if (controller.getGraphManager().getActiveClippingCount() > 0)
-        ContextExportPC::processClippingExport(controller);
-    else
-        ContextExportPC::processScanExport(controller);
+    m_parameters.clippingFilter = ExportClippingFilter::ACTIVE;
+    m_parameters.method = ExportClippingMethod::SCAN_SEPARATED;
 
+    processExport(controller, nullptr);
+
+    exportObjects(controller);
+
+    return m_state = ContextState::done;
+}
+
+bool ContextExportSubProject::canAutoRelaunch() const
+{
+    return false;
+}
+
+void ContextExportSubProject::exportObjects(Controller& controller) const
+{
     const GraphManager& graphManager = controller.getGraphManager();
 
     std::unordered_set<SafePtr<AGraphNode>> fileObjects;
@@ -1153,9 +995,9 @@ ContextState ContextExportSubProject::launch(Controller& controller)
             continue;
         switch (readNode->getType())
         {
-            case ElementType::PCO:
-            case ElementType::MeshObject:
-                fileObjects.insert(exportObj);
+        case ElementType::PCO:
+        case ElementType::MeshObject:
+            fileObjects.insert(exportObj);
         }
     }
 
@@ -1176,12 +1018,6 @@ ContextState ContextExportSubProject::launch(Controller& controller)
 
     if (m_parameters.openFolderAfterExport && !subProjectPath.empty())
         controller.updateInfo(new GuiDataOpenInExplorer(subProjectPath));
-    return m_state = ContextState::done;
-}
-
-bool ContextExportSubProject::canAutoRelaunch() const
-{
-    return false;
 }
 
 ContextType ContextExportSubProject::getType() const

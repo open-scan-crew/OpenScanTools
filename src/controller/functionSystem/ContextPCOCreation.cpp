@@ -149,7 +149,7 @@ ContextState ContextPCOCreation::launch(Controller& controller)
         scanExported++;
         controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(scanExported).arg(scanInstances.size()), scanExported));
     }
-    scanFileWriter->flushWrite();
+    scanFileWriter->finalizePointCloud();
     uint64_t pointCount(scanFileWriter->getTotalPoints());
     std::filesystem::path newScanPath = scanFileWriter->getFilePath();
     delete scanFileWriter;

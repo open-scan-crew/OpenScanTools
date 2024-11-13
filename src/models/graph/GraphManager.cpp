@@ -521,7 +521,7 @@ std::unordered_set<SafePtr<AClippingNode>> GraphManager::getClippingObjects(bool
 		{ return s_clippingTypes.find(node->getType()) != s_clippingTypes.end(); },
 
 		[filterActive, filterSelected](ReadPtr<AClippingNode>& clip)
-	{ return (!filterSelected || clip->isSelected()) && (!filterActive || clip->isClippingActive()); });
+	{ return (filterSelected && clip->isSelected()) || (filterActive && clip->isClippingActive()); });
 }
 
 std::unordered_set<SafePtr<AClippingNode>> GraphManager::getRampObjects(bool filterActive, bool filterSelected) const
@@ -530,7 +530,7 @@ std::unordered_set<SafePtr<AClippingNode>> GraphManager::getRampObjects(bool fil
 		[](ReadPtr<AGraphNode>& node)
 	{ return s_clippingTypes.find(node->getType()) != s_clippingTypes.end(); },
 		[filterActive, filterSelected](ReadPtr<AClippingNode>& clip)
-	{ return (!filterSelected || clip->isSelected()) && (!filterActive || clip->isRampActive()); });
+	{ return (filterSelected && clip->isSelected()) || (filterActive && clip->isRampActive()); });
 }
 
 std::unordered_set<SafePtr<AClippingNode>> GraphManager::getActivatedOrSelectedClippingObjects() const
@@ -730,7 +730,7 @@ std::vector<tls::PointCloudInstance> GraphManager::getPointCloudInstances(const 
 
 		tls::ScanHeader header;
 		tlGetScanHeader(rScan->getScanGuid(), header);
-		result.emplace_back(scan, header, *&rScan, rScan->getClippable());
+		result.emplace_back(header, *&rScan, rScan->getClippable());
 
 		// QUESTION - Est-ce que le scan panoramique annule l'export des pcos ?
 		return result;
@@ -756,7 +756,7 @@ std::vector<tls::PointCloudInstance> GraphManager::getPointCloudInstances(const 
 
 		tls::ScanHeader header;
 		if (tlGetScanHeader(rPc->getScanGuid(), header))
-			result.emplace_back(pc, header, rPc->getTransformationModule(), rPc->getClippable());
+			result.emplace_back(header, rPc->getTransformationModule(), rPc->getClippable());
 	}
 
 	return (result);

@@ -194,24 +194,7 @@ bool E57FileWriter::appendPointCloud(const tls::ScanHeader& info, const Transfor
         colorLimits.set("colorBlueMaximum", e57::IntegerNode(m_imf, 255));
     }
 
-    e57::StructureNode bboxNode(m_imf);
-    pointCloud.set("cartesianBounds", bboxNode);
     m_bbox = m_scanHeader.bbox;
-
-    // Create "pose" structure to record the transformation
-    e57::StructureNode pose(m_imf);
-    pointCloud.set("pose", pose);
-    e57::StructureNode rotation(m_imf);
-    pose.set("rotation", rotation);
-    rotation.set("w", e57::FloatNode(m_imf, scan_transfo.getOrientation().w));
-    rotation.set("x", e57::FloatNode(m_imf, scan_transfo.getOrientation().x));
-    rotation.set("y", e57::FloatNode(m_imf, scan_transfo.getOrientation().y));
-    rotation.set("z", e57::FloatNode(m_imf, scan_transfo.getOrientation().z));
-    e57::StructureNode translation(m_imf);
-    pose.set("translation", translation);
-    translation.set("x", e57::FloatNode(m_imf, scan_transfo.getCenter().x));
-    translation.set("y", e57::FloatNode(m_imf, scan_transfo.getCenter().y));
-    translation.set("z", e57::FloatNode(m_imf, scan_transfo.getCenter().z));
 
     // No point grouping scheme
 
@@ -350,17 +333,6 @@ bool E57FileWriter::mergePoints(PointXYZIRGB const* srcBuf, uint64_t srcSize, co
     return true;
 }
 
-void E57FileWriter::addTranslation(const glm::dvec3& t)
-{
-    e57::StructureNode root = m_imf.root();
-    e57::VectorNode data3D(root.get("/data3D"));
-    e57::StructureNode pointCloud(data3D.get(data3D.childCount() - 1));
-    e57::StructureNode translation_node(pointCloud.get("pose/translation"));
-    translation_node.set("x", e57::FloatNode(m_imf, scan_transfo.getCenter().x + t.x));
-    translation_node.set("y", e57::FloatNode(m_imf, scan_transfo.getCenter().y + t.y));
-    translation_node.set("z", e57::FloatNode(m_imf, scan_transfo.getCenter().z + t.z));
-}
-
 void E57FileWriter::updateBoundingBox(const PointXYZIRGB& point)
 {
     if (point.x < m_bbox.xMin)
@@ -377,20 +349,38 @@ void E57FileWriter::updateBoundingBox(const PointXYZIRGB& point)
         m_bbox.zMax = point.z;
 }
 
-bool E57FileWriter::flushWrite()
+bool E57FileWriter::finalizePointCloud()
 {
     try
     {
-        // Add "cartesianBounds"
         e57::VectorNode data3D(m_imf.root().get("/data3D"));
         e57::StructureNode pointCloud(data3D.get(data3D.childCount() - 1));
-        e57::StructureNode bbox(pointCloud.get("cartesianBounds"));
-        bbox.set("xMinimum", e57::FloatNode(m_imf, m_bbox.xMin));
-        bbox.set("xMaximum", e57::FloatNode(m_imf, m_bbox.xMax));
-        bbox.set("yMinimum", e57::FloatNode(m_imf, m_bbox.yMin));
-        bbox.set("yMaximum", e57::FloatNode(m_imf, m_bbox.yMax));
-        bbox.set("zMinimum", e57::FloatNode(m_imf, m_bbox.zMin));
-        bbox.set("zMaximum", e57::FloatNode(m_imf, m_bbox.zMax));
+
+        // Create "pose" structure to record the transformation
+        e57::StructureNode pose(m_imf);
+        pointCloud.set("pose", pose);
+        e57::StructureNode rotation(m_imf);
+        pose.set("rotation", rotation);
+        rotation.set("w", e57::FloatNode(m_imf, scan_transfo.getOrientation().w));
+        rotation.set("x", e57::FloatNode(m_imf, scan_transfo.getOrientation().x));
+        rotation.set("y", e57::FloatNode(m_imf, scan_transfo.getOrientation().y));
+        rotation.set("z", e57::FloatNode(m_imf, scan_transfo.getOrientation().z));
+        e57::StructureNode translation(m_imf);
+        pose.set("translation", translation);
+        scan_transfo.addGlobalTranslation(post_translation_);
+        translation.set("x", e57::FloatNode(m_imf, scan_transfo.getCenter().x));
+        translation.set("y", e57::FloatNode(m_imf, scan_transfo.getCenter().y));
+        translation.set("z", e57::FloatNode(m_imf, scan_transfo.getCenter().z));
+
+        // Add "cartesianBounds"
+        e57::StructureNode bounds(m_imf);
+        pointCloud.set("cartesianBounds", bounds);
+        bounds.set("xMinimum", e57::FloatNode(m_imf, m_bbox.xMin));
+        bounds.set("xMaximum", e57::FloatNode(m_imf, m_bbox.xMax));
+        bounds.set("yMinimum", e57::FloatNode(m_imf, m_bbox.yMin));
+        bounds.set("yMaximum", e57::FloatNode(m_imf, m_bbox.yMax));
+        bounds.set("zMinimum", e57::FloatNode(m_imf, m_bbox.zMin));
+        bounds.set("zMaximum", e57::FloatNode(m_imf, m_bbox.zMax));
 
         m_totalPointCount += m_scanPointCount;
         if (m_storedWriter != nullptr)

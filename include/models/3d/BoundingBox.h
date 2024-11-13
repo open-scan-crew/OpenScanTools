@@ -21,8 +21,8 @@ struct TBoundingBox
     void extend(const TBoundingBox<T>& rhs);
     void intersect(const TBoundingBox<T>& rhs);
 
-    [[nodiscard]] TBoundingBox<T> rotate(glm::mat<3, 3, T, glm::defaultp> rotation_matrix) const;
-    [[nodiscard]] TBoundingBox<double> transform(glm::dmat4 transfo_matrix) const;
+    [[nodiscard]] TBoundingBox<T> rotate(const glm::mat<3, 3, T, glm::defaultp>& rotation_matrix) const;
+    [[nodiscard]] TBoundingBox<double> transform(const glm::dmat4& transfo_matrix) const;
 
     bool isValid() const; // non empty, non infinite, not a NAN
     glm::vec<3, T, glm::defaultp> size() const;
@@ -94,7 +94,7 @@ void TBoundingBox<T>::intersect(const TBoundingBox<T>& rhs)
 }
 
 template<typename T>
-[[nodiscard]] TBoundingBox<T> TBoundingBox<T>::rotate(glm::mat<3, 3, T, glm::defaultp> rotation_matrix) const
+[[nodiscard]] TBoundingBox<T> TBoundingBox<T>::rotate(const glm::mat<3, 3, T, glm::defaultp>& rotation_matrix) const
 {
     TBoundingBox<T> ret_bbox;
     ret_bbox.setEmpty();
@@ -118,7 +118,7 @@ template<typename T>
 }
 
 template<typename T>
-[[nodiscard]] BoundingBoxD TBoundingBox<T>::transform(glm::dmat4 transfo_matrix) const
+[[nodiscard]] BoundingBoxD TBoundingBox<T>::transform(const glm::dmat4& transfo_matrix) const
 {
     BoundingBoxD ret_bbox;
     ret_bbox.setEmpty();

@@ -124,13 +124,13 @@ bool PTSFileWriter::mergePoints(PointXYZIRGB const* srcBuf, uint64_t srcSize, co
     return true;
 }
 
-void PTSFileWriter::addTranslation(const glm::dvec3& translation)
+void PTSFileWriter::setPostTranslation(const glm::dvec3& translation)
 {
     // Pour le PTS, il est trop tard pour faire une translation une fois que les points sont déjà importés.
     // Les points sont encodés en coordonnées globale.
 }
 
-bool PTSFileWriter::flushWrite()
+bool PTSFileWriter::finalizePointCloud()
 {
     try
     {

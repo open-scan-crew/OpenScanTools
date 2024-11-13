@@ -2,6 +2,7 @@
 #define EMBEDDED_SCAN_H
 
 #include "models/pointCloud/TLS.h"
+#include "models/graph/TransformationModule.h"
 #include "pointCloudEngine/PCE_graphics.h"
 #include "pointCloudEngine/PCE_stream.h"
 #include "pointCloudEngine/OctreeBase.h"
@@ -13,8 +14,6 @@
 
 #include <vector>
 #include <atomic>
-#include <set>
-#include <map>
 #include <filesystem>
 #include <mutex>
 
@@ -110,7 +109,7 @@ public:
 
 #ifndef PORTABLE
     // For File Clipping
-    bool clipAndWrite(const glm::dmat4& modelMat, const ClippingAssembly& clippingAssembly, IScanFileWriter* writer);
+    bool clipAndWrite(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, IScanFileWriter* writer);
 #endif
 
     void decodePointXYZIRGB(uint32_t cellId, std::vector<PointXYZIRGB>& dstPoints);

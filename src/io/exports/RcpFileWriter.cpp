@@ -11,8 +11,8 @@ using namespace Autodesk::RealityComputing::Foundation;
 using namespace Autodesk::RealityComputing::Data;
 using namespace Autodesk::RealityComputing::ImportExport;
 
-RcpFileWriter::RcpFileWriter(RCSharedPtr<RCProjectImportSession> projectImportSession) noexcept
-    : IScanFileWriter("")
+RcpFileWriter::RcpFileWriter(const std::filesystem::path& file_path, RCSharedPtr<RCProjectImportSession> projectImportSession) noexcept
+    : IScanFileWriter(file_path)
     , m_projectImportSession(projectImportSession)
     , m_hasColor(false)
     , m_hasIntensity(false)
@@ -75,13 +75,12 @@ void scanCompletionCallback(const RCScanImportStatus& importStatus)
 bool RcpFileWriter::getWriter(const std::filesystem::path& outPath, const std::wstring& projectName, std::wstring& log, IScanFileWriter** writer)
 {
     RCCode errorCode;
-    RCString projectPath(outPath.wstring());
-    projectPath += "/";
-    projectPath += projectName;
-    projectPath += ".rcp";
+    std::filesystem::path project_path = outPath / projectName;
+    RCString rc_project_path(project_path.wstring());
+    //projectPath += ".rcp";
     RCImportProgressCallbackPtr projectProgressCallbackPtr = projectProgressCallback;
     RCImportCompletionCallbackPtr projectCompletionCallbackPtr = projectCompletionCallback;
-    RCSharedPtr<RCProjectImportSession> projectImportSession = RCProjectImportSession::init(projectPath, RCFileMode::New, errorCode, projectProgressCallbackPtr,
+    RCSharedPtr<RCProjectImportSession> projectImportSession = RCProjectImportSession::init(rc_project_path, RCFileMode::New, errorCode, projectProgressCallbackPtr,
         projectCompletionCallbackPtr);
 
     if (errorCode != RCCode::OK || projectImportSession == nullptr)
@@ -91,7 +90,7 @@ bool RcpFileWriter::getWriter(const std::filesystem::path& outPath, const std::w
         return false;
     }
 
-    *writer = new RcpFileWriter(projectImportSession);
+    *writer = new RcpFileWriter(project_path, projectImportSession);
 
     return true;
 }
@@ -105,7 +104,7 @@ bool RcpFileWriter::appendPointCloud(const tls::ScanHeader& info, const Transfor
 {
     m_scanHeader = info;
     m_scanPointCount = 0;
-    // NOTE(robin) - The scan is really appended when we call flushWrite() because we want to know if there is more than 0 points in the scan.
+    // NOTE(robin) - The scan is really appended when we call finalizePointCloud() because we want to know if there is more than 0 points in the scan.
     // - The Recap API does not permit to cancel a scan with 0 points.
 
     m_hasIntensity = (info.format == tls::PointFormat::TL_POINT_XYZ_I || info.format == tls::PointFormat::TL_POINT_XYZ_I_RGB) ? true : false;
@@ -166,13 +165,13 @@ bool RcpFileWriter::mergePoints(PointXYZIRGB const* src_buf, uint64_t src_size, 
     return true;
 }
 
-void RcpFileWriter::addTranslation(const glm::dvec3& translation)
+void RcpFileWriter::setPostTranslation(const glm::dvec3& translation)
 {
     // Si on garde le choix de passer les points en coordonnées globales on ne peut pas changer leurs coordonnées après l’import.
     // Il faut soit indiquer la translation supplémentaire avant l’import, soit repasser en coordonnées local (et changer la translation du scan).
 }
 
-bool RcpFileWriter::flushWrite()
+bool RcpFileWriter::finalizePointCloud()
 {
     // NOTE(robin) - This is not the exact scan point count, the processScan() can decimate the scan
     //               but we do not have this information with the scanCompletionCallback

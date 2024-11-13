@@ -310,7 +310,7 @@ void TlScanOverseer::streamScans(uint64_t maxSize, char* stagingBuffer, std::vec
 }
 
 #ifndef PORTABLE
-bool TlScanOverseer::clipScan(tls::ScanGuid _scanGuid, const glm::dmat4& _modelMat, const ClippingAssembly& _clippingAssembly, IScanFileWriter* _outScan)
+bool TlScanOverseer::clipScan(tls::ScanGuid _scanGuid, const TransformationModule& _modelMat, const ClippingAssembly& _clippingAssembly, IScanFileWriter* _outScan)
 {
     EmbeddedScan* scan;
     {

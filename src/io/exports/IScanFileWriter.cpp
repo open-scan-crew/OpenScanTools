@@ -34,6 +34,18 @@ uint64_t IScanFileWriter::getScanPointCount() const
     return m_scanPointCount;
 }
 
+tls::ScanHeader IScanFileWriter::getLastScanHeader() const
+{
+    if (out_scan_headers.empty())
+        return tls::ScanHeader();
+    return out_scan_headers.back();
+}
+
+void IScanFileWriter::setPostTranslation(const glm::dvec3& translation)
+{
+    post_translation_ = translation;
+}
+
 // TODO - Change with 'dirPath' + 'fileName' without the extension
 bool getScanFileWriter(const std::filesystem::path& dirPath, const std::wstring& fileName, FileType type, std::wstring& log, IScanFileWriter** scanFileWriter)
 {

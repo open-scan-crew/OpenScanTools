@@ -5,9 +5,10 @@
 
 // ProcessingSplashScreen
 #define TEXT_SPLASH_SCREEN_SCAN_PROCESSING QObject::tr("Scan done: %1/%2")
+#define TEXT_SPLASH_SCREEN_CLIPPING_PROCESSING QObject::tr("Clipping done: %1/%2")
 #define TEXT_SPLASH_SCREEN_PIXEL_PROCESSING QObject::tr("Pixel done: %1/%2")
 #define TEXT_SPLASH_SCREEN_FILE_PROCESSING QObject::tr("File done: %1/%2")
-#define TEXT_SPLASH_SCREEN_BOXE_PROCESSING QObject::tr("Boxe done: %1/%2")
+#define TEXT_SPLASH_SCREEN_BOX_PROCESSING QObject::tr("Box done: %1/%2")
 #define TEXT_SPLASH_SCREEN_IMPORT_PROCESSING_LOG_ERROR QObject::tr("Import error: %1")
 #define TEXT_SPLASH_SCREEN_SIMPLIFY_STEP_DATA_TITLE QObject::tr("Step Simplification")
 #define TEXT_SPLASH_SCREEN_SIMPLIFY_STEP_DATA_PROCESSING QObject::tr("Simplify step data, please wait...")

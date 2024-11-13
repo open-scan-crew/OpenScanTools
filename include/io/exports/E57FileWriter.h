@@ -27,9 +27,8 @@ public:
     bool appendPointCloud(const tls::ScanHeader& header, const TransformationModule& transfo) override;
     bool addPoints(PointXYZIRGB const* srcBuf, uint64_t srcSize) override;
     bool mergePoints(PointXYZIRGB const* srcBuf, uint64_t srcSize, const TransformationModule& src_transfo, tls::PointFormat srcFormat) override;
-    void addTranslation(const glm::dvec3& translation) override;
     void updateBoundingBox(const PointXYZIRGB& point);
-    bool flushWrite() override;
+    bool finalizePointCloud() override;
 
 private:
     E57FileWriter(const std::filesystem::path& filepath, e57::ImageFile imf);

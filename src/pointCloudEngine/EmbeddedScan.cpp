@@ -190,11 +190,12 @@ void clipIndividualPoints(const std::vector<PointXYZIRGB>& inPoints, std::vector
 }
 
 #ifndef PORTABLE
-bool EmbeddedScan::clipAndWrite(const glm::dmat4& src_transfo, const ClippingAssembly& _clippingAssembly, IScanFileWriter* _writer)
+bool EmbeddedScan::clipAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& _clippingAssembly, IScanFileWriter* _writer)
 {
     ClippingAssembly localAssembly = _clippingAssembly;
     localAssembly.clearMatrix();
-    localAssembly.addTransformation(src_transfo);
+    glm::dmat4 src_transfo_mat = src_transfo.getTransformation();
+    localAssembly.addTransformation(src_transfo_mat);
 
     // Do the clipping in 2 phases:
     //   a. Determine the cells inside the clipping (whole and partial)

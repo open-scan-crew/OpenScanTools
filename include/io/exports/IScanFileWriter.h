@@ -19,6 +19,7 @@ public:
     uint32_t getScanCount() const;
     uint64_t getTotalPoints() const;
     uint64_t getScanPointCount() const;
+    tls::ScanHeader getLastScanHeader() const;
 
     virtual FileType getType() const = 0;
 
@@ -31,16 +32,25 @@ public:
     //  * tls, e57 have their own referential system
     //  * rcs is in global coordinates (but can be in local)
     //  * pts is in global coordinates
-    virtual void addTranslation(const glm::dvec3& translation) = 0;
+    virtual void setPostTranslation(const glm::dvec3& translation);
 
-    // TODO(robin) - Rename function
-    virtual bool flushWrite() = 0;
+    /// <summary>
+    /// Call this function when all the points have been added.
+    /// Depending on the format, it will encode, write a file.
+    /// No more points can be added after this function.
+    /// This function must be called before appending a new point cloud.
+    /// </summary>
+    /// <returns>true after a successfull finalisation.</returns>
+    virtual bool finalizePointCloud() = 0;
 
 protected:
     std::filesystem::path m_filepath;
     uint32_t m_currentScanCount;
     uint64_t m_totalPointCount;
     uint64_t m_scanPointCount;
+    std::vector<tls::ScanHeader> out_scan_headers;
+
+    glm::dvec3 post_translation_;
 };
 
 bool getScanFileWriter(const std::filesystem::path& dirPath, const std::wstring& fileName, FileType type, std::wstring& log, IScanFileWriter**);

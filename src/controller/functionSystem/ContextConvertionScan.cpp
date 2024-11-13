@@ -378,9 +378,6 @@ void ContextConvertionScan::convertFile(Controller& controller, const std::files
 
         convertOne(fileReader, s, fileWriter, precision);
 
-        // Truncate the coordinates after conversion (Temporary solution for large coords)
-        static_cast<TlsFileWriter*>(fileWriter)->translateOrigin(m_properties.truncate.x, m_properties.truncate.y, m_properties.truncate.z);
-
         float time = std::chrono::duration<float, std::ratio<1>>(std::chrono::steady_clock::now() - start).count();
         registerConvertedScan(controller, fileWriter->getFilePath(), m_properties.overwriteExisting, false, time);
 
@@ -426,8 +423,11 @@ bool ContextConvertionScan::convertOne(IScanFileReader* reader, uint32_t readerO
     }
     delete[] pointsBuf;
 
+    // Truncate the coordinates
+    writer->setPostTranslation(m_properties.truncate);
+
     // End point cloud and finilize the write
-    writer->flushWrite();
+    writer->finalizePointCloud();
 
     return true;
 }

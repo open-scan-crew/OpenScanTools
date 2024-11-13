@@ -26,13 +26,13 @@ public:
     bool appendPointCloud(const tls::ScanHeader& header, const TransformationModule& transfo) override;
     bool addPoints(PointXYZIRGB const* src_buf, uint64_t src_size) override;
     bool mergePoints(PointXYZIRGB const* src_buf, uint64_t src_size, const TransformationModule& src_transfo, tls::PointFormat src_format) override;
-    void addTranslation(const glm::dvec3& translation) override;
-    bool flushWrite() override;
+    void setPostTranslation(const glm::dvec3& translation) override;
+    bool finalizePointCloud() override;
 
     void setExportDensity(double density);
 
 private:
-    RcpFileWriter(RCSharedPtr<RCProjectImportSession> projectImporter) noexcept;
+    RcpFileWriter(const std::filesystem::path& file_path, RCSharedPtr<RCProjectImportSession> projectImporter) noexcept;
 
 private:
     RCSharedPtr<RCProjectImportSession> m_projectImportSession;

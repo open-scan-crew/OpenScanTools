@@ -6,6 +6,8 @@
 #include "models/data/Clipping/ClippingGeometry.h"
 #include "models/project/ProjectInfos.h"
 #include "models/pointCloud/PointCloudInstance.h"
+#include "models/graph/APointCloudNode.h"
+#include "utils/safe_ptr.h"
 
 #include <vector>
 #include <glm/glm.hpp>
@@ -32,15 +34,27 @@ public:
     ContextType getType() const override;
 
 protected:
-    // specific export functions
-    bool processClippingExport(Controller& controller);
-    bool processScanExport(Controller& controller);
+    // One export to bind them all
+    struct CopyTask {
+        std::filesystem::path src_path;
+        std::filesystem::path dst_path;
+        tls::Transformation dst_transfo;
+    };
+    struct ExportTask {
+        std::wstring file_name;
+        tls::ScanHeader header;
+        TransformationModule transfo;
+        std::vector<tls::PointCloudInstance> input_pcs; // if empty, take all the point clouds
+        ClippingAssembly clippings;
+    };
+    bool processExport(Controller& controller, CSVWriter* csv_writer);
+    void copyTls(Controller& controller, CopyTask task);
+    void prepareExportTasks(Controller& controller, std::vector<ExportTask>& export_tasks);
+    void prepareCopyTasks(Controller& controller, std::vector<CopyTask>& copy_tasks);
 
-private:
-    // all combinations with clipping active
-    bool exportClippingAndScanMerged(Controller& controller, CSVWriter* csvWriter);
-    bool exportClippingSeparated(Controller& controller, CSVWriter* csvWriter);
-    bool exportScanSeparated(Controller& controller, CSVWriter* csvWriter);
+    void logStart(Controller& controller, size_t total_steps);
+    void logProgress(Controller& controller);
+    void logEnd(Controller& controller, bool success);
 
     bool processGridExport(Controller& controller);
 
@@ -48,17 +62,12 @@ private:
     void addOriginCube(IScanFileWriter* fileWriter, tls::PointFormat pointFormat, CSVWriter& csvWriter);
     bool ensureFileWriter(Controller& controller, std::unique_ptr<IScanFileWriter>& scanFileWriter, std::wstring name, CSVWriter* csvWriter);
     bool prepareOutputDirectory(Controller& controller, const std::filesystem::path& folderPath);
-    std::vector<tls::PointCloudInstance> getPointCloudInstances(GraphManager& graphManager);
-    // [[deprecated]]
-    void getBestOriginOrientationAndBBox(const ClippingAssembly& clippingAssembly, const BoundingBoxD& scanBBox, glm::dvec3& bestOrigin, glm::dquat& bestOrientation);
-    TransformationModule getBestTransformation(const ClippingAssembly& clipping_assembly, const BoundingBoxD& scan_bbox);
+    std::vector<tls::PointCloudInstance> getPointCloudInstances(Controller& controller);
+
+    TransformationModule getBestTransformation(const ClippingAssembly& clipping_assembly, const std::vector<tls::PointCloudInstance>& pc_instances);
     // Should be static functions for BoundingBox
-    static BoundingBoxD getGlobalBoundingBox(const std::vector<tls::PointCloudInstance>& pcInstances);
     static BoundingBoxD extractBBox(const IClippingGeometry& clippingGeom);
     // !! static //
-    // [[deprecated]]
-    tls::Transformation getCommonTransformation(const std::vector<tls::PointCloudInstance>& pcInfos);
-    TransformationModule getCommonTransformation_EX(const std::vector<tls::PointCloudInstance>& pcInfos);
     tls::PointFormat getCommonFormat(const std::vector<tls::PointCloudInstance>& pcInfos);
 
 protected:
@@ -77,7 +86,9 @@ private:
     bool m_useGrids;
     glm::dvec3 m_scanTranslationToAdd = glm::dvec3(0.);
 
-    uint64_t m_currentStep;
+    std::chrono::steady_clock::time_point process_time_;
+    size_t total_steps_;
+    size_t current_step_;
 };
 
 class ContextExportSubProject : public ContextExportPC
@@ -90,6 +101,8 @@ public:
     ContextState feedMessage(IMessage* message, Controller& controller) override;
     ContextState abort(Controller& controller) override;
     bool canAutoRelaunch() const;
+
+    void exportObjects(Controller& controller) const;
 
     ContextType getType() const override;
 

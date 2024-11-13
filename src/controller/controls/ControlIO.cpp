@@ -25,6 +25,7 @@
 
 #include "models/graph/GraphManager.h"
 #include "models/graph/ClusterNode.h"
+#include "models/graph/APointCloudNode.h"
 
 #include "io/exports/CSVWriter.h"
 #include "utils/time.h"
