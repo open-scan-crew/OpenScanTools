@@ -16,20 +16,12 @@ IMessage* ClippingExportParametersMessage::copy() const
     return new ClippingExportParametersMessage(*this);
 }
 
-ExportInitMessage::ExportInitMessage(bool useClippings, bool useGrids, bool exportScans, bool exportPCOs)
-    : m_useClippings(useClippings)
-    , m_useGrids(useGrids)
-    , m_exportScans(exportScans)
-    , m_exportPCOs(exportPCOs)
-    , m_exportPcs({})
-{}
-
-ExportInitMessage::ExportInitMessage(const std::unordered_set<SafePtr<APointCloudNode>>& exportPcs)
-    : m_useClippings(false)
-    , m_useGrids(false)
-    , m_exportScans(false)
-    , m_exportPCOs(false)
-    , m_exportPcs(exportPcs)
+ExportInitMessage::ExportInitMessage(bool use_clippings, bool use_grids, bool export_scans, bool export_PCOs, ObjectStatusFilter point_cloud_filter)
+    : use_clippings_(use_clippings)
+    , use_grids_(use_grids)
+    , export_scans_(export_scans)
+    , export_PCOs_(export_PCOs)
+    , point_cloud_filter_(point_cloud_filter)
 {}
 
 IMessage::MessageType ExportInitMessage::getType() const

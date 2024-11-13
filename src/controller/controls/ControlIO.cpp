@@ -62,18 +62,20 @@ namespace control::io
 		{
 			controller.getFunctionManager().launchFunction(controller, ContextType::exportSubProject);
 
-			ExportInitMessage imessage(false, false, true, false);
+			ExportInitMessage imessage(false, false, true, false, ObjectStatusFilter::VISIBLE);
 			controller.getFunctionManager().feedMessage(controller, &imessage);
 
 			ClippingExportParameters param;
 			param.pointCloudFilter = ObjectStatusFilter::VISIBLE;
-			param.outFileType = FileType::TLS;
-			param.method = ExportClippingMethod::SCAN_SEPARATED;
+			param.exportScans = true;
+			param.exportPCOs = true;
 			param.clippingFilter = ExportClippingFilter::ACTIVE;
+			param.method = ExportClippingMethod::SCAN_SEPARATED;
+			param.outFileType = FileType::TLS;
 			param.encodingPrecision = tls::PrecisionType::TL_OCTREE_100UM;
-			param.maxScanPerProject = 0;
 			param.outFolder = subInternal.getScansFolderPath();
 			param.openFolderAfterExport = m_openFolderAfterExport;
+			param.maxScanPerProject = 0;
 			IOLOG << "Sub project out scan folder : " << Utils::to_utf8(param.outFolder.wstring()) << LOGENDL;
 			ClippingExportParametersMessage pmessage(param);
 			controller.getFunctionManager().feedMessage(controller, &pmessage);

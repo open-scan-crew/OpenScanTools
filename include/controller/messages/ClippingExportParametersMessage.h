@@ -3,9 +3,6 @@
 
 #include "io/exports/ExportParameters.hpp"
 #include "controller/messages/IMessage.h"
-#include "utils/safe_ptr.h"
-
-#include <unordered_set>
 
 class APointCloudNode;
 
@@ -24,17 +21,16 @@ public:
 class ExportInitMessage : public IMessage
 {
 public:
-    ExportInitMessage(bool useClippings, bool m_useGrids, bool exportScans, bool exportPCOs);
-    ExportInitMessage(const std::unordered_set<SafePtr<APointCloudNode>>& exportPcs);
+    ExportInitMessage(bool use_clippings, bool use_grids, bool export_scans, bool export_pcos, ObjectStatusFilter point_cloud_filter);
     ~ExportInitMessage() {};
     MessageType	getType() const override;
     IMessage* copy() const override;
 public:
-    const bool m_useClippings;
-    const bool m_useGrids;
-    const bool m_exportScans;
-    const bool m_exportPCOs;
-    const std::unordered_set<SafePtr<APointCloudNode>> m_exportPcs;
+    const bool use_clippings_;
+    const bool use_grids_;
+    const bool export_scans_;
+    const bool export_PCOs_;
+    ObjectStatusFilter point_cloud_filter_;
 
 };
 

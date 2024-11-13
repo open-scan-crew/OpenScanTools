@@ -46,8 +46,6 @@ private:
 private:
     Ui::DialogExportPointCloud m_ui;
     ClippingExportParameters m_parameters;
-    bool m_exportScans;
-    bool m_exportPCOs;
     bool m_showClippingOptions;
     bool m_showGridOptions;
     bool m_showMergeOption;

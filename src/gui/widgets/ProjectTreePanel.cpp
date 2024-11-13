@@ -947,6 +947,6 @@ void ProjectTreePanel::exportScan()
 	if (pcsToExport.empty())
 		return;
 
-	ExportInitMessage message(pcsToExport);
+	ExportInitMessage message(false, false, true, true, ObjectStatusFilter::SELECTED);
 	m_dataDispatcher.sendControl(new control::exportPC::StartExport(message));
 }

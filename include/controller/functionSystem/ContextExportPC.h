@@ -56,13 +56,10 @@ protected:
     void logProgress(Controller& controller);
     void logEnd(Controller& controller, bool success);
 
-    bool processGridExport(Controller& controller);
-
     // helper functions
     void addOriginCube(IScanFileWriter* fileWriter, tls::PointFormat pointFormat, CSVWriter& csvWriter);
     bool ensureFileWriter(Controller& controller, std::unique_ptr<IScanFileWriter>& scanFileWriter, std::wstring name, CSVWriter* csvWriter);
     bool prepareOutputDirectory(Controller& controller, const std::filesystem::path& folderPath);
-    std::vector<tls::PointCloudInstance> getPointCloudInstances(Controller& controller);
 
     TransformationModule getBestTransformation(const ClippingAssembly& clipping_assembly, const std::vector<tls::PointCloudInstance>& pc_instances);
     // Should be static functions for BoundingBox
@@ -73,17 +70,9 @@ protected:
 protected:
     int m_neededMessageCount;
     bool m_forSubProject;
-    SafePtr<CameraNode> m_cameraNode;
     ClippingExportParameters m_parameters;
 
 private:
-    std::unordered_set<SafePtr<APointCloudNode>> m_selectedPcs;
-    ContextId m_saveContext;
-    xg::Guid m_viewportId;
-    bool m_exportScans;
-    bool m_exportPCOs;
-    bool m_useClips;
-    bool m_useGrids;
     glm::dvec3 m_scanTranslationToAdd = glm::dvec3(0.);
 
     std::chrono::steady_clock::time_point process_time_;

@@ -1,7 +1,7 @@
 #include "gui/GuiData/GuiDataIO.h"
 
-#include "utils/Logger.h"
-#include "io/FileUtils.h"
+//#include "utils/Logger.h"
+//#include "io/FileUtils.h"
 
 // **** GuiDataOpenProjectCentral ****
 
@@ -69,16 +69,13 @@ guiDType GuiDataConversionFilePaths::getType()
 
 // **** Clipping Export Parameters Display ****
 
-GuiDataExportParametersDisplay::GuiDataExportParametersDisplay(const std::unordered_set<SafePtr<AClippingNode>>& clippings, bool useClippings, bool useGrids, bool showMergeOption)
+GuiDataExportParametersDisplay::GuiDataExportParametersDisplay(const std::unordered_set<SafePtr<AClippingNode>>& clippings, const ClippingExportParameters& preset_params, bool useClippings, bool useGrids, bool showMergeOption)
     : m_clippings(clippings)
+	, preset_export_params_(preset_params)
     , m_useClippings(useClippings)
     , m_useGrids(useGrids)
 	, m_showMergeOption(showMergeOption)
 {}
-
-GuiDataExportParametersDisplay::~GuiDataExportParametersDisplay()
-{
-}
 
 guiDType GuiDataExportParametersDisplay::getType()
 {

@@ -45,24 +45,24 @@ void ToolBarExportPointCloud::onProjectLoad(IGuiData * data)
 
 void ToolBarExportPointCloud::slotExportGrid()
 {
-	ExportInitMessage message(false, true, true, false);
+	ExportInitMessage message(false, true, true, false, ObjectStatusFilter::VISIBLE);
     m_dataDispatcher.sendControl(new control::exportPC::StartExport(message));
 }
 
 void ToolBarExportPointCloud::slotExportClipping()
 {
-	ExportInitMessage message(true, false, true, false);
+	ExportInitMessage message(true, false, true, false, ObjectStatusFilter::VISIBLE);
     m_dataDispatcher.sendControl(new control::exportPC::StartExport(message));
 }
 
 void ToolBarExportPointCloud::slotExportScans()
 {
-	ExportInitMessage message(false, false, true, false);
+	ExportInitMessage message(false, false, true, false, ObjectStatusFilter::VISIBLE);
     m_dataDispatcher.sendControl(new control::exportPC::StartExport(message));
 }
 
 void ToolBarExportPointCloud::slotExportPCOs()
 {
-	ExportInitMessage message(false, false, false, true);
+	ExportInitMessage message(false, false, false, true, ObjectStatusFilter::VISIBLE);
 	m_dataDispatcher.sendControl(new control::exportPC::StartExport(message));
 }

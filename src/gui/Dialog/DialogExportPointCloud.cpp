@@ -43,8 +43,6 @@ DialogExportPointCloud::DialogExportPointCloud(IDataDispatcher& dataDispatcher, 
                     ExportClippingFilter::SELECTED,
                     ExportClippingMethod::SCAN_SEPARATED,
                     FileType::TLS, tls::PrecisionType::TL_OCTREE_100UM, "", "", "" }
-    , m_exportScans(true)
-    , m_exportPCOs(false)
     , m_showClippingOptions(false)
     , m_showGridOptions(false)
     , m_showMergeOption(true)
@@ -99,6 +97,7 @@ void DialogExportPointCloud::informData(IGuiData *data)
         m_showGridOptions = displayParam->m_useGrids;
         m_showMergeOption = displayParam->m_showMergeOption;
         m_clippings = displayParam->m_clippings;
+        m_parameters = displayParam->preset_export_params_;
         m_ui.label_msg->clear();
         // Show the names of the clippings in the dialog
         refreshUI();
@@ -188,6 +187,7 @@ void DialogExportPointCloud::startExport()
 {
     m_parameters.pointCloudFilter = (ObjectStatusFilter)(m_ui.comboBox_pointClouds->currentData().toInt());
 
+    m_parameters.outFileType = ExportFileTypePermited[m_ui.comboBox_format->currentIndex()];
     // Get the export precision
     m_parameters.encodingPrecision = (tls::PrecisionType)(m_ui.comboBox_precision->currentData().toInt());
 
@@ -274,6 +274,8 @@ void DialogExportPointCloud::refreshUI()
     m_ui.groupBox_maxScan->setVisible(m_showGridOptions && (m_parameters.outFileType == FileType::RCP));
     m_ui.checkBox_addOriginCube->setVisible(m_parameters.outFileType == FileType::RCP);
 
+    int index = m_ui.comboBox_pointClouds->findData(QVariant((int)m_parameters.pointCloudFilter));
+    m_ui.comboBox_pointClouds->setCurrentIndex(index);
     // Show source options (all, some or none)
     refreshSourceOption();
     refreshMethodOption();

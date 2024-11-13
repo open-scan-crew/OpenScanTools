@@ -47,9 +47,8 @@
 
 ContextExportPC::ContextExportPC(const ContextId& id)
     : AContext(id)
-    , m_saveContext(0)
-    , m_viewportId(xg::Guid())
-    , m_neededMessageCount(3)
+    , m_forSubProject(false)
+    , m_neededMessageCount(2)
 {
     m_state = ContextState::waiting_for_input;
 }
@@ -74,25 +73,66 @@ ContextState ContextExportPC::feedMessage(IMessage* message, Controller& control
     {
         ModalMessage* modal = static_cast<ModalMessage*>(message);
         if (modal->m_returnedValue == Yes)
-            m_saveContext = controller.getFunctionManager().launchBackgroundFunction(controller, ContextType::saveProject, 0);
+            controller.getFunctionManager().launchBackgroundFunction(controller, ContextType::saveProject, 0);
 
-    }
-    break;
-    case IMessage::MessageType::CAMERA:
-    {
-        CameraMessage* cameraInfo = static_cast<CameraMessage*>(message);
-        m_cameraNode = cameraInfo->m_cameraNode;
-        m_neededMessageCount--;
     }
     break;
     case IMessage::MessageType::EXPORT_INIT:
     {
-        auto decodedMsg = static_cast<ExportInitMessage*>(message);
-        m_useClips = decodedMsg->m_useClippings;
-        m_useGrids = decodedMsg->m_useGrids;
-        m_exportScans = decodedMsg->m_exportScans;
-        m_exportPCOs = decodedMsg->m_exportPCOs;
-        m_selectedPcs = decodedMsg->m_exportPcs;
+        auto init_msg = static_cast<ExportInitMessage*>(message);
+        m_parameters.exportScans = init_msg->export_scans_;
+        m_parameters.exportPCOs = init_msg->export_PCOs_;
+        m_parameters.pointCloudFilter = init_msg->point_cloud_filter_;
+
+        std::unordered_set<SafePtr<AClippingNode>> clippings;
+        if (init_msg->use_clippings_ || init_msg->use_grids_)
+            clippings = graphManager.getActivatedOrSelectedClippingObjects();
+
+        if (init_msg->use_clippings_)
+        {
+            // Check that at least one clipping box is selected.
+            if (clippings.empty())
+            {
+                FUNCLOG << "No Clipping object selected or active" << LOGENDL;
+                controller.updateInfo(new GuiDataWarning(TEXT_EXPORT_NO_USABLE_CLIPPING_OBJECTS));
+                return (m_state = ContextState::abort);
+            }
+        }
+
+        if (init_msg->use_grids_)
+        {
+            bool noGrid = true;
+            for (const SafePtr<AClippingNode>& clip : clippings)
+            {
+                ElementType type;
+                {
+                    ReadPtr<AClippingNode> rClip = clip.cget();
+                    if (rClip)
+                        type = rClip->getType();
+                }
+                if (type == ElementType::Grid)
+                    noGrid = false;
+            }
+            // Check that at least one clipping box is selected.
+            if (noGrid)
+            {
+                FUNCLOG << "No Grid boxes selected" << LOGENDL;
+                controller.updateInfo(new GuiDataWarning(TEXT_EXPORT_GRID_SELECT_FIRST));
+                return (m_state = ContextState::abort);
+            }
+        }
+
+        std::vector<tls::PointCloudInstance> point_clouds = graphManager.getPointCloudInstances(xg::Guid(), init_msg->export_scans_, init_msg->export_PCOs_, init_msg->point_cloud_filter_);
+
+        if (point_clouds.empty())
+        {
+            FUNCLOG << "No Scans visibles or selected to export" << LOGENDL;
+            controller.updateInfo(new GuiDataWarning(TEXT_EXPORT_NO_SCAN_SELECTED));
+            return (m_state = ContextState::abort);
+        }
+
+        if (!m_forSubProject)
+            controller.updateInfo(new GuiDataExportParametersDisplay(clippings, m_parameters, init_msg->use_clippings_, init_msg->use_grids_, point_clouds.size() > 1));
 
         m_neededMessageCount--;
         break;
@@ -132,76 +172,6 @@ ContextState ContextExportPC::feedMessage(IMessage* message, Controller& control
         FUNCLOG << "wrong message type" << LOGENDL;
         break;
     }
-    }
-
-    if (m_neededMessageCount == 1)
-    {
-
-        std::unordered_set<SafePtr<AClippingNode>> clippings;
-        if(m_useClips || m_useGrids)
-            clippings = graphManager.getActivatedOrSelectedClippingObjects();
-
-        if (m_useClips)
-        {
-            // Check that at least one clipping box is selected.
-            if (clippings.empty())
-            {
-                FUNCLOG << "No Clipping object selected or active" << LOGENDL;
-                controller.updateInfo(new GuiDataWarning(TEXT_EXPORT_NO_USABLE_CLIPPING_OBJECTS));
-                return (m_state = ContextState::abort);
-            }
-        }
-
-        if (m_useGrids)
-        {
-            bool noGrid = true;
-            for (const SafePtr<AClippingNode>& clip : clippings)
-            {
-                ElementType type;
-                {
-                    ReadPtr<AClippingNode> rClip = clip.cget();
-                    if (rClip)
-                        type = rClip->getType();
-                }
-                if (type == ElementType::Grid)
-                    noGrid = false;
-            }
-            // Check that at least one clipping box is selected.
-            if (noGrid)
-            {
-                FUNCLOG << "No Grid boxes selected" << LOGENDL;
-                controller.updateInfo(new GuiDataWarning(TEXT_EXPORT_GRID_SELECT_FIRST));
-                return (m_state = ContextState::abort);
-            }
-        }
-
-        ReadPtr<CameraNode> rCam = m_cameraNode.cget();
-        if (!rCam)
-        {
-            FUNCLOG << "Cam error" << LOGENDL;
-            assert(false);
-            return (m_state = ContextState::abort);
-        }
-
-        xg::Guid panoGuid;
-        {
-            ReadPtr<ScanNode> rScan = rCam->getPanoramicScan().cget();
-            if (rScan)
-                panoGuid = rScan->getScanGuid();
-        }
-
-        std::vector<tls::PointCloudInstance> visibleScans = graphManager.getVisiblePointCloudInstances(panoGuid, m_exportScans, m_exportPCOs);
-
-
-        if (m_selectedPcs.empty() && visibleScans.empty())
-        {
-            FUNCLOG << "No Scans visibles or selected to export" << LOGENDL;
-            controller.updateInfo(new GuiDataWarning(TEXT_EXPORT_NO_SCAN_SELECTED));
-            return (m_state = ContextState::abort);
-        }
-
-        if (!m_forSubProject)
-            controller.updateInfo(new GuiDataExportParametersDisplay(clippings, m_useClips, m_useGrids, (m_selectedPcs.size() > 1 || visibleScans.size() > 1)));
     }
 
     if (m_neededMessageCount > 0)
@@ -333,9 +303,9 @@ bool ContextExportPC::processExport(Controller& controller, CSVWriter* csv_write
 
 void ContextExportPC::prepareExportTasks(Controller& controller, std::vector<ContextExportPC::ExportTask>& export_tasks)
 {
-    std::vector<tls::PointCloudInstance> pcInfos = getPointCloudInstances(controller);
-    tls::PointFormat common_format = getCommonFormat(pcInfos);
     GraphManager& graph = controller.getGraphManager();
+    std::vector<tls::PointCloudInstance> pcInfos = graph.getPointCloudInstances(xg::Guid(), m_parameters.exportScans, m_parameters.exportPCOs, m_parameters.pointCloudFilter);
+    tls::PointFormat common_format = getCommonFormat(pcInfos);
 
     ClippingAssembly clipping_assembly;
     graph.getClippingAssembly(clipping_assembly,
@@ -447,7 +417,9 @@ void ContextExportPC::prepareExportTasks(Controller& controller, std::vector<Con
         {
             // Filter out the tls that we can copy
             if (m_parameters.outFileType == FileType::TLS &&
-                pcInfo.header.precision == m_parameters.encodingPrecision)
+                pcInfo.header.precision == m_parameters.encodingPrecision &&
+                clipping_assembly.clippingUnion.empty() &&
+                clipping_assembly.clippingIntersection.empty())
                 continue;
 
             ExportTask task;
@@ -473,8 +445,8 @@ void ContextExportPC::prepareCopyTasks(Controller& controller, std::vector<CopyT
     if (m_parameters.outFileType != FileType::TLS)
         return;
 
-    bool is_scan = m_exportScans;
-    bool is_pco = m_exportPCOs;
+    bool is_scan = m_parameters.exportScans;
+    bool is_pco = m_parameters.exportPCOs;
     ObjectStatusFilter status = m_parameters.pointCloudFilter;
     // This is the same function as 'getPointCloudInstances' but with 'APointCloudNode'
     std::unordered_set<SafePtr<APointCloudNode>> point_clouds = controller.cgetGraphManager().getNodesOnFilter<APointCloudNode>([is_scan, is_pco, status](ReadPtr<AGraphNode>& node)
@@ -585,154 +557,6 @@ void ContextExportPC::logEnd(Controller& controller, bool success)
     controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));
 }
 
-bool ContextExportPC::processGridExport(Controller& controller)
-{
-    bool resultOk = true;
-    auto start = std::chrono::steady_clock::now();
-    // Create the clipping info lists
-    TlScanOverseer& overseer = TlScanOverseer::getInstance();
-    GraphManager& graphManager = controller.getGraphManager();
-
-    std::unordered_set<SafePtr<BoxNode>> grid_nodes = graphManager.getGrids();
-
-    // Get the the visible scans
-    std::vector<tls::PointCloudInstance> pcInfos = getPointCloudInstances(controller);
-    std::unique_ptr<IScanFileWriter> scanFileWriter = nullptr;
-    tls::PointFormat commonFormat = getCommonFormat(pcInfos);
-
-    // TODO - Treat the particular case of converting a TLS to a TLS?with the same precision.
-
-    // Processing
-    bool fileIsProject = (m_parameters.outFileType == FileType::RCP);
-    uint64_t subProjectCount = 0;
-    std::wstring log;
-    for (const SafePtr<BoxNode>& grid_node : grid_nodes)
-    {
-        if (m_state != ContextState::running)
-        {
-            m_state = ContextState::abort;
-            break;
-        }
-
-        ReadPtr<BoxNode> r_grid = grid_node.cget();
-        // Only the Grid activated or selected (depending on the source parameter)
-        std::vector<GridBox> extracted_boxes;
-        if (r_grid->isSelected() == false ||
-            !GridCalculation::calculateBoxes(extracted_boxes, *&r_grid))
-        {
-            continue;
-        }
-
-        size_t boxes_count = extracted_boxes.size();
-        controller.updateInfo(new GuiDataProcessingSplashScreenStart(boxes_count, TEXT_EXPORT_GRID_TITLE_PROGESS, TEXT_SPLASH_SCREEN_BOX_PROCESSING.arg(0).arg(boxes_count)));
-
-        std::filesystem::path out_folder = m_parameters.outFolder;
-        if (fileIsProject)
-            out_folder /= m_parameters.fileName;
-        else
-            out_folder /= r_grid->getComposedName();
-        if (prepareOutputDirectory(controller, out_folder) == false)
-            return false;
-
-        // On reset le file writer (si il y plusieurs grilles avec limitation du nombre de scan)
-        uint64_t boxesExported = 0;
-        scanFileWriter.reset();
-        CSVWriter csvWriter(out_folder / "summary.csv");
-        csvWriter << "Name;Point_Count;X;Y;Z;SizeX;SizeY;SizeZ;RotationX;RotationY;RotationZ" << CSVWriter::endl;
-        for (const GridBox& box : extracted_boxes)
-        {
-            if (m_state != ContextState::running)
-            {
-                m_state = ContextState::abort;
-                break;
-            }
-
-            std::wstring box_xyz_name;
-            box_xyz_name = r_grid->getComposedName() 
-                + L"_" + Utils::wCompleteWithZeros(box.position.x) 
-                + L"_" + Utils::wCompleteWithZeros(box.position.y)
-                + L"_" + Utils::wCompleteWithZeros(box.position.z);
-
-            // Create a Writer per scan or per project or per N boxes
-            if (scanFileWriter == nullptr)
-            {
-                std::wstring outFileName = fileIsProject ? m_parameters.fileName.wstring() : box_xyz_name;
-                if (fileIsProject && m_parameters.maxScanPerProject > 0)
-                {
-                    subProjectCount++;
-                    outFileName += L"_";
-                    outFileName += std::to_wstring(subProjectCount);
-                }
-
-                IScanFileWriter* ptr;
-                if (getScanFileWriter(out_folder, outFileName, m_parameters.outFileType, log, &ptr) == false)
-                {
-                    FUNCLOG << "Export: Failed to create the destination file" << LOGENDL;
-                    controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString(TEXT_EXPORT_ERROR_FILE).arg(outFileName)));
-                    return false;
-                }
-                else
-                    scanFileWriter.reset(ptr);
-
-                if (m_parameters.outFileType == FileType::RCP)
-                    static_cast<RcpFileWriter*>(scanFileWriter.get())->setExportDensity(m_parameters.pointDensity);
-                if ((m_parameters.outFileType == FileType::RCP) && m_parameters.addOriginCube)
-                    addOriginCube(scanFileWriter.get(), commonFormat, csvWriter);
-            }
-
-            tls::ScanHeader dstScanHeader;
-            dstScanHeader.name = box_xyz_name;
-            glm::dvec3 t = box.getCenter();// +m_scanTranslationToAdd;
-            glm::quat q = box.getOrientation();
-            dstScanHeader.transfo = tls::Transformation{ {q.x, q.y, q.z, q.w}, {t.x, t.y, t.z} };
-            // Initialize precision and point count
-            dstScanHeader.precision = m_parameters.encodingPrecision;
-            dstScanHeader.pointCount = 0;
-            dstScanHeader.format = commonFormat;
-
-            // ClippingAssembly for the only box
-            ClippingAssembly clipAssembly;
-            clipAssembly.clippingUnion.push_back(std::make_shared<BoxClippingGeometry>(ClippingMode::showInterior,
-                box.getInverseRotationTranslation(),
-                glm::vec4(box.getScale(), 0.f), 0));
-
-            scanFileWriter->appendPointCloud(dstScanHeader, (TransformationModule)box);
-            for (auto pcInfo : pcInfos)
-            {
-                if (pcInfo.header.guid == tls::ScanGuid())
-                    continue;
-                if (m_state != ContextState::running)
-                {
-                    m_state = ContextState::abort;
-                    break;
-                }
-
-                resultOk &= overseer.clipScan(pcInfo.header.guid, pcInfo.transfo, clipAssembly, scanFileWriter.get()); // [old] merging == true
-            }
-            scanFileWriter->finalizePointCloud();
-            boxesExported++; 
-            controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(TEXT_SPLASH_SCREEN_BOX_PROCESSING.arg(boxesExported).arg(boxes_count), boxesExported));
-
-            dstScanHeader.pointCount = scanFileWriter->getScanPointCount();
-            glm::vec3 scale = box.getScale();
-            dstScanHeader.bbox = { -scale.x, scale.x , -scale.y, scale.y, -scale.z, scale.z };
-            writeHeaderInCSV(&csvWriter, dstScanHeader);
-
-            if (fileIsProject == false ||
-                (m_parameters.maxScanPerProject > 0 && (boxesExported % m_parameters.maxScanPerProject) == 0))
-            {
-                scanFileWriter.reset();
-            }
-        }
-    }
-
-    float time = std::chrono::duration<float, std::ratio<1>>(std::chrono::steady_clock::now() - start).count();
-    controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString(resultOk ? TEXT_EXPORT_SUCCESS_TIME : TEXT_EXPORT_ERROR_TIME).arg(time)));
-    controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));
-
-    return resultOk;
-}
-
 void ContextExportPC::addOriginCube(IScanFileWriter* fileWriter, tls::PointFormat pointFormat, CSVWriter& csvWriter)
 {
     tls::ScanHeader scanHeader;
@@ -778,6 +602,7 @@ bool ContextExportPC::ensureFileWriter(Controller& controller, std::unique_ptr<I
     {
         FUNCLOG << "Export: Failed to create the destination file" << LOGENDL;
         controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString(TEXT_EXPORT_ERROR_FILE).arg(QString::fromStdWString(m_parameters.outFolder / name))));
+        controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));
         return false;
     }
     else
@@ -823,30 +648,6 @@ bool ContextExportPC::prepareOutputDirectory(Controller& controller, const std::
     }
     */
     return true;
-}
-
-std::vector<tls::PointCloudInstance> ContextExportPC::getPointCloudInstances(Controller& controller)
-{
-    if (m_selectedPcs.empty())
-    {
-        IOLOG << "Get all PCInstance, exportScan ? " << m_exportScans << " exportPcos ? " << m_exportPCOs << " scanFilter ? " << (int)m_parameters.pointCloudFilter << LOGENDL;
-        return (controller.cgetGraphManager().getPointCloudInstances(xg::Guid(), m_exportScans, m_exportPCOs, m_parameters.pointCloudFilter));
-    }
-    else
-    {
-        std::vector<tls::PointCloudInstance> pcis;
-        for (const SafePtr<APointCloudNode>& pc : m_selectedPcs)
-        {
-            ReadPtr<APointCloudNode> rPc = pc.cget();
-            if (!rPc)
-                continue;
-
-            tls::ScanHeader header;
-            tlGetScanHeader(rPc->getScanGuid(), header);
-            pcis.emplace_back(header, rPc->getTransformationModule(), rPc->getClippable());
-        }
-        return pcis;
-    }
 }
 
 TransformationModule ContextExportPC::getBestTransformation(const ClippingAssembly& clipping_assembly, const std::vector<tls::PointCloudInstance>& pc_instances)
@@ -1012,7 +813,7 @@ void ContextExportSubProject::exportObjects(Controller& controller) const
         exports.insert(scanPtr);
     }
 
-    std::filesystem::path subProjectPath = SaveLoadSystem::ExportProject(controller, exports, m_subProjectInternal, m_subProjectInfo, m_cameraNode);
+    std::filesystem::path subProjectPath = SaveLoadSystem::ExportProject(controller, exports, m_subProjectInternal, m_subProjectInfo, SafePtr<CameraNode>());
 
     SaveLoadSystem::ExportToProjectFileObjects(controller, m_subProjectInternal, fileObjects);
 

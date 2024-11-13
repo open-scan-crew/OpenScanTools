@@ -96,7 +96,9 @@ bool PTSFileWriter::addPoints(PointXYZIRGB const* srcBuf, uint64_t srcSize)
 
 bool PTSFileWriter::mergePoints(PointXYZIRGB const* srcBuf, uint64_t srcSize, const TransformationModule& src_transfo, tls::PointFormat srcFormat)
 {
-    glm::dmat4 total_transfo = src_transfo.getTransformation();
+    glm::dmat4 post_translation_mat = glm::dmat4(1.0);
+    post_translation_mat[3] = glm::dvec4(post_translation_, 1.0);
+    glm::dmat4 total_transfo = post_translation_mat * src_transfo.getTransformation();
 
     // Select the correct conversion function
     typedef PointXYZIRGB(*convert_fn_t)(const PointXYZIRGB&, const glm::dmat4&);
@@ -122,12 +124,6 @@ bool PTSFileWriter::mergePoints(PointXYZIRGB const* srcBuf, uint64_t srcSize, co
 
     m_scanPointCount += srcSize;
     return true;
-}
-
-void PTSFileWriter::setPostTranslation(const glm::dvec3& translation)
-{
-    // Pour le PTS, il est trop tard pour faire une translation une fois que les points sont déjà importés.
-    // Les points sont encodés en coordonnées globale.
 }
 
 bool PTSFileWriter::finalizePointCloud()

@@ -1,9 +1,9 @@
 #include "io/exports/RcpFileWriter.h"
 #include "models/pointCloud/PointXYZIRGB.h"
-#include "utils/time.h"
-#include "utils/math/trigo.h"
+//#include "utils/time.h"
+//#include "utils/math/trigo.h"
 #include "utils/Logger.h"
-#include "utils/Utils.h"
+//#include "utils/Utils.h"
 
 #include <foundation/RCQuaternion.h>
 
@@ -30,14 +30,11 @@ RcpFileWriter::~RcpFileWriter()
 
 void projectProgressCallback(const RCIOStatus& status)
 {
-#ifdef LOGGER_H
     Logger::log(LoggerMode::IOLog) << "ReCap project processed at " << (int)status.getTotalProgress() << "%" << Logger::endl;
-#endif // LOGGER_H
 }
 
 void projectCompletionCallback(RCCode errorCode, const RCBuffer<RCScanImportStatus>& importStatus)
 {
-#ifdef LOGGER_H
    if (errorCode == RCCode::OK)
         Logger::log(LoggerMode::IOLog) << "RCProject export is completed." << Logger::endl;
     else
@@ -50,26 +47,21 @@ void projectCompletionCallback(RCCode errorCode, const RCBuffer<RCScanImportStat
                 Logger::log(LoggerMode::IOLog) << (std::string)status.scanName << " : code " << (int)status.code << Logger::endl;
         }
     }
-#endif // LOGGER_H
 }
 
 void scanProgressCallback(const RCIOStatus& status)
 {
-#ifdef LOGGER_H
     Logger::log(LoggerMode::IOLog) << "ReCap scan processed at " << (int)status.getTotalProgress() << "%" << Logger::endl;
-#endif // LOGGER_H
 }
 
 void scanCompletionCallback(const RCScanImportStatus& importStatus)
 {
-#ifdef LOGGER_H
    auto scanName = importStatus.scanName;
 
     if (importStatus.code == RCCode::OK)
         Logger::log(LoggerMode::IOLog) << (std::string)scanName << " import is completed." << Logger::endl;
     else
         Logger::log(LoggerMode::IOLog) << (std::string)scanName << " import failed with return code " << (int)importStatus.code << Logger::endl;
-#endif // LOGGER_H
 }
 
 bool RcpFileWriter::getWriter(const std::filesystem::path& outPath, const std::wstring& projectName, std::wstring& log, IScanFileWriter** writer)
@@ -77,7 +69,6 @@ bool RcpFileWriter::getWriter(const std::filesystem::path& outPath, const std::w
     RCCode errorCode;
     std::filesystem::path project_path = outPath / projectName;
     RCString rc_project_path(project_path.wstring());
-    //projectPath += ".rcp";
     RCImportProgressCallbackPtr projectProgressCallbackPtr = projectProgressCallback;
     RCImportCompletionCallbackPtr projectCompletionCallbackPtr = projectCompletionCallback;
     RCSharedPtr<RCProjectImportSession> projectImportSession = RCProjectImportSession::init(rc_project_path, RCFileMode::New, errorCode, projectProgressCallbackPtr,
@@ -118,18 +109,18 @@ bool RcpFileWriter::addPoints(PointXYZIRGB const* src_buf, uint64_t src_size)
     //      - The Recap API allow to apply the transform when we process the scan, but because 
     //        the writer can also be used with global coordinates (via mergePoints()) we have 
     //        to choose one space or an other.
-    glm::dmat4 transfo_mat = scan_transfo.getTransformation();
-
-    //return mergePoints(src_buf, src_size, glm::dmat4(1.0), m_scanHeader.format);
-    return mergePoints(src_buf, src_size, transfo_mat, m_scanHeader.format);
+    return mergePoints(src_buf, src_size, scan_transfo, m_scanHeader.format);
 }
 
-// NOTE - equivalent of IPointCloudWriter::addPoints_localSrc()
 bool RcpFileWriter::mergePoints(PointXYZIRGB const* src_buf, uint64_t src_size, const TransformationModule& src_transfo, tls::PointFormat src_format)
 {
     m_scanPointCount += src_size;
 
-    glm::dmat4 transfo_mat = src_transfo.getTransformation();
+    // Si on garde le choix de passer les points en coordonnées globales on ne peut pas changer leurs coordonnées après l’import.
+    // Il faut soit indiquer la translation supplémentaire avant l’import, soit repasser en coordonnées local (et changer la translation du scan).
+    glm::dmat4 post_translation_mat = glm::dmat4(1.0);
+    post_translation_mat[3] = glm::dvec4(post_translation_, 1.0);
+    glm::dmat4 transfo_mat = post_translation_mat * src_transfo.getTransformation();
 
     auto rcBuffer = std::make_shared<RCPointBuffer>();
     rcBuffer->setCoordinateType(RCCoordinateType::Cartesian);
@@ -163,12 +154,6 @@ bool RcpFileWriter::mergePoints(PointXYZIRGB const* src_buf, uint64_t src_size, 
     m_pointBuffers.push_back(*rcBuffer);
 
     return true;
-}
-
-void RcpFileWriter::setPostTranslation(const glm::dvec3& translation)
-{
-    // Si on garde le choix de passer les points en coordonnées globales on ne peut pas changer leurs coordonnées après l’import.
-    // Il faut soit indiquer la translation supplémentaire avant l’import, soit repasser en coordonnées local (et changer la translation du scan).
 }
 
 bool RcpFileWriter::finalizePointCloud()

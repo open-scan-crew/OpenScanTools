@@ -2,16 +2,15 @@
 #define GUI_DATA_IO_H
 
 #include "gui/GuiData/IGuiData.h"
+#include "io/exports/ExportParameters.hpp"
 
-#include "models/data/Data.h"
-#include "models/project/ProjectInfos.h"
-#include "models/OpenScanToolsModelEssentials.h"
-#include "controller/controls/IControl.h"
-#include "controller/functionSystem/AContext.h"
+//#include "models/data/Data.h"
+//#include "models/project/ProjectInfos.h"
+//#include "models/OpenScanToolsModelEssentials.h"
+//#include "controller/controls/IControl.h"
+//#include "controller/functionSystem/AContext.h"
 
 #include <unordered_set>
-#include <set>
-#include <map>
 
 #define BIG_COORDINATES_THRESHOLD 10000
 
@@ -68,12 +67,13 @@ public:
 class GuiDataExportParametersDisplay : public IGuiData
 {
 public:
-	GuiDataExportParametersDisplay(const std::unordered_set<SafePtr<AClippingNode>>& clippings, bool useClippings, bool useGrids, bool showMergeOption);
-    ~GuiDataExportParametersDisplay();
+	GuiDataExportParametersDisplay(const std::unordered_set<SafePtr<AClippingNode>>& clippings, const ClippingExportParameters& preset_params, bool useClippings, bool useGrids, bool showMergeOption);
+	~GuiDataExportParametersDisplay() {};
     guiDType getType() override;
 
 public:
 	std::unordered_set<SafePtr<AClippingNode>> m_clippings;
+	ClippingExportParameters preset_export_params_;
     bool m_useClippings;
     bool m_useGrids;
 	bool m_showMergeOption;
