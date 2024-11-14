@@ -7,7 +7,7 @@
 #include "models/application/TagTemplate.h"
 #include "utils/Color32.hpp"
 
-#include <QtWidgets/QWidget>
+#include <QtWidgets/qwidget.h>
 
 #include "ui_toolbar_taggroup.h"
 

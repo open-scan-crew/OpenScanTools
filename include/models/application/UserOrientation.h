@@ -1,7 +1,7 @@
 #ifndef USERORIENTATION_LIST_H_
 #define USERORIENTATION_LIST_H_
 
-#include <QtWidgets/QWidget>
+#include <QtWidgets/qwidget.h>
 #include <set>
 #include <glm/glm.hpp>
 

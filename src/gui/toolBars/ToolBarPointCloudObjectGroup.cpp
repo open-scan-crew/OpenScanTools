@@ -11,8 +11,8 @@
 #include "gui/Texts.hpp"
 #include "gui/texts/FileTypeTexts.hpp"
 #include "io/FileUtils.h"
-#include <QtWidgets/QFileDialog>
-#include <QtCore/QStandardPaths>
+#include <QtWidgets/qfiledialog.h>
+#include <QtCore/qstandardpaths.h>
 
 ToolBarPointCloudObjectGroup::ToolBarPointCloudObjectGroup(IDataDispatcher& dataDispatcher, QWidget* parent, float guiScale)
 	: QWidget(parent)

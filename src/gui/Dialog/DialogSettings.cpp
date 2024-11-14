@@ -3,7 +3,7 @@
 #include "controller/controls/ControlProjectTemplate.h"
 #include "gui/GuiData/GuiDataRendering.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
-#include "gui/DataDispatcher.h"
+#include "gui/IDataDispatcher.h"
 #include "gui/UnitUsage.h"
 #include "models/project/ProjectTypes.h"
 #include "models/3d/OpticalFunctions.h"
@@ -14,9 +14,8 @@
 #include <QtWidgets/qcombobox.h>
 #include <QtWidgets/qcheckbox.h>
 #include <QtWidgets/qtoolbutton.h>
-#include <QtWidgets/QFileDialog>
+#include <QtWidgets/qfiledialog.h>
 #include <QtWidgets/qcolordialog.h>
-#include <QtCore/QStandardPaths>
 
 static std::vector<UnitType> s_settingUnits = { UnitType::M, UnitType::CM, UnitType::MM, UnitType::YD, UnitType::FT, UnitType::INC };
 static std::vector<UnitType> s_settingVolumeUnits = { UnitType::M3, UnitType::LITRE};

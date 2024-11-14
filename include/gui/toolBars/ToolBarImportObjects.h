@@ -1,7 +1,7 @@
 #ifndef TOOLBAR_IMPORTOBJECTS_H
 #define TOOLBAR_IMPORTOBJECTS_H
 
-#include <QtWidgets/QWidget>
+#include <QtWidgets/qwidget.h>
 #include "ui_toolbar_importObjects.h"
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"

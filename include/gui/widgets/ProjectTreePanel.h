@@ -8,10 +8,8 @@
 #include "gui/widgets/TreeNodeSystem/TreeModel.h"
 #include "gui/widgets/TreeNodeSystem/TreeNode.h"
 
-#include <QtWidgets/QTreeView>
-#include <QtWidgets/QListView>
+#include <QtWidgets/qtreeview.h>
 
-#include <map>
 #include <vector>
 
 class ProjectTreePanel;

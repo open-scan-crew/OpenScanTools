@@ -3,11 +3,9 @@
 
 #include "ui_DialogExportSubProject.h"
 #include "gui/Dialog/ADialog.h"
-#include "io/exports/ExportParameters.hpp"
 
 #include "gui/Dialog/DialogSubProjectInfo.h"
 
-#include <unordered_set>
 
 class ProjectInfos;
 

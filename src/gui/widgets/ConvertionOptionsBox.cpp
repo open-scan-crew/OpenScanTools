@@ -1,6 +1,5 @@
 #include "gui/widgets/ConvertionOptionsBox.h"
 #include "io/FileUtils.h"
-#include "gui/GuiData/GuiDataRendering.h"
 #include "gui/GuiData/GuiDataIO.h"
 #include "gui/widgets/E57TreeWidget.h"
 #include "gui/texts/TlsTexts.hpp"

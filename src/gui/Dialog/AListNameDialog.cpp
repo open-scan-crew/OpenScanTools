@@ -1,5 +1,4 @@
 #include "gui/Dialog/AListNameDialog.h"
-#include "controller/controls/ControlUserList.h"
 #include "utils/Logger.h"
 
 #include "gui/Texts.hpp"

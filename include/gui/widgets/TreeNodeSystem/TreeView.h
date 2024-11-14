@@ -1,12 +1,10 @@
-#include <QtCore/QObject>
-#include <QtWidgets/QTreeView>
+#ifndef TREE_VIEW_H_
+#define TREE_VIEW_H_
+
+#include <QtWidgets/qtreeview.h>
 #include <QtGui/QDrag>
 #include <QtGui/QDragLeaveEvent>
 #include <QtGui/qevent.h>
-#include "TreeModel.h"
-
-#ifndef _TREEVIEW_H_
-#define _TREEVIEW_H_
 
 //#define QTREELOG Logger::log(LoggerMode::GuiLog)
 

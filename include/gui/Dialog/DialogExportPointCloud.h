@@ -5,8 +5,6 @@
 #include "gui/Dialog/ADialog.h"
 #include "io/exports/ExportParameters.hpp"
 
-#include "models/OpenScanToolsModelEssentials.h"
-
 #include <unordered_set>
 
 class AClippingNode;

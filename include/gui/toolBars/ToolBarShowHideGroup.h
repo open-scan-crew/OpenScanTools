@@ -1,7 +1,7 @@
 #ifndef TOOLBAR_SHOWHIDEGROUP_H
 #define TOOLBAR_SHOWHIDEGROUP_H
 
-#include <QtWidgets/QWidget>
+#include <QtWidgets/qwidget.h>
 #include "ui_toolbar_showhidegroup.h"
 
 #include "gui/IPanel.h"

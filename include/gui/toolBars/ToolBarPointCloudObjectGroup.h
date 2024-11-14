@@ -1,7 +1,7 @@
 #ifndef TOOLBAR_POINT_CLOUD_OBJECT_GROUP_H
 #define TOOLBAR_POINT_CLOUD_OBJECT_GROUP_H
 
-#include <QtWidgets/QWidget>
+#include <QtWidgets/qwidget.h>
 #include "ui_toolbar_pcobjectgroup.h"
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"

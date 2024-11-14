@@ -1,13 +1,9 @@
-#include <QtWidgets/QMenu>
-#include <QtWidgets/QFileDialog>
-#include <QtWidgets/QMessageBox>
-#include <QtCore/QStandardPaths>
-
 #include "controller/controls/ControlSpecial.h"
-
 #include "gui/Dialog/DialogDeleteScanTypeSelect.h"
 #include "gui/Texts.hpp"
 
+#include <QtCore/qdir.h>
+#include <QtWidgets/qmessagebox.h>
 
 DialogDeleteScanTypeSelect::DialogDeleteScanTypeSelect(IDataDispatcher& dataDispatcher,const std::unordered_map<SafePtr<AGraphNode>, std::pair<QString, QString>>& importantData,const std::unordered_set<SafePtr<AGraphNode>> & otherData, QWidget *parent)
 	: QDialog(parent)

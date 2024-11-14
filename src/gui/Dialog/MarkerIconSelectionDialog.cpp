@@ -1,7 +1,7 @@
 #include "gui/dialog/MarkerIconSelectionDialog.h"
 #include "services/MarkerDefinitions.hpp"
 
-#include <QtWidgets/QSpacerItem>
+#include <QtWidgets/qlayoutitem.h>
 
 MarkerIconSelectionDialog::MarkerIconSelectionDialog(QWidget *parent, float _guiScale)
     : QDialog(parent, Qt::MSWindowsFixedSizeDialogHint)

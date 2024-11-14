@@ -2,12 +2,12 @@
 #define DIALOG_IMPORT_WAVEFRONT_H
 
 #include "gui/Dialog/ADialog.h"
-#include "gui/UnitConverter.h"
 #include "ui_DialogImportMeshObject.h"
 
 #include "io/FileUtils.h"
 #include "gui/Dialog/DialogImportStepSimplification.h"
 
+#include <glm/glm.hpp>
 #include <set>
 
 enum class Selection;

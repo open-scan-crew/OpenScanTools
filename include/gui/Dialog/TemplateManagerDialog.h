@@ -1,15 +1,12 @@
 #ifndef TEMPLATE_MANAGER_DIALOG_H_
 #define TEMPLATE_MANAGER_DIALOG_H_
 
-#include <QtWidgets/QDialog>
-#include <QtWidgets/QListView>
-#include <QtGui/QStandardItemModel>
 #include "gui/Dialog/ADialog.h"
 #include "ui_TemplateManagerDialog.h"
 #include "gui/Dialog/TagTemplateNameDialog.h"
 #include "gui/Dialog/TemplateEditorDialog.h"
-#include "models/application/TagTemplate.h"
 
+#include <QtGui/qstandarditemmodel.h>
 
 class TemplateManagerDialog : public ADialog
 {

@@ -1,9 +1,8 @@
 #ifndef AUTHOR_LIST_DIALOG_H_
 #define AUTHOR_LIST_DIALOG_H_
 
-#include <QtWidgets/QListView>
-#include <QtGui/QStandardItemModel>
-#include "gui/Dialog/AuthorCreateDialog.h"
+#include <QtGui/qstandarditemmodel.h>
+#include "gui/Dialog/ADialog.h"
 #include "gui/IDataDispatcher.h"
 #include "ui_AuthorDialog.h"
 

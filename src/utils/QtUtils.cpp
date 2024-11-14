@@ -1,5 +1,6 @@
 #include "utils/QtUtils.h"
-#include <QStandardItemModel>
+#include "QtWidgets/qlayout.h"
+#include "QtGui/qstandarditemmodel.h"
 namespace utils
 {
 	//https://stackoverflow.com/questions/32584320/programmatically-promote-qwidget

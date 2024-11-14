@@ -1,5 +1,4 @@
 #include "controller/messages/NewProjectMessage.h"
-#include "gui/Translator.h"
 
 NewProjectMessage::NewProjectMessage(const ProjectInfos& projectInfo, const std::filesystem::path& folderPath, const std::filesystem::path& templatePath)
     : m_projectInfo(projectInfo)

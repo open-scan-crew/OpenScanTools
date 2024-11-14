@@ -6,7 +6,7 @@
 #include <QDoubleValidator>
 #include <QIntValidator>
 #include "models/graph/ClusterNode.h"
-#include <QtWidgets/QMenu>
+#include <QtWidgets/qmenu.h>
 #include <QDir>
 #include "gui/Texts.hpp"
 

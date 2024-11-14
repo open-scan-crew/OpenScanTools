@@ -1,8 +1,6 @@
 #ifndef DIALOG_RECENT_PROJECT_H_
 #define DIALOG_RECENT_PROJECT_H_
 
-#include <QtWidgets/QDialog>
-#include <QtGui/QStandardItemModel>
 #include "gui/Dialog/ADialog.h"
 #include "ui_DialogRecentProjects.h"
 

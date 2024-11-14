@@ -1,7 +1,7 @@
 #ifndef TOOLBAR_TEMPLATEGROUP_H
 #define TOOLBAR_TEMPLATEGROUP_H
 
-#include <QtWidgets/QWidget>
+#include <QtWidgets/qwidget.h>
 #include "models/application/TagTemplate.h"
 #include "ui_toolbar_templategroup.h"
 #include "gui/IPanel.h"

@@ -1,16 +1,12 @@
-#include <QtWidgets/QFileDialog>
-#include <QtWidgets/QMessageBox>
-#include <QtCore/QStandardPaths>
-
 #include "gui/Dialog/DialogRecentProjects.h"
-#include "gui/widgets/RecentProjectsNode.h"
+
 #include "controller/controls/ControlProject.h"
-#include "controller/controls/ControlApplication.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataIO.h"
 
-#include "utils/time.h"
 #include "utils/Logger.h"
+
+#include <QtCore/qdir.h>
 
 DialogRecentProjects::DialogRecentProjects(IDataDispatcher& dataDispatcher, QWidget *parent)
 	: ADialog(dataDispatcher, parent)

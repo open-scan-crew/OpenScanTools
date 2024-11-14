@@ -3,20 +3,17 @@
 
 #include "controller/controls/ControlProject.h"
 
-#include "gui/GuiData/GuiDataRendering.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataIO.h"
 #include "gui/texts/FileTypeTexts.hpp"
 #include "gui/Texts.hpp"
 
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QFileDialog>
-#include <QtWidgets/QMessageBox>
-#include <QtCore/QStandardPaths>
+#include <QtWidgets/qpushbutton.h>
+#include <QtWidgets/qfiledialog.h>
+#include <QtWidgets/qmessagebox.h>
 
 #include "gui\Dialog\DialogImportAsciiPC.h"
 
-#include <utils/QtUtils.h>
 
 DialogImportPCObject::DialogImportPCObject(IDataDispatcher& dataDispatcher, QWidget *parent)
 	: ADialog(dataDispatcher, parent)

@@ -4,10 +4,9 @@
 #include "ui_DialogExportPrimitives.h"
 #include "gui/Dialog/ADialog.h"
 #include "io/exports/ExportParameters.hpp"
+#include "models/Types.hpp"
 
 #include <unordered_set>
-
-#include "models/Types.hpp"
 
 class DialogExportPrimitives : public ADialog
 {

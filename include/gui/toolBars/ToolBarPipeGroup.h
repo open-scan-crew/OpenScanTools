@@ -1,7 +1,7 @@
 #ifndef TOOLBAR_PIPEGROUP_H
 #define TOOLBAR_PIPEGROUP_H
 
-#include <QtWidgets/QWidget>
+#include <QtWidgets/qwidget.h>
 #include "ui_toolbar_pipegroup.h"
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"

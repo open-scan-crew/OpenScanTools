@@ -1,11 +1,11 @@
 #ifndef RIBBONTABCONTENT_H
 #define RIBBONTABCONTENT_H
 
-#include <QtWidgets/QWidget>
-#include <QtWidgets/QToolButton>
+#include <QtWidgets/qwidget.h>
+#include <QtWidgets/qtoolbutton.h>
 #include <QtWidgets/QScrollArea>
 #include "gui/ribbon/ribbonbuttongroup.h"
-#include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/qboxlayout.h>
 
 namespace Ui {
 class RibbonTabContent;

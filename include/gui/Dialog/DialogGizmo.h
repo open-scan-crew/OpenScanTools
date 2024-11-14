@@ -2,11 +2,9 @@
 #define DIALOG_GIZMO_H
 
 #include "ui_DialogGizmo.h"
-#include "gui/Translator.h"
 #include "gui/Dialog/ADialog.h"
-#include "utils/Color32.hpp"
-#include "pointCloudEngine/RenderingTypes.h"
-#include "gui/UnitUsage.h"
+
+#include <glm/glm.hpp>
 
 class DialogGizmo : public ADialog
 {

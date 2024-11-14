@@ -2,7 +2,7 @@
 #define DIALOG_DEVICE_SELECTION_H
 
 #include "ui_DialogDeviceSelection.h"
-#include <QtWidgets/QDialog>
+#include <QtWidgets/qdialog.h>
 
 class DialogDeviceSelection : public QDialog
 {

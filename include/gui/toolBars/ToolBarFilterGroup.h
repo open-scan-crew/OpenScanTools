@@ -1,7 +1,7 @@
 #ifndef TOOLBAR_FILTERGROUP_H
 #define TOOLBAR_FILTERGROUP_H
 
-#include <QtWidgets/QWidget>
+#include <QtWidgets/qwidget.h>
 #include <QtCore/QDateTime>
 #include "ui_toolbar_filtergroup.h"
 #include "gui/IPanel.h"

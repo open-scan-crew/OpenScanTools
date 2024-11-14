@@ -1,9 +1,7 @@
 #ifndef DIALOG_PROJECT_CREATION_H
 #define DIALOG_PROJECT_CREATION_H
 
-#include <QtWidgets/QDialog>
 #include "ui_DialogProjectCreation.h"
-#include "models/project/ProjectInfos.h"
 #include "models/project/ProjectTypes.h"
 #include "gui/Dialog/ADialog.h"
 

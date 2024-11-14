@@ -1,8 +1,8 @@
 #ifndef AQP_FIELD_H_
 #define AQP_FIELD_H_
 
-#include <QtWidgets/QWidget>
-#include <QtWidgets/QLabel>
+#include <QtWidgets/qwidget.h>
+#include <QtWidgets/qlabel.h>
 #include <QtWidgets/QLayout>
 
 #include "models/application/TagTemplate.h"

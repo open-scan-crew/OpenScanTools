@@ -1,7 +1,7 @@
 #ifndef QPHLINK_FIELD_H_
 #define QPHLINK_FIELD_H_
 
-#include <QtWidgets/QLineEdit>
+#include <QtWidgets/qlineedit.h>
 
 #include "gui/widgets/QPFields/AQPField.h"
 

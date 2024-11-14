@@ -1,7 +1,7 @@
 #ifndef TOOLBAR_SPHEREGROUP_H
 #define TOOLBAR_SPHEREGROUP_H
 
-#include <QtWidgets/QWidget>
+#include <QtWidgets/qwidget.h>
 #include "ui_toolbar_spheregroup.h"
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"

@@ -7,10 +7,10 @@
 #include "gui/Dialog/DialogRecentProjects.h"
 
 #include <QtWidgets/QShortCut>
-#include <QtWidgets/QGridLayout>
-#include <QtWidgets/QFileDialog>
-#include <QtWidgets/QMessageBox>
-#include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/qgridlayout.h>
+#include <QtWidgets/qfiledialog.h>
+#include <QtWidgets/qmessagebox.h>
+#include <QtWidgets/qboxlayout.h>
 #include <QApplication>
 #include <QtGui/qevent.h>
 #include "gui/Texts.hpp"

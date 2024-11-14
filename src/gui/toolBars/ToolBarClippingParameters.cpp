@@ -1,10 +1,10 @@
 #include "gui/toolbars/ToolBarClippingParameters.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataRendering.h"
-#include "gui/DataDispatcher.h"
+#include "gui/IDataDispatcher.h"
 
 #define _USE_MATH_DEFINES
-#include <math.h>
+//#include <math.h>
 
 ToolBarClippingParameters::ToolBarClippingParameters(IDataDispatcher &dataDispatcher, QWidget *parent, float guiScale)
     : QWidget(parent)

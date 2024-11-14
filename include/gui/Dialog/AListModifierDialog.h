@@ -1,9 +1,8 @@
 #ifndef ALIST_MODIFIER_DIALOG_H_
 #define ALIST_MODIFIER_DIALOG_H_
 
-#include <QtWidgets/QDialog>
-#include <QtWidgets/QListView>
-#include <QtGui/QStandardItemModel>
+#include <QtWidgets/qdialog.h>
+#include <QtGui/qstandarditemmodel.h>
 #include "gui/Dialog/ADialog.h"
 #include "ui_ListModifierDialog.h"
 

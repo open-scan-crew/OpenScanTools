@@ -3,7 +3,7 @@
 
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QStyleOption>
-#include <QtWidgets/QLabel>
+#include <QtWidgets/qlabel.h>
 
 
 Ribbon::Ribbon(QWidget *parent)

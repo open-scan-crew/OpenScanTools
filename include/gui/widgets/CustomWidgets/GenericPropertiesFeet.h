@@ -2,10 +2,11 @@
 #define GENERIC_PROPERTIES_FEET_H_
 
 #include "ui_widget_generic_properties_feet.h"
-#include "gui/IPanel.h"
 #include "gui/Dialog/HyperlinkAddDialog.h"
 #include "gui/IDataDispatcher.h"
 #include "models/Types.hpp"
+#include "models/data/Data.h"
+#include "utils/safe_ptr.h"
 
 class AObjectNode;
 

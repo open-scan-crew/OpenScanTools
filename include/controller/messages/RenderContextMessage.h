@@ -3,7 +3,6 @@
 
 #include "controller/messages/IMessage.h"
 #include "models/3d/DisplayParameters.h"
-#include <glm/glm.hpp>
 
 class RenderContextMessage : public IMessage
 {

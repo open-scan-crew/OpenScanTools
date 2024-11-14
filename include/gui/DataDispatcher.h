@@ -3,11 +3,10 @@
 
 #include "gui/IDataDispatcher.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QTimer>
+#include <QtCore/qobject.h>
+#include <QtCore/qtimer.h>
 
 #include <queue>
-#include <map>
 #include <set>
 #include <mutex>
 

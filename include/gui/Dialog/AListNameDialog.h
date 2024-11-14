@@ -1,7 +1,7 @@
 #ifndef ALIST_NAME_DIALOG_H_
 #define ALIST_NAME_DIALOG_H_
 
-#include <QtWidgets/QWidget>
+#include <QtWidgets/qwidget.h>
 #include "gui/Dialog/ADialog.h"
 #include "ui_ListNameDialog.h"
 

@@ -1,7 +1,7 @@
 #ifndef TOOLBAR_CLIPPINGPARAMETERS_H
 #define TOOLBAR_CLIPPINGPARAMETERS_H
 
-#include <QtWidgets/QWidget>
+#include <QtWidgets/qwidget.h>
 #include "controller/controls/ControlClippingEdition.h"
 #include "ui_toolbar_clippingParameters.h"
 #include "gui/IPanel.h"

@@ -1,7 +1,7 @@
 #ifndef AUTHORLISTNODE_H_
 #define AUTHORLISTNODE_H_
 
-#include <QtGui/QStandardItemModel>
+#include <QtGui/qstandarditemmodel.h>
 #include "models/OpenScanToolsModelEssentials.h"
 
 class Author;

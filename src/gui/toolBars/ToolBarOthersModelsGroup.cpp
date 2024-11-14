@@ -6,8 +6,8 @@
 
 #include "controller/controls/ControlPCObject.h"
 #include "io/FileUtils.h"
-#include <QtWidgets/QFileDialog>
-#include <QtCore/QStandardPaths>
+#include <QtWidgets/qfiledialog.h>
+#include <QtCore/qstandardpaths.h>
 
 
 ToolBarOthersModelsGroup::ToolBarOthersModelsGroup(IDataDispatcher& dataDispatcher, QWidget* parent, float guiScale)

@@ -1,7 +1,7 @@
 #ifndef TOOLBAR_TEXTPROPERTIES_H
 #define TOOLBAR_TEXTPROPERTIES_H
 
-#include <QtWidgets/QWidget>
+#include <QtWidgets/qwidget.h>
 #include "ui_toolbar_textdisplay.h"
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"

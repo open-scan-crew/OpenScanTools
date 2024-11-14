@@ -1,4 +1,4 @@
-#include <QtWidgets/QLineEdit>
+#include <QtWidgets/qlineedit.h>
 
 #include "gui/widgets/QPFields/AQPField.h"
 

@@ -1,16 +1,12 @@
 #include "gui/Dialog/DialogExportSubProject.h"
-#include "gui/Texts.hpp"
-#include "io/FileUtils.h"
-
-#include "controller/controls/ControlApplication.h"
-
 #include "controller/controls/ControlIO.h"
+#include "gui/Texts.hpp"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataIO.h"
 
-#include <QtWidgets/QFileDialog>
-#include <QtCore/QStandardPaths>
+#include <QtWidgets/qfiledialog.h>
+#include <QtCore/qstandardpaths.h>
 
 
 DialogExportSubProject::DialogExportSubProject(IDataDispatcher& dataDispatcher, QWidget* parent, float guiScale)

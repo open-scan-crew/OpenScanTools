@@ -1,4 +1,4 @@
-#include <QtWidgets/QWidget>
+#include <QtWidgets/qwidget.h>
 #include <QtGui/QScreen>
 
 #include "gui/Dialog/ListListDialog.h"

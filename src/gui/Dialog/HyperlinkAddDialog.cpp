@@ -1,13 +1,8 @@
-#include <QtWidgets/QFileDialog>
-#include <QtCore/QStandardPaths>
-
 #include "gui/Dialog/HyperlinkAddDialog.h"
-#include "controller/controls/ControlApplication.h"
 #include "gui/Texts.hpp"
-#include "controller/controls/ControlDataEdition.h"
-
 #include "gui/GuiData/GuiDataIO.h"
 
+#include <QtWidgets/qfiledialog.h>
 #include <qevent.h>
 
 HyperlinkAddDialog::HyperlinkAddDialog(IDataDispatcher& dataDispacher, QWidget *parent)

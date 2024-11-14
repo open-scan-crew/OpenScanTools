@@ -1,7 +1,7 @@
 #ifndef TOOLBAR_MEASUREGROUP_H
 #define TOOLBAR_MEASUREGROUP_H
 
-#include <QtWidgets/QWidget>
+#include <QtWidgets/qwidget.h>
 #include "ui_toolbar_measuregroup.h"
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"

@@ -3,7 +3,7 @@
 #include "gui/Texts.hpp"
 #include "io/FileUtils.h"
 
-#include <QtWidgets/QMessageBox>
+#include <QtWidgets/qmessagebox.h>
 #include "qcombobox.h"
 
 #include <regex>

@@ -1,19 +1,7 @@
 #include "gui/Dialog/DialogGizmo.h"
 #include "controller/controls/ControlApplication.h"
-#include "controller/controls/ControlProjectTemplate.h"
 #include "gui/GuiData/GuiDataRendering.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
-#include "gui/DataDispatcher.h"
-#include "gui/UnitUsage.h"
-#include "models/project/ProjectTypes.h"
-#include "utils/QtLogStream.hpp"
 
-#include <QtWidgets/qcombobox.h>
-#include <QtWidgets/qcheckbox.h>
-#include <QtWidgets/qtoolbutton.h>
-#include <QtWidgets/QFileDialog>
-#include <QtWidgets/qcolordialog.h>
-#include <QtCore/QStandardPaths>
 
 DialogGizmo::DialogGizmo(IDataDispatcher& dataDispatcher, QWidget* parent)
 	: ADialog(dataDispatcher, parent)

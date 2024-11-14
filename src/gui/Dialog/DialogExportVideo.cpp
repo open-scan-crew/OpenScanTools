@@ -1,18 +1,16 @@
 #include "gui/Dialog/DialogExportVideo.h"
-#include "gui/Texts.hpp"
 
 #include "controller/controls/ControlIO.h"
-#include "controller/controls/ControlMeasure.h"
 
+#include "gui/Texts.hpp"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataIO.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
 
 #include "models/graph/ViewPointNode.h"
 
-#include <QtWidgets/QFileDialog>
-#include <QtCore/QStandardPaths>
+#include <QtWidgets/qfiledialog.h>
+#include <QtCore/qstandardpaths.h>
 
 
 DialogExportVideo::DialogExportVideo(IDataDispatcher& dataDispatcher, QWidget *parent, float guiScale)

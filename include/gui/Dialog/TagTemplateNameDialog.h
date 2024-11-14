@@ -1,7 +1,7 @@
 #ifndef LIST_NAME_DIALOG___H_
 #define LIST_NAME_DIALOG___H_
 
-#include <QtWidgets/QWidget>
+#include <QtWidgets/qwidget.h>
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
 #include "ui_TagTemplateNameDialog.h"

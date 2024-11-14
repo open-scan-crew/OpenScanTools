@@ -1,11 +1,11 @@
 #ifndef DIALOG_SEARCHED_OBJECTS_H_
 #define DIALOG_SEARCHED_OBJECTS_H_
 
-#include <QtGui/QStandardItemModel>
 #include "gui/Dialog/ADialog.h"
 #include "ui_DialogSearchedObjects.h"
+#include "utils/safe_ptr.h"
 
-#include "models/OpenScanToolsModelEssentials.h"
+#include <QtGui/qstandarditemmodel.h>
 
 class AGraphNode;
 

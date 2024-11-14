@@ -30,7 +30,7 @@
 #include "pointCloudEngine/IRenderingEngine.h"
 
 #include <QtWidgets/QMainWindow>
-#include <QtWidgets/QWidget>
+#include <QtWidgets/qwidget.h>
 #include <QtWidgets/QToolBar>
 #include <QtWidgets/QStatusBar>
 #include <QGuiApplication>

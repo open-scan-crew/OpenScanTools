@@ -1,4 +1,4 @@
-#include <QtGui/QStandardItemModel>
+#include <QtGui/qstandarditemmodel.h>
 #include "models/application/TagTemplate.h"
 
 #ifndef TEMPFIELD_NODE_H_

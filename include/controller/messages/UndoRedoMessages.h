@@ -2,7 +2,6 @@
 #define UNDOREDOMESSAGE_H_
 
 #include "IMessage.h"
-#include <stdint.h>
 
 class UndoMessage : public IMessage
 {

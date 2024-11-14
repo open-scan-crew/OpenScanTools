@@ -1,23 +1,13 @@
-#include <QtWidgets/QMenu>
-#include <QtWidgets/QFileDialog>
-#include <QtWidgets/QMessageBox>
-#include <QtCore/QStandardPaths>
-
-#include "gui/texts/ProjectTemplateTexts.hpp"
-
 #include "gui/Dialog/ProjectTemplateListDialog.h"
-#include "gui/GuiData/GuiDataList.h"
-#include "gui/Dialog/ListNameDialog.h"
-#include "gui/Dialog/ListModifierDialog.h"
-#include "gui/widgets/ListsNode.h"
 #include "controller/controls/ControlProjectTemplate.h"
+#include "gui/widgets/ListsNode.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ListTexts.hpp"
 
-#include "utils/System.h"
-#include "utils/Utils.h"
 #include "utils/Logger.h"
+
+#include <QtWidgets/qmessagebox.h>
 
 ProjectTemplateListDialog::ProjectTemplateListDialog(IDataDispatcher& dataDispatcher, QWidget *parent)
 	: ADialog(dataDispatcher, parent)

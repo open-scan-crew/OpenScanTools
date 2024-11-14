@@ -1,7 +1,7 @@
 #ifndef EVENT_MANAGER_VIEWPORT_H
 #define EVENT_MANAGER_VIEWPORT_H
 
-#include <QtWidgets/QWidget>
+#include <QtWidgets/qwidget.h>
 #include "gui/IDataDispatcher.h"
 #include "controller/controls/IControl.h"
 

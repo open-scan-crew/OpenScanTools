@@ -1,7 +1,7 @@
 #ifndef CUSTOM_LINE_EDIT_H_
 #define CUSTOM_LINE_EDIT_H_
 
-#include <QtWidgets/QLineEdit>
+#include <QtWidgets/qlineedit.h>
 #include <qfuturewatcher.h>
 #include <qthreadpool.h>
 

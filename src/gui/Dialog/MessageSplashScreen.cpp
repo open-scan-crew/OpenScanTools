@@ -1,10 +1,6 @@
 #include "gui/Dialog/MessageSplashScreen.h"
 #include "gui/texts/SplashScreenTexts.hpp"
 
-#if defined(_WIN32)
-#include <windows.h>
-#include <synchapi.h>
-#endif
 
 MessageSplashScreen::MessageSplashScreen(QWidget *parent)
 	: QDialog(parent)

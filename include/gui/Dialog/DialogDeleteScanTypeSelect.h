@@ -1,13 +1,11 @@
 #ifndef DELETE_TYPE_DIALOG_H_
 #define DELETE_TYPE_DIALOG_H_
 
-#include <QtWidgets/QListView>
-#include <QtGui/QStandardItemModel>
-#include <QDialog>
+#include <QtWidgets/qdialog.h>
 #include "ui_DialogDeleteScanTypeSelection.h"
-#include "models/data/Data.h"
 
 #include "gui/IDataDispatcher.h"
+#include "utils/safe_ptr.h"
 
 #include <unordered_map>
 #include <unordered_set>

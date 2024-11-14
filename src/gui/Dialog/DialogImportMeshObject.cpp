@@ -1,31 +1,26 @@
 #include "gui/Dialog/DialogImportMeshObject.h"
-#include "controller/messages/ImportMessage.h"
 #include "gui/widgets/CustomWidgets/qdoubleedit.h"
 #include "gui/widgets/CustomWidgets/regexpedit.h"
 
-
-#include "controller/controls/ControlFunction.h"
 #include "controller/controls/ControlMeshObject.h"
 
-#include "gui/GuiData/GuiDataRendering.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataIO.h"
 #include "gui/texts/FileTypeTexts.hpp"
 #include "gui/Texts.hpp"
 
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QFileDialog>
-#include <QtWidgets/QMessageBox>
-#include <QtCore/QStandardPaths>
+#include <QtWidgets/qpushbutton.h>
+#include <QtWidgets/qfiledialog.h>
+#include <QtWidgets/qmessagebox.h>
 
-#include <utils/QtUtils.h>
-
-static const std::list<std::pair<QVariant, QString>> DirectionList = {{QVariant((uint32_t)Selection::X), "X"}
-                                                                    ,{QVariant((uint32_t)Selection::_X), "-X"}
-                                                                    ,{QVariant((uint32_t)Selection::Y), "Y"}
-                                                                    ,{QVariant((uint32_t)Selection::_Y), "-Y"}
-                                                                    ,{QVariant((uint32_t)Selection::Z), "Z"}
-                                                                    ,{QVariant((uint32_t)Selection::_Z), "-Z"} };
+static const std::list<std::pair<QVariant, QString>> DirectionList = {
+    { QVariant((uint32_t)Selection::X), "X" },
+    { QVariant((uint32_t)Selection::_X), "-X" },
+    { QVariant((uint32_t)Selection::Y), "Y" },
+    { QVariant((uint32_t)Selection::_Y), "-Y" },
+    { QVariant((uint32_t)Selection::Z), "Z" },
+    { QVariant((uint32_t)Selection::_Z), "-Z" }
+};
 
 DialogImportMeshObject::DialogImportMeshObject(IDataDispatcher& dataDispatcher, QWidget *parent)
 	: ADialog(dataDispatcher, parent)

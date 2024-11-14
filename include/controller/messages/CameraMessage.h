@@ -2,7 +2,7 @@
 #define CAMERA_MESSAGE_H_
 
 #include "controller/messages/IMessage.h"
-#include "models/OpenScanToolsModelEssentials.h"
+#include "utils/safe_ptr.h"
 
 class CameraNode;
 

@@ -1,6 +1,6 @@
 #include "gui/Dialog/ProcessingSplashScreen.h"
 #include "gui/GuiData/GuiDataMessages.h"
-#include <QtConcurrent/QtConcurrentRun>
+#include <QtConcurrent/qtconcurrentrun.h>
 #include <QtCore/qregularexpression.h>
 #include "controller/controls/ControlFunction.h"
 

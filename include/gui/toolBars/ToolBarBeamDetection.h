@@ -1,7 +1,7 @@
 #ifndef TOOLBAR_BEAM_DETECTION_H
 #define TOOLBAR_BEAM_DETECTION_H
 
-#include <QtWidgets/QWidget>
+#include <QtWidgets/qwidget.h>
 #include "ui_toolbar_beamDetection.h"
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"

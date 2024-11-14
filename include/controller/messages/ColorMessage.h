@@ -2,7 +2,7 @@
 #define COLOR_MESSAGE_H_
 
 #include "controller/messages/IMessage.h"
-#include "models/OpenScanToolsModelEssentials.h"
+#include <glm/glm.hpp>
 
 class ColorMessage : public IMessage
 {

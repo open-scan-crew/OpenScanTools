@@ -1,4 +1,4 @@
-#include <QtWidgets/QWidget>
+#include <QtWidgets/qwidget.h>
 
 #ifndef FOCUSWATCHER_H_
 #define FOCUSWATCHER_H_

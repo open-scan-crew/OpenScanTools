@@ -5,16 +5,16 @@
 #include "gui/texts/TlsTexts.hpp"
 #include "gui/Texts.hpp"
 #include "io/FileUtils.h"
-#include "controller/controls/ControlApplication.h"
 #include "controller/controls/ControlFunction.h"
 #include "controller/messages/ClippingExportParametersMessage.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataIO.h"
 
 #include "models/graph/AClippingNode.h"
 
-#include <QtWidgets/QFileDialog>
-#include <QtCore/QStandardPaths>
+#include <QtWidgets/qfiledialog.h>
+#include <QtCore/qstandardpaths.h>
+
+#include <set>
 
 
 const static std::vector<FileType> ExportFileTypePermited = {

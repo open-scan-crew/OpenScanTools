@@ -5,9 +5,7 @@
 #include "gui/Translator.h"
 #include "gui/Dialog/ADialog.h"
 #include "gui/Dialog/DialogGizmo.h"
-#include "utils/Color32.hpp"
 #include "pointCloudEngine/RenderingTypes.h"
-#include "gui/UnitConverter.h"
 
 class DialogSettings : public ADialog
 {

@@ -1,5 +1,4 @@
 #include "gui/Dialog/DialogSetOfPoints.h"
-#include "controller/controls/ControlMeasure.h"
 
 
 DialogSetOfPoints::DialogSetOfPoints(IDataDispatcher& dataDispatcher, QWidget* parent)

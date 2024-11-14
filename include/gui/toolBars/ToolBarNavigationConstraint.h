@@ -2,7 +2,7 @@
 #define TOOLBAR_NAVICONSTRAINT_H
 
 #include <map>
-#include <QtWidgets/QWidget>
+#include <QtWidgets/qwidget.h>
 
 #include "ui_toolbar_navigationconstraint.h"
 

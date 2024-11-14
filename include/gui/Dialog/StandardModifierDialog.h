@@ -3,7 +3,7 @@
 
 #include "gui/Dialog/AListModifierDialog.h"
 #include "models/application/List.h"
-#include "models/OpenScanToolsModelEssentials.h"
+#include "utils/safe_ptr.h"
 
 class StandardModifierDialog : public AListModifierDialog
 {

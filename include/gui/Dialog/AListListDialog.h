@@ -1,9 +1,7 @@
 #ifndef ALIST_LIST_DIALOG_H_
 #define ALIST_LIST_DIALOG_H_
 
-#include <QtWidgets/QDialog>
-#include <QtWidgets/QListView>
-#include <QtGui/QStandardItemModel>
+#include <QtGui/qstandarditemmodel.h>
 #include "gui/Dialog/ADialog.h"
 #include "ui_ListListDialog.h"
 

@@ -1,7 +1,7 @@
 #ifndef TOOLBAR_USERORIENTATIONS_H
 #define TOOLBAR_USERORIENTATIONS_H
 
-#include <QtWidgets/QWidget>
+#include <QtWidgets/qwidget.h>
 #include <forward_list>
 #include "ui_toolbar_userOrientation.h"
 

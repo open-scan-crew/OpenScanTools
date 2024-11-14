@@ -9,7 +9,7 @@
 #include "models/graph/AClippingNode.h"
 #include "models/application/Ids.hpp"
 
-#include <QtWidgets/QMenu>
+#include <QtWidgets/qmenu.h>
 #include <qmessagebox.h>
 
 std::unordered_set<SafePtr<AClippingNode>> getClippingsNodes(const std::unordered_set<SafePtr<AObjectNode>>& nodes)

@@ -2,7 +2,7 @@
 #define TOOLBAR_FOV_H
 
 #include <map>
-#include <QtWidgets/QWidget>
+#include <QtWidgets/qwidget.h>
 
 #include "ui_toolbar_fov.h"
 

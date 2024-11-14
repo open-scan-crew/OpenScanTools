@@ -9,7 +9,7 @@
 #include "controller/Controller.h"
 #include "models/graph/GraphManager.h"
 
-#include <QtWidgets/QWidget>
+#include <QtWidgets/qwidget.h>
 #include <QtGui/QScreen>
 
 ToolBarFilterGroup::ToolBarFilterGroup(IDataDispatcher& dataDispatcher, Controller& controller, QWidget* parent, float guiScale)

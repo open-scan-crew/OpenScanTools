@@ -1,7 +1,7 @@
 #ifndef CREATE_AUTHOR_DIALOG_H_
 #define CREATE_AUTHOR_DIALOG_H_
 
-#include <QtWidgets/QWidget>
+#include <QtWidgets/qwidget.h>
 #include "gui/Dialog/ADialog.h"
 #include "ui_AuthorCreateDialog.h"
 

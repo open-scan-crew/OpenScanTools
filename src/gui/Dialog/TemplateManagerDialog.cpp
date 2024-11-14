@@ -1,18 +1,18 @@
-#include <QtWidgets/QMenu>
-#include <QtWidgets/QFileDialog>
-#include <QtWidgets/QMessageBox>
-#include <QtCore/QStandardPaths>
 #include "gui/Dialog/TemplateManagerDialog.h"
-#include "gui/Dialog/TemplateEditorDialog.h"
-#include "gui/GuiData/GuiDataTemplate.h"
-#include "gui/widgets/TemplatesNode.h"
+
 #include "controller/controls/ControlTemplateEdit.h"
 #include "controller/controls/ControlFunction.h"
 #include "controller/controls/ControlIO.h"
+#include "gui/GuiData/GuiDataTemplate.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/FileTypeTexts.hpp"
 #include "gui/Texts.hpp"
+#include "gui/widgets/TemplatesNode.h"
 #include "utils/Logger.h"
+
+#include <QtWidgets/qmenu.h>
+#include <QtWidgets/qfiledialog.h>
+#include <QtWidgets/qmessagebox.h>
 
 TemplateManagerDialog::TemplateManagerDialog(IDataDispatcher &dataDispacher, QWidget *parent, const bool& deleteOnClose)
 	: ADialog(dataDispacher, parent)

@@ -1,7 +1,7 @@
 #ifndef QPSTRING_FIELD_H_
 #define QPSTRING_FIELD_H_
 
-#include <QtWidgets/QLineEdit>
+#include <QtWidgets/qlineedit.h>
 
 #include "gui/widgets/QPFields/AQPField.h"
 #include "gui/IPanel.h"

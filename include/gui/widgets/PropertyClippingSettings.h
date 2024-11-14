@@ -1,7 +1,7 @@
 #ifndef PROPERTY_CLIPPING_SETTINGS_H
 #define PROPERTY_CLIPPING_SETTINGS_H
 
-#include <QtWidgets/QWidget>
+#include <QtWidgets/qwidget.h>
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
 #include "ui_Property_Clipping_Settings.h"

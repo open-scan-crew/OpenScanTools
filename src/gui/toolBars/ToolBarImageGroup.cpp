@@ -6,12 +6,12 @@
 
 #include "controller/controls/ControlIO.h"
 
-#include <QtWidgets/QGridLayout>
+#include <QtWidgets/qgridlayout.h>
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qtoolbutton.h>
 #include <QtWidgets/QColorDialog>
-#include <QtWidgets/QFileDialog>
-#include <QtCore/QStandardPaths>
+#include <QtWidgets/qfiledialog.h>
+#include <QtCore/qstandardpaths.h>
 
 #include "gui/texts/ImageSettings_txt.hpp"
 #include "gui/Texts.hpp"

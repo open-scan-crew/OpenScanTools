@@ -1,9 +1,10 @@
 #ifndef ADIALOG_H_
 #define ADIALOG_H_
 
-#include <QtWidgets/QDialog>
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
+
+#include <QtWidgets/qdialog.h>
 
 class ADialog : public QDialog, public IPanel
 {

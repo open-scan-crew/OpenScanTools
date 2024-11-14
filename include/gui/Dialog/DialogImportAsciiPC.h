@@ -1,7 +1,7 @@
 #ifndef IMPORT_ASCII_PC_H_
 #define IMPORT_ASCII_PC_H_
 
-#include <QtWidgets/QDialog>
+#include <QtWidgets/qdialog.h>
 #include "ui_DialogImportAsciiPC.h"
 #include "io/imports/ImportTypes.h"
 

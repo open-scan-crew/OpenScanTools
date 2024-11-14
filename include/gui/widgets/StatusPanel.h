@@ -9,7 +9,7 @@
 #include "glm/glm.hpp"
 
 #include <QtWidgets/QStatusBar>
-#include <QtWidgets/QLabel>
+#include <QtWidgets/qlabel.h>
 
 class StatusPanel;
 

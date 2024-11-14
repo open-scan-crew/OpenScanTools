@@ -8,16 +8,15 @@
 #include "gui/texts/FileTypeTexts.hpp"
 #include "gui/Texts.hpp"
 #include "gui/GuiData/GuiDataIO.h"
-#include "gui/GuiData/GuiDataMessages.h"
 
 #include "magic_enum/magic_enum.hpp"
 #include "utils/Utils.h"
 
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QFileDialog>
-#include <QtWidgets/QMessageBox>
-#include <QtCore/QStandardPaths>
+#include <QtWidgets/qpushbutton.h>
+#include <QtWidgets/qfiledialog.h>
 #include <QtWidgets/qmessagebox.h>
+#include <QtCore/qstandardpaths.h>
+
 
 DialogImportStepSimplification::DialogImportStepSimplification(IDataDispatcher& dataDispatcher, QWidget *parent)
 	: ADialog(dataDispatcher, parent)

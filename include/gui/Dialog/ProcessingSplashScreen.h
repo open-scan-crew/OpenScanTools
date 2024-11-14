@@ -2,10 +2,12 @@
 #define _PROCESSINGSPLASHSCREEN_H_
 
 #include "ui_processing_splashscreen.h"
-#include <QtWidgets/QDialog>
+
 #include "gui/IDataDispatcher.h"
 #include "gui/IPanel.h"
-#include <QtCore/QFutureWatcher>
+
+#include <QtCore/qfuturewatcher.h>
+#include <QtWidgets/qdialog.h>
 
 class ProcessingSplashScreen : public QDialog, public IPanel
 {

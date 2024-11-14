@@ -1,9 +1,6 @@
 #ifndef TEMPLATE_EDITOR_DIALOG_H_
 #define TEMPLATE_EDITOR_DIALOG_H_
 
-#include <QtWidgets/QDialog>
-#include <QtWidgets/QListView>
-#include <QtGui/QStandardItemModel>
 #include "gui/Dialog/ADialog.h"
 #include "gui/IDataDispatcher.h"
 #include "ui_TemplateEditorDialog.h"

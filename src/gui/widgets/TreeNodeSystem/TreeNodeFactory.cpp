@@ -11,12 +11,11 @@
 
 #include "gui/style/IconObject.h"
 
-#include "utils/ProjectStringSets.hpp"
 #include "gui/texts/TreePanelTexts.hpp"
 #include "utils/ProjectColor.hpp"
 
 #include "gui/Texts.hpp"
-#include "gui/DataDispatcher.h"
+#include "gui/IDataDispatcher.h"
 
 #define TREELOG Logger::log(LoggerMode::TreeLog)
 

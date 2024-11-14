@@ -1,13 +1,13 @@
 #ifndef MARKER_ICON_SELECTION_DIALOG_H_
 #define MARKER_ICON_SELECTION_DIALOG_H_
 
-#include <QDialog>
 #include "gui/IPanel.h"
 #include "models/project/Marker.h"
 
-#include <QtWidgets/QGridLayout>
-#include <QtWidgets/QHBoxLayout>
-#include <QtWidgets/QToolButton>
+#include <QtWidgets/qgridlayout.h>
+#include <QtWidgets/qboxlayout.h>
+#include <QtWidgets/qtoolbutton.h>
+#include <QtWidgets/qdialog.h>
 
 class MarkerIconSelectionDialog : public QDialog, public IPanel
 {

@@ -1,15 +1,14 @@
-#include <QtWidgets/QMenu>
-#include <QtWidgets/QFileDialog>
-#include <QtWidgets/QMessageBox>
-#include <QtCore/QStandardPaths>
-
 #include "gui/Dialog/AuthorListDialog.h"
+#include "gui/Dialog/AuthorCreateDialog.h"
 #include "gui/widgets/AuthorListNode.h"
 #include "controller/controls/ControlApplication.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/Texts.hpp"
 #include "utils/Logger.h"
+
+#include <QtWidgets/qmessagebox.h>
+
 
 AuthorListDialog::AuthorListDialog(IDataDispatcher& dataDispatcher, QWidget *parent)
 	: ADialog(dataDispatcher, parent)

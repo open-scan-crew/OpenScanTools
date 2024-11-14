@@ -2,7 +2,7 @@
 #define _MessageSplashScreen_H_
 
 #include "ui_Message_Splashscreen.h"
-#include <QtWidgets/QDialog>
+#include <QtWidgets/qdialog.h>
 
 class MessageSplashScreen : public QDialog
 {

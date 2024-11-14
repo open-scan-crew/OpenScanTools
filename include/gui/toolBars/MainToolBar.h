@@ -6,8 +6,8 @@
 #include "models/project/ProjectInfos.h"
 
 #include <QtWidgets/QToolBar>
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QLabel>
+#include <QtWidgets/qpushbutton.h>
+#include <QtWidgets/qlabel.h>
 
 class MainToolBar;
 typedef void (MainToolBar::* MainToolBarMethod)(IGuiData*);

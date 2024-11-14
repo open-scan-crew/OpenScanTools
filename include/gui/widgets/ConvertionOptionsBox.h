@@ -3,7 +3,8 @@
 
 #include "ui_convertion_options.h"
 #include "gui/Dialog/ADialog.h"
-#include "gui/UnitConverter.h"
+
+#include <glm/glm.hpp>
 
 class ConvertionOptionsBox : public ADialog
 {

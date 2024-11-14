@@ -1,10 +1,8 @@
 #ifndef EXPORT_FILEOBJECT_DIALOG_H_
 #define EXPORT_FILEOBJECT_DIALOG_H_
 
-#include <QtWidgets/QListView>
 #include <qdialog.h>
 #include "ui_DialogExportFileObject.h"
-#include "models/data/Data.h"
 
 #include "gui/IDataDispatcher.h"
 

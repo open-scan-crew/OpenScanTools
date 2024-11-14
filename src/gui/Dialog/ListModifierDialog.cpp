@@ -1,14 +1,12 @@
-#include <QtWidgets/QMenu>
-#include <QtWidgets/QMessageBox>
-
 #include "gui/Dialog/ListModifierDialog.h"
 #include "gui/widgets/ListsNode.h"
 #include "gui/GuiData/GuiDataList.h"
 #include "controller/controls/ControlUserList.h"
 #include "gui/texts/ListTexts.hpp"
-#include "gui/widgets/CustomWidgets/qdoubleedit.h"
-#include "utils/QtUtils.h"
 #include "utils/Logger.h"
+
+#include <QtWidgets/qmenu.h>
+#include <QtWidgets/qmessagebox.h>
 
 ListModifierDialog::ListModifierDialog(IDataDispatcher& dataDispatcher, QDialog *parent)
 	: AListModifierDialog(dataDispatcher, parent)

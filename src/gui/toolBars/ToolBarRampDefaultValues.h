@@ -1,7 +1,7 @@
 #ifndef TOOLBAR_RAMP_DEFAULT_VALUES_H
 #define TOOLBAR_RAMP_DEFAULT_VALUES_H
 
-#include <QtWidgets/QWidget>
+#include <QtWidgets/qwidget.h>
 
 #include "ui_toolbar_ramp_default_values.h"
 

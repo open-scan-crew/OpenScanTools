@@ -1,12 +1,9 @@
 #ifndef TREEMODEL_H
 #define TREEMODEL_H
 
-#include <QtCore/QAbstractItemModel>
-#include <QtCore/QModelIndex>
-#include <QtCore/QVariant>
-#include <QtGui/QStandardItemModel>
+#include <QtCore/qabstractitemmodel.h>
+#include <QtGui/qstandarditemmodel.h>
 #include "gui/widgets/TreeNodeSystem/TreeNode.h"
-//#include "gui/widgets/TreeNodeSystem/DataTreeNode.h"
 
 class AGraphNode;
 /*! QUESTION(quentin) Arbre côté UI ? Il n'y a qu'un TreeModel qui gère les DataNode pour l'affichage UI

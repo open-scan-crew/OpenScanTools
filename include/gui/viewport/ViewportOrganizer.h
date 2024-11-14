@@ -1,8 +1,8 @@
 #ifndef VIEWPORT_ORGANIZER_H
 #define VIEWPORT_ORGANIZER_H
 
-#include <QtWidgets/QWidget>
-#include <QtWidgets/QGridLayout>
+#include <QtWidgets/qwidget.h>
+#include <QtWidgets/qgridlayout.h>
 #include <QtWidgets/QShortcut>
 #include <glm/glm.hpp>
 #include "models/pointCloud/TLS.h"

@@ -2,7 +2,6 @@
 #define QTUTILS_H_
 
 #include <QtWidgets/qwidget.h>
-#include <QtWidgets/qlayout.h>
 #include <QtWidgets/qcombobox.h>
 
 namespace utils

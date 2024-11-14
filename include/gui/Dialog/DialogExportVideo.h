@@ -5,10 +5,6 @@
 #include "gui/Dialog/ADialog.h"
 #include "io/exports/ExportParameters.hpp"
 
-#include <unordered_set>
-
-#include "models/Types.hpp"
-
 class DialogExportVideo : public ADialog
 {
     Q_OBJECT

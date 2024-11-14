@@ -6,8 +6,8 @@
 
 #include "gui/Texts.hpp"
 
-#include <QtWidgets/QFileDialog>
-#include <QtCore/QStandardPaths>
+#include <QtWidgets/qfiledialog.h>
+#include <QtCore/qstandardpaths.h>
 
 ToolBarImportObjects::ToolBarImportObjects(IDataDispatcher &dataDispatcher, QWidget *parent, const float& guiScale)
 	: QWidget(parent)

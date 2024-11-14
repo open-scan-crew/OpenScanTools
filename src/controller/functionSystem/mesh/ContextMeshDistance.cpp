@@ -1,16 +1,12 @@
 #include "ContextMeshDistance.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
+#include "controller/IControlListener.h"
 #include "controller/messages/FullClickMessage.h"
 #include "controller/controls/ControlFunction.h"
-#include "gui/DataDispatcher.h"
-#include "gui/GuiData/GuiDataContextRequest.h"
 
 #include "models/graph/SimpleMeasureNode.h"
 #include "models/graph/GraphManager.hxx"
-
-#include "vulkan/VulkanManager.h"
 
 #include "gui/texts/RayTracingTexts.hpp"
 

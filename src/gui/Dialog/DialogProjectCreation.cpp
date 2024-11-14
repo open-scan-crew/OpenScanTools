@@ -4,13 +4,10 @@
 #include "gui/Texts.hpp"
 #include "gui/Translator.h"
 
-#include <QtWidgets/QGridLayout>
-#include <QtGui/QIcon>
-#include <QtWidgets/QLabel>
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QFileDialog>
-#include <QtWidgets/QMessageBox>
-#include <QtCore/QStandardPaths>
+#include <QtWidgets/qpushbutton.h>
+#include <QtWidgets/qfiledialog.h>
+#include <QtWidgets/qmessagebox.h>
+#include <QtCore/qstandardpaths.h>
 #include "gui/widgets/CustomWidgets/regexpedit.h"
 #include "utils/System.h"
 

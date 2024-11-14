@@ -2,7 +2,7 @@
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataRendering.h"
-#include <QtWidgets/QGridLayout>
+#include <QtWidgets/qgridlayout.h>
 #include <magic_enum/magic_enum.hpp>
 #include "gui/Texts.hpp"
 #include "utils/Utils.h"

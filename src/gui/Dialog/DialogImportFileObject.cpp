@@ -1,21 +1,18 @@
-#include <QtWidgets/QMenu>
-#include <QtWidgets/QFileDialog>
-#include <QtWidgets/QMessageBox>
-#include <QtCore/QStandardPaths>
-
+#include "gui/Dialog/DialogImportFileObject.h"
 #include "gui/GuiData/GuiDataIO.h"
 
-#include "controller/controls/ControlIO.h"
 #include "controller/controls/ControlModal.h"
 #include "controller/controls/ControlFunction.h"
-
 #include "controller/messages/FilesMessage.h"
 
-#include "models/graph/MeshObjectNode.h"
-#include "models/graph/ScanNode.h"
-
-#include "gui/Dialog/DialogImportFileObject.h"
 #include "gui/Texts.hpp"
+
+#include "models/graph/MeshObjectNode.h"
+#include "models/graph/APointCloudNode.h"
+
+
+#include <QtWidgets/qfiledialog.h>
+#include <QtCore/qstandardpaths.h>
 
 DialogImportFileObject::DialogImportFileObject(IDataDispatcher& dataDispatcher, QWidget* parent)
 	: ADialog(dataDispatcher, parent)

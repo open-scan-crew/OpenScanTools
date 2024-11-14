@@ -1,5 +1,4 @@
 #include "gui/Dialog/ADialog.h"
-#include <qevent.h>
 
 ADialog::ADialog(IDataDispatcher& dataDispacher, QWidget* parent)
 	: QDialog(parent)

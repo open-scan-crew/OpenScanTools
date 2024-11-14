@@ -2,8 +2,9 @@
 #define DATAID_LIST_MESSAGE_H_
 
 #include "controller/messages/IMessage.h"
-#include "models/OpenScanToolsModelEssentials.h"
 #include "models/Types.hpp"
+#include "utils/safe_ptr.h"
+
 #include <unordered_set>
 
 class AGraphNode;

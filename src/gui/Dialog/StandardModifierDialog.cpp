@@ -1,5 +1,5 @@
-#include <QtWidgets/QMenu>
-#include <QtWidgets/QMessageBox>
+#include <QtWidgets/qmenu.h>
+#include <QtWidgets/qmessagebox.h>
 
 #include "gui/Dialog/StandardModifierDialog.h"
 #include "gui/widgets/ListsNode.h"

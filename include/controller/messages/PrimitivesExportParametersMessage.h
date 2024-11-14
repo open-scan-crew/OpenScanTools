@@ -3,7 +3,6 @@
 
 #include "io/exports/ExportParameters.hpp"
 #include "controller/messages/IMessage.h"
-#include "models/OpenScanToolsModelEssentials.h"
 
 
 class PrimitivesExportParametersMessage : public IMessage

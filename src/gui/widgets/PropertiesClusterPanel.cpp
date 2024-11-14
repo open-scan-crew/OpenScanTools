@@ -9,7 +9,7 @@
 #include "models/graph/ClusterNode.h"
 #include "models/3d/NodeFunctions.h"
 
-#include <QtWidgets/QGridLayout>
+#include <QtWidgets/qgridlayout.h>
 
 PropertiesClusterPanel::PropertiesClusterPanel(const Controller& controller, QWidget* parent)
 	: APropertyGeneral(controller.getDataDispatcher(), parent)

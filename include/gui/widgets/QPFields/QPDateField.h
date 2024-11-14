@@ -1,7 +1,7 @@
 #ifndef QPDATE_FIELD_H_
 #define QPDATE_FIELD_H_
 
-#include <QtWidgets/QPushButton>
+#include <QtWidgets/qpushbutton.h>
 
 #include "gui/widgets/QPFields/AQPField.h"
 #include "gui/Dialog/CalendarDialog.h"

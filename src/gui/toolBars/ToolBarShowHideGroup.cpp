@@ -1,4 +1,4 @@
-#include <QtWidgets/QWidget>
+#include <QtWidgets/qwidget.h>
 
 #include "gui/toolBars/ToolBarShowHideGroup.h"
 #include "controller/controls/ControlSpecial.h"

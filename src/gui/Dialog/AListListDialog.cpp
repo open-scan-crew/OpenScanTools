@@ -1,19 +1,11 @@
-#include <QtWidgets/QMenu>
-#include <QtWidgets/QFileDialog>
-#include <QtWidgets/QMessageBox>
-#include <QtCore/QStandardPaths>
-
 #include "gui/Dialog/AListListDialog.h"
-#include "gui/GuiData/GuiDataList.h"
 #include "gui/GuiData/GuiDataIO.h"
-#include "gui/Dialog/ListNameDialog.h"
-#include "gui/Dialog/ListModifierDialog.h"
-#include "gui/widgets/ListsNode.h"
-#include "controller/controls/ControlUserList.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
-#include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ListTexts.hpp"
 #include "utils/Logger.h"
+
+#include <QtWidgets/qmenu.h>
+#include <QtCore/qstandardpaths.h>
+
 
 AListListDialog::AListListDialog(IDataDispatcher& dataDispatcher, QWidget *parent, const bool& deleteOnClose)
 	: ADialog(dataDispatcher, parent)

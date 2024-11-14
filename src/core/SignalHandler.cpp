@@ -1,9 +1,9 @@
 #include "core/SignalHandler.h"
+#include "controller/controls/ControlSignals.h"
 #include "utils/Logger.h"
 #include "Baduit/Timer.hpp"
 
 #include <csignal>
-#include <functional>
 
 volatile std::sig_atomic_t gSignalStatus;
 
@@ -13,7 +13,7 @@ void handle(int signal)
 	gSignalStatus = signal;
 }
 
-SignalHandler::SignalHandler(DataDispatcher* dataDispatcher) :m_dataDispatcher(dataDispatcher), m_running(false)
+SignalHandler::SignalHandler(IDataDispatcher* dataDispatcher) : m_dataDispatcher(dataDispatcher), m_running(false)
 {
 	registerSignals();
 }

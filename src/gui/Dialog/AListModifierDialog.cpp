@@ -1,13 +1,8 @@
-#include <QtWidgets/QMenu>
-#include <QtWidgets/QMessageBox>
-
 #include "gui/Dialog/AListModifierDialog.h"
-#include "gui/widgets/ListsNode.h"
-#include "gui/GuiData/GuiDataList.h"
-#include "controller/controls/ControlUserList.h"
 #include "gui/texts/ListTexts.hpp"
-#include "utils/QtUtils.h"
 #include "utils/Logger.h"
+
+#include <QtWidgets/qmenu.h>
 
 AListModifierDialog::AListModifierDialog(IDataDispatcher& dataDispatcher, QDialog *parent)
 	: ADialog(dataDispatcher, parent)

@@ -110,13 +110,13 @@
 #include "models/project/ProjectTypes.h"
 #include "models/graph/CameraNode.h"
 
-#include <QtWidgets/QWidget>
+#include <QtWidgets/qwidget.h>
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QGridLayout>
+#include <QtWidgets/qgridlayout.h>
 #include <QtWidgets/QDockWidget>
-#include <QtWidgets/QFileDialog>
-#include <QtCore/QStandardPaths>
-#include <QtWidgets/QMessageBox>
+#include <QtWidgets/qfiledialog.h>
+#include <QtCore/qstandardpaths.h>
+#include <QtWidgets/qmessagebox.h>
 #include <QtGui/QScreen>
 #include <QtGui/qevent.h>
 #include <QtWidgets/QShortcut>

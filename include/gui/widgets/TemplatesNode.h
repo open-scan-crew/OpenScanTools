@@ -1,4 +1,4 @@
-#include <QtGui/QStandardItemModel>
+#include <QtGui/qstandarditemmodel.h>
 #include "models/application/TagTemplate.h"
 #include "models/OpenScanToolsModelEssentials.h"
 

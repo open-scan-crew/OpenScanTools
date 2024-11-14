@@ -2,11 +2,11 @@
 #define TEMPLATE_PROPERTIES_PANEL_H_
 #include <vector>
 
-#include <QtWidgets/QWidget>
+#include <QtWidgets/qwidget.h>
 #include <QtWidgets/QLayout>
-#include <QtWidgets/QLineEdit>
-#include <QtWidgets/QComboBox>
-#include <QtWidgets/QPushButton>
+#include <QtWidgets/qlineedit.h>
+#include <QtWidgets/qcombobox.h>
+#include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/QPlainTextEdit>
 #include <QtWidgets/QScrollArea>
 #include <QtWidgets/QTableWidget>

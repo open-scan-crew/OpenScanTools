@@ -1,8 +1,3 @@
-#include <QtWidgets/QMenu>
-#include <QtWidgets/QFileDialog>
-#include <QtWidgets/QMessageBox>
-#include <QtCore/QStandardPaths>
-
 #include "controller/controls/ControlModal.h"
 #include "controller/controls/ControlFunction.h"
 

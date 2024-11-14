@@ -1,7 +1,7 @@
 #ifndef TOOLBAR_LUCASEXPERIMENT_H
 #define TOOLBAR_LUCASEXPERIMENT_H
 
-#include <QtWidgets/QWidget>
+#include <QtWidgets/qwidget.h>
 #include "ui_toolbar_lucasExperiment.h"
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"

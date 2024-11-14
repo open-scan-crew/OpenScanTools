@@ -1,16 +1,14 @@
-#include <QtWidgets/QMenu>
-#include <QtWidgets/QFileDialog>
-#include <QtWidgets/QMessageBox>
-#include <QtCore/QStandardPaths>
-
 #include "gui/Dialog/StandardListDialog.h"
+#include "controller/controls/ControlStandards.h"
+#include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataList.h"
 #include "gui/widgets/ListsNode.h"
-#include "controller/controls/ControlStandards.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
-#include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ListTexts.hpp"
+
 #include "utils/Logger.h"
+
+#include <QtWidgets/qfiledialog.h>
+#include <QtWidgets/qmessagebox.h>
 
 StandardListDialog::StandardListDialog(IDataDispatcher& dataDispatcher, const StandardType& type, QWidget *parent, const bool& deleteOnClose)
 	: AListListDialog(dataDispatcher, parent, deleteOnClose)

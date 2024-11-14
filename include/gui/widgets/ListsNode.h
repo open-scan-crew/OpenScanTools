@@ -1,7 +1,7 @@
 #ifndef LISTSNODE_H_
 #define LISTSNODE_H_
 
-#include <QtGui/QStandardItemModel>
+#include <QtGui/qstandarditemmodel.h>
 #include "models/application/List.h"
 #include "models/OpenScanToolsModelEssentials.h"
 

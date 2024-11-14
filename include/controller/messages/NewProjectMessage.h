@@ -6,7 +6,6 @@
 #include "models/project/ProjectTypes.h"
 #include "models/OpenScanToolsModelEssentials.h"
 
-#include "io/exports/ExportParameters.hpp"
 
 #include <filesystem>
 

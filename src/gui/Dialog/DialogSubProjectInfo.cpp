@@ -1,7 +1,5 @@
 #include "gui/Dialog/DialogSubProjectInfo.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
-#include "utils/QtLogStream.hpp"
-
+#include "models/application/Author.h"
 #include "models/project/ProjectInfos.h"
 
 DialogSubProjectInfo::DialogSubProjectInfo(IDataDispatcher& dataDispatcher, QWidget* parent)

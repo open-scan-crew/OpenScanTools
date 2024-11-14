@@ -1,18 +1,8 @@
 #include "DialogPointCloudObjectCreation.h"
 
-//#include "gui/Texts.hpp"
-#include "io/FileUtils.h"
-#include "controller/controls/ControlApplication.h"
-#include "controller/controls/ControlPCObject.h"
 #include "controller/controls/ControlFunction.h"
-#include "gui/GuiData/GuiData3dObjects.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataClipping.h"
 #include "controller/messages/PointCloudObjectCreationParametersMessage.h"
-
-#include <QtWidgets/QFileDialog>
-#include <QtCore/QStandardPaths>
-
 
 DialogPointCloudObjectCreation::DialogPointCloudObjectCreation(IDataDispatcher& dataDispatcher, QWidget *parent)
     : ADialog(dataDispatcher, parent)

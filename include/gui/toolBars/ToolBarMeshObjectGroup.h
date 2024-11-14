@@ -1,7 +1,7 @@
 #ifndef TOOLBAR_WAVEFRONT_GROUP_H
 #define TOOLBAR_WAVEFRONT_GROUP_H
 
-#include <QtWidgets/QWidget>
+#include <QtWidgets/qwidget.h>
 #include "gui/Dialog/DialogImportMeshObject.h"
 #include "ui_toolbar_meshobjectgroup.h"
 #include "gui/IPanel.h"

@@ -3,7 +3,7 @@
 #include "gui/widgets/ProjectTreePanel.h"
 
 #include <QtWidgets/QScrollBar>
-#include <QtWidgets/QMenu>
+#include <QtWidgets/qmenu.h>
 #include <QtGui/QDrag>
 #include <QtGui/QDragLeaveEvent>
 

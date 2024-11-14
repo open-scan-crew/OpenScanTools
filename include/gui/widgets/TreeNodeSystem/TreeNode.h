@@ -1,9 +1,9 @@
 #ifndef TREE_NODE_H
 #define TREE_NODE_H
 
-#include <QtCore/QList>
-#include <QtCore/QVariant>
-#include <QtGui/QStandardItemModel>
+#include <QtCore/qlist.h>
+#include <QtCore/qvariant.h>
+#include <QtGui/qstandarditemmodel.h>
 #include "models/OpenScanToolsModelEssentials.h"
 #include "models/Types.hpp"
 

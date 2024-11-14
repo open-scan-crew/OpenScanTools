@@ -1,23 +1,18 @@
-#include <QtWidgets/QFileDialog>
-#include <QtWidgets/QMessageBox>
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QComboBox>
-#include <QtWidgets/QLineEdit>
-#include <QtCore/QStandardPaths>
 #include "gui/Dialog/TemplateEditorDialog.h"
-#include "gui/widgets/TempFieldNode.h"
 #include "controller/controls/ControlTemplateEdit.h"
 #include "gui/GuiData/GuiDataTemplate.h"
-
 #include "gui/Texts.hpp"
 #include "gui/texts/MarkerTexts.hpp"
 #include "utils/Logger.h"
 
-#include "magic_enum/magic_enum.hpp"
-
 #include <cctype>
-#include <QHeaderView>
-#include <QSortFilterProxyModel>
+
+#include <QtWidgets/qmessagebox.h>
+#include <QtWidgets/qpushbutton.h>
+#include <QtWidgets/qcombobox.h>
+#include <QtWidgets/qlineedit.h>
+#include <QtWidgets/qheaderview.h>
+//#include <QtCore/qsortfilterproxymodel.h>
 
 TemplateEditorDialog::TemplateEditorDialog(IDataDispatcher &dataDispacher, QWidget *parent)
 	: ADialog(dataDispacher, parent)

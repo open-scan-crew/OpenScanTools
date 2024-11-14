@@ -11,7 +11,7 @@
 
 #include <fmt/format.h>
 
-#include <QtWidgets/QFileDialog>
+#include <QtWidgets/qfiledialog.h>
 
 #include "gui/Texts.hpp"
 

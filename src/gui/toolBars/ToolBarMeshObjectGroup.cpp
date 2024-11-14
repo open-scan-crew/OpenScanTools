@@ -10,8 +10,8 @@
 
 #include "gui/Texts.hpp"
 #include "io/FileUtils.h"
-#include <QtWidgets/QFileDialog>
-#include <QtCore/QStandardPaths>
+#include <QtWidgets/qfiledialog.h>
+#include <QtCore/qstandardpaths.h>
 
 ToolBarMeshObjectGroup::ToolBarMeshObjectGroup(IDataDispatcher& dataDispatcher, QWidget* parent, float guiScale)
 	: QWidget(parent)

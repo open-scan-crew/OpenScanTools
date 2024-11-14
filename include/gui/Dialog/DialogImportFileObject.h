@@ -1,7 +1,6 @@
 #ifndef IMPORT_FILEOBJECT_DIALOG_H_
 #define IMPORT_FILEOBJECT_DIALOG_H_
 
-#include <QtWidgets/QListView>
 #include "gui/Dialog/ADialog.h"
 #include "ui_DialogImportFileObject.h"
 

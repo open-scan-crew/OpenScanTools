@@ -1,10 +1,7 @@
 #ifndef CALENDAR_DIALOG_H_
 #define CALENDAR_DIALOG_H_
 
-#include <QtWidgets/QDialog>
-#include <QtWidgets/QCalendarWidget>
-#include "gui/IPanel.h"
-#include "gui/IDataDispatcher.h"
+#include <QtWidgets/qdialog.h>
 #include "ui_Calendar_Dialog.h"
 
 class CalendarDialog : public QDialog

@@ -1,9 +1,9 @@
 #include "gui/Dialog/DialogAbout.h"
 #include "utils/OpenScanToolsVersion.h"
-#include "gui/Texts.hpp"
 #include "gui/texts/AboutTexts.hpp"
-#include <QDesktopServices>
-#include <QUrl>
+
+#include <QtGui/qdesktopservices.h>
+#include <QtCore/qurl.h>
 
 DialogAbout::DialogAbout(IDataDispatcher& dataDispatcher, QWidget* parent)
     : ADialog(dataDispatcher, parent)
