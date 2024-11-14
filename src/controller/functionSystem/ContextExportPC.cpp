@@ -254,8 +254,7 @@ bool ContextExportPC::processExport(Controller& controller, CSVWriter* csv_write
     std::unique_ptr<IScanFileWriter> scanFileWriter = nullptr;
     std::vector<ExportTask> export_tasks;
     std::vector<CopyTask> copy_tasks;
-    prepareExportTasks(controller, export_tasks);
-    prepareCopyTasks(controller, copy_tasks);
+    prepareTasks(controller, export_tasks, copy_tasks);
 
     logStart(controller, export_tasks.size());
 
@@ -301,7 +300,7 @@ bool ContextExportPC::processExport(Controller& controller, CSVWriter* csv_write
     return success;
 }
 
-void ContextExportPC::prepareExportTasks(Controller& controller, std::vector<ContextExportPC::ExportTask>& export_tasks)
+void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextExportPC::ExportTask>& export_tasks, std::vector<CopyTask>& copy_tasks)
 {
     GraphManager& graph = controller.getGraphManager();
     std::vector<tls::PointCloudInstance> pcInfos = graph.getPointCloudInstances(xg::Guid(), m_parameters.exportScans, m_parameters.exportPCOs, m_parameters.pointCloudFilter);
@@ -420,68 +419,39 @@ void ContextExportPC::prepareExportTasks(Controller& controller, std::vector<Con
                 pcInfo.header.precision == m_parameters.encodingPrecision &&
                 clipping_assembly.clippingUnion.empty() &&
                 clipping_assembly.clippingIntersection.empty())
-                continue;
+            {
+                if (pcInfo.header.precision == m_parameters.encodingPrecision)
+                {
+                    CopyTask task;
+                    TlScanOverseer::getInstance().getScanPath(pcInfo.header.guid, task.src_path);
 
-            ExportTask task;
-            task.file_name = pcInfo.header.name + (m_forSubProject ? L"" : L"_clipped");
+                    task.dst_path = m_parameters.outFolder / (pcInfo.header.name + L".tls");
 
-            task.header = pcInfo.header;
-            task.header.name = task.header.name + (m_forSubProject ? L"" : L"_clipped");
-            task.header.precision = m_parameters.encodingPrecision;
-            task.header.format = pcInfo.header.format;
+                    glm::dvec3 pos = pcInfo.transfo.getCenter() + m_scanTranslationToAdd;
+                    glm::dquat rot = pcInfo.transfo.getOrientation();
+                    task.dst_transfo = { { rot.x, rot.y, rot.z, rot.w }, { pos.x, pos.y, pos.z } };
 
-            task.transfo = pcInfo.transfo;
+                    copy_tasks.push_back(task);
+                }
+            }
+            else
+            {
 
-            task.input_pcs = { pcInfo };
-            task.clippings = clipping_assembly;
+                ExportTask task;
+                task.file_name = pcInfo.header.name + (m_forSubProject ? L"" : L"_clipped");
 
-            export_tasks.push_back(task);
-        }
-    }
-}
+                task.header = pcInfo.header;
+                task.header.name = task.header.name + (m_forSubProject ? L"" : L"_clipped");
+                task.header.precision = m_parameters.encodingPrecision;
+                task.header.format = pcInfo.header.format;
 
-void ContextExportPC::prepareCopyTasks(Controller& controller, std::vector<CopyTask>& copy_tasks)
-{
-    if (m_parameters.outFileType != FileType::TLS)
-        return;
+                task.transfo = pcInfo.transfo;
 
-    bool is_scan = m_parameters.exportScans;
-    bool is_pco = m_parameters.exportPCOs;
-    ObjectStatusFilter status = m_parameters.pointCloudFilter;
-    // This is the same function as 'getPointCloudInstances' but with 'APointCloudNode'
-    std::unordered_set<SafePtr<APointCloudNode>> point_clouds = controller.cgetGraphManager().getNodesOnFilter<APointCloudNode>([is_scan, is_pco, status](ReadPtr<AGraphNode>& node)
-        {
-            bool verifType = is_scan && node->getType() == ElementType::Scan
-                || is_pco && node->getType() == ElementType::PCO;
-            bool verifState = (status == ObjectStatusFilter::ALL ||
-                (status == ObjectStatusFilter::VISIBLE && node->isVisible()) ||
-                (status == ObjectStatusFilter::SELECTED && node->isSelected()));
-            return verifType && verifState;
-        }
-    );
+                task.input_pcs = { pcInfo };
+                task.clippings = clipping_assembly;
 
-    for (const SafePtr<APointCloudNode>& pc : point_clouds)
-    {
-        ReadPtr<APointCloudNode> r_pc = pc.cget();
-        if (!r_pc)
-            continue;
-
-        tls::ScanHeader header;
-        tlGetScanHeader(r_pc->getScanGuid(), header);
-
-        if (header.precision == m_parameters.encodingPrecision)
-        {
-            CopyTask task;
-            task.src_path = r_pc->getCurrentScanPath();
-
-            std::wstring name = r_pc->getType() == ElementType::Scan ? r_pc->getName() : r_pc->getComposedName();
-            task.dst_path = m_parameters.outFolder / (name + L".tls");
-
-            glm::dvec3 pos = r_pc->getCenter() + m_scanTranslationToAdd;
-            glm::dquat rot = r_pc->getOrientation();
-            task.dst_transfo = { { rot.x, rot.y, rot.z, rot.w }, { pos.x, pos.y, pos.z } };
-
-            copy_tasks.push_back(task);
+                export_tasks.push_back(task);
+            }
         }
     }
 }

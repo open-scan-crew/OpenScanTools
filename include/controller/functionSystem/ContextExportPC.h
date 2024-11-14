@@ -49,8 +49,7 @@ protected:
     };
     bool processExport(Controller& controller, CSVWriter* csv_writer);
     void copyTls(Controller& controller, CopyTask task);
-    void prepareExportTasks(Controller& controller, std::vector<ExportTask>& export_tasks);
-    void prepareCopyTasks(Controller& controller, std::vector<CopyTask>& copy_tasks);
+    void prepareTasks(Controller& controller, std::vector<ExportTask>& export_tasks, std::vector<CopyTask>& copy_tasks);
 
     void logStart(Controller& controller, size_t total_steps);
     void logProgress(Controller& controller);
