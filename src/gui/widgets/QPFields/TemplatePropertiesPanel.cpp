@@ -1,29 +1,12 @@
 #include "gui/widgets/QPFields/TemplatePropertiesPanel.h"
-#include "gui/GuiData/GuiDataTag.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
-#include "gui/GuiData/GuiDataRendering.h"
 #include "controller/Controller.h"
 #include "controller/controls/ControlTagEdition.h"
-#include "controller/controls/ControlDataEdition.h"
-#include "controller/controls/ControlAnimation.h"
 #include "gui/widgets/QPFields/QPListField.h"
 #include "services/MarkerDefinitions.hpp"
-#include "controller/ControllerContext.h"
-
-#include "controller/controls/ControlClippingEdition.h"
 #include "controller/Controls/ControlObject3DEdition.h"
-
-#include "utils/math/trigo.h"
-#include "utils/Logger.h"
-
-#include <glm/gtx/norm.hpp>
-
 #include "models/graph/TagNode.h"
 
-#include <cctype>
-#include <QHeaderView>
-
-#include <QtWidgets/QScrollBar>
+#include "utils/Logger.h"
 
 void cleanLayout(QLayout* layout)
 {
