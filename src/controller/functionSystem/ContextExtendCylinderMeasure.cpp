@@ -1,7 +1,7 @@
 #include "controller/functionSystem/ContextExtendCylinderMeasure.h"
 #include "controller/controls/ControlFunction.h"
 #include "controller/Controller.h"
-#include "controller/ControlListener.h" // forward declaration
+#include "controller/IControlListener.h"
 
 #include "pointCloudEngine/TlScanOverseer.h"
 

@@ -5,7 +5,7 @@
 #include "gui/texts/DefaultNameTexts.hpp"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/ControlListener.h" // forward declaration
+#include "controller/IControlListener.h"
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "models/graph/CylinderNode.h"
 #include "models/graph/TorusNode.h"

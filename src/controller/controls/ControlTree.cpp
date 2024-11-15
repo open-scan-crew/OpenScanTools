@@ -1,7 +1,7 @@
 #include "controller/controls/ControlTree.h"
 #include "controller/controls/ControlFunction.h"
 #include "controller/Controller.h"
-#include "controller/ControlListener.h" // forward declaration
+#include "controller/IControlListener.h"
 #include "utils/Logger.h"
 
 #include "models/graph/ClusterNode.h"

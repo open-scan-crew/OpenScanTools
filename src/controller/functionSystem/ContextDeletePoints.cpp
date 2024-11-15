@@ -1,7 +1,7 @@
 #include "controller/functionSystem/ContextDeletePoints.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/ControlListener.h" // forward declaration
+#include "controller/IControlListener.h"
 #include "controller/functionSystem/FunctionManager.h"
 #include "controller/Controls/ControlScanEdition.h"
 #include "controller/messages/DeletePointsMessage.h"

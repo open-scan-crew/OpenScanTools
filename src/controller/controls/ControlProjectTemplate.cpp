@@ -1,7 +1,7 @@
 #include "controller/controls/ControlProjectTemplate.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/ControlListener.h" // forward declaration
+#include "controller/IControlListener.h"
 #include "io/SaveLoadSystem.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataMessages.h"

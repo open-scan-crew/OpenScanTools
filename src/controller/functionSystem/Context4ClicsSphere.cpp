@@ -1,6 +1,6 @@
 #include "controller/functionSystem/Context4ClicsSphere.h"
 #include "controller/Controller.h"
-#include "controller/ControlListener.h"
+#include "controller/IControlListener.h"
 #include "controller/controls/ControlFunction.h"
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "gui/texts/ContextTexts.hpp"

@@ -3,7 +3,7 @@
 #include "controller/controls/ControlFunction.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/ControlListener.h" // forward declaration
+#include "controller/IControlListener.h"
 #include "controller/messages/IMessage.h"
 #include "gui/texts/ContextTexts.hpp"
 

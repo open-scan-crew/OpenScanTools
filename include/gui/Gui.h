@@ -1,46 +1,31 @@
 #ifndef GUI_H
 #define GUI_H
 
-#include <stdlib.h>
-#include <string>
-#include <iostream>
-#include <map>
-#include <unordered_set>
-#include <mutex>
-
 #include "gui/IDataDispatcher.h"
 #include "gui/IPanel.h"
-
 #include "gui/ribbon/ribbon.h"
 #include "gui/Dialog/DialogSettings.h"
 #include "gui/Dialog/DialogAbout.h"
 #include "gui/Dialog/DialogShortcuts.h"
-#include "gui/Dialog/DialogDeleteScanTypeSelect.h"
 #include "gui/Dialog/MessageSplashScreen.h"
-#include "gui/Dialog/DialogImportAsciiPC.h"
-#include "gui/Dialog/DialogProjectCreation.h"
 #include "gui/Dialog/DialogImportFileObject.h"
 #include "gui/Dialog/DialogOpenProjectCentral.h"
 #include "gui/Dialog/ProjectTemplateListDialog.h"
 #include "gui/widgets/PropertyClippingSettings.h"
 #include "gui/widgets/SplashScreen.h"
 
-#include "controller/controls/IControl.h"
-
 #include "pointCloudEngine/IRenderingEngine.h"
 
-#include <QtWidgets/QMainWindow>
+#include <QtWidgets/qmainwindow.h>
 #include <QtWidgets/qwidget.h>
-#include <QtWidgets/QToolBar>
-#include <QtWidgets/QStatusBar>
-#include <QGuiApplication>
+
+#include <unordered_set>
 
 #define GUILOG Logger::log(LoggerMode::GuiLog)
 
 class StatusPanel;
 class ViewportOrganizer;
 class MainToolBar;
-class SplashScreen;
 class Translator;
 class LicenseWindowsManager;
 class ToolBarProjectGroup;

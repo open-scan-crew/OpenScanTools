@@ -4,7 +4,7 @@
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
 
-#include <QtWidgets/QShortcut>
+#include <QtWidgets/qshortcut.h>
 #include <deque>
 
 enum class ManipulationMode;

@@ -2,7 +2,6 @@
 #define URL_HANDLER_H_
 
 #include <QObject>
-#include <filesystem>
 
 class FileUrlHandler : public QObject
 {

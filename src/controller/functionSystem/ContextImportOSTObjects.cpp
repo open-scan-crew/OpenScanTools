@@ -1,7 +1,7 @@
 #include "controller/functionSystem/ContextImportOSTObjects.h"
 #include "controller/Controller.h"
 #include "controller/controls/ControlFunction.h"
-#include "controller/ControlListener.h" // forward declaration
+#include "controller/IControlListener.h"
 #include "controller/messages/FilesMessage.h"
 #include "controller/messages/ModalMessage.h"
 

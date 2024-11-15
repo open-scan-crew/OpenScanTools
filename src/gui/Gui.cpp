@@ -1,4 +1,7 @@
 #include "gui/Gui.h"
+#include "gui/Dialog/DialogProjectCreation.h"
+#include "gui/Dialog/DialogImportAsciiPC.h"
+#include "gui/Dialog/DialogDeleteScanTypeSelect.h"
 #include "gui/Texts.hpp"
 #include "gui/texts/FileTypeTexts.hpp"
 #include "gui/texts/TreePanelTexts.hpp"
@@ -111,28 +114,17 @@
 #include "models/graph/CameraNode.h"
 
 #include <QtWidgets/qwidget.h>
-#include <QtWidgets/QApplication>
-#include <QtWidgets/qgridlayout.h>
-#include <QtWidgets/QDockWidget>
+#include <QtWidgets/qdockwidget.h>
 #include <QtWidgets/qfiledialog.h>
 #include <QtCore/qstandardpaths.h>
 #include <QtWidgets/qmessagebox.h>
-#include <QtGui/QScreen>
+#include <QtGui/qscreen.h>
 #include <QtGui/qevent.h>
-#include <QtWidgets/QShortcut>
-#include <QtWidgets/QGraphicsEffect>
-#include <QWindowStateChangeEvent>
-#include <QProcess>
-
-#include "io/FileUtils.h"
-
-#include <qmimedata.h>
-#include <QSettings>
+#include <QtCore/qprocess.h>
+#include <QtCore/qsettings.h>
 
 #include "gui/UrlHandler.h"
 #include "qdesktopservices.h"
-
-#include "DialogOpenProjectCentral.h"
 
 #ifndef PORTABLE
 #include "gui/widgets/ConvertionOptionsBox.h"

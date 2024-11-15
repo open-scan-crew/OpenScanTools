@@ -1,6 +1,6 @@
 #include "gui/UrlHandler.h"
-#include <QDir>
-#include <QUrl>
+#include <QtCore/qdir.h>
+#include <QtCore/qurl.h>
 #include "qdesktopservices.h"
 
 void FileUrlHandler::handleFile(const QUrl& fileUrl)

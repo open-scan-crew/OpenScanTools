@@ -8,7 +8,7 @@
 #include "controller/messages/ImportMessage.h"
 #include "controller/controls/ControlProject.h"
 #include "controller/ControllerContext.h"
-#include "controller/ControlListener.h" // forward declaration
+#include "controller/IControlListener.h"
 #include "io/SaveLoadSystem.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataIO.h"

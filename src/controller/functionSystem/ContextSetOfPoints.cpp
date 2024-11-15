@@ -1,31 +1,20 @@
 #include "controller/functionSystem/ContextSetOfPoints.h"
-#include "controller/controls/ControlFunctionTag.h"
+
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
-#include "controller/functionSystem/FunctionManager.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
+#include "controller/IControlListener.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ContextTexts.hpp"
 #include "pointCloudEngine/TlScanOverseer.h"
-#include "controller/functionSystem/ContextPointCreation.h"
 #include "utils/Logger.h"
-#include "utils/ProjectColor.hpp"
-#include "controller/messages/SimpleNumberMessage.h"
 #include "controller/messages/PlaneMessage.h"
-#include "controller/controls/ControlTree.h"
-#include "controller/functionSystem/ContextPeopleRemover.h"
-#include "controller/functionSystem/ContextCreateTag.h"
-#include "gui/Texts.hpp"
 #include "pointCloudEngine/OctreeRayTracing.h"
-#include "controller/controls/ControlFunctionClipping.h"
 #include "models/graph/GraphManager.hxx"
 #include "models/graph/PointNode.h"
 #include "controller/controls/ControlFunction.h"
 #include "pointCloudEngine/MeasureClass.h"
 #include "models/graph/SimpleMeasureNode.h"
-#include <chrono>
-#include <thread>
+#include "models/graph/ClusterNode.h"
 
 ContextSetOfPoints::ContextSetOfPoints(const ContextId& id)
 	: ARayTracingContext(id)

@@ -1,7 +1,7 @@
 #include "utils/Config.h"
 #include "utils/Logger.h"
 #include "controller/Controller.h"
-#include "controller/ControlListener.h" // forward declaration
+#include "controller/IControlListener.h"
 #include "gui/Gui.h"
 #include "gui/Translator.h"
 #include "gui/DataDispatcher.h"

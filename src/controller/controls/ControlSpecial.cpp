@@ -1,7 +1,7 @@
 #include "controller/controls/ControlSpecial.h"
 #include "controller/controls/ControlProject.h"
 #include "controller/Controller.h"
-#include "controller/ControlListener.h" // forward declaration
+#include "controller/IControlListener.h"
 #include "controller/ControllerContext.h"
 
 #include "io/SaveLoadSystem.h"

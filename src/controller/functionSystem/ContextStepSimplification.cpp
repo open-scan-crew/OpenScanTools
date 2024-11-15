@@ -1,7 +1,7 @@
 #include "controller/functionSystem/ContextStepSimplification.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/ControlListener.h" // forward declaration
+#include "controller/IControlListener.h"
 #include "controller/messages/ImportMessage.h"
 #include "utils/Logger.h"
 #include "utils/Utils.h"

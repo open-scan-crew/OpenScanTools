@@ -1,6 +1,6 @@
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
+#include "controller/IControlListener.h"
 #include "controller/controls/ControlFunction.h"
 #include "io/SaveLoadSystem.h"
 #include "pointCloudEngine/PCE_core.h"

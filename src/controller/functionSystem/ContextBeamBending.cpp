@@ -1,19 +1,17 @@
 #include "controller/functionSystem/ContextBeamBending.h"
 #include "controller/controls/ControlFunction.h"
-#include "controller/messages/ClickMessage.h"
 #include "controller/messages/PlaneMessage.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ContextTexts.hpp"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
-#include "controller/functionSystem/FunctionManager.h"
+#include "controller/IControlListener.h"
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "utils/ProjectColor.hpp"
 #include "utils/Logger.h"
 #include "pointCloudEngine/MeasureClass.h"
 
-#include "models/graph/GraphManager.hxx"
+#include "models/graph/GraphManager.h"
 #include "models/graph/BeamBendingMeasureNode.h"
 
 ContextBeamBending::ContextBeamBending(const ContextId& id)

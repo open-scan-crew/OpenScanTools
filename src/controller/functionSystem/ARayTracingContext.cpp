@@ -8,7 +8,7 @@
 #include "gui/texts/RayTracingTexts.hpp"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/ControlListener.h" // forward declaration
+#include "controller/IControlListener.h"
 #include "controller/controls/ControlMetaControl.h"
 #include "models/graph/GraphManager.h"
 #include "controller/messages/FullClickMessage.h"

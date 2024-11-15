@@ -3,7 +3,7 @@
 #include "models/graph/TagNode.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/ControlListener.h" // forward declaration
+#include "controller/IControlListener.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ContextTexts.hpp"
 

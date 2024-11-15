@@ -2,7 +2,7 @@
 #include "controller/controls/ControlFunction.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "controller/ControlListener.h"
+#include "controller/IControlListener.h"
 #include "controller/functionSystem/FunctionManager.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 

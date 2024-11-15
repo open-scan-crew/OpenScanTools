@@ -1,6 +1,6 @@
 #include "controller/functionSystem/ContextExperiment.h"
 #include "controller/Controller.h"
-#include "controller/ControlListener.h" // forward declaration
+#include "controller/IControlListener.h"
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ContextTexts.hpp"
