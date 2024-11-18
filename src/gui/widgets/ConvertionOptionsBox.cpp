@@ -12,6 +12,8 @@
 
 #include "QtWidgets/qfiledialog.h"
 
+constexpr double BIG_COORDINATES_THRESHOLD = 10000.0;
+
 ConvertionOptionsBox::ConvertionOptionsBox(IDataDispatcher& dataDispatcher, QWidget* parent)
 	: ADialog(dataDispatcher, parent)
 	, m_mask(0)

@@ -1,10 +1,9 @@
 #ifndef RIBBONTABWIDGET_H
 #define RIBBONTABWIDGET_H
 
-#include <QtWidgets/QTabWidget>
-#include <QtWidgets/qtoolbutton.h>
-#include <QtWidgets/QScrollArea>
 #include "gui/ribbon/ribbontabcontent.h"
+
+#include <QtWidgets/qtabwidget.h>
 
 class Ribbon : public QTabWidget
 {

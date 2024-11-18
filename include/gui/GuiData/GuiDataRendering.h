@@ -10,7 +10,6 @@
 #include "models/3d/BoundingBox.h"
 #include "utils/Color32.hpp"
 #include "utils/safe_ptr.h"
-#include "models/3d/DisplayParameters.h"
 #include "models/3d/NavigationTypes.h"
 
 #include <filesystem>

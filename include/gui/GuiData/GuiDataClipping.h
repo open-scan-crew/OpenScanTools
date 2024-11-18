@@ -4,7 +4,7 @@
 #include "gui/GuiData/IGuiData.h"
 #include "io/exports/ExportParameters.hpp"
 
-#include <QString>
+#include <QtCore/qstring.h>
 
 class GuiDataClippingSettingsProperties : public IGuiData
 {

@@ -1,7 +1,8 @@
 #include "gui/ribbon/ribbontabcontent.h"
 #include "ui_ribbontabcontent.h"
-#include <QtWidgets/QScrollBar>
-#include <QResizeEvent>
+#include "QtWidgets/qscrollbar.h"
+#include <QtWidgets/qtoolbutton.h>
+#include <QtGui/qevent.h>
 
 
 RibbonTabContent::RibbonTabContent(QWidget *parent)

@@ -3,7 +3,7 @@
 
 #include <unordered_map>
 #include "vulkan/vulkan.h"
-#include <QString>
+#include <QtCore/qstring.h>
 
 namespace ObjectAllocation
 {

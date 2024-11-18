@@ -1,6 +1,4 @@
 #include "gui/GuiData/GuiDataRendering.h"
-#include "gui/IPanel.h"
-
 
 //*** Active Camera ***//
 GuiDataActiveCamera::GuiDataActiveCamera(SafePtr<CameraNode> camera)

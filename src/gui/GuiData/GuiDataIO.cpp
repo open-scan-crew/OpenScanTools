@@ -1,8 +1,5 @@
 #include "gui/GuiData/GuiDataIO.h"
 
-//#include "utils/Logger.h"
-//#include "io/FileUtils.h"
-
 // **** GuiDataOpenProjectCentral ****
 
 GuiDataOpenProjectCentral::GuiDataOpenProjectCentral(const std::filesystem::path& centralPath)

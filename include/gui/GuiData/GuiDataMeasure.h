@@ -4,10 +4,6 @@
 #include "gui/GuiData/IGuiData.h"
 #include <glm/glm.hpp>
 
-#include "models/OpenScanToolsModelEssentials.h"
-
-class AGraphNode;
-
 class GuiDataPoint : public IGuiData
 {
 public:

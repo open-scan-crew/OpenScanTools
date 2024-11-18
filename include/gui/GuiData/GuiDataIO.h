@@ -4,15 +4,7 @@
 #include "gui/GuiData/IGuiData.h"
 #include "io/exports/ExportParameters.hpp"
 
-//#include "models/data/Data.h"
-//#include "models/project/ProjectInfos.h"
-//#include "models/OpenScanToolsModelEssentials.h"
-//#include "controller/controls/IControl.h"
-//#include "controller/functionSystem/AContext.h"
-
 #include <unordered_set>
-
-#define BIG_COORDINATES_THRESHOLD 10000
 
 class AGraphNode;
 class AClippingNode;

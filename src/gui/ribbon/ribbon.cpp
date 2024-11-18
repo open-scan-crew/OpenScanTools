@@ -1,11 +1,6 @@
 #include "gui/ribbon/ribbon.h"
 #include "gui/ribbon/ribbontabcontent.h"
 
-#include <QtWidgets/QApplication>
-#include <QtWidgets/QStyleOption>
-#include <QtWidgets/qlabel.h>
-
-
 Ribbon::Ribbon(QWidget *parent)
   : QTabWidget(parent)
 {

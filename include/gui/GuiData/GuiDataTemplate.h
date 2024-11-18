@@ -4,7 +4,7 @@
 #include "gui/GuiData/IGuiData.h"
 #include "models/application/TagTemplate.h"
 #include "models/application/List.h"
-#include "models/OpenScanToolsModelEssentials.h"
+#include "utils/safe_ptr.h"
 
 #include <unordered_set>
 

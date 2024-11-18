@@ -1,6 +1,5 @@
 #include "gui/GuiData/GuiDataClipping.h"
-#include "utils/Logger.h"
-#include "io/FileUtils.h"
+
 
 // **** GuiDataClippingSettingsProperties ****
 

@@ -2,16 +2,13 @@
 #define GUI_DATA_HD_H
 
 #include "gui/GuiData/IGuiData.h"
-#include "pointCloudEngine/RenderingTypes.h"
 #include "io/ImageTypes.h"
-
-#include <cstdint>
-#include <filesystem>
+#include "utils/safe_ptr.h"
 
 #include <glm/glm.hpp>
 
-
-#include "models/OpenScanToolsModelEssentials.h"
+#include <cstdint>
+#include <filesystem>
 
 class CameraNode;
 

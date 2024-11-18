@@ -3,7 +3,7 @@
 
 #include "gui/GuiData/IGuiData.h"
 
-#include <QString>
+#include <QtCore/qstring.h>
 #include <QObject>
 
 class GuiDataWarning : public IGuiData

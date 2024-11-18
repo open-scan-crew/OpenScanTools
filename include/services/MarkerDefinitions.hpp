@@ -5,7 +5,7 @@
 #include "gui/texts/MarkerTexts.hpp"
 
 #include <unordered_map>
-#include <QString>
+#include <QtCore/qstring.h>
 #include <QObject>
 
 namespace scs

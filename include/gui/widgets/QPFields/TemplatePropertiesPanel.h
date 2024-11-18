@@ -8,7 +8,7 @@
 #include <QtWidgets/qcombobox.h>
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/QPlainTextEdit>
-#include <QtWidgets/QScrollArea>
+#include <QtWidgets/qscrollarea.h>
 #include <QtWidgets/QTableWidget>
 
 #include "gui/widgets/APropertyGeneral.h"

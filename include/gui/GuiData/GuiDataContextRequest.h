@@ -3,7 +3,6 @@
 
 #include "gui/GuiData/IGuiData.h"
 #include "controller/functionSystem/AContext.h"
-#include "crossguid/Guid.hpp"
 
 class GuiDataContextRequestActiveCamera : public IGuiData
 {

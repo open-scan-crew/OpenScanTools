@@ -2,10 +2,8 @@
 
 #include "models/graph/AGraphNode.h"
 #include "controller/ControllerContext.h"
-#include "models/graph/GraphManager.hxx"
+#include "models/graph/GraphManager.h"
 
-#include "utils/Logger.h"
-#include "io/FileUtils.h"
 
 #include <unordered_set>
 

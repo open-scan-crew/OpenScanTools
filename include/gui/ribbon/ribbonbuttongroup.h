@@ -2,7 +2,6 @@
 #define RIBBONBUTTONGROUP_H
 
 #include <QtWidgets/qwidget.h>
-#include <QtWidgets/qtoolbutton.h>
 
 namespace Ui {
 class RibbonButtonGroup;

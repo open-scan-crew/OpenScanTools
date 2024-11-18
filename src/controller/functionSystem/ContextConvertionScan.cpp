@@ -22,11 +22,11 @@
 #include "models/graph/ScanNode.h"
 #include "models/graph/ScanObjectNode.h"
 #include "models/graph/GraphManager.h"
-// Temporary for large coordinates
-#include "io/exports/TlsFileWriter.h"
 
 #include <chrono>
-//#include "qmessagebox.h"
+
+
+constexpr double BIG_COORDINATES_THRESHOLD = 10000.0;
 
 #define Ok 0x00000400
 

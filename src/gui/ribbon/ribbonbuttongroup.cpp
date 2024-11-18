@@ -1,8 +1,6 @@
 #include "gui/ribbon/ribbonbuttongroup.h"
 #include "ui_ribbonbuttongroup.h"
 
-#include <QtWidgets/qtoolbutton.h>
-
 RibbonButtonGroup::RibbonButtonGroup(QWidget *parent)
   : QWidget(parent)
   , ui(new Ui::RibbonButtonGroup)

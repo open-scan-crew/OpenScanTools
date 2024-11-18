@@ -2,8 +2,6 @@
 #define RIBBONTABCONTENT_H
 
 #include <QtWidgets/qwidget.h>
-#include <QtWidgets/qtoolbutton.h>
-#include <QtWidgets/QScrollArea>
 #include "gui/ribbon/ribbonbuttongroup.h"
 #include <QtWidgets/qboxlayout.h>
 

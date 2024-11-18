@@ -2,17 +2,10 @@
 #define GUI_DATA_3D_OBJECTS_H
 
 #include "gui/GuiData/IGuiData.h"
-
-#include "models/data/Measure/MeasureData.h"
-#include "models/3d/ManipulationTypes.h"
-#include "models/OpenScanToolsModelEssentials.h"
-
+#include "utils/safe_ptr.h"
 #include "io/ImageTypes.h"
 
-#include <vector>
 #include <filesystem>
-#include <unordered_set>
-#include <unordered_map>
 
 enum class ManipulationMode;
 
