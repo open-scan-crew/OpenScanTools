@@ -15,6 +15,7 @@
 #include "gui/GuiData/GuiDataIO.h"
 #include "gui/Texts.hpp"
 #include "gui/texts/SplashScreenTexts.hpp"
+#include "gui/texts/ErrorMessagesTexts.hpp"
 
 #include "controller/messages/DataIdListMessage.h"
 #include "controller/messages/FilesMessage.h"
@@ -768,7 +769,7 @@ namespace control::io
 		float step = m_params.length / image.width();
 		int size = image.width() * image.height();
 
-		controller.updateInfo(new GuiDataProcessingSplashScreenStart(size, TEXT_EXPORT, TEXT_SPLASH_SCREEN_PIXEL_PROCESSING.arg(0).arg(size)));
+		controller.updateInfo(new GuiDataProcessingSplashScreenStart(size, TEXT_SPLASH_SCREEN_EXPORT, TEXT_SPLASH_SCREEN_PIXEL_PROCESSING.arg(0).arg(size)));
 		controller.updateInfo(new GuiDataProcessingSplashScreenEnableCancelButton(false));
 
 		int progress = 0;

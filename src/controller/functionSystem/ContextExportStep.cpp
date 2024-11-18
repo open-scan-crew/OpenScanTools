@@ -3,7 +3,7 @@
 #include "controller/ControllerContext.h"
 
 #include "gui/GuiData/GuiDataMessages.h"
-#include "gui/Texts.hpp"
+#include "gui/texts/ErrorMessagesTexts.hpp"
 #include "gui/texts/TreePanelTexts.hpp"
 #include "gui/GuiData/GuiDataIO.h"
 
@@ -326,13 +326,13 @@ void ContextExportStep::getTypeNameDirectory(const ElementType& type, ElementTyp
 		break;
 	*/
 	case ElementType::Cylinder:
-		directoryName = TEXT_CYLINDER.toStdWString();
+		directoryName = TEXT_CYLINDER_SUB_NODE.toStdWString();
 		break;
 	case ElementType::Torus:
-		directoryName = TEXT_TORUS.toStdWString();
+		directoryName = TEXT_TORUS_SUB_NODE.toStdWString();
 		break;
 	case ElementType::Sphere:
-		directoryName = TEXT_SPHERES.toStdWString();
+		directoryName = TEXT_SPHERES_TREE_NODE.toStdWString();
 		break;
 	case ElementType::Piping:
 		directoryName = TEXT_PIPING_TREE_ROOT_NODE.toStdWString();

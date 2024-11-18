@@ -3,8 +3,6 @@
 #include "controller/controls/ControlFunction.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 
-#include "gui/Texts.hpp"
-
 #include "models/Types.hpp"
 
 ToolBarShareGroup::ToolBarShareGroup(IDataDispatcher &dataDispatcher, QWidget *parent, const float& guiScale)

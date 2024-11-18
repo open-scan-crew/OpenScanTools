@@ -1,7 +1,7 @@
 #ifndef TREE_PANEL_TEXTS_HPP
 #define TREE_PANEL_TEXTS_HPP
 
-#include <QObject>
+#include <QtCore/qobject.h>
 
 //ProjectTreePanel
 #define TEXT_VIEWPOINTS_TREE_ROOT_NODE QObject::tr("Viewpoints List")
@@ -34,6 +34,12 @@
 #define TEXT_PIPING_TREE_ROOT_NODE QObject::tr("Piping Lines")
 #define TEXT_SPHERES_TREE_NODE QObject::tr("Spheres")
 #define TEXT_SPHERES_TREE_ROOT_NODE QObject::tr("Spheres List")
+#define TEXT_MESHOBJECT_TREE_ROOT_NODE QObject::tr("External Model")
+
+#define TEXT_SIMPLE_BOX_SUB_NODE QObject::tr("Box")
+#define TEXT_GRID_SUB_NODE QObject::tr("Grid")
+#define TEXT_CYLINDER_SUB_NODE QObject::tr("Sections")
+#define TEXT_TORUS_SUB_NODE QObject::tr("Elbows")
 
 #define TEXT_CONTEXT_NEW_CLUSTER QObject::tr("New cluster")
 #define TEXT_CONTEXT_DELETE_CLUSTER_ITEM QObject::tr("Delete cluster and items")

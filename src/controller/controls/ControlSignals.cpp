@@ -4,7 +4,7 @@
 #include "gui/GuiData/GuiDataMessages.h"
 #include "utils/Logger.h"
 
-#include "gui/texts/SystemTexts.hpp"
+#include "gui/texts/ErrorMessagesTexts.hpp"
 
 namespace control
 {

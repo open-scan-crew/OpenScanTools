@@ -13,6 +13,7 @@
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/Translator.h"
 #include "gui/Texts.hpp"
+#include "gui/texts/ErrorMessagesTexts.hpp"
 
 #include "io/SaveLoadSystem.h"
 

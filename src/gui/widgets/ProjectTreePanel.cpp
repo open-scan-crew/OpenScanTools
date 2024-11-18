@@ -360,7 +360,7 @@ void ProjectTreePanel::generateTreeModel()
 	pipesTree->appendRow(buildTreeModelBranch(TEXT_PIPES_TREE_ROOT_NODE, TreeType::Pipe));
 	pipesTree->appendRow(buildTreeModelBranch(TEXT_PIPING_TREE_ROOT_NODE, TreeType::Piping));
 	spheresTree->appendRow(buildTreeModelBranch(TEXT_SPHERES_TREE_ROOT_NODE, TreeType::Sphere));
-	objsTree->appendRow(buildTreeModelBranch(TEXT_MESHOBJECT, TreeType::MeshObjects));
+	objsTree->appendRow(buildTreeModelBranch(TEXT_MESHOBJECT_TREE_ROOT_NODE, TreeType::MeshObjects));
 	viewpointsAttrNode->appendRow(buildTreeModelBranch(TEXT_VIEWPOINTS_TREE_ROOT_NODE, TreeType::ViewPoint));
 
 	m_nodeFactory->constructColorNodes({ ElementType::ViewPoint }, viewpointsAttrNode);
@@ -370,8 +370,8 @@ void ProjectTreePanel::generateTreeModel()
 	m_nodeFactory->constructClipMethodNodes({ ElementType::Tag }, tagsAttrNode);
 
 	m_nodeFactory->constructSubList({
-		{ ElementType::Box, TEXT_SIMPLE_BOX },
-		{ ElementType::Grid, TEXT_GRID_BOX }}, boxesAttrNode);
+		{ ElementType::Box, TEXT_SIMPLE_BOX_SUB_NODE },
+		{ ElementType::Grid, TEXT_GRID_SUB_NODE }}, boxesAttrNode);
 
 	m_nodeFactory->constructStatusNodes({ ElementType::Box, ElementType::Grid }, boxesAttrNode);
 	m_nodeFactory->constructClipMethodNodes({ ElementType::Box, ElementType::Grid }, boxesAttrNode);
@@ -397,8 +397,8 @@ void ProjectTreePanel::generateTreeModel()
 	m_nodeFactory->constructClipMethodNodes({ ElementType::PolylineMeasure }, measures[1]);
 
 	std::vector<TreeNode*> pipes = m_nodeFactory->constructSubList({
-		{ ElementType::Cylinder, TEXT_CYLINDER },
-		{ ElementType::Torus, TEXT_TORUS }}, pipesTree);
+		{ ElementType::Cylinder, TEXT_CYLINDER_SUB_NODE },
+		{ ElementType::Torus, TEXT_TORUS_SUB_NODE }}, pipesTree);
 
 	m_nodeFactory->constructStatusNodes({ ElementType::Torus, ElementType::Cylinder }, pipesTree);
 	m_nodeFactory->constructClipMethodNodes({ ElementType::Torus, ElementType::Cylinder }, pipesTree);

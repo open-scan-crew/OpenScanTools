@@ -9,8 +9,6 @@
 
 #include <qcolordialog.h>
 
-#include "gui/Texts.hpp"
-
 ToolBarOrthoGrid::ToolBarOrthoGrid(IDataDispatcher &dataDispatcher, QWidget *parent, const float& guiScale)
 	: QWidget(parent)
 	, m_dataDispatcher(dataDispatcher)

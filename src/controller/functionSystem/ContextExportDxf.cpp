@@ -2,7 +2,7 @@
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
 #include "gui/GuiData/GuiDataMessages.h"
-#include "gui/Texts.hpp"
+#include "gui/texts/ErrorMessagesTexts.hpp"
 #include "gui/GuiData/GuiDataIO.h"
 #include "controller/messages/DataIdListMessage.h"
 #include "controller/messages/FilesMessage.h"

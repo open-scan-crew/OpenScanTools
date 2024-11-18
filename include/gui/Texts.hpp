@@ -1,77 +1,15 @@
 #ifndef TEXTS_HPP
 #define TEXTS_HPP
 
-#include <QObject>
+#include <QtCore/qobject.h>
 
-//GUI.cpp
-
-#define TEXT_WORKSPACE QObject::tr("Workspace")
-#define TEXT_PROPERTIES QObject::tr("Properties")
-#define TEXT_TOOLBAR QObject::tr("ToolBar")
-#define TEXT_HOME QObject::tr("Home")
-#define TEXT_TAG QObject::tr("Tag")
-#define TEXT_EXPORT QObject::tr("Export")
-#define TEXT_SHARE QObject::tr("Share")
-#define TEXT_POINT_CLOUD QObject::tr("Point Cloud")
-#define TEXT_MEASURE QObject::tr("Measure")
-#define TEXT_EXPERIMENT QObject::tr("Experiment")
-#define TEXT_MEASURE_DISPLAY QObject::tr("Display")
-#define TEXT_ANALYSIS QObject::tr("Analysis")
-#define TEXT_RAMPS QObject::tr("Ramps")
-#define TEXT_MODEL QObject::tr("Model")
-#define TEXT_STRUCTURE_ANALYSIS QObject::tr("Structural Analysis")
-#define TEXT_AUTO_SOWING QObject::tr("Experimental - Auto Sowing")
-#define TEXT_PIPES QObject::tr("Pipes")
-#define TEXT_SPHERES QObject::tr("Spheres")
-#define TEXT_CONNECTION QObject::tr("Connection")
-#define TEXT_SLAB QObject::tr("Auto-extended box")
-#define TEXT_OTHER QObject::tr("Other")
-#define TEXT_MESHOBJECT QObject::tr("External Model")
-#define TEXT_SCANTRA QObject::tr("Scantra registration")
-#define TEXT_BEAM_DETECTION QObject::tr("Beam Detection")
-#define TEXT_VIEW QObject::tr("View")
-#define TEXT_CLIPPING QObject::tr("Clipping")
-#define TEXT_POINT_CLOUD_OBJECT QObject::tr("Point Cloud Object")
-#define TEXT_IMPORT QObject::tr("Import")
-#define TEXT_PROJECT QObject::tr("Project")
-#define TEXT_VIEWPOINT QObject::tr("Viewpoint")
-#define TEXT_MANAGE QObject::tr("Manage")
-#define TEXT_ATTRIBUTE QObject::tr("Attribute")
-#define TEXT_FILTER QObject::tr("Search")
-#define TEXT_FIND_SCAN QObject::tr("Find Scan")
-#define TEXT_LISTS QObject::tr("Lists")
-#define TEXT_IMAGE QObject::tr("Image")
-#define TEXT_VIDEO QObject::tr("Video")
-#define TEXT_ANIMATION QObject::tr("Animation")
-#define TEXT_VIEWING_MODE QObject::tr("Viewing mode")
-#define TEXT_ORIENTATIONS QObject::tr("Orientation")
-#define TEXT_MANIPULATE QObject::tr("Manipulate")
-#define TEXT_ALIGN_VIEW QObject::tr("Align view")
-#define TEXT_NAVIGATE QObject::tr("Navigate")
-#define TEXT_SHOW_HIDE QObject::tr("Show / Hide")
-#define TEXT_SIMPLE_BOX QObject::tr("Box")
-#define TEXT_GRID_BOX QObject::tr("Grid")
-#define TEXT_CYLINDER QObject::tr("Sections")
-#define TEXT_TORUS QObject::tr("Elbows")
-#define TEXT_PIPING QObject::tr("Piping")
-#define TEXT_POINT_EDITION QObject::tr("Point Edition")
+// Basic Wording
 #define TEXT_WARNING QObject::tr("Warning!")
 #define TEXT_INFORMATION QObject::tr("Information")
 #define TEXT_QUESTION QObject::tr("Question")
-#define TEXT_OPEN_PROJECT QObject::tr("Open Project")
-#define TEXT_IMPORT_SCANS QObject::tr("Import Scans")
-#define TEXT_ALL QObject::tr("All users")
-#define TEXT_ALL_TEMPLATE QObject::tr("All templates")
-#define TEXT_TEXT_DISPLAY QObject::tr("Text Display")
-#define TEXT_MARKER_DISPLAY_OPTIONS QObject::tr("Marker Display Options")
-#define TEXT_CLIPPING_GROUP_NAME QObject::tr("Objects clipping")
-#define TEXT_NORMALS_OPTIONS QObject::tr("Normals")
-#define TEXT_ORTHO_GRID QObject::tr("Ortho Grid")
-#define TEXT_TAB_TRANSPARENCY QObject::tr("Transparency")
-#define TEXT_ERROR QObject::tr("Error")
 
 //SaveLoadSystem
-#define TEXT_WRITE_FAILED_PERMISSION QObject::tr("Error : the file could not be created. It is possible that OpenScanTools does not have the write permission.")
+
 #define TEXT_ERROR_NO_TLS_PATH QObject::tr("Error : TLS path not found on : %1")
 #define TEXT_CANT_LOAD_PROJECT QObject::tr("Error : The project cannot be loaded.")
 #define TEXT_CANT_LOAD_PROJECT_NO_AUTHOR QObject::tr("Error : The project can't be loaded.\r\nThe tld file : [%1] do not have author.")
@@ -320,7 +258,7 @@
 #define TEXT_EXPORT_FILTER_SELECTED QObject::tr("Selected")
 #define TEXT_EXPORT_FILTER_DISPLAYED QObject::tr("Displayed")
 #define TEXT_EXPORT_FILTER_NONE QObject::tr("None")
-#define TEXT_EXPORT_FILES_EXPORTED_TO QObject::tr("File(s) exported to %1")
+
 
 
 //ToolBarShowHideGroup - A REVOIR - pas nécessaire d'avoir 2 textes - le changement d'icône d'oeil suffit (oeil ouvert ou barré). Donc oeil + scan marker suffit

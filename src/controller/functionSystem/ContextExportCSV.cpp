@@ -31,7 +31,7 @@
 
 #include <glm/gtx/quaternion.hpp>
 
-#include "gui/Texts.hpp"
+#include "gui/texts/ErrorMessagesTexts.hpp"
 
 #define TAG L"Tag"
 #define SIMPLEMEASURE L"SimpleMeasure"

@@ -1,7 +1,7 @@
 #ifndef SPLASH_SCREEN_TEXTS_HPP
 #define SPLASH_SCREEN_TEXTS_HPP
 
-#include <QObject>
+#include <QtCore/qobject.h>
 
 // ProcessingSplashScreen
 #define TEXT_SPLASH_SCREEN_SCAN_PROCESSING QObject::tr("Scan done: %1/%2")
@@ -20,6 +20,7 @@
 #define TEXT_SPLASH_SCREEN_WRITE_INTERN_FILE_ERROR QObject::tr("Intern file writing error: %1")
 #define TEXT_SPLASH_SCREEN_WRITE_INTERN_FILE_RESULT QObject::tr("%1 files written to %2")
 
+#define TEXT_SPLASH_SCREEN_EXPORT QObject::tr("Export...")
 #define TEXT_SPLASH_SCREEN_IMPORT QObject::tr("Import...")
 #define TEXT_SPLASH_SCREEN_IMPORT_EXTERNAL_DATA_TITLE_WITH_NAME QObject::tr("Import %1")
 #define TEXT_SPLASH_SCREEN_DONE QObject::tr("Processing done")

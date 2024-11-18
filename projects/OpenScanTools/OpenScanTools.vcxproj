@@ -1380,6 +1380,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\gui\style\CustomCursors.h" />
     <ClInclude Include="..\..\include\gui\style\IconObject.h" />
     <ClInclude Include="..\..\include\gui\texts\DefaultNameTexts.hpp" />
+    <ClInclude Include="..\..\include\gui\texts\MainGuiTexts.hpp" />
     <ClInclude Include="..\..\include\gui\texts\MarkerTexts.hpp" />
     <ClInclude Include="..\..\include\gui\texts\RenderingTexts.hpp" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarShareGroup.h" />
@@ -1412,7 +1413,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\io\DataEditor.h" />
     <ClInclude Include="..\..\include\gui\texts\ScreenshotTexts.hpp" />
     <ClInclude Include="..\..\include\gui\texts\SplashScreenTexts.hpp" />
-    <ClInclude Include="..\..\include\gui\texts\SystemTexts.hpp" />
+    <ClInclude Include="..\..\include\gui\texts\ErrorMessagesTexts.hpp" />
     <ClInclude Include="..\..\include\gui\texts\TlsTexts.hpp" />
     <ClInclude Include="..\..\include\io\exports\CSVWriter.h" />
     <ClInclude Include="..\..\include\io\exports\CSVWriter.hxx" />

@@ -3609,7 +3609,7 @@
     <ClInclude Include="..\..\include\gui\texts\AlignViewTexts.hpp">
       <Filter>include\gui\texts</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\gui\texts\SystemTexts.hpp">
+    <ClInclude Include="..\..\include\gui\texts\ErrorMessagesTexts.hpp">
       <Filter>include\gui\texts</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\gui\texts\TlsTexts.hpp">
@@ -3965,6 +3965,9 @@
     </ClInclude>
     <ClInclude Include="..\..\include\models\pointCloud\PointCloudInstance.h">
       <Filter>include\models\pointCloud</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\gui\texts\MainGuiTexts.hpp">
+      <Filter>include\gui\texts</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -7,7 +7,6 @@
 #include "controller/controls/ControlMeasure.h"
 #include "controller/controls/ControlFunctionClipping.h"
 #include "gui/widgets/FocusWatcher.h"
-#include "gui/Texts.hpp"
 #include "utils/Logger.h"
 
 #include <cctype>

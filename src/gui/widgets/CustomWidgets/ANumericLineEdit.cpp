@@ -1,6 +1,5 @@
 #include "gui/widgets/CustomWidgets/ANumericLineEdit.h"
 #include <QtConcurrent/qtconcurrentrun.h>
-#include "gui/Texts.hpp"
 
 ANumericLineEdit::ANumericLineEdit(QWidget* parent)
 	: ACustomLineEdit(parent)

@@ -1,6 +1,7 @@
 #include "gui\Dialog\DialogImportAsciiPC.h"
 #include "gui/texts/PointCloudTexts.hpp"
 #include "gui/Texts.hpp"
+#include "gui/texts/ErrorMessagesTexts.hpp"
 #include "io/FileUtils.h"
 
 #include <QtWidgets/qmessagebox.h>

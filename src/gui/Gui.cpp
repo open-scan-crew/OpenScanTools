@@ -3,6 +3,7 @@
 #include "gui/Dialog/DialogImportAsciiPC.h"
 #include "gui/Dialog/DialogDeleteScanTypeSelect.h"
 #include "gui/Texts.hpp"
+#include "gui/texts/MainGuiTexts.hpp"
 #include "gui/texts/FileTypeTexts.hpp"
 #include "gui/texts/TreePanelTexts.hpp"
 #include "gui/widgets/StatusPanel.h"
@@ -315,14 +316,14 @@ Gui::Gui(Controller& controller, Translator* translator)
 	ribbonTabContent->addWidget(TEXT_PIPES, new ToolBarPipeGroup(m_dataDispatcher, this, m_guiScale));
 	ribbonTabContent->addWidget(TEXT_CONNECTION, new ToolBarConnectPipeGroup(m_dataDispatcher, this, m_guiScale));
 	ribbonTabContent->addWidget(TEXT_SLAB, new ToolBarSlabGroup(m_dataDispatcher, this, m_guiScale));
-	ribbonTabContent->addWidget(TEXT_SPHERES, new ToolBarSphereGroup(m_dataDispatcher, this, m_guiScale));
+	ribbonTabContent->addWidget(TEXT_TAB_SPHERES, new ToolBarSphereGroup(m_dataDispatcher, this, m_guiScale));
 	//ribbonTabContent->addWidget(TEXT_BEAM_DETECTION, new ToolBarBeamDetection(m_dataDispatcher, this, m_guiScale));
 	m_ribbon->addTab(TEXT_MODEL, ribbonTabContent);
 
     // Add groups to the Clipping Tab
 	ribbonTabContent = new RibbonTabContent();
 	ribbonTabContent->addWidget(TEXT_ATTRIBUTE, new ToolBarAttributesGroup(controller, this, m_guiScale));
-	ribbonTabContent->addWidget(TEXT_SIMPLE_BOX, new ToolBarClippingGroup(m_dataDispatcher, this, m_guiScale));
+	ribbonTabContent->addWidget(TEXT_BOX, new ToolBarClippingGroup(m_dataDispatcher, this, m_guiScale));
 	ribbonTabContent->addWidget(TEXT_CLIPPING_GROUP_NAME, new ToolBarClippingParameters(m_dataDispatcher, this, m_guiScale));
     ribbonTabContent->addWidget(TEXT_POINT_EDITION, new ToolBarPointEdition(m_dataDispatcher, this, m_guiScale));
 

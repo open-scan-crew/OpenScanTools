@@ -14,7 +14,6 @@
 #include <QtCore/qstandardpaths.h>
 
 #include "gui/texts/ImageSettings_txt.hpp"
-#include "gui/Texts.hpp"
 
 #include "io/ImageTypes.h"
 
