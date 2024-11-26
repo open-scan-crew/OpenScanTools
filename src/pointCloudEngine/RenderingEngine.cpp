@@ -1,30 +1,20 @@
 #include "pointCloudEngine/RenderingEngine.h"
-#include "pointCloudEngine/RenderingLimits.h"
 #include "vulkan/TlFramebuffer_T.h"
 #include "vulkan/VulkanManager.h"
 
 #include "gui/viewport/VulkanViewport.h"
-#include "gui/viewport/PickingManager.h"
 
 #include "models/graph/ObjectNodeVisitor.h"
-#include "models/graph/CylinderNode.h" // For custom ramp
-#include "models/graph/SphereNode.h"   // For custom ramp
-#include "models/graph/ViewPointNode.h"
-#include "models/graph/ScanNode.h"
 #include "models/graph/CameraNode.h"
 
 #include "controller/controls/ControlFunction.h"
-#include "controller/controls/ControlViewport.h"
 #include "controller/controls/ControlSpecial.h"
-#include "controller/controls/ControlAnimation.h"
-#include "controller/controls/ControlPicking.h"
+#include "controller/messages/GeneralMessage.h"
 
 #include "gui/GuiData/GuiDataRendering.h"
 #include "gui/GuiData/GuiData3dObjects.h"
-#include "gui/GuiData/GuiDataMeasure.h"
 #include "gui/GuiData/GuiDataHD.h"
 #include "gui/GuiData/GuiDataMessages.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/texts/ScreenshotTexts.hpp"
 
 #include "io/ImageWriter.h"
@@ -34,11 +24,9 @@
 #include "utils/ImGuiUtils.h"
 
 #include "imgui/imgui.h"
-#include "imgui/imgui_internal.h"
 #include "imgui/imgui_impl_vulkan.h"
 #include "impl/imgui_impl_qt.h"
 
-#include "gui/texts/RenderingTexts.hpp"
 
 constexpr double HD_MARGIN = 0.05;
 
@@ -374,9 +362,8 @@ void RenderingEngine::updateHD()
         //control::gui::ErrorMessage("Image HD : Something went wrong");
     }
 
-
-    ImageWriter imgWriter(m_dataDispatcher);
-    if (imgWriter.startCapture(m_hdImageFilepath, m_hdFormat, m_hdExtent.x, m_hdExtent.y, m_imageMetadata, m_showProgressBar) == false)
+    ImageWriter imgWriter;
+    if (imgWriter.startCapture(m_hdFormat, m_hdExtent.x, m_hdExtent.y, m_imageMetadata, m_showProgressBar) == false)
         return;
 
     // Projection parameters
@@ -435,8 +422,7 @@ void RenderingEngine::updateHD()
                 ImageTransferEvent ite;
                 renderVirtualViewport(virtualViewport, *&wCameraHD, screenOffset, sleepedTime, ite);
                 WriteTask task = { ite, tileX * frameW, tileY * frameH };
-                imgWriter.addTransfer(task);
-                vkm.waitIdle();
+                imgWriter.transferImageTile(task);
 
                 // Copy du rendu dans l'image de destination
                 if (m_showProgressBar)
@@ -452,7 +438,18 @@ void RenderingEngine::updateHD()
     cameraHD.destroy();
     vkm.destroyFramebuffer(virtualViewport);
 
-    imgWriter.endCapture(); //le GuiDataProcessingSplashScreenEnd est effectué ici
+    if (imgWriter.save(m_hdImageFilepath, m_hdFormat))
+    {
+        m_dataDispatcher.updateInformation(new GuiDataProcessingSplashScreenLogUpdate(TEXT_SCREENSHOT_DONE.arg(m_hdImageFilepath.generic_wstring())));
+        m_dataDispatcher.updateInformation(new GuiDataProcessingSplashScreenEnd(TEXT_SCREENSHOT_PROCESSING_DONE));
+        m_dataDispatcher.updateInformation(new GuiDataTmpMessage(TEXT_SCREENSHOT_DONE.arg(m_hdImageFilepath.generic_wstring())));
+        m_dataDispatcher.sendControl(new control::function::ForwardMessage(new GeneralMessage(GeneralInfo::IMAGEEND)));
+    }
+    else
+    {
+        m_dataDispatcher.updateInformation(new GuiDataProcessingSplashScreenEnd(TEXT_SCREENSHOT_FAILED));
+        IOLOG << "Failed to write " << m_hdImageFilepath << LOGENDL;
+    }
 
     m_hdImageFilepath.clear();
     m_doHDRender.store(false);
@@ -614,7 +611,7 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
     {
         // We use an VkEvent for recording the VkImage transfer and get it on the host later
         ImageTransferEvent ite = vkm.transferFramebufferImage(framebuffer, cmdBuffer);
-        ImageWriter::saveScreenshot(m_screenshotFilename, m_screenshotFormat, ite, framebuffer->extent.width, framebuffer->extent.height, m_dataDispatcher);
+        ImageWriter::saveScreenshot(m_screenshotFilename, m_screenshotFormat, ite, framebuffer->extent.width, framebuffer->extent.height);
         m_screenshotFilename.clear();
     }
 
