@@ -17,7 +17,7 @@
 #include <qapplication.h>
 
 #ifdef _DEBUG_
-constexpr bool VK_VALIDATION_ENABLED = false;
+constexpr bool VK_VALIDATION_ENABLED = true;
 #else
 constexpr bool VK_VALIDATION_ENABLED = false;
 #endif

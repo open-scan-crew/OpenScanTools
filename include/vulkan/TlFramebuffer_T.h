@@ -4,6 +4,7 @@
 #include "vulkan/vulkan.h"
 
 #include <atomic>
+#include <vector>
 
 struct TlImage
 {
@@ -19,6 +20,8 @@ struct TlBuffer
     VkDeviceMemory memory = VK_NULL_HANDLE;
 };
 
+constexpr uint32_t MAX_FRAMES_IN_FLIGHT = 2;
+
 struct TlFramebuffer_T
 {
     std::atomic<bool> mustRecreateSwapchain = false;
@@ -31,12 +34,13 @@ struct TlFramebuffer_T
     VkPresentModeKHR presentMode;
     VkFormat pcFormat = VK_FORMAT_UNDEFINED;
     VkFormat dsFormat = VK_FORMAT_UNDEFINED;
-    VkSemaphore imageAvailableSemaphore = VK_NULL_HANDLE;
+    uint32_t currentFrame;
+    std::vector<VkSemaphore> imageAvailableSemaphore;
     VkSemaphore renderFinishedSemaphore = VK_NULL_HANDLE;
     uint32_t presentQFI = UINT32_MAX;
     VkExtent2D extent;
     VkExtent2D requestedExtent;
-    //VkClearColorValue clearColor;
+
     uint32_t imageCount;
     uint32_t currentImage;
     VkImage* pImages = nullptr;
@@ -44,7 +48,7 @@ struct TlFramebuffer_T
     // Memory Optional for Virtual Viewport
     VkDeviceMemory virtualImageMemory = VK_NULL_HANDLE;
 
-    VkCommandBuffer* graphicsCmdBuffers = nullptr;
+    std::vector<VkCommandBuffer> graphicsCmdBuffers;
     //VkCommandBuffer* computeCmdBuffers = nullptr;
 
     // Resources that are not presented -> they can be recycled for each frame

@@ -363,7 +363,7 @@ void RenderingEngine::updateHD()
     }
 
     ImageWriter imgWriter;
-    if (imgWriter.startCapture(m_hdFormat, m_hdExtent.x, m_hdExtent.y, m_imageMetadata, m_showProgressBar) == false)
+    if (imgWriter.startCapture(m_hdFormat, m_hdExtent.x, m_hdExtent.y) == false)
         return;
 
     // Projection parameters
@@ -421,8 +421,7 @@ void RenderingEngine::updateHD()
 
                 ImageTransferEvent ite;
                 renderVirtualViewport(virtualViewport, *&wCameraHD, screenOffset, sleepedTime, ite);
-                WriteTask task = { ite, tileX * frameW, tileY * frameH };
-                imgWriter.transferImageTile(task);
+                imgWriter.transferImageTile(ite, tileX * frameW, tileY * frameH);
 
                 // Copy du rendu dans l'image de destination
                 if (m_showProgressBar)
@@ -438,7 +437,7 @@ void RenderingEngine::updateHD()
     cameraHD.destroy();
     vkm.destroyFramebuffer(virtualViewport);
 
-    if (imgWriter.save(m_hdImageFilepath, m_hdFormat))
+    if (imgWriter.save(m_hdImageFilepath, m_imageMetadata))
     {
         m_dataDispatcher.updateInformation(new GuiDataProcessingSplashScreenLogUpdate(TEXT_SCREENSHOT_DONE.arg(m_hdImageFilepath.generic_wstring())));
         m_dataDispatcher.updateInformation(new GuiDataProcessingSplashScreenEnd(TEXT_SCREENSHOT_PROCESSING_DONE));
@@ -611,7 +610,8 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
     {
         // We use an VkEvent for recording the VkImage transfer and get it on the host later
         ImageTransferEvent ite = vkm.transferFramebufferImage(framebuffer, cmdBuffer);
-        ImageWriter::saveScreenshot(m_screenshotFilename, m_screenshotFormat, ite, framebuffer->extent.width, framebuffer->extent.height);
+        ImageWriter imgWriter;
+        imgWriter.saveScreenshot(m_screenshotFilename, m_screenshotFormat, ite, framebuffer->extent.width, framebuffer->extent.height);
         m_screenshotFilename.clear();
     }
 

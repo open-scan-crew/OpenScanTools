@@ -450,7 +450,9 @@ ImageTransferEvent VulkanManager::transferFramebufferImage(TlFramebuffer _frameb
     return ite;
 }
 
-bool VulkanManager::doImageTransfer(ImageTransferEvent ite, uint32_t dstW, uint32_t dstH, char* dstBuffer, uint32_t dstOffsetW, uint32_t dstOffsetH, uint32_t border) const
+// TODO - add the pixel encoding/size
+// TODO - This function is best handled by the 'ImageWriter' dedicated class
+bool VulkanManager::doImageTransfer(ImageTransferEvent ite, uint32_t dstW, uint32_t dstH, char* dstBuffer, size_t dstSize, uint32_t dstOffsetW, uint32_t dstOffsetH, uint32_t border) const
 {
     assert(dstBuffer);
     if (dstOffsetW > dstW || dstOffsetH > dstH)
@@ -482,7 +484,6 @@ bool VulkanManager::doImageTransfer(ImageTransferEvent ite, uint32_t dstW, uint3
     uint32_t innerH = ite.height - 2 * border;
     uint32_t clampedW = std::min(innerW, dstW - dstOffsetW);
     uint32_t clampedH = std::min(innerH, dstH - dstOffsetH);
-    size_t dstSize = 4ull * dstW * dstH;
     for (uint32_t h = 0; h < clampedH; h++)
     {
         size_t srcOffset = 4ull * border;
@@ -546,7 +547,7 @@ VkQueue VulkanManager::getGraphicsQueue() const
 
 VkCommandBuffer VulkanManager::getGraphicsCmdBuffer(TlFramebuffer _fb)
 {
-    return _fb->graphicsCmdBuffers[_fb->currentImage];
+    return _fb->graphicsCmdBuffers[_fb->currentFrame];
 }
 
 /*
@@ -727,7 +728,9 @@ bool VulkanManager::acquireNextImage(TlFramebuffer _fb)
     if (checkSwapchain(_fb) == false)
         return false;
 
-    VkResult err = m_pfnDev->vkAcquireNextImageKHR(m_device, _fb->swapchain, UINT64_MAX, _fb->imageAvailableSemaphore, VK_NULL_HANDLE, &_fb->currentImage);
+    _fb->currentFrame = (_fb->currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+
+    VkResult err = m_pfnDev->vkAcquireNextImageKHR(m_device, _fb->swapchain, UINT64_MAX, _fb->imageAvailableSemaphore[_fb->currentFrame], VK_NULL_HANDLE, &_fb->currentImage);
 
     if (err == VK_ERROR_OUT_OF_DATE_KHR) {
         _fb->mustRecreateSwapchain.store(true);
@@ -781,7 +784,7 @@ void VulkanManager::beginScanRenderPass(TlFramebuffer _fb, VkClearColorValue _cl
             { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 }
         };
 
-        m_pfnDev->vkCmdPipelineBarrier(_fb->graphicsCmdBuffers[_fb->currentImage], VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageBarrier);
+        m_pfnDev->vkCmdPipelineBarrier(_fb->graphicsCmdBuffers[_fb->currentFrame], VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageBarrier);
         _fb->initColorLayout = false;
     }
 
@@ -800,12 +803,12 @@ void VulkanManager::beginScanRenderPass(TlFramebuffer _fb, VkClearColorValue _cl
     renderPassInfo.clearValueCount = clearCount;
     renderPassInfo.pClearValues = clearValues;
 
-    m_pfnDev->vkCmdBeginRenderPass(_fb->graphicsCmdBuffers[_fb->currentImage], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+    m_pfnDev->vkCmdBeginRenderPass(_fb->graphicsCmdBuffers[_fb->currentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
 
 void VulkanManager::endScanRenderPass(TlFramebuffer _fb)
 {
-    m_pfnDev->vkCmdEndRenderPass(_fb->graphicsCmdBuffers[_fb->currentImage]);
+    m_pfnDev->vkCmdEndRenderPass(_fb->graphicsCmdBuffers[_fb->currentFrame]);
 }
 
 void VulkanManager::beginPostTreatmentFilling(TlFramebuffer _fb)
@@ -852,7 +855,7 @@ void VulkanManager::beginPostTreatmentFilling(TlFramebuffer _fb)
     };
 
     m_pfnDev->vkCmdPipelineBarrier(
-        _fb->graphicsCmdBuffers[_fb->currentImage],
+        _fb->graphicsCmdBuffers[_fb->currentFrame],
         VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
         VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
         0,
@@ -893,7 +896,7 @@ void VulkanManager::beginPostTreatmentNormal(TlFramebuffer _fb)
     };
 
     m_pfnDev->vkCmdPipelineBarrier(
-        _fb->graphicsCmdBuffers[_fb->currentImage],
+        _fb->graphicsCmdBuffers[_fb->currentFrame],
         VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
         VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
         0,
@@ -921,7 +924,7 @@ void VulkanManager::beginPostTreatmentTransparency(TlFramebuffer _fb)
     };
 
     m_pfnDev->vkCmdPipelineBarrier(
-        _fb->graphicsCmdBuffers[_fb->currentImage],
+        _fb->graphicsCmdBuffers[_fb->currentFrame],
         VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
         VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
         0,
@@ -932,7 +935,7 @@ void VulkanManager::beginPostTreatmentTransparency(TlFramebuffer _fb)
 
 void VulkanManager::beginObjectRenderPass(TlFramebuffer _fb)
 {
-    VkCommandBuffer currentCmdBuffer = _fb->graphicsCmdBuffers[_fb->currentImage];
+    VkCommandBuffer currentCmdBuffer = _fb->graphicsCmdBuffers[_fb->currentFrame];
 
     VkImageMemoryBarrier imageBarriers_alpha[] = {
         {
@@ -1131,7 +1134,7 @@ void VulkanManager::beginObjectRenderPass(TlFramebuffer _fb)
 
 void VulkanManager::endObjectRenderPass(TlFramebuffer _fb)
 {
-    m_pfnDev->vkCmdEndRenderPass(_fb->graphicsCmdBuffers[_fb->currentImage]);
+    m_pfnDev->vkCmdEndRenderPass(_fb->graphicsCmdBuffers[_fb->currentFrame]);
 
     // **** Copy ****
     VkBufferImageCopy copyRegion = {};
@@ -1141,10 +1144,10 @@ void VulkanManager::endObjectRenderPass(TlFramebuffer _fb)
     copyRegion.imageSubresource = { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 0, 1 };
     copyRegion.imageOffset = { 0, 0, 0 };
     copyRegion.imageExtent = { _fb->extent.width, _fb->extent.height, 1 };
-    //m_pfnDev->vkCmdCopyImageToBuffer(_fb->graphicsCmdBuffers[_fb->currentImage], _fb->objectDepthImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, _fb->copyBufDepth, 1, &copyRegion);
+    //m_pfnDev->vkCmdCopyImageToBuffer(_fb->graphicsCmdBuffers[_fb->currentFrame], _fb->objectDepthImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, _fb->copyBufDepth, 1, &copyRegion);
 
     copyRegion.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-    m_pfnDev->vkCmdCopyImageToBuffer(_fb->graphicsCmdBuffers[_fb->currentImage], _fb->idAttImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, _fb->copyBufIndex, 1, &copyRegion);
+    m_pfnDev->vkCmdCopyImageToBuffer(_fb->graphicsCmdBuffers[_fb->currentFrame], _fb->idAttImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, _fb->copyBufIndex, 1, &copyRegion);
 }
 
 void VulkanManager::applyPicking(TlFramebuffer _fb, glm::ivec2 _pickingPos, VkCommandBuffer* singleCommandBuffer)
@@ -1163,7 +1166,7 @@ void VulkanManager::applyPicking(TlFramebuffer _fb, glm::ivec2 _pickingPos, VkCo
     if(singleCommandBuffer)
         m_pfnDev->vkCmdCopyImageToBuffer(*singleCommandBuffer, _fb->objectDepthImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, _fb->copyBufDepth, 1, &copyRegion);
     else
-    m_pfnDev->vkCmdCopyImageToBuffer(_fb->graphicsCmdBuffers[_fb->currentImage], _fb->objectDepthImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, _fb->copyBufDepth, 1, &copyRegion);
+    m_pfnDev->vkCmdCopyImageToBuffer(_fb->graphicsCmdBuffers[_fb->currentFrame], _fb->objectDepthImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, _fb->copyBufDepth, 1, &copyRegion);
 }
 
 void VulkanManager::submitMultipleFramebuffer(std::vector<TlFramebuffer> fbs)
@@ -1183,10 +1186,10 @@ void VulkanManager::submitMultipleFramebuffer(std::vector<TlFramebuffer> fbs)
         VkSubmitInfo submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.waitSemaphoreCount = 1;
-        submitInfo.pWaitSemaphores = &fb->imageAvailableSemaphore;
+        submitInfo.pWaitSemaphores = &fb->imageAvailableSemaphore[fb->currentFrame];
         submitInfo.pWaitDstStageMask = waitStages;
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &fb->graphicsCmdBuffers[fb->currentImage];
+        submitInfo.pCommandBuffers = &fb->graphicsCmdBuffers[fb->currentFrame];
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = &fb->renderFinishedSemaphore;
 
@@ -1234,7 +1237,7 @@ void VulkanManager::submitVirtualFramebuffer(TlFramebuffer fb)
     submitInfo.pWaitSemaphores = nullptr;
     submitInfo.pWaitDstStageMask = waitStages;
     submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &fb->graphicsCmdBuffers[fb->currentImage];
+    submitInfo.pCommandBuffers = &fb->graphicsCmdBuffers[fb->currentFrame];
     submitInfo.signalSemaphoreCount = 0;
     submitInfo.pSignalSemaphores = nullptr;
 
@@ -3416,26 +3419,30 @@ void VulkanManager::createCommandBuffers(TlFramebuffer _fb)
     if (m_graphicsCmdPool == VK_NULL_HANDLE)
         return;
 
-    _fb->graphicsCmdBuffers = new VkCommandBuffer[_fb->imageCount];
+    _fb->graphicsCmdBuffers.resize(MAX_FRAMES_IN_FLIGHT);
 
     VkCommandBufferAllocateInfo info = {};
     info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     info.commandPool = m_graphicsCmdPool;
     info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    // NOTE(robin) we must have the same number of commandBuffer than frameBuffer
-    info.commandBufferCount = _fb->imageCount;
+    info.commandBufferCount = MAX_FRAMES_IN_FLIGHT;
 
-    VkResult err = m_pfnDev->vkAllocateCommandBuffers(m_device, &info, _fb->graphicsCmdBuffers);
+    VkResult err = m_pfnDev->vkAllocateCommandBuffers(m_device, &info, _fb->graphicsCmdBuffers.data());
     check_vk_result(err, "Allocate Graphics Command Buffers");
 }
 
 void VulkanManager::createSemaphores(TlFramebuffer _fb)
 {
+    _fb->imageAvailableSemaphore.resize(MAX_FRAMES_IN_FLIGHT);
+    VkResult err;
     // Image Semaphore
     VkSemaphoreCreateInfo semaphoreInfo = {};
     semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-    VkResult err = m_pfnDev->vkCreateSemaphore(m_device, &semaphoreInfo, nullptr, &_fb->imageAvailableSemaphore);
-    check_vk_result(err, "Create Semaphore");
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+    {
+        err = m_pfnDev->vkCreateSemaphore(m_device, &semaphoreInfo, nullptr, &_fb->imageAvailableSemaphore[i]);
+        check_vk_result(err, "Create Semaphore");
+    }
 
     err = m_pfnDev->vkCreateSemaphore(m_device, &semaphoreInfo, nullptr, &_fb->renderFinishedSemaphore);
     check_vk_result(err, "Create Semaphore");
@@ -4341,10 +4348,9 @@ void VulkanManager::cleanupSizeDependantResources(TlFramebuffer _fb)
             _fb->finalFramebuffers = nullptr;
         }
 
-        if (m_device && m_graphicsCmdPool && _fb->graphicsCmdBuffers) {
-            m_pfnDev->vkFreeCommandBuffers(m_device, m_graphicsCmdPool, _fb->imageCount, _fb->graphicsCmdBuffers);
-            delete[] _fb->graphicsCmdBuffers;
-            _fb->graphicsCmdBuffers = nullptr;
+        if (m_device && m_graphicsCmdPool && !_fb->graphicsCmdBuffers.empty()) {
+            m_pfnDev->vkFreeCommandBuffers(m_device, m_graphicsCmdPool, MAX_FRAMES_IN_FLIGHT, _fb->graphicsCmdBuffers.data());
+            _fb->graphicsCmdBuffers.clear();
         }
 
         if (_fb->swapchain)
@@ -4361,7 +4367,11 @@ void VulkanManager::cleanupSizeDependantResources(TlFramebuffer _fb)
 
         tls::vk::freeMemory(*m_pfnDev, m_device, _fb->virtualImageMemory);
 
-        tls::vk::destroySemaphore(*m_pfnDev, m_device, _fb->imageAvailableSemaphore);
+        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+        {
+            tls::vk::destroySemaphore(*m_pfnDev, m_device, _fb->imageAvailableSemaphore[i]);
+        }
+        _fb->imageAvailableSemaphore.clear();
         tls::vk::destroySemaphore(*m_pfnDev, m_device, _fb->renderFinishedSemaphore);
 
         tls::vk::destroySampler(*m_pfnDev, m_device, _fb->rawSampler);

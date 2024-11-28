@@ -6,45 +6,35 @@
 
 #include <filesystem>
 
-struct WriteTask
-{
-    ImageTransferEvent      transfer;
-    const uint32_t          dstOffsetW;
-    const uint32_t          dstOffsetH;
-};
-
-struct TiledImage
-{
-    ImageFormat        format;
-    uint32_t           width;
-    uint32_t           height;
-    ImageHDMetadata    metadata;
-    char*              buffer;
-};
-
 class ImageWriter
 {
 public:
     ImageWriter();
     ~ImageWriter();
 
-    static bool saveScreenshot(const std::filesystem::path& filepath, ImageFormat format, ImageTransferEvent transfer, uint32_t width, uint32_t height);
+    bool saveScreenshot(const std::filesystem::path& filepath, ImageFormat format, ImageTransferEvent transfer, uint32_t width, uint32_t height);
 
-    bool startCapture(ImageFormat format, uint32_t width, uint32_t height, ImageHDMetadata metadata, bool showProgressBar);
-    bool save(const std::filesystem::path& file_path, ImageFormat format);
-    void transferImageTile(const WriteTask& task);
-
+    bool startCapture(ImageFormat format, uint32_t width, uint32_t height);
+    void transferImageTile(ImageTransferEvent transfer, uint32_t dstOffsetW, uint32_t dstOffsetH);
+    bool save(const std::filesystem::path& file_path, ImageHDMetadata metadata);
 
 private:
-    bool saveMetadata(const std::filesystem::path& path, TiledImage dstImage);
+    bool saveMetadata(const std::filesystem::path& path, ImageHDMetadata metadata);
 
-    static bool saveImage(const std::filesystem::path& filepath, TiledImage image);
+    bool saveImage(const std::filesystem::path& filepath);
 
-    static char* allocateBuffer(uint32_t width, uint32_t height, uint32_t pixelSize);
+    bool allocateBuffer();
 
 private:
     char* image_buffer_ = nullptr;
-    TiledImage dst_image_;
+    size_t buffer_size_ = 0;
+
+    uint32_t width_ = 0;
+    uint32_t height_ = 0;
+    ImageFormat format_ = ImageFormat::MAX_ENUM;
+    uint32_t byte_per_pixel_ = 4;
+
+    ImageHDMetadata metadata_;
 };
 
 #endif //! IMAGE_MANAGER_H_
