@@ -318,6 +318,7 @@ bool VulkanManager::createVirtualViewport(uint32_t _width, uint32_t _height, int
     createPcFramebuffer(_virtualViewport);
     createFinalFramebuffers(_virtualViewport);
     createCommandBuffers(_virtualViewport);
+    createSemaphores(_virtualViewport);
 
     return true;
 }
@@ -714,11 +715,6 @@ void VulkanManager::startNextFrame()
     m_currentFrameIndex.fetch_add(1);
     m_noMoreFreeMemoryForFrame_device.store(false);
     m_noMoreFreeMemoryForFrame_host.store(false);
-    if (m_currentFrameIndex.load() > 1)
-    {
-        m_budgetSwap = (m_budgetSwap + 1) % 2;
-        vmaGetBudget(m_allocator, m_vmaBudgets[m_budgetSwap]);
-    }
     vmaSetCurrentFrameIndex(m_allocator, m_currentFrameIndex.load());
 }
 
@@ -1716,32 +1712,21 @@ void VulkanManager::endSingleTimeCommand(VkCommandBuffer _cmdBuffer, VkSemaphore
 }
 
 // Warning - heavy load
-void VulkanManager::printAllocationStats(std::string& stats)
+void VulkanManager::printAllocationStats(std::string& log)
 {
-    stats.clear();
+    log.clear();
 
-    VmaPoolStats poolStats;
-    vmaGetPoolStats(m_allocator, m_localPool, &poolStats);
+    VmaDetailedStatistics stats;
+    vmaCalculatePoolStatistics(m_allocator, m_localPool, &stats);
 
-    stats += "Total Reserved Gpu memory: " + std::to_string(poolStats.size) + "\n";
-    stats += "Allocation count:          " + std::to_string(poolStats.allocationCount) + "\n";
-    stats += "Unused Size:               " + std::to_string(poolStats.unusedSize) + "\n";
-    stats += "Unused range count:        " + std::to_string(poolStats.unusedRangeCount) + "\n";
-    stats += "Unused range max size:     " + std::to_string(poolStats.unusedRangeSizeMax) + "\n";
-}
-
-uint64_t VulkanManager::getCurrentDeviceBudget()
-{
-    /* Difference `budget - usage` is the amount of additional memory that can probably
-    be allocated without problems. Exceeding the budget may result in various problems.*/
-    return (m_vmaBudgets[(m_budgetSwap + 1) % 2][m_deviceHeapIndex].budget - m_vmaBudgets[(m_budgetSwap + 1) % 2][m_deviceHeapIndex].usage);;
-}
-
-uint64_t VulkanManager::getCurrentHostBudget()
-{
-    /* Difference `budget - usage` is the amount of additional memory that can probably
-    be allocated without problems. Exceeding the budget may result in various problems.*/
-    return (m_vmaBudgets[(m_budgetSwap + 1) % 2][m_hostHeapIndex].budget - m_vmaBudgets[(m_budgetSwap + 1) % 2][m_hostHeapIndex].usage);
+    log += "Block count:           " + std::to_string(stats.statistics.blockCount) + "\n";
+    log += "Allocation count:      " + std::to_string(stats.statistics.allocationCount) + "\n";
+    log += "Block size:            " + std::to_string(stats.statistics.blockBytes) + " bytes\n";
+    log += "Allocations size:      " + std::to_string(stats.statistics.allocationBytes) + " bytes\n";
+    log += "Unused Size:           " + std::to_string(stats.statistics.blockBytes - stats.statistics.allocationBytes) + "\n";
+    log += "Unused range count:    " + std::to_string(stats.unusedRangeCount) + "\n";
+    log += "Unused range min size: " + std::to_string(stats.unusedRangeSizeMin) + "\n";
+    log += "Unused range max size: " + std::to_string(stats.unusedRangeSizeMax) + "\n";
 }
 
 //-------------------------------------------------------------------
@@ -1840,7 +1825,7 @@ VkResult VulkanManager::allocSimpleBuffer(VkDeviceSize dataSize, SimpleBuffer& s
     bufferInfo.usage = usageFlags;
 
     VmaAllocationCreateInfo allocCI = {};
-    if (dataSize > getCurrentDeviceBudget() && (usageFlags & VK_BUFFER_USAGE_INDEX_BUFFER_BIT) == 0)
+    if ((usageFlags & VK_BUFFER_USAGE_INDEX_BUFFER_BIT) == 0)
     {
         allocCI.flags = VMA_ALLOCATION_CREATE_MAPPED_BIT;
         allocCI.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
@@ -2369,6 +2354,8 @@ bool VulkanManager::initVma()
 
     VmaVulkanFunctions VmaFunctions =
     {
+        m_pfn.vkGetInstanceProcAddr,
+        m_pfn.getDeviceProcAddr(m_device),
         m_pfn.vkGetPhysicalDeviceProperties,
         m_pfn.vkGetPhysicalDeviceMemoryProperties,
         m_pfnDev->vkAllocateMemory,
@@ -2425,9 +2412,6 @@ bool VulkanManager::initVma()
     err = vmaCreatePool(m_allocator, &poolCI, &m_hostPool);
     check_vk_result(err, "Create Host Memory Pool");
     m_hostPoolMaxSize = blockSize * blockCountHost;
-
-    m_vmaBudgets[0] = new VmaBudget[memProp.memoryHeapCount];
-    m_vmaBudgets[1] = new VmaBudget[memProp.memoryHeapCount];
 
     return err == VkResult::VK_SUCCESS;
 }
@@ -4276,9 +4260,6 @@ void VulkanManager::cleanupAll()
     }
 
     m_pfn.unloadInstanceFunctions();
-
-    delete[] m_vmaBudgets[0];
-    delete[] m_vmaBudgets[1];
 }
 
 void VulkanManager::cleanupSizeDependantResources(TlFramebuffer _fb)
@@ -4349,8 +4330,9 @@ void VulkanManager::cleanupSizeDependantResources(TlFramebuffer _fb)
         }
 
         if (m_device && m_graphicsCmdPool && !_fb->graphicsCmdBuffers.empty()) {
-            m_pfnDev->vkFreeCommandBuffers(m_device, m_graphicsCmdPool, MAX_FRAMES_IN_FLIGHT, _fb->graphicsCmdBuffers.data());
+            m_pfnDev->vkFreeCommandBuffers(m_device, m_graphicsCmdPool, (uint32_t)_fb->graphicsCmdBuffers.size(), _fb->graphicsCmdBuffers.data());
             _fb->graphicsCmdBuffers.clear();
+
         }
 
         if (_fb->swapchain)
@@ -4367,9 +4349,9 @@ void VulkanManager::cleanupSizeDependantResources(TlFramebuffer _fb)
 
         tls::vk::freeMemory(*m_pfnDev, m_device, _fb->virtualImageMemory);
 
-        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+        for (VkSemaphore semaphore : _fb->imageAvailableSemaphore)
         {
-            tls::vk::destroySemaphore(*m_pfnDev, m_device, _fb->imageAvailableSemaphore[i]);
+            tls::vk::destroySemaphore(*m_pfnDev, m_device, semaphore);
         }
         _fb->imageAvailableSemaphore.clear();
         tls::vk::destroySemaphore(*m_pfnDev, m_device, _fb->renderFinishedSemaphore);
@@ -4446,25 +4428,22 @@ void VulkanManager::defragmentMemory()
 
     m_pfnDev->vkBeginCommandBuffer(commandBuffer, &beginInfo);
 
-    VmaDefragmentationInfo2 defragInfo = {};
-    defragInfo.allocationCount = allocCount;
-    defragInfo.pAllocations = allocations.data();
-    defragInfo.pAllocationsChanged = allocationsChanged.data();
-    defragInfo.maxCpuBytesToMove = VK_WHOLE_SIZE;
-    defragInfo.maxCpuAllocationsToMove = UINT32_MAX;
-    defragInfo.maxGpuBytesToMove = VK_WHOLE_SIZE;
-    defragInfo.maxGpuAllocationsToMove = UINT32_MAX;
-    defragInfo.commandBuffer = commandBuffer;
+    VmaDefragmentationInfo defragInfo = {};
+    defragInfo.flags;
+    defragInfo.pool;
+    defragInfo.maxBytesPerPass;
+    defragInfo.maxAllocationsPerPass;
 
     VmaDefragmentationContext defragCtx;
-    vmaDefragmentationBegin(m_allocator, &defragInfo, nullptr, &defragCtx);
+    vmaBeginDefragmentation(m_allocator, &defragInfo, &defragCtx);
 
     m_pfnDev->vkEndCommandBuffer(commandBuffer);
 
     // Submit commandBuffer.
     // Wait for a fence that ensures commandBuffer execution finished.
 
-    vmaDefragmentationEnd(m_allocator, defragCtx);
+    VmaDefragmentationStats defragStats;
+    vmaEndDefragmentation(m_allocator, defragCtx, &defragStats);
 
     for (uint32_t i = 0; i < allocCount; ++i)
     {
@@ -4491,5 +4470,4 @@ void VulkanManager::defragmentMemory()
         }
     }
 }
-// l.4530
-// l.4466
+

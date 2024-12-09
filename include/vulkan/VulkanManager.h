@@ -317,10 +317,6 @@ private:
     void logFormatFeatures(VkFormat format, VkFormatFeatureFlags flags);
     bool checkBlitSupport(VkFormat srcFormat, VkFormat dstFormat, VkImageTiling tilling) const;
 
-    // Memory watch
-    uint64_t getCurrentDeviceBudget();
-    uint64_t getCurrentHostBudget();
-
     // Memory utilities
     void checkAllocations();
     void defragmentMemory();
@@ -411,12 +407,10 @@ private:
     VmaPool m_localPool = VK_NULL_HANDLE;
     VkDeviceSize m_localPoolMaxSize = 0;
 
-    uint8_t m_budgetSwap = 0;
     uint32_t m_memTypeIndex_local = 0;
     uint32_t m_memTypeIndex_host = 0;
     uint32_t m_deviceHeapIndex = 0;
     uint32_t m_hostHeapIndex = 0;
-    VmaBudget* m_vmaBudgets[2] = { nullptr, nullptr };
 
     std::mutex m_mutexBufferAllocated;
     std::unordered_set<SmartBuffer*> m_smartBufferAllocated;

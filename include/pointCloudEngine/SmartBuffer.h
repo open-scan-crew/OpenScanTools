@@ -22,6 +22,7 @@ class SimpleBuffer
 public:
     VmaAllocation alloc = VK_NULL_HANDLE;
     VkBuffer buffer = VK_NULL_HANDLE;
+    // TODO - Remove and use the VmaAllocationInfo
     VkDeviceSize size = 0;
     bool isLocalMem = false;
 };
