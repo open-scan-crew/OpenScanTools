@@ -496,6 +496,11 @@ void ClippingAssembly::clearMatrix()
     }
 }
 
+bool ClippingAssembly::empty()
+{
+    return (clippingIntersection.empty() && clippingUnion.empty());
+}
+
 /*
 * ClippingAssembly_bis
 */

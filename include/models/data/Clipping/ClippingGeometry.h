@@ -218,6 +218,7 @@ public:
     void testCube(const glm::dvec3& minCorner, double sideSize, bool& retAccept, bool& retReject, ClippingAssembly& retAssembly) const;
     bool testPoint(const glm::dvec4& point) const;
     void clearMatrix();
+    bool empty();
 public:
     std::vector<std::shared_ptr<IClippingGeometry>> clippingUnion;
     std::vector<std::shared_ptr<IClippingGeometry>> clippingIntersection;

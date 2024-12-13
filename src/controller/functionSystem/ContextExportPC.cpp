@@ -4,7 +4,6 @@
 #include "controller/functionSystem/FunctionManager.h"
 
 #include "controller/messages/ClippingExportParametersMessage.h"
-#include "controller/messages/CameraMessage.h"
 #include "controller/messages/ModalMessage.h"
 #include "controller/messages/NewProjectMessage.h"
 
@@ -14,7 +13,6 @@
 #include "gui/GuiData/GuiDataContextRequest.h"
 #include "gui/texts/ExportTexts.hpp"
 #include "gui/texts/SplashScreenTexts.hpp"
-#include "pointCloudEngine/PCE_core.h"
 #include "pointCloudEngine/TlScanOverseer.h"
 
 #include "io/exports/IScanFileWriter.h"
@@ -212,6 +210,9 @@ ContextState ContextExportPC::launch(Controller& controller)
 
     delete csv_writer;
 
+    if (m_parameters.openFolderAfterExport)
+        controller.updateInfo(new GuiDataOpenInExplorer(m_parameters.outFolder));
+
     return (m_state = result ? ContextState::done : ContextState::abort);
 }
 
@@ -304,6 +305,8 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
 {
     GraphManager& graph = controller.getGraphManager();
     std::vector<tls::PointCloudInstance> pcInfos = graph.getPointCloudInstances(xg::Guid(), m_parameters.exportScans, m_parameters.exportPCOs, m_parameters.pointCloudFilter);
+    // We can separate the list of PCOs and scans here.
+    //std::vector<tls::PointCloudInstance> pcoInfos = graph.getPointCloudInstances(xg::Guid(), false, m_parameters.exportPCOs, m_parameters.pointCloudFilter);
     tls::PointFormat common_format = getCommonFormat(pcInfos);
 
     ClippingAssembly clipping_assembly;
@@ -417,8 +420,7 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
             // Filter out the tls that we can copy
             if (m_parameters.outFileType == FileType::TLS &&
                 pcInfo.header.precision == m_parameters.encodingPrecision &&
-                clipping_assembly.clippingUnion.empty() &&
-                clipping_assembly.clippingIntersection.empty())
+                clipping_assembly.empty())
             {
                 if (pcInfo.header.precision == m_parameters.encodingPrecision)
                 {
@@ -436,12 +438,11 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
             }
             else
             {
-
                 ExportTask task;
-                task.file_name = pcInfo.header.name + (m_forSubProject ? L"" : L"_clipped");
+                task.file_name = pcInfo.header.name;
 
                 task.header = pcInfo.header;
-                task.header.name = task.header.name + (m_forSubProject ? L"" : L"_clipped");
+                task.header.name = task.header.name;
                 task.header.precision = m_parameters.encodingPrecision;
                 task.header.format = pcInfo.header.format;
 
@@ -449,6 +450,12 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
 
                 task.input_pcs = { pcInfo };
                 task.clippings = clipping_assembly;
+
+                if (!clipping_assembly.empty() && !m_forSubProject)
+                {
+                    task.file_name += L"_clipped";
+                    task.header.name += L"_clipped";
+                }
 
                 export_tasks.push_back(task);
             }
