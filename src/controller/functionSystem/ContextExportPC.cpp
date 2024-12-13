@@ -439,7 +439,7 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
             else
             {
                 ExportTask task;
-                task.file_name = pcInfo.header.name;
+                task.file_name = is_rcp ? m_parameters.fileName.wstring() : pcInfo.header.name;
 
                 task.header = pcInfo.header;
                 task.header.name = task.header.name;
@@ -453,7 +453,7 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
 
                 if (!clipping_assembly.empty() && !m_forSubProject)
                 {
-                    task.file_name += L"_clipped";
+                    task.file_name += is_rcp ? L"" : L"_clipped";
                     task.header.name += L"_clipped";
                 }
 
