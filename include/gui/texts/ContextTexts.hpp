@@ -22,7 +22,7 @@
 //ContextRobustCylinder
 #define TEXT_LUCAS_SEARCH_ONGOING QObject::tr("Searching...")
 #define TEXT_LUCAS_SEARCH_DONE QObject::tr("Done!")
-#define TEXT_CYLINDER_FOUND QObject::tr("Pipe found, see properties.") //si c'est le texte actuellement mis en description, il doit être supprimé (les mesures sont dans les champs)
+#define TEXT_CYLINDER_FOUND QObject::tr("Pipe found, see properties.") //si c'est le texte actuellement mis en description, il doit Ãªtre supprimÃ© (les mesures sont dans les champs)
 #define TEXT_CYLINDER_NOT_FOUND QObject::tr("No pipe found.")
 #define TEXT_CYLINDER_INSULATED_THICKNESS_EXCEEDS QObject::tr("Insulated thickness exceeds detected pipe radius")
 

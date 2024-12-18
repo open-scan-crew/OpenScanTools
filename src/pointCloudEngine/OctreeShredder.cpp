@@ -245,7 +245,7 @@ void OctreeShredder::clipAndReforgeSPT(uint32_t _cellId, const ClippingAssembly&
     tempRGB.resize(nbOfPoints);
     uint32_t tempCount = 0;
 
-    // NOTE - La précision des branches n'est pas indiqué clairement dans l'octree. Il faut aller la chercher dans les données déjà préparées pour le buffer GPU.
+    // NOTE - La prÃ©cision des branches n'est pas indiquÃ© clairement dans l'octree. Il faut aller la chercher dans les donnÃ©es dÃ©jÃ  prÃ©parÃ©es pour le buffer GPU.
     float precision = ((float*)m_instanceData)[4 * _cellId + 3];
 
     uint32_t p = 0;
@@ -345,7 +345,7 @@ bool OctreeShredder::clearEmptyCells(uint32_t _cellId)
         }
     }
 
-    // Problem : we can have 0 points in branch after a cut, but the children still have points.
+    // Problem :Â we can have 0 points in branch after a cut, but the children still have points.
     // This can occur because the SPT of a branch is not recomposed from its children.
     if (pointsRemaining)
     {
@@ -469,7 +469,7 @@ void OctreeShredder::generateInstanceData()
 void OctreeShredder::logStats()
 {
     SubLogger& log = Logger::log(IOLog);
-    log << "***** Octree Shredder stats *****\n";
+    log << "***** OctreeÂ Shredder stats *****\n";
     log << "* Leaf points deleted:   " << m_deletedLeafPoints << "\n";
     log << "* Branch points deleted: " << m_deletedBranchPoints << "\n";
     log << "* Deleted cells:         " << m_deletedCells << "\n";

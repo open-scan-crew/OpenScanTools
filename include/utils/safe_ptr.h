@@ -279,7 +279,7 @@ public:
     };
 
     SafePtr& operator=(const SafePtr& _Right) noexcept {
-        // NOTE - le shared_ptr utilise {copy_ctor + swap()} pour prendre en charge automatiquement les différentes
+        // NOTE - le shared_ptr utilise {copy_ctor + swap()} pour prendre en charge automatiquement les diffÃ©rentes
         SafePtr(_Right).swap(*this);
         return *this;
     };
@@ -338,9 +338,9 @@ public:
     ReadPtr<T> cget(bool tryLock = false) const noexcept {
         //return ReadPtr<T>(lock_read(), _ptr);
         
-        // On veut vérifier que le control block possède toujours le pointer géré.
-        //  * Si oui, on lock le mutex et on renvoie le pointer stocké
-        //  * Si non, on se sépare du bloc de contrôle et on renvoie nullptr
+        // On veut vÃ©rifier que le control block possÃ¨de toujours le pointer gÃ©rÃ©.
+        //  * Si oui, on lock le mutex et on renvoie le pointer stockÃ©
+        //  * Si non, on se sÃ©pare du bloc de contrÃ´le et on renvoie nullptr
         if (!_ref)
             return ReadPtr<T>();
 
@@ -440,7 +440,7 @@ protected:
     template <class Ty1, class Ty2>
     friend void multi_get(const SafePtr<Ty1>& sptr1, const SafePtr<Ty2>& sptr2, WritePtr<Ty1>& rptr1, WritePtr<Ty2>& rptr2) noexcept;
 
-    template <class Ty1, class Ty2, class Ty3> //NOTE(Quentin) Comment généraliser avec des Types différents ?
+    template <class Ty1, class Ty2, class Ty3> //NOTE(Quentin) Comment gÃ©nÃ©raliser avec des Types diffÃ©rents ?
     friend void multi_get(const SafePtr<Ty1>& sptr1, const SafePtr<Ty2>& sptr2, const SafePtr<Ty3>& sptr3, WritePtr<Ty1>& rptr1, WritePtr<Ty2>& rptr2, WritePtr<Ty3>& rptr3) noexcept;
 };
 

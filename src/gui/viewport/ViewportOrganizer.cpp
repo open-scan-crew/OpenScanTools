@@ -234,11 +234,11 @@ void ViewportOrganizer::onActiveViewport(const VulkanViewport* viewport)
             m_dataDispatcher.updateInformation(new GuiDataFocusViewport(viewport->getCamera(), viewport->width(), viewport->height(), true));
 
             // ---- TODO ----
-            // * Distinguer l’initialisation de la camera (chargement du projet) 
-            //   de la mise à jour des paramètres UI dépendant de la camera/viewpoint (changement de camera active)
+            // * Distinguer lâ€™initialisation de la camera (chargement du projet) 
+            //   de la mise Ã  jour des paramÃ¨tres UI dÃ©pendant de la camera/viewpoint (changement de camera active)
             // * GuiDataLoadViewPoint(camId, ViewPoint) OU directement un CameraNode::setViewPoint()
             // * GuiDataChangeActiveCamera(camId, DisplayParameters)
-            //     L-> PAS de projection, panoramic, 3dObject, ... dont n’a pas besoin la GUI
+            //     L-> PAS de projection, panoramic, 3dObject, ... dont nâ€™a pas besoin la GUI
 
             m_dataDispatcher.updateInformation(new GuiDataCameraInfo(viewport->getCamera()));
         }
@@ -296,7 +296,7 @@ void ViewportOrganizer::onEnableFullScreen()
             }
         }
 
-        // On détache le méta viewport
+        // On dÃ©tache le mÃ©ta viewport
         if (metaVP.mainWidget != nullptr && layoutPosFound)
         {
             metaVP.mainWidget->setParent(nullptr);
@@ -316,7 +316,7 @@ void ViewportOrganizer::onDisableFullScreen()
         MetaViewport& metaVP = m_viewports[m_fullScreenViewport];
         metaVP.mainWidget->setParent(this);
         metaVP.quickBar->onFullScreenMode(false);
-        // On replace le widget détaché à l'endroit où il a était détaché du layout.
+        // On replace le widget dÃ©tachÃ© Ã  l'endroit oÃ¹ il a Ã©tait dÃ©tachÃ© du layout.
         m_layout->addWidget(metaVP.mainWidget, row, col, rowSpan, colSpan);
         m_fullScreenViewport.reset();
         m_shortSys.changeParent(this);

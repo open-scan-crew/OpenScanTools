@@ -20,7 +20,7 @@
 
 #include "utils/Logger.h"
 
-// Note (Aurélien) QT::StandardButtons enum values in qmessagebox.h
+// Note (AurÃ©lien) QT::StandardButtons enum values in qmessagebox.h
 #define Yes 0x00004000
 #define No 0x00010000
 #define Cancel 0x00400000
@@ -116,19 +116,19 @@ ContextState ContextDeletePoints::feedMessage(IMessage* message, Controller& con
 
 // Input :
 // * scans visibles
-// * clippings actives et/ou sélectionnées
+// * clippings actives et/ou sÃ©lectionnÃ©es
 
 // Traitement :
-// * créer un dossier temporaire pour le traitement "project/scans/temp"
-// * stopper le rendu (car les EmbeddedScan vont être remplacés)
-// * stopper le streaming (car les fichiers vont être remplacés)
+// * crÃ©er un dossier temporaire pour le traitement "project/scans/temp"
+// * stopper le rendu (car les EmbeddedScan vont Ãªtre remplacÃ©s)
+// * stopper le streaming (car les fichiers vont Ãªtre remplacÃ©s)
 
 // * pour chaque scan :
-//    - créer le même scan tronqué dans le dossier de backup
-//    - créer un nouveau EmbeddedScan avec les informations d'octree du nouveau tls
+//    - crÃ©er le mÃªme scan tronquÃ© dans le dossier de backup
+//    - crÃ©er un nouveau EmbeddedScan avec les informations d'octree du nouveau tls
 //    - copier les adresses des buffers graphiques entre les EmbeddedScan
-//    - réinitialiser les buffers de points tronqués (avec moins de point)
-//    - supprimer l'ancien EmbeddedScan et les buffers restant non utilisées (tout les points supprimés)
+//    - rÃ©initialiser les buffers de points tronquÃ©s (avec moins de point)
+//    - supprimer l'ancien EmbeddedScan et les buffers restant non utilisÃ©es (tout les points supprimÃ©s)
 //    - changer le guid du tls dans le Scan du projet (sauvegardable)
 
 // Questions :
@@ -136,8 +136,8 @@ ContextState ContextDeletePoints::feedMessage(IMessage* message, Controller& con
 // * Doit-on changer les dataId des scan ? --> Non, on conserver le xg::Guid  pour les undo/redo avec le scan.
 
 // * supprimer le dossier temp et tout ce qu'il contient (ou pas si on veut un backup)
-// * redémarrer le streaming
-// * redémarrer le rendu
+// * redÃ©marrer le streaming
+// * redÃ©marrer le rendu
 ContextState ContextDeletePoints::launch(Controller& controller)
 {
     GraphManager& graphManager = controller.getGraphManager();
@@ -147,13 +147,13 @@ ContextState ContextDeletePoints::launch(Controller& controller)
 
     TlStreamLock streamLock;
 
-    // Listing des scan à traiter
+    // Listing des scan Ã  traiter
     std::unordered_set<SafePtr<ScanNode>> scans = graphManager.getVisibleScans(m_panoramic);
 
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString()));
     controller.updateInfo(new GuiDataProcessingSplashScreenStart(scans.size(), TEXT_EXPORT_CLIPPING_TITLE_PROGESS, TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(0).arg(scans.size())));
 
-    // On récupère les clippings à utiliser depuis le projet
+    // On rÃ©cupÃ¨re les clippings Ã  utiliser depuis le projet
     bool filterActive = (m_clippingFilter == ExportClippingFilter::ACTIVE);
     bool filterSelected = (m_clippingFilter == ExportClippingFilter::SELECTED);
     ClippingAssembly clippingAssembly;
@@ -184,7 +184,7 @@ ContextState ContextDeletePoints::launch(Controller& controller)
             controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Scan %1 totally deleted from project.").arg(qScanName)));
 
         // Le control s'occupe de remplacer le scan guid dans le model scan du projet.
-        // Le control gère le null guid (i.e. il supprime le scan le cas échéant).
+        // Le control gÃ¨re le null guid (i.e. il supprime le scan le cas Ã©chÃ©ant).
         if(newGuid != rScan->getScanGuid())
             controller.getControlListener()->notifyUIControl(new control::scanEdition::ChangeScanGuid(scan, newGuid));
     }

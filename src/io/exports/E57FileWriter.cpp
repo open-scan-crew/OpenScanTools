@@ -227,7 +227,7 @@ bool E57FileWriter::appendPointCloud(const tls::ScanHeader& info, const Transfor
         sourceBuffers.push_back(e57::SourceDestBuffer(m_imf, "colorBlue", m_stagingBufs.colorBlue, m_stagingBufs.size));
     }
 
-    // Create the writer from the sourceBuffers and the "points" node
+    //Â Create the writer from the sourceBuffers and the "points" node
     m_storedWriter = new CVWriterWrapper{ points.writer(sourceBuffers), m_scanHeader.format };
 
     return true;

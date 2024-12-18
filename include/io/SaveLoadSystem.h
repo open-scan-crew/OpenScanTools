@@ -86,7 +86,7 @@ namespace SaveLoadSystem
 	/*//new
 	std::map<xg::Guid, std::pair <std::array<Data*, 2>, std::set<std::string>>> compareListObjects(std::set<Data*> img_avant, std::set<Data*> img_apres);
 
-	//new : pour la sérialisation
+	//new : pour la sÃ©rialisation
 	static std::vector<Data*> objets_avant;
 	static std::vector<Data*> objets_apres;
 	static std::map<xg::Guid, std::pair <std::array<Data*, 2>, std::set<std::string>>> modification;*/

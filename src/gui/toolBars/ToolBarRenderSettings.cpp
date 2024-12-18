@@ -27,7 +27,7 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 	std::unordered_map<UiRenderMode, std::string> tradUiRenderMode(getTradUiRenderMode());
     for (uint32_t iterator(0); iterator < (uint32_t)UiRenderMode::UiRenderMode_MaxEnum; iterator++)
     {
-		//fixeme (Aurélien) to remove when I & RGB done
+		//fixeme (AurÃ©lien) to remove when I & RGB done
 #ifndef _DEBUG
 		if (iterator == 2)
 			continue;

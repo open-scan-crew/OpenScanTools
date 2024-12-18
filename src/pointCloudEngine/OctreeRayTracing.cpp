@@ -2182,7 +2182,7 @@ std::vector<glm::dvec3> OctreeRayTracing::countPointsNearHeight(const double& he
 
 double OctreeRayTracing::findBeamHeight(const std::vector<glm::dvec3>& points, const glm::dvec3& seedPoint, const glm::dvec3& normalVector, const double& heightMax, const glm::dvec3& direction, const glm::dvec3& orthoDir, const std::vector<double>& range)
 {
-	//idée : réutiliser BeamDirectionRange pour checker si les nombreux points de la semelle supérieure couvrent une part non négligeable de la zone anticipée
+	//idÃ©e : rÃ©utiliser BeamDirectionRange pour checker si les nombreux points de la semelle supÃ©rieure couvrent une part non nÃ©gligeable de la zone anticipÃ©e
 	double result(0), heightStep(0.002),heightThreshold(0.0005),heightStart(0.01), rangeWidth(abs(range[0] - range[1]));
 	size_t previousNumber(0),maxPoint(0);
 	std::vector<double> heights = sampleHeights(heightMax, heightStep);
@@ -2984,7 +2984,7 @@ int OctreeVoxelNode::getChildIndex(int depth, int x, int y, int z, int maxDepth)
 {
 	int dx, dy, dz;
 	
-	//depth d : on regarde le dième bit de poids fort de x
+	//depth d : on regarde le diÃ¨me bit de poids fort de x
 	dx = (x & (1 << (maxDepth - depth))) >> (maxDepth - depth);
 	dy = (y & (1 << (maxDepth - depth))) >> (maxDepth - depth);
 	dz = (z & (1 << (maxDepth - depth))) >> (maxDepth - depth);

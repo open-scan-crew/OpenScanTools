@@ -311,7 +311,7 @@ void ManipulatorNode::updateTranslation(const glm::ivec2& _mousePosition, Manipu
     m_startCursor = _mousePosition;
 
     // ***** Absolute method *****
-    // FIXME - Pour que méthode fonctionne, il faut travailler en coordonnées absolues (pas de décalage par le root). On travaille avec de double en dehors de l'affichage, pas besoin de tronquer les coordonnées !
+    // FIXME - Pour que mÃ©thode fonctionne, il faut travailler en coordonnÃ©es absolues (pas de dÃ©calage par le root). On travaille avec de double en dehors de l'affichage, pas besoin de tronquer les coordonnÃ©es !
     /*
     if (std::isnan(m_gizmo_pos.x))
         initTranslation(camera);

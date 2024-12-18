@@ -33,7 +33,7 @@ ContextState ContextPoint::launch(Controller& controller)
     // -!- Ray Tracing -!-
 
 	controller.updateInfo(new GuiDataTmpMessage(TEXT_POINT_PICKING_DONE));
-	//Information de création du point
+	//Information de crÃ©ation du point
     controller.updateInfo(new GuiDataPoint(m_clickResults[0].position));
     return ARayTracingContext::validate(controller);
 }

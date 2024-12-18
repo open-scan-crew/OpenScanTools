@@ -41,7 +41,7 @@ public:
     void setObjectFlags(VkCommandBuffer _cmdBuffer, bool isHovered, bool isSelected, bool isActivated, bool isExterior);
 
 private:
-    // Resources NOT owned by the Renderer --> DO NOT DESTROY HERE
+    // Resources NOT owned by the Renderer --> DOÂ NOT DESTROY HERE
     VkDevice h_device = VK_NULL_HANDLE;
     VulkanDeviceFunctions* h_pfn = nullptr;
     VkDescriptorPool h_descPool = VK_NULL_HANDLE;

@@ -186,7 +186,7 @@ glm::dvec3 tls::math::quat_to_euler_zxz(glm::dquat const& q)
     return euler;
 }
 
-// FIXME(robin) - Ça ne fonctionne pas, il faut que je repose les maths
+// FIXME(robin) - Ã‡a ne fonctionne pas, il faut que je repose les maths
 glm::dquat tls::math::quat_from_3_vector(glm::dvec3 u, glm::dvec3 v, glm::dvec3 pseudoAxis)
 {
     double norm_u = sqrt(dot(u, u));

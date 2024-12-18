@@ -23,17 +23,17 @@ public:
 
 	/*! Envoie les informations IGuiData 
 		
-		Les classes héritant de IPanel et ayant le DataDispatcher peuvent accéder aux messages IGuiData.
+		Les classes hÃ©ritant de IPanel et ayant le DataDispatcher peuvent accÃ©der aux messages IGuiData.
 
-		Si _owner_ est non-nul, le message IGuiData enregistré ne sera pas lu par le panel _owner_.
-		(C'est pour permettre d'éviter des boucles infinis)
+		Si _owner_ est non-nul, le message IGuiData enregistrÃ© ne sera pas lu par le panel _owner_.
+		(C'est pour permettre d'Ã©viter des boucles infinis)
 
 		*/
     void updateInformation(IGuiData *value, IPanel* owner=nullptr) override;
 
     void unregisterObserver(IPanel* panel) override;
 	/*! Enregistre le IPanel _panel_ 
-		pour écouter (via la méthode IPanel::informData) les messages IGuiData de type _type_*/
+		pour Ã©couter (via la mÃ©thode IPanel::informData) les messages IGuiData de type _type_*/
     void registerObserverOnKey(IPanel* panel, guiDType type) override;
     void unregisterObserverOnKey(IPanel* panel, guiDType type) override;
 

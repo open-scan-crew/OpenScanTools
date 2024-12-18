@@ -176,7 +176,7 @@ void OctreeCtor::insertPointInCell(PointXYZIRGB const& _point, uint32_t _cellId)
     }
     else {  // this is an Inner Node
 
-        // Note about performances.
+        // NoteÂ about performances.
         // 3 'if' imbricated is faster by about 25% than the code below to compute the child index 'j'
         // *****
         // const uint32_t xi = (_point.x < cellPos[0] + halfSize) ? 0u : 1u;
@@ -624,7 +624,7 @@ void OctreeCtor::createLayerForCell(uint32_t _cellId)
             bool shiftZ = j & 1u;
             data.m_qspt->mergeSPT(cell.m_depthSPT, *childData.m_qspt, child.m_depthSPT, shiftX, shiftY, shiftZ);
 
-            // We do not need the SPT for the remaining treatment
+            // We do not need the SPTÂ for the remaining treatment
             delete childData.m_qspt;
             childData.m_qspt = nullptr;
         }

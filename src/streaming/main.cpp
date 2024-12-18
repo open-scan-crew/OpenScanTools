@@ -8,7 +8,7 @@
 
 // NOTE(nico) le world space est right-handed, Z up
 
-// FIXME(nico) bug, parfois crash au démarrage, j'ai l'impression qu'il y a un pb de synchro/mutex sur '_transfertsScheduled' de StreamCPU
+// FIXME(nico) bug, parfois crash au dÃ©marrage, j'ai l'impression qu'il y a un pb de synchro/mutex sur '_transfertsScheduled' de StreamCPU
 
 #include <imgui.h>
 #include "imgui_impl_glfw.h"

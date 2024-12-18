@@ -246,7 +246,7 @@ bool importTreeBlock(Controller& controller, const nlohmann::json& jsonProject, 
 
 	if (jsonProject.find(keyTree) != jsonProject.end())
 		error = importJsonTree(controller, jsonProject.at(keyTree), type, SafePtr<AGraphNode>(), nodeById);
-	//Note (Aurélien) : compatibilty check
+	//Note (AurÃ©lien) : compatibilty check
 	else
 	{
 		keyTree = magic_enum::enum_name<TreeType>(type);
@@ -295,7 +295,7 @@ SafePtr<Author> LoadAuthor(Controller& controller, const nlohmann::json& json)
 
 	if (json.find(Key_Author) != json.end())
 	{
-		//Si ça marche pas, c'est l'ancienne version d'auteur
+		//Si Ã§a marche pas, c'est l'ancienne version d'auteur
 		if (!DataDeserializer::DeserializeAuthor(*(json.find(Key_Author)), authorData))
 		{
 			std::wstring authorName = Utils::from_utf8(json.at(Key_Author).get<std::string>());
@@ -385,7 +385,7 @@ std::unordered_set<SafePtr<AGraphNode>> SaveLoadSystem::LoadFileObjects(Controll
 			if (tlGetScanGuid(pcPath, scanGuid))
 			{
 				wPCNode->setScanGuid(scanGuid);
-				// On ne copie le scan que si il provient d’un dossier externe
+				// On ne copie le scan que si il provient dâ€™un dossier externe
 				if (forceCopy)
 				{
 					std::filesystem::path dstPath = getStandardPath(wPCNode, internalInfo);
@@ -541,7 +541,7 @@ void LoadObjFile(Controller& controller, std::unordered_map<SafePtr<AGraphNode>,
 		return;
 	}
 
-	//Note (Aurélien) : compatibilty check
+	//Note (AurÃ©lien) : compatibilty check
 	// remove std::string key for Key_Objects
 
 	std::string key(Key_Objects);
@@ -565,7 +565,7 @@ void LoadObjFile(Controller& controller, std::unordered_map<SafePtr<AGraphNode>,
 				elemTypeStr = "PCO";
 			auto elemType(magic_enum::enum_cast<ElementType>(elemTypeStr));
 
-			//Note (Aurélien) : compatibilty check
+			//Note (AurÃ©lien) : compatibilty check
 			// remove std::string key for Key_Objects
 			ElementType type;
 			if (elemType.has_value())
@@ -698,7 +698,7 @@ void LoadTagFile(Controller& controller, std::unordered_map<SafePtr<AGraphNode>,
 		return;
 	}
 
-	//Note (Aurélien) : compatibilty check
+	//Note (AurÃ©lien) : compatibilty check
 	// remove std::string key for Key_Objects
 	std::string key(Key_Tags);
 	if (jsonProject.find(Key_Tags) == jsonProject.end())
@@ -972,7 +972,7 @@ void SaveLoadSystem::ImportJsonProject(const std::filesystem::path& importPath, 
 
 	const ProjectInternalInfo& internalInfo = context.cgetProjectInternalInfo();
 
-	//Note (Aurélien) : compatibilty check
+	//Note (AurÃ©lien) : compatibilty check
 	// remove std::filesystem::path  templatePath for getTemplatesFolderPath()
 	std::filesystem::path templatePath(internalInfo.getTemplatesFolderPath());
 	if (!std::filesystem::exists(templatePath))
@@ -981,7 +981,7 @@ void SaveLoadSystem::ImportJsonProject(const std::filesystem::path& importPath, 
 	if (!controller.getContext().setUserLists(SaveLoadSystem::ImportLists<UserList>(templatePath / File_Lists), true))
 	{
 		//If failed to load list go back to default.
-		// Note (aurélien) : improvement with message box.
+		// Note (aurÃ©lien) : improvement with message box.
 		controller.getContext().setUserLists(generateDefaultLists(), true);
 		IOLOG << "Fall back to load default [" << File_Lists << "]" << LOGENDL;
 	}
@@ -989,14 +989,14 @@ void SaveLoadSystem::ImportJsonProject(const std::filesystem::path& importPath, 
 	if (!controller.getContext().setStandards(SaveLoadSystem::ImportLists<StandardList>(templatePath / File_Pipes), StandardType::Pipe, true))
 	{
 		//If failed to load templates go back to default.
-		// Note (aurélien) : improvement with message box.
+		// Note (aurÃ©lien) : improvement with message box.
 		controller.getContext().setStandards(generateDefaultPipeStandardList(), StandardType::Pipe, true);
 		IOLOG << "Fall back to load default [" << File_Pipes << "]" << LOGENDL;
 	}
 
 	std::vector<sma::TagTemplate> templates = SaveLoadSystem::ImportTemplates(controller, templatePath / File_Templates);
 	//If failed to load templates go back to default.
-	// Note (aurélien) : improvement with message box.
+	// Note (aurÃ©lien) : improvement with message box.
 	if (!controller.getContext().setTemplates(templates, true))
 	{
 		templates = sma::GenerateDefaultTemplates();
@@ -1100,7 +1100,7 @@ void SaveLoadSystem::ImportJsonProject(const std::filesystem::path& importPath, 
 	LoadFileObjects(controller, nodes, "", false);
 
 	//user orientations
-	//Note (Aurélien) : compatibilty check
+	//Note (AurÃ©lien) : compatibilty check
 	// remove std::string key for Key_UserOrientations
 	std::string key(Key_UserOrientations);
 	if (jsonProject.find(Key_UserOrientations) == jsonProject.end())
@@ -1399,7 +1399,7 @@ std::unordered_set<SafePtr<Author>> SaveLoadSystem::loadLocalAuthors(const Contr
 				authors.insert(controller.cgetContext().createAuthor(authorData));
 			else
 			{
-				try //Note (Aurélien) : compatibilty check
+				try //Note (AurÃ©lien) : compatibilty check
 				{
 					names.insert(Utils::from_utf8(iterator.get<std::string>()));
 				}
@@ -1414,7 +1414,7 @@ std::unordered_set<SafePtr<Author>> SaveLoadSystem::loadLocalAuthors(const Contr
 						else
 							IOLOG << "try to import two times the same author" << LOGENDL;
 					}
-					//Note (Aurélien) : compatibilty check
+					//Note (AurÃ©lien) : compatibilty check
 					else if (iterator.find("AuthorName") != iterator.end())
 					{
 						std::wstring authorName(Utils::from_utf8(iterator.at("AuthorName").get<std::string>()));
@@ -1591,7 +1591,7 @@ std::filesystem::path SaveLoadSystem::ExportProject(Controller& controller, cons
 
 	IOLOG << "Finish backing up old objects files" << LOGENDL;
 
-	//On détruit les anciens fichiers objets si l'export des nouveaux fichiers objets c'est bien passé
+	//On dÃ©truit les anciens fichiers objets si l'export des nouveaux fichiers objets c'est bien passÃ©
 	if (ExportAuthorObjects(controller, internalInfo.getObjectsProjectPath(), objects, true))
 	{
 		for (std::filesystem::path filePath : toDeleteFiles)

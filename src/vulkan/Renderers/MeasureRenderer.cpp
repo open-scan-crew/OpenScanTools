@@ -105,7 +105,7 @@ void MeasureRenderer::createDescriptorSetLayout()
         }
     };
 
-    // Descriptor Set Layout Create Info
+    // DescriptorÂ Set Layout Create Info
     VkDescriptorSetLayoutCreateInfo descLayoutInfo = {
         VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
         nullptr,

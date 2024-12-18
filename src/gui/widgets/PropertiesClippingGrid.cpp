@@ -76,7 +76,7 @@ void PropertiesClippingGrid::updateGrid()
     uint64_t maxZIteration(ceil((Z.y - Z.x) / size));
 	if (maxXIteration > MAX_BOXES || maxYIteration > MAX_BOXES || maxZIteration > MAX_BOXES)
 	{
-		QMessageBox errorbox(QMessageBox::Icon::Critical, tr("Informations invalides."), tr("La grille est trop grande, le maximum est de 65 535 boxes par côté."),
+		QMessageBox errorbox(QMessageBox::Icon::Critical, tr("Informations invalides."), tr("La grille est trop grande, le maximum est de 65Â 535 boxes par cÃ´tÃ©."),
 			QMessageBox::StandardButton::Ok);
 		errorbox.exec();
 		return;

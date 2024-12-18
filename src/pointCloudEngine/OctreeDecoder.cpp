@@ -72,7 +72,7 @@ bool OctreeDecoder::readPointsFromFile(std::ifstream& _is, const uint64_t& point
     return true;
 }
 
-// FIXME(robin) - Pas de vérification sur la taille de l'espace pointé par `optionalOutput`
+// FIXME(robin) - Pas de vÃ©rification sur la taille de l'espace pointÃ© par `optionalOutput`
 void OctreeDecoder::decodeCell(uint32_t cellId, PointXYZIRGB* optionalOutput)
 {
     assert(cellId == NO_CHILD || cellId >= m_vTreeCells.size());

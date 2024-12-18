@@ -6,7 +6,7 @@
 #include "models/3d/MarkerDrawData.h"
 #include "models/project/Marker.h"
 
-// NOTE(robin) - Pas besoin d'hériter de AMeasureNode pour l'instant: pas de segment à afficher
+// NOTE(robin) - Pas besoin d'hÃ©riter de AMeasureNode pour l'instant: pas de segment Ã  afficher
 class ColumnTiltMeasureNode : public AObjectNode, public ColumnTiltMeasureData
 {
 public:

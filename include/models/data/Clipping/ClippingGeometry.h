@@ -11,17 +11,17 @@
 // Notes sur le design des classes "ClippingGeometry"
 // 
 // ===== Besoin =====
-//  * Définir au sein d’une même classe des tests géométriques variant selon la forme.
-//  * Regrouper un ensemble d’instance de cette classe (par exemple dans un std::vector).
-//  * Effectuer ces tests de façon rapide avec le moins d’appel de fonction possible (jusqu’à 10k par image).
-//  * Copier profondément les données pour éffectuer des transformations locales sans altérer les données d’origine.
+//  * DÃ©finir au sein dâ€™une mÃªme classe des tests gÃ©omÃ©triques variant selon la forme.
+//  * Regrouper un ensemble dâ€™instance de cette classe (par exemple dans un std::vector).
+//  * Effectuer ces tests de faÃ§on rapide avec le moins dâ€™appel de fonction possible (jusquâ€™Ã  10k par image).
+//  * Copier profondÃ©ment les donnÃ©es pour Ã©ffectuer des transformations locales sans altÃ©rer les donnÃ©es dâ€™origine.
 // 
 // ===== Premier design =====
 //  * Une classe abstraite :
-//    - Déclare des méthodes communes pour effectué différents tests
-//    - Défini des variables membres communes servant dans les tests
+//    - DÃ©clare des mÃ©thodes communes pour effectuÃ© diffÃ©rents tests
+//    - DÃ©fini des variables membres communes servant dans les tests
 // '''
-// class IClippingGeometry (qu’on pourrait renomer plus proprement AClippingGeometry) {
+// class IClippingGeometry (quâ€™on pourrait renomer plus proprement AClippingGeometry) {
 // public:
 //     ...
 //     virtual void testSphere(...) const = 0;
@@ -30,8 +30,8 @@
 // };
 // '''
 //
-//  * Des classes héritant de 'IClippingGeometry' :
-//    - Définissent les méthodes des test propre à chaque forme (shape)
+//  * Des classes hÃ©ritant de 'IClippingGeometry' :
+//    - DÃ©finissent les mÃ©thodes des test propre Ã  chaque forme (shape)
 // '''
 // class BoxClippingGeometry : public IClippingGeometry {};
 // class SphereClippingGeometry : public IClippingGeometry {};
@@ -39,7 +39,7 @@
 // '''
 //
 //  * Inconvenient du design:
-//    - On est obligé de stocker des pointeurs de 'IClippingGeometry' pour bénéficier du polymorphisme.
+//    - On est obligÃ© de stocker des pointeurs de 'IClippingGeometry' pour bÃ©nÃ©ficier du polymorphisme.
 //    - Avant chaque modification des transformations dans un espace local on doit :
 //       + Soit on doit faire une copie profonde du ClippingAssembly,
 //       + soit on doit reset les matrices (et stocker leur valeurs initiales)
@@ -93,7 +93,7 @@ public:
     const ClippingMode mode;
     const ClipAccepted cst_decisionTable[(size_t)ClipResult::Max_Enum]; // init by the ClippingMode
     glm::dmat4 matRT_inv; // rotation-1 * translation-1
-    glm::vec4 params; // Cf. definition des paramètres ci-dessous
+    glm::vec4 params; // Cf. definition des paramÃ¨tres ci-dessous
     glm::vec3 color;
     int rampSteps;
     ClippingGpuId gpuDrawId; // optional for the export
@@ -130,37 +130,37 @@ public:
     ClippingMode mode;
     glm::dmat4 matRT_inv; // rotation-1 * translation-1
     const glm::dmat4 matRT_inv_store; // rotation-1 * translation-1
-    glm::vec4 params; // Cf. definition des paramètres ci-dessous
+    glm::vec4 params; // Cf. definition des paramÃ¨tres ci-dessous
     glm::vec3 color;
     int rampSteps;
     ClippingGpuId gpuDrawId; // optional for the export
 
     bool isSelected = false;
 
-    // Pour être plus flexible avec le type de géométrie que l’on veut décrire la "scale" n’est pas adaptée.
-    // Chaque géométrie n’a pas besoin des mêmes paramètres :
-    // * Box : on remplace le booléen "limitXY" par "dX" et "dY".
+    // Pour Ãªtre plus flexible avec le type de gÃ©omÃ©trie que lâ€™on veut dÃ©crire la "scale" nâ€™est pas adaptÃ©e.
+    // Chaque gÃ©omÃ©trie nâ€™a pas besoin des mÃªmes paramÃ¨tres :
+    // * Box : on remplace le boolÃ©en "limitXY" par "dX" et "dY".
     //   * dX : limite en X (fini ou infini)
     //   * dY : limite en Y (fini ou infini)
-    //   * dZ : limite en Z et (épaisseur de la boite)
+    //   * dZ : limite en Z et (Ã©paisseur de la boite)
     //
     // * Cylinder :
-    //   * x : rayon intérieur
-    //   * y : rayon extérieur
+    //   * x : rayon intÃ©rieur
+    //   * y : rayon extÃ©rieur
     //   * z : longeur
     //   * w : rayon paroi
     //
     // * Sphere :
-    //   * x : rayon intérieur
-    //   * y : rayon extérieur
+    //   * x : rayon intÃ©rieur
+    //   * y : rayon extÃ©rieur
     //   * z : N/A
     //   * w : rayon paroi
     // 
     // * Torus (partiel) :
     //   * x : rayon principal
-    //   * y : cosinus de l’angle principal
-    //   * z : rayon secondaire intérieur
-    //   * w : rayon secondaire extérieur
+    //   * y : cosinus de lâ€™angle principal
+    //   * z : rayon secondaire intÃ©rieur
+    //   * w : rayon secondaire extÃ©rieur
 };
 
 class BoxClippingGeometry : public IClippingGeometry
@@ -225,14 +225,14 @@ public:
     std::vector<std::shared_ptr<IClippingGeometry>> rampActives;
 };
 
-// Le ClippingMode peut être vu autrement maintenant que l’on utilise les clipping
+// Le ClippingMode peut Ãªtre vu autrement maintenant que lâ€™on utilise les clipping
 // pour les rampes et la coloration.
-// On peut définir 3 zones lors de l’intersection de 2 géométries { confondu, partiellement confondu, dissocié }
+// On peut dÃ©finir 3 zones lors de lâ€™intersection de 2 gÃ©omÃ©tries { confondu, partiellement confondu, dissociÃ© }
 // 
 //  * ClippingMode::showInterior:
-//    - On garde l’intérieur SANS traitement GPU (passer par le shader point_clip.geom)
+//    - On garde lâ€™intÃ©rieur SANS traitement GPU (passer par le shader point_clip.geom)
 //    - On garde la bordure AVEC traitement GPU
-//    - On ne garde pas l’exterieur
+//    - On ne garde pas lâ€™exterieur
 
 //  * ClippingMode::
 
@@ -245,8 +245,8 @@ struct AssemblyDrawResult
 };
 
 // BaseAssembly
-//  - Definition des opérations logiques de base dans une système de coordonnées.
-//  - Initialisé en début de parcouns d'octree
+//  - Definition des opÃ©rations logiques de base dans une systÃ¨me de coordonnÃ©es.
+//  - InitialisÃ© en dÃ©but de parcouns d'octree
 class ClippingAssembly_bis
 {
 public:

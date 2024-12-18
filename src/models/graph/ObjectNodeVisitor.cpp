@@ -115,8 +115,8 @@ void ObjectNodeVisitor::setCamera(const CameraNode& camera)
 
 //*** Get the text according to the display filter ***/
 // TODO - Passer par une interface pour obtenir les textes directement des objets
-//  * Les AGraphNode/AGraphObject renvoient leurs chaines de caractères pour chaque pôle.
-//  * Le filtre global est donné en paramètre à l'objet pour éviter des générations inutiles.
+//  * Les AGraphNode/AGraphObject renvoient leurs chaines de caractÃ¨res pour chaque pÃ´le.
+//  * Le filtre global est donnÃ© en paramÃ¨tre Ã  l'objet pour Ã©viter des gÃ©nÃ©rations inutiles.
 //  * Le visitor/text renderer fait la mise en forme finale (index.name.id...).
 void ObjectNodeVisitor::getObjectMarkerText(const SafePtr<AObjectNode>& object, std::string& text)
 {
@@ -173,8 +173,8 @@ void ObjectNodeVisitor::getObjectMarkerText(const SafePtr<AObjectNode>& object, 
         if (filter & TEXT_SHOW_PHASE_BIT)
             parameters[5] = Utils::to_utf8(rObj->getPhase());
 
-        // NOTE(robin) - Mise en forme optimisée pour prendre moins de temps à l’éxécution.
-        // PERF - La mise en forme des coordonnées est malgré tout relativement longue. On pourrait penser à stocker la mise en forme entre chaque frame.
+        // NOTE(robin) - Mise en forme optimisÃ©e pour prendre moins de temps Ã  lâ€™Ã©xÃ©cution.
+        // PERF - La mise en forme des coordonnÃ©es est malgrÃ© tout relativement longue. On pourrait penser Ã  stocker la mise en forme entre chaque frame.
         if (filter & TEXT_SHOW_COORD_BIT)
         {
             glm::dvec3 pos = unit_converter::meterToX(rObj->getCenter(), m_displayParameters.m_unitUsage.distanceUnit);
@@ -210,9 +210,9 @@ void ObjectNodeVisitor::getObjectMarkerText(const SafePtr<AObjectNode>& object, 
     if (nodeFunctions::isMissingFile(object))
         text = "?" + text;
 
-    // NOTE(robin) - Le layout indique de façon efficace ou placer les 'parameters' avec les séparateurs '.' et les sauts de ligne '\n'.
-    // - Fonctionne jusqu’à 10 parametres (actuellement 9 utilisés), au délà il faudra faire plus d’efforts :)
-    // - Il manque certaines sécurités si le layout est mal écrit.
+    // NOTE(robin) - Le layout indique de faÃ§on efficace ou placer les 'parameters' avec les sÃ©parateurs '.' et les sauts de ligne '\n'.
+    // - Fonctionne jusquâ€™Ã  10 parametres (actuellement 9 utilisÃ©s), au dÃ©lÃ  il faudra faire plus dâ€™efforts :)
+    // - Il manque certaines sÃ©curitÃ©s si le layout est mal Ã©crit.
     char layout[] = "0.1.2.3\n4.5\n6.7\n8";
     bool empty_line = true;
     bool add_sep = false;
@@ -264,7 +264,7 @@ bool ObjectNodeVisitor::drawManipulatorText()
         text += " : " + fmt::format(m_length_format, unit_converter::meterToX(rManipNode->getDistanceToDisplay(), m_camera.m_unitUsage.distanceUnit));
         break;
     case ManipulationMode::Rotation:
-        text += " : " + fmt::format(m_simple_format, rManipNode->getDistanceToDisplay(), "Â°");
+        text += " : " + fmt::format(m_simple_format, rManipNode->getDistanceToDisplay(), "Ã‚Â°");
         break;
     }
 
@@ -296,9 +296,9 @@ void ObjectNodeVisitor::drawObjectTexts()
 
 bool ObjectNodeVisitor::bakeTextPosition(const glm::dmat4& transfo, float& _wx, float& _wy, bool clip_max_z)
 {
-    // FIXME - Si cette fonction est géré par l'objet, alors on peut ajouter une transfo locale propre à l'objet
+    // FIXME - Si cette fonction est gÃ©rÃ© par l'objet, alors on peut ajouter une transfo locale propre Ã  l'objet
     glm::dvec4 csPos = m_viewProjMatrix * glm::dvec4(transfo[3][0], transfo[3][1], transfo[3][2], 1.0);
-    // NOTE - On peut désactiver le clipping en z avec un booléen.
+    // NOTE - On peut dÃ©sactiver le clipping en z avec un boolÃ©en.
     if (csPos.z < 0.0 || (clip_max_z && csPos.z > m_cs_marker_max_z))
         return false;
 
@@ -1129,8 +1129,8 @@ void ObjectNodeVisitor::drawManipulator(VkCommandBuffer cmdBuffer, ManipulatorRe
 
     double dist = (m_camera.getProjectionMode() == ProjectionMode::Perspective ? glm::length(m_viewMatrix * glm::dvec4(translation, 1.0)) : m_camera.getHeightAt1m());
 
-    //Note (Aurélien) : c'est ici qu'il faut agir, pour modifier la taille et la distance des manipulateurs.
-    // À noter : dist impacte le scale des manipulateur.
+    //Note (AurÃ©lien) : c'est ici qu'il faut agir, pour modifier la taille et la distance des manipulateurs.
+    // Ã€ noter : dist impacte le scale des manipulateur.
     //           scale la distance des manipulateurs par rapport au centre du parent.
     switch (rManip->getManipulationMode())
     {
@@ -1279,14 +1279,14 @@ void ObjectNodeVisitor::nextGeoNode(const SafePtr<AGraphNode>& node, const Trans
 }
 
 // TODO:
-// [x] Passer la transfo globale en paramètre pour générer les MarkerDrawData
+// [x] Passer la transfo globale en paramÃ¨tre pour gÃ©nÃ©rer les MarkerDrawData
 // [x] Afficher les mesures
 // [x] Afficher les nuages de point
 // [x] Afficher les meshes
 // [x] Afficher les textes
-// [x] Générer les ClippingAssembly
-// [ ] Trouver comment écrire une interface dans AGraphNode pour que chaque spécialisation
-//    spécifie elle-même ses objets graphique.
+// [x] GÃ©nÃ©rer les ClippingAssembly
+// [ ] Trouver comment Ã©crire une interface dans AGraphNode pour que chaque spÃ©cialisation
+//    spÃ©cifie elle-mÃªme ses objets graphique.
 void ObjectNodeVisitor::bakeGraphics(const SafePtr<AGraphNode>& node, const TransformationModule& gTransfo)
 {
     ElementType elemType = ElementType::None;
@@ -1453,7 +1453,7 @@ void ObjectNodeVisitor::bakeGraphics(const SafePtr<AGraphNode>& node, const Tran
         {
             rMeasure->getSegmentDrawData(transfoMat, m_segmentDrawData);
             // TODO - Ajouter les flags (selected, hovered) aux datas du segment
-            //      - CliggingActive et ClippingMode ne sont pas utilisés
+            //      - CliggingActive et ClippingMode ne sont pas utilisÃ©s
             //renderer.setObjectFlags(cmdBuffer, rMeasure->isHovered(), rMeasure->isSelected(), rMeasure->isClippingActive(), rMeasure->getClippingMode() == ClippingMode::showExterior);
         }
         break;
@@ -1564,7 +1564,7 @@ void ObjectNodeVisitor::drawImGuiBegin(SafePtr<AGraphNode> startNode, VkCommandB
 
     ImGui::Begin("Objects labels", NULL, windowFlags);
 
-    // Draw des textes déjà obtenus pendant le bake du graph
+    // Draw des textes dÃ©jÃ  obtenus pendant le bake du graph
     drawMeasureTexts();
     drawObjectTexts();
     drawManipulatorText();
@@ -1700,12 +1700,12 @@ void ObjectNodeVisitor::draw_baked_markers(VkCommandBuffer cmdBuf, MarkerRendere
 }
 
 // FONCTIONNEMENT(robin)
-//  - On utilise une structure 'MeasureBufferData' pour décrire les segments de mesure à afficher.
-//  - Chaque segment contient les infos nécessaires aux shaders pour son affichage (position, couleur, iindex)
-//  - Les segments sont générer par les objets qui souhaitent afficher une mesure.
-//  - Ils sont stokés dans un buffer commun alloué et géré le 'MesureStorage'.
-//  - Une fois stoké, un segment de mesure est référencé par un 'MesureStorageId'.
-//  - Ce 'MesureStorageId' est utilisé pour draw la donnée stockée sur le buffer via les shaders.
+//  - On utilise une structure 'MeasureBufferData' pour dÃ©crire les segments de mesure Ã  afficher.
+//  - Chaque segment contient les infos nÃ©cessaires aux shaders pour son affichage (position, couleur, iindex)
+//  - Les segments sont gÃ©nÃ©rer par les objets qui souhaitent afficher une mesure.
+//  - Ils sont stokÃ©s dans un buffer commun allouÃ© et gÃ©rÃ© le 'MesureStorage'.
+//  - Une fois stokÃ©, un segment de mesure est rÃ©fÃ©rencÃ© par un 'MesureStorageId'.
+//  - Ce 'MesureStorageId' est utilisÃ© pour draw la donnÃ©e stockÃ©e sur le buffer via les shaders.
 //  - 
 //
 // REWORK(robin)

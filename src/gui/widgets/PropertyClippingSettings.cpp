@@ -85,7 +85,7 @@ void PropertyClippingSettings::hideEvent(QHideEvent* event)
 	m_ui->XInfield->blockSignals(false);
 	m_ui->YInfield->blockSignals(false);
 	m_ui->ZInfield->blockSignals(false);
-    // QUESTION(robin) - Doit-on accepter l'event ou le transmettre à la méthode parent ?
+    // QUESTION(robin) - Doit-on accepter l'event ou le transmettre Ã  la mÃ©thode parent ?
     //QWidget::hideEvent(event);
     //event->accept();
 }

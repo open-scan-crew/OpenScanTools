@@ -1,4 +1,4 @@
-﻿#include "Renderer.h"
+#include "Renderer.h"
 #include "vulkan/VulkanManager.h"
 #include "utils/Logger.h"
 
@@ -317,7 +317,7 @@ void Renderer::createDescriptorSetLayout()
         }
     };
 
-    // Descriptor Set Layout Create Info
+    // DescriptorÂ Set Layout Create Info
     VkDescriptorSetLayoutCreateInfo descLayoutInfo = {
         VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
         nullptr,
@@ -361,7 +361,7 @@ void Renderer::createDescriptorSetLayout()
         }
     };
 
-    // Descriptor Set Layout Create Info
+    // DescriptorÂ Set Layout Create Info
     VkDescriptorSetLayoutCreateInfo descLayoutInfo_cb = {
         VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
         nullptr,
@@ -664,7 +664,7 @@ void Renderer::createGraphicPipelines()
                 vertexBindingDesc.push_back({ 1, sizeof(uint8_t), VK_VERTEX_INPUT_RATE_VERTEX });
             }
 
-            // Dédicace à Alexis
+            // DÃ©dicace Ã  Alexis
         gt_noColor:
 
             VkPipelineVertexInputStateCreateInfo vertexInputInfo;
@@ -857,7 +857,7 @@ void Renderer::drawPoints(const TlScanDrawInfo &_drawInfo, const VkUniformOffset
     h_pfn->vkCmdBindVertexBuffers(_cmdBuffer, 2, 1, &_drawInfo.instanceBuffer, &offset);
 
     // Bind the descriptor set for the scan
-    //Note (Aurélien) Quick fix for getting ramp working
+    //Note (AurÃ©lien) Quick fix for getting ramp working
     uint32_t offsets[] = { viewProjUni, _drawInfo.modelUni, };
     h_pfn->vkCmdBindDescriptorSets(_cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 1, &m_descSet, 2, offsets);
 
@@ -980,7 +980,7 @@ void Renderer::setConstantPtColor(const glm::vec3& color, VkCommandBuffer _cmdBu
 
 void Renderer::setClippingIndexes(const ClippingGpuId indexes[MAX_CLIPPING_PER_CELL + 1], VkCommandBuffer _cmdBuffer) const
 {
-    // NOTE - ClippingGpuId est maintenant codé sur 2 octet. (uint16). On peut donc en mettre 32 dans 64 octets.
+    // NOTE - ClippingGpuId est maintenant codÃ© sur 2 octet. (uint16). On peut donc en mettre 32 dans 64 octets.
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_GEOMETRY_BIT, 64, 64, indexes);
 }
 

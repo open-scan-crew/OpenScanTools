@@ -33,7 +33,7 @@ struct PointColor {
 	uint8_t b;
 };
 
-// TODO(robin) Gérer le cas ou est out_of_memory en dehors du transfert
+// TODO(robin) GÃ©rer le cas ou est out_of_memory en dehors du transfert
 enum TransfertState {
 	TFT_NOT_STARTED,
 	TFT_STARTED,

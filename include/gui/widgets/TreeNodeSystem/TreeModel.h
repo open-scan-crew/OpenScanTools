@@ -6,8 +6,8 @@
 #include "gui/widgets/TreeNodeSystem/TreeNode.h"
 
 class AGraphNode;
-/*! QUESTION(quentin) Arbre côté UI ? Il n'y a qu'un TreeModel qui gère les DataNode pour l'affichage UI
-	tandis que il y a une map de TreeSytem (associé à un TreeType) qui gère les TreeElement  */
+/*! QUESTION(quentin) Arbre cÃ´tÃ© UI ? Il n'y a qu'un TreeModel qui gÃ¨re les DataNode pour l'affichage UI
+	tandis que il y a une map de TreeSytem (associÃ© Ã  un TreeType) qui gÃ¨re les TreeElement  */
 class TreeModel : public QStandardItemModel
 {
 	Q_OBJECT
@@ -28,7 +28,7 @@ public:
 	std::vector<TreeNode*> getTreeNodes(SafePtr<AGraphNode> data);
 
 private:
-	/*! Retourne un pointeur TreeNode situé à l'index associé _index_*/
+	/*! Retourne un pointeur TreeNode situÃ© Ã  l'index associÃ© _index_*/
 	TreeNode *nodeForIndex(const QModelIndex &index) const;
 	void removeNode(TreeNode *node);
 

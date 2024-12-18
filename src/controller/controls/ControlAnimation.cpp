@@ -42,7 +42,7 @@ namespace control
 
 		void AddViewPoint::undoFunction(Controller& controller)
 		{
-			//TO Do (Aurélien)
+			//TO Do (AurÃ©lien)
 			//send message that remove position form list;
 		}
 

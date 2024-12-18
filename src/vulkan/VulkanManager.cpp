@@ -480,7 +480,7 @@ bool VulkanManager::doImageTransfer(ImageTransferEvent ite, uint32_t dstW, uint3
     srcBuffer += subResourceLayout.offset;
     srcBuffer += subResourceLayout.rowPitch * border;
 
-    // On écrit ligne par ligne
+    // On Ã©crit ligne par ligne
     uint32_t innerW = ite.width - 2 * border;
     uint32_t innerH = ite.height - 2 * border;
     uint32_t clampedW = std::min(innerW, dstW - dstOffsetW);
@@ -1203,7 +1203,7 @@ void VulkanManager::submitMultipleFramebuffer(std::vector<TlFramebuffer> fbs)
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = &fb->swapchain;
         presentInfo.pImageIndices = &fb->currentImage;
-        // FIXME - Utiliser la bonne queue si la presentation se fait sur une queue différente.
+        // FIXME - Utiliser la bonne queue si la presentation se fait sur une queue diffÃ©rente.
         err = m_pfnDev->vkQueuePresentKHR(getQueue(m_graphicsQID), &presentInfo);
         if (err == VK_ERROR_OUT_OF_DATE_KHR || err == VK_SUBOPTIMAL_KHR) {
             VKM_INFO << "Out of date swapchain (end render pass)\n" << Logger::endl;
@@ -2829,7 +2829,7 @@ bool VulkanManager::createCommandPools()
 
 bool VulkanManager::createDescriptorPool()
 {
-    // NOTE - Ne pas oublier d’augmenter les pools lorsque l’on voudra plus que 2 viewports
+    // NOTE - Ne pas oublier dâ€™augmenter les pools lorsque lâ€™on voudra plus que 2 viewports
     VkDescriptorPoolSize poolSizes[] =
     {
         { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 6 }, // for ImGui, how much ?

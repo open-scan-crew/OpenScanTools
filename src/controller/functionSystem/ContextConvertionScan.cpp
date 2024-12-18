@@ -89,7 +89,7 @@ ContextState ContextConvertionScan::feedMessage(IMessage* message, Controller& c
         controller.updateInfo(new GuiDataSplashScreenStart(TEXT_MESSAGE_SPLASH_SCREEN_READING_DATA, GuiDataSplashScreenStart::SplashScreenType::Message));
         for (const std::filesystem::path& file : m_scanInfo.paths)
         {
-            //Note (Aurélien) Brute force to try to fix #227
+            //Note (AurÃ©lien) Brute force to try to fix #227
             std::vector<tls::ScanHeader> headers;
             bool renaming;
             std::wstring log;
@@ -470,7 +470,7 @@ int ContextConvertionScan::checkScansExist(const std::filesystem::path& inputFil
             retCode++;
         }
     }
-    //Note (Aurélien) only a quick check of scan name on the first ones, not sure there is a case where we need to check every scans...
+    //Note (AurÃ©lien) only a quick check of scan name on the first ones, not sure there is a case where we need to check every scans...
     renaming = (fileReader->getScanCount() > 1 && fileReader->getTlsScanHeader(1).name == fileReader->getTlsScanHeader(0).name);
     delete fileReader;
     return retCode;

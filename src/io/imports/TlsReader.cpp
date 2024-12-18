@@ -193,7 +193,7 @@ bool tls::reader::getOctreeBase(std::ifstream& _is, FileVersion _version, Octree
         _is.read((char*)&_octreeBase.m_pointCount, sizeof(uint64_t));
 
         seekScanHeaderPos(_is, 0, TL_SCAN_ADDR_OCTREE_PARAM);
-        // NOTE(robin) - Réctifie une erreur dans le type de cellCount
+        // NOTE(robin) - RÃ©ctifie une erreur dans le type de cellCount
         uint64_t cellCount64;
         _is.read((char*)&cellCount64, sizeof(uint64_t));
         _octreeBase.m_cellCount = (uint32_t)cellCount64;

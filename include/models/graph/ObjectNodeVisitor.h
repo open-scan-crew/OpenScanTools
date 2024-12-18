@@ -192,7 +192,7 @@ private:
 
     // Performance variables
     std::string m_index_format;
-    std::string m_coord_format;  // format des coordonnÈes (ImGui)
+    std::string m_coord_format;  // format des coordonn√©es (ImGui)
     std::string m_diameter_format;
     std::string m_length_format;
     std::string m_simple_format;
@@ -204,9 +204,9 @@ private:
 class IRender
 {
     // NOTE sur les textes :
-    // - Pour les textes on fait dÈj‡ un clipping de la position avant l'Èdition des texts.
-    // - Ce mÈcanisme est important pour prÈserver les performances.
-    // - On peut d'ailleurs penser ‡ le transposer pour d'autres affichage (segment, mesh, ect)
+    // - Pour les textes on fait d√©j√† un clipping de la position avant l'√©dition des texts.
+    // - Ce m√©canisme est important pour pr√©server les performances.
+    // - On peut d'ailleurs penser √† le transposer pour d'autres affichage (segment, mesh, ect)
     // - Les textes des mesures devrait afficher comme les autres textes.
     // - Leur style peut varier (couleur) cependant.
     void getBakedTexts(const glm::dmat4& transfo, std::vector<std::string>& texts, void (*clippingFct)(int));

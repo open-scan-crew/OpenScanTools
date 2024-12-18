@@ -73,7 +73,7 @@ inline void ToolBarTextDisplay::addRemoveFilter(TextFilter& textFilter, bool che
     else
         textFilter &= ~filter;
 	//textFilter += (checked) ? filter : -filter;
-	assert(((textFilter & filter) /*== filter (inutile)*/ && checked) || (!(textFilter & filter) && !checked)); //On regarde si le bouton est bien coché ou non selon le filtre appliqué
+	assert(((textFilter & filter) /*== filter (inutile)*/ && checked) || (!(textFilter & filter) && !checked)); //On regarde si le bouton est bien cochÃ© ou non selon le filtre appliquÃ©
 }
 
 void ToolBarTextDisplay::toggleRenderParameter(bool checked, int parameter) {

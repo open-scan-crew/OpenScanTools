@@ -250,7 +250,7 @@ scs::MarkerIcon ControllerContext::getActiveIcon() const
 // UPDATE(Alexis) - I don't know, maybe
 // UPDATE(Alexis) - Life is a kiwi :thumbsup:
 // UPDATE(Alexis) - Maybe a day this "thread" will be readen
-// UPDATE(Aurélien) - We need to keep the state so I guess we can keep it 
+// UPDATE(AurÃ©lien) - We need to keep the state so I guess we can keep it 
 //						(and reduce the access scope to the controller only, 
 //								(like a lot of stuff in the context :))
 void ControllerContext::setIsCurrentProjectSaved(bool value)

@@ -407,7 +407,7 @@ void ToolBarImageGroup::refreshImageSize()
 	double ratio = getRatioWH();
 	double frameFactor = useFrame ? 0.9 : 1.0;
 
-	// En ortho, les dimensions en pixel sont fonction du scale, dpi et taille rÈelle du viewport
+	// En ortho, les dimensions en pixel sont fonction du scale, dpi et taille r√©elle du viewport
 	if (m_projection == ProjectionMode::Orthographic)
 	{
 		if (m_cameraOrthoSize.x / m_cameraOrthoSize.y > ratio)
@@ -423,7 +423,7 @@ void ToolBarImageGroup::refreshImageSize()
 		width = frameOrthoSize.x * 1000.0 * m_scale * m_dpmm;
 		height = frameOrthoSize.y * 1000.0 * m_scale * m_dpmm;
 	}
-	// En perspective, les dimensions sont libres (avec ratio imposÅE
+	// En perspective, les dimensions sont libres (avec ratio impos¬ÅE
 	else
 	{
 		bool res = false;

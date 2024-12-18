@@ -53,8 +53,8 @@ ContextState ContextPCOCreation::start(Controller& controller)
     clipping_assembly_ = ClippingAssembly();
     clipping->pushClippingGeometries(clipping_assembly_, point_cloud_transfo_);
 
-    // On force la création des PCO sur l'intérieur des clippings.
-    // C'est sûrement discutable, on pourrait avoir envie un jour de créer un PCO à partir d'une clipping extèrieure.
+    // On force la crÃ©ation des PCO sur l'intÃ©rieur des clippings.
+    // C'est sÃ»rement discutable, on pourrait avoir envie un jour de crÃ©er un PCO Ã  partir d'une clipping extÃ¨rieure.
     clipping_assembly_.clippingUnion.insert(clipping_assembly_.clippingUnion.end(), clipping_assembly_.clippingIntersection.begin(), clipping_assembly_.clippingIntersection.end());
     clipping_assembly_.clippingIntersection.clear();
     for (auto geom : clipping_assembly_.clippingUnion)

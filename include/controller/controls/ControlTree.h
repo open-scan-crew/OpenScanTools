@@ -13,12 +13,12 @@ class ClusterNode;
 
 namespace control::tree
 {
-	/*! Création d'un cluster */
+	/*! CrÃ©ation d'un cluster */
 	class CreateCluster : public AControl
 	{
 	public:
 		/*!
-				\param TreeType type - Type de TreeSytem où on créé le cluster
+				\param TreeType type - Type de TreeSytem oÃ¹ on crÃ©Ã© le cluster
 
 				\param treeId parentId - id du TreeElement parent du nouveau cluster  */
 		CreateCluster(const TreeType& type, const SafePtr<AGraphNode>& parent);
@@ -31,7 +31,7 @@ namespace control::tree
 		SafePtr<ClusterNode> m_cluster;
 	};
 
-	/*! Déplacement des élèments de l'arbre */
+	/*! DÃ©placement des Ã©lÃ¨ments de l'arbre */
 	class DropElements : public AControl
 	{
 	public:
@@ -40,7 +40,7 @@ namespace control::tree
 
 				\param const SafePtr<AGraphNode>& parent Le noeud sur lequel on drop
 				
-				\param std::list<treeId> dragItems Les ids treeId des noeuds séléctionnées (draggués) présent dans le même sous-arbre de destination qu'on veut drop
+				\param std::list<treeId> dragItems Les ids treeId des noeuds sÃ©lÃ©ctionnÃ©es (dragguÃ©s) prÃ©sent dans le mÃªme sous-arbre de destination qu'on veut drop
 		
 		*/
 		DropElements(const SafePtr<AGraphNode>& destParent, TreeType destTreeType, const std::unordered_set<SafePtr<AGraphNode>>& nodesToDrop);

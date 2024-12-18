@@ -20,9 +20,9 @@ class GraphManager;
 class AGraphNode;
 class CameraNode;
 
-/*! Classe qui s'occupe des fonctions de gestion des IControls et de raffra�chissement 
+/*! Classe qui s'occupe des fonctions de gestion des IControls et de raffraÃ®chissement 
 
-	Elle lance (notamment) le thread de d�pilement des AControl,
+	Elle lance (notamment) le thread de dÃ©pilement des AControl,
 	et fournie les fonctions d'actualisation SceneGraph et Gui,
 	et se charge des undo-redo via la pile historique des AControl.
 
@@ -38,8 +38,8 @@ public:
     void changeSelection(const std::unordered_set<SafePtr<AGraphNode>> & newSelection, bool updateTree = true);
 
 	//void actualizeClippingObjectWithUserValue(const double& value, const std::unordered_set<ElementType>& elementsType);
-    /*! Permet d'envoyer les messages GuiData de rafra�chissement de l'affichage
-     * de l'UI (si _updateGui_ est vraie) et du SceneGraph suite � la modification
+    /*! Permet d'envoyer les messages GuiData de rafraÃ®chissement de l'affichage
+     * de l'UI (si _updateGui_ est vraie) et du SceneGraph suite Ã  la modification
      * d'un objet de xg::Guid _id_
 	 */
     void actualizeTreeView(const std::unordered_set<SafePtr<AGraphNode>>& toActualizeDatas);

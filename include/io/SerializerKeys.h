@@ -1,8 +1,8 @@
 #ifndef SERIALIZERKEYS_H_
 #define Key_SERIALIZERKEYS_H_
 
-/*	Note(Aurélien)
-	* Bien vérfier qu'il n'y a pas de doublon ou de proche.
+/*	Note(AurÃ©lien)
+	* Bien vÃ©rfier qu'il n'y a pas de doublon ou de proche.
 	* Respecter la case.
 */
 

@@ -64,7 +64,7 @@ ContextState ContextExportPCGrid::feedMessage(IMessage* message, Controller& con
     default:
     {
         FUNCLOG << "wrong message type" << LOGENDL;
-        //Note (Aurélien) : Not sure that aborting is the best thing to do
+        //Note (AurÃ©lien) : Not sure that aborting is the best thing to do
         m_state = ContextState::abort;
     }
     }
@@ -141,7 +141,7 @@ ContextState ContextExportPCGrid::process(Controller& controller)
 
     controller.updateInfo(new GuiDataProcessingSplashScreenStart(totalBoxes, TEXT_EXPORT_GRID_TITLE_PROGESS));
 
-    // TODO - Treat the particular case of converting a TLS to a TLS with the same precision.
+    // TODO - Treat the particular case of converting a TLS to a TLSÂ with the same precision.
 
     // Processing
     bool resultOk = true;

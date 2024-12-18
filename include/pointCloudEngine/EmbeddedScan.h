@@ -85,8 +85,8 @@ struct TlClippingTest
 
 /*
 - Le TlScan contient les informations logiques sur un nuage de point : position, nombre de points, structure en octree.
-- Le TlScan fait le lien entre les informations logiques et les emplacements physiques des données.
-- Les emplacements physiques peuvent être sur disque secondaire (HDD), sur la mémoire primaire(CPU), ou sur la mémoire vidéo (GPU)
+- Le TlScan fait le lien entre les informations logiques et les emplacements physiques des donnÃ©es.
+- Les emplacements physiques peuvent Ãªtre sur disque secondaire (HDD), sur la mÃ©moire primaire(CPU), ou sur la mÃ©moire vidÃ©o (GPU)
 */
 class EmbeddedScan : public OctreeBase
 {

@@ -1,6 +1,6 @@
 // Source: https://github.com/progschj/ThreadPool/blob/master/ThreadPool.h
 /*
-Copyright(c) 2012 Jakob Progsch, Václav Zeman
+Copyright(c) 2012 Jakob Progsch, VÃ¡clav Zeman
 
 This software is provided 'as-is', without any express or implied
 warranty.In no event will the authors be held liable for any damages

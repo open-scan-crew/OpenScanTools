@@ -132,7 +132,7 @@ void IMeshReader::getBoundingBox(const std::vector<float>& vertices, glm::vec3& 
 	bound[0] = glm::vec3(std::numeric_limits<float>::max());
 	bound[1] = glm::vec3(std::numeric_limits<float>::lowest());
 
-	// FIXME(robin) - Pas top comme boucle for. Je comprends que le vector de float arrive avec une taille multiple de 3 mais ce n’est pas une garantie suffisante pour moi. Au minimum il faudrait `vertices.size() - 2` comme critère de fin.
+	// FIXME(robin) - Pas top comme boucle for. Je comprends que le vector de float arrive avec une taille multiple de 3 mais ce nâ€™est pas une garantie suffisante pour moi. Au minimum il faudrait `vertices.size() - 2` comme critÃ¨re de fin.
 	assert((vertices.size() % 3) == 0);
 	for (uint64_t iterator(0); iterator < vertices.size() - 2; iterator += 3)
 	{
@@ -212,7 +212,7 @@ ObjectAllocation::ReturnCode IMeshReader::allocateMesh(MeshBuffer* _mesh, const 
 	if (!geometrie.normals.empty())
 		res &= vkm.loadInSimpleBuffer(sbuf, geometrie.normals.size() * sizeof(float), geometrie.normals.data(), _mesh->m_normalBufferOffset, 4);
 
-	// NOTE(robin) - On n’utilise pas de texture pour le moment
+	// NOTE(robin) - On nâ€™utilise pas de texture pour le moment
 
 	if (!geometrie.indices.empty() || !geometrie.edgesIndices.empty() || !geometrie.polyligneIndices.empty())
 	{
@@ -240,7 +240,7 @@ ObjectAllocation::ReturnCode IMeshReader::allocateMesh(MeshBuffer* _mesh, const 
 	else
 		_mesh->m_indexBufferOffset = 0;
 
-	// Manière choisi pour indiquer qu'il n'y a pas de normales.
+	// ManiÃ¨re choisi pour indiquer qu'il n'y a pas de normales.
 	if (geometrie.normals.size() == 0)
 		_mesh->m_normalBufferOffset = 0;
 

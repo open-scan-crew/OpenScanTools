@@ -212,7 +212,7 @@ bool TlScanOverseer::applyCopy(scanCopyInfo& copyInfo)
         Logger::log(IOLog) << "Exception occured when copying a scan file: " << e.what() << Logger::endl;
     }
 
-    //Note (Aurélien) to remove a build warning should not come here.
+    //Note (AurÃ©lien) to remove a build warning should not come here.
     return false;
 }
 
@@ -1946,7 +1946,7 @@ std::vector<glm::dvec3> TlScanOverseer::samplePoints(const int& numberOfPoints, 
             float r3 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
             glm::dvec4 randomPoint(2 * r1 - 1, 2 * r2 - 1, 2 * r3 - 1, 1.0);
 
-            // QUESTION(robin) - l'ancienne version des matrices fournies pour représenter des clipping contient le scale, --> je ne suis pas sûr de les 2 lignes soient équivalentes.
+            // QUESTION(robin) - l'ancienne version des matrices fournies pour reprÃ©senter des clipping contient le scale, --> je ne suis pas sÃ»r de les 2 lignes soient Ã©quivalentes.
             //randomPoint = glm::inverse(insideBoxes[boxIndex]) * randomPoint;
             randomPoint = glm::inverse(clippingAssembly.clippingUnion[boxIndex]->matRT_inv) * randomPoint;
             std::vector<std::vector<glm::dvec3>> pointCandidates;
@@ -3221,7 +3221,7 @@ void TlScanOverseer::refreshResources()
         // Apply the waiting copy command
         for (auto copy : m_waitingCopies)
         {
-            // FIXME(robin) Il faut faire parvenir le résultat de applyCopy() au controller sinon ça ne sert à rien de renvoyer un booléen.
+            // FIXME(robin) Il faut faire parvenir le rÃ©sultat de applyCopy() au controller sinon Ã§a ne sert Ã  rien de renvoyer un boolÃ©en.
             if (!applyCopy(copy))
 				continue;
         }

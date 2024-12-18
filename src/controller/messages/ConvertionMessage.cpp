@@ -5,7 +5,7 @@ ConvertionMessage::ConvertionMessage(const ConvertProperties& prop)
 	: m_properties(prop)
 {}
 
-//Note (Aurélien) Unused for the moment
+//Note (AurÃ©lien) Unused for the moment
 /*
 ConvertionMessage::ConvertionMessage(const PrecisionType& precision)
 	: m_precision(precision)

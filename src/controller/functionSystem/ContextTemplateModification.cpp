@@ -13,7 +13,7 @@
 
 #include "utils/Logger.h"
 
-// Note (Aurélien) QT::StandardButtons enum values in qmessagebox.h
+// Note (AurÃ©lien) QT::StandardButtons enum values in qmessagebox.h
 #define Yes 0x00004000
 #define Cancel 0x00400000
 

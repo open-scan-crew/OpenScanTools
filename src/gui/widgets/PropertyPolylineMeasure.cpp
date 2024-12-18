@@ -171,7 +171,7 @@ bool PropertyPolylineMeasure::updateMeasure()
 
 void PropertyPolylineMeasure::updateUI()
 {
-	m_ui.AreaLabelSquaredBracket->setText('(' + unit_converter::getUnitText(m_unitUsage.distanceUnit) + '²' + ')');
+	m_ui.AreaLabelSquaredBracket->setText('(' + unit_converter::getUnitText(m_unitUsage.distanceUnit) + 'Â²' + ')');
 	m_ui.SegmentsUnitWithBracketLabel->setText('(' + unit_converter::getUnitText(m_unitUsage.distanceUnit) + ')');
 	m_ui.CoordinatesUnitWithBracketLabel->setText('(' + unit_converter::getUnitText(m_unitUsage.distanceUnit) + ')');
 

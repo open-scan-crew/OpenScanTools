@@ -73,11 +73,11 @@ private:
 
 
 // CPU_Streamer
-struct CPU_v2 {				// RELECTURE(nico) utilisé ?
+struct CPU_v2 {				// RELECTURE(nico) utilisÃ© ?
 
 public:
-	// RELECTURE(nico) de mon expérience, mieux vaut ne pas avoir d'opérations lourdes/système dans les constructeurs/destructeurs
-	//   ça finit toujours par poser un problème ; je préfère toujours avoir des méthodes explicites pour lancer ces opérations
+	// RELECTURE(nico) de mon expÃ©rience, mieux vaut ne pas avoir d'opÃ©rations lourdes/systÃ¨me dans les constructeurs/destructeurs
+	//   Ã§a finit toujours par poser un problÃ¨me ; je prÃ©fÃ¨re toujours avoir des mÃ©thodes explicites pour lancer ces opÃ©rations
 	explicit CPU_v2(AllScans const &scans) : _scans(scans) {
 		_transfertThread = std::thread(startNextTransfert, std::ref(*this));
 	};

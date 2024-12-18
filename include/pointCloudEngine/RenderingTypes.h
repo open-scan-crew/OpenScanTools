@@ -59,7 +59,7 @@ const static std::unordered_map<UiRenderMode, RenderMode> correspUiRenderMode = 
 
 struct PerspectiveZBounds
 {
-    // On défini les bornes en Z par le plan focal puis l'écart entre le plan lointain au plan focal.
+    // On dÃ©fini les bornes en Z par le plan focal puis l'Ã©cart entre le plan lointain au plan focal.
     // On peut alors calculer les valeurs [near, far] pour la matrice de projection comme suit :
     // near = pow(2, near_plan_log2)
     // far  = pow(2, near_plan_log2 + near_far_ratio_log2)
@@ -67,7 +67,7 @@ struct PerspectiveZBounds
     int near_far_ratio_log2;
 };
 
-// les bornes en Z sont centrées sur zéro
+// les bornes en Z sont centrÃ©es sur zÃ©ro
 typedef int OrthographicZBounds;
 
 struct PostRenderingNormals

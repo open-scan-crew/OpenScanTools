@@ -75,7 +75,7 @@ bool dxfExport::text(std::wstring name, int layer, const glm::vec3& center, floa
 	m_file << "  " << 0 << std::endl; // entity type
 	m_file << "TEXT" << std::endl;
 
-	// l'espace avec le point est à l'espace juste avant le nom
+	// l'espace avec le point est Ã  l'espace juste avant le nom
 	m_file << "  " << 1 << std::endl; // layer name
 	m_file << " " << Utils::to_utf8(name) << std::endl;
 

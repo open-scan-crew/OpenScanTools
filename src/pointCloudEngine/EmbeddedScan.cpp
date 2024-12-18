@@ -217,11 +217,11 @@ bool EmbeddedScan::clipAndWrite(const TransformationModule& src_transfo, const C
 
     for (const std::pair<uint32_t, bool>& cell : cells)
     {
-        // NOTE(robin) - A propos des référenciels :
-        //   (*) Il est préférable de travailler dans l'espace local du scan en cours.
-        //   (*) Les matrices de transformation des clippings peuvent être changées une fois pour tout les points.
+        // NOTE(robin) - A propos des rÃ©fÃ©renciels :
+        //   (*) Il est prÃ©fÃ©rable de travailler dans l'espace local du scan en cours.
+        //   (*) Les matrices de transformation des clippings peuvent Ãªtre changÃ©es une fois pour tout les points.
         //   (*) Si on a un export simple de point, on ne doit pas transformer les coord lors du addPoints.
-        //   (*) Si l'export est une fusion, la matrice de transfo doit être fournie à mergePoints().
+        //   (*) Si l'export est une fusion, la matrice de transfo doit Ãªtre fournie Ã  mergePoints().
         std::vector<PointXYZIRGB> points;
         decodePointXYZIRGB(cell.first, points);
 
@@ -259,7 +259,7 @@ void EmbeddedScan::decodePointXYZIRGB(uint32_t cellId, std::vector<PointXYZIRGB>
 
     float precisionValue = tls::getPrecisionValue(m_scanHeader.precision);
 
-    // On fait l'économie de test la présence d'intensité et de couleur on codant en dur
+    // On fait l'Ã©conomie de test la prÃ©sence d'intensitÃ© et de couleur on codant en dur
     // les 3 configurations de tls::PointFormat.
     if (m_scanHeader.format == tls::PointFormat::TL_POINT_XYZ_I_RGB)
     {
@@ -358,7 +358,7 @@ bool EmbeddedScan::movePointBuffers(EmbeddedScan& dstScan, EmbeddedScan& srcScan
         uint32_t srcDataSize = srcScan.m_vTreeCells[srcCellId].m_dataSize;
         if (dstCellId != NO_CHILD && (dstDataSize == srcDataSize))
         {
-            // TODO - Ça pourrait être bien de faire un std::move pour le SmartBuffer
+            // TODO - Ã‡a pourrait Ãªtre bien de faire un std::move pour le SmartBuffer
             dstScan.m_pCellBuffers[dstCellId].alloc = srcScan.m_pCellBuffers[srcCellId].alloc;
             dstScan.m_pCellBuffers[dstCellId].buffer = srcScan.m_pCellBuffers[srcCellId].buffer;
             dstScan.m_pCellBuffers[dstCellId].isLocalMem = srcScan.m_pCellBuffers[srcCellId].isLocalMem;
@@ -1146,11 +1146,11 @@ void EmbeddedScan::samplePointsByStep(float samplingStep, const std::vector<uint
     float precisionValue = tls::getPrecisionValue(m_scanHeader.precision);
     uint32_t maxLayerDelta = std::max(1u, (uint32_t)(std::floorf(std::log2(samplingStep / precisionValue))));
     // !!! Attention !!!
-    // Suite à une erreur dans la définition initiale du format tls, le layer 16 n’existe pas.
-    // Seuls les layers [0, 15] peuvent être sauvegardés dans 'layer_indexes'
-    // Mais pourtant le layer 16 devrait contenir la précision maximale.
+    // Suite Ã  une erreur dans la dÃ©finition initiale du format tls, le layer 16 nâ€™existe pas.
+    // Seuls les layers [0, 15] peuvent Ãªtre sauvegardÃ©s dans 'layer_indexes'
+    // Mais pourtant le layer 16 devrait contenir la prÃ©cision maximale.
     // !!!
-    uint32_t layerDepth = 16u - maxLayerDelta; // Cette formule est juste mais n’autorise pas la valeur 'maxLayerDelta' = 0
+    uint32_t layerDepth = 16u - maxLayerDelta; // Cette formule est juste mais nâ€™autorise pas la valeur 'maxLayerDelta' = 0
 
     sampledPoints.clear();
     for (uint32_t id : leavesId)
@@ -1169,8 +1169,8 @@ void EmbeddedScan::samplePointsByQuota(size_t quotaMax, const std::vector<uint32
     treatWorkload(workload);
 
     //*** On cherche le bon niveau de sampling pour attendre le quota au plus proche ***
-    // On souhaite que toutes les cellules soient au même niveau de sampling.
-    uint32_t sumLayers[16] = { 0u }; // Note : le layer 16 n'est pas sauvegardé.
+    // On souhaite que toutes les cellules soient au mÃªme niveau de sampling.
+    uint32_t sumLayers[16] = { 0u }; // Note : le layer 16 n'est pas sauvegardÃ©.
     for (uint32_t id : leavesId)
     {
         TreeCell cell = m_vTreeCells[id];
@@ -1239,7 +1239,7 @@ bool EmbeddedScan::beginRayTracing(const glm::dvec3& globalRay, const glm::dvec3
     glm::dvec3 localRay = glm::inverse(m_rotationToGlobal) * glm::dvec3(globalRay.x, globalRay.y, globalRay.z);
     glm::dvec3 localRayOrigin = getLocalCoord(globalRayOrigin);
 
-    // Rayon local non altérée pour la détection
+    // Rayon local non altÃ©rÃ©e pour la dÃ©tection
     glm::dvec3 trueLocalRay = localRay / glm::length(localRay);
     glm::dvec3 trueLocalRayOrigin = localRayOrigin;
     ClippingAssembly localAssembly = clippingAssembly;

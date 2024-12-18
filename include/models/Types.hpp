@@ -2,9 +2,9 @@
 #define TYPES_HPP
 
 #include <unordered_set>
-/*!Type des �l�ments dans l'arbre
+/*!Type des Ã©lÃ©ments dans l'arbre
 
-   ElementType est l'enum qui contient tous les diff�rents types d'�l�ments que le projet peut contenir
+   ElementType est l'enum qui contient tous les diffÃ©rents types d'Ã©lÃ©ments que le projet peut contenir
 
  */
 
@@ -38,7 +38,7 @@ enum class ElementType
 };
 /*! Type d'un TreeSystem 
 	
-	Notre arborescence est constitu�e de sous-arbres ayant chacun un unique type TreeType.
+	Notre arborescence est constituÃ©e de sous-arbres ayant chacun un unique type TreeType.
 	(Scan,TagTree,PointTree....)
 
 	*/

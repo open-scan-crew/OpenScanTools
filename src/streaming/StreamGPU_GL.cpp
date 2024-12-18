@@ -32,7 +32,7 @@ void GPU::commitDrawCommands(AllScans const &scans, const SortedDrawCommands &so
 			float const offset[3] = { 0,0,0 };
 #else
 			unsigned pointStep = 1;
-			// NOTE(nico) les points du NestedOctree sont stockés en worldSpace, on les remet en octreeSpace
+			// NOTE(nico) les points du NestedOctree sont stockÃ©s en worldSpace, on les remet en octreeSpace
 			glTranslatef(-octreeCenter.coord[0], -octreeCenter.coord[1], -octreeCenter.coord[2]);
 #endif
 
@@ -73,7 +73,7 @@ void GPU::commitDrawCommands(AllScans const &scans, const SortedDrawCommands &so
 	}
 }
 
-GPUData GPU::storePoints(Allocation* cpuAlloc) {		// FIXME(nico) passer explicitement le nombre de points à afficher, on en a besoin ensuite
+GPUData GPU::storePoints(Allocation* cpuAlloc) {		// FIXME(nico) passer explicitement le nombre de points Ã  afficher, on en a besoin ensuite
 
 	GPUData result;
 

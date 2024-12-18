@@ -101,7 +101,7 @@ bool PropertyPointCloud::update()
     palPicker.setColor(QPalette::ButtonText, !color);
     m_ui.colorPicker->setPalette(palPicker);
 
-    // *** Différences d’affichage entre Scan et PCO ***
+    // *** DiffÃ©rences dâ€™affichage entre Scan et PCO ***
     bool trueScan = (pointCloud->getType() == ElementType::Scan);
 
     // NOTE - This title will later be used by the DockWidget that host this widget.

@@ -10,7 +10,7 @@
 
 
 const std::map<LangageType, QString> Translator::languageDictionnary = { {LangageType::English, "English"},
-																		 {LangageType::Francais, QString::fromStdWString(L"Français")} };
+																		 {LangageType::Francais, QString::fromStdWString(L"FranÃ§ais")} };
 static const std::map<QString, LangageType> dictionnary = { {"en",LangageType::English},
 															{"fr",LangageType::Francais} };
 

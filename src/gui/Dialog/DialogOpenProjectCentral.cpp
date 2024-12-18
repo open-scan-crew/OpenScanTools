@@ -51,7 +51,7 @@ void DialogOpenProjectCentral::openProjectLocal()
         m_dataDispatcher.sendControl(new control::modal::ModalReturnValue(0));
         hide();
 
-        //A faire : création du projet local à partir du projet central
+        //A faire : crÃ©ation du projet local Ã  partir du projet central
     }
 
 }

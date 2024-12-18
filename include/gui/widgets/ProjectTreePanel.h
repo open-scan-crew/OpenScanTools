@@ -16,7 +16,7 @@ class ProjectTreePanel;
 
 typedef void (ProjectTreePanel::* treeMethod)(IGuiData*);
 
-/*! Gère l'UI de l'arborescence */
+/*! GÃ¨re l'UI de l'arborescence */
 class ProjectTreePanel : public QTreeView, public IPanel
 {
 	Q_OBJECT
@@ -32,7 +32,7 @@ public:
 private:
 	void blockAllSignals(bool block);
 
-	/*! Mise à jour de l'UI de l'arborescence  */
+	/*! Mise Ã  jour de l'UI de l'arborescence  */
 	void actualizeNodes(IGuiData* data);
 	void cleanTree(IGuiData* data);
 	void selectItems(IGuiData* data);
@@ -45,7 +45,7 @@ private:
 	void generateTreeModel();
 	TreeNode* buildTreeModelBranch(const QString& name, TreeType type);
 	
-	/*! Rafraîchit l'affichage de l'objet dans l'arbre*/
+	/*! RafraÃ®chit l'affichage de l'objet dans l'arbre*/
     void applyWaitingRefresh();
 
     /*! Remove from treeId map
@@ -58,7 +58,7 @@ private:
 	void treeMoveEvent(QDragMoveEvent* mEvent);
 	void treeDropEvent(QDropEvent* dEvent);
 
-	/*! Vérifie si le noeud _origin_ peut être avoir comme parent _dest_ */
+	/*! VÃ©rifie si le noeud _origin_ peut Ãªtre avoir comme parent _dest_ */
 	bool checkDropAreaIsValid(TreeNode* dest, const SafePtr<AGraphNode>& dropData);
 
 	void onExpand(const QModelIndex& ind);
@@ -68,12 +68,12 @@ public slots:
 	void treeViewMoveProgress(const QModelIndex& doubleClickedInd);
     void treeSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 	void collapseChildren(const QModelIndex& collapsInd);
-	/*! Génère le menu contextuel apparaîsant selon le point QPoint p cliqué */
+	/*! GÃ©nÃ¨re le menu contextuel apparaÃ®sant selon le point QPoint p cliquÃ© */
 	void showTreeMenu(QPoint p); // to nodes
 
 	void createCluster();
 	void exportScan();
-	/*! Supprime les objets sélectionnés dans l'arbre */
+	/*! Supprime les objets sÃ©lectionnÃ©s dans l'arbre */
 	void deleteTreeElement();
 	void multiChangeAttributes();
 	void removeElemFromHierarchy(); 
@@ -94,11 +94,11 @@ public slots:
 
 private:
 
-	/*! Redéfinition de la méthode Qt qui traite l'évenement de 'Drag' (correspond au début du Drag&Drop) */
+	/*! RedÃ©finition de la mÃ©thode Qt qui traite l'Ã©venement de 'Drag' (correspond au dÃ©but du Drag&Drop) */
     void dragEnterEvent(QDragEnterEvent* qevent) override;
-	/*! Redéfinition de la méthode Qt qui traite l'évenement de 'DragMove' (se répète entre un évènement de 'Drag' et 'Drop') */
+	/*! RedÃ©finition de la mÃ©thode Qt qui traite l'Ã©venement de 'DragMove' (se rÃ©pÃ¨te entre un Ã©vÃ¨nement de 'Drag' et 'Drop') */
     void dragMoveEvent(QDragMoveEvent* mevent) override;
-	/*! Redéfinition de la méthode Qt qui traite l'évenement de 'Drop' (correspond à la fin du Drag&Drop) */
+	/*! RedÃ©finition de la mÃ©thode Qt qui traite l'Ã©venement de 'Drop' (correspond Ã  la fin du Drag&Drop) */
     void dropEvent(QDropEvent* qevent) override;
 
 private:
@@ -116,7 +116,7 @@ private:
 	std::unordered_set<SafePtr<AGraphNode>> m_pickedItems;
 	QPoint m_lastPoint;
 
-	/*! Arbre côté UI */
+	/*! Arbre cÃ´tÃ© UI */
 	TreeModel* m_model = nullptr;
 	TreeNodeFactory* m_nodeFactory = nullptr;
 

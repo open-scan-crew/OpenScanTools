@@ -239,7 +239,7 @@ QCheckBox* DialogSettings::getFramelessCheckBox()
 
 void DialogSettings::onLangageChanged(const uint32_t& index)
 {
-	//fixme (Aurélien) for dynamic lang modification
+	//fixme (AurÃ©lien) for dynamic lang modification
 	//m_translator->setActiveLangage((Translator::LangageType)m_ui.langageComboBox->currentData().toInt());
 }
 

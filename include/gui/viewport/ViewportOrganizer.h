@@ -25,7 +25,7 @@ class CameraNode;
 enum class AlignView;
 enum class ProjectionMode;
 
-//Note (Aurélien) testing mouse 3d
+//Note (AurÃ©lien) testing mouse 3d
 #include "utils/3DConnexion/3DConnexion.h"
 
 struct MetaViewport

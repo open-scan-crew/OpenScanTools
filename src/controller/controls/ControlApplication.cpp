@@ -105,7 +105,7 @@ namespace control
 
 		void Redo::doFunction(Controller& controller)
 		{
-			//NOTE (Aurélien) POC Undo/Redo context
+			//NOTE (AurÃ©lien) POC Undo/Redo context
 			CONTROLLOG << "control::application::Redo" << LOGENDL;
 			controller.redoLastAction();
 		}

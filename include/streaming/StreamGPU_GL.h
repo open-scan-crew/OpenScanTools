@@ -28,7 +28,7 @@ struct StreamGPU {
 	GPUData gpuData;
 };
 
-struct GPU { // RELECTURE(nico) distinguer l'API publique des méthodes privées/internes
+struct GPU { // RELECTURE(nico) distinguer l'API publique des mÃ©thodes privÃ©es/internes
 
 	struct DrawOptions {
 

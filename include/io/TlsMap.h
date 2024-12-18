@@ -92,7 +92,7 @@ constexpr uint32_t TLS_VERSION_0_4 = 0x1C343023; // # 0 4 FS
 constexpr uint32_t TLS_VERSION_0_5 = 0x1C353023;
 
 // TODO - put the right addresses
-// NOTE - On peut se passer de l'octree_addr si on écrit l'octree linéarisé toujours au même endroit
+// NOTE - On peut se passer de l'octree_addr si on Ã©crit l'octree linÃ©arisÃ© toujours au mÃªme endroit
 
 namespace tls::v05
 {

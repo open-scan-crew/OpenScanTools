@@ -32,7 +32,7 @@ ContextState ContextDataGeneration::launch(Controller& controller)
     FUNCLOG << "ContextDataGeneration launch" << LOGENDL;
     std::unordered_set<SafePtr<AGraphNode>> new_nodes;
     /*
-    // Crée 1000 tags répartis sur une grille (X, Z)
+    // CrÃ©e 1000 tags rÃ©partis sur une grille (X, Z)
     for (int i = -25; i < 25; ++i)
     {
         for (int j = 0; j < 20; ++j)
@@ -60,7 +60,7 @@ ContextState ContextDataGeneration::launch(Controller& controller)
     }
     */
 
-    // Crée 1000 mesures de différents types. 3000 Segments au total
+    // CrÃ©e 1000 mesures de diffÃ©rents types. 3000 Segments au total
     // 200 SimpleMeasure
     for (int i = 0; i < 200; ++i)
     {
@@ -101,7 +101,7 @@ ContextState ContextDataGeneration::launch(Controller& controller)
             for (int j = 0; j < segmentCount; ++j)
             {
                 glm::dvec3 P1(i_x + (j % 2) * 1.0, i_y + j * 1.0, segmentCount * 5.0);
-                // On étend en zigzag
+                // On Ã©tend en zigzag
                 glm::dvec3 P2 = P1 + glm::dvec3((1.0 - (j % 2) * 2.0), 1.0, 0.0);
                 Measure m = { P1, P2 };
                 wMeasure->addMeasure(m);

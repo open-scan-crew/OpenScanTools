@@ -5,7 +5,7 @@
 
 #define NUM_MAX_REQUESTS_PER_FRAME 4
 
-struct PointSet {			// RELECTURE(nico) inutilisé ?
+struct PointSet {			// RELECTURE(nico) inutilisÃ© ?
 
 	unsigned offset;
 	unsigned range;
@@ -33,7 +33,7 @@ void CPU::streamPoints(StreamCPU& stream) {
 	}
 
 	if (pAlloc->pMappedData != nullptr) {
-		// RELECTURE(robin) j’aurai plutot imaginé une fonction indépendante du scan
+		// RELECTURE(robin) jâ€™aurai plutot imaginÃ© une fonction indÃ©pendante du scan
 		scan.readPoints(stream.uNodeId.nodeId, pAlloc->pMappedData, sizeofPoints);
 	}
 	stream.pAlloc = pAlloc;

@@ -334,7 +334,7 @@ void ClippingAssembly::testSphere(const glm::dvec4& center, double radius, bool&
     {
         bool accept = false;
         bool reject = false;
-        // Le test dépend de la géométrie
+        // Le test dÃ©pend de la gÃ©omÃ©trie
         cg->testSphere(center, radius, accept, reject);
 
         // NOTE - We are doing an union :
@@ -384,7 +384,7 @@ void ClippingAssembly::testCube(const glm::dvec3& minCorner, double sideSize, bo
     {
         bool accept = false;
         bool reject = false;
-        // Le test dépend de la géométrie
+        // Le test dÃ©pend de la gÃ©omÃ©trie
         cg->testCube(minCorner, sideSize, accept, reject);
 
         // NOTE - We are doing an union :
@@ -430,8 +430,8 @@ void ClippingAssembly::testCube(const glm::dvec3& minCorner, double sideSize, bo
         bool reject = false;
         cg->testCube(minCorner, sideSize, accept, reject);
 
-        // On garde toutes les rampes qui ne sont pas rejetés.
-        // Même si une rampe est acceptés, on doit la garder pour la colorer dans le shader.
+        // On garde toutes les rampes qui ne sont pas rejetÃ©s.
+        // MÃªme si une rampe est acceptÃ©s, on doit la garder pour la colorer dans le shader.
         if (!reject)
             retAssembly.rampActives.push_back(cg);
     }
@@ -544,7 +544,7 @@ void ClippingAssembly_bis::testCube(const glm::dvec3& minCorner, double sideSize
     for (uint32_t idx : srcAssembly.unionIdxToTest)
     {
         const ClippingGeometry& cg = clippingUnion[idx];
-        // Le test dépend de la géométrie
+        // Le test dÃ©pend de la gÃ©omÃ©trie
         ClipResult clip = cg.f_clipCube(minCorner, sideSize, cg);
 
         ClipAccepted deci = g_decisionTable[(size_t)cg.mode][(size_t)clip];
@@ -596,8 +596,8 @@ void ClippingAssembly_bis::testCube(const glm::dvec3& minCorner, double sideSize
         if (acceptance == ClipAccepted::Partially)
             retAssembly.rampIdxToTest.push_back(idx);
 
-        // On garde toutes les rampes qui ne sont pas rejetés.
-        // Même si une rampe est acceptés, on doit la garder pour la colorer dans le shader.
+        // On garde toutes les rampes qui ne sont pas rejetÃ©s.
+        // MÃªme si une rampe est acceptÃ©s, on doit la garder pour la colorer dans le shader.
         if (acceptance == ClipAccepted::Yes)
             retAssembly.rampIdxToDraw.push_back(idx);
     }

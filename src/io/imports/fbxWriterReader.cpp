@@ -269,7 +269,7 @@ std::array<float, 3> fbxWriterReader::transformFbxVertex(FbxNode* node, const Fb
 	return { (float)tVertice[0], (float)tVertice[1], (float)tVertice[2] };
 }
 
-// Note(Quentin) : Fonction spécifique pour générer les geométries à partir de nos fichiers internes de sauvegarde de mesh
+// Note(Quentin) : Fonction spÃ©cifique pour gÃ©nÃ©rer les geomÃ©tries Ã  partir de nos fichiers internes de sauvegarde de mesh
 ObjectAllocation::ReturnCode fbxWriterReader::generateInternalFilesGeometries()
 {
 	if (m_models.size() != 1)

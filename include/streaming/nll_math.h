@@ -19,7 +19,7 @@ LICENSE
                     [ a08 a09 a10 a11 ]
                     [ a12 a13 a14 a15 ]
 
-  internal storage is ColumnMajorFormat (à la OpenGL)
+  internal storage is ColumnMajorFormat (Ã  la OpenGL)
 */
 
 /*

@@ -8,7 +8,7 @@ NavFPS movements :
 * rotation pitch, rotate around camera X axis
 * drag to look, the 'picked' point on image stays beneath the mouse during the drag
 
-TODO(yan) gérer une notion de zoom pour les vues panoramiques
+TODO(yan) gÃ©rer une notion de zoom pour les vues panoramiques
 
 NOTE(nico) references :
 

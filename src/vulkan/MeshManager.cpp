@@ -87,7 +87,7 @@ MeshManager::~MeshManager()
 	SGLog << "Destroying all meshes" << Logger::endl;
 	for (auto& pair : m_meshes)
 	{
-		//Quentin : cause l'arrêt car les counters des meshes des manipulateurs ne sont pas à zéro
+		//Quentin : cause l'arrÃªt car les counters des meshes des manipulateurs ne sont pas Ã  zÃ©ro
 		assert(m_meshesCounters[pair.first] == 0);
 		VulkanManager::getInstance().freeAllocation(pair.second.m_mesh->m_smpBuffer);
 	}
@@ -555,7 +555,7 @@ ObjectAllocation::ReturnCode MeshManager::getBoxId(GenericMeshId& id)
 	return checkGenericMeshAllocation(id);
 }
 
-ObjectAllocation::ReturnCode MeshManager::getCylinderId(GenericMeshId& id) // Le rayon n'est pas utilisé, pourquoi le mettre?
+ObjectAllocation::ReturnCode MeshManager::getCylinderId(GenericMeshId& id) // Le rayon n'est pas utilisÃ©, pourquoi le mettre?
 {
 	int pointsInCircles = 32;
 	id.type = GenericMeshType::Cylinder;
@@ -580,7 +580,7 @@ ObjectAllocation::ReturnCode MeshManager::getTorusId(MeshId& id, const float& ma
 	int sectorCount = 32;
 	float outerRadius = mainRadius + tubeRadius;
 	float innerRadius = mainRadius - tubeRadius;
-	// On calcule la fraction la plus proche de innerRadius/outerRadius dont le dénominateur est < 255
+	// On calcule la fraction la plus proche de innerRadius/outerRadius dont le dÃ©nominateur est < 255
 	float ratio = innerRadius / outerRadius;
 	uint8_t bestDenominator = 1;
 	uint8_t bestNumerator = 1;

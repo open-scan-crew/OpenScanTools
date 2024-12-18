@@ -237,7 +237,7 @@ void ComputePrograms::createPipeline(const ProgramDef& program)
     assert(m_pipelines.find(program.type) != m_pipelines.end());
     m_pipelines.insert({ program.type, pipeline });
 
-    // Shader’s destructor free resources.
+    // Shaderâ€™s destructor free resources.
 }
 
 

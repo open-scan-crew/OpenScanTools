@@ -116,8 +116,8 @@ bool RcpFileWriter::mergePoints(PointXYZIRGB const* src_buf, uint64_t src_size, 
 {
     m_scanPointCount += src_size;
 
-    // Si on garde le choix de passer les points en coordonnées globales on ne peut pas changer leurs coordonnées après l’import.
-    // Il faut soit indiquer la translation supplémentaire avant l’import, soit repasser en coordonnées local (et changer la translation du scan).
+    // Si on garde le choix de passer les points en coordonnÃ©es globales on ne peut pas changer leurs coordonnÃ©es aprÃ¨s lâ€™import.
+    // Il faut soit indiquer la translation supplÃ©mentaire avant lâ€™import, soit repasser en coordonnÃ©es local (et changer la translation du scan).
     glm::dmat4 post_translation_mat = glm::dmat4(1.0);
     post_translation_mat[3] = glm::dvec4(post_translation_, 1.0);
     glm::dmat4 transfo_mat = post_translation_mat * src_transfo.getTransformation();

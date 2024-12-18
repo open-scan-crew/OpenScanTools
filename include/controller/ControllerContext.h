@@ -35,7 +35,7 @@ struct CreationAttributes
 	std::wstring phase;
 };
 
-// Permet l'accès à une partie de tous ce qui ne se sauvegarde pas dans le projet (affichage des points, couleurs de clusters, ...) et à l'accès au Project
+// Permet l'accÃ¨s Ã  une partie de tous ce qui ne se sauvegarde pas dans le projet (affichage des points, couleurs de clusters, ...) et Ã  l'accÃ¨s au Project
 class ControllerContext
 {
 public:

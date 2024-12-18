@@ -72,13 +72,13 @@
 #define TEXT_POLYLINEPROPERTYPANEL_SEGMENT_TABLE_VERT QObject::tr("Vert.")
 
 //AuthorSystem
-#define TEXT_WARNING_AUTHOR_SELECT QObject::tr("Error : cannot select user : unknow error.") //author renommé en user pour cohérence avec panneau
-#define TEXT_WARNING_AUTHOR_CREATE QObject::tr("Error : cannot create a user that already exists.") //author renommé en user pour cohérence avec panneau
-#define TEXT_WARNING_AUTHOR_DELETE QObject::tr("Error : cannot delete user : unknow error.") //author renommé en user pour cohérence avec panneau
-#define TEXT_WARNING_AUTHOR_WRONG_CLOSE QObject::tr("Error : you must select a user in order to continue.") //author renommé en user pour cohérence avec panneau
+#define TEXT_WARNING_AUTHOR_SELECT QObject::tr("Error : cannot select user : unknow error.") //author renommÃ© en user pour cohÃ©rence avec panneau
+#define TEXT_WARNING_AUTHOR_CREATE QObject::tr("Error : cannot create a user that already exists.") //author renommÃ© en user pour cohÃ©rence avec panneau
+#define TEXT_WARNING_AUTHOR_DELETE QObject::tr("Error : cannot delete user : unknow error.") //author renommÃ© en user pour cohÃ©rence avec panneau
+#define TEXT_WARNING_AUTHOR_WRONG_CLOSE QObject::tr("Error : you must select a user in order to continue.") //author renommÃ© en user pour cohÃ©rence avec panneau
 #define TEXT_WARNING_AUTHOR_SELECT_ONE QObject::tr("You must select an author.")
-#define TEXT_DELETE_AUTHOR_QUESTION QObject::tr("Are you sure that you want to delete the selected user(s)?") //author renommé en user pour cohérence avec panneau
-#define TEXT_DELETE_AUTHOR_TITLE QObject::tr("Delete user(s)?") //author renommé en user pour cohérence avec panneau
+#define TEXT_DELETE_AUTHOR_QUESTION QObject::tr("Are you sure that you want to delete the selected user(s)?") //author renommÃ© en user pour cohÃ©rence avec panneau
+#define TEXT_DELETE_AUTHOR_TITLE QObject::tr("Delete user(s)?") //author renommÃ© en user pour cohÃ©rence avec panneau
 
 //Colors
 #define TEXT_BLUE QObject::tr("Blue")
@@ -108,7 +108,7 @@
 #define TEXT_NO_PROJECT_LOADED QObject::tr("No project loaded")
 
 //ControlTemplateEdit
-#define TEXT_EDIT_TEMPLATE_NOT_EXIST QObject::tr("Error : the template you try to edit does not exist.") //signification? Comment peut-on essayer d'éditer quelque chose d'inexistant?
+#define TEXT_EDIT_TEMPLATE_NOT_EXIST QObject::tr("Error : the template you try to edit does not exist.") //signification? Comment peut-on essayer d'Ã©diter quelque chose d'inexistant?
 #define TEXT_TAG_NAME_TEMPLATE_ALREADY_TAKEN QObject::tr("Error : tag template name already used.")
 #define TEXT_EDIT_TAG_TEMPLATE_NOT_EXIST QObject::tr("Error : you tried to edit a tag template that doesn't exists anymore.") //signification?
 #define TEXT_DELETE_TAG_TEMPLATE_WITH_TAGS QObject::tr("Error : you tried to delete a tag template that is used in the current project. Remove the tags before deleting the template.") 
@@ -124,7 +124,7 @@
 //NewProjectDialog
 #define TEXT_PROJECT_CREATION QObject::tr("Project Creation")
 #define TEXT_ENTER_PROJECT_NAME QObject::tr("Enter project name")
-#define TEXT_ENTER_PROJECT_DIRECTORY QObject::tr("Enter project folder") //directory renommé en folder, plus couramment utilisé
+#define TEXT_ENTER_PROJECT_DIRECTORY QObject::tr("Enter project folder") //directory renommÃ© en folder, plus couramment utilisÃ©
 #define TEXT_SELECT_CUSTOM_SCAN_FOLDER  QObject::tr("Select custom scan folder")
 #define TEXT_CREATE_PROJECT QObject::tr("Create Project")
 #define TEXT_CANCEL QObject::tr("Cancel")
@@ -133,9 +133,9 @@
 #define TEXT_CONVERTION_TITLE QObject::tr("Conversion Options")
 #define TEXT_SAVE_FILENAME QObject::tr("Select destination")
 #define TEXT_PROJECT_ERROR_TITLE QObject::tr("Error : cannot create project.")
-#define TEXT_PROJECT_ERROR_NOT_EMPTY QObject::tr("Error : project name and project folder are mandatory fields.") //directory renommé en folder, plus couramment utilisé
-#define TEXT_PROJECT_ERROR_NO_AUTHOR QObject::tr("Error : the author name is missing.") //obsolète, car le panneau utilisateur est désormais à part
-#define TEXT_SELECT_DIRECTORY  QObject::tr("Select folder") //directory renommé en folder, plus couramment utilisé
+#define TEXT_PROJECT_ERROR_NOT_EMPTY QObject::tr("Error : project name and project folder are mandatory fields.") //directory renommÃ© en folder, plus couramment utilisÃ©
+#define TEXT_PROJECT_ERROR_NO_AUTHOR QObject::tr("Error : the author name is missing.") //obsolÃ¨te, car le panneau utilisateur est dÃ©sormais Ã  part
+#define TEXT_SELECT_DIRECTORY  QObject::tr("Select folder") //directory renommÃ© en folder, plus couramment utilisÃ©
 #define TEXT_NO_DIRECTORY_SELECTED QObject::tr("Please select a destination folder.")
 #define TEXT_MISSING_FILE_NAME QObject::tr("Please enter a file name or header name.")
 
@@ -146,7 +146,7 @@
 #define TEXT_TAG_INDEX QObject::tr("Index")
 #define TEXT_DISCPLINE QObject::tr("Discipline")
 #define TEXT_PHASE QObject::tr("Phase")
-#define TEXT_ID QObject::tr("Identifier") //ID réactualisé en Identifier. Auparavant, cela s'appelait prefix. Pour mémoire, ce champ est un générique
+#define TEXT_ID QObject::tr("Identifier") //ID rÃ©actualisÃ© en Identifier. Auparavant, cela s'appelait prefix. Pour mÃ©moire, ce champ est un gÃ©nÃ©rique
 #define TEXT_TAG_LINKS QObject::tr("Links")
 #define TEXT_TAG_ADDLINK QObject::tr("add hyperlink")
 #define TEXT_TAG_REMOVELINK QObject::tr("delete hyperlink")
@@ -261,7 +261,7 @@
 
 
 
-//ToolBarShowHideGroup - A REVOIR - pas nécessaire d'avoir 2 textes - le changement d'icône d'oeil suffit (oeil ouvert ou barré). Donc oeil + scan marker suffit
+//ToolBarShowHideGroup - A REVOIR - pas nÃ©cessaire d'avoir 2 textes - le changement d'icÃ´ne d'oeil suffit (oeil ouvert ou barrÃ©). Donc oeil + scan marker suffit
 #define TEXT_HIDE_MODEL_SCAN_MARKER QObject::tr("Hide scan markers")
 #define TEXT_SHOW_MODEL_SCAN_MARKER QObject::tr("Show scan markers")
 #define TEXT_HIDE_TAG_MARKER QObject::tr("Hide tags")

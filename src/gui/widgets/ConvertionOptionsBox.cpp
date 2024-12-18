@@ -98,7 +98,7 @@ void ConvertionOptionsBox::informData(IGuiData *keyValue)
 			m_ui.formatGroupBox->setVisible(m_mask & BoxOptions::FORMAT);
 			m_ui.precisionGroupBox->setVisible(m_mask & BoxOptions::PRECISION);
 
-			//NOTE (Aurélien) outdir or outfile but not both
+			//NOTE (AurÃ©lien) outdir or outfile but not both
 			if (info->m_type & BoxOptions::OUTDIR) 
 			{
 				m_isBrowsingFolder = true;

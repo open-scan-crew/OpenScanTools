@@ -16,16 +16,16 @@ namespace control
 {
 	namespace special
 	{
-		/*! Supprime les Data correspondant aux xg::Guid  en entrée. Les fichiers de scans ne sont pas supprimées et le contrôle peut être undo
+		/*! Supprime les Data correspondant aux xg::Guid  en entrÃ©e. Les fichiers de scans ne sont pas supprimÃ©es et le contrÃ´le peut Ãªtre undo
 		
-		Il ne provoque pas l'alerte en cas de suppression de données importantes (scans)
+		Il ne provoque pas l'alerte en cas de suppression de donnÃ©es importantes (scans)
 		*/
 
 		class DeleteElement : public AControl
 		{
 		public:
 			/*!
-			\param std::set<xg::Guid> idToDelete : Liste des dataIds à supprimer
+			\param std::set<xg::Guid> idToDelete : Liste des dataIds Ã  supprimer
 			*/
 			DeleteElement(std::unordered_set<SafePtr<AGraphNode>> datasToDelete, bool isUndoAble);
 			~DeleteElement();
@@ -38,11 +38,11 @@ namespace control
 			std::unordered_set<SafePtr<AGraphNode>> m_elemsDeleted;
 		};
 
-		/*! Supprime les objets/scans sélectionnées
+		/*! Supprime les objets/scans sÃ©lectionnÃ©es
 
-		Ils ne peuvent pas être annulés
+		Ils ne peuvent pas Ãªtre annulÃ©s
 
-		Ce contrôle sauvegarde aussi le projet*/
+		Ce contrÃ´le sauvegarde aussi le projet*/
 		class DeleteTotalData : public AControl
 		{
 		public:
@@ -56,19 +56,19 @@ namespace control
 			std::unordered_set<SafePtr<AGraphNode>> m_objectsToDelete;
 		};
 
-		/*!On a besoin d'un control pour supprimer ce qui est sélectionné dans le model sans avoir besoin d'accéder à celui-ci)
+		/*!On a besoin d'un control pour supprimer ce qui est sÃ©lectionnÃ© dans le model sans avoir besoin d'accÃ©der Ã  celui-ci)
 		
-		Ce contrôle trie les données séléctionnés entre données importantes(scans) et le reste.
+		Ce contrÃ´le trie les donnÃ©es sÃ©lÃ©ctionnÃ©s entre donnÃ©es importantes(scans) et le reste.
 		
-		Si il y a une alerte, et que l'utilisateur ne veut pas supprimer les données importantes, alors même les autres données ne sont pas supprimées.
+		Si il y a une alerte, et que l'utilisateur ne veut pas supprimer les donnÃ©es importantes, alors mÃªme les autres donnÃ©es ne sont pas supprimÃ©es.
 		*/
 		class DeleteSelectedElements : public AControl
 		{
 		public:
 			/*!
 			
-			\param bool supprScan : Si supprScan est vrai, il envoie une alerte si la liste des données importante n'est pas vide pour la suppression de celles ci.
-			Sinon, le contrôle ne supprime que les données non importantes. Et il n'y a pas d'alerte.
+			\param bool supprScan : Si supprScan est vrai, il envoie une alerte si la liste des donnÃ©es importante n'est pas vide pour la suppression de celles ci.
+			Sinon, le contrÃ´le ne supprime que les donnÃ©es non importantes. Et il n'y a pas d'alerte.
 
 			*/
 			DeleteSelectedElements(bool supprScan);

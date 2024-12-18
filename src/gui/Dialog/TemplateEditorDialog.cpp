@@ -478,7 +478,7 @@ QWidget * TemplateEditorDialog::generateMultiLineWidget(sma::tField& field, int 
 QWidget * TemplateEditorDialog::generateDateWidget(sma::tField& field, int line)
 {
 	return (nullptr);
-	//QPushButton *dateBtn;//décès
+	//QPushButton *dateBtn;//dÃ©cÃ¨s
 }
 
 QWidget * TemplateEditorDialog::generateNumberWidget(sma::tField& field, int line)

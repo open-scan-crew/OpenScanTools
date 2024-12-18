@@ -29,7 +29,7 @@ void DataDispatcher::updateInformation(IGuiData *value, IPanel* owner)
 
     std::lock_guard<std::mutex> lock(m_eventMutex);
 
-	//Ajout dans la file (liste FIFO) le message IGuiData _value_ provenant de _owner_ (ne peut pas être reçu par _owner_)
+	//Ajout dans la file (liste FIFO) le message IGuiData _value_ provenant de _owner_ (ne peut pas Ãªtre reÃ§u par _owner_)
 	m_eventQueue.push({ value, owner });
 }
 

@@ -6,10 +6,10 @@ class IGuiData;
 class IPanel
 {
 public:
-	/*! S'exécute à chaque fois qu'un message IGuiData d'un type écouté par le IPanel (via la méthode DataDispatcher::registerObserverOnKey)
+	/*! S'exÃ©cute Ã  chaque fois qu'un message IGuiData d'un type Ã©coutÃ© par le IPanel (via la mÃ©thode DataDispatcher::registerObserverOnKey)
 		est sortie de la file de message IGuiData du DataDispatcher.
 		
-		Il permet donc de faire une opération en fonction du IGuiData _keyValue_ reçu*/
+		Il permet donc de faire une opÃ©ration en fonction du IGuiData _keyValue_ reÃ§u*/
     virtual void informData(IGuiData *keyValue) = 0;
 };
 

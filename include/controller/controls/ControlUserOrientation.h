@@ -8,7 +8,7 @@ namespace control
 {
 	namespace userOrientation
 	{
-		/* Envoie l’ordre d’ouverture des propriétés pour la création/édition d’une orientation utilisateur. */
+		/* Envoie lâ€™ordre dâ€™ouverture des propriÃ©tÃ©s pour la crÃ©ation/Ã©dition dâ€™une orientation utilisateur. */
 		class UserOrientationsProperties : public AControl
 		{
 		public:
@@ -21,7 +21,7 @@ namespace control
 			userOrientationId _userOrientationId;
 		};
 
-		/* Envoie l’information d’orientation utilisateur qui est actuellement utilisé */
+		/* Envoie lâ€™information dâ€™orientation utilisateur qui est actuellement utilisÃ© */
 		class SetUserOrientation : public AControl
 		{
 		public:
@@ -33,7 +33,7 @@ namespace control
 			userOrientationId _userOrientationId;
 		};
 
-		/* Envoie l’information d’orientation utilisateur qui est actuellement utilisé */
+		/* Envoie lâ€™information dâ€™orientation utilisateur qui est actuellement utilisÃ© */
 		class UnsetUserOrientation : public AControl
 		{
 		public:
@@ -42,7 +42,7 @@ namespace control
 			void doFunction(Controller& controller) override;
 			ControlType getType() const override;
 		};
-		/* Ajoute ou édite une orientation utilisateur dans la liste des orientations utilisateurs du modèle */
+		/* Ajoute ou Ã©dite une orientation utilisateur dans la liste des orientations utilisateurs du modÃ¨le */
 		class CreateEditUserOrientation : public AControl
 		{
 		public:
@@ -54,7 +54,7 @@ namespace control
 			UserOrientation m_uo;
 		};
 
-		/* Supprime une orientation utilisateur de la liste des orientations utilisateurs du modèle */
+		/* Supprime une orientation utilisateur de la liste des orientations utilisateurs du modÃ¨le */
 		class DeleteUserOrientation : public AControl
 		{
 		public:

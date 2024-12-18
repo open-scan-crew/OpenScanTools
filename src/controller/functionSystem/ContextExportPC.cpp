@@ -35,7 +35,7 @@
 #include "utils/Logger.h"
 
 
-// Note (Aurélien) QT::StandardButtons enum values in qmessagebox.h
+// Note (AurÃ©lien) QT::StandardButtons enum values in qmessagebox.h
 #define Yes 0x00004000
 #define No 0x00010000
 #define Cancel 0x00400000
@@ -671,8 +671,8 @@ TransformationModule ContextExportPC::getBestTransformation(const ClippingAssemb
         total_bbox.intersect(inter_bbox);
 
     best_transfo.setPosition(total_bbox.center());
-    // NOTE(robin) - Ce n'est pas la meilleure façon de récupérer la rotation.
-    //             - On pourrait avoir directement accès au quaternion de la clipping originale, mais cela demanderai un rework de l'interface IClippingGeometry.
+    // NOTE(robin) - Ce n'est pas la meilleure faÃ§on de rÃ©cupÃ©rer la rotation.
+    //             - On pourrait avoir directement accÃ¨s au quaternion de la clipping originale, mais cela demanderai un rework de l'interface IClippingGeometry.
     if (clipping_assembly.clippingUnion.size() == 1)
         best_transfo.setRotation(glm::quat_cast(glm::inverse(clipping_assembly.clippingUnion[0]->matRT_inv)));
     else

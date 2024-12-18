@@ -67,7 +67,7 @@ void SphereNode::pushRampGeometries(std::vector<std::shared_ptr<IClippingGeometr
     params.x = getRadius() + m_rampMin;
     params.y = getRadius() + m_rampMax;
     params.z = 0.f;
-    params.w = getRadius(); // utilisé pour l'échelle
+    params.w = getRadius(); // utilisÃ© pour l'Ã©chelle
 
     auto geom = std::make_shared<SphereClippingGeometry>(ClippingMode::showInterior, transfo.getInverseRotationTranslation(), params, m_rampSteps);
     geom->color = getColor().toVector();

@@ -1,4 +1,4 @@
-﻿#include "gui/texts/TreePanelTexts.hpp"
+#include "gui/texts/TreePanelTexts.hpp"
 
 #include "gui/widgets/ProjectTreePanel.h"
 
@@ -203,7 +203,7 @@ void ProjectTreePanel::removeTreeNode(TreeNode* node)
 	if (node->isStructNode())
 		return;
 
-    // 1. On enlève de la map SafePtr<AGraphNode> -> std::vector<TreeNode*> le TreeNode correspondant
+    // 1. On enlÃ¨ve de la map SafePtr<AGraphNode> -> std::vector<TreeNode*> le TreeNode correspondant
     if (m_model->getTreeNodes().find(node->getData()) != m_model->getTreeNodes().end())
     {
         std::vector<TreeNode*>& nodes = m_model->getTreeNodes().at(node->getData());
@@ -216,7 +216,7 @@ void ProjectTreePanel::removeTreeNode(TreeNode* node)
                         break;
                 }
             }
-        // Suppression de la paire <SafePtr<AGraphNode> , std::vector<TreeNode*>> dans la map si il n'y a plus de TreeNode associé
+        // Suppression de la paire <SafePtr<AGraphNode> , std::vector<TreeNode*>> dans la map si il n'y a plus de TreeNode associÃ©
         if (nodes.empty())
             m_model->getTreeNodes().erase(node->getData());
     }
@@ -242,7 +242,7 @@ void ProjectTreePanel::removeTreeNode(TreeNode* node)
 
 void ProjectTreePanel::updateSelection(const std::unordered_set<SafePtr<AGraphNode>>& datas)
 {
-	// On vide la liste Qt de s�lection
+	// On vide la liste Qt de sï¿½lection
 	selectionModel()->blockSignals(true);
 
 	selectionModel()->clear(); 
@@ -476,7 +476,7 @@ TreeNode* ProjectTreePanel::buildTreeModelBranch(const QString& name, TreeType t
 	return (item);
 }
 
-/*! Lors d'un double-clic, bouge la cam�ra du viewport vers la donn�e s�lectionn�e*/
+/*! Lors d'un double-clic, bouge la camï¿½ra du viewport vers la donnï¿½e sï¿½lectionnï¿½e*/
 void ProjectTreePanel::treeViewMoveProgress(const QModelIndex& doubleClickedInd)
 {
 	TreeNode* node = static_cast<TreeNode*>(m_model->itemFromIndex(doubleClickedInd));
@@ -638,7 +638,7 @@ void ProjectTreePanel::dropElem(TreeNode* dest)
 	dest->dropControl(m_dataDispatcher, datas);
 }
 
-/*! Supprime les objets s�lectionn�s */
+/*! Supprime les objets sï¿½lectionnï¿½s */
 void ProjectTreePanel::deleteTreeElement()
 {
 	m_dataDispatcher.sendControl(new control::special::DeleteSelectedElements(true));
@@ -672,7 +672,7 @@ void recNodeToggle(TreeNode* node, GraphManager& graphManager, std::unordered_se
 
 void ProjectTreePanel::onTreeDataChanged(QStandardItem* item)
 {
-    // NOTE(robin) - On ne peut pas informer le modèle d'un état partiellement visible
+    // NOTE(robin) - On ne peut pas informer le modÃ¨le d'un Ã©tat partiellement visible
     if (item->checkState() == Qt::CheckState::PartiallyChecked)
         return;
 
@@ -755,7 +755,7 @@ void ProjectTreePanel::treeDropEvent(QDropEvent* dEvent)
         dropElem(destNode);
 }
 
-/*! Vérifie si le noeud _origin_ peut �tre avoir comme parent _dest_ (retourne 'True' si oui, sinon 'False*/
+/*! VÃ©rifie si le noeud _origin_ peut ï¿½tre avoir comme parent _dest_ (retourne 'True' si oui, sinon 'False*/
 bool ProjectTreePanel::checkDropAreaIsValid(TreeNode* dest, const SafePtr<AGraphNode>& dropData)
 {
 	// verify that the user do not try to D&D a object in itself
@@ -780,7 +780,7 @@ void ProjectTreePanel::onCollapse(const QModelIndex& ind)
 	m_nodeFactory->updateNode(expandNode);
 }
 
-/*! G�n�re le menu contextuel appara�sant selon le point QPoint p cliqu� */
+/*! Gï¿½nï¿½re le menu contextuel apparaï¿½sant selon le point QPoint p cliquï¿½ */
 void ProjectTreePanel::showTreeMenu(QPoint p)
 {
 	QModelIndex index = this->indexAt(p);
@@ -891,7 +891,7 @@ void ProjectTreePanel::showTreeMenu(QPoint p)
 	GTLOG << "show tree menu on type : " << magic_enum::enum_name<ElementType>(m_lastTreeNodeSelected->getType()) << LOGENDL;
 }
 
-/*! Red�finition de la m�thode Qt qui traite l'�venement de 'Drag' (correspond au d�but du Drag&Drop) */
+/*! Redï¿½finition de la mï¿½thode Qt qui traite l'ï¿½venement de 'Drag' (correspond au dï¿½but du Drag&Drop) */
 void ProjectTreePanel::dragEnterEvent(QDragEnterEvent* qevent)
 {
 	QModelIndex index = indexAt(qevent->pos());
@@ -905,7 +905,7 @@ void ProjectTreePanel::dragEnterEvent(QDragEnterEvent* qevent)
     treeDragEvent(qevent);
 }
 
-/*! Red�finition de la m�thode Qt qui traite l'�venement de 'DragMove' (se r�p�te entre un �v�nement de 'Drag' et 'Drop') */
+/*! Redï¿½finition de la mï¿½thode Qt qui traite l'ï¿½venement de 'DragMove' (se rï¿½pï¿½te entre un ï¿½vï¿½nement de 'Drag' et 'Drop') */
 void ProjectTreePanel::dragMoveEvent(QDragMoveEvent* mevent)
 {
 	QModelIndex index = indexAt(mevent->pos());
@@ -919,7 +919,7 @@ void ProjectTreePanel::dragMoveEvent(QDragMoveEvent* mevent)
     treeMoveEvent(mevent);
 }
 
-/*! Red�finition d'une m�thode Qt pour traiter l'�venement de 'Drop' (correspond � la fin du Drag&Drop) */
+/*! Redï¿½finition d'une mï¿½thode Qt pour traiter l'ï¿½venement de 'Drop' (correspond ï¿½ la fin du Drag&Drop) */
 void ProjectTreePanel::dropEvent(QDropEvent* dEvent)
 {
     QModelIndex index = indexAt(dEvent->pos());

@@ -38,7 +38,7 @@ FunctionManager::~FunctionManager()
 ContextId FunctionManager::launchFunction(Controller& controller, const ContextType& type)
 {
     FUNCLOG << "launch context " << magic_enum::enum_name(type) << LOGENDL;
-    //NOTE (Aurélien) POC Undo/Redo context
+    //NOTE (AurÃ©lien) POC Undo/Redo context
     //controller->updateInfo(new GuiDataUndoRedoAble(true, true));
     abort(controller, m_actualCId);
 
@@ -316,7 +316,7 @@ void FunctionManager::killContext(Controller& controller, ContextId idToKill)
 
 AContext* FunctionManager::getContext(ContextId cid)
 {
-    //Fixme (Aurélien) : To do better but it correct AQ 481
+    //Fixme (AurÃ©lien) : To do better but it correct AQ 481
     std::lock_guard<std::mutex> lock(m_mutex);
     std::unordered_map<ContextId, AContext*>::iterator contextIt = m_contextList.find(cid);
     if (contextIt != m_contextList.end())

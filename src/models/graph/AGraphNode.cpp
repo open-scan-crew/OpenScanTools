@@ -86,7 +86,7 @@ AGraphNode::~AGraphNode()
 	// QUESTION(robin) - Pourquoi ne pas remove le child de son parent ?
 	//m_geometricParent->removeChild(m_id);
 
-	// QUESTION(robin) - Doit-on détruire les enfants de ce noeud ? Ou bien un autre mécanisme s’en charge ?
+	// QUESTION(robin) - Doit-on dÃ©truire les enfants de ce noeud ? Ou bien un autre mÃ©canisme sâ€™en charge ?
 	//std::unordered_map<xg::Guid, AGraphNode*> copyChildren = m_geometricChildren;
 	//for (auto child : copyChildren)
 	//{
@@ -215,10 +215,10 @@ void AGraphNode::cleanLinks(const SafePtr<AGraphNode>& nodeToClean)
 
 bool AGraphNode::addGeometricLink(const SafePtr<AGraphNode>& parentPtr, const SafePtr<AGraphNode>& childPtr)
 {
-	//Si l'enfant a rajouté au parent sont égaux (on ne veut pas d'auto lien géométrique)
+	//Si l'enfant a rajoutÃ© au parent sont Ã©gaux (on ne veut pas d'auto lien gÃ©omÃ©trique)
 	//alors on ne fait rien et on continue la boucle for
 	//  
-	//TODO Possible : verification de boucle ? c'est à dire vérifier que l'enfant n'est pas un ascendant géométrique du parent.
+	//TODO Possible : verification de boucle ? c'est Ã  dire vÃ©rifier que l'enfant n'est pas un ascendant gÃ©omÃ©trique du parent.
 	std::unordered_set<SafePtr<AGraphNode>> visitedNodes;
 	if (parentPtr == childPtr ||
 		recIsAncestor(childPtr, parentPtr, [](const SafePtr<AGraphNode>& node) {
@@ -249,7 +249,7 @@ bool AGraphNode::addGeometricLink(const SafePtr<AGraphNode>& parentPtr, const Sa
 	if (!(wChild) || !(wParent))
 		return false;
 
-	//Si l'enfant avait déjà un parent, on l'enlève des enfants de son ancien parent (différent de son nouveau)
+	//Si l'enfant avait dÃ©jÃ  un parent, on l'enlÃ¨ve des enfants de son ancien parent (diffÃ©rent de son nouveau)
 	if (wOldParentPtr)
 		wOldParentPtr->m_geometricChildren.erase(childPtr);
 
@@ -397,7 +397,7 @@ bool AGraphNode::addOwningLink(const SafePtr<AGraphNode>& parentPtr, const SafeP
 
 	if (!parentPtr || !childPtr)
 		return false;
-	//Si l'enfant a rajouté au parent sont égaux (on ne veut pas d'auto lien géométrique)
+	//Si l'enfant a rajoutÃ© au parent sont Ã©gaux (on ne veut pas d'auto lien gÃ©omÃ©trique)
 	//alors on ne fait rien
 	std::unordered_set<SafePtr<AGraphNode>> visitedNodes;
 	if (parentPtr == childPtr || recIsAncestor(childPtr, parentPtr, [](const SafePtr<AGraphNode>& node) { return getOwningChildren(node); }, visitedNodes, false))

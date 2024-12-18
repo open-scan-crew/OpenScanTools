@@ -1,4 +1,4 @@
-﻿#include "models/graph/GraphManager.hxx"
+#include "models/graph/GraphManager.hxx"
 #include "vulkan/VulkanManager.h"
 #include "utils/Logger.h"
 #include "gui/IDataDispatcher.h"
@@ -154,7 +154,7 @@ void GraphManager::cleanProjectObjects()
 	}
 
 	m_targetMarkerFactory.freeClickMarkers();
-	// Note(aurélien) on tente le nettoyage des geometries générées à la volé.
+	// Note(aurÃ©lien) on tente le nettoyage des geometries gÃ©nÃ©rÃ©es Ã  la volÃ©.
 	VulkanManager::getInstance().waitIdle();
 	m_meshManager->cleanMemory(true);
 	//m_meshManager->cleanSimpleGeometryMemory();
@@ -489,7 +489,7 @@ SafePtr<AGraphNode> GraphManager::getNodeById(xg::Guid id) const
 	if (sameIdNodes.empty())
 		return SafePtr<AGraphNode>();
 	if (sameIdNodes.size() > 1)
-		assert(!"Deux fois le même noeud avec le même id dans le graph");
+		assert(!"Deux fois le mÃªme noeud avec le mÃªme id dans le graph");
 
 	return *(sameIdNodes.begin());
 }
@@ -598,7 +598,7 @@ std::unordered_set<SafePtr<TagNode>> GraphManager::getTagsWithTemplate(SafePtr<s
 bool GraphManager::isFilePathOrScanExists(const std::wstring& name, const std::filesystem::path& filePath) const
 {
 	//A remplacer avec un scanRootNode ?
-	for (const SafePtr<AGraphNode>& objectPtr : AGraphNode::getGeometricChildren(m_root)) //A utiliser autre chose que le lien géometrique
+	for (const SafePtr<AGraphNode>& objectPtr : AGraphNode::getGeometricChildren(m_root)) //A utiliser autre chose que le lien gÃ©ometrique
 	{
 		ElementType type;
 		{
@@ -669,10 +669,10 @@ void GraphManager::getClippingAssembly(ClippingAssembly& retAssembly, bool filte
 		if (!rClip)
 			continue;
 
-		// NOTE - Il a été décrété que l'on doit faire l'union des clipping intérieur 
-		//        et l'intersection des clipping extérieur.
-		//        Bien sûr d'autres assemblages logiques sont possibles mais il faudrait pour cela
-		//        créer les opérateurs adéquats et rendre cela lisible pour l'utilisateur.
+		// NOTE - Il a Ã©tÃ© dÃ©crÃ©tÃ© que l'on doit faire l'union des clipping intÃ©rieur 
+		//        et l'intersection des clipping extÃ©rieur.
+		//        Bien sÃ»r d'autres assemblages logiques sont possibles mais il faudrait pour cela
+		//        crÃ©er les opÃ©rateurs adÃ©quats et rendre cela lisible pour l'utilisateur.
 		rClip->pushClippingGeometries(retAssembly, TransformationModule(*&rClip));
 	}
 	return;

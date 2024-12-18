@@ -6,7 +6,7 @@
 
 
 
-/* Ouvre les propriétés d'UserOrientation et envoie les données  */
+/* Ouvre les propriÃ©tÃ©s d'UserOrientation et envoie les donnÃ©es  */
 class GuiDataUserOrientationProperties : public IGuiData
 {
 public:
@@ -19,7 +19,7 @@ public:
 	bool m_empty;
 };
 
-/* Retourne l'information de modification de la liste d'UserOrientation à l'UI*/
+/* Retourne l'information de modification de la liste d'UserOrientation Ã  l'UI*/
 class GuiDataCallbackAddRemoveUserOrientation : public IGuiData
 {
 public:
@@ -40,7 +40,7 @@ public:
 	guiDType getType() override;
 };
 
-/* Envoie l'UserOrientation sélectionnée dans la toolbar*/
+/* Envoie l'UserOrientation sÃ©lectionnÃ©e dans la toolbar*/
 class GuiDataSetUserOrientation : public IGuiData
 {
 public:

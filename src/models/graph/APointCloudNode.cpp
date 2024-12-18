@@ -29,7 +29,7 @@ void APointCloudNode::setScanGuid(tls::ScanGuid scanGuid)
 	tls::ScanHeader scanHeader;
 	if (tlGetScanHeader(m_scanGuid, scanHeader) == true)
 	{
-		//A enregistrer dans le json ? Ou on garde ça dans le fichier de scan
+		//A enregistrer dans le json ? Ou on garde Ã§a dans le fichier de scan
 		m_pointFormat = scanHeader.format;
 		m_NbPoint = scanHeader.pointCount;
 		m_sensorModel = scanHeader.sensorModel;

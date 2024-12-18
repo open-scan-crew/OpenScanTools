@@ -43,7 +43,7 @@ private:
     void createPrimitives();
     void createSampler();
 
-    // Handles to resources NOT owned by the Renderer --> DO NOT DESTROY
+    // Handles to resources NOT owned by the Renderer --> DOÂ NOT DESTROY
     VkDevice h_device = VK_NULL_HANDLE;
     VulkanDeviceFunctions* h_pfn = nullptr;
     VkDescriptorPool h_descPool = VK_NULL_HANDLE;

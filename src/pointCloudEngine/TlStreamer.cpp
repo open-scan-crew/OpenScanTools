@@ -232,7 +232,7 @@ void TlStreamer::exportStats()
     ostr << "Free space, ";
     ostr << "Refresh resources, ";
     ostr << "Read File, ";
-    ostr << "Transfer GPU, ";
+    ostr << "TransferÂ GPU, ";
     // Data headers
     ostr << "Transfer Size, ";
     ostr << "Miss Size, ";

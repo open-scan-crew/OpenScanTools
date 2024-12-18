@@ -52,7 +52,7 @@ namespace control::scanEdition
         int base = 1031;
         for (const SafePtr<AGraphNode>& nodePtr : scanToEdit)
         {
-            //pas obligé d'être un ScanNode ici
+            //pas obligÃ© d'Ãªtre un ScanNode ici
             WritePtr<ScanNode> wScan = static_pointer_cast<ScanNode>(nodePtr).get();
             if (!wScan)
                 continue;
@@ -99,7 +99,7 @@ namespace control::scanEdition
             return;
         if (m_newGuid == xg::Guid())
         {
-            // NOTE - On choisi de ne pas supprimer le fichier au cas où cela soit une mauvaise manipulation.
+            // NOTE - On choisi de ne pas supprimer le fichier au cas oÃ¹ cela soit une mauvaise manipulation.
             tlFreeScan(writePtr->getScanGuid());
             return;
         }

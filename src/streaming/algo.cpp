@@ -60,7 +60,7 @@ void frame(PermanentResources& pRes, Viewport const& viewport_, unsigned frameId
 	// But we are missing ongoing transfer and we can make an error by freeing the source of an ongoing transfer
 	pRes.nodeCache.freeMemory(pRes.allNodesInFlight, frameNodeRequests, pRes.cpu, pRes.gpu);
 
-	if (!isDebugView) {			// NOTE(nico) pour éviter d'afficher les infos plusieurs fois
+	if (!isDebugView) {			// NOTE(nico) pour Ã©viter d'afficher les infos plusieurs fois
 
 		ImGui::Text("Traversed nodes: %d", octreeStats.traversedNodes);
 		ImGui::Text("Visible nodes: %d", octreeStats.visibleNodes);
@@ -96,7 +96,7 @@ void cullOctree(
 	//const NodeId nodeId = 0;
 	const NodeId nodeId = scans.getScan(scanId).getRootNodeId();
 
-	// FIXME(nico) gérer une vraie transformation en objectSpace pour la camera
+	// FIXME(nico) gÃ©rer une vraie transformation en objectSpace pour la camera
 	impl_drawOctree(scans, scanId, nodeId, camera.position, camera.frustumPlanes, ALL_PLANES, Position(0, 0, 0), scans.getScan(scanId).getOctreeSize(),
 		nodeCache, nodesToDraw, nodesToRequest,
 		stats
@@ -144,7 +144,7 @@ static void impl_drawOctree(AllScans &_scans, ScanId scanId, NodeId nodeId,
 	nllVec3 camToCenter;
 	nllVec3Sub(camToCenter, wsCamPos.coord, wsNodeCenter);
 
-	float TAN_HALF_FOV = tanf(45.f * PI_ / 180.f);				// FIXME(nico) hardcodé
+	float TAN_HALF_FOV = tanf(45.f * PI_ / 180.f);				// FIXME(nico) hardcodÃ©
 	float distance = sqrtf(camToCenter[0] * camToCenter[0] + camToCenter[1] * camToCenter[1] + camToCenter[2] * camToCenter[2]);
 	float screenSize = nodeSize / (distance * 2 * TAN_HALF_FOV);
 	if (screenSize > nodeSize) screenSize = nodeSize;		// RELECTURE(robin) Pourquoi ?
@@ -335,7 +335,7 @@ void NodeCache::freeGPUMemory(AllNodesInFlight &allNodesInFlight, const NodeRequ
 
 void NodeRequests::selectBestNodes(size_t count) {
 
-	// NOTE(nico) on sélection les 'count' requests qui ont les plus grands 'screenSize'
+	// NOTE(nico) on sÃ©lection les 'count' requests qui ont les plus grands 'screenSize'
 
 	struct comp {
 

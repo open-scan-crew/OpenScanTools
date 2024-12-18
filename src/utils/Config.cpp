@@ -512,7 +512,7 @@ namespace Config
 
 	PerspectiveZBounds getPerspectiveZBounds()
 	{
-		// Paramètres de base { 0.125, 8192.0 }
+		// ParamÃ¨tres de base { 0.125, 8192.0 }
 		PerspectiveZBounds zBounds = { -3, 16 };
 		if (jsonConfig.find(RENDER_PERSPECTIVE_PLANS) == jsonConfig.end())
 			return zBounds;

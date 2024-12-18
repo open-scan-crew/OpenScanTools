@@ -28,7 +28,7 @@ protected:
 	//uint32_t					m_pointsCount;
 	//std::deque<glm::dvec3> m_points; // Use ARayTracingContext::m_clickResults
 	//std::deque<Measure>			m_measures;
-	//NOTE (Aurélien) POC Undo/Redo context
+	//NOTE (AurÃ©lien) POC Undo/Redo context
 	//std::deque<Measure>			m_measures_history;
 	std::vector<glm::dvec3> m_points;
 	uint64_t	           m_lastPointInd;

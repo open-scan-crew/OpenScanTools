@@ -194,14 +194,14 @@ enum class guiDType
     maxEnum
 };
 
-/*! Interface des objets messages (pouvant contenir des données autre que le guiDType) entre l'UI et le back.
+/*! Interface des objets messages (pouvant contenir des donnÃ©es autre que le guiDType) entre l'UI et le back.
 *
 */
 class IGuiData
 {
 public:
     virtual ~IGuiData() = 0 {};
-	/*! Type du GuiData, permettant de les différencier*/
+	/*! Type du GuiData, permettant de les diffÃ©rencier*/
 	virtual guiDType getType() = 0;
 };
 

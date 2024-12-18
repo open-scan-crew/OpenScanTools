@@ -65,7 +65,7 @@ void ToolBarSphereGroup::onStandardRecieved(IGuiData* data)
 	m_ui.standardsComboBox->clear();
 	m_standardsElems.clear();
 
-	//Chercher le standard par défaut (NA) à ajouter en premier
+	//Chercher le standard par dÃ©faut (NA) Ã  ajouter en premier
 	for (const SafePtr<StandardList>& stand : standards->m_lists) {
 		ReadPtr<StandardList> rStand = stand.cget();
 		if (rStand && rStand->getOrigin()) {

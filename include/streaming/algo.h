@@ -1,6 +1,6 @@
 /*
 
-NOTE(nico) convention de nommage pour les variables de coordonnées (différents espaces) :
+NOTE(nico) convention de nommage pour les variables de coordonnÃ©es (diffÃ©rents espaces) :
 
 * wsPosition : world space position
 * osPosition : object space position
@@ -9,9 +9,9 @@ NOTE(nico) convention de nommage pour les variables de coordonnées (différents
 
 */
 
-// nodeCache // est celui de la frame précédente
-// allNodesInFlight[] // contient autant de liste que de frames d'avance préparées pour le GPU
-// frameId // id de la frame en préparation, [0-1] pour la gestion d'un back-buffer simple par exemple
+// nodeCache // est celui de la frame prÃ©cÃ©dente
+// allNodesInFlight[] // contient autant de liste que de frames d'avance prÃ©parÃ©es pour le GPU
+// frameId // id de la frame en prÃ©paration, [0-1] pour la gestion d'un back-buffer simple par exemple
 
 // TODO(nico) API NodeReader asynchrone
 // TODO(nico) API GPU asynchrone
@@ -19,17 +19,17 @@ NOTE(nico) convention de nommage pour les variables de coordonnées (différents
 // TODO(nico) utiliser glm pour les maths ?
 
 // TODO(nico) NodeCache::getPoints ?
-// TODO(nico) identifier les nodes pour : points, état de chargement !! doit inclure le scanId ??
+// TODO(nico) identifier les nodes pour : points, Ã©tat de chargement !! doit inclure le scanId ??
 // TODO(nico) simuler un chargement de points
 // TODO(nico) consulter le NodeCache pour les enfants lors du culling
 // TODO(nico) freeMemory
 // TODO(nico) identifier les nodes pour : enfants
-// TODO(nico) gérer les noderequest
-// TODO(nico) gérer le multiviewport
-// TODO(nico) gérer la clipping box
-// TODO(nico) comment associer des données GPU aux scanId (qui évoluent lorsque le projet est modifié) ?
-// TODO(nico) gérer le toggle de visibilité d'un scan (+imgui)
-// TODO(nico) séparer le rendu du calcul de streaming, pour afficher plusieurs fois pour nos viewport de debug
+// TODO(nico) gÃ©rer les noderequest
+// TODO(nico) gÃ©rer le multiviewport
+// TODO(nico) gÃ©rer la clipping box
+// TODO(nico) comment associer des donnÃ©es GPU aux scanId (qui Ã©voluent lorsque le projet est modifiÃ©) ?
+// TODO(nico) gÃ©rer le toggle de visibilitÃ© d'un scan (+imgui)
+// TODO(nico) sÃ©parer le rendu du calcul de streaming, pour afficher plusieurs fois pour nos viewport de debug
 
 // BUG(nico) on devrait d'abord voir apparaitre le cube 'racine' de l'octree avant qu'il se raffine
 

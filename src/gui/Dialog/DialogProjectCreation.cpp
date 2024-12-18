@@ -12,7 +12,7 @@
 #include "utils/System.h"
 
 #define TEMPLATE_BASE_EN "English"
-#define TEMPLATE_BASE_FR L"Français"
+#define TEMPLATE_BASE_FR L"FranÃ§ais"
 
 DialogProjectCreation::DialogProjectCreation(IDataDispatcher& dataDispatcher, QString folderPath, const std::vector<std::filesystem::path>& templates, const std::unordered_map<LangageType, ProjectTemplate>& projectTemplates, QWidget* parent)
     : ADialog(dataDispatcher, parent)
@@ -82,7 +82,7 @@ void DialogProjectCreation::createProject()
     ProjectInfos infos;
     std::filesystem::path folderPath(m_ui.lineEditPath->text().toStdWString());
     std::wstring projectName = m_ui.lineEditName->text().toStdWString();
-    //On enlève les espaces à la fin car les nom de dossiers ne peuvent pas avoir d'espaces à la fin
+    //On enlÃ¨ve les espaces Ã  la fin car les nom de dossiers ne peuvent pas avoir d'espaces Ã  la fin
     projectName.erase(projectName.find_last_not_of(L' ') + 1);
     Utils::System::formatFilename(projectName);
     infos.m_projectName = projectName;

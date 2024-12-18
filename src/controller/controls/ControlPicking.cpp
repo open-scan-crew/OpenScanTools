@@ -24,7 +24,7 @@ namespace control::picking
     void Click::doFunction(Controller& controller)
     {
         CONTROLLOG << "Click detected : " << m_clickInfo.picking << Logger::endl;
-        // TODO(robin) - Vérifier que les points sont bien envoyés à 'PropertyClippingSettings' et 'PropertyUserOrientation'
+        // TODO(robin) - VÃ©rifier que les points sont bien envoyÃ©s Ã  'PropertyClippingSettings' et 'PropertyUserOrientation'
         if (controller.getFunctionManager().isActiveContext() == ContextType::none)
         {
             if (m_clickInfo.ctrl)

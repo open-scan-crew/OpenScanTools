@@ -53,10 +53,10 @@ public:
 
 	///Links
 
-	//Applique de manière récursive en profondeur (à partir du currentPtr en suivant le getterSet) 
-	//une action recAction (de base vide, si elle retourne faux ça ne va pas plus loin dans la récursion). 
+	//Applique de maniÃ¨re rÃ©cursive en profondeur (Ã  partir du currentPtr en suivant le getterSet) 
+	//une action recAction (de base vide, si elle retourne faux Ã§a ne va pas plus loin dans la rÃ©cursion). 
 	// 
-	//Les noeuds visités sont dans visitedNodes.
+	//Les noeuds visitÃ©s sont dans visitedNodes.
 	static void recOnAncestors(const SafePtr<AGraphNode>& currentPtr, std::function<std::unordered_set<SafePtr<AGraphNode>>(const SafePtr<AGraphNode>&)> getterSet, std::unordered_set<SafePtr<AGraphNode>>& visitedNodes, std::function<bool(const SafePtr<AGraphNode>&)> recAction = [](const SafePtr<AGraphNode>&) {return true; });
 	static void recOnAncestors_read(const SafePtr<AGraphNode>& currentPtr, std::function<std::unordered_set<SafePtr<AGraphNode>>(const ReadPtr<AGraphNode>&)> getterSet, std::unordered_set<SafePtr<AGraphNode>>& visitedNodes, std::function<bool(const SafePtr<AGraphNode>&)> recAction = [](const SafePtr<AGraphNode>&) {return true; });
 	static void cleanLinks(const SafePtr<AGraphNode>& nodeId);

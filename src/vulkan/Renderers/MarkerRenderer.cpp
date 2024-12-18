@@ -89,7 +89,7 @@ void MarkerRenderer::createDescriptorSet_camera()
         }
     };
 
-    // Descriptor Set Layout Create Info
+    // DescriptorÂ Set Layout Create Info
     VkDescriptorSetLayoutCreateInfo descLayoutInfo = {
         VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
         nullptr,
@@ -145,7 +145,7 @@ void MarkerRenderer::createDescriptorSet_camera_geom()
         nullptr // used for immutable samplers
     };
 
-    // Descriptor Set Layout Create Info
+    // DescriptorÂ Set Layout Create Info
     VkDescriptorSetLayoutCreateInfo descLayoutInfo = {
         VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
         nullptr,
@@ -200,7 +200,7 @@ void MarkerRenderer::createDescriptorSet_sampler()
         nullptr
     };
 
-    // Descriptor Set Layout Create Info
+    // DescriptorÂ Set Layout Create Info
     VkDescriptorSetLayoutCreateInfo descLayoutInfo = {
         VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
         nullptr,

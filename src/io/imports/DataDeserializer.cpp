@@ -140,7 +140,7 @@ bool ImportData(const nlohmann::json& json, Data& data)
 
 	if (json.find(Key_Identifier) != json.end())
 		data.setIdentifier(Utils::from_utf8(json.at(Key_Identifier).get<std::string>()));
-	//Note (Aurélien)
+	//Note (AurÃ©lien)
 	//Compatibility check
 	else if (json.find("Prefix") != json.end())
 		data.setIdentifier(Utils::from_utf8(json.at("Prefix").get<std::string>()));
@@ -174,7 +174,7 @@ bool ImportData(const nlohmann::json& json, Data& data)
 	{
 		data.setId(xg::Guid(json.at(Key_Id).get<std::string>()));
 	}
-	//Note (Aurélien)
+	//Note (AurÃ©lien)
 	//Compatibility check
 	else if (json.find("InternId") != json.end())
 	{
@@ -257,7 +257,7 @@ bool ImportClippingData(const nlohmann::json& json, ClippingData& data)
 {
 	bool retVal(true);
 
-	//Note (Aurélien)
+	//Note (AurÃ©lien)
 	//retval not used for compatibility (for the moment)
 	if (json.find(Key_ClippingMode) != json.end())
 	{
@@ -343,7 +343,7 @@ bool ImportTransformationModule(const nlohmann::json& json, TransformationModule
 		nlohmann::json pos;
 		if (json.find(Key_Center) != json.end())
 			pos = json.at(Key_Center);
-		//Note (Aurélien) : compatibilty check
+		//Note (AurÃ©lien) : compatibilty check
 		else if (json.find("Position") != json.end())
 			pos = json.at("Position");
 		else if (json.find("Pos") != json.end())
@@ -362,7 +362,7 @@ bool ImportTransformationModule(const nlohmann::json& json, TransformationModule
 		nlohmann::json qrot;
 		if (json.find(Key_Quaternion) != json.end())
 			qrot = json.at(Key_Quaternion);
-		//Note (Aurélien) : compatibilty check
+		//Note (AurÃ©lien) : compatibilty check
 		else if (json.find("Quaternion_xyzw") != json.end())
 			qrot = json.at("Quaternion_xyzw");
 		else
@@ -410,7 +410,7 @@ bool ImportScanData(const nlohmann::json& json, ScanData& data)
 	else
 		data.setClippable(true);
 
-	/* A Faire après
+	/* A Faire aprÃ¨s
 	tls::ScanGuid scanGuid;
 	if (tlGetScanGuid(scanFolder / data.getScanPath().filename(), scanGuid))
 		data.setScanGuid(scanGuid);
@@ -1069,7 +1069,7 @@ bool ImportPointToPlaneMeasureData(const nlohmann::json& json, PointToPlaneMeasu
 	bool retVal(true);
 	if (json.find(Key_PointToPlaneDist) != json.end())
 		data.setPointToPlaneD(json.at(Key_PointToPlaneDist).get<float>());
-	//Note (Aurélien) : compatibilty check
+	//Note (AurÃ©lien) : compatibilty check
 	else if (json.find("PointToPlaneD") != json.end())
 		data.setPointToPlaneD(json.at("PointToPlaneD").get<float>());
 	else
@@ -1080,7 +1080,7 @@ bool ImportPointToPlaneMeasureData(const nlohmann::json& json, PointToPlaneMeasu
 
 	if (json.find(Key_Horizontal) != json.end())
 		data.setHorizontal(json.at(Key_Horizontal).get<float>());
-	//Note (Aurélien) : compatibilty check
+	//Note (AurÃ©lien) : compatibilty check
 	else if (json.find("Horizontale") != json.end())
 		data.setHorizontal(json.at("Horizontale").get<float>());
 	else
@@ -1174,7 +1174,7 @@ bool ImportPointToPipeMeasureData(const nlohmann::json& json, PointToPipeMeasure
 	if (json.find(Key_FreeDist) != json.end())
 		data.setFreeD(json.at(Key_FreeDist).get<float>());
 
-	//Note (Aurélien) : compatibilty check
+	//Note (AurÃ©lien) : compatibilty check
 	else if (json.find("FreeD") != json.end())
 		data.setFreeDistHorizontal(json.at("FreeD").get<float>());
 	else
@@ -1185,7 +1185,7 @@ bool ImportPointToPipeMeasureData(const nlohmann::json& json, PointToPipeMeasure
 
 	if (json.find(Key_FreeDistHorizontal) != json.end())
 		data.setFreeDistHorizontal(json.at(Key_FreeDistHorizontal).get<float>());
-	//Note (Aurélien) : compatibilty check
+	//Note (AurÃ©lien) : compatibilty check
 	else if (json.find("FreeDHorizontal") != json.end())
 		data.setFreeDistHorizontal(json.at("FreeDHorizontal").get<float>());
 	else
@@ -1196,7 +1196,7 @@ bool ImportPointToPipeMeasureData(const nlohmann::json& json, PointToPipeMeasure
 
 	if (json.find(Key_FreeDistVertical) != json.end())
 		data.setFreeDistVertical(json.at(Key_FreeDistVertical).get<float>());
-	//Note (Aurélien) : compatibilty check
+	//Note (AurÃ©lien) : compatibilty check
 	else if (json.find("FreeDVertical") != json.end())
 		data.setFreeDistVertical(json.at("FreeDVertical").get<float>());
 	else
@@ -1207,7 +1207,7 @@ bool ImportPointToPipeMeasureData(const nlohmann::json& json, PointToPipeMeasure
 
 	if (json.find(Key_TotalFootprint) != json.end())
 		data.setTotalFootprint(json.at(Key_TotalFootprint).get<float>());
-	//Note (Aurélien) : compatibilty check
+	//Note (AurÃ©lien) : compatibilty check
 	else if (json.find("TotalF") != json.end())
 		data.setTotalFootprint(json.at("TotalF").get<float>());
 	else
@@ -1273,7 +1273,7 @@ bool ImportPipeToPlaneMeasureData(const nlohmann::json& json, PipeToPlaneMeasure
 	bool retVal(true);
 	if (json.find(Key_CenterToPlaneDist) != json.end())
 		data.setCenterToPlaneDist(json.at(Key_CenterToPlaneDist).get<float>());
-	//Note (Aurélien) : compatibilty check
+	//Note (AurÃ©lien) : compatibilty check
 	else if (json.find("CenterToPlaneD") != json.end())
 		data.setCenterToPlaneDist(json.at("CenterToPlaneD").get<float>());
 	else
@@ -1324,7 +1324,7 @@ bool ImportPipeToPlaneMeasureData(const nlohmann::json& json, PipeToPlaneMeasure
 
 	if (json.find(Key_TotalFootprint) != json.end())
 		data.setTotalFootprint(json.at(Key_TotalFootprint).get<float>());
-	//Note (Aurélien) : compatibilty check
+	//Note (AurÃ©lien) : compatibilty check
 	else if (json.find("TotalF") != json.end())
 		data.setTotalFootprint(json.at("TotalF").get<float>());
 	else
@@ -1426,7 +1426,7 @@ bool ImportPipeToPipeMeasureData(const nlohmann::json& json, PipeToPipeMeasureDa
 
 	if (json.find(Key_FreeDist) != json.end())
 		data.setFreeDist(json.at(Key_FreeDist).get<float>());
-	//Note (Aurélien) : compatibilty check
+	//Note (AurÃ©lien) : compatibilty check
 	else if (json.find("FreeD") != json.end())
 		data.setFreeDist(json.at("FreeD").get<float>());
 	else
@@ -1437,7 +1437,7 @@ bool ImportPipeToPipeMeasureData(const nlohmann::json& json, PipeToPipeMeasureDa
 
 	if (json.find(Key_FreeDistHorizontal) != json.end())
 		data.setFreeDistHorizontal(json.at(Key_FreeDistHorizontal).get<float>());
-	//Note (Aurélien) : compatibilty check
+	//Note (AurÃ©lien) : compatibilty check
 	else if (json.find("FreeDHorizontal") != json.end())
 		data.setFreeDistHorizontal(json.at("FreeDHorizontal").get<float>());
 	else
@@ -1448,7 +1448,7 @@ bool ImportPipeToPipeMeasureData(const nlohmann::json& json, PipeToPipeMeasureDa
 
 	if (json.find(Key_FreeDistVertical) != json.end())
 		data.setFreeDistVertical(json.at(Key_FreeDistVertical).get<float>());
-	//Note (Aurélien) : compatibilty check
+	//Note (AurÃ©lien) : compatibilty check
 	else if (json.find("FreeDVertical") != json.end())
 		data.setFreeDistVertical(json.at("FreeDVertical").get<float>());
 	else
@@ -1459,7 +1459,7 @@ bool ImportPipeToPipeMeasureData(const nlohmann::json& json, PipeToPipeMeasureDa
 
 	if (json.find(Key_TotalFootprint) != json.end())
 		data.setTotalFootprint(json.at(Key_TotalFootprint).get<float>());
-	//Note (Aurélien) : compatibilty check
+	//Note (AurÃ©lien) : compatibilty check
 	else if (json.find("TotalF") != json.end())
 		data.setTotalFootprint(json.at("TotalF").get<float>());
 	else
@@ -1537,7 +1537,7 @@ bool ImportBeamBendingMeasureData(const nlohmann::json& json, BeamBendingMeasure
 		nlohmann::json pos = json.at(Key_Point1);
 		data.setPoint1Pos(Pos3D({ pos[0], pos[1], pos[2] }));
 	}
-	//Note (Aurélien) : compatibilty check
+	//Note (AurÃ©lien) : compatibilty check
 	else if (json.find("Point1Pos") != json.end())
 	{
 		nlohmann::json pos = json.at("Point1Pos");
@@ -1554,7 +1554,7 @@ bool ImportBeamBendingMeasureData(const nlohmann::json& json, BeamBendingMeasure
 		nlohmann::json pos = json.at(Key_Point2);
 		data.setPoint2Pos(Pos3D({ pos[0], pos[1], pos[2] }));
 	}
-	//Note (Aurélien) : compatibilty check
+	//Note (AurÃ©lien) : compatibilty check
 	else if (json.find("Point2Pos") != json.end())
 	{
 		nlohmann::json pos = json.at("Point2Pos");
@@ -1587,7 +1587,7 @@ bool ImportBeamBendingMeasureData(const nlohmann::json& json, BeamBendingMeasure
 
 	if (json.find(Key_Length) != json.end())
 		data.setLength(json.at(Key_Length).get<float>());
-	//Note (Aurélien) : compatibilty check
+	//Note (AurÃ©lien) : compatibilty check
 	else if (json.find("Lenght") != json.end())
 		data.setLength(json.at("Lenght").get<float>());
 	else
@@ -1614,7 +1614,7 @@ bool ImportBeamBendingMeasureData(const nlohmann::json& json, BeamBendingMeasure
 
 	if (json.find(Key_RatioSup) != json.end())
 		data.setRatioSup(magic_enum::enum_cast<RatioSup>(json.at(Key_RatioSup).get<std::string>()).value());
-	//Note (Aurélien) : compatibilty check
+	//Note (AurÃ©lien) : compatibilty check
 	else if (json.find("isRatioSup") != json.end())
 		data.setRatioSup(magic_enum::enum_cast<RatioSup>(json.at("isRatioSup").get<std::string>()).value());
 	else
@@ -2058,7 +2058,7 @@ void WriteNode(WritePtr<NodeClass>& wNodeToEdit, std::function<bool(WritePtr<Nod
 
 	retVal = importDataFunction(wNodeToEdit);
 
-	//Détruire si retVal est faux ?
+	//DÃ©truire si retVal est faux ?
 
 	return;
 }
@@ -2526,7 +2526,7 @@ bool DataDeserializer::DeserializeUserOrientation(const nlohmann::json& json, Us
 	bool retVal(true);
 	if (json.find(Key_Id) != json.end())
 		data.setId(xg::Guid(json.at(Key_Id).get<std::string>()));
-	//Note (Aurélien) : compatibilty check
+	//Note (AurÃ©lien) : compatibilty check
 	else if (json.find("id") != json.end())
 		data.setId(xg::Guid(json.at("id").get<std::string>()));
 	else
@@ -2537,7 +2537,7 @@ bool DataDeserializer::DeserializeUserOrientation(const nlohmann::json& json, Us
 
 	if (json.find(Key_Name) != json.end())
 		data.setName(QString::fromStdWString(Utils::from_utf8(json.at(Key_Name).get<std::string>())));
-	//Note (Aurélien) : compatibilty check
+	//Note (AurÃ©lien) : compatibilty check
 	else if (json.find("name") != json.end())
 		data.setName(QString::fromStdWString(Utils::from_utf8(json.at("name").get<std::string>())));
 	else
@@ -2551,7 +2551,7 @@ bool DataDeserializer::DeserializeUserOrientation(const nlohmann::json& json, Us
 		nlohmann::json pos = json.at(Key_Point1);
 		data.setPoint1(Pos3D({ pos[0], pos[1], pos[2] }));
 	}
-	//Note (Aurélien) : compatibilty check
+	//Note (AurÃ©lien) : compatibilty check
 	else if (json.find("point1") != json.end())
 	{
 		nlohmann::json pos = json.at("point1");
@@ -2568,7 +2568,7 @@ bool DataDeserializer::DeserializeUserOrientation(const nlohmann::json& json, Us
 		nlohmann::json pos = json.at(Key_Point2);
 		data.setPoint2(Pos3D({ pos[0], pos[1], pos[2] }));
 	}
-	//Note (Aurélien) : compatibilty check
+	//Note (AurÃ©lien) : compatibilty check
 	else if (json.find("point2") != json.end())
 	{
 		nlohmann::json pos = json.at("point2");
@@ -2587,7 +2587,7 @@ bool DataDeserializer::DeserializeUserOrientation(const nlohmann::json& json, Us
 		axisType = axisTypeOpt.has_value() ? axisTypeOpt.value() : UOAxisType::Custom;
 		data.setAxisType(axisType);
 	}
-	//Note (Aurélien) : compatibilty check
+	//Note (AurÃ©lien) : compatibilty check
 	else if (json.find("AxisType") != json.end())
 	{
 		if (json.at("AxisType").get<bool>())
@@ -2645,7 +2645,7 @@ bool DataDeserializer::DeserializeUserOrientation(const nlohmann::json& json, Us
 
 	if (json.find(Key_Order) != json.end())
 		data.setOrder(json.at(Key_Order).get<uint32_t>());
-	//Note (Aurélien) : compatibilty check
+	//Note (AurÃ©lien) : compatibilty check
 	else if (json.find("order") != json.end())
 		data.setOrder(json.at("order").get<uint32_t>());
 	else
@@ -2726,7 +2726,7 @@ bool DataDeserializer::DeserializeProjectInfos(const nlohmann::json& json, const
 
 	if (json.find(Key_Description) != json.end())
 		data.m_description = Utils::from_utf8(json.at(Key_Description).get<std::string>());
-	//Note (Aurélien) : compatibilty check 
+	//Note (AurÃ©lien) : compatibilty check 
 	else if (json.find("Desc") != json.end())
 		data.m_description = Utils::from_utf8(json.at("Desc").get<std::string>());
 	else
@@ -2736,7 +2736,7 @@ bool DataDeserializer::DeserializeProjectInfos(const nlohmann::json& json, const
 
 	if (json.find(Key_BeamBendingTolerance) != json.end())
 		data.m_beamBendingTolerance = json.at(Key_BeamBendingTolerance).get<double>();
-	//Note (Aurélien) : compatibilty check
+	//Note (AurÃ©lien) : compatibilty check
 	else if (json.find("BeambendingTolerance") != json.end())
 		data.m_beamBendingTolerance = json.at("BeambendingTolerance").get<double>();
 	else
@@ -2821,7 +2821,7 @@ bool DataDeserializer::DeserializeTagTemplate(const nlohmann::json& json, const 
 	bool retVal(true);
 	if (json.find(Key_Id) != json.end())
 		data.setId(xg::Guid(json.at(Key_Id).get<std::string>()));
-	//Note (Aurélien) : compatibilty check
+	//Note (AurÃ©lien) : compatibilty check
 	else if (json.find("TemplateId") != json.end())
 		data.setId(xg::Guid(json.at("TemplateId").get<std::string>()));
 	else
@@ -2832,7 +2832,7 @@ bool DataDeserializer::DeserializeTagTemplate(const nlohmann::json& json, const 
 
 	if (json.find(Key_Name) != json.end())
 		data.renameTagTemplate(Utils::from_utf8(json.at(Key_Name).get<std::string>()));
-	//Note (Aurélien) : compatibilty check
+	//Note (AurÃ©lien) : compatibilty check
 	else if (json.find("TemplateName") != json.end())
 		data.renameTagTemplate(Utils::from_utf8(json.at("TemplateName").get<std::string>()));
 	else
@@ -2843,7 +2843,7 @@ bool DataDeserializer::DeserializeTagTemplate(const nlohmann::json& json, const 
 
 	if (json.find(Key_OriginTemplate) != json.end())
 		data.setOriginTemplate(json.at(Key_OriginTemplate).get<bool>());
-	//Note (Aurélien) : compatibilty check
+	//Note (AurÃ©lien) : compatibilty check
 	else if (json.find("originTemplate") != json.end())
 		data.setOriginTemplate(json.at("originTemplate").get<bool>());
 	else
@@ -2867,7 +2867,7 @@ bool DataDeserializer::DeserializeTagTemplate(const nlohmann::json& json, const 
 
 			if (iterator.find(Key_Name) != iterator.end())
 				field.m_name = Utils::from_utf8(iterator.at(Key_Name).get<std::string>());
-			//Note (Aurélien) : compatibilty check
+			//Note (AurÃ©lien) : compatibilty check
 			else if (iterator.find("FieldName") != iterator.end())
 				field.m_name = Utils::from_utf8(iterator.at("FieldName").get<std::string>());
 			else

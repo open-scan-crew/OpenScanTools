@@ -148,26 +148,26 @@ ObjectAllocation::ReturnCode StepSimplification::modelSimplification(const std::
 }
 
 // TO DO LIST:
-/*  Améliorer la lecture du fichier :
+/*  AmÃ©liorer la lecture du fichier :
  *      DONE - l'utilisateur doit pouvoir se tromper dans l'extension du fichier
- *      - l'utilisateur doit pouvoir ne spécifier que le nom du fichier sans avoir à spécifier son chemin (à condition que le fichier se trouve dans le répertoire de maquettes)
- *      DONE - l'utilisateur doit pouvoir se dispenser de spécifier le chemin de sortie : (par défaut : même chemin qu'en entrée avec l'ajout de .out dans le nom du fichier)
+ *      - l'utilisateur doit pouvoir ne spÃ©cifier que le nom du fichier sans avoir Ã  spÃ©cifier son chemin (Ã  condition que le fichier se trouve dans le rÃ©pertoire de maquettes)
+ *      DONE - l'utilisateur doit pouvoir se dispenser de spÃ©cifier le chemin de sortie : (par dÃ©faut : mÃªme chemin qu'en entrÃ©e avec l'ajout de .out dans le nom du fichier)
  *
- * Tester la suppression et la restoratiocn de toutes les pièces sur l'ensemble des maquettes du jeu de données :
- *      - elle doit établir une liste de maquettes sur lesquelles il y a des problèmes et tenter de les résoudre si il suffit de changer le comportement des entités
+ * Tester la suppression et la restoratiocn de toutes les piÃ¨ces sur l'ensemble des maquettes du jeu de donnÃ©es :
+ *      - elle doit Ã©tablir une liste de maquettes sur lesquelles il y a des problÃ¨mes et tenter de les rÃ©soudre si il suffit de changer le comportement des entitÃ©s
  *
- * Terminer l'automatisation des méthodes de supression qui jusqu'alors est partielle (fonctionne seulement pour le critère de similarité)
- *      - étendre pour les critères de volume et de complexité (et vérifier la cohérence) DONE
- *      - généraliser la méthode de suppression par coefficient pour qu'elle soit utilisable sur n'importe quel type de vecteur (ou liste) DONE
- *      - proposer des méthodes de suppressions basés sur des combinaisons de critères DONE
+ * Terminer l'automatisation des mÃ©thodes de supression qui jusqu'alors est partielle (fonctionne seulement pour le critÃ¨re de similaritÃ©)
+ *      - Ã©tendre pour les critÃ¨res de volume et de complexitÃ© (et vÃ©rifier la cohÃ©rence) DONE
+ *      - gÃ©nÃ©raliser la mÃ©thode de suppression par coefficient pour qu'elle soit utilisable sur n'importe quel type de vecteur (ou liste) DONE
+ *      - proposer des mÃ©thodes de suppressions basÃ©s sur des combinaisons de critÃ¨res DONE
  *
- * Ajout d'un onglet dédié à la simplification dans OpenScanTools avec Qt
- *      - configurer MVSC avec Qt et parvenir à compiler le projet OpenScanTools sur le PC Windows
- *      - Reflexion sur l'intéraction et proposition d'une implémentation facilité par les fonctions de simplification et de restoration du graphe
+ * Ajout d'un onglet dÃ©diÃ© Ã  la simplification dans OpenScanTools avec Qt
+ *      - configurer MVSC avec Qt et parvenir Ã  compiler le projet OpenScanTools sur le PC Windows
+ *      - Reflexion sur l'intÃ©raction et proposition d'une implÃ©mentation facilitÃ© par les fonctions de simplification et de restoration du graphe
  *
  * QUESTIONS :
  *      - Pourquoi la construction du graphe est beaucoup plus longue qu'avant (~ + 30%) ?
- *      Hypothèse : A cause de la regew pour détecter les fausses références        DONE
+ *      HypothÃ¨se : A cause de la regew pour dÃ©tecter les fausses rÃ©fÃ©rences        DONE
  */
 
 

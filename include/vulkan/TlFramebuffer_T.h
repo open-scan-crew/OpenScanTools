@@ -73,7 +73,7 @@ struct TlFramebuffer_T
     VkDeviceSize correctedDepthSize = 0;
     VkBuffer correctedDepthBuffer = VK_NULL_HANDLE;
 
-    // Depth & Stencil objects
+    // DepthÂ & Stencil objects
     VkDeviceMemory objectDepthMemory = VK_NULL_HANDLE;
     VkImage objectDepthImage = VK_NULL_HANDLE;
     VkImageView objectDepthImageView = VK_NULL_HANDLE;
@@ -88,7 +88,7 @@ struct TlFramebuffer_T
     VkImage transparentObjectImage = VK_NULL_HANDLE;
     VkImageView transparentObjectImageView = VK_NULL_HANDLE;
 
-    // Depth (Stencil) gizmos 
+    // DepthÂ (Stencil) gizmos 
     VkDeviceMemory gizmoDepthMemory = VK_NULL_HANDLE;
     VkImage gizmoDepthImage = VK_NULL_HANDLE;
     VkImageView gizmoDepthImageView = VK_NULL_HANDLE;

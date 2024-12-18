@@ -60,7 +60,7 @@ void ViewPointData::setScanClusterColors(const std::unordered_map<SafePtr<AGraph
 
 bool ViewPointData::isPanoramicScan() const
 {
-	return bool(m_panoramicScan); //Rajouter une vérification isNull const
+	return bool(m_panoramicScan); //Rajouter une vÃ©rification isNull const
 }
 
 SafePtr<ScanNode> ViewPointData::getPanoramicScan() const

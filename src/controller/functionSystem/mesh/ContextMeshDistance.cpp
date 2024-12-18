@@ -70,7 +70,7 @@ ContextState ContextMeshDistance::launch(Controller& controller)
 
     Logger::log(LoggerMode::FunctionLog) << "CPU projection on triangles : " << dta << "[ms]." << Logger::endl;
 
-    // Crée une mesure simple entre le point de départ et le point projeté
+    // CrÃ©e une mesure simple entre le point de dÃ©part et le point projetÃ©
     SafePtr<SimpleMeasureNode> measure = controller.getGraphManager().createMeasureNode<SimpleMeasureNode>();
     WritePtr<SimpleMeasureNode> wMeasure = measure.get();
     if (!wMeasure)

@@ -60,13 +60,13 @@ FlsFileReader::FlsFileReader(const std::filesystem::path& filepath, std::wstring
             log += L"No Workspace (11)";
             break;
         case 12:
-            log += L"(12)"; // La doc FARO ne liste pas ce code erreur dans sa table d’erreur
+            log += L"(12)"; // La doc FARO ne liste pas ce code erreur dans sa table dâ€™erreur
             break;
         case 13:
             log += L"No Scan (13)";
             break;
         case 25:
-            log += L"(25)"; // La doc FARO ne liste pas ce code erreur dans sa table d’erreur
+            log += L"(25)"; // La doc FARO ne liste pas ce code erreur dans sa table dâ€™erreur
             break;
         default:
             log += L"Unknown code error ";
@@ -147,7 +147,7 @@ FlsFileReader::FlsFileReader(const std::filesystem::path& filepath, std::wstring
 
         scanH.name = std::wstring(scanName);
          
-        //Note (Aurélien) Converting with filesystem::path to not getting access violation from WideCharToMultiByte...
+        //Note (AurÃ©lien) Converting with filesystem::path to not getting access violation from WideCharToMultiByte...
         std::filesystem::path pathConverter(Type);
         scanH.sensorModel = pathConverter.wstring();
         ///buffLength = WideCharToMultiByte(0, 0, Type, 64, cstr, 128, "a", FALSE);

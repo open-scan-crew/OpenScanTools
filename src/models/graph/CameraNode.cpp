@@ -107,9 +107,9 @@ UIViewPoint CameraNode::getUIViewPoint() const
 {
     // Note(Robin) sur la copie profonde
     // * UIObject3D est une classe abstraite
-    // * CameraNode n’hérite pas de UIObject3D mais possède 2 héritages en commun (TransformationModule, Data)
-    // * On doit remonter un cran plus haut dans l’héritage pour reconstruire un UIViewPoint à partir de { ViewPointData, TransformationModule, Data }.
-    // * La partie UIColorData reste avec les valeurs par défaut.
+    // * CameraNode nâ€™hÃ©rite pas de UIObject3D mais possÃ¨de 2 hÃ©ritages en commun (TransformationModule, Data)
+    // * On doit remonter un cran plus haut dans lâ€™hÃ©ritage pour reconstruire un UIViewPoint Ã  partir de { ViewPointData, TransformationModule, Data }.
+    // * La partie UIColorData reste avec les valeurs par dÃ©faut.
     return UIViewPoint(ViewPointData(*this, m_panoramicScan), *this, *this);
 }*/
 
@@ -283,7 +283,7 @@ void CameraNode::alignView(AlignView align)
     break;
     case AlignView::Iso:
     {
-        //Utilise la troncature pour calculer l'angle théta (avec un décalage) sur les différentes diagonales
+        //Utilise la troncature pour calculer l'angle thÃ©ta (avec un dÃ©calage) sur les diffÃ©rentes diagonales
         theta += ceil((getTheta()) / (M_PI / 2))*(M_PI / 2) - M_PI / 4;
         phi = (getPhi() > -M_PI / 2 ? atan2(1, sqrt(2)) - M_PI / 2 : -atan2(1, sqrt(2)) - M_PI / 2);
     }
@@ -402,7 +402,7 @@ void CameraNode::moveTo(const glm::dvec3& endPoint, double endTheta, double endP
 // ~ ~ ~ ~ ~
 // return false if the animation is already finished
 // return true if the animation is ongoing (even if it is finished on this frame)
-// ~ _ ’ . -
+// ~ _ â€™ . -
 bool CameraNode::animateSimpleTrajectory()
 {
     if (!m_isAnimated)
@@ -414,7 +414,7 @@ bool CameraNode::animateSimpleTrajectory()
         m_center = m_simpleAnimation.end.point;
         if (!m_animation.empty())
         {
-            //Note(Aurélien) #363 do stuff
+            //Note(AurÃ©lien) #363 do stuff
             ReadPtr<ViewPointNode> rVp = m_animation.begin()->cget();
             static_cast<DisplayParameters&>(*this) = *&rVp;
             applyProjection(*&rVp);
@@ -487,7 +487,7 @@ bool CameraNode::startAnimation(const bool& isOffline, const uint64_t& step)
         ReadPtr<ViewPointNode> node = vp.cget();
         if (!node)
             continue;
-        //Note (aurélien) quick fix from viewpointTransfert
+        //Note (aurÃ©lien) quick fix from viewpointTransfert
         float speed = 1.0f / node->getScale().x;
         if (first)
         {
@@ -815,7 +815,7 @@ void CameraNode::refresh()
     m_center += m_deltaLocalPos.x * m_forward + m_deltaLocalPos.y * m_right + m_deltaLocalPos.z * m_up;
     m_center += m_deltaGlobalPos;
 
-    // TODO - Intégrer les user orientation (Ajout temporaire)
+    // TODO - IntÃ©grer les user orientation (Ajout temporaire)
     if (m_applyConstraint)
     {
         double cosUO = cos(m_decalThetaUO);
@@ -867,7 +867,7 @@ void CameraNode::refresh()
 
     glm::dmat4 inverseRotation = glm::mat4_cast(glm::conjugate(m_quaternion));
 
-    // Refresh the View Matrix
+    // Refresh the ViewÂ Matrix
     m_viewMatrix = inverseRotation * m_viewMatrix;
 }
 
@@ -879,7 +879,7 @@ glm::dmat4 CameraNode::getViewMatrix() const
 glm::dmat4 CameraNode::getModelMatrix() const
 {
     // NOTE - The camera does not use the geometric parent provided by the AGraphNode
-    // This matrix is used without the large coordinates correction because all opérations stays in double.
+    // This matrix is used without the large coordinates correction because all opÃ©rations stays in double.
     glm::dmat4 modelMat = glm::mat4_cast(m_quaternion);
     modelMat[3][0] = m_center.x;
     modelMat[3][1] = m_center.y;
@@ -1005,7 +1005,7 @@ void CameraNode::AddViewPoint(glm::dvec3 _point, double _meterPerSec, double _ra
 void CameraNode::sendNewUIViewPoint()
 {
     //TODO REWORK CAMERAINFO
-    //Le but c'est de mettre à jour la gui qui a déjà un SafePtr vers la caméra, est-ce qu'on devrait pas utiliser un autre GuiData de refresh
+    //Le but c'est de mettre Ã  jour la gui qui a dÃ©jÃ  un SafePtr vers la camÃ©ra, est-ce qu'on devrait pas utiliser un autre GuiData de refresh
     m_dataDispatcher.updateInformation(new GuiDataCameraInfo(SafePtr<CameraNode>()), this);
 }
 
@@ -1854,7 +1854,7 @@ void CameraNode::zoomOnPointOfInterest(glm::dvec2 mouse_cursor, double amount, d
 
     if (m_projectionMode == ProjectionMode::Perspective)
     {
-        // TODO(Robin) - Les maths sont compliqués, à voir plus tard...
+        // TODO(Robin) - Les maths sont compliquÃ©s, Ã  voir plus tard...
         zoom(amount, dtime);
     }
     else

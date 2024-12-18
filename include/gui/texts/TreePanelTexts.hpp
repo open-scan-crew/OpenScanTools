@@ -66,21 +66,21 @@
 
 #define TEXT_NEW_CLUSTER QObject::tr("New cluster")
 #define TEXT_DELETE_CLUSTER QObject::tr("Delete cluster")
-#define TEXT_MOVE_TO_SCAN QObject::tr("Move to scan") //voir pour rendre cela gÈnÈrique avec "Move to item" pour chaque objet ou scan.
+#define TEXT_MOVE_TO_SCAN QObject::tr("Move to scan") //voir pour rendre cela g√©n√©rique avec "Move to item" pour chaque objet ou scan.
 #define TEXT_DELETE_SCAN QObject::tr("Delete scan") //proposer 2 choix en menu contextuel: "Remove scan(s) from project but keep files" ; "Remove scan(s) from project and delete files"
-#define TEXT_MOVE_TO_TAG QObject::tr("Move to item") //voir pour rendre cela gÈnÈrique avec "Move to item" pour chaque objet ou scan.
-#define TEXT_DELETE_TAG QObject::tr("Delete tag") //voir pour rendre cela gÈnÈrique avec "Delete" tout court.
-#define TEXT_DELETE_MEASURE QObject::tr("Delete measure") //voir pour rendre cela gÈnÈrique avec "Delete" tout court.
-#define TEXT_DELETE_CLIPPING QObject::tr("Delete box") //voir pour rendre cela gÈnÈrique avec "Delete" tout court.
-#define TEXT_DELETE_POINT QObject::tr("Delete point") //voir pour rendre cela gÈnÈrique avec "Delete" tout court.
-#define TEXT_SIMPLE_MEASURE QObject::tr("Simple") //suppression de measurement (le dossier parent s'appelle dÈj‡ Measurement)
-#define TEXT_POLYLINE_MEASURE QObject::tr("Polyline") //suppression de measurement (le dossier parent s'appelle dÈj‡ Measurement)
-#define TEXT_BEAMBENDING_MEASURE QObject::tr("Beam Bending") //suppression de measurement (le dossier parent s'appelle dÈj‡ Measurement)
-#define TEXT_COLUMNTILT_MEASURE QObject::tr("Column Tilt") //suppression de measurement (le dossier parent s'appelle dÈj‡ Measurement)
-#define TEXT_PIPETOPIPE_MEASURE QObject::tr("Pipe to Pipe") //suppression de measurement (le dossier parent s'appelle dÈj‡ Measurement)
-#define TEXT_PIPETOPLANE_MEASURE QObject::tr("Pipe to Plane") //suppression de measurement (le dossier parent s'appelle dÈj‡ Measurement)
-#define TEXT_POINTTOPLANE_MEASURE QObject::tr("Point to Plane") //suppression de measurement (le dossier parent s'appelle dÈj‡ Measurement)
-#define TEXT_POINTTOPIPE_MEASURE QObject::tr("Point to Pipe") //suppression de measurement (le dossier parent s'appelle dÈj‡ Measurement)
+#define TEXT_MOVE_TO_TAG QObject::tr("Move to item") //voir pour rendre cela g√©n√©rique avec "Move to item" pour chaque objet ou scan.
+#define TEXT_DELETE_TAG QObject::tr("Delete tag") //voir pour rendre cela g√©n√©rique avec "Delete" tout court.
+#define TEXT_DELETE_MEASURE QObject::tr("Delete measure") //voir pour rendre cela g√©n√©rique avec "Delete" tout court.
+#define TEXT_DELETE_CLIPPING QObject::tr("Delete box") //voir pour rendre cela g√©n√©rique avec "Delete" tout court.
+#define TEXT_DELETE_POINT QObject::tr("Delete point") //voir pour rendre cela g√©n√©rique avec "Delete" tout court.
+#define TEXT_SIMPLE_MEASURE QObject::tr("Simple") //suppression de measurement (le dossier parent s'appelle d√©j√† Measurement)
+#define TEXT_POLYLINE_MEASURE QObject::tr("Polyline") //suppression de measurement (le dossier parent s'appelle d√©j√† Measurement)
+#define TEXT_BEAMBENDING_MEASURE QObject::tr("Beam Bending") //suppression de measurement (le dossier parent s'appelle d√©j√† Measurement)
+#define TEXT_COLUMNTILT_MEASURE QObject::tr("Column Tilt") //suppression de measurement (le dossier parent s'appelle d√©j√† Measurement)
+#define TEXT_PIPETOPIPE_MEASURE QObject::tr("Pipe to Pipe") //suppression de measurement (le dossier parent s'appelle d√©j√† Measurement)
+#define TEXT_PIPETOPLANE_MEASURE QObject::tr("Pipe to Plane") //suppression de measurement (le dossier parent s'appelle d√©j√† Measurement)
+#define TEXT_POINTTOPLANE_MEASURE QObject::tr("Point to Plane") //suppression de measurement (le dossier parent s'appelle d√©j√† Measurement)
+#define TEXT_POINTTOPIPE_MEASURE QObject::tr("Point to Pipe") //suppression de measurement (le dossier parent s'appelle d√©j√† Measurement)
 
 #define TEXT_PLACEHOLDER_CHILDREN QObject::tr("Loading children...")
 

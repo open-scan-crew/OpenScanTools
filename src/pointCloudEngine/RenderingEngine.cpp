@@ -149,7 +149,7 @@ void RenderingEngine::onScreenshot(IGuiData* data)
 {
     GuiDataScreenshot* screenshot = static_cast<GuiDataScreenshot*>(data);
     m_screenshotFilename = screenshot->m_filename;
-    //ToDo (Aurélien) : add viewport selection, for now select the first one 
+    //ToDo (AurÃ©lien) : add viewport selection, for now select the first one 
     auto viewport((*m_viewports.begin()));
     if (viewport->getNavigationMode() == NavigationMode::Orthographic)
     {
@@ -200,7 +200,7 @@ void RenderingEngine::onStartHDRender(IGuiData* data)
     m_showProgressBar = guiData->m_showProgressBar;
     m_hdtilesize = guiData->m_hdimagetilesize;
 
-    // FIXME - On peut directement garder la camera sans passer par son viewport
+    //Â FIXME - On peut directement garder la camera sans passer par son viewport
     m_activeCamera = guiData->m_camera;
 
     // The extent provided by the GuiData must be coherent with the ratio
@@ -288,11 +288,11 @@ void RenderingEngine::update()
     // Also apply the viewport inputs on the graph before updating the scene.
 
     // ******* Inputs *******
-    // On gère les inputs survenus dans tout les viewports.
-    // Les inputs peuvent entrainer une modification du modèle et donc de l'affichage.
+    // On gÃ¨re les inputs survenus dans tout les viewports.
+    // Les inputs peuvent entrainer une modification du modÃ¨le et donc de l'affichage.
     // Un input dans un viewport peut notament avoir des effets visible dans un autre viewport.
-    // Les input qui modifie le modèle sont :
-    //  * Sélection d'un objet (Click)
+    // Les input qui modifie le modÃ¨le sont :
+    //  * SÃ©lection d'un objet (Click)
     //  * Hover d'un objet
     //  * Manipulation d'un ou plusieurs objets
     for (VulkanViewport* viewport : m_viewports)

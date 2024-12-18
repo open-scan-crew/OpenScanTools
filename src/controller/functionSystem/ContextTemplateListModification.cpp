@@ -14,7 +14,7 @@
 
 #include "utils/Logger.h"
  
-// Note (Aurélien) QT::StandardButtons enum values in qmessagebox.h
+// Note (AurÃ©lien) QT::StandardButtons enum values in qmessagebox.h
 #define Yes 0x00004000
 #define Cancel 0x00400000
 
@@ -94,7 +94,7 @@ ContextState ContextTemplateListModification::launch(Controller& controller)
 
 	controller.updateInfo(new GuiDataSendTagTemplate(m_temp, controller.getContext().getUserLists()));
 
-	//fixme (Aurélien) rules set for reseting only if needed
+	//fixme (AurÃ©lien) rules set for reseting only if needed
 	//std::unordered_map<sma::tFieldType, std::unordered_map<sma::tFieldType, bool>> rules;
 	//if (rules[controller.getContext().getTemplates().at(_tempId).getFields().at(_fieldId).m_type][_newType])
 	//{

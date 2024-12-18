@@ -55,7 +55,7 @@ namespace control::special
 				type = writeNode->getType();
 			}
 
-			//A gérer dans le setDead() ?
+			//A gÃ©rer dans le setDead() ?
 			if (type == ElementType::Scan)
 			{
 				WritePtr<ScanNode> scan = static_pointer_cast<ScanNode>(obj).get();

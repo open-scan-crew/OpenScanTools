@@ -7,13 +7,13 @@
 #include "crossguid/guid.hpp"
 
 typedef xg::Guid listId;
-/*! Liste pour construire des élèments utilisées dans OpenScanTools.
+/*! Liste pour construire des Ã©lÃ¨ments utilisÃ©es dans OpenScanTools.
 
-*	Eléments tels que :
+*	ElÃ©ments tels que :
 		- Standard de pipes (List<double>)
 		- Utilisateur (List<std::string>)
 
-	Créé pour avoir des attributs supplémentaires tels que Origin, Name et Valid
+	CrÃ©Ã© pour avoir des attributs supplÃ©mentaires tels que Origin, Name et Valid
 		
 */
 
@@ -51,7 +51,7 @@ public:
 
 private:
 	bool m_valid;
-	/*! Si m_origin est vrai : liste ayant un caractère de "par défaut", sinon faux
+	/*! Si m_origin est vrai : liste ayant un caractÃ¨re de "par dÃ©faut", sinon faux
 		
 		Exemple :
 			pour les listes de standards de tuyaux (StandardList)

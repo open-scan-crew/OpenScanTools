@@ -26,7 +26,7 @@ CylinderNode::CylinderNode()
     setName(TEXT_DEFAULT_NAME_PIPE.toStdWString());
 }
 
-//FixMe (aurélien) Should be set here not in parent class
+//FixMe (aurÃ©lien) Should be set here not in parent class
 /*
 bool CylinderNode::isAcceptingManipulatorMode(const ManipulationMode& mode) const
 {

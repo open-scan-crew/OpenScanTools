@@ -239,7 +239,7 @@ void ARayTracingContext::nextText(Controller& controller)
     controller.updateInfo(new GuiDataTmpMessage(m_usages[m_clickResults.size() % m_usages.size()].uiMessage, 0));
 }
 
-bool ARayTracingContext::downloadTriangleList(const std::shared_ptr<MeshBuffer> meshBuffer, glm::dmat4 meshTransfo) //Vu que pour l'export d'Obj/Fbx, j'utilise la même fonction, pourquoi pas l'utiliser via le MeshManager ? A cause du mutex avec le raytracing de mesh ?
+bool ARayTracingContext::downloadTriangleList(const std::shared_ptr<MeshBuffer> meshBuffer, glm::dmat4 meshTransfo) //Vu que pour l'export d'Obj/Fbx, j'utilise la mÃªme fonction, pourquoi pas l'utiliser via le MeshManager ? A cause du mutex avec le raytracing de mesh ?
 {
     if (meshBuffer == nullptr)
         return false;
@@ -378,7 +378,7 @@ bool ARayTracingContext::getTriangleList(void* bufferData, const std::shared_ptr
 
 glm::vec3 ARayTracingContext::minimalDistanceOnMesh(glm::vec3 M)
 {
-    // Distance minimum entre tout les points projetés
+    // Distance minimum entre tout les points projetÃ©s
     float minDist = std::numeric_limits<float>::max();
     glm::vec3 result = glm::vec3(0.f, 0.f, 0.f);
     for (const Triangle& t : m_triangles)
@@ -410,16 +410,16 @@ glm::vec3 ARayTracingContext::projectionOnTriangle(const glm::vec3& M, const Tri
     glm::vec3 n = cross(AB, BC);
 
     // On distingue trois cas de figure :
-    //  (a) P est à l’intèrieur du triangle
-    //  (b) P est proche d’un côté
-    //  (c) P est proche d’un sommet
+    //  (a) P est Ã  lâ€™intÃ¨rieur du triangle
+    //  (b) P est proche dâ€™un cÃ´tÃ©
+    //  (c) P est proche dâ€™un sommet
 
-    // Valeurs utiles pour savoir si on est à l’extèrieur d’un côté
+    // Valeurs utiles pour savoir si on est Ã  lâ€™extÃ¨rieur dâ€™un cÃ´tÃ©
     float alpha = dot(cross(AB, AM), n);
     float beta = dot(cross(BC, BM), n);
     float omega = dot(cross(CA, CM), n);
 
-    // Valeurs utiles pour la projection sur un côté
+    // Valeurs utiles pour la projection sur un cÃ´tÃ©
     float t_ab = dot(AB, AM) / dot(AB, AB);
     float t_bc = dot(BC, BM) / dot(BC, BC);
     float t_ca = dot(CA, CM) / dot(CA, CA);
@@ -457,7 +457,7 @@ glm::vec3 ARayTracingContext::projectionOnTriangle(const glm::vec3& M, const Tri
             return t.A;
         }
     }
-    // On est à l’intèrieur
+    // On est Ã  lâ€™intÃ¨rieur
     return (M - n * dot(AM, n) / dot(n, n));
 }
 

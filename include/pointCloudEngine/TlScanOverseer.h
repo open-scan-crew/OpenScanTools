@@ -345,7 +345,7 @@ public:
     int getVolumeOfCluster(const std::vector<std::vector<std::vector<int>>>& clusterLabels, const int& label);
     std::vector<int> mergeTwoBoxes(const std::vector<int>& box1, const std::vector<int>& box2);
     std::set<std::vector<int>> getBoxCorners(const std::vector<int>& box);
-	// NOTE(robin) - Il semble que les 2 fonctions suivantes sont static, on pourrait donc leur extraire dans un fichier de code à part pour faciliter la compilation
+	// NOTE(robin) - Il semble que les 2 fonctions suivantes sont static, on pourrait donc leur extraire dans un fichier de code Ã  part pour faciliter la compilation
 	static std::vector<glm::dvec3> sampleHeightPoints(const glm::dvec3& center, const double& radius, const glm::dvec3& direction, const double& height, const int& numberOfTestPoints);
     static double computeHeight(const glm::dvec3& point, const glm::dvec3& direction, const glm::dvec3& center);
 

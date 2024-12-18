@@ -7,7 +7,7 @@
 #ifndef _TXF_EXPORT_H_
 #define _TXF_EXPORT_H_
 
-#define TXTSEPARATOR "ง"
+#define TXTSEPARATOR "ยง"
 
 class txtExport
 {

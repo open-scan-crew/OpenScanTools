@@ -213,7 +213,7 @@ namespace control
 
 			controller.updateInfo(new GuiDataProjectProperties(controller.getContext(), controller.getGraphManager(), false));
 
-			/*Note (Aurélien) : Temporary (or not), set default clipping parameters*/
+			/*Note (AurÃ©lien) : Temporary (or not), set default clipping parameters*/
 			const ProjectInfos& info(controller.getContext().cgetProjectInfo());
 			controller.updateInfo(new GuiDataDefaultClipParams(info.m_defaultMinClipDistance, info.m_defaultMaxClipDistance, info.m_defaultClipMode));
 			controller.updateInfo(new GuiDataDefaultRampParams(info.m_defaultMinRampDistance, info.m_defaultMaxRampDistance, info.m_defaultRampSteps));

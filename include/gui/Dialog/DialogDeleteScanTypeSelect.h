@@ -12,9 +12,9 @@
 
 class AGraphNode;
 
-/*! Classe qui gère le Dialog de demande d'information sur la méthode de suppression de Scan à l'utilisateur
+/*! Classe qui gÃ¨re le Dialog de demande d'information sur la mÃ©thode de suppression de Scan Ã  l'utilisateur
 
-	Utilisé à chaque fois que l'utilisateur appelle la suppression d'un Cluster contenant un Scan ou d'un Scan*/
+	UtilisÃ© Ã  chaque fois que l'utilisateur appelle la suppression d'un Cluster contenant un Scan ou d'un Scan*/
 class DialogDeleteScanTypeSelect : public QDialog
 {
 	Q_OBJECT

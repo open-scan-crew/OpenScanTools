@@ -203,8 +203,8 @@ Gui::Gui(Controller& controller, Translator* translator)
 	m_objectProperties.insert({ ElementType::MeshObject, new PropertyMeshObject(controller, this) });
 	m_objectProperties.insert({ ElementType::Box, new PropertyBox(controller, this) });
 	// FIXME(robin) - Pourquoi 2 fois le PropertyBox ?
-	//              - Ne peut-on pas utiliser le même ?
-	//              - Plus généralemnet, vérifier si on ne peut pas s’abstenir d’initialiser la dizaine de panneau de propriété...
+	//              - Ne peut-on pas utiliser le mÃªme ?
+	//              - Plus gÃ©nÃ©ralemnet, vÃ©rifier si on ne peut pas sâ€™abstenir dâ€™initialiser la dizaine de panneau de propriÃ©tÃ©...
 	m_objectProperties.insert({ ElementType::Grid, new PropertyBox(controller, this) });
 	m_objectProperties.insert({ ElementType::Cylinder, new PropertyPipe(controller, this) });
 	m_objectProperties.insert({ ElementType::Torus, new PropertyElbow(controller, this) });
@@ -439,7 +439,7 @@ Gui::Gui(Controller& controller, Translator* translator)
 
     // Resize before maximized for when we exit the full size
     this->resize(1200 * m_guiScale, 800 * m_guiScale);
-    // FIX AQ_531 - On ne peut pas démmarer l'application en mode plein écran, ça reste un problème.
+    // FIX AQ_531 - On ne peut pas dÃ©mmarer l'application en mode plein Ã©cran, Ã§a reste un problÃ¨me.
     //toggleMaximized();
 
 	m_openPath = QStandardPaths::locate(QStandardPaths::DocumentsLocation, QString(), QStandardPaths::LocateDirectory);

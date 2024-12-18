@@ -1148,7 +1148,7 @@ void NestedOctree::getOrthographicLoD(std::vector<DrawInfos>& _result, glm::vec3
 void ExploitNode::getFixedLoD(std::vector<DrawInfos>& _result, float _minPointSpacing)
 {
     if (m_isLeaf) {
-        // truncate the float ratio and add 1 to get the ceil value
+        // truncate the float ratio and add 1Â to get the ceil value
         uint32_t minPointsInLenght = (uint32_t) (m_size / _minPointSpacing) + 1;
         // In our SPT, we have 2^(depth) points in each dimension
         // Now we need to find the minimum depth that get us the minimum points required

@@ -94,7 +94,7 @@ protected:
     bool bindPipelineResources(VkCommandBuffer cmdBuf, VkPrimitiveTopology topology, uint32_t subpass, VkUniformOffset mvpUni, bool useNormals, TlTopologyFlags allowedTopologies);
 
 protected:
-    // Resources NOT owned by the Renderer --> DO NOT DESTROY HERE
+    // Resources NOT owned by the Renderer --> DOÂ NOT DESTROY HERE
     VkDevice h_device = VK_NULL_HANDLE;
     VulkanDeviceFunctions* h_pfn = nullptr;
     VkDescriptorPool h_descPool = VK_NULL_HANDLE;

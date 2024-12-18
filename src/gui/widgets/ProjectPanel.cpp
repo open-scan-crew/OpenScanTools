@@ -55,7 +55,7 @@ void ProjectPanel::receiveProjectConfirm(ScanProject *project)
 	{
 		std::cout << "no project" << std::endl;
 	}
-	//FIXME problème thread
+	//FIXME problÃ¨me thread
 	//saveAction->setDisabled(true);
 	std::cout << "receiveok" << std::endl;
 }

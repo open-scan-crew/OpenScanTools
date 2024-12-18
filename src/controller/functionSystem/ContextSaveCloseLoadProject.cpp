@@ -18,7 +18,7 @@
 #include "gui/texts/ContextTexts.hpp"
 #include "io/SaveLoadSystem.h"
 
-// Note (Aurélien) QT::StandardButtons enum values in qmessagebox.h
+// Note (AurÃ©lien) QT::StandardButtons enum values in qmessagebox.h
 #define Yes 0x00004000
 #define No 0x00010000
 #define Cancel 0x00400000

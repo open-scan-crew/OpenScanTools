@@ -51,7 +51,7 @@ public:
 };
 
 
-class AllScans {			// NOTE(nico) j'introduis ça pour ne pas trimballer des IScan** dans le code
+class AllScans {			// NOTE(nico) j'introduis Ã§a pour ne pas trimballer des IScan** dans le code
 public:
 
 	AllScans(int numScans_, IScan *scans_[]) : numScans(numScans_), _scanPtrs(scans_) {};

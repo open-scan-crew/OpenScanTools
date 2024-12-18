@@ -320,7 +320,7 @@ std::unordered_set<uint32_t> VulkanViewport::getHoveredIds() const
 
 void VulkanViewport::refreshHoveredId(uint32_t textId)
 {
-    // Priorités des hover : Manipulateurs, textes, objets
+    // PrioritÃ©s des hover : Manipulateurs, textes, objets
     
     m_hoveredId = VulkanManager::getInstance().sampleIndex(m_framebuffer, (uint32_t)m_MI.lastX, (uint32_t)m_MI.lastY);
 
@@ -802,7 +802,7 @@ void VulkanViewport::updateMouseInputEffect(WritePtr<CameraNode>& wCam, SafePtr<
             quitPanoramic(wCam);
             // NOTES
             // - C'est la camera contient qui peut reset son point d'examun en fonction de ses options internes lors de moveLocal().
-            // - La camera pourrait aussi reset le scan panoramic elle-même.
+            // - La camera pourrait aussi reset le scan panoramic elle-mÃªme.
             m_mouseInputEffect = MouseInputEffect::Pan;
             return;
         }

@@ -3,15 +3,15 @@
 
 // Robin Kervadec - 16/06/2023
 // 
-// +++++ Problématique +++++
-//  * L'affichage du nuage de point par le GPU est très couteux en temps et en énergie.
-//  * On souhaite réduire au maximum les opérations qui aboutirait au même rendu que celui précédent.
+// +++++ ProblÃ©matique +++++
+//  * L'affichage du nuage de point par le GPU est trÃ¨s couteux en temps et en Ã©nergie.
+//  * On souhaite rÃ©duire au maximum les opÃ©rations qui aboutirait au mÃªme rendu que celui prÃ©cÃ©dent.
 //
 
 // +++++ Analyse +++++
-// Voici la liste détaillée des paramètres ayant une influence sur le rendu du nuage de point
+// Voici la liste dÃ©taillÃ©e des paramÃ¨tres ayant une influence sur le rendu du nuage de point
 //  * Viewport : taille, 
-//  * Mode & Paramètres de rendu : taille de point, transparence, BCLS, normals, couleur pure, rampe
+//  * Mode & ParamÃ¨tres de rendu : taille de point, transparence, BCLS, normals, couleur pure, rampe
 //  * Camera : position, fov, near / far
 //  * Scan / PCO : position, couleur,
 //  * Clipping{active} : position, scale / size, user scale
@@ -19,22 +19,22 @@
 //  * Objet{ ramp } : position,
 //  * Suppression d'un objet : Scan, PCO, Clipping {active}, Objet {ramp}
 //
-// +++++ Système centralisé +++++
-//  * Avant la refonte du modèle de donnée, tout changement aux données était centralisé par le
-//    graph de scene. Ainsi, on pouvait déterminer si le renomage d'un tag, le déplacement d'un
-//    cylindre ou le changement de couleur d'un scan était susceptible de modifier le rendu final.
-//  * En outre, les paramètres d'affichage de lié à la vue (mode de rendu, taille de point,
-//    transparence, résolution, position de camera, etc) étaient stockés par le viewport, le
-//    rendering engine et la caméra. Leur changement était traqué par leur intermédiaire.
+// +++++ SystÃ¨me centralisÃ© +++++
+//  * Avant la refonte du modÃ¨le de donnÃ©e, tout changement aux donnÃ©es Ã©tait centralisÃ© par le
+//    graph de scene. Ainsi, on pouvait dÃ©terminer si le renomage d'un tag, le dÃ©placement d'un
+//    cylindre ou le changement de couleur d'un scan Ã©tait susceptible de modifier le rendu final.
+//  * En outre, les paramÃ¨tres d'affichage de liÃ© Ã  la vue (mode de rendu, taille de point,
+//    transparence, rÃ©solution, position de camera, etc) Ã©taient stockÃ©s par le viewport, le
+//    rendering engine et la camÃ©ra. Leur changement Ã©tait traquÃ© par leur intermÃ©diaire.
 //
-// +++++ Système individuel +++++
-//  * Traquer la modification de tous ces paramètres individuellement est très difficile et
-//    potentiellement très couteuse. Il faut noter que nous n'avons plus comme avant d'observateur
+// +++++ SystÃ¨me individuel +++++
+//  * Traquer la modification de tous ces paramÃ¨tres individuellement est trÃ¨s difficile et
+//    potentiellement trÃ¨s couteuse. Il faut noter que nous n'avons plus comme avant d'observateur
 //    central pour filtrer les changement.
-//  * Un système ou chaque objet tient compte de ses propres changement est complexe à développer, 
-//    prompt aux erreurs et très difficile à maintenir.
-//  * Un tel système n'est pas adapté en particulier pour évaluer l'effet d'une suppression d'objet 
-//    puisque l'objet n'est plus là pour attester de sa modification.
+//  * Un systÃ¨me ou chaque objet tient compte de ses propres changement est complexe Ã  dÃ©velopper, 
+//    prompt aux erreurs et trÃ¨s difficile Ã  maintenir.
+//  * Un tel systÃ¨me n'est pas adaptÃ© en particulier pour Ã©valuer l'effet d'une suppression d'objet 
+//    puisque l'objet n'est plus lÃ  pour attester de sa modification.
 
 #include "models/data/clipping/ClippingGeometry.h"
 #include "models/3d/PointCloudDrawData.h"

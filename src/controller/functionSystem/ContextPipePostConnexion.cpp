@@ -156,7 +156,7 @@ ContextState ContextPipePostConnexion::launch(Controller& controller)
 				controller.getControlListener()->notifyUIControl(new control::cylinderEdition::SetForcedRadius(cylinder, cylinderRadii[i]));
 				controller.getControlListener()->notifyUIControl(new control::cylinderEdition::SetLength(cylinder, cylinderLengths[i]));
 
-				//controller.getControlListener()->notifyUIControl(new control::dataEdition::SetDescription(cylinder->getId(), L"angle modification : " + std::to_wstring(acos(angleModifs[i]) * 180 / 3.14159) + L"°"));
+				//controller.getControlListener()->notifyUIControl(new control::dataEdition::SetDescription(cylinder->getId(), L"angle modification : " + std::to_wstring(acos(angleModifs[i]) * 180 / 3.14159) + L"Â°"));
 
 				lineObjects.insert(cylinder);
 

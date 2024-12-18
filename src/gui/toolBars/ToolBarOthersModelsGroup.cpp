@@ -23,7 +23,7 @@ ToolBarOthersModelsGroup::ToolBarOthersModelsGroup(IDataDispatcher& dataDispatch
 	//m_ui.beamButton->setIconSize(QSize(20, 20) * guiScale);
 
 
-	//fixme (Aurélien) to remove when completed
+	//fixme (AurÃ©lien) to remove when completed
 #ifndef _DEBUG
 	m_ui.sphereButton->setHidden(true);
 #endif

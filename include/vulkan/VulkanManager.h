@@ -172,8 +172,8 @@ public:
     bool downloadSimpleBuffer(const SimpleBuffer& smpBuf, void* pData, VkDeviceSize dataSize);
     void* getMappedPointer(SmartBuffer& sbuf);
 
-    // FIXME(robin) - Les fonctions suivantes devrait ne plus être utilisées car elles ne pas thread-safe.
-    // Les problèmes de transfert dans la mémoire locale ont été résolus mais les copies des textures et des images du framebuffer peuvent être problèmatique pour la même raison.
+    // FIXME(robin) - Les fonctions suivantes devrait ne plus Ãªtre utilisÃ©es car elles ne pas thread-safe.
+    // Les problÃ¨mes de transfert dans la mÃ©moire locale ont Ã©tÃ© rÃ©solus mais les copies des textures et des images du framebuffer peuvent Ãªtre problÃ¨matique pour la mÃªme raison.
     //[[deprecated]]
     VkCommandBuffer beginSingleTimeCommand();
     //[[deprecated]]
@@ -378,7 +378,7 @@ private:
     VkCommandPool m_graphicsCmdPool = VK_NULL_HANDLE;
     VkCommandPool m_transferCmdPool = VK_NULL_HANDLE;
     VkCommandPool m_computeCmdPool = VK_NULL_HANDLE;
-    // TODO - Gérer les command pool thread par thread
+    // TODO - GÃ©rer les command pool thread par thread
     //std::unordered_map<std::thread::id, VkCommandPool> cmdPools;
     //std::vector<std::unordered_map<std::thread::id, VkCommandBuffer>> cmdBuffers;
     /* The transfer command buffer is allocated once.
