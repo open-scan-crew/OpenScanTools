@@ -6,7 +6,7 @@
 #include "gui/IDataDispatcher.h"
 #include "pointCloudEngine/RenderingTypes.h"
 
-#include "models/OpenScanToolsModelEssentials.h"
+#include "utils/safe_ptr.h"
 
 class CameraNode;
 

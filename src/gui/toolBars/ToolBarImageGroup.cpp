@@ -4,14 +4,8 @@
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataHD.h"
 
-#include "controller/controls/ControlIO.h"
-
-#include <QtWidgets/qgridlayout.h>
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qtoolbutton.h>
-#include <QtWidgets/QColorDialog>
-#include <QtWidgets/qfiledialog.h>
-#include <QtCore/qstandardpaths.h>
 
 #include "gui/texts/ImageSettings_txt.hpp"
 

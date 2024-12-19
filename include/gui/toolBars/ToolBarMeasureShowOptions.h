@@ -3,9 +3,9 @@
 
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
-
-#include <QWidget>
 #include "ui_toolbar_measureshowoptions.h"
+
+#include <QtWidgets/qwidget.h>
 
 class ToolBarMeasureShowOptions;
 

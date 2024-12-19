@@ -5,7 +5,6 @@
 #include "ui_toolbar_measuregroup.h"
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
 
 class ToolBarMeasureGroup;
 

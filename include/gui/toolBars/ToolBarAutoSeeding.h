@@ -5,8 +5,8 @@
 #include "ui_toolbar_autoSeeding.h"
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
-#include "gui/Dialog/DialogSetOfPoints.h"
-#include "controller/messages/PlaneMessage.h"
+#include "controller/functionSystem/PlaneDetectionOptions.h"
+
 
 
 class ToolBarAutoSeeding : public QWidget, public IPanel

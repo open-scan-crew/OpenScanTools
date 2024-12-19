@@ -4,13 +4,12 @@
 #include "services/MarkerDefinitions.hpp"
 #include "gui/GuiData/GuiDataList.h"
 #include "models/application/Ids.hpp"
-#include "utils/ProjectStringSets.hpp"
 
 #include "controller/Controller.h"
 #include "models/graph/GraphManager.h"
 
 #include <QtWidgets/qwidget.h>
-#include <QtGui/QScreen>
+#include <QtGui/qscreen.h>
 
 ToolBarFilterGroup::ToolBarFilterGroup(IDataDispatcher& dataDispatcher, Controller& controller, QWidget* parent, float guiScale)
 	: QWidget(parent)

@@ -5,8 +5,7 @@
 #include "ui_toolbar_orthoGrid.h"
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
-
-#include "models/OpenScanToolsModelEssentials.h"
+#include "utils/safe_ptr.h"
 
 class CameraNode;
 

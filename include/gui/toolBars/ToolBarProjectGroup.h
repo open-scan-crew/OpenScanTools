@@ -5,7 +5,6 @@
 #include "ui_toolbar_projectgroup.h"
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
-#include "models/project/ProjectInfos.h"
 
 class ToolBarProjectGroup;
 

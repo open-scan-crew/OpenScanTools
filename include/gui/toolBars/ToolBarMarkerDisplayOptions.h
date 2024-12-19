@@ -1,14 +1,12 @@
 #ifndef TOOLBAR_MARKER_DISPLAY_OPTIONS_H
 #define TOOLBAR_MARKER_DISPLAY_OPTIONS_H
 
-//#include <QtWidgets/qwidget.h>
 #include "ui_toolbar_markerdisplayoptions.h"
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
-#include "gui/UnitConverter.h"
 #include "pointCloudEngine/RenderingTypes.h"
 
-#include "models/OpenScanToolsModelEssentials.h"
+#include "utils/safe_ptr.h"
 
 class CameraNode;
 

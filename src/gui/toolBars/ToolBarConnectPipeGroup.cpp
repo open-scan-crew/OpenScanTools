@@ -1,12 +1,8 @@
 #include "gui/toolBars/ToolBarConnectPipeGroup.h"
-#include "gui/Dialog/StandardListDialog.h"
 #include "controller/controls/ControlMeasure.h"
 #include "controller/controls/ControlFunction.h"
-#include "controller/controls/ControlFunctionPiping.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
-#include "gui/GuiData/GuiDataList.h"
-#include "gui/GuiData/GuiDataMeasure.h"
-#include <QtWidgets/qpushbutton.h>
+
 
 ToolBarConnectPipeGroup::ToolBarConnectPipeGroup(IDataDispatcher& dataDispatcher, QWidget* parent, float scale)
 	: QWidget(parent)

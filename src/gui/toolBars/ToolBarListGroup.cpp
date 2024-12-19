@@ -5,8 +5,7 @@
 #include "controller/controls/ControlUserList.h"
 #include "controller/controls/ControlTemplateEdit.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
-#include "gui/GuiData/GuiDataTemplate.h"
-#include "gui/GuiData/GuiDataMessages.h"
+
 
 ToolBarListGroup::ToolBarListGroup(IDataDispatcher &dataDispatcher, QWidget *parent, const float& guiScale)
 	: QWidget(parent)

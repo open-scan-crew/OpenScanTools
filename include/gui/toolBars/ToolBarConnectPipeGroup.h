@@ -5,8 +5,6 @@
 #include "ui_toolbar_connectpipegroup.h"
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
-#include "models/application/List.h"
-#include "controller/functionSystem/PipeDetectionOptions.h"
 
 class ToolBarConnectPipeGroup;
 

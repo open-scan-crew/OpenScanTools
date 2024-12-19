@@ -1,12 +1,17 @@
 #ifndef TOOLBAR_SPHEREGROUP_H
 #define TOOLBAR_SPHEREGROUP_H
 
-#include <QtWidgets/qwidget.h>
-#include "ui_toolbar_spheregroup.h"
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
 #include "models/application/List.h"
-#include "models/OpenScanToolsModelEssentials.h"
+#include "utils/safe_ptr.h"
+
+#include <unordered_map>
+#include <vector>
+
+#include <QtWidgets/qwidget.h>
+
+#include "ui_toolbar_spheregroup.h"
 
 class ToolBarSphereGroup;
 

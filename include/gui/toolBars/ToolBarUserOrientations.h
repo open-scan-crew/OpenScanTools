@@ -1,14 +1,15 @@
 #ifndef TOOLBAR_USERORIENTATIONS_H
 #define TOOLBAR_USERORIENTATIONS_H
 
-#include <QtWidgets/qwidget.h>
-#include <forward_list>
-#include "ui_toolbar_userOrientation.h"
-
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
 #include "models/application/UserOrientation.h"
 
+#include <unordered_map>
+
+#include <QtWidgets/qwidget.h>
+
+#include "ui_toolbar_userOrientation.h"
 
 class ToolBarUserOrientation;
 

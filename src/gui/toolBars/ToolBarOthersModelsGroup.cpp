@@ -2,12 +2,8 @@
 #include "controller/controls/ControlMeasure.h"
 #include "controller/controls/ControlFunction.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
-#include <QtWidgets/qpushbutton.h>
 
-#include "controller/controls/ControlPCObject.h"
-#include "io/FileUtils.h"
-#include <QtWidgets/qfiledialog.h>
-#include <QtCore/qstandardpaths.h>
+#include <QtWidgets/qpushbutton.h>
 
 
 ToolBarOthersModelsGroup::ToolBarOthersModelsGroup(IDataDispatcher& dataDispatcher, QWidget* parent, float guiScale)

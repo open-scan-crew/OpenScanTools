@@ -1,9 +1,7 @@
 #include "gui/toolBars/ToolBarShareGroup.h"
-#include "controller/controls/ControlIO.h"
 #include "controller/controls/ControlFunction.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 
-#include "models/Types.hpp"
 
 ToolBarShareGroup::ToolBarShareGroup(IDataDispatcher &dataDispatcher, QWidget *parent, const float& guiScale)
 	: QWidget(parent)

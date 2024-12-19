@@ -2,7 +2,6 @@
 #include "gui/GuiData/GuiDataRendering.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "controller/controls/ControlApplication.h"
-#include "controller/controls/ControlClippingEdition.h"
 #include "gui/texts/RenderingTexts.hpp"
 #include "gui/UITransparencyConverter.h"
 

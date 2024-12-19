@@ -4,9 +4,9 @@
 #include "controller/controls/ControlFunction.h"
 #include "controller/controls/ControlStandards.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
-#include "gui/GuiData/GuiDataMeasure.h"
+
 #include "gui/GuiData/GuiDataList.h"
-#include <QtWidgets/qpushbutton.h>
+
 
 ToolBarPipeGroup::ToolBarPipeGroup(IDataDispatcher& dataDispatcher, QWidget* parent, float scale)
 	: QWidget(parent)

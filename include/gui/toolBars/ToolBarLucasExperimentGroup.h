@@ -6,7 +6,6 @@
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
 #include "gui/Dialog/DialogSetOfPoints.h"
-#include "controller/messages/PlaneMessage.h"
 
 
 class ToolBarLucasExperimentGroup : public QWidget, public IPanel

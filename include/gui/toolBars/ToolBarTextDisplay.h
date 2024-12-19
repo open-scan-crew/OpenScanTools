@@ -1,11 +1,13 @@
 #ifndef TOOLBAR_TEXTPROPERTIES_H
 #define TOOLBAR_TEXTPROPERTIES_H
 
-#include <QtWidgets/qwidget.h>
-#include "ui_toolbar_textdisplay.h"
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
 #include "pointCloudEngine/ShowTypes.h"
+
+#include <QtWidgets/qwidget.h>
+
+#include "ui_toolbar_textdisplay.h"
 
 class ToolBarTextDisplay;
 

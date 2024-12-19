@@ -2,7 +2,7 @@
 #include "controller/controls/ControlMeasure.h"
 #include "controller/controls/ControlFunction.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
-#include <QtWidgets/qpushbutton.h>
+//#include <QtWidgets/qpushbutton.h>
 
 ToolBarSlabGroup::ToolBarSlabGroup(IDataDispatcher& dataDispatcher, QWidget* parent, float scale)
 	: QWidget(parent)

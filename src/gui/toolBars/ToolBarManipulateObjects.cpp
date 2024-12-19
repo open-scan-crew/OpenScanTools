@@ -1,6 +1,5 @@
 #include "gui\toolBars\ToolBarManipulateObjects.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
-#include "gui/GuiData/GuiDataRendering.h"
 
 #include "controller/controls/ControlObject3DEdition.h"
 

@@ -1,13 +1,15 @@
 #ifndef TOOLBAR_TEMPLATEGROUP_H
 #define TOOLBAR_TEMPLATEGROUP_H
 
-#include <QtWidgets/qwidget.h>
 #include "models/application/TagTemplate.h"
-#include "ui_toolbar_templategroup.h"
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
 #include "gui/dialog/MarkerIconSelectionDialog.h"
 #include "utils/Color32.hpp"
+
+#include <QtWidgets/qwidget.h>
+
+#include "ui_toolbar_templategroup.h"
 
 class ToolBarTemplateGroup;
 

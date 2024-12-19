@@ -1,10 +1,12 @@
 #ifndef TOOLBAR_VIEWPOINT_H
 #define TOOLBAR_VIEWPOINT_H
 
-#include <QtWidgets/qwidget.h>
-#include "ui_toolbar_viewPoint.h"
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
+
+#include <QtWidgets/qwidget.h>
+
+#include "ui_toolbar_viewPoint.h"
 
 class ToolBarViewPoint : public QWidget, public IPanel
 {

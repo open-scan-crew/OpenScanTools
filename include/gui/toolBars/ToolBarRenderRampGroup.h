@@ -7,7 +7,7 @@
 
 #include "pointCloudEngine/GuiRenderingTypes.h"
 
-#include "models/OpenScanToolsModelEssentials.h"
+#include "utils/safe_ptr.h"
 
 class CameraNode;
 

@@ -1,7 +1,7 @@
 #include "gui/toolBars/ToolBarViewPoint.h"
 #include "controller/controls/ControlViewPoint.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
-#include <QtWidgets/qpushbutton.h>
+//#include <QtWidgets/qpushbutton.h>
 
 ToolBarViewPoint::ToolBarViewPoint(IDataDispatcher& dataDispatcher, QWidget* parent, float scale)
 	: QWidget(parent)

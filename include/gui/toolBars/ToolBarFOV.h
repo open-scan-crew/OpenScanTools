@@ -1,7 +1,7 @@
 #ifndef TOOLBAR_FOV_H
 #define TOOLBAR_FOV_H
 
-#include <map>
+
 #include <QtWidgets/qwidget.h>
 
 #include "ui_toolbar_fov.h"
@@ -9,7 +9,9 @@
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
 
-#include "models/OpenScanToolsModelEssentials.h"
+#include "utils/safe_ptr.h"
+
+#include <unordered_map>
 
 class CameraNode;
 

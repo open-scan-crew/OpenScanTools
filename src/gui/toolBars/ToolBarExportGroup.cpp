@@ -1,9 +1,7 @@
 #include "gui/toolBars/ToolBarExportGroup.h"
-#include "controller/controls/ControlIO.h"
 #include "controller/controls/ControlFunction.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 
-#include "models/Types.hpp"
 #include "utils/Logger.h"
 
 ToolBarExportGroup::ToolBarExportGroup(IDataDispatcher &dataDispatcher, QWidget *parent, const float& guiScale)

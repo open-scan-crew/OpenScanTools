@@ -1,22 +1,15 @@
 #include "gui/toolBars/MainToolBar.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
 
 #include "controller/controls/ControlApplication.h"
 #include "controller/controls/ControlProject.h"
 
+#include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/Dialog/DialogRecentProjects.h"
-
-#include <QtWidgets/QShortCut>
-#include <QtWidgets/qgridlayout.h>
-#include <QtWidgets/qfiledialog.h>
-#include <QtWidgets/qmessagebox.h>
-#include <QtWidgets/qboxlayout.h>
-#include <QApplication>
-#include <QtGui/qevent.h>
 #include "gui/Texts.hpp"
 #include "gui/texts/AboutTexts.hpp"
 
-#include <iostream>
+#include <QtWidgets/qboxlayout.h>
+#include <QtGui/qevent.h>
 
 MainToolBar::MainToolBar(IDataDispatcher& dataDispatcher, float guiScale)
 	: QToolBar()

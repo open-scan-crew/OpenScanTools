@@ -1,10 +1,12 @@
 #include "gui/toolBars/ToolBarFOV.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataRendering.h"
-#include <QDoubleSpinBox>
-#include "utils/math/trigo.h"
+
+#include "utils/math/basic_define.h"
 
 #include "models/graph/CameraNode.h"
+
+#include <QtWidgets/QSpinBox.h>
 
 ToolBarFOV::ToolBarFOV(IDataDispatcher &dataDispatcher, QWidget *parent, float guiScale) 
 	: QWidget(parent)

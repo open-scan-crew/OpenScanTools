@@ -1,7 +1,6 @@
 #include "gui/toolBars/ToolBarBeamDetection.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "controller/controls/ControlMeasure.h"
-#include "controller/controls/ControlFunction.h"
 #include <QtWidgets/qtoolbutton.h>
 
 ToolBarBeamDetection::ToolBarBeamDetection(IDataDispatcher& dataDispatcher, QWidget* parent, float guiScale)

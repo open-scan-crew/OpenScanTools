@@ -1,14 +1,14 @@
 #ifndef TOOLBAR_RAMP_DEFAULT_VALUES_H
 #define TOOLBAR_RAMP_DEFAULT_VALUES_H
 
-#include <QtWidgets/qwidget.h>
-
 #include "ui_toolbar_ramp_default_values.h"
 
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
 
-#include "models/OpenScanToolsModelEssentials.h"
+#include <unordered_map>
+
+#include <QtWidgets/qwidget.h>
 
 class ToolBarRampDefaultValues : public QWidget, public IPanel
 {

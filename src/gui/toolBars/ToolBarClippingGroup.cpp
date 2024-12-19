@@ -1,9 +1,8 @@
-#include <QtWidgets/QPushButton.h>
-//#include <QtGui/QScreen>
+#include "gui/toolBars/ToolBarClippingGroup.h"
 
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataClipping.h"
-#include "gui/toolBars/ToolBarClippingGroup.h"
+
 #include "controller/controls/ControlFunctionClipping.h"
 #include "controller/controls/ControlFunction.h"
 #include "gui/Texts.hpp"

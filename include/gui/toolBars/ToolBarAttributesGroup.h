@@ -6,7 +6,8 @@
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
 #include "utils/Color32.hpp"
-#include "models/OpenScanToolsModelEssentials.h"
+//#include "models/OpenScanToolsModelEssentials.h"
+#include "utils/safe_ptr.h"
 #include "models/application/List.h"
 
 class Controller;

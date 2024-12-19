@@ -2,6 +2,7 @@
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataRendering.h"
 #include "gui/IDataDispatcher.h"
+#include "controller/controls/ControlClippingEdition.h"
 
 #define _USE_MATH_DEFINES
 //#include <math.h>

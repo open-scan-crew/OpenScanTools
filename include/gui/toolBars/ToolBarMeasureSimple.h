@@ -5,7 +5,8 @@
 #include "ui_toolbar_measuressimple.h"
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
+
+#include <unordered_map>
 
 class ToolBarMeasureSimple;
 

@@ -1,23 +1,13 @@
-#include <QtWidgets/qwidget.h>
-#include <QtGui/QScreen>
-
-#include "gui/Dialog/ListListDialog.h"
 #include "gui/toolBars/ToolBarTemplateGroup.h"
-#include "gui/widgets/CustomWidgets/ColorPicker.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataTag.h"
 #include "gui/GuiData/GuiDataTemplate.h"
 #include "controller/controls/ControlFunctionTag.h"
-#include "controller/controls/ControlFunction.h"
 #include "controller/controls/ControlCreationAttributesEdition.h"
-#include "controller/controls/ControlUserList.h"
 #include "services/MarkerDefinitions.hpp"
-#include "gui/widgets/CustomWidgets/GlobalColorPicker.h"
-
-#include "utils/Logger.h"
-#include "utils/ProjectStringSets.hpp"
 
 #include "models/application/Ids.hpp"
+#include <QtWidgets/qwidget.h>
 
 ToolBarTemplateGroup::ToolBarTemplateGroup(IDataDispatcher &dataDispatcher, QWidget *parent, const float& guiScale)
 	: QWidget(parent)

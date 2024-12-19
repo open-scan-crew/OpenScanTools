@@ -1,7 +1,7 @@
 #ifndef TOOLBAR_ANIMATION_H
 #define TOOLBAR_ANIMATION_H
 
-#include <QWidget>
+#include <QtWidgets/qwidget.h>
 
 #include "ui_toolbar_animationgroup.h"
 #include "gui/IPanel.h"

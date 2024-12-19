@@ -6,7 +6,6 @@
 #include "ui_toolbar_meshobjectgroup.h"
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
-#include "utils/Color32.hpp"
 
 class ToolBarMeshObjectGroup;
 

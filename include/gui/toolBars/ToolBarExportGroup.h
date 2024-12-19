@@ -7,7 +7,6 @@
 #include "gui/IDataDispatcher.h"
 
 #include "gui/Dialog/DialogExportPrimitives.h"
-#include "gui/Dialog/DialogExportSubProject.h"
 
 class ToolBarExportGroup;
 

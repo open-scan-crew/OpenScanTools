@@ -1,13 +1,11 @@
-#ifndef TOOLBAR_CLIPPINGPARAMETERS_H
-#define TOOLBAR_CLIPPINGPARAMETERS_H
+#ifndef TOOLBAR_CLIPPING_PARAMETERS_H
+#define TOOLBAR_CLIPPING_PARAMETERS_H
 
-#include <QtWidgets/qwidget.h>
-#include "controller/controls/ControlClippingEdition.h"
+#include "models/data/Clipping/ClippingTypes.h"
 #include "ui_toolbar_clippingParameters.h"
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
-#include "gui/UnitConverter.h"
-#include "utils/Color32.hpp"
+#include <QtWidgets/qwidget.h>
 
 class ToolBarClippingParameters;
 
@@ -43,5 +41,4 @@ private:
 
 };
 
-#endif // TOOLBAR_CLIPPINGPARAMETERS_H
-
+#endif // TOOLBAR_CLIPPING_PARAMETERS_H

@@ -5,7 +5,6 @@
 #include "ui_toolbar_pcobjectgroup.h"
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
-#include "utils/Color32.hpp"
 
 #include "gui/Dialog/DialogImportPCObject.h"
 

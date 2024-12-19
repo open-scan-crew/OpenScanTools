@@ -1,17 +1,12 @@
-#include <QtWidgets/QPushButton.h>
-#include <QtGui/QScreen>
 #include "controller/controls/ControlPCObject.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataClipping.h"
 #include "gui/GuiData/GuiDataIO.h"
 #include "gui/toolBars/ToolBarPointCloudObjectGroup.h"
-#include "controller/controls/ControlFunctionClipping.h"
 #include "controller/controls/ControlFunction.h"
 
 #include "gui/Texts.hpp"
-#include "gui/texts/FileTypeTexts.hpp"
-#include "io/FileUtils.h"
-#include <QtWidgets/qfiledialog.h>
+
 #include <QtCore/qstandardpaths.h>
 
 ToolBarPointCloudObjectGroup::ToolBarPointCloudObjectGroup(IDataDispatcher& dataDispatcher, QWidget* parent, float guiScale)

@@ -1,11 +1,11 @@
 #include "gui/toolBars/ToolBarSphereGroup.h"
 #include "gui/Dialog/StandardListDialog.h"
-#include "controller/controls/ControlFunction.h"
+//#include "controller/controls/ControlFunction.h"
 #include "controller/controls/ControlMeasure.h"
 #include "controller/controls/ControlStandards.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataList.h"
-#include <QtWidgets/qpushbutton.h>
+//#include <QtWidgets/qpushbutton.h>
 
 ToolBarSphereGroup::ToolBarSphereGroup(IDataDispatcher& dataDispatcher, QWidget* parent, float scale)
 	: QWidget(parent)

@@ -3,9 +3,7 @@
 
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
-#include "gui/dialog/MarkerIconSelectionDialog.h"
 #include "models/application/TagTemplate.h"
-#include "utils/Color32.hpp"
 
 #include <QtWidgets/qwidget.h>
 
