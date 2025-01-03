@@ -1,17 +1,13 @@
 Prerequisites for building the project OpenScanTools in Debug, Release
 
-Install Qt
+Install Qt 5
 ==============================================================================
 
 * Download the installer at https://www.qt.io/download-qt-installer
-* Minimum install :
-  * Qt 5.15.2
-    -> MSVC 2019 64-bit
-  * Developer and Designer Tools
-    -> Qt Creator 13.0.0
-    -> Debugging Tools for Windows
-
-* Add the path "<qt_install_dir>/bin/" to your environment variable "PATH"
+* Install version 5.15.2 and the corresponding binaries for your developpement environment (i.e. MSVC 2019 64-bit)
+* /!\ Qt 6 is not supported.
+* source code and optional Qt modules are not needed (it can save a lot of space)
+* Allow for executing binaries by adding the current path to your "PATH" environment variable: <qt_install_dir>5.15.2\msvc2019_64\bin\
 
 Install the Vulkan SDK
 ==============================================================================
@@ -38,8 +34,6 @@ You can find it in Tools->Extensions and Updates->Qt Visual Stutio Tools.
 Add the path where Qt is installed on your machine in:
 
 * Qt VS Tools->Qt Options->Qt Versions->Add (i.e. `C:\Qt\5.12.x\msvc2017_64`)
-
-WARNING : The version 2.6.0.7 is stable but some bugs have been observed after an update. It is recommended to disable the automatic update of this plugin.
 
 Generate doc:
 ==============================================================================
