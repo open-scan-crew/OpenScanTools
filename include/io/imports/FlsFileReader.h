@@ -3,7 +3,7 @@
 
 #include "io/imports/IScanFileReader.h"
 
-#pragma comment(linker, "\"/manifestdependency:type='win32' name='FARO.LS' version='1.1.904.0' processorArchitecture='amd64' publicKeyToken='1d23f5635ba800ab'\"")
+//#pragma comment(linker, "\"/manifestdependency:type='win32' name='FARO.LS' version='1.1.904.0' processorArchitecture='amd64' publicKeyToken='1d23f5635ba800ab'\"")
 
 #include <string>
 
