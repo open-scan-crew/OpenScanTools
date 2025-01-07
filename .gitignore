@@ -3,12 +3,9 @@
 build/
 scans/
 lfs/
-projects/ScanSap_Linux/VisualGDB/
-enc_temp_folder/
 hooks/
 
 imgui.ini
-*.user
 *.sdf
 *.suo
 *.ick
