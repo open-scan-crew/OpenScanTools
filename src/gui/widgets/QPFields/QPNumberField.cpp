@@ -1,7 +1,6 @@
-#include <exception>
-#include <cctype>
-
 #include "gui/widgets/QPFields/QPNumberField.h"
+
+#include <cctype>
 
 QPNumberField::QPNumberField(const sma::tField& field, QWidget* parent)
 	: AQPField(field, parent)

@@ -3,7 +3,6 @@
 
 #include <QtWidgets/qwidget.h>
 #include "gui/IDataDispatcher.h"
-#include "controller/controls/IControl.h"
 
 class EventManagerViewport : public QObject
 {

@@ -3,18 +3,10 @@
 
 #include "gui/widgets/APropertyGeneral.h"
 #include "ui_Property_Measure_BeamBending.h"
-#include "gui/UnitConverter.h"
-
-#include <utility>
-#include <vector>
 
 class Controller;
 
 class BeamBendingMeasureNode;
-
-class PropertyBeamBendingMeasure;
-
-typedef void (PropertyBeamBendingMeasure::* PropertyBeamBendingMethod)(IGuiData*);
 
 class PropertyBeamBendingMeasure : public APropertyGeneral
 {
@@ -33,6 +25,7 @@ private:
 
 private:
 	Ui::property_BeamBendingMeasure m_ui;
+	typedef void (PropertyBeamBendingMeasure::* PropertyBeamBendingMethod)(IGuiData*);
 	std::unordered_map<guiDType, PropertyBeamBendingMethod> m_methods;
 
 	SafePtr<BeamBendingMeasureNode> m_measure;

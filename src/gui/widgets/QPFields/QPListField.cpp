@@ -1,5 +1,4 @@
 #include "gui/widgets/QPFields/QPListField.h"
-#include "gui/IPanel.h"
 #include "utils/Logger.h"
 
 QPListField::QPListField(const sma::tField& field, QWidget* parent)

@@ -1,10 +1,11 @@
 #ifndef QPSTRING_FIELD_H_
 #define QPSTRING_FIELD_H_
 
-#include <QtWidgets/qlineedit.h>
-
 #include "gui/widgets/QPFields/AQPField.h"
-#include "gui/IPanel.h"
+
+#include <QtWidgets/qlineedit.h>
+#include <QtWidgets/qlabel.h>
+#include <QtWidgets/qboxlayout.h>
 
 class QPStringField : public AQPField
 {

@@ -1,9 +1,6 @@
 #include "gui/widgets/PropertyBeamBendingMeasure.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
-#include "gui/GuiData/GuiDataRendering.h"
-#include "controller/controls/ControlDataEdition.h"
+
 #include "models/graph/BeamBendingMeasureNode.h"
-#include "gui/widgets/FocusWatcher.h"
 #include "gui/Texts.hpp"
 
 #include "controller/Controller.h"

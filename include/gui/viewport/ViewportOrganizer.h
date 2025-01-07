@@ -1,21 +1,18 @@
 #ifndef VIEWPORT_ORGANIZER_H
 #define VIEWPORT_ORGANIZER_H
 
-#include <QtWidgets/qwidget.h>
-#include <QtWidgets/qgridlayout.h>
-#include <QtWidgets/QShortcut>
-#include <glm/glm.hpp>
-#include "models/pointCloud/TLS.h"
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
 
-#include "models/OpenScanToolsModelEssentials.h"
+#include "utils/safe_ptr.h"
 
-#include <vector>
+#include <QtWidgets/qwidget.h>
+#include <QtWidgets/qgridlayout.h>
+#include <QtWidgets/QShortcut.h>
+#include <glm/glm.hpp>
 
 class IDataDispatcher;
 class IRenderingEngine;
-class IPanel;
 class IGuiData;
 class VulkanViewport;
 class QuickBarNavigation;
@@ -88,7 +85,6 @@ private:
     void onMousePointAction(bool examineAction);
 
 private:
-
     IDataDispatcher& m_dataDispatcher;
     ShortcutSystem& m_shortSys;
     std::unordered_map<guiDType, GuiDataFunction> m_functions;

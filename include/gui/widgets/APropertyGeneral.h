@@ -3,9 +3,8 @@
 
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
-#include "models/LicenceTypes.h"
 #include <QtWidgets/qwidget.h>
-#include "models/OpenScanToolsModelEssentials.h"
+#include "utils/safe_ptr.h"
 
 class AGraphNode;
 

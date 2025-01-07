@@ -1,10 +1,11 @@
 #ifndef QPHLINK_FIELD_H_
 #define QPHLINK_FIELD_H_
 
-#include <QtWidgets/qlineedit.h>
-
 #include "gui/widgets/QPFields/AQPField.h"
 
+#include <QtWidgets/qlineedit.h>
+#include <QtWidgets/qlabel.h>
+#include <QtWidgets/qboxlayout.h>
 
 class QPHyperLinkField : public AQPField
 {

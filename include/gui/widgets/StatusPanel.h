@@ -3,17 +3,12 @@
 
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
-#include "models/OpenScanToolsModelEssentials.h"
-#include "gui/UnitConverter.h"
+#include "gui/UnitUsage.h"
 
 #include "glm/glm.hpp"
 
-#include <QtWidgets/QStatusBar>
+#include <QtWidgets/qstatusbar.h>
 #include <QtWidgets/qlabel.h>
-
-class StatusPanel;
-
-typedef void (StatusPanel::*statusPanelMethod)(IGuiData*);
 
 class StatusPanel : public QStatusBar, public IPanel
 {
@@ -38,6 +33,7 @@ public slots:
 
 private:
     IDataDispatcher &m_dataDispatcher;
+	typedef void (StatusPanel::*statusPanelMethod)(IGuiData*);
 	std::unordered_map<guiDType, statusPanelMethod> methods;
 	UnitUsage m_valueDisplayParameters;
 

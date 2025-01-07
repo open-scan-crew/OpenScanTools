@@ -1,9 +1,11 @@
-#include <QtWidgets/qlineedit.h>
+#ifndef QPNUMBER_FIELD_H_
+#define QPNUMBER_FIELD_H_
 
 #include "gui/widgets/QPFields/AQPField.h"
 
-#ifndef QPNUMBER_FIELD_H_
-#define QPNUMBER_FIELD_H_
+#include <QtWidgets/qlineedit.h>
+#include <QtWidgets/qlabel.h>
+#include <QtWidgets/qboxlayout.h>
 
 class QPNumberField : public AQPField
 {

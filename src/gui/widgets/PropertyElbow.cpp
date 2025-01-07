@@ -1,26 +1,13 @@
 #include "gui/widgets/PropertyElbow.h"
 #include "gui/widgets/CustomWidgets/GenericPropertiesHead.h"
 #include "gui/widgets/CustomWidgets/GenericPropertiesFeet.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
-#include "controller/controls/ControlClippingEdition.h"
-#include "controller/controls/ControlCylinderEdition.h"
-#include "controller/controls/ControlObject3DEdition.h"
 #include "models/3d/NodeFunctions.h"
-#include "gui/widgets/FocusWatcher.h"
-#include "gui/GuiData/GuiData3dObjects.h"
-#include "gui/GuiData/GuiDataList.h"
-#include "utils/math/trigo.h"
-#include <QRegExpValidator>
-#include <QDoubleValidator>
-#include <QIntValidator>
-#include <QtConcurrent/qtconcurrentrun.h>
-#include <cctype>
-
 #include "models/graph/TorusNode.h"
+#include "utils/math/trigo.h"
+
 #include "controller/Controller.h"
 
 #include <glm/gtx/quaternion.hpp>
-#include <glm/gtc/quaternion.hpp>
 
 PropertyElbow::PropertyElbow(Controller& controller, QWidget *parent, float guiScale)
 	: APropertyGeneral(controller.getDataDispatcher(), parent)

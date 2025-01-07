@@ -5,7 +5,8 @@
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
 #include "ui_Property_Clipping_Settings.h"
-#include "gui/UnitConverter.h"
+
+#include <glm/glm.hpp>
 
 class PropertyClippingSettings : public QWidget, public IPanel
 {

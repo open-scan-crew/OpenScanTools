@@ -4,7 +4,6 @@
 #include "gui/widgets/QPFields/QPNumberField.h"
 #include "gui/widgets/QPFields/QPHyperLinkField.h"
 #include "gui/widgets/QPFields/QPListField.h"
-#include "gui/IPanel.h"
 #include "utils/Logger.h"
 
 #include "magic_enum/magic_enum.hpp"

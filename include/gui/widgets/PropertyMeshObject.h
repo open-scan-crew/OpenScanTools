@@ -4,21 +4,11 @@
 #include "gui/widgets/APropertyGeneral.h"
 #include "ui_Property_MeshObject.h"
 
-
-#include <qfuturewatcher.h>
-
-#include <utility>
-#include <vector>
-
 class Controller;
 
 class MeshObjectNode;
 
 enum class ManipulationMode;
-
-class PropertyMeshObject;
-
-typedef void (PropertyMeshObject::* PropertyMeshObjectMethod)(IGuiData*);
 
 class PropertyMeshObject : public APropertyGeneral
 {
@@ -50,6 +40,7 @@ public slots:
 
 private:
 	Ui::PropertyMeshObject m_ui;
+	typedef void (PropertyMeshObject::* PropertyMeshObjectMethod)(IGuiData*);
 	std::unordered_map<guiDType, PropertyMeshObjectMethod> m_meshObjMethods;
 
 	SafePtr<MeshObjectNode> m_object;

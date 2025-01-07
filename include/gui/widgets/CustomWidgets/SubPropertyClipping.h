@@ -1,11 +1,10 @@
 #ifndef SUB_PROPERTY_CLIPPING_H_
 #define SUB_PROPERTY_CLIPPING_H_
 
-#include "models/OpenScanToolsModelEssentials.h"
 #include "ui_SubProperty_Clipping.h"
 #include "gui/IDataDispatcher.h"
 #include "models/Types.hpp"
-#include "models/LicenceTypes.h"
+#include "utils/safe_ptr.h"
 
 class Controller;
 class AClippingNode;

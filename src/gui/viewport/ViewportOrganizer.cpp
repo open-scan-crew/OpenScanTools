@@ -1,7 +1,6 @@
 #include "gui/viewport/ViewportOrganizer.h"
 #include "gui/viewport/VulkanViewport.h"
 #include "gui/viewport/QuickBarNavigation.h"
-#include "gui/IDataDispatcher.h"
 #include "gui/ShortcutSystem.h"
 #include "pointCloudEngine/IRenderingEngine.h"
 #include "models/graph/CameraNode.h"
@@ -12,7 +11,6 @@
 #include "gui/GuiData/GuiDataMessages.h"
 #include "controller/controls/ControlFunction.h"
 #include "controller/controls/ControlViewport.h"
-#include "controller/controls/ControlIO.h"
 #include "controller/messages/CameraMessage.h"
 #include "utils/Logger.h"
 

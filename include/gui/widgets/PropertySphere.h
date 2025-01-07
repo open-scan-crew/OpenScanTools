@@ -8,10 +8,6 @@ class TransformationModule;
 class SphereNode;
 class Controller;
 
-class PropertySphere;
-
-typedef void (PropertySphere::* PropertySphereMethod)(IGuiData*);
-
 class PropertySphere : public APropertyGeneral
 {
 	Q_OBJECT
@@ -36,6 +32,7 @@ public slots:
 
 private:
 	Ui::PropertySphere m_ui;
+	typedef void (PropertySphere::* PropertySphereMethod)(IGuiData*);
 	std::unordered_map<guiDType, PropertySphereMethod> m_sphereMethods;
 
 	SafePtr<SphereNode> m_sphere;

@@ -1,7 +1,6 @@
 #include "gui/widgets/PropertyUserOrientation.h"
 
 #include "gui/GuiData/GuiDataGeneralProject.h"
-#include "gui/GuiData/GuiDataRendering.h"
 #include "gui/GuiData/GuiDataMeasure.h"
 #include "gui/GuiData/GuiDataUserOrientation.h"
 
@@ -9,13 +8,10 @@
 #include "controller/controls/ControlMeasure.h"
 #include "gui/Texts.hpp"
 
-#include <cctype>
-#include <glm/gtx/vector_angle.hpp>
-#include "utils/math/trigo.h"
 #include "utils/Logger.h"
 
-#include <QMessageBox>
-#include <QtGui/QHideEvent>
+#include <QtWidgets/qmessagebox.h>
+#include <QtGui/qevent.h>
 
 PropertyUserOrientation::PropertyUserOrientation(IDataDispatcher& dataDispatcher, QWidget* parent, float guiScale)
 	: APropertyGeneral(dataDispatcher, parent)

@@ -1,9 +1,10 @@
-#include <QtGui/qstandarditemmodel.h>
-#include "models/application/TagTemplate.h"
-#include "models/OpenScanToolsModelEssentials.h"
 
 #ifndef TEMPLATE_NODE_H_
 #define TEMPLATE_NODE_H_
+
+#include <QtGui/qstandarditemmodel.h>
+#include "models/application/TagTemplate.h"
+#include "utils/safe_ptr.h"
 
 class TemplateListNode : public QStandardItem
 {

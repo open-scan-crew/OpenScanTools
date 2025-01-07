@@ -1,11 +1,13 @@
 #ifndef PICKING_MANAGER_H
 #define PICKING_MANAGER_H
 
-#include <vector>
-#include <unordered_set>
-#include "glm/glm.hpp"
 #include "vulkan/TlFramebuffer.h"
 #include "models/OpenScanToolsModelEssentials.h"
+
+#include "glm/glm.hpp"
+
+#include <vector>
+#include <unordered_set>
 
 class PickingManager
 {

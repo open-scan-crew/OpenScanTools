@@ -3,8 +3,6 @@
 #include "controller/controls/ControlObject3DEdition.h"
 #include "gui/widgets/CustomWidgets/GenericPropertiesHead.h"
 #include "gui/widgets/CustomWidgets/GenericPropertiesFeet.h"
-#include "controller/controls/ControlDataEdition.h"
-#include "gui/widgets/FocusWatcher.h"
 #include "models/3d/NodeFunctions.h"
 #include "utils/math/trigo.h"
 

@@ -2,24 +2,16 @@
 #include "gui/widgets/CustomWidgets/GenericPropertiesHead.h"
 #include "gui/widgets/CustomWidgets/GenericPropertiesFeet.h"
 #include "controller/Controller.h"
-#include "controller/controls/ControlClippingEdition.h"
 #include "controller/controls/ControlCylinderEdition.h"
-#include "controller/controls/ControlObject3DEdition.h"
-#include "gui/widgets/FocusWatcher.h"
 #include "gui/GuiData/GuiDataList.h"
-#include "utils/math/trigo.h"
+#include "utils/math/basic_define.h"
 #include "models/3d/NodeFunctions.h"
 
-#include <QRegExpValidator>
-#include <QDoubleValidator>
-#include <QIntValidator>
-#include <QtConcurrent/qtconcurrentrun.h>
-#include <cctype>
-
 #include <glm/gtx/quaternion.hpp>
-#include <glm/gtc/quaternion.hpp>
 
 #include "models/graph/CylinderNode.h"
+
+#include <cmath>
 
 PropertyPipe::PropertyPipe(Controller& controller, QWidget *parent, float guiScale)
 	: APropertyGeneral(controller.getDataDispatcher(), parent)

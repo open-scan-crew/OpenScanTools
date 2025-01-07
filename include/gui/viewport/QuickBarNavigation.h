@@ -5,10 +5,11 @@
 #include "gui/IPanel.h"
 #include "pointCloudEngine/RenderingTypes.h"
 
-#include "crossguid/Guid.hpp"
-#include <qwidget.h>
+#include "utils/safe_ptr.h"
+
 #include "ui_quickbar_navigation.h"
-#include "models/OpenScanToolsModelEssentials.h"
+
+#include <qwidget.h>
 
 class CameraNode;
 

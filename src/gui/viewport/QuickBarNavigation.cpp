@@ -12,8 +12,6 @@
 
 #include "controller/controls/ControlViewport.h"
 
-#include "controller/controls/ControlViewport.h"
-#include "controller/controls/ControlFunction.h"
 
 QuickBarNavigation::QuickBarNavigation(QWidget* parent, IDataDispatcher& dataDispatcher, float guiScale)
     : QWidget(parent)

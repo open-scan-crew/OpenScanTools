@@ -1,8 +1,7 @@
-#include "gui/widgets/QPFields/AQPField.h"
-//#include "gui/widgets/QPFields/TemplatePropertiesPanel.h"
-
 #ifndef QP_FACTORY_H_
 #define QP_FACTORY_H_
+
+#include "gui/widgets/QPFields/AQPField.h"
 
 class QPFactory
 {

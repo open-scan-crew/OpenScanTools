@@ -1,6 +1,5 @@
 #include "gui/widgets/CustomWidgets/qdoubleedit.h"
 #include <QtGui/qevent.h>
-#include "magic_enum/magic_enum.hpp"
 #include "gui/GuiData/GuiDataRendering.h"
 #include "gui\UnitConverter.h"
 

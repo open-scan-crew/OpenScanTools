@@ -1,9 +1,6 @@
 #include "gui/widgets/PropertyPolylineMeasure.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataRendering.h"
 #include "controller/Controller.h"
-#include "controller/controls/ControlDataEdition.h"
-#include "controller/controls/ControlClippingEdition.h"
 #include "gui/Texts.hpp"
 #include "gui/UnitConverter.h"
 
@@ -171,12 +168,11 @@ bool PropertyPolylineMeasure::updateMeasure()
 
 void PropertyPolylineMeasure::updateUI()
 {
-	m_ui.AreaLabelSquaredBracket->setText('(' + unit_converter::getUnitText(m_unitUsage.distanceUnit) + '²' + ')');
+	m_ui.AreaLabelSquaredBracket->setText('(' + unit_converter::getUnitText(m_unitUsage.distanceUnit) + "²" + ')');
 	m_ui.SegmentsUnitWithBracketLabel->setText('(' + unit_converter::getUnitText(m_unitUsage.distanceUnit) + ')');
 	m_ui.CoordinatesUnitWithBracketLabel->setText('(' + unit_converter::getUnitText(m_unitUsage.distanceUnit) + ')');
 
 	updateMeasure();
-	
 }
 
 void PropertyPolylineMeasure::resizeEvent(QResizeEvent* event)

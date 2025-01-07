@@ -1,11 +1,10 @@
 #include "gui/widgets/TreeNodeSystem/TreeModel.h"
 
-#include <iostream>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QStringList>
-#include <QtCore/QMimeData>
-#include <QtCore/QIODevice>
-#include <QtCore/QDataStream>
+#include <QtCore/qcoreapplication.h>
+#include <QtCore/qstringlist.h>
+#include <QtCore/qmimedata.h>
+#include <QtCore/qiodevice.h>
+#include <QtCore/qdatastream.h>
 
 TreeModel::TreeModel(int row, int columns, QObject *parent)
 	: QStandardItemModel(row, columns, parent)

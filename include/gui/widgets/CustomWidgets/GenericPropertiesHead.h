@@ -2,10 +2,10 @@
 #define GENERIC_PROPERTIES_HEAD_H_
 
 #include "ui_widget_generic_properties_head.h"
-#include "gui/IPanel.h"
+//#include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
 #include "controller/ControllerContext.h"
-#include "models/application/List.h"
+//#include "models/application/List.h"
 
 #include "models/graph/AObjectNode.h"
 

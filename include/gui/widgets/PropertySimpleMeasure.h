@@ -8,10 +8,6 @@ class Controller;
 
 class SimpleMeasureNode;
 
-class PropertySimpleMeasure;
-
-typedef void (PropertySimpleMeasure::* PropertySimpleMethod)(IGuiData*);
-
 class PropertySimpleMeasure : public APropertyGeneral
 {
 	Q_OBJECT
@@ -28,6 +24,7 @@ private:
 
 private:
 	Ui::property_SimpleMeasure m_ui;
+	typedef void (PropertySimpleMeasure::* PropertySimpleMethod)(IGuiData*);
 	std::unordered_map<guiDType, PropertySimpleMethod> m_simpleMethods;
 
 	SafePtr<SimpleMeasureNode> m_measure;

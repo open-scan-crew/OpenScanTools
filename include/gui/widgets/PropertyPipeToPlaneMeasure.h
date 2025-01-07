@@ -8,10 +8,6 @@ class Controller;
 
 class PipeToPlaneMeasureNode;
 
-class PropertyPipeToPlaneMeasure;
-
-typedef void (PropertyPipeToPlaneMeasure::* PropertyPipeToPlaneMethod)(IGuiData*);
-
 class PropertyPipeToPlaneMeasure : public APropertyGeneral
 {
 	Q_OBJECT
@@ -29,6 +25,7 @@ private:
 
 private:
 	Ui::property_PipeToPlaneMeasure m_ui;
+	typedef void (PropertyPipeToPlaneMeasure::* PropertyPipeToPlaneMethod)(IGuiData*);
 	std::unordered_map<guiDType, PropertyPipeToPlaneMethod> m_measureMethods;
 
 	SafePtr<PipeToPlaneMeasureNode> m_measure;

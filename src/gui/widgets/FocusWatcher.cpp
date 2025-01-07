@@ -1,10 +1,9 @@
 #include "gui/widgets/FocusWatcher.h"
-#include <QtCore/QEvent>
-#include <QFocusEvent>
-#include <QtWidgets/qfiledialog.h>
+#include <QtCore/qcoreevent.h>
+#include <QtGui/qevent.h>
+#include <QtWidgets/qdialog.h>
 #include <QtWidgets/qlineedit.h>
-#include <QtWidgets/qplaintextedit.h>
-#include "gui/Dialog/ADialog.h"
+
 
 static QObject* activeObj = nullptr;
 

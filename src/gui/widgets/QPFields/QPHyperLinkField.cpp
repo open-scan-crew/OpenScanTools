@@ -1,6 +1,6 @@
-#include <exception>
-#include <QUrl>
 #include "gui/widgets/QPFields/QPHyperLinkField.h"
+
+#include <QtCore/qurl.h>
 
 QPHyperLinkField::QPHyperLinkField(const sma::tField& field, QWidget* parent)
 	: AQPField(field, parent)

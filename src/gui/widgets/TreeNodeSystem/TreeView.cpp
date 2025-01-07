@@ -1,8 +1,5 @@
 #include "gui/widgets/TreeNodeSystem/TreeView.h"
-#include "gui/widgets/TreeNodeSystem/TreeModel.h"
-#include <QtWidgets/QHeaderView>
-#include <QtGui/QDrag>
-#include <QtWidgets/QGraphicsEffect>
+#include <QtWidgets/qheaderview.h>
 
 TreeView::TreeView(QWidget *parent) : QTreeView(parent)
 {

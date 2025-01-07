@@ -7,7 +7,8 @@
 #include <QtWidgets/qwidget.h>
 #include "ui_MultiProperty.h"
 #include <unordered_set>
-#include "models/OpenScanToolsModelEssentials.h"
+#include "utils/safe_ptr.h"
+
 #include "gui/Dialog/HyperlinkAddDialog.h"
 
 #include "models/graph/AObjectNode.h"

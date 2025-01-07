@@ -2,19 +2,11 @@
 #include "gui/widgets/CustomWidgets/GenericPropertiesHead.h"
 #include "gui/widgets/CustomWidgets/GenericPropertiesFeet.h"
 #include "controller/Controller.h"
-#include "controller/controls/ControlClippingEdition.h"
 #include "controller/controls/ControlObject3DEdition.h"
 #include "models/3d/NodeFunctions.h"
-#include "gui/GuiData/GuiDataList.h"
-#include "utils/math/trigo.h"
-#include <QRegExpValidator>
-#include <QDoubleValidator>
-#include <QIntValidator>
-#include <QtConcurrent/qtconcurrentrun.h>
-#include <cctype>
 
-#include <glm/gtx/quaternion.hpp>
-#include <glm/gtc/quaternion.hpp>
+//#include <glm/gtx/quaternion.hpp>
+
 
 #include "models/graph/SphereNode.h"
 

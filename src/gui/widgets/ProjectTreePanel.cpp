@@ -1,40 +1,26 @@
-#include "gui/texts/TreePanelTexts.hpp"
-
 #include "gui/widgets/ProjectTreePanel.h"
-
-#include <QtWidgets/QScrollBar>
-#include <QtWidgets/qmenu.h>
-#include <QtGui/QDrag>
-#include <QtGui/QDragLeaveEvent>
 
 #include "controller/controls/ControlTree.h"
 #include "controller/controls/ControlSpecial.h"
 #include "controller/controls/ControlExportPC.h"
-#include "controller/controls/ControlFunctionPiping.h"
+#include "controller/controls/ControlClippingEdition.h"
 
 #include "gui/GuiData/GuiDataGeneralProject.h"
-//#include "gui/GuiData/GuiDataRendering.h"
 #include "gui/GuiData/GuiData3dObjects.h"
-#include "utils/Logger.h"
-
+#include "gui/GuiData/GuiDataTree.h"
 #include "gui/widgets/TreeNodeSystem/TreeNode.h"
-#include "gui/Texts.hpp"
+#include "gui/widgets/TreeNodeSystem/TreeNodeFactory.h"
+#include "gui/texts/TreePanelTexts.hpp"
 
-#include "models/graph/ViewPointNode.h"
 #include "models/graph/ClusterNode.h"
-#include "models/graph/ScanNode.h"
-#include "models/graph/PointNode.h"
-#include "models/graph/CylinderNode.h"
-#include "models/graph/SphereNode.h"
-#include "models/graph/BoxNode.h"
-#include "models/graph/MeshObjectNode.h"
-#include "models/graph/ScanObjectNode.h"
-#include "models/graph/SimpleMeasureNode.h"
-#include "models/graph/PolylineMeasureNode.h"
-
+#include "models/graph/APointCloudNode.h"
 #include "models/graph/GraphManager.h"
 
-#include "controller/controls/ControlClippingEdition.h"
+#include "utils/Logger.h"
+
+#include <QtWidgets/qscrollbar.h>
+#include <QtWidgets/qmenu.h>
+#include <QtGui/qevent.h>
 
 #include "magic_enum/magic_enum.hpp"
 
@@ -104,7 +90,6 @@ void ProjectTreePanel::actualizeNodes(IGuiData* data)
 {
 	if (m_model == nullptr)
 		return;
-
 
 	GuiDataTreeActualizeNodes* actualizeNodes = static_cast<GuiDataTreeActualizeNodes*>(data);
 	std::chrono::steady_clock::time_point tp_start = std::chrono::steady_clock::now();

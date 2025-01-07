@@ -1,8 +1,8 @@
-#include <QtGui/qstandarditemmodel.h>
-#include "models/application/TagTemplate.h"
-
 #ifndef TEMPFIELD_NODE_H_
 #define TEMPFIELD_NODE_H_
+
+#include <QtGui/qstandarditemmodel.h>
+#include "models/application/TagTemplate.h"
 
 class TempFieldNode : public QStandardItem
 {

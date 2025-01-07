@@ -8,10 +8,6 @@ class Controller;
 
 class PointToPlaneMeasureNode;
 
-class PropertyPointToPlanMeasure;
-
-typedef void (PropertyPointToPlanMeasure::* PropertyPointToPlanMethod)(IGuiData*);
-
 class PropertyPointToPlanMeasure : public APropertyGeneral
 {
 	Q_OBJECT
@@ -28,6 +24,7 @@ private:
 
 private:
 	Ui::property_PointToPlanMeasure m_ui;
+	typedef void (PropertyPointToPlanMeasure::* PropertyPointToPlanMethod)(IGuiData*);
 	std::unordered_map<guiDType, PropertyPointToPlanMethod> m_measureMethods;
 
 	SafePtr<PointToPlaneMeasureNode> m_measure;

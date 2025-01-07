@@ -8,10 +8,6 @@ class Controller;
 
 class PointNode;
 
-class PropertyPoint;
-
-typedef void (PropertyPoint::* PropertyPointMethod)(IGuiData*);
-
 class PropertyPoint : public APropertyGeneral
 {
 	Q_OBJECT
@@ -39,6 +35,7 @@ public slots:
 
 private:
 	Ui::property_Point m_ui;
+	typedef void (PropertyPoint::* PropertyPointMethod)(IGuiData*);
 	std::unordered_map<guiDType, PropertyPointMethod> m_measureMethods;
 
 	SafePtr<PointNode> m_point;

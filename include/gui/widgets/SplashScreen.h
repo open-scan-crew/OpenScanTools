@@ -1,8 +1,8 @@
 #ifndef SPLASH_SCREEN_H
 #define SPLASH_SCREEN_H
 
-#include <QtWidgets/QSplashScreen>
-#include <QtGui/QPainter>
+#include <QtWidgets/qsplashscreen.h>
+#include <QtGui/qpainter.h>
 
 class SplashScreen : public QSplashScreen
 {

@@ -1,15 +1,12 @@
 #include "gui/widgets/PropertiesClusterPanel.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
 #include "utils/QtLogStream.hpp"
 
-#include "gui/widgets/FocusWatcher.h"
 #include "controller/Controller.h"
 #include "controller/controls/ControlDataEdition.h"
 
 #include "models/graph/ClusterNode.h"
 #include "models/3d/NodeFunctions.h"
-
-#include <QtWidgets/qgridlayout.h>
+#include "models/application/author.h"
 
 PropertiesClusterPanel::PropertiesClusterPanel(const Controller& controller, QWidget* parent)
 	: APropertyGeneral(controller.getDataDispatcher(), parent)

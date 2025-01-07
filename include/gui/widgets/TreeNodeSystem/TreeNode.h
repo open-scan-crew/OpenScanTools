@@ -1,11 +1,11 @@
 #ifndef TREE_NODE_H
 #define TREE_NODE_H
+#include "models/Types.hpp"
+#include "utils/safe_ptr.h"
 
 #include <QtCore/qlist.h>
 #include <QtCore/qvariant.h>
 #include <QtGui/qstandarditemmodel.h>
-#include "models/OpenScanToolsModelEssentials.h"
-#include "models/Types.hpp"
 
 class AGraphNode;
 class IDataDispatcher;

@@ -4,9 +4,7 @@
 #include "gui/widgets/APropertyGeneral.h"
 #include "ui_Property_Pipe.h"
 
-#include <qfuturewatcher.h>
 #include "models/data/Piping/StandardRadiusData.h"
-#include <utility>
 #include <vector>
 
 class Controller;
@@ -15,11 +13,6 @@ class CylinderNode;
 class TransformationModule;
 
 enum class ManipulationMode;
-
-
-class PropertyPipe;
-
-typedef void (PropertyPipe::* PropertyPipeMethod)(IGuiData*);
 
 class PropertyPipe : public APropertyGeneral
 {
@@ -57,6 +50,7 @@ public slots:
 
 private:
 	Ui::PropertyPipe m_ui;
+	typedef void (PropertyPipe::* PropertyPipeMethod)(IGuiData*);
 	std::unordered_map<guiDType, PropertyPipeMethod> m_pipeMethods;
 
 	SafePtr<CylinderNode> m_cylinder;

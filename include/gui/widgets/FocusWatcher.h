@@ -1,7 +1,7 @@
-#include <QtWidgets/qwidget.h>
-
 #ifndef FOCUSWATCHER_H_
 #define FOCUSWATCHER_H_
+
+#include <QtCore/qobject.h>
 
 class FocusWatcher : public QObject
 {

@@ -4,8 +4,6 @@
 #include "openE57.h"
 
 #include <iostream>
-#include <ctime>
-#include <iomanip>
 
 E57TreeWidget::E57TreeWidget(QWidget* parent) : QTreeWidget(parent)
 {

@@ -1,8 +1,5 @@
 #include "gui/widgets/PropertySimpleMeasure.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
 #include "controller/Controller.h"
-#include "controller/controls/ControlDataEdition.h"
-#include "controller/controls/ControlClippingEdition.h"
 
 #include "models/graph/SimpleMeasureNode.h"
 

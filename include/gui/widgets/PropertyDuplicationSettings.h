@@ -6,8 +6,6 @@
 #include "gui/IDataDispatcher.h"
 #include "ui_Property_Duplication_Settings.h"
 
-#include "gui/UnitConverter.h"
-
 class PropertyDuplicationSettings : public QWidget, public IPanel
 {
 	Q_OBJECT

@@ -1,9 +1,5 @@
 #include "gui/widgets/TreeNodeSystem/TreeNode.h"
-#include "gui/widgets/TreeNodeSystem/TreeModel.h"
 #include "utils/Logger.h"
-
-#include "services/MarkerDefinitions.hpp"
-#include <QtCore/QStringList>
 
 #include "models/graph/AGraphNode.h"
 

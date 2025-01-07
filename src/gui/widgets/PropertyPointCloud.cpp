@@ -1,14 +1,10 @@
 #include "gui/widgets/PropertyPointCloud.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
-#include "gui/GuiData/GuiDataRendering.h"
 #include "utils/QtLogStream.hpp"
 #include "utils/math/trigo.h"
 #include "controller/Controller.h"
 #include "controller/controls/ControlScanEdition.h"
-#include "controller/controls/ControlAnimation.h"
 #include "controller/controls/ControlDataEdition.h"
 #include "controller/controls/ControlObject3DEdition.h"
-#include "gui/widgets/FocusWatcher.h"
 #include "models/graph/APointCloudNode.h"
 
 #define TEXT_SCAN_PROPERTIES PropertyPointCloud::tr("Scan properties")

@@ -1,7 +1,5 @@
 #include "gui/widgets/PropertyPipeToPlaneMeasure.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
 #include "controller/Controller.h"
-#include "controller/controls/ControlDataEdition.h"
 #include "models/graph/PipeToPlaneMeasureNode.h"
 
 PropertyPipeToPlaneMeasure::PropertyPipeToPlaneMeasure(Controller& controller, QWidget *parent, float guiScale)

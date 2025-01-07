@@ -1,12 +1,9 @@
 #ifndef _PROPERTIESCLUSTER_PANEL_H_
 #define _PROPERTIESCLUSTER_PANEL_H_
 
-#include "gui/IPanel.h"
 #include "ui_Property_Cluster.h"
 #include "gui/widgets/APropertyGeneral.h"
 
-#include <crossguid/guid.hpp>
-#include <unordered_map>
 
 class ClusterNode;
 class Controller;

@@ -1,15 +1,10 @@
 #ifndef PROPERTY_USER_ORIENTATIONS_H
 #define PROPERTY_USER_ORIENTATIONS_H
 
-#include <vector>
 #include "gui/widgets/APropertyGeneral.h"
 #include "ui_Property_User_Orientation.h"
 
 #include "models/application/UserOrientation.h"
-
-class PropertyUserOrientation;
-
-typedef void (PropertyUserOrientation::* PropertyUserOrientationMethod)(IGuiData*);
 
 class PropertyUserOrientation : public APropertyGeneral
 {
@@ -72,8 +67,8 @@ private:
 	UserOrientation m_uo;
 
 	Ui::PropertyUserOrientation m_ui;
+	typedef void (PropertyUserOrientation::* PropertyUserOrientationMethod)(IGuiData*);
 	std::unordered_map<guiDType, PropertyUserOrientationMethod> m_UOmethods;
-
 };
 
 #endif //PROPERTY_USER_ORIENTATIONS_H

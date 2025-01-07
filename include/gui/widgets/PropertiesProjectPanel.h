@@ -5,7 +5,6 @@
 
 #include "gui/widgets/APropertyGeneral.h"
 
-#include "models/application/Author.h"
 #include "models/project/ProjectInfos.h"
 
 class PropertiesProjectPanel : public APropertyGeneral

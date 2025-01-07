@@ -6,16 +6,15 @@
 #include "gui/viewport/PickingManager.h"
 #include "models/3d/NavigationTypes.h"
 #include "models/3d/ClickInfo.h"
-#include "models/pointCloud/tls.h"
 #include "pointCloudEngine/FrameStats.h"
 #include "pointCloudEngine/RenderingTypes.h"
-#include "models/LicenceTypes.h"
 
 #include "glm/glm.hpp"
 
 #include <mutex>
+#include <unordered_map>
 
-#include <QtGui/QWindow>
+#include <QtGui/QWindow.h>
 
 class CameraNode;
 

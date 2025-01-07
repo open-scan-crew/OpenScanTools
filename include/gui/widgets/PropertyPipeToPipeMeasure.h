@@ -4,15 +4,8 @@
 #include "gui/widgets/APropertyGeneral.h"
 #include "ui_Property_Measure_PipeToPipe.h"
 
-#include <utility>
-#include <vector>
-
 class Controller;
 class PipeToPipeMeasureNode;
-
-class PropertyPipeToPipeMeasure;
-
-typedef void (PropertyPipeToPipeMeasure::* PropertyPipeToPipeMethod)(IGuiData*);
 
 class PropertyPipeToPipeMeasure : public APropertyGeneral
 {
@@ -31,6 +24,7 @@ private:
 
 private:
 	Ui::property_PipeToPipeMeasure m_ui;
+	typedef void (PropertyPipeToPipeMeasure::* PropertyPipeToPipeMethod)(IGuiData*);
 	std::unordered_map<guiDType, PropertyPipeToPipeMethod> m_measureMethods;
 
 	SafePtr<PipeToPipeMeasureNode> m_measure;

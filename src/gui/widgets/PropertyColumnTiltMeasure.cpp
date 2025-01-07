@@ -1,8 +1,4 @@
 #include "gui/widgets/PropertyColumnTiltMeasure.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
-#include "gui/GuiData/GuiDataRendering.h"
-#include "controller/controls/ControlDataEdition.h"
-#include "gui/widgets/FocusWatcher.h"
 #include "gui/Texts.hpp"
 #include "models/graph/ColumnTiltMeasureNode.h"
 #include "controller/Controller.h"

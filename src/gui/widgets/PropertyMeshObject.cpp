@@ -1,10 +1,7 @@
 #include "gui/widgets/PropertyMeshObject.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
 #include "controller/controls/ControlObject3DEdition.h"
 #include "gui/widgets/CustomWidgets/GenericPropertiesHead.h"
 #include "gui/widgets/CustomWidgets/GenericPropertiesFeet.h"
-#include "controller/controls/ControlDataEdition.h"
-#include "gui/widgets/FocusWatcher.h"
 #include "utils/math/trigo.h"
 #include "controller/Controller.h"
 

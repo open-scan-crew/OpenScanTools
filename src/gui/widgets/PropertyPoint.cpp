@@ -3,16 +3,7 @@
 #include "gui/widgets/CustomWidgets/GenericPropertiesHead.h"
 #include "gui/widgets/CustomWidgets/GenericPropertiesFeet.h"
 #include "controller/Controller.h"
-#include "controller/controls/ControlDataEdition.h"
-#include "controller/controls/ControlClippingEdition.h"
 #include "controller/controls/ControlAnimation.h"
-#include "gui/GuiData/GuiData3dObjects.h"
-#include "utils/math/trigo.h"
-#include <QRegExpValidator>
-#include <QDoubleValidator>
-#include <QIntValidator>
-#include <QtConcurrent/qtconcurrentrun.h>
-#include <cctype>
 
 #include "models/graph/PointNode.h"
 

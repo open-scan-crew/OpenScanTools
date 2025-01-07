@@ -8,10 +8,6 @@ class ViewPointNode;
 class TransformationModule;
 class Controller;
 
-class PropertyViewpoint;
-
-typedef void (PropertyViewpoint::* PropertyViewpointMethod)(IGuiData*);
-
 class PropertyViewpoint : public APropertyGeneral
 {
 	Q_OBJECT
@@ -43,6 +39,7 @@ public slots:
 
 private:
 	Ui::PropertyViewpoint m_ui;
+	typedef void (PropertyViewpoint::* PropertyViewpointMethod)(IGuiData*);
 	std::unordered_map<guiDType, PropertyViewpointMethod> m_viewpointMethods;
 
 	SafePtr<ViewPointNode> m_object;

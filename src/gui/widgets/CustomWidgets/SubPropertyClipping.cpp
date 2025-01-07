@@ -2,9 +2,6 @@
 #include "controller/controls/ControlClippingEdition.h"
 
 #include "models/graph/AClippingNode.h"
-#include "controller/Controller.h"
-
-#include "models/LicenceTypes.h"
 
 void SubPropertyClipping::hideEvent(QHideEvent* event)
 {

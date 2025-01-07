@@ -1,8 +1,5 @@
 #include "gui/widgets/PropertyPipeToPipeMeasure.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
 #include "controller/Controller.h"
-#include "controller/controls/ControlDataEdition.h"
-#include "gui/widgets/FocusWatcher.h"
 
 #include "models/graph/PipeToPipeMeasureNode.h"
 

@@ -1,15 +1,8 @@
 #include "gui/widgets/PropertyDuplicationSettings.h"
-#include "gui/GuiData/GuiDataMeasure.h"
-#include "gui/GuiData/GuiDataRendering.h"
-#include "controller/controls/ControlSMeasureEdition.h"
-#include "controller/controls/ControlMeasure.h"
 #include "controller/controls/ControlDuplication.h"
-#include "gui/widgets/FocusWatcher.h"
+
 #include "models/3d/DuplicationTypes.h"
 #include "utils/Logger.h"
-
-#include <cctype>
-#include <glm/gtx/vector_angle.hpp>
 
 PropertyDuplicationSettings::PropertyDuplicationSettings(IDataDispatcher* dataDispatcher, QWidget* parent, float guiScale)
 	: QWidget(parent)

@@ -1,43 +1,27 @@
 #include "gui/viewport/VulkanViewport.h"
+#include "controller/controls/ControlPicking.h"
+#include "controller/controls/ControlViewport.h"
 
-#include "vulkan/VulkanManager.h"
-
-#include "gui/GuiData/GuiDataMeasure.h"
 #include "gui/GuiData/GuiDataRendering.h"
 #include "gui/GuiData/GuiData3dObjects.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataUserOrientation.h"
-#include "gui/GuiData/GuiDataHD.h"
-
-#include "controller/messages/CameraMessage.h"
-
-#include "controller/controls/ControlPicking.h"
-#include "controller/controls/ControlViewport.h"
-#include "controller/controls/ControlFunction.h"
-#include "controller/controls/ControlAnimation.h"
-#include "controller/controls/ControlScanEdition.h"
-
-#include "utils/utils.h"
-#include "utils/math/trigo.h"
-// D'ou est inclu le Logger.h ?
-//#include "utils/Logger.h"
-#include "vulkan/TlFramebuffer_T.h"
-
-#include <QtGui/qevent.h>	
-#include <QApplication>
-
-#include <glm/glm.hpp>
-#include <glm/gtx/norm.hpp>
-#define _USE_MATH_DEFINES
-#include <math.h>
-#include <list>
 
 #include "models/graph/CameraNode.h"
 #include "models/graph/ScanNode.h"
-#include "models/graph/ViewPointNode.h"
 #include "models/graph/ManipulatorNode.h"
 
-#include "gui/widgets/FocusWatcher.h"
+#include "utils/math/trigo.h"
+
+#include "vulkan/TlFramebuffer_T.h"
+#include "vulkan/VulkanManager.h"
+
+#include <glm/glm.hpp>
+#include <glm/gtx/norm.hpp>
+
+#include <QtGui/qevent.h>
+#include <QApplication.h>
+
 
 double calcTranslationSpeedFactor(NavigationParameters navParam)
 {

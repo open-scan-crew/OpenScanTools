@@ -1,5 +1,3 @@
-#include <exception>
-
 #include "gui/widgets/QPFields/QPStringField.h"
 
 QPStringField::QPStringField(const sma::tField& field, QWidget* parent)

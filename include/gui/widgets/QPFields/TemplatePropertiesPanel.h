@@ -1,32 +1,18 @@
 #ifndef TEMPLATE_PROPERTIES_PANEL_H_
 #define TEMPLATE_PROPERTIES_PANEL_H_
-#include <vector>
-
-#include <QtWidgets/qwidget.h>
-#include <QtWidgets/QLayout>
-#include <QtWidgets/qlineedit.h>
-#include <QtWidgets/qcombobox.h>
-#include <QtWidgets/qpushbutton.h>
-#include <QtWidgets/QPlainTextEdit>
-#include <QtWidgets/qscrollarea.h>
-#include <QtWidgets/QTableWidget>
 
 #include "gui/widgets/APropertyGeneral.h"
 #include "gui/widgets/QPFields/AQPField.h"
 #include "models/application/TagTemplate.h"
 #include "gui/widgets/QPFields/QPFactory.h"
-#include "gui/widgets/CustomWidgets/ColorPicker.h"
 #include "gui/Dialog/MarkerIconSelectionDialog.h"
 
 #include "ui_Property_Tag.h"
 
+#include <QtWidgets/qwidget.h>
+
 class TagNode;
-
 class Controller;
-
-class TemplatePropertiesPanel;
-
-typedef void (TemplatePropertiesPanel::* TemplatePropertiesMethod)(IGuiData*);
 
 class TemplatePropertiesPanel : public APropertyGeneral
 {
@@ -66,6 +52,7 @@ private:
 	std::wstring m_templateName = L"";
 	SafePtr<TagNode> m_tag;
 	std::unordered_map<sma::tFieldId, AQPField*> m_fields;
+	typedef void (TemplatePropertiesPanel::* TemplatePropertiesMethod)(IGuiData*);
 	std::unordered_map<guiDType, TemplatePropertiesMethod> m_tagsMethods;
 
    	MarkerIconSelectionDialog m_iconSelector;

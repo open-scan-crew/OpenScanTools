@@ -1,13 +1,7 @@
 #include "gui/widgets/CustomWidgets/GenericPropertiesFeet.h"
-#include "controller/controls/ControlObject3DEdition.h"
 #include "controller/controls/ControlDataEdition.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
-#include "gui/widgets/FocusWatcher.h"
-#include <QDoubleValidator>
-#include <QIntValidator>
 #include "models/graph/ClusterNode.h"
 #include <QtWidgets/qmenu.h>
-#include <QDir>
 #include "gui/Texts.hpp"
 
 #include "utils/Logger.h"

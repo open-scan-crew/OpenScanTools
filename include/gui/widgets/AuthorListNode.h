@@ -2,7 +2,7 @@
 #define AUTHORLISTNODE_H_
 
 #include <QtGui/qstandarditemmodel.h>
-#include "models/OpenScanToolsModelEssentials.h"
+#include "utils/safe_ptr.h"
 
 class Author;
 

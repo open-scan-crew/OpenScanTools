@@ -3,15 +3,10 @@
 
 #include "ui_Property_Measure_Polyline.h"
 #include "gui/widgets/APropertyGeneral.h"
-#include "gui/UnitConverter.h"
 
 class Controller;
 
 class PolylineMeasureNode;
-
-class PropertyPolylineMeasure;
-
-typedef void (PropertyPolylineMeasure::* PropertyPolylineMethod)(IGuiData*);
 
 class PropertyPolylineMeasure : public APropertyGeneral
 {
@@ -34,6 +29,7 @@ private:
 
 private:
 	Ui::property_PolylineMeasure m_ui;
+	typedef void (PropertyPolylineMeasure::* PropertyPolylineMethod)(IGuiData*);
 	std::unordered_map<guiDType, PropertyPolylineMethod> m_polylineMethods;
 	UnitUsage m_unitUsage;
 

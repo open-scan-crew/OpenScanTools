@@ -1,18 +1,9 @@
 #include "gui/widgets/PropertyClippingSettings.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataMeasure.h"
 #include "gui/GuiData/GuiDataUserOrientation.h"
-#include "gui/GuiData/GuiDataRendering.h"
-#include "controller/controls/ControlSMeasureEdition.h"
 #include "controller/controls/ControlMeasure.h"
 #include "controller/controls/ControlFunctionClipping.h"
-#include "gui/widgets/FocusWatcher.h"
 #include "utils/Logger.h"
-
-#include <cctype>
-#include <glm/gtx/vector_angle.hpp>
-
-#include <QtGui/QHideEvent>
 
 PropertyClippingSettings::PropertyClippingSettings(IDataDispatcher& dataDispatcher, QWidget *parent, float guiScale)
 	: QWidget(parent)

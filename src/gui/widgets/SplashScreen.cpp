@@ -1,6 +1,6 @@
 #include "gui/widgets/SplashScreen.h"
 #include "gui/texts/AboutTexts.hpp"
-#include <QtGui/QPixMap>
+//#include <QtGui/QPixMap>
 
 SplashScreen::SplashScreen() 
 	: QSplashScreen(QPixmap(":/resources/images/Ouverture_OpenScanTools_800-399.jpg"), Qt::Tool | Qt::SplashScreen)

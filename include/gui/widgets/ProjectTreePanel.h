@@ -3,8 +3,6 @@
 
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
-#include "gui/widgets/TreeNodeSystem/TreeNodeFactory.h"
-#include "gui/GuiData/GuiDataTree.h"
 #include "gui/widgets/TreeNodeSystem/TreeModel.h"
 #include "gui/widgets/TreeNodeSystem/TreeNode.h"
 

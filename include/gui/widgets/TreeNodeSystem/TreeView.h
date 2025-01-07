@@ -2,11 +2,9 @@
 #define TREE_VIEW_H_
 
 #include <QtWidgets/qtreeview.h>
-#include <QtGui/QDrag>
-#include <QtGui/QDragLeaveEvent>
+#include <QtGui/qdrag.h>
 #include <QtGui/qevent.h>
-
-//#define QTREELOG Logger::log(LoggerMode::GuiLog)
+#include <QtGui/qevent.h>
 
 class TreeView : public QTreeView
 {

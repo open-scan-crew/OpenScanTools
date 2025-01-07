@@ -1,9 +1,13 @@
 #ifndef QPLIST_FIELD_H_
 #define QPLIST_FIELD_H_
-#include <QtWidgets/qcombobox.h>
+
 
 #include "gui/widgets/QPFields/AQPField.h"
 #include "models/application/List.h"
+
+#include <QtWidgets/qcombobox.h>
+#include <QtWidgets/qlabel.h>
+#include <QtWidgets/qboxlayout.h>
 
 
 class QPListField : public AQPField

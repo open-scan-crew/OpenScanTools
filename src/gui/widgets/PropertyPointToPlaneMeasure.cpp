@@ -1,7 +1,5 @@
 #include "gui/widgets/PropertyPointToPlaneMeasure.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
 #include "controller/Controller.h"
-#include "controller/controls/ControlDataEdition.h"
 
 #include "models/graph/PointToPlaneMeasureNode.h"
 

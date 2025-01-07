@@ -1,10 +1,7 @@
 #include "gui/widgets/PropertiesProjectPanel.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
-#include "gui/GuiData/GuiDataIO.h"
-#include "utils/QtLogStream.hpp"
 #include "gui/widgets/FocusWatcher.h"
 
-#include "utils/Utils.h"
 
 #include "controller/controls/ControlProject.h"
 #include "controller/controls/ControlIO.h"
