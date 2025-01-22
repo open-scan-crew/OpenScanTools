@@ -2,13 +2,14 @@
 #define OCTREE_DECODER_H
 
 #include "pointCloudEngine/OctreeBase.h"
+#include "models/pointCloud/PointXYZIRGB.h"
 
 
 class OctreeDecoder : public OctreeBase // IPointReader
 {
 public:
     OctreeDecoder(OctreeBase const& base, BoundingBox const& bbox);
-	OctreeDecoder(OctreeBase const& base);
+    OctreeDecoder(OctreeBase const& base);
     ~OctreeDecoder();
 
     bool readPointsFromFile(std::ifstream& is, const uint64_t& pointDataOffset, const uint64_t& pointDataSize);
@@ -21,12 +22,12 @@ public:
     const PointXYZIRGB* getCellPoints(uint32_t cellId, uint64_t& pointCount);
     bool copyCellPoints(uint32_t cellId, PointXYZIRGB* dstPoints, uint64_t dstSize, uint64_t& dstOffset);
 
-	const BoundingBox& getBBox() const;
+    const BoundingBox& getBBox() const;
 protected:
     OctreeDecoder() {};
-	void cleanBuffers();
-	void cleanEncodedBuffers();
-	void decodeCell(uint32_t cellId, PointXYZIRGB* optionalOutput = nullptr);
+    void cleanBuffers();
+    void cleanEncodedBuffers();
+    void decodeCell(uint32_t cellId, PointXYZIRGB* optionalOutput = nullptr);
 
 
 protected:
@@ -35,7 +36,7 @@ protected:
 
     bool m_isEncodedBuffered;
     bool m_isDecoded;
-	BoundingBox m_bbox;
+    BoundingBox m_bbox;
 };
 
 #endif // !OCTREE_READER_H

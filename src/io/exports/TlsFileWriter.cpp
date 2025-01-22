@@ -1,7 +1,6 @@
 #include "io/exports/TlsFileWriter.h"
 #include "pointCloudEngine/OctreeCtor.h"
 #include "io/exports/TlsWriter.h"
-#include "utils/math/trigo.h"
 
 TlsFileWriter::TlsFileWriter(const std::filesystem::path& filepath)
     : IScanFileWriter(filepath)

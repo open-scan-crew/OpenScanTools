@@ -2,6 +2,7 @@
 #define EMBEDDED_SCAN_H
 
 #include "models/pointCloud/TLS.h"
+#include "models/pointCloud/PointXYZIRGB.h"
 #include "models/graph/TransformationModule.h"
 #include "pointCloudEngine/PCE_graphics.h"
 #include "pointCloudEngine/PCE_stream.h"
@@ -75,13 +76,13 @@ struct TlFrustumTest
     TestInside test;
 };
 
-struct TlClippingTest
-{
-    ClippingShape clippingForm;
-    HCube cube;
-    TestInside testInside;
-    uint32_t clipId;
-};
+//struct TlClippingTest
+//{
+//    ClippingShape clippingForm;
+//    HCube cube;
+//    TestInside testInside;
+//    uint32_t clipId;
+//};
 
 /*
 - Le TlScan contient les informations logiques sur un nuage de point : position, nombre de points, structure en octree.

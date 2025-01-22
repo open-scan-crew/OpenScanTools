@@ -198,7 +198,6 @@ xcopy /y /q "$(SolutionDir)ext\ReCapSDK\bin\*.dll" "$(SolutionDir)build\$(Config
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>FBXSDK_SHARED;_SCANSAP_;QT_NO_DEBUG;NDEBUG;NOMINMAX;VK_NO_PROTOTYPES;_CRT_SECURE_NO_WARNINGS;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -1469,7 +1468,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\models\3d\BoundingBox.h" />
     <ClInclude Include="..\..\include\models\3d\UniformClippingData.h" />
     <ClInclude Include="..\..\include\models\3d\MarkerDrawData.h" />
-    <ClInclude Include="..\..\include\models\3d\MeasureData.h" />
     <ClInclude Include="..\..\include\models\3d\PointCloudDrawData.h" />
     <ClInclude Include="..\..\include\models\3d\SegmentDrawData.h" />
     <ClInclude Include="..\..\include\models\3d\MeshDrawData.h" />

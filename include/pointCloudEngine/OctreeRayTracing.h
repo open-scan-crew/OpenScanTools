@@ -1,9 +1,10 @@
 #ifndef OCTREE_RAY_TRACING_H
 #define OCTREE_RAY_TRACING_H
 
-#include "models/OpenScanToolsModelEssentials.h"
 #include "pointCloudEngine/OctreeBase.h"
+#include "models/pointCloud/PointXYZIRGB.h"
 #include "models/data/clipping/ClippingGeometry.h"
+#include "models/graph/TransformationModule.h"
 
 class GeometricBox
 

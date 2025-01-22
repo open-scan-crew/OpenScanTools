@@ -5,22 +5,16 @@
 #include "models/3d/MeshDrawData.h"
 #include "models/3d/PointCloudDrawData.h"
 #include "models/3d/SegmentDrawData.h"
-#include "pointCloudEngine/ShowTypes.h"
 #include "pointCloudEngine/RenderingTypes.h"
-#include "imgui/imgui.h"
-#include "gui/UnitConverter.h"
-#include "models/Types.hpp"
 #include "models/3d/DisplayParameters.h"
-#include "models/OpenScanToolsModelEssentials.h"
-#include "models/pointCloud/TLS.h"
 #include "models/data/clipping/ClippingGeometry.h"
-#include "utils/Color32.hpp"
+#include "models/graph/TransformationModule.h"
+
+#include "utils/safe_ptr.h"
 
 #include "vulkan/VkUniform.h"
-#include "vulkan/vulkan.h"
 
-#include <set>
-#include <stack>
+#include <string>
 
 class GraphManager;
 class ManipulatorNode;

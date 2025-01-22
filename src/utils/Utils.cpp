@@ -8,8 +8,6 @@
 
 #include <fmt/format.h>
 
-#include <fmt/format.h>
-
 std::string Utils::completeWithZeros(const uint64_t& number, const uint8_t& size)
 {
 	return fmt::format("{:0{}d}", number, size);

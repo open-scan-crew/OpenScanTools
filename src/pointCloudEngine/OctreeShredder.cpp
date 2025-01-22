@@ -1,6 +1,7 @@
 #include "pointCloudEngine/OctreeShredder.h"
+#include "models/pointCloud/PointXYZIRGB.h"
 #include "utils/Logger.h"
-#include "utils/Utils.h"
+
 #include <map>
 
 OctreeShredder::OctreeShredder(const std::filesystem::path& tlsPath)

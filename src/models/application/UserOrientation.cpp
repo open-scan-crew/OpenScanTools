@@ -1,7 +1,6 @@
 #include "models/application/UserOrientation.h"
-#include "utils/math/trigo.h"
 
-#include "utils/math/glm_extended.h"
+#include "utils/math/basic_define.h"
 
 UserOrientation::UserOrientation()
 {

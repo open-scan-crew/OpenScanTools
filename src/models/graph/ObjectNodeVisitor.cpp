@@ -13,16 +13,16 @@
 #include "models/graph/ScanNode.h"
 #include "models/graph/TagNode.h"
 #include "models/graph/PointNode.h"
-#include "models/graph/PolylineMeasureNode.h"
+#include "models/graph/AMeasureNode.h"
 #include "models/graph/ColumnTiltMeasureNode.h"
 #include "models/graph/BeamBendingMeasureNode.h"
 
 #include "models/application/Author.h"
 #include "models/3d/NodeFunctions.h"
 
-#include "models/3d/MeasureData.h"
 #include "models/3d/UniformClippingData.h"
 
+#include "gui/UnitConverter.h"
 #include "gui/viewport/VulkanViewport.h"
 
 #include "pointCloudEngine/TlScanOverseer.h"
@@ -31,7 +31,6 @@
 
 #include "vulkan/VulkanManager.h"
 #include "models/graph/GraphManager.hxx"
-#include "vulkan/MeshManager.h"
 #include "vulkan/Renderers/Renderer.h"
 #include "vulkan/Renderers/MeasureRenderer.h"
 #include "vulkan/Renderers/MarkerRenderer.h"
@@ -40,7 +39,6 @@
 
 #include "utils/Utils.h"
 #include "utils/Logger.h"
-#include "utils/math/trigo.h"
 #include "utils/ColorConversion.h"
 #include "utils/ImGuiUtils.h"
 

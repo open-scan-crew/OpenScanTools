@@ -3,6 +3,8 @@
 
 #include "io/imports/IScanFileReader.h"
 
+#include "models/graph/TransformationModule.h"
+
 #include <data/RCScan.h>
 
 
@@ -41,6 +43,7 @@ private:
 
     tls::FileHeader m_fileHeader;
     tls::ScanHeader m_scanHeader;
+    TransformationModule transfo_;
 };
 
 #endif

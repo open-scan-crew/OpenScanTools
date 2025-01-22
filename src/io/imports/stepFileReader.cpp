@@ -21,7 +21,6 @@
 #include "magic_enum/magic_enum.hpp"
 #include "utils/Logger.h"
 #include "utils/Utils.h"
-#include "utils/math/trigo.h"
 
 #include "controller/Controller.h"
 #include "gui/GuiData/GuiDataMessages.h"

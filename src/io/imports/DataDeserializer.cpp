@@ -12,7 +12,6 @@
 #include "controller/ControllerContext.h"
 #include "models/graph/GraphManager.hxx"
 
-#include "utils/math/trigo.h"
 #include "utils/ProjectColor.hpp"
 
 #include "models/graph/TagNode.h"

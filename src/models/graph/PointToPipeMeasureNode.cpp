@@ -11,18 +11,6 @@ PointToPipeMeasureNode::PointToPipeMeasureNode(const PointToPipeMeasureNode& nod
 	: AMeasureNode(node)
 	, PointToPipeMeasureData(node)
 {
-    // PREVIOUS CODE (from MeasureDrawData.cpp)  - Pourquoi
-    /*
-    measurePoints.push_back(PointBufferData(poplm->getPipeCenter()));
-    measurePoints.push_back(PointBufferData(poplm->getProjPoint()));
-    measureColors.push_back(0xFFFFFFFF); // white
-    measureIds.push_back(poplm->getId());
-    measurePoints.push_back(PointBufferData(poplm->getProjPoint()));
-    measurePoints.push_back(PointBufferData(poplm->getPointCoord()));
-    measureColors.push_back(0xFFFFFFFF); // white
-    measureIds.push_back(poplm->getId());
-    storedMeasure.insert({ poplm->getId(), poplm->getMeasures() });
-    */
 }
 
 std::vector<Measure> PointToPipeMeasureNode::getMeasures() const

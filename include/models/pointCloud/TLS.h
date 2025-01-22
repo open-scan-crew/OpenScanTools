@@ -3,7 +3,6 @@
 
 #include "crossguid/guid.hpp"
 #include "models/3d/BoundingBox.h"
-#include "models/graph/TransformationModule.h"
 
 #include <cstdint>
 #include <string>
@@ -135,12 +134,6 @@ namespace tls
         uint64_t creationDate; // use a uint32 ??
         FileVersion version;
         uint32_t scanCount; // TODO - remove the scan count in version 0.5
-    };
-
-    struct FileInfo
-    {
-        FileHeader fileHeader;
-        std::list<ScanHeader> scansHeaders;
     };
 }
 

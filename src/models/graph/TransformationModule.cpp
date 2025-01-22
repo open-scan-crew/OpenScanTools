@@ -1,6 +1,5 @@
 #include "models/graph/TransformationModule.h"
 
-#include "utils/math/trigo.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 

@@ -11,20 +11,7 @@ PointToPlaneMeasureNode::PointToPlaneMeasureNode(const PointToPlaneMeasureNode& 
 	: AMeasureNode(node)
 	, PointToPlaneMeasureData(node)
 {
-      /*
-    auto* poplm = static_cast<UIPointToPlaneMeasure*>(autoMeasure);
-    measurePoints.push_back(PointBufferData(poplm->getPointOnPlane()));
-    measurePoints.push_back(PointBufferData(poplm->getProjPoint()));
-    measureColors.push_back(0xFFFFFFFF); // white
-    measureIds.push_back(poplm->getId());
-    measurePoints.push_back(PointBufferData(poplm->getPointCoord()));
-    measurePoints.push_back(PointBufferData(poplm->getProjPoint()));
-    measureColors.push_back(0xFFFFFFFF); // white
-    measureIds.push_back(poplm->getId());
-    storedMeasure.insert({ poplm->getId(), poplm->getMeasures() });
-    */
 }
-
 
 std::vector<Measure> PointToPlaneMeasureNode::getMeasures() const
 {

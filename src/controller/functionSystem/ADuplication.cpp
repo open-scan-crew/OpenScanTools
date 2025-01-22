@@ -2,7 +2,8 @@
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
 #include "models/graph/TransformationModule.h"
-#include "utils/math/trigo.h"
+
+#include "glm/gtc/quaternion.hpp"
 
 ADuplication::ADuplication(DuplicationMode mode)
     : m_mode(mode)
@@ -18,14 +19,10 @@ void ADuplication::setObjectParameters(Controller& controller, TransformationMod
     case DuplicationMode::Offset:
     {
         const DuplicationSettings& settings = controller.getContext().CgetDuplicationSettings();
-        if (settings.isLocal)
-        {
-            double pos[3] = { 0.0, 0.0, 0.0 };
-            glm::mat4 mat(tls::math::getTransformMatrix(pos, &transfo.getOrientation()[0]));
-            transfo.addGlobalTranslation(mat*glm::vec4(settings.offset, 1.0f));
-        }
-        else
-            transfo.addGlobalTranslation(settings.offset);
+        glm::dmat3 rot = settings.isLocal ? glm::mat3_cast(transfo.getOrientation()) : glm::dmat3(1.0);
+
+        transfo.addGlobalTranslation(rot * settings.offset);
+
     }
     break;
     case DuplicationMode::Click:
@@ -48,15 +45,13 @@ void ADuplication::setObjectParameters(Controller& controller, TransformationMod
     case DuplicationMode::SizeStep:
     {
         const DuplicationSettings& settings = controller.getContext().CgetDuplicationSettings();
-        glm::dvec4 tr(0.0);
-        tr.w = 1.0;
+        glm::dvec3 tr(scale[0] * settings.step[0],
+                      scale[1] * settings.step[1],
+                      scale[2] * settings.step[2]);
 
-        for (uint32_t iterator(0); iterator < 3; iterator++)
-            tr[iterator] = scale[iterator] * settings.step[iterator];
-        
-        double pos[3] = { 0.0, 0.0, 0.0 };
-        glm::mat4 mat(tls::math::getTransformMatrix(pos, &transfo.getOrientation()[0]));
-        transfo.addGlobalTranslation(mat* tr);
+        glm::dmat3 rot = glm::mat3_cast(transfo.getOrientation());
+
+        transfo.addGlobalTranslation(rot * tr);
     }
     break;
     default:

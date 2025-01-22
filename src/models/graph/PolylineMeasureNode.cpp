@@ -1,6 +1,5 @@
 #include "models/graph/PolylineMeasureNode.h"
 #include "gui/texts/DefaultNameTexts.hpp"
-//#include <glm/gtx/rotate_vector.hpp>
 
 PolylineMeasureNode::PolylineMeasureNode()
     : AMeasureNode()

@@ -1,7 +1,6 @@
 #include "models/graph/AGraphNode.h"
 
 #include <glm/gtx/matrix_decompose.hpp>
-#include "utils/math/trigo.h"
 
 #include "utils/Logger.h"
 

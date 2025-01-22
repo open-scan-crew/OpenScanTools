@@ -1,9 +1,7 @@
-#ifndef _GLM_EXTENDED_H_
-#define _GLM_EXTENDED_H_
+#ifndef GLM_EXTENDED_H
+#define GLM_EXTENDED_H
 
-#include <vector>
 #include <glm/glm.hpp>
-#include <glm/gtx/norm.hpp>
 
 struct FrustumPlanes
 {

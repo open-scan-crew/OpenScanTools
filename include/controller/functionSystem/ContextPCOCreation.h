@@ -4,6 +4,7 @@
 #include "controller/functionSystem/AContext.h"
 #include "io/exports/ExportParameters.hpp"
 #include "models/data/Clipping/ClippingGeometry.h"
+#include "models/graph/TransformationModule.h"
 
 class ContextPCOCreation: public AContext
 {

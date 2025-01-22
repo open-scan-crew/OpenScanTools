@@ -10,19 +10,6 @@ PipeToPipeMeasureNode::PipeToPipeMeasureNode(const PipeToPipeMeasureNode& node)
     : AMeasureNode(node)
     , PipeToPipeMeasureData(node)
 {
-    // INFO
-    /*
-    auto* pipim = static_cast<UIPipeToPipeMeasure*>(autoMeasure);
-    measurePoints.push_back(PointBufferData(pipim->getPipe1Center()));
-    measurePoints.push_back(PointBufferData(pipim->getProjPoint()));
-    measureColors.push_back(0xFFFFFFFF); // white
-    measureIds.push_back(pipim->getId());
-    measurePoints.push_back(PointBufferData(pipim->getProjPoint()));
-    measurePoints.push_back(PointBufferData(pipim->getPipe2Center()));
-    measureColors.push_back(0xFFFFFFFF); // white
-    measureIds.push_back(pipim->getId());
-    storedMeasure.insert({ pipim->getId(), pipim->getMeasures() });
-    */
 }
 
 ElementType PipeToPipeMeasureNode::getType() const

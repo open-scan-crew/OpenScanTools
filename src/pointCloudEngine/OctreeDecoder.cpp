@@ -7,44 +7,44 @@ OctreeDecoder::OctreeDecoder(OctreeBase const& _base, BoundingBox const& _bbox)
     , m_isDecoded(false)
     , m_encodedBuffers(std::vector<char*>(m_cellCount, 0)) // Isn't it better with nullptr ?
     , m_decodedBuffers(std::vector<PointXYZIRGB*>(m_cellCount, 0))
-	, m_bbox(_bbox)
+    , m_bbox(_bbox)
 {
 }
 
 OctreeDecoder::OctreeDecoder(OctreeBase const& _base)
-	: OctreeBase(_base)
-	, m_isEncodedBuffered(false)
-	, m_isDecoded(false)
-	, m_encodedBuffers(std::vector<char*>(m_cellCount, nullptr)) // NOTE - changed 0 to nullptr. Does it work?
-	, m_decodedBuffers(std::vector<PointXYZIRGB*>(m_cellCount, nullptr)) // NOTE - changed 0 to nullptr
+    : OctreeBase(_base)
+    , m_isEncodedBuffered(false)
+    , m_isDecoded(false)
+    , m_encodedBuffers(std::vector<char*>(m_cellCount, nullptr)) // NOTE - changed 0 to nullptr. Does it work?
+    , m_decodedBuffers(std::vector<PointXYZIRGB*>(m_cellCount, nullptr)) // NOTE - changed 0 to nullptr
 {
 }
 
 OctreeDecoder::~OctreeDecoder()
 {
-	cleanBuffers();
+    cleanBuffers();
 }
 
 void OctreeDecoder::cleanBuffers()
 {
-	cleanEncodedBuffers();
+    cleanEncodedBuffers();
 
-	if (m_decodedBuffers.empty())
-		return;
-	for (PointXYZIRGB* dbuf : m_decodedBuffers)
-		if (dbuf)
-			delete dbuf;
-	m_decodedBuffers.clear();
+    if (m_decodedBuffers.empty())
+        return;
+    for (PointXYZIRGB* dbuf : m_decodedBuffers)
+        if (dbuf)
+            delete dbuf;
+    m_decodedBuffers.clear();
 }
 
 void OctreeDecoder::cleanEncodedBuffers()
 {
-	if (m_encodedBuffers.empty())
-		return;
-	for (char* ebuf : m_encodedBuffers)
-		if (ebuf)
-			delete ebuf;
-	m_encodedBuffers.clear();
+    if (m_encodedBuffers.empty())
+        return;
+    for (char* ebuf : m_encodedBuffers)
+        if (ebuf)
+            delete ebuf;
+    m_encodedBuffers.clear();
 }
 
 bool OctreeDecoder::readPointsFromFile(std::ifstream& _is, const uint64_t& pointDataOffset, const uint64_t& pointDataSize)
@@ -239,5 +239,5 @@ bool OctreeDecoder::copyCellPoints(uint32_t cellId, PointXYZIRGB* dstPoints, uin
 
 const BoundingBox&  OctreeDecoder::getBBox() const
 {
-	return m_bbox;
+    return m_bbox;
 }

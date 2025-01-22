@@ -1,5 +1,9 @@
 #include "utils/math/glm_extended.h"
 
+#include "glm/gtx/norm.hpp"
+
+#include <vector>
+
 namespace glm_extended
 {
     // Angle between 2 glm::vec3 Objects

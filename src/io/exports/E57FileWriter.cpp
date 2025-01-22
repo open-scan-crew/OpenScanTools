@@ -1,7 +1,6 @@
 #include "io/exports/E57FileWriter.h"
 #include "models/pointCloud/PointXYZIRGB.h"
 #include "utils/time.h"
-#include "utils/math/trigo.h"
 #include "utils/Utils.h"
 
 E57FileWriter::E57FileWriter(const std::filesystem::path& filepath, e57::ImageFile imf)

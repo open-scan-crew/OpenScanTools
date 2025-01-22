@@ -1,5 +1,4 @@
 #include "models/graph/SimpleMeasureNode.h"
-//#include "utils/math/trigo.h"
 #include "gui/texts/DefaultNameTexts.hpp"
 #include <glm/gtx/rotate_vector.hpp>
 

@@ -1,8 +1,6 @@
 #include "models/data/Scan/ScanData.h"
 #include "utils/time.h"
-#include "utils/math/trigo.h"
 #include "pointCloudEngine/PCE_core.h"
-#include "utils/Logger.h"
 
 #include "qglobal.h"
 

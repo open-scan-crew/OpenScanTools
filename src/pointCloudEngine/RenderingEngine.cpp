@@ -16,6 +16,7 @@
 #include "gui/GuiData/GuiDataHD.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ScreenshotTexts.hpp"
+#include "gui/UnitConverter.h"
 
 #include "io/ImageWriter.h"
 

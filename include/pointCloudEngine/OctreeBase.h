@@ -2,12 +2,10 @@
 #define OCTREE_BASE_H
 
 #include "models/pointCloud/TLS.h"
-#include "models/pointCloud/PointXYZIRGB.h"
 #include "io/imports/TlsReader.h"
 
 #include <cstdint>
 #include <vector>
-#include <utility>
 
 // TODO - Take in account or remove the memory allocation exception in close()
 

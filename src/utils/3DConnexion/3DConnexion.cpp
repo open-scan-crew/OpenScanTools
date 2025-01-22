@@ -1,6 +1,5 @@
 #include "utils/3DConnexion/3DConnexion.h"
 #include "utils/Logger.h"
-#include "utils/math/trigo.h"
 
 #include "gui/viewport/ViewportOrganizer.h"
 

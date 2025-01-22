@@ -3,7 +3,6 @@
 #include "utils/Logger.h"
 #include <glm/gtx/quaternion.hpp>
 
-//#include "io/TlsMap.h"
 #include <ctime>
 
 #define M_PI           3.14159265358979323846  /* pi */

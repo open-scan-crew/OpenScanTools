@@ -3,11 +3,12 @@
 
 #include "vulkan/Shader.h"
 #include "vulkan/vulkan.h"
-#include "models/3d/MeasureData.h"
 #include "vulkan/VkUniform.h"
 #include "models/3d/ManipulationTypes.h"
 
 #include <glm/glm.hpp>
+
+#include <memory>
 
 class MeshBuffer;
 

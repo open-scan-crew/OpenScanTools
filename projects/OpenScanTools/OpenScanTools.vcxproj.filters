@@ -3669,12 +3669,6 @@
     <ClInclude Include="..\..\include\models\data\BeamBendingMeasure\BeamBendingMeasureData.h">
       <Filter>include\models\data\BeamBendingMeasure</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\models\data\Measure\MeasureData.h">
-      <Filter>include\models\data\Measure</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\3d\MeasureData.h">
-      <Filter>include\models\3d</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\utils\safe_ptr.h">
       <Filter>include\utils</Filter>
     </ClInclude>
@@ -3968,6 +3962,9 @@
     </ClInclude>
     <ClInclude Include="..\..\include\gui\texts\MainGuiTexts.hpp">
       <Filter>include\gui\texts</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\data\Measure\MeasureData.h">
+      <Filter>include\models\data\Measure</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

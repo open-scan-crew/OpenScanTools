@@ -2,6 +2,7 @@
 #define POINT_CLOUD_INSTANCE_H
 
 #include "models/pointCloud/TLS.h"
+#include "models/graph/TransformationModule.h"
 
 namespace tls
 {

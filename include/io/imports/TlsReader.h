@@ -21,7 +21,7 @@ namespace tls::reader
     bool getOctreeBase(std::ifstream& _is, FileVersion _version, OctreeBase& _octreeBase);
     bool getEmbeddedScan(std::ifstream& _is, FileVersion _version, EmbeddedScan& _scan);
 
-	OctreeDecoder* getNewOctreeDecoder(std::ifstream& _is, const FileVersion& version, const uint32_t& scanNumber, bool loadPoints);
+    OctreeDecoder* getNewOctreeDecoder(std::ifstream& _is, const FileVersion& version, const uint32_t& scanNumber, bool loadPoints);
 
     bool copyRawData(std::ifstream& _is, FileVersion _version, char** pointBuffer, uint64_t& pointBufferSize, char** instanceBuffer, uint64_t& instanceBufferSize);
 

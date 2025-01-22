@@ -5,19 +5,6 @@ PipeToPlaneMeasureNode::PipeToPlaneMeasureNode(const PipeToPlaneMeasureNode& nod
 	: AMeasureNode(node)
 	, PipeToPlaneMeasureData(node)
 {
-    // INFO - code from MeasureDrawData.cpp
-    /*
-    auto* piplm = static_cast<UIPipeToPlaneMeasure*>(autoMeasure);
-    measurePoints.push_back(PointBufferData(piplm->getPipeCenter()));
-    measurePoints.push_back(PointBufferData(piplm->getProjPoint()));
-    measureColors.push_back(0xFFFFFFFF); // white
-    measureIds.push_back(piplm->getId());
-    measurePoints.push_back(PointBufferData(piplm->getProjPoint()));
-    measurePoints.push_back(PointBufferData(piplm->getPointOnPlane()));
-    measureColors.push_back(0xFFFFFFFF); // white
-    measureIds.push_back(piplm->getId());
-    storedMeasure.insert({ piplm->getId(), piplm->getMeasures() });
-    */
 }
 
 PipeToPlaneMeasureNode::PipeToPlaneMeasureNode()

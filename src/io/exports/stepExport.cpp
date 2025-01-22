@@ -51,7 +51,6 @@
 #include <XSAlgo_AlgoContainer.hxx>
 #include <UnitsMethods.hxx>
 
-#include "utils/math/trigo.h"
 #include "utils/math/glm_extended.h"
 #include "utils/Logger.h"
 #include "utils/Utils.h"

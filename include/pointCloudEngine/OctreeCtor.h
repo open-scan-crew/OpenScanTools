@@ -2,11 +2,10 @@
 #define OCTREE_CTOR_H
 
 #include "pointCloudEngine/OctreeBase.h"
+#include "models/pointCloud/PointXYZIRGB.h"
 #include "io/exports/TlsWriter.h"
-#include "io/imports/TlsReader.h"
 
 #include <vector>
-//#include <filesystem>
 
 #define LEAF_DECIMATION 0.0625f
 #define NODE_MAX_DEPTH 7u
