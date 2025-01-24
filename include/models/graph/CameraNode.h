@@ -4,7 +4,7 @@
 #include "models/graph/AGraphNode.h"
 #include "models/3d/NavigationTypes.h"
 #include "models/3d/MarkerDrawData.h"
-#include "models/pointCloud/TLS.h"
+#include "models/3d/BoundingBox.h"
 #include "models/application/UserOrientation.h"
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"

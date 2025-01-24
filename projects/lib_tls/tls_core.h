@@ -5,12 +5,8 @@
 #include "PointXYZIRGB_k.h"
 
 #include <filesystem>
-#include <fstream>
 #include <memory>
 
-//class OctreeBase;
-//class EmbeddedScan;
-//class OctreeDecoder;
 
 
 namespace tls
@@ -25,12 +21,11 @@ namespace tls
         BAD_USAGE = 0x05,
     };
 
-    enum class usage_options
+    enum class usage
     {
         read,
         write,
-        shred,
-        render,
+        render
     };
 
     // TODO - a "scan" should be refered a a "point cloud"
@@ -41,34 +36,42 @@ namespace tls
     // The tls can even store generated point cloud that do not reflect a real physical
     //   object.
 
+    class OctreeBase;
     class ImageFile_p;
+
     class ImageFile
     {
-        ImageFile(const std::filesystem::path& filepath, usage_options usage);
+    public:
+        ImageFile();
+        ImageFile(const std::filesystem::path& _filepath, usage _u);
         ~ImageFile();
 
-        ImageFile() = delete;
         ImageFile(ImageFile const&) = delete;
         void operator=(ImageFile const&) = delete;
 
-        result open();
-        result close();
-
-        result integrity_check();
+        bool open(const std::filesystem::path& _filepath, usage _u);
+        void close();
+        bool is_valid_file() const;
+        std::filesystem::path getPath() const;
 
         uint32_t getScanCount() const;
         uint64_t getTotalPoints() const;
 
         tls::FileHeader getFileHeader() const;
-        tls::ScanHeader getScanHeader(uint32_t n) const;
+        tls::ScanHeader getPointCloudHeader(uint32_t _pc_num) const;
 
-        bool setCurrentPointCloud(uint32_t n); // for reading or adding points
+        bool setCurrentPointCloud(uint32_t _pc_num); // for reading or adding points
         bool appendPointCloud(const tls::ScanHeader& info, const Transformation& transfo);
-        bool finalizePointCloud(uint32_t n);
+        bool finalizePointCloud(uint32_t _pc_num, double add_x = 0.0, double add_y = 0.0, double add_z = 0.0);
 
         bool readPoints(PointXYZIRGB* dstBuf, uint64_t bufSize, uint64_t& readCount);
         bool addPoints(PointXYZIRGB const* srcBuf, uint64_t srcSize);
         bool mergePoints(PointXYZIRGB const* srcBuf, uint64_t srcSize, const Transformation& srcTransfo, tls::PointFormat srcFormat);
+
+        // Rendering mode functions
+        bool getOctreeBase(uint32_t _pc_num, OctreeBase& _octree_base);
+        bool getData(uint32_t _pc_num, uint64_t _file_pos, void* _data_buf, uint64_t _data_size);
+        bool getCellRenderData(uint32_t _pc_num, void* data_buf, uint64_t& data_size);
 
     protected:
         std::shared_ptr<ImageFile_p> p_;

@@ -1,7 +1,7 @@
 #ifndef RENDERING_SWITCH_CONFIGURATION_H_
 #define RENDERING_SWITCH_CONFIGURATION_H_
 
-#include "models/pointCloud/TLS.h"
+#include "tls_def.h"
 #include "pointCloudEngine/RenderingTypes.h"
 
 #include <map>

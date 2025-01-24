@@ -1,10 +1,11 @@
-#ifndef TLS_WRITER_H
-#define TLS_WRITER_H
+#ifndef TLS_FILE_WRITER_H
+#define TLS_FILE_WRITER_H
 
 #include "io/exports/IScanFileWriter.h"
-#include "tls_core.h"
+#include "tls_def.h"
 
 #include <filesystem>
+#include <fstream>
 
 struct PointXYZIRGB;
 
@@ -26,10 +27,13 @@ private:
     TlsFileWriter(const std::filesystem::path& filepath);
 
 private:
-    tls::ImageFile img_file_;
-    // current write
-
-    //TransformationModule scan_transfo_;
+    std::ofstream m_ostream;
+    std::wstring pc_name_;           // mandatory
+    tls::PrecisionType precision_;   // mandatory
+    tls::PointFormat format_;        // mandatory
+    uint64_t acquisition_date_;      // optional
+    TransformationModule scan_transfo_;
+    OctreeCtor* m_octree;
 };
 
 #endif

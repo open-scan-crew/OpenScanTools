@@ -5,10 +5,10 @@
 //**** Graphical functions ****
 //-----------------------------
 
-#include "models/pointCloud/TLS.h"
+#include "tls_def.h"
 #include "models/data/Clipping/ClippingTypes.h"
 #include "vulkan/VkUniform.h"
-#include "vulkan/vulkan.h"
+#include "vulkan/vulkan_core.h"
 
 #include <glm/glm.hpp>
 #include <vector>
@@ -35,7 +35,6 @@ struct TlCellDrawInfo_multiCB
 
 struct TlScanDrawInfo
 {
-    tls::ScanVersion scanVersion;
     VkBuffer instanceBuffer;
     VkUniformOffset modelUni;
     tls::PointFormat format;

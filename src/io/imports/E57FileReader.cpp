@@ -139,16 +139,16 @@ bool E57FileReader::getData3dInfo(uint32_t _id, tls::ScanHeader& _info, std::str
         if (dataSet.isDefined("cartesianBounds"))
         {
             e57::StructureNode cartesianBounds(dataSet.get("cartesianBounds"));
-            _info.bbox.xMin = (float)e57::FloatNode(cartesianBounds.get("xMinimum")).value();
-            _info.bbox.xMax = (float)e57::FloatNode(cartesianBounds.get("xMaximum")).value();
-            _info.bbox.yMin = (float)e57::FloatNode(cartesianBounds.get("yMinimum")).value();
-            _info.bbox.yMax = (float)e57::FloatNode(cartesianBounds.get("yMaximum")).value();
-            _info.bbox.zMin = (float)e57::FloatNode(cartesianBounds.get("zMinimum")).value();
-            _info.bbox.zMax = (float)e57::FloatNode(cartesianBounds.get("zMaximum")).value();
+            _info.limits.xMin = (float)e57::FloatNode(cartesianBounds.get("xMinimum")).value();
+            _info.limits.xMax = (float)e57::FloatNode(cartesianBounds.get("xMaximum")).value();
+            _info.limits.yMin = (float)e57::FloatNode(cartesianBounds.get("yMinimum")).value();
+            _info.limits.yMax = (float)e57::FloatNode(cartesianBounds.get("yMaximum")).value();
+            _info.limits.zMin = (float)e57::FloatNode(cartesianBounds.get("zMinimum")).value();
+            _info.limits.zMax = (float)e57::FloatNode(cartesianBounds.get("zMaximum")).value();
         }
         else
         {
-            _info.bbox = { (float)_info.transfo.translation[0], (float)_info.transfo.translation[0], 
+            _info.limits = { (float)_info.transfo.translation[0], (float)_info.transfo.translation[0], 
                 (float)_info.transfo.translation[1], (float)_info.transfo.translation[1], 
                 (float)_info.transfo.translation[2], (float)_info.transfo.translation[2] };
         }
@@ -217,7 +217,7 @@ uint64_t E57FileReader::getTotalPoints() const
     return totalPointCount;
 }
 
-const tls::FileHeader& E57FileReader::getTlsHeader() const
+tls::FileHeader E57FileReader::getTlsHeader() const
 {
     return m_header;
 }

@@ -2,7 +2,7 @@
 #define PTS_WRITER_H
 
 #include "io/exports/IScanFileWriter.h"
-#include "models/pointCloud/TLS.h"
+#include "tls_def.h"
 
 #include <filesystem>
 #include <fstream>

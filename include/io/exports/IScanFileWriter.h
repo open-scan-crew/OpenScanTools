@@ -2,7 +2,7 @@
 #define I_SCAN_FILE_WRITER_H
 
 #include "io/FileUtils.h"
-#include "models/pointCloud/TLS.h"
+#include "tls_def.h"
 #include "models/graph/TransformationModule.h"
 
 #include <string>

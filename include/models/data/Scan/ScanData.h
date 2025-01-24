@@ -1,7 +1,7 @@
 #ifndef SCANDATA_H_
 #define SCANDATA_H_
 
-#include "models/pointCloud/TLS.h"
+#include "tls_def.h"
 
 #include <filesystem>
 

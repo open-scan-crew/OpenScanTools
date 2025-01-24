@@ -3,8 +3,9 @@
 
 #include "io/exports/IScanFileWriter.h"
 #include "openE57.h"
-#include "models/pointCloud/TLS.h"
+#include "tls_def.h"
 #include "io/StagingBuffers.h"
+#include "models/3d/BoundingBox.h"
 
 #include <filesystem>
 

@@ -2,7 +2,7 @@
 #define APOINT_CLOUD_NODE_H
 
 #include "models/graph/AObjectNode.h"
-#include "models/pointCloud/TLS.h"
+#include "tls_def.h"
 #include "models/data/Scan/ScanData.h"
 #include "vulkan/VkUniform.h"
 

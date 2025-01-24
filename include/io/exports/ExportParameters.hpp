@@ -3,7 +3,7 @@
 
 #include <filesystem>
 #include "io/FileUtils.h"
-#include "models/pointCloud/TLS.h"
+#include "tls_def.h"
 #include "models/OpenScanToolsModelEssentials.h"
 
 // NOTE - The enums are used for combo box indexes

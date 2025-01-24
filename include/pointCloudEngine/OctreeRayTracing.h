@@ -1,8 +1,7 @@
 #ifndef OCTREE_RAY_TRACING_H
 #define OCTREE_RAY_TRACING_H
 
-#include "pointCloudEngine/OctreeBase.h"
-#include "models/pointCloud/PointXYZIRGB.h"
+#include "OctreeBase.h"
 #include "models/data/clipping/ClippingGeometry.h"
 #include "models/graph/TransformationModule.h"
 
@@ -149,7 +148,6 @@ protected:
     // NOTE(robin) - Add the root as parameter to make the function static
 	static std::vector<bool> getCellPathInADimension(const TreeCell& cell, const TreeCell& root, const int& dimensionIndex);
 	static void displayCellInfo(const TreeCell& cell, const TreeCell& root);
-	static void displayPointCoordinates(const PointXYZIRGB& point);
 	static void displayPointCoordinatesGLM(const glm::dvec3& point);
 	
 

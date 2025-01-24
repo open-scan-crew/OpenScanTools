@@ -1,16 +1,16 @@
 #ifndef EMBEDDED_SCAN_H
 #define EMBEDDED_SCAN_H
 
-#include "models/pointCloud/TLS.h"
+#include "tls_def.h"
 #include "models/pointCloud/PointXYZIRGB.h"
 #include "models/graph/TransformationModule.h"
+#include "models/3d/BoundingBox.h"
 #include "pointCloudEngine/PCE_graphics.h"
 #include "pointCloudEngine/PCE_stream.h"
-#include "pointCloudEngine/OctreeBase.h"
+#include "OctreeBase.h" // lib_tls
 #include "pointCloudEngine/SmartBuffer.h"
 #include "pointCloudEngine/SmartBufferWorkload.h"
 #include "models/data/clipping/ClippingGeometry.h"
-#include "io/imports/TlsReader.h"
 #include "pointCloudEngine/OctreeRayTracing.h"
 
 #include <vector>
@@ -89,10 +89,8 @@ struct TlFrustumTest
 - Le TlScan fait le lien entre les informations logiques et les emplacements physiques des données.
 - Les emplacements physiques peuvent être sur disque secondaire (HDD), sur la mémoire primaire(CPU), ou sur la mémoire vidéo (GPU)
 */
-class EmbeddedScan : public OctreeBase
+class EmbeddedScan : public tls::OctreeBase
 {
-TLS_READER_DECLARE(EmbeddedScan);
-
 public:
     EmbeddedScan(std::filesystem::path const& filepath);
     ~EmbeddedScan();
@@ -135,8 +133,6 @@ public:
     void deleteFileWhenDestroyed(bool deletePhysicalFile);
 
 protected:
-    bool copyData(std::ifstream& _istream, void* const _dest, uint64_t _filePos, uint64_t _dataSize) const;
-
     bool getVisibleTree_impl(uint32_t _cellId, std::vector<TlCellDrawInfo>& _result, const TlProjectionInfo& _projInfo, const TlFrustumTest& _frustumTest, std::vector<uint32_t>& _missingCells);
     bool getVisibleTreeMultiClip_impl(uint32_t _cellId, std::vector<TlCellDrawInfo>& _result, std::vector<TlCellDrawInfo_multiCB>& _resultCB, const TlProjectionInfo& _projInfo, const TlFrustumTest& _frustumTest, const ClippingAssembly& clippingAssembly, std::vector<uint32_t>& _missingCells);
     
@@ -227,11 +223,10 @@ protected:
     glm::dmat4 getMatrixToLocal() const;
 
 protected:
-    std::filesystem::path m_path;
-    tls::FileHeader m_fileHeader;
+    tls::ImageFile tls_img_file_;
+    //std::filesystem::path m_path;
     tls::ScanHeader m_scanHeader;
 
-    uint64_t m_fileSize;
     uint64_t m_pointDataOffset;
     uint64_t m_instanceDataOffset;
     bool m_deleteFileWhenDestroyed;

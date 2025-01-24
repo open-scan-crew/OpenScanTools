@@ -76,7 +76,6 @@ void RcsFileReader::initHeaders()
 
     // Scan Header (the real infos)
     m_scanHeader.guid = xg::Guid(m_rcScan->getScanId().getString());
-    m_scanHeader.version = tls::ScanVersion::SCAN_V_0_4;
     m_scanHeader.acquisitionDate = 0; // no date
     m_scanHeader.name = m_rcScan->getName();
     m_scanHeader.sensorModel = m_rcScan->getScanProvider();
@@ -95,7 +94,7 @@ void RcsFileReader::initHeaders()
     auto rcbbox = m_rcScan->getBoundingBox();
     const auto& bboxMin = rcbbox.getMin();
     const auto& bboxMax = rcbbox.getMax();
-    m_scanHeader.bbox = { (float)bboxMin.x, (float)bboxMax.x,
+    m_scanHeader.limits = { (float)bboxMin.x, (float)bboxMax.x,
         (float)bboxMin.y, (float)bboxMax.y,
         (float)bboxMin.z, (float)bboxMax.z };
     m_scanHeader.pointCount = m_rcScan->getNumberOfPoints();
@@ -135,7 +134,7 @@ uint64_t RcsFileReader::getTotalPoints() const
     return m_pointCount;
 }
 
-const tls::FileHeader& RcsFileReader::getTlsHeader() const
+tls::FileHeader RcsFileReader::getTlsHeader() const
 {
     return m_fileHeader;
 }

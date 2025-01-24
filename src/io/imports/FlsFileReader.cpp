@@ -140,7 +140,6 @@ FlsFileReader::FlsFileReader(const std::filesystem::path& filepath, std::wstring
         //std::wstring_convert<std::codecvt_utf8<char>, char> utfconv;
 
         scanH.guid = xg::Guid();
-        scanH.version = tls::ScanVersion::V_MAX_ENUM;
 
         tm timeStruct{ sec, min, hour, day, month, year - 1900, 0, 0, 0};
         scanH.acquisitionDate = mktime(&timeStruct);
@@ -169,7 +168,7 @@ FlsFileReader::FlsFileReader(const std::filesystem::path& filepath, std::wstring
         scanH.transfo.quaternion[1] = sin(orientation[3] / 2) * orientation[1];
         scanH.transfo.quaternion[2] = sin(orientation[3] / 2) * orientation[2];
         scanH.transfo.quaternion[3] = cos(orientation[3] / 2);
-        scanH.bbox = { 1.f, -1.f, 1.f, -1.f, 1.f, -1.f }; // fake bbox, we do not have the info
+        scanH.limits = { 1.f, -1.f, 1.f, -1.f, 1.f, -1.f }; // fake bbox, we do not have the info
         scanH.pointCount = libRef->getScanNumRows(n) * libRef->getScanNumCols(n);
         scanH.precision = tls::PrecisionType::TL_OCTREE_100UM;
         scanH.format = m_readColor ? tls::PointFormat::TL_POINT_XYZ_I_RGB : tls::PointFormat::TL_POINT_XYZ_I;
@@ -205,7 +204,7 @@ uint64_t FlsFileReader::getTotalPoints() const
     return (numPoints);
 }
 
-const tls::FileHeader& FlsFileReader::getTlsHeader() const
+tls::FileHeader FlsFileReader::getTlsHeader() const
 {
     return m_header;
 }

@@ -30,16 +30,16 @@
     <ClInclude Include="tls_file.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="OctreeBase_k.h">
+    <ClInclude Include="OctreeBase.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="OctreeCtor_k.h">
+    <ClInclude Include="OctreeCtor.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="PointXYZIRGB_k.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="OctreeDecoder_k.h">
+    <ClInclude Include="OctreeDecoder.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="utils.h">
@@ -59,13 +59,13 @@
     <ClCompile Include="tls_impl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OctreeBase_k.cpp">
+    <ClCompile Include="OctreeBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OctreeCtor_k.cpp">
+    <ClCompile Include="OctreeCtor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OctreeDecoder_k.cpp">
+    <ClCompile Include="OctreeDecoder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="utils.cpp">

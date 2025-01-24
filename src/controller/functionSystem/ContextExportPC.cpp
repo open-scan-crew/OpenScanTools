@@ -17,7 +17,6 @@
 
 #include "io/exports/IScanFileWriter.h"
 #include "io/exports/RcpFileWriter.h"
-#include "io/exports/TlsWriter.h"
 #include "io/exports/CSVWriter.hxx"
 
 #include "utils/math/trigo.h"
@@ -190,9 +189,9 @@ void writeHeaderInCSV(CSVWriter* csvWriter, const tls::ScanHeader& header)
     *csvWriter << (header.transfo.translation[0]);
     *csvWriter << (header.transfo.translation[1]);
     *csvWriter << (header.transfo.translation[2]);
-    *csvWriter << (header.bbox.xMax - header.bbox.xMin);
-    *csvWriter << (header.bbox.yMax - header.bbox.yMin);
-    *csvWriter << (header.bbox.zMax - header.bbox.zMin);
+    *csvWriter << (header.limits.xMax - header.limits.xMin);
+    *csvWriter << (header.limits.yMax - header.limits.yMin);
+    *csvWriter << (header.limits.zMax - header.limits.zMin);
     glm::dvec3 eulers(tls::math::quat_to_euler_zyx_deg(glm::dquat(header.transfo.quaternion[3], header.transfo.quaternion[0], header.transfo.quaternion[1], header.transfo.quaternion[2])));
     *csvWriter << (eulers.x);
     *csvWriter << (eulers.y);
@@ -238,15 +237,14 @@ void ContextExportPC::copyTls(Controller& controller, CopyTask task)
         return;
     }
 
-    std::ofstream os;
-    os.open(task.dst_path, std::ios::out | std::ios::in | std::ios::binary);
-    if (os.fail())
+    tls::ImageFile_p img_file(task.dst_path, tls::usage::read);
+    if (!img_file.is_valid_file())
     {
         controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString(TEXT_EXPORT_ERROR_FILE).arg(QString::fromStdWString(task.dst_path))));
         return;
     }
 
-    tls::writer::overwriteTransformation(os, task.dst_transfo.translation, task.dst_transfo.quaternion);
+    img_file.overwriteTransformation(task.dst_transfo);
 }
 
 bool ContextExportPC::processExport(Controller& controller, CSVWriter* csv_writer)
@@ -636,8 +634,12 @@ TransformationModule ContextExportPC::getBestTransformation(const ClippingAssemb
 
     for (const tls::PointCloudInstance& pc : pc_instances)
     {
-        BoundingBoxD&& t_bbox = pc.header.bbox.transform(pc.transfo.getTransformation());
-        scan_bbox.extend(t_bbox);
+        const tls::Limits& limits = pc.header.limits;
+        BoundingBoxD scan_bbox{ limits.xMin, limits.xMax,
+                                limits.yMin, limits.yMax,
+                                limits.zMin, limits.zMax };
+
+        scan_bbox.extend(scan_bbox.transform(pc.transfo.getTransformation()));
     }
 
     BoundingBoxD union_bbox;

@@ -7,7 +7,6 @@
 #include "models/3d/Measures.h"
 #include "utils/Logger.h"
 #include <queue>
-//#include <eigen-3.3.9/Eigen/Dense>
 #include <glm/gtx/quaternion.hpp>
 using namespace std::chrono;
 
@@ -3198,21 +3197,6 @@ glm::dvec3 TlScanOverseer::computeAreaOfPolyline(std::vector<Measure> measures)
 	}
 
 }
-
-std::list<tls::ScanHeader> TlScanOverseer::getScansHeaders() const
-{
-    std::list<tls::ScanHeader> headers;
-
-    for (const std::pair<tls::ScanGuid, EmbeddedScan*>& _pair : m_activeScans)
-    {
-        tls::ScanHeader header;
-        _pair.second->getInfo(header);
-        headers.push_back(header);
-    }
-
-    return headers;
-}
-
 
 void TlScanOverseer::refreshResources()
 {

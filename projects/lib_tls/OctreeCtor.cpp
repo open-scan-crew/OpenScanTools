@@ -1,18 +1,16 @@
-#include "OctreeCtor_k.h"
+#include "OctreeCtor.h"
 
 #include <chrono>
-#include <limits>
 
 //--- Constructors ---//
 
+using namespace tls;
+
 OctreeCtor::OctreeCtor(tls::PrecisionType _precisionType, tls::PointFormat _ptFormat)
     : OctreeBase(_precisionType, _ptFormat)
-    , m_vertexData(nullptr)
-    , m_instData(nullptr)
     , m_octreeDepth(0)
     , m_nbDiscardedPoints(0)
     , m_redundantPointCount(0)
-    , m_vertexDataSize(0)
 {
     // Create the root with a center at (0, 0, 0) and the maximum size of a leaf
 
@@ -28,12 +26,9 @@ OctreeCtor::OctreeCtor(tls::PrecisionType _precisionType, tls::PointFormat _ptFo
 
 OctreeCtor::OctreeCtor(OctreeBase const& _base)
     : OctreeBase(_base)
-    , m_vertexData(nullptr)
-    , m_instData(nullptr)
     , m_octreeDepth(0)
     , m_nbDiscardedPoints(0)
     , m_redundantPointCount(0)
-    , m_vertexDataSize(0)
 {
     m_vTempData.resize(m_cellCount);
 }
@@ -42,8 +37,6 @@ OctreeCtor::OctreeCtor(OctreeBase const& _base)
 
 OctreeCtor::~OctreeCtor()
 {
-    delete[] m_vertexData;
-    delete[] m_instData;
     for (unsigned i = 0; i < m_vTempData.size(); i++) {
         // m_inPoints.clear();
         delete[] m_vTempData[i].m_outPoints;

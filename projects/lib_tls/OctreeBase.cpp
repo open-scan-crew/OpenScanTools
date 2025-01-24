@@ -1,8 +1,10 @@
-#include "pointCloudEngine/OctreeBase.h"
+#include "OctreeBase.h"
 
 //--- Constructors ---//
 
-OctreeBase::OctreeBase() : OctreeBase(tls::TL_OCTREE_100UM, tls::TL_POINT_XYZ_I_RGB)
+using namespace tls;
+
+OctreeBase::OctreeBase() : OctreeBase(tls::PrecisionType::TL_OCTREE_100UM, tls::TL_POINT_XYZ_I_RGB)
 {}
 
 OctreeBase::OctreeBase(const tls::PrecisionType& _precisionType, const tls::PointFormat& _ptFormat)
@@ -11,20 +13,21 @@ OctreeBase::OctreeBase(const tls::PrecisionType& _precisionType, const tls::Poin
     , m_ptFormat(_ptFormat)
     , m_rootSize(0.f)
     , m_rootPosition{ 0.f, 0.f, 0.f }
+    , m_limits{ std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity() }
     , m_pointCount(0)
     , m_cellCount(0)
     , m_uRootCell(0)
 {
     switch (m_precisionType) {
-    case tls::TL_OCTREE_1MM:
+    case tls::PrecisionType::TL_OCTREE_1MM:
         m_rootSize = 64.f;
         m_maxLeafSize = 64.f;
         break;
-    case tls::TL_OCTREE_100UM:
+    case tls::PrecisionType::TL_OCTREE_100UM:
         m_rootSize = 8.f;
         m_maxLeafSize = 8.f;
         break;
-    case tls::TL_OCTREE_10UM:
+    case tls::PrecisionType::TL_OCTREE_10UM:
         m_rootSize = 1.f;
         m_maxLeafSize = 1.f;
         break;
@@ -32,6 +35,14 @@ OctreeBase::OctreeBase(const tls::PrecisionType& _precisionType, const tls::Poin
         break;
     }
     m_minLeafSize = tls::getPrecisionValue(m_precisionType);
+}
+
+OctreeBase::~OctreeBase()
+{
+    if (m_vertexData != nullptr)
+        delete[] m_vertexData;
+    if (m_instData != nullptr)
+        delete[] m_instData;
 }
 
 //--- Functions ---//
@@ -48,32 +59,20 @@ void OctreeBase::setPointFormat(tls::PointFormat format)
 
 uint64_t OctreeBase::getPointCount() const
 {
-	return m_pointCount;
+    return m_pointCount;
 }
 
-/*
-void OctreeBase::setPointCount(const uint64_t& count)
+const tls::Limits& OctreeBase::getLimits() const
 {
-	m_pointCount = count;
+    return m_limits;
 }
-
-std::vector<TreeCell>& OctreeBase::setData()
-{
-	return m_vTreeCells;
-}*/
 
 const std::vector<TreeCell>& OctreeBase::getData() const
 {
-	return m_vTreeCells;
+    return m_vTreeCells;
 }
-
-/*
-void OctreeBase::setCellCount(const int64_t& cellCount)
-{
-	m_cellCount = cellCount;
-}*/
 
 int64_t OctreeBase::getCellCount() const
 {
-	return m_cellCount;
+    return m_cellCount;
 }

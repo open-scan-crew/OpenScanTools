@@ -129,7 +129,7 @@ ContextState ContextPCOCreation::launch(Controller& controller)
     tls::ScanHeader dstScanHeader;
     dstScanHeader.name = m_parameters.fileName;
     // The bounding box should be calculated by the scan writer (for the TLS it is the octreeCtor, for the e57 ??)
-    dstScanHeader.bbox;
+    dstScanHeader.limits;
     // Initialize precision and point count
     dstScanHeader.precision = tls::PrecisionType::TL_OCTREE_100UM;
     dstScanHeader.pointCount = 0;

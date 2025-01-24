@@ -3,7 +3,7 @@
 
 #include "models/graph/APointCloudNode.h"
 #include "models/graph/AClippingNode.h"
-#include "models/pointCloud/TLS.h"
+#include "tls_def.h"
 #include "models/data/Clipping/ClippingData.h"
 
 class ScanObjectNode : public APointCloudNode

@@ -2,7 +2,7 @@
 #define CONVERTION_MESSAGE_H_
 
 #include "controller/messages/IMessage.h"
-#include "models/pointCloud/TLS.h"
+#include "tls_def.h"
 #include "io/FileUtils.h"
 #include "io/ConvertProperties.h"
 #include "io/imports/ImportTypes.h"

@@ -5,19 +5,16 @@
 #include "io/ConvertProperties.h"
 #include "io/imports/ImportTypes.h"
 
-#include "models/pointCloud/TLS.h"
+#include "tls_def.h"
 
 #include <qstring.h>
 
 enum FileType;
-namespace tls {
-    enum PrecisionType;
-};
 
 class IScanFileReader;
 class IScanFileWriter;
 
-class ContextConvertionScan: public ARayTracingContext
+class ContextConvertionScan : public ARayTracingContext
 {
 public:
 	enum CheckState { OK, WARNING, FORCE, RENAME, FAIL };

@@ -94,39 +94,49 @@ struct Leaf
     uint32_t m_pointCount;
 };
 */
-
-class OctreeBase
+namespace tls
 {
-public:
-    OctreeBase();
-    OctreeBase(const tls::PrecisionType& _precision, const tls::PointFormat& ptFormat);
-    ~OctreeBase() {};
+    class ImageFile_p;
 
-    tls::PointFormat getPointFormat() const;
-    void setPointFormat(tls::PointFormat format);
+    class OctreeBase
+    {
+    public:
+        OctreeBase();
+        OctreeBase(const PrecisionType& _precision, const PointFormat& ptFormat);
+        ~OctreeBase();
 
-    const std::vector<TreeCell>& getData() const;
-    int64_t getCellCount() const;
-    uint64_t getPointCount() const;
-    const tls::Limits& getLimits() const;
+        PointFormat getPointFormat() const;
+        void setPointFormat(PointFormat format);
 
-    TLS_READER_DECLARE(OctreeBase);
+        const std::vector<TreeCell>& getData() const;
+        int64_t getCellCount() const;
+        uint64_t getPointCount() const;
+        const tls::Limits& getLimits() const;
 
-protected:
-    const tls::PrecisionType m_precisionType;
-    float m_precisionValue;
-    tls::PointFormat m_ptFormat;
+        TLS_READER_DECLARE(OctreeBase);
+        TLS_WRITER_DECLARE(OctreeBase);
 
-    float m_rootSize;
-    float m_rootPosition[3];
-    float m_maxLeafSize;
-    float m_minLeafSize;
-    tls::Limits m_limits;
+    protected:
+        const tls::PrecisionType m_precisionType;
+        float m_precisionValue;
+        tls::PointFormat m_ptFormat;
 
-    uint64_t m_pointCount;
-    uint32_t m_cellCount;
-    uint32_t m_uRootCell;
-    std::vector<TreeCell> m_vTreeCells;
-};
+        float m_rootSize;
+        float m_rootPosition[3];
+        float m_maxLeafSize;
+        float m_minLeafSize;
+        tls::Limits m_limits;
+
+        char* m_vertexData = nullptr;
+        size_t m_vertexDataSize = 0;
+        char* m_instData = nullptr;
+        size_t m_instDataSize = 0;
+
+        uint64_t m_pointCount;
+        uint32_t m_cellCount;
+        uint32_t m_uRootCell;
+        std::vector<TreeCell> m_vTreeCells;
+    };
+}
 
 #endif  // !OCTREE_BASE_H

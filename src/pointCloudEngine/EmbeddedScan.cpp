@@ -1,9 +1,8 @@
 #include "pointCloudEngine/EmbeddedScan.h"
 #include "pointCloudEngine/OctreeRayTracing.h"
-#include "pointCloudEngine/OctreeShredder.h"
+//#include "pointCloudEngine/OctreeShredder.h"
 #include "vulkan/VulkanManager.h"
 #include "utils/Logger.h"
-#include "utils/Utils.h"
 #include "models/graph/TransformationModule.h"
 
 #include <chrono>
@@ -20,52 +19,42 @@ EmbeddedScan::EmbeddedScan(std::filesystem::path const& filepath)
     , m_lastFrameUse(0)
     , m_pCellBuffers(nullptr)
 {
-    // open file stream
-    std::ifstream istream;
-    istream.open(filepath, std::ios::in | std::ios::binary | std::ios::ate);
-    if (istream.fail()) {
-        Logger::log(IOLog) << "An error occured while opening the TLS file '" << filepath << "'" << Logger::endl;
-
-        return;
-    }
-    m_path = filepath;
-    m_fileSize = istream.tellg();
-
-    // Test if the file is a valid TLS
-    if (tls::reader::checkFile(istream, m_fileHeader) == false) {
-        Logger::log(IOLog) << "The file '" << filepath << "' is not recognized as a valid TLS file." << Logger::endl;
-        istream.close();
-        return;
-    }
-
-    // Create and initialize all the scans contained in the file
-    tls::reader::getScanInfo(istream, m_fileHeader.version, m_scanHeader, 0);
-    // In version 0.4, the TLS do not contain a name for each scan.
-    // So we get the name of the file.
-    // If there is more than one scan in the file, append with the scan number.
-    m_scanHeader.name = m_path.stem().wstring();
-
-    if (tls::reader::getEmbeddedScan(istream, m_fileHeader.version, *this) == false)
+    // open tls file
+    if (!tls_img_file_.open(filepath, tls::usage::render))
     {
-        Logger::log(IOLog) << "Failed to read the octree part in '" << m_path << "'" << Logger::endl;
-        istream.close();
+        Logger::log(IOLog) << "An error occured while opening the TLS file '" << filepath << "'" << Logger::endl;
         return;
     }
 
-    std::vector<float> stageInstance(m_cellCount * 4);
-    istream.seekg(m_instanceDataOffset);
-    istream.read((char*)stageInstance.data(), m_cellCount * 4 * sizeof(float));
-    istream.close();
+    m_scanHeader = tls_img_file_.getPointCloudHeader(0);
+
+    if(!tls_img_file_.getOctreeBase(0, *(tls::OctreeBase*)this))
+    {
+        Logger::log(IOLog) << "Failed to read the octree part in '" << tls_img_file_.getPath() << "'" << Logger::endl;
+        return;
+    }
 
     // Initialize the buffers
     m_pCellBuffers = new SmartBuffer[m_cellCount];
     memset(m_pCellBuffers, 0, m_cellCount * sizeof(SmartBuffer));
 
-    VulkanManager& vkManager = VulkanManager::getInstance();
+    // Load the instance data
+    //std::vector<float> stageInstance(m_cellCount * 4);
+    //istream.seekg(m_instanceDataOffset);
+    //istream.read((char*)stageInstance.data(), m_cellCount * 4 * sizeof(float));
+    //istream.close();
 
+    size_t data_size = 0;
+    tls_img_file_.getCellRenderData(0, nullptr, data_size); // get the data size by passing a null buffer
+    char* data_buffer = new char[data_size];
+    tls_img_file_.getCellRenderData(0, data_buffer, data_size);
+
+    VulkanManager& vkManager = VulkanManager::getInstance();
     vkManager.allocSimpleBuffer(m_cellCount * 4 * sizeof(float), m_instanceBuffer, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
     VkDeviceSize offset = 0;
-    vkManager.loadInSimpleBuffer(m_instanceBuffer, m_cellCount * 4 * sizeof(float), stageInstance.data(), offset, 4);
+    vkManager.loadInSimpleBuffer(m_instanceBuffer, m_cellCount * 4 * sizeof(float), data_buffer, offset, 4);
+
+    delete data_buffer;
 }
 
 EmbeddedScan::~EmbeddedScan()
@@ -86,13 +75,16 @@ EmbeddedScan::~EmbeddedScan()
 
     if (m_deleteFileWhenDestroyed)
     {
-        if (std::filesystem::remove(m_path) == true)
+        std::filesystem::path filepath = tls_img_file_.getPath();
+        tls_img_file_.close();
+
+        if (std::filesystem::remove(filepath) == true)
         {
-            Logger::log(IOLog) << "INFO - the file " << m_path << " has been successfully removed." << Logger::endl;
+            Logger::log(IOLog) << "INFO - the file " << filepath << " has been successfully removed." << Logger::endl;
         }
         else
         {
-            Logger::log(IOLog) << "WARNING - the file " << m_path << " cannot be removed from the file system. The file may be accessed elsewhere." << Logger::endl;
+            Logger::log(IOLog) << "WARNING - the file " << filepath << " cannot be removed from the file system. The file may be accessed elsewhere." << Logger::endl;
         }
     }
 }
@@ -104,7 +96,7 @@ tls::ScanGuid EmbeddedScan::getGuid() const
 
 tls::FileGuid EmbeddedScan::getFileGuid() const
 {
-    return m_fileHeader.guid;
+    return tls_img_file_.getFileHeader().guid;
 }
 
 void EmbeddedScan::getInfo(tls::ScanHeader &info) const
@@ -114,12 +106,14 @@ void EmbeddedScan::getInfo(tls::ScanHeader &info) const
 
 std::filesystem::path EmbeddedScan::getPath() const
 {
-    return m_path;
+    return tls_img_file_.getPath();
 }
 
 void EmbeddedScan::setPath(const std::filesystem::path& newPath)
 {
-    m_path = newPath;
+    tls_img_file_.close();
+    if (!tls_img_file_.open(newPath, tls::usage::render))
+        assert(0);
 }
 
 bool EmbeddedScan::getGlobalDrawInfo(TlScanDrawInfo& scanDrawInfo)
@@ -128,7 +122,6 @@ bool EmbeddedScan::getGlobalDrawInfo(TlScanDrawInfo& scanDrawInfo)
     if (m_instanceBuffer.buffer == VK_NULL_HANDLE)
         return false;
 
-    scanDrawInfo.scanVersion = m_scanHeader.version;
     scanDrawInfo.instanceBuffer = m_instanceBuffer.buffer;
     scanDrawInfo.format = m_scanHeader.format;
     return true;
@@ -409,7 +402,8 @@ void EmbeddedScan::setComputeTransfo(const glm::dvec3& t, const glm::dquat& q)
 
 BoundingBox EmbeddedScan::getLocalBoundingBox() const
 {
-    return m_scanHeader.bbox;
+    tls::Limits lim = m_scanHeader.limits;
+    return { lim.xMin, lim.xMax, lim.yMin, lim.yMax, lim.zMin, lim.zMax };
 }
 
 void EmbeddedScan::assumeWorkload()
@@ -424,14 +418,6 @@ void EmbeddedScan::assumeWorkload()
     }
     sbw->incrementPassCount();
 
-    // Open the file
-    std::ifstream istream;
-    istream.open(m_path, std::ios::in | std::ios::binary | std::ios::beg);
-    if (istream.fail()) {
-        Logger::log(IOLog) << "An error occured while opening the TLS file '" << m_path << "'" << Logger::endl;
-        return;
-    }
-
     bool result = true;
     std::vector<uint32_t> bufferIds = sbw->getMissingBuffers();
     std::vector<uint32_t> stillMissingBuffers;
@@ -444,7 +430,11 @@ void EmbeddedScan::assumeWorkload()
             if (VulkanManager::getInstance().allocSmartBuffer(m_vTreeCells[id].m_dataSize, sbuf, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VkResult::VK_SUCCESS)
             {
                 void* pData = VulkanManager::getInstance().getMappedPointer(sbuf);
-                result &= copyData(istream, pData, m_pointDataOffset + m_vTreeCells[id].m_dataOffset, m_vTreeCells[id].m_dataSize);
+
+                //result &= copyData(istream, pData, m_pointDataOffset + m_vTreeCells[id].m_dataOffset, m_vTreeCells[id].m_dataSize);
+
+                result &= tls_img_file_.getData(0, m_pointDataOffset + m_vTreeCells[id].m_dataOffset, pData, m_vTreeCells[id].m_dataSize);
+
                 sbuf.state.store(TlDataState::LOADED);
             }
             else
@@ -455,7 +445,6 @@ void EmbeddedScan::assumeWorkload()
             }
         }
     }
-    istream.close();
     sbw->setMissingBuffers(stillMissingBuffers); 
 
     // The workload is not complete
@@ -541,14 +530,6 @@ bool EmbeddedScan::startStreamingAll(char* _stageBuf, uint64_t _stageSize, uint6
     if (sortedCPUTransfers.empty() && sortedStagedTransfers.empty())
         return (continueStreaming);
 
-    // Open the file
-    std::ifstream istream;
-    istream.open(m_path, std::ios::in | std::ios::binary | std::ios::beg);
-    if (istream.fail()) {
-        Logger::log(IOLog) << "An error occured while opening the TLS file '" << m_path << "'" << Logger::endl;
-        return true;
-    }
-
     // Pack the transfer from the hdd by proximity
     // while there are remaining transfers
     for (auto it_tsf = sortedStagedTransfers.begin(); it_tsf != sortedStagedTransfers.end(); )
@@ -573,20 +554,21 @@ bool EmbeddedScan::startStreamingAll(char* _stageBuf, uint64_t _stageSize, uint6
                 break;
         }
 
-        if (copyData(istream, _stageBuf + _stageOffset, srcOffset, dataSize) == false)
+        if (tls_img_file_.getData(0, srcOffset, _stageBuf + _stageOffset, dataSize) == false)
             return false;
+
+        //if (copyData(istream, _stageBuf + _stageOffset, srcOffset, dataSize) == false)
+        //    return false;
 
         _stageOffset += dataSize;
     }
 
-
-    std::vector<TlStagedTransferInfo> groupedTransfers;
     size_t miniBufSize = 2 * 1024 * 1024;
     char* miniBuf = new char[miniBufSize];
     // No limit in the amount of transfer
     for (auto it_tsf = sortedCPUTransfers.begin(); it_tsf != sortedCPUTransfers.end(); )
     {
-        groupedTransfers.clear();
+        std::vector<TlStagedTransferInfo> groupedTransfers;
         uint64_t srcOffset = it_tsf->fileOffset;
         uint64_t dataSize = it_tsf->dataSize;
         uint64_t subStageOffset = 0;
@@ -607,7 +589,9 @@ bool EmbeddedScan::startStreamingAll(char* _stageBuf, uint64_t _stageSize, uint6
         }
 
         // We transfer from the file the data locally continuous
-        copyData(istream, miniBuf, srcOffset, dataSize);
+        if (tls_img_file_.getData(0, srcOffset, miniBuf, dataSize) == false)
+            return false;
+        //copyData(istream, miniBuf, srcOffset, dataSize);
 
         for (TlStagedTransferInfo sti : groupedTransfers)
         {
@@ -618,7 +602,6 @@ bool EmbeddedScan::startStreamingAll(char* _stageBuf, uint64_t _stageSize, uint6
     }
     delete miniBuf;
 
-    istream.close();
     return (continueStreaming);
 }
 
@@ -672,21 +655,6 @@ bool EmbeddedScan::canBeDeleted()
 void EmbeddedScan::deleteFileWhenDestroyed(bool deletePhysicalFile)
 {
     m_deleteFileWhenDestroyed = deletePhysicalFile;
-}
-
-bool EmbeddedScan::copyData(std::ifstream& _istream, void* const _dest, uint64_t _filePos, uint64_t _dataSize) const
-{
-    if (_filePos + _dataSize > m_fileSize)
-        return false;
-
-    _istream.seekg(_filePos);
-    _istream.read((char*)_dest, _dataSize);
-    if (_istream.fail()) {
-        Logger::log(IOLog) << "An error occured during the reading of data in file " << m_path << " at position 0x" << std::hex << _filePos << Logger::endl;
-        return false;
-    }
-
-    return true;
 }
 
 //-------------------------------------+

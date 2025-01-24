@@ -2,7 +2,7 @@
 #define CONTROL_SCAN_EDITION_H
 
 #include "controller/controls/AEditionControl.h"
-#include "models/pointCloud/TLS.h"
+#include "tls_def.h"
 #include "utils/safe_ptr.h"
 
 class ScanNode;

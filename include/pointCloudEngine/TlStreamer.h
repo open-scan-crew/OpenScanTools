@@ -1,7 +1,7 @@
 #ifndef TL_STREAMER_H
 #define TL_STREAMER_H
 
-#include "models/pointCloud/TLS.h"
+#include "tls_def.h"
 #include "pointCloudEngine/PCE_stream.h"
 #include "vulkan/vulkan.h"
 

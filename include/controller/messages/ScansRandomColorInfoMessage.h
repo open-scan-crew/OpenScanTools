@@ -2,7 +2,7 @@
 #define SCANSRANDOMCOLORINFO_MESSAGE_H_
 
 #include "controller/messages/IMessage.h"
-#include "models/pointCloud/TLS.h"
+#include "tls_def.h"
 
 #include <glm/glm.hpp>
 #include <vector>

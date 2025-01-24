@@ -167,12 +167,6 @@ void OctreeRayTracing::displayCellInfo(const TreeCell& cell, const TreeCell& roo
 	return;
 }
 
-void OctreeRayTracing::displayPointCoordinates(const PointXYZIRGB& point)
-{
-	Logger::log(LoggerMode::rayTracingLog) << "POINT INFO : " << point.x << " " << point.y << " " << point.z << Logger::endl << Logger::endl;
-	return;
-}
-
 void OctreeRayTracing::displayPointCoordinatesGLM(const glm::dvec3& point)
 {
 	Logger::log(LoggerMode::rayTracingLog) << "POINT INFO : " << point.x << " " << point.y << " " << point.z << Logger::endl << Logger::endl;

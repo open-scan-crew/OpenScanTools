@@ -1,7 +1,7 @@
 #ifndef POINT_CLOUD_INSTANCE_H
 #define POINT_CLOUD_INSTANCE_H
 
-#include "models/pointCloud/TLS.h"
+#include "tls_def.h"
 #include "models/graph/TransformationModule.h"
 
 namespace tls

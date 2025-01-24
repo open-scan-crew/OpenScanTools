@@ -88,7 +88,7 @@ uint64_t RcpFileReader::getTotalPoints() const
     return m_totalPointCount;
 }
 
-const tls::FileHeader& RcpFileReader::getTlsHeader() const
+tls::FileHeader RcpFileReader::getTlsHeader() const
 {
     return m_header;
 }

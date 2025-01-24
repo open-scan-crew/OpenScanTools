@@ -37,11 +37,6 @@ bool tlScanLeftToFree()
 	return TlScanOverseer::getInstance().isScanLeftTofree();
 }
 
-std::list<tls::ScanHeader> tlScansHeaders()
-{
-    return TlScanOverseer::getInstance().getScansHeaders();
-}
-
 // ***** Stream Lock *****
 
 TlStreamLock::TlStreamLock()

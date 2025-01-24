@@ -687,7 +687,12 @@ BoundingBoxD GraphManager::getScanBoundingBox(ObjectStatusFilter status) const
 
 	for (const tls::PointCloudInstance inst : pc_instances)
 	{
-		project_bbox.extend(inst.header.bbox.transform(inst.transfo.getTransformation()));
+		const tls::Limits& limits = inst.header.limits;
+		BoundingBoxD scan_bbox{ limits.xMin, limits.xMax,
+								limits.yMin, limits.yMax,
+								limits.zMin, limits.zMax };
+
+		project_bbox.extend(scan_bbox.transform(inst.transfo.getTransformation()));
 	}
 	return project_bbox;
 }

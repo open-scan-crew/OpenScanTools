@@ -28,14 +28,9 @@ namespace tls
 
     struct Transformation
     {
-        Transformation()
-            : quaternion{ 0.0, 0.0, 0.0, 1.0 }
-            , translation{ 0.0, 0.0, 0.0 }
-        {
-        }
         // the quaternion components order is x, y, z, w
-        double quaternion[4];
-        double translation[3];
+        double quaternion[4] = { 0.0, 0.0, 0.0, 1.0 };
+        double translation[3] = { 0.0, 0.0, 0.0 };
         // double scale[3];
 
         bool operator==(const Transformation& rhs) const

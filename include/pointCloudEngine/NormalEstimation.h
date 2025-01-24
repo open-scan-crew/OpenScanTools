@@ -2,7 +2,6 @@
 #define NORMAL_ESTIMATION_H
 
 #include "OctreeRayTracing.h"
-#include <deque>
 #include <glm/glm.hpp>
 
 class TlScanFile_T;

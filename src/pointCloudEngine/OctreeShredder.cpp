@@ -2,72 +2,39 @@
 #include "models/pointCloud/PointXYZIRGB.h"
 #include "utils/Logger.h"
 
+#include "tls_core.h"
+#include "tls_impl.h"
+
 #include <map>
 
 OctreeShredder::OctreeShredder(const std::filesystem::path& tlsPath)
-    : m_pointDataCapacity(0)
-    , m_pointDataSize(0)
-    , m_pointData(nullptr)
-    , m_instanceDataSize(0)
-    , m_instanceData(nullptr)
-    , m_newInstanceData(nullptr)
-    , m_deletedLeafPoints(0)
+    : m_deletedLeafPoints(0)
     , m_deletedBranchPoints(0)
     , m_deletedCells(0)
     , m_reforgedCells(0)
     , m_totalSphereTests(0)
     , m_totalCellTested(0)
 {
-    // Variables
-    std::ifstream istream;
-    tls::FileHeader fileHeader;
-    tls::ScanHeader scanHeader;
+    tls::ImageFile_p img_file(tlsPath, tls::usage::read);
 
-    // open file stream
-    istream.open(tlsPath, std::ios::in | std::ios::binary | std::ios::ate);
-    if (istream.fail())
+    if (!img_file.is_valid_file())
     {
-        Logger::log(IOLog) << "An error occured while opening the TLS file " << tlsPath << Logger::endl;
+        Logger::log(IOLog) << "Failed to open the tls file at: " << tlsPath << Logger::endl;
         return;
     }
 
-    // Test if the file is a valid TLS
-    if (tls::reader::checkFile(istream, fileHeader) == false)
+    if (img_file.getOctreeBase(0, *(tls::OctreeBase*)this) == false)
     {
-        Logger::log(IOLog) << "The file " << tlsPath << " is not recognized as a valid TLS file." << Logger::endl;
-        istream.close();
-        return;
-    }
-
-    // Create and initialize all the scans contained in the file
-    tls::reader::getScanInfo(istream, fileHeader.version, scanHeader, 0);
-    // In version 0.4, the TLS do not contain a name for each scan.
-    // So we get the name of the file.
-    // If there is more than one scan in the file, append with the scan number.
-    scanHeader.name = tlsPath.stem().wstring();
-
-    if (tls::reader::getOctreeBase(istream, fileHeader.version, *this) == false)
-    {
-        Logger::log(IOLog) << "Failed to read the octree part in " << tlsPath << Logger::endl;
-        istream.close();
+        Logger::log(IOLog) << "Failed to read the data at: " << tlsPath << Logger::endl;
         return;
     }
 
     // Read the data in one block
-    tls::reader::copyRawData(istream, fileHeader.version, &m_pointData, m_pointDataCapacity, &m_instanceData, m_instanceDataSize);
-
-    istream.close();
+    img_file.copyRawData(&m_vertexData, m_vertexDataSize, &m_instData, m_instDataSize);
 }
 
 OctreeShredder::~OctreeShredder()
-{
-    if (m_pointData != nullptr)
-        delete m_pointData;
-    if (m_instanceData != nullptr)
-        delete m_instanceData;
-    if (m_newInstanceData != nullptr)
-        delete m_newInstanceData;
-}
+{}
 
 bool OctreeShredder::isEmpty()
 {
@@ -102,7 +69,7 @@ uint64_t OctreeShredder::cutPoints(const glm::dmat4& _modelMat, const ClippingAs
     //----------------------------------------------------.
     //   repack instances, repack data                    |
     //----------------------------------------------------'
-    generateInstanceData();
+    shiftInstanceData();
     repairEmptyBranches(m_uRootCell);
     shiftData();
 
@@ -117,29 +84,20 @@ uint64_t OctreeShredder::cutPoints(const glm::dmat4& _modelMat, const ClippingAs
 
 bool OctreeShredder::save(const std::filesystem::path& savePath, const tls::ScanHeader& header)
 {
-    std::ofstream ostream;
+    tls::ImageFile_p img_file(savePath, tls::usage::write);
 
-    // open file stream
-    ostream.open(savePath, std::ios::out | std::ios::binary);
-    if (ostream.fail())
+    if (!img_file.is_valid_file())
     {
         Logger::log(IOLog) << "An error occured while opening the TLS file " << savePath << Logger::endl;
         return false;
     }
 
-    if (tls::writer::writeFileHeader(ostream, 1) == false)
-    {
-        Logger::log(IOLog) << "An error occured while writng the TLS header" << Logger::endl;
-        return false;
-    }
-
-    if (tls::writer::writeOctreeShredder(ostream, 0, this, header) == false)
+    if (img_file.writeOctreeBase(0, *(OctreeBase*)this, header) == false)
     {
         Logger::log(IOLog) << "An error occured while writing the TLS file " << savePath << Logger::endl;
         return false;
     }
 
-    ostream.close();
     return true;
 }
 
@@ -234,7 +192,7 @@ void OctreeShredder::clipAndReforgeSPT(uint32_t _cellId, const ClippingAssembly&
     uint32_t tempLayerRanges[MAX_SPT_DEPTH];
     memset(tempLayerRanges, 0, MAX_SPT_DEPTH * sizeof(uint32_t));
 
-    char* srcPoints = m_pointData + cell.m_dataOffset;
+    char* srcPoints = m_vertexData + cell.m_dataOffset;
     const Coord16* srcXYZ = (Coord16*)(srcPoints);
     const uint8_t* srcI = (uint8_t*)(srcPoints + cell.m_iOffset);
     const Color24* srcRGB = (Color24*)(srcPoints + cell.m_rgbOffset);
@@ -247,7 +205,7 @@ void OctreeShredder::clipAndReforgeSPT(uint32_t _cellId, const ClippingAssembly&
     uint32_t tempCount = 0;
 
     // NOTE - La précision des branches n'est pas indiqué clairement dans l'octree. Il faut aller la chercher dans les données déjà préparées pour le buffer GPU.
-    float precision = ((float*)m_instanceData)[4 * _cellId + 3];
+    float precision = ((float*)m_instData)[4 * _cellId + 3];
 
     uint32_t p = 0;
     for (uint64_t layer = 0; layer < MAX_SPT_DEPTH; layer++)
@@ -376,8 +334,8 @@ void OctreeShredder::repairEmptyBranches(uint32_t _cellId)
             {
                 // Get first point from child
                 TreeCell& child = m_newTreeCells[childId];
-                char* childPoints = m_pointData + child.m_dataOffset;
-                float childPrecision = ((float*)m_newInstanceData)[4 * childId + 3];
+                char* childPoints = m_vertexData + child.m_dataOffset;
+                float childPrecision = ((float*)m_instData)[4 * childId + 3];
 
                 Coord16& childCoord = ((Coord16*)childPoints)[0];
                 PointXYZIRGB point;
@@ -386,8 +344,8 @@ void OctreeShredder::repairEmptyBranches(uint32_t _cellId)
                 point.z = childCoord.z * childPrecision + child.m_position[2];
 
                 // Encode the point with the cell precision and offset
-                char* cellPoints = m_pointData + cell.m_dataOffset;
-                float precision = ((float*)m_newInstanceData)[4 * _cellId + 3];
+                char* cellPoints = m_vertexData + cell.m_dataOffset;
+                float precision = ((float*)m_instData)[4 * _cellId + 3];
                 cell.m_depthSPT = 0;
                 cell.m_layerIndexes[0] = 1;
 
@@ -435,36 +393,47 @@ void OctreeShredder::shiftData()
             if (currentOffset + cell.m_dataSize >= cell.m_dataOffset)
             {
                 char* temp = new char[cell.m_dataSize];
-                memcpy(temp, m_pointData + cell.m_dataOffset, cell.m_dataSize);
-                memcpy(m_pointData + currentOffset, temp, cell.m_dataSize);
+                memcpy(temp, m_vertexData + cell.m_dataOffset, cell.m_dataSize);
+                memcpy(m_vertexData + currentOffset, temp, cell.m_dataSize);
                 delete temp;
             }
             else
             {
-                memcpy(m_pointData + currentOffset, m_pointData + cell.m_dataOffset, cell.m_dataSize);
+                memcpy(m_vertexData + currentOffset, m_vertexData + cell.m_dataOffset, cell.m_dataSize);
             }
         }
         cell.m_dataOffset = currentOffset;
         currentOffset += cell.m_dataSize;
     }
-    m_pointDataSize = currentOffset;
+    m_vertexDataSize = currentOffset;
 }
 
-void OctreeShredder::generateInstanceData()
+// FIXME - A better (and safer) process would be to regenerate the instance data from the cell data (position, precision)
+void OctreeShredder::shiftInstanceData()
 {
-    m_newInstanceData = new char[4 * m_newTreeCells.size() * sizeof(float)];
+    // Keep temporarily the old data
+    char* old_inst_data = m_instData;
+    size_t old_inst_size = m_instDataSize;
+
+    // Reset the stored data
+    m_instDataSize = 4 * m_newTreeCells.size() * sizeof(float);
+    m_instData = new char[m_instDataSize];
+    memset(m_instData, 0, m_instDataSize);
+
     for (uint32_t cellId = 0; cellId < m_correspCellId.size(); ++cellId)
     {
         uint32_t newCellId = m_correspCellId[cellId];
-        if (newCellId != NO_CHILD)
+        size_t src_offset = cellId * 16;
+        size_t dst_offset = newCellId * 16;
+        if (newCellId != NO_CHILD &&
+            src_offset + 16 < old_inst_size &&
+            dst_offset + 16 < m_instDataSize)
         {
-            memcpy(m_newInstanceData + newCellId * 16, m_instanceData + cellId * 16, 16);
+            memcpy(m_instData + dst_offset, old_inst_data + src_offset, 16);
         }
     }
 
-    delete m_instanceData;
-    m_instanceData = nullptr;
-    m_instanceDataSize = 0;
+    delete old_inst_data;
 }
 
 void OctreeShredder::logStats()

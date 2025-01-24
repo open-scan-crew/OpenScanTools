@@ -1,5 +1,7 @@
-#include "OctreeDecoder_k.h"
+#include "OctreeDecoder.h"
 #include <map>
+
+using namespace tls;
 
 OctreeDecoder::OctreeDecoder()
     : OctreeBase()
@@ -97,9 +99,9 @@ void OctreeDecoder::decodeCell(uint32_t cellId, PointXYZIRGB* optionalOutput)
         points[dataIterator].y = coord.y * m_precisionValue + cell.m_position[1];
         points[dataIterator].z = coord.z * m_precisionValue + cell.m_position[2];
     }
-    if (m_ptFormat != tls::PointFormat::TL_POINT_FORMAT_UNDEFINED)
+    if (m_ptFormat != PointFormat::TL_POINT_FORMAT_UNDEFINED)
     {
-        if (m_ptFormat != tls::PointFormat::TL_POINT_XYZ_RGB)
+        if (m_ptFormat != PointFormat::TL_POINT_XYZ_RGB)
         {
             uint8_t* packI = (uint8_t*)(srcPoints + cell.m_iOffset);
             for (uint64_t dataIterator(0); dataIterator < nbOfPoints; dataIterator++)
@@ -108,7 +110,7 @@ void OctreeDecoder::decodeCell(uint32_t cellId, PointXYZIRGB* optionalOutput)
             }
         }
 
-        if (m_ptFormat != tls::PointFormat::TL_POINT_XYZ_I)
+        if (m_ptFormat != PointFormat::TL_POINT_XYZ_I)
         {
             Color24* packRGB = (Color24*)(srcPoints + cell.m_rgbOffset);
             for (uint64_t dataIterator(0); dataIterator < nbOfPoints; dataIterator++)

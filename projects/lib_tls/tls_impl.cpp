@@ -1,14 +1,16 @@
 #include "tls_impl.h"
 #include "tls_file.h"
 
-#include "OctreeBase_k.h"
-#include "OctreeCtor_k.h"
-#include "OctreeDecoder_k.h"
+#include "OctreeBase.h"
+#include "OctreeCtor.h"
+#include "OctreeDecoder.h"
 
 #include "../../ext/glm/glm.hpp"
 #include "tls_transform.h"
 #include "utils.h"
 
+
+using namespace tls;
 
 float tls::getPrecisionValue(PrecisionType precisionType)
 {
@@ -58,29 +60,18 @@ void tls::getCompatibleFormat(PointFormat& inFormat, PointFormat addFormat)
     }
 }
 
-
-inline void seekScanHeaderPos(std::ofstream& _os, uint32_t _scanN, uint32_t _fieldPos)
-{
-    _os.seekp(TL_FILE_HEADER_SIZE + _scanN * TL_SCAN_HEADER_SIZE + _fieldPos);
-}
-
-tls::ImageFile_p::ImageFile_p(const std::filesystem::path& filepath, usage_options usage)
+ImageFile_p::ImageFile_p(const std::filesystem::path& filepath, usage usage)
     : filepath_(filepath)
 {
     switch (usage)
     {
-    case usage_options::read:
+    case usage::read:
         open_file();
         read_headers();
         break;
-    case usage_options::write:
+    case usage::write:
         create_file();
         write_headers();
-        break;
-
-    case usage_options::shred:
-        break;
-    case usage_options::render:
         break;
     default:
         return;
@@ -88,10 +79,8 @@ tls::ImageFile_p::ImageFile_p(const std::filesystem::path& filepath, usage_optio
 
 }
 
-tls::ImageFile_p::~ImageFile_p()
+ImageFile_p::~ImageFile_p()
 {
-
-    assert(octree_ctor_ || octree_decoder_);
     if (octree_ctor_ != nullptr)
         delete octree_ctor_;
 
@@ -101,24 +90,24 @@ tls::ImageFile_p::~ImageFile_p()
     fstr_.close();
 }
 
-bool tls::ImageFile_p::is_valid_file()
+bool ImageFile_p::is_valid_file()
 {
     return fstr_.is_open();
 }
 
-void tls::ImageFile_p::open_file()
+void ImageFile_p::open_file()
 {
     if (!std::filesystem::exists(filepath_))
     {
         std::string msg = "File \"" + filepath_.string() + "\" does not exist.";
-        results_.push_back({ tls::result::INVALID_FILE, msg });
+        results_.push_back({ result::INVALID_FILE, msg });
         return;
     }
 
     if (filepath_.extension() != ".tls")
     {
         std::string msg = "File \"" + filepath_.string() + "\" is not a tls.";
-        results_.push_back({ tls::result::NOT_A_TLS, msg });
+        results_.push_back({ result::NOT_A_TLS, msg });
         return;
     }
 
@@ -126,24 +115,26 @@ void tls::ImageFile_p::open_file()
     if (fstr_.fail())
     {
         std::string msg = "An unexpected error occured while opening the file '" + filepath_.string();
-        results_.push_back({ tls::result::ERROR, msg });
+        results_.push_back({ result::ERROR, msg });
         return;
     }
+
+    file_size_ = fstr_.tellg();
 }
 
-void tls::ImageFile_p::create_file()
+void ImageFile_p::create_file()
 {
     if (std::filesystem::exists(filepath_))
     {
         std::string msg = "File \"" + filepath_.string() + "\" already exists.";
-        results_.push_back({ tls::result::INVALID_FILE, msg });
+        results_.push_back({ result::INVALID_FILE, msg });
         return;
     }
 
     fstr_.open(filepath_, std::ios::out | std::ios::binary);
     if (fstr_.fail()) {
         std::string msg = "Error: cannot save at " + filepath_.string() + ": no such file or directory.";
-        results_.push_back({ tls::result::INVALID_FILE, msg });
+        results_.push_back({ result::INVALID_FILE, msg });
         return;
     }
 }
@@ -154,7 +145,7 @@ inline void seekScanHeaderPos(std::fstream& _fs, uint32_t _scanN, uint32_t _fiel
     _fs.seekg(TL_FILE_HEADER_SIZE + _scanN * TL_SCAN_HEADER_SIZE + _fieldPos);
 }
 
-void tls::ImageFile_p::read_headers()
+void ImageFile_p::read_headers()
 {
     if (!fstr_.is_open())
     {
@@ -176,13 +167,13 @@ void tls::ImageFile_p::read_headers()
     switch (version)
     {
     case TLS_VERSION_0_3:
-        file_header_.version = tls::FileVersion::V_0_3;
+        file_header_.version = FileVersion::V_0_3;
         break;
     case TLS_VERSION_0_4:
-        file_header_.version = tls::FileVersion::V_0_4;
+        file_header_.version = FileVersion::V_0_4;
         break;
     default:
-        file_header_.version = tls::FileVersion::V_UNKNOWN;
+        file_header_.version = FileVersion::V_UNKNOWN;
         results_.push_back({ result::INVALID_CONTENT, "TLS version unsupported" });
         return;
     }
@@ -190,18 +181,17 @@ void tls::ImageFile_p::read_headers()
     // Read the remaining info
     switch (file_header_.version)
     {
-    case tls::FileVersion::V_0_3:
-    case tls::FileVersion::V_0_4:
+    case FileVersion::V_0_3:
+    case FileVersion::V_0_4:
         fstr_.seekg(TL_FILE_ADDR_SCAN_COUNT);
         fstr_.read((char*)&file_header_.scanCount, sizeof(uint32_t));
-
-    //case tls::FileVersion::V_0_5:
+        break;
+    //case FileVersion::V_0_5:
     //    fstr_.seekg(TL_FILE_ADDR_CREATION_DATE);
     //    fstr_.read((char*)&_header.creationDate, sizeof(uint64_t));
 
     //    fstr_.seekg(TL_FILE_ADDR_GUID);
-    //    fstr_.read((char*)&_header.guid, sizeof(tls::FileGuid));
-    //    return result::OK;
+    //    fstr_.read((char*)&_header.guid, sizeof(FileGuid));
     default:
         file_header_.scanCount = 0;
     }
@@ -209,11 +199,16 @@ void tls::ImageFile_p::read_headers()
     // Create and initialize all the scans contained in the file
     for (uint32_t pc_i = 0; pc_i < file_header_.scanCount; pc_i++)
     {
-        tls::ScanHeader pc_header;
-        memset(&pc_header, 0, sizeof(tls::ScanHeader));
+        ScanHeader pc_header;
+        memset(&pc_header, 0, sizeof(ScanHeader));
 
         seekScanHeaderPos(fstr_, pc_i, TL_SCAN_ADDR_GUID);
         fstr_.read((char*)&pc_header.guid, sizeof(pc_header.guid));
+
+        // In version 0.4, the TLS do not contain a name for each scan.
+        // So we get the name of the file.
+        // If there is more than one scan in the file, append with the scan number.
+        pc_header.name = filepath_.stem().wstring();
 
         seekScanHeaderPos(fstr_, pc_i, TL_SCAN_ADDR_SENSOR_MODEL);
         char inSensorM[33];
@@ -251,7 +246,7 @@ void tls::ImageFile_p::read_headers()
     }
 }
 
-void tls::ImageFile_p::write_headers()
+void ImageFile_p::write_headers()
 {
     if (!fstr_.is_open())
         return;
@@ -282,12 +277,12 @@ void tls::ImageFile_p::write_headers()
     fstr_.write("_eoh", 4);
 }
 
-uint32_t tls::ImageFile_p::getScanCount() const
+uint32_t ImageFile_p::getScanCount() const
 {
     return (uint32_t)pc_headers_.size();
 }
 
-uint64_t tls::ImageFile_p::getPointCount() const
+uint64_t ImageFile_p::getPointCount() const
 {
     uint64_t totalPoints = 0;
     for (auto scanHeader : pc_headers_)
@@ -297,7 +292,7 @@ uint64_t tls::ImageFile_p::getPointCount() const
     return totalPoints;
 }
 
-bool tls::ImageFile_p::setCurrentPointCloud(uint32_t n)
+bool ImageFile_p::setCurrentPointCloud(uint32_t n)
 {
     if (n >= getScanCount())
         return false;
@@ -321,18 +316,16 @@ bool tls::ImageFile_p::setCurrentPointCloud(uint32_t n)
 
     // Read the octree structure but not the points (loadPoints = true)
     octree_decoder_ = new OctreeDecoder();
-    if (!getOctreeDecoder(fstr_, n, *octree_decoder_, true))
+    if (!getOctreeDecoder(n, *octree_decoder_, true))
         return false;
 
     m_currentScan = n;
     m_currentCell = 0;
 
     return true;
-
-    return true;
 }
 
-bool tls::ImageFile_p::appendPointCloud(const tls::ScanHeader& info, const Transformation& transfo)
+bool ImageFile_p::appendPointCloud(const ScanHeader& info, const Transformation& transfo)
 {
     // Finalize the octree and destroy it before creating a new one
     if (octree_ctor_ != nullptr)
@@ -347,7 +340,7 @@ bool tls::ImageFile_p::appendPointCloud(const tls::ScanHeader& info, const Trans
     return true;
 }
 
-bool tls::ImageFile_p::finalizePointCloud(uint32_t _pc_number, double add_x, double add_y, double add_z)
+bool ImageFile_p::finalizePointCloud(uint32_t _pc_number, double add_x, double add_y, double add_z)
 {
     if (octree_ctor_ == nullptr)
         return false;
@@ -378,7 +371,7 @@ bool tls::ImageFile_p::finalizePointCloud(uint32_t _pc_number, double add_x, dou
             octree_ctor_->encode(logStream);
         }
 
-        tls::ScanHeader& header = pc_headers_[_pc_number];
+        ScanHeader& header = pc_headers_[_pc_number];
         // Generate a UUID for the scan
         if (header.guid == xg::Guid())
             header.guid = xg::newGuid();
@@ -390,7 +383,7 @@ bool tls::ImageFile_p::finalizePointCloud(uint32_t _pc_number, double add_x, dou
 
         header.acquisitionDate = std::time(nullptr);
 
-        if (!tls::ImageFile_p::writeOctreeCtor(fstr_, _pc_number, *octree_ctor_, header)) {
+        if (!ImageFile_p::writeOctreeBase(_pc_number, *(OctreeBase*)octree_ctor_, header)) {
             std::cerr << "pcc: An error occured while saving the point cloud." << std::endl;
             delete octree_ctor_;
             octree_ctor_ = nullptr;
@@ -409,7 +402,7 @@ bool tls::ImageFile_p::finalizePointCloud(uint32_t _pc_number, double add_x, dou
     return true;
 }
 
-bool tls::ImageFile_p::readPoints(PointXYZIRGB* dst_buf, uint64_t dst_size, uint64_t& point_count)
+bool ImageFile_p::readPoints(PointXYZIRGB* dst_buf, uint64_t dst_size, uint64_t& point_count)
 {
     uint64_t bufferOffset = 0;
 
@@ -447,7 +440,7 @@ bool tls::ImageFile_p::readPoints(PointXYZIRGB* dst_buf, uint64_t dst_size, uint
     return true;
 }
 
-bool tls::ImageFile_p::addPoints(PointXYZIRGB const* src_buf, uint64_t src_size)
+bool ImageFile_p::addPoints(PointXYZIRGB const* src_buf, uint64_t src_size)
 {
     if (octree_ctor_ == nullptr)
     {
@@ -463,7 +456,7 @@ bool tls::ImageFile_p::addPoints(PointXYZIRGB const* src_buf, uint64_t src_size)
     return true;
 }
 
-bool tls::ImageFile_p::mergePoints(PointXYZIRGB const* src_buf, uint64_t src_size, const Transformation& src_transfo, tls::PointFormat src_format)
+bool ImageFile_p::mergePoints(PointXYZIRGB const* src_buf, uint64_t src_size, const Transformation& src_transfo, PointFormat src_format)
 {
     assert(octree_ctor_ != nullptr);
     if (octree_ctor_ == nullptr)
@@ -473,7 +466,7 @@ bool tls::ImageFile_p::mergePoints(PointXYZIRGB const* src_buf, uint64_t src_siz
         return false;
     }
 
-    tls::ScanHeader& header = pc_headers_.back();
+    ScanHeader& header = pc_headers_.back();
     // compare destination and source transformation
     if (header.transfo == src_transfo)
     {
@@ -495,11 +488,11 @@ bool tls::ImageFile_p::mergePoints(PointXYZIRGB const* src_buf, uint64_t src_siz
         {
             convert_fn = convert_transfo;
         }
-        else if (src_format == tls::PointFormat::TL_POINT_XYZ_RGB)
+        else if (src_format == PointFormat::TL_POINT_XYZ_RGB)
         {
             convert_fn = convert_RGB_to_I_transfo;
         }
-        else if (src_format == tls::PointFormat::TL_POINT_XYZ_I)
+        else if (src_format == PointFormat::TL_POINT_XYZ_I)
         {
             convert_fn = convert_I_to_RGB_transfo;
         }
@@ -514,9 +507,9 @@ bool tls::ImageFile_p::mergePoints(PointXYZIRGB const* src_buf, uint64_t src_siz
     return true;
 }
 
-bool tls::ImageFile_p::getOctreeBase(std::fstream& _fs, uint32_t _pc_number, OctreeBase& _octree_base)
+bool ImageFile_p::getOctreeBase(uint32_t _pc_number, OctreeBase& _octree_base)
 {
-    if (!_fs.is_open())
+    if (!fstr_.is_open())
         return false;
 
     switch (file_header_.version)
@@ -524,38 +517,38 @@ bool tls::ImageFile_p::getOctreeBase(std::fstream& _fs, uint32_t _pc_number, Oct
     case FileVersion::V_0_3:
     case FileVersion::V_0_4:
     {
-        seekScanHeaderPos(_fs, _pc_number, TL_SCAN_ADDR_PRECISION);
-        _fs.read((char*)&_octree_base.m_precisionType, sizeof(PrecisionType));
+        seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_PRECISION);
+        fstr_.read((char*)&_octree_base.m_precisionType, sizeof(PrecisionType));
 
-        _octree_base.m_precisionValue = tls::getPrecisionValue(_octree_base.m_precisionType);
+        _octree_base.m_precisionValue = getPrecisionValue(_octree_base.m_precisionType);
 
-        seekScanHeaderPos(_fs, _pc_number, TL_SCAN_ADDR_LIMITS);
-        _fs.read((char*)&_octree_base.m_limits, sizeof(Limits));
+        seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_LIMITS);
+        fstr_.read((char*)&_octree_base.m_limits, sizeof(Limits));
 
-        seekScanHeaderPos(_fs, _pc_number, TL_SCAN_ADDR_FORMAT);
-        _fs.read((char*)&_octree_base.m_ptFormat, sizeof(PointFormat));
+        seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_FORMAT);
+        fstr_.read((char*)&_octree_base.m_ptFormat, sizeof(PointFormat));
 
-        seekScanHeaderPos(_fs, _pc_number, TL_SCAN_ADDR_POINT_COUNT);
-        _fs.read((char*)&_octree_base.m_pointCount, sizeof(uint64_t));
+        seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_POINT_COUNT);
+        fstr_.read((char*)&_octree_base.m_pointCount, sizeof(uint64_t));
 
-        seekScanHeaderPos(_fs, _pc_number, TL_SCAN_ADDR_OCTREE_PARAM);
+        seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_OCTREE_PARAM);
         // NOTE(robin) - Réctifie une erreur dans le type de cellCount
         uint64_t cellCount64;
-        _fs.read((char*)&cellCount64, sizeof(uint64_t));
+        fstr_.read((char*)&cellCount64, sizeof(uint64_t));
         _octree_base.m_cellCount = (uint32_t)cellCount64;
-        _fs.read((char*)&_octree_base.m_rootSize, sizeof(float));
-        _fs.read((char*)&_octree_base.m_rootPosition, 3 * sizeof(float));
-        _fs.read((char*)&_octree_base.m_uRootCell, sizeof(uint32_t));
+        fstr_.read((char*)&_octree_base.m_rootSize, sizeof(float));
+        fstr_.read((char*)&_octree_base.m_rootPosition, 3 * sizeof(float));
+        fstr_.read((char*)&_octree_base.m_uRootCell, sizeof(uint32_t));
 
         // Read the octree directly from the file
         uint64_t octreeDataOffset;
-        seekScanHeaderPos(_fs, _pc_number, TL_SCAN_ADDR_DATA_ADDR);
-        _fs.read((char*)&octreeDataOffset, sizeof(uint64_t));
-        _fs.seekg(octreeDataOffset);
+        seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_DATA_ADDR);
+        fstr_.read((char*)&octreeDataOffset, sizeof(uint64_t));
+        fstr_.seekg(octreeDataOffset);
 
         _octree_base.m_vTreeCells.clear();
         _octree_base.m_vTreeCells.resize(_octree_base.m_cellCount);
-        _fs.read((char*)_octree_base.m_vTreeCells.data(), _octree_base.m_cellCount * sizeof(TreeCell));
+        fstr_.read((char*)_octree_base.m_vTreeCells.data(), _octree_base.m_cellCount * sizeof(TreeCell));
 
         return true;
     }
@@ -564,12 +557,12 @@ bool tls::ImageFile_p::getOctreeBase(std::fstream& _fs, uint32_t _pc_number, Oct
     }
 }
 
-bool tls::ImageFile_p::getOctreeDecoder(std::fstream& _fs, uint32_t _pc_number, OctreeDecoder& _octree_decoder, bool _load_points)
+bool ImageFile_p::getOctreeDecoder(uint32_t _pc_number, OctreeDecoder& _octree_decoder, bool _load_points)
 {
-    if (!_fs.is_open())
+    if (!fstr_.is_open())
         return false;
 
-    if (getOctreeBase(_fs, _pc_number, (OctreeBase&)_octree_decoder) == false)
+    if (getOctreeBase(_pc_number, (OctreeBase&)_octree_decoder) == false)
     {
         return false;
     }
@@ -580,38 +573,136 @@ bool tls::ImageFile_p::getOctreeDecoder(std::fstream& _fs, uint32_t _pc_number, 
     uint64_t pointDataOffset;
     uint64_t instanceDataOffset;
 
-    seekScanHeaderPos(_fs, _pc_number, TL_SCAN_ADDR_DATA_ADDR);
-    _fs.read((char*)&octreeDataOffset, sizeof(uint64_t));
-    _fs.read((char*)&pointDataOffset, sizeof(uint64_t));
-    _fs.read((char*)&instanceDataOffset, sizeof(uint64_t));
+    seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_DATA_ADDR);
+    fstr_.read((char*)&octreeDataOffset, sizeof(uint64_t));
+    fstr_.read((char*)&pointDataOffset, sizeof(uint64_t));
+    fstr_.read((char*)&instanceDataOffset, sizeof(uint64_t));
 
     if (_load_points)
     {
         uint64_t dataSize = instanceDataOffset - pointDataOffset;
-        _octree_decoder.readPointsFromFile(_fs, pointDataOffset, dataSize);
+        _octree_decoder.readPointsFromFile(fstr_, pointDataOffset, dataSize);
     }
 
     return true;
 }
 
-bool tls::ImageFile_p::getDataLocation(std::fstream& _fs, uint32_t _pc_number, uint64_t& _point_data_offset, uint64_t& _instance_data_offset)
+bool ImageFile_p::writeOctreeBase(uint32_t _pc_number, OctreeBase& _octree, ScanHeader _header)
 {
-    if (!_fs.is_open())
+    if (!fstr_.is_open())
         return false;
 
-    uint64_t octreeDataOffset;
+    if (_octree.m_vertexData == nullptr) {
+        std::cerr << "Error: no point present in the octree." << std::endl;
+        return false;
+    }
 
-    seekScanHeaderPos(_fs, _pc_number, TL_SCAN_ADDR_DATA_ADDR);
-    _fs.read((char*)&octreeDataOffset, sizeof(uint64_t));  // unused, just for shifting the read position
-    _fs.read((char*)&_point_data_offset, sizeof(uint64_t));
-    _fs.read((char*)&_instance_data_offset, sizeof(uint64_t));
+    // *** Scaninfo ***
+    seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_GUID);
+    fstr_.write((char*)&_header.guid, sizeof(_header.guid));
+
+    seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_SENSOR_MODEL);
+    fstr_.write(Utils::wstr_to_utf8(_header.sensorModel).c_str(), 32u);
+
+    seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_SENSOR_SERIAL_NUMBER);
+    fstr_.write(Utils::wstr_to_utf8(_header.sensorSerialNumber).c_str(), 32u);
+
+    seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_ACQUISITION_DATE);
+    fstr_.write((char*)&_header.acquisitionDate, sizeof(_header.acquisitionDate));
+
+    // *** Bounding Box ***
+    seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_LIMITS);
+    fstr_.write((char*)&_octree.m_limits, sizeof(Limits));
+
+    // *** Transformation ***
+    seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_TRANSFORMATION);
+    fstr_.write((char*)&_header.transfo.quaternion, sizeof(glm::dvec4));
+    fstr_.write((char*)&_header.transfo.translation, sizeof(glm::dvec3));
+
+    // *** Octree ***
+    seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_PRECISION);
+    fstr_.write((char*)&_octree.m_precisionType, sizeof(PrecisionType));
+
+    seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_FORMAT);
+    fstr_.write((char*)&_octree.m_ptFormat, sizeof(PointFormat));
+
+    // Skip Addresses (octree, points & cells)
+    seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_POINT_COUNT);
+    fstr_.write((char*)&_octree.m_pointCount, sizeof(uint64_t));
+    seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_OCTREE_PARAM);
+    fstr_.write((char*)&_octree.m_cellCount, sizeof(uint64_t));
+    fstr_.write((char*)&_octree.m_rootSize, sizeof(float));
+    fstr_.write((char*)_octree.m_rootPosition, 3 * sizeof(float));
+    fstr_.write((char*)&_octree.m_uRootCell, sizeof(uint32_t));
+
+    // Write the big data at the current end of the file
+    fstr_.seekp(0, std::ios_base::end);
+
+    // *** Serialization of the nodes in one array ***
+    uint64_t octreePos = fstr_.tellp();
+    fstr_.write((char*)_octree.m_vTreeCells.data(), _octree.m_vTreeCells.size() * sizeof(TreeCell));
+
+    uint64_t vertexPos = fstr_.tellp();
+    fstr_.write((char*)_octree.m_vertexData, _octree.m_vertexDataSize);
+
+    uint64_t instancePos = fstr_.tellp();
+    fstr_.write((char*)_octree.m_instData, _octree.m_cellCount * 4 * sizeof(float));
+
+    // Write back the data addresses in the header
+    seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_DATA_ADDR);
+    fstr_.write((char*)&octreePos, sizeof(uint64_t));
+    fstr_.write((char*)&vertexPos, sizeof(uint64_t));
+    fstr_.write((char*)&instancePos, sizeof(uint64_t));
 
     return true;
 }
 
-bool tls::ImageFile_p::copyRawData(std::fstream& _fs, char** pointBuffer, uint64_t& pointBufferSize, char** instanceBuffer, uint64_t& instanceBufferSize)
+bool ImageFile_p::getData(uint32_t _pc_num, uint64_t _file_pos, void* _data_buf, uint64_t _data_size)
 {
-    if (!_fs.is_open())
+    if (!fstr_.is_open() || _file_pos + _data_size > file_size_)
+        return false;
+
+    fstr_.seekg(_file_pos);
+    fstr_.read((char*)_data_buf, _data_size);
+    return fstr_.good();
+}
+
+bool ImageFile_p::getCellRenderData(uint32_t _pc_num, void* data_buf, size_t& data_size)
+{
+    if (!fstr_.is_open())
+        return false;
+
+    seekScanHeaderPos(fstr_, _pc_num, TL_SCAN_ADDR_DATA_ADDR);
+    uint64_t octreeDataOffset;
+    fstr_.read((char*)&octreeDataOffset, sizeof(uint64_t));  // unused, just for shifting the read position
+    uint64_t point_data_offset = 0;
+    fstr_.read((char*)&point_data_offset, sizeof(uint64_t));
+    uint64_t cell_data_offset = 0;
+    fstr_.read((char*)&cell_data_offset, sizeof(uint64_t));
+    uint64_t point_count = 0;
+    uint64_t cell_count = 0;
+    fstr_.read((char*)&point_count, sizeof(uint64_t));
+
+    uint64_t cell_data_size = cell_count * 16;
+
+    if (data_buf == nullptr)
+    {
+        data_size = cell_data_size;
+        return true;
+    }
+    else if (data_size <= cell_data_size)
+    {
+        fstr_.read((char*)data_buf, cell_data_size);
+        return true;
+    }
+
+    return false;
+}
+
+
+bool ImageFile_p::copyRawData(char** pointBuffer, uint64_t& pointBufferSize, char** instanceBuffer, uint64_t& instanceBufferSize)
+{
+    if (!fstr_.is_open())
         return false;
 
     uint64_t octreeDataOffset;
@@ -619,12 +710,12 @@ bool tls::ImageFile_p::copyRawData(std::fstream& _fs, char** pointBuffer, uint64
     uint64_t instanceDataOffset;
     uint64_t pointCount;
 
-    seekScanHeaderPos(_fs, 0, TL_SCAN_ADDR_DATA_ADDR);
-    _fs.read((char*)&octreeDataOffset, sizeof(uint64_t));  // unused, just for shifting the read position
-    _fs.read((char*)&pointDataOffset, sizeof(uint64_t));
-    _fs.read((char*)&instanceDataOffset, sizeof(uint64_t));
-    seekScanHeaderPos(_fs, 0, TL_SCAN_ADDR_POINT_COUNT);
-    _fs.read((char*)&pointCount, sizeof(uint64_t));
+    seekScanHeaderPos(fstr_, 0, TL_SCAN_ADDR_DATA_ADDR);
+    fstr_.read((char*)&octreeDataOffset, sizeof(uint64_t));  // unused, just for shifting the read position
+    fstr_.read((char*)&pointDataOffset, sizeof(uint64_t));
+    fstr_.read((char*)&instanceDataOffset, sizeof(uint64_t));
+    seekScanHeaderPos(fstr_, 0, TL_SCAN_ADDR_POINT_COUNT);
+    fstr_.read((char*)&pointCount, sizeof(uint64_t));
 
     pointBufferSize = instanceDataOffset - pointDataOffset;
     instanceBufferSize = pointCount * 4 * sizeof(float);
@@ -635,161 +726,24 @@ bool tls::ImageFile_p::copyRawData(std::fstream& _fs, char** pointBuffer, uint64
         delete (*instanceBuffer);
     *instanceBuffer = new char[instanceBufferSize];
 
-    _fs.seekg(pointDataOffset);
-    _fs.read(*pointBuffer, pointBufferSize);
-    _fs.seekg(instanceDataOffset);
-    _fs.read(*instanceBuffer, instanceBufferSize);
+    fstr_.seekg(pointDataOffset);
+    fstr_.read(*pointBuffer, pointBufferSize);
+    fstr_.seekg(instanceDataOffset);
+    fstr_.read(*instanceBuffer, instanceBufferSize);
 
     return true;
 }
 
-bool tls::ImageFile_p::writeOctreeCtor(std::fstream& _os, uint32_t _pc_number, OctreeCtor& _octree_ctor, ScanHeader _header)
+void ImageFile_p::overwriteTransformation(const Transformation& new_transfo)
 {
-    if (_octree_ctor.m_vertexData == nullptr) {
-        std::cerr << "Error: no point present in the octree." << std::endl;
-        return false;
-    }
-
-    // *** Scaninfo ***
-    seekScanHeaderPos(_os, _pc_number, TL_SCAN_ADDR_GUID);
-    _os.write((char*)&_header.guid, sizeof(_header.guid));
-
-    seekScanHeaderPos(_os, _pc_number, TL_SCAN_ADDR_SENSOR_MODEL);
-    _os.write(Utils::wstr_to_utf8(_header.sensorModel).c_str(), 32u);
-
-    seekScanHeaderPos(_os, _pc_number, TL_SCAN_ADDR_SENSOR_SERIAL_NUMBER);
-    _os.write(Utils::wstr_to_utf8(_header.sensorSerialNumber).c_str(), 32u);
-
-    seekScanHeaderPos(_os, _pc_number, TL_SCAN_ADDR_ACQUISITION_DATE);
-    _os.write((char*)&_header.acquisitionDate, sizeof(_header.acquisitionDate));
-
-    // *** Bounding Box ***
-    seekScanHeaderPos(_os, _pc_number, TL_SCAN_ADDR_LIMITS);
-    _os.write((char*)&_octree_ctor.m_limits, sizeof(tls::Limits));
-
-    // *** Transformation ***
-    seekScanHeaderPos(_os, _pc_number, TL_SCAN_ADDR_TRANSFORMATION);
-    _os.write((char*)&_header.transfo.quaternion, sizeof(glm::dvec4));
-    _os.write((char*)&_header.transfo.translation, sizeof(glm::dvec3));
-
-    // *** Octree ***
-    seekScanHeaderPos(_os, _pc_number, TL_SCAN_ADDR_PRECISION);
-    _os.write((char*)&_octree_ctor.m_precisionType, sizeof(PrecisionType));
-
-    seekScanHeaderPos(_os, _pc_number, TL_SCAN_ADDR_FORMAT);
-    _os.write((char*)&_octree_ctor.m_ptFormat, sizeof(PointFormat));
-
-    // Skip Addresses (octree, points & cells)
-    seekScanHeaderPos(_os, _pc_number, TL_SCAN_ADDR_POINT_COUNT);
-    _os.write((char*)&_octree_ctor.m_pointCount, sizeof(uint64_t));
-    seekScanHeaderPos(_os, _pc_number, TL_SCAN_ADDR_OCTREE_PARAM);
-    _os.write((char*)&_octree_ctor.m_cellCount, sizeof(uint64_t));
-    _os.write((char*)&_octree_ctor.m_rootSize, sizeof(float));
-    _os.write((char*)_octree_ctor.m_rootPosition, 3 * sizeof(float));
-    _os.write((char*)&_octree_ctor.m_uRootCell, sizeof(uint32_t));
-
-    // Write the big data at the current end of the file
-    _os.seekp(0, std::ios_base::end);
-
-    // *** Serialization of the nodes in one array ***
-    uint64_t octreePos = _os.tellp();
-    _os.write((char*)_octree_ctor.m_vTreeCells.data(), _octree_ctor.m_vTreeCells.size() * sizeof(TreeCell));
-
-    uint64_t vertexPos = _os.tellp();
-    _os.write((char*)_octree_ctor.m_vertexData, _octree_ctor.m_vertexDataSize);
-
-    uint64_t instancePos = _os.tellp();
-    _os.write((char*)_octree_ctor.m_instData, _octree_ctor.m_cellCount * 4 * sizeof(float));
-
-    // Write back the data addresses in the header
-    seekScanHeaderPos(_os, _pc_number, TL_SCAN_ADDR_DATA_ADDR);
-    _os.write((char*)&octreePos, sizeof(uint64_t));
-    _os.write((char*)&vertexPos, sizeof(uint64_t));
-    _os.write((char*)&instancePos, sizeof(uint64_t));
-
-    return true;
-}
-
-void tls::ImageFile_p::overwriteTransformation(std::fstream& _os, double _translation[3], double _quaternion[4])
-{
-    if (_os.is_open() == false)
+    if (fstr_.is_open() == false)
         return;
 
-    seekScanHeaderPos(_os, 0, TL_SCAN_ADDR_TRANSFORMATION);
-    _os.write((char*)_quaternion, sizeof(glm::dvec4));
-    _os.write((char*)_translation, sizeof(glm::dvec3));
+    seekScanHeaderPos(fstr_, 0, TL_SCAN_ADDR_TRANSFORMATION);
+    fstr_.write((char*)new_transfo.quaternion, sizeof(glm::dvec4));
+    fstr_.write((char*)new_transfo.translation, sizeof(glm::dvec3));
 
     xg::Guid newUUID = xg::newGuid();
-    seekScanHeaderPos(_os, 0, TL_SCAN_ADDR_GUID);
-    _os.write((char*)&newUUID, sizeof(newUUID));
+    seekScanHeaderPos(fstr_, 0, TL_SCAN_ADDR_GUID);
+    fstr_.write((char*)&newUUID, sizeof(newUUID));
 }
-
-// Almost the same function as writeOctreeCtor
-/*
-bool tls::ImageFile_p::writeOctreeShredder(std::fstream& _os, uint32_t _pc_number, OctreeShredder & _octree_shredder, ScanHeader _header)
-{
-    if (_octree_shredder.m_pointData == nullptr) {
-        std::cerr << "Error: no point present in the octree." << std::endl;
-        return false;
-    }
-
-    // *** Scaninfo ***
-    seekScanHeaderPos(_os, _pc_number, TL_SCAN_ADDR_GUID);
-    _os.write((char*)&_header.guid, sizeof(_header.guid));
-
-    seekScanHeaderPos(_os, _pc_number, TL_SCAN_ADDR_SENSOR_MODEL);
-    _os.write(Utils::wstr_to_utf8(_header.sensorModel).c_str(), 32u);
-
-    seekScanHeaderPos(_os, _pc_number, TL_SCAN_ADDR_SENSOR_SERIAL_NUMBER);
-    _os.write(Utils::wstr_to_utf8(_header.sensorSerialNumber).c_str(), 32u);
-
-    seekScanHeaderPos(_os, _pc_number, TL_SCAN_ADDR_ACQUISITION_DATE);
-    _os.write((char*)&_header.acquisitionDate, sizeof(_header.acquisitionDate));
-
-    // *** Bounding Box ***
-    seekScanHeaderPos(_os, _pc_number, TL_SCAN_ADDR_LIMITS);
-    _os.write((char*)&_header.limits, sizeof(tls::Limits));
-
-    // *** Transformation ***
-    seekScanHeaderPos(_os, _pc_number, TL_SCAN_ADDR_TRANSFORMATION);
-    _os.write((char*)&_header.transfo.quaternion, sizeof(glm::dvec4));
-    _os.write((char*)&_header.transfo.translation, sizeof(glm::dvec3));
-
-    // *** Octree ***
-    seekScanHeaderPos(_os, _pc_number, TL_SCAN_ADDR_PRECISION);
-    _os.write((char*)&_octree_shredder.m_precisionType, sizeof(PrecisionType));
-
-    seekScanHeaderPos(_os, _pc_number, TL_SCAN_ADDR_FORMAT);
-    _os.write((char*)&_octree_shredder.m_ptFormat, sizeof(PointFormat));
-
-    // Skip Addresses (octree, points & cells)
-    seekScanHeaderPos(_os, _pc_number, TL_SCAN_ADDR_POINT_COUNT);
-    _os.write((char*)&_octree_shredder.m_pointCount, sizeof(uint64_t));
-    seekScanHeaderPos(_os, _pc_number, TL_SCAN_ADDR_OCTREE_PARAM);
-    _os.write((char*)&_octree_shredder.m_cellCount, sizeof(uint64_t));
-    _os.write((char*)&_octree_shredder.m_rootSize, sizeof(float));
-    _os.write((char*)_octree_shredder.m_rootPosition, 3 * sizeof(float));
-    _os.write((char*)&_octree_shredder.m_uRootCell, sizeof(uint32_t));
-
-    // Write the big data at the current end of the file
-    _os.seekp(0, std::ios_base::end);
-
-    // *** Serialization of the nodes in one array ***
-    uint64_t octreePos = _os.tellp();
-    _os.write((char*)_octree_shredder.m_newTreeCells.data(), _octree_shredder.m_newTreeCells.size() * sizeof(TreeCell));
-
-    uint64_t vertexPos = _os.tellp();
-    _os.write((char*)_octree_shredder.m_pointData, _octree_shredder.m_pointDataSize);
-
-    uint64_t instancePos = _os.tellp();
-    _os.write((char*)_octree_shredder.m_newInstanceData, _octree_shredder.m_cellCount * 4 * sizeof(float));
-
-    // Write back the data addresses in the header
-    seekScanHeaderPos(_os, _pc_number, TL_SCAN_ADDR_DATA_ADDR);
-    _os.write((char*)&octreePos, sizeof(uint64_t));
-    _os.write((char*)&vertexPos, sizeof(uint64_t));
-    _os.write((char*)&instancePos, sizeof(uint64_t));
-
-    return true;
-}
-*/

@@ -6,12 +6,10 @@
 #include "models/data/Clipping/ClippingGeometry.h"
 #include "models/project/ProjectInfos.h"
 #include "models/pointCloud/PointCloudInstance.h"
-#include "models/graph/APointCloudNode.h"
-#include "utils/safe_ptr.h"
+#include "models/3d/BoundingBox.h"
 
 #include <vector>
 #include <glm/glm.hpp>
-#include <unordered_set>
 
 enum FileType;
 enum PrecisionType;

@@ -4,6 +4,7 @@
 #include "models/data/Clipping/ClippingGeometry.h"
 #include "models/graph/ManipulatorNode.h"
 #include "models/3d/CLickInfo.h"
+#include "models/3d/BoundingBox.h"
 #include "models/pointCloud/PointCloudInstance.h"
 
 #include "vulkan/MeshManager.h"

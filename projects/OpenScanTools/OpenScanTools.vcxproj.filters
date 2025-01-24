@@ -589,17 +589,8 @@
     <ClCompile Include="..\..\ext\crossguid\guid.cpp">
       <Filter>ext\crossguid</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\pointCloudEngine\OctreeBase.cpp">
-      <Filter>src\pointCloudEngine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\pointCloudEngine\OctreeCtor.cpp">
-      <Filter>src\pointCloudEngine</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\pointCloudEngine\PCE_core.cpp">
       <Filter>src\pointCloudEngine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\io\exports\TlsWriter.cpp">
-      <Filter>src\io\exports</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\utils\System.cpp">
       <Filter>src\utils</Filter>
@@ -676,25 +667,16 @@
     <ClCompile Include="..\..\src\io\E57Utils.cpp">
       <Filter>src\io</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\io\imports\TlsReader.cpp">
-      <Filter>src\io\imports</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\io\exports\E57FileWriter.cpp">
       <Filter>src\io\exports</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\io\exports\IScanFileWriter.cpp">
       <Filter>src\io\exports</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\io\exports\TlsFileWriter.cpp">
-      <Filter>src\io\exports</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\io\imports\E57FileReader.cpp">
       <Filter>src\io\imports</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\io\imports\IScanFileReader.cpp">
-      <Filter>src\io\imports</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\io\imports\TlsFileReader.cpp">
       <Filter>src\io\imports</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\io\imports\FlsFileReader.cpp">
@@ -1007,9 +989,6 @@
       <Filter>src\controller\contexts</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\pointCloudEngine\EmbeddedScan.cpp">
-      <Filter>src\pointCloudEngine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\pointCloudEngine\OctreeDecoder.cpp">
       <Filter>src\pointCloudEngine</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\pointCloudEngine\SmartBufferWorkload.cpp">
@@ -1990,6 +1969,12 @@
     <ClCompile Include="..\..\src\models\graph\ViewPointNode.cpp">
       <Filter>src\models\graph</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\io\exports\TlsFileWriter.cpp">
+      <Filter>src\io\exports</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\io\imports\TlsFileReader.cpp">
+      <Filter>src\io\imports</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="..\..\include\gui\Gui.h">
@@ -2580,12 +2565,6 @@
     <ClInclude Include="..\..\ext\crossguid\guid.hpp">
       <Filter>ext\crossguid</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\pointCloudEngine\OctreeBase.h">
-      <Filter>include\pointCloudEngine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\pointCloudEngine\OctreeCtor.h">
-      <Filter>include\pointCloudEngine</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\pointCloudEngine\PCE_graphics.h">
       <Filter>include\pointCloudEngine</Filter>
     </ClInclude>
@@ -2597,15 +2576,6 @@
     </ClInclude>
     <ClInclude Include="..\..\include\models\pointCloud\TLS.h">
       <Filter>include\models\pointCloud</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\io\imports\TlsReader.h">
-      <Filter>include\io\imports</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\io\exports\TlsWriter.h">
-      <Filter>include\io\exports</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\io\TlsMap.h">
-      <Filter>include\io</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\utils\time.h">
       <Filter>include\utils</Filter>
@@ -2706,9 +2676,6 @@
     <ClInclude Include="..\..\include\io\exports\IScanFileWriter.h">
       <Filter>include\io\exports</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\io\exports\TlsFileWriter.h">
-      <Filter>include\io\exports</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\io\imports\E57FileReader.h">
       <Filter>include\io\imports</Filter>
     </ClInclude>
@@ -2717,12 +2684,6 @@
     </ClInclude>
     <ClInclude Include="..\..\include\io\imports\IScanFileReader.h">
       <Filter>include\io\imports</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\io\imports\TlsFileReader.h">
-      <Filter>include\io\imports</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\pointCloudEngine\OctreeDecoder.h">
-      <Filter>include\pointCloudEngine</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\models\application\TagTemplate.h">
       <Filter>include\models\application</Filter>
@@ -3965,6 +3926,15 @@
     </ClInclude>
     <ClInclude Include="..\..\include\models\data\Measure\MeasureData.h">
       <Filter>include\models\data\Measure</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\io\imports\TlsFileReader.h">
+      <Filter>include\io\imports</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\fmt\format.h">
+      <Filter>ext\fmt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\io\exports\TlsFileWriter.h">
+      <Filter>include\io\exports</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

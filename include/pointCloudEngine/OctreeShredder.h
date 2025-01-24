@@ -1,14 +1,13 @@
 #ifndef OCTREE_SHREDDER_H
 #define OCTREE_SHREDDER_H
 
-#include "pointCloudEngine/OctreeBase.h"
-#include "io/exports/TlsWriter.h"
+#include "OctreeBase.h"
 #include "models/data/clipping/ClippingGeometry.h"
 
 #include <glm/glm.hpp>
 #include <filesystem>
 
-class OctreeShredder : public OctreeBase
+class OctreeShredder : public tls::OctreeBase
 {
 public:
     OctreeShredder(const std::filesystem::path& tlsPath);
@@ -47,29 +46,29 @@ protected:
      *    |A____|D___|E__|C_____|B___|-----------------|
      */
     void shiftData();
-    void generateInstanceData();
+    void shiftInstanceData();
     void logStats();
 
-    TLS_WRITER_DECLARE(OctreeShredder);
-
 private:
-    uint64_t m_pointDataCapacity;
-    uint64_t m_pointDataSize;
-    char* m_pointData;
-    uint64_t m_instanceDataSize;
-    char* m_instanceData;
-    char* m_newInstanceData;
+    //char* m_pointData = nullptr;      // -> OctreeBase
+    //uint64_t m_pointDataSize = 0;     // -> OctreeBase
+    //uint64_t m_pointDataCapacity = 0; // -> use m_pointDataSize
+
+    //char* m_instanceData = nullptr;   // -> OctreeBase OR remove
+    //uint64_t m_instanceDataSize = 0;  // -> OctreeBase
+
+    //char* m_newInstanceData = nullptr; // -> m_instanceData
     std::vector<TreeCell> m_newTreeCells;
     std::vector<uint32_t> m_correspCellId;
 
     // Statistics
-    uint64_t m_deletedLeafPoints;
-    uint64_t m_deletedBranchPoints;
-    uint64_t m_deletedCells;
-    uint64_t m_reforgedCells;
-    uint64_t m_totalSphereTests;
-    uint64_t m_totalCellTested;
-    uint64_t m_totalPointTests;
+    uint64_t m_deletedLeafPoints = 0;
+    uint64_t m_deletedBranchPoints = 0;
+    uint64_t m_deletedCells = 0;
+    uint64_t m_reforgedCells = 0;
+    uint64_t m_totalSphereTests = 0;
+    uint64_t m_totalCellTested = 0;
+    uint64_t m_totalPointTests = 0;
 };
 
 #endif // !OCTREE_READER_H

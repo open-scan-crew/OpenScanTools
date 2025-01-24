@@ -2,7 +2,7 @@
 #define TLS_TEXTS_HPP
 
 #include <QObject>
-#include "models/pointCloud/TLS.h"
+#include "tls_def.h"
 
 #define TEXT_TLS_PRECISION_1_MILLIMETER QObject::tr("1 millimeter")
 #define TEXT_TLS_PRECISION_100_MICROMETER QObject::tr("100 micrometer")

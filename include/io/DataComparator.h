@@ -14,7 +14,7 @@
 #include "models/Types.hpp"
 #include "models/project/ProjectTypes.h"
 #include "utils/IdGiver.hpp"
-#include "models/pointCloud/TLS.h"
+#include "tls_def.h"
 #include "models/application/TagTemplate.h"
 #include <nlohmannJson/json.hpp>
 #include <magic_enum/magic_enum.hpp>

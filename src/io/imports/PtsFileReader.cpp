@@ -1,7 +1,5 @@
 #include "io/imports/PtsFileReader.h"
 #include "models/pointCloud/PointXYZIRGB.h"
-#include "utils/time.h"
-#include "utils/Utils.h"
 #include "utils/Logger.h"
 
 bool PtsFileReader::getReader(const std::filesystem::path& filepath, std::wstring& log, IScanFileReader** reader, const Import::AsciiInfo& asciiInfo)
@@ -35,13 +33,12 @@ PtsFileReader::PtsFileReader(const std::filesystem::path& filepath, const Import
 		throw (std::exception::exception(msg));
 	}
 
-	m_header.guid = xg::newGuid();
+	m_header.guid = xg::Guid();
 	m_header.scanCount = 1;
 	m_header.creationDate = 0;
 	m_header.version = tls::FileVersion::V_UNKNOWN;
 
 	m_scanHeader.guid = m_header.guid;
-	m_scanHeader.version = tls::ScanVersion::SCAN_V_0_4;
 	m_scanHeader.acquisitionDate = 0; // no date
 	m_scanHeader.name = filepath.filename().wstring();
 	m_scanHeader.sensorModel = L"Not provided";
@@ -60,7 +57,7 @@ PtsFileReader::PtsFileReader(const std::filesystem::path& filepath, const Import
 		}
 	}
 
-	m_scanHeader.transfo = { { 0.0, 0.0, 0.0, 1.0}, { translationPoint.x, translationPoint.y, translationPoint.z} };
+	m_scanHeader.transfo = { { 0.0, 0.0, 0.0, 1.0 }, { translationPoint.x, translationPoint.y, translationPoint.z } };
 
 	const std::vector<Import::AsciiValueRole>& format = m_asciiInfo.columnsRole;
 
@@ -117,7 +114,7 @@ uint64_t PtsFileReader::getTotalPoints() const
 	return totalPointCount;
 }
 
-const tls::FileHeader& PtsFileReader::getTlsHeader() const
+tls::FileHeader PtsFileReader::getTlsHeader() const
 {
 	return m_header;
 }

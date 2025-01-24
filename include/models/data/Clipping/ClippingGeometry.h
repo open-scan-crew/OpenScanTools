@@ -4,7 +4,6 @@
 #include "models/data/Clipping/ClippingTypes.h"
 
 #include <vector>
-#include <unordered_set>
 #include <memory>
 #include <glm/glm.hpp>
 

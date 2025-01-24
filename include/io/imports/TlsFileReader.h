@@ -2,10 +2,8 @@
 #define TLS_FILE_READER_H
 
 #include "io/imports/IScanFileReader.h"
-#include <vector>
-#include <fstream>
 
-class OctreeDecoder;
+#include "tls_core.h"
 
 class TlsFileReader : public IScanFileReader
 {
@@ -20,20 +18,14 @@ public:
     bool startReadingScan(uint32_t scanNumber) override;
     bool readPoints(PointXYZIRGB* dstBuf, uint64_t bufSize, uint64_t& readCount) override;
 
-    const tls::FileHeader& getTlsHeader() const;
-    tls::ScanHeader getTlsScanHeader(uint32_t scanNumber) const;
+    tls::FileHeader getTlsHeader() const override;
+    tls::ScanHeader getTlsScanHeader(uint32_t scanNumber) const override;
 
 private:
-    TlsFileReader(const std::filesystem::path& filepath, tls::FileHeader header);
+    TlsFileReader(const std::filesystem::path& filepath);
 
 private:
-    tls::FileHeader m_header;
-    std::vector<tls::ScanHeader> m_scans;
-
-    uint32_t m_currentScan;
-    std::ifstream m_istream;
-    OctreeDecoder* m_octreeDecoder;
-    uint32_t m_currentCell;
+    tls::ImageFile img_file_;
 };
 
 #endif

@@ -193,7 +193,7 @@ bool E57FileWriter::appendPointCloud(const tls::ScanHeader& info, const Transfor
         colorLimits.set("colorBlueMaximum", e57::IntegerNode(m_imf, 255));
     }
 
-    m_bbox = m_scanHeader.bbox;
+    m_bbox.setEmpty();
 
     // No point grouping scheme
 

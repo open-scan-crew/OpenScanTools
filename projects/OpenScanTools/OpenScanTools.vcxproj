@@ -126,7 +126,7 @@
     <ClCompile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>FBXSDK_SHARED;_DEBUG_;NOMINMAX;BENCHMARK_;GLM_FORCE_XYZW_ONLY;VK_NO_PROTOTYPES;_CRT_SECURE_NO_WARNINGS;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;$(SolutionDir)\include\gui\widgets\CustomWidgets;$(SolutionDir)ext;$(SolutionDir)ext\SQLiteCpp\include;$(SolutionDir)ext\3DxWare\inc;$(BOOST_ROOT);$(SolutionDir)ext\tiny_obj_loader;$(SolutionDir)ext\ifcplusplus\include;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\include;$(SolutionDir)ext\ReCapSDK\include\realdwg;$(SolutionDir)ext\OCCT\inc;$(SolutionDir)ext\cpr\include;$(SolutionDir)ext\fbxSdk-2020.0.1\inc;$(SolutionDir)ext\dxflibs\;.\GeneratedShaders;.\..\..\include;.\..\..\src;$(VULKAN_SDK)\include;.;.\..\..\include\gui\Dialog;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.\..\..\include;.\..\..\src;$(SolutionDir)\include\gui\widgets\CustomWidgets;$(SolutionDir)ext;$(SolutionDir)ext\SQLiteCpp\include;$(SolutionDir)ext\3DxWare\inc;$(SolutionDir)ext\tiny_obj_loader;$(SolutionDir)ext\ifcplusplus\include;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\include;$(SolutionDir)ext\ReCapSDK\include\realdwg;$(SolutionDir)ext\OCCT\inc;$(SolutionDir)ext\cpr\include;$(SolutionDir)ext\fbxSdk-2020.0.1\inc;$(SolutionDir)ext\dxflibs\;$(SolutionDir)projects\lib_tls;.\GeneratedShaders;$(VULKAN_SDK)\include;$(BOOST_ROOT);.;.\..\..\include\gui\Dialog;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -142,9 +142,9 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
-      <AdditionalLibraryDirectories>$(SolutionDir)ext\ifcplusplus;$(SolutionDir)ext\3DxWare\lib\x64;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\lib;$(SolutionDir)ext\OCCT\lib;$(SolutionDir)ext\fbxSdk-2020.0.1\lib;$(SolutionDir)ext\SQLiteCpp\lib;$(SolutionDir)ext\cpr\lib;$(SolutionDir)ext\fmt\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)projects\lib_tls\bin;$(SolutionDir)ext\ifcplusplus;$(SolutionDir)ext\3DxWare\lib\x64;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\lib;$(SolutionDir)ext\OCCT\lib;$(SolutionDir)ext\fbxSdk-2020.0.1\lib;$(SolutionDir)ext\SQLiteCpp\lib;$(SolutionDir)ext\cpr\lib;$(SolutionDir)ext\fmt\</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>TDxNavLib.lib;libfbxsdk.lib;fmtd.lib;carved.lib;IfcPlusPlusd.lib;TKBRep.lib;TKernel.lib;TKLCAF.lib;TKMath.lib;TKMesh.lib;TKPrim.lib;TKSTEP.lib;TKTopAlgo.lib;TKXCAF.lib;TKXDESTEP.lib;TKXSBase.lib;openE57-d.lib;xerces-c_3D.lib;AdskRcCommon.lib;AdskRcData.lib;AdskRcProjectIO.lib;AdskRcImport.lib;SQLiteCppd.lib;sqlite3d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>TDxNavLib.lib;libfbxsdk.lib;fmtd.lib;carved.lib;IfcPlusPlusd.lib;TKBRep.lib;TKernel.lib;TKLCAF.lib;TKMath.lib;TKMesh.lib;TKPrim.lib;TKSTEP.lib;TKTopAlgo.lib;TKXCAF.lib;TKXDESTEP.lib;TKXSBase.lib;openE57-d.lib;xerces-c_3D.lib;AdskRcCommon.lib;AdskRcData.lib;AdskRcProjectIO.lib;AdskRcImport.lib;SQLiteCppd.lib;sqlite3d.lib;lib_tls-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>msvcrt.lib</IgnoreSpecificDefaultLibraries>
       <Profile>true</Profile>
     </Link>
@@ -201,7 +201,7 @@ xcopy /y /q "$(SolutionDir)ext\ReCapSDK\bin\*.dll" "$(SolutionDir)build\$(Config
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>FBXSDK_SHARED;_SCANSAP_;QT_NO_DEBUG;NDEBUG;NOMINMAX;VK_NO_PROTOTYPES;_CRT_SECURE_NO_WARNINGS;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;$(SolutionDir)\include\gui\widgets\CustomWidgets;$(SolutionDir)ext;$(SolutionDir)ext\SQLiteCpp\include;$(SolutionDir)ext\3DxWare\inc;$(BOOST_ROOT);$(SolutionDir)ext\tiny_obj_loader;$(SolutionDir)ext\ifcplusplus\include;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\include;$(SolutionDir)ext\ReCapSDK\include\realdwg;$(SolutionDir)ext\OCCT\inc;$(SolutionDir)ext\cpr\include;$(SolutionDir)ext\fbxSdk-2020.0.1\inc;$(SolutionDir)ext\dxflibs\;.\GeneratedShaders;.\..\..\include;.\..\..\src;$(VULKAN_SDK)\include;.;.\..\..\include\gui\Dialog;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.\..\..\include;.\..\..\src;$(SolutionDir)\include\gui\widgets\CustomWidgets;$(SolutionDir)ext;$(SolutionDir)ext\SQLiteCpp\include;$(SolutionDir)ext\3DxWare\inc;$(SolutionDir)ext\tiny_obj_loader;$(SolutionDir)ext\ifcplusplus\include;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\include;$(SolutionDir)ext\ReCapSDK\include\realdwg;$(SolutionDir)ext\OCCT\inc;$(SolutionDir)ext\cpr\include;$(SolutionDir)ext\fbxSdk-2020.0.1\inc;$(SolutionDir)ext\dxflibs\;$(SolutionDir)projects\lib_tls;.\GeneratedShaders;$(VULKAN_SDK)\include;$(BOOST_ROOT);.;.\..\..\include\gui\Dialog;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat />
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
@@ -215,8 +215,8 @@ xcopy /y /q "$(SolutionDir)ext\ReCapSDK\bin\*.dll" "$(SolutionDir)build\$(Config
     <Link>
       <SubSystem>Windows</SubSystem>
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
-      <AdditionalLibraryDirectories>$(SolutionDir)ext\ifcplusplus;$(SolutionDir)ext\3DxWare\lib\x64;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\lib;$(SolutionDir)ext\OCCT\lib;$(SolutionDir)ext\fbxSdk-2020.0.1\lib;$(SolutionDir)ext\SQLiteCpp\lib;$(SolutionDir)ext\cpr\lib;$(SolutionDir)ext\fmt\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>TDxNavLib.lib;libfbxsdk.lib;fmt.lib;carve.lib;IfcPlusPlus.lib;TKBRep.lib;TKernel.lib;TKLCAF.lib;TKMath.lib;TKMesh.lib;TKPrim.lib;TKSTEP.lib;TKTopAlgo.lib;TKXCAF.lib;TKXDESTEP.lib;TKXSBase.lib;openE57.lib;xerces-c_3.lib;AdskRcCommon.lib;AdskRcData.lib;AdskRcProjectIO.lib;AdskRcImport.lib;SQLiteCpp.lib;sqlite3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)projects\lib_tls\bin;$(SolutionDir)ext\ifcplusplus;$(SolutionDir)ext\3DxWare\lib\x64;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\lib;$(SolutionDir)ext\OCCT\lib;$(SolutionDir)ext\fbxSdk-2020.0.1\lib;$(SolutionDir)ext\SQLiteCpp\lib;$(SolutionDir)ext\cpr\lib;$(SolutionDir)ext\fmt\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>TDxNavLib.lib;libfbxsdk.lib;fmt.lib;carve.lib;IfcPlusPlus.lib;TKBRep.lib;TKernel.lib;TKLCAF.lib;TKMath.lib;TKMesh.lib;TKPrim.lib;TKSTEP.lib;TKTopAlgo.lib;TKXCAF.lib;TKXDESTEP.lib;TKXSBase.lib;openE57.lib;xerces-c_3.lib;AdskRcCommon.lib;AdskRcData.lib;AdskRcProjectIO.lib;AdskRcImport.lib;SQLiteCpp.lib;sqlite3.lib;lib_tls.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>false</GenerateDebugInformation>
     </Link>
     <QtMoc>
@@ -278,7 +278,7 @@ xcopy /y /q "$(SolutionDir)ext\ReCapSDK\bin\*.dll" "$(SolutionDir)build\$(Config
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>QT_MODAL_LICENSE;FBXSDK_SHARED;NOMINMAX;QT_NO_DEBUG;NDEBUG;VK_NO_PROTOTYPES;_CRT_SECURE_NO_WARNINGS;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;$(SolutionDir)\include\gui\widgets\CustomWidgets;$(SolutionDir)ext;$(SolutionDir)ext\SQLiteCpp\include;$(SolutionDir)ext\3DxWare\inc;$(BOOST_ROOT);$(SolutionDir)ext\tiny_obj_loader;$(SolutionDir)ext\ifcplusplus\include;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\include;$(SolutionDir)ext\ReCapSDK\include\realdwg;$(SolutionDir)ext\OCCT\inc;$(SolutionDir)ext\cpr\include;$(SolutionDir)ext\fbxSdk-2020.0.1\inc;$(SolutionDir)ext\dxflibs\;.\GeneratedShaders;.\..\..\include;.\..\..\src;$(VULKAN_SDK)\include;.;.\..\..\include\gui\Dialog;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.\..\..\include;.\..\..\src;$(SolutionDir)\include\gui\widgets\CustomWidgets;$(SolutionDir)ext;$(SolutionDir)ext\SQLiteCpp\include;$(SolutionDir)ext\3DxWare\inc;$(SolutionDir)ext\tiny_obj_loader;$(SolutionDir)ext\ifcplusplus\include;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\include;$(SolutionDir)ext\ReCapSDK\include\realdwg;$(SolutionDir)ext\OCCT\inc;$(SolutionDir)ext\cpr\include;$(SolutionDir)ext\fbxSdk-2020.0.1\inc;$(SolutionDir)ext\dxflibs\;$(SolutionDir)projects\lib_tls;.\GeneratedShaders;$(VULKAN_SDK)\include;$(BOOST_ROOT);.;.\..\..\include\gui\Dialog;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>
       </DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -292,9 +292,9 @@ xcopy /y /q "$(SolutionDir)ext\ReCapSDK\bin\*.dll" "$(SolutionDir)build\$(Config
     <Link>
       <SubSystem>Windows</SubSystem>
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
-      <AdditionalLibraryDirectories>$(SolutionDir)ext\ifcplusplus;$(SolutionDir)ext\3DxWare\lib\x64;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\lib;$(SolutionDir)ext\OCCT\lib;$(SolutionDir)ext\fbxSdk-2020.0.1\lib;$(SolutionDir)ext\SQLiteCpp\lib;$(SolutionDir)ext\cpr\lib;$(SolutionDir)ext\fmt\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)projects\lib_tls\bin;$(SolutionDir)ext\ifcplusplus;$(SolutionDir)ext\3DxWare\lib\x64;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\lib;$(SolutionDir)ext\OCCT\lib;$(SolutionDir)ext\fbxSdk-2020.0.1\lib;$(SolutionDir)ext\SQLiteCpp\lib;$(SolutionDir)ext\cpr\lib;$(SolutionDir)ext\fmt\</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-      <AdditionalDependencies>TDxNavLib.lib;libfbxsdk.lib;fmt.lib;carve.lib;IfcPlusPlus.lib;TKBRep.lib;TKernel.lib;TKLCAF.lib;TKMath.lib;TKMesh.lib;TKPrim.lib;TKSTEP.lib;TKTopAlgo.lib;TKXCAF.lib;TKXDESTEP.lib;TKXSBase.lib;openE57.lib;xerces-c_3.lib;AdskRcCommon.lib;AdskRcData.lib;AdskRcProjectIO.lib;AdskRcImport.lib;SQLiteCpp.lib;sqlite3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>TDxNavLib.lib;libfbxsdk.lib;fmt.lib;carve.lib;IfcPlusPlus.lib;TKBRep.lib;TKernel.lib;TKLCAF.lib;TKMath.lib;TKMesh.lib;TKPrim.lib;TKSTEP.lib;TKTopAlgo.lib;TKXCAF.lib;TKXDESTEP.lib;TKXSBase.lib;openE57.lib;xerces-c_3.lib;AdskRcCommon.lib;AdskRcData.lib;AdskRcProjectIO.lib;AdskRcImport.lib;SQLiteCpp.lib;sqlite3.lib;lib_tls.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <QtMoc>
       <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
@@ -363,7 +363,7 @@ signtool sign /sha1 "881d9294e1fdd77049171ada940dd511b709674f" /tr "http://time.
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>QT_MODAL_LICENSE;FBXSDK_SHARED;PORTABLE;_SCANSAP_;NOMINMAX;QT_NO_DEBUG;NDEBUG;VK_NO_PROTOTYPES;_CRT_SECURE_NO_WARNINGS;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;$(SolutionDir)\include\gui\widgets\CustomWidgets;$(SolutionDir)ext;$(SolutionDir)ext\SQLiteCpp\include;$(SolutionDir)ext\3DxWare\inc;$(BOOST_ROOT);$(SolutionDir)ext\fbxSdk-2020.0.1\inc;$(SolutionDir)ext\dxflibs\;.\GeneratedShaders;.\..\..\include;.\..\..\src;$(VULKAN_SDK)\include;.;.\..\..\include\gui\Dialog;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.\..\..\include;.\..\..\src;$(SolutionDir)\include\gui\widgets\CustomWidgets;$(SolutionDir)ext;$(SolutionDir)ext\SQLiteCpp\include;$(SolutionDir)ext\3DxWare\inc;$(SolutionDir)ext\tiny_obj_loader;$(SolutionDir)ext\ifcplusplus\include;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\include;$(SolutionDir)ext\ReCapSDK\include\realdwg;$(SolutionDir)ext\OCCT\inc;$(SolutionDir)ext\cpr\include;$(SolutionDir)ext\fbxSdk-2020.0.1\inc;$(SolutionDir)ext\dxflibs\;$(SolutionDir)projects\lib_tls;.\GeneratedShaders;$(VULKAN_SDK)\include;$(BOOST_ROOT);.;.\..\..\include\gui\Dialog;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>
       </DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -377,9 +377,9 @@ signtool sign /sha1 "881d9294e1fdd77049171ada940dd511b709674f" /tr "http://time.
     <Link>
       <SubSystem>Windows</SubSystem>
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
-      <AdditionalLibraryDirectories>$(SolutionDir)ext\ifcplusplus;$(SolutionDir)ext\3DxWare\lib\x64;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\lib;$(SolutionDir)ext\OCCT\lib;$(SolutionDir)ext\fbxSdk-2020.0.1\lib;$(SolutionDir)ext\SQLiteCpp\lib;$(SolutionDir)ext\cpr\lib;$(SolutionDir)ext\fmt\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)projects\lib_tls\bin;$(SolutionDir)ext\ifcplusplus;$(SolutionDir)ext\3DxWare\lib\x64;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\lib;$(SolutionDir)ext\OCCT\lib;$(SolutionDir)ext\fbxSdk-2020.0.1\lib;$(SolutionDir)ext\SQLiteCpp\lib;$(SolutionDir)ext\cpr\lib;$(SolutionDir)ext\fmt\</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-      <AdditionalDependencies>TDxNavLib.lib;libfbxsdk.lib;fmt.lib;carve.lib;IfcPlusPlus.lib;TKBRep.lib;TKernel.lib;TKLCAF.lib;TKMath.lib;TKMesh.lib;TKPrim.lib;TKSTEP.lib;TKTopAlgo.lib;TKXCAF.lib;TKXDESTEP.lib;TKXSBase.lib;openE57.lib;xerces-c_3.lib;AdskRcCommon.lib;AdskRcData.lib;AdskRcProjectIO.lib;AdskRcImport.lib;SQLiteCpp.lib;sqlite3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>TDxNavLib.lib;libfbxsdk.lib;fmt.lib;carve.lib;IfcPlusPlus.lib;TKBRep.lib;TKernel.lib;TKLCAF.lib;TKMath.lib;TKMesh.lib;TKPrim.lib;TKSTEP.lib;TKTopAlgo.lib;TKXCAF.lib;TKXDESTEP.lib;TKXSBase.lib;openE57.lib;xerces-c_3.lib;AdskRcCommon.lib;AdskRcData.lib;AdskRcProjectIO.lib;AdskRcImport.lib;SQLiteCpp.lib;sqlite3.lib;lib_tls.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <QtMoc>
       <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
@@ -442,7 +442,7 @@ signtool sign /a /fd sha256 /tr http://timestamp.comodoca.com /td sha256 $(Solut
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>QT_MODAL_LICENSE;FBXSDK_SHARED;PORTABLE;_SCANSAP_;NOMINMAX;QT_NO_DEBUG;NDEBUG;VK_NO_PROTOTYPES;_CRT_SECURE_NO_WARNINGS;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;$(SolutionDir)\include\gui\widgets\CustomWidgets;$(SolutionDir)ext;$(SolutionDir)ext\SQLiteCpp\include;$(SolutionDir)ext\3DxWare\inc;$(BOOST_ROOT);$(SolutionDir)ext\fbxSdk-2020.0.1\inc;$(SolutionDir)ext\dxflibs\;.\GeneratedShaders;.\..\..\include;.\..\..\src;$(VULKAN_SDK)\include;.;.\..\..\include\gui\Dialog;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.\..\..\include;.\..\..\src;$(SolutionDir)\include\gui\widgets\CustomWidgets;$(SolutionDir)ext;$(SolutionDir)ext\SQLiteCpp\include;$(SolutionDir)ext\3DxWare\inc;$(SolutionDir)ext\tiny_obj_loader;$(SolutionDir)ext\ifcplusplus\include;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\include;$(SolutionDir)ext\ReCapSDK\include\realdwg;$(SolutionDir)ext\OCCT\inc;$(SolutionDir)ext\cpr\include;$(SolutionDir)ext\fbxSdk-2020.0.1\inc;$(SolutionDir)ext\dxflibs\;$(SolutionDir)projects\lib_tls;.\GeneratedShaders;$(VULKAN_SDK)\include;$(BOOST_ROOT);.;.\..\..\include\gui\Dialog;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>
       </DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -456,9 +456,9 @@ signtool sign /a /fd sha256 /tr http://timestamp.comodoca.com /td sha256 $(Solut
     <Link>
       <SubSystem>Windows</SubSystem>
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
-      <AdditionalLibraryDirectories>$(SolutionDir)ext\ifcplusplus;$(SolutionDir)ext\3DxWare\lib\x64;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\lib;$(SolutionDir)ext\OCCT\lib;$(SolutionDir)ext\fbxSdk-2020.0.1\lib;$(SolutionDir)ext\SQLiteCpp\lib;$(SolutionDir)ext\cpr\lib;$(SolutionDir)ext\fmt\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)projects\lib_tls\bin;$(SolutionDir)ext\ifcplusplus;$(SolutionDir)ext\3DxWare\lib\x64;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\lib;$(SolutionDir)ext\OCCT\lib;$(SolutionDir)ext\fbxSdk-2020.0.1\lib;$(SolutionDir)ext\SQLiteCpp\lib;$(SolutionDir)ext\cpr\lib;$(SolutionDir)ext\fmt\</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-      <AdditionalDependencies>TDxNavLib.lib;libfbxsdk.lib;fmt.lib;carve.lib;IfcPlusPlus.lib;TKBRep.lib;TKernel.lib;TKLCAF.lib;TKMath.lib;TKMesh.lib;TKPrim.lib;TKSTEP.lib;TKTopAlgo.lib;TKXCAF.lib;TKXDESTEP.lib;TKXSBase.lib;openE57.lib;xerces-c_3.lib;AdskRcCommon.lib;AdskRcData.lib;AdskRcProjectIO.lib;AdskRcImport.lib;SQLiteCpp.lib;sqlite3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>TDxNavLib.lib;libfbxsdk.lib;fmt.lib;carve.lib;IfcPlusPlus.lib;TKBRep.lib;TKernel.lib;TKLCAF.lib;TKMath.lib;TKMesh.lib;TKPrim.lib;TKSTEP.lib;TKTopAlgo.lib;TKXCAF.lib;TKXDESTEP.lib;TKXSBase.lib;openE57.lib;xerces-c_3.lib;AdskRcCommon.lib;AdskRcData.lib;AdskRcProjectIO.lib;AdskRcImport.lib;SQLiteCpp.lib;sqlite3.lib;lib_tls.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <QtMoc>
       <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
@@ -954,7 +954,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\src\io\exports\TlsFileWriter.cpp" />
-    <ClCompile Include="..\..\src\io\exports\TlsWriter.cpp" />
     <ClCompile Include="..\..\src\io\exports\txtExport.cpp" />
     <ClCompile Include="..\..\src\io\imports\DataDeserializer.cpp" />
     <ClCompile Include="..\..\src\io\imports\dxfFileReader.cpp">
@@ -1031,7 +1030,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\src\io\imports\TlsFileReader.cpp" />
-    <ClCompile Include="..\..\src\io\imports\TlsReader.cpp" />
     <ClCompile Include="..\..\src\io\SaveLoadSystem.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
     <ClCompile Include="..\..\src\models\3d\ProjectionData.cpp" />
@@ -1110,9 +1108,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\src\pointCloudEngine\OctreeBase.cpp" />
-    <ClCompile Include="..\..\src\pointCloudEngine\OctreeCtor.cpp" />
-    <ClCompile Include="..\..\src\pointCloudEngine\OctreeDecoder.cpp" />
     <ClCompile Include="..\..\src\pointCloudEngine\OctreeRayTracing.cpp" />
     <ClCompile Include="..\..\src\pointCloudEngine\OctreeShredder.cpp" />
     <ClCompile Include="..\..\src\pointCloudEngine\PCE_core.cpp" />
@@ -1194,6 +1189,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\ext\dxflibs\dl_writer.h" />
     <ClInclude Include="..\..\ext\dxflibs\dl_writer_ascii.h" />
     <ClInclude Include="..\..\ext\fmt\core.h" />
+    <ClInclude Include="..\..\ext\fmt\format.h" />
     <ClInclude Include="..\..\ext\imgui\imconfig.h" />
     <ClInclude Include="..\..\ext\imgui\imgui.h" />
     <ClInclude Include="..\..\ext\imgui\imgui_impl_vulkan.h" />
@@ -1442,6 +1438,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="..\..\include\io\exports\TlsFileWriter.h" />
     <ClInclude Include="..\..\include\io\imports\DataDeserializer.hxx" />
     <ClInclude Include="..\..\include\io\imports\dxfFileReader.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
@@ -1465,6 +1462,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="..\..\include\io\imports\TlsFileReader.h" />
     <ClInclude Include="..\..\include\models\3d\BoundingBox.h" />
     <ClInclude Include="..\..\include\models\3d\UniformClippingData.h" />
     <ClInclude Include="..\..\include\models\3d\MarkerDrawData.h" />
@@ -1851,8 +1849,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="..\..\include\io\exports\TlsFileWriter.h" />
-    <ClInclude Include="..\..\include\io\exports\TlsWriter.h" />
     <ClInclude Include="..\..\include\io\FileUtils.h" />
     <ClInclude Include="..\..\include\io\imports\E57FileReader.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
@@ -1866,16 +1862,11 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="..\..\include\io\imports\TlsFileReader.h" />
-    <ClInclude Include="..\..\include\io\imports\TlsReader.h" />
-    <ClInclude Include="..\..\include\io\TlsMap.h" />
     <ClInclude Include="..\..\include\models\application\TagTemplate.h" />
     <ClInclude Include="..\..\include\models\application\List.h" />
     <ClInclude Include="..\..\include\models\pointCloud\TLS.h" />
     <ClInclude Include="..\..\include\models\project\ProjectInfos.h" />
     <ClInclude Include="..\..\include\models\OpenScanToolsModelEssentials.h" />
-    <ClInclude Include="..\..\include\pointCloudEngine\OctreeCtor.h" />
-    <ClInclude Include="..\..\include\pointCloudEngine\OctreeDecoder.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\OctreeRayTracing.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\PCE_graphics.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\PCE_stream.h" />
@@ -1901,7 +1892,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\utils\System.h" />
     <ClInclude Include="..\..\include\utils\time.h" />
     <QtMoc Include="..\..\include\gui\viewport\VulkanViewport.h" />
-    <ClInclude Include="..\..\include\pointCloudEngine\OctreeBase.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\PCE_core.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\TlStreamer.h" />
     <ClInclude Include="..\..\include\utils\math\glm_extended.h" />

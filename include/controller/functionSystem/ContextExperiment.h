@@ -2,7 +2,7 @@
 #define CONTEXT_EXPERIMENT_H_
 
 #include "controller/functionSystem/ARayTracingContext.h"
-#include "models/pointCloud/TLS.h"
+#include "tls_def.h"
 
 #include <list>
 

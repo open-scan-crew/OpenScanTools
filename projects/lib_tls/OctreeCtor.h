@@ -1,7 +1,7 @@
 #ifndef OCTREE_CTOR_H
 #define OCTREE_CTOR_H
 
-#include "OctreeBase_k.h"
+#include "OctreeBase.h"
 #include "PointXYZIRGB_k.h"
 
 #include <vector>
@@ -27,60 +27,57 @@ struct TempData
     QSPT16* m_qspt;
 };
 
-class OctreeCtor : public OctreeBase
+namespace tls
 {
-public:
-    OctreeCtor(tls::PrecisionType _precisionType, tls::PointFormat ptFormat);
-    OctreeCtor(OctreeBase const& base);
-    ~OctreeCtor();
+    class OctreeCtor : public OctreeBase
+    {
+    public:
+        OctreeCtor(tls::PrecisionType _precisionType, tls::PointFormat ptFormat);
+        OctreeCtor(OctreeBase const& base);
+        ~OctreeCtor();
 
-    //void insertPointsWithTransfo(PointXYZIRGB const* points, uint64_t pointCount, tls::Transformation inTransfo);
-    void insertPoint(PointXYZIRGB const& _point);
-    void insertPoint_overwriteI(PointXYZIRGB const& _point);
-    void insertPoint_overwriteRGB(PointXYZIRGB const& _point);
+        //void insertPointsWithTransfo(PointXYZIRGB const* points, uint64_t pointCount, tls::Transformation inTransfo);
+        void insertPoint(PointXYZIRGB const& _point);
+        void insertPoint_overwriteI(PointXYZIRGB const& _point);
+        void insertPoint_overwriteRGB(PointXYZIRGB const& _point);
 
-    // Call encode() when all points have been inserted. No other point can be inserted after !
-    void encode(std::ostream& _osResult);
+        // Call encode() when all points have been inserted. No other point can be inserted after !
+        void encode(std::ostream& _osResult);
 
-protected:
-    OctreeCtor() {};
+    protected:
+        OctreeCtor() {};
 
-    void pushNewCell(float size, float x, float y, float z, bool isLeaf);
-    void insertPointInCell(PointXYZIRGB const& _point, uint32_t _cellId);
-    void createChildForCell(uint32_t _childPos, uint32_t _cellId);
-    bool splitCell(uint32_t _cellId);
+        void pushNewCell(float size, float x, float y, float z, bool isLeaf);
+        void insertPointInCell(PointXYZIRGB const& _point, uint32_t _cellId);
+        void createChildForCell(uint32_t _childPos, uint32_t _cellId);
+        bool splitCell(uint32_t _cellId);
 
-    // Rearrange the nodes in m_vNodes to get the root node first then
-    // the other nodes by depth order (cannot by accomplished during construction)
-    //void sortNodes();
-    void printStats(std::ostream& _os);
-    uint32_t getOctreeDepth(uint32_t _cellId);
+        // Rearrange the nodes in m_vNodes to get the root node first then
+        // the other nodes by depth order (cannot by accomplished during construction)
+        //void sortNodes();
+        void printStats(std::ostream& _os);
+        uint32_t getOctreeDepth(uint32_t _cellId);
 
-    void createLayerForCell(uint32_t cellId);
-    void constructQSPTForLeaf(uint32_t _cellId);
+        void createLayerForCell(uint32_t cellId);
+        void constructQSPTForLeaf(uint32_t _cellId);
 
-    void determineSptDepthFromChildren(uint32_t _cellId);
+        void determineSptDepthFromChildren(uint32_t _cellId);
 
-    void regroupData();
-    void storeNodeQSPT(uint32_t _cellId, uint32_t _depth, uint32_t _writeDepth, uint64_t& _dataStoredOffset);
-    void storeLeaves(uint32_t _cellId, uint64_t& _dataStoredOffset);
-    void storeChildQSPT(uint32_t _cellId, uint32_t _depth, uint32_t _writeDepth, uint64_t& _dataStoredOffset);
-    void storeQSPT(uint32_t _cellId, uint64_t& _dataStoredOffset);
-	
-    TLS_WRITER_DECLARE(OctreeCtor);
+        void regroupData();
+        void storeNodeQSPT(uint32_t _cellId, uint32_t _depth, uint32_t _writeDepth, uint64_t& _dataStoredOffset);
+        void storeLeaves(uint32_t _cellId, uint64_t& _dataStoredOffset);
+        void storeChildQSPT(uint32_t _cellId, uint32_t _depth, uint32_t _writeDepth, uint64_t& _dataStoredOffset);
+        void storeQSPT(uint32_t _cellId, uint64_t& _dataStoredOffset);
 
-private:
-    char* m_vertexData;
-    char* m_instData;
+    private:
+        uint32_t m_octreeDepth;
+        uint32_t m_nbDiscardedPoints;
+        int64_t m_redundantPointCount;
 
-    uint32_t m_octreeDepth;
-    uint32_t m_nbDiscardedPoints;
-    int64_t m_redundantPointCount;
-    uint64_t m_vertexDataSize;
-
-    // Temporary data - Not saved 
-    std::vector<TempData> m_vTempData;
-};
+        // Temporary data - Not saved 
+        std::vector<TempData> m_vTempData;
+    };
+}
 
 //------------------------------------------------------//
 //   Quantized SPT with point coordinates on 16 bits   // 

@@ -7,7 +7,7 @@
 
 #include "io/FileUtils.h"
 #include "io/imports/ImportTypes.h"
-#include "models/pointCloud/TLS.h"
+#include "tls_def.h"
 
 struct PointXYZIRGB;
 class IOctreeReader;
@@ -26,7 +26,7 @@ public:
     virtual bool startReadingScan(uint32_t scanNumber) = 0;
     virtual bool readPoints(PointXYZIRGB* dstBuf, uint64_t bufSize, uint64_t& readCount) = 0;
 
-    virtual const tls::FileHeader& getTlsHeader() const = 0;
+    virtual tls::FileHeader getTlsHeader() const = 0;
     virtual tls::ScanHeader getTlsScanHeader(uint32_t scanNumber) const = 0;
 
 protected:
