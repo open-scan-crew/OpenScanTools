@@ -14,7 +14,7 @@ namespace tls
 
         void initBuffers();
 
-        bool readPointsFromFile(std::fstream& fs, const uint64_t& pointDataOffset, const uint64_t& pointDataSize);
+        bool readPointsFromFile(std::fstream& fs, const uint64_t& pointDataOffset);
         //bool decode();
 
         uint32_t getCellCount();

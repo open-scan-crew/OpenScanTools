@@ -61,8 +61,6 @@ namespace tls
         TL_POINT_NOT_COMPATIBLE
     };
 
-
-
     struct Limits
     {
         float xMin;

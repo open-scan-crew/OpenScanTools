@@ -45,7 +45,7 @@ void OctreeDecoder::cleanEncodedBuffers()
     m_encodedBuffers.clear();
 }
 
-bool OctreeDecoder::readPointsFromFile(std::fstream& _fs, const uint64_t& pointDataOffset, const uint64_t& pointDataSize)
+bool OctreeDecoder::readPointsFromFile(std::fstream& _fs, const uint64_t& pointDataOffset)
 {
     // NOTE(robin) - Organize the leaves to read them in the file order (faster)
     std::map<uint64_t, uint32_t> orderedCellToRead;

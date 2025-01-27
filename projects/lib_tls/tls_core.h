@@ -25,7 +25,7 @@ namespace tls
     {
         read,
         write,
-        render
+        //render
     };
 
     // TODO - a "scan" should be refered a a "point cloud"

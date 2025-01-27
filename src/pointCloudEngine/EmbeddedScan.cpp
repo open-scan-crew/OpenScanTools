@@ -20,7 +20,7 @@ EmbeddedScan::EmbeddedScan(std::filesystem::path const& filepath)
     , m_pCellBuffers(nullptr)
 {
     // open tls file
-    if (!tls_img_file_.open(filepath, tls::usage::render))
+    if (!tls_img_file_.open(filepath, tls::usage::read))
     {
         Logger::log(IOLog) << "An error occured while opening the TLS file '" << filepath << "'" << Logger::endl;
         return;
@@ -39,20 +39,17 @@ EmbeddedScan::EmbeddedScan(std::filesystem::path const& filepath)
     memset(m_pCellBuffers, 0, m_cellCount * sizeof(SmartBuffer));
 
     // Load the instance data
-    //std::vector<float> stageInstance(m_cellCount * 4);
-    //istream.seekg(m_instanceDataOffset);
-    //istream.read((char*)stageInstance.data(), m_cellCount * 4 * sizeof(float));
-    //istream.close();
-
     size_t data_size = 0;
     tls_img_file_.getCellRenderData(0, nullptr, data_size); // get the data size by passing a null buffer
+    if (data_size == 0)
+        return;
     char* data_buffer = new char[data_size];
     tls_img_file_.getCellRenderData(0, data_buffer, data_size);
 
     VulkanManager& vkManager = VulkanManager::getInstance();
-    vkManager.allocSimpleBuffer(m_cellCount * 4 * sizeof(float), m_instanceBuffer, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+    vkManager.allocSimpleBuffer(data_size, m_instanceBuffer, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
     VkDeviceSize offset = 0;
-    vkManager.loadInSimpleBuffer(m_instanceBuffer, m_cellCount * 4 * sizeof(float), data_buffer, offset, 4);
+    vkManager.loadInSimpleBuffer(m_instanceBuffer, data_size, data_buffer, offset, 4);
 
     delete data_buffer;
 }
@@ -112,7 +109,7 @@ std::filesystem::path EmbeddedScan::getPath() const
 void EmbeddedScan::setPath(const std::filesystem::path& newPath)
 {
     tls_img_file_.close();
-    if (!tls_img_file_.open(newPath, tls::usage::render))
+    if (!tls_img_file_.open(newPath, tls::usage::read))
         assert(0);
 }
 

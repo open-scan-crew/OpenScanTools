@@ -60,6 +60,21 @@ void tls::getCompatibleFormat(PointFormat& inFormat, PointFormat addFormat)
     }
 }
 
+size_t tls::sizeofPointFormat(PointFormat format)
+{
+    switch (format)
+    {
+    case TL_POINT_XYZ_I:
+        return 7ull;
+    case TL_POINT_XYZ_RGB:
+        return 9ull;
+    case TL_POINT_XYZ_I_RGB:
+        return 10ull;
+    default:
+        return 10ull;
+    }
+}
+
 ImageFile_p::ImageFile_p(const std::filesystem::path& filepath, usage usage)
     : filepath_(filepath)
 {
@@ -292,15 +307,12 @@ uint64_t ImageFile_p::getPointCount() const
     return totalPoints;
 }
 
-bool ImageFile_p::setCurrentPointCloud(uint32_t n)
+bool ImageFile_p::setCurrentPointCloud(uint32_t _pc_num)
 {
-    if (n >= getScanCount())
+    if (_pc_num >= pc_headers_.size())
         return false;
 
-    if (n >= pc_headers_.size())
-        return false;
-
-    if (octree_decoder_ != nullptr && m_currentScan == n)
+    if (octree_decoder_ != nullptr && m_currentScan == _pc_num)
     {
         m_currentCell = 0;
         return true;
@@ -316,10 +328,10 @@ bool ImageFile_p::setCurrentPointCloud(uint32_t n)
 
     // Read the octree structure but not the points (loadPoints = true)
     octree_decoder_ = new OctreeDecoder();
-    if (!getOctreeDecoder(n, *octree_decoder_, true))
+    if (!getOctreeDecoder(_pc_num, *octree_decoder_, true))
         return false;
 
-    m_currentScan = n;
+    m_currentScan = _pc_num;
     m_currentCell = 0;
 
     return true;
@@ -340,7 +352,7 @@ bool ImageFile_p::appendPointCloud(const ScanHeader& info, const Transformation&
     return true;
 }
 
-bool ImageFile_p::finalizePointCloud(uint32_t _pc_number, double add_x, double add_y, double add_z)
+bool ImageFile_p::finalizePointCloud(uint32_t _pc_num, double add_x, double add_y, double add_z)
 {
     if (octree_ctor_ == nullptr)
         return false;
@@ -356,7 +368,7 @@ bool ImageFile_p::finalizePointCloud(uint32_t _pc_number, double add_x, double a
         if (fstr_.is_open() == false)
             return false;
 
-        if (_pc_number >= pc_headers_.size())
+        if (_pc_num >= pc_headers_.size())
         {
             results_.push_back({ result::BAD_USAGE, "Wrong point cloud number." });
             return false;
@@ -371,7 +383,7 @@ bool ImageFile_p::finalizePointCloud(uint32_t _pc_number, double add_x, double a
             octree_ctor_->encode(logStream);
         }
 
-        ScanHeader& header = pc_headers_[_pc_number];
+        ScanHeader& header = pc_headers_[_pc_num];
         // Generate a UUID for the scan
         if (header.guid == xg::Guid())
             header.guid = xg::newGuid();
@@ -383,7 +395,7 @@ bool ImageFile_p::finalizePointCloud(uint32_t _pc_number, double add_x, double a
 
         header.acquisitionDate = std::time(nullptr);
 
-        if (!ImageFile_p::writeOctreeBase(_pc_number, *(OctreeBase*)octree_ctor_, header)) {
+        if (!ImageFile_p::writeOctreeBase(_pc_num, *(OctreeBase*)octree_ctor_, header)) {
             std::cerr << "pcc: An error occured while saving the point cloud." << std::endl;
             delete octree_ctor_;
             octree_ctor_ = nullptr;
@@ -507,7 +519,7 @@ bool ImageFile_p::mergePoints(PointXYZIRGB const* src_buf, uint64_t src_size, co
     return true;
 }
 
-bool ImageFile_p::getOctreeBase(uint32_t _pc_number, OctreeBase& _octree_base)
+bool ImageFile_p::getOctreeBase(uint32_t _pc_num, OctreeBase& _octree_base)
 {
     if (!fstr_.is_open())
         return false;
@@ -517,22 +529,21 @@ bool ImageFile_p::getOctreeBase(uint32_t _pc_number, OctreeBase& _octree_base)
     case FileVersion::V_0_3:
     case FileVersion::V_0_4:
     {
-        seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_PRECISION);
+        seekScanHeaderPos(fstr_, _pc_num, TL_SCAN_ADDR_PRECISION);
         fstr_.read((char*)&_octree_base.m_precisionType, sizeof(PrecisionType));
 
         _octree_base.m_precisionValue = getPrecisionValue(_octree_base.m_precisionType);
 
-        seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_LIMITS);
+        seekScanHeaderPos(fstr_, _pc_num, TL_SCAN_ADDR_LIMITS);
         fstr_.read((char*)&_octree_base.m_limits, sizeof(Limits));
 
-        seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_FORMAT);
+        seekScanHeaderPos(fstr_, _pc_num, TL_SCAN_ADDR_FORMAT);
         fstr_.read((char*)&_octree_base.m_ptFormat, sizeof(PointFormat));
 
-        seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_POINT_COUNT);
+        seekScanHeaderPos(fstr_, _pc_num, TL_SCAN_ADDR_POINT_COUNT);
         fstr_.read((char*)&_octree_base.m_pointCount, sizeof(uint64_t));
 
-        seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_OCTREE_PARAM);
-        // NOTE(robin) - Réctifie une erreur dans le type de cellCount
+        seekScanHeaderPos(fstr_, _pc_num, TL_SCAN_ADDR_OCTREE_PARAM);
         uint64_t cellCount64;
         fstr_.read((char*)&cellCount64, sizeof(uint64_t));
         _octree_base.m_cellCount = (uint32_t)cellCount64;
@@ -541,11 +552,14 @@ bool ImageFile_p::getOctreeBase(uint32_t _pc_number, OctreeBase& _octree_base)
         fstr_.read((char*)&_octree_base.m_uRootCell, sizeof(uint32_t));
 
         // Read the octree directly from the file
-        uint64_t octreeDataOffset;
-        seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_DATA_ADDR);
-        fstr_.read((char*)&octreeDataOffset, sizeof(uint64_t));
-        fstr_.seekg(octreeDataOffset);
+        seekScanHeaderPos(fstr_, _pc_num, TL_SCAN_ADDR_DATA_ADDR);
+        fstr_.read((char*)&octree_data_addr_, sizeof(uint64_t));
+        fstr_.read((char*)&point_data_addr_, sizeof(uint64_t));
+        fstr_.read((char*)&cell_data_addr_, sizeof(uint64_t));
+        point_count_ = _octree_base.m_pointCount;
+        cell_count_ = _octree_base.m_cellCount;
 
+        fstr_.seekg(octree_data_addr_);
         _octree_base.m_vTreeCells.clear();
         _octree_base.m_vTreeCells.resize(_octree_base.m_cellCount);
         fstr_.read((char*)_octree_base.m_vTreeCells.data(), _octree_base.m_cellCount * sizeof(TreeCell));
@@ -557,37 +571,27 @@ bool ImageFile_p::getOctreeBase(uint32_t _pc_number, OctreeBase& _octree_base)
     }
 }
 
-bool ImageFile_p::getOctreeDecoder(uint32_t _pc_number, OctreeDecoder& _octree_decoder, bool _load_points)
+bool ImageFile_p::getOctreeDecoder(uint32_t _pc_num, OctreeDecoder& _octree_decoder, bool _load_points)
 {
     if (!fstr_.is_open())
         return false;
 
-    if (getOctreeBase(_pc_number, (OctreeBase&)_octree_decoder) == false)
+    if (getOctreeBase(_pc_num, (OctreeBase&)_octree_decoder) == false)
     {
         return false;
     }
 
     _octree_decoder.initBuffers();
 
-    uint64_t octreeDataOffset;
-    uint64_t pointDataOffset;
-    uint64_t instanceDataOffset;
-
-    seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_DATA_ADDR);
-    fstr_.read((char*)&octreeDataOffset, sizeof(uint64_t));
-    fstr_.read((char*)&pointDataOffset, sizeof(uint64_t));
-    fstr_.read((char*)&instanceDataOffset, sizeof(uint64_t));
-
     if (_load_points)
     {
-        uint64_t dataSize = instanceDataOffset - pointDataOffset;
-        _octree_decoder.readPointsFromFile(fstr_, pointDataOffset, dataSize);
+        _octree_decoder.readPointsFromFile(fstr_, point_data_addr_);
     }
 
     return true;
 }
 
-bool ImageFile_p::writeOctreeBase(uint32_t _pc_number, OctreeBase& _octree, ScanHeader _header)
+bool ImageFile_p::writeOctreeBase(uint32_t _pc_num, OctreeBase& _octree, ScanHeader _header)
 {
     if (!fstr_.is_open())
         return false;
@@ -598,38 +602,38 @@ bool ImageFile_p::writeOctreeBase(uint32_t _pc_number, OctreeBase& _octree, Scan
     }
 
     // *** Scaninfo ***
-    seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_GUID);
+    seekScanHeaderPos(fstr_, _pc_num, TL_SCAN_ADDR_GUID);
     fstr_.write((char*)&_header.guid, sizeof(_header.guid));
 
-    seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_SENSOR_MODEL);
+    seekScanHeaderPos(fstr_, _pc_num, TL_SCAN_ADDR_SENSOR_MODEL);
     fstr_.write(Utils::wstr_to_utf8(_header.sensorModel).c_str(), 32u);
 
-    seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_SENSOR_SERIAL_NUMBER);
+    seekScanHeaderPos(fstr_, _pc_num, TL_SCAN_ADDR_SENSOR_SERIAL_NUMBER);
     fstr_.write(Utils::wstr_to_utf8(_header.sensorSerialNumber).c_str(), 32u);
 
-    seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_ACQUISITION_DATE);
+    seekScanHeaderPos(fstr_, _pc_num, TL_SCAN_ADDR_ACQUISITION_DATE);
     fstr_.write((char*)&_header.acquisitionDate, sizeof(_header.acquisitionDate));
 
     // *** Bounding Box ***
-    seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_LIMITS);
+    seekScanHeaderPos(fstr_, _pc_num, TL_SCAN_ADDR_LIMITS);
     fstr_.write((char*)&_octree.m_limits, sizeof(Limits));
 
     // *** Transformation ***
-    seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_TRANSFORMATION);
+    seekScanHeaderPos(fstr_, _pc_num, TL_SCAN_ADDR_TRANSFORMATION);
     fstr_.write((char*)&_header.transfo.quaternion, sizeof(glm::dvec4));
     fstr_.write((char*)&_header.transfo.translation, sizeof(glm::dvec3));
 
     // *** Octree ***
-    seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_PRECISION);
+    seekScanHeaderPos(fstr_, _pc_num, TL_SCAN_ADDR_PRECISION);
     fstr_.write((char*)&_octree.m_precisionType, sizeof(PrecisionType));
 
-    seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_FORMAT);
+    seekScanHeaderPos(fstr_, _pc_num, TL_SCAN_ADDR_FORMAT);
     fstr_.write((char*)&_octree.m_ptFormat, sizeof(PointFormat));
 
     // Skip Addresses (octree, points & cells)
-    seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_POINT_COUNT);
+    seekScanHeaderPos(fstr_, _pc_num, TL_SCAN_ADDR_POINT_COUNT);
     fstr_.write((char*)&_octree.m_pointCount, sizeof(uint64_t));
-    seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_OCTREE_PARAM);
+    seekScanHeaderPos(fstr_, _pc_num, TL_SCAN_ADDR_OCTREE_PARAM);
     fstr_.write((char*)&_octree.m_cellCount, sizeof(uint64_t));
     fstr_.write((char*)&_octree.m_rootSize, sizeof(float));
     fstr_.write((char*)_octree.m_rootPosition, 3 * sizeof(float));
@@ -649,7 +653,7 @@ bool ImageFile_p::writeOctreeBase(uint32_t _pc_number, OctreeBase& _octree, Scan
     fstr_.write((char*)_octree.m_instData, _octree.m_cellCount * 4 * sizeof(float));
 
     // Write back the data addresses in the header
-    seekScanHeaderPos(fstr_, _pc_number, TL_SCAN_ADDR_DATA_ADDR);
+    seekScanHeaderPos(fstr_, _pc_num, TL_SCAN_ADDR_DATA_ADDR);
     fstr_.write((char*)&octreePos, sizeof(uint64_t));
     fstr_.write((char*)&vertexPos, sizeof(uint64_t));
     fstr_.write((char*)&instancePos, sizeof(uint64_t));
@@ -657,12 +661,12 @@ bool ImageFile_p::writeOctreeBase(uint32_t _pc_number, OctreeBase& _octree, Scan
     return true;
 }
 
-bool ImageFile_p::getData(uint32_t _pc_num, uint64_t _file_pos, void* _data_buf, uint64_t _data_size)
+bool ImageFile_p::getData(uint32_t _pc_num, uint64_t _file_offset, void* _data_buf, uint64_t _data_size)
 {
-    if (!fstr_.is_open() || _file_pos + _data_size > file_size_)
+    if (!fstr_.is_open() || point_data_addr_ + _file_offset + _data_size > file_size_)
         return false;
 
-    fstr_.seekg(_file_pos);
+    fstr_.seekg(point_data_addr_ + _file_offset);
     fstr_.read((char*)_data_buf, _data_size);
     return fstr_.good();
 }
@@ -672,18 +676,7 @@ bool ImageFile_p::getCellRenderData(uint32_t _pc_num, void* data_buf, size_t& da
     if (!fstr_.is_open())
         return false;
 
-    seekScanHeaderPos(fstr_, _pc_num, TL_SCAN_ADDR_DATA_ADDR);
-    uint64_t octreeDataOffset;
-    fstr_.read((char*)&octreeDataOffset, sizeof(uint64_t));  // unused, just for shifting the read position
-    uint64_t point_data_offset = 0;
-    fstr_.read((char*)&point_data_offset, sizeof(uint64_t));
-    uint64_t cell_data_offset = 0;
-    fstr_.read((char*)&cell_data_offset, sizeof(uint64_t));
-    uint64_t point_count = 0;
-    uint64_t cell_count = 0;
-    fstr_.read((char*)&point_count, sizeof(uint64_t));
-
-    uint64_t cell_data_size = cell_count * 16;
+    uint64_t cell_data_size = cell_count_ * 16;
 
     if (data_buf == nullptr)
     {
@@ -692,6 +685,7 @@ bool ImageFile_p::getCellRenderData(uint32_t _pc_num, void* data_buf, size_t& da
     }
     else if (data_size <= cell_data_size)
     {
+        fstr_.seekg(cell_data_addr_);
         fstr_.read((char*)data_buf, cell_data_size);
         return true;
     }
@@ -699,26 +693,13 @@ bool ImageFile_p::getCellRenderData(uint32_t _pc_num, void* data_buf, size_t& da
     return false;
 }
 
-
 bool ImageFile_p::copyRawData(char** pointBuffer, uint64_t& pointBufferSize, char** instanceBuffer, uint64_t& instanceBufferSize)
 {
     if (!fstr_.is_open())
         return false;
 
-    uint64_t octreeDataOffset;
-    uint64_t pointDataOffset;
-    uint64_t instanceDataOffset;
-    uint64_t pointCount;
-
-    seekScanHeaderPos(fstr_, 0, TL_SCAN_ADDR_DATA_ADDR);
-    fstr_.read((char*)&octreeDataOffset, sizeof(uint64_t));  // unused, just for shifting the read position
-    fstr_.read((char*)&pointDataOffset, sizeof(uint64_t));
-    fstr_.read((char*)&instanceDataOffset, sizeof(uint64_t));
-    seekScanHeaderPos(fstr_, 0, TL_SCAN_ADDR_POINT_COUNT);
-    fstr_.read((char*)&pointCount, sizeof(uint64_t));
-
-    pointBufferSize = instanceDataOffset - pointDataOffset;
-    instanceBufferSize = pointCount * 4 * sizeof(float);
+    pointBufferSize = point_count_ * sizeofPointFormat(pc_headers_[0].format);
+    instanceBufferSize = cell_count_ * 4 * sizeof(float);
     if (*pointBuffer != nullptr)
         delete (*pointBuffer);
     *pointBuffer = new char[pointBufferSize];
@@ -726,9 +707,9 @@ bool ImageFile_p::copyRawData(char** pointBuffer, uint64_t& pointBufferSize, cha
         delete (*instanceBuffer);
     *instanceBuffer = new char[instanceBufferSize];
 
-    fstr_.seekg(pointDataOffset);
+    fstr_.seekg(point_data_addr_);
     fstr_.read(*pointBuffer, pointBufferSize);
-    fstr_.seekg(instanceDataOffset);
+    fstr_.seekg(cell_data_addr_);
     fstr_.read(*instanceBuffer, instanceBufferSize);
 
     return true;

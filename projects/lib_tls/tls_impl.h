@@ -15,6 +15,7 @@ namespace tls
 {
     float getPrecisionValue(PrecisionType precisionType);
     void getCompatibleFormat(PointFormat& inFormat, PointFormat addFormat);
+    size_t sizeofPointFormat(PointFormat format);
 
     class OctreeDecoder;
     class OctreeCtor;
@@ -41,7 +42,7 @@ namespace tls
         uint32_t getScanCount() const;
         uint64_t getPointCount() const;
 
-        bool setCurrentPointCloud(uint32_t _pc_number);
+        bool setCurrentPointCloud(uint32_t _pc_num);
         bool appendPointCloud(const tls::ScanHeader& info, const Transformation& transfo);
         bool finalizePointCloud(uint32_t _pc_number, double add_x = 0.0, double add_y = 0.0, double add_z = 0.0);
 
@@ -86,6 +87,13 @@ namespace tls
         uint32_t m_currentScan = 0;
         OctreeDecoder* octree_decoder_ = nullptr;
         uint32_t m_currentCell = 0;
+        uint64_t octree_data_addr_ = 0;
+        uint64_t point_data_addr_ = 0;
+        uint64_t cell_data_addr_ = 0;
+        // Doublons avec les données de l’octree
+        uint64_t point_count_ = 0;
+        uint64_t cell_count_ = 0;
+
         OctreeCtor* octree_ctor_ = nullptr;
     };
 }
