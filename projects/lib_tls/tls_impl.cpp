@@ -77,8 +77,9 @@ size_t tls::sizeofPointFormat(PointFormat format)
 
 ImageFile_p::ImageFile_p(const std::filesystem::path& filepath, usage usage)
     : filepath_(filepath)
+    , usg_(usage)
 {
-    switch (usage)
+    switch (usg_)
     {
     case usage::read:
         open_file();
@@ -107,7 +108,12 @@ ImageFile_p::~ImageFile_p()
 
 bool ImageFile_p::is_valid_file()
 {
-    return fstr_.is_open();
+    if (usg_ == usage::read && pc_headers_.empty())
+        return false;
+
+    if (usg_ == usage::write && !fstr_.is_open())
+        return false;
+    return true;
 }
 
 void ImageFile_p::open_file()
@@ -600,6 +606,11 @@ bool ImageFile_p::writeOctreeBase(uint32_t _pc_num, OctreeBase& _octree, ScanHea
         std::cerr << "Error: no point present in the octree." << std::endl;
         return false;
     }
+
+    // Actualize ScanCount in file header
+    uint32_t pc_count = (uint32_t)pc_headers_.size();
+    fstr_.seekp(TL_FILE_ADDR_SCAN_COUNT);
+    fstr_.write((char*)&pc_count, sizeof(uint32_t));
 
     // *** Scaninfo ***
     seekScanHeaderPos(fstr_, _pc_num, TL_SCAN_ADDR_GUID);

@@ -141,9 +141,9 @@ bool E57FileWriter::appendPointCloud(const tls::ScanHeader& info, const Transfor
     data3D.append(pointCloud);
 
     // Add guid [required]
-    // Generate a new Guid for this point cloud
-    xg::Guid newGuid = xg::Guid();
-    pointCloud.set("guid", e57::StringNode(m_imf, newGuid.str()));
+    // Generate a new Guid if not provided
+    xg::Guid e57_guid = info.guid == xg::Guid() ? xg::newGuid() : info.guid;
+    pointCloud.set("guid", e57::StringNode(m_imf, e57_guid.str()));
 
     // Add name [optional]
     pointCloud.set("name", e57::StringNode(m_imf, Utils::to_utf8(m_scanHeader.name)));

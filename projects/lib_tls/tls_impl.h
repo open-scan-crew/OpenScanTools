@@ -62,8 +62,10 @@ namespace tls
         friend ImageFile;
 
     protected:
-        // Attributes
+        // Creation Attributes
         const std::filesystem::path filepath_;
+        const usage usg_;
+
         std::fstream fstr_;
 
         struct ResultMessage {
