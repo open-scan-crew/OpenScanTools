@@ -26,13 +26,15 @@ EmbeddedScan::EmbeddedScan(std::filesystem::path const& filepath)
         return;
     }
 
-    m_scanHeader = tls_img_file_.getPointCloudHeader(0);
-
     if(!tls_img_file_.getOctreeBase(0, *(tls::OctreeBase*)this))
     {
         Logger::log(IOLog) << "Failed to read the octree part in '" << tls_img_file_.getPath() << "'" << Logger::endl;
         return;
     }
+
+    tls::ScanHeader infos = tls_img_file_.getPointCloudHeader(0);
+    pt_format_ = infos.format;
+    pt_precision_ = infos.precision;
 
     // Initialize the buffers
     m_pCellBuffers = new SmartBuffer[m_cellCount];
@@ -51,7 +53,7 @@ EmbeddedScan::EmbeddedScan(std::filesystem::path const& filepath)
     VkDeviceSize offset = 0;
     vkManager.loadInSimpleBuffer(m_instanceBuffer, data_size, data_buffer, offset, 4);
 
-    delete data_buffer;
+    delete[] data_buffer;
 }
 
 EmbeddedScan::~EmbeddedScan()
@@ -88,7 +90,7 @@ EmbeddedScan::~EmbeddedScan()
 
 tls::ScanGuid EmbeddedScan::getGuid() const
 {
-    return m_scanHeader.guid;
+    return tls_img_file_.getPointCloudHeader(0).guid;
 }
 
 tls::FileGuid EmbeddedScan::getFileGuid() const
@@ -98,7 +100,7 @@ tls::FileGuid EmbeddedScan::getFileGuid() const
 
 void EmbeddedScan::getInfo(tls::ScanHeader &info) const
 {
-    info = m_scanHeader;
+    info = tls_img_file_.getPointCloudHeader(0);
 }
 
 std::filesystem::path EmbeddedScan::getPath() const
@@ -120,7 +122,7 @@ bool EmbeddedScan::getGlobalDrawInfo(TlScanDrawInfo& scanDrawInfo)
         return false;
 
     scanDrawInfo.instanceBuffer = m_instanceBuffer.buffer;
-    scanDrawInfo.format = m_scanHeader.format;
+    scanDrawInfo.format = pt_format_;
     return true;
 }
 
@@ -220,11 +222,11 @@ bool EmbeddedScan::clipAndWrite(const TransformationModule& src_transfo, const C
         {
             std::vector<PointXYZIRGB> pointsClipped;
             clipIndividualPoints(points, pointsClipped, localAssembly);
-            resultOk &= _writer->mergePoints(pointsClipped.data(), pointsClipped.size(), src_transfo, m_scanHeader.format);
+            resultOk &= _writer->mergePoints(pointsClipped.data(), pointsClipped.size(), src_transfo, pt_format_);
         }
         else
         {
-            resultOk &= _writer->mergePoints(points.data(), points.size(), src_transfo, m_scanHeader.format);
+            resultOk &= _writer->mergePoints(points.data(), points.size(), src_transfo, pt_format_);
         }
     }
 
@@ -247,11 +249,11 @@ void EmbeddedScan::decodePointXYZIRGB(uint32_t cellId, std::vector<PointXYZIRGB>
     uint64_t nbOfPoints(cell.m_layerIndexes[cell.m_depthSPT]);
     dstPoints.reserve(dstPoints.size() + nbOfPoints);
 
-    float precisionValue = tls::getPrecisionValue(m_scanHeader.precision);
+    float precisionValue = tls::getPrecisionValue(pt_precision_);
 
     // On fait l'économie de test la présence d'intensité et de couleur on codant en dur
     // les 3 configurations de tls::PointFormat.
-    if (m_scanHeader.format == tls::PointFormat::TL_POINT_XYZ_I_RGB)
+    if (pt_format_ == tls::PointFormat::TL_POINT_XYZ_I_RGB)
     {
         for (uint64_t n(0); n < nbOfPoints; n++)
         {
@@ -267,7 +269,7 @@ void EmbeddedScan::decodePointXYZIRGB(uint32_t cellId, std::vector<PointXYZIRGB>
             dstPoints.push_back(dcdPoint);
         }
     }
-    else if (m_scanHeader.format == tls::PointFormat::TL_POINT_XYZ_I)
+    else if (pt_format_ == tls::PointFormat::TL_POINT_XYZ_I)
     {
         for (uint64_t n(0); n < nbOfPoints; n++)
         {
@@ -281,7 +283,7 @@ void EmbeddedScan::decodePointXYZIRGB(uint32_t cellId, std::vector<PointXYZIRGB>
             dstPoints.push_back(dcdPoint);
         }
     }
-    else if (m_scanHeader.format == tls::PointFormat::TL_POINT_XYZ_RGB)
+    else if (pt_format_ == tls::PointFormat::TL_POINT_XYZ_RGB)
     {
         for (uint64_t n(0); n < nbOfPoints; n++)
         {
@@ -311,7 +313,7 @@ void EmbeddedScan::decodePointCoord(uint32_t cellId, std::vector<glm::dvec3>& ds
         return;
     }
 
-    float precisionValue = tls::getPrecisionValue(m_scanHeader.precision);
+    float precisionValue = tls::getPrecisionValue(pt_precision_);
     uint64_t nbOfPoints(cell.m_layerIndexes[layerDepth]);
     dstPoints.reserve(dstPoints.size() + nbOfPoints);
 
@@ -399,7 +401,7 @@ void EmbeddedScan::setComputeTransfo(const glm::dvec3& t, const glm::dquat& q)
 
 BoundingBox EmbeddedScan::getLocalBoundingBox() const
 {
-    tls::Limits lim = m_scanHeader.limits;
+    tls::Limits lim = tls_img_file_.getPointCloudHeader(0).limits;
     return { lim.xMin, lim.xMax, lim.yMin, lim.yMax, lim.zMin, lim.zMax };
 }
 
@@ -597,7 +599,7 @@ bool EmbeddedScan::startStreamingAll(char* _stageBuf, uint64_t _stageSize, uint6
             sti.sbuf.state.store(TlDataState::LOADED);
         }
     }
-    delete miniBuf;
+    delete[] miniBuf;
 
     return (continueStreaming);
 }
@@ -618,7 +620,7 @@ void EmbeddedScan::checkDataState()
     checkCellDataState(m_uRootCell, concatStates, 0);
 
     SubLogger& log = Logger::log(DataLog);
-    log << "***** Octree analytics for " << m_scanHeader.name << " *****\n";
+    log << "***** Octree analytics for " << tls_img_file_.getPointCloudHeader(0).name << " *****\n";
     log << "----- Cells Loading state -----\n";
     log << "NOT_LOADED    = " << concatStates.countByState[(size_t)TlDataState::NOT_LOADED] << " | " << concatStates.sizeByState[(size_t)TlDataState::NOT_LOADED] << " octets\n";
     log << "LOADING       = " << concatStates.countByState[(size_t)TlDataState::LOADING] << " | " << concatStates.sizeByState[(size_t)TlDataState::LOADING] << " octets\n";
@@ -1108,7 +1110,7 @@ void EmbeddedScan::samplePointsByStep(float samplingStep, const std::vector<uint
     }
     treatWorkload(workload);
 
-    float precisionValue = tls::getPrecisionValue(m_scanHeader.precision);
+    float precisionValue = tls::getPrecisionValue(pt_precision_);
     uint32_t maxLayerDelta = std::max(1u, (uint32_t)(std::floorf(std::log2(samplingStep / precisionValue))));
     // !!! Attention !!!
     // Suite à une erreur dans la définition initiale du format tls, le layer 16 n’existe pas.

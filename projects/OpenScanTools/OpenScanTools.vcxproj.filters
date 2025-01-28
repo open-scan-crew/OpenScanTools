@@ -2574,9 +2574,6 @@
     <ClInclude Include="..\..\include\pointCloudEngine\PCE_stream.h">
       <Filter>include\pointCloudEngine</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\models\pointCloud\TLS.h">
-      <Filter>include\models\pointCloud</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\utils\time.h">
       <Filter>include\utils</Filter>
     </ClInclude>

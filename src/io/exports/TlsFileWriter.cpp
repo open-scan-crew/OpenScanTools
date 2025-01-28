@@ -27,14 +27,22 @@ bool TlsFileWriter::appendPointCloud(const tls::ScanHeader& info, const Transfor
 {
     glm::dquat q = transfo.getOrientation();
     glm::dvec3 t = transfo.getCenter();
-    tls::Transformation tls_transfo = { { q.x, q.y, q.z, q.w }, { t.x, t.y, t.z } };
 
-    return img_file_.appendPointCloud(info, tls_transfo);
+    tls::ScanHeader info_and_transfo = info;
+    info_and_transfo.transfo.translation[0] = t.x;
+    info_and_transfo.transfo.translation[1] = t.y;
+    info_and_transfo.transfo.translation[2] = t.z;
+    info_and_transfo.transfo.quaternion[0] = q.x;
+    info_and_transfo.transfo.quaternion[1] = q.y;
+    info_and_transfo.transfo.quaternion[2] = q.z;
+    info_and_transfo.transfo.quaternion[3] = q.w;
+
+    return img_file_.appendPointCloud(info_and_transfo);
 }
 
 bool TlsFileWriter::addPoints(PointXYZIRGB const* srcBuf, uint64_t srcSize)
 {
-    return img_file_.addPoints(srcBuf, srcSize);
+    return img_file_.addPoints(reinterpret_cast<tls::Point const*>(srcBuf), srcSize);
 }
 
 bool TlsFileWriter::mergePoints(PointXYZIRGB const* srcBuf, uint64_t srcSize, const TransformationModule& srcTransfo, tls::PointFormat srcFormat)
@@ -43,10 +51,10 @@ bool TlsFileWriter::mergePoints(PointXYZIRGB const* srcBuf, uint64_t srcSize, co
     glm::dvec3 t = srcTransfo.getCenter();
     tls::Transformation tls_transfo = { { q.x, q.y, q.z, q.w }, { t.x, t.y, t.z } };
 
-    return img_file_.mergePoints(srcBuf, srcSize, tls_transfo, srcFormat);
+    return img_file_.mergePoints(reinterpret_cast<tls::Point const*>(srcBuf), srcSize, tls_transfo, srcFormat);
 }
 
 bool TlsFileWriter::finalizePointCloud()
 {
-    return img_file_.finalizePointCloud(0, post_translation_.x, post_translation_.y, post_translation_.z);
+    return img_file_.finalizePointCloud(post_translation_.x, post_translation_.y, post_translation_.z);
 }

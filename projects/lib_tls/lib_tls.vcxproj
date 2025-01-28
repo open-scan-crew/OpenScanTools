@@ -15,7 +15,7 @@
     <ClInclude Include="OctreeBase.h" />
     <ClInclude Include="OctreeCtor.h" />
     <ClInclude Include="OctreeDecoder.h" />
-    <ClInclude Include="PointXYZIRGB_k.h" />
+    <ClInclude Include="tls_Point.h" />
     <ClInclude Include="tls_file.h" />
     <ClInclude Include="tls_core.h" />
     <ClInclude Include="tls_impl.h" />

@@ -75,7 +75,6 @@ namespace tls
     {
         // File/encoding infos
         ScanGuid guid;
-        //ScanVersion version;
         // ScanStation infos
         uint64_t acquisitionDate;
         std::wstring name;

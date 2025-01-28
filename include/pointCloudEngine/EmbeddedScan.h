@@ -224,8 +224,8 @@ protected:
 
 protected:
     tls::ImageFile tls_img_file_;
-    //std::filesystem::path m_path;
-    tls::ScanHeader m_scanHeader;
+    tls::PointFormat pt_format_;
+    tls::PrecisionType pt_precision_;
 
     uint64_t m_pointDataOffset;
     uint64_t m_instanceDataOffset;

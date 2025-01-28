@@ -70,10 +70,10 @@ tls::FileHeader ImageFile::getFileHeader() const
 
 tls::ScanHeader ImageFile::getPointCloudHeader(uint32_t _pc_num) const
 {
-    if (p_.get() == nullptr || _pc_num >= p_->pc_headers_.size())
+    if (p_.get() == nullptr || _pc_num >= p_->pcs_.size())
         return tls::ScanHeader{};
 
-    return p_->pc_headers_[_pc_num];
+    return p_->pcs_[_pc_num].infos_;
 }
 
 bool ImageFile::setCurrentPointCloud(uint32_t _pc_num)
@@ -84,23 +84,23 @@ bool ImageFile::setCurrentPointCloud(uint32_t _pc_num)
     return  p_->setCurrentPointCloud(_pc_num);
 }
 
-bool ImageFile::appendPointCloud(const tls::ScanHeader& info, const Transformation& transfo)
+bool ImageFile::appendPointCloud(const tls::ScanHeader& info)
 {
     if (p_.get() == nullptr)
         return false;
 
-    return p_->appendPointCloud(info, transfo);
+    return p_->appendPointCloud(info);
 }
 
-bool ImageFile::finalizePointCloud(uint32_t n, double add_x, double add_y, double add_z)
+bool ImageFile::finalizePointCloud(double add_x, double add_y, double add_z)
 {
     if (p_.get() == nullptr)
         return false;
 
-    return p_->finalizePointCloud(n, add_x, add_y, add_z);
+    return p_->finalizePointCloud(add_x, add_y, add_z);
 }
 
-bool ImageFile::readPoints(PointXYZIRGB* dstBuf, uint64_t bufSize, uint64_t& readCount)
+bool ImageFile::readPoints(Point* dstBuf, uint64_t bufSize, uint64_t& readCount)
 {
     if (p_.get() == nullptr)
         return false;
@@ -108,7 +108,7 @@ bool ImageFile::readPoints(PointXYZIRGB* dstBuf, uint64_t bufSize, uint64_t& rea
     return p_->readPoints(dstBuf, bufSize, readCount);
 }
 
-bool ImageFile::addPoints(PointXYZIRGB const* srcBuf, uint64_t srcSize)
+bool ImageFile::addPoints(Point const* srcBuf, uint64_t srcSize)
 {
     if (p_.get() == nullptr)
         return false;
@@ -116,7 +116,7 @@ bool ImageFile::addPoints(PointXYZIRGB const* srcBuf, uint64_t srcSize)
     return p_->addPoints(srcBuf, srcSize);
 }
 
-bool ImageFile::mergePoints(PointXYZIRGB const* srcBuf, uint64_t srcSize, const Transformation& srcTransfo, tls::PointFormat srcFormat)
+bool ImageFile::mergePoints(Point const* srcBuf, uint64_t srcSize, const Transformation& srcTransfo, tls::PointFormat srcFormat)
 {
     if (p_.get() == nullptr)
         return false;

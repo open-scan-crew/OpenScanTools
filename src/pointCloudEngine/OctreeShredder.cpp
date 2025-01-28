@@ -1,9 +1,10 @@
 #include "pointCloudEngine/OctreeShredder.h"
-#include "models/pointCloud/PointXYZIRGB.h"
+
 #include "utils/Logger.h"
 
 #include "tls_core.h"
 #include "tls_impl.h"
+#include "tls_Point.h"
 
 #include <map>
 
@@ -30,7 +31,7 @@ OctreeShredder::OctreeShredder(const std::filesystem::path& tlsPath)
     }
 
     // Read the data in one block
-    img_file.copyRawData(&m_vertexData, m_vertexDataSize, &m_instData, m_instDataSize);
+    img_file.copyRawData(0, &m_vertexData, m_vertexDataSize, &m_instData, m_instDataSize);
 }
 
 OctreeShredder::~OctreeShredder()
@@ -193,12 +194,12 @@ void OctreeShredder::clipAndReforgeSPT(uint32_t _cellId, const ClippingAssembly&
     memset(tempLayerRanges, 0, MAX_SPT_DEPTH * sizeof(uint32_t));
 
     char* srcPoints = m_vertexData + cell.m_dataOffset;
-    const Coord16* srcXYZ = (Coord16*)(srcPoints);
+    const tls::Coord16* srcXYZ = (tls::Coord16*)(srcPoints);
     const uint8_t* srcI = (uint8_t*)(srcPoints + cell.m_iOffset);
-    const Color24* srcRGB = (Color24*)(srcPoints + cell.m_rgbOffset);
-    std::vector<Coord16> tempXYZ;
+    const tls::Color24* srcRGB = (tls::Color24*)(srcPoints + cell.m_rgbOffset);
+    std::vector<tls::Coord16> tempXYZ;
     std::vector<uint8_t> tempI;
-    std::vector<Color24> tempRGB;
+    std::vector<tls::Color24> tempRGB;
     tempXYZ.resize(nbOfPoints);
     tempI.resize(nbOfPoints);
     tempRGB.resize(nbOfPoints);
@@ -212,7 +213,7 @@ void OctreeShredder::clipAndReforgeSPT(uint32_t _cellId, const ClippingAssembly&
     {
         for (; p < cell.m_layerIndexes[layer]; p++)
         {
-            Coord16& coord = ((Coord16*)srcPoints)[p];
+            tls::Coord16& coord = ((tls::Coord16*)srcPoints)[p];
 
             glm::dvec4 point;
             point.x = coord.x * precision + cell.m_position[0];
@@ -259,8 +260,8 @@ void OctreeShredder::clipAndReforgeSPT(uint32_t _cellId, const ClippingAssembly&
     }
 
     // copy tempXYZ
-    memcpy(srcPoints, tempXYZ.data(), tempCount * sizeof(Coord16));
-    uint32_t offset = tempCount * sizeof(Coord16);
+    memcpy(srcPoints, tempXYZ.data(), tempCount * sizeof(tls::Coord16));
+    uint32_t offset = tempCount * sizeof(tls::Coord16);
 
     cell.m_iOffset = offset;
     if (m_ptFormat != tls::PointFormat::TL_POINT_XYZ_RGB)
@@ -274,8 +275,8 @@ void OctreeShredder::clipAndReforgeSPT(uint32_t _cellId, const ClippingAssembly&
     if (m_ptFormat != tls::PointFormat::TL_POINT_XYZ_I)
     {
         // copy tempRGB
-        memcpy(srcPoints + offset, tempRGB.data(), tempCount * sizeof(Color24));
-        offset += tempCount * sizeof(Color24);
+        memcpy(srcPoints + offset, tempRGB.data(), tempCount * sizeof(tls::Color24));
+        offset += tempCount * sizeof(tls::Color24);
     }
 
     cell.m_dataSize = aligned(offset, 2);
@@ -337,8 +338,8 @@ void OctreeShredder::repairEmptyBranches(uint32_t _cellId)
                 char* childPoints = m_vertexData + child.m_dataOffset;
                 float childPrecision = ((float*)m_instData)[4 * childId + 3];
 
-                Coord16& childCoord = ((Coord16*)childPoints)[0];
-                PointXYZIRGB point;
+                tls::Coord16& childCoord = ((tls::Coord16*)childPoints)[0];
+                tls::Point point;
                 point.x = childCoord.x * childPrecision + child.m_position[0];
                 point.y = childCoord.y * childPrecision + child.m_position[1];
                 point.z = childCoord.z * childPrecision + child.m_position[2];
@@ -349,8 +350,8 @@ void OctreeShredder::repairEmptyBranches(uint32_t _cellId)
                 cell.m_depthSPT = 0;
                 cell.m_layerIndexes[0] = 1;
 
-                Coord16 cellCoord(point, precision, cell.m_position);
-                memcpy(cellPoints, &cellCoord, sizeof(Coord16));
+                tls::Coord16 cellCoord(point, precision, cell.m_position);
+                memcpy(cellPoints, &cellCoord, sizeof(tls::Coord16));
 
                 // Copy I and RGB
                 cell.m_iOffset = 6;
@@ -362,7 +363,7 @@ void OctreeShredder::repairEmptyBranches(uint32_t _cellId)
                 if (m_ptFormat != tls::PointFormat::TL_POINT_XYZ_RGB)
                     memcpy(cellPoints + cell.m_iOffset, childPoints + child.m_iOffset, sizeof(uint8_t));
                 if (m_ptFormat != tls::PointFormat::TL_POINT_XYZ_I)
-                    memcpy(cellPoints + cell.m_rgbOffset, childPoints + child.m_rgbOffset, sizeof(Color24));
+                    memcpy(cellPoints + cell.m_rgbOffset, childPoints + child.m_rgbOffset, sizeof(tls::Color24));
 
                 repair = false;
             }

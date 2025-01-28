@@ -244,7 +244,7 @@ void ContextExportPC::copyTls(Controller& controller, CopyTask task)
         return;
     }
 
-    img_file.overwriteTransformation(task.dst_transfo);
+    img_file.overwriteTransformation(0, task.dst_transfo);
 }
 
 bool ContextExportPC::processExport(Controller& controller, CSVWriter* csv_writer)
@@ -629,8 +629,8 @@ TransformationModule ContextExportPC::getBestTransformation(const ClippingAssemb
 {
     TransformationModule best_transfo;
 
-    BoundingBoxD scan_bbox;
-    scan_bbox.setEmpty();
+    BoundingBoxD total_bbox;
+    total_bbox.setEmpty();
 
     for (const tls::PointCloudInstance& pc : pc_instances)
     {
@@ -639,7 +639,7 @@ TransformationModule ContextExportPC::getBestTransformation(const ClippingAssemb
                                 limits.yMin, limits.yMax,
                                 limits.zMin, limits.zMax };
 
-        scan_bbox.extend(scan_bbox.transform(pc.transfo.getTransformation()));
+        total_bbox.extend(scan_bbox.transform(pc.transfo.getTransformation()));
     }
 
     BoundingBoxD union_bbox;
@@ -665,7 +665,6 @@ TransformationModule ContextExportPC::getBestTransformation(const ClippingAssemb
         }
     }
 
-    BoundingBoxD total_bbox = scan_bbox;
     if (!clipping_assembly.clippingUnion.empty())
         total_bbox.intersect(union_bbox);
 
@@ -678,7 +677,7 @@ TransformationModule ContextExportPC::getBestTransformation(const ClippingAssemb
     if (clipping_assembly.clippingUnion.size() == 1)
         best_transfo.setRotation(glm::quat_cast(glm::inverse(clipping_assembly.clippingUnion[0]->matRT_inv)));
     else
-        best_transfo.setRotation(glm::dquat(0.0, 0.0, 0.0, 1.0));
+        best_transfo.setRotation(glm::dquat(1.0, 0.0, 0.0, 0.0));
 
     return best_transfo;
 }

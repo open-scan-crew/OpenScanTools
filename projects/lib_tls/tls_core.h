@@ -2,12 +2,10 @@
 #define TLS_CORE_H
 
 #include "tls_def.h"
-#include "PointXYZIRGB_k.h"
+#include "tls_Point.h"
 
 #include <filesystem>
 #include <memory>
-
-
 
 namespace tls
 {
@@ -57,16 +55,16 @@ namespace tls
         uint32_t getScanCount() const;
         uint64_t getTotalPoints() const;
 
-        tls::FileHeader getFileHeader() const;
-        tls::ScanHeader getPointCloudHeader(uint32_t _pc_num) const;
+        FileHeader getFileHeader() const;
+        ScanHeader getPointCloudHeader(uint32_t _pc_num) const;
 
         bool setCurrentPointCloud(uint32_t _pc_num); // for reading or adding points
-        bool appendPointCloud(const tls::ScanHeader& info, const Transformation& transfo);
-        bool finalizePointCloud(uint32_t _pc_num, double add_x = 0.0, double add_y = 0.0, double add_z = 0.0);
+        bool appendPointCloud(const ScanHeader& info);
+        bool finalizePointCloud(double add_x = 0.0, double add_y = 0.0, double add_z = 0.0);
 
-        bool readPoints(PointXYZIRGB* dstBuf, uint64_t bufSize, uint64_t& readCount);
-        bool addPoints(PointXYZIRGB const* srcBuf, uint64_t srcSize);
-        bool mergePoints(PointXYZIRGB const* srcBuf, uint64_t srcSize, const Transformation& srcTransfo, tls::PointFormat srcFormat);
+        bool readPoints(Point* dstBuf, uint64_t bufSize, uint64_t& readCount);
+        bool addPoints(Point const* srcBuf, uint64_t srcSize);
+        bool mergePoints(Point const* srcBuf, uint64_t srcSize, const Transformation& srcTransfo, PointFormat srcFormat);
 
         // Rendering mode functions
         bool getOctreeBase(uint32_t _pc_num, OctreeBase& _octree_base);
@@ -77,6 +75,5 @@ namespace tls
         std::shared_ptr<ImageFile_p> p_;
     };
 }
-
 
 #endif

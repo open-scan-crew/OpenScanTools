@@ -2,7 +2,7 @@
 #define OCTREE_DECODER_H
 
 #include "OctreeBase.h"
-#include "PointXYZIRGB_k.h"
+#include "tls_Point.h"
 
 namespace tls
 {
@@ -21,19 +21,19 @@ namespace tls
         uint32_t getCellPointCount(uint32_t cellId);
 
         bool isLeaf(uint32_t cellId) const;
-        const PointXYZIRGB* getCellPoints(uint32_t cellId, uint64_t& pointCount);
-        bool copyCellPoints(uint32_t cellId, PointXYZIRGB* dstPoints, uint64_t dstSize, uint64_t& dstOffset);
+        const Point* getCellPoints(uint32_t cellId, uint64_t& pointCount);
+        bool copyCellPoints(uint32_t cellId, Point* dstPoints, uint64_t dstSize, uint64_t& dstOffset);
 
     protected:
 
         void cleanBuffers();
         void cleanEncodedBuffers();
-        void decodeCell(uint32_t cellId, PointXYZIRGB* optionalOutput = nullptr);
+        void decodeCell(uint32_t cellId, Point* optionalOutput = nullptr);
 
 
     protected:
         std::vector<char*> m_encodedBuffers;
-        std::vector<PointXYZIRGB*> m_decodedBuffers;
+        std::vector<Point*> m_decodedBuffers;
 
         bool m_isEncodedBuffered;
         bool m_isDecoded;

@@ -1,7 +1,7 @@
 #ifndef TLS_TRANSFORM_H
 #define TLS_TRANSFORM_H
 
-#include "../../ext/glm/glm.hpp"
+#include "glm/glm.hpp"
 
 namespace tls::transform
 {

@@ -47,7 +47,7 @@ OctreeCtor::~OctreeCtor()
 
 //--- Functions ---//
 
-void OctreeCtor::insertPoint(PointXYZIRGB const& _point)
+void OctreeCtor::insertPoint(Point const& _point)
 {
     if (_point.x == 0.f && _point.y == 0.f && _point.z == 0.f)
     {
@@ -117,16 +117,16 @@ void OctreeCtor::insertPoint(PointXYZIRGB const& _point)
     }
 }
 
-void OctreeCtor::insertPoint_overwriteI(PointXYZIRGB const& _point)
+void OctreeCtor::insertPoint_overwriteI(Point const& _point)
 {
-    PointXYZIRGB newPt = _point;
+    Point newPt = _point;
     newPt.i = (_point.r + _point.g + _point.b) / 3;
     insertPoint(newPt);
 }
 
-void OctreeCtor::insertPoint_overwriteRGB(PointXYZIRGB const& _point)
+void OctreeCtor::insertPoint_overwriteRGB(Point const& _point)
 {
-    PointXYZIRGB newPt = _point;
+    Point newPt = _point;
     newPt.r = _point.i;
     newPt.g = _point.i;
     newPt.b = _point.i;
@@ -140,14 +140,14 @@ void OctreeCtor::pushNewCell(float _size, float _x, float _y, float _z, bool _is
                    { 0 } };
     TempData data{ 0, 1.f, {0.f, 0.f, 0.f}, {}, nullptr, nullptr };
 
-    //data.m_inPoints = _isLeaf ? new PointXYZIRGB[MAX_POINTS_PER_NODE] : nullptr;
+    //data.m_inPoints = _isLeaf ? new Point[MAX_POINTS_PER_NODE] : nullptr;
 
     m_vTreeCells.push_back(cell);
     m_vTempData.push_back(data);
 }
 
 
-void OctreeCtor::insertPointInCell(PointXYZIRGB const& _point, uint32_t _cellId)
+void OctreeCtor::insertPointInCell(Point const& _point, uint32_t _cellId)
 {
     if (m_vTreeCells[_cellId].m_isLeaf) {
         if (m_vTempData[_cellId].m_nbPoints < MAX_POINTS_PER_NODE) {
@@ -301,7 +301,7 @@ bool OctreeCtor::splitCell(uint32_t _cellId)
 
     m_vTreeCells[_cellId].m_isLeaf = false;
 
-    for (const PointXYZIRGB& point : m_vTempData[_cellId].m_inPoints)
+    for (const Point& point : m_vTempData[_cellId].m_inPoints)
     {
         insertPointInCell(point, _cellId);
     }

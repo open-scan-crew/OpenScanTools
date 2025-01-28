@@ -1864,7 +1864,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     </ClInclude>
     <ClInclude Include="..\..\include\models\application\TagTemplate.h" />
     <ClInclude Include="..\..\include\models\application\List.h" />
-    <ClInclude Include="..\..\include\models\pointCloud\TLS.h" />
     <ClInclude Include="..\..\include\models\project\ProjectInfos.h" />
     <ClInclude Include="..\..\include\models\OpenScanToolsModelEssentials.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\OctreeRayTracing.h" />

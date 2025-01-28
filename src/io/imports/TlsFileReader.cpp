@@ -38,7 +38,7 @@ bool TlsFileReader::startReadingScan(uint32_t scanNumber)
 
 bool TlsFileReader::readPoints(PointXYZIRGB* dstBuf, uint64_t bufSize, uint64_t& readCount)
 {
-    return img_file_.readPoints(dstBuf, bufSize, readCount);
+    return img_file_.readPoints(reinterpret_cast<tls::Point*>(dstBuf), bufSize, readCount);
 }
 
 tls::FileHeader TlsFileReader::getTlsHeader() const
