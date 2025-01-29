@@ -23,14 +23,9 @@
 #ifndef ENTITYFACTORY_H
 #define ENTITYFACTORY_H
 
-#include <map>
-
+#include <string>
 #include "Entity.h"
-#include "Entity_Adv_B_Sh_Rep.h"
-#include "Entity_Mech_D_Geo_P_Rep.h"
-#include "Entity_Styled_Item.h"
-#include "Entity_P_L_Ass.h"
-#include "Entity_Sh_Rep_Rel.h"
+
 
 /**
  * Factory which produces entities in function of the name

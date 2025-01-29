@@ -24,7 +24,6 @@
 #define UPDATEPIECEPARENTS_H
 
 #include <list>
-#include <cassert>
 #include <map>
 
 #include "../stepGraph/StepGraph.h"

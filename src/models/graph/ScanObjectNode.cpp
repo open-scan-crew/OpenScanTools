@@ -1,8 +1,6 @@
 #include "models/graph/ScanObjectNode.h"
 #include "utils/Logger.h"
-#include "vulkan/VulkanManager.h"
 #include "models/3d/ManipulationTypes.h"
-#include "controller/Controller.h"
 
 #define SGLog Logger::log(LoggerMode::SceneGraphLog)
 

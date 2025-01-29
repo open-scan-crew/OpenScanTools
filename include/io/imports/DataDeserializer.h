@@ -2,16 +2,10 @@
 #define DATADESERIALIZER_H_
 
 #include <nlohmannJson/json.hpp>
-#include <magic_enum/magic_enum.hpp>
-#include "io/SerializerKeys.h"
 
-#include "models/OpenScanToolsModelEssentials.h"
-#include "models/application/TagTemplate.h"
+#include "utils/safe_ptr.h"
 #include "models/application/List.h"
 
-#include "utils/Utils.h"
-
-#include <unordered_set>
 
 class AGraphNode;
 

@@ -27,7 +27,6 @@
 
 #include "Entity.h"
 #include "InfoPiece.h"
-#include "MBBVolumeCalculation.h"
 
 class StepPiece {
 

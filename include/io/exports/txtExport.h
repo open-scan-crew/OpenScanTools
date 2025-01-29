@@ -1,11 +1,9 @@
-#include <string>
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <filesystem>
-
 #ifndef _TXF_EXPORT_H_
 #define _TXF_EXPORT_H_
+
+#include <fstream>
+#include <filesystem>
+
 
 #define TXTSEPARATOR "§"
 

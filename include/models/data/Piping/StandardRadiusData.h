@@ -1,7 +1,7 @@
 #ifndef STANDARD_RADIUS_DATA_H_
 #define STANDARD_RADIUS_DATA_H_
 
-#include "models/OpenScanToolsModelEssentials.h"
+#include "utils/safe_ptr.h"
 #include "models/data/Piping/InsulationData.h"
 #include "models/application/List.h"
 

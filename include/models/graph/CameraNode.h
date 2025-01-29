@@ -13,7 +13,6 @@
 #include "models/3d/RenderingParameters.h"
 
 #include <deque>
-#include <map>
 
 class ViewPointNode;
 class ScanNode;

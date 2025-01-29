@@ -1,6 +1,5 @@
 #include "models/graph/TagNode.h"
 #include "services/MarkerDefinitions.hpp"
-//#include "utils/ColorConversion.h"
 
 #include "controller/Controller.h"
 #include "gui/texts/DefaultNameTexts.hpp"

@@ -23,6 +23,8 @@
 
 #include "io/imports/step-simplification/deletePiece/DeleteClass.h"
 
+#include "io/imports/step-simplification/deletePiece/DeletePiece.h"
+
 DeleteClass::DeleteClass(std::list<StepPiece *> _classOfStepPieces, StepGraph* _stepGraph)
     : classOfStepPieces(std::move(_classOfStepPieces)) ,stepGraph(_stepGraph)
 {}

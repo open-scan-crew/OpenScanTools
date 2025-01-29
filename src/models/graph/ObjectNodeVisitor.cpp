@@ -30,7 +30,7 @@
 #include "pointCloudEngine/RenderingEcoSystem.h"
 
 #include "vulkan/VulkanManager.h"
-#include "models/graph/GraphManager.hxx"
+#include "models/graph/GraphManager.h"
 #include "vulkan/Renderers/Renderer.h"
 #include "vulkan/Renderers/MeasureRenderer.h"
 #include "vulkan/Renderers/MarkerRenderer.h"
@@ -47,10 +47,6 @@
 #include "imgui/imgui_internal.h"
 
 #include "impl/imgui_impl_qt.h"
-
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/matrix_decompose.hpp>
-#include <algorithm>
 
 #include <fmt/core.h>
 

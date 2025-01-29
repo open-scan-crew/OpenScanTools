@@ -1,13 +1,8 @@
 #ifndef GEOMETRY_GENERATOR_H_
 #define GEOMETRY_GENERATOR_H_
 
-#include "models/3d/MeshBuffer.h"
-#include "vulkan/Graph/MemoryReturnCode.h"
-
 #include <vector>
 #include <glm/glm.hpp>
-
-struct ProjectionFrustum;
 
 class GeometryGenerator
 {

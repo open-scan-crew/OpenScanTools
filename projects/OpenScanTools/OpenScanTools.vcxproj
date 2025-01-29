@@ -916,8 +916,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\gui\widgets\TreeNodeSystem\TreeView.cpp" />
     <ClCompile Include="..\..\src\impl\imgui_impl_qt.cpp" />
     <ClCompile Include="..\..\src\impl\Vma_impl.cpp" />
-    <ClCompile Include="..\..\src\io\DataComparator.cpp" />
-    <ClCompile Include="..\..\src\io\DataEditor.cpp" />
     <ClCompile Include="..\..\src\io\E57Utils.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
@@ -1413,7 +1411,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtMoc Include="..\..\include\gui\widgets\QPFields\TemplatePropertiesPanel.h" />
     <QtMoc Include="..\..\include\gui\widgets\MultiProperty.h" />
     <QtMoc Include="..\..\include\gui\widgets\CustomWidgets\SubPropertyClipping.h" />
-    <ClInclude Include="..\..\include\io\DataComparator.h" />
     <ClInclude Include="..\..\include\gui\texts\AlignViewTexts.hpp" />
     <ClInclude Include="..\..\include\gui\texts\ExportTexts.hpp" />
     <ClInclude Include="..\..\include\gui\texts\FileTypeTexts.hpp" />
@@ -1423,7 +1420,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\gui\texts\RayTracingTexts.hpp" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarSlabGroup.h">
     </QtMoc>
-    <ClInclude Include="..\..\include\io\DataEditor.h" />
     <ClInclude Include="..\..\include\gui\texts\ScreenshotTexts.hpp" />
     <ClInclude Include="..\..\include\gui\texts\SplashScreenTexts.hpp" />
     <ClInclude Include="..\..\include\gui\texts\ErrorMessagesTexts.hpp" />

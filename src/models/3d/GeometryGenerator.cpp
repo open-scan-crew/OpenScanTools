@@ -5,8 +5,6 @@
 
 #define SGLog Logger::log(LoggerMode::SceneGraphLog)
 
-#include <algorithm>
-
 GeometryGenerator::GeometryGenerator()
 {}
 

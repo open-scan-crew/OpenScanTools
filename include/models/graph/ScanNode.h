@@ -4,7 +4,6 @@
 #include "models/graph/APointCloudNode.h"
 #include "models/3d/MarkerDrawData.h"
 #include "models/project/Marker.h"
-#include "models/data/Scan/ScanData.h"
 
 class ScanNode : public APointCloudNode
 {

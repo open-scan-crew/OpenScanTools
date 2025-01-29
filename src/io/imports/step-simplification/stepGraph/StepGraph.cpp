@@ -22,6 +22,8 @@
 
 #include "io/imports/step-simplification/stepGraph/StepGraph.h"
 
+#include <iostream>
+
 StepGraph::StepGraph() : nodes(), stepPieces(), history() {}
 
 StepGraph::~StepGraph() {

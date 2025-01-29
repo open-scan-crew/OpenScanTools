@@ -1,11 +1,6 @@
 #include "models/graph/ManipulatorNode.h"
 #include "controller/controls/ControlObject3DEdition.h"
 #include "gui/GuiData/GuiData3dObjects.h"
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/matrix_decompose.hpp>
-
-#include "models/graph/ClusterNode.h"
-#include "models/graph/ManipulatorNode.h"
 #include "models/graph/CameraNode.h"
 
 #include "utils/math/trigo.h"

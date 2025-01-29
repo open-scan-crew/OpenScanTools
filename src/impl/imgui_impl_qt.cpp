@@ -1,8 +1,6 @@
 #include "imgui/imgui.h"
 #include "impl/imgui_impl_qt.h"
 
-#include <QtGui/QWindow>
-
 #include <chrono>
 
 static std::chrono::system_clock::time_point g_Time;

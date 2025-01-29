@@ -5,7 +5,6 @@
 #include "io/imports/step-simplification/classification/ClassificationByVolumeMBB.h"
 #include "io/imports/step-simplification/classification/ClassificationByComplexity.h"
 #include "io/imports/step-simplification/stepGraph/StepPiece.h"
-#include "io/imports/step-simplification/deletePiece/DeleteClass.h"
 
 #include <list>
 

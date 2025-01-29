@@ -21,6 +21,7 @@
  */
 
 #include "io/imports/step-simplification/classification/ClassificationByComplexity.h"
+#include "io/imports/step-simplification/classification/QuickClassificationBySimilarity.h"
 
 ClassificationByComplexity::ClassificationByComplexity(StepGraph* _stepGraph, unsigned int _nbClasses)
         : ClassificationStrategy(_stepGraph), nbClasses(_nbClasses)

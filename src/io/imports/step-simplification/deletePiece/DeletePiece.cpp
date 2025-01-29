@@ -22,6 +22,8 @@
 
 #include "io/imports/step-simplification/deletePiece/DeletePiece.h"
 
+#include <iostream>
+
 DeletePiece::DeletePiece(Entity* _entityOfPieces, StepGraph* _stepGraph)
     : entityOfPiece(_entityOfPieces),
       stepGraph(_stepGraph),

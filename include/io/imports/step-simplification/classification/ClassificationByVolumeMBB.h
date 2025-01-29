@@ -23,11 +23,7 @@
 #ifndef CLASSIFICATIONBYVOLUMEMBB_H
 #define CLASSIFICATIONBYVOLUMEMBB_H
 
-#include <ostream>
-#include <vector>
-
 #include "ClassificationStrategy.h"
-#include "QuickClassificationBySimilarity.h"
 
 class ClassificationByVolumeMBB : public ClassificationStrategy {
 

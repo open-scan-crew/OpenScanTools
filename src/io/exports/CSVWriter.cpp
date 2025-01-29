@@ -1,5 +1,7 @@
 #include "io/exports/CSVWriter.h"
 
+#include "utils/Utils.h"
+
 const EndCSV CSVWriter::endl;
 
 CSVWriter::CSVWriter()

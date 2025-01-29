@@ -25,10 +25,7 @@
 
 #include <unordered_set>
 #include <string>
-#include <iostream>
-#include <cassert>
 #include <regex>
-#include <utility>
 #include <list>
 
 class StepGraph;

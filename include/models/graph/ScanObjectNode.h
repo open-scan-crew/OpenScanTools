@@ -2,9 +2,7 @@
 #define SCAN_OBJECT_NODE_H
 
 #include "models/graph/APointCloudNode.h"
-#include "models/graph/AClippingNode.h"
-#include "tls_def.h"
-#include "models/data/Clipping/ClippingData.h"
+
 
 class ScanObjectNode : public APointCloudNode
 {

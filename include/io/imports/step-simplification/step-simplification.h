@@ -1,8 +1,6 @@
 #ifndef STEP_SIMPLIFICATION_H
 #define STEP_SIMPLIFICATION_H
 
-#include <iostream>
-#include <chrono>
 #include <string>
 #include <fstream>
 

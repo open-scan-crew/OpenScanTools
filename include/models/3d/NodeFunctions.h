@@ -1,7 +1,7 @@
 #ifndef NODE_FUNCTIONS_H_
 #define NODE_FUNCTIONS_H_
 
-#include "models/OpenScanToolsModelEssentials.h"
+#include "utils/safe_ptr.h"
 
 class AGraphNode;
 

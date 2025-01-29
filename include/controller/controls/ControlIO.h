@@ -5,13 +5,15 @@
 #include "io/ImageTypes.h"
 #include "io/exports/ExportParameters.hpp"
 
-#include <filesystem>
-
 #include "models/project/ProjectInfos.h"
 #include "models/application/TagTemplate.h"
 #include "models/Types.hpp"
-
 #include "models/graph/CameraNode.h"
+
+#include <filesystem>
+#include <fstream>
+
+#include <QtGui/qimage.h>
 
 class AGraphNode;
 

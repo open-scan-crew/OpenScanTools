@@ -2,7 +2,7 @@
 #define SPHERE_NODE_H
 
 #include "models/graph/SimpleObjectNode.h"
-#include "models/data/Piping/StandardRadiusData.h"
+//#include "models/data/Piping/StandardRadiusData.h"
 
 class SphereNode : public SimpleObjectNode
 {

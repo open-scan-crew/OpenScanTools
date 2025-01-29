@@ -1,9 +1,9 @@
-#include <unordered_map>
+#include "models/application/Author.h"
+#include "utils/Utils.h"
+
 #include <string>
 #include <iostream>
-#include "models/application/Author.h"
-#include <assert.h>
-#include "utils/Utils.h"
+#include <cassert>
 
 static std::vector<std::wstring> s_authorsDefaultName = { L"Alice", L"Bob", L"Camille", L"Damien", L"Elise", L"Fabien", L"Gabriel", L"Hector" };
 static std::vector<std::string> s_authorsDefaultId = { "d930dda1-20f4-4c14-9cdf-4089268d677a", "07485898-ee30-4720-8351-c2cf875a5e9b", 

@@ -3,6 +3,8 @@
 #include "controller/IControlListener.h"
 #include "controller/controls/ControlFunction.h"
 #include "io/SaveLoadSystem.h"
+#include "io/exports/DataSerializer.h"
+#include "io/imports/DataDeserializer.h"
 #include "pointCloudEngine/PCE_core.h"
 
 #include "utils/Utils.h"

@@ -23,7 +23,6 @@
 #ifndef ENTITY_ADV_B_SH_REP_H
 #define ENTITY_ADV_B_SH_REP_H
 
-#include <regex>
 #include <list>
 
 #include "StepGraph.h"

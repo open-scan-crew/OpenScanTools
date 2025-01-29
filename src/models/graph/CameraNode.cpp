@@ -2,7 +2,6 @@
 #include "models/graph/ScanNode.h"
 #include "models/graph/ScanObjectNode.h"
 #include "models/graph/BeamBendingMeasureNode.h"
-#include "models/graph/BoxNode.h"
 #include "models/graph/ColumnTiltMeasureNode.h"
 #include "models/graph/PipeToPipeMeasureNode.h"
 #include "models/graph/PipeToPlaneMeasureNode.h"
@@ -10,7 +9,6 @@
 #include "models/graph/PointToPlaneMeasureNode.h"
 #include "models/graph/SimpleMeasureNode.h"
 #include "models/graph/PolylineMeasureNode.h"
-#include "models/graph/PointNode.h"
 #include "models/graph/ViewPointNode.h"
 #include "models/3d/UniformClippingData.h"
 
@@ -19,7 +17,6 @@
 #include "gui/GuiData/GuiData3dObjects.h"
 #include "controller/controls/ControlViewPoint.h"
 #include "controller/controls/ControlFunction.h"
-#include "controller/controls/ControlApplication.h"
 
 #include "controller/messages/GeneralMessage.h"
 

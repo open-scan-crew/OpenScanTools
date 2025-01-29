@@ -2,7 +2,6 @@
 #include "utils/time.h"
 #include "pointCloudEngine/PCE_core.h"
 
-#include "qglobal.h"
 
 ScanData::ScanData()
 { }
@@ -46,7 +45,7 @@ const std::wstring& ScanData::getSensorSerialNumber() const
 	return (m_sensorSerialNumber);
 }
 
-uint32_t ScanData::getAcquisitionTime() const
+time_t ScanData::getAcquisitionTime() const
 {
 	return (m_acquisitionTime);
 }

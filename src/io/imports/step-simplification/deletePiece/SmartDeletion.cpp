@@ -1,4 +1,9 @@
 #include "io/imports/step-simplification/deletePiece/SmartDeletion.h"
+#include "io/imports/step-simplification/deletePiece/DeleteClass.h"
+#include "io/imports/step-simplification/deletePiece/DeletePiece.h"
+
+#include <cassert>
+#include <sstream>
 
 SmartDeletion::SmartDeletion(StepGraph *g) {
     std::list<std::list<StepPiece*>> emptyClassification;

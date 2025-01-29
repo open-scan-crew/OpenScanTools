@@ -1,5 +1,4 @@
 #include "io/exports/txtExport.h"
-#include "utils/ProjectColor.hpp"
 
 txtExport::txtExport()
 {

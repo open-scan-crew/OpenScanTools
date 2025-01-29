@@ -3,6 +3,9 @@
 
 #include "DataDeserializer.h"
 
+#include "io/SerializerKeys.h"
+
+#include "utils/Utils.h"
 
 template<class ListType>
 bool DataDeserializer::DeserializeList(const nlohmann::json& json, ListType& data)

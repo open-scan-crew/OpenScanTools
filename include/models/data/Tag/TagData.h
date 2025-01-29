@@ -1,7 +1,6 @@
 #ifndef TAGDATA_H_
 #define TAGDATA_H_
 
-#include "utils/Color32.hpp"
 #include "models/project/Marker.h"
 #include "models/application/TagTemplate.h"
 

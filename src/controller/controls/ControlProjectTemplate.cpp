@@ -9,6 +9,7 @@
 
 #include "utils/FilesAndFoldersDefinitions.h"
 #include "utils/system.h"
+#include "utils/Logger.h"
 #include <filesystem>
 
 

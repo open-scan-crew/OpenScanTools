@@ -1,11 +1,10 @@
 #ifndef USERORIENTATION_LIST_H_
 #define USERORIENTATION_LIST_H_
 
-#include <QtWidgets/qwidget.h>
-#include <set>
 #include <glm/glm.hpp>
-
 #include "crossguid/guid.hpp"
+
+#include <QtCore/qstring.h>
 
 typedef xg::Guid userOrientationId;
 enum class UOAxisType {XAxis, YAxis, Custom};

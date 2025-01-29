@@ -1,7 +1,11 @@
 #include "models/application/List.h"
 #include "gui/texts/DefaultUserLists.hpp"
 #include "models/application/Ids.hpp"
-#include <nlohmannJson/json.hpp>
+#include "utils/Utils.h"
+
+//#include <nlohmannJson/json.hpp>
+
+
 
 template<>
 bool List<std::wstring>::insertStrValue(const std::wstring& strValue)

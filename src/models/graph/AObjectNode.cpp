@@ -2,8 +2,6 @@
 #include "utils/Logger.h"
 
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
-#include "models/graph/GraphManager.h"
 
 #define SGLog Logger::log(LoggerMode::SceneGraphLog)
 

@@ -2,7 +2,6 @@
 #define MESH_OBJECT_NODE_H
 
 #include "models/graph/AObjectNode.h"
-#include "models/3d/MeshId.h"
 #include "models/data/MeshObject/MeshObjectData.h"
 
 class MeshObjectNode : public AObjectNode, public MeshObjectData

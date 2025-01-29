@@ -34,6 +34,8 @@
 #include "models/project/ProjectInfos.h"
 #include "models/application/Author.h"
 
+#include "magic_enum/magic_enum.hpp"
+
 #define IOLOG Logger::log(LoggerMode::IOLog)
 
 //new

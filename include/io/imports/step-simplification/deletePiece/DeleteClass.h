@@ -24,10 +24,9 @@
 #define DELETECLASS_H
 
 #include <list>
-#include <utility>
 
 #include "../stepGraph/StepPiece.h"
-#include "DeletePiece.h"
+
 #include "../stepGraph/StepGraph.h"
 
 class DeleteClass {

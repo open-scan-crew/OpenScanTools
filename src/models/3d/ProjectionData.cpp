@@ -1,6 +1,5 @@
 #include "models/3d/ProjectionData.h"
 #include "models/3d/OpticalFunctions.h"
-#include "utils/Logger.h"
 
 ProjectionData::ProjectionData()
 	: m_projectionMode(ProjectionMode::Perspective)

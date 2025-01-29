@@ -21,6 +21,7 @@
  */
 
 #include "io/imports/step-simplification/stepGraph/StepPiece.h"
+#include "io/imports/step-simplification/stepGraph/MBBVolumeCalculation.h"
 
 StepPiece::StepPiece(Entity* _root)
     : root(_root)

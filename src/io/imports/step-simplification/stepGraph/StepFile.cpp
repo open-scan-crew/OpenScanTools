@@ -22,8 +22,12 @@
 
 #include "io/imports/step-simplification/stepGraph/StepFile.h"
 
+#include "io/imports/step-simplification/stepGraph/EntityFactory.h"
+
+#include <cassert>
 #include <filesystem>
-#include <stdio.h>
+#include <fstream>
+#include <iostream>
 
 /**
  * StepFile Constructor from a graph

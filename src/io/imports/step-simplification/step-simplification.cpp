@@ -6,7 +6,8 @@
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/SplashScreenTexts.hpp"
 #include "utils/Logger.h"
-#include "utils/Utils.h"
+
+#include <iostream>
 
 // Useful uses for calculating execution time
 using std::chrono::high_resolution_clock;

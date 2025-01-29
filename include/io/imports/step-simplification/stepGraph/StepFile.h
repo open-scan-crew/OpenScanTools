@@ -25,18 +25,9 @@
 
 #include <map>
 #include <list>
-#include <iostream>
-#include <fstream>
 #include <regex>
-#include <utility>
-#include <cassert>
-#include <chrono>
-#include <ctime>
-#include <sys/stat.h>
 
 #include "StepGraph.h"
-#include "EntityFactory.h"
-#include "../classification/ClassificationStrategy.h"
 
 /**
  * Representation of STEP file

@@ -6,6 +6,7 @@
 #include "gui/Dialog/ADialog.h"
 
 #include <unordered_map>
+#include <filesystem>
 
 enum LangageType;
 

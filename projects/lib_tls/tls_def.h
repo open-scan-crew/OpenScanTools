@@ -16,13 +16,6 @@ namespace tls
         V_UNKNOWN
     };
 
-    //enum class ScanVersion
-    //{
-    //    SCAN_V_0_3,
-    //    SCAN_V_0_4,
-    //    V_MAX_ENUM
-    //};
-
     typedef xg::Guid FileGuid;
     typedef xg::Guid ScanGuid;
 

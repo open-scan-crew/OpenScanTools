@@ -23,10 +23,6 @@
 #ifndef DELETEPIECE_H
 #define DELETEPIECE_H
 
-#include <string>
-#include <map>
-#include <algorithm>
-
 #include "../stepGraph/Entity.h"
 #include "../stepGraph/StepGraph.h"
 #include "UpdatePieceParents.h"

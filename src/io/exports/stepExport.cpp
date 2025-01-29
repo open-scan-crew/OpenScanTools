@@ -3,7 +3,7 @@
 #include <TDocStd_Application.hxx>
 #include <TDocStd_Document.hxx>
 #include <Interface_Static.hxx>
-#include <NCollection_Vector.hxx>
+//#include <NCollection_Vector.hxx>
 #include <STEPCAFControl_Writer.hxx>
 #include <XCAFDoc_DocumentTool.hxx>
 #include <XCAFDoc_ShapeTool.hxx>
@@ -12,10 +12,10 @@
 #include <XCAFDoc_DimTolTool.hxx>
 #include <XCAFDoc_MaterialTool.hxx>
 #include <XCAFDoc_NotesTool.hxx>
-#include <XCAFDoc_Note.hxx>
+//#include <XCAFDoc_Note.hxx>
 #include <XCAFApp_Application.hxx>
-#include <XCAFDoc_Location.hxx>
-#include <XCAFDoc_Centroid.hxx>
+//#include <XCAFDoc_Location.hxx>
+//#include <XCAFDoc_Centroid.hxx>
 
 #include <XCAFDoc_ColorType.hxx>
 
@@ -27,38 +27,35 @@
 
 #include <BRepBuilderAPI_MakeWire.hxx>
 #include <BRepBuilderAPI_MakeEdge.hxx>
-#include <BRepBuilderAPI_MakeVertex.hxx>
+//#include <BRepBuilderAPI_MakeVertex.hxx>
 
-#include <BRepBuilderAPI_Transform.hxx>
+//#include <BRepBuilderAPI_Transform.hxx>
 #include <gp_Quaternion.hxx>
 #include <gp_Circ.hxx>
 
 #include <glm/gtx/quaternion.hpp>
-#include <glm/gtx/transform.hpp>
+//#include <glm/gtx/transform.hpp>
 
 #include <TDataStd_Name.hxx>
-#include <TDataStd_Comment.hxx>
-#include <TDataStd_Integer.hxx>
-#include <TDataStd_NamedData.hxx>
+//#include <TDataStd_Comment.hxx>
+//#include <TDataStd_Integer.hxx>
+//#include <TDataStd_NamedData.hxx>
 
-#include <TDF_Tool.hxx>
-#include <TopoDS_Iterator.hxx>
+//#include <TDF_Tool.hxx>
+//#include <TopoDS_Iterator.hxx>
 
 #include <APIHeaderSection_MakeHeader.hxx>
 #include <XCAFDoc_LengthUnit.hxx>
-#include <StepData_StepModel.hxx>
-#include <XSAlgo.hxx>
-#include <XSAlgo_AlgoContainer.hxx>
-#include <UnitsMethods.hxx>
+//#include <StepData_StepModel.hxx>
+//#include <XSAlgo.hxx>
+//#include <XSAlgo_AlgoContainer.hxx>
+//#include <UnitsMethods.hxx>
 
-#include "utils/math/glm_extended.h"
 #include "utils/Logger.h"
 #include "utils/Utils.h"
 #include "utils/OpenScanToolsVersion.h"
 
 #include "utils/Color32.hpp"
-
-#include "models/3d/GeometryGenerator.h"
 
 #define IOLOG Logger::log(LoggerMode::IOLog)
 

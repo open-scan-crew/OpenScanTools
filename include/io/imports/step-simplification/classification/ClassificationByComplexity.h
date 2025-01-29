@@ -23,17 +23,9 @@
 #ifndef CLASSIFICATIONBYCOMPLEXITY_H
 #define CLASSIFICATIONBYCOMPLEXITY_H
 
-#include <algorithm>
-#include <algorithm>
-#include <functional>
-#include <array>
-#include <iostream>
-#include <string_view>
 #include <list>
-#include <iterator>
 
 #include "ClassificationStrategy.h"
-#include "QuickClassificationBySimilarity.h"
 
 class ClassificationByComplexity : public ClassificationStrategy {
 

@@ -4,7 +4,6 @@
 #include <TopoDS_Solid.hxx>
 #include <Quantity_ColorRGBA.hxx>
 #include <TDF_Label.hxx>
-#include <BRep_Builder.hxx>
 
 #include <filesystem>
 #include <glm/glm.hpp>

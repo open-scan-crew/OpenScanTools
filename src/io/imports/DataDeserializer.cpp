@@ -1,4 +1,5 @@
 #include "io/imports/DataDeserializer.h"
+#include "io/SerializerKeys.h"
 
 #include "utils/Logger.h"
 
@@ -6,11 +7,8 @@
 #include "models/project/ProjectInfos.h"
 #include "models/application/Author.h"
 
-#include "pointCloudEngine/PCE_core.h"
-
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "models/graph/GraphManager.hxx"
 
 #include "utils/ProjectColor.hpp"
 
@@ -39,6 +37,8 @@
 #include "models/graph/ClusterNode.h"
 #include "models/graph/BoxNode.h"
 #include "models/graph/MeshObjectNode.h"
+
+#include "magic_enum/magic_enum.hpp"
 
 /*
 bool DataDeserializer::ImportModification(const nlohmann::json& json, std::set<xg::Guid>& object_deleted, std::set<xg::Guid>& object_added, std::map<xg::Guid, std::set<std::string>>& object_updated)

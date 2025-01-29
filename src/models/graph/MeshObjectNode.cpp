@@ -1,5 +1,4 @@
 #include "models/graph/MeshObjectNode.h"
-#include "vulkan/VulkanManager.h"
 #include "vulkan/MeshManager.h"
 #include "models/3d/ManipulationTypes.h"
 

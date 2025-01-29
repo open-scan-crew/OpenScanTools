@@ -5,6 +5,8 @@
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/Texts.hpp"
 
+#include "utils/Logger.h"
+
 namespace control
 {
 	namespace pcObject

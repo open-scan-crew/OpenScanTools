@@ -22,6 +22,12 @@
 
 #include "io/imports/step-simplification/stepGraph/EntityFactory.h"
 
+ #include "io/imports/step-simplification/stepGraph/Entity_Adv_B_Sh_Rep.h"
+ #include "io/imports/step-simplification/stepGraph/Entity_Mech_D_Geo_P_Rep.h"
+ #include "io/imports/step-simplification/stepGraph/Entity_Styled_Item.h"
+ #include "io/imports/step-simplification/stepGraph/Entity_P_L_Ass.h"
+ #include "io/imports/step-simplification/stepGraph/Entity_Sh_Rep_Rel.h"
+
 Entity* EntityFactory::createEntity(unsigned int id, const std::string& name, const std::string& args) {
     if (name == "ADVANCED_BREP_SHAPE_REPRESENTATION") return new Entity_Adv_B_Sh_Rep(id, name, args);
     if (name == "MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_REPRESENTATION") return new Entity_Mech_D_Geo_P_Rep(id, name, args);

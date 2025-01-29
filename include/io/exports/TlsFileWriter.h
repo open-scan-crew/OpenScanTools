@@ -27,9 +27,6 @@ private:
 
 private:
     tls::ImageFile img_file_;
-    // current write
-
-    //TransformationModule scan_transfo_;
 };
 
 #endif

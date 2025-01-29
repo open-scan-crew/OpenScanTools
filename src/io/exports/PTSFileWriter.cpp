@@ -1,6 +1,5 @@
 #include "io/exports/PTSFileWriter.h"
 #include "models/pointCloud/PointXYZIRGB.h"
-#include "utils/time.h"
 #include "utils/Utils.h"
 
 PTSFileWriter::PTSFileWriter(const std::filesystem::path& filepath)

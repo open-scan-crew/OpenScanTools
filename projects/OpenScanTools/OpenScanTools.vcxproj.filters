@@ -1666,9 +1666,6 @@
     <ClCompile Include="..\..\src\controller\functionSystem\mesh\ContextMeshDistance.cpp">
       <Filter>src\controller\contexts\mesh</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\io\DataComparator.cpp">
-      <Filter>src\io</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\gui\Dialog\DialogExportFileObject.cpp">
       <Filter>src\gui\Dialog</Filter>
     </ClCompile>
@@ -1692,9 +1689,6 @@
     </ClCompile>
     <ClCompile Include="..\..\src\gui\Dialog\DialogSubProjectInfo.cpp">
       <Filter>src\gui\Dialog</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\io\DataEditor.cpp">
-      <Filter>src\io</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarShareGroup.cpp">
       <Filter>src\gui\toolBars</Filter>
@@ -3543,9 +3537,6 @@
     <ClInclude Include="..\..\include\controller\functionSystem\ContextExportOSTObjects.h">
       <Filter>include\controller\contexts</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\io\DataComparator.h">
-      <Filter>include\io</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\vulkan\Compute\ComputePrograms.h">
       <Filter>src\vulkan\Compute</Filter>
     </ClInclude>
@@ -3590,9 +3581,6 @@
     </ClInclude>
     <ClInclude Include="..\..\include\controller\functionSystem\ContextImportOSTObjects.h">
       <Filter>include\controller\contexts</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\io\DataEditor.h">
-      <Filter>include\io</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\gui\texts\MarkerTexts.hpp">
       <Filter>include\gui\texts</Filter>

@@ -1,13 +1,9 @@
 #include "models/data/Data.h"
 #include "controller/ControllerContext.h"
-#include "models/graph/GraphManager.hxx"
-
-#include "utils/Logger.h"
 #include "utils/Utils.h"
 #include "Gui/Translator.h"
 #include "utils/Config.h"
 #include "utils/time.h"
-#include "io/SerializerKeys.h"
 
 Data::Data()
 	: m_userIndex(0)

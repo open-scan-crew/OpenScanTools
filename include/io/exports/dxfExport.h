@@ -4,8 +4,6 @@
 #include <string>
 #include <filesystem>
 #include <fstream>
-#include <iostream>
-#include <sstream>
 
 #include <glm/glm.hpp>
 

@@ -22,6 +22,8 @@
 
 #include "io/imports/step-simplification/stepGraph/MBBVolumeCalculation.h"
 
+#include <sstream>
+
 MBBVolumeCalculation::MBBVolumeCalculation(Entity* _root, unsigned int nbOfNodes)
     : minX(std::numeric_limits<double>::max()), maxX(std::numeric_limits<double>::lowest()),
       minY(std::numeric_limits<double>::max()), maxY(std::numeric_limits<double>::lowest()),

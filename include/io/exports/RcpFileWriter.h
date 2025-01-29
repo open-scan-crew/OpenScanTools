@@ -7,7 +7,6 @@
 #include <data/RCProjectImportSession.h>
 
 #include <filesystem>
-#include <vector>
 #include <list>
 
 using Autodesk::RealityComputing::Foundation::RCSharedPtr;

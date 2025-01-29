@@ -92,6 +92,4 @@ namespace SaveLoadSystem
 	static std::map<xg::Guid, std::pair <std::array<Data*, 2>, std::set<std::string>>> modification;*/
 };
 
-#include "SaveLoadSystem.hxx"
-
 #endif

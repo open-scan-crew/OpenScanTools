@@ -2,7 +2,7 @@
 #include "models/pointCloud/PointXYZIRGB.h"
 #include "utils/Logger.h"
 
-#include <foundation/RCQuaternion.h>
+//#include <foundation/RCQuaternion.h>
 
 using namespace Autodesk::RealityComputing::Foundation;
 using namespace Autodesk::RealityComputing::Data;

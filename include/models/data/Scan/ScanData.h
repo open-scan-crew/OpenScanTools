@@ -32,7 +32,7 @@ public:
 
 	const std::wstring& getSensorModel() const;
 	const std::wstring& getSensorSerialNumber() const;
-	uint32_t getAcquisitionTime() const;
+	time_t getAcquisitionTime() const;
 	const std::wstring getStringAcquisitionTime() const;
 
 	//Setters

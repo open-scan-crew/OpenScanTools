@@ -5,22 +5,14 @@
 #include "gui/GuiData/GuiData3dObjects.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataRendering.h"
-#include "gui/GuiData/GuiDataMessages.h"
-#include "vulkan/Graph/MemoryReturnCode.h"
 
 #include "models/graph/ScanNode.h"
-#include "models/graph/ScanObjectNode.h"
 #include "models/graph/TagNode.h"
 #include "models/graph/TorusNode.h"
 #include "models/graph/MeshObjectNode.h"
 #include "models/graph/ClusterNode.h"
 #include "models/graph/BoxNode.h"
-#include "models/graph/PolylineMeasureNode.h"
 #include "models/graph/CameraNode.h"
-
-#include "controller/controls/ControlObject3DEdition.h"
-#include "controller/controls/ControlFunction.h"
-
 #include "models/project/ProjectTypes.h"
 
 #include "gui/texts/TreePanelTexts.hpp"

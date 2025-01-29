@@ -23,15 +23,7 @@
 #ifndef MBBVOLUMECALCULATION_H
 #define MBBVOLUMECALCULATION_H
 
-#include <iostream>
-#include <list>
-#include <sstream>
-#include <regex>
-#include <cfloat>
-#include <string>
 #include <limits>
-#include <cmath>
-#include <cstdlib>
 #include <map>
 
 #include "Entity.h"
