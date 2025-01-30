@@ -46,7 +46,7 @@ namespace tls
         bool appendPointCloud(const tls::ScanHeader& info);
         bool finalizePointCloud(double add_x = 0.0, double add_y = 0.0, double add_z = 0.0);
 
-        bool readPoints(Point* dst_buf, uint64_t dst_size, uint64_t& point_count);
+        bool readNextPoints(Point* dst_buf, uint64_t dst_size, uint64_t& point_count);
         bool addPoints(Point const* src_buf, uint64_t src_size);
         bool mergePoints(Point const* src_buf, uint64_t src_size, const Transformation& src_transfo, tls::PointFormat src_format);
 
@@ -93,7 +93,6 @@ namespace tls
         size_t file_size_ = 0;
 
         uint32_t current_pc_ = 0;
-        uint32_t m_currentCell = 0;
     };
 }
 

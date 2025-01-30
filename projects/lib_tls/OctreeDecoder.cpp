@@ -5,10 +5,7 @@ using namespace tls;
 
 OctreeDecoder::OctreeDecoder()
     : OctreeBase()
-    , m_isEncodedBuffered(false)
-    , m_isDecoded(false)
     , m_encodedBuffers(std::vector<char*>(0, nullptr))
-    , m_decodedBuffers(std::vector<Point*>(0, nullptr))
 {
 }
 
@@ -17,25 +14,7 @@ OctreeDecoder::~OctreeDecoder()
     cleanBuffers();
 }
 
-void OctreeDecoder::initBuffers()
-{
-    m_encodedBuffers.resize(m_cellCount);
-    m_decodedBuffers.resize(m_cellCount);
-}
-
 void OctreeDecoder::cleanBuffers()
-{
-    cleanEncodedBuffers();
-
-    if (m_decodedBuffers.empty())
-        return;
-    for (Point* dbuf : m_decodedBuffers)
-        if (dbuf)
-            delete dbuf;
-    m_decodedBuffers.clear();
-}
-
-void OctreeDecoder::cleanEncodedBuffers()
 {
     if (m_encodedBuffers.empty())
         return;
@@ -47,15 +26,18 @@ void OctreeDecoder::cleanEncodedBuffers()
 
 bool OctreeDecoder::readPointsFromFile(std::fstream& _fs, const uint64_t& pointDataOffset)
 {
+    m_encodedBuffers.resize(m_cellCount);
+    memset(m_encodedBuffers.data(), 0, sizeof(char*) * m_encodedBuffers.size());
+
     // NOTE(robin) - Organize the leaves to read them in the file order (faster)
     std::map<uint64_t, uint32_t> orderedCellToRead;
 
-    for (uint32_t cellId(0); cellId < m_vTreeCells.size(); cellId++)
+    for (uint32_t _cell_id(0); _cell_id < m_vTreeCells.size(); _cell_id++)
     {
-        if (!m_vTreeCells[cellId].m_isLeaf)
+        if (!m_vTreeCells[_cell_id].m_isLeaf)
             continue;
 
-        orderedCellToRead.insert({ m_vTreeCells[cellId].m_dataOffset, cellId });
+        orderedCellToRead.insert({ m_vTreeCells[_cell_id].m_dataOffset, _cell_id });
     }
 
     for (std::pair<uint64_t, uint32_t> cellOffset : orderedCellToRead)
@@ -65,172 +47,113 @@ bool OctreeDecoder::readPointsFromFile(std::fstream& _fs, const uint64_t& pointD
         _fs.seekg(pointDataOffset + cellOffset.first);
         _fs.read(m_encodedBuffers[cellOffset.second], m_vTreeCells[cellOffset.second].m_dataSize);
     }
-    m_isEncodedBuffered = true;
 
     return true;
 }
 
-// FIXME(robin) - Pas de vérification sur la taille de l'espace pointé par `optionalOutput`
-void OctreeDecoder::decodeCell(uint32_t cellId, Point* optionalOutput)
+void OctreeDecoder::decodeCell(uint32_t _cell_id)
 {
-    assert(cellId == NO_CHILD || cellId >= m_vTreeCells.size());
-    const TreeCell& cell = m_vTreeCells[cellId];
-    uint64_t nbOfPoints = cell.m_layerIndexes[cell.m_depthSPT];
+    assert(_cell_id != NO_CHILD && _cell_id < m_vTreeCells.size());
+    const TreeCell& cell = m_vTreeCells[_cell_id];
+    uint64_t point_count = cell.m_layerIndexes[cell.m_depthSPT];
 
     // Select the source of the buffered encoded points 
-    const char* srcPoints = m_encodedBuffers[cellId];
+    const char* srcPoints = m_encodedBuffers[_cell_id];
+
+    decoded_points_.clear();
+    decoded_points_.resize(point_count);
+    decoded_cell_ = _cell_id;
 
     // Select the destination
-    Point* points;
-    if (optionalOutput != nullptr)
-        points = optionalOutput;
-    else
+    for (uint64_t i = 0; i < point_count; i++)
     {
-        if (m_decodedBuffers[cellId] != nullptr)
-            delete m_decodedBuffers[cellId];
-        m_decodedBuffers[cellId] = new Point[nbOfPoints];
-        points = m_decodedBuffers[cellId];
-    }
-
-    for (uint64_t dataIterator(0); dataIterator < nbOfPoints; dataIterator++)
-    {
-        Coord16& coord = ((Coord16*)srcPoints)[dataIterator];
-        points[dataIterator].x = coord.x * m_precisionValue + cell.m_position[0];
-        points[dataIterator].y = coord.y * m_precisionValue + cell.m_position[1];
-        points[dataIterator].z = coord.z * m_precisionValue + cell.m_position[2];
+        Coord16& coord = ((Coord16*)srcPoints)[i];
+        decoded_points_[i].x = coord.x * m_precisionValue + cell.m_position[0];
+        decoded_points_[i].y = coord.y * m_precisionValue + cell.m_position[1];
+        decoded_points_[i].z = coord.z * m_precisionValue + cell.m_position[2];
     }
     if (m_ptFormat != PointFormat::TL_POINT_FORMAT_UNDEFINED)
     {
         if (m_ptFormat != PointFormat::TL_POINT_XYZ_RGB)
         {
             uint8_t* packI = (uint8_t*)(srcPoints + cell.m_iOffset);
-            for (uint64_t dataIterator(0); dataIterator < nbOfPoints; dataIterator++)
+            for (uint64_t i = 0; i < point_count; i++)
             {
-                points[dataIterator].i = packI[dataIterator];
+                decoded_points_[i].i = packI[i];
             }
         }
 
         if (m_ptFormat != PointFormat::TL_POINT_XYZ_I)
         {
             Color24* packRGB = (Color24*)(srcPoints + cell.m_rgbOffset);
-            for (uint64_t dataIterator(0); dataIterator < nbOfPoints; dataIterator++)
+            for (uint64_t i = 0; i < point_count; i++)
             {
-                points[dataIterator].r = packRGB[dataIterator].r;
-                points[dataIterator].g = packRGB[dataIterator].g;
-                points[dataIterator].b = packRGB[dataIterator].b;
+                decoded_points_[i].r = packRGB[i].r;
+                decoded_points_[i].g = packRGB[i].g;
+                decoded_points_[i].b = packRGB[i].b;
             }
         }
     }
 }
 
-uint32_t OctreeDecoder::getCellCount()
+uint32_t OctreeDecoder::getCellCount() const
 {
     return (uint32_t)m_vTreeCells.size();
 }
 
-uint32_t OctreeDecoder::getCellPointCount(uint32_t cellId)
+uint32_t OctreeDecoder::getCellPointCount(uint32_t _cell_id) const
 {
-    return m_vTreeCells[cellId].m_layerIndexes[m_vTreeCells[cellId].m_depthSPT];
+    return m_vTreeCells[_cell_id].m_layerIndexes[m_vTreeCells[_cell_id].m_depthSPT];
 }
 
-bool OctreeDecoder::isLeaf(uint32_t cellId) const
+bool OctreeDecoder::isLeaf(uint32_t _cell_id) const
 {
-    return (m_vTreeCells[cellId].m_isLeaf);
+    return (m_vTreeCells[_cell_id].m_isLeaf);
 }
 
-const Point* OctreeDecoder::getCellPoints(uint32_t cellId, uint64_t& pointCount)
+bool OctreeDecoder::getNextPoints(Point* dst_buf, uint64_t dst_size, uint64_t& point_count)
 {
-    if (cellId >= m_vTreeCells.size())
+    uint64_t buf_offset = 0;
+
+    for (; current_cell_ < getCellCount(); ++current_cell_)
     {
-#ifdef _DEBUG_
-        std::cout << "Error: OctreeDecoder::getCellPoints() -> Wrong cell ID: " << cellId << std::endl;
-#endif
-        pointCount = 0;
-        return nullptr;
+        // Copy the points directly in the destination buffer
+        if (copyCellPoints(current_cell_, dst_buf, dst_size, buf_offset) == false)
+            break;
     }
 
-    if (m_decodedBuffers[cellId] != nullptr)
-    {
-        pointCount = getCellPointCount(cellId);
-        return m_decodedBuffers[cellId];
-    }
-    else if (m_isEncodedBuffered)
-    {
-        if (!m_vTreeCells[cellId].m_isLeaf)
-        {
-#ifdef _DEBUG_
-            std::cout << "Error: OctreeDecoder::getCellPoints() -> The cell " << cellId << " is not a leaf." << std::endl;
-#endif
-            pointCount = 0;
-            return nullptr;
-        }
-
-        decodeCell(cellId);
-
-        // Free the buffered memory
-        delete[] m_encodedBuffers[cellId];
-        m_encodedBuffers[cellId] = nullptr;
-
-        // Result
-        pointCount = m_vTreeCells[cellId].m_layerIndexes[m_vTreeCells[cellId].m_depthSPT];
-        return m_decodedBuffers[cellId];
-    }
-    else
-    {
-#ifdef _DEBUG_
-        std::cout << "Error: OctreeDecoder::getCellPoints() -> Cell points not buffered." << std::endl;
-#endif
-        pointCount = 0;
-        return nullptr;
-    }
+    point_count = buf_offset;
+    return (point_count > 0);
 }
 
-bool OctreeDecoder::copyCellPoints(uint32_t cellId, Point* dstPoints, uint64_t dstSize, uint64_t& dstOffset)
+bool OctreeDecoder::copyCellPoints(uint32_t _cell_id, Point* _dst_buf, uint64_t _dst_size, uint64_t& _dst_offset)
 {
-    if (cellId >= m_vTreeCells.size())
+    if (_cell_id >= m_vTreeCells.size())
     {
-#ifdef _DEBUG_
-        std::cout << "Error: OctreeDecoder::getCellPoints() -> Wrong cell ID: " << cellId << std::endl;
-#endif
         return false;
     }
 
-    if (!m_vTreeCells[cellId].m_isLeaf)
+    if (!m_vTreeCells[_cell_id].m_isLeaf)
     {
-#ifdef _DEBUG_
-        std::cout << "Error: OctreeDecoder::getCellPoints() -> The cell " << cellId << " is not a leaf." << std::endl;
-#endif
-        return false;
-    }
-
-    const uint64_t& nbOfPoints = getCellPointCount(cellId);
-
-    // Check that there is enough space in the destination buffer
-    if (dstOffset + nbOfPoints > dstSize)
-        return false;
-
-    if (m_decodedBuffers[cellId] != nullptr)
-    {
-        memcpy(dstPoints + dstOffset, m_decodedBuffers[cellId], nbOfPoints * sizeof(Point));
-        dstOffset += nbOfPoints;
         return true;
     }
-    else if (m_isEncodedBuffered)
+
+    if (decoded_cell_ != _cell_id)
     {
-        // shorthand pointer
-        Point* points = dstPoints + dstOffset;
-        dstOffset += nbOfPoints;
-
-        // decode the cell directly in the destination buffer
-        decodeCell(cellId, points);
-
-        return true;
+        decodeCell(_cell_id);
+        current_point_ = 0;
     }
-    else
-    {
-#ifdef _DEBUG_
-        std::cout << "Error: OctreeDecoder::getCellPoints() -> Cell points not buffered." << std::endl;
-#endif
+
+    // Return if there is no space
+    if (_dst_offset >= _dst_size)
         return false;
-    }
+
+    uint64_t cpy_count = std::min(decoded_points_.size() - current_point_, _dst_size - _dst_offset);
+    const void* src = decoded_points_.data() + current_point_;
+    memcpy(_dst_buf + _dst_offset, src, cpy_count * sizeof(Point));
+
+    current_point_ += (uint32_t)cpy_count;
+    _dst_offset += cpy_count;
+
+    return (current_point_ >= decoded_points_.size());
 }

@@ -1,5 +1,5 @@
 .vs/
-/x64/
+*x64/
 build/
 scans/
 lfs/

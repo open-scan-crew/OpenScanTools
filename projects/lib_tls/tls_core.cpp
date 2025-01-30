@@ -100,12 +100,12 @@ bool ImageFile::finalizePointCloud(double add_x, double add_y, double add_z)
     return p_->finalizePointCloud(add_x, add_y, add_z);
 }
 
-bool ImageFile::readPoints(Point* dstBuf, uint64_t bufSize, uint64_t& readCount)
+bool ImageFile::readNextPoints(Point* dstBuf, uint64_t bufSize, uint64_t& readCount)
 {
     if (p_.get() == nullptr)
         return false;
 
-    return p_->readPoints(dstBuf, bufSize, readCount);
+    return p_->readNextPoints(dstBuf, bufSize, readCount);
 }
 
 bool ImageFile::addPoints(Point const* srcBuf, uint64_t srcSize)
@@ -146,4 +146,12 @@ bool ImageFile::getCellRenderData(uint32_t _pc_num, void* data_buf, uint64_t& da
         return false;
 
     return p_->getCellRenderData(_pc_num, data_buf, data_size);
+}
+
+void ImageFile::overwriteTransformation(uint32_t _pc_num, const Transformation& new_transfo)
+{
+    if (p_.get() == nullptr)
+        return;
+
+    return p_->overwriteTransformation(_pc_num, new_transfo);
 }

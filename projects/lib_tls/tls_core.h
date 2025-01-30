@@ -2,7 +2,7 @@
 #define TLS_CORE_H
 
 #include "tls_def.h"
-#include "tls_Point.h"
+#include "tls_point.h"
 
 #include <filesystem>
 #include <memory>
@@ -62,7 +62,7 @@ namespace tls
         bool appendPointCloud(const ScanHeader& info);
         bool finalizePointCloud(double add_x = 0.0, double add_y = 0.0, double add_z = 0.0);
 
-        bool readPoints(Point* dstBuf, uint64_t bufSize, uint64_t& readCount);
+        bool readNextPoints(Point* dstBuf, uint64_t bufSize, uint64_t& readCount);
         bool addPoints(Point const* srcBuf, uint64_t srcSize);
         bool mergePoints(Point const* srcBuf, uint64_t srcSize, const Transformation& srcTransfo, PointFormat srcFormat);
 
@@ -70,6 +70,8 @@ namespace tls
         bool getOctreeBase(uint32_t _pc_num, OctreeBase& _octree_base);
         bool getData(uint32_t _pc_num, uint64_t _file_pos, void* _data_buf, uint64_t _data_size);
         bool getCellRenderData(uint32_t _pc_num, void* data_buf, uint64_t& data_size);
+
+        void overwriteTransformation(uint32_t _pc_num, const Transformation& new_transfo);
 
     protected:
         std::shared_ptr<ImageFile_p> p_;

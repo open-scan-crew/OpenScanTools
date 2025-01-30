@@ -331,7 +331,6 @@ bool ImageFile_p::setCurrentPointCloud(uint32_t _pc_num)
 
     if (pcs_[_pc_num].octree_decoder_ != nullptr && current_pc_ == _pc_num)
     {
-        m_currentCell = 0;
         return true;
     }
 
@@ -349,7 +348,6 @@ bool ImageFile_p::setCurrentPointCloud(uint32_t _pc_num)
         return false;
 
     current_pc_ = _pc_num;
-    m_currentCell = 0;
 
     return true;
 }
@@ -432,7 +430,7 @@ bool ImageFile_p::finalizePointCloud(double add_x, double add_y, double add_z)
     return true;
 }
 
-bool ImageFile_p::readPoints(Point* dst_buf, uint64_t dst_size, uint64_t& point_count)
+bool ImageFile_p::readNextPoints(Point* dst_buf, uint64_t dst_size, uint64_t& point_count)
 {
     if (current_pc_ >= pcs_.size())
         return false;
@@ -447,31 +445,15 @@ bool ImageFile_p::readPoints(Point* dst_buf, uint64_t dst_size, uint64_t& point_
         return false;
     }
 
-    uint64_t bufferOffset = 0;
+    bool ret = decoder->getNextPoints(dst_buf, dst_size, point_count);
 
-    for (; m_currentCell < decoder->getCellCount(); ++m_currentCell)
-    {
-        // Only leaves contain points
-        if (decoder->isLeaf(m_currentCell) == false)
-            continue;
-
-        // Stop when there not enough space remaining in the buffer
-        if (bufferOffset + decoder->getCellPointCount(m_currentCell) > dst_size)
-            break;
-
-        // Copy the points directly in the destination buffer
-        if (decoder->copyCellPoints(m_currentCell, dst_buf, dst_size, bufferOffset) == false)
-            break;
-    }
-
-    if (bufferOffset == 0)
+    if (!ret)
     {
         delete decoder;
         pcs_[current_pc_].octree_decoder_ = nullptr;
     }
 
-    point_count = bufferOffset;
-    return true;
+    return ret;
 }
 
 bool ImageFile_p::addPoints(Point const* src_buf, uint64_t src_size)
@@ -594,8 +576,6 @@ bool ImageFile_p::getOctreeDecoder(uint32_t _pc_num, OctreeDecoder& _octree_deco
     {
         return false;
     }
-
-    _octree_decoder.initBuffers();
 
     if (_load_points)
     {

@@ -36,7 +36,7 @@
     <ClInclude Include="OctreeCtor.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="tls_Point.h">
+    <ClInclude Include="tls_point.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="OctreeDecoder.h">
