@@ -2,7 +2,6 @@
 #define OCTREE_BASE_H
 
 #include "tls_def.h"
-#include "tls_impl.h"
 
 #include <cstdint>
 #include <vector>
@@ -97,6 +96,7 @@ struct Leaf
 namespace tls
 {
     class ImageFile_p;
+    class ImagePointCloud_p;
 
     class OctreeBase
     {
@@ -113,8 +113,9 @@ namespace tls
         uint64_t getPointCount() const;
         const tls::Limits& getLimits() const;
 
-        TLS_READER_DECLARE(OctreeBase);
-        TLS_WRITER_DECLARE(OctreeBase);
+        friend ImageFile_p;
+        //friend bool tls::ImagePointCloud::loadOctreeBase(std::fstream&);
+        friend ImagePointCloud_p;
 
     protected:
         const tls::PrecisionType m_precisionType;

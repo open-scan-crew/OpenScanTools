@@ -4,8 +4,42 @@
 
 using namespace tls;
 
+bool ImagePointCloud::is_valid() const
+{
+    if (p_.get() == nullptr)
+        return false;
+
+    return p_->is_valid();
+}
+
+uint32_t ImagePointCloud::getCellCount() const
+{
+    return p_->getCellCount();
+}
+
+uint32_t ImagePointCloud::getCellPointCount(uint32_t _cell_id) const
+{
+    return p_->getCellPointCount(_cell_id);
+}
+
+bool ImagePointCloud::getPointsRenderData(uint32_t _cell_id, void* _data_buf, uint64_t& _data_size)
+{
+    return p_->getPointsRenderData(_cell_id, _data_buf, _data_size);
+}
+
+bool ImagePointCloud::readNextPoints(Point* dst_buf, uint64_t dst_size, uint64_t& point_count)
+{
+    return p_->readNextPoints(dst_buf, dst_size, point_count);
+}
+
+ImagePointCloud::ImagePointCloud(std::shared_ptr<ImagePointCloud_p> _p)
+    : p_(_p)
+{ }
+
+// ********************//
+
 ImageFile::ImageFile()
-{}
+{ }
 
 ImageFile::ImageFile(const std::filesystem::path& _filepath, usage _u)
 {
@@ -74,6 +108,11 @@ tls::ScanHeader ImageFile::getPointCloudHeader(uint32_t _pc_num) const
         return tls::ScanHeader{};
 
     return p_->pcs_[_pc_num].infos_;
+}
+
+ImagePointCloud ImageFile::getImagePointCloud(uint32_t _pc_num)
+{
+    return ImagePointCloud(std::shared_ptr<ImagePointCloud_p>(p_->getImagePointCloud(_pc_num)));
 }
 
 bool ImageFile::setCurrentPointCloud(uint32_t _pc_num)

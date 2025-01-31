@@ -75,6 +75,205 @@ size_t tls::sizeofPointFormat(PointFormat format)
     }
 }
 
+inline void seekScanHeaderPos(std::fstream& _fs, uint32_t _scanN, uint32_t _fieldPos)
+{
+    _fs.seekg(TL_FILE_HEADER_SIZE + _scanN * TL_SCAN_HEADER_SIZE + _fieldPos);
+}
+
+ImagePointCloud_p::ImagePointCloud_p(uint32_t _num, std::fstream& _fstr)
+    : num_(_num)
+    , fstr_(_fstr)
+    , octree_(OctreeBase())
+{
+    loadOctree();
+}
+
+bool ImagePointCloud_p::is_valid()
+{
+    return (fstr_.is_open() && octree_.m_cellCount > 0);
+}
+
+bool ImagePointCloud_p::loadOctree()
+{
+    if (!fstr_.is_open())
+        return false;
+
+    seekScanHeaderPos(fstr_, num_, TL_SCAN_ADDR_PRECISION);
+    fstr_.read((char*)&octree_.m_precisionType, sizeof(PrecisionType));
+
+    octree_.m_precisionValue = getPrecisionValue(octree_.m_precisionType);
+
+    seekScanHeaderPos(fstr_, num_, TL_SCAN_ADDR_LIMITS);
+    fstr_.read((char*)&octree_.m_limits, sizeof(Limits));
+
+    seekScanHeaderPos(fstr_, num_, TL_SCAN_ADDR_FORMAT);
+    fstr_.read((char*)&octree_.m_ptFormat, sizeof(PointFormat));
+
+    seekScanHeaderPos(fstr_, num_, TL_SCAN_ADDR_POINT_COUNT);
+    fstr_.read((char*)&octree_.m_pointCount, sizeof(uint64_t));
+
+    seekScanHeaderPos(fstr_, num_, TL_SCAN_ADDR_DATA_ADDR);
+    fstr_.read((char*)&octree_data_addr_, sizeof(uint64_t));
+    fstr_.read((char*)&point_data_addr_, sizeof(uint64_t));
+    fstr_.read((char*)&cell_data_addr_, sizeof(uint64_t));
+
+    seekScanHeaderPos(fstr_, num_, TL_SCAN_ADDR_OCTREE_PARAM);
+    uint64_t cellCount64;
+    fstr_.read((char*)&cellCount64, sizeof(uint64_t));
+    octree_.m_cellCount = (uint32_t)cellCount64;
+    fstr_.read((char*)&octree_.m_rootSize, sizeof(float));
+    fstr_.read((char*)&octree_.m_rootPosition, 3 * sizeof(float));
+    fstr_.read((char*)&octree_.m_uRootCell, sizeof(uint32_t));
+
+    fstr_.seekg(octree_data_addr_);
+    octree_.m_vTreeCells.clear();
+    octree_.m_vTreeCells.resize(octree_.m_cellCount);
+    fstr_.read((char*)octree_.m_vTreeCells.data(), octree_.m_cellCount * sizeof(TreeCell));
+
+    return true;
+}
+
+bool ImagePointCloud_p::getPointsRenderData(uint32_t _cell_id, void* _data_buf, uint64_t& _data_size)
+{
+    if (!fstr_.is_open())
+        return false;
+
+    if (_cell_id >= octree_.m_cellCount)
+        return false;
+
+    if (_data_buf == nullptr)
+    {
+        // When no buffer is passed to function, this is a normal use case and
+        // the function must return the minimal size needed for the buffer
+        _data_size = octree_.m_vTreeCells[_cell_id].m_dataSize;
+        return true;
+    }
+    else if (_data_size < octree_.m_vTreeCells[_cell_id].m_dataSize)
+        return false;
+
+    fstr_.seekg(point_data_addr_ + octree_.m_vTreeCells[_cell_id].m_dataOffset);
+    fstr_.read((char*)_data_buf, octree_.m_vTreeCells[_cell_id].m_dataSize);
+    return fstr_.good();
+}
+
+uint32_t ImagePointCloud_p::getCellCount() const
+{
+    return (uint32_t)octree_.m_vTreeCells.size();
+}
+
+uint32_t ImagePointCloud_p::getCellPointCount(uint32_t _cell_id) const
+{
+    return octree_.m_vTreeCells[_cell_id].m_layerIndexes[octree_.m_vTreeCells[_cell_id].m_depthSPT];
+}
+
+bool ImagePointCloud_p::isLeaf(uint32_t _cell_id) const
+{
+    return (octree_.m_vTreeCells[_cell_id].m_isLeaf);
+}
+
+bool ImagePointCloud_p::readNextPoints(Point* dst_buf, uint64_t dst_size, uint64_t& point_count)
+{
+    uint64_t buf_offset = 0;
+
+    for (; current_cell_ < getCellCount(); ++current_cell_)
+    {
+        if (decoded_cell_ != current_cell_)
+        {
+            decodeCell(current_cell_);
+            current_point_ = 0;
+        }
+        // Copy the points directly in the destination buffer
+        if (copyCellPoints(current_cell_, dst_buf, dst_size, buf_offset) == false)
+            break;
+    }
+
+    point_count = buf_offset;
+    return (point_count > 0);
+}
+
+bool ImagePointCloud_p::copyCellPoints(uint32_t _cell_id, Point* _dst_buf, uint64_t _dst_size, uint64_t& _dst_offset)
+{
+    if (_cell_id >= octree_.m_vTreeCells.size())
+    {
+        return false;
+    }
+
+    if (!octree_.m_vTreeCells[_cell_id].m_isLeaf)
+    {
+        return true;
+    }
+
+    // Return if there is no space
+    if (_dst_offset >= _dst_size)
+        return false;
+
+    uint64_t cpy_count = std::min(decoded_points_.size() - current_point_, _dst_size - _dst_offset);
+    const void* src = decoded_points_.data() + current_point_;
+    memcpy(_dst_buf + _dst_offset, src, cpy_count * sizeof(Point));
+
+    current_point_ += (uint32_t)cpy_count;
+    _dst_offset += cpy_count;
+
+    return (current_point_ >= decoded_points_.size());
+}
+
+void ImagePointCloud_p::decodeCell(uint32_t _cell_id)
+{
+    if (_cell_id >= octree_.m_vTreeCells.size() || !(octree_.m_vTreeCells[_cell_id].m_isLeaf))
+        return;
+
+    const TreeCell& cell = octree_.m_vTreeCells[_cell_id];
+    uint64_t point_count = cell.m_layerIndexes[cell.m_depthSPT];
+
+    // init the 
+    uint64_t buf_size = 0;
+    getPointsRenderData(_cell_id, nullptr, buf_size);
+    char* encoded_points = new char[buf_size];
+    getPointsRenderData(_cell_id, encoded_points, buf_size);
+
+    decoded_points_.clear();
+    decoded_points_.resize(point_count);
+    decoded_cell_ = _cell_id;
+
+    // Compute back the points coordinates
+    for (uint64_t i = 0; i < point_count; i++)
+    {
+        Coord16& coord = ((Coord16*)encoded_points)[i];
+        decoded_points_[i].x = coord.x * octree_.m_precisionValue + cell.m_position[0];
+        decoded_points_[i].y = coord.y * octree_.m_precisionValue + cell.m_position[1];
+        decoded_points_[i].z = coord.z * octree_.m_precisionValue + cell.m_position[2];
+    }
+
+    // Unpack the components
+    if (octree_.m_ptFormat != PointFormat::TL_POINT_FORMAT_UNDEFINED)
+    {
+        if (octree_.m_ptFormat != PointFormat::TL_POINT_XYZ_RGB)
+        {
+            uint8_t* packI = (uint8_t*)(encoded_points + cell.m_iOffset);
+            for (uint64_t i = 0; i < point_count; i++)
+            {
+                decoded_points_[i].i = packI[i];
+            }
+        }
+
+        if (octree_.m_ptFormat != PointFormat::TL_POINT_XYZ_I)
+        {
+            Color24* packRGB = (Color24*)(encoded_points + cell.m_rgbOffset);
+            for (uint64_t i = 0; i < point_count; i++)
+            {
+                decoded_points_[i].r = packRGB[i].r;
+                decoded_points_[i].g = packRGB[i].g;
+                decoded_points_[i].b = packRGB[i].b;
+            }
+        }
+    }
+    delete[] encoded_points;
+}
+
+
+
+
+
 ImageFile_p::ImageFile_p(const std::filesystem::path& filepath, usage usage)
     : filepath_(filepath)
     , usg_(usage)
@@ -161,12 +360,6 @@ void ImageFile_p::create_file()
         results_.push_back({ result::INVALID_FILE, msg });
         return;
     }
-}
-
-
-inline void seekScanHeaderPos(std::fstream& _fs, uint32_t _scanN, uint32_t _fieldPos)
-{
-    _fs.seekg(TL_FILE_HEADER_SIZE + _scanN * TL_SCAN_HEADER_SIZE + _fieldPos);
 }
 
 void ImageFile_p::read_headers()
@@ -273,6 +466,13 @@ void ImageFile_p::read_headers()
         infos.pointCount = state.point_count_;
         seekScanHeaderPos(fstr_, pc_i, TL_SCAN_ADDR_OCTREE_PARAM);
         fstr_.read((char*)&state.cell_count_, sizeof(uint64_t));
+
+        // Complete the address map by copying some infos from the TreeCell struct
+        fstr_.seekg(state.octree_data_addr_);
+        std::vector<TreeCell> tree_cells;
+        tree_cells.resize(state.cell_count_);
+        fstr_.read((char*)tree_cells.data(), tree_cells.size() * sizeof(TreeCell));
+
 
         pcs_.push_back(state);
     }
@@ -521,6 +721,14 @@ bool ImageFile_p::mergePoints(Point const* src_buf, uint64_t src_size, const Tra
     }
 
     return true;
+}
+
+ImagePointCloud_p* ImageFile_p::getImagePointCloud(uint32_t _pc_num)
+{
+    if (!fstr_.is_open() || _pc_num >= pcs_.size())
+        return nullptr;
+
+    return new ImagePointCloud_p(_pc_num, fstr_);
 }
 
 bool ImageFile_p::getOctreeBase(uint32_t _pc_num, OctreeBase& _octree_base)

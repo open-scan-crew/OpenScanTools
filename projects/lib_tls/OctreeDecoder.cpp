@@ -51,14 +51,85 @@ bool OctreeDecoder::readPointsFromFile(std::fstream& _fs, const uint64_t& pointD
     return true;
 }
 
+uint32_t OctreeDecoder::getCellCount() const
+{
+    return (uint32_t)m_vTreeCells.size();
+}
+
+uint32_t OctreeDecoder::getCellPointCount(uint32_t _cell_id) const
+{
+    return m_vTreeCells[_cell_id].m_layerIndexes[m_vTreeCells[_cell_id].m_depthSPT];
+}
+
+bool OctreeDecoder::isLeaf(uint32_t _cell_id) const
+{
+    return (m_vTreeCells[_cell_id].m_isLeaf);
+}
+
+bool OctreeDecoder::getNextPoints(Point* dst_buf, uint64_t dst_size, uint64_t& point_count)
+{
+    uint64_t buf_offset = 0;
+
+    for (; current_cell_ < getCellCount(); ++current_cell_)
+    {
+        if (decoded_cell_ != current_cell_)
+        {
+            decodeCell(current_cell_);
+            current_point_ = 0;
+        }
+        // Copy the points directly in the destination buffer
+        if (copyCellPoints(current_cell_, dst_buf, dst_size, buf_offset) == false)
+            break;
+    }
+
+    point_count = buf_offset;
+    return (point_count > 0);
+}
+
+bool OctreeDecoder::copyCellPoints(uint32_t _cell_id, Point* _dst_buf, uint64_t _dst_size, uint64_t& _dst_offset)
+{
+    if (_cell_id >= m_vTreeCells.size())
+    {
+        return false;
+    }
+
+    if (!m_vTreeCells[_cell_id].m_isLeaf)
+    {
+        return true;
+    }
+
+    // Return if there is no space
+    if (_dst_offset >= _dst_size)
+        return false;
+
+    uint64_t cpy_count = std::min(decoded_points_.size() - current_point_, _dst_size - _dst_offset);
+    const void* src = decoded_points_.data() + current_point_;
+    memcpy(_dst_buf + _dst_offset, src, cpy_count * sizeof(Point));
+
+    current_point_ += (uint32_t)cpy_count;
+    _dst_offset += cpy_count;
+
+    return (current_point_ >= decoded_points_.size());
+}
+
 void OctreeDecoder::decodeCell(uint32_t _cell_id)
 {
-    assert(_cell_id != NO_CHILD && _cell_id < m_vTreeCells.size());
+    if (_cell_id >= m_vTreeCells.size() || !(m_vTreeCells[_cell_id].m_isLeaf))
+        return;
+
     const TreeCell& cell = m_vTreeCells[_cell_id];
     uint64_t point_count = cell.m_layerIndexes[cell.m_depthSPT];
 
     // Select the source of the buffered encoded points 
-    const char* srcPoints = m_encodedBuffers[_cell_id];
+    const char* srcPoints = nullptr;
+    if (_cell_id >= m_encodedBuffers.size() || m_encodedBuffers[_cell_id] == nullptr)
+    {
+        return;
+    }
+    else
+    {
+        srcPoints = m_encodedBuffers[_cell_id];
+    }
 
     decoded_points_.clear();
     decoded_points_.resize(point_count);
@@ -94,66 +165,4 @@ void OctreeDecoder::decodeCell(uint32_t _cell_id)
             }
         }
     }
-}
-
-uint32_t OctreeDecoder::getCellCount() const
-{
-    return (uint32_t)m_vTreeCells.size();
-}
-
-uint32_t OctreeDecoder::getCellPointCount(uint32_t _cell_id) const
-{
-    return m_vTreeCells[_cell_id].m_layerIndexes[m_vTreeCells[_cell_id].m_depthSPT];
-}
-
-bool OctreeDecoder::isLeaf(uint32_t _cell_id) const
-{
-    return (m_vTreeCells[_cell_id].m_isLeaf);
-}
-
-bool OctreeDecoder::getNextPoints(Point* dst_buf, uint64_t dst_size, uint64_t& point_count)
-{
-    uint64_t buf_offset = 0;
-
-    for (; current_cell_ < getCellCount(); ++current_cell_)
-    {
-        // Copy the points directly in the destination buffer
-        if (copyCellPoints(current_cell_, dst_buf, dst_size, buf_offset) == false)
-            break;
-    }
-
-    point_count = buf_offset;
-    return (point_count > 0);
-}
-
-bool OctreeDecoder::copyCellPoints(uint32_t _cell_id, Point* _dst_buf, uint64_t _dst_size, uint64_t& _dst_offset)
-{
-    if (_cell_id >= m_vTreeCells.size())
-    {
-        return false;
-    }
-
-    if (!m_vTreeCells[_cell_id].m_isLeaf)
-    {
-        return true;
-    }
-
-    if (decoded_cell_ != _cell_id)
-    {
-        decodeCell(_cell_id);
-        current_point_ = 0;
-    }
-
-    // Return if there is no space
-    if (_dst_offset >= _dst_size)
-        return false;
-
-    uint64_t cpy_count = std::min(decoded_points_.size() - current_point_, _dst_size - _dst_offset);
-    const void* src = decoded_points_.data() + current_point_;
-    memcpy(_dst_buf + _dst_offset, src, cpy_count * sizeof(Point));
-
-    current_point_ += (uint32_t)cpy_count;
-    _dst_offset += cpy_count;
-
-    return (current_point_ >= decoded_points_.size());
 }

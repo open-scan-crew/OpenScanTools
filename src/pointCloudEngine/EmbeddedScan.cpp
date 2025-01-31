@@ -1,6 +1,5 @@
 #include "pointCloudEngine/EmbeddedScan.h"
 #include "pointCloudEngine/OctreeRayTracing.h"
-//#include "pointCloudEngine/OctreeShredder.h"
 #include "vulkan/VulkanManager.h"
 #include "utils/Logger.h"
 #include "models/graph/TransformationModule.h"

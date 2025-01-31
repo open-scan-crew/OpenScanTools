@@ -4,6 +4,8 @@
 #include "OctreeBase.h"
 #include "tls_Point.h"
 
+#include <fstream>
+
 namespace tls
 {
     class OctreeDecoder : public OctreeBase
@@ -12,6 +14,7 @@ namespace tls
         OctreeDecoder();
         ~OctreeDecoder();
 
+        //[[depracated]]
         bool readPointsFromFile(std::fstream& fs, const uint64_t& pointDataOffset);
 
         uint32_t getCellCount() const;

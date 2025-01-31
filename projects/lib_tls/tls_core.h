@@ -34,9 +34,30 @@ namespace tls
     // The tls can even store generated point cloud that do not reflect a real physical
     //   object.
 
+
+    class ImagePointCloud_p;
+    class ImagePointCloud  // AccessPointCloud
+    {
+    public:
+        bool is_valid() const;
+
+        uint32_t getCellCount() const;
+        uint32_t getCellPointCount(uint32_t _cell_id) const;
+
+        bool getPointsRenderData(uint32_t _cell_id, void* _data_buf, uint64_t& _data_size);
+        //bool getCellRenderData(void* data_buf, uint64_t& data_size);
+
+        bool readNextPoints(Point* dst_buf, uint64_t dst_size, uint64_t& point_count);
+
+    protected:
+        friend class ImageFile;
+
+        ImagePointCloud(std::shared_ptr<ImagePointCloud_p> _p);
+        std::shared_ptr<ImagePointCloud_p> p_;
+    };
+
     class OctreeBase;
     class ImageFile_p;
-
     class ImageFile
     {
     public:
@@ -52,11 +73,14 @@ namespace tls
         bool is_valid_file() const;
         std::filesystem::path getPath() const;
 
-        uint32_t getScanCount() const;
-        uint64_t getTotalPoints() const;
+        uint32_t getScanCount() const;  // RENAME - getPointCloudCount()
+        uint64_t getTotalPoints() const;// RENAME - getTotalPointCount()
 
         FileHeader getFileHeader() const;
         ScanHeader getPointCloudHeader(uint32_t _pc_num) const;
+
+        // NEW Class !
+        ImagePointCloud getImagePointCloud(uint32_t _pc_num);
 
         bool setCurrentPointCloud(uint32_t _pc_num); // for reading or adding points
         bool appendPointCloud(const ScanHeader& info);

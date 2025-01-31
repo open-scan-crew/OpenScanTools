@@ -1,5 +1,7 @@
 #include "OctreeBase.h"
 
+#include "tls_impl.h"
+
 //--- Constructors ---//
 
 using namespace tls;
