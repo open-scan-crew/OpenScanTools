@@ -4,6 +4,8 @@
 #include "utils/Logger.h"
 #include "models/graph/TransformationModule.h"
 
+#include "tls_impl.h"
+
 #include <chrono>
 #include <iostream>
 #include <future>

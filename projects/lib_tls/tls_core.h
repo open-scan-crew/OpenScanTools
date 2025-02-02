@@ -82,11 +82,9 @@ namespace tls
         // NEW Class !
         ImagePointCloud getImagePointCloud(uint32_t _pc_num);
 
-        bool setCurrentPointCloud(uint32_t _pc_num); // for reading or adding points
         bool appendPointCloud(const ScanHeader& info);
         bool finalizePointCloud(double add_x = 0.0, double add_y = 0.0, double add_z = 0.0);
 
-        bool readNextPoints(Point* dstBuf, uint64_t bufSize, uint64_t& readCount);
         bool addPoints(Point const* srcBuf, uint64_t srcSize);
         bool mergePoints(Point const* srcBuf, uint64_t srcSize, const Transformation& srcTransfo, PointFormat srcFormat);
 

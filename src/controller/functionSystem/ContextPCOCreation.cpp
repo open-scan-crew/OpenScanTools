@@ -21,6 +21,7 @@
 #include "controller/messages/CameraMessage.h"
 #include "utils/Logger.h"
 
+#include "tls_impl.h"
 
 ContextPCOCreation::ContextPCOCreation(const ContextId& id)
     : AContext(id)

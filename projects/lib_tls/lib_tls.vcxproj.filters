@@ -39,9 +39,6 @@
     <ClInclude Include="tls_point.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="OctreeDecoder.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="utils.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -63,9 +60,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="OctreeCtor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="OctreeDecoder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="utils.cpp">

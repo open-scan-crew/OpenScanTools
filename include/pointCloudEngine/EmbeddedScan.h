@@ -7,7 +7,7 @@
 #include "models/3d/BoundingBox.h"
 #include "pointCloudEngine/PCE_graphics.h"
 #include "pointCloudEngine/PCE_stream.h"
-#include "OctreeBase.h" // lib_tls
+#include "tls_core.h" // lib_tls
 #include "pointCloudEngine/SmartBuffer.h"
 #include "pointCloudEngine/SmartBufferWorkload.h"
 #include "models/data/clipping/ClippingGeometry.h"

@@ -33,6 +33,7 @@
 #include "io/SaveLoadSystem.h"
 #include "utils/Logger.h"
 
+#include "tls_impl.h"
 
 // Note (Aurélien) QT::StandardButtons enum values in qmessagebox.h
 #define Yes 0x00004000

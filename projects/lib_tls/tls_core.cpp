@@ -115,14 +115,6 @@ ImagePointCloud ImageFile::getImagePointCloud(uint32_t _pc_num)
     return ImagePointCloud(std::shared_ptr<ImagePointCloud_p>(p_->getImagePointCloud(_pc_num)));
 }
 
-bool ImageFile::setCurrentPointCloud(uint32_t _pc_num)
-{
-    if (p_.get() == nullptr)
-        return false;
-
-    return  p_->setCurrentPointCloud(_pc_num);
-}
-
 bool ImageFile::appendPointCloud(const tls::ScanHeader& info)
 {
     if (p_.get() == nullptr)
@@ -137,14 +129,6 @@ bool ImageFile::finalizePointCloud(double add_x, double add_y, double add_z)
         return false;
 
     return p_->finalizePointCloud(add_x, add_y, add_z);
-}
-
-bool ImageFile::readNextPoints(Point* dstBuf, uint64_t bufSize, uint64_t& readCount)
-{
-    if (p_.get() == nullptr)
-        return false;
-
-    return p_->readNextPoints(dstBuf, bufSize, readCount);
 }
 
 bool ImageFile::addPoints(Point const* srcBuf, uint64_t srcSize)

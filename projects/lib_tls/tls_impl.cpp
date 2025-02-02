@@ -3,12 +3,12 @@
 
 #include "OctreeBase.h"
 #include "OctreeCtor.h"
-#include "OctreeDecoder.h"
 
 #include "glm/glm.hpp"
 #include "tls_transform.h"
 #include "utils.h"
 
+#include <map>
 
 using namespace tls;
 
@@ -86,6 +86,7 @@ ImagePointCloud_p::ImagePointCloud_p(uint32_t _num, std::fstream& _fstr)
     , octree_(OctreeBase())
 {
     loadOctree();
+    sortCellsByAddress();
 }
 
 bool ImagePointCloud_p::is_valid()
@@ -173,21 +174,24 @@ bool ImagePointCloud_p::isLeaf(uint32_t _cell_id) const
 
 bool ImagePointCloud_p::readNextPoints(Point* dst_buf, uint64_t dst_size, uint64_t& point_count)
 {
-    uint64_t buf_offset = 0;
+    point_count = 0;
 
-    for (; current_cell_ < getCellCount(); ++current_cell_)
+    for (; current_cell_ < sorted_cells_.size(); ++current_cell_)
     {
-        if (decoded_cell_ != current_cell_)
+        uint32_t cell_id = sorted_cells_[current_cell_];
+        if (decoded_cell_ != cell_id)
         {
-            decodeCell(current_cell_);
+            decodeCell(cell_id);
             current_point_ = 0;
         }
         // Copy the points directly in the destination buffer
-        if (copyCellPoints(current_cell_, dst_buf, dst_size, buf_offset) == false)
+        if (copyCellPoints(cell_id, dst_buf, dst_size, point_count) == false)
             break;
     }
 
-    point_count = buf_offset;
+    if (point_count == 0)
+        printStats();
+
     return (point_count > 0);
 }
 
@@ -217,6 +221,25 @@ bool ImagePointCloud_p::copyCellPoints(uint32_t _cell_id, Point* _dst_buf, uint6
     return (current_point_ >= decoded_points_.size());
 }
 
+void ImagePointCloud_p::sortCellsByAddress()
+{
+    std::map<uint64_t, uint32_t> address_cell;
+
+    for (uint32_t _cell_id = 0; _cell_id < octree_.m_vTreeCells.size(); _cell_id++)
+    {
+        if (!octree_.m_vTreeCells[_cell_id].m_isLeaf)
+            continue;
+
+        address_cell.insert({ octree_.m_vTreeCells[_cell_id].m_dataOffset, _cell_id });
+    }
+
+    sorted_cells_.reserve(address_cell.size());
+    for (auto item : address_cell)
+    {
+        sorted_cells_.push_back(item.second);
+    }
+}
+
 void ImagePointCloud_p::decodeCell(uint32_t _cell_id)
 {
     if (_cell_id >= octree_.m_vTreeCells.size() || !(octree_.m_vTreeCells[_cell_id].m_isLeaf))
@@ -225,11 +248,16 @@ void ImagePointCloud_p::decodeCell(uint32_t _cell_id)
     const TreeCell& cell = octree_.m_vTreeCells[_cell_id];
     uint64_t point_count = cell.m_layerIndexes[cell.m_depthSPT];
 
+    std::chrono::steady_clock::time_point t0 = std::chrono::steady_clock::now();
+
     // init the 
     uint64_t buf_size = 0;
     getPointsRenderData(_cell_id, nullptr, buf_size);
     char* encoded_points = new char[buf_size];
+    std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
     getPointsRenderData(_cell_id, encoded_points, buf_size);
+
+    std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
 
     decoded_points_.clear();
     decoded_points_.resize(point_count);
@@ -268,10 +296,22 @@ void ImagePointCloud_p::decodeCell(uint32_t _cell_id)
         }
     }
     delete[] encoded_points;
+
+    std::chrono::steady_clock::time_point t3 = std::chrono::steady_clock::now();
+
+    alloc_time_ms += std::chrono::duration<float, std::milli>(t1 - t0).count();
+    read_time_ms += std::chrono::duration<float, std::milli>(t2 - t1).count();
+    decode_time_ms += std::chrono::duration<float, std::milli>(t3 - t2).count();
+    read_size += buf_size;
 }
 
-
-
+void ImagePointCloud_p::printStats()
+{
+    std::cout << "Speed       (Mo/s): " << (int)(read_size / (read_time_ms * 1000)) << std::endl;
+    std::cout << "Alloc time    (ms): " << alloc_time_ms << std::endl;
+    std::cout << "Read time     (ms): " << read_time_ms << std::endl;
+    std::cout << "Decode time   (ms): " << decode_time_ms << std::endl;
+}
 
 
 ImageFile_p::ImageFile_p(const std::filesystem::path& filepath, usage usage)
@@ -300,9 +340,6 @@ ImageFile_p::~ImageFile_p()
     {
         if (pack.octree_ctor_ != nullptr)
             delete pack.octree_ctor_;
-
-        if (pack.octree_decoder_ != nullptr)
-            delete pack.octree_decoder_;
     }
 
     fstr_.close();
@@ -524,34 +561,6 @@ uint64_t ImageFile_p::getPointCount() const
     return totalPoints;
 }
 
-bool ImageFile_p::setCurrentPointCloud(uint32_t _pc_num)
-{
-    if (usg_ != usage::read || _pc_num >= pcs_.size())
-        return false;
-
-    if (pcs_[_pc_num].octree_decoder_ != nullptr && current_pc_ == _pc_num)
-    {
-        return true;
-    }
-
-    if (!fstr_.is_open())
-    {
-        fstr_.open(filepath_, std::ios::in | std::ios::binary | std::ios::ate);
-        if (fstr_.fail()) {
-            return false;
-        }
-    }
-
-    // Read the octree structure but not the points (loadPoints = true)
-    pcs_[_pc_num].octree_decoder_ = new OctreeDecoder();
-    if (!getOctreeDecoder(_pc_num, *(pcs_[_pc_num].octree_decoder_), true))
-        return false;
-
-    current_pc_ = _pc_num;
-
-    return true;
-}
-
 bool ImageFile_p::appendPointCloud(const ScanHeader& info)
 {
     if (usg_ != usage::write)
@@ -628,32 +637,6 @@ bool ImageFile_p::finalizePointCloud(double add_x, double add_y, double add_z)
     delete octree_ctor;
     octree_ctor = nullptr;
     return true;
-}
-
-bool ImageFile_p::readNextPoints(Point* dst_buf, uint64_t dst_size, uint64_t& point_count)
-{
-    if (current_pc_ >= pcs_.size())
-        return false;
-
-    OctreeDecoder* decoder = pcs_[current_pc_].octree_decoder_;
-
-    if (decoder == nullptr)
-    {
-        std::string msg = "ERROR: no point cloud to read from.";
-        results_.push_back({ result::BAD_USAGE, msg });
-        point_count = 0;
-        return false;
-    }
-
-    bool ret = decoder->getNextPoints(dst_buf, dst_size, point_count);
-
-    if (!ret)
-    {
-        delete decoder;
-        pcs_[current_pc_].octree_decoder_ = nullptr;
-    }
-
-    return ret;
 }
 
 bool ImageFile_p::addPoints(Point const* src_buf, uint64_t src_size)
@@ -773,24 +756,6 @@ bool ImageFile_p::getOctreeBase(uint32_t _pc_num, OctreeBase& _octree_base)
     default:
         return false;
     }
-}
-
-bool ImageFile_p::getOctreeDecoder(uint32_t _pc_num, OctreeDecoder& _octree_decoder, bool _load_points)
-{
-    if (!fstr_.is_open() || _pc_num >= pcs_.size())
-        return false;
-
-    if (getOctreeBase(_pc_num, (OctreeBase&)_octree_decoder) == false)
-    {
-        return false;
-    }
-
-    if (_load_points)
-    {
-        _octree_decoder.readPointsFromFile(fstr_, pcs_[_pc_num].point_data_addr_);
-    }
-
-    return true;
 }
 
 bool ImageFile_p::writeOctreeBase(uint32_t _pc_num, OctreeBase& _octree, ScanHeader _header)

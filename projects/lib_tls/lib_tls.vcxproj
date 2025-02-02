@@ -14,7 +14,6 @@
     <ClInclude Include="..\..\ext\crossguid\guid.hpp" />
     <ClInclude Include="OctreeBase.h" />
     <ClInclude Include="OctreeCtor.h" />
-    <ClInclude Include="OctreeDecoder.h" />
     <ClInclude Include="tls_point.h" />
     <ClInclude Include="tls_file.h" />
     <ClInclude Include="tls_core.h" />
@@ -30,7 +29,6 @@
     </ClCompile>
     <ClCompile Include="OctreeBase.cpp" />
     <ClCompile Include="OctreeCtor.cpp" />
-    <ClCompile Include="OctreeDecoder.cpp" />
     <ClCompile Include="tls_core.cpp" />
     <ClCompile Include="tls_impl.cpp" />
     <ClCompile Include="tls_transform.cpp" />
