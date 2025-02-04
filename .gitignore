@@ -16,6 +16,7 @@ imgui.ini
 *.idb
 *.pdb
 *.aps
+*.tls
 qt_fr.qm
 Scansap.VC.db
 UpgradeLog.htm

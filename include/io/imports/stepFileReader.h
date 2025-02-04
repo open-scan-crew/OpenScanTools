@@ -4,9 +4,7 @@
 #include <STEPCAFControl_Reader.hxx>
 #include <XCAFDoc_ShapeTool.hxx>
 #include <TopoDS_Shape.hxx>
-#include <filesystem>
 
-#include <unordered_map>
 #include <glm/glm.hpp>
 
 #include "io/imports/IMeshReader.h"

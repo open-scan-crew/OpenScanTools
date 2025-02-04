@@ -1151,7 +1151,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\test\PerformanceMonitor.cpp" />
     <ClCompile Include="..\..\src\utils\Config.cpp" />
     <ClCompile Include="..\..\src\utils\Logger.cpp" />
-    <ClCompile Include="..\..\src\utils\math\basic_functions.cpp" />
     <ClCompile Include="..\..\src\utils\math\trigo.cpp" />
     <ClCompile Include="..\..\src\utils\System.cpp" />
     <ClCompile Include="..\..\src\utils\time.cpp" />

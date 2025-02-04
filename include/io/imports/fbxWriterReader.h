@@ -1,11 +1,8 @@
 #ifndef _FBX_READER_H_
 #define _FBX_READER_H_
 
-#include "utils/math/basic_functions.h"
 #include <filesystem>
-#include <unordered_map>
 #include <fbxsdk.h>
-#include <fbxsdk/fileio/fbxiosettings.h>
 
 #include "vulkan/Graph/MemoryReturnCode.h"
 

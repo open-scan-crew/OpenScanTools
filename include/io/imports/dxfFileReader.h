@@ -1,7 +1,6 @@
 #ifndef _DXF_IMPORT_H_
 #define _DXF_IMPORT_H_
 
-#include <filesystem>
 #include "io/imports/IMeshReader.h"
 #include "dl_creationadapter.h"
 

@@ -87,6 +87,8 @@ void read_file_low_mem(const std::filesystem::path& path)
     // The function returns true until there is no more points to read.
     while (impc.readNextPoints(dst_buffer.data(), dst_buffer.size(), read_count))
     {
+        //tls::Point& pt = dst_buffer[6];
+        //std::cout << pt.x << ", " << pt.y << ", " << pt.z << ", " << (int)pt.i << std::endl;
         total_read += read_count;
     }
     std::chrono::steady_clock::time_point tp_1 = std::chrono::steady_clock::now();
@@ -97,20 +99,19 @@ void read_file_low_mem(const std::filesystem::path& path)
 
 int main(int argc, char** argv)
 {
-    //write_sample();
+    write_sample();
 
-    //read_sample();
+    read_sample();
 
     // Files for test:
     // Decolletage : {3, 4}, {1, 7}, {29, 27}, {37, 38}
 
+    //read_file_low_mem("C:/Workspace/Point Clouds/Usine_Huot/Scans/Decolletage_001.tls");
+    //read_file_low_mem("C:/Workspace/Point Clouds/Usine_Huot/Scans/Decolletage_004.tls");
     //read_file_low_mem("C:/Workspace/Point Clouds/Usine_Huot/Scans/Decolletage_037.tls");
     //read_file_low_mem("C:/Workspace/Point Clouds/Usine_Huot/Scans/Decolletage_038.tls");
     //read_file_low_mem("D:/Point Clouds/Decolletage_014.tls");
-    read_file_low_mem("D:/Point Clouds/Decolletage_013.tls");
+    //read_file_low_mem("D:/Point Clouds/Decolletage_013.tls");
 
-    std::cout << "\nType anything to end the program..." << std::endl;
-    int a;
-    std::cin >> a;
     return 0;
 }

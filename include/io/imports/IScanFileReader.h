@@ -3,7 +3,6 @@
 
 #include <string>
 #include <filesystem>
-#include <map>
 
 #include "io/FileUtils.h"
 #include "io/imports/ImportTypes.h"

@@ -33,12 +33,14 @@ uint64_t TlsFileReader::getTotalPoints() const
 
 bool TlsFileReader::startReadingScan(uint32_t scanNumber)
 {
-    return img_file_.setCurrentPointCloud(scanNumber);
+    point_cloud_ = img_file_.getImagePointCloud(scanNumber);
+
+    return point_cloud_.is_valid();
 }
 
 bool TlsFileReader::readPoints(PointXYZIRGB* dstBuf, uint64_t bufSize, uint64_t& readCount)
 {
-    return img_file_.readNextPoints(reinterpret_cast<tls::Point*>(dstBuf), bufSize, readCount);
+    return point_cloud_.readNextPoints(reinterpret_cast<tls::Point*>(dstBuf), bufSize, readCount);
 }
 
 tls::FileHeader TlsFileReader::getTlsHeader() const

@@ -8,16 +8,12 @@
 
 #include <fstream>
 
-#define TLS_READER_DECLARE(klass) \
-friend bool tls::ImageFile_p::get##klass(uint32_t _pc_number, klass& object);
-#define TLS_WRITER_DECLARE(klass) \
-friend bool tls::ImageFile_p::write##klass(uint32_t _scanNumber, klass& object, ScanHeader _header);
-
 namespace tls
 {
     float getPrecisionValue(PrecisionType precisionType);
     void getCompatibleFormat(PointFormat& inFormat, PointFormat addFormat);
     size_t sizeofPointFormat(PointFormat format);
+    void seekScanHeaderPos(std::fstream& _fs, uint32_t _scanN, uint32_t _fieldPos);
 
     class OctreeCtor;
 
@@ -25,13 +21,15 @@ namespace tls
     {
     public:
         ImagePointCloud_p(uint32_t _num, std::fstream& _fstr);
+        ~ImagePointCloud_p();
 
         bool is_valid();
 
-        bool loadOctree();
+        bool loadOctree(OctreeBase& _octree_base);
 
+        bool getData(uint64_t _file_pos, void* _data_buf, uint64_t _data_size);
         bool getPointsRenderData(uint32_t _cell_id, void* _data_buf, uint64_t& _data_size);
-        //bool getCellRenderData(void* data_buf, uint64_t& data_size);
+        bool getCellRenderData(void* data_buf, uint64_t& data_size);
 
         uint32_t getCellCount() const;
         uint32_t getCellPointCount(uint32_t _cell_id) const;
@@ -44,7 +42,7 @@ namespace tls
         void sortCellsByAddress();
         void decodeCell(uint32_t _cell_id);
 
-        void printStats();
+        void printStats() const;
 
     private:
         const uint32_t num_ = 0; // number in file
@@ -80,7 +78,6 @@ namespace tls
         bool is_valid_file();
 
         ImagePointCloud_p* getImagePointCloud(uint32_t _pc_num);
-        bool getOctreeBase(uint32_t _pc_number, OctreeBase& _octree_base);
         bool writeOctreeBase(uint32_t _pc_number, OctreeBase& _octree_ctor, ScanHeader _header);
 
     private:
@@ -99,13 +96,12 @@ namespace tls
         bool addPoints(Point const* src_buf, uint64_t src_size);
         bool mergePoints(Point const* src_buf, uint64_t src_size, const Transformation& src_transfo, tls::PointFormat src_format);
 
-        bool getData(uint32_t _pc_num, uint64_t _file_pos, void* _data_buf, uint64_t _data_size);
-        bool getCellRenderData(uint32_t _pc_num, void* data_buf, uint64_t& data_size);
-
     public:
         // File manipulation functions
         void overwriteTransformation(uint32_t _pc_num, const Transformation& new_transfo);
 
+        // Only used by the OctreeShredder.
+        // FIXME - This function should be removed.
         bool copyRawData(uint32_t _pc_num, char** pointBuffer, uint64_t& pointBufferSize, char** instanceBuffer, uint64_t& instanceBufferSize);
 
         friend ImageFile;

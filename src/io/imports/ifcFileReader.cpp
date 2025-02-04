@@ -1,10 +1,8 @@
 #include "io/imports/ifcFileReader.h"
 #include "ifcpp/reader/ReaderSTEP.h"
-#include "ifcpp/model/UnitConverter.h"
 
 #include "gui/texts/SplashScreenTexts.hpp"
 
-#include "utils/math/basic_functions.h"
 #include "utils/math/glm_extended.h"
 #include "utils/Utils.h"
 #include "utils/Logger.h"

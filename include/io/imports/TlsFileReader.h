@@ -26,6 +26,7 @@ private:
 
 private:
     tls::ImageFile img_file_;
+    tls::ImagePointCloud point_cloud_;
 };
 
 #endif

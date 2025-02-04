@@ -19,7 +19,7 @@ const uint32_t MAX_SPT_DEPTH = 16;
 #define NO_CHILD (uint32_t) 0xF00DBEEF
 
 
-// Sizeof TreeCell = 140
+// Sizeof TreeCell = 144(140)
 struct TreeCell
 {   //                      Used in OctreeRayTracing
     uint32_t m_depthSPT;    //  yes (for point count)

@@ -7,7 +7,6 @@
 #include "tls_impl.h"
 
 #include <chrono>
-#include <iostream>
 #include <future>
 using namespace std::chrono;
 
@@ -27,7 +26,9 @@ EmbeddedScan::EmbeddedScan(std::filesystem::path const& filepath)
         return;
     }
 
-    if(!tls_img_file_.getOctreeBase(0, *(tls::OctreeBase*)this))
+    tls_point_cloud_ = tls_img_file_.getImagePointCloud(0);
+
+    if(!tls_point_cloud_.getOctreeBase(*(tls::OctreeBase*)this))
     {
         Logger::log(IOLog) << "Failed to read the octree part in '" << tls_img_file_.getPath() << "'" << Logger::endl;
         return;
@@ -43,11 +44,12 @@ EmbeddedScan::EmbeddedScan(std::filesystem::path const& filepath)
 
     // Load the instance data
     size_t data_size = 0;
-    tls_img_file_.getCellRenderData(0, nullptr, data_size); // get the data size by passing a null buffer
+    // get the data size by passing a null buffer
+    tls_point_cloud_.getCellRenderData(nullptr, data_size);
     if (data_size == 0)
         return;
     char* data_buffer = new char[data_size];
-    tls_img_file_.getCellRenderData(0, data_buffer, data_size);
+    tls_point_cloud_.getCellRenderData(data_buffer, data_size);
 
     VulkanManager& vkManager = VulkanManager::getInstance();
     vkManager.allocSimpleBuffer(data_size, m_instanceBuffer, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
@@ -431,9 +433,7 @@ void EmbeddedScan::assumeWorkload()
             {
                 void* pData = VulkanManager::getInstance().getMappedPointer(sbuf);
 
-                //result &= copyData(istream, pData, m_pointDataOffset + m_vTreeCells[id].m_dataOffset, m_vTreeCells[id].m_dataSize);
-
-                result &= tls_img_file_.getData(0, m_pointDataOffset + m_vTreeCells[id].m_dataOffset, pData, m_vTreeCells[id].m_dataSize);
+                result &= tls_point_cloud_.getData(m_vTreeCells[id].m_dataOffset, pData, m_vTreeCells[id].m_dataSize);
 
                 sbuf.state.store(TlDataState::LOADED);
             }
@@ -476,7 +476,6 @@ bool EmbeddedScan::startStreamingAll(char* _stageBuf, uint64_t _stageSize, uint6
 {
     VulkanManager& vkManager = VulkanManager::getInstance();
     bool continueStreaming = true;
-    bool missingSpace = false;
     uint64_t previewOffset = _stageOffset;
     // Optimization: avoid to stream a scan that is not in the draw pass anymore
     // the '+1' unsure to cover the small interval between the start of a frame and moment a scan is call for drawing.
@@ -517,12 +516,11 @@ bool EmbeddedScan::startStreamingAll(char* _stageBuf, uint64_t _stageSize, uint6
 
         if (vkManager.allocSmartBuffer(m_vTreeCells[id].m_dataSize, m_pCellBuffers[id], VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, flags) == VkResult::VK_SUCCESS)
         {
-            sortedDst.insert({ m_vTreeCells[id].m_dataOffset + m_pointDataOffset, m_vTreeCells[id].m_dataSize, m_pCellBuffers[id] });
+            sortedDst.insert({ m_vTreeCells[id].m_dataOffset, m_vTreeCells[id].m_dataSize, m_pCellBuffers[id] });
         }
         else
         {
             m_pCellBuffers[id].state.store(TlDataState::NOT_LOADED);
-            missingSpace = true;
             continueStreaming = false;
         }
     }
@@ -554,11 +552,8 @@ bool EmbeddedScan::startStreamingAll(char* _stageBuf, uint64_t _stageSize, uint6
                 break;
         }
 
-        if (tls_img_file_.getData(0, srcOffset, _stageBuf + _stageOffset, dataSize) == false)
+        if (tls_point_cloud_.getData(srcOffset, _stageBuf + _stageOffset, dataSize) == false)
             return false;
-
-        //if (copyData(istream, _stageBuf + _stageOffset, srcOffset, dataSize) == false)
-        //    return false;
 
         _stageOffset += dataSize;
     }
@@ -589,9 +584,8 @@ bool EmbeddedScan::startStreamingAll(char* _stageBuf, uint64_t _stageSize, uint6
         }
 
         // We transfer from the file the data locally continuous
-        if (tls_img_file_.getData(0, srcOffset, miniBuf, dataSize) == false)
+        if (tls_point_cloud_.getData(srcOffset, miniBuf, dataSize) == false)
             return false;
-        //copyData(istream, miniBuf, srcOffset, dataSize);
 
         for (TlStagedTransferInfo sti : groupedTransfers)
         {
@@ -604,6 +598,75 @@ bool EmbeddedScan::startStreamingAll(char* _stageBuf, uint64_t _stageSize, uint6
 
     return (continueStreaming);
 }
+
+// No more use of:
+//   TreeCell::m_dataSize
+//   TreeCell::m_dataOffset
+//   EmbeddedScan::m_pointDataOffset
+bool EmbeddedScan::startStreamingAll_k(void* _stageBuf, uint64_t _stageSize, uint64_t& _stageOffset, std::vector<TlStagedTransferInfo>& gpuTransfers)
+{
+    VulkanManager& vkManager = VulkanManager::getInstance();
+    bool continueStreaming = true;
+    // Optimization: avoid to stream a scan that is not in the draw pass anymore
+    // the '+1' unsure to cover the small interval between the start of a frame and moment a scan is call for drawing.
+    if (vkManager.getCurrentFrameIndex() > m_lastFrameUse + 1)
+        return true;
+
+    // Choose some cell missing
+    std::vector<uint32_t> copyMissingCells;
+    {
+        std::lock_guard<std::mutex> lock(m_streamMutex);
+        copyMissingCells = m_missingCells;
+    }
+
+    for (uint32_t id : copyMissingCells)
+    {
+        TlDataState state = TlDataState::NOT_LOADED;
+        VkMemoryPropertyFlags flags = m_vTreeCells[id].m_isLeaf ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT : VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+
+        bool not_loaded = m_pCellBuffers[id].state.compare_exchange_strong(state, TlDataState::LOADING);
+
+        if (!not_loaded)
+            continue;
+
+        // Get the size of the data to be downloaded by the file lib
+        uint64_t data_size = 0;
+        tls_point_cloud_.getPointsRenderData(id, nullptr, data_size);
+
+        if ((flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == 0)
+        {
+            if (_stageOffset + data_size > _stageSize)
+            {
+                continueStreaming = false;
+                // reset the buffer state to not loaded
+                m_pCellBuffers[id].state.store(TlDataState::NOT_LOADED); // or compare_exchange ?
+                break;
+            }
+        }
+
+        if (vkManager.allocSmartBuffer(data_size, m_pCellBuffers[id], VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, flags) != VkResult::VK_SUCCESS)
+        {
+            m_pCellBuffers[id].state.store(TlDataState::NOT_LOADED);
+            continueStreaming = false;
+        }
+
+        if ((flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) != 0)
+        {
+            char* pMapped = (char*)vkManager.getMappedPointer(m_pCellBuffers[id]);
+            tls_point_cloud_.getPointsRenderData(id, pMapped, data_size);
+            m_pCellBuffers[id].state.store(TlDataState::LOADED);
+        }
+        else
+        {
+            tls_point_cloud_.getPointsRenderData(id, (char*)_stageBuf + _stageOffset, data_size);
+            gpuTransfers.push_back({ _stageOffset, data_size, m_pCellBuffers[id] });
+            _stageOffset += data_size;
+        }
+    }
+
+    return (continueStreaming);
+}
+
 
 void EmbeddedScan::ConcatCellStates::reset()
 {

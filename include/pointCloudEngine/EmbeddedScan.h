@@ -127,6 +127,7 @@ public:
     // For streaming
     void assumeWorkload();
     bool startStreamingAll(char* _stageBuf, uint64_t _stageSize, uint64_t& _stageOffset, std::vector<TlStagedTransferInfo>& gpuTransfers);
+    bool startStreamingAll_k(void* _stageBuf, uint64_t _stageSize, uint64_t& _stageOffset, std::vector<TlStagedTransferInfo>& gpuTransfers);
     void checkDataState();
 
     bool canBeDeleted();
@@ -224,11 +225,10 @@ protected:
 
 protected:
     tls::ImageFile tls_img_file_;
+    tls::ImagePointCloud tls_point_cloud_;
     tls::PointFormat pt_format_;
     tls::PrecisionType pt_precision_;
 
-    uint64_t m_pointDataOffset;
-    uint64_t m_instanceDataOffset;
     bool m_deleteFileWhenDestroyed;
 
     glm::dmat3 m_rotationToGlobal;

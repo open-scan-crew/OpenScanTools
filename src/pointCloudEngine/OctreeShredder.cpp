@@ -24,11 +24,15 @@ OctreeShredder::OctreeShredder(const std::filesystem::path& tlsPath)
         return;
     }
 
-    if (img_file.getOctreeBase(0, *(tls::OctreeBase*)this) == false)
+    tls::ImagePointCloud_p* pc = img_file.getImagePointCloud(0);
+
+    if (pc->loadOctree(*(tls::OctreeBase*)this) == false)
     {
         Logger::log(IOLog) << "Failed to read the data at: " << tlsPath << Logger::endl;
         return;
     }
+
+    delete pc;
 
     // Read the data in one block
     img_file.copyRawData(0, &m_vertexData, m_vertexDataSize, &m_instData, m_instDataSize);

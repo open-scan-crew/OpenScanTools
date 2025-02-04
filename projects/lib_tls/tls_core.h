@@ -35,19 +35,26 @@ namespace tls
     //   object.
 
 
+    class OctreeBase;
     class ImagePointCloud_p;
     class ImagePointCloud  // AccessPointCloud
     {
     public:
+        ImagePointCloud();
+
         bool is_valid() const;
 
         uint32_t getCellCount() const;
         uint32_t getCellPointCount(uint32_t _cell_id) const;
 
+        // Rendering mode functions
+        bool getData(uint64_t _file_pos, void* _data_buf, uint64_t _data_size);
         bool getPointsRenderData(uint32_t _cell_id, void* _data_buf, uint64_t& _data_size);
-        //bool getCellRenderData(void* data_buf, uint64_t& data_size);
+        bool getCellRenderData(void* data_buf, uint64_t& data_size);
 
         bool readNextPoints(Point* dst_buf, uint64_t dst_size, uint64_t& point_count);
+
+        bool getOctreeBase(OctreeBase& _octree_base);
 
     protected:
         friend class ImageFile;
@@ -56,7 +63,6 @@ namespace tls
         std::shared_ptr<ImagePointCloud_p> p_;
     };
 
-    class OctreeBase;
     class ImageFile_p;
     class ImageFile
     {
@@ -87,11 +93,6 @@ namespace tls
 
         bool addPoints(Point const* srcBuf, uint64_t srcSize);
         bool mergePoints(Point const* srcBuf, uint64_t srcSize, const Transformation& srcTransfo, PointFormat srcFormat);
-
-        // Rendering mode functions
-        bool getOctreeBase(uint32_t _pc_num, OctreeBase& _octree_base);
-        bool getData(uint32_t _pc_num, uint64_t _file_pos, void* _data_buf, uint64_t _data_size);
-        bool getCellRenderData(uint32_t _pc_num, void* data_buf, uint64_t& data_size);
 
         void overwriteTransformation(uint32_t _pc_num, const Transformation& new_transfo);
 

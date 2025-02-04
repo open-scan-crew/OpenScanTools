@@ -4,6 +4,9 @@
 
 using namespace tls;
 
+ImagePointCloud::ImagePointCloud()
+{ }
+
 bool ImagePointCloud::is_valid() const
 {
     if (p_.get() == nullptr)
@@ -22,14 +25,38 @@ uint32_t ImagePointCloud::getCellPointCount(uint32_t _cell_id) const
     return p_->getCellPointCount(_cell_id);
 }
 
+bool ImagePointCloud::getData(uint64_t _file_pos, void* _data_buf, uint64_t _data_size)
+{
+    if (p_.get() == nullptr)
+        return false;
+
+    return p_->getData(_file_pos, _data_buf, _data_size);
+}
+
 bool ImagePointCloud::getPointsRenderData(uint32_t _cell_id, void* _data_buf, uint64_t& _data_size)
 {
     return p_->getPointsRenderData(_cell_id, _data_buf, _data_size);
 }
 
+bool ImagePointCloud::getCellRenderData(void* data_buf, uint64_t& data_size)
+{
+    if (p_.get() == nullptr)
+        return false;
+
+    return p_->getCellRenderData(data_buf, data_size);
+}
+
 bool ImagePointCloud::readNextPoints(Point* dst_buf, uint64_t dst_size, uint64_t& point_count)
 {
     return p_->readNextPoints(dst_buf, dst_size, point_count);
+}
+
+bool ImagePointCloud::getOctreeBase(OctreeBase& _octree_base)
+{
+    if (p_.get() == nullptr)
+        return false;
+
+    return p_->loadOctree(_octree_base);
 }
 
 ImagePointCloud::ImagePointCloud(std::shared_ptr<ImagePointCloud_p> _p)
@@ -145,30 +172,6 @@ bool ImageFile::mergePoints(Point const* srcBuf, uint64_t srcSize, const Transfo
         return false;
 
     return p_->mergePoints(srcBuf, srcSize, srcTransfo, srcFormat);
-}
-
-bool ImageFile::getOctreeBase(uint32_t _pc_num, OctreeBase& _octree_base)
-{
-    if (p_.get() == nullptr)
-        return false;
-
-    return p_->getOctreeBase(_pc_num, _octree_base);
-}
-
-bool ImageFile::getData(uint32_t _pc_num, uint64_t _file_pos, void* _data_buf, uint64_t _data_size)
-{
-    if (p_.get() == nullptr)
-        return false;
-
-    return p_->getData(_pc_num, _file_pos, _data_buf, _data_size);
-}
-
-bool ImageFile::getCellRenderData(uint32_t _pc_num, void* data_buf, uint64_t& data_size)
-{
-    if (p_.get() == nullptr)
-        return false;
-
-    return p_->getCellRenderData(_pc_num, data_buf, data_size);
 }
 
 void ImageFile::overwriteTransformation(uint32_t _pc_num, const Transformation& new_transfo)

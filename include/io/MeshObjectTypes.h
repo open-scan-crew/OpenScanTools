@@ -26,6 +26,7 @@ struct FileInputData {
 	LODValue lod;
 };
 
+
 struct MeshGeometries
 {
 	std::unordered_map<std::array<float, 3>, uint32_t, HashVec3> verticesMap;

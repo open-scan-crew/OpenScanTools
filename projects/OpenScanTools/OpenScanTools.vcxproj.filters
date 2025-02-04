@@ -805,9 +805,6 @@
     <ClCompile Include="..\..\src\controller\messages\SimpleNumberMessage.cpp">
       <Filter>src\controller\messages</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\utils\math\basic_functions.cpp">
-      <Filter>src\utils\math</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\gui\widgets\TreeNodeSystem\TreeModel.cpp">
       <Filter>src\gui\widgets\TreeNodeSystem</Filter>
     </ClCompile>

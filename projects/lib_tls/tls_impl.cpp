@@ -75,7 +75,7 @@ size_t tls::sizeofPointFormat(PointFormat format)
     }
 }
 
-inline void seekScanHeaderPos(std::fstream& _fs, uint32_t _scanN, uint32_t _fieldPos)
+void tls::seekScanHeaderPos(std::fstream& _fs, uint32_t _scanN, uint32_t _fieldPos)
 {
     _fs.seekg(TL_FILE_HEADER_SIZE + _scanN * TL_SCAN_HEADER_SIZE + _fieldPos);
 }
@@ -85,8 +85,13 @@ ImagePointCloud_p::ImagePointCloud_p(uint32_t _num, std::fstream& _fstr)
     , fstr_(_fstr)
     , octree_(OctreeBase())
 {
-    loadOctree();
+    loadOctree(octree_);
     sortCellsByAddress();
+}
+
+ImagePointCloud_p::~ImagePointCloud_p()
+{
+
 }
 
 bool ImagePointCloud_p::is_valid()
@@ -94,24 +99,24 @@ bool ImagePointCloud_p::is_valid()
     return (fstr_.is_open() && octree_.m_cellCount > 0);
 }
 
-bool ImagePointCloud_p::loadOctree()
+bool ImagePointCloud_p::loadOctree(OctreeBase& _octree)
 {
     if (!fstr_.is_open())
         return false;
 
     seekScanHeaderPos(fstr_, num_, TL_SCAN_ADDR_PRECISION);
-    fstr_.read((char*)&octree_.m_precisionType, sizeof(PrecisionType));
+    fstr_.read((char*)&_octree.m_precisionType, sizeof(PrecisionType));
 
-    octree_.m_precisionValue = getPrecisionValue(octree_.m_precisionType);
+    _octree.m_precisionValue = getPrecisionValue(_octree.m_precisionType);
 
     seekScanHeaderPos(fstr_, num_, TL_SCAN_ADDR_LIMITS);
-    fstr_.read((char*)&octree_.m_limits, sizeof(Limits));
+    fstr_.read((char*)&_octree.m_limits, sizeof(Limits));
 
     seekScanHeaderPos(fstr_, num_, TL_SCAN_ADDR_FORMAT);
-    fstr_.read((char*)&octree_.m_ptFormat, sizeof(PointFormat));
+    fstr_.read((char*)&_octree.m_ptFormat, sizeof(PointFormat));
 
     seekScanHeaderPos(fstr_, num_, TL_SCAN_ADDR_POINT_COUNT);
-    fstr_.read((char*)&octree_.m_pointCount, sizeof(uint64_t));
+    fstr_.read((char*)&_octree.m_pointCount, sizeof(uint64_t));
 
     seekScanHeaderPos(fstr_, num_, TL_SCAN_ADDR_DATA_ADDR);
     fstr_.read((char*)&octree_data_addr_, sizeof(uint64_t));
@@ -119,19 +124,32 @@ bool ImagePointCloud_p::loadOctree()
     fstr_.read((char*)&cell_data_addr_, sizeof(uint64_t));
 
     seekScanHeaderPos(fstr_, num_, TL_SCAN_ADDR_OCTREE_PARAM);
-    uint64_t cellCount64;
+    uint64_t cellCount64 = 0;
     fstr_.read((char*)&cellCount64, sizeof(uint64_t));
-    octree_.m_cellCount = (uint32_t)cellCount64;
-    fstr_.read((char*)&octree_.m_rootSize, sizeof(float));
-    fstr_.read((char*)&octree_.m_rootPosition, 3 * sizeof(float));
-    fstr_.read((char*)&octree_.m_uRootCell, sizeof(uint32_t));
+    _octree.m_cellCount = (uint32_t)cellCount64;
+    fstr_.read((char*)&_octree.m_rootSize, sizeof(float));
+    fstr_.read((char*)&_octree.m_rootPosition, 3 * sizeof(float));
+    fstr_.read((char*)&_octree.m_uRootCell, sizeof(uint32_t));
 
     fstr_.seekg(octree_data_addr_);
-    octree_.m_vTreeCells.clear();
-    octree_.m_vTreeCells.resize(octree_.m_cellCount);
-    fstr_.read((char*)octree_.m_vTreeCells.data(), octree_.m_cellCount * sizeof(TreeCell));
+    _octree.m_vTreeCells.clear();
+    _octree.m_vTreeCells.resize(_octree.m_cellCount);
+    fstr_.read((char*)_octree.m_vTreeCells.data(), _octree.m_cellCount * sizeof(TreeCell));
 
     return true;
+}
+
+bool ImagePointCloud_p::getData(uint64_t _file_offset, void* _data_buf, uint64_t _data_size)
+{
+    if (!fstr_.is_open())
+        return false;
+
+    //if (point_data_addr_ + _file_offset + _data_size > file_size_)
+    //    return false;
+
+    fstr_.seekg(point_data_addr_ + _file_offset);
+    fstr_.read((char*)_data_buf, _data_size);
+    return fstr_.good();
 }
 
 bool ImagePointCloud_p::getPointsRenderData(uint32_t _cell_id, void* _data_buf, uint64_t& _data_size)
@@ -155,6 +173,28 @@ bool ImagePointCloud_p::getPointsRenderData(uint32_t _cell_id, void* _data_buf, 
     fstr_.seekg(point_data_addr_ + octree_.m_vTreeCells[_cell_id].m_dataOffset);
     fstr_.read((char*)_data_buf, octree_.m_vTreeCells[_cell_id].m_dataSize);
     return fstr_.good();
+}
+
+bool ImagePointCloud_p::getCellRenderData(void* data_buf, size_t& data_size)
+{
+    if (!fstr_.is_open())
+        return false;
+
+    uint64_t cell_data_size = octree_.getCellCount() * 16;
+
+    if (data_buf == nullptr)
+    {
+        data_size = cell_data_size;
+        return true;
+    }
+    else if (data_size <= cell_data_size)
+    {
+        fstr_.seekg(cell_data_addr_);
+        fstr_.read((char*)data_buf, cell_data_size);
+        return true;
+    }
+
+    return false;
 }
 
 uint32_t ImagePointCloud_p::getCellCount() const
@@ -211,14 +251,15 @@ bool ImagePointCloud_p::copyCellPoints(uint32_t _cell_id, Point* _dst_buf, uint6
     if (_dst_offset >= _dst_size)
         return false;
 
-    uint64_t cpy_count = std::min(decoded_points_.size() - current_point_, _dst_size - _dst_offset);
+    uint64_t pt_count = getCellPointCount(_cell_id);
+    uint64_t cpy_count = std::min(pt_count - current_point_, _dst_size - _dst_offset);
     const void* src = decoded_points_.data() + current_point_;
     memcpy(_dst_buf + _dst_offset, src, cpy_count * sizeof(Point));
 
     current_point_ += (uint32_t)cpy_count;
     _dst_offset += cpy_count;
 
-    return (current_point_ >= decoded_points_.size());
+    return (current_point_ >= pt_count);
 }
 
 void ImagePointCloud_p::sortCellsByAddress()
@@ -234,7 +275,7 @@ void ImagePointCloud_p::sortCellsByAddress()
     }
 
     sorted_cells_.reserve(address_cell.size());
-    for (auto item : address_cell)
+    for (auto& item : address_cell)
     {
         sorted_cells_.push_back(item.second);
     }
@@ -259,17 +300,21 @@ void ImagePointCloud_p::decodeCell(uint32_t _cell_id)
 
     std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
 
-    decoded_points_.clear();
-    decoded_points_.resize(point_count);
+    if (point_count > decoded_points_.size())
+    {
+        decoded_points_.clear();
+        decoded_points_.resize(point_count);
+    }
     decoded_cell_ = _cell_id;
+    float preci = octree_.m_precisionValue;
 
     // Compute back the points coordinates
-    for (uint64_t i = 0; i < point_count; i++)
+    for (uint64_t i = 0; i < point_count; ++i)
     {
         Coord16& coord = ((Coord16*)encoded_points)[i];
-        decoded_points_[i].x = coord.x * octree_.m_precisionValue + cell.m_position[0];
-        decoded_points_[i].y = coord.y * octree_.m_precisionValue + cell.m_position[1];
-        decoded_points_[i].z = coord.z * octree_.m_precisionValue + cell.m_position[2];
+        decoded_points_[i].x = coord.x * preci + cell.m_position[0];
+        decoded_points_[i].y = coord.y * preci + cell.m_position[1];
+        decoded_points_[i].z = coord.z * preci + cell.m_position[2];
     }
 
     // Unpack the components
@@ -305,7 +350,7 @@ void ImagePointCloud_p::decodeCell(uint32_t _cell_id)
     read_size += buf_size;
 }
 
-void ImagePointCloud_p::printStats()
+void ImagePointCloud_p::printStats() const
 {
     std::cout << "Speed       (Mo/s): " << (int)(read_size / (read_time_ms * 1000)) << std::endl;
     std::cout << "Alloc time    (ms): " << alloc_time_ms << std::endl;
@@ -407,7 +452,7 @@ void ImageFile_p::read_headers()
     }
 
     // Check the Magic Number
-    uint32_t MN;
+    uint32_t MN = 0;
     fstr_.seekg(0);
     fstr_.read((char*)&MN, sizeof(uint32_t));
     if (MN != TLS_MAGIC_NUMBER) {
@@ -415,7 +460,7 @@ void ImageFile_p::read_headers()
         return;
     }
 
-    uint32_t version;
+    uint32_t version = 0;
         // Check the file version
     fstr_.read((char*)&version, sizeof(uint32_t));
     switch (version)
@@ -437,16 +482,18 @@ void ImageFile_p::read_headers()
     {
     case FileVersion::V_0_3:
     case FileVersion::V_0_4:
+        fstr_.seekg(TL_FILE_ADDR_CREATION_DATE);
+        fstr_.read((char*)&file_header_.creationDate, sizeof(uint64_t));
+
+        fstr_.seekg(TL_FILE_ADDR_GUID);
+        fstr_.read((char*)&file_header_.guid, sizeof(FileGuid));
+
         fstr_.seekg(TL_FILE_ADDR_SCAN_COUNT);
         fstr_.read((char*)&file_header_.scanCount, sizeof(uint32_t));
         break;
-    //case FileVersion::V_0_5:
-    //    fstr_.seekg(TL_FILE_ADDR_CREATION_DATE);
-    //    fstr_.read((char*)&_header.creationDate, sizeof(uint64_t));
-
-    //    fstr_.seekg(TL_FILE_ADDR_GUID);
-    //    fstr_.read((char*)&_header.guid, sizeof(FileGuid));
     default:
+        file_header_.creationDate = 0;
+        file_header_.guid = xg::Guid();
         file_header_.scanCount = 0;
     }
 
@@ -504,13 +551,6 @@ void ImageFile_p::read_headers()
         seekScanHeaderPos(fstr_, pc_i, TL_SCAN_ADDR_OCTREE_PARAM);
         fstr_.read((char*)&state.cell_count_, sizeof(uint64_t));
 
-        // Complete the address map by copying some infos from the TreeCell struct
-        fstr_.seekg(state.octree_data_addr_);
-        std::vector<TreeCell> tree_cells;
-        tree_cells.resize(state.cell_count_);
-        fstr_.read((char*)tree_cells.data(), tree_cells.size() * sizeof(TreeCell));
-
-
         pcs_.push_back(state);
     }
 }
@@ -528,8 +568,8 @@ void ImageFile_p::write_headers()
     fstr_.write((char*)&ver, sizeof(uint32_t));
 
     fstr_.seekp(TL_FILE_ADDR_CREATION_DATE);
-    std::time_t utcTime;
-    fstr_.write((char*)&utcTime, sizeof(utcTime));
+    std::time_t utcTime = std::time(nullptr);
+    fstr_.write((char*)&utcTime, sizeof(std::time_t));
 
     // Random guid
     fstr_.seekp(TL_FILE_ADDR_GUID);
@@ -714,50 +754,6 @@ ImagePointCloud_p* ImageFile_p::getImagePointCloud(uint32_t _pc_num)
     return new ImagePointCloud_p(_pc_num, fstr_);
 }
 
-bool ImageFile_p::getOctreeBase(uint32_t _pc_num, OctreeBase& _octree_base)
-{
-    if (!fstr_.is_open() || _pc_num >= pcs_.size())
-        return false;
-
-    switch (file_header_.version)
-    {
-    case FileVersion::V_0_3:
-    case FileVersion::V_0_4:
-    {
-        seekScanHeaderPos(fstr_, _pc_num, TL_SCAN_ADDR_PRECISION);
-        fstr_.read((char*)&_octree_base.m_precisionType, sizeof(PrecisionType));
-
-        _octree_base.m_precisionValue = getPrecisionValue(_octree_base.m_precisionType);
-
-        seekScanHeaderPos(fstr_, _pc_num, TL_SCAN_ADDR_LIMITS);
-        fstr_.read((char*)&_octree_base.m_limits, sizeof(Limits));
-
-        seekScanHeaderPos(fstr_, _pc_num, TL_SCAN_ADDR_FORMAT);
-        fstr_.read((char*)&_octree_base.m_ptFormat, sizeof(PointFormat));
-
-        seekScanHeaderPos(fstr_, _pc_num, TL_SCAN_ADDR_POINT_COUNT);
-        fstr_.read((char*)&_octree_base.m_pointCount, sizeof(uint64_t));
-
-        seekScanHeaderPos(fstr_, _pc_num, TL_SCAN_ADDR_OCTREE_PARAM);
-        uint64_t cellCount64;
-        fstr_.read((char*)&cellCount64, sizeof(uint64_t));
-        _octree_base.m_cellCount = (uint32_t)cellCount64;
-        fstr_.read((char*)&_octree_base.m_rootSize, sizeof(float));
-        fstr_.read((char*)&_octree_base.m_rootPosition, 3 * sizeof(float));
-        fstr_.read((char*)&_octree_base.m_uRootCell, sizeof(uint32_t));
-
-        fstr_.seekg(pcs_[_pc_num].octree_data_addr_);
-        _octree_base.m_vTreeCells.clear();
-        _octree_base.m_vTreeCells.resize(_octree_base.m_cellCount);
-        fstr_.read((char*)_octree_base.m_vTreeCells.data(), _octree_base.m_cellCount * sizeof(TreeCell));
-
-        return true;
-    }
-    default:
-        return false;
-    }
-}
-
 bool ImageFile_p::writeOctreeBase(uint32_t _pc_num, OctreeBase& _octree, ScanHeader _header)
 {
     if (!fstr_.is_open())
@@ -831,42 +827,6 @@ bool ImageFile_p::writeOctreeBase(uint32_t _pc_num, OctreeBase& _octree, ScanHea
     fstr_.write((char*)&instancePos, sizeof(uint64_t));
 
     return true;
-}
-
-bool ImageFile_p::getData(uint32_t _pc_num, uint64_t _file_offset, void* _data_buf, uint64_t _data_size)
-{
-    if (usg_ != usage::read || !fstr_.is_open())
-        return false;
-
-    if (_pc_num >= pcs_.size() ||
-        pcs_[_pc_num].point_data_addr_ + _file_offset + _data_size > file_size_)
-        return false;
-
-    fstr_.seekg(pcs_[_pc_num].point_data_addr_ + _file_offset);
-    fstr_.read((char*)_data_buf, _data_size);
-    return fstr_.good();
-}
-
-bool ImageFile_p::getCellRenderData(uint32_t _pc_num, void* data_buf, size_t& data_size)
-{
-    if (usg_!= usage::read || !fstr_.is_open())
-        return false;
-
-    uint64_t cell_data_size = pcs_[_pc_num].cell_count_ * 16;
-
-    if (data_buf == nullptr)
-    {
-        data_size = cell_data_size;
-        return true;
-    }
-    else if (data_size <= cell_data_size)
-    {
-        fstr_.seekg(pcs_[_pc_num].cell_data_addr_);
-        fstr_.read((char*)data_buf, cell_data_size);
-        return true;
-    }
-
-    return false;
 }
 
 bool ImageFile_p::copyRawData(uint32_t _pc_num, char** pointBuffer, uint64_t& pointBufferSize, char** instanceBuffer, uint64_t& instanceBufferSize)
