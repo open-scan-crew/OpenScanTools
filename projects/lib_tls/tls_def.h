@@ -41,7 +41,8 @@ namespace tls
     enum class PrecisionType {
         TL_OCTREE_1MM = 0,
         TL_OCTREE_100UM,
-        TL_OCTREE_10UM
+        TL_OCTREE_10UM,
+        TL_PRECISION_UNDEFINED = 1001001
     };
 
     enum PointFormat

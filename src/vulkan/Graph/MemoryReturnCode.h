@@ -1,7 +1,6 @@
 #ifndef MEMORY_RETURN_CODE_H
 #define MEMORY_RETURN_CODE_H
 
-#include <unordered_map>
 #include "vulkan/vulkan.h"
 #include <QtCore/qstring.h>
 

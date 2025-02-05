@@ -1,7 +1,6 @@
 #ifndef PROJECT_STRING_SETS_HPP
 #define PROJECT_STRING_SETS_HPP
 
-#include <map>
 #include <vector>
 #include <string>
 

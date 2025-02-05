@@ -97,11 +97,31 @@ void read_file_low_mem(const std::filesystem::path& path)
     std::cout << "Total read        : " << total_read << std::endl;
 }
 
+#include <map>
+
+std::pair<uint32_t, uint32_t> flip_pair(const std::pair<uint32_t, uint32_t>& p)
+{
+    return std::pair<uint32_t, uint32_t>(p.second, p.first);
+}
+
+void flip_map()
+{
+    std::vector<uint32_t> pixels = { 42, 42, 17, 113, 17, 42, 17, 42, 19, 42 };
+
+    std::map<uint32_t, uint32_t> counter;
+    for (uint32_t p : pixels)
+        counter[p]++;
+
+    std::multimap<uint32_t, uint32_t> dst;
+    std::transform(counter.begin(), counter.end(), std::inserter(dst, dst.begin()), flip_pair);
+}
+
 int main(int argc, char** argv)
 {
-    write_sample();
+    flip_map();
 
-    read_sample();
+    //write_sample();
+    //read_sample();
 
     // Files for test:
     // Decolletage : {3, 4}, {1, 7}, {29, 27}, {37, 38}

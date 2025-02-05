@@ -10,6 +10,7 @@
 #include <windows.h>
 #include <mutex>
 #include <iostream>
+#include <fstream>
 
 #ifdef WIN32
 #if defined(_MSC_VER) || defined(_MSC_EXTENSIONS)

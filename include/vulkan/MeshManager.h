@@ -4,6 +4,7 @@
 #include "vulkan/Graph/MemoryReturnCode.h"
 #include "models/3d/MeshBuffer.h"
 #include "io/MeshObjectTypes.h"
+#include "utils/safe_ptr.h"
 
 #include <glm/glm.hpp>
 
@@ -11,8 +12,6 @@
 #include <set>
 #include <unordered_set>
 #include <filesystem>
-
-#include "utils/safe_ptr.h"
 
 class Controller;
 class IMeshReader;

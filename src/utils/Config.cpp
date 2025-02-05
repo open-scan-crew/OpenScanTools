@@ -2,7 +2,6 @@
 #include "utils/Utils.h"
 
 #include "utils/Logger.h"
-#include "utils/Utils.h"
 #include "utils/JsonWriter.h"
 
 #include "gui/Translator.h"
@@ -13,10 +12,8 @@
 #include "models/3d/NavigationTypes.h"
 #include "magic_enum/magic_enum.hpp"
 
-#include <iostream>
 #include <filesystem>
-#include <locale>
-#include <codecvt>
+#include <fstream>
 #include <string>
 
 #include <direct.h> // WIN32

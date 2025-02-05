@@ -5,17 +5,12 @@
 #include "vulkan/vulkan.h"
 #include "vulkan/VkUniform.h"
 #include "pointCloudEngine/RenderingTypes.h"
-#include "pointCloudEngine/RenderingLimits.h"
-#include "pointCloudEngine/SmartBuffer.h"
 #include "utils/Color32.hpp"
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 
 #include <vector>
-#include <unordered_map>
-#include <set>
-#include <string>
 
 class VulkanDeviceFunctions;
 

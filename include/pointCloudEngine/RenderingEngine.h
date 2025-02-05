@@ -4,10 +4,6 @@
 #include "pointCloudEngine/IRenderingEngine.h"
 #include "gui/IDataDispatcher.h"
 #include "gui/IPanel.h"
-#include "gui/UnitUsage.h"
-
-#include "pointCloudEngine/ShowTypes.h"
-#include "models/3d/DisplayParameters.h"
 
 #include "vulkan/TlFramebuffer.h"
 #include "vulkan/ImageTransferEvent.h"
@@ -22,7 +18,7 @@
 #include "models/graph/GraphManager.h"
 
 #include "io/ImageTypes.h"
-#include "io/exports/CSVWriter.hxx"
+#include "io/exports/CSVWriter.h"
 
 #include <atomic>
 #include <thread>

@@ -8,14 +8,17 @@
 
 #include <chrono>
 #include <future>
-using namespace std::chrono;
-
+#include <set>
 #ifndef PORTABLE
 #include "io/exports/IScanFileWriter.h"
 #endif
 
+using namespace std::chrono;
+
 EmbeddedScan::EmbeddedScan(std::filesystem::path const& filepath)
-    : m_deleteFileWhenDestroyed(false)
+    : pt_format_(tls::PointFormat::TL_POINT_FORMAT_UNDEFINED)
+    , pt_precision_(tls::PrecisionType::TL_PRECISION_UNDEFINED)
+    , m_deleteFileWhenDestroyed(false)
     , m_lastFrameUse(0)
     , m_pCellBuffers(nullptr)
 {

@@ -2,6 +2,7 @@
 #define UTILS_SYSTEM_H_
 
 #include <filesystem>
+#include <iosfwd>
 
 namespace Utils
 {

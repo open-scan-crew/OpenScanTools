@@ -11,6 +11,8 @@
 #include "utils/Logger.h"
 #include "utils/JsonWriter.h"
 
+#include <fstream>
+
 template<typename ListType>
 std::filesystem::path SaveLoadSystem::ExportCSVList(ListType list, std::filesystem::path path)
 {

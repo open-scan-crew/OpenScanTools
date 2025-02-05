@@ -8,6 +8,7 @@
 #include "utils/System.h"
 
 #include <chrono>
+#include <fstream>
 
 
 TlStreamer::TlStreamer(VkDevice device, VulkanDeviceFunctions* pfn, VkQueue tsfQueue, uint32_t queueFI, VkDeviceSize stageSize)

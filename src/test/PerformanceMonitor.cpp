@@ -1,7 +1,5 @@
 #include "test/PerformanceMonitor.h"
 
-#include <iostream>
-#include <algorithm>
 
 PerformanceMonitor::PerformanceMonitor(std::string name, int reserveFrame) : m_name(name)
 {

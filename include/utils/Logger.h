@@ -1,6 +1,7 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
+#include <filesystem>
 #include <string>
 #include <sstream>
 #include <ostream>
@@ -36,6 +37,7 @@ enum LoggerMode
 #define GUI_LOG Logger::log(LoggerMode::GuiLog)
 #define GRAPH_LOG Logger::log(LoggerMode::SceneGraphLog)
 #define CONTROLLOG Logger::log(LoggerMode::ControlLog)
+#define VKLOG Logger::log(LoggerMode::VKLog)
 
 class SubLogger;
 

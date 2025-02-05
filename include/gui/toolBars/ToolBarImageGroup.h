@@ -9,6 +9,8 @@
 
 #include "utils/safe_ptr.h"
 
+#include <glm/glm.hpp>
+
 #include <filesystem>
 
 class CameraNode;

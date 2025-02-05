@@ -188,9 +188,6 @@
     <Filter Include="src\models\data\MeshObject">
       <UniqueIdentifier>{3317e1f9-f542-4ac4-a304-408d2604916f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\sql">
-      <UniqueIdentifier>{8d4d9308-da45-40e7-9c03-1a2b43a83ed8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\io\imports\step-simplification">
       <UniqueIdentifier>{e1cc5708-9630-42a8-9e4a-70be630217fc}</UniqueIdentifier>
     </Filter>
@@ -389,12 +386,6 @@
     <Filter Include="include\core">
       <UniqueIdentifier>{856d4313-3646-4f16-b133-a43971cb8384}</UniqueIdentifier>
     </Filter>
-    <Filter Include="include\sql">
-      <UniqueIdentifier>{c2736488-eb41-4d29-b78a-1cbec678241f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="include\sql\impl">
-      <UniqueIdentifier>{30127c24-a655-4d91-af18-35ee6ecc063d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="include\services">
       <UniqueIdentifier>{df9623f4-5a70-47c9-8763-5a5474a7a942}</UniqueIdentifier>
     </Filter>
@@ -436,6 +427,9 @@
     </Filter>
     <Filter Include="src\models\graph">
       <UniqueIdentifier>{1ba69385-ccbc-44d5-a844-ecc75bdfab89}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ext\SQLite">
+      <UniqueIdentifier>{cb5817ff-803a-4a78-9765-df3a086f51c6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -1486,9 +1480,6 @@
     <ClCompile Include="..\..\src\gui\Dialog\ProjectTemplateNameDialog.cpp">
       <Filter>src\gui\Dialog</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\sql\SQLiteRegister.cpp">
-      <Filter>src\sql</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\test\PerformanceMonitor.cpp">
       <Filter>src\test</Filter>
     </ClCompile>
@@ -1575,9 +1566,6 @@
     </ClCompile>
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderTransparency.cpp">
       <Filter>src\gui\toolBars</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\application\TagTemplate.cpp">
-      <Filter>src\utils\math</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\io\imports\IMeshReader.cpp">
       <Filter>src\io\imports</Filter>
@@ -1968,6 +1956,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\io\MeshObjectTypes.cpp">
       <Filter>src\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\application\TagTemplate.cpp">
+      <Filter>src\models\application</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2622,12 +2613,6 @@
     <ClInclude Include="..\..\include\controller\functionSystem\ContextMoveTag.h">
       <Filter>include\controller\contexts</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\sql\SQLiteRegister.hpp">
-      <Filter>include\sql</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\sql\Impl\SQLiteRegister.hxx">
-      <Filter>include\sql\impl</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\controller\ControllerContext.h">
       <Filter>include\controller</Filter>
     </ClInclude>
@@ -2825,9 +2810,6 @@
     </ClInclude>
     <ClInclude Include="..\..\include\controller\controls\ControlClippingEdition.h">
       <Filter>include\controller\controls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\vulkan\ShaderCompiler.h">
-      <Filter>include\vulkan</Filter>
     </ClInclude>
     <ClInclude Include="..\..\ext\imgui\imgui_impl_vulkan.h">
       <Filter>ext\imgui</Filter>
@@ -3920,6 +3902,9 @@
     </ClInclude>
     <ClInclude Include="..\..\include\io\FileInputData.h">
       <Filter>include\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\SQLiteCpp\include\sqlite3.h">
+      <Filter>ext\SQLite</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

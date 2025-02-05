@@ -1,5 +1,4 @@
 #include "utils/math/geometry.h"
-#include "utils/math/basic_define.h"
 
 glm::dvec2 tls::math::intersect_line_line(glm::dvec3 a, glm::dvec3 u, glm::dvec3 b, glm::dvec3 v)
 {

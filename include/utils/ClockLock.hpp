@@ -1,5 +1,4 @@
 #include <chrono>
-#include <thread>
 #include "Baduit/Timer.hpp"
 using namespace std::chrono_literals;
 

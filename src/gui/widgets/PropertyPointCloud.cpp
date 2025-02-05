@@ -7,6 +7,8 @@
 #include "controller/controls/ControlObject3DEdition.h"
 #include "models/graph/APointCloudNode.h"
 
+#include "QtWidgets/qcolordialog.h"
+
 #define TEXT_SCAN_PROPERTIES PropertyPointCloud::tr("Scan properties")
 #define TEXT_PCO_PROPERTIES PropertyPointCloud::tr("Point Cloud Object properties")
 

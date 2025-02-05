@@ -2,7 +2,6 @@
 
 #include <cassert>
 #include <cstring>
-#include <algorithm>
 
 static inline uint32_t aligned(uint32_t v, uint32_t byteAlign)
 {

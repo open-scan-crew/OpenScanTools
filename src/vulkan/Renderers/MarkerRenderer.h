@@ -5,7 +5,6 @@
 #include "vulkan/vulkan.h"
 #include "vulkan/VkUniform.h"
 #include "pointCloudEngine/SmartBuffer.h"
-#include <unordered_map>
 
 #include "glm/glm.hpp"
 

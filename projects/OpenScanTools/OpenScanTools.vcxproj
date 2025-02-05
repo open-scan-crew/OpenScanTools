@@ -1142,13 +1142,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <None Include="..\..\src\shaders\blocks\block_hsv_functions.glsl">
       <FileType>Document</FileType>
     </None>
-    <ClCompile Include="..\..\src\sql\SQLiteRegister.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="..\..\src\test\PerformanceMonitor.cpp" />
     <ClCompile Include="..\..\src\utils\Config.cpp" />
     <ClCompile Include="..\..\src\utils\Logger.cpp" />
@@ -1207,6 +1200,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="..\..\ext\SQLiteCpp\include\sqlite3.h" />
     <ClInclude Include="..\..\ext\VulkanMemoryAllocator\vk_mem_alloc.h" />
     <ClInclude Include="..\..\include\controller\Controller.h" />
     <ClInclude Include="..\..\include\controller\ControllerContext.h" />
@@ -1775,7 +1769,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\utils\QtUtils.h" />
     <ClInclude Include="..\..\include\utils\ThreadPool.h" />
     <ClInclude Include="..\..\include\vulkan\MeshManager.h" />
-    <ClInclude Include="..\..\include\vulkan\ShaderCompiler.h" />
     <ClInclude Include="..\..\include\vulkan\TlFramebuffer.h" />
     <ClInclude Include="..\..\include\vulkan\ViewportManager.h" />
     <ClInclude Include="..\..\include\vulkan\VkUniform.h" />
@@ -1867,20 +1860,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\pointCloudEngine\PCE_stream.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\RenderingTypes.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\TlScanOverseer.h" />
-    <ClInclude Include="..\..\include\sql\Impl\SQLiteRegister.hxx">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\..\include\sql\SQLiteRegister.hpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
-    </ClInclude>
     <ClInclude Include="..\..\include\test\testLogger.h" />
     <ClInclude Include="..\..\include\utils\ProjectStringSets.hpp" />
     <ClInclude Include="..\..\include\utils\StrCompare.h" />

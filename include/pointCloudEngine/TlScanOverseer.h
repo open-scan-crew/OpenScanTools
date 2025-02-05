@@ -15,7 +15,6 @@
 #include "models/graph/TransformationModule.h"
 #include "models/3d/Measures.h"
 
-#include "models/OpenScanToolsModelEssentials.h"
 #include "pointCloudEngine/OctreeRayTracing.h"
 
 /*

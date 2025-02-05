@@ -1,5 +1,4 @@
 #include "models/application/TagTemplate.h"
-#include "utils/Logger.h"
 #include "gui/texts/DefaultTemplatesTexts.hpp"
 #include "models/application/Ids.hpp"
 

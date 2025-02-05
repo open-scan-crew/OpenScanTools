@@ -2,7 +2,6 @@
 #define SHADER_H_
 
 #include "vulkan/vulkan.h"
-#include "vulkan/VulkanFunctions.h"
 
 #include <vector>
 #include <string>

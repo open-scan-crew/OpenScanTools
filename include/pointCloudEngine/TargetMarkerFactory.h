@@ -2,9 +2,9 @@
 #define TARGET_MARKER_FACTORY_H_
 
 #include "models/3d/MarkerDrawData.h"
-#include "models/OpenScanToolsModelEssentials.h"
 #include "utils/Color32.hpp"
-#include <unordered_map>
+
+#include <vector>
 
 class TargetMarkerFactory
 {

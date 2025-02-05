@@ -1,11 +1,9 @@
 #include "SimpleObjectRenderer.h"
-#include "utils/Utils.h"
 
 #include "vulkan/VulkanManager.h"
 #include "vulkan/VulkanHelperFunctions.h"
 
-#include <glm/gtc/matrix_transform.hpp>
-#include <algorithm>
+#include <array>
 
 #define SELECTION_COLOR glm::vec3(1.0f, 1.0f, 0.0f)
 

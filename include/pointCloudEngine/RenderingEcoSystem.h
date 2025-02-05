@@ -5,7 +5,7 @@
 // 
 // +++++ Problématique +++++
 //  * L'affichage du nuage de point par le GPU est très couteux en temps et en énergie.
-//  * On souhaite réduire au maximum les opérations qui aboutirait au même rendu que celui précédent.
+//  * On souhaite réduire au maximum les opérations qui aboutiraient au même rendu que celui précédent.
 //
 
 // +++++ Analyse +++++
@@ -23,7 +23,7 @@
 //  * Avant la refonte du modèle de donnée, tout changement aux données était centralisé par le
 //    graph de scene. Ainsi, on pouvait déterminer si le renomage d'un tag, le déplacement d'un
 //    cylindre ou le changement de couleur d'un scan était susceptible de modifier le rendu final.
-//  * En outre, les paramètres d'affichage de lié à la vue (mode de rendu, taille de point,
+//  * En outre, les paramètres d'affichage liés à la vue (mode de rendu, taille de point,
 //    transparence, résolution, position de camera, etc) étaient stockés par le viewport, le
 //    rendering engine et la caméra. Leur changement était traqué par leur intermédiaire.
 //

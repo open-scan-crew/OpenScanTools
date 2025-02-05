@@ -4,8 +4,6 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#define VKLOG LoggerMode::VKLog
-
 static const int UNIFORM_DATA_SIZE = 16 * sizeof(float);
 
 // ********** Shaders Declaration *************

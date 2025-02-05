@@ -4,7 +4,7 @@
 #include "tls_def.h"
 #include "pointCloudEngine/RenderingTypes.h"
 
-#include <map>
+#include <unordered_map>
 
 class RenderingSwitchConfiguration
 {

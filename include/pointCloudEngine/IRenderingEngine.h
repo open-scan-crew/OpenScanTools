@@ -3,7 +3,6 @@
 
 class IDataDispatcher;
 class VulkanViewport;
-class CameraNode;
 class GraphManager;
 
 class IRenderingEngine

@@ -6,7 +6,6 @@ typedef __int64 LONG_PTR, * PLONG_PTR;
 typedef unsigned __int64 ULONG_PTR, * PULONG_PTR;
 #define IS_INTRESOURCE(_r) ((((ULONG_PTR)(_r)) >> 16) == 0)
 #include <3DxWare/inc/SpaceMouse/CNavigation3D.hpp>
-#include <glm/glm.hpp>
 
 class ViewportOrganizer;
 

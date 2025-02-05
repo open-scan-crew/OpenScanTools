@@ -1,12 +1,11 @@
-#include <fstream>
-#include <iostream>
-#include <ios>
-
 #include "vulkan/Shader.h"
+#include "vulkan/VulkanFunctions.h"
 
 #include "utils/Logger.h"
 
-#define VKLOG Logger::log(LoggerMode::VKLog)
+#include <fstream>
+#include <iostream>
+#include <ios>
 
 Shader::~Shader()
 {

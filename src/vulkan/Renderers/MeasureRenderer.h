@@ -3,8 +3,7 @@
 
 #include "vulkan/Shader.h"
 #include "vulkan/vulkan.h"
-#include "pointCloudEngine/SmartBuffer.h"
-#include "models/3d/SegmentDrawData.h"
+//#include "pointCloudEngine/SmartBuffer.h"
 
 #include <glm/glm.hpp>
 

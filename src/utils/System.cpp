@@ -1,17 +1,15 @@
 #include "utils/System.h"
 #include "utils/FilesAndFoldersDefinitions.h"
-#include <ctime>
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 
 #include <ShlObj.h>
 #include <KnownFolders.h>
-#include <wchar.h>
 
 #include "windows.h"
 
 #include "utils/Logger.h"
-#define IOLOG Logger::log(LoggerMode::IOLog)
 
 uint64_t getPhysicalMemoryAvailable(const MEMORYSTATUSEX& memoryInfo)
 {

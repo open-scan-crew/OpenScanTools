@@ -1,6 +1,7 @@
 #include "pointCloudEngine/TargetMarkerFactory.h"
 #include "services/MarkerDefinitions.hpp"
 #include "models/project/Marker.h"
+#include "models/OpenScanToolsModelEssentials.h"
 
 TargetMarkerFactory::TargetMarkerFactory()
 {}

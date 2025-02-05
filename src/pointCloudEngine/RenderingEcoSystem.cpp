@@ -1,7 +1,5 @@
 #include "pointCloudEngine/RenderingEcoSystem.h"
 
-#include <functional>
-
 uint64_t hash_dmat4(const glm::dmat4& mat)
 {
     uint64_t result = 0;

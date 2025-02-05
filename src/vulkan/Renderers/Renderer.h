@@ -11,9 +11,7 @@
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 
-#include <vector>
 #include <unordered_map>
-#include <set>
 #include <string>
 
 class VulkanDeviceFunctions;

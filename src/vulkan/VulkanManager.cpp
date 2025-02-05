@@ -1,6 +1,5 @@
 #include "vulkan/VulkanManager.h"
 #include "utils/Logger.h"
-#include "utils/Utils.h"
 
 #include "pointCloudEngine/TlStreamer.h"
 #include "vulkan/TlFramebuffer_T.h"
@@ -12,8 +11,9 @@
 #include <cstring>
 #include <cstdlib>
 #include <cassert>
-#include <algorithm>
 #include <chrono>
+#include <map>
+#include <set>
 
 #define TL_ENGINE_VERSION VK_MAKE_VERSION(0, 1, 0)
 
@@ -669,6 +669,22 @@ uint32_t VulkanManager::sampleIndex(TlFramebuffer _fb, uint32_t posX, uint32_t p
     return ((uint32_t*)_fb->pMappedCopyIndex)[posY * _fb->extent.width + posX];
 }
 
+//From https://stackoverflow.com/questions/5056645/sorting-stdmap-using-value
+template<typename A, typename B>
+static std::pair<B, A> flip_pair(const std::pair<A, B>& p)
+{
+    return std::pair<B, A>(p.second, p.first);
+};
+
+template<typename A, typename B>
+static std::multimap<B, A> flip_map(const std::unordered_map<A, B>& src)
+{
+    std::multimap<B, A> dst;
+    std::transform(src.begin(), src.end(), std::inserter(dst, dst.begin()), flip_pair<A, B>);
+    return dst;
+};
+//////////////////
+
 std::vector<uint32_t> VulkanManager::sampleIndexList(TlFramebuffer _fb, uint32_t posX, uint32_t posY, uint32_t range)
 {
     if (posX >= _fb->extent.width || posY >= _fb->extent.height || !_fb->pMappedCopyIndex) 
@@ -680,20 +696,20 @@ std::vector<uint32_t> VulkanManager::sampleIndexList(TlFramebuffer _fb, uint32_t
     uint32_t endY = std::min(_fb->extent.height, posY + range + 1);
 
     std::unordered_map<uint32_t, uint32_t> counter;
-    for (uint32_t iteratorX(startX); iteratorX < endX; iteratorX++)
+    for (uint32_t x = startX; x < endX; x++)
     {
-        for (uint32_t iteratorY(startY); iteratorY < endY; iteratorY++)
+        for (uint32_t y = startY; y < endY; y++)
         {
-            uint32_t value(((uint32_t*)_fb->pMappedCopyIndex)[iteratorY * _fb->extent.width + iteratorX]);
+            uint32_t value(((uint32_t*)_fb->pMappedCopyIndex)[y * _fb->extent.width + x]);
             if (value != INVALID_PICKING_ID)
-                counter[value] += (range + 1) - (uint32_t)std::max(abs((float)posX - iteratorX), abs((float)posY - iteratorY));
+                counter[value] += (range + 1) - (uint32_t)std::max(abs((float)posX - x), abs((float)posY - y));
         }
     }
     if (counter.empty())
         return {};
 
     std::vector<uint32_t> result;
-    std::multimap<uint32_t, uint32_t>  dst = Utils::flip_map(counter);
+    std::multimap<uint32_t, uint32_t> dst = flip_map(counter);
     for (const auto& iterator : dst)
         result.push_back(iterator.second);
     return result;

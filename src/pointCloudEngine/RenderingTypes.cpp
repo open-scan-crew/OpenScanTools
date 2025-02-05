@@ -1,7 +1,6 @@
 #include "pointCloudEngine/RenderingTypes.h"
 
 #include "gui/texts/RenderingTexts.hpp"
-#include <qobject.h>
 #include <qstring.h>
 
 std::unordered_map<UiRenderMode, std::string>  getTradUiRenderMode()

@@ -3,6 +3,8 @@
 
 #include "pointCloudEngine/RenderingTypes.h"
 
+#include <glm/glm.hpp>
+
 constexpr double MIN_FOVY = glm::radians(3.0);
 constexpr double MAX_FOVY = glm::radians(120.0);
 

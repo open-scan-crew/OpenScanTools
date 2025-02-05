@@ -6,7 +6,6 @@
 
 #include <unordered_map>
 #include <QtCore/qstring.h>
-#include <QObject>
 
 namespace scs
 {
@@ -17,7 +16,6 @@ namespace scs
         QString qresource;
         QString traduction;
     };
-
 
     const static std::unordered_map<MarkerIcon, MarkerStyleDefinition> markerStyleDefs = {
         { MarkerIcon::Scan_Base, { MarkerShape::Top_Arrow, false, QString(":icons/100x100/scan_100.png"), TEXT_MARKER_DEFINITION_SURVEY_EQUIPEMENT } },

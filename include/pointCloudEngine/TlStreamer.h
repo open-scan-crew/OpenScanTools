@@ -1,15 +1,11 @@
 #ifndef TL_STREAMER_H
 #define TL_STREAMER_H
 
-#include "tls_def.h"
 #include "pointCloudEngine/PCE_stream.h"
 #include "vulkan/vulkan.h"
 
-#include <unordered_map>
-#include <set>
 #include <vector>
 #include <atomic>
-#include <algorithm>
 #include <future>
 
 

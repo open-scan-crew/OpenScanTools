@@ -6,14 +6,12 @@
 #include "models/3d/CLickInfo.h"
 #include "models/3d/BoundingBox.h"
 #include "models/pointCloud/PointCloudInstance.h"
-
-#include "vulkan/MeshManager.h"
+#include "models/application/TagTemplate.h"
+#include "models/OpenScanToolsModelEssentials.h"
 #include "gui/IPanel.h"
 #include "gui/GuiData/IGuiData.h"
-
 #include "pointCloudEngine/TargetMarkerFactory.h"
-
-#include "models/application/TagTemplate.h"
+#include "vulkan/MeshManager.h"
 
 #include <deque>
 #include <vector>

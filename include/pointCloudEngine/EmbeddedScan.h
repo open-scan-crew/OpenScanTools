@@ -1,17 +1,19 @@
 #ifndef EMBEDDED_SCAN_H
 #define EMBEDDED_SCAN_H
 
-#include "tls_def.h"
 #include "models/pointCloud/PointXYZIRGB.h"
 #include "models/graph/TransformationModule.h"
 #include "models/3d/BoundingBox.h"
 #include "pointCloudEngine/PCE_graphics.h"
 #include "pointCloudEngine/PCE_stream.h"
-#include "tls_core.h" // lib_tls
 #include "pointCloudEngine/SmartBuffer.h"
 #include "pointCloudEngine/SmartBufferWorkload.h"
 #include "models/data/clipping/ClippingGeometry.h"
 #include "pointCloudEngine/OctreeRayTracing.h"
+
+// lib_tls
+#include "tls_def.h"
+#include "tls_core.h"
 
 #include <vector>
 #include <atomic>

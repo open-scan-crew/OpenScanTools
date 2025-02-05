@@ -1,8 +1,8 @@
-#include <QtWidgets/QColorDialog>
-#include "utils/Color32.hpp"
+#ifndef QT_LOG_STREAM_HPP
+#define QT_LOG_STREAM_HPP
 
-#ifndef QTLOGSTREAM_HPP_
-#define QTLOGSTREAM_HPP_
+#include <QtGui/qcolor.h>
+#include "utils/Color32.hpp"
 
 inline std::ostream& operator<<(std::ostream& out, const QColor& color)
 {

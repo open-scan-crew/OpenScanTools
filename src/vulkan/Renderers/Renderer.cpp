@@ -8,8 +8,6 @@
 
 #include <chrono>
 
-#define VKLOG LoggerMode::VKLog
-
 static const int UNIFORM_DATA_SIZE = 16 * sizeof(float);
 
 // ********** Shaders Declaration *************
@@ -685,7 +683,7 @@ void Renderer::createGraphicPipelines()
             if (m_shadersByFiles.find(VS_key) == m_shadersByFiles.end() ||
                 m_shadersByFiles.find(VScb_key) == m_shadersByFiles.end())
             {
-                Logger::log(VKLOG) << "ERROR: Cannot initialize the pipeline, a shader is missing !" << Logger::endl;
+                VKLOG << "ERROR: Cannot initialize the pipeline, a shader is missing !" << Logger::endl;
                 assert(0);
             }
             else
@@ -874,10 +872,9 @@ void Renderer::drawPointsClipping(const TlScanDrawInfo &_drawInfo, const VkUnifo
 {
     // Bind the right pipeline
     PipelineKey pipelineDef = createPipeKey(blendMode, _renderMode, ClippingMode::Activated, _drawInfo.format, renderFormat);
-#ifdef _DEBUG_
-    if (m_pipelines.find(pipelineDef) == m_pipelines.end())
-        assert(0 && "Pipeline is not initialized");
-#endif
+
+    assert((m_pipelines.find(pipelineDef) != m_pipelines.end()) && "Pipeline is not initialized");
+
     h_pfn->vkCmdBindPipeline(_cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelines.at(pipelineDef));
 
     // Bind buffer for instance
@@ -916,7 +913,7 @@ void Renderer::drawPointsClipping(const TlScanDrawInfo &_drawInfo, const VkUnifo
     // To generate less log
     if (showWarningMsg)
     {
-        Logger::log(VKLOG) << "WARNING: Too much clippings active on the same cell detected: " << maxConcurrentClipping << Logger::endl;
+        VKLOG << "WARNING: Too much clippings active on the same cell detected: " << maxConcurrentClipping << Logger::endl;
     }
 }
 

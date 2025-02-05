@@ -8,6 +8,8 @@
 #include "models/3d/NodeFunctions.h"
 #include "models/application/author.h"
 
+#include "QtWidgets/qcolordialog.h"
+
 PropertiesClusterPanel::PropertiesClusterPanel(const Controller& controller, QWidget* parent)
 	: APropertyGeneral(controller.getDataDispatcher(), parent)
 {
