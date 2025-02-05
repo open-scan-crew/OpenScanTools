@@ -2,7 +2,7 @@
 #define DIALOG_IMPORT_STEP_SIMPLIFICATION_H
 
 #include "gui/Dialog/ADialog.h"
-#include "io/MeshObjectTypes.h"
+#include "io/FileInputData.h"
 #include "ui_DialogImportStepSimplification.h"
 
 enum class Selection;

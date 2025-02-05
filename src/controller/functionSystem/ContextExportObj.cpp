@@ -15,6 +15,7 @@
 
 
 #include "vulkan/MeshManager.h"
+#include "vulkan/VulkanManager.h"
 
 ContextExportObj::ContextExportObj(const ContextId& id)
 	: AContext(id)

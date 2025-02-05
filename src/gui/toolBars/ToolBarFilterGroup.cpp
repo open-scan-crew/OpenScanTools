@@ -7,6 +7,7 @@
 
 #include "controller/Controller.h"
 #include "models/graph/GraphManager.h"
+#include "utils/Logger.h"
 
 #include <QtWidgets/qwidget.h>
 #include <QtGui/qscreen.h>

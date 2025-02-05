@@ -29,6 +29,7 @@ namespace tls
 
         bool getData(uint64_t _file_pos, void* _data_buf, uint64_t _data_size);
         bool getPointsRenderData(uint32_t _cell_id, void* _data_buf, uint64_t& _data_size);
+        bool getPointsRenderData(std::vector<uint32_t> _cells, void** _data_bufs);
         bool getCellRenderData(void* data_buf, uint64_t& data_size);
 
         uint32_t getCellCount() const;

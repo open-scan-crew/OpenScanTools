@@ -26,6 +26,7 @@
 #include "pointCloudEngine/PCE_core.h"
 
 #include "utils/FilesAndFoldersDefinitions.h"
+#include "utils/Logger.h"
 
 #include <iostream>
 #include <filesystem>

@@ -15,6 +15,7 @@
 
 #include "models/application/TagTemplate.h"
 
+#include <deque>
 #include <vector>
 #include <unordered_set>
 

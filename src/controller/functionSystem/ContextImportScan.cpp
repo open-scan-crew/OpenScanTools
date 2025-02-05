@@ -13,9 +13,12 @@
 #include "gui/texts/SplashScreenTexts.hpp"
 #include "gui/texts/PointCloudTexts.hpp"
 
+#include "utils/Logger.h"
+
 
 ContextImportScan::ContextImportScan(const ContextId& id)
 	: ARayTracingContext(id)
+	, m_currentStep(0)
 {}
 
 ContextImportScan::~ContextImportScan()

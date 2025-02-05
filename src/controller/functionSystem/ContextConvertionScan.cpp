@@ -17,11 +17,14 @@
 #include "gui/texts/ContextTexts.hpp"
 #include "gui/texts/PointCloudTexts.hpp"
 #include "gui/widgets/ConvertionOptionsBox.h"
-#include "utils/Utils.h"
+
 
 #include "models/graph/ScanNode.h"
 #include "models/graph/ScanObjectNode.h"
 #include "models/graph/GraphManager.h"
+
+#include "utils/Utils.h"
+#include "utils/Logger.h"
 
 #include <chrono>
 

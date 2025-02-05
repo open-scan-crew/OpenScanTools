@@ -3,11 +3,7 @@
 
 #include "controller/functionSystem/ARayTracingContext.h"
 #include "controller/messages/IMessage.h"
-#include "io/FileUtils.h"
-#include "io/MeshObjectTypes.h"
-#include "io/imports/ImportTypes.h"
-#include <glm/glm.hpp>
-#include <filesystem>
+#include "io/FileInputData.h"
 
 class ClusterNode;
 
@@ -16,31 +12,23 @@ enum class Selection;
 class ContextMeshObjectCreation : public ARayTracingContext
 {
 public:
-	ContextMeshObjectCreation(const ContextId& id);
-	~ContextMeshObjectCreation();
-	ContextState start(Controller& controller) override;
-	ContextState feedMessage(IMessage* message, Controller& controller) override;
-	ContextState launch(Controller& controller) override;
-	ContextState abort(Controller& controller) override;
+    ContextMeshObjectCreation(const ContextId& id);
+    ~ContextMeshObjectCreation();
+    ContextState start(Controller& controller) override;
+    ContextState feedMessage(IMessage* message, Controller& controller) override;
+    ContextState launch(Controller& controller) override;
+    ContextState abort(Controller& controller) override;
 
-	bool canAutoRelaunch() const;
-	ContextType getType() const override;
-
-private:
-	glm::dquat getRotation() const;
+    bool canAutoRelaunch() const;
+    ContextType getType() const override;
 
 private:
-	std::filesystem::path	m_file;
-	FileType				m_extension;
-	float					m_inputScale;
-	bool					m_isMerge;
-	bool					m_truncateCoor;
-	PositionOptions			m_posOption;
-	glm::vec3				m_infoPosition;
-	SafePtr<ClusterNode>	m_rootCluster;
-	Selection				m_up, m_forward;
-	uint32_t				m_count;
-	LODValue				m_lod;
+    glm::dquat getRotation() const;
+
+private:
+    FileInputData input_data_;
+    SafePtr<ClusterNode>	m_rootCluster;
+    uint32_t				m_count;
 };
 
 

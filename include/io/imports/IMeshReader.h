@@ -4,7 +4,7 @@
 #include "io/MeshObjectTypes.h"
 #include "vulkan/Graph/MemoryReturnCode.h"
 #include "models/graph/ClusterNode.h"
-#include "models/OpenScanToolsModelEssentials.h"
+#include "utils/safe_ptr.h"
 
 namespace ObjectAllocation {
 	enum class ReturnCode;

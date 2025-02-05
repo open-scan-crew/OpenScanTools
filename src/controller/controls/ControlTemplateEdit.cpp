@@ -19,6 +19,7 @@
 #include "models/graph/GraphManager.h"
 
 #include "utils/FilesAndFoldersDefinitions.h"
+#include "utils/Logger.h"
 
 #include "magic_enum/magic_enum.hpp"
 

@@ -18,6 +18,8 @@
 #include "io/SaveLoadSystem.h"
 #include "gui/texts/ContextTexts.hpp"
 
+#include "utils/Logger.h"
+
 #define Ok 0x00000400
 
 ContextImportOSTObjects::ContextImportOSTObjects(const ContextId& id)

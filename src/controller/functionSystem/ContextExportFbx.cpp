@@ -13,6 +13,7 @@
 #include "models/graph/MeshObjectNode.h"
 #include "models/graph/TorusNode.h"
 #include "vulkan/MeshManager.h"
+#include "vulkan/VulkanManager.h"
 
 #include <fbxsdk/fileio/fbxiosettings.h>
 

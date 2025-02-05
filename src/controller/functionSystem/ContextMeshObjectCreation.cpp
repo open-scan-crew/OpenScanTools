@@ -42,17 +42,8 @@ ContextState ContextMeshObjectCreation::feedMessage(IMessage* message, Controlle
 	{
 		auto out = static_cast<ImportMeshObjectMessage*>(message);
 		FUNCLOG << "ContextMeshObjectCreation files "<< LOGENDL;
-		m_file = out->m_data.file;
-		m_inputScale = out->m_data.scale;
-		m_up = out->m_data.up;
-		m_forward = out->m_data.forward;
-		m_isMerge = out->m_data.isMerge;
-		m_extension = out->m_data.extension;
-		m_posOption = out->m_data.posOption;
-		m_infoPosition = out->m_data.position;
-		m_lod = out->m_data.lod;
-		m_truncateCoor = out->m_data.truncateCoordinatesAsTheScans;
-		if (m_posOption == PositionOptions::ClickPosition) 
+		input_data_ = out->m_data;
+		if (input_data_.posOption == PositionOptions::ClickPosition) 
 		{
 			m_usages.push_back({ true, {ElementType::Point, ElementType::Tag}, TEXT_MESHOBJECT_START });
 			return ARayTracingContext::start(controller);
@@ -118,7 +109,7 @@ SafePtr<AGraphNode> recCreateArbo(SafePtr<ClusterNode> parentToCopy, SafePtr<AGr
 ContextState ContextMeshObjectCreation::launch(Controller& controller)
 {
 	// --- Ray Tracing ---
-	if (m_posOption == PositionOptions::ClickPosition) {
+	if (input_data_.posOption == PositionOptions::ClickPosition) {
 		ARayTracingContext::getNextPosition(controller);
 		if (pointMissing())
 			return waitForNextPoint(controller);
@@ -128,8 +119,8 @@ ContextState ContextMeshObjectCreation::launch(Controller& controller)
 	m_state = ContextState::running;
 	glm::dvec3 position;
 
-	if ((m_posOption == PositionOptions::GivenCoordinates))
-		position = m_infoPosition;
+	if ((input_data_.posOption == PositionOptions::GivenCoordinates))
+		position = input_data_.position;
 
 	FUNCLOG << "ContextMeshObjectCreation launch" << LOGENDL;
 	const ClippingBoxSettings& settings = controller.getContext().getClippingSettings();
@@ -137,13 +128,13 @@ ContextState ContextMeshObjectCreation::launch(Controller& controller)
 	MeshManager& manager = MeshManager::getInstance();
 	MeshObjOutputData objects;
 
-	MeshObjInputData input(m_file, true, m_isMerge);
-	input.extension = m_extension;
-	input.lod = m_lod;
-	input.meshScale = m_inputScale;
+	MeshObjInputData input(input_data_.file, true, input_data_.isMerge);
+	input.extension = input_data_.extension;
+	input.lod = input_data_.lod;
+	input.meshScale = input_data_.scale;
 
 	std::filesystem::path folder = controller.getContext().cgetProjectInternalInfo().getObjectsFilesFolderPath();
-	/*if (!m_isMerge)
+	/*if (!input_data_.isMerge)
 		folder /= m_file.stem();*/
 	if (!std::filesystem::exists(folder) && !std::filesystem::create_directories(folder))
 	{
@@ -162,7 +153,7 @@ ContextState ContextMeshObjectCreation::launch(Controller& controller)
 	std::unordered_map<xg::Guid, SafePtr<ClusterNode>> createdArbo;
 	std::unordered_set<SafePtr<AGraphNode>> nodesToAdd;
 
-	if (!m_isMerge)
+	if (!input_data_.isMerge)
 	{
 		m_rootCluster = make_safe<ClusterNode>();
 		WritePtr<ClusterNode> wCluster = m_rootCluster.get();
@@ -170,25 +161,25 @@ ContextState ContextMeshObjectCreation::launch(Controller& controller)
 			return (m_state = ContextState::abort);
 
 		wCluster->setTreeType(TreeType::MeshObjects);
-		wCluster->setName(m_file.stem().wstring());
+		wCluster->setName(input_data_.file.stem().wstring());
 
 		nodesToAdd.insert(m_rootCluster);
 	}
 
-	switch (m_posOption)
+	switch (input_data_.posOption)
 	{
 		case PositionOptions::ClickPosition:
 			position = m_clickResults[0].position;
 			break;
 		case PositionOptions::GivenCoordinates:
-			position = m_infoPosition;
+			position = input_data_.position;
 			break;
 		case PositionOptions::KeepModel:
 			position = objects.scale * objects.mergeCenter;
 			break;
 	}
 
-	if (m_truncateCoor)
+	if (input_data_.truncateCoordinatesAsTheScans)
 		position += controller.getContext().cgetProjectInfo().m_importScanTranslation;
 
 	uint32_t count(0);
@@ -207,7 +198,7 @@ ContextState ContextMeshObjectCreation::launch(Controller& controller)
 
 		std::wstring name = smesh.m_name;
 		if (name.empty())
-			name = m_file.stem().wstring() + L"_" + Utils::wCompleteWithZeros(count);
+			name = input_data_.file.stem().wstring() + L"_" + Utils::wCompleteWithZeros(count);
 
 		TransformationModule tr(glm::dvec3(0.0), rot, glm::dvec3(objects.scale));
 
@@ -223,14 +214,14 @@ ContextState ContextMeshObjectCreation::launch(Controller& controller)
 			wObject->setDefaultData(controller);
 
 			wObject->setName(name);
-			if (m_posOption == PositionOptions::ClickPosition) {
+			if (input_data_.posOption == PositionOptions::ClickPosition) {
 
 				double up;
-				if (m_up == Selection::X || m_up == Selection::_X)
+				if (input_data_.up == Selection::X || input_data_.up == Selection::_X)
 					up = (objects.mergeDim.x) * objects.scale;
-				else if (m_up == Selection::Y || m_up == Selection::_Y)
+				else if (input_data_.up == Selection::Y || input_data_.up == Selection::_Y)
 					up = (objects.mergeDim.y) * objects.scale;
-				else if (m_up == Selection::Z || m_up == Selection::_Z)
+				else if (input_data_.up == Selection::Z || input_data_.up == Selection::_Z)
 					up = (objects.mergeDim.z) * objects.scale;
 
 				switch (settings.offset)
@@ -257,7 +248,7 @@ ContextState ContextMeshObjectCreation::launch(Controller& controller)
 			wObject->setScale(glm::dvec3(objects.scale));
 			wObject->setRotation(rot);
 
-			if (!m_isMerge)
+			if (!input_data_.isMerge)
 			{
 				glm::dvec4 p(smesh.m_center, 1.0);
 				wObject->addGlobalTranslation(p * tr.getTransformation());
@@ -266,7 +257,7 @@ ContextState ContextMeshObjectCreation::launch(Controller& controller)
 		}
 
 
-		if (!m_isMerge)
+		if (!input_data_.isMerge)
 		{
 			xg::Guid parentId;
 			{
@@ -321,58 +312,60 @@ ContextType ContextMeshObjectCreation::getType() const
 
 glm::dquat ContextMeshObjectCreation::getRotation() const
 {
-	if (m_up == Selection::Y && m_forward == Selection::_Z)
+	Selection up = input_data_.up;
+	Selection fwd = input_data_.forward;
+	if (up == Selection::Y && fwd == Selection::_Z)
 		return tls::math::euler_rad_to_quat(glm::vec3(M_PI2, 0.0, 0.0));
-	if (m_up == Selection::Y && m_forward == Selection::Z)
+	if (up == Selection::Y && fwd == Selection::Z)
 		return tls::math::euler_rad_to_quat(glm::vec3(M_PI2, 0.0, M_PI));
-	if (m_up == Selection::Y && m_forward == Selection::X)
+	if (up == Selection::Y && fwd == Selection::X)
 		return tls::math::euler_rad_to_quat(glm::vec3(M_PI2, 0.0, M_PI2));
-	if (m_up == Selection::Y && m_forward == Selection::_X)
+	if (up == Selection::Y && fwd == Selection::_X)
 		return tls::math::euler_rad_to_quat(glm::vec3(M_PI2, 0.0, -M_PI2));
 
-	if (m_up == Selection::_Y && m_forward == Selection::_Z)
+	if (up == Selection::_Y && fwd == Selection::_Z)
 		return tls::math::euler_rad_to_quat(glm::vec3(-M_PI2, 0.0, 0.0));
-	if (m_up == Selection::_Y && m_forward == Selection::Z)
+	if (up == Selection::_Y && fwd == Selection::Z)
 		return tls::math::euler_rad_to_quat(glm::vec3(-M_PI2, 0.0, M_PI));
-	if (m_up == Selection::_Y && m_forward == Selection::X)
+	if (up == Selection::_Y && fwd == Selection::X)
 		return tls::math::euler_rad_to_quat(glm::vec3(-M_PI2, 0.0, M_PI2));
-	if (m_up == Selection::_Y && m_forward == Selection::_X)
+	if (up == Selection::_Y && fwd == Selection::_X)
 		return tls::math::euler_rad_to_quat(glm::vec3(-M_PI2, 0.0, -M_PI2));
 
-	if (m_up == Selection::X && m_forward == Selection::_Z)
+	if (up == Selection::X && fwd == Selection::_Z)
 		return tls::math::euler_rad_to_quat(glm::vec3(0.0, -M_PI2, M_PI2));
-	if (m_up == Selection::X && m_forward == Selection::Z)
+	if (up == Selection::X && fwd == Selection::Z)
 		return tls::math::euler_rad_to_quat(glm::vec3(0.0, -M_PI2, -M_PI));
-	if (m_up == Selection::X && m_forward == Selection::Y)
+	if (up == Selection::X && fwd == Selection::Y)
 		return tls::math::euler_rad_to_quat(glm::vec3(0.0, 0.0, -M_PI2));
-	if (m_up == Selection::X && m_forward == Selection::_Y)
+	if (up == Selection::X && fwd == Selection::_Y)
 		return tls::math::euler_rad_to_quat(glm::vec3(0.0, 0.0, M_PI2));
 
-	if (m_up == Selection::_X && m_forward == Selection::_Z)
+	if (up == Selection::_X && fwd == Selection::_Z)
 		return tls::math::euler_rad_to_quat(glm::vec3(0.0, M_PI2, -M_PI2));
-	if (m_up == Selection::_X && m_forward == Selection::Z)
+	if (up == Selection::_X && fwd == Selection::Z)
 		return tls::math::euler_rad_to_quat(glm::vec3(M_PI, M_PI2, -M_PI2));
-	if (m_up == Selection::_X && m_forward == Selection::Y)
+	if (up == Selection::_X && fwd == Selection::Y)
 		return tls::math::euler_rad_to_quat(glm::vec3(0.0, M_PI2, 0.0));
-	if (m_up == Selection::_X && m_forward == Selection::_Y)
+	if (up == Selection::_X && fwd == Selection::_Y)
 		return tls::math::euler_rad_to_quat(glm::vec3(0.0, M_PI2, M_PI));
 
-	if (m_up == Selection::Z && m_forward == Selection::_X)
+	if (up == Selection::Z && fwd == Selection::_X)
 		return tls::math::euler_rad_to_quat(glm::vec3(0.0, 0.0, -M_PI2));
-	if (m_up == Selection::Z && m_forward == Selection::X)
+	if (up == Selection::Z && fwd == Selection::X)
 		return tls::math::euler_rad_to_quat(glm::vec3(0.0, 0.0, M_PI2));
-	if (m_up == Selection::Z && m_forward == Selection::Y)
+	if (up == Selection::Z && fwd == Selection::Y)
 		return tls::math::euler_rad_to_quat(glm::vec3(0.0, 0.0, 0.0));
-	if (m_up == Selection::Z && m_forward == Selection::_Y)
+	if (up == Selection::Z && fwd == Selection::_Y)
 		return tls::math::euler_rad_to_quat(glm::vec3(0.0, 0.0, M_PI));
 
-	if (m_up == Selection::_Z && m_forward == Selection::_X)
+	if (up == Selection::_Z && fwd == Selection::_X)
 		return tls::math::euler_rad_to_quat(glm::vec3(M_PI, 0.0, -M_PI2));
-	if (m_up == Selection::_Z && m_forward == Selection::X)
+	if (up == Selection::_Z && fwd == Selection::X)
 		return tls::math::euler_rad_to_quat(glm::vec3(M_PI, 0.0, M_PI2));
-	if (m_up == Selection::_Z && m_forward == Selection::Y)
+	if (up == Selection::_Z && fwd == Selection::Y)
 		return tls::math::euler_rad_to_quat(glm::vec3(M_PI, 0.0, 0.0));
-	if (m_up == Selection::_Z && m_forward == Selection::_Y)
+	if (up == Selection::_Z && fwd == Selection::_Y)
 		return tls::math::euler_rad_to_quat(glm::vec3(M_PI, 0.0, M_PI));
 
 	return glm::dquat(1.0, 0.0, 0.0, 0.0);

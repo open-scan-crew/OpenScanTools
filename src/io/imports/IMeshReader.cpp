@@ -1,5 +1,5 @@
 #include "io\imports\IMeshReader.h"
-#include "vulkan/MeshManager.h"
+#include "vulkan/VulkanManager.h"
 
 #include "vulkan/Graph/MemoryReturnCode.h"
 #include "controller/functionSystem/FunctionManager.h"
@@ -7,6 +7,8 @@
 
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/SplashScreenTexts.hpp"
+
+#include "utils/Logger.h"
 
 IMeshReader::IMeshReader(Controller* pController, const MeshObjInputData& inputInfo)
 	: m_pController(pController)

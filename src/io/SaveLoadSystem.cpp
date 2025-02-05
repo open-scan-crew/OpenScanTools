@@ -7,6 +7,7 @@
 #include "io/imports/DataDeserializer.h"
 #include "pointCloudEngine/PCE_core.h"
 
+#include "utils/Logger.h"
 #include "utils/Utils.h"
 #include "utils/system.h"
 #include "utils/JsonWriter.h"

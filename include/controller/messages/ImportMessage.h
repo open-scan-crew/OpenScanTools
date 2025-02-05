@@ -2,7 +2,7 @@
 #define IMPORT_WAVEFRONT_MESSAGE_H_
 
 #include "controller/messages/IMessage.h"
-#include "io/MeshObjectTypes.h"
+#include "io/FileInputData.h"
 #include "io/imports/ImportTypes.h"
 #include "io/imports/step-simplification/step-simplificationTypes.h"
 

@@ -1966,6 +1966,9 @@
     <ClCompile Include="..\..\src\io\imports\TlsFileReader.cpp">
       <Filter>src\io\imports</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\io\MeshObjectTypes.cpp">
+      <Filter>src\io</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="..\..\include\gui\Gui.h">
@@ -2777,9 +2780,6 @@
     </ClInclude>
     <ClInclude Include="..\..\include\models\3d\Measures.h">
       <Filter>include\models\3d</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\utils\math\basic_functions.h">
-      <Filter>include\utils\math</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\gui\widgets\TreeNodeSystem\TreeNode.h">
       <Filter>include\gui\widgets\TreeNodeSystem</Filter>
@@ -3917,6 +3917,9 @@
     </ClInclude>
     <ClInclude Include="..\..\include\io\exports\TlsFileWriter.h">
       <Filter>include\io\exports</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\io\FileInputData.h">
+      <Filter>include\io</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

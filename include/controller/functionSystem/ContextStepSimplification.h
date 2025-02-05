@@ -3,7 +3,7 @@
 
 #include "controller/functionSystem/ARayTracingContext.h"
 #include "io/imports/step-simplification/step-simplificationTypes.h"
-#include "io/MeshObjectTypes.h"
+#include "io/FileInputData.h"
 
 class ContextStepSimplification : public ARayTracingContext
 {

@@ -1,6 +1,5 @@
 #include "ContextMeshDistance.h"
 #include "controller/Controller.h"
-#include "controller/ControllerContext.h"
 #include "controller/IControlListener.h"
 #include "controller/messages/FullClickMessage.h"
 #include "controller/controls/ControlFunction.h"
@@ -9,6 +8,8 @@
 #include "models/graph/GraphManager.hxx"
 
 #include "gui/texts/RayTracingTexts.hpp"
+
+#include "utils/Logger.h"
 
 ContextMeshDistance::ContextMeshDistance(const ContextId& id)
     : ARayTracingContext(id)

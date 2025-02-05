@@ -1,6 +1,7 @@
 #include "Controller/Controller_p.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataTree.h"
+#include "utils/Logger.h"
 
 #include <chrono>
 

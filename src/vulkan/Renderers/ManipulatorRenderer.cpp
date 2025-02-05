@@ -1,7 +1,7 @@
 #include "vulkan/Renderers/ManipulatorRenderer.h"
 #include "vulkan/VulkanManager.h"
-#include "vulkan/MeshManager.h"
 #include "models/3d/MeshBuffer.h"
+#include "models/OpenScanToolsModelEssentials.h"
 
 
 // ++++++++++++++++++++++  Shaders  +++++++++++++++++++++

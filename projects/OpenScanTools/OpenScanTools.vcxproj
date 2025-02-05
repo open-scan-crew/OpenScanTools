@@ -1028,6 +1028,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\src\io\imports\TlsFileReader.cpp" />
+    <ClCompile Include="..\..\src\io\MeshObjectTypes.cpp" />
     <ClCompile Include="..\..\src\io\SaveLoadSystem.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
     <ClCompile Include="..\..\src\models\3d\ProjectionData.cpp" />
@@ -1434,6 +1435,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="..\..\include\io\exports\TlsFileWriter.h" />
+    <ClInclude Include="..\..\include\io\FileInputData.h" />
     <ClInclude Include="..\..\include\io\imports\DataDeserializer.hxx" />
     <ClInclude Include="..\..\include\io\imports\dxfFileReader.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
@@ -1770,7 +1772,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\services\MarkerDefinitions.hpp" />
     <ClInclude Include="..\..\include\utils\3DConnexion\3DConnexion.h" />
     <ClInclude Include="..\..\include\utils\FilesAndFoldersDefinitions.h" />
-    <ClInclude Include="..\..\include\utils\math\basic_functions.h" />
     <ClInclude Include="..\..\include\utils\QtUtils.h" />
     <ClInclude Include="..\..\include\utils\ThreadPool.h" />
     <ClInclude Include="..\..\include\vulkan\MeshManager.h" />

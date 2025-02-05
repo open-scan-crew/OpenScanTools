@@ -2,7 +2,7 @@
 #define CONTROL_WAVEFRONT_H_
 
 #include "controller/controls/IControl.h"
-#include "io/MeshObjectTypes.h"
+#include "io/FileInputData.h"
 #include "io/imports/step-simplification/step-simplificationTypes.h"
 #include <filesystem>
 
