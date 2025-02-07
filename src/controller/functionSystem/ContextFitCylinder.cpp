@@ -59,6 +59,7 @@ ContextState ContextFitCylinder::launch(Controller& controller)
     // -!- Ray Tracing -!-
 
 	FUNCLOG << "ContextFitCylinder launch" << LOGENDL;
+	std::chrono::steady_clock::time_point tp_0 = std::chrono::steady_clock::now();
 	controller.updateInfo(new GuiDataTmpMessage(TEXT_LUCAS_SEARCH_ONGOING, 0));
 	bool success = false;
 
@@ -183,6 +184,9 @@ ContextState ContextFitCylinder::launch(Controller& controller)
 	controller.getControlListener()->notifyUIControl(new control::function::AddNodes(cylinder));
     
 	resetClickUsages(controller);
+	std::chrono::steady_clock::time_point tp_1 = std::chrono::steady_clock::now();
+	float t_sec = std::chrono::duration<float, std::ratio<1>>(tp_1 - tp_0).count();
+	FUNCLOG << "Cylinder Fit end : " << t_sec << " seconds." << Logger::endl;
 	return waitForNextPoint(controller);
 }
 

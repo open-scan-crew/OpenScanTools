@@ -19,9 +19,6 @@
 
 #include "pointCloudEngine/PCE_core.h"
 
-
-#define SGLog Logger::log(LoggerMode::SceneGraphLog)
-
 GraphManager::GraphManager(IDataDispatcher& dataDispatcher)
 	: m_root(make_safe<AGraphNode>())
 	, m_meshManager(&MeshManager::getInstance())

@@ -23,25 +23,28 @@ namespace tls
         ImagePointCloud_p(uint32_t _num, std::fstream& _fstr);
         ~ImagePointCloud_p();
 
-        bool is_valid();
+        bool is_valid() const;
 
-        bool loadOctree(OctreeBase& _octree_base);
+        bool loadOctree(OctreeBase& _octree_base) const;
 
-        bool getData(uint64_t _file_pos, void* _data_buf, uint64_t _data_size);
-        bool getPointsRenderData(uint32_t _cell_id, void* _data_buf, uint64_t& _data_size);
-        bool getPointsRenderData(std::vector<uint32_t> _cells, void** _data_bufs);
-        bool getCellRenderData(void* data_buf, uint64_t& data_size);
+        // TO REMOVE - temporary function until new functions are ready
+        bool getData(uint64_t _file_pos, void* _data_buf, uint64_t _data_size) const;
+
+        bool getPointsRenderData(uint32_t _cell_id, void* _data_buf, uint64_t& _data_size) const;
+        bool getPointsRenderData_multi(std::vector<uint32_t> _cells, void** _data_bufs) const;
+        bool getCellRenderData(void* _data_buf, uint64_t& _data_size) const;
 
         uint32_t getCellCount() const;
         uint32_t getCellPointCount(uint32_t _cell_id) const;
 
         bool isLeaf(uint32_t _cell_id) const;
-        bool readNextPoints(Point* dst_buf, uint64_t dst_size, uint64_t& point_count);
+        bool getCellPoints(uint32_t _cell_id, Point* _dst_buf, uint64_t _dst_size);
+        bool getNextPoints(Point* _dst_buf, uint64_t _dst_size, uint64_t& _point_count);
 
         bool copyCellPoints(uint32_t _cell_id, Point* _dst_buf, uint64_t _dst_size, uint64_t& _dst_offset);
 
         void sortCellsByAddress();
-        void decodeCell(uint32_t _cell_id);
+        bool decodeCell(uint32_t _cell_id, Point* _dst_buf, uint64_t _dst_size);
 
         void printStats() const;
 
@@ -66,6 +69,7 @@ namespace tls
         float alloc_time_ms = 0.f;
         float read_time_ms = 0.f;
         float decode_time_ms = 0.f;
+        float copy_time_ms = 0.f;
         size_t read_size = 0;
     };
 
@@ -88,7 +92,7 @@ namespace tls
         void read_headers();
         void write_headers();
 
-        uint32_t getScanCount() const;
+        uint32_t getPointCloudCount() const;
         uint64_t getPointCount() const;
 
         bool appendPointCloud(const tls::ScanHeader& info);

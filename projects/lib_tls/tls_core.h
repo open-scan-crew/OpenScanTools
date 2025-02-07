@@ -43,6 +43,7 @@ namespace tls
         ImagePointCloud();
 
         bool is_valid() const;
+        void reset();
 
         uint32_t getCellCount() const;
         uint32_t getCellPointCount(uint32_t _cell_id) const;
@@ -52,7 +53,9 @@ namespace tls
         bool getPointsRenderData(uint32_t _cell_id, void* _data_buf, uint64_t& _data_size);
         bool getCellRenderData(void* data_buf, uint64_t& data_size);
 
-        bool readNextPoints(Point* dst_buf, uint64_t dst_size, uint64_t& point_count);
+        // Functions to retreive decoded points
+        bool getCellPoints(uint32_t _cell_id, Point* _dst_buf, uint64_t _dst_size);
+        bool getNextPoints(Point* _dst_buf, uint64_t _dst_size, uint64_t& _point_count);
 
         bool getOctreeBase(OctreeBase& _octree_base);
 
@@ -79,8 +82,8 @@ namespace tls
         bool is_valid_file() const;
         std::filesystem::path getPath() const;
 
-        uint32_t getScanCount() const;  // RENAME - getPointCloudCount()
-        uint64_t getTotalPoints() const;// RENAME - getTotalPointCount()
+        uint32_t getPointCloudCount() const;
+        uint64_t getPointCount() const;
 
         FileHeader getFileHeader() const;
         ScanHeader getPointCloudHeader(uint32_t _pc_num) const;

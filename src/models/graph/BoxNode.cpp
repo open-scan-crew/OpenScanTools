@@ -155,6 +155,9 @@ void BoxNode::updateGrid()
     case GridType::ByMultiple:
         GridCalculation::allocGridMeshByMultiple(*grid_sbuf, *this, grid_division);
         break;
+    case GridType::NoGrid:
+        grid_sbuf.reset();
+        break;
     }
 
     grid_need_update = false;

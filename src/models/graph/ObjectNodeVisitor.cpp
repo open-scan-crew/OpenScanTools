@@ -54,8 +54,6 @@
 
 #include "magic_enum/magic_enum.hpp"
 
-#define SGLog Logger::log(LoggerMode::SceneGraphLog)
-
 static const double pi2 = (glm::pi<double>() / 2.0);
 static const float fpi2 = (glm::pi<float>() / 2.0f);
 #define SELECTION_COLOR glm::vec3(1.0f, 1.0f, 0.8f)

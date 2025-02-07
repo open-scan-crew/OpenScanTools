@@ -2,8 +2,6 @@
 #include "models/3d/ManipulationTypes.h"
 #include "services/MarkerDefinitions.hpp"
 
-#define SGLog Logger::log(LoggerMode::SceneGraphLog)
-
 ScanNode::ScanNode(const ScanNode& node)
 	: APointCloudNode(node)
 {

@@ -23,12 +23,12 @@ FileType TlsFileReader::getType() const
 
 uint32_t TlsFileReader::getScanCount() const
 {
-    return img_file_.getScanCount();
+    return img_file_.getPointCloudCount();
 }
 
 uint64_t TlsFileReader::getTotalPoints() const
 {
-    return img_file_.getTotalPoints();
+    return img_file_.getPointCount();
 }
 
 bool TlsFileReader::startReadingScan(uint32_t scanNumber)
@@ -40,7 +40,7 @@ bool TlsFileReader::startReadingScan(uint32_t scanNumber)
 
 bool TlsFileReader::readPoints(PointXYZIRGB* dstBuf, uint64_t bufSize, uint64_t& readCount)
 {
-    return point_cloud_.readNextPoints(reinterpret_cast<tls::Point*>(dstBuf), bufSize, readCount);
+    return point_cloud_.getNextPoints(reinterpret_cast<tls::Point*>(dstBuf), bufSize, readCount);
 }
 
 tls::FileHeader TlsFileReader::getTlsHeader() const

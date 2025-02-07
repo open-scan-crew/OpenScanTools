@@ -7,7 +7,6 @@
 #include "pointCloudEngine/PCE_graphics.h"
 #include "pointCloudEngine/PCE_stream.h"
 #include "pointCloudEngine/SmartBuffer.h"
-#include "pointCloudEngine/SmartBufferWorkload.h"
 #include "models/data/clipping/ClippingGeometry.h"
 #include "pointCloudEngine/OctreeRayTracing.h"
 
@@ -108,12 +107,10 @@ public:
     bool viewOctree(std::vector<TlCellDrawInfo>& cellDrawInfo, const TlProjectionInfo& projInfo);
     bool viewOctreeCB(std::vector<TlCellDrawInfo>& cellDrawInfo, std::vector<TlCellDrawInfo_multiCB>& cellDrawInfoCB, const TlProjectionInfo& projInfo, const ClippingAssembly& clippingAssembly);
 
-#ifndef PORTABLE
     // For File Clipping
     bool clipAndWrite(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, IScanFileWriter* writer);
-#endif
+    static void logClipAndWriteTimings();
 
-    void decodePointXYZIRGB(uint32_t cellId, std::vector<PointXYZIRGB>& dstPoints);
     void decodePointCoord(uint32_t cellId, std::vector<glm::dvec3>& dstPoints, uint32_t layerDepth, bool transformToGlobal);
 
     // Allow to transfer the point buffers possesion from one scan to another.
@@ -127,7 +124,7 @@ public:
     BoundingBox getLocalBoundingBox() const;
 
     // For streaming
-    void assumeWorkload();
+    //void assumeWorkload();
     bool startStreamingAll(char* _stageBuf, uint64_t _stageSize, uint64_t& _stageOffset, std::vector<TlStagedTransferInfo>& gpuTransfers);
     bool startStreamingAll_k(void* _stageBuf, uint64_t _stageSize, uint64_t& _stageOffset, std::vector<TlStagedTransferInfo>& gpuTransfers);
     void checkDataState();
@@ -144,22 +141,7 @@ protected:
     // Clipping Export
     void getClippedCells_impl(uint32_t cellId, const ClippingAssembly& clippingAssembly, std::vector<std::pair<uint32_t, bool>>& _result);
 
-    // Proceed to:
-    //  * allocate the cell buffers not already loaded
-    //  * guard_lock the buffers
-    //  * if some buffers are not loaded, add this object to the streamer queue
-    // Return:
-    //  * 'true' if all the buffers are availables
-    //  * 'false' if one buffer or more buffers are missing
-    bool treatWorkload(SmartBufferWorkload& sbw);
-
     void getDecodedPoints(const std::vector<uint32_t>& leavesId, std::vector<glm::dvec3>& retPoints, bool transformToGlobal);
-
-    // Temporary functions, for dev evaluation
-    void startDecodingStats();
-    void timerStart();
-    void timerEnd(size_t pointCount);
-    void endDecodingStats(std::string label);
 
     struct ConcatCellStates
     {
@@ -185,8 +167,6 @@ public:
 	bool nearestNeighbor2(const glm::dvec3& globalPoint, glm::dvec3& result, const ClippingAssembly& clippingBoxes);
     bool nearestBendNeighbor(const glm::dvec3& globalPoint, glm::dvec3& result, const glm::dvec3& normalVector);
 
-    void getPointsInLeaf(const glm::dvec3& globalPoint, std::vector<glm::dvec3>& retPoints);
-	void getPointsInLeafList(const std::vector<uint32_t>& leavesId, std::vector<glm::dvec3>& retPoints);
     std::vector<glm::dvec3> getPointsInBox(const glm::dvec3& seedPoint, const glm::dvec3& beamDir, const glm::dvec3& orthoDir, const glm::dvec3& normalDir, const std::vector<std::vector<double>>& xyRange, const double& heightMax);
     std::vector<glm::dvec3> getPointsInGeometricBox(const GeometricBox& box, const ClippingAssembly& clippingAssembly);
     GeometricBox createGeometricBoxFromLeaf(const uint32_t& leafId, const ClippingAssembly& clippingAssembly);
@@ -211,7 +191,8 @@ public:
     void samplePointsByStep(float samplingStep, const std::vector<uint32_t>& leavesId, std::vector<glm::dvec3>& sampledPoints);
     void samplePointsByQuota(size_t quotaMax, const std::vector<uint32_t>& leavesId, std::vector<glm::dvec3>& sampledPoints);
 
-	bool pointToCell(const glm::dvec3& localSeedPoint, uint32_t& resultCellId) const;
+    bool pointToCell(const glm::dvec3& localSeedPoint, uint32_t& resultCellId) const;
+    void getPointsInLeaf(const glm::dvec3& globalPoint, std::vector<glm::dvec3>& retPoints);
     glm::dvec3 getLocalCoord(const glm::dvec3& globalCoord) const;
 
 protected:
@@ -248,13 +229,13 @@ protected:
     std::mutex m_streamMutex;
     std::vector<uint32_t> m_missingCells;
 
-    std::mutex m_workloadMutex;
-    std::vector<SmartBufferWorkload*> m_waitingWorkload;
+    //std::mutex m_workloadMutex;
+    //std::vector<SmartBufferWorkload*> m_waitingWorkload;
 
     // Decoding stats
-    size_t t_ptsDecodedCount = 0;
-    std::chrono::steady_clock::time_point t_timer;
-    double t_time = 0.0;
+    static float pointer_time_;
+    static float decode_time_;
+    static float merge_time_;
 };
 
 #endif // !EMBEDDED_SCAN_H_

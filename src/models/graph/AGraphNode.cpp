@@ -2,8 +2,6 @@
 
 #include "utils/Logger.h"
 
-#define SGLog Logger::log(LoggerMode::SceneGraphLog)
-
 IdGiver<uint32_t> AGraphNode::m_graphicIdGiver = IdGiver<uint32_t>(0);
 
 inline bool verifNode(const ReadPtr<AGraphNode>& readNode)

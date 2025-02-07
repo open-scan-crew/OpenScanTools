@@ -3,8 +3,6 @@
 
 #include "utils/Logger.h"
 
-#define SGLog Logger::log(LoggerMode::SceneGraphLog)
-
 GeometryGenerator::GeometryGenerator()
 {}
 

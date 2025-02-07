@@ -18,9 +18,12 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PointSample.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="PointSamples.h">
+    <ClInclude Include="PointSample.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

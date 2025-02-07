@@ -13,6 +13,10 @@
 #include "io/exports/IScanFileWriter.h"
 #endif
 
+float EmbeddedScan::pointer_time_ = 0.f;
+float EmbeddedScan::decode_time_ = 0.f;
+float EmbeddedScan::merge_time_ = 0.f;
+
 using namespace std::chrono;
 
 EmbeddedScan::EmbeddedScan(std::filesystem::path const& filepath)
@@ -116,9 +120,11 @@ std::filesystem::path EmbeddedScan::getPath() const
 
 void EmbeddedScan::setPath(const std::filesystem::path& newPath)
 {
+    tls_point_cloud_.reset();
     tls_img_file_.close();
     if (!tls_img_file_.open(newPath, tls::usage::read))
         assert(0);
+    tls_point_cloud_ = tls_img_file_.getImagePointCloud(0);
 }
 
 bool EmbeddedScan::getGlobalDrawInfo(TlScanDrawInfo& scanDrawInfo)
@@ -187,7 +193,6 @@ void clipIndividualPoints(const std::vector<PointXYZIRGB>& inPoints, std::vector
     }
 }
 
-#ifndef PORTABLE
 bool EmbeddedScan::clipAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& _clippingAssembly, IScanFileWriter* _writer)
 {
     ClippingAssembly localAssembly = _clippingAssembly;
@@ -195,24 +200,16 @@ bool EmbeddedScan::clipAndWrite(const TransformationModule& src_transfo, const C
     glm::dmat4 src_transfo_mat = src_transfo.getTransformation();
     localAssembly.addTransformation(src_transfo_mat);
 
-    // Do the clipping in 2 phases:
+    // Do the clipping in 3 phases:
     //   a. Determine the cells inside the clipping (whole and partial)
-    //   b. Read the points from the hdd and insert them in the file writer.
+    //   b. Read the points from the hdd
+    //   c. Insert them in the file writer.
 
     // Store the TreeCell to export and a boolean that indicate if micro-clipping must be done.
     std::vector<std::pair<uint32_t, bool>> cells;
     getClippedCells_impl(m_uRootCell, localAssembly, cells);
 
-    SmartBufferWorkload bufferLock;
     bool resultOk = true;
-    for (const std::pair<uint32_t, bool>& cell : cells)
-    {
-        // add cell id to the download process
-        // if we cannot add all the cells, add them by pack
-        bufferLock.addCellBuffer(cell.first, m_pCellBuffers[cell.first]);
-    }
-    treatWorkload(bufferLock);
-
     for (const std::pair<uint32_t, bool>& cell : cells)
     {
         // NOTE(robin) - A propos des référenciels :
@@ -220,8 +217,12 @@ bool EmbeddedScan::clipAndWrite(const TransformationModule& src_transfo, const C
         //   (*) Les matrices de transformation des clippings peuvent être changées une fois pour tout les points.
         //   (*) Si on a un export simple de point, on ne doit pas transformer les coord lors du addPoints.
         //   (*) Si l'export est une fusion, la matrice de transfo doit être fournie à mergePoints().
+        std::chrono::steady_clock::time_point tp_0 = std::chrono::steady_clock::now();
         std::vector<PointXYZIRGB> points;
-        decodePointXYZIRGB(cell.first, points);
+        points.resize(tls_point_cloud_.getCellPointCount(cell.first));
+        if (!tls_point_cloud_.getCellPoints(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+        continue;
+        std::chrono::steady_clock::time_point tp_1 = std::chrono::steady_clock::now();
 
         // Do the micro-clipping if necessary
         if (cell.second)
@@ -234,76 +235,24 @@ bool EmbeddedScan::clipAndWrite(const TransformationModule& src_transfo, const C
         {
             resultOk &= _writer->mergePoints(points.data(), points.size(), src_transfo, pt_format_);
         }
+        std::chrono::steady_clock::time_point tp_2 = std::chrono::steady_clock::now();
+        decode_time_ += std::chrono::duration<float, std::ratio<1>>(tp_1 - tp_0).count();
+        merge_time_ += std::chrono::duration<float, std::ratio<1>>(tp_2 - tp_1).count();
     }
-
-    // Free the SmartBufferWorkload when out of scope
-
     return (resultOk);
 }
-#endif
 
-void EmbeddedScan::decodePointXYZIRGB(uint32_t cellId, std::vector<PointXYZIRGB>& dstPoints)
+void EmbeddedScan::logClipAndWriteTimings()
 {
-    const TreeCell cell = m_vTreeCells[cellId];
-    char* encodedPoints = (char*)VulkanManager::getInstance().getMappedPointer(m_pCellBuffers[cellId]);
-    if (encodedPoints == nullptr)
-    {
-        Logger::log(IOLog) << "Error cannot access the encoded points for the leaf '" << cellId << Logger::endl;
-        return;
-    }
-
-    uint64_t nbOfPoints(cell.m_layerIndexes[cell.m_depthSPT]);
-    dstPoints.reserve(dstPoints.size() + nbOfPoints);
-
-    float precisionValue = tls::getPrecisionValue(pt_precision_);
-
-    // On fait l'économie de test la présence d'intensité et de couleur on codant en dur
-    // les 3 configurations de tls::PointFormat.
-    if (pt_format_ == tls::PointFormat::TL_POINT_XYZ_I_RGB)
-    {
-        for (uint64_t n(0); n < nbOfPoints; n++)
-        {
-            PointXYZIRGB dcdPoint;
-            Coord16& coord = ((Coord16*)encodedPoints)[n];
-            uint8_t* packI = (uint8_t*)(encodedPoints + cell.m_iOffset);
-            Color24* packRGB = (Color24*)(encodedPoints + cell.m_rgbOffset);
-            dcdPoint.x = coord.x * precisionValue + cell.m_position[0];
-            dcdPoint.y = coord.y * precisionValue + cell.m_position[1];
-            dcdPoint.z = coord.z * precisionValue + cell.m_position[2];
-            dcdPoint.i = packI[n];
-            memcpy(&dcdPoint.r, &packRGB[n].r, 3);
-            dstPoints.push_back(dcdPoint);
-        }
-    }
-    else if (pt_format_ == tls::PointFormat::TL_POINT_XYZ_I)
-    {
-        for (uint64_t n(0); n < nbOfPoints; n++)
-        {
-            PointXYZIRGB dcdPoint;
-            Coord16& coord = ((Coord16*)encodedPoints)[n];
-            uint8_t* packI = (uint8_t*)(encodedPoints + cell.m_iOffset);
-            dcdPoint.x = coord.x * precisionValue + cell.m_position[0];
-            dcdPoint.y = coord.y * precisionValue + cell.m_position[1];
-            dcdPoint.z = coord.z * precisionValue + cell.m_position[2];
-            dcdPoint.i = packI[n];
-            dstPoints.push_back(dcdPoint);
-        }
-    }
-    else if (pt_format_ == tls::PointFormat::TL_POINT_XYZ_RGB)
-    {
-        for (uint64_t n(0); n < nbOfPoints; n++)
-        {
-            PointXYZIRGB dcdPoint;
-            Coord16& coord = ((Coord16*)encodedPoints)[n];
-            Color24* packRGB = (Color24*)(encodedPoints + cell.m_rgbOffset);
-            dcdPoint.x = coord.x * precisionValue + cell.m_position[0];
-            dcdPoint.y = coord.y * precisionValue + cell.m_position[1];
-            dcdPoint.z = coord.z * precisionValue + cell.m_position[2];
-            memcpy(&dcdPoint.r, &packRGB[n].r, 3);
-            dstPoints.push_back(dcdPoint);
-        }
-    }
+    SubLogger& logger = Logger::log(LoggerMode::DataLog);
+    logger << "********* EmbeddedScan::clipAndWrite ********\n";
+    logger << " Total time worked on: \n";
+    logger << "   (*) Get ptr  : " << pointer_time_ << "\n";
+    logger << "   (*) Decode   : " << decode_time_ << "\n";
+    logger << "   (*) Merge    : " << merge_time_ << "\n";
+    logger << Logger::endl;
 }
+
 
 void EmbeddedScan::decodePointCoord(uint32_t cellId, std::vector<glm::dvec3>& dstPoints, uint32_t layerDepth, bool transformToGlobal)
 {
@@ -311,33 +260,30 @@ void EmbeddedScan::decodePointCoord(uint32_t cellId, std::vector<glm::dvec3>& ds
     if (layerDepth > 15u)
         return;
 
-    const TreeCell cell = m_vTreeCells[cellId];
-    char* encodedPoints = (char*)VulkanManager::getInstance().getMappedPointer(m_pCellBuffers[cellId]);
-    if (encodedPoints == nullptr)
+    std::chrono::steady_clock::time_point tp_0 = std::chrono::steady_clock::now();
+
+    uint64_t cell_point_count = tls_point_cloud_.getCellPointCount(cellId);
+    std::vector<tls::Point> tmp_pts;
+    tmp_pts.resize(cell_point_count);
+    tls_point_cloud_.getCellPoints(cellId, tmp_pts.data(), tmp_pts.size());
+
+    uint64_t layer_point_count(m_vTreeCells[cellId].m_layerIndexes[layerDepth]);
+    dstPoints.reserve(dstPoints.size() + layer_point_count);
+
+    std::chrono::steady_clock::time_point tp_1 = std::chrono::steady_clock::now();
+
+    for (uint64_t n(0); n < layer_point_count; n++)
     {
-        Logger::log(IOLog) << "Error cannot access the encoded points for the leaf '" << cellId << Logger::endl;
-        return;
-    }
-
-    float precisionValue = tls::getPrecisionValue(pt_precision_);
-    uint64_t nbOfPoints(cell.m_layerIndexes[layerDepth]);
-    dstPoints.reserve(dstPoints.size() + nbOfPoints);
-
-    char* localBuffer = new char[nbOfPoints * 6];
-    memcpy(localBuffer, encodedPoints, nbOfPoints * 6);
-
-    for (uint64_t n(0); n < nbOfPoints; n++)
-    {
-        Coord16& coord = ((Coord16*)localBuffer)[n];
-        float x = coord.x * precisionValue + cell.m_position[0];
-        float y = coord.y * precisionValue + cell.m_position[1];
-        float z = coord.z * precisionValue + cell.m_position[2];
+        const glm::dvec3 dpts = glm::dvec3(tmp_pts[n].x, tmp_pts[n].y, tmp_pts[n].z);
         if (transformToGlobal)
-            dstPoints.emplace_back(m_rotationToGlobal * glm::dvec3(x, y, z) + m_translationToGlobal);
+            dstPoints.emplace_back(m_rotationToGlobal * dpts + m_translationToGlobal);
         else
-            dstPoints.emplace_back(glm::dvec3(x, y, z));
+            dstPoints.emplace_back(dpts);
     }
-    delete[] localBuffer;
+
+    std::chrono::steady_clock::time_point tp_2 = std::chrono::steady_clock::now();
+    pointer_time_ += std::chrono::duration<float, std::ratio<1>>(tp_1 - tp_0).count();
+    decode_time_ += std::chrono::duration<float, std::ratio<1>>(tp_2 - tp_1).count();
 }
 
 // static
@@ -409,58 +355,6 @@ BoundingBox EmbeddedScan::getLocalBoundingBox() const
 {
     tls::Limits lim = tls_img_file_.getPointCloudHeader(0).limits;
     return { lim.xMin, lim.xMax, lim.yMin, lim.yMax, lim.zMin, lim.zMax };
-}
-
-void EmbeddedScan::assumeWorkload()
-{
-    SmartBufferWorkload* sbw;
-    // Get next workload
-    {
-        std::lock_guard<std::mutex> lock(m_workloadMutex);
-        if (m_waitingWorkload.empty())
-            return;
-        sbw = m_waitingWorkload.back();
-    }
-    sbw->incrementPassCount();
-
-    bool result = true;
-    std::vector<uint32_t> bufferIds = sbw->getMissingBuffers();
-    std::vector<uint32_t> stillMissingBuffers;
-    for (uint32_t id : bufferIds)
-    {
-        SmartBuffer& sbuf = m_pCellBuffers[id];
-        TlDataState state = TlDataState::NOT_LOADED;
-        if (sbuf.state.compare_exchange_strong(state, TlDataState::LOADING))
-        {
-            if (VulkanManager::getInstance().allocSmartBuffer(m_vTreeCells[id].m_dataSize, sbuf, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VkResult::VK_SUCCESS)
-            {
-                void* pData = VulkanManager::getInstance().getMappedPointer(sbuf);
-
-                result &= tls_point_cloud_.getData(m_vTreeCells[id].m_dataOffset, pData, m_vTreeCells[id].m_dataSize);
-
-                sbuf.state.store(TlDataState::LOADED);
-            }
-            else
-            {
-                result = false;
-                sbuf.state.store(TlDataState::NOT_LOADED);
-                stillMissingBuffers.push_back(id);
-            }
-        }
-    }
-    sbw->setMissingBuffers(stillMissingBuffers); 
-
-    // The workload is not complete
-    if (stillMissingBuffers.empty() || sbw->getPassCount() > 10)
-    {
-        std::lock_guard<std::mutex> lock(m_workloadMutex);
-        m_waitingWorkload.pop_back();
-        sbw->setPromise(result);
-    }
-    else
-    {
-        Logger::log(IOLog) << "Workload too heavy to be streamed in one pass. Wait for more memory." << Logger::endl;
-    }
 }
 
 struct TlTransferInfo {
@@ -1126,40 +1020,10 @@ void EmbeddedScan::getClippedCells_impl(uint32_t _cellId, const ClippingAssembly
     }
 }
 
-bool EmbeddedScan::treatWorkload(SmartBufferWorkload& sbw)
-{
-    if (sbw.isBufferMissing() == false)
-    {
-        // All the buffers are already downloaded
-        Logger::log(LoggerMode::DataLog) << "No buffer missing." << Logger::endl;
-        return true;
-    }
-    else
-    {
-        // We will wait for the download of the missing buffers
-        std::future<bool> loadFuture(sbw.getFuture());
-
-        {
-            std::lock_guard<std::mutex> lock(m_workloadMutex);
-            m_waitingWorkload.push_back(&sbw);
-        }
-
-        return (loadFuture.get());
-    }
-}
-
 void EmbeddedScan::getDecodedPoints(const std::vector<uint32_t>& leavesId, std::vector<glm::dvec3>& retPoints, bool transformToGlobal)
 {
     if (leavesId.empty())
         return;
-
-    SmartBufferWorkload workload;
-    for (uint32_t id : leavesId)
-    {
-        workload.addCellBuffer(id, m_pCellBuffers[id]);
-    }
-
-    treatWorkload(workload);
 
     retPoints.clear();
     for (uint32_t id : leavesId)
@@ -1170,13 +1034,6 @@ void EmbeddedScan::getDecodedPoints(const std::vector<uint32_t>& leavesId, std::
 
 void EmbeddedScan::samplePointsByStep(float samplingStep, const std::vector<uint32_t>& leavesId, std::vector<glm::dvec3>& sampledPoints)
 {
-    SmartBufferWorkload workload;
-    for (uint32_t id : leavesId)
-    {
-        workload.addCellBuffer(id, m_pCellBuffers[id]);
-    }
-    treatWorkload(workload);
-
     float precisionValue = tls::getPrecisionValue(pt_precision_);
     uint32_t maxLayerDelta = std::max(1u, (uint32_t)(std::floorf(std::log2(samplingStep / precisionValue))));
     // !!! Attention !!!
@@ -1195,13 +1052,6 @@ void EmbeddedScan::samplePointsByStep(float samplingStep, const std::vector<uint
 
 void EmbeddedScan::samplePointsByQuota(size_t quotaMax, const std::vector<uint32_t>& leavesId, std::vector<glm::dvec3>& sampledPoints)
 {
-    SmartBufferWorkload workload;
-    for (uint32_t id : leavesId)
-    {
-        workload.addCellBuffer(id, m_pCellBuffers[id]);
-    }
-    treatWorkload(workload);
-
     //*** On cherche le bon niveau de sampling pour attendre le quota au plus proche ***
     // On souhaite que toutes les cellules soient au même niveau de sampling.
     uint32_t sumLayers[16] = { 0u }; // Note : le layer 16 n'est pas sauvegardé.
@@ -1230,35 +1080,6 @@ void EmbeddedScan::samplePointsByQuota(size_t quotaMax, const std::vector<uint32
         decodePointCoord(id, sampledPoints, preferedDepth, true);
     }
 }
-
-void EmbeddedScan::startDecodingStats()
-{
-    t_ptsDecodedCount = 0;
-    t_time = 0.0;
-}
-
-void EmbeddedScan::timerStart()
-{
-    t_timer = std::chrono::steady_clock::now();
-}
-
-void EmbeddedScan::timerEnd(size_t pointCount)
-{
-    double dt = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - t_timer).count();
-    t_ptsDecodedCount += pointCount;
-    t_time += dt;
-}
-
-void EmbeddedScan::endDecodingStats(std::string label)
-{
-    SubLogger& logger = Logger::log(LoggerMode::DataLog);
-    logger << "Decoded points in '" << label << " | ";
-    logger << t_ptsDecodedCount << " pts | ";
-    logger << t_time << " ms | ";
-    double ptsByMs = t_ptsDecodedCount / t_time;
-    logger << ptsByMs << " pts/ms |" << Logger::endl;
-}
-
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //              Lucas' Functions
@@ -2304,40 +2125,8 @@ void EmbeddedScan::getPointsInLeaf(const glm::dvec3& globalPoint, std::vector<gl
     uint32_t cellId;
     pointToCell(localPoint, cellId);
 
-    startDecodingStats();
-    timerStart();
-    //***
     getDecodedPoints({ cellId }, retPoints, true /*global*/);
-    //***
-    timerEnd(retPoints.size());
-    endDecodingStats("getPointsInLeafList");
 }
-
-void EmbeddedScan::getPointsInLeafList(const std::vector<uint32_t>& leavesId, std::vector<glm::dvec3>& retPoints)
-{
-    startDecodingStats();
-    timerStart();
-    //***
-
-    SmartBufferWorkload workload;
-    for (uint32_t id : leavesId)
-    {
-        workload.addCellBuffer(id, m_pCellBuffers[id]);
-    }
-
-    treatWorkload(workload);
-
-    retPoints.clear();
-    for (uint32_t id : leavesId)
-    {
-        decodePointCoord(id, retPoints, 15u, true /*global*/);
-    }
-
-    //***
-    timerEnd(retPoints.size());
-    endDecodingStats("getPointsInLeafList");
-}
-
 
 std::vector<glm::dvec3> EmbeddedScan::getPointsInBox(const glm::dvec3& seedPoint, const glm::dvec3& beamDir, const glm::dvec3& orthoDir, const glm::dvec3& normalDir, const std::vector<std::vector<double>>& xyRange, const double& heightMax)
 {

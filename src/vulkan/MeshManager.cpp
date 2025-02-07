@@ -32,9 +32,6 @@
 #include "io/FileUtils.h"
 #include "utils/Logger.h"
 
-#define SGLog Logger::log(LoggerMode::SceneGraphLog)
-#define IOLog Logger::log(LoggerMode::IOLog)
-
 const std::map<GenericMeshType, std::map<ManipulationMode, bool>>MeshManager::SimpleObjectAcceptableManipulators = {
 	{ GenericMeshType::Cube, {
 		{ManipulationMode::Translation, true},
@@ -84,7 +81,7 @@ MeshManager::MeshManager()
 
 MeshManager::~MeshManager()
 {
-	SGLog << "Destroying all meshes" << Logger::endl;
+	GRAPH_LOG << "Destroying all meshes" << Logger::endl;
 	for (auto& pair : m_meshes)
 	{
 		//Quentin : cause l'arrêt car les counters des meshes des manipulateurs ne sont pas à zéro
@@ -336,7 +333,7 @@ ObjectAllocation::ReturnCode MeshManager::loadExternModel(MeshObjOutputData& dat
 
 	if (!reader->read())
 	{
-		IOLog << "Error : failed to load " << input.path << Logger::endl;
+		IOLOG << "Error : failed to load " << input.path << Logger::endl;
 		if (controller != nullptr)
 			controller->updateInfo(new GuiDataSplashScreenEnd(GuiDataSplashScreenEnd::SplashScreenType::Message));
 		return ObjectAllocation::ReturnCode::Load_File_Error;
@@ -420,7 +417,7 @@ ObjectAllocation::ReturnCode MeshManager::loadExternModel(MeshObjOutputData& dat
 		info.name = shape.name;
 		writingsInfo.push_back({ info, shape.geometry });
 
-		SGLog << "Mesh loaded " << shape.name << Logger::endl;
+		GRAPH_LOG << "Mesh loaded " << shape.name << Logger::endl;
 	}
 
 	if (data.meshIdInfo.empty())
@@ -1121,7 +1118,7 @@ VkResult MeshManager::uploadInMeshBuffer(MeshBuffer& meshBuffer, const std::vect
 	VkResult err = vkm.allocSimpleBuffer(size, smpBuf, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
 	if (err)
 	{
-		SGLog << "Error failed to allocate simple buffer of size" << size << Logger::endl;
+		GRAPH_LOG << "Error failed to allocate simple buffer of size" << size << Logger::endl;
 		return err;
 	}
 

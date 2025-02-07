@@ -290,12 +290,6 @@ void TlScanOverseer::streamScans(uint64_t maxSize, char* stagingBuffer, std::vec
         copyActiveScans = m_activeScans;
     }
 
-    // First, download the points for computing
-    for (auto activeScan : copyActiveScans)
-    {
-        activeScan.second->assumeWorkload();
-    }
-
     uint64_t stageOffset = 0;
     for (auto activeScan : copyActiveScans)
     {
@@ -308,7 +302,6 @@ void TlScanOverseer::streamScans(uint64_t maxSize, char* stagingBuffer, std::vec
     }
 }
 
-#ifndef PORTABLE
 bool TlScanOverseer::clipScan(tls::ScanGuid _scanGuid, const TransformationModule& _modelMat, const ClippingAssembly& _clippingAssembly, IScanFileWriter* _outScan)
 {
     EmbeddedScan* scan;
@@ -332,7 +325,6 @@ bool TlScanOverseer::clipScan(tls::ScanGuid _scanGuid, const TransformationModul
 
     return (resultOk);
 }
-#endif
 
 tls::ScanGuid TlScanOverseer::clipNewScan(tls::ScanGuid _scanGuid, const glm::dmat4& _modelMat, const ClippingAssembly& _clippingAssembly, const std::filesystem::path& _outPath, uint64_t& pointsDeletedCount)
 {

@@ -198,9 +198,7 @@ public:
     void streamScans(uint64_t maxSize, char* stagingBuffer, std::vector<TlStagedTransferInfo>& vkTransfer);
 
     // Compute
-#ifndef PORTABLE
     bool clipScan(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, IScanFileWriter* outScan);
-#endif
     tls::ScanGuid clipNewScan(tls::ScanGuid scanGuid, const glm::dmat4& modelMat, const ClippingAssembly& clippingAssembly, const std::filesystem::path& outPath, uint64_t& pointDeletedCount);
 
     // Lucas functions

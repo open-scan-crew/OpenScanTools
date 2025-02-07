@@ -11,8 +11,6 @@
 
 #include <QtGui/qguiapplication.h>
 
-#define SGLog Logger::log(LoggerMode::SceneGraphLog)
-
 #define BASE_SCALE 0.80001
 #define MIN_SCALE 0.20001
 #define MAX_SCALE 1.40001

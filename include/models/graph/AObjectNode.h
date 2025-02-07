@@ -6,8 +6,6 @@
 
 #include <unordered_set>
 
-#define SGLog Logger::log(LoggerMode::SceneGraphLog)
-
 enum class ManipulationMode;
 enum class Selection;
 

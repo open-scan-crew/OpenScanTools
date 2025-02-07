@@ -15,6 +15,11 @@ bool ImagePointCloud::is_valid() const
     return p_->is_valid();
 }
 
+void ImagePointCloud::reset()
+{
+    p_.reset();
+}
+
 uint32_t ImagePointCloud::getCellCount() const
 {
     return p_->getCellCount();
@@ -46,9 +51,14 @@ bool ImagePointCloud::getCellRenderData(void* data_buf, uint64_t& data_size)
     return p_->getCellRenderData(data_buf, data_size);
 }
 
-bool ImagePointCloud::readNextPoints(Point* dst_buf, uint64_t dst_size, uint64_t& point_count)
+bool ImagePointCloud::getCellPoints(uint32_t _cell_id, Point* _dst_buf, uint64_t _dst_size)
 {
-    return p_->readNextPoints(dst_buf, dst_size, point_count);
+    return p_->getCellPoints(_cell_id, _dst_buf, _dst_size);
+}
+
+bool ImagePointCloud::getNextPoints(Point* dst_buf, uint64_t dst_size, uint64_t& point_count)
+{
+    return p_->getNextPoints(dst_buf, dst_size, point_count);
 }
 
 bool ImagePointCloud::getOctreeBase(OctreeBase& _octree_base)
@@ -105,15 +115,15 @@ std::filesystem::path ImageFile::getPath() const
     return p_->filepath_;
 }
 
-uint32_t ImageFile::getScanCount() const
+uint32_t ImageFile::getPointCloudCount() const
 {
     if (p_.get() == nullptr)
         return 0u;
 
-    return p_->getScanCount();
+    return p_->getPointCloudCount();
 }
 
-uint64_t ImageFile::getTotalPoints() const
+uint64_t ImageFile::getPointCount() const
 {
     if (p_.get() == nullptr)
         return 0ull;

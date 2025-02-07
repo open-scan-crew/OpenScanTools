@@ -94,12 +94,12 @@ ImagePointCloud_p::~ImagePointCloud_p()
 
 }
 
-bool ImagePointCloud_p::is_valid()
+bool ImagePointCloud_p::is_valid() const
 {
     return (fstr_.is_open() && octree_.m_cellCount > 0);
 }
 
-bool ImagePointCloud_p::loadOctree(OctreeBase& _octree)
+bool ImagePointCloud_p::loadOctree(OctreeBase& _octree) const
 {
     if (!fstr_.is_open())
         return false;
@@ -139,7 +139,7 @@ bool ImagePointCloud_p::loadOctree(OctreeBase& _octree)
     return true;
 }
 
-bool ImagePointCloud_p::getData(uint64_t _file_offset, void* _data_buf, uint64_t _data_size)
+bool ImagePointCloud_p::getData(uint64_t _file_offset, void* _data_buf, uint64_t _data_size) const
 {
     if (!fstr_.is_open())
         return false;
@@ -152,7 +152,7 @@ bool ImagePointCloud_p::getData(uint64_t _file_offset, void* _data_buf, uint64_t
     return fstr_.good();
 }
 
-bool ImagePointCloud_p::getPointsRenderData(uint32_t _cell_id, void* _data_buf, uint64_t& _data_size)
+bool ImagePointCloud_p::getPointsRenderData(uint32_t _cell_id, void* _data_buf, uint64_t& _data_size) const
 {
     if (!fstr_.is_open())
         return false;
@@ -175,7 +175,7 @@ bool ImagePointCloud_p::getPointsRenderData(uint32_t _cell_id, void* _data_buf, 
     return fstr_.good();
 }
 
-bool ImagePointCloud_p::getCellRenderData(void* data_buf, size_t& data_size)
+bool ImagePointCloud_p::getCellRenderData(void* data_buf, uint64_t& data_size) const
 {
     if (!fstr_.is_open())
         return false;
@@ -212,7 +212,19 @@ bool ImagePointCloud_p::isLeaf(uint32_t _cell_id) const
     return (octree_.m_vTreeCells[_cell_id].m_isLeaf);
 }
 
-bool ImagePointCloud_p::readNextPoints(Point* dst_buf, uint64_t dst_size, uint64_t& point_count)
+bool ImagePointCloud_p::getCellPoints(uint32_t _cell_id, Point* _dst_buf, uint64_t _dst_size)
+{
+    if (_cell_id >= octree_.m_vTreeCells.size())
+        return false;
+
+    uint64_t src_size = getCellPointCount(_cell_id);
+    if (_dst_size < src_size)
+        return false;
+
+    return decodeCell(_cell_id, _dst_buf, _dst_size);
+}
+
+bool ImagePointCloud_p::getNextPoints(Point* dst_buf, uint64_t dst_size, uint64_t& point_count)
 {
     point_count = 0;
 
@@ -221,7 +233,15 @@ bool ImagePointCloud_p::readNextPoints(Point* dst_buf, uint64_t dst_size, uint64
         uint32_t cell_id = sorted_cells_[current_cell_];
         if (decoded_cell_ != cell_id)
         {
-            decodeCell(cell_id);
+            uint64_t cell_pt_count = getCellPointCount(cell_id);
+            if (cell_pt_count > decoded_points_.size())
+            {
+                decoded_points_.clear();
+                decoded_points_.resize(cell_pt_count);
+            }
+
+            decodeCell(cell_id, decoded_points_.data(), decoded_points_.size());
+            decoded_cell_ = cell_id;
             current_point_ = 0;
         }
         // Copy the points directly in the destination buffer
@@ -254,7 +274,11 @@ bool ImagePointCloud_p::copyCellPoints(uint32_t _cell_id, Point* _dst_buf, uint6
     uint64_t pt_count = getCellPointCount(_cell_id);
     uint64_t cpy_count = std::min(pt_count - current_point_, _dst_size - _dst_offset);
     const void* src = decoded_points_.data() + current_point_;
+
+    std::chrono::steady_clock::time_point t0 = std::chrono::steady_clock::now();
     memcpy(_dst_buf + _dst_offset, src, cpy_count * sizeof(Point));
+    std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
+    copy_time_ms += std::chrono::duration<float, std::milli>(t1 - t0).count();
 
     current_point_ += (uint32_t)cpy_count;
     _dst_offset += cpy_count;
@@ -281,13 +305,17 @@ void ImagePointCloud_p::sortCellsByAddress()
     }
 }
 
-void ImagePointCloud_p::decodeCell(uint32_t _cell_id)
+bool ImagePointCloud_p::decodeCell(uint32_t _cell_id, Point* _dst_buf, uint64_t _dst_size)
 {
-    if (_cell_id >= octree_.m_vTreeCells.size() || !(octree_.m_vTreeCells[_cell_id].m_isLeaf))
-        return;
+    if (_cell_id >= octree_.m_vTreeCells.size() ||
+        !octree_.m_vTreeCells[_cell_id].m_isLeaf)
+        return false;
 
     const TreeCell& cell = octree_.m_vTreeCells[_cell_id];
     uint64_t point_count = cell.m_layerIndexes[cell.m_depthSPT];
+
+    if (_dst_size < point_count)
+        return false;
 
     std::chrono::steady_clock::time_point t0 = std::chrono::steady_clock::now();
 
@@ -300,21 +328,15 @@ void ImagePointCloud_p::decodeCell(uint32_t _cell_id)
 
     std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
 
-    if (point_count > decoded_points_.size())
-    {
-        decoded_points_.clear();
-        decoded_points_.resize(point_count);
-    }
-    decoded_cell_ = _cell_id;
     float preci = octree_.m_precisionValue;
 
     // Compute back the points coordinates
     for (uint64_t i = 0; i < point_count; ++i)
     {
         Coord16& coord = ((Coord16*)encoded_points)[i];
-        decoded_points_[i].x = coord.x * preci + cell.m_position[0];
-        decoded_points_[i].y = coord.y * preci + cell.m_position[1];
-        decoded_points_[i].z = coord.z * preci + cell.m_position[2];
+        _dst_buf[i].x = coord.x * preci + cell.m_position[0];
+        _dst_buf[i].y = coord.y * preci + cell.m_position[1];
+        _dst_buf[i].z = coord.z * preci + cell.m_position[2];
     }
 
     // Unpack the components
@@ -325,7 +347,7 @@ void ImagePointCloud_p::decodeCell(uint32_t _cell_id)
             uint8_t* packI = (uint8_t*)(encoded_points + cell.m_iOffset);
             for (uint64_t i = 0; i < point_count; i++)
             {
-                decoded_points_[i].i = packI[i];
+                _dst_buf[i].i = packI[i];
             }
         }
 
@@ -334,9 +356,9 @@ void ImagePointCloud_p::decodeCell(uint32_t _cell_id)
             Color24* packRGB = (Color24*)(encoded_points + cell.m_rgbOffset);
             for (uint64_t i = 0; i < point_count; i++)
             {
-                decoded_points_[i].r = packRGB[i].r;
-                decoded_points_[i].g = packRGB[i].g;
-                decoded_points_[i].b = packRGB[i].b;
+                _dst_buf[i].r = packRGB[i].r;
+                _dst_buf[i].g = packRGB[i].g;
+                _dst_buf[i].b = packRGB[i].b;
             }
         }
     }
@@ -348,6 +370,7 @@ void ImagePointCloud_p::decodeCell(uint32_t _cell_id)
     read_time_ms += std::chrono::duration<float, std::milli>(t2 - t1).count();
     decode_time_ms += std::chrono::duration<float, std::milli>(t3 - t2).count();
     read_size += buf_size;
+    return true;
 }
 
 void ImagePointCloud_p::printStats() const
@@ -356,6 +379,7 @@ void ImagePointCloud_p::printStats() const
     std::cout << "Alloc time    (ms): " << alloc_time_ms << std::endl;
     std::cout << "Read time     (ms): " << read_time_ms << std::endl;
     std::cout << "Decode time   (ms): " << decode_time_ms << std::endl;
+    std::cout << "Copy time     (ms): " << copy_time_ms << std::endl;
 }
 
 
@@ -586,7 +610,7 @@ void ImageFile_p::write_headers()
     fstr_.write("_eoh", 4);
 }
 
-uint32_t ImageFile_p::getScanCount() const
+uint32_t ImageFile_p::getPointCloudCount() const
 {
     return (uint32_t)pcs_.size();
 }
@@ -688,7 +712,11 @@ bool ImageFile_p::addPoints(Point const* src_buf, uint64_t src_size)
         return false;
     }
 
-    for (uint64_t n = 0; n < src_size; ++n)
+    for (uint64_t n = 0; n < std::min(src_size, 336ull); ++n)
+    {
+        pcs_[current_pc_].octree_ctor_->insertPoint(src_buf[n]);
+    }
+    for (uint64_t n = 336; n < src_size; ++n)
     {
         pcs_[current_pc_].octree_ctor_->insertPoint(src_buf[n]);
     }

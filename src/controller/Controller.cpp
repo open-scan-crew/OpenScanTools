@@ -6,6 +6,8 @@
 #include "gui/GuiData/GuiDataGeneralProject.h" //
 #include "gui/GuiData/GuiDataMessages.h"
 
+#include "pointCloudEngine/EmbeddedScan.h"
+
 #include "controls/ControlMetaControl.h"
 #include "models/graph/CameraNode.h"
 
@@ -28,6 +30,7 @@ Controller::Controller(IDataDispatcher& dataDispatcher, GraphManager& graphManag
 
 Controller::~Controller()
 {
+	EmbeddedScan::logClipAndWriteTimings();
 	Logger::log(LoggerMode::LogConfig) << "Destroying Controller..." << LOGENDL;
     delete m_p;
 }

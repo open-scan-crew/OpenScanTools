@@ -3,8 +3,6 @@
 
 #include "controller/Controller.h"
 
-#define SGLog Logger::log(LoggerMode::SceneGraphLog)
-
 AObjectNode::AObjectNode()
 	: AGraphNode()
 {}
