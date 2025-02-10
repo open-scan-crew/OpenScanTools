@@ -31,7 +31,27 @@ namespace tls
         bool getData(uint64_t _file_pos, void* _data_buf, uint64_t _data_size) const;
 
         bool getPointsRenderData(uint32_t _cell_id, void* _data_buf, uint64_t& _data_size) const;
-        bool getPointsRenderData_multi(std::vector<uint32_t> _cells, void** _data_bufs) const;
+
+        /// <summary>
+        ///  Return the render data for the cells specified into their respective destination
+        ///  buffers.
+        ///  All data formating are done by the function.
+        ///  Each buffer must be allocated before the call and must have a size sufficient to 
+        ///  contain the data.
+        ///  For each n < '_count':
+        ///  * If '_dst_bufs[n]' is 'nullptr', then the minimum size needed for it is
+        ///    returned in '_dst_sizes[n]'.
+        ///  * If '_dst_bufs[n]' is not 'nullptr', it must be a valid span of memory of size
+        ///    of at least '_dst_sizes[n]'.
+        /// </summary>
+        /// <param name="_count"></param>
+        /// <param name="_cell_ids"></param>
+        /// <param name="_dst_bufs"></param>
+        /// <param name="_dst_sizes"></param>
+        /// <returns>'true' if all requested data have been successfully loaded in their buffer.
+        ///          'false' otherwise.
+        /// </returns>
+        bool getPointsRenderData_multi(size_t _count, uint32_t* _cell_ids, void** _dst_bufs, uint64_t* _dst_sizes) const;
         bool getCellRenderData(void* _data_buf, uint64_t& _data_size) const;
 
         uint32_t getCellCount() const;
