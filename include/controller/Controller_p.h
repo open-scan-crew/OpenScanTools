@@ -12,7 +12,7 @@
 #include "controller/FilterSystem.h"
 #include "models/graph/GraphManager.h"
 #include "utils/ClockLock.hpp"
-//#include "io/ScantraInterface.h"
+#include "io/ScantraInterface.h"
 
 class Controller_p
 {
@@ -83,6 +83,8 @@ public:
     FunctionManager funcManager;
     ControllerContext context;
     FilterSystem filterSystem;
+
+    ScantraInterface scantra_interface_;
 
     bool autosave_active_;
     double autosave_period_min_;

@@ -240,6 +240,16 @@ namespace control::io
         std::filesystem::path m_sqliteDbPath;
     };
 
+    class SwitchScantraConnexion : public AControl
+    {
+    public:
+        SwitchScantraConnexion(bool start);
+        void doFunction(Controller& controller) override;
+        ControlType getType() const override;
+    private:
+        bool start_;
+    };
+
     class ConvertImageToPointCloud : public AControl
     {
     public:

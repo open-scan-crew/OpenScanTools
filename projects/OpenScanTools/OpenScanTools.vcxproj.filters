@@ -431,6 +431,9 @@
     <Filter Include="ext\SQLite">
       <UniqueIdentifier>{cb5817ff-803a-4a78-9765-df3a086f51c6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ext\scantra">
+      <UniqueIdentifier>{4780d1aa-9caa-4287-a12f-643708707dfb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\io\exports\txtExport.cpp">
@@ -1956,6 +1959,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\models\application\TagTemplate.cpp">
       <Filter>src\models\application</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\io\ScantraInterface.cpp">
+      <Filter>src\io</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -3899,6 +3905,12 @@
     </ClInclude>
     <ClInclude Include="..\..\ext\SQLiteCpp\include\sqlite3.h">
       <Filter>ext\SQLite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\scantra\ScantraInterprocessMemory.h">
+      <Filter>ext\scantra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\io\ScantraInterface.h">
+      <Filter>src\io</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

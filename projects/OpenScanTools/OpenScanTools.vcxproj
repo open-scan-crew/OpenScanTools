@@ -1030,6 +1030,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\io\imports\TlsFileReader.cpp" />
     <ClCompile Include="..\..\src\io\MeshObjectTypes.cpp" />
     <ClCompile Include="..\..\src\io\SaveLoadSystem.cpp" />
+    <ClCompile Include="..\..\src\io\ScantraInterface.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
     <ClCompile Include="..\..\src\models\3d\ProjectionData.cpp" />
     <ClCompile Include="..\..\src\models\3d\GeometryGenerator.cpp" />
@@ -1200,6 +1201,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="..\..\ext\SQLiteCpp\include\sqlite3.h" />
+    <ClInclude Include="..\..\ext\scantra\ScantraInterprocessMemory.h" />
     <ClInclude Include="..\..\ext\VulkanMemoryAllocator\vk_mem_alloc.h" />
     <ClInclude Include="..\..\include\controller\Controller.h" />
     <ClInclude Include="..\..\include\controller\ControllerContext.h" />
@@ -1517,6 +1519,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\src\controller\functionSystem\mesh\ContextMeshDistance.h" />
     <QtMoc Include="..\..\src\gui\Dialog\StandardNameDialog.h" />
     <QtMoc Include="..\..\src\gui\toolBars\ToolBarRampDefaultValues.h" />
+    <ClInclude Include="..\..\src\io\ScantraInterface.h" />
     <ClInclude Include="..\..\src\models\3d\MeshBuffer.h" />
     <ClInclude Include="..\..\src\vulkan\Compute\ComputePrograms.h" />
     <ClInclude Include="..\..\src\vulkan\VulkanHelperFunctions.h" />

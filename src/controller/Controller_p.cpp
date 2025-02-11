@@ -14,6 +14,7 @@ Controller_p::Controller_p(IDataDispatcher& dataDispatcher, GraphManager& graphM
     , autosave_active_(false)
     , autosave_period_min_(5)
     , autosave_tp_(std::chrono::system_clock::now())
+    , scantra_interface_(publicController, dataDispatcher, graphManager)
 {
     // Launch the controller in a separate thread with a fixed framerate
     main_thread_ = std::thread(&Controller_p::run, this, 60);

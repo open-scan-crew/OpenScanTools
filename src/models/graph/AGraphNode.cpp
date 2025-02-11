@@ -233,18 +233,20 @@ bool AGraphNode::addGeometricLink(const SafePtr<AGraphNode>& parentPtr, const Sa
 		childTransfo = rChild->getCumulTransformationModule();
 	}
 
-	WritePtr<AGraphNode> wChild, wParent, wOldParentPtr;
-	if(oldParentPtr)
+	WritePtr<AGraphNode> wChild, wParent;
+	if (oldParentPtr)
+	{
+		WritePtr<AGraphNode> wOldParentPtr;
 		multi_get(childPtr, parentPtr, oldParentPtr, wChild, wParent, wOldParentPtr);
+		//Si l'enfant avait déjà un parent, on l'enlève des enfants de son ancien parent (différent de son nouveau)
+		if (wOldParentPtr)
+			wOldParentPtr->m_geometricChildren.erase(childPtr);
+	}
 	else
 		multi_get(childPtr, parentPtr, wChild, wParent);
 
 	if (!(wChild) || !(wParent))
 		return false;
-
-	//Si l'enfant avait dÃ©jÃ  un parent, on l'enlÃ¨ve des enfants de son ancien parent (diffÃ©rent de son nouveau)
-	if (wOldParentPtr)
-		wOldParentPtr->m_geometricChildren.erase(childPtr);
 
 	TransformationModule moduleParent = wParent->getCumulTransformationModule();
 	childTransfo.compose_inverse_left(moduleParent);

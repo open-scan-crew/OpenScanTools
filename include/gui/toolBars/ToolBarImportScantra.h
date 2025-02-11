@@ -20,13 +20,14 @@ private:
 	void onProjectLoad(IGuiData* data);
 
 public slots:
-	void slotImportScanTra();
-	void slotStartInterprocess();
+	void slotImportScantra();
+	void slotSwitchConnexion();
 
 private:
 	Ui::ToolBarImportScantra m_ui;
     IDataDispatcher &m_dataDispatcher;
 	QString m_openPath;
+	bool m_interprocess_started = false;
 };
 
 #endif // TOOLBAR_IMPORTOBJECTS_H

@@ -96,7 +96,7 @@ enum class ControlType
 	linkOSTObjectsContext,
 	refreshScanLink,
 	importScantraModifications,
-	startScantraInterprocess,
+	switchScantraConnexion,
 	convertImage,
 
     // control::exportPC
