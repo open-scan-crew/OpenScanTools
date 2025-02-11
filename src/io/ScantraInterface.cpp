@@ -5,17 +5,11 @@
 #include "controller/controls/ControlViewport.h"
 #include "models/graph/GraphManager.hxx"
 #include "models/graph/ClusterNode.h"
-#include "models/graph/ScanNode.h"
 #include "models/graph/BoxNode.h"
-#include "models/graph/ClusterNode.h"
 #include "models/graph/CameraNode.h"
-#include "gui/DataDispatcher.h"
-#include "gui/GuiData/GuiDataTree.h"
-
-#include "utils/math/trigo.h"
 #include "utils/Logger.h"
 
-#include <wchar.h>
+#include <boost/interprocess/shared_memory_object.hpp>
 
 ScantraInterface::ScantraInterface(Controller& controller, IDataDispatcher& data_dispatcher, GraphManager& graph)
     : controller_(controller)

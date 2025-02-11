@@ -1,4 +1,4 @@
-#include "DialogPointCloudObjectCreation.h"
+#include "gui/Dialog/DialogPointCloudObjectCreation.h"
 
 #include "controller/controls/ControlFunction.h"
 #include "gui/GuiData/GuiDataClipping.h"

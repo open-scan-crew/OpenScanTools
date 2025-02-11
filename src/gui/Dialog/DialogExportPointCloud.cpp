@@ -1,4 +1,4 @@
-#include "DialogExportPointCloud.h"
+#include "gui/Dialog/DialogExportPointCloud.h"
 
 #include "gui/texts/ExportTexts.hpp"
 #include "gui/texts/FileTypeTexts.hpp"

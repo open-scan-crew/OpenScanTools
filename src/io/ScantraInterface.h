@@ -5,9 +5,6 @@
 
 #include <boost/interprocess/windows_shared_memory.hpp>
 #include <boost/interprocess/mapped_region.hpp>
-#include <boost/interprocess/sync/scoped_lock.hpp>
-#include <boost/interprocess/shared_memory_object.hpp>
-//#include <boost/date_time/posix_time/posix_time.hpp>
 
 #include "utils/safe_ptr.h"
 
