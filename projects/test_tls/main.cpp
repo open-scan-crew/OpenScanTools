@@ -9,6 +9,10 @@ void write_sample(const std::filesystem::path& path)
 {
     tls::ImageFile write_tls(path, tls::usage::write);
 
+    // We cannot rewrite an existing file
+    if (!write_tls.is_valid_file())
+        return;
+
     tls::ScanHeader header;
     // Guid will be automatically generated if not provided
     header.name = L"Random Point Cloud";
@@ -32,7 +36,9 @@ void write_sample(const std::filesystem::path& path)
 
 void rewrite_transfo(const std::filesystem::path& path)
 {
-    tls::ImageFile write_tls(path, tls::usage::write);
+    tls::ImageFile update_tls(path, tls::usage::update);
+
+    assert(update_tls.is_valid_file());
 
     tls::Transformation transfo;
     transfo.translation[0] = 6.0;
@@ -42,7 +48,7 @@ void rewrite_transfo(const std::filesystem::path& path)
     transfo.quaternion[1] = 0.5;
     transfo.quaternion[2] = 0.5;
     transfo.quaternion[3] = 0.5;
-    write_tls.overwriteTransformation(0, transfo);
+    update_tls.overwriteTransformation(0, transfo);
 }
 
 void read_file_low_mem(const std::filesystem::path& path, uint32_t _sample_count)
@@ -50,6 +56,8 @@ void read_file_low_mem(const std::filesystem::path& path, uint32_t _sample_count
     tls::ImageFile read_tls;
     if (!read_tls.open(path, tls::usage::read))
         return;
+
+    assert(read_tls.is_valid_file());
 
     // The buffer to reveive the points must be allocated by the caller.
     // If the buffer is not large enought for the file, then the file will be read
@@ -156,18 +164,10 @@ int main(int argc, char** argv)
     }
 
     //flip_map();
-    bool res = true;
-    std::fstream fstr;
-    fstr.open("C:/Workspace/test/test_brick.tls", std::ios::out | std::ios::binary);
-    res = fstr.good();
-    fstr.seekg(14000);
-    char* buf = new char[50000];
-    fstr.read(buf, 50000);
-    res = fstr.good();
 
-    //write_sample("C:/Workspace/test/test_brick.tls");
+    write_sample("C:/Workspace/test/test_brick.tls");
     //rewrite_transfo("C:/Workspace/test/test_brick.tls");
-    //read_file_low_mem("C:/Workspace/test/test_brick.tls", 20u);
+    read_file_low_mem("C:/Workspace/test/test_brick.tls", 20u);
 
     // Files for test:
     // Decolletage : {3, 4}, {1, 7}, {29, 27}, {37, 38}

@@ -23,7 +23,7 @@ namespace tls
     {
         read,
         write,
-        //update,
+        update,
         //render
     };
 

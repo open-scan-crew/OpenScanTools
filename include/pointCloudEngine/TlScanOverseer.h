@@ -178,17 +178,33 @@ public:
     void init();
     void shutdown();
 
-    bool isScanLeftTofree();
+
     static void setWorkingScansTransfo(const std::vector<tls::PointCloudInstance>& workingScans);
 
     // Management of the active resources
     bool getScanGuid(std::filesystem::path filePath, tls::ScanGuid& scanGuid);
     bool getScanHeader(tls::ScanGuid scanGuid, tls::ScanHeader& scanHeader);
     bool getScanPath(tls::ScanGuid scanGuid, std::filesystem::path& scanPath);
-    void addCopyScanFile(const tls::ScanGuid& scanGuid, const std::filesystem::path& destPath, bool savePath, bool overrideDestination, bool removeSource);
-    void freeScan(tls::ScanGuid scanGuid, bool deletePhysicalFile);
-    void refreshResources();
 
+    bool isScanLeftTofree();
+    void copyScanFile_async(const tls::ScanGuid& scanGuid, const std::filesystem::path& destPath, bool savePath, bool overrideDestination, bool removeSource);
+    void freeScan_async(tls::ScanGuid scanGuid, bool deletePhysicalFile);
+    void resourceManagement_sync();
+
+private:
+    struct scanCopyInfo
+    {
+        tls::ScanGuid guid;
+        std::filesystem::path path;
+        bool savePath;
+        bool overrideDestination;
+        bool removeSource;
+    };
+    void syncFileCopy();
+    bool doFileCopy(scanCopyInfo& copyInfo);
+    void freeWaitingResources();
+
+public:
     // Graphics
     bool getScanView(tls::ScanGuid scanGuid, const TlProjectionInfo& projInfo, const ClippingAssembly& clippingAssembly, TlScanDrawInfo& scanDrawInfo, bool& needStreaming);
 
@@ -260,7 +276,7 @@ public:
     //detectBeam//
     bool beamDetection(const glm::dvec3& seedPoint, const ClippingAssembly& clippingAssembly, glm::dvec3& normalVector, double& beamHeight, std::vector<std::vector<double>>& directionRange, const glm::dvec3& camPos, glm::dvec3& beamDirection, glm::dvec3& orthoDir);
     bool beamDetectionManualExtend(const glm::dvec3& seedPoint, const glm::dvec3& endPoint1, const glm::dvec3& endPoint2, const ClippingAssembly& clippingAssembly, glm::dvec3& normalVector, double& beamHeight, std::vector<std::vector<double>>& directionRange, const glm::dvec3& camPos, glm::dvec3& beamDirection, glm::dvec3& orthoDir);
-    std::vector<double> getBeamStandardList();
+    static std::vector<double> getBeamStandardList();
     double computeClosestStandardBeam(const double& height);
 
     //fitSphere//
@@ -387,19 +403,9 @@ public:
     double computeC(const std::vector<glm::dvec2>& points, const double& a, const double& b);
 
 
-
 private:
     TlScanOverseer();
     ~TlScanOverseer();
-
-    struct scanCopyInfo
-    {
-        tls::ScanGuid guid;
-        std::filesystem::path path;
-        bool savePath;
-        bool overrideDestination;
-        bool removeSource;
-    };
 
     struct WorkingScanInfo
     {
@@ -407,9 +413,6 @@ private:
         TransformationModule    transfo;
         bool                    isClippable;
     };
-
-    bool applyCopy(scanCopyInfo &copyInfo);
-    void freeWaitingResources();
 
     std::vector<glm::dvec3> samplePoints(const int& numberOfPoints, const ClippingAssembly& clippingAssembly);
     static bool isCylinderCloseToPreviousCylinders(const std::vector<glm::dvec3>& cylinderCenters, const std::vector<glm::dvec3>& cylinderDirections, const std::vector<double>& cylinderRadii, const glm::dvec3& cCenter, const glm::dvec3& cDirection, const double& cRadius);

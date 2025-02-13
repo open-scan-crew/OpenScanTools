@@ -145,12 +145,6 @@ namespace tls
         {
             tls::ScanHeader infos_;
             OctreeCtor* octree_ctor_ = nullptr;
-            //uint64_t octree_data_addr_ = 0;
-            //uint64_t point_data_addr_ = 0;
-            //uint64_t cell_data_addr_ = 0;
-            // Doublons avec les données de l’octree
-            uint64_t point_count_ = 0;
-            uint64_t cell_count_ = 0;
         };
 
         tls::FileHeader file_header_;

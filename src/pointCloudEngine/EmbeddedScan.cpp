@@ -216,6 +216,7 @@ bool EmbeddedScan::testPointsClippedOut(const TransformationModule& src_transfo,
         if (points_clipped_in.size() < points.size())
             return true;
     }
+    return false;
 }
 
 bool EmbeddedScan::clipAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& _clippingAssembly, IScanFileWriter* _writer)
@@ -1045,6 +1046,7 @@ bool EmbeddedScan::testFullyClippedOutCells(uint32_t _cellId, const ClippingAsse
                 return true;
         }
     }
+    return false;
 }
 
 void EmbeddedScan::getClippedCells_impl(uint32_t _cellId, const ClippingAssembly& _clippingAssembly, std::vector<std::pair<uint32_t, bool>>& _result) const

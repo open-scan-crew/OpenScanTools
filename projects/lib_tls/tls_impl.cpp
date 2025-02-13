@@ -397,6 +397,10 @@ ImageFile_p::ImageFile_p(const std::filesystem::path& filepath, usage usage)
         create_file();
         write_headers();
         break;
+    case usage::update:
+        open_file();
+        read_headers();
+        break;
     default:
         return;
     }
@@ -453,14 +457,14 @@ void ImageFile_p::open_file()
 
 void ImageFile_p::create_file()
 {
-    //if (std::filesystem::exists(filepath_))
-    //{
-    //    std::string msg = "File \"" + filepath_.string() + "\" already exists.";
-    //    results_.push_back({ result::INVALID_FILE, msg });
-    //    return;
-    //}
+    if (std::filesystem::exists(filepath_))
+    {
+        std::string msg = "File \"" + filepath_.string() + "\" already exists.";
+        results_.push_back({ result::INVALID_FILE, msg });
+        return;
+    }
 
-    fstr_.open(filepath_, std::ios::in | std::ios::binary);
+    fstr_.open(filepath_, std::ios::out | std::ios::binary);
     if (fstr_.fail()) {
         std::string msg = "Error: cannot save at " + filepath_.string() + ": no such file or directory.";
         results_.push_back({ result::INVALID_FILE, msg });
@@ -564,16 +568,8 @@ void ImageFile_p::read_headers()
         seekScanHeaderPos(fstr_, pc_i, TL_SCAN_ADDR_FORMAT);
         fstr_.read((char*)&infos.format, sizeof(PointFormat));
 
-        //seekScanHeaderPos(fstr_, pc_i, TL_SCAN_ADDR_DATA_ADDR);
-        //fstr_.read((char*)&state.octree_data_addr_, sizeof(uint64_t));
-        //fstr_.read((char*)&state.point_data_addr_, sizeof(uint64_t));
-        //fstr_.read((char*)&state.cell_data_addr_, sizeof(uint64_t));
-
         seekScanHeaderPos(fstr_, pc_i, TL_SCAN_ADDR_POINT_COUNT);
-        fstr_.read((char*)&state.point_count_, sizeof(uint64_t));
-        infos.pointCount = state.point_count_;
-        seekScanHeaderPos(fstr_, pc_i, TL_SCAN_ADDR_OCTREE_PARAM);
-        fstr_.read((char*)&state.cell_count_, sizeof(uint64_t));
+        fstr_.read((char*)&infos.pointCount, sizeof(uint64_t));
 
         pcs_.push_back(state);
     }
@@ -620,7 +616,7 @@ uint64_t ImageFile_p::getPointCount() const
     uint64_t totalPoints = 0;
     for (const PCState& state : pcs_)
     {
-        totalPoints += state.point_count_;
+        totalPoints += state.infos_.pointCount;
     }
     return totalPoints;
 }
@@ -654,8 +650,9 @@ bool ImageFile_p::finalizePointCloud(double add_x, double add_y, double add_z)
     // No point in octree - Autodestruct the file
     if (octree_ctor->getPointCount() == 0)
     {
-        fstr_.close();
-        std::filesystem::remove(filepath_);
+        delete octree_ctor;
+        pcs_.pop_back();
+        return false;
     }
     else
     {
@@ -692,15 +689,14 @@ bool ImageFile_p::finalizePointCloud(double add_x, double add_y, double add_z)
         }
 
         fstr_.flush();
-        fstr_.close();
 
         header.pointCount = octree_ctor->getPointCount();
         header.limits = octree_ctor->getLimits();
+        
+        delete octree_ctor;
+        octree_ctor = nullptr;
+        return true;
     }
-
-    delete octree_ctor;
-    octree_ctor = nullptr;
-    return true;
 }
 
 bool ImageFile_p::addPoints(Point const* src_buf, uint64_t src_size)
@@ -859,7 +855,7 @@ bool ImageFile_p::writeOctreeBase(uint32_t _pc_num, OctreeBase& _octree, ScanHea
 
 void ImageFile_p::overwriteTransformation(uint32_t _pc_num, const Transformation& new_transfo)
 {
-    if (_pc_num >= pcs_.size() || !fstr_.is_open())
+    if (usg_ != usage::update || _pc_num >= pcs_.size() || !fstr_.is_open())
         return;
 
     seekScanHeaderPos(fstr_, _pc_num, TL_SCAN_ADDR_TRANSFORMATION);

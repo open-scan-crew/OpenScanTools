@@ -145,8 +145,7 @@ ContextState ContextPCOCreation::launch(Controller& controller)
 
     for (tls::PointCloudInstance pcInst : scanInstances)
     {
-        glm::dmat4 modelMatrix = pcInst.transfo.getTransformation();
-        resultOk &= TlScanOverseer::getInstance().clipScan(pcInst.header.guid, modelMatrix, clipping_assembly_, scanFileWriter); // [old] merging == true
+        resultOk &= TlScanOverseer::getInstance().clipScan(pcInst.header.guid, pcInst.transfo, clipping_assembly_, scanFileWriter); // [old] merging == true
         scanExported++;
         controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(scanExported).arg(scanInstances.size()), scanExported));
     }

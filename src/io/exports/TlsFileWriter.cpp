@@ -18,6 +18,16 @@ bool TlsFileWriter::getWriter(const std::filesystem::path& dirPath, const std::w
     return ((TlsFileWriter*)(*writer))->img_file_.is_valid_file();
 }
 
+uint64_t TlsFileWriter::getScanPointCount() const
+{
+    return img_file_.getPointCount();
+}
+
+tls::ScanHeader TlsFileWriter::getLastScanHeader() const
+{
+    return img_file_.getPointCloudHeader(img_file_.getPointCloudCount() - 1);
+}
+
 FileType TlsFileWriter::getType() const
 {
     return FileType::TLS;

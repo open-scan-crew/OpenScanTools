@@ -81,48 +81,4 @@ namespace control::scanEdition
     {
         return ControlType::randomScansColors;
     }
-
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
-
-    ChangeScanGuid::ChangeScanGuid(SafePtr<ScanNode> toEditData, const tls::ScanGuid& newGuid)
-        : m_toEditData(toEditData)
-        , m_newGuid(newGuid)
-    {}
-
-    ChangeScanGuid::~ChangeScanGuid()
-    {}
-
-    void ChangeScanGuid::doFunction(Controller& controller)
-    {
-        WritePtr<ScanNode> writePtr = m_toEditData.get();
-        if (!writePtr)
-            return;
-        if (m_newGuid == xg::Guid())
-        {
-            // NOTE - On choisi de ne pas supprimer le fichier au cas où cela soit une mauvaise manipulation.
-            tlFreeScan(writePtr->getScanGuid());
-            return;
-        }
-        else
-        {
-            std::filesystem::path absolutePath = writePtr->getCurrentScanPath();
-            tlFreeScan(writePtr->getScanGuid());
-            writePtr->setScanGuid(m_newGuid);
-            doTimeModified(*&writePtr);
-            tlCopyScanFile(m_newGuid, absolutePath, false, true, true);
-        }
-    }
-
-    bool ChangeScanGuid::canUndo() const
-    {
-        return (false);
-    }
-
-    void ChangeScanGuid::undoFunction(Controller& controller)
-    {}
-
-    ControlType ChangeScanGuid::getType() const
-    {
-        return ControlType::changeScanGuid;
-    }
 }

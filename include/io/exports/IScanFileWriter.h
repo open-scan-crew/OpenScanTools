@@ -19,8 +19,8 @@ public:
     std::filesystem::path getFilePath() const;
     uint32_t getScanCount() const;
     uint64_t getTotalPoints() const;
-    uint64_t getScanPointCount() const;
-    tls::ScanHeader getLastScanHeader() const;
+    virtual uint64_t getScanPointCount() const;
+    virtual tls::ScanHeader getLastScanHeader() const;
 
     virtual FileType getType() const = 0;
 
@@ -41,7 +41,7 @@ public:
     /// No more points can be added after this function.
     /// This function must be called before appending a new point cloud.
     /// </summary>
-    /// <returns>true after a successfull finalisation.</returns>
+    /// <returns>'true' after a successfull finalisation.</returns>
     virtual bool finalizePointCloud() = 0;
 
 protected:

@@ -151,7 +151,7 @@ void TlStreamer::process()
 
     // 1. Copy files
     t1 = std::chrono::steady_clock::now();
-    TlScanOverseer::getInstance().refreshResources();
+    TlScanOverseer::getInstance().resourceManagement_sync();
 
     // 2. Stream scans (alloc & free)
     t2 = std::chrono::steady_clock::now();

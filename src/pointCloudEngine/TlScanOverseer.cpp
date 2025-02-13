@@ -129,15 +129,65 @@ bool TlScanOverseer::getScanPath(tls::ScanGuid scanGuid, std::filesystem::path& 
     }
 }
 
-void TlScanOverseer::addCopyScanFile(const tls::ScanGuid& scanGuid, const std::filesystem::path& destPath, bool savePath, bool overrideDestination, bool removeSource)
+bool  TlScanOverseer::isScanLeftTofree()
+{
+    std::lock_guard<std::mutex> lock(m_activeMutex);
+    return !m_scansToFree.empty();
+}
+
+void TlScanOverseer::copyScanFile_async(const tls::ScanGuid& scanGuid, const std::filesystem::path& destPath, bool savePath, bool overrideDestination, bool removeSource)
 {
     std::lock_guard<std::mutex> lock(m_copyMutex);
 
     m_waitingCopies.push_back({ scanGuid, destPath, savePath, overrideDestination, removeSource });
 }
 
+void TlScanOverseer::freeScan_async(tls::ScanGuid scanGuid, bool deletePhysicalFile)
+{
+    std::lock_guard<std::mutex> lock(m_activeMutex);
 
-bool TlScanOverseer::applyCopy(scanCopyInfo& copyInfo) 
+    // Find the Scanfile
+    auto it_scan = m_activeScans.find(scanGuid);
+    if (it_scan != m_activeScans.end())
+    {
+        EmbeddedScan* scanFile = it_scan->second;
+
+        scanFile->deleteFileWhenDestroyed(deletePhysicalFile);
+
+        // place the object to the waiting deletion list
+        m_scansToFree.push_back(scanFile);
+
+        m_activeScans.erase(it_scan);
+    }
+    else
+    {
+        Logger::log(IOLog) << "Info: Try to free a Scanfile not present, UUID = " << scanGuid << Logger::endl;
+    }
+}
+
+void TlScanOverseer::resourceManagement_sync()
+{
+    // do all waiting file management
+    syncFileCopy();
+
+    // Apply the waiting free command
+    freeWaitingResources();
+}
+
+void TlScanOverseer::syncFileCopy()
+{
+    std::lock_guard<std::mutex> lock(m_copyMutex);
+    // Apply the waiting copy command
+    for (auto copy : m_waitingCopies)
+    {
+        // FIXME(robin) Il faut faire parvenir le résultat de applyCopy() au controller sinon ça ne sert à rien de renvoyer un booléen.
+        if (!doFileCopy(copy))
+            continue;
+    }
+    m_waitingCopies.clear();
+}
+
+bool TlScanOverseer::doFileCopy(scanCopyInfo& copyInfo) 
 {
     Logger::log(IOLog) << "INFO - try to copy the file {" << copyInfo.guid << "} to " << copyInfo.path << Logger::endl;
 
@@ -193,14 +243,15 @@ bool TlScanOverseer::applyCopy(scanCopyInfo& copyInfo)
         {
             std::filesystem::copy_options options = std::filesystem::copy_options::none;
             options |= copyInfo.overrideDestination ? std::filesystem::copy_options::overwrite_existing : std::filesystem::copy_options::skip_existing;
+            std::filesystem::path old_path = oldScan->getPath();
 
-            std::filesystem::copy(oldScan->getPath(), copyInfo.path, options);
-
-            if (copyInfo.removeSource)
-                std::filesystem::remove(oldScan->getPath());
+            std::filesystem::copy(old_path, copyInfo.path, options);
 
             if (copyInfo.savePath || copyInfo.removeSource)
                 oldScan->setPath(copyInfo.path);
+
+            if (copyInfo.removeSource)
+                std::filesystem::remove(old_path);
 
             return true;
         }
@@ -210,30 +261,24 @@ bool TlScanOverseer::applyCopy(scanCopyInfo& copyInfo)
         Logger::log(IOLog) << "Exception occured when copying a scan file: " << e.what() << Logger::endl;
     }
 
-    //Note (Aurélien) to remove a build warning should not come here.
     return false;
 }
 
-void TlScanOverseer::freeScan(tls::ScanGuid scanGuid, bool deletePhysicalFile)
+void TlScanOverseer::freeWaitingResources()
 {
     std::lock_guard<std::mutex> lock(m_activeMutex);
 
-    // Find the Scanfile
-    auto it_scan = m_activeScans.find(scanGuid);
-    if (it_scan != m_activeScans.end())
+    for (auto it = m_scansToFree.begin(); it != m_scansToFree.end(); )
     {
-        EmbeddedScan* scanFile = it_scan->second;
-
-        scanFile->deleteFileWhenDestroyed(deletePhysicalFile);
-
-        // place the object to the waiting deletion list
-        m_scansToFree.push_back(scanFile);
-
-        m_activeScans.erase(it_scan);
-    }
-    else
-    {
-        Logger::log(IOLog) << "Info: Try to free a Scanfile not present, UUID = " << scanGuid << Logger::endl;
+        if ((*it)->canBeDeleted())
+        {
+            delete (*it);
+            it = m_scansToFree.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
     }
 }
 
@@ -3208,120 +3253,22 @@ glm::dvec3 TlScanOverseer::computeAreaOfPolyline(std::vector<Measure> measures)
 
 }
 
-void TlScanOverseer::refreshResources()
-{
-    {
-        std::lock_guard<std::mutex> lock(m_copyMutex);
-        // Apply the waiting copy command
-        for (auto copy : m_waitingCopies)
-        {
-            // FIXME(robin) Il faut faire parvenir le résultat de applyCopy() au controller sinon ça ne sert à rien de renvoyer un booléen.
-            if (!applyCopy(copy))
-                continue;
-        }
-        m_waitingCopies.clear();
-    }
-
-    // Apply the waiting free command
-    freeWaitingResources();
-}
-
-
-void TlScanOverseer::freeWaitingResources()
-{
-    std::lock_guard<std::mutex> lock(m_activeMutex);
-
-    for (auto it = m_scansToFree.begin(); it != m_scansToFree.end(); )
-    {
-        if ((*it)->canBeDeleted())
-        {
-            delete (*it);
-            it = m_scansToFree.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
-    }
-}
-
-bool  TlScanOverseer::isScanLeftTofree()
-{
-    std::lock_guard<std::mutex> lock(m_activeMutex);
-    return !m_scansToFree.empty();
-}
-
 std::vector<double> TlScanOverseer::getBeamStandardList()
 {
-    std::vector<double> result;
-    result.push_back(74.8);
-    result.push_back(88);
-    result.push_back(90);
-    result.push_back(94.3);
-    result.push_back(106);
-    result.push_back(109);
-    result.push_back(113.7);
-    result.push_back(124.5);
-    result.push_back(128);
-    result.push_back(133.1);
-    result.push_back(143);
-    result.push_back(147);
-    result.push_back(152.6);
-    result.push_back(161.5);
-    result.push_back(166);
-    result.push_back(172);
-    result.push_back(180);
-    result.push_back(185);
-    result.push_back(191.5);
-    result.push_back(199);
-    result.push_back(204);
-    result.push_back(210.8);
-    result.push_back(218);
-    result.push_back(223);
-    result.push_back(230.2);
-    result.push_back(237.5);
-    result.push_back(242.5);
-    result.push_back(257);
-    result.push_back(259.8);
-    result.push_back(262);
-    result.push_back(276);
-    result.push_back(281);
-    result.push_back(289.3);
-    result.push_back(294.5);
-    result.push_back(299.5);
-    result.push_back(313.5);
-    result.push_back(318.5);
-    result.push_back(332.5);
-    result.push_back(337.5);
-    result.push_back(347.3);
-    result.push_back(371);
-    result.push_back(376);
-    result.push_back(386.5);
-    result.push_back(419);
-    result.push_back(424);
-    result.push_back(435.4);
-    result.push_back(467);
-    result.push_back(472);
-    result.push_back(484);
-    result.push_back(516);
-    result.push_back(521);
-    result.push_back(532.8);
-    result.push_back(565);
-    result.push_back(570);
-    result.push_back(581);
-    result.push_back(614);
-    result.push_back(619);
-    result.push_back(663);
-    result.push_back(668);
-    result.push_back(762);
-    result.push_back(767);
-    result.push_back(860);
-    result.push_back(865);
-    result.push_back(959);
-    result.push_back(964);
-
-    return result;
-
+    return { 74.8, 88.0, 90.0, 94.3, 106.0,
+            109.0, 113.7, 124.5, 128.0, 133.1,
+            143.0, 147.0, 152.6, 161.5, 166.0,
+            172.0, 180.0, 185.0, 191.5, 199.0,
+            204.0, 210.8, 218.0, 223.0, 230.2,
+            237.5, 242.5, 257.0, 259.8, 262.0,
+            276.0, 281.0, 289.3, 294.5, 299.5,
+            313.5, 318.5, 332.5, 337.5, 347.3,
+            371.0, 376.0, 386.5, 419.0, 424.0,
+            435.4, 467.0, 472.0, 484.0, 516.0,
+            521.0, 532.8, 565.0, 570.0, 581.0,
+            614.0, 619.0, 663.0, 668.0, 762.0,
+            767.0, 860.0, 865.0, 959.0, 964.0
+    };
 }
 
 double TlScanOverseer::computeClosestStandardBeam(const double& height)

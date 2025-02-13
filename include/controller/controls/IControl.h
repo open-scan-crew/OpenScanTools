@@ -330,7 +330,6 @@ enum class ControlType
 	// control::ScanEdition
 	setScanClippable, // TODO - Free or Premium control ?
 	randomScansColors,
-    changeScanGuid,
 
 	// control::pcObject
 	createPCObjectFromFile,

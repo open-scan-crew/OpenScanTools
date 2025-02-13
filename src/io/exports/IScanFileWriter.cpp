@@ -12,6 +12,7 @@ IScanFileWriter::IScanFileWriter(const std::filesystem::path& filepath)
     , m_currentScanCount(0)
     , m_totalPointCount(0)
     , m_scanPointCount(0)
+    , post_translation_(0.0, 0.0, 0.0)
 { }
 
 std::filesystem::path IScanFileWriter::getFilePath() const

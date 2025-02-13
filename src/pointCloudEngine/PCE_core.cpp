@@ -9,17 +9,17 @@ bool tlGetScanGuid(const std::filesystem::path& filePath, tls::ScanGuid& scanGui
 
 void tlFreeScan(tls::ScanGuid scanGuid)
 {
-    TlScanOverseer::getInstance().freeScan(scanGuid, false);
+    TlScanOverseer::getInstance().freeScan_async(scanGuid, false);
 }
 
 void tlHardDeleteScanFile(tls::ScanGuid scanGuid)
 {
-    TlScanOverseer::getInstance().freeScan(scanGuid, true);
+    TlScanOverseer::getInstance().freeScan_async(scanGuid, true);
 }
 
 void tlCopyScanFile(const tls::ScanGuid& scanGuid, const std::filesystem::path& destPath, bool savePath, bool overrideDestination, bool removeSource)
 {
-    TlScanOverseer::getInstance().addCopyScanFile(scanGuid, destPath, savePath, overrideDestination, removeSource);
+    TlScanOverseer::getInstance().copyScanFile_async(scanGuid, destPath, savePath, overrideDestination, removeSource);
 }
 
 bool tlGetScanHeader(tls::ScanGuid scanGuid, tls::ScanHeader &scanHeader)

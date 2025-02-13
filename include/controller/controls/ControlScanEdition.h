@@ -31,22 +31,6 @@ namespace control
 			void undoFunction(Controller& controller) override;
 			ControlType getType() const override;
 		};
-
-        class ChangeScanGuid : public AEditionControl
-        {
-        public:
-            ChangeScanGuid(SafePtr<ScanNode> toEditData, const tls::ScanGuid& newGuid);
-            ChangeScanGuid() = delete;
-            ~ChangeScanGuid();
-            void doFunction(Controller& controller) override;
-            bool canUndo() const override;
-            void undoFunction(Controller& controller) override;
-            ControlType getType() const override;
-
-        private:
-			SafePtr<ScanNode> m_toEditData;
-            tls::ScanGuid m_newGuid;
-        };
 	}
 }
 
