@@ -58,13 +58,13 @@ namespace tls
         uint32_t getCellPointCount(uint32_t _cell_id) const;
 
         bool isLeaf(uint32_t _cell_id) const;
-        bool getCellPoints(uint32_t _cell_id, Point* _dst_buf, uint64_t _dst_size);
+        bool getCellPoints(uint32_t _cell_id, Point* _dst_buf, uint64_t _dst_size) const;
         bool getNextPoints(Point* _dst_buf, uint64_t _dst_size, uint64_t& _point_count);
 
         bool copyCellPoints(uint32_t _cell_id, Point* _dst_buf, uint64_t _dst_size, uint64_t& _dst_offset);
 
         void sortCellsByAddress();
-        bool decodeCell(uint32_t _cell_id, Point* _dst_buf, uint64_t _dst_size);
+        bool decodeCell(uint32_t _cell_id, Point* _dst_buf, uint64_t _dst_size) const;
 
         void printStats() const;
 
@@ -86,11 +86,11 @@ namespace tls
         uint32_t current_point_ = 0;
 
         // Stats
-        float alloc_time_ms = 0.f;
-        float read_time_ms = 0.f;
-        float decode_time_ms = 0.f;
-        float copy_time_ms = 0.f;
-        size_t read_size = 0;
+        mutable float alloc_time_ms = 0.f;
+        mutable float read_time_ms = 0.f;
+        mutable float decode_time_ms = 0.f;
+        mutable float copy_time_ms = 0.f;
+        mutable size_t read_size = 0;
     };
 
 
@@ -125,10 +125,6 @@ namespace tls
         // File manipulation functions
         void overwriteTransformation(uint32_t _pc_num, const Transformation& new_transfo);
 
-        // Only used by the OctreeShredder.
-        // FIXME - This function should be removed.
-        bool copyRawData(uint32_t _pc_num, char** pointBuffer, uint64_t& pointBufferSize, char** instanceBuffer, uint64_t& instanceBufferSize);
-
         friend ImageFile;
 
     protected:
@@ -149,9 +145,9 @@ namespace tls
         {
             tls::ScanHeader infos_;
             OctreeCtor* octree_ctor_ = nullptr;
-            uint64_t octree_data_addr_ = 0;
-            uint64_t point_data_addr_ = 0;
-            uint64_t cell_data_addr_ = 0;
+            //uint64_t octree_data_addr_ = 0;
+            //uint64_t point_data_addr_ = 0;
+            //uint64_t cell_data_addr_ = 0;
             // Doublons avec les données de l’octree
             uint64_t point_count_ = 0;
             uint64_t cell_count_ = 0;

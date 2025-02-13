@@ -193,6 +193,31 @@ void clipIndividualPoints(const std::vector<PointXYZIRGB>& inPoints, std::vector
     }
 }
 
+bool EmbeddedScan::testPointsClippedOut(const TransformationModule& src_transfo, const ClippingAssembly& _clippingAssembly) const
+{
+    ClippingAssembly localAssembly = _clippingAssembly;
+    localAssembly.clearMatrix();
+    glm::dmat4 src_transfo_mat = src_transfo.getTransformation();
+    localAssembly.addTransformation(src_transfo_mat);
+
+    std::vector<uint32_t> partially_clipped_cells;
+    if (testFullyClippedOutCells(m_uRootCell, localAssembly, partially_clipped_cells))
+        return true;
+
+    bool points_clipped_out = false;
+    for (uint32_t cell : partially_clipped_cells)
+    {
+        std::vector<PointXYZIRGB> points;
+        points.resize(tls_point_cloud_.getCellPointCount(cell));
+        if (!tls_point_cloud_.getCellPoints(cell, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+            continue;
+        std::vector<PointXYZIRGB> points_clipped_in;
+        clipIndividualPoints(points, points_clipped_in, localAssembly);
+        if (points_clipped_in.size() < points.size())
+            return true;
+    }
+}
+
 bool EmbeddedScan::clipAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& _clippingAssembly, IScanFileWriter* _writer)
 {
     ClippingAssembly localAssembly = _clippingAssembly;
@@ -973,7 +998,56 @@ uint64_t EmbeddedScan::getMinimumPointsResolution(const HCube& _cube, uint64_t _
     return (uint64_t)(maxResolution / _pointSize + 1.0); // add 1.f to get the ceil value
 }
 
-void EmbeddedScan::getClippedCells_impl(uint32_t _cellId, const ClippingAssembly& _clippingAssembly, std::vector<std::pair<uint32_t, bool>>& _result)
+bool EmbeddedScan::testFullyClippedOutCells(uint32_t _cellId, const ClippingAssembly& _clippingAssembly, std::vector<uint32_t>& _partially_clipped_cells) const
+{
+    assert(_cellId != NO_CHILD && _cellId < m_vTreeCells.size());
+
+    const TreeCell& cell = m_vTreeCells[_cellId];
+
+    // ------------------------------------------------
+    //   Clip the cube representing the cell boundary
+    // ------------------------------------------------
+
+    double radius = cell.m_size * sqrt(3.0) / 2.0;
+    glm::dvec4 center(cell.m_position[0] + cell.m_size / 2.0,
+        cell.m_position[1] + cell.m_size / 2.0,
+        cell.m_position[2] + cell.m_size / 2.0, 1.0);
+
+    bool acceptAllClipping;
+    bool rejectAllClipping;
+    ClippingAssembly forwardAssembly;
+    _clippingAssembly.testSphere(center, radius, acceptAllClipping, rejectAllClipping, forwardAssembly);
+
+    // Early ending when one cell is clipped out
+    if (rejectAllClipping)
+        return true;
+
+    // -----------------------------------------------------------
+    //   Continue the view traversal over the children if needed
+    // -----------------------------------------------------------
+
+    // Check the children for the node with not enough points
+    if (cell.m_isLeaf)
+    {
+        if (!acceptAllClipping) // && !rejectAllClipping
+            _partially_clipped_cells.push_back(_cellId);
+    }
+    else
+    {
+        // Do the recursion on the children
+        for (int j = 0; j < 8; j++)
+        {
+            if (cell.m_children[j] == NO_CHILD)
+                continue;
+
+            // One result to 'true' end the recursion
+            if (testFullyClippedOutCells(cell.m_children[j], forwardAssembly, _partially_clipped_cells))
+                return true;
+        }
+    }
+}
+
+void EmbeddedScan::getClippedCells_impl(uint32_t _cellId, const ClippingAssembly& _clippingAssembly, std::vector<std::pair<uint32_t, bool>>& _result) const
 {
     assert(_cellId != NO_CHILD && _cellId < m_vTreeCells.size());
 
@@ -1013,8 +1087,6 @@ void EmbeddedScan::getClippedCells_impl(uint32_t _cellId, const ClippingAssembly
             if (cell.m_children[j] == NO_CHILD)
                 continue;
 
-            // check if the children are drawable
-            // When no more clipping must be performed, we fall back on normal tree view
             getClippedCells_impl(cell.m_children[j], forwardAssembly, _result);
         }
     }

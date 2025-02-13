@@ -114,8 +114,6 @@ void StatusPanel::onFunctionUpdate(IGuiData *data)
 
 	if (pcData->type == ContextType::none)
 		m_functionMode->setText("");
-	else if (pcData->type == ContextType::autosaveProject)
-		return;
 	else
 	{
 		std::string str(magic_enum::enum_name(pcData->type));

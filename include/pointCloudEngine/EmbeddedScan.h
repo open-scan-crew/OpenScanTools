@@ -108,6 +108,7 @@ public:
     bool viewOctreeCB(std::vector<TlCellDrawInfo>& cellDrawInfo, std::vector<TlCellDrawInfo_multiCB>& cellDrawInfoCB, const TlProjectionInfo& projInfo, const ClippingAssembly& clippingAssembly);
 
     // For File Clipping
+    bool testPointsClippedOut(const TransformationModule& src_transfo, const ClippingAssembly& _clippingAssembly) const;
     bool clipAndWrite(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, IScanFileWriter* writer);
     static void logClipAndWriteTimings();
 
@@ -135,11 +136,20 @@ public:
 protected:
     bool getVisibleTree_impl(uint32_t _cellId, std::vector<TlCellDrawInfo>& _result, const TlProjectionInfo& _projInfo, const TlFrustumTest& _frustumTest, std::vector<uint32_t>& _missingCells);
     bool getVisibleTreeMultiClip_impl(uint32_t _cellId, std::vector<TlCellDrawInfo>& _result, std::vector<TlCellDrawInfo_multiCB>& _resultCB, const TlProjectionInfo& _projInfo, const TlFrustumTest& _frustumTest, const ClippingAssembly& clippingAssembly, std::vector<uint32_t>& _missingCells);
-    
-    uint64_t getMinimumPointsResolution(const HCube& _cube, uint64_t width, uint64_t height, float pointSize);
 
-    // Clipping Export
-    void getClippedCells_impl(uint32_t cellId, const ClippingAssembly& clippingAssembly, std::vector<std::pair<uint32_t, bool>>& _result);
+    uint64_t getMinimumPointsResolution(const HCube& _cube, uint64_t width, uint64_t height, float pointSize);
+    
+    /// <summary>
+    /// Quick test to know if a '_clippingAssembly', applied locally on the scan, has an effect
+    /// on the scan. Can be done before doing a test point by point.
+    /// </summary>
+    /// <returns>
+    ///  * 'true' if at least one cell is clipped out.
+    ///  * 'false' if no cells are fully clipped out.
+    ///  * the list of '_partially_clipped_cells' to be tested when the result is 'false'.
+    /// </returns>
+    bool testFullyClippedOutCells(uint32_t _cellId, const ClippingAssembly& _clippingAssembly, std::vector<uint32_t>& _partially_clipped_cells) const;
+    void getClippedCells_impl(uint32_t _cellId, const ClippingAssembly& _clippingAssembly, std::vector<std::pair<uint32_t, bool>>& _result) const;
 
     void getDecodedPoints(const std::vector<uint32_t>& leavesId, std::vector<glm::dvec3>& retPoints, bool transformToGlobal);
 

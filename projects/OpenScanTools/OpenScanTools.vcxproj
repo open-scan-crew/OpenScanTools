@@ -1109,7 +1109,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\src\pointCloudEngine\OctreeRayTracing.cpp" />
-    <ClCompile Include="..\..\src\pointCloudEngine\OctreeShredder.cpp" />
     <ClCompile Include="..\..\src\pointCloudEngine\PCE_core.cpp" />
     <ClCompile Include="..\..\src\pointCloudEngine\RenderingEcoSystem.cpp" />
     <ClCompile Include="..\..\src\pointCloudEngine\RenderingEngine.cpp" />
@@ -1759,7 +1758,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\pointCloudEngine\EmbeddedScan.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\IRenderingEngine.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\NormalEstimation.h" />
-    <ClInclude Include="..\..\include\pointCloudEngine\OctreeShredder.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\RenderingEngine.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\ShowTypes.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\SmartBuffer.h" />

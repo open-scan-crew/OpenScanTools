@@ -115,20 +115,4 @@ private:
     SafePtr<CameraNode>         m_cameraNode;
 };
 
-class ContextAutosaveProject : public AContext
-{
-public:
-    ContextAutosaveProject(const ContextId& id);
-    ~ContextAutosaveProject();
-    ContextState start(Controller& controller) override;
-    ContextState feedMessage(IMessage* message, Controller& controller) override;
-    ContextState launch(Controller& controller) override;
-    bool canAutoRelaunch() const;
-
-    ContextType getType() const override;
-
-private:
-    SafePtr<CameraNode>         m_cameraNode;
-};
-
 #endif // !CONTEXT_PROJECT_LOAD_H_

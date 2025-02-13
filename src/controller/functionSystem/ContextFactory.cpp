@@ -138,8 +138,6 @@ AContext* ContextFactory::createContext(const ContextType& type, ContextId& id, 
 			return new ContextSaveQuitProject(id);
 		case ContextType::saveProject:
 			return new ContextSaveProject(id);
-		case ContextType::autosaveProject:
-			return new ContextAutosaveProject(id);
 		case ContextType::examine:
 			return new ContextExamine(id);
 		case ContextType::beamBending:

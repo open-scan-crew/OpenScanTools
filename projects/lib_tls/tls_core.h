@@ -23,6 +23,7 @@ namespace tls
     {
         read,
         write,
+        //update,
         //render
     };
 
@@ -54,7 +55,7 @@ namespace tls
         bool getCellRenderData(void* data_buf, uint64_t& data_size);
 
         // Functions to retreive decoded points
-        bool getCellPoints(uint32_t _cell_id, Point* _dst_buf, uint64_t _dst_size);
+        bool getCellPoints(uint32_t _cell_id, Point* _dst_buf, uint64_t _dst_size) const;
         bool getNextPoints(Point* _dst_buf, uint64_t _dst_size, uint64_t& _point_count);
 
         bool getOctreeBase(OctreeBase& _octree_base);

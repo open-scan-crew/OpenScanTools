@@ -29,7 +29,6 @@
 // *******************************************
 
 ContextSaveCloseCreateProject::ContextSaveCloseCreateProject(const ContextId& id)
-//: m_state(ContextState::waiting_for_input)
 	: AContext(id)
 	, m_folderPath("")
 	, m_projectInfo()
@@ -216,8 +215,6 @@ ContextSaveCloseLoadProject::ContextSaveCloseLoadProject(const ContextId& id)
 
 ContextSaveCloseLoadProject::~ContextSaveCloseLoadProject()
 {}
-
-#include "utils/System.h"
 
 ContextState ContextSaveCloseLoadProject::start(Controller& controller)
 {
@@ -510,54 +507,4 @@ bool ContextSaveProject::canAutoRelaunch() const
 ContextType ContextSaveProject::getType() const
 {
     return ContextType::saveProject;
-}
-
-// *******************************************
-//          Autosave Project
-// *******************************************
-
-ContextAutosaveProject::ContextAutosaveProject(const ContextId& id)
-    : AContext(id)
-{}
-
-ContextAutosaveProject::~ContextAutosaveProject()
-{}
-
-ContextState ContextAutosaveProject::start(Controller& controller)
-{
-    controller.updateInfo(new GuiDataActivatedFunctions(ContextType::autosaveProject));
-    controller.updateInfo(new GuiDataContextRequestActiveCamera(m_id));
-    return (m_state = ContextState::waiting_for_input);
-}
-
-ContextState ContextAutosaveProject::feedMessage(IMessage* message, Controller& controller)
-{
-    switch (message->getType())
-    {
-    case IMessage::MessageType::CAMERA:
-    {
-        CameraMessage* modal = static_cast<CameraMessage*>(message);
-        m_cameraNode = modal->m_cameraNode;
-        return (m_state = ContextState::ready_for_using);
-    }
-    break;
-    }
-    return (m_state);
-}
-
-ContextState ContextAutosaveProject::launch(Controller& controller)
-{
-    m_state = ContextState::running;
-    controller.getControlListener()->notifyUIControl(new control::project::Save(m_cameraNode));
-    return (m_state = ContextState::done);
-}
-
-bool ContextAutosaveProject::canAutoRelaunch() const
-{
-    return false;
-}
-
-ContextType ContextAutosaveProject::getType() const
-{
-    return ContextType::autosaveProject;
 }

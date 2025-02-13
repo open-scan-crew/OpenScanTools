@@ -199,6 +199,11 @@ void ScantraInterface::run()
             editStationAdjustment();
             break;
         }
+        case ScantraInterprocessObserver::projectPath:
+        {
+            startProject();
+            break;
+        }
         default:
             break;
         }
@@ -447,6 +452,19 @@ void ScantraInterface::editStationAdjustment()
     // -> On stocke les entrée que l’on reçoit
     // -> On active/désactive la visibilité des scan lors de la dernière entrée.
     manageVisibility(current_entry, total_entry, scan);
+}
+
+void ScantraInterface::startProject()
+{
+    std::wstring w_folder(data_->w_array[0]);
+    std::wstring w_name(data_->w_array[1]);
+    IOLOG << "+++ Project path received: " << w_folder << ", " << w_name << Logger::endl;
+    std::filesystem::path project_path(w_folder);
+    project_path /= w_name;
+
+
+    // Folder ? Project name ?
+    // Extension (.tlp, .scdb) ?
 }
 
 void ScantraInterface::manageVisibility(int current_station, int total_station, SafePtr<AGraphNode> scan)

@@ -14,9 +14,9 @@ void write_sample(const std::filesystem::path& path)
     header.name = L"Random Point Cloud";
     header.sensorModel = L"undefined";
     header.sensorSerialNumber = L"undefined";
-    header.transfo.translation[0] = 0.0;
-    header.transfo.translation[1] = 0.0;
-    header.transfo.translation[2] = 0.0;
+    header.transfo.translation[0] = 1.0;
+    header.transfo.translation[1] = 2.0;
+    header.transfo.translation[2] = 3.0;
     header.precision = tls::PrecisionType::TL_OCTREE_100UM;
     header.format = tls::PointFormat::TL_POINT_XYZ_I;
 
@@ -30,9 +30,26 @@ void write_sample(const std::filesystem::path& path)
     write_tls.close();
 }
 
+void rewrite_transfo(const std::filesystem::path& path)
+{
+    tls::ImageFile write_tls(path, tls::usage::write);
+
+    tls::Transformation transfo;
+    transfo.translation[0] = 6.0;
+    transfo.translation[1] = -2.0;
+    transfo.translation[2] = 3.5;
+    transfo.quaternion[0] = 0.5;
+    transfo.quaternion[1] = 0.5;
+    transfo.quaternion[2] = 0.5;
+    transfo.quaternion[3] = 0.5;
+    write_tls.overwriteTransformation(0, transfo);
+}
+
 void read_file_low_mem(const std::filesystem::path& path, uint32_t _sample_count)
 {
-    tls::ImageFile read_tls(path, tls::usage::read);
+    tls::ImageFile read_tls;
+    if (!read_tls.open(path, tls::usage::read))
+        return;
 
     // The buffer to reveive the points must be allocated by the caller.
     // If the buffer is not large enought for the file, then the file will be read
@@ -45,7 +62,7 @@ void read_file_low_mem(const std::filesystem::path& path, uint32_t _sample_count
     if (!read_tls.is_valid_file())
         return;
 
-    size_t point_count = read_tls.getTotalPoints();
+    size_t point_count = read_tls.getPointCount();
     size_t next_pt_cout = point_count / _sample_count;
     std::cout << "*** LOW MEM *** " << path.filename() << " [" << point_count << " points]" << std::endl;
     std::chrono::steady_clock::time_point tp_0 = std::chrono::steady_clock::now();
@@ -87,6 +104,8 @@ void flip_map()
     std::multimap<uint32_t, uint32_t> dst;
     std::transform(counter.begin(), counter.end(), std::inserter(dst, dst.begin()), flip_pair);
 }
+
+#include <fstream>
 
 int main(int argc, char** argv)
 {
@@ -137,14 +156,23 @@ int main(int argc, char** argv)
     }
 
     //flip_map();
+    bool res = true;
+    std::fstream fstr;
+    fstr.open("C:/Workspace/test/test_brick.tls", std::ios::out | std::ios::binary);
+    res = fstr.good();
+    fstr.seekg(14000);
+    char* buf = new char[50000];
+    fstr.read(buf, 50000);
+    res = fstr.good();
 
     //write_sample("C:/Workspace/test/test_brick.tls");
+    //rewrite_transfo("C:/Workspace/test/test_brick.tls");
     //read_file_low_mem("C:/Workspace/test/test_brick.tls", 20u);
 
     // Files for test:
     // Decolletage : {3, 4}, {1, 7}, {29, 27}, {37, 38}
 
-    //read_file_low_mem("C:/Workspace/Point Clouds/Usine_Huot/Scans/Decolletage_001.tls", 0.0005f);
+    //read_file_low_mem("C:/Workspace/Point Clouds/Usine_Huot/Scans/Decolletage_001.tls", 20u);
     //read_file_low_mem("C:/Workspace/Point Clouds/Usine_Huot/Scans/Decolletage_004.tls", 0.f);
     //read_file_low_mem("C:/Workspace/Point Clouds/Usine_Huot/Scans/Decolletage_037.tls");
     //read_file_low_mem("C:/Workspace/Point Clouds/Usine_Huot/Scans/Decolletage_038.tls");

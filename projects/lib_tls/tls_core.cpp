@@ -51,7 +51,7 @@ bool ImagePointCloud::getCellRenderData(void* data_buf, uint64_t& data_size)
     return p_->getCellRenderData(data_buf, data_size);
 }
 
-bool ImagePointCloud::getCellPoints(uint32_t _cell_id, Point* _dst_buf, uint64_t _dst_size)
+bool ImagePointCloud::getCellPoints(uint32_t _cell_id, Point* _dst_buf, uint64_t _dst_size) const
 {
     return p_->getCellPoints(_cell_id, _dst_buf, _dst_size);
 }

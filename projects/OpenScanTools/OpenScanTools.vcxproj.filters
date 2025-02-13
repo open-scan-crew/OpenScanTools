@@ -1264,9 +1264,6 @@
     <ClCompile Include="..\..\src\gui\Dialog\DialogDeletePoints.cpp">
       <Filter>src\gui\Dialog</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\pointCloudEngine\OctreeShredder.cpp">
-      <Filter>src\pointCloudEngine</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\models\data\Clipping\ClippingGeometry.cpp">
       <Filter>src\models\data\Clipping</Filter>
     </ClCompile>
@@ -3116,9 +3113,6 @@
     </ClInclude>
     <ClInclude Include="..\..\include\controller\messages\DeletePointsMessage.h">
       <Filter>include\controller\messages</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\pointCloudEngine\OctreeShredder.h">
-      <Filter>include\pointCloudEngine</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\models\data\Clipping\ClippingGeometry.h">
       <Filter>include\models\data\Clipping</Filter>

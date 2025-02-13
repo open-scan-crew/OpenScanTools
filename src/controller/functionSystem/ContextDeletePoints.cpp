@@ -8,6 +8,7 @@
 #include "controller/messages/ModalMessage.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
+#include "io/exports/TlsFileWriter.h"
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "pointCloudEngine/PCE_core.h"
 
@@ -166,27 +167,49 @@ ContextState ContextDeletePoints::launch(Controller& controller)
         if (!rScan)
             continue;
 
-        uint64_t pointsDeletedCount = 0;
+        size_t initial_point_count = rScan->getNbPoint();
+        uint64_t deleted_point_count = 0;
         std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
-        std::filesystem::path newPath = outFolder / rScan->getName();
-        newPath += ".tls";
+        //std::filesystem::path newPath = outFolder / rScan->getName();
+        //newPath += ".tls";
+        tls::ScanGuid new_guid;
 
-        tls::ScanGuid newGuid = TlScanOverseer::getInstance().clipNewScan(rScan->getScanGuid(), rScan->getTransformation(), clippingAssembly, newPath, pointsDeletedCount);
+        //------------------
+        //tls::ScanGuid new_guid = TlScanOverseer::getInstance().clipNewScan(rScan->getScanGuid(), rScan->getTransformation(), clippingAssembly, newPath, pointsDeletedCount);
 
+        //---------+++++++++
+        if (TlScanOverseer::getInstance().testClippingEffect(rScan->getScanGuid(), rScan->getTransformation(), clippingAssembly))
+        {
+            TlsFileWriter* tls_writer = nullptr;
+            std::wstring log;
+            TlsFileWriter::getWriter(outFolder, rScan->getName(), log, (IScanFileWriter**)&tls_writer);
+            if (tls_writer == nullptr)
+                continue;
+            bool res = TlScanOverseer::getInstance().clipScan(rScan->getScanGuid(), rScan->getTransformation(), clippingAssembly, tls_writer);
+
+            tls_writer->finalizePointCloud();
+
+            new_guid = tls_writer->getLastScanHeader().guid;
+            deleted_point_count = initial_point_count - tls_writer->getScanPointCount();
+            delete tls_writer;
+        }
+        //++++++++++++++++++
+
+        // LOG
         scanCount++;
         float seconds = std::chrono::duration<float, std::ratio<1>>(std::chrono::steady_clock::now() - startTime).count();
         QString qScanName = QString::fromStdWString(rScan->getName());
         controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(scanCount).arg(scans.size()), scanCount));
-        controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("%1 points deleted in scan %2 in %3 seconds.").arg(pointsDeletedCount).arg(qScanName).arg(seconds)));
-        if (newGuid == rScan->getScanGuid())
+        controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("%1 points deleted in scan %2 in %3 seconds.").arg(deleted_point_count).arg(qScanName).arg(seconds)));
+        if (new_guid == rScan->getScanGuid())
             controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Scan %1 not affected by point suppression.").arg(qScanName)));
-        else if (newGuid == xg::Guid())
+        else if (new_guid == xg::Guid())
             controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Scan %1 totally deleted from project.").arg(qScanName)));
 
         // Le control s'occupe de remplacer le scan guid dans le model scan du projet.
         // Le control gère le null guid (i.e. il supprime le scan le cas échéant).
-        if(newGuid != rScan->getScanGuid())
-            controller.getControlListener()->notifyUIControl(new control::scanEdition::ChangeScanGuid(scan, newGuid));
+        if(new_guid != rScan->getScanGuid())
+            controller.getControlListener()->notifyUIControl(new control::scanEdition::ChangeScanGuid(scan, new_guid));
     }
 
     controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));

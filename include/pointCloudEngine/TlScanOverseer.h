@@ -114,11 +114,11 @@ enum class FitCylinderMode
 
 enum class LineConnectionType
 {
-	none,
-	elbow,
-	coaxial,
-	stitching,
-	reduction
+    none,
+    elbow,
+    coaxial,
+    stitching,
+    reduction
 };
 
 class PolygonalPlane
@@ -178,7 +178,7 @@ public:
     void init();
     void shutdown();
 
-	bool isScanLeftTofree();
+    bool isScanLeftTofree();
     static void setWorkingScansTransfo(const std::vector<tls::PointCloudInstance>& workingScans);
 
     // Management of the active resources
@@ -198,25 +198,26 @@ public:
     void streamScans(uint64_t maxSize, char* stagingBuffer, std::vector<TlStagedTransferInfo>& vkTransfer);
 
     // Compute
+    bool testClippingEffect(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly);
     bool clipScan(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, IScanFileWriter* outScan);
-    tls::ScanGuid clipNewScan(tls::ScanGuid scanGuid, const glm::dmat4& modelMat, const ClippingAssembly& clippingAssembly, const std::filesystem::path& outPath, uint64_t& pointDeletedCount);
+    //tls::ScanGuid clipNewScan(tls::ScanGuid scanGuid, const glm::dmat4& modelMat, const ClippingAssembly& clippingAssembly, const std::filesystem::path& outPath, uint64_t& pointDeletedCount);
 
     // Lucas functions
     bool rayTracing(const glm::dvec3& ray, const glm::dvec3& rayOrigin, glm::dvec3& bestPoint, const double& cosAngleThreshold, const ClippingAssembly& clippingAssembly, const bool& isOrtho, std::string& scanName);
-	bool findNeighborsBucketsDirected(const glm::dvec3& globalSeedPoint, const glm::dvec3& directedPoint, const double& radius, std::vector<std::vector<glm::dvec3>>& neighborList, int numberOfBuckets, const ClippingAssembly& clippingAssembly);
-	bool findNeighborsBuckets(const glm::dvec3& globalSeedPoint, const double& radius, std::vector<std::vector<glm::dvec3>>& neighborList, int numberOfBuckets, const ClippingAssembly& clippingAssembly);
-	bool findNeighborsBucketsTest(const glm::dvec3& globalSeedPoint, const double& radius, std::vector<std::vector<glm::dvec3>>& neighborList, int numberOfBuckets, const ClippingAssembly& clippingAssembly, std::vector<glm::dquat>& rotations, std::vector<glm::dvec3>& positions, std::vector<double>& scales);
+    bool findNeighborsBucketsDirected(const glm::dvec3& globalSeedPoint, const glm::dvec3& directedPoint, const double& radius, std::vector<std::vector<glm::dvec3>>& neighborList, int numberOfBuckets, const ClippingAssembly& clippingAssembly);
+    bool findNeighborsBuckets(const glm::dvec3& globalSeedPoint, const double& radius, std::vector<std::vector<glm::dvec3>>& neighborList, int numberOfBuckets, const ClippingAssembly& clippingAssembly);
+    bool findNeighborsBucketsTest(const glm::dvec3& globalSeedPoint, const double& radius, std::vector<std::vector<glm::dvec3>>& neighborList, int numberOfBuckets, const ClippingAssembly& clippingAssembly, std::vector<glm::dquat>& rotations, std::vector<glm::dvec3>& positions, std::vector<double>& scales);
 
-	bool findNeighbors(const glm::dvec3& globalSeedPoint, const double& radius, std::vector<glm::dvec3>& neighborList, const ClippingAssembly& clippingAssembly);
+    bool findNeighbors(const glm::dvec3& globalSeedPoint, const double& radius, std::vector<glm::dvec3>& neighborList, const ClippingAssembly& clippingAssembly);
     bool findNeighborsTowardsPoint(const glm::dvec3& globalSeedPoint, const glm::dvec3& targetPoint, const double& radius, std::vector<glm::dvec3>& neighborList, const ClippingAssembly& clippingAssembly);
     bool nearestNeighbor(const glm::dvec3& globalPoint, glm::dvec3& result);
 
     bool fitCylinder(const glm::dvec3& globalSeedPoint, const double& radius, const double& threshold, double& cylinderRadius, glm::dvec3& cylinderDirection, glm::dvec3& cylinderCenter, const FitCylinderMode& mode, const ClippingAssembly& clippingAssembly);
-	bool fitCylinderTest(const glm::dvec3& globalSeedPoint, const double& radius, const double& threshold, double& cylinderRadius, glm::dvec3& cylinderDirection, glm::dvec3& cylinderCenter, const FitCylinderMode& mode, const ClippingAssembly& clippingAssembly, std::vector<glm::dquat>& rotations, std::vector<glm::dvec3>& positions, std::vector<double>& scales);
+    bool fitCylinderTest(const glm::dvec3& globalSeedPoint, const double& radius, const double& threshold, double& cylinderRadius, glm::dvec3& cylinderDirection, glm::dvec3& cylinderCenter, const FitCylinderMode& mode, const ClippingAssembly& clippingAssembly, std::vector<glm::dquat>& rotations, std::vector<glm::dvec3>& positions, std::vector<double>& scales);
 
-	bool fitCylinderMultipleSeeds(const std::vector<glm::dvec3>& globalSeedPoint, const double& radius, const double& threshold, double& cylinderRadius, glm::dvec3& cylinderDirection, glm::dvec3& cylinderCenter, const FitCylinderMode& mode, const ClippingAssembly& clippingAssembly);
-	bool fitCylinder4Clicks(const std::vector<glm::dvec3>& seedPoints, const double& radius, const double& threshold, double& cylinderRadius, glm::dvec3& cylinderDirection, glm::dvec3& cylinderCenter, const ClippingAssembly& clippingAssembly);
-	bool fitBigCylinder(const glm::dvec3& seedPoint1, const glm::dvec3& seedPoint2, const double& radius, const double& threshold, double& cylinderRadius, glm::dvec3& cylinderDirection, glm::dvec3& cylinderCenter, std::vector<glm::dvec3>& tags, std::vector<std::vector<double>>& planes, const ClippingAssembly& clippingAssembly);
+    bool fitCylinderMultipleSeeds(const std::vector<glm::dvec3>& globalSeedPoint, const double& radius, const double& threshold, double& cylinderRadius, glm::dvec3& cylinderDirection, glm::dvec3& cylinderCenter, const FitCylinderMode& mode, const ClippingAssembly& clippingAssembly);
+    bool fitCylinder4Clicks(const std::vector<glm::dvec3>& seedPoints, const double& radius, const double& threshold, double& cylinderRadius, glm::dvec3& cylinderDirection, glm::dvec3& cylinderCenter, const ClippingAssembly& clippingAssembly);
+    bool fitBigCylinder(const glm::dvec3& seedPoint1, const glm::dvec3& seedPoint2, const double& radius, const double& threshold, double& cylinderRadius, glm::dvec3& cylinderDirection, glm::dvec3& cylinderCenter, std::vector<glm::dvec3>& tags, std::vector<std::vector<double>>& planes, const ClippingAssembly& clippingAssembly);
     //bool fitBigCylinder2(const glm::dvec3& seedPoint1, const glm::dvec3& seedPoint2, const double& radius, const double& threshold, double& cylinderRadius, glm::dvec3& cylinderDirection, glm::dvec3& cylinderCenter, const ClippingAssembly& clippingAssembly);
     bool beamBending(const std::vector<glm::dvec3>& globalEndPoints, glm::dvec3& bendPoint, double& maxBend, double& ratio, bool& reliable, const ClippingAssembly& clippingAssembly);
     static bool discretize(const glm::dvec3& tip1, const glm::dvec3& tip2, const int& numberOfSteps, std::vector<glm::dvec3>& discretePoints);
@@ -229,7 +230,7 @@ public:
     void estimateNormals();
     bool fitPlane(const glm::dvec3& seedPoint, std::vector<double>& result, const ClippingAssembly& clippingAssembly);
     bool fitPlaneRadius(const glm::dvec3& seedPoint, std::vector<double>& result, const ClippingAssembly& clippingAssembly, const double& radius);
-	bool fitPlane3Points(const std::vector<glm::dvec3> points, std::vector<double>& result);
+    bool fitPlane3Points(const std::vector<glm::dvec3> points, std::vector<double>& result);
     ////////// simple measures /////////////
     bool pointToCylinderMeasure(const glm::dvec3& point, const glm::dvec3 cylinderPoint, glm::dvec3& projectedPoint, glm::dvec3& projectedCylinderPoint, double& cylinderRadius, glm::dvec3& cylinderDirection, glm::dvec3& cylinderCenter, const ClippingAssembly& clippingAssembly);
     // NOTE(robin) - Maintenant directement fait dans ContextPointToPlaneMeasure
@@ -248,40 +249,40 @@ public:
 
     //extendCylinder//
     bool extendCylinder(const glm::dvec3& seedPoint, const double& radius, const double& threshold, double& cylinderRadius, glm::dvec3& cylinderDirection, glm::dvec3& cylinderCenter, std::vector<double>& heights, const FitCylinderMode& mode, const ClippingAssembly& clippingAssembly);
-	glm::dvec3 refineDirection(const double& cylinderRadius, const glm::dvec3& cylinderCenter, const glm::dvec3& cylinderDirection, const std::vector<double>& heights, const double& threshold, const ClippingAssembly& clippingAssembly);
+    glm::dvec3 refineDirection(const double& cylinderRadius, const glm::dvec3& cylinderCenter, const glm::dvec3& cylinderDirection, const std::vector<double>& heights, const double& threshold, const ClippingAssembly& clippingAssembly);
 
-	bool testHeight(const double& radius, const glm::dvec3& center, const glm::dvec3& direction, const double& height, const int& numberOfTestPoints, const double& threshold);
-	bool testHeight2(const double& radius, const glm::dvec3& center, const glm::dvec3& direction, const double& height, const int& numberOfTestPoints, const double& threshold, const std::vector<glm::dvec3>& realPoints, double& goodPointsRatio, const double& ratioThreshold);
+    bool testHeight(const double& radius, const glm::dvec3& center, const glm::dvec3& direction, const double& height, const int& numberOfTestPoints, const double& threshold);
+    bool testHeight2(const double& radius, const glm::dvec3& center, const glm::dvec3& direction, const double& height, const int& numberOfTestPoints, const double& threshold, const std::vector<glm::dvec3>& realPoints, double& goodPointsRatio, const double& ratioThreshold);
 
-	std::vector<double> computeCylinderHeight2(const glm::dvec3& seedPoint, const double& radius, const glm::dvec3& center, const glm::dvec3& direction, const int& numberOfTestPoints, const double& threshold, const double& heightStep, const ClippingAssembly& clippingAssembly);
-	bool samplePointsBetweenHeights(const glm::dvec3& seedPoint, const double& radius, const glm::dvec3& direction, const glm::dvec3& center, const double& height1, const double& height2, const double& heightThreshold, std::vector<glm::dvec3>& sampledPoints, const ClippingAssembly& clippingAssembly);
+    std::vector<double> computeCylinderHeight2(const glm::dvec3& seedPoint, const double& radius, const glm::dvec3& center, const glm::dvec3& direction, const int& numberOfTestPoints, const double& threshold, const double& heightStep, const ClippingAssembly& clippingAssembly);
+    bool samplePointsBetweenHeights(const glm::dvec3& seedPoint, const double& radius, const glm::dvec3& direction, const glm::dvec3& center, const double& height1, const double& height2, const double& heightThreshold, std::vector<glm::dvec3>& sampledPoints, const ClippingAssembly& clippingAssembly);
 
-	//detectBeam//
-	bool beamDetection(const glm::dvec3& seedPoint, const ClippingAssembly& clippingAssembly, glm::dvec3& normalVector, double& beamHeight, std::vector<std::vector<double>>& directionRange, const glm::dvec3& camPos, glm::dvec3& beamDirection, glm::dvec3& orthoDir);
+    //detectBeam//
+    bool beamDetection(const glm::dvec3& seedPoint, const ClippingAssembly& clippingAssembly, glm::dvec3& normalVector, double& beamHeight, std::vector<std::vector<double>>& directionRange, const glm::dvec3& camPos, glm::dvec3& beamDirection, glm::dvec3& orthoDir);
     bool beamDetectionManualExtend(const glm::dvec3& seedPoint, const glm::dvec3& endPoint1, const glm::dvec3& endPoint2, const ClippingAssembly& clippingAssembly, glm::dvec3& normalVector, double& beamHeight, std::vector<std::vector<double>>& directionRange, const glm::dvec3& camPos, glm::dvec3& beamDirection, glm::dvec3& orthoDir);
     std::vector<double> getBeamStandardList();
-	double computeClosestStandardBeam(const double& height);
+    double computeClosestStandardBeam(const double& height);
 
-	//fitSphere//
-	bool fitSphere(const std::vector<glm::dvec3>& seedPoints, glm::dvec3& center, double& radius, const double& threshold, const ClippingAssembly& clippingAssembly, glm::dvec3& centerOfMass);
+    //fitSphere//
+    bool fitSphere(const std::vector<glm::dvec3>& seedPoints, glm::dvec3& center, double& radius, const double& threshold, const ClippingAssembly& clippingAssembly, glm::dvec3& centerOfMass);
 
-	//connectPipes//
-	bool applyConstraints(std::vector<glm::dvec3>& centers, std::vector<glm::dvec3>& directions, std::vector<double>& lengths, std::vector<double>& angleModifs, std::vector<glm::dvec3>& elbowPoints, std::vector<LineConnectionType>& connectionType, const double& mainRadius, const std::vector<double>& radii, std::vector<std::vector<glm::dvec3>>& elbowEdges, const bool& angleConstraints, std::vector<glm::dvec3>& elbowCenters);
-	double getTargetCosAngle(const glm::dvec3& direction1, const glm::dvec3& direction2);
-	void getEndAndMiddlePoints(const glm::dvec3& center1, const glm::dvec3& direction1, const double& length1, const glm::dvec3& center2, const glm::dvec3& direction2, const double& length2, std::vector<glm::dvec3>& endPoints, std::vector<glm::dvec3>& middlePoints);
-	glm::dvec3 computeElbowPosition(const glm::dvec3& center1, const glm::dvec3& center2, const glm::dvec3& elbowPoint, const double& radius);
-	glm::dvec3 computeIntersectionAxes(const glm::dvec3& center1, const glm::dvec3& center2, const glm::dvec3& dir1, const glm::dvec3& dir2, const double& length1, const double& length2, const bool& angleConstraints);
-	void getElbowParameters(glm::dvec3& center1, glm::dvec3& center2, glm::dvec3& dir1, glm::dvec3& dir2, double& length1, double& length2, const double& radius1, const double& radius2, double& mainAngle, const double& mainRadius, const glm::dvec3& elbowRealCenter, glm::dvec3& elbowPosResult, TransformationModule& mod, const double& targetCosAngle, const bool& angleConstraints);
+    //connectPipes//
+    bool applyConstraints(std::vector<glm::dvec3>& centers, std::vector<glm::dvec3>& directions, std::vector<double>& lengths, std::vector<double>& angleModifs, std::vector<glm::dvec3>& elbowPoints, std::vector<LineConnectionType>& connectionType, const double& mainRadius, const std::vector<double>& radii, std::vector<std::vector<glm::dvec3>>& elbowEdges, const bool& angleConstraints, std::vector<glm::dvec3>& elbowCenters);
+    double getTargetCosAngle(const glm::dvec3& direction1, const glm::dvec3& direction2);
+    void getEndAndMiddlePoints(const glm::dvec3& center1, const glm::dvec3& direction1, const double& length1, const glm::dvec3& center2, const glm::dvec3& direction2, const double& length2, std::vector<glm::dvec3>& endPoints, std::vector<glm::dvec3>& middlePoints);
+    glm::dvec3 computeElbowPosition(const glm::dvec3& center1, const glm::dvec3& center2, const glm::dvec3& elbowPoint, const double& radius);
+    glm::dvec3 computeIntersectionAxes(const glm::dvec3& center1, const glm::dvec3& center2, const glm::dvec3& dir1, const glm::dvec3& dir2, const double& length1, const double& length2, const bool& angleConstraints);
+    void getElbowParameters(glm::dvec3& center1, glm::dvec3& center2, glm::dvec3& dir1, glm::dvec3& dir2, double& length1, double& length2, const double& radius1, const double& radius2, double& mainAngle, const double& mainRadius, const glm::dvec3& elbowRealCenter, glm::dvec3& elbowPosResult, TransformationModule& mod, const double& targetCosAngle, const bool& angleConstraints);
     bool lookForStitchConnexion(glm::dvec3& center, glm::dvec3& direction, double& length, const std::vector<glm::dvec3>& cylCenters, const std::vector<glm::dvec3> cylDirections, const std::vector<double> cylRadii, const std::vector<double>& lengths, const double& radius);
     std::vector<int> lookForSecondaryStitchConnexion(const glm::dvec3& center, const glm::dvec3& direction, const double& length, const std::vector<glm::dvec3>& cylCenters, const std::vector<glm::dvec3> cylDirections, const std::vector<double>& cylRadii, const std::vector<double>& lengths, const double& radius);
        std::vector<int> getTotalCoaxialLine(glm::dvec3& endPoint1, glm::dvec3& endPoint2, const std::vector<glm::dvec3>& centers, const std::vector<glm::dvec3>& directions, const std::vector<double>& lengths, const glm::dvec3& currCenter, const glm::dvec3& currDir, const double& currLength);
     glm::dvec3 getPointFurthestAway(const glm::dvec3& center, const glm::dvec3& direction, const std::vector<glm::dvec3> points);
     double pointToLineDistance(const glm::dvec3& point, const glm::dvec3& direction, const glm::dvec3& linePoint);
-	bool arrangeCylindersInLine(std::vector<glm::dvec3>& centers, std::vector<glm::dvec3>& directions, std::vector<double>& lengths, std::vector<double>& radii, std::vector<int>& order);
-	double lineToLineDistance(const glm::dvec3& dir1, const glm::dvec3& dir2, const glm::dvec3& point1, const glm::dvec3& point2);
+    bool arrangeCylindersInLine(std::vector<glm::dvec3>& centers, std::vector<glm::dvec3>& directions, std::vector<double>& lengths, std::vector<double>& radii, std::vector<int>& order);
+    double lineToLineDistance(const glm::dvec3& dir1, const glm::dvec3& dir2, const glm::dvec3& point1, const glm::dvec3& point2);
 
-	//areaOfPolyline
-	glm::dvec3 computeAreaOfPolyline(std::vector<Measure> measures);
+    //areaOfPolyline
+    glm::dvec3 computeAreaOfPolyline(std::vector<Measure> measures);
 
     //SlabDetection//
 
@@ -340,8 +341,8 @@ public:
     int getVolumeOfCluster(const std::vector<std::vector<std::vector<int>>>& clusterLabels, const int& label);
     std::vector<int> mergeTwoBoxes(const std::vector<int>& box1, const std::vector<int>& box2);
     std::set<std::vector<int>> getBoxCorners(const std::vector<int>& box);
-	// NOTE(robin) - Il semble que les 2 fonctions suivantes sont static, on pourrait donc leur extraire dans un fichier de code à part pour faciliter la compilation
-	static std::vector<glm::dvec3> sampleHeightPoints(const glm::dvec3& center, const double& radius, const glm::dvec3& direction, const double& height, const int& numberOfTestPoints);
+    // NOTE(robin) - Il semble que les 2 fonctions suivantes sont static, on pourrait donc leur extraire dans un fichier de code à part pour faciliter la compilation
+    static std::vector<glm::dvec3> sampleHeightPoints(const glm::dvec3& center, const double& radius, const glm::dvec3& direction, const double& height, const int& numberOfTestPoints);
     static double computeHeight(const glm::dvec3& point, const glm::dvec3& direction, const glm::dvec3& center);
 
     //Plane detection

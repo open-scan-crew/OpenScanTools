@@ -212,7 +212,7 @@ bool ImagePointCloud_p::isLeaf(uint32_t _cell_id) const
     return (octree_.m_vTreeCells[_cell_id].m_isLeaf);
 }
 
-bool ImagePointCloud_p::getCellPoints(uint32_t _cell_id, Point* _dst_buf, uint64_t _dst_size)
+bool ImagePointCloud_p::getCellPoints(uint32_t _cell_id, Point* _dst_buf, uint64_t _dst_size) const
 {
     if (_cell_id >= octree_.m_vTreeCells.size())
         return false;
@@ -305,7 +305,7 @@ void ImagePointCloud_p::sortCellsByAddress()
     }
 }
 
-bool ImagePointCloud_p::decodeCell(uint32_t _cell_id, Point* _dst_buf, uint64_t _dst_size)
+bool ImagePointCloud_p::decodeCell(uint32_t _cell_id, Point* _dst_buf, uint64_t _dst_size) const
 {
     if (_cell_id >= octree_.m_vTreeCells.size() ||
         !octree_.m_vTreeCells[_cell_id].m_isLeaf)
@@ -440,7 +440,7 @@ void ImageFile_p::open_file()
         return;
     }
 
-    fstr_.open(filepath_, std::ios::in | std::ios::binary | std::ios::ate);
+    fstr_.open(filepath_, std::ios::in | std::ios::out | std::ios::binary | std::ios::ate);
     if (fstr_.fail())
     {
         std::string msg = "An unexpected error occured while opening the file '" + filepath_.string();
@@ -453,14 +453,14 @@ void ImageFile_p::open_file()
 
 void ImageFile_p::create_file()
 {
-    if (std::filesystem::exists(filepath_))
-    {
-        std::string msg = "File \"" + filepath_.string() + "\" already exists.";
-        results_.push_back({ result::INVALID_FILE, msg });
-        return;
-    }
+    //if (std::filesystem::exists(filepath_))
+    //{
+    //    std::string msg = "File \"" + filepath_.string() + "\" already exists.";
+    //    results_.push_back({ result::INVALID_FILE, msg });
+    //    return;
+    //}
 
-    fstr_.open(filepath_, std::ios::out | std::ios::binary);
+    fstr_.open(filepath_, std::ios::in | std::ios::binary);
     if (fstr_.fail()) {
         std::string msg = "Error: cannot save at " + filepath_.string() + ": no such file or directory.";
         results_.push_back({ result::INVALID_FILE, msg });
@@ -564,10 +564,10 @@ void ImageFile_p::read_headers()
         seekScanHeaderPos(fstr_, pc_i, TL_SCAN_ADDR_FORMAT);
         fstr_.read((char*)&infos.format, sizeof(PointFormat));
 
-        seekScanHeaderPos(fstr_, pc_i, TL_SCAN_ADDR_DATA_ADDR);
-        fstr_.read((char*)&state.octree_data_addr_, sizeof(uint64_t));
-        fstr_.read((char*)&state.point_data_addr_, sizeof(uint64_t));
-        fstr_.read((char*)&state.cell_data_addr_, sizeof(uint64_t));
+        //seekScanHeaderPos(fstr_, pc_i, TL_SCAN_ADDR_DATA_ADDR);
+        //fstr_.read((char*)&state.octree_data_addr_, sizeof(uint64_t));
+        //fstr_.read((char*)&state.point_data_addr_, sizeof(uint64_t));
+        //fstr_.read((char*)&state.cell_data_addr_, sizeof(uint64_t));
 
         seekScanHeaderPos(fstr_, pc_i, TL_SCAN_ADDR_POINT_COUNT);
         fstr_.read((char*)&state.point_count_, sizeof(uint64_t));
@@ -857,40 +857,18 @@ bool ImageFile_p::writeOctreeBase(uint32_t _pc_num, OctreeBase& _octree, ScanHea
     return true;
 }
 
-bool ImageFile_p::copyRawData(uint32_t _pc_num, char** pointBuffer, uint64_t& pointBufferSize, char** instanceBuffer, uint64_t& instanceBufferSize)
-{
-    if (_pc_num >= pcs_.size() || !fstr_.is_open())
-        return false;
-
-    PCState state = pcs_[_pc_num];
-
-    pointBufferSize = state.point_count_ * sizeofPointFormat(state.infos_.format);
-    instanceBufferSize = state.cell_count_ * 4 * sizeof(float);
-    if (*pointBuffer != nullptr)
-        delete (*pointBuffer);
-    *pointBuffer = new char[pointBufferSize];
-    if (*instanceBuffer != nullptr)
-        delete (*instanceBuffer);
-    *instanceBuffer = new char[instanceBufferSize];
-
-    fstr_.seekg(state.point_data_addr_);
-    fstr_.read(*pointBuffer, pointBufferSize);
-    fstr_.seekg(state.cell_data_addr_);
-    fstr_.read(*instanceBuffer, instanceBufferSize);
-
-    return true;
-}
-
 void ImageFile_p::overwriteTransformation(uint32_t _pc_num, const Transformation& new_transfo)
 {
     if (_pc_num >= pcs_.size() || !fstr_.is_open())
         return;
 
     seekScanHeaderPos(fstr_, _pc_num, TL_SCAN_ADDR_TRANSFORMATION);
-    fstr_.write((char*)new_transfo.quaternion, sizeof(glm::dvec4));
-    fstr_.write((char*)new_transfo.translation, sizeof(glm::dvec3));
+    fstr_.write((char*)&new_transfo.quaternion, 4 * sizeof(double));
+    fstr_.write((char*)&new_transfo.translation, 3 * sizeof(double));
 
     xg::Guid newUUID = xg::newGuid();
     seekScanHeaderPos(fstr_, _pc_num, TL_SCAN_ADDR_GUID);
     fstr_.write((char*)&newUUID, sizeof(newUUID));
+
+    fstr_.flush();
 }

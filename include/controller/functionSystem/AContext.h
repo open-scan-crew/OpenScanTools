@@ -32,7 +32,6 @@ enum class ContextType
 	saveCloseLoadProjectCentral,
 	saveQuitProject,
 	saveProject,
-	autosaveProject,
 	beamBending,
 	columnTilt,
 	fitCylinder,

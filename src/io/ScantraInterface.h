@@ -33,6 +33,7 @@ private:
     void editIntersectionPlane();
     void editStationColor();
     void editStationAdjustment();
+    void startProject();
 
     void manageVisibility(int current_idx, int total_station, SafePtr<AGraphNode> scan);
 

@@ -11,7 +11,7 @@
 
 struct PointXYZIRGB;
 
-class IScanFileWriter// : public IPointCloudWriter
+class IScanFileWriter
 {
 public:
     IScanFileWriter(const std::filesystem::path& filepath);
