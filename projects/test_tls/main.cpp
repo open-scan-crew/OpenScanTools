@@ -21,13 +21,14 @@ void write_sample(const std::filesystem::path& path)
     header.transfo.translation[0] = 1.0;
     header.transfo.translation[1] = 2.0;
     header.transfo.translation[2] = 3.0;
-    header.precision = tls::PrecisionType::TL_OCTREE_100UM;
-    header.format = tls::PointFormat::TL_POINT_XYZ_I;
+    header.precision = (tls::PrecisionType)1650;
+    header.format = tls::PointFormat::TL_POINT_XYZ_I_RGB;
 
     write_tls.appendPointCloud(header);
 
     // Add the points stored
     std::vector<tls::Point> some_points = PointSample::Brick(glm::vec3(1.f, 2.f, 3.f), glm::vec3(0.f, 5.f, -1.f), 10.f);
+    //std::vector<tls::Point> some_points = PointSample::Predefined();
     std::cout << "Writing " << some_points.size() << " points." << std::endl;
     write_tls.addPoints(some_points.data(), some_points.size());
     write_tls.finalizePointCloud();
@@ -71,7 +72,7 @@ void read_file_low_mem(const std::filesystem::path& path, uint32_t _sample_count
         return;
 
     size_t point_count = read_tls.getPointCount();
-    size_t next_pt_cout = point_count / _sample_count;
+    size_t next_pt_cout = std::max(1ull, point_count / _sample_count);
     std::cout << "*** LOW MEM *** " << path.filename() << " [" << point_count << " points]" << std::endl;
     std::chrono::steady_clock::time_point tp_0 = std::chrono::steady_clock::now();
 
@@ -84,8 +85,8 @@ void read_file_low_mem(const std::filesystem::path& path, uint32_t _sample_count
         while (next_pt_cout < total_read)
         {
             tls::Point& pt = dst_buffer[read_count - (total_read - next_pt_cout)];
-            std::cout << pt.x << ", " << pt.y << ", " << pt.z << ", " << (int)pt.i << std::endl;
-            next_pt_cout += point_count / _sample_count;
+            std::cout << pt.x << ", " << pt.y << ", " << pt.z << ", " << (int)pt.i << ", " << (int)pt.r << ", " << (int)pt.g << ", " << (int)pt.b << std::endl;
+            next_pt_cout += std::max(1ull, point_count / _sample_count);
         }
     }
     std::chrono::steady_clock::time_point tp_1 = std::chrono::steady_clock::now();

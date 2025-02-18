@@ -1,11 +1,6 @@
 #include "utils/Utils.h"
 #include "utils/Logger.h"
 
-#include <locale>
-#include <codecvt>
-#include <windows.h>
-#include <stringapiset.h>
-
 #include <fmt/format.h>
 
 std::string Utils::completeWithZeros(const uint64_t& number, const uint8_t& size)
@@ -36,29 +31,26 @@ std::wstring Utils::wRoundFloat(const double& number, const uint8_t& size)
 	return std::wstring(buff);
 }
 
+#ifdef _WIN32
+#include <windows.h>
+#include <stringapiset.h>
+
 std::string Utils::to_utf8(const std::wstring& wide_string)
 {
-	try {
-		static std::wstring_convert<std::codecvt_utf8<wchar_t>> utf8_conv;
-		return utf8_conv.to_bytes(wide_string);
-	}
-	catch (std::exception) {
-		Logger::log(LoggerMode::IOLog) << "Error when converting wstring: " << Logger::endl;
-		return "err_string";
-	}
+	int wlen = (int)wide_string.length();
+	int len = WideCharToMultiByte(CP_UTF8, 0, wide_string.c_str(), wlen, NULL, 0, NULL, NULL);
+	std::string str(len, L'\0');
+	WideCharToMultiByte(CP_UTF8, 0, wide_string.c_str(), wlen, str.data(), len, NULL, NULL);
+	return str;
 }
 
 std::wstring Utils::from_utf8(const std::string& u8string)
 {
-	try {
-		static std::wstring_convert<std::codecvt_utf8<wchar_t>> utf8_conv;
-		return utf8_conv.from_bytes(u8string);
-	}
-	catch (std::exception) 
-	{
-		Logger::log(LoggerMode::IOLog) << "Error when converting string: " << u8string << Logger::endl;
-		return L"err_wstring";
-	}
+	int len = (int)u8string.length();
+	int wlen = MultiByteToWideChar(CP_UTF8, 0, u8string.c_str(), len, NULL, 0);
+	std::wstring wstr(wlen, L'\0');
+	MultiByteToWideChar(CP_UTF8, 0, u8string.c_str(), len, wstr.data(), wlen);
+	return wstr;
 }
 
 std::wstring Utils::fromANSI(const std::string& string)
@@ -70,6 +62,10 @@ std::wstring Utils::fromANSI(const std::string& string)
 	MultiByteToWideChar(CP_ACP, 0, string.c_str(), slength, &r[0], len);
 	return r;
 }
+
+#else
+// TODO - UNIX system
+#endif
 
 std::wstring Utils::decode(const std::string& string)
 {

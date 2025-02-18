@@ -49,10 +49,10 @@ namespace unit_converter {
 			{UnitType::FT, QObject::tr(" ft")},
 			{UnitType::INC, QObject::tr(" in")},
 
-			{UnitType::DEG, QString::fromStdWString(L" °")},
+			{UnitType::DEG, QString::fromStdString(" °")},
 			{UnitType::PX, QString::fromStdString(" px")},
 
-			{UnitType::M3, QString::fromStdWString(L" m³")},
+			{UnitType::M3, QString::fromStdString(" m³")},
 			{UnitType::LITRE, QString::fromStdString(" L")}
 
 			/*{UnitType::YD_US, TEXT_UNIT_YD_US},
