@@ -3,7 +3,9 @@
 #include "utils/Utils.h"
 #include "Gui/Translator.h"
 #include "utils/Config.h"
+#include "utils/ProjectColor.hpp"
 #include "utils/time.h"
+
 
 Data::Data()
 	: m_userIndex(0)
@@ -18,6 +20,7 @@ Data::Data()
 	, m_phase(L"")
 	, m_identifier(L"")
 	, m_hyperlinks({})
+	, m_color(ProjectColor::getColor("BLUE"))
 {
 	LangageType language = Config::getLangage();
 	std::unordered_map<LangageType, std::wstring> disciplineDefault;
