@@ -19,7 +19,7 @@ std::filesystem::path IScanFileReader::getFilePath() const
 
 bool getScanFileReader(const std::filesystem::path& filepath, std::wstring& log, IScanFileReader** scanFileReader, const Import::AsciiInfo& asciiInfo, const bool forceColor)
 {
-    switch (ExtensionDictionnary.at(filepath.extension().string()))
+    switch (FileUtils::getType(filepath))
     {
 #ifndef PORTABLE
     case FileType::E57:

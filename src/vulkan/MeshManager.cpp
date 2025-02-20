@@ -287,9 +287,9 @@ ObjectAllocation::ReturnCode MeshManager::reloadMeshFile(MeshObjectNode& meshNod
 	else
 		meshFilePath = meshNode.getFilePath();
 
-	assert(getFileType(meshFilePath.extension()) == FileType::FBX);
+	assert(FileUtils::getType(meshFilePath) == FileType::FBX);
 	if (!std::filesystem::exists(meshFilePath) 
-		|| getFileType(meshFilePath.extension()) != FileType::FBX)
+		|| FileUtils::getType(meshFilePath) != FileType::FBX)
 	{
 		return ObjectAllocation::ReturnCode::Load_File_Error;
 	}

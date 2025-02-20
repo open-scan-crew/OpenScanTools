@@ -58,7 +58,7 @@ uint32_t MeshGeometries::addVertice(const std::array<float, 3>& point, bool useV
 
 MeshObjInputData::MeshObjInputData(std::filesystem::path path, bool generateEdges, bool isMerge, bool centerPosition, MeshId internLoadMeshId, int lod) {
 	this->path = path;
-	this->extension = getFileType(path.extension());
+	this->extension = FileUtils::getType(path);
 	this->lod = lod;
 
 	this->generateEdges = generateEdges;

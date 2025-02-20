@@ -955,6 +955,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     </ClCompile>
     <ClCompile Include="..\..\src\io\exports\TlsFileWriter.cpp" />
     <ClCompile Include="..\..\src\io\exports\txtExport.cpp" />
+    <ClCompile Include="..\..\src\io\FileUtils.cpp" />
     <ClCompile Include="..\..\src\io\imports\DataDeserializer.cpp" />
     <ClCompile Include="..\..\src\io\imports\dxfFileReader.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>

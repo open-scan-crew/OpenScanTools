@@ -86,7 +86,7 @@ void DialogImportImage::onConvert()
 	
 	params.inputImage = QImage(QString::fromStdWString(inputPath.wstring()));
 	params.outputPath = outputFolder / m_ui.outputFileNamelineEdit->text().toStdWString();
-	params.outputPath.replace_extension(getFileExtension(FileType::PTS));
+	params.outputPath.replace_extension(FileUtils::getExtension(FileType::PTS));
 	params.normalAxeMode = m_ui.xyOrientationRadioButton->isChecked() ? 0 :
 							m_ui.xzOrientationRadioButton->isChecked() ? 1 : 2;
 	params.length = m_ui.lengthLineEdit->getValue();

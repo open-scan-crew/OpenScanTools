@@ -240,7 +240,7 @@ void DialogImportMeshObject::onFileBrowser()
     m_ui.fileLineEdit->setText(QFileDialog::getOpenFileName(this, TEXT_DIALOG_BROWSER_TITLE_IMPORT_WAVEFRONT, m_openPath, fileTypes, nullptr));
 
     m_storedPath = m_ui.fileLineEdit->text().toStdWString();
-    m_storedExtension = getFileType(m_storedPath.extension());
+    m_storedExtension = FileUtils::getType(m_storedPath);
 
     if(!m_storedPath.empty())
         m_openPath = QString::fromStdWString(m_storedPath.parent_path().wstring());

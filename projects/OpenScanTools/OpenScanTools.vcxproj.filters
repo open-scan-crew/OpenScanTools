@@ -1969,6 +1969,9 @@
     <ClCompile Include="..\..\src\gui\GuiData\GuiDataAuthor.cpp">
       <Filter>src\gui\GuiData</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\io\FileUtils.cpp">
+      <Filter>src\io</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="..\..\include\gui\Gui.h">

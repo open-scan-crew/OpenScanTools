@@ -112,7 +112,7 @@ ContextState ContextConvertionScan::feedMessage(IMessage* message, Controller& c
             for (const tls::ScanHeader& header : headers)
                 m_importScanPosition.push_back(glm::dvec3(header.transfo.translation[0], header.transfo.translation[1], header.transfo.translation[2]));
 
-            switch (ExtensionDictionnary.at(file.extension().string()))
+            switch (FileUtils::getType(file))
             {
             case FileType::FARO_LS:
             case FileType::FARO_PROJ:
