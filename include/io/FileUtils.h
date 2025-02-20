@@ -8,7 +8,7 @@
 enum FileType {E57, TLS, FARO_LS, FARO_PROJ, RCS, RCP, OBJ, STEP, FBX, IFC, DXF, PTS, MAX_ENUM };
 enum class ObjectExportType { OBJ, FBX, DXF, CSV, STEP, OST};
 
-
+// TODO - move in cpp
 const static std::unordered_map<FileType, std::string> FileTypeDictionnary = {
     {FileType::E57, ".e57"},
     {FileType::TLS, ".tls"},
@@ -21,6 +21,7 @@ const static std::unordered_map<FileType, std::string> FileTypeDictionnary = {
     {FileType::PTS, ".xyz"}
 };
 
+// TODO - move in cpp
 const static std::unordered_map<std::string, FileType> ExtensionDictionnary = {
     {".e57", FileType::E57},
     {".E57", FileType::E57},
@@ -39,6 +40,9 @@ const static std::unordered_map<std::string, FileType> ExtensionDictionnary = {
     {".dxf", FileType::DXF}
 };
 
+// TODO class FileUtils
+// FileType getType(const std::filesystem::path& file_path);
+// std::string getExtension(FileType type);
 inline FileType getFileType(std::filesystem::path extension)
 {
 	std::string strExt = extension.string();

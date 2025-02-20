@@ -102,7 +102,7 @@ namespace tls
     {
     public:
         OctreeBase();
-        OctreeBase(const PrecisionType& _precision, const PointFormat& ptFormat);
+        OctreeBase(PrecisionType _precision, PointFormat ptFormat);
         ~OctreeBase();
 
         PointFormat getPointFormat() const;

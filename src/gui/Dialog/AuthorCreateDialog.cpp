@@ -1,5 +1,5 @@
 #include "gui/Dialog/AuthorCreateDialog.h"
-#include "controller/controls/ControlApplication.h"
+#include "controller/controls/ControlAuthor.h"
 #include "gui/Texts.hpp"
 #include "utils/Logger.h"
 
@@ -33,7 +33,7 @@ void AuthorCreateDialog::acceptCreation()
 	ui->AuthorInfield->blockSignals(true);
 	if (ui->AuthorInfield->text() != "")
 	{
-		m_dataDispatcher.sendControl(new control::application::author::CreateNewAuthor(ui->AuthorInfield->text().toStdWString()));
+		m_dataDispatcher.sendControl(new control::author::CreateNewAuthor(ui->AuthorInfield->text().toStdWString()));
 		this->close();
 	}
 	ui->AuthorInfield->blockSignals(false);

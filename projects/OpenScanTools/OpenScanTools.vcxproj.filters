@@ -1960,6 +1960,15 @@
     <ClCompile Include="..\..\src\io\ScantraInterface.cpp">
       <Filter>src\io</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\utils\ArgParser.cpp">
+      <Filter>src\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\controller\controls\ControlAuthor.cpp">
+      <Filter>src\controller\controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\GuiData\GuiDataAuthor.cpp">
+      <Filter>src\gui\GuiData</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="..\..\include\gui\Gui.h">
@@ -3905,6 +3914,18 @@
     </ClInclude>
     <ClInclude Include="..\..\src\io\ScantraInterface.h">
       <Filter>src\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\utils\ArgParser.h">
+      <Filter>include\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\controller\controls\ControlAuthor.h">
+      <Filter>include\controller\controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\gui\GuiData\GuiDataAuthor.h">
+      <Filter>include\gui\GuiData</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\gui\texts\AuthorTexts.hpp">
+      <Filter>include\gui\texts</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

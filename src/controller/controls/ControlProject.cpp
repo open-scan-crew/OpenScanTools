@@ -9,6 +9,7 @@
 #include "controller/messages/ImportMessage.h"
 
 #include "gui/GuiData/GuiDataGeneralProject.h"
+#include "gui/GuiData/GuiDataAuthor.h"
 #include "gui/GuiData/GuiDataRendering.h"
 #include "gui/GuiData/GuiDataList.h"
 #include "gui/GuiData/GuiDataMessages.h"
@@ -697,11 +698,9 @@ namespace control
 
 			for (auto it_file = m_importInfo.paths.begin(); it_file != m_importInfo.paths.end(); it_file++)
 			{
-                auto it = ExtensionDictionnary.find(it_file->extension().string());
-                if (it == ExtensionDictionnary.end())
-                    continue;
+				FileType file_type = getFileType(it_file->extension());
 
-				switch (it->second)
+				switch (file_type)
 				{
 				case FileType::FARO_PROJ:
 				case FileType::FARO_LS:

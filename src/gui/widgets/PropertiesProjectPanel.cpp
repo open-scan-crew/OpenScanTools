@@ -6,6 +6,8 @@
 #include "controller/controls/ControlProject.h"
 #include "controller/controls/ControlIO.h"
 
+#include "models/application/Author.h"
+
 #include <fmt/format.h>
 
 #include <QtWidgets/qfiledialog.h>

@@ -9,12 +9,14 @@ using namespace tls;
 OctreeBase::OctreeBase() : OctreeBase(tls::PrecisionType::TL_OCTREE_100UM, tls::TL_POINT_XYZ_I_RGB)
 {}
 
-OctreeBase::OctreeBase(const tls::PrecisionType& _precisionType, const tls::PointFormat& _ptFormat)
+OctreeBase::OctreeBase(tls::PrecisionType _precisionType, tls::PointFormat _ptFormat)
     : m_precisionType(_precisionType)
     , m_precisionValue(tls::getPrecisionValue(_precisionType))
     , m_ptFormat(_ptFormat)
-    , m_rootSize(0.f)
+    , m_rootSize(1.f)
     , m_rootPosition{ 0.f, 0.f, 0.f }
+    , m_maxLeafSize(1.f)
+    , m_minLeafSize(1.f)
     , m_limits{ std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity() }
     , m_pointCount(0)
     , m_cellCount(0)

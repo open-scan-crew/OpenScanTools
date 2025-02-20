@@ -2,11 +2,17 @@
 
 #include "controller/Controller.h"
 #include "controller/ControlListener.h"
+#include "controller/functionSystem/FunctionManager.h"
+#include "controller/controls/ControlProject.h"
 #include "controller/controls/ControlViewport.h"
+#include "controller/messages/NewProjectMessage.h"
 #include "models/graph/GraphManager.hxx"
 #include "models/graph/ClusterNode.h"
 #include "models/graph/BoxNode.h"
 #include "models/graph/CameraNode.h"
+
+#include "io/SaveLoadSystem.h"
+
 #include "utils/Logger.h"
 
 #include <boost/interprocess/shared_memory_object.hpp>
@@ -179,6 +185,11 @@ void ScantraInterface::run()
             log << text << Logger::endl << Logger::endl;
             break;
         }
+        case ScantraInterprocessObserver::stationNew:
+        {
+            addStation(); // NEW
+            break;
+        }
         case ScantraInterprocessObserver::stationChanged:
         {
             editStationChanged();
@@ -199,9 +210,14 @@ void ScantraInterface::run()
             editStationAdjustment();
             break;
         }
-        case ScantraInterprocessObserver::projectPath:
+        case ScantraInterprocessObserver::createProject:
         {
-            startProject();
+            createProject(); // NEW
+            break;
+        }
+        case ScantraInterprocessObserver::openProject:
+        {
+            openProject(); // NEW
             break;
         }
         default:
@@ -212,52 +228,60 @@ void ScantraInterface::run()
     }
 }
 
+ScantraInterface::ScantraStation ScantraInterface::readStation()
+{
+    ScantraStation station;
+    if (data_->n_w < 3 || data_->n_i < 6)
+        return station;
+
+    station.station_id = data_->w_array[0];
+    station.group_id = data_->w_array[1];
+    station.point_cloud = data_->w_array[2];
+
+    station.is_active = data_->i_array[0];
+    station.is_on = data_->i_array[1];
+    station.type = data_->i_array[2];
+    station.planes_detected = data_->i_array[3];
+    station.spheres_detected = data_->i_array[4];
+    station.targets_detected = data_->i_array[5];
+
+    return station;
+}
+
+void ScantraInterface::addStation()
+{
+    SubLogger& log = Logger::log(LoggerMode::IOLog);
+    log << "+++ Scantra-add-station +++\n";
+
+    ScantraStation station = readStation();
+
+    std::filesystem::path pc_path = station.point_cloud;
+    SaveLoadSystem::ErrorCode err;
+    SafePtr<ScanNode> scan = SaveLoadSystem::ImportNewTlsFile(pc_path, controller_, err);
+}
+
 void ScantraInterface::editStationChanged()
 {
     SubLogger& log = Logger::log(LoggerMode::IOLog);
     log << "+++ Station changed +++\n";
 
-    std::wstring station_id = data_->w_array[0];
-    std::wstring group_id = data_->w_array[1];
-    std::wstring point_cloud = data_->w_array[2];
-
-    log << "station id:  " << station_id << "\n";
-    log << "group id:    " << group_id << "\n";
-    log << "point cloud: " << point_cloud << "\n";
-
-    int is_active = data_->i_array[0];
-    int is_on = data_->i_array[1];
-    int type = data_->i_array[2];
-    int planes_detected = data_->i_array[3];
-    int spheres_detected = data_->i_array[4];
-    int targets_detected = data_->i_array[5];
-
-    log << "is active:   " << is_active << "\n";
-    log << "is on:       " << is_on << "\n";
-    log << "type:        " << type << "\n";
-    log << "planes detected:  " << planes_detected << "\n";
-    log << "spheres detected: " << spheres_detected << "\n";
-    log << "targets detected: " << targets_detected << "\n";
-    log << Logger::endl;
-
-    bool exist = graph_.isFilePathOrScanExists(station_id, point_cloud);
-    Logger::log(LoggerMode::IOLog) << "Scan found:" << exist << Logger::endl;
+    ScantraStation station = readStation();
 
     std::function<bool(const SafePtr<AGraphNode>&)> filter_scan =
-        [station_id](const SafePtr<AGraphNode>& node) {
+        [&](const SafePtr<AGraphNode>& node) {
         ReadPtr<AGraphNode> rPtr = node.cget();
         if (!rPtr)
             return false;
         return (rPtr->getType() == ElementType::Scan) &&
-               (rPtr->getName().compare(station_id) == 0);
+               (rPtr->getName().compare(station.station_id) == 0);
         };
 
     auto scan = graph_.getNodesOnFilter(filter_scan);
 
     std::function<bool(ReadPtr<AGraphNode>&)> filter_type =
-        [group_id](ReadPtr<AGraphNode>& r_node) {
+        [&](ReadPtr<AGraphNode>& r_node) {
             return (r_node->getType() == ElementType::Cluster) &&
-                   (r_node->getName().compare(group_id) == 0);
+                   (r_node->getName().compare(station.group_id) == 0);
         };
 
     std::function<bool(ReadPtr<ClusterNode>&)> filter_tree_type =
@@ -271,7 +295,7 @@ void ScantraInterface::editStationChanged()
         return;
     {
         WritePtr<AGraphNode> wPtr = scan.begin()->get();
-        wPtr->setVisible(is_on);
+        wPtr->setVisible(station.is_on);
     }
 
     if (clusters.size() == 1)
@@ -454,17 +478,43 @@ void ScantraInterface::editStationAdjustment()
     manageVisibility(current_entry, total_entry, scan);
 }
 
-void ScantraInterface::startProject()
+void ScantraInterface::createProject()
 {
+    SubLogger& log = Logger::log(LoggerMode::IOLog);
+    log << "+++ Scantra-create-project +++\n";
+    if (data_->n_w != 2)
+    {
+        log << "Wrong parameters" << Logger::endl;
+        return;
+    }
+
     std::wstring w_folder(data_->w_array[0]);
     std::wstring w_name(data_->w_array[1]);
-    IOLOG << "+++ Project path received: " << w_folder << ", " << w_name << Logger::endl;
-    std::filesystem::path project_path(w_folder);
-    project_path /= w_name;
+    IOLOG << "Received project folder: " << w_folder << ", name: " << w_name << Logger::endl;
 
+    controller_.getControlListener()->notifyUIControl(new control::project::SaveCreate());
 
-    // Folder ? Project name ?
-    // Extension (.tlp, .scdb) ?
+    ProjectInfos project_infos;
+    project_infos.m_projectName = w_name;
+    project_infos.m_company = L"Scantra";
+    NewProjectMessage msg(project_infos, w_folder, "");
+    controller_.getFunctionManager().feedMessage(controller_, &msg);
+}
+
+void ScantraInterface::openProject()
+{
+    SubLogger& log = Logger::log(LoggerMode::IOLog);
+    log << "+++ Scantra-open-project +++\n";
+    if (data_->n_w != 1)
+    {
+        log << "Wrong parameters" << Logger::endl;
+        return;
+    }
+
+    std::filesystem::path project_path(data_->w_array[0]);
+    log << "Received project path: " << project_path << Logger::endl;
+
+    controller_.getControlListener()->notifyUIControl(new control::project::SaveCloseLoad(project_path));
 }
 
 void ScantraInterface::manageVisibility(int current_station, int total_station, SafePtr<AGraphNode> scan)
