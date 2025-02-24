@@ -117,7 +117,7 @@ public:
 	void setActiveAuthor(const SafePtr<Author>& activeAuthor);
 	void addProjectAuthors(const std::unordered_set<SafePtr<Author>>& authors);
 	void addLocalAuthors(const std::unordered_set<SafePtr<Author>>& authors);
-	void remLocalAuthors(const std::unordered_set<SafePtr<Author>>& authors);
+	bool remLocalAuthors(SafePtr<Author> authors);
 
 	void setTemporaryPath(const std::filesystem::path& path);
 	void setProjectsPath(const std::filesystem::path& path);
@@ -125,8 +125,6 @@ public:
 
 	void setRecentProjects(std::vector<std::pair<std::filesystem::path, time_t>> projects);
 	void setIndexationMethod(IndexationMethod method);
-
-	void setProjectTransformation(const glm::dvec3& projectTransformation);
 
 	void setDefaultScanId(SafePtr<ScanNode> defaultScan);
 	SafePtr<ScanNode> getDefaultScan();

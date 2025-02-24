@@ -1,6 +1,5 @@
 #include "gui/Dialog/AuthorCreateDialog.h"
 #include "controller/controls/ControlAuthor.h"
-#include "gui/Texts.hpp"
 #include "utils/Logger.h"
 
 AuthorCreateDialog::AuthorCreateDialog(IDataDispatcher& dataDispatcher, QWidget *parent)
@@ -8,9 +7,6 @@ AuthorCreateDialog::AuthorCreateDialog(IDataDispatcher& dataDispatcher, QWidget 
 	, ui(new Ui::AuthorCreateDialog)
 {
 	ui->setupUi(this);
-	ui->AuthorInfield->blockSignals(true);
-	ui->AuthorInfield->setText(TEXT_DEFAULT);
-	ui->AuthorInfield->blockSignals(false);
 
 	ui->OkBtn->setDefault(true);
 
@@ -35,6 +31,8 @@ void AuthorCreateDialog::acceptCreation()
 	{
 		m_dataDispatcher.sendControl(new control::author::CreateNewAuthor(ui->AuthorInfield->text().toStdWString()));
 		this->close();
+		delete this;
+		return;
 	}
 	ui->AuthorInfield->blockSignals(false);
 }
@@ -42,5 +40,5 @@ void AuthorCreateDialog::acceptCreation()
 void AuthorCreateDialog::cancelCreation()
 {
 	this->close();
-	delete(this);
+	delete this;
 }

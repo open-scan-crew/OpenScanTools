@@ -5,16 +5,16 @@
 // **** SendAuthors List ****
 
 GuiDataSendAuthorsList::GuiDataSendAuthorsList(const std::unordered_set<SafePtr<Author>>& authors, const bool& projectScope)
-    : m_isProjectScope(projectScope)
-    , m_authors(authors)
-    , m_selectedAuthor(-1)
+    : is_project_scope_(projectScope)
+    , authors_(authors)
+    , active_author_()
 {
 }
 
-GuiDataSendAuthorsList::GuiDataSendAuthorsList(const std::unordered_set<SafePtr<Author>>& authors, const int& selectedAuthor)
-    : m_isProjectScope(false)
-    , m_authors(authors)
-    , m_selectedAuthor(selectedAuthor)
+GuiDataSendAuthorsList::GuiDataSendAuthorsList(const std::unordered_set<SafePtr<Author>>& authors, SafePtr<Author> _active_author)
+    : is_project_scope_(false)
+    , authors_(authors)
+    , active_author_(_active_author)
 {
 }
 
@@ -25,21 +25,6 @@ GuiDataSendAuthorsList::~GuiDataSendAuthorsList()
 guiDType GuiDataSendAuthorsList::getType()
 {
     return guiDType::sendAuthorsList;
-}
-
-// **** CloseAuthors List ****
-
-GuiDataCloseAuthorsList::GuiDataCloseAuthorsList()
-{
-}
-
-GuiDataCloseAuthorsList::~GuiDataCloseAuthorsList()
-{
-}
-
-guiDType GuiDataCloseAuthorsList::getType()
-{
-    return guiDType::closeAuthorList;
 }
 
 // **** GuiDataAuthorSelection ****

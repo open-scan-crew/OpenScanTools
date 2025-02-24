@@ -511,10 +511,12 @@ void ControllerContext::addLocalAuthors(const std::unordered_set<SafePtr<Author>
 	}
 }
 
-void ControllerContext::remLocalAuthors(const std::unordered_set<SafePtr<Author>>& authors)
+bool ControllerContext::remLocalAuthors(SafePtr<Author> _author)
 {
-	for (const SafePtr<Author>& auth : authors)
-		m_localAuthors.erase(auth);
+	if (_author == m_activeAuthor)
+		return false;
+	else
+		m_localAuthors.erase(_author);
 }
 
 DuplicationSettings ControllerContext::getDuplicationSettings()

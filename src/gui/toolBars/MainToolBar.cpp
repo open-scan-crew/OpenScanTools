@@ -6,11 +6,34 @@
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataAuthor.h"
 #include "gui/Dialog/DialogRecentProjects.h"
-#include "gui/Texts.hpp"
 #include "gui/texts/AboutTexts.hpp"
 
 #include <QtWidgets/qboxlayout.h>
 #include <QtGui/qevent.h>
+
+
+// MainToolBar
+#define TEXT_MAIN_TOOLBAR_NEW QObject::tr("New")
+#define TEXT_MAIN_TOOLBAR_OPEN QObject::tr("Open")
+#define TEXT_MAIN_TOOLBAR_RECENT_PROJECTS QObject::tr("Recent Projects")
+#define TEXT_MAIN_TOOLBAR_SAVE QObject::tr("Save")
+#define TEXT_MAIN_TOOLBAR_CLOSE_PROJECT QObject::tr("Close Project")
+#define TEXT_MAIN_TOOLBAR_IMPORT_TLS QObject::tr("Import scans")
+#define TEXT_MAIN_TOOLBAR_UNDO QObject::tr("Undo")
+#define TEXT_MAIN_TOOLBAR_REDO QObject::tr("Redo")
+#define TEXT_MAIN_TOOLBAR_MAX_SCREEN QObject::tr("Enter Maximize Screen")
+#define TEXT_MAIN_TOOLBAR_RESTORE_DOCKS QObject::tr("Restore Docks")
+#define TEXT_MAIN_TOOLBAR_QUIT_MAXIMIZE_SCREEN QObject::tr("Quit Maximize Screen")
+#define TEXT_MAIN_TOOLBAR_FULL_SCREEN QObject::tr("Enter Full Screen")
+#define TEXT_MAIN_TOOLBAR_MINIMIZE_SCREEN QObject::tr("Minimize")
+#define TEXT_MAIN_TOOLBAR_SETTINGS QObject::tr("General settings")
+#define TEXT_MAIN_TOOLBAR_SHORTCUTS QObject::tr("Show shortcuts")
+#define TEXT_MAIN_TOOLBAR_ABOUT QObject::tr("About")
+#define TEXT_MAIN_TOOLBAR_RESTORE_SCREEN QObject::tr("Restore Down")
+#define TEXT_MAIN_TOOLBAR_MAXIMIZE_SCREEN QObject::tr("Maximize")
+#define TEXT_MAIN_TOOLBAR_EXIT QObject::tr("Exit")
+#define TEXT_MAIN_TOOLBAR_NAME QObject::tr("Main toolbar")
+
 
 MainToolBar::MainToolBar(IDataDispatcher& dataDispatcher, float guiScale)
 	: QToolBar()

@@ -792,12 +792,12 @@ void ContextExportSubProject::exportObjects(Controller& controller) const
         exports.insert(scanPtr);
     }
 
-    std::filesystem::path subProjectPath = SaveLoadSystem::ExportProject(controller, exports, m_subProjectInternal, m_subProjectInfo, SafePtr<CameraNode>());
+    bool res = SaveLoadSystem::ExportProject(controller, exports, m_subProjectInternal, m_subProjectInfo, SafePtr<CameraNode>());
 
     SaveLoadSystem::ExportToProjectFileObjects(controller, m_subProjectInternal, fileObjects);
 
-    if (m_parameters.openFolderAfterExport && !subProjectPath.empty())
-        controller.updateInfo(new GuiDataOpenInExplorer(subProjectPath));
+    if (res && m_parameters.openFolderAfterExport)
+        controller.updateInfo(new GuiDataOpenInExplorer(m_subProjectInternal.getProjectFilePath()));
 }
 
 ContextType ContextExportSubProject::getType() const

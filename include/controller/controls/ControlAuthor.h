@@ -9,11 +9,11 @@
 namespace control::author
 {
 
-    class SaveAndQuitAuthors : public AControl
+    class SaveAuthors : public AControl
     {
     public:
-        SaveAndQuitAuthors();
-        ~SaveAndQuitAuthors();
+        SaveAuthors();
+        ~SaveAuthors();
         void doFunction(Controller& controller) override;
         bool canUndo() const override;
         void undoFunction(Controller& controller) override;
@@ -68,7 +68,10 @@ namespace control::author
         bool canUndo() const override;
         void undoFunction(Controller& controller) override;
         ControlType getType() const override;
+
+        static void sendAuthorList(Controller& controller);
     };
+
 }
 
 #endif

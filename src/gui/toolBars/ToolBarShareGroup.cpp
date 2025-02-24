@@ -11,15 +11,13 @@ ToolBarShareGroup::ToolBarShareGroup(IDataDispatcher &dataDispatcher, QWidget *p
 {
 	m_ui.setupUi(this);
 	setEnabled(false);
-		
+
 	QObject::connect(m_ui.exportToOSTButton, &QToolButton::released, this, &ToolBarShareGroup::slotExportToShareObjects);
 	QObject::connect(m_ui.exportSubProject, &QToolButton::released, this, &ToolBarShareGroup::slotExportToSubProject);
-	
+
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);
 
 	m_methods.insert({ guiDType::projectLoaded, &ToolBarShareGroup::onProjectLoad });
-
-
 }
 
 ToolBarShareGroup::~ToolBarShareGroup()

@@ -7,9 +7,6 @@ AListNameDialog::AListNameDialog(IDataDispatcher& dataDispatcher, QWidget *paren
 	: ADialog(dataDispatcher, parent)
 {
 	m_ui.setupUi(this);
-	m_ui.ListNameInfield->blockSignals(true);
-	m_ui.ListNameInfield->setText(TEXT_DEFAULT);
-	m_ui.ListNameInfield->blockSignals(false);
 
 	QObject::connect(m_ui.CancelBtn, SIGNAL(clicked()), this, SLOT(cancelCreation()));
 	QObject::connect(m_ui.okBtn, SIGNAL(clicked()), this, SLOT(acceptCreation()));
@@ -33,7 +30,7 @@ void AListNameDialog::show(QString text)
 
 void AListNameDialog::show()
 {
-	m_ui.ListNameInfield->setText(TEXT_DEFAULT);
+	m_ui.ListNameInfield->clear();
 	QDialog::show();
 }
 

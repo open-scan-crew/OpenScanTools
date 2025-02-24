@@ -58,8 +58,6 @@ public:
 	void initRegisterGuiDataDoubleEdit();
 	void initDockWidgetsPosition();
 
-	void showAuthorManager();
-
 private slots:
     void toggleMaximized();
     //void toggleFullScreen();

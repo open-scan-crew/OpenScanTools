@@ -126,8 +126,6 @@ int main(int argc, char** argv)
     gui.launch();
     splash.finish(&gui);
 
-    gui.showAuthorManager();
-
     // Main Qt loop
     app.exec();
 
@@ -135,9 +133,6 @@ int main(int argc, char** argv)
     splash.showStatusMessage("Stop controller");
 
     dataDispatcher.setActive(false);
-
-    // Close the application
-    //controller.stop();
 
     // Close Vulkan application
     splash.showStatusMessage("Unloading GPU Resources");

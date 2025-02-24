@@ -17,48 +17,43 @@
 namespace control::author
 {
     /*
-    ** SaveAndQuitAuthors
+    ** SaveAuthors
     */
 
-    SaveAndQuitAuthors::SaveAndQuitAuthors()
+    SaveAuthors::SaveAuthors()
     {
     }
 
-    SaveAndQuitAuthors::~SaveAndQuitAuthors()
+    SaveAuthors::~SaveAuthors()
     {
     }
 
-    void SaveAndQuitAuthors::doFunction(Controller& controller)
+    void SaveAuthors::doFunction(Controller& controller)
     {
         SaveLoadSystem::ErrorCode errorMsg;
         SaveLoadSystem::saveAuthors(controller.getContext().getLocalAuthors(), errorMsg);
         assert(errorMsg == SaveLoadSystem::ErrorCode::Success);
 
-        controller.updateInfo(new GuiDataSendAuthorsList(controller.getContext().getLocalAuthors(), -1));
         if (errorMsg != SaveLoadSystem::ErrorCode::Success)
             controller.updateInfo(new GuiDataWarning(TEXT_WRITE_FAILED_PERMISSION));
 
         ReadPtr<Author> rAuth = controller.getContext().getActiveAuthor().cget();
         if (!rAuth || !rAuth->getId().isValid())
             controller.updateInfo(new GuiDataWarning(TEXT_WARNING_AUTHOR_WRONG_CLOSE));
-        else
-        {
-            controller.updateInfo(new GuiDataCloseAuthorsList());
-            controller.updateInfo(new GuiDataAuthorNameSelection(rAuth->getName()));
-        }
-        CONTROLLOG << "control::application::SaveAndQuitAuthors" << LOGENDL;
+
+        CONTROLLOG << "control::application::SaveAuthors" << LOGENDL;
     }
 
-    bool SaveAndQuitAuthors::canUndo() const
+    bool SaveAuthors::canUndo() const
     {
         return (false);
     }
 
-    void SaveAndQuitAuthors::undoFunction(Controller& controller)
+    void SaveAuthors::undoFunction(Controller& controller)
     {
     }
 
-    ControlType SaveAndQuitAuthors::getType() const
+    ControlType SaveAuthors::getType() const
     {
         return (ControlType::saveAuthors);
     }
@@ -81,7 +76,10 @@ namespace control::author
         controller.getContext().setActiveAuthor(m_authorSelected);
         ReadPtr<Author> rAuth = m_authorSelected.cget();
         if (rAuth)
+        {
             CONTROLLOG << "control::application::SelectAuthor " << rAuth->getId() << LOGENDL;
+            controller.updateInfo(new GuiDataAuthorNameSelection(rAuth->getName()));
+        }
         else
             CONTROLLOG << "control::application::SelectAuthor cannot select" << LOGENDL;
     }
@@ -135,7 +133,7 @@ namespace control::author
         SafePtr<Author> newAuth = make_safe<Author>(m_authorNameToCreate);
         controller.getContext().addLocalAuthors({ newAuth });
 
-        controller.updateInfo(new GuiDataSendAuthorsList(controller.getContext().getLocalAuthors(), -1));
+        SendAuthorList::sendAuthorList(controller);
     }
 
     bool CreateNewAuthor::canUndo() const
@@ -167,8 +165,8 @@ namespace control::author
 
     void DeleteAuthor::doFunction(Controller& controller)
     {
-        controller.getContext().remLocalAuthors({ m_authorToDelete });
-        controller.updateInfo(new GuiDataSendAuthorsList(controller.getContext().getLocalAuthors(), -1));
+        controller.getContext().remLocalAuthors(m_authorToDelete);
+        SendAuthorList::sendAuthorList(controller);
         CONTROLLOG << "control::application::DeleteAuthor" << LOGENDL;
     }
 
@@ -200,19 +198,7 @@ namespace control::author
 
     void SendAuthorList::doFunction(Controller& controller)
     {
-        std::unordered_set<SafePtr<Author>> authors(controller.getContext().getLocalAuthors());
-
-        int index(0);
-        for (const SafePtr<Author>& auth : authors)
-        {
-            if (auth == controller.getContext().getActiveAuthor())
-                break;
-            index++;
-        }
-        if (index == authors.size())
-            index = 0;
-
-        controller.updateInfo(new GuiDataSendAuthorsList(authors, index));
+        sendAuthorList(controller);
         CONTROLLOG << "control::application::SendAuthorList" << LOGENDL;
     }
 
@@ -228,5 +214,13 @@ namespace control::author
     ControlType SendAuthorList::getType() const
     {
         return (ControlType::sendAuthorList);
+    }
+
+    void SendAuthorList::sendAuthorList(Controller& controller)
+    {
+        std::unordered_set<SafePtr<Author>> authors(controller.getContext().getLocalAuthors());
+        SafePtr<Author> active = controller.getContext().getActiveAuthor();
+
+        controller.updateInfo(new GuiDataSendAuthorsList(authors, active));
     }
 }

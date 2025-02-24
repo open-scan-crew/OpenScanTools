@@ -523,6 +523,7 @@ void Gui::informData(IGuiData *data)
 void Gui::launch()
 {
 	show();
+	m_projectGroup->manageAuthors(false);
 }
 
 void Gui::showWarningMBox(IGuiData * data)
@@ -633,11 +634,6 @@ void Gui::onOpenInExplorer(IGuiData* data)
 void Gui::onOpenCentralProject(IGuiData* data)
 {
 	m_openCentralProject.show();
-}
-
-void Gui::showAuthorManager()
-{
-	m_projectGroup->manageAuthors(false);
 }
 
 //new

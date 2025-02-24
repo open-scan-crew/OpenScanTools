@@ -19,16 +19,15 @@ public:
 	void informData(IGuiData *keyValue) override;
 
 	void receiveAuthorList(IGuiData *data);
-	void receiveCloseAuthorDialog(IGuiData *data);
 	void show();
 
 public slots:
 
 	void addNewAuthor();
 	void deleteAuthor();
-	void authorViewSelect();
+	bool selectAuthor();
+	void closeDialog();
 
-	void FinishDialog();
 private:
 	QModelIndex idSaved;
 
@@ -36,9 +35,6 @@ private:
 
 	QStandardItemModel *model = nullptr;
 	QMenu* m_contextualMenu = nullptr;
-	bool m_haveToQuit;
-
-	QMetaObject::Connection ListConnect;
 };
 
 #endif // !AUTHOR_LIST_DIALOG_H_

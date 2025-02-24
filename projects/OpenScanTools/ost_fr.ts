@@ -52,12 +52,17 @@
         <translation>Ajouter nouvel utilisateur</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/AuthorCreateDialog.ui" line="35"/>
+        <location filename="../../src/gui/forms/AuthorCreateDialog.ui" line="32"/>
+        <source>Enter author name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/AuthorCreateDialog.ui" line="39"/>
         <source>Cancel</source>
         <translation>Annuler</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/AuthorCreateDialog.ui" line="42"/>
+        <location filename="../../src/gui/forms/AuthorCreateDialog.ui" line="46"/>
         <source>Ok</source>
         <translation>Ok</translation>
     </message>
@@ -76,8 +81,8 @@
     </message>
     <message>
         <location filename="../../src/gui/forms/AuthorDialog.ui" line="48"/>
-        <source>List</source>
-        <translation>Liste</translation>
+        <source>Authors</source>
+        <translation type="unfinished">Auteurs</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/AuthorDialog.ui" line="58"/>
@@ -529,7 +534,7 @@
     <message>
         <location filename="../../src/gui/forms/DialogExportSubProject.ui" line="130"/>
         <source>Objects filter :</source>
-        <translation>Filtre objets</translation>
+        <translation>Filtre objets&#x202f;:</translation>
     </message>
 </context>
 <context>
@@ -2070,17 +2075,17 @@ Perspective</translation>
 <context>
     <name>E57TreeWidget</name>
     <message>
-        <location filename="../../src/gui/widgets/E57TreeWidget.cpp" line="14"/>
+        <location filename="../../src/gui/widgets/E57TreeWidget.cpp" line="12"/>
         <source>Name</source>
         <translation>Nom</translation>
     </message>
     <message>
-        <location filename="../../src/gui/widgets/E57TreeWidget.cpp" line="14"/>
+        <location filename="../../src/gui/widgets/E57TreeWidget.cpp" line="12"/>
         <source>Type</source>
         <translation>Type</translation>
     </message>
     <message>
-        <location filename="../../src/gui/widgets/E57TreeWidget.cpp" line="14"/>
+        <location filename="../../src/gui/widgets/E57TreeWidget.cpp" line="12"/>
         <source>Content</source>
         <translation>Contenu</translation>
     </message>
@@ -2330,12 +2335,17 @@ Veuillez spécifier le dossier parent de ces fichiers. (Ces fichiers vont être 
         <translation>Créer nouvelle liste</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/ListNameDialog.ui" line="39"/>
+        <location filename="../../src/gui/forms/ListNameDialog.ui" line="29"/>
+        <source>Enter a name...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/ListNameDialog.ui" line="42"/>
         <source>Ok</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/ListNameDialog.ui" line="52"/>
+        <location filename="../../src/gui/forms/ListNameDialog.ui" line="55"/>
         <source>Annuler</source>
         <translation></translation>
     </message>
@@ -2488,12 +2498,12 @@ Veuillez spécifier le dossier parent de ces fichiers. (Ces fichiers vont être 
         <translation>Pas</translation>
     </message>
     <message>
-        <location filename="../../src/gui/widgets/PropertyBox.cpp" line="124"/>
+        <location filename="../../src/gui/widgets/PropertyBox.cpp" line="122"/>
         <source>Expand to grid</source>
         <translation>Etendre en grille</translation>
     </message>
     <message>
-        <location filename="../../src/gui/widgets/PropertyBox.cpp" line="129"/>
+        <location filename="../../src/gui/widgets/PropertyBox.cpp" line="127"/>
         <source>Downcast to box</source>
         <translation>Revenir à une box simple</translation>
     </message>
@@ -2961,12 +2971,12 @@ Veuillez spécifier le dossier parent de ces fichiers. (Ces fichiers vont être 
 <context>
     <name>PropertyPointCloud</name>
     <message>
-        <location filename="../../src/gui/widgets/PropertyPointCloud.cpp" line="14"/>
+        <location filename="../../src/gui/widgets/PropertyPointCloud.cpp" line="12"/>
         <source>Scan properties</source>
         <translation>Propriétés du scan</translation>
     </message>
     <message>
-        <location filename="../../src/gui/widgets/PropertyPointCloud.cpp" line="15"/>
+        <location filename="../../src/gui/widgets/PropertyPointCloud.cpp" line="13"/>
         <source>Point Cloud Object properties</source>
         <translation>Propriétés d&apos;objet nuage de points</translation>
     </message>
@@ -3370,12 +3380,12 @@ Veuillez spécifier le dossier parent de ces fichiers. (Ces fichiers vont être 
         <translation>Annuler</translation>
     </message>
     <message>
-        <location filename="../../src/gui/widgets/PropertyUserOrientation.cpp" line="313"/>
+        <location filename="../../src/gui/widgets/PropertyUserOrientation.cpp" line="309"/>
         <source>axis</source>
         <translation>axe</translation>
     </message>
     <message>
-        <location filename="../../src/gui/widgets/PropertyUserOrientation.cpp" line="352"/>
+        <location filename="../../src/gui/widgets/PropertyUserOrientation.cpp" line="348"/>
         <source>custom axis</source>
         <translation>axe personnalisé</translation>
     </message>
@@ -3483,7 +3493,7 @@ Veuillez spécifier le dossier parent de ces fichiers. (Ces fichiers vont être 
         <translation>Appliquer la rampe</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="140"/>
+        <location filename="../../include/gui/texts/FileSystemTexts.hpp" line="15"/>
         <source>Please enter a file name or header name.</source>
         <translation>Veuillez entrer un nom de fichier ou un préfixe de fichier.</translation>
     </message>
@@ -3822,48 +3832,48 @@ Veuillez spécifier le dossier parent de ces fichiers. (Ces fichiers vont être 
         <translation>Point à Tube</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="120"/>
+        <location filename="../../include/gui/Texts.hpp" line="101"/>
         <source>This template already exists under the name %1.</source>
         <translation>Ce modèle existe déjà sous le nom %1.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="127"/>
+        <location filename="../../include/gui/Texts.hpp" line="108"/>
         <source>Enter project folder</source>
         <translation>Entrer le dossier du projet</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="133"/>
+        <location filename="../../include/gui/Texts.hpp" line="113"/>
         <source>Conversion Options</source>
         <translation>Options de conversion</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="136"/>
+        <location filename="../../include/gui/Texts.hpp" line="115"/>
         <source>Error : project name and project folder are mandatory fields.</source>
         <translation>Erreur: le nom du projet et le dossier sont des champs obligatoires.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="138"/>
+        <location filename="../../include/gui/texts/FileSystemTexts.hpp" line="6"/>
         <source>Select folder</source>
         <translation>Sélectionner le dossier</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="139"/>
+        <location filename="../../include/gui/texts/FileSystemTexts.hpp" line="7"/>
         <source>Please select a destination folder.</source>
         <translation>Merci de choisir un dossier de destination.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="146"/>
+        <location filename="../../include/gui/Texts.hpp" line="121"/>
         <source>Index</source>
         <translation>Index</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="148"/>
+        <location filename="../../include/gui/Texts.hpp" line="123"/>
         <location filename="../../include/gui/texts/DefaultUserLists.hpp" line="53"/>
         <source>Phase</source>
         <translation>Phase</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="149"/>
+        <location filename="../../include/gui/Texts.hpp" line="124"/>
         <source>Identifier</source>
         <translation>Identifiant</translation>
     </message>
@@ -3926,17 +3936,17 @@ It will be skipped.</source>
         <translation>Le fichier %1 n&apos;a pas pu être copié. Il sera ignoré.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="254"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="39"/>
         <source>Export %1 file(s)</source>
         <translation>Exporter en fichier(s) %1</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="346"/>
+        <location filename="../../include/gui/texts/PointCloudTexts.hpp" line="23"/>
         <source>Error : No XYZ setted.</source>
         <translation>Erreur : Pas de données XYZ.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="349"/>
+        <location filename="../../include/gui/texts/FileSystemTexts.hpp" line="11"/>
         <source>Error : The file :
  &apos;%1&apos;
 cannot be opened.</source>
@@ -3945,7 +3955,7 @@ cannot be opened.</source>
 ne peut pas s&apos;ouvrir.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="350"/>
+        <location filename="../../include/gui/texts/FileSystemTexts.hpp" line="12"/>
         <source>Error : The file :
  &apos;%1&apos;
 is empty.</source>
@@ -3991,7 +4001,7 @@ est vide.</translation>
     <message>
         <location filename="../../include/gui/texts/FileTypeTexts.hpp" line="36"/>
         <location filename="../../include/gui/texts/FileTypeTexts.hpp" line="43"/>
-        <location filename="../../include/gui/Texts.hpp" line="166"/>
+        <location filename="../../include/gui/Texts.hpp" line="141"/>
         <source>All objects %1</source>
         <translation>Tous les objets %1</translation>
     </message>
@@ -4006,42 +4016,42 @@ est vide.</translation>
         <translation>1 millimètre</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="15"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="14"/>
         <source>Scans Export</source>
         <translation>Export de scans</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="16"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="15"/>
         <source>Point Cloud Objects Export</source>
         <translation>Export d&apos;objets nuage de points</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="20"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="19"/>
         <source>Something wrong happened...</source>
         <translation>Un événement imprévu s&apos;est produit...</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="21"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="20"/>
         <source>Failed to create destination file: %1</source>
         <translation>Echec de création du fichier:%1</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="26"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="25"/>
         <source>You must activate or select some clippings first</source>
         <translation>Vous devez d&apos;abord activer ou sélectionner au moins une clipping</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="29"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="28"/>
         <source>No visible scan to export</source>
         <translation>Pas de scan visible à exporter</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="31"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="30"/>
         <source>Export Point Cloud in gridded boxes</source>
         <translation>Exporter les nuages de points en grilles</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="32"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="31"/>
         <source>Dialog export point cloud</source>
         <translation></translation>
     </message>
@@ -4063,12 +4073,12 @@ Do you want to save it before closing?</source>
         <translation>Le projet a été modifié. Voulez-vous le sauvegarder avant de fermer?</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="237"/>
+        <location filename="../../src/gui/toolBars/MainToolBar.cpp" line="21"/>
         <source>Import scans</source>
         <translation>Importer scans</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="245"/>
+        <location filename="../../src/gui/toolBars/MainToolBar.cpp" line="29"/>
         <source>General settings</source>
         <translation>Paramètres généraux</translation>
     </message>
@@ -4168,6 +4178,11 @@ Le fichier .tld : [%1] n&apos;a pas d&apos;auteur.</translation>
         <translation>Erreur: le nom ou l&apos;identifiant utilisateur n&apos;a pas pu être trouvé dans le tag.</translation>
     </message>
     <message>
+        <location filename="../../include/gui/Texts.hpp" line="20"/>
+        <source>The tlp project file may contains an error or has been removed or the filepath contains unrecognized caracter.</source>
+        <translation>Le projet tlp ne peut pas être ouvert. Veuillez vérifier qu’il ne contient pas de caratères spéciaux.</translation>
+    </message>
+    <message>
         <location filename="../../include/gui/Texts.hpp" line="22"/>
         <source>Error : name data in measure not found.</source>
         <translation></translation>
@@ -4210,101 +4225,89 @@ Le fichier .tld : [%1] n&apos;a pas d&apos;auteur.</translation>
         <translation>Supprimer la boite</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="75"/>
+        <location filename="../../include/gui/texts/AuthorTexts.hpp" line="7"/>
         <source>Error : cannot select user : unknow error.</source>
         <translation>Erreur: la sélection de l&apos;utilisateur est impossible: erreur inconnue.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="76"/>
+        <location filename="../../include/gui/texts/AuthorTexts.hpp" line="8"/>
         <source>Error : cannot create a user that already exists.</source>
         <translation>Erreur: il n&apos;est pas possible de créer un utilisateur qui existe déjà.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="77"/>
+        <location filename="../../include/gui/texts/AuthorTexts.hpp" line="9"/>
         <source>Error : cannot delete user : unknow error.</source>
         <translation>Erreur: suppression de l&apos;utilisateur impossible: erreur inconnue.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="78"/>
+        <location filename="../../include/gui/texts/AuthorTexts.hpp" line="10"/>
         <source>Error : you must select a user in order to continue.</source>
         <translation>Erreur: vous devez sélectionner un utilisateur pour continuer.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="80"/>
+        <location filename="../../include/gui/texts/AuthorTexts.hpp" line="12"/>
         <source>Are you sure that you want to delete the selected user(s)?</source>
         <translation>Etes-vous sûr de vouloir supprimer l&apos;utilisateur?</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="81"/>
+        <location filename="../../include/gui/texts/AuthorTexts.hpp" line="13"/>
         <source>Delete user(s)?</source>
         <translation>Supprimer l&apos;utilisateur?</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="105"/>
-        <source>Error : The project couldn&apos;t be saved.
-Maybe the project folder has been deleted</source>
-        <translation>Erreur : Le projet n&apos;a pas pu être sauvegardé.
-Le dossier du projet a peut-être été supprimer.</translation>
-    </message>
-    <message>
-        <location filename="../../include/gui/Texts.hpp" line="111"/>
+        <location filename="../../include/gui/Texts.hpp" line="92"/>
         <source>Error : the template you try to edit does not exist.</source>
         <translation>Erreur: le modèle que vous tentez d&apos;éditer n&apos;existe pas.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="112"/>
+        <location filename="../../include/gui/Texts.hpp" line="93"/>
         <source>Error : tag template name already used.</source>
         <translation>Erreur: ce nom de modèle de tag existe déjà.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="113"/>
+        <location filename="../../include/gui/Texts.hpp" line="94"/>
         <source>Error : you tried to edit a tag template that doesn&apos;t exists anymore.</source>
         <translation>Erreur: vous tentez d&apos;éditer un modèle de tag qui n&apos;existe plus.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="114"/>
+        <location filename="../../include/gui/Texts.hpp" line="95"/>
         <source>Error : you tried to delete a tag template that is used in the current project. Remove the tags before deleting the template.</source>
         <translation>Erreur: vous tentez de supprimer un modèle de tag qui est utilisé dans ce projet. Supprimez les tags avant de supprimer le modèle.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="115"/>
+        <location filename="../../include/gui/Texts.hpp" line="96"/>
         <source>Error : you tried to delete a tag template that doesn&apos;t exist anymore.</source>
         <translation>Erreur: vous tentez de supprimer un modèle de tag qui n&apos;existe plus.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="116"/>
+        <location filename="../../include/gui/Texts.hpp" line="97"/>
         <source>Error : you tried to cancel the deletion of a tag template that is already present in your template list.</source>
         <translation>Erreur: vous tentez d&apos;annuler la suppression d&apos;un modèle de tag présent dans la liste des modèles.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="117"/>
+        <location filename="../../include/gui/Texts.hpp" line="98"/>
         <source>Error : you tried to duplicate a tag template that already exists.</source>
         <translation>Erreur: vous tentez de dupliquer un modèle de tag qui existe déjà.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="118"/>
+        <location filename="../../include/gui/Texts.hpp" line="99"/>
         <source>Error : Undo failed : this template does not exist.</source>
         <translation>Erreur: l&apos;annulation a échoué: ce modèle n&apos;existe pas.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="119"/>
+        <location filename="../../include/gui/Texts.hpp" line="100"/>
         <source>Error : you tried to rename a template that does not exist anymore.</source>
         <translation>Erreur: vous tentez de renommer un modèle qui n&apos;existe plus.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="128"/>
+        <location filename="../../include/gui/texts/FileSystemTexts.hpp" line="16"/>
         <source>Select custom scan folder</source>
         <translation>Sélect. dossier d&apos;emplacement des scans</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="135"/>
+        <location filename="../../include/gui/Texts.hpp" line="114"/>
         <source>Error : cannot create project.</source>
         <translation>Erreur: création de projet impossible.</translation>
-    </message>
-    <message>
-        <location filename="../../include/gui/Texts.hpp" line="137"/>
-        <source>Error : the author name is missing.</source>
-        <translation>Erreur: le nom d&apos;auteur est manquant.</translation>
     </message>
     <message>
         <location filename="../../include/gui/texts/ContextTexts.hpp" line="116"/>
@@ -4322,27 +4325,27 @@ Le dossier du projet a peut-être été supprimer.</translation>
         <translation>Conversion en cours</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="7"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="6"/>
         <source>It is recommended to save the project before exporting. Do you want to save now?</source>
         <translation>Il est recommandé de sauvegarder le projet avant d&apos;exporter. Voulez vous sauvegarder ?</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="10"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="9"/>
         <source>One file per clipping (only interior mode)</source>
         <translation>Un fichier par clipping (mode intérieur uniquement)</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="17"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="16"/>
         <source>Clipping Export</source>
         <translation>Export de clippings</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="19"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="18"/>
         <source>Delete Scan Points</source>
         <translation>Supprimer les points des scans</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="22"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="21"/>
         <source>
 
 Scan export done in: %1 seconds</source>
@@ -4351,7 +4354,7 @@ Scan export done in: %1 seconds</source>
 Export de scan effectué en: %1 secondes</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="23"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="22"/>
         <source>
 
 Clipping export done in: %1 seconds</source>
@@ -4360,7 +4363,7 @@ Clipping export done in: %1 seconds</source>
 Export de clipping effectué en: %1 secondes</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="24"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="23"/>
         <source>
 
 Scan export failed in: %1 seconds</source>
@@ -4369,7 +4372,7 @@ Scan export failed in: %1 seconds</source>
 Echec de l&apos;export de scan en: %1 secondes</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="25"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="24"/>
         <source>
 
 Clipping export failed in: %1 seconds</source>
@@ -4378,7 +4381,7 @@ Clipping export failed in: %1 seconds</source>
 Echec d&apos;export de clipping en: %1 secondes</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="30"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="29"/>
         <source>Export Point Cloud in clippings</source>
         <translation>Exporter les points des clippings</translation>
     </message>
@@ -4433,53 +4436,53 @@ Echec d&apos;export de clipping en: %1 secondes</translation>
         <translation>Ignorer</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="175"/>
+        <location filename="../../include/gui/Texts.hpp" line="150"/>
         <source>Ready for point picking.</source>
         <translation>Prêt pour la sélection de point.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="176"/>
+        <location filename="../../include/gui/Texts.hpp" line="151"/>
         <location filename="../../include/gui/texts/ContextTexts.hpp" line="8"/>
         <source>Point rejected.</source>
         <translation>Point rejeté.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="177"/>
+        <location filename="../../include/gui/Texts.hpp" line="152"/>
         <source>Measure done.</source>
         <translation>Mesure effectuée.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="178"/>
+        <location filename="../../include/gui/Texts.hpp" line="153"/>
         <source>Boxes creation settings</source>
         <translation>Paramètres de création de boxes</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="179"/>
+        <location filename="../../include/gui/Texts.hpp" line="154"/>
         <source>3D Model duplication settings</source>
         <translation>Paramètres de duplication des modèles externes</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="180"/>
+        <location filename="../../include/gui/Texts.hpp" line="155"/>
         <source>Point cloud object duplication settings</source>
         <translation>Paramètres de duplication des objets nuage de points</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="183"/>
+        <location filename="../../include/gui/Texts.hpp" line="158"/>
         <source>This orientation name already exists</source>
         <translation>Une orientation de même nom  existe déjà</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="184"/>
+        <location filename="../../include/gui/Texts.hpp" line="159"/>
         <source>Please give a name to the orientation</source>
         <translation>Veuillez donner un nom à l&apos;orientation</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="185"/>
+        <location filename="../../include/gui/Texts.hpp" line="160"/>
         <source>Points are missing. The orientation cannot be created</source>
         <translation>Des points sont manquant(s). L&apos;orientation ne peut pas être créée</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="191"/>
+        <location filename="../../include/gui/Texts.hpp" line="167"/>
         <source>Add as a key point</source>
         <translation>Ajouter comme point clé</translation>
     </message>
@@ -4771,12 +4774,12 @@ Les modifications ne peuvent pas être sauvegardé avec le visualiseur gratuit.<
         <translation>Veuillez sélectionner des objets</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="198"/>
+        <location filename="../../include/gui/Texts.hpp" line="174"/>
         <source>Error : incorrect file path (you may have specified a folder with administrator rights).</source>
         <translation>Erreur: chemin d&apos;accès incorrect (vous avez peut-être spécifié un dossier avec droits administrateur).</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="202"/>
+        <location filename="../../include/gui/Texts.hpp" line="178"/>
         <source> Closing Project...</source>
         <translation> Fermeture du projet...</translation>
     </message>
@@ -4803,12 +4806,7 @@ Nous vous conseillons de les tronquer. Valeurs proposées:</translation>
         <translation>Vous pouvez translater les coordonnées pour travailler dans un repère local, ou les laisser inchangées</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="186"/>
-        <source>Same %1 points. Axis is null</source>
-        <translation>Points %1 identiques. L&apos;axe est nul.</translation>
-    </message>
-    <message>
-        <location filename="../../include/gui/Texts.hpp" line="187"/>
+        <location filename="../../include/gui/Texts.hpp" line="162"/>
         <source>Incorrect %1 point</source>
         <translation>Point %1 incorrect</translation>
     </message>
@@ -4877,59 +4875,59 @@ Voulez-vous les restaurer et les charger ?</translation>
         <translation>Erreur: aucun modèle n&apos;est sélectionné.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="215"/>
+        <location filename="../../include/gui/Texts.hpp" line="188"/>
         <source>Warning: by removing this field from the template, you will also remove it in the related tags. Do you confirm?</source>
         <translation>Attention: en supprimant ce champ du modèle, vous le supprimerez aussi dans tous les tags associés. Vous confirmez?</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="216"/>
+        <location filename="../../include/gui/Texts.hpp" line="189"/>
         <source>List</source>
         <translation>Liste</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="217"/>
+        <location filename="../../include/gui/Texts.hpp" line="190"/>
         <source>Date</source>
         <translation>Date</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="218"/>
+        <location filename="../../include/gui/Texts.hpp" line="191"/>
         <source>Number</source>
         <translation>Nombre</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="219"/>
+        <location filename="../../include/gui/Texts.hpp" line="192"/>
         <source>String</source>
         <translation>Texte</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="222"/>
+        <location filename="../../include/gui/Texts.hpp" line="195"/>
         <source>Delete template(s)?</source>
         <translation>Supprimer le modèle?</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="223"/>
+        <location filename="../../include/gui/Texts.hpp" line="196"/>
         <source>Do you really want to delete this template?
 Warning: you cannot undo this action.</source>
         <translation>Voulez-vous vraiment supprimer le modèle?
 Attention: vous ne pouvez pas annuler cette action.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="234"/>
+        <location filename="../../src/gui/toolBars/MainToolBar.cpp" line="18"/>
         <source>Recent Projects</source>
         <translation>Projets récents</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="241"/>
+        <location filename="../../src/gui/toolBars/MainToolBar.cpp" line="25"/>
         <source>Restore Docks</source>
         <translation>Restaurer les fenêtres internes</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="247"/>
+        <location filename="../../src/gui/toolBars/MainToolBar.cpp" line="31"/>
         <source>About</source>
         <translation>À propos</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="251"/>
+        <location filename="../../src/gui/toolBars/MainToolBar.cpp" line="35"/>
         <source>Main toolbar</source>
         <translation></translation>
     </message>
@@ -4939,7 +4937,7 @@ Attention: vous ne pouvez pas annuler cette action.</translation>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="259"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="36"/>
         <source>Displayed</source>
         <translation>Affiché</translation>
     </message>
@@ -4949,94 +4947,99 @@ Attention: vous ne pouvez pas annuler cette action.</translation>
         <translation>Fichier(s) exporté(s) vers : %1</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="79"/>
+        <location filename="../../include/gui/texts/AuthorTexts.hpp" line="11"/>
         <source>You must select an author.</source>
         <translation>Vous devez sélectionner un auteur.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="102"/>
+        <location filename="../../include/gui/Texts.hpp" line="86"/>
         <source>You can&apos;t activate more clippings or rampes, the maximum is reached (max: %1).</source>
         <translation>Vous ne pouvez pas activer plus de clipping ou de rampes, le maximum (%1) est déjà atteint.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="171"/>
+        <location filename="../../include/gui/Texts.hpp" line="146"/>
         <source>Import Scantra registration</source>
         <translation>Importer le recalage Scantra</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="172"/>
+        <location filename="../../include/gui/Texts.hpp" line="147"/>
         <source>Scantra database (*.scdb)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="194"/>
+        <location filename="../../include/gui/Texts.hpp" line="161"/>
+        <source>Same %1 points. Axis is null.</source>
+        <translation>Points identiques pour %1. L’axe est indéfini.</translation>
+    </message>
+    <message>
+        <location filename="../../include/gui/Texts.hpp" line="170"/>
         <source>You will replace data of selected objets.
 Do you confirm?</source>
         <translation>Vous allez remplacer les données des objets sélectionnés.
 Confirmez-vous ?</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="195"/>
+        <location filename="../../include/gui/Texts.hpp" line="171"/>
         <source>Replace data ?</source>
         <translation>Remplacez les données ?</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="199"/>
+        <location filename="../../include/gui/Texts.hpp" line="175"/>
         <source>Some transformations could not be applied, please read the report.</source>
         <translation>Quelques transformations n&apos;ont pas pu être appliqué, veuillez lire le rapport.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="228"/>
+        <location filename="../../include/gui/Texts.hpp" line="201"/>
         <source>You must select a template.</source>
         <translation>Vous devez sélectionner un modèle.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="229"/>
+        <location filename="../../include/gui/Texts.hpp" line="202"/>
         <source>You must select at least one template.</source>
         <translation>Vous devez sélectionner au moins un modèle.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="265"/>
+        <location filename="../../include/gui/Texts.hpp" line="205"/>
         <source>Hide scan markers</source>
         <translation>Marqueurs scans</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="266"/>
+        <location filename="../../include/gui/Texts.hpp" line="206"/>
         <source>Show scan markers</source>
         <translation>Marqueurs scans</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="267"/>
+        <location filename="../../include/gui/Texts.hpp" line="207"/>
         <source>Hide tags</source>
         <translation>Tags</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="268"/>
+        <location filename="../../include/gui/Texts.hpp" line="208"/>
         <source>Show tags</source>
         <translation>Tags</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="271"/>
+        <location filename="../../include/gui/Texts.hpp" line="211"/>
         <source>Hide measures</source>
         <translation>Mesures</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="272"/>
+        <location filename="../../include/gui/Texts.hpp" line="212"/>
         <source>Show measures</source>
         <translation>Mesures</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="273"/>
+        <location filename="../../include/gui/Texts.hpp" line="213"/>
         <source>Hide selected object</source>
         <translation>Objets sélectionnés</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="274"/>
+        <location filename="../../include/gui/Texts.hpp" line="214"/>
         <source>Show selected object</source>
         <translation>Objets sélectionnés</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="275"/>
+        <location filename="../../include/gui/Texts.hpp" line="215"/>
         <source>Show hide toolbar</source>
         <translation>Barre d&apos;outil</translation>
     </message>
@@ -5059,12 +5062,12 @@ Confirmez-vous ?</translation>
         <translation>Toxique</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="278"/>
+        <location filename="../../include/gui/texts/SettingsTexts.hpp" line="6"/>
         <source>Failed to save the configuration change.</source>
         <translation>Echec de la sauvegarde de la configuration.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="281"/>
+        <location filename="../../include/gui/texts/SettingsTexts.hpp" line="9"/>
         <source>%1 minutes</source>
         <translation>%1 minute(s)</translation>
     </message>
@@ -5074,39 +5077,34 @@ Confirmez-vous ?</translation>
         <translation>Il est recommandé de sauvegarder le projet avant de supprimer des points. Voulez vous sauvegarder ?</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="309"/>
+        <location filename="../../include/gui/Texts.hpp" line="243"/>
         <source>Are you sure you want to delete the file(s) from the hard drive?
 WARNING: this operation is irreversible!</source>
         <translation>Etes-vous sûr de vouloir supprimer le(s) fichier(s) du disque dur?
 ATTENTION: cette opération est irréversible!</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="334"/>
-        <source>File format not supported</source>
-        <translation>Format de fichier non supporté</translation>
-    </message>
-    <message>
-        <location filename="../../include/gui/Texts.hpp" line="339"/>
+        <location filename="../../include/gui/texts/FileSystemTexts.hpp" line="18"/>
         <source>Select input file</source>
         <translation>Sélect. fichier d&apos;entrée</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="340"/>
+        <location filename="../../include/gui/texts/FileSystemTexts.hpp" line="19"/>
         <source>Select output file</source>
         <translation>Sélect. fichier de sortie</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="341"/>
+        <location filename="../../include/gui/texts/FileSystemTexts.hpp" line="20"/>
         <source>Input file doesn&apos;t exist</source>
         <translation>Le fichier d&apos;entrée est introuvable</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="342"/>
+        <location filename="../../include/gui/texts/FileSystemTexts.hpp" line="21"/>
         <source>Empty output file</source>
         <translation>Fichier de sortie vide</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="343"/>
+        <location filename="../../include/gui/texts/FileSystemTexts.hpp" line="22"/>
         <source>Empty output folder</source>
         <translation>Dossier de sortie vide</translation>
     </message>
@@ -5133,32 +5131,27 @@ The tld file : [%1] do not have author.</source>
  Le fichier tld: [%1] n&apos;a pas d&apos;auteur.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="20"/>
-        <source>The tlp project file may contains an error or has been removed or the filepath contains unrecognized caracter. </source>
-        <translation>Le fichier .tlp contient peut être une erreur, a été supprimé ou le chemin de fichier contient un caractère non reconnu.</translation>
-    </message>
-    <message>
         <location filename="../../include/gui/Texts.hpp" line="21"/>
         <source>This project can&apos;t be opened with this version, please download and install the latest version first</source>
         <translation>Ce projet ne peut pas être ouvert avec cette version, veuillez télécharger et installer la dernière version avant</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="162"/>
+        <location filename="../../include/gui/Texts.hpp" line="137"/>
         <source>Import shared objects</source>
         <translation>Import d&apos;objets partagés</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="163"/>
+        <location filename="../../include/gui/Texts.hpp" line="138"/>
         <source>Tags (*.tld)</source>
         <translation>Tags (*.tld)</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="164"/>
+        <location filename="../../include/gui/Texts.hpp" line="139"/>
         <source>Objects (*.tlo)</source>
         <translation>Objets (*.tlo)</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="165"/>
+        <location filename="../../include/gui/Texts.hpp" line="140"/>
         <source>Viewpoints (*.tlv)</source>
         <translation>Point de vue (*.tlv)</translation>
     </message>
@@ -5180,7 +5173,7 @@ Les modifications ne peuvent pas être sauvegardé avec le visualiseur gratuit.<
         <translation>Pas de box trouvé.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="203"/>
+        <location filename="../../include/gui/Texts.hpp" line="179"/>
         <source>Failed to load project:
 %1
 </source>
@@ -5189,17 +5182,17 @@ Les modifications ne peuvent pas être sauvegardé avec le visualiseur gratuit.<
 </translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="204"/>
+        <location filename="../../include/gui/Texts.hpp" line="180"/>
         <source>You are trying to open a central project !</source>
         <translation>Vous êtes en train d&apos;ouvrir un projet central !</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="255"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="40"/>
         <source>Export shared files</source>
         <translation>Export en fichiers de partage</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="260"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="37"/>
         <source>None</source>
         <translation>Aucun</translation>
     </message>
@@ -5219,89 +5212,84 @@ Les modifications ne peuvent pas être sauvegardé avec le visualiseur gratuit.<
         <translation>Sphère</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="315"/>
+        <location filename="../../include/gui/Texts.hpp" line="249"/>
         <source>NA</source>
         <translation>N/A</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="316"/>
-        <location filename="../../include/gui/Texts.hpp" line="353"/>
+        <location filename="../../include/gui/Texts.hpp" line="250"/>
+        <location filename="../../include/gui/Texts.hpp" line="270"/>
         <source>Yes</source>
         <translation>Oui</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="317"/>
-        <location filename="../../include/gui/Texts.hpp" line="354"/>
+        <location filename="../../include/gui/Texts.hpp" line="251"/>
+        <location filename="../../include/gui/Texts.hpp" line="271"/>
         <source>No</source>
         <translation>Non</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="318"/>
+        <location filename="../../include/gui/Texts.hpp" line="252"/>
         <source>Reliable</source>
         <translation>Fiable</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="319"/>
+        <location filename="../../include/gui/Texts.hpp" line="253"/>
         <source>Unreliable</source>
         <translation>Non fiable</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="322"/>
+        <location filename="../../include/gui/Texts.hpp" line="256"/>
         <source>Top view</source>
         <translation>Vue de dessus</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="323"/>
+        <location filename="../../include/gui/Texts.hpp" line="257"/>
         <source>Bottom view</source>
         <translation>Vue de dessous</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="324"/>
+        <location filename="../../include/gui/Texts.hpp" line="258"/>
         <source>Left view</source>
         <translation>Vue de gauche</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="325"/>
+        <location filename="../../include/gui/Texts.hpp" line="259"/>
         <source>Right view</source>
         <translation>Vue de droite</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="326"/>
+        <location filename="../../include/gui/Texts.hpp" line="260"/>
         <source>Front view</source>
         <translation>Vue de face</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="327"/>
+        <location filename="../../include/gui/Texts.hpp" line="261"/>
         <source>Back view</source>
         <translation>Vue arrière</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="328"/>
+        <location filename="../../include/gui/Texts.hpp" line="262"/>
         <source>Iso view</source>
-        <translation>Vue iso.</translation>
+        <translation>Vue isométrique</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="331"/>
+        <location filename="../../include/gui/Texts.hpp" line="265"/>
         <source>Import settings</source>
         <translation>Paramètres d&apos;import d&apos;objets modélisés</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="332"/>
-        <source>Select file</source>
-        <translation>Sélection de fichier</translation>
-    </message>
-    <message>
-        <location filename="../../include/gui/Texts.hpp" line="333"/>
+        <location filename="../../include/gui/texts/FileSystemTexts.hpp" line="10"/>
         <source>Filename is incorrect</source>
         <translation>Nom de fichier incorrect</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="335"/>
+        <location filename="../../include/gui/Texts.hpp" line="266"/>
         <source>Scaling is incorrect</source>
         <translation>Échelle incorrecte</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="336"/>
+        <location filename="../../include/gui/Texts.hpp" line="267"/>
         <source>Directions are incorrect</source>
         <translation>Directions incorrectes</translation>
     </message>
@@ -5333,63 +5321,63 @@ Do you confirm?</source>
 Vous confirmez ?</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="287"/>
+        <location filename="../../include/gui/Texts.hpp" line="221"/>
         <source>Error : List name already used</source>
         <translation>Erreur: nom de liste déjà utilisé</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="288"/>
-        <location filename="../../include/gui/Texts.hpp" line="290"/>
+        <location filename="../../include/gui/Texts.hpp" line="222"/>
+        <location filename="../../include/gui/Texts.hpp" line="224"/>
         <source>Error : You tried to rename an item with a name that is already used</source>
         <translation>Erreur: vous essayez de renommer un élément avec un nom déjà existant</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="293"/>
+        <location filename="../../include/gui/Texts.hpp" line="227"/>
         <source>Error : Unexpected error, try to import your file once again</source>
         <translation>Erreur: erreur inattendue, essayez à nouveau d&apos;importer votre fichier</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="294"/>
+        <location filename="../../include/gui/Texts.hpp" line="228"/>
         <source>Error : List with the same name already exist.</source>
         <translation>Erreur  une liste ayant le même nom existe déjà.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="295"/>
+        <location filename="../../include/gui/Texts.hpp" line="229"/>
         <source>Error : The file cannot be opened.</source>
         <translation>Erreur: le fichier ne peut pas être ouvert.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="296"/>
+        <location filename="../../include/gui/Texts.hpp" line="230"/>
         <source>Error : export failed.</source>
         <translation>Erreur: l&apos;export a échoué.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="297"/>
+        <location filename="../../include/gui/Texts.hpp" line="231"/>
         <source>Success : File exported at %1</source>
         <translation>Fichier exporté avec succès vers %1</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="301"/>
+        <location filename="../../include/gui/Texts.hpp" line="235"/>
         <source>Error : Standard name already used.</source>
         <translation>Erreur: ce nom de standard existe déjà.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="302"/>
+        <location filename="../../include/gui/Texts.hpp" line="236"/>
         <source>Error : you tried to rename an item with a name that is already used.</source>
         <translation>Erreur: vous tentez de renommer un élément avec un nom déjà existant.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="303"/>
+        <location filename="../../include/gui/Texts.hpp" line="237"/>
         <source>Error : you tried to add a value that already exists in this list.</source>
         <translation>Erreur: vous tentez d&apos;ajouter une valeur déjà existante dans la liste.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="304"/>
+        <location filename="../../include/gui/Texts.hpp" line="238"/>
         <source>Error : you tried to change to a value that already exists in this list.</source>
         <translation>Erreur: vous tentez de changer la valeur en une valeur déjà existante dans la liste.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="312"/>
+        <location filename="../../include/gui/Texts.hpp" line="246"/>
         <source>Tags successfully exported at %1</source>
         <translation>Tags exportés avec succès vers %1</translation>
     </message>
@@ -5444,7 +5432,7 @@ Vous confirmez ?</translation>
         <translation>Poutre</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="284"/>
+        <location filename="../../include/gui/Texts.hpp" line="218"/>
         <source>Enter value</source>
         <translation>Entrer valeur</translation>
     </message>
@@ -5590,109 +5578,109 @@ Vous confirmez?</translation>
     </message>
     <message>
         <location filename="../../include/gui/texts/TreePanelTexts.hpp" line="59"/>
-        <location filename="../../include/gui/Texts.hpp" line="99"/>
+        <location filename="../../include/gui/Texts.hpp" line="83"/>
         <source>Show exterior</source>
         <translation>Montrer extérieur</translation>
     </message>
     <message>
         <location filename="../../include/gui/texts/TreePanelTexts.hpp" line="60"/>
-        <location filename="../../include/gui/Texts.hpp" line="98"/>
+        <location filename="../../include/gui/Texts.hpp" line="82"/>
         <source>Show interior</source>
         <translation>Montrer intérieur</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="68"/>
+        <location filename="../../include/gui/Texts.hpp" line="61"/>
         <source>Point %1</source>
         <translation>Point %1</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="69"/>
+        <location filename="../../include/gui/Texts.hpp" line="62"/>
         <source>D%1</source>
         <translation>D%1</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="70"/>
+        <location filename="../../include/gui/Texts.hpp" line="63"/>
         <source>Total</source>
         <translation>Totale</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="71"/>
+        <location filename="../../include/gui/Texts.hpp" line="64"/>
         <source>Hor.</source>
         <translation>Hor.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="72"/>
+        <location filename="../../include/gui/Texts.hpp" line="65"/>
         <source>Vert.</source>
         <translation>Vert.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="84"/>
+        <location filename="../../include/gui/Texts.hpp" line="68"/>
         <source>Blue</source>
         <translation>Bleu</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="85"/>
+        <location filename="../../include/gui/Texts.hpp" line="69"/>
         <source>Green</source>
         <translation>Vert</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="86"/>
+        <location filename="../../include/gui/Texts.hpp" line="70"/>
         <source>Red</source>
         <translation>Rouge</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="87"/>
+        <location filename="../../include/gui/Texts.hpp" line="71"/>
         <source>Orange</source>
         <translation>Orange</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="88"/>
+        <location filename="../../include/gui/Texts.hpp" line="72"/>
         <source>Yellow</source>
         <translation>Jaune</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="89"/>
+        <location filename="../../include/gui/Texts.hpp" line="73"/>
         <source>Purple</source>
         <translation>Violet</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="90"/>
+        <location filename="../../include/gui/Texts.hpp" line="74"/>
         <source>Light Grey</source>
         <translation>Gris clair</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="91"/>
+        <location filename="../../include/gui/Texts.hpp" line="75"/>
         <source>Brown</source>
         <translation>Marron</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="13"/>
-        <location filename="../../include/gui/Texts.hpp" line="94"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="12"/>
+        <location filename="../../include/gui/Texts.hpp" line="78"/>
         <source>Active</source>
         <translation>Actif</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="95"/>
+        <location filename="../../include/gui/Texts.hpp" line="79"/>
         <source>Inactive</source>
         <translation>Inactif</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="150"/>
+        <location filename="../../include/gui/Texts.hpp" line="125"/>
         <source>Links</source>
         <translation>Liens</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="151"/>
+        <location filename="../../include/gui/Texts.hpp" line="126"/>
         <source>add hyperlink</source>
         <translation>ajouter hyperlien</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="152"/>
+        <location filename="../../include/gui/Texts.hpp" line="127"/>
         <source>delete hyperlink</source>
         <translation>supprimer hyperlien</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="155"/>
+        <location filename="../../include/gui/Texts.hpp" line="130"/>
         <source>Failed to create the point cloud object.</source>
         <translation>Echec de création de l&apos;objet nuage de points.</translation>
     </message>
@@ -5712,38 +5700,38 @@ Vous confirmez?</translation>
         <translation>10 micromètres</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="9"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="8"/>
         <source>One scan per file</source>
         <translation>Un scan par fichier</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="11"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="10"/>
         <source>Merged</source>
         <translation>Fusionné</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="18"/>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="27"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="17"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="26"/>
         <source>Grids Export</source>
         <translation>Export de grilles</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="28"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="27"/>
         <source>Select grid(s) first</source>
         <translation>Sélectionnez des grilles d&apos;abord</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="33"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="32"/>
         <source>The selected directory is not valid for exports (invalid path OR no write permission)</source>
         <translation>Le dossier sélectionné n&apos;est pas valable pour les exports (chemin invalide OU pas de droits en écriture)</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="158"/>
+        <location filename="../../include/gui/Texts.hpp" line="133"/>
         <source>Export tag template</source>
         <translation>Exporter le modèle de tag</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="159"/>
+        <location filename="../../include/gui/Texts.hpp" line="134"/>
         <source>Import tag template</source>
         <translation>Importer le modèle de tag</translation>
     </message>
@@ -5763,163 +5751,153 @@ Vous confirmez?</translation>
         <translation>%1 sauvegardé!</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="14"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="13"/>
         <source>&lt;Label Missing&gt;</source>
         <translation>&lt;Label manquant&gt;</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="207"/>
-        <source>default</source>
-        <translation>défaut</translation>
-    </message>
-    <message>
-        <location filename="../../include/gui/Texts.hpp" line="210"/>
+        <location filename="../../include/gui/Texts.hpp" line="183"/>
         <source>Reference</source>
         <translation>Référence</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="211"/>
+        <location filename="../../include/gui/Texts.hpp" line="184"/>
         <source>Type</source>
         <translation>Type</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="212"/>
+        <location filename="../../include/gui/Texts.hpp" line="185"/>
         <source>Default value</source>
         <translation>Valeur par défaut</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="213"/>
+        <location filename="../../include/gui/Texts.hpp" line="186"/>
         <source>New Field</source>
         <translation>Nouveau champ</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="214"/>
+        <location filename="../../include/gui/Texts.hpp" line="187"/>
         <source>Field Removal</source>
         <translation>Supprimer champ</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="224"/>
+        <location filename="../../include/gui/Texts.hpp" line="197"/>
         <source>Delete template(s)</source>
         <translation>Supprimer le(s) modèle(s)</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="225"/>
+        <location filename="../../include/gui/Texts.hpp" line="198"/>
         <source>Export template</source>
         <translation>Exporter le modèle</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="226"/>
+        <location filename="../../include/gui/Texts.hpp" line="199"/>
         <source>Duplicate template</source>
         <translation>Duliquer le modèle</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="227"/>
+        <location filename="../../include/gui/Texts.hpp" line="200"/>
         <source>Edit template</source>
         <translation>Editer le modèle</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="232"/>
+        <location filename="../../src/gui/toolBars/MainToolBar.cpp" line="16"/>
         <source>New</source>
         <translation>Nouveau</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="233"/>
+        <location filename="../../src/gui/toolBars/MainToolBar.cpp" line="17"/>
         <source>Open</source>
         <translation>Ouvrir</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="235"/>
+        <location filename="../../src/gui/toolBars/MainToolBar.cpp" line="19"/>
         <source>Save</source>
         <translation>Enregistrer</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="236"/>
+        <location filename="../../src/gui/toolBars/MainToolBar.cpp" line="20"/>
         <source>Close Project</source>
         <translation>Fermer le projet</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="238"/>
+        <location filename="../../src/gui/toolBars/MainToolBar.cpp" line="22"/>
         <source>Undo</source>
         <translation>Annuler</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="239"/>
+        <location filename="../../src/gui/toolBars/MainToolBar.cpp" line="23"/>
         <source>Redo</source>
         <translation>Refaire</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="240"/>
+        <location filename="../../src/gui/toolBars/MainToolBar.cpp" line="24"/>
         <source>Enter Maximize Screen</source>
         <translation>Etendre affichage</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="242"/>
+        <location filename="../../src/gui/toolBars/MainToolBar.cpp" line="26"/>
         <source>Quit Maximize Screen</source>
         <translation>Quitter mode étendu</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="243"/>
+        <location filename="../../src/gui/toolBars/MainToolBar.cpp" line="27"/>
         <source>Enter Full Screen</source>
         <translation>Plein écran</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="244"/>
+        <location filename="../../src/gui/toolBars/MainToolBar.cpp" line="28"/>
         <source>Minimize</source>
         <translation>Réduire</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="246"/>
+        <location filename="../../src/gui/toolBars/MainToolBar.cpp" line="30"/>
         <source>Show shortcuts</source>
         <translation>Afficher les raccourcis</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="248"/>
+        <location filename="../../src/gui/toolBars/MainToolBar.cpp" line="32"/>
         <source>Restore Down</source>
         <translation>Restaurer écran</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="249"/>
+        <location filename="../../src/gui/toolBars/MainToolBar.cpp" line="33"/>
         <source>Maximize</source>
         <translation>Agrandir</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="250"/>
+        <location filename="../../src/gui/toolBars/MainToolBar.cpp" line="34"/>
         <source>Exit</source>
         <translation>Quitter</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="257"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="34"/>
         <location filename="../../include/gui/texts/DefaultUserLists.hpp" line="6"/>
         <source>All</source>
         <translation>Tous</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="279"/>
+        <location filename="../../include/gui/texts/SettingsTexts.hpp" line="7"/>
         <source>Please restart OpenScanTools to apply the new language.</source>
         <translation>Veuillez redémarrer OpenScanTools pour appliquer la nouvelle langue.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="280"/>
-        <source>Please restart OpenScanTools to apply the new memory setting.</source>
-        <translation>Veuillez relancer OpenScanTools pour appliquer le nouveau paramètre mémoire.</translation>
-    </message>
-    <message>
-        <location filename="../../include/gui/Texts.hpp" line="298"/>
+        <location filename="../../include/gui/Texts.hpp" line="232"/>
         <source>Error : export failed due to an internal error. Try to relaunch OpenScanTools.</source>
         <translation>Erreur : export échoué à cause d&apos;une erreur interne. Essayez de relancer OpenScanTools.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="358"/>
+        <location filename="../../include/gui/Texts.hpp" line="275"/>
         <source>Error : Viewpoints are missing.</source>
         <translation>Erreur : Points de vue manquants.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="359"/>
+        <location filename="../../include/gui/Texts.hpp" line="276"/>
         <source>Error : Same selected viewpoints.</source>
         <translation>Erreur : Même points de vue séléctionnés</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="360"/>
+        <location filename="../../include/gui/Texts.hpp" line="277"/>
         <source>Error : Orthographic viewpoint not allowed.</source>
         <translation>Erreur : Les points de vue en orthographique ne sont pas autorisé</translation>
     </message>
@@ -5942,8 +5920,8 @@ Conversion ignorée.
 </translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="12"/>
-        <location filename="../../include/gui/Texts.hpp" line="258"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="11"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="35"/>
         <source>Selected</source>
         <translation>Sélection</translation>
     </message>
@@ -5963,12 +5941,12 @@ Conversion ignorée.
         <translation>Box dupliquée. Prêt pour la suivante.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="269"/>
+        <location filename="../../include/gui/Texts.hpp" line="209"/>
         <source>Hide texts</source>
         <translation>Masquer textes</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="270"/>
+        <location filename="../../include/gui/Texts.hpp" line="210"/>
         <source>Show texts</source>
         <translation>Afficher textes</translation>
     </message>
@@ -6583,7 +6561,7 @@ Fichier non trouvé :
     </message>
     <message>
         <location filename="../../include/gui/Texts.hpp" line="51"/>
-        <location filename="../../include/gui/Texts.hpp" line="145"/>
+        <location filename="../../include/gui/Texts.hpp" line="120"/>
         <source>Position</source>
         <translation>Position</translation>
     </message>
@@ -6594,7 +6572,7 @@ Fichier non trouvé :
     </message>
     <message>
         <location filename="../../include/gui/Texts.hpp" line="57"/>
-        <location filename="../../include/gui/Texts.hpp" line="190"/>
+        <location filename="../../include/gui/Texts.hpp" line="166"/>
         <source>Color</source>
         <translation>Couleur</translation>
     </message>
@@ -6602,31 +6580,6 @@ Fichier non trouvé :
         <location filename="../../include/gui/Texts.hpp" line="58"/>
         <source>Name already taken!</source>
         <translation>Nom déjà pris!</translation>
-    </message>
-    <message>
-        <location filename="../../include/gui/Texts.hpp" line="61"/>
-        <source>Number of scans</source>
-        <translation>Nombre de scans</translation>
-    </message>
-    <message>
-        <location filename="../../include/gui/Texts.hpp" line="62"/>
-        <source>Project name</source>
-        <translation>Nom du projet</translation>
-    </message>
-    <message>
-        <location filename="../../include/gui/Texts.hpp" line="63"/>
-        <source>Author</source>
-        <translation>Auteur</translation>
-    </message>
-    <message>
-        <location filename="../../include/gui/Texts.hpp" line="64"/>
-        <source>Company</source>
-        <translation>Société</translation>
-    </message>
-    <message>
-        <location filename="../../include/gui/Texts.hpp" line="65"/>
-        <source>Location</source>
-        <translation>Lieu</translation>
     </message>
     <message>
         <location filename="../../include/gui/texts/TreePanelTexts.hpp" line="7"/>
@@ -6711,7 +6664,7 @@ Fichier non trouvé :
         <translation>Tubes</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="308"/>
+        <location filename="../../include/gui/Texts.hpp" line="242"/>
         <source>Important data removal</source>
         <translation>Suppression de données importantes</translation>
     </message>
@@ -6754,43 +6707,43 @@ Fichier non trouvé :
         <translation>Supprimer le tag</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="125"/>
+        <location filename="../../include/gui/Texts.hpp" line="106"/>
         <source>Project Creation</source>
         <translation>Création du projet</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="126"/>
+        <location filename="../../include/gui/Texts.hpp" line="107"/>
         <source>Enter project name</source>
         <translation>Saisir le nom du projet</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="129"/>
+        <location filename="../../include/gui/Texts.hpp" line="109"/>
         <source>Create Project</source>
         <translation>Créer le projet</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="130"/>
-        <location filename="../../include/gui/Texts.hpp" line="355"/>
+        <location filename="../../include/gui/Texts.hpp" line="110"/>
+        <location filename="../../include/gui/Texts.hpp" line="272"/>
         <source>Cancel</source>
         <translation>Annuler</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="134"/>
+        <location filename="../../include/gui/texts/FileSystemTexts.hpp" line="9"/>
         <source>Select destination</source>
         <translation>Sélectionnez le dossier de destination</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="143"/>
+        <location filename="../../include/gui/Texts.hpp" line="118"/>
         <source>Name</source>
         <translation>Nom</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="144"/>
+        <location filename="../../include/gui/Texts.hpp" line="119"/>
         <source>Shape</source>
         <translation>Forme</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="147"/>
+        <location filename="../../include/gui/Texts.hpp" line="122"/>
         <location filename="../../include/gui/texts/DefaultUserLists.hpp" line="9"/>
         <source>Discipline</source>
         <translation>Discipline</translation>
@@ -6826,17 +6779,17 @@ Fichier non trouvé :
         <translation>Faro Project (*.lsproj)</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="108"/>
+        <location filename="../../include/gui/Texts.hpp" line="89"/>
         <source>No project loaded</source>
         <translation>Aucun projet chargé</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="305"/>
+        <location filename="../../include/gui/Texts.hpp" line="239"/>
         <source>Error : you tried to redo a delete of a list that already exists or that is not valid</source>
         <translation>Erreur: vous tentez de rétablir la suppression d&apos;une liste qui existe déjà ou qui n&apos;est pas valide</translation>
     </message>
     <message>
-        <location filename="../../include/gui/Texts.hpp" line="289"/>
+        <location filename="../../include/gui/Texts.hpp" line="223"/>
         <source>Error : you tried to add an item that already exists in this list</source>
         <translation>Erreur: vous tentez d&apos;ajouter un élément déjà présent dans la liste</translation>
     </message>
@@ -8056,7 +8009,7 @@ Attention : vous ne pouvez pas annuler cette action.</translation>
     <message>
         <location filename="../../include/gui/texts/ListTexts.hpp" line="11"/>
         <source>Delete list(s)?</source>
-        <translation>Supprimer les listes</translation>
+        <translation>Supprimer les listes ?</translation>
     </message>
     <message>
         <location filename="../../include/gui/texts/ListTexts.hpp" line="12"/>
@@ -8159,7 +8112,7 @@ Attention : vous ne pouvez pas annuler cette action.</translation>
         <translation>axe vertical</translation>
     </message>
     <message>
-        <location filename="../../src/pointCloudEngine/RenderingEngine.cpp" line="45"/>
+        <location filename="../../src/pointCloudEngine/RenderingEngine.cpp" line="35"/>
         <source>Grid cell size : %1 %2</source>
         <translation>Taille des cellulles : %1 %2</translation>
     </message>
@@ -8167,6 +8120,11 @@ Attention : vous ne pouvez pas annuler cette action.</translation>
         <location filename="../../include/gui/texts/ErrorMessagesTexts.hpp" line="9"/>
         <source>Error : the application crashed. Please send us the log file for support. You can find the log file in C:\Documents\OpenScanTools.</source>
         <translation>Erreur : l&apos;application a crash. Veuillez nous envoyer le fichier log pour le support. Vous pouvez trouver le fichier log dans C:\Documents\OpenScanTools.</translation>
+    </message>
+    <message>
+        <location filename="../../src/controller/Controller.cpp" line="115"/>
+        <source>Error : The project couldn&apos;t be saved.</source>
+        <translation>Erreur : The projet n’a pas pu être sauvegardé.</translation>
     </message>
 </context>
 <context>
@@ -8826,20 +8784,20 @@ Par contre, le temps de création va augmenter.</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_importScantra.ui" line="41"/>
+        <source>Connect with Scantra</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_importScantra.ui" line="48"/>
         <source>This feature reads the database file of Scantra and applies the transformations to the scans in OpenScanTools.
 The names of the scans must be the same between Scantra and OpenScanTools</source>
         <translation>Cette fonction lit le fichier de donnée de Scantra et applique les transformations aux scans d&apos;OpenScanTools.
 Le nom des scans doivent être le même entre Scantra et OpenScanTools.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_importScantra.ui" line="45"/>
+        <location filename="../../src/gui/forms/toolbar_importScantra.ui" line="52"/>
         <source>Apply Scantra registration</source>
         <translation>Appliquer le recalage Scantra</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/toolbar_importScantra.ui" line="65"/>
-        <source>Connect to Scantra</source>
-        <translation>Connection avec Scantra</translation>
     </message>
 </context>
 <context>

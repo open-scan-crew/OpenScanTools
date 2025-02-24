@@ -77,7 +77,7 @@ namespace SaveLoadSystem
 	void loadArboFile(Controller& controller, const std::filesystem::path& folderPath);
 	void exportArboFile(const std::filesystem::path& folderPath, const Controller& controller);
 
-	std::filesystem::path ExportProject(Controller& controller, const std::unordered_set<SafePtr<AGraphNode>>& objects, const ProjectInternalInfo& internalInfo, const ProjectInfos& projectInfos, const SafePtr<CameraNode>& camera);
+	bool ExportProject(Controller& controller, const std::unordered_set<SafePtr<AGraphNode>>& objects, const ProjectInternalInfo& internalInfo, const ProjectInfos& projectInfos, const SafePtr<CameraNode>& camera);
 
 	std::list<std::wstring> splitOnChar(std::wstring origin, std::wstring charList);
 

@@ -2,7 +2,6 @@
 #include "controller/Controller_p.h"
 #include "controller/ControllerContext.h"
 #include "io/SaveLoadSystem.h"
-#include "gui/Texts.hpp"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataAuthor.h"
 #include "gui/GuiData/GuiDataMessages.h"
@@ -26,7 +25,7 @@ Controller::Controller(IDataDispatcher& dataDispatcher, GraphManager& graphManag
     m_p->context.addLocalAuthors(SaveLoadSystem::loadLocalAuthors(*this, errorMsg));
     assert(errorMsg == SaveLoadSystem::ErrorCode::Success);
 
-    m_p->dataDispatcher.updateInformation(new GuiDataSendAuthorsList(m_p->context.getLocalAuthors(), -1));
+    m_p->dataDispatcher.updateInformation(new GuiDataSendAuthorsList(m_p->context.getLocalAuthors(), SafePtr<Author>()));
 }
 
 Controller::~Controller()
@@ -113,10 +112,13 @@ void Controller::abortMetaControl()
     m_p->meta_control_creation_ = false;
 }
 
+#define TEXT_ERROR_PROJECT_DIRECTORY_DELETE QObject::tr("Error : The project couldn't be saved.")
+
 void Controller::saveCurrentProject(const SafePtr<CameraNode>& camera)
 {
-    bool saveDone;
-    if ((saveDone = !SaveLoadSystem::ExportProject(*this, getGraphManager().getProjectNodes(), getContext().cgetProjectInternalInfo(), getContext().getProjectInfo(), camera).empty()))
+    std::string err_msg;
+
+    if (SaveLoadSystem::ExportProject(*this, getGraphManager().getProjectNodes(), getContext().cgetProjectInternalInfo(), getContext().getProjectInfo(), camera))
     {
         SaveLoadSystem::ErrorCode code;
         SaveLoadSystem::ExportTemplates(m_p->context.getTemplates(), code, m_p->context.cgetProjectInternalInfo().getTemplatesFolderPath() / File_Templates);
@@ -126,7 +128,7 @@ void Controller::saveCurrentProject(const SafePtr<CameraNode>& camera)
     else
     {
         m_p->context.setIsCurrentProjectSaved(false);
-        updateInfo(new GuiDataWarning(TEXT_ERROR_PROJECT_DIRECTORY_DELETE));
+        updateInfo(new GuiDataWarning(QString::fromUtf8(err_msg.c_str())));
         CONTROLLOG << "Controller Save [" << m_p->context.cgetProjectInfo().m_projectName << "] error : project not save" << LOGENDL;
     }
 }

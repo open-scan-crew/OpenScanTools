@@ -17,7 +17,7 @@
 #define TEXT_CANT_LOAD_TAG_NO_AUTHOR QObject::tr("Error : The tag can't be loaded.\r\nThe tld file : [%1] do not have author.")
 #define TEXT_TEMPLATE_NOT_REGISTERED QObject::tr("Error : the file contain at least one template that is not registered.")
 #define TEXT_TEMPLATE_INVALID_TAG QObject::tr("Error : name or userId data in tag not found.")
-#define TEXT_CANT_LOAD_PROJECT_TLP_ERROR QObject::tr("The tlp project file may contains an error or has been removed or the filepath contains unrecognized caracter. ")
+#define TEXT_CANT_LOAD_PROJECT_TLP_ERROR QObject::tr("The tlp project file may contains an error or has been removed or the filepath contains unrecognized caracter.")
 #define TEXT_CANT_LOAD_PROJECT_OUTDATED_SAVELOADSYTEM QObject::tr("This project can't be opened with this version, please download and install the latest version first")
 #define TEXT_TEMPLATE_INVALID_MEASURE QObject::tr("Error : name data in measure not found.")
 #define TEXT_TEMPLATE_INVALID_CLIPPING QObject::tr("Error : name data in boxes not found.")
@@ -57,13 +57,6 @@
 #define TEXT_COLOR  QObject::tr("Color") // TEXT_OBJECT_PROPERTY_COLOR
 #define TEXT_CLUSTER_NAME_ALREADY_EXIST QObject::tr("Name already taken!")
 
-//ProjectPanel
-#define TEXT_SCANS_NUMBER QObject::tr("Number of scans")
-#define TEXT_PROJECT_NAME QObject::tr("Project name")
-#define TEXT_AUTOR QObject::tr("Author")
-#define TEXT_COMPANY QObject::tr("Company")
-#define TEXT_LOCATION QObject::tr("Location")
-
 //PolylinePropertyPanel
 #define TEXT_POLYLINEPROPERTYPANEL_POINT_TABLE_PT QObject::tr("Point %1")
 #define TEXT_POLYLINEPROPERTYPANEL_SEGMENT_TABLE_SEG QObject::tr("D%1")
@@ -91,9 +84,6 @@
 
 //ClippingControl
 #define TEXT_ACTIVE_CLIPPING_RAMP_MAX_REACHED QObject::tr("You can't activate more clippings or rampes, the maximum is reached (max: %1).")
-
-//Controller
-#define TEXT_ERROR_PROJECT_DIRECTORY_DELETE QObject::tr("Error : The project couldn't be saved.\nMaybe the project folder has been deleted")
 
 //ControlPorject
 #define TEXT_NO_PROJECT_LOADED QObject::tr("No project loaded")
@@ -168,8 +158,9 @@
 #define TEXT_USER_ORIENTATION_PROPERTIES_WARNING_NAME_ALREADY_USED QObject::tr("This orientation name already exists")
 #define TEXT_USER_ORIENTATION_PROPERTIES_WARNING_NO_NAME QObject::tr("Please give a name to the orientation")
 #define TEXT_USER_ORIENTATION_PROPERTIES_WARNING_MISSING_POINT QObject::tr("Points are missing. The orientation cannot be created")
-#define TEXT_USER_ORIENTATION_PROPERTIES_SAME_POINT_AXIS QObject::tr("Same %1 points. Axis is null")
+#define TEXT_USER_ORIENTATION_PROPERTIES_SAME_POINT_AXIS QObject::tr("Same %1 points. Axis is null.")
 #define TEXT_USER_ORIENTATION_PROPERTIES_NAN_VEC QObject::tr("Incorrect %1 point")
+
 
 //PropertyPointCloud
 #define TEXT_COLOR QObject::tr("Color")
@@ -187,9 +178,6 @@
 #define TEXT_PROJECT_CLOSING QObject::tr(" Closing Project...")
 #define TEXT_PROJECT_ERROR_LOADING QObject::tr("Failed to load project:\n%1\n")
 #define TEXT_PROJECT_ERROR_CENTRAL QObject::tr("You are trying to open a central project !")
-
-//AuthorCreateDialog
-#define TEXT_DEFAULT QObject::tr("default")
 
 //TemplateEditorDialog
 #define TEXT_REFERENCE QObject::tr("Reference")
@@ -212,29 +200,6 @@
 #define TEXT_EDIT_TEMPLATE_BOX QObject::tr("Edit template")
 #define TEXT_TEMPLATE_WARNING_SELECT_ONE QObject::tr("You must select a template.")
 #define TEXT_TEMPLATE_WARNING_SELECT_MULTIPLE QObject::tr("You must select at least one template.")
-
-// MainToolBar
-#define TEXT_MAIN_TOOLBAR_NEW QObject::tr("New")
-#define TEXT_MAIN_TOOLBAR_OPEN QObject::tr("Open")
-#define TEXT_MAIN_TOOLBAR_RECENT_PROJECTS QObject::tr("Recent Projects")
-#define TEXT_MAIN_TOOLBAR_SAVE QObject::tr("Save")
-#define TEXT_MAIN_TOOLBAR_CLOSE_PROJECT QObject::tr("Close Project")
-#define TEXT_MAIN_TOOLBAR_IMPORT_TLS QObject::tr("Import scans")
-#define TEXT_MAIN_TOOLBAR_UNDO QObject::tr("Undo")
-#define TEXT_MAIN_TOOLBAR_REDO QObject::tr("Redo")
-#define TEXT_MAIN_TOOLBAR_MAX_SCREEN QObject::tr("Enter Maximize Screen")
-#define TEXT_MAIN_TOOLBAR_RESTORE_DOCKS QObject::tr("Restore Docks")
-#define TEXT_MAIN_TOOLBAR_QUIT_MAXIMIZE_SCREEN QObject::tr("Quit Maximize Screen")
-#define TEXT_MAIN_TOOLBAR_FULL_SCREEN QObject::tr("Enter Full Screen")
-#define TEXT_MAIN_TOOLBAR_MINIMIZE_SCREEN QObject::tr("Minimize")
-#define TEXT_MAIN_TOOLBAR_SETTINGS QObject::tr("General settings")
-#define TEXT_MAIN_TOOLBAR_SHORTCUTS QObject::tr("Show shortcuts")
-#define TEXT_MAIN_TOOLBAR_ABOUT QObject::tr("About")
-#define TEXT_MAIN_TOOLBAR_RESTORE_SCREEN QObject::tr("Restore Down")
-#define TEXT_MAIN_TOOLBAR_MAXIMIZE_SCREEN QObject::tr("Maximize")
-#define TEXT_MAIN_TOOLBAR_EXIT QObject::tr("Exit")
-#define TEXT_MAIN_TOOLBAR_NAME QObject::tr("Main toolbar")
-
 
 //ToolBarShowHideGroup - A REVOIR - pas nécessaire d'avoir 2 textes - le changement d'icône d'oeil suffit (oeil ouvert ou barré). Donc oeil + scan marker suffit
 #define TEXT_HIDE_MODEL_SCAN_MARKER QObject::tr("Hide scan markers")

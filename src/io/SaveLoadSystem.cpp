@@ -1507,7 +1507,7 @@ std::vector<std::filesystem::path> renameOldObjectFiles(const std::vector<std::f
 	return renamedFiles;
 }
 
-std::filesystem::path SaveLoadSystem::ExportProject(Controller& controller, const std::unordered_set<SafePtr<AGraphNode>>& objects, const ProjectInternalInfo& internalInfo, const ProjectInfos& projectInfos, const SafePtr<CameraNode>& camera)
+bool SaveLoadSystem::ExportProject(Controller& controller, const std::unordered_set<SafePtr<AGraphNode>>& objects, const ProjectInternalInfo& internalInfo, const ProjectInfos& projectInfos, const SafePtr<CameraNode>& camera)
 {
 	const ControllerContext& context = controller.getContext();
 
@@ -1521,7 +1521,7 @@ std::filesystem::path SaveLoadSystem::ExportProject(Controller& controller, cons
 		}
 		catch (std::exception&) {
 			IOLOG << "Error: invalid folder" << LOGENDL;
-			return ("");
+			false;
 		}
 	}
 	std::filesystem::path exportPath = internalInfo.getProjectFilePath();
@@ -1551,17 +1551,11 @@ std::filesystem::path SaveLoadSystem::ExportProject(Controller& controller, cons
 
 	jsonProject[Key_UserOrientations] = exportUserOrientationBlock(context);
 
-	if (std::filesystem::exists(exportPath.parent_path()) != true)
-	{
-		IOLOG << "Error folder " << exportPath << " not found" << LOGENDL;
-		return ("");
-	}
-
 	if (!utils::writeJsonFile(exportPath, jsonProject))
 	{
 		IOLOG << "Error : failed to save json : " << exportPath << LOGENDL;
 		assert(false);
-		return "";
+		return false;
 	}
 
 	Utils::System::createDirectoryIfNotExist(internalInfo.getScansFolderPath());
@@ -1606,7 +1600,7 @@ std::filesystem::path SaveLoadSystem::ExportProject(Controller& controller, cons
 		}
 	}
 
-	return exportPath;
+	return true;
 }
 
 std::filesystem::path SaveLoadSystem::ExportTemplates(const std::unordered_set<SafePtr<sma::TagTemplate>>& templates, ErrorCode& errorCode, const std::filesystem::path& filePath)

@@ -127,7 +127,7 @@ void ToolBarFilterGroup::onAuthorList(IGuiData* data)
 {
 	GuiDataSendAuthorsList *userList = static_cast<GuiDataSendAuthorsList*>(data);
 
-	if (userList->m_isProjectScope == false)
+	if (userList->is_project_scope_ == false)
 		return;
 	xg::Guid currentAuthor = xg::Guid(m_ui.UserCombo->currentData().toString().toStdString());
 
@@ -135,7 +135,7 @@ void ToolBarFilterGroup::onAuthorList(IGuiData* data)
 	m_ui.UserCombo->blockSignals(true);
 
 	m_ui.UserCombo->clear();
-	for (const SafePtr<Author>& auth : userList->m_authors)
+	for (const SafePtr<Author>& auth : userList->authors_)
 	{
 		ReadPtr<Author> rAuth = auth.cget();
 		if (!rAuth)

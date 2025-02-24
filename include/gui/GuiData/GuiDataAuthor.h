@@ -13,21 +13,13 @@ class GuiDataSendAuthorsList : public IGuiData
 {
 public:
     GuiDataSendAuthorsList(const std::unordered_set<SafePtr<Author>>& authors, const bool& projectScope);
-    GuiDataSendAuthorsList(const std::unordered_set<SafePtr<Author>>& authors, const int& selectedAuthor);
+    GuiDataSendAuthorsList(const std::unordered_set<SafePtr<Author>>& authors, SafePtr<Author> activeAuthor);
     ~GuiDataSendAuthorsList();
     guiDType getType() override;
 public:
-    const bool m_isProjectScope;
-    const std::unordered_set<SafePtr<Author>> m_authors;
-    const int m_selectedAuthor;
-};
-
-class GuiDataCloseAuthorsList : public IGuiData
-{
-public:
-    GuiDataCloseAuthorsList();
-    ~GuiDataCloseAuthorsList();
-    guiDType getType() override;
+    const bool is_project_scope_;
+    const std::unordered_set<SafePtr<Author>> authors_;
+    const SafePtr<Author> active_author_;
 };
 
 class GuiDataAuthorNameSelection : public IGuiData

@@ -25,6 +25,9 @@
      <height>31</height>
     </rect>
    </property>
+   <property name="placeholderText">
+    <string>Enter a name...</string>
+   </property>
   </widget>
   <widget class="QPushButton" name="okBtn">
    <property name="geometry">

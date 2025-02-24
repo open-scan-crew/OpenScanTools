@@ -3,7 +3,6 @@
 
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
-//#include "models/project/ProjectInfos.h"
 
 #include <QtWidgets/qtoolbar.h>
 #include <QtWidgets/qpushbutton.h>
