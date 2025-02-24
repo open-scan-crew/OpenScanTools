@@ -16,8 +16,8 @@ ifcFileReader::ifcFileReader(Controller* pController, const MeshObjInputData& in
 	, m_ifcModel(std::make_shared<BuildingModel>())
 	, m_geometryConverter(m_ifcModel)
 {
-	m_ifcModel->setMessageCallBack(this, [](void* a, std::shared_ptr<StatusCallback::Message> b) { IOLOG << "IFC info - " << QString::fromStdWString(b->m_message_text).toStdString().c_str() << Logger::endl; });
-	m_geometryConverter.setMessageCallBack(this, [](void* a, std::shared_ptr<StatusCallback::Message> b) { IOLOG << "IFC info - " << QString::fromStdWString(b->m_message_text).toStdString().c_str() << Logger::endl; });
+	m_ifcModel->setMessageCallBack(this, [](void* a, std::shared_ptr<StatusCallback::Message> b) { IOLOG << "IFC info - " << b->m_message_text << Logger::endl; });
+	m_geometryConverter.setMessageCallBack(this, [](void* a, std::shared_ptr<StatusCallback::Message> b) { IOLOG << "IFC info - " << b->m_message_text << Logger::endl; });
 }
 
 ifcFileReader::~ifcFileReader()
@@ -27,7 +27,7 @@ ifcFileReader::~ifcFileReader()
 bool ifcFileReader::read()
 {
 	ReaderSTEP reader = ReaderSTEP();
-	reader.setMessageCallBack(this, [](void* a, std::shared_ptr<StatusCallback::Message> b) { IOLOG << "IFC info - " << QString::fromStdWString(b->m_message_text).toStdString().c_str() << Logger::endl; });
+	reader.setMessageCallBack(this, [](void* a, std::shared_ptr<StatusCallback::Message> b) { IOLOG << "IFC info - " << b->m_message_text << Logger::endl; });
 
 	reader.loadModelFromFile(m_inputInfo.path.wstring(), m_ifcModel);
 
@@ -39,20 +39,17 @@ bool ifcFileReader::read()
 
 	double fact = 0.1 + ((m_inputInfo.lod - 1) / 99.) * 0.75;
 	IOLOG << "IFC - fact " << fact << LOGENDL;
-	IOLOG << LOGENDL;
 	m_geometryConverter.getGeomSettings()->setNumVerticesPerCircle(4 + 12 * fact);
 	IOLOG << "IFC - numVert per cercle " << m_geometryConverter.getGeomSettings()->getNumVerticesPerCircle() << LOGENDL;
 	m_geometryConverter.getGeomSettings()->setMinNumVerticesPerArc(2 + 6 * fact);
 	IOLOG << "IFC - minNumVert per arc " << m_geometryConverter.getGeomSettings()->getMinNumVerticesPerArc() << LOGENDL;
 	m_geometryConverter.getGeomSettings()->setNumVerticesPerControlPoint(1);
 	IOLOG << "IFC - numVert per controlpoint " << m_geometryConverter.getGeomSettings()->getNumVerticesPerControlPoint() << LOGENDL;
-	IOLOG << LOGENDL;
 	m_geometryConverter.getGeomSettings()->setCoplanarFacesMaxDeltaAngle(M_PI * 0.02 * (0.5/fact));
 	IOLOG << "IFC - coplanar maxDelta " << m_geometryConverter.getGeomSettings()->getCoplanarFacesMaxDeltaAngle() << LOGENDL;
 	m_geometryConverter.getGeomSettings()->setCreaseEdgesMaxDeltaAngle(M_PI * 0.05 * (0.5/fact));
 	IOLOG << "IFC - creaseEdge maxDelta " << m_geometryConverter.getGeomSettings()->getCreaseEdgesMaxDeltaAngle() << LOGENDL;
-	
-	
+
 	m_geometryConverter.convertGeometry();
 
 	m_maxCount = m_geometryConverter.getShapeInputData().size();
