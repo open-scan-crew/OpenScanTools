@@ -745,30 +745,6 @@ namespace control::io
 	}
 
 	/*
-<<<<<<< HEAD
-=======
-	** StartScantraInterprocess
-	*/
-
-	SwitchScantraConnexion::SwitchScantraConnexion(bool start)
-		: start_(start)
-	{}
-
-	void SwitchScantraConnexion::doFunction(Controller& controller)
-	{
-		if (start_)
-			controller.startScantraInterface();
-		else
-			controller.stopScantraInterface();
-	}
-
-	ControlType SwitchScantraConnexion::getType() const
-	{
-		return ControlType::switchScantraConnexion;
-	}
-
-	/*
->>>>>>> dev_scantra_interprocess
 	** ConvertImageToPointCloud
 	*/
 

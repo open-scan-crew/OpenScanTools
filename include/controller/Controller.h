@@ -79,11 +79,9 @@ public:
 
     void startScantraInterface();
     void stopScantraInterface();
-    
+
     uint32_t getNextUserId(ElementType type) const;
     std::vector<uint32_t> getMultipleUserId(ElementType type, int indexAmount) const;
-
-    void setDefaultAuthor();
 
 private:
     Controller_p* m_p;

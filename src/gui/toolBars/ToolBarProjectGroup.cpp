@@ -60,7 +60,6 @@ void ToolBarProjectGroup::manageAuthors(bool displayCloseButton)
 {
 	GUI_LOG << "manage authors" << LOGENDL;
 	AuthorListDialog *dialog = new AuthorListDialog(m_dataDispatcher, this->parentWidget());
-	m_dataDispatcher.sendControl(new control::application::author::SendAuthorList());
     dialog->setWindowFlag(Qt::WindowCloseButtonHint, displayCloseButton);
 	dialog->show();
 }

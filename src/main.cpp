@@ -1,7 +1,10 @@
 #include "utils/Config.h"
 #include "utils/Logger.h"
+#include "utils/ArgParser.h"
 #include "controller/Controller.h"
 #include "controller/IControlListener.h"
+#include "controller/controls/ControlApplication.h"
+#include "controller/controls/ControlProject.h"
 #include "gui/Gui.h"
 #include "gui/Translator.h"
 #include "gui/DataDispatcher.h"
@@ -10,7 +13,7 @@
 
 #include "core/SignalHandler.h"
 #include "impl/PCE_impl.h"
-#include "controller/controls/ControlProject.h"
+
 
 #include "models/graph/GraphManager.h"
 
@@ -53,6 +56,7 @@ int main(int argc, char** argv)
     std::setlocale(LC_NUMERIC, "C");
 
     Logger::init();
+    ArgParser::log(argc, argv);
 
     // Disable the high dpi scaling because it causes rendering problems with Vulkan
     QCoreApplication::setAttribute(Qt::AA_DisableHighDpiScaling);
@@ -74,19 +78,9 @@ int main(int argc, char** argv)
     QIcon::setThemeName("OpenScanTools");
 
     // Parse the args
-    bool vk_validation_enabled = VK_VALIDATION_ENABLED;
-    bool select_device = false;
-
-    for (int i = 0; i < argc; i++)
-    {
-        Logger::log(LoggerMode::LogConfig) << "arg[" << i << "] : [" << argv[i] << "]" << LOGENDL;
-        if (strcmp(argv[i], "--vulkan-validation") == 0)
-            vk_validation_enabled = true;
-        if (strcmp(argv[i], "--select-device") == 0)
-            select_device = true;
-    }
-
-    if (!tl_pce_init(vk_validation_enabled, select_device))
+    bool vk_vl_enabled = ArgParser::find(argc, argv, "--vulkan-validation");
+    bool select_device = ArgParser::find(argc, argv, "--select-device");
+    if (!tl_pce_init(vk_vl_enabled, select_device))
         return 0;
 
     SplashScreen splash;
@@ -116,15 +110,16 @@ int main(int argc, char** argv)
     }
 #endif
 
-    if (argc >= 2)
+    char* str_tlp = ArgParser::getArg(argc, argv, ".tlp");
+    if (str_tlp != nullptr)
     {
-        std::filesystem::path path(argv[1]);
-        if (path.extension() == ".tlp" || path.extension() == ".TLP")
-        {
-            splash.showMessage("Loading Project");
-            controller.getControlListener()->notifyUIControl(new control::project::DropLoad(path));
-        }
+        std::filesystem::path path(str_tlp);
+        splash.showMessage("Loading Project");
+        controller.getControlListener()->notifyUIControl(new control::project::DropLoad(path));
     }
+
+    bool connect_scantra = ArgParser::find(argc, argv, "--connect-to-scantra");
+    controller.getControlListener()->notifyUIControl(new control::application::SwitchScantraConnexion(connect_scantra));
 
     splash.showStatusMessage("Loading GUI");
 

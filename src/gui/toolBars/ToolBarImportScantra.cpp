@@ -1,6 +1,7 @@
 #include "gui/toolBars/ToolBarImportScantra.h"
 
 #include "controller/controls/ControlIO.h"
+#include "controller/controls/ControlApplication.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataIO.h"
 
@@ -68,7 +69,7 @@ void ToolBarImportScantra::slotImportScantra()
 
 void ToolBarImportScantra::slotSwitchConnexion()
 {
-	m_dataDispatcher.sendControl(new control::io::SwitchScantraConnexion(!m_interprocess_started));
+	m_dataDispatcher.sendControl(new control::application::SwitchScantraConnexion(!m_interprocess_started));
 	m_interprocess_started = !m_interprocess_started;
 
 	m_ui.switch_connexion_btn->setText(m_interprocess_started ?

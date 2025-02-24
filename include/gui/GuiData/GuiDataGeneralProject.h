@@ -6,7 +6,6 @@
 #include "models/Types.hpp"
 #include "models/project/ProjectInfos.h"
 #include "models/OpenScanToolsModelEssentials.h"
-#include "models/application/Author.h"
 #include "controller/functionSystem/AContext.h"
 
 #include "utils/Color32.hpp"
@@ -220,58 +219,6 @@ public:
 public:
 	const bool m_isPicked;
 	const Color32 m_color;
-};
-
-/*
-class GuiDataPropertiesName : public IGuiData
-{
-public:
-	GuiDataPropertiesName(const QString& name);
-	~GuiDataPropertiesName();
-	guiDType getType() override;
-
-	const QString m_name;
-};
-*/
-
-/*
-class GuiDataDuplicationProperties : public IGuiData
-{
-public:
-	GuiDataDuplicationProperties();
-	~GuiDataDuplicationProperties();
-	guiDType getType() override;
-};
-*/
-
-class GuiDataSendAuthorsList : public IGuiData
-{
-public:
-	GuiDataSendAuthorsList(const std::unordered_set<SafePtr<Author>>& authors, const bool& projectScope);
-	GuiDataSendAuthorsList(const std::unordered_set<SafePtr<Author>>& authors, const int& selectedAuthor);
-	~GuiDataSendAuthorsList();
-	guiDType getType() override;
-public:
-	const bool m_isProjectScope;
-	const std::unordered_set<SafePtr<Author>> m_authors;
-	const int m_selectedAuthor;
-};
-
-class GuiDataCloseAuthorsList : public IGuiData
-{
-public:
-	GuiDataCloseAuthorsList();
-	~GuiDataCloseAuthorsList();
-	guiDType getType() override;
-};
-
-class GuiDataAuthorNameSelection : public IGuiData
-{
-public:
-	GuiDataAuthorNameSelection(const std::wstring& author);
-	guiDType getType() override;
-public:
-	const std::wstring m_author;
 };
 
 class GuiDataNameSelection : public IGuiData

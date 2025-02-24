@@ -3,7 +3,8 @@
 #include "controller/ControllerContext.h"
 #include "io/SaveLoadSystem.h"
 #include "gui/Texts.hpp"
-#include "gui/GuiData/GuiDataGeneralProject.h" //
+#include "gui/GuiData/GuiDataGeneralProject.h"
+#include "gui/GuiData/GuiDataAuthor.h"
 #include "gui/GuiData/GuiDataMessages.h"
 
 #include "pointCloudEngine/EmbeddedScan.h"
@@ -193,14 +194,4 @@ uint32_t Controller::getNextUserId(ElementType type) const
 std::vector<uint32_t> Controller::getMultipleUserId(ElementType type, int indexAmount) const
 {
     return m_p->graphManager.getNextMultipleUserId({ type }, m_p->context.getIndexationMethod(), indexAmount);
-}
-
-void Controller::setDefaultAuthor()
-{
-    Author authData = Author();
-    SafePtr<Author> newAuth = getContext().createAuthor(authData);
-    getContext().addLocalAuthors({ newAuth });
-    getContext().setActiveAuthor(newAuth);
-    updateInfo(new GuiDataSendAuthorsList(getContext().getLocalAuthors(), -1));
-    updateInfo(new GuiDataAuthorNameSelection(authData.getName()));
 }

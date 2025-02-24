@@ -60,9 +60,10 @@ bool DialogImportAsciiPC::setInfoAsciiPC(std::vector<std::filesystem::path> file
 {
 	for (std::filesystem::path path : filePaths)
 	{
-		FileType type = ExtensionDictionnary.at(path.extension().string());
-		if (type == FileType::PTS)
+		if (FileUtils::getType(path) == FileType::PTS)
+		{
 			m_filesValuesRoles.push_back({ path,  Import::AsciiInfo() });
+		}
 	}
 
 	m_fileIndex = 0;

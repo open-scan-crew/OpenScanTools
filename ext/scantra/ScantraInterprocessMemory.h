@@ -1,8 +1,11 @@
 #pragma once
 
+#include <atomic>
+
 #include <boost/interprocess/sync/interprocess_mutex.hpp>
 #include <boost/interprocess/sync/interprocess_condition.hpp>
-//#include <boost/date_time/posix_time/posix_time.hpp>
+
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 using namespace boost::interprocess;
 
@@ -12,8 +15,8 @@ class ScantraInterprocessObserver
 {
 private:
 
-   bool ready_;
-	int  return_value_;
+	std::atomic<int>  return_value_;
+   std::atomic<bool> ready_;
 
 public:
 
@@ -29,6 +32,7 @@ public:
       hasConnected,
       hasDisconnected,
       logText,
+      stationNew,
       stationChanged,
       intersectionPlane,
       stationColor,
@@ -36,7 +40,11 @@ public:
       projectPath,
       selectStation,
       deselectStation,
-      panoramicView
+      panoramicView,
+      createProject,
+      hasCreatedProject,
+      openProject,
+      hasOpenedProject
 	};
 
 	Message message_;
@@ -156,18 +164,20 @@ public:
       return true;
    }
 
-   void update( ScantraInterprocessObserver* sender )
+   int update( ScantraInterprocessObserver* sender )
    {
       if ( ! sender )
-         return;
+         return -2;
 
+      int i_sender = sender->index_;
+      if ( i_sender < 0 || i_sender > 4 )
+         return 1;
+
+      // --------------------------------------------
       // All observers except the sender are notified
+      // --------------------------------------------
       {
          scoped_lock<interprocess_mutex> lock(mutex);
-
-         int i_sender = sender->index_;
-         if ( i_sender < 0 || i_sender > 4 )
-            return;
 
          for ( int i_obs = 0; i_obs < i_sender; i_obs++ )
          { 
@@ -182,14 +192,35 @@ public:
          }
       }
 
-      // Waits until all updated observer are ready
-//      auto tin = boost::posix_time::microsec_clock::universal_time();
-//      auto waitTime = tin + boost::posix_time::milliseconds(2000);
-
       scoped_lock<interprocess_mutex> lock_ready(mutex_ready);
-      while ( ! ready() )
-         cond_ready.wait(lock_ready);
-//         cond_ready.timed_wait(lock_ready,waitTime);
+      
+//      while ( ! ready() )
+//         cond_ready.wait(lock_ready);
+
+      // -------------------------------------------
+      // Waits until all updated observers are ready
+      // -------------------------------------------
+      boost::posix_time::ptime tin = boost::posix_time::microsec_clock::universal_time();
+      boost::posix_time::ptime waitTime = tin + boost::posix_time::milliseconds(2000);
+
+      while (!ready()) 
+      {
+         if (!cond_ready.timed_wait(lock_ready, waitTime))
+         {
+            // -------------------------------------------------------------
+            // In the event of a timeout, all other observers are logged off
+            // -------------------------------------------------------------
+            for ( int i_obs = 0; i_obs < i_sender; i_obs++ )
+               a_observer[i_obs].registered_ = false; 
+
+            for ( int i_obs = i_sender+1; i_obs < 5; i_obs++ )
+               a_observer[i_obs].registered_ = false; 
+
+            return -1;
+         }
+      } 
+
+      return 0;
    }
 };
 

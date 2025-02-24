@@ -535,6 +535,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\controller\Controller_p.cpp" />
     <ClCompile Include="..\..\src\controller\ControlListener.cpp" />
     <ClCompile Include="..\..\src\controller\controls\AEditionControl.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlAuthor.cpp" />
     <ClCompile Include="..\..\src\controller\controls\ControlCreationAttributesEdition.cpp" />
     <ClCompile Include="..\..\src\controller\controls\ControlCylinderEdition.cpp" />
     <ClCompile Include="..\..\src\controller\controls\ControlDataEdition.cpp" />
@@ -769,6 +770,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">%(Filename).moc</QtMocFileName>
     </ClCompile>
     <ClCompile Include="..\..\src\gui\GuiData\GuiData3dObjects.cpp" />
+    <ClCompile Include="..\..\src\gui\GuiData\GuiDataAuthor.cpp" />
     <ClCompile Include="..\..\src\gui\GuiData\GuiDataClipping.cpp" />
     <ClCompile Include="..\..\src\gui\GuiData\GuiDataContextRequest.cpp" />
     <ClCompile Include="..\..\src\gui\GuiData\GuiDataGeneralProject.cpp" />
@@ -953,6 +955,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     </ClCompile>
     <ClCompile Include="..\..\src\io\exports\TlsFileWriter.cpp" />
     <ClCompile Include="..\..\src\io\exports\txtExport.cpp" />
+    <ClCompile Include="..\..\src\io\FileUtils.cpp" />
     <ClCompile Include="..\..\src\io\imports\DataDeserializer.cpp" />
     <ClCompile Include="..\..\src\io\imports\dxfFileReader.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
@@ -1120,6 +1123,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\utils\3DConnexion\3DConnexion.cpp">
       <EnableModules Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</EnableModules>
     </ClCompile>
+    <ClCompile Include="..\..\src\utils\ArgParser.cpp" />
     <ClCompile Include="..\..\src\utils\ColorConversion.cpp" />
     <ClCompile Include="..\..\src\utils\ImGuiUtils.cpp" />
     <ClCompile Include="..\..\src\utils\JsonWriter.cpp" />
@@ -1208,6 +1212,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\controller\ControlListener.h" />
     <ClInclude Include="..\..\include\controller\controls\AEditionControl.h" />
     <ClInclude Include="..\..\include\controller\controls\AEditionControl.hxx" />
+    <ClInclude Include="..\..\include\controller\controls\ControlAuthor.h" />
     <ClInclude Include="..\..\include\controller\controls\ControlCreationAttributesEdition.h" />
     <ClInclude Include="..\..\include\controller\controls\ControlCylinderEdition.h" />
     <ClInclude Include="..\..\include\controller\controls\ControlDataEdition.h" />
@@ -1382,8 +1387,10 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\controller\messages\VideoExportParametersMessage.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogImportImage.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogImportPCObject.h" />
+    <ClInclude Include="..\..\include\gui\GuiData\GuiDataAuthor.h" />
     <ClInclude Include="..\..\include\gui\style\CustomCursors.h" />
     <ClInclude Include="..\..\include\gui\style\IconObject.h" />
+    <ClInclude Include="..\..\include\gui\texts\AuthorTexts.hpp" />
     <ClInclude Include="..\..\include\gui\texts\DefaultNameTexts.hpp" />
     <ClInclude Include="..\..\include\gui\texts\FileSystemTexts.hpp" />
     <ClInclude Include="..\..\include\gui\texts\MainGuiTexts.hpp" />
@@ -1508,6 +1515,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\models\pointCloud\PointCloudInstance.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\GuiRenderingTypes.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\RenderingEcoSystem.h" />
+    <ClInclude Include="..\..\include\utils\ArgParser.h" />
     <ClInclude Include="..\..\include\utils\ColorConversion.h" />
     <ClInclude Include="..\..\include\utils\ImGuiUtils.h" />
     <ClInclude Include="..\..\include\utils\JsonWriter.h" />

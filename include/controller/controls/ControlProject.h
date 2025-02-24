@@ -86,19 +86,6 @@ namespace control
 			SafePtr<CameraNode> m_camera;
 		};
 
-		/*class Autosave : public AControl
-		{
-		public:
-			Autosave(SafePtr<CameraNode> camera);
-			~Autosave();
-			void doFunction(Controller& controller) override;
-			bool canUndo() const override;
-			void undoFunction(Controller& controller) override;
-			ControlType getType() const override;
-		private:
-			SafePtr<CameraNode> m_camera;
-		};*/
-
         class Close : public AControl
         {
         public:
@@ -135,7 +122,7 @@ namespace control
         class SaveCloseLoad : public AControl
         {
         public:
-			SaveCloseLoad(std::filesystem::path path = "");
+            SaveCloseLoad(std::filesystem::path path = "");
             ~SaveCloseLoad();
             void doFunction(Controller& controller) override;
             bool canUndo() const override;
@@ -144,21 +131,6 @@ namespace control
 		private:
 			std::filesystem::path m_projectToLoad;
         };
-
-		//new
-		class SaveCloseLoadCentral : public AControl
-		{
-		public:
-			SaveCloseLoadCentral(std::filesystem::path path = "");
-			~SaveCloseLoadCentral();
-			void doFunction(Controller& controller) override;
-			bool canUndo() const override;
-			void undoFunction(Controller& controller) override;
-			ControlType getType() const override;
-		private:
-			std::filesystem::path m_projectToLoad;
-			bool m_isCentral;
-		};
 
         class SaveQuit : public AControl
         {

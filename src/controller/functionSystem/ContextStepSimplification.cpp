@@ -93,7 +93,7 @@ ContextState ContextStepSimplification::launch(Controller& controller)
 		return ARayTracingContext::abort(controller);
 	}
 	
-	if (getFileType(m_data.file.extension()) == FileType::MAX_ENUM)
+	if (FileUtils::getType(m_data.file) == FileType::MAX_ENUM)
 		m_data.file += ".step";
 
 	controller.updateInfo(new GuiDataProcessingSplashScreenStart(5, TEXT_SPLASH_SCREEN_SIMPLIFY_STEP_DATA_TITLE, TEXT_SPLASH_SCREEN_SIMPLIFY_STEP_DATA_PROCESSING));

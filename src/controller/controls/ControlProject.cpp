@@ -9,6 +9,7 @@
 #include "controller/messages/ImportMessage.h"
 
 #include "gui/GuiData/GuiDataGeneralProject.h"
+#include "gui/GuiData/GuiDataAuthor.h"
 #include "gui/GuiData/GuiDataRendering.h"
 #include "gui/GuiData/GuiDataList.h"
 #include "gui/GuiData/GuiDataMessages.h"
@@ -695,31 +696,29 @@ namespace control
 			std::vector<std::filesystem::path> toConvert;
 			std::vector<std::filesystem::path> toImport;
 
-			for (auto it_file = m_importInfo.paths.begin(); it_file != m_importInfo.paths.end(); it_file++)
+			for (const std::filesystem::path file_path : m_importInfo.paths)
 			{
-                auto it = ExtensionDictionnary.find(it_file->extension().string());
-                if (it == ExtensionDictionnary.end())
-                    continue;
+				FileType file_type = FileUtils::getType(file_path);
 
-				switch (it->second)
+				switch (file_type)
 				{
 				case FileType::FARO_PROJ:
 				case FileType::FARO_LS:
 				case FileType::E57:
                 case FileType::RCS:
                 case FileType::RCP:
-					toConvert.push_back(*it_file);
+					toConvert.push_back(file_path);
 					break;
 
 				case FileType::PTS:
 					{
-						if (m_importInfo.mapAsciiInfo.find(*it_file) != m_importInfo.mapAsciiInfo.end())
-							toConvert.push_back(*it_file);
+						if (m_importInfo.mapAsciiInfo.find(file_path) != m_importInfo.mapAsciiInfo.end())
+							toConvert.push_back(file_path);
 					}
 					break;
 
 				case FileType::TLS:
-					toImport.push_back(*it_file);
+					toImport.push_back(file_path);
 					break;
 				default:
 					break;

@@ -1233,11 +1233,6 @@ SafePtr<ScanNode> SaveLoadSystem::ImportNewTlsFile(const std::filesystem::path& 
 		tls::ScanHeader scanHeader;
 		if (tlGetScanHeader(scanGuid, scanHeader))
 		{
-			/*glm::dvec3 fakeScale(
-				scanHeader.bbox.xMax - scanHeader.bbox.xMin,
-				scanHeader.bbox.yMax - scanHeader.bbox.yMin,
-				scanHeader.bbox.zMax - scanHeader.bbox.zMin);
-			wPco->setScale(fakeScale / 2.0);*/
 			wScan->setPosition(glm::dvec3(scanHeader.transfo.translation[0], scanHeader.transfo.translation[1], scanHeader.transfo.translation[2]));
 			wScan->setRotation({ scanHeader.transfo.quaternion[3], scanHeader.transfo.quaternion[0], scanHeader.transfo.quaternion[1], scanHeader.transfo.quaternion[2] });
 		}

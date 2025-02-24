@@ -5,7 +5,6 @@
 #include "crossguid/guid.hpp"
 #include "utils/safe_ptr.h"
 #include "utils/Color32.hpp"
-#include "utils/ProjectColor.hpp"
 
 #include <unordered_map>
 
@@ -103,7 +102,7 @@ protected:
 	std::time_t m_timeModified;
 	std::unordered_map<hLinkId, s_hyperlink> m_hyperlinks;
 
-	Color32 m_color = ProjectColor::getColor("BLUE");
+	Color32 m_color;
 };
 
 #endif // !UIDATA_H_

@@ -708,11 +708,7 @@ bool ImageFile_p::addPoints(Point const* src_buf, uint64_t src_size)
         return false;
     }
 
-    for (uint64_t n = 0; n < std::min(src_size, 336ull); ++n)
-    {
-        pcs_[current_pc_].octree_ctor_->insertPoint(src_buf[n]);
-    }
-    for (uint64_t n = 336; n < src_size; ++n)
+    for (uint64_t n = 0; n < src_size; ++n)
     {
         pcs_[current_pc_].octree_ctor_->insertPoint(src_buf[n]);
     }

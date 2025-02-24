@@ -4,6 +4,7 @@
 #include "controller/controls/ControlProject.h"
 
 #include "gui/GuiData/GuiDataGeneralProject.h"
+#include "gui/GuiData/GuiDataAuthor.h"
 #include "gui/Dialog/DialogRecentProjects.h"
 #include "gui/Texts.hpp"
 #include "gui/texts/AboutTexts.hpp"

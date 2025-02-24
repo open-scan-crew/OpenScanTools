@@ -29,11 +29,27 @@ public:
 private:
     void run();
 
+    struct ScantraStation
+    {
+        std::wstring station_id;
+        std::wstring group_id;
+        std::wstring point_cloud;
+        int is_active;
+        int is_on;
+        int type;
+        int planes_detected;
+        int spheres_detected;
+        int targets_detected;
+    };
+
+    ScantraStation readStation();
+    void addStation();
     void editStationChanged();
     void editIntersectionPlane();
     void editStationColor();
     void editStationAdjustment();
-    void startProject();
+    void createProject();
+    void openProject();
 
     void manageVisibility(int current_idx, int total_station, SafePtr<AGraphNode> scan);
 

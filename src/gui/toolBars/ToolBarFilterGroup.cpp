@@ -1,8 +1,10 @@
 #include "gui/toolBars/ToolBarFilterGroup.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
+#include "gui/GuiData/GuiDataAuthor.h"
 #include "gui/Dialog/DialogSearchedObjects.h"
 #include "services/MarkerDefinitions.hpp"
 #include "gui/GuiData/GuiDataList.h"
+#include "models/application/Author.h"
 #include "models/application/Ids.hpp"
 
 #include "controller/Controller.h"

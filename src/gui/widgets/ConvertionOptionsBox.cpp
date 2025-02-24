@@ -156,13 +156,10 @@ void ConvertionOptionsBox::informData(IGuiData *keyValue)
 
 			for (std::filesystem::path path : data->m_paths)
 			{
-				if (ExtensionDictionnary.find(path.extension().string()) != ExtensionDictionnary.end())
-				{
-					FileType type = ExtensionDictionnary.at(path.extension().string());
-					if (filepathsPerType.find(type) == filepathsPerType.end())
-						filepathsPerType[type] = std::vector<std::filesystem::path>();
-					filepathsPerType[type].push_back(path);
-				}
+				FileType type = FileUtils::getType(path);
+				if (filepathsPerType.find(type) == filepathsPerType.end())
+					filepathsPerType[type] = std::vector<std::filesystem::path>();
+				filepathsPerType[type].push_back(path);
 			}
 
 			if (filepathsPerType.find(FileType::E57) == filepathsPerType.end())
