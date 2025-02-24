@@ -6,7 +6,7 @@
 #include "controller/controls/ControlMeshObject.h"
 
 #include "gui/texts/FileTypeTexts.hpp"
-#include "gui/Texts.hpp"
+#include "gui/texts/FileSystemTexts.hpp"
 #include "gui/GuiData/GuiDataIO.h"
 
 #include "magic_enum/magic_enum.hpp"

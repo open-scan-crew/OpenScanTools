@@ -1,6 +1,6 @@
 #include "gui\Dialog\DialogImportAsciiPC.h"
 #include "gui/texts/PointCloudTexts.hpp"
-#include "gui/Texts.hpp"
+#include "gui/texts/FileSystemTexts.hpp"
 #include "gui/texts/ErrorMessagesTexts.hpp"
 #include "io/FileUtils.h"
 
@@ -148,7 +148,7 @@ bool DialogImportAsciiPC::updateTable()
 		catch (std::exception e)
 		{
 			assert(false);
-			QMessageBox modal(QMessageBox::Icon::Warning, TEXT_ERROR, TEXT_GENERAL_ERROR_OPEN_FILE.arg(QString::fromStdWString(filePath.wstring())), QMessageBox::StandardButton::Ok);
+			QMessageBox modal(QMessageBox::Icon::Warning, TEXT_ERROR, TEXT_ERROR_OPEN_FILE.arg(QString::fromStdWString(filePath.wstring())), QMessageBox::StandardButton::Ok);
 			modal.exec();
 			m_fileIndex++;
 			return updateTable();
@@ -157,7 +157,7 @@ bool DialogImportAsciiPC::updateTable()
 	else
 	{
 		assert(false);
-		QMessageBox modal(QMessageBox::Icon::Warning, TEXT_ERROR, TEXT_GENERAL_ERROR_OPEN_FILE.arg(QString::fromStdWString(filePath.wstring())), QMessageBox::StandardButton::Ok);
+		QMessageBox modal(QMessageBox::Icon::Warning, TEXT_ERROR, TEXT_ERROR_OPEN_FILE.arg(QString::fromStdWString(filePath.wstring())), QMessageBox::StandardButton::Ok);
 		modal.exec();
 		m_fileIndex++;
 		return updateTable();
@@ -166,7 +166,7 @@ bool DialogImportAsciiPC::updateTable()
 	if (infoLines.empty())
 	{
 		assert(false);
-		QMessageBox modal(QMessageBox::Icon::Warning, TEXT_ERROR, TEXT_GENERAL_ERROR_EMPTY_FILE.arg(QString::fromStdWString(filePath.wstring())), QMessageBox::StandardButton::Ok);
+		QMessageBox modal(QMessageBox::Icon::Warning, TEXT_ERROR, TEXT_ERROR_EMPTY_FILE.arg(QString::fromStdWString(filePath.wstring())), QMessageBox::StandardButton::Ok);
 		modal.exec();
 		m_fileIndex++;
 		return updateTable();
@@ -308,7 +308,7 @@ void DialogImportAsciiPC::onOk(bool all)
 
 	if (!containXYZ[0] || !containXYZ[1] || !containXYZ[2])
 	{
-		QMessageBox modal(QMessageBox::Icon::Warning, TEXT_ERROR, TEXT_DIALOG_ERROR_NO_XYZ_SET, QMessageBox::StandardButton::Ok);
+		QMessageBox modal(QMessageBox::Icon::Warning, TEXT_ERROR, TEXT_ERROR_NO_XYZ_SET, QMessageBox::StandardButton::Ok);
 		modal.exec();
 		return;
 	}

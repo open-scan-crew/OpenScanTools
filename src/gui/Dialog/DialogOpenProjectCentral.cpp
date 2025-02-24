@@ -1,7 +1,7 @@
 #include "gui/Dialog/DialogOpenProjectCentral.h"
 #include "controller/controls/ControlModal.h"
 
-#include "gui/Texts.hpp"
+#include "gui/texts/FileSystemTexts.hpp"
 
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qfiledialog.h>

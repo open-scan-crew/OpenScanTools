@@ -78,7 +78,7 @@ namespace control::io
 			param.outFolder = subInternal.getScansFolderPath();
 			param.openFolderAfterExport = m_openFolderAfterExport;
 			param.maxScanPerProject = 0;
-			IOLOG << "Sub project out scan folder : " << Utils::to_utf8(param.outFolder.wstring()) << LOGENDL;
+			IOLOG << "Sub project out scan folder : " << param.outFolder.string() << LOGENDL;
 			ClippingExportParametersMessage pmessage(param);
 			controller.getFunctionManager().feedMessage(controller, &pmessage);
 

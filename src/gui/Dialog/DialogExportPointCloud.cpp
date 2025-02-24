@@ -3,7 +3,7 @@
 #include "gui/texts/ExportTexts.hpp"
 #include "gui/texts/FileTypeTexts.hpp"
 #include "gui/texts/TlsTexts.hpp"
-#include "gui/Texts.hpp"
+#include "gui/texts/FileSystemTexts.hpp"
 #include "io/FileUtils.h"
 #include "controller/controls/ControlFunction.h"
 #include "controller/messages/ClippingExportParametersMessage.h"

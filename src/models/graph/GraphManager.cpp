@@ -341,22 +341,22 @@ bool isObjectFiltered(ReadPtr<AGraphNode>& rNode, ObjectStatusFilter filter)
 		{
 			return true;
 		}
-		break;
 		case ObjectStatusFilter::VISIBLE:
 		{
 			return rNode->isVisible();
 		}
-		break;
 		case ObjectStatusFilter::SELECTED:
 		{
 			return rNode->isSelected();
 		}
-		break;
+		case ObjectStatusFilter::NONE:
+		{
+			return false;
+		}
 		default:
 		{
-			return true;
+			return false;
 		}
-		break;
 	}
 }
 

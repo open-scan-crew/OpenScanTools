@@ -5,6 +5,7 @@
 #include "gui/GuiData/GuiDataList.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/Texts.hpp"
+#include "gui/texts/FileSystemTexts.hpp"
 
 #include "io/SaveLoadSystem.hxx"
 

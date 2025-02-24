@@ -2,6 +2,7 @@
 #include "controller/controls/ControlFunction.h"
 #include "controller/messages/NewProjectMessage.h"
 #include "gui/Texts.hpp"
+#include "gui/texts/FileSystemTexts.hpp"
 #include "gui/Translator.h"
 
 #include <QtWidgets/qpushbutton.h>

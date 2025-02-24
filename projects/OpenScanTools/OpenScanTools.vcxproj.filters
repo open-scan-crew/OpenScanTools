@@ -3906,6 +3906,12 @@
     <ClInclude Include="..\..\src\io\ScantraInterface.h">
       <Filter>src\io</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\gui\texts\FileSystemTexts.hpp">
+      <Filter>include\gui\texts</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\gui\texts\SettingsTexts.hpp">
+      <Filter>include\gui\texts</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="..\..\openscantools.qrc">

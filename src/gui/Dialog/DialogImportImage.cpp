@@ -1,8 +1,8 @@
 #include "gui/Dialog/DialogImportImage.h"
 #include "gui/texts/FileTypeTexts.hpp"
-
+#include "gui/texts/FileSystemTexts.hpp"
 #include <gui/GuiData/GuiDataIO.h>
-#include "gui/Texts.hpp"
+
 #include "controller/controls/ControlIO.h"
 
 #include <qstandardpaths.h>

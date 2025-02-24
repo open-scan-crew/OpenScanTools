@@ -9,7 +9,8 @@
 #include "models/3d/OpticalFunctions.h"
 #include "utils/Config.h"
 #include "utils/QtLogStream.hpp"
-#include "gui/Texts.hpp"
+#include "gui/texts/SettingsTexts.hpp"
+#include "gui/texts/FileSystemTexts.hpp"
 
 #include <QtWidgets/qcombobox.h>
 #include <QtWidgets/qcheckbox.h>

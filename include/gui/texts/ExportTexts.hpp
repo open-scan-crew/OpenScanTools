@@ -1,9 +1,8 @@
 #ifndef EXPORT_TEXTS_HPP
 #define EXPORT_TEXTS_HPP
 
-#include <QObject>
+#include <QtCore/qobject.h>
 
-// Export Scans
 #define TEXT_EXPORT_SAVE_QUESTION QObject::tr("It is recommended to save the project before exporting. Do you want to save now?")
 
 #define TEXT_EXPORT_METHOD_SCAN_SEPARATED QObject::tr("One scan per file")
@@ -31,5 +30,13 @@
 #define TEXT_EXPORT_GRID_TITLE_PROGESS QObject::tr("Export Point Cloud in gridded boxes")
 #define TEXT_EXPORT_DIALOG_NAME QObject::tr("Dialog export point cloud")
 #define TEXT_EXPORT_INVALID_DIRECTORY QObject::tr("The selected directory is not valid for exports (invalid path OR no write permission)")
+
+#define TEXT_EXPORT_FILTER_ALL QObject::tr("All")
+#define TEXT_EXPORT_FILTER_SELECTED QObject::tr("Selected")
+#define TEXT_EXPORT_FILTER_DISPLAYED QObject::tr("Displayed")
+#define TEXT_EXPORT_FILTER_NONE QObject::tr("None")
+
+#define TEXT_EXPORT_GENERAL_FILE QObject::tr("Export %1 file(s)")
+#define TEXT_EXPORT_OPENSCANTOOLS_FILE QObject::tr("Export shared files")
 
 #endif

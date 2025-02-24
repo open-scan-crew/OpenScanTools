@@ -5,7 +5,7 @@
 #include "controller/controls/ControlFunction.h"
 #include "controller/messages/FilesMessage.h"
 
-#include "gui/Texts.hpp"
+#include "gui/texts/FileSystemTexts.hpp"
 
 #include "models/graph/MeshObjectNode.h"
 #include "models/graph/APointCloudNode.h"

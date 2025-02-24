@@ -19,4 +19,7 @@
 #define TEXT_ASCII_INTENSITY QObject::tr("Intensity")
 #define TEXT_ASCII_IGNORE QObject::tr("Ignore")
 
+// DialogImportAsciiPC
+#define TEXT_ERROR_NO_XYZ_SET QObject::tr("Error : No XYZ setted.")
+
 #endif

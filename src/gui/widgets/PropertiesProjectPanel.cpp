@@ -1,7 +1,7 @@
 #include "gui/widgets/PropertiesProjectPanel.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/widgets/FocusWatcher.h"
-
+#include "gui/texts/FileSystemTexts.hpp"
 
 #include "controller/controls/ControlProject.h"
 #include "controller/controls/ControlIO.h"
@@ -10,7 +10,6 @@
 
 #include <QtWidgets/qfiledialog.h>
 
-#include "gui/Texts.hpp"
 
 PropertiesProjectPanel::PropertiesProjectPanel(IDataDispatcher& dataDispatcher, QWidget* parent)
 	: APropertyGeneral(dataDispatcher, parent)

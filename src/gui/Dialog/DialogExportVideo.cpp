@@ -3,6 +3,7 @@
 #include "controller/controls/ControlIO.h"
 
 #include "gui/Texts.hpp"
+#include "gui/texts/FileSystemTexts.hpp"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataIO.h"

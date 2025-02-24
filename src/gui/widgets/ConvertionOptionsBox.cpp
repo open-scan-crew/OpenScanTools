@@ -5,6 +5,7 @@
 #include "gui/texts/TlsTexts.hpp"
 #include "gui/texts/FileTypeTexts.hpp"
 #include "gui/Texts.hpp"
+#include "gui/texts/FileSystemTexts.hpp"
 #include "gui/texts/ContextTexts.hpp"
 #include "controller/controls/ControlProject.h"
 #include "controller/controls/ControlFunction.h"

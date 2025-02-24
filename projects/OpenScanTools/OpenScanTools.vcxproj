@@ -1385,12 +1385,14 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\gui\style\CustomCursors.h" />
     <ClInclude Include="..\..\include\gui\style\IconObject.h" />
     <ClInclude Include="..\..\include\gui\texts\DefaultNameTexts.hpp" />
+    <ClInclude Include="..\..\include\gui\texts\FileSystemTexts.hpp" />
     <ClInclude Include="..\..\include\gui\texts\MainGuiTexts.hpp" />
     <ClInclude Include="..\..\include\gui\texts\MarkerTexts.hpp" />
     <ClInclude Include="..\..\include\gui\texts\RenderingTexts.hpp" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarShareGroup.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarMeasureSimple.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarRenderRampGroup.h" />
+    <ClInclude Include="..\..\include\gui\texts\SettingsTexts.hpp" />
     <ClInclude Include="..\..\include\gui\texts\TreePanelTexts.hpp" />
     <QtMoc Include="..\..\include\gui\UrlHandler.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarImportScantra.h" />

@@ -7,6 +7,7 @@
 #include "gui/GuiData/GuiDataIO.h"
 #include "gui/texts/FileTypeTexts.hpp"
 #include "gui/Texts.hpp"
+#include "gui/texts/FileSystemTexts.hpp"
 
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qfiledialog.h>
@@ -82,7 +83,7 @@ void DialogImportPCObject::onOk()
 
     if(m_ui.fileLineEdit->text().isEmpty())
     {
-        QMessageBox modal(QMessageBox::Icon::Information, TEXT_DIALOG_ERROR_FILENAME, TEXT_DIALOG_ERROR_FILENAME, QMessageBox::StandardButton::Ok);
+        QMessageBox modal(QMessageBox::Icon::Information, TEXT_ERROR_FILENAME, TEXT_ERROR_FILENAME, QMessageBox::StandardButton::Ok);
         modal.exec();
         return;
     }

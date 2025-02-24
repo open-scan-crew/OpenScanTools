@@ -125,19 +125,13 @@
 #define TEXT_PROJECT_CREATION QObject::tr("Project Creation")
 #define TEXT_ENTER_PROJECT_NAME QObject::tr("Enter project name")
 #define TEXT_ENTER_PROJECT_DIRECTORY QObject::tr("Enter project folder") //directory renommé en folder, plus couramment utilisé
-#define TEXT_SELECT_CUSTOM_SCAN_FOLDER  QObject::tr("Select custom scan folder")
 #define TEXT_CREATE_PROJECT QObject::tr("Create Project")
 #define TEXT_CANCEL QObject::tr("Cancel")
 
 //ConvertionOptionsBox
 #define TEXT_CONVERTION_TITLE QObject::tr("Conversion Options")
-#define TEXT_SAVE_FILENAME QObject::tr("Select destination")
 #define TEXT_PROJECT_ERROR_TITLE QObject::tr("Error : cannot create project.")
 #define TEXT_PROJECT_ERROR_NOT_EMPTY QObject::tr("Error : project name and project folder are mandatory fields.") //directory renommé en folder, plus couramment utilisé
-#define TEXT_PROJECT_ERROR_NO_AUTHOR QObject::tr("Error : the author name is missing.") //obsolète, car le panneau utilisateur est désormais à part
-#define TEXT_SELECT_DIRECTORY  QObject::tr("Select folder") //directory renommé en folder, plus couramment utilisé
-#define TEXT_NO_DIRECTORY_SELECTED QObject::tr("Please select a destination folder.")
-#define TEXT_MISSING_FILE_NAME QObject::tr("Please enter a file name or header name.")
 
 //TemplatePropertiesPanel
 #define TEXT_NAME QObject::tr("Name")
@@ -250,16 +244,6 @@
 #define TEXT_MAIN_TOOLBAR_EXIT QObject::tr("Exit")
 #define TEXT_MAIN_TOOLBAR_NAME QObject::tr("Main toolbar")
 
-//ToolBarExportGroup
-#define TEXT_EXPORT_GENERAL_FILE QObject::tr("Export %1 file(s)")
-#define TEXT_EXPORT_OPENSCANTOOLS_FILE QObject::tr("Export shared files")
-
-#define TEXT_EXPORT_FILTER_ALL QObject::tr("All")
-#define TEXT_EXPORT_FILTER_SELECTED QObject::tr("Selected")
-#define TEXT_EXPORT_FILTER_DISPLAYED QObject::tr("Displayed")
-#define TEXT_EXPORT_FILTER_NONE QObject::tr("None")
-
-
 
 //ToolBarShowHideGroup - A REVOIR - pas nécessaire d'avoir 2 textes - le changement d'icône d'oeil suffit (oeil ouvert ou barré). Donc oeil + scan marker suffit
 #define TEXT_HIDE_MODEL_SCAN_MARKER QObject::tr("Hide scan markers")
@@ -273,12 +257,6 @@
 #define TEXT_HIDE_SELECTED_OBJECT QObject::tr("Hide selected object")
 #define TEXT_SHOW_SELECTED_OBJECT QObject::tr("Show selected object")
 #define TEXT_SHOWHIDE_TOOLBAR_NAME QObject::tr("Show hide toolbar")
-
-//Settings
-#define TEXT_SETTINGS_FAILED_TO_SAVE QObject::tr("Failed to save the configuration change.")
-#define TEXT_SETTINGS_NEED_RESTART_LANGUAGE QObject::tr("Please restart OpenScanTools to apply the new language.")
-#define TEXT_SETTINGS_NEED_RESTART_MEMORY QObject::tr("Please restart OpenScanTools to apply the new memory setting.")
-#define TEXT_SETTINGS_MINUTES QObject::tr("%1 minutes")
 
 // Custom widget
 #define TEXT_ENTER_VALUE_PLACEHOLDER QObject::tr("Enter value")
@@ -329,25 +307,8 @@
 
 // DialogImportMeshObject
 #define TEXT_DIALOG_TITLE_IMPORT_WAVEFRONT QObject::tr("Import settings")
-#define TEXT_DIALOG_BROWSER_TITLE_IMPORT_WAVEFRONT QObject::tr("Select file")
-#define TEXT_DIALOG_ERROR_FILENAME QObject::tr("Filename is incorrect")
-#define TEXT_DIALOG_ERROR_FORMAT QObject::tr("File format not supported")
 #define TEXT_DIALOG_ERROR_SCALING QObject::tr("Scaling is incorrect")
 #define TEXT_DIALOG_ERROR_DIRECTION QObject::tr("Directions are incorrect")
-
-// DialogImportStepSimplification
-#define TEXT_DIALOG_BROWSER_TITLE_IMPORT QObject::tr("Select input file")
-#define TEXT_DIALOG_BROWSER_TITLE_EXPORT QObject::tr("Select output file")
-#define TEXT_DIALOG_ERROR_INPUT_PATH QObject::tr("Input file doesn't exist")
-#define TEXT_DIALOG_ERROR_OUTPUT_PATH QObject::tr("Empty output file")
-#define TEXT_DIALOG_ERROR_OUTPUT_FOLDER QObject::tr("Empty output folder")
-
-// DialogImportAsciiPC
-#define TEXT_DIALOG_ERROR_NO_XYZ_SET QObject::tr("Error : No XYZ setted.")
-
-// GeneralImport
-#define TEXT_GENERAL_ERROR_OPEN_FILE QObject::tr("Error : The file :\n '%1'\ncannot be opened.")
-#define TEXT_GENERAL_ERROR_EMPTY_FILE QObject::tr("Error : The file :\n '%1'\nis empty.")
 
 //GeneralDialog
 #define TEXT_DIALOG_YES QObject::tr("Yes")

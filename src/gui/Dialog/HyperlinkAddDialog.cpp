@@ -1,5 +1,5 @@
 #include "gui/Dialog/HyperlinkAddDialog.h"
-#include "gui/Texts.hpp"
+#include "gui/texts/FileSystemTexts.hpp"
 #include "gui/GuiData/GuiDataIO.h"
 
 #include <QtWidgets/qfiledialog.h>

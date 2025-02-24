@@ -1,7 +1,8 @@
 #include "gui/Dialog/DialogExportPrimitives.h"
 #include "controller/controls/ControlIO.h"
 #include "io/FileUtils.h"
-#include "gui/Texts.hpp"
+#include "gui/texts/FileSystemTexts.hpp"
+#include "gui/texts/ExportTexts.hpp"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataIO.h"
 

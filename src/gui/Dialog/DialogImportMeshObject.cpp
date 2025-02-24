@@ -8,6 +8,7 @@
 #include "gui/GuiData/GuiDataIO.h"
 #include "gui/texts/FileTypeTexts.hpp"
 #include "gui/Texts.hpp"
+#include "gui/texts/FileSystemTexts.hpp"
 
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qfiledialog.h>
@@ -179,7 +180,7 @@ void DialogImportMeshObject::onOk()
     }
     if(m_ui.fileLineEdit->text().isEmpty() || m_storedExtension == FileType::MAX_ENUM)
     {
-        QMessageBox modal(QMessageBox::Icon::Information, TEXT_DIALOG_ERROR_FILENAME, TEXT_DIALOG_ERROR_FILENAME, QMessageBox::StandardButton::Ok);
+        QMessageBox modal(QMessageBox::Icon::Information, TEXT_ERROR_FILENAME, TEXT_ERROR_FILENAME, QMessageBox::StandardButton::Ok);
         modal.exec();
         return;
     }
@@ -235,9 +236,8 @@ void DialogImportMeshObject::resetCoordinates()
 
 void DialogImportMeshObject::onFileBrowser()
 {
-    
     QString fileTypes = TEXT_FILE_TYPE_ALL_OBJECTS;
-    m_ui.fileLineEdit->setText(QFileDialog::getOpenFileName(this, TEXT_DIALOG_BROWSER_TITLE_IMPORT_WAVEFRONT, m_openPath, fileTypes, nullptr));
+    m_ui.fileLineEdit->setText(QFileDialog::getOpenFileName(this, TEXT_DIALOG_BROWSER_TITLE_IMPORT, m_openPath, fileTypes, nullptr));
 
     m_storedPath = m_ui.fileLineEdit->text().toStdWString();
     m_storedExtension = getFileType(m_storedPath.extension());
@@ -246,7 +246,6 @@ void DialogImportMeshObject::onFileBrowser()
         m_openPath = QString::fromStdWString(m_storedPath.parent_path().wstring());
 
     updateFileType();
-
 }
 
 void DialogImportMeshObject::onProjectPath(IGuiData* data)
