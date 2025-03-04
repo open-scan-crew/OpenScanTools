@@ -91,7 +91,7 @@ void TransformationModule::addPhiAndTheta(const double& phi, const double& theta
 
 void TransformationModule::addPreRotation(const glm::dquat& qrotation)
 {
-    m_quaternion *= qrotation;
+    m_quaternion = m_quaternion * qrotation;
 }
 
 void TransformationModule::addPostRotation(const glm::dquat& qrotation)

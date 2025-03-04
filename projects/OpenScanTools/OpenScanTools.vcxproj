@@ -327,17 +327,14 @@ xcopy /y /q "$(SolutionDir)ext\fbxSdk-2020.0.1\dll\libfbxsdk.dll" "$(SolutionDir
 xcopy /y /q "$(SolutionDir)ext\ifcplusplus\IfcPlusPlus.dll" "$(SolutionDir)build\$(Configuration)"
 xcopy /y /q "$(SolutionDir)ext\OCCT\bin\*.dll" "$(SolutionDir)build\$(Configuration)"
 xcopy /y /q "$(SolutionDir)ext\ReCapSDK\bin\*.dll" "$(SolutionDir)build\$(Configuration)"
-xcopy /y /b /q "$(SolutionDir)ext\cpr\bin\*.dll" "$(SolutionDir)build\$(Configuration)"
 
-md "$(SolutionDir)build\install"
-xcopy /y "$(SolutionDir)build\$(Configuration)\OpenScanTools.exe" "$(SolutionDir)build\install"
-windeployqt $(SolutionDir)build\install\OpenScanTools.exe
-xcopy /y "$(SolutionDir)translations\" "$(SolutionDir)build\install\translations"
+windeployqt $(SolutionDir)build\$(Configuration)\OpenScanTools.exe
+xcopy /y "$(SolutionDir)translations\" "$(SolutionDir)build\$(Configuration)\translations"
 
 signtool sign /sha1 "881d9294e1fdd77049171ada940dd511b709674f" /tr "http://time.certum.pl" /td sha256 /fd sha256 /v "$(SolutionDir)build\install\OpenScanTools.exe"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copying Resources to $(SolutionDir)build\Release_Prod</Message>
+      <Message>Copying Resources to $(SolutionDir)build\$(Configuration)</Message>
     </PostBuildEvent>
     <CustomBuild>
       <Command>glslangValidator -V -x %(FullPath) -o .\GeneratedShaders\%(Filename)%(Extension).spv</Command>

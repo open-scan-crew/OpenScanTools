@@ -2403,11 +2403,13 @@
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarManipulateObjects.h">
       <Filter>include\gui\toolBars</Filter>
     </QtMoc>
-    <QtMoc Include="..\..\include\gui\Dialog\DialogImportImage.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarConvertImage.h">
       <Filter>include\gui\toolBars</Filter>
     </QtMoc>
     <QtMoc Include="..\..\include\gui\Dialog\DialogImportPCObject.h">
+      <Filter>include\gui\Dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\include\gui\Dialog\DialogImportImage.h">
       <Filter>include\gui\Dialog</Filter>
     </QtMoc>
   </ItemGroup>
@@ -3921,8 +3923,6 @@
     <ClInclude Include="..\..\include\gui\texts\FileSystemTexts.hpp">
       <Filter>include\gui\texts</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\gui\texts\SettingsTexts.hpp">
-    </ClInclude> 
     <ClInclude Include="..\..\include\utils\ArgParser.h">
       <Filter>include\utils</Filter>
     </ClInclude>
@@ -3933,6 +3933,9 @@
       <Filter>include\gui\GuiData</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\gui\texts\AuthorTexts.hpp">
+      <Filter>include\gui\texts</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\gui\texts\SettingsTexts.hpp">
       <Filter>include\gui\texts</Filter>
     </ClInclude>
   </ItemGroup>

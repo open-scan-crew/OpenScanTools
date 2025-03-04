@@ -3,7 +3,7 @@
 
 #define MyAppName "OpenScanTools"
 #define MyAppVersion "1.0"
-#define MyBuildVersion "1.0.4"
+#define MyBuildVersion "1.0.6"
 #define MyAppPublisher "OpenScanTools"
 #define MyAppURL "https://www.openscantools.com/"
 #define MyAppExeName "OpenScanTools.exe"
@@ -15,7 +15,7 @@
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.) 
-SignTool=MsSign $f
+;SignTool=MsSign $f
 AppId={{5A22B828-728C-4E4C-9F70-5B8F1FAEFE15}}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
@@ -41,16 +41,10 @@ Name: "english"; MessagesFile: "compiler:Default.isl, MyMessages.isl"; LicenseFi
 Name: desktopicon; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}";  Flags: checkablealone
 
 [Files]
-Source: "{#MyRepo}\product_vcda0a5cb-c2a3-45a2-9a07-30fd3af02c0a.dat"; DestDir: "{app}"; Flags: onlyifdoesntexist;
 Source: "{#MyRepo}\init.json"; DestDir: "{commonappdata}\OpenScanTools"; Flags: onlyifdoesntexist; Permissions: users-modify;
-Source: "{#MyRepo}\resources\fonts\*"; DestDir: "{app}\Resources\fonts"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "{#MyRepo}\resources\meshes\*"; DestDir: "{app}\Resources\meshes"; Flags: ignoreversion     
+Source: "{#MyRepo}\resources\fonts\*"; DestDir: "{app}\Resources\fonts"; Flags: ignoreversion recursesubdirs createallsubdirs  
 Source: "{#MyRepo}\projects\OpenScanTools\OpenScanTools.ico"; DestDir: "{app}\"; Flags: ignoreversion
-Source: "{#MyRepo}\build\install\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "{#MyRepo}\ext\{#SDKFaro}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#MyRepo}\ext\OCCT\bin\*.dll"; DestDir: "{app}\"; Flags: ignoreversion
-Source: "{#MyRepo}\ext\fbxSdk-2020.0.1\dll\*.dll"; DestDir: "{app}\"; Flags: ignoreversion
-Source: "{#MyRepo}\ext\ifcplusplus\IfcPlusPlus.dll"; DestDir: "{app}\"; Flags: ignoreversion
+Source: "{#MyRepo}\build\Release_Prod\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Registry]

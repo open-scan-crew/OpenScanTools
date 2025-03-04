@@ -432,44 +432,35 @@ void ScantraInterface::editStationAdjustment()
     log << "t = (" << tx << ", " << ty << ", " << tz << ")\n";
     log << Logger::endl;
 
-    std::function<bool(ReadPtr<AGraphNode>&)> filter_station =
-        [station_id](const ReadPtr<AGraphNode>& r_node) {
-        return (r_node->getType() == ElementType::Scan) &&
-               (r_node->getName().compare(station_id) == 0);
-        };
+    glm::dvec3 station_pos(tx, ty, tz);
+    glm::dquat station_rot(q0, qx, qy, qz);
 
-    std::function<bool(ReadPtr<AGraphNode>&)> filter_datum =
-        [datum_id](const ReadPtr<AGraphNode>& r_node) {
-        return (r_node->getType() == ElementType::Scan) &&
-               (r_node->getName().compare(datum_id) == 0);
-        };
+    SafePtr<AGraphNode> scan = getScanOnName(station_id);
 
-    auto scan_uset = graph_.getNodesOnFilter<AGraphNode>(filter_station);
-    if (scan_uset.size() != 1)
-        return;
-    SafePtr<AGraphNode> scan = *scan_uset.begin();
+    // Reset the geometric link. All computation are done in the global space.
+    AGraphNode::addGeometricLink(graph_.getRoot(), scan);
 
-    // We try a naive approach, just place the scan at the coordinates received
-    if (datum_id.compare(L"GlobalCoordinateSystem") == 0)
+    if (datum_id.compare(L"GlobalCoordinateSystem") == 0 || datum_id.compare(station_id) == 0)
     {
         WritePtr<AGraphNode> wPtr = scan.get();
-        wPtr->setPosition(glm::dvec3(tx, ty, tz));
-        wPtr->setRotation(glm::dquat(q0, qx, qy, qz));
+        wPtr->setPosition(station_pos);
+        wPtr->setRotation(station_rot);
     }
     else
     {
-        auto datum_uset = graph_.getNodesOnFilter<AGraphNode>(filter_datum);
-        if (scan_uset.size() != 1)
-            return;
-        SafePtr<AGraphNode> datum = *datum_uset.begin();
-        {
-            if (datum != scan)
-                AGraphNode::addGeometricLink(datum, scan);
-            WritePtr<AGraphNode> wPtr = scan.get();
-            wPtr->setPosition(glm::dvec3(tx, ty, tz));
-            wPtr->setRotation(glm::dquat(q0, qx, qy, qz));
-        }
+        // Try to get the reference scan
+        SafePtr<AGraphNode> datum = getScanOnName(datum_id);
+        // Wait for registration
+        scans_registered_.push_back({
+            datum,
+            scan,
+            station_pos,
+            station_rot
+            });
     }
+
+    if (current_entry == total_entry - 1)
+        applyRegistration();
 
     // On recoit les stations une par une.
     // Il faut rendre invisible les stations que l’on ne recevra pas
@@ -515,6 +506,59 @@ void ScantraInterface::openProject()
     log << "Received project path: " << project_path << Logger::endl;
 
     controller_.getControlListener()->notifyUIControl(new control::project::SaveCloseLoad(project_path));
+}
+
+SafePtr<AGraphNode> ScantraInterface::getScanOnName(std::wstring _name)
+{
+    std::function<bool(ReadPtr<AGraphNode>&)> filter_station =
+        [_name](const ReadPtr<AGraphNode>& r_node) {
+        return (r_node->getType() == ElementType::Scan) &&
+            (r_node->getName().compare(_name) == 0);
+        };
+
+    auto scan_uset = graph_.getNodesOnFilter<AGraphNode>(filter_station);
+    if (scan_uset.size() != 1)
+        return SafePtr<AGraphNode>();
+
+    return *scan_uset.begin();
+}
+
+void ScantraInterface::applyRegistration()
+{
+    for (auto reg : scans_registered_)
+    {
+        glm::dvec3 ref_pos;
+        glm::dquat ref_rot;
+        if (reg.referential == reg.station)
+            continue;
+        // Compute the global coordinates
+        {
+            ReadPtr<AGraphNode> rDatum = reg.referential.cget();
+            if (!rDatum)
+            {
+                Logger::log(LoggerMode::IOLog) << "Error: cannot read ref scan." << Logger::endl;
+                return;
+            }
+            ref_pos = rDatum->getCenter();
+            ref_rot = rDatum->getRotation();
+        }
+
+        {
+            WritePtr<AGraphNode> wScan = reg.station.get();
+            if (!wScan)
+            {
+                Logger::log(LoggerMode::IOLog) << "Error: cannot write scan." << Logger::endl;
+                return;
+            }
+            wScan->setPosition(ref_pos);
+            wScan->setRotation(ref_rot);
+
+            wScan->addLocalTranslation(reg.position);
+            wScan->addPreRotation(reg.rotation);
+        }
+    }
+
+    scans_registered_.clear();
 }
 
 void ScantraInterface::manageVisibility(int current_station, int total_station, SafePtr<AGraphNode> scan)
