@@ -25,7 +25,7 @@ enum class ControlType
 	createAuthor, //Free
 	deleteAuthor, //Free
 	sendAuthorList, //Free
-	setLangage, //Free
+	setLanguage, //Free
 	setMouseWheel, //Free
 	setDigitsDisplay, //Free
 	setProjectsFolder, //Free

@@ -3938,6 +3938,9 @@
     <ClInclude Include="..\..\include\gui\texts\SettingsTexts.hpp">
       <Filter>include\gui\texts</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\gui\LanguageType.h">
+      <Filter>include\gui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="..\..\openscantools.qrc">

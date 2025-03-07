@@ -1,7 +1,7 @@
 #include "models/data/Data.h"
 #include "controller/ControllerContext.h"
+#include "gui/LanguageType.h"
 #include "utils/Utils.h"
-#include "Gui/Translator.h"
 #include "utils/Config.h"
 #include "utils/ProjectColor.hpp"
 #include "utils/time.h"
@@ -22,13 +22,13 @@ Data::Data()
 	, m_hyperlinks({})
 	, m_color(ProjectColor::getColor("BLUE"))
 {
-	LangageType language = Config::getLangage();
-	std::unordered_map<LangageType, std::wstring> disciplineDefault;
-	std::unordered_map<LangageType, std::wstring> phaseDefault;
-	disciplineDefault.insert({ LangageType::English, L"All" });
-	disciplineDefault.insert({ LangageType::Francais, L"Toutes" });
-	phaseDefault.insert({ LangageType::English,  L"All" });
-	phaseDefault.insert({ LangageType::Francais, L"Toutes" });
+	LanguageType language = Config::getLanguage();
+	std::unordered_map<LanguageType, std::wstring> disciplineDefault;
+	std::unordered_map<LanguageType, std::wstring> phaseDefault;
+	disciplineDefault.insert({ LanguageType::English, L"All" });
+	disciplineDefault.insert({ LanguageType::Francais, L"Toutes" });
+	phaseDefault.insert({ LanguageType::English,  L"All" });
+	phaseDefault.insert({ LanguageType::Francais, L"Toutes" });
 
 	if (disciplineDefault.find(language) != disciplineDefault.end() && phaseDefault.find(language) != phaseDefault.end())
 	{
@@ -37,8 +37,8 @@ Data::Data()
 	}
 	else
 	{
-		m_discipline = disciplineDefault.at(LangageType::English);
-		m_phase = phaseDefault.at(LangageType::English);
+		m_discipline = disciplineDefault.at(LanguageType::English);
+		m_phase = phaseDefault.at(LanguageType::English);
 	}
 
 	m_id = xg::newGuid();

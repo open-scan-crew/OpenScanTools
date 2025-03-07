@@ -1,86 +1,110 @@
 #include "gui/Translator.h"
 #include "utils/Logger.h"
-#include <QtWidgets/qapplication.h>
+
+#include <QtCore/qcoreapplication.h>
 #include <QtCore/qdir.h>
+#include <QtCore/qtranslator.h>
+#include "QtCore/qlocale.h"
+
 #include <clocale>
+
+#include <map>
 
 #define TEMPLATE_TRANSLATION_FILE "qt_*.qm"
 
 #define TrLog Logger::log(LoggerMode::TranslatorLog)
 
+static QTranslator s_appTranslator;
+static QTranslator s_appBaseTranslator;
+LanguageType s_current;
+std::map<LanguageType, std::vector<QString>> m_languages;
 
-const std::map<LangageType, QString> Translator::languageDictionnary = { {LangageType::English, "English"},
-																		 {LangageType::Francais, QString::fromStdWString(L"Français")} };
-static const std::map<QString, LangageType> dictionnary = { {"en",LangageType::English},
-															{"fr",LangageType::Francais} };
+const std::map<LanguageType, QString> cst_languageDictionnary = {
+    { LanguageType::English, "English" },
+    { LanguageType::Francais, "Français" }
+};
 
-static const std::unordered_map<LangageType, std::string> locales = { {LangageType::English, "en_EN.UTF-8"}, {LangageType::Francais, "fr_FR.UTF-8"} };
+static const std::map<QString, LanguageType> dictionnary = {
+    { "en", LanguageType::English },
+    { "fr", LanguageType::Francais }
+};
 
-Translator::Translator(QApplication* application, const std::filesystem::path& translationFolder)
-	: m_application(application)
-	, m_current(LangageType::English)
+static const std::unordered_map<LanguageType, std::string> locales = {
+    { LanguageType::English, "en_EN.UTF-8" },
+    { LanguageType::Francais, "fr_FR.UTF-8" }
+};
+
+void Translator::initTranslationFolder(const std::filesystem::path& translationFolder)
 {
-    // format systems langage
+    s_current = LanguageType::English;
+
+    // format systems language
     QString defaultLocale = QLocale::system().name(); // e.g. "de_DE"
     defaultLocale.truncate(defaultLocale.lastIndexOf('_')); // e.g. "de"
-	QString path(QString::fromStdWString(translationFolder.wstring()));
+    QString path(QString::fromStdWString(translationFolder.wstring()));
     QDir dir(path);
     QStringList fileNames = dir.entryList(QStringList());
-	TrLog << "Load from " << translationFolder << Logger::endl;
-	for (int i = 0; i < fileNames.size(); ++i) 
-	{
-		// get locale extracted by filename
-		QString locale(fileNames[i]);// "TranslationExample_de.qm"
-		locale.truncate(locale.lastIndexOf('.')); // "TranslationExample_de"
-		locale.remove(0, locale.indexOf('_') + 1); // "de"
-		if (dictionnary.find(locale) != dictionnary.end())
-		{
-			if (m_langages.find(dictionnary.at(locale)) != m_langages.end())
-				m_langages[dictionnary.at(locale)].push_back(path + "/" + fileNames[i]);
-			else
-				m_langages[dictionnary.at(locale)] = { path + "/" + fileNames[i] };
-			TrLog << "Load " << path.toStdString() << "/" << fileNames[i].toStdString() << Logger::endl;
-		}
-	}
+    TrLog << "Load from " << translationFolder << Logger::endl;
+    for (int i = 0; i < fileNames.size(); ++i) 
+    {
+        // get locale extracted by filename
+        QString locale(fileNames[i]);// "TranslationExample_de.qm"
+        locale.truncate(locale.lastIndexOf('.')); // "TranslationExample_de"
+        locale.remove(0, locale.indexOf('_') + 1); // "de"
+        if (dictionnary.find(locale) != dictionnary.end())
+        {
+            LanguageType language = dictionnary.at(locale);
+            if (m_languages.find(language) != m_languages.end())
+                m_languages[language].push_back(path + "/" + fileNames[i]);
+            else
+                m_languages[language] = { path + "/" + fileNames[i] };
+            TrLog << "Load " << path.toStdString() << "/" << fileNames[i].toStdString() << Logger::endl;
+        }
+    }
 }
 
-Translator::~Translator()
-{}
-
-std::set<LangageType> Translator::getAvailableLangage() const
+std::set<LanguageType> Translator::getAvailableLanguage()
 {
-	std::set<LangageType> langages;
-	for (auto iterator : m_langages)
-		langages.insert(iterator.first);
-	return langages;
+    std::set<LanguageType> languages;
+    for (auto iterator : m_languages)
+        languages.insert(iterator.first);
+    return languages;
 }
 
-LangageType Translator::getActiveLangage() const
+LanguageType Translator::getActiveLanguage()
 {
-	return m_current;
+    return s_current;
 }
 
-bool Translator::setActiveLangage(const LangageType& langage)
+bool Translator::setActiveLanguage(LanguageType language)
 {
-	if (m_langages.find(langage) == m_langages.end() || m_langages[langage].size() < 2)
-		return false;
-	m_application->removeTranslator(&m_appTranslator);
-	m_application->removeTranslator(&m_appBaseTranslator);
+    if (m_languages.find(language) == m_languages.end() || m_languages.at(language).size() < 2)
+        return false;
+    QCoreApplication::removeTranslator(&s_appTranslator);
+    QCoreApplication::removeTranslator(&s_appBaseTranslator);
 
-	if (!m_appTranslator.load(m_langages.at(langage)[0]))
-		return false;
-	if (!m_appBaseTranslator.load(m_langages.at(langage)[1]))
-		return false;
+    if (!s_appTranslator.load(m_languages.at(language)[0]))
+        return false;
+    if (!s_appBaseTranslator.load(m_languages.at(language)[1]))
+        return false;
 
-	if (locales.find(langage) != locales.end())
-	{
-		std::setlocale(LC_TIME, locales.at(langage).c_str());
-	}
+    if (locales.find(language) != locales.end())
+    {
+        std::setlocale(LC_TIME, locales.at(language).c_str());
+    }
 
-	TrLog << "Activation of  " << langage << Logger::endl;
-	m_application->installTranslator(&m_appTranslator);
-	m_application->installTranslator(&m_appBaseTranslator);
+    TrLog << "Active language set to " << getLanguageQStr(language).toStdString() << Logger::endl;
+    QCoreApplication::installTranslator(&s_appTranslator);
+    QCoreApplication::installTranslator(&s_appBaseTranslator);
 
-	m_current = langage;
-	return true;
+    s_current = language;
+    return true;
+}
+
+QString Translator::getLanguageQStr(LanguageType language)
+{
+    if (cst_languageDictionnary.find(language) != cst_languageDictionnary.end())
+        return cst_languageDictionnary.at(language);
+    else
+        return QString("Error_not_a_language");
 }

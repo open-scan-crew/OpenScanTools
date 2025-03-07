@@ -1,10 +1,8 @@
 #include "models/application/List.h"
 #include "gui/texts/DefaultUserLists.hpp"
 #include "models/application/Ids.hpp"
+#include "utils/Config.h"
 #include "utils/Utils.h"
-
-//#include <nlohmannJson/json.hpp>
-
 
 
 template<>
@@ -39,7 +37,7 @@ std::string List<double>::toJson(const double& value)
 	return Utils::to_utf8(std::to_wstring(value));
 }
 
-std::vector<UserList> generateDefaultLists()
+std::vector<UserList> generateDefaultLists(LanguageType language)
 {
 	std::vector<UserList> lists;
 

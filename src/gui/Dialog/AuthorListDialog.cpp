@@ -27,6 +27,13 @@ AuthorListDialog::AuthorListDialog(IDataDispatcher& dataDispatcher, QWidget *par
 	QObject::connect(m_ui.OkBtn, SIGNAL(clicked()), this, SLOT(closeDialog()));
 	QObject::connect(m_ui.RemoveUserBtn, SIGNAL(clicked()), this, SLOT(deleteAuthor()));
 
+	m_ui.AuthorListView->setModel(new QStandardItemModel(0, 0));
+	m_ui.AuthorListView->setDragDropMode(QAbstractItemView::DragDropMode::NoDragDrop);
+	m_ui.AuthorListView->setSelectionMode(QAbstractItemView::SelectionMode::ExtendedSelection);
+	m_ui.AuthorListView->setDragEnabled(false);
+	m_ui.AuthorListView->setAcceptDrops(false);
+	m_ui.AuthorListView->setDropIndicatorShown(false);
+
 	m_dataDispatcher.sendControl(new control::author::SendAuthorList());
 }
 
@@ -55,14 +62,13 @@ void AuthorListDialog::receiveAuthorList(IGuiData *data)
 
 	if (lData->is_project_scope_ == true)
 		return;
-	if (model)
-		delete model;
-	model = new QStandardItemModel(0, 0);
-	m_ui.AuthorListView->setDragDropMode(QAbstractItemView::DragDropMode::NoDragDrop);
-	m_ui.AuthorListView->setSelectionMode(QAbstractItemView::SelectionMode::ExtendedSelection);
-	m_ui.AuthorListView->setDragEnabled(false);
-	m_ui.AuthorListView->setAcceptDrops(false);
-	m_ui.AuthorListView->setDropIndicatorShown(false);
+
+	QStandardItemModel* model = static_cast<QStandardItemModel*>(m_ui.AuthorListView->model());
+	assert(model);
+	if (model == nullptr)
+		return;
+
+	model->clear();
 
 	int select_row = 0;
 	for (auto it = lData->authors_.begin(); it != lData->authors_.end(); it++)
@@ -82,8 +88,7 @@ void AuthorListDialog::receiveAuthorList(IGuiData *data)
 		item->setFlags(item->flags() & ~Qt::ItemIsEditable);
 		model->appendRow(item);
 	}
-	m_ui.AuthorListView->setModel(model);
-	
+
 	QModelIndex index = model->index(select_row, 0);
 	m_ui.AuthorListView->setCurrentIndex(index);
 
@@ -100,8 +105,13 @@ void AuthorListDialog::addNewAuthor()
 void AuthorListDialog::deleteAuthor()
 {
 	QMessageBox::StandardButton reply;
-
 	reply = QMessageBox::question(this, TEXT_DELETE_AUTHOR_TITLE, TEXT_DELETE_AUTHOR_QUESTION, QMessageBox::Yes | QMessageBox::No);
+
+	QStandardItemModel* model = static_cast<QStandardItemModel*>(m_ui.AuthorListView->model());
+	assert(model);
+	if (model == nullptr)
+		return;
+
 	if (reply == QMessageBox::Yes)
 	{
 		std::wstringstream ss;
@@ -124,6 +134,11 @@ void AuthorListDialog::deleteAuthor()
 
 bool AuthorListDialog::selectAuthor()
 {
+	QStandardItemModel* model = static_cast<QStandardItemModel*>(m_ui.AuthorListView->model());
+	assert(model);
+	if (model == nullptr)
+		return false;
+
 	if (m_ui.AuthorListView->selectionModel()->selectedIndexes().size() != 1)
 	{
 		m_dataDispatcher.updateInformation(new GuiDataWarning(TEXT_WARNING_AUTHOR_SELECT_ONE));

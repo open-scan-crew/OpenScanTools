@@ -6,12 +6,10 @@
 #include "utils/safe_ptr.h"
 #include "pointCloudEngine/RenderingTypes.h"
 #include "gui/UnitUsage.h"
+#include "gui/LanguageType.h"
 #include "models/project/ProjectTypes.h"
 #include "models/3d/NavigationTypes.h"
 #include <filesystem>
-
-
-enum LangageType;
 
 class CameraNode;
 
@@ -50,17 +48,17 @@ namespace control::application
         ControlType getType() const override;
     };
 
-    class SetLangage : public AControl
+    class SetLanguage : public AControl
     {
     public:
-        SetLangage(const LangageType& type);
-        ~SetLangage();
+        SetLanguage(LanguageType type);
+        ~SetLanguage();
         void doFunction(Controller& controller) override;
         bool canUndo() const override;
         void undoFunction(Controller& controller) override;
         ControlType getType() const override;
     private:
-        const LangageType m_type;
+        const LanguageType m_type;
     };
 
     class SetValueSettingsDisplay : public AControl

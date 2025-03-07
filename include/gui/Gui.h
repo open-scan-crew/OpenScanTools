@@ -26,7 +26,6 @@
 class StatusPanel;
 class ViewportOrganizer;
 class MainToolBar;
-class Translator;
 class LicenseWindowsManager;
 class ToolBarProjectGroup;
 class Controller;
@@ -44,7 +43,7 @@ class Gui : public QMainWindow, IPanel
     Q_OBJECT
 
 public:
-	Gui(Controller& controller, Translator* translator);
+	Gui(Controller& controller);
 	~Gui();
 
     // from Gui
@@ -142,7 +141,6 @@ private:
 
     StatusPanel* m_statusPanel;
 	ViewportOrganizer* m_centralWrapper;
-	Translator* m_translator;
 	DialogSettings m_dSettings;
 	DialogShortcuts m_dShortcuts;
 	DialogAbout m_dAbout;

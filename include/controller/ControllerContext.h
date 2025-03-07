@@ -24,7 +24,6 @@
 
 class Author;
 class ScanNode;
-class CameraNode;
 
 struct CreationAttributes
 {
@@ -140,7 +139,6 @@ public:
 	ProjectInfos& getProjectInfo();
 	const ProjectInfos& cgetProjectInfo() const;
 	const ProjectInternalInfo& cgetProjectInternalInfo() const;
-	const ProjectInternalInfo& cgetProjectCentralInternalInfo() const;
 
 	std::unordered_map<xg::Guid, UserOrientation>& getUserOrientations();
 	const std::unordered_map<xg::Guid, UserOrientation>& cgetUserOrientations() const;
@@ -192,10 +190,8 @@ private:
 
 
 	//** From Project
-
 	ProjectInfos m_info;
 	ProjectInternalInfo m_internInfo;
-	ProjectInternalInfo m_centralInternInfo;
 
 	bool m_projectLoaded = false;
 

@@ -188,6 +188,19 @@ void Controller::stopScantraInterface()
     m_p->scantra_interface_.stopInterface();
 }
 
+void Controller::scantra_notify_project_created()
+{
+    const ProjectInfos& proj_infos = m_p->context.cgetProjectInfo();
+    const ProjectInternalInfo& proj_internal = m_p->context.cgetProjectInternalInfo();
+    m_p->scantra_interface_.project_created(proj_internal.getProjectFolderPath(), proj_infos.m_projectName);
+}
+
+void Controller::scantra_notify_project_opened()
+{
+    const ProjectInternalInfo& proj_internal = m_p->context.cgetProjectInternalInfo();
+    m_p->scantra_interface_.project_opened(proj_internal.getProjectFolderPath());
+}
+
 uint32_t Controller::getNextUserId(ElementType type) const
 {
     return m_p->graphManager.getNextUserId({ type }, m_p->context.getIndexationMethod());

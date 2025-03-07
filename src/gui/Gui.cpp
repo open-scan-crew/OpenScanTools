@@ -102,9 +102,7 @@
 #include "gui/GuiData/GuiDataClipping.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/ShortcutSystem.h"
-#include "gui/Translator.h"
 #include "gui/ribbon/ribbontabcontent.h"
-//#include "gui/texts/AboutTexts.hpp"
 #include "controller/Controller.h"
 #include "controller/controls/ControlProject.h"
 #include "controller/controls/ControlApplication.h"
@@ -137,7 +135,7 @@
 
 static FileUrlHandler* s_fileHandler = new FileUrlHandler();
 
-Gui::Gui(Controller& controller, Translator* translator)
+Gui::Gui(Controller& controller)
     : QMainWindow(nullptr/*, Qt::FramelessWindowHint | Qt::WindowSystemMenuHint*/)
     , m_dataDispatcher(controller.getDataDispatcher())
 	, m_isActivePopup(false)
@@ -145,8 +143,7 @@ Gui::Gui(Controller& controller, Translator* translator)
 	, m_isEditing(false)
     , m_maximizedFrameless(true)
 	, m_centralWrapper(nullptr)
-	, m_translator(translator)
-	, m_dSettings(m_dataDispatcher, translator, this)
+	, m_dSettings(m_dataDispatcher, this)
 	, m_dShortcuts(this)
 	, m_dAbout(m_dataDispatcher, this)
 	, m_messageScreen(this)
@@ -581,20 +578,12 @@ void Gui::onQuitEvent(IGuiData * data)
 
 void Gui::onNewProject(IGuiData *data)
 {
-	auto* idata = static_cast<GuiDataNewProject*>(data);
-	std::unordered_map<LangageType, ProjectTemplate> projectTemplates;
-	for (LangageType lang : {LangageType::English, LangageType::Francais})
-	{
-		m_translator->setActiveLangage(lang);
-		ProjectTemplate pTemplate;
-		pTemplate.m_lists = generateDefaultLists();
-		pTemplate.m_template = sma::GenerateDefaultTemplates();
-		projectTemplates[lang] = pTemplate;
-	}
+    auto* idata = static_cast<GuiDataNewProject*>(data);
+    std::unordered_map<LanguageType, ProjectTemplate> projectTemplates;
 
-	m_translator->setActiveLangage(Config::getLangage());
-
-	DialogProjectCreation* projectDialog = new DialogProjectCreation(m_dataDispatcher, QString::fromStdWString(idata->m_folder.wstring()), idata->m_templates, projectTemplates, this);
+    DialogProjectCreation* projectDialog = new DialogProjectCreation(m_dataDispatcher, this);
+    projectDialog->setDefaultValues(idata->default_folder_, idata->default_name_, idata->default_company_);
+    projectDialog->setAdditionalTemplatesPath(idata->m_templates);
     projectDialog->show();
 }
 
@@ -804,7 +793,7 @@ void Gui::onEditing(const bool& isEditing)
 }
 
 void  Gui::changeEvent(QEvent* event)
-{//fixme POC dynamic langage
+{//fixme POC dynamic Language
 	//	switch (event->type()) 
 	//	{
 	//		// this event is send if a translator is loaded

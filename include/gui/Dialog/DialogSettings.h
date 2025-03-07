@@ -2,7 +2,6 @@
 #define DIALOG_SETTINGS_H
 
 #include "ui_DialogSettings.h"
-#include "gui/Translator.h"
 #include "gui/Dialog/ADialog.h"
 #include "gui/Dialog/DialogGizmo.h"
 #include "pointCloudEngine/RenderingTypes.h"
@@ -12,7 +11,7 @@ class DialogSettings : public ADialog
     Q_OBJECT
 
 public:
-    DialogSettings(IDataDispatcher& dataDispatcher, Translator* translator, QWidget* parent = Q_NULLPTR);
+    DialogSettings(IDataDispatcher& dataDispatcher, QWidget* parent = Q_NULLPTR);
     ~DialogSettings();
 
     // from IPanel
@@ -28,7 +27,7 @@ public:
     QCheckBox* getFramelessCheckBox();
 
 public slots:
-    void onLangageChanged(const uint32_t& index);
+    void onLanguageChanged(const uint32_t& index);
     void onSelectTempFolder();
     void onSelectProjsFolder();
     void onTempFolder();
@@ -58,8 +57,6 @@ private:
 
 private:
     Ui::DialogSettings      m_ui;
-    Translator*             m_translator;
-    LangageType             m_type;
     DecimationOptions       m_savedDecimationOptions;
     DialogGizmo            m_guizmoParams;
  };

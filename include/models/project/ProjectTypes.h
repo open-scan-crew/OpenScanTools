@@ -12,6 +12,7 @@ enum class IndexationMethod
 
 struct ProjectTemplate
 {
+	std::wstring name_; // or ID
 	std::vector<sma::TagTemplate> m_template;
 	std::vector<UserList> m_lists;
 };

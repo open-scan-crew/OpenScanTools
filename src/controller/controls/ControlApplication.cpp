@@ -11,7 +11,6 @@
 #include "gui/GuiData/GuiDataRendering.h"
 #include "gui/GuiData/GuiData3dObjects.h"
 #include "gui/GuiData/GuiDataMessages.h"
-#include "gui/Translator.h"
 #include "gui/texts/SettingsTexts.hpp"
 
 
@@ -120,39 +119,39 @@ namespace control::application
     }
 
     /*
-    ** SetLangage
+    ** SetLanguage
     */
 
-    SetLangage::SetLangage(const LangageType& type)
+    SetLanguage::SetLanguage(LanguageType type)
         : m_type(type)
     {
     }
 
-    SetLangage::~SetLangage()
+    SetLanguage::~SetLanguage()
     {
     }
 
-    void SetLangage::doFunction(Controller& controller)
+    void SetLanguage::doFunction(Controller& controller)
     {
-        if (Config::setLangage(m_type))
+        if (Config::setLanguage(m_type))
             controller.updateInfo(new GuiDataInfo(TEXT_SETTINGS_NEED_RESTART_LANGUAGE, true));
         else
             controller.updateInfo(new GuiDataWarning(TEXT_SETTINGS_FAILED_TO_SAVE));
-        CONTROLLOG << "control::application::SetLangage" << LOGENDL;
+        CONTROLLOG << "control::application::SetLanguage" << LOGENDL;
     }
 
-    bool SetLangage::canUndo() const
+    bool SetLanguage::canUndo() const
     {
         return (false);
     }
 
-    void SetLangage::undoFunction(Controller& controller)
+    void SetLanguage::undoFunction(Controller& controller)
     {
     }
 
-    ControlType SetLangage::getType() const
+    ControlType SetLanguage::getType() const
     {
-        return (ControlType::setLangage);
+        return (ControlType::setLanguage);
     }
 
     /*

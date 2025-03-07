@@ -185,19 +185,19 @@ namespace Config
         return (result);
     }
 	
-	LangageType getLangage()
+	LanguageType getLanguage()
 	{
 		if (jsonConfig.find(LANG_JSON_KEY) == jsonConfig.end())
-			return LangageType::English;
-		auto type = magic_enum::enum_cast<LangageType>(cleanString(jsonConfig.at(LANG_JSON_KEY).dump()));
+			return LanguageType::English;
+		auto type = magic_enum::enum_cast<LanguageType>(cleanString(jsonConfig.at(LANG_JSON_KEY).dump()));
 		if (!type.has_value())
-			return LangageType::English;
+			return LanguageType::English;
 		return *type;
 	}
 	
-	bool setLangage(const LangageType& type)
+	bool setLanguage(LanguageType type)
 	{
-		jsonConfig[LANG_JSON_KEY] = magic_enum::enum_name<LangageType>(type);
+		jsonConfig[LANG_JSON_KEY] = Translator::getLanguageQStr(type).toStdWString();
 		return saveConfigFile(filePath);
 	}
 

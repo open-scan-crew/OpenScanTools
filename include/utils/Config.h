@@ -2,13 +2,13 @@
 #define CONFIG_H
 
 #include "pointCloudEngine/RenderingTypes.h"
+#include "gui/LanguageType.h"
 
 #include <unordered_set>
 #include <vector>
 #include <filesystem>
 
 enum LoggerMode;
-enum LangageType;
 class Color32;
 enum class IndexationMethod;
 struct NavigationParameters;
@@ -26,8 +26,8 @@ namespace Config
     std::vector<std::pair<LoggerMode, bool>> getLogMods();
 	bool isFileLoaded();
 
-	LangageType getLangage();
-	bool setLangage(const LangageType& type);
+	LanguageType getLanguage();
+	bool setLanguage(LanguageType type);
 
 	bool getCenteringConfiguration();
 	bool setCenteringConfiguration(bool value);

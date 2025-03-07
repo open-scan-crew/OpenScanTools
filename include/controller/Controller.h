@@ -79,6 +79,8 @@ public:
 
     void startScantraInterface();
     void stopScantraInterface();
+    void scantra_notify_project_created();
+    void scantra_notify_project_opened();
 
     uint32_t getNextUserId(ElementType type) const;
     std::vector<uint32_t> getMultipleUserId(ElementType type, int indexAmount) const;

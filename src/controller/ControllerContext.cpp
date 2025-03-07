@@ -517,6 +517,7 @@ bool ControllerContext::remLocalAuthors(SafePtr<Author> _author)
 		return false;
 	else
 		m_localAuthors.erase(_author);
+	return true;
 }
 
 DuplicationSettings ControllerContext::getDuplicationSettings()
@@ -662,8 +663,6 @@ void ControllerContext::initProjectInfo(std::filesystem::path projectFolder, con
 	m_info = info;
 	m_internInfo.setProjectFolderPath(projectFolder, m_info.m_projectName.wstring());
 	m_internInfo.setCustomScanFolderPath(info.m_customScanFolderPath);
-	if (std::filesystem::exists(info.m_centralProjectPath))
-		m_centralInternInfo.setProjectFolderPath(info.m_centralProjectPath.parent_path(), info.m_centralProjectPath.stem().wstring());
 	m_projectLoaded = true;
 }
 
@@ -671,7 +670,6 @@ void ControllerContext::cleanProjectInfo()
 {
 	m_info = ProjectInfos();
 	m_internInfo = ProjectInternalInfo();
-	m_centralInternInfo = ProjectInternalInfo();
 	m_userOrientations.clear();
 	m_projectLoaded = false;
 }
@@ -700,11 +698,6 @@ const ProjectInfos& ControllerContext::cgetProjectInfo() const
 const ProjectInternalInfo& ControllerContext::cgetProjectInternalInfo() const
 {
 	return m_internInfo;
-}
-
-const ProjectInternalInfo& ControllerContext::cgetProjectCentralInternalInfo() const
-{
-	return m_centralInternInfo;
 }
 
 std::unordered_map<userOrientationId, UserOrientation>& ControllerContext::getUserOrientations()

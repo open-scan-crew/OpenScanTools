@@ -2,6 +2,8 @@
 #include "gui/texts/DefaultTemplatesTexts.hpp"
 #include "models/application/Ids.hpp"
 
+#include "utils/config.h"
+
 namespace sma
 {
 	TagTemplate::TagTemplate()
@@ -188,7 +190,7 @@ namespace sma
 	}
 }
 
-std::vector<sma::TagTemplate> sma::GenerateDefaultTemplates()
+std::vector<sma::TagTemplate> sma::GenerateDefaultTemplates(LanguageType lang)
 {
 	std::vector<TagTemplate> templates;
 

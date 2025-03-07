@@ -29,7 +29,6 @@ enum class ContextType
 	saveCloseCreateProject,
 	saveCloseProject,
 	saveCloseLoadProject,
-	saveCloseLoadProjectCentral,
 	saveQuitProject,
 	saveProject,
 	beamBending,

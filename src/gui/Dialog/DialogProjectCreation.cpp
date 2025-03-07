@@ -12,17 +12,14 @@
 #include "gui/widgets/CustomWidgets/regexpedit.h"
 #include "utils/System.h"
 
-#define TEMPLATE_BASE_EN "English"
-#define TEMPLATE_BASE_FR L"Français"
-
-DialogProjectCreation::DialogProjectCreation(IDataDispatcher& dataDispatcher, QString folderPath, const std::vector<std::filesystem::path>& templates, const std::unordered_map<LangageType, ProjectTemplate>& projectTemplates, QWidget* parent)
+DialogProjectCreation::DialogProjectCreation(IDataDispatcher& dataDispatcher, QWidget* parent)
     : ADialog(dataDispatcher, parent)
 {
     // Init Ui
     m_ui.setupUi(this);
 
     // Line Edit
-    m_ui.lineEditBuisness->setRegExp(QRegExpEdit::AlphaNumericWithSeparator);
+    m_ui.lineEditBusiness->setRegExp(QRegExpEdit::AlphaNumericWithSeparator);
     m_ui.lineEditLocation->setRegExp(QRegExpEdit::AlphaNumericWithSeparator);
     m_ui.lineEditPath->setRegExp(QRegExpEdit::Path);
     m_ui.lineEditName->setRegExp(QRegExpEdit::AlphaNumericWithSeparator);
@@ -33,22 +30,9 @@ DialogProjectCreation::DialogProjectCreation(IDataDispatcher& dataDispatcher, QS
 
     m_ui.checkCentralProject->setVisible(false);
 
+    m_ui.comboBoxProjectTemplate->addItem(Translator::getLanguageQStr(LanguageType::English), QVariant((int)LanguageType::English));
+    m_ui.comboBoxProjectTemplate->addItem(Translator::getLanguageQStr(LanguageType::Francais), QVariant((int)LanguageType::Francais));
 
-    if (folderPath.isEmpty())
-        m_openPath = QStandardPaths::locate(QStandardPaths::DocumentsLocation, QString(), QStandardPaths::LocateDirectory);
-    else
-        m_openPath = folderPath;
-
-    m_ui.lineEditPath->setText(m_openPath);
-
-    m_ui.comboBoxProjectTemplate->addItem(QString(), QVariant(""));
-    m_ui.comboBoxProjectTemplate->addItem(QString(TEMPLATE_BASE_EN), QVariant(LangageType::English));
-    m_ui.comboBoxProjectTemplate->addItem(QString::fromStdWString(TEMPLATE_BASE_FR), QVariant(LangageType::Francais));
-    for (const std::filesystem::path& p : templates)
-        m_ui.comboBoxProjectTemplate->addItem(QString::fromStdWString(p.filename().wstring()), QVariant(QString::fromStdWString(p.wstring())));
-
-    m_projectTemplates = projectTemplates;
-    
     connect(m_ui.toolButtonPath, &QPushButton::clicked, this, &DialogProjectCreation::launchFileBrowser);
     connect(m_ui.buttonBox->button(QDialogButtonBox::StandardButton::Ok), &QPushButton::clicked, this, &DialogProjectCreation::createProject);
     connect(m_ui.buttonBox->button(QDialogButtonBox::StandardButton::Cancel), &QPushButton::clicked, this, &DialogProjectCreation::onCancel);
@@ -69,6 +53,28 @@ DialogProjectCreation::~DialogProjectCreation()
 {
 }
 
+void DialogProjectCreation::setDefaultValues(const std::filesystem::path& folderPath, std::wstring default_name, std::wstring default_company)
+{
+    if (folderPath.empty())
+        m_openPath = QStandardPaths::locate(QStandardPaths::DocumentsLocation, QString(), QStandardPaths::LocateDirectory);
+    else
+        m_openPath = QString::fromStdWString(folderPath.wstring());
+
+    m_ui.lineEditPath->setText(m_openPath);
+
+    if (!default_name.empty())
+        m_ui.lineEditName->setText(QString::fromStdWString(default_name));
+
+    if (!default_company.empty())
+        m_ui.lineEditBusiness->setText(QString::fromStdWString(default_company));
+}
+
+void DialogProjectCreation::setAdditionalTemplatesPath(const std::vector<std::filesystem::path>& templates_path)
+{
+    for (const std::filesystem::path& p : templates_path)
+        m_ui.comboBoxProjectTemplate->addItem(QString::fromStdWString(p.filename().wstring()), QVariant(QString::fromStdWString(p.wstring())));
+}
+
 void DialogProjectCreation::informData(IGuiData* keyValue)
 {}
 
@@ -87,7 +93,7 @@ void DialogProjectCreation::createProject()
     projectName.erase(projectName.find_last_not_of(L' ') + 1);
     Utils::System::formatFilename(projectName);
     infos.m_projectName = projectName;
-    infos.m_company = m_ui.lineEditBuisness->text().toStdWString();
+    infos.m_company = m_ui.lineEditBusiness->text().toStdWString();
     infos.m_location = m_ui.lineEditLocation->text().toStdWString();
     infos.m_description = m_ui.textEditDescription->toPlainText().toStdWString();
     
@@ -102,10 +108,11 @@ void DialogProjectCreation::createProject()
 
     NewProjectMessage* message;
     int selectedInd = m_ui.comboBoxProjectTemplate->currentIndex();
-    if (selectedInd == 1 || selectedInd == 2)
-        message = new NewProjectMessage(infos, folderPath / infos.m_projectName, m_projectTemplates[LangageType(selectedInd - 1)]);
+    QVariant data = m_ui.comboBoxProjectTemplate->currentData();
+    if (selectedInd < 2)
+        message = new NewProjectMessage(infos, folderPath / infos.m_projectName, LanguageType(data.toInt()));
     else
-        message = new NewProjectMessage(infos, folderPath / infos.m_projectName, m_ui.comboBoxProjectTemplate->currentData().toString().toStdWString());
+        message = new NewProjectMessage(infos, folderPath / infos.m_projectName, data.toString().toStdWString());
 
     m_dataDispatcher.sendControl(new control::function::ForwardMessage(message));
 

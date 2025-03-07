@@ -65,13 +65,13 @@ int main(int argc, char** argv)
     QApplication app(argc, argv);
 
 #ifdef _DEBUG_
-    Translator appTranslator(&app);
+    Translator::initTranslationFolder(L"./../../translations/");
 #else
     std::filesystem::path dir(QCoreApplication::applicationDirPath().toStdString());
-    Translator appTranslator(&app, dir / "translations");
+    Translator::initTranslationFolder(dir / "translations");
 #endif // DEBUG
 
-    appTranslator.setActiveLangage(Config::getLangage());
+    Translator::setActiveLanguage(Config::getLanguage());
 
     app.setWindowIcon(QIcon(":/resources/images/OpenScanTools-cmjn-ye-bl.ico"));
 
@@ -94,7 +94,7 @@ int main(int argc, char** argv)
     Controller controller(dataDispatcher, graphManager);
     SignalHandler signalHandler(&dataDispatcher);
 
-    Gui gui(controller, &appTranslator);
+    Gui gui(controller);
 
     FocusInOutWatcher focus(&app);
     QObject::connect(&focus, &FocusInOutWatcher::focusIn, [&gui]() {gui.onEditing(true); });

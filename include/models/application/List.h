@@ -4,6 +4,7 @@
 #include <set>
 #include <string>
 
+#include "gui/LanguageType.h"
 #include "crossguid/guid.hpp"
 
 typedef xg::Guid listId;
@@ -81,7 +82,7 @@ typedef List<std::wstring> UserList;
 enum class StandardType { Pipe, Torus, Sphere };
 typedef List<double> StandardList;
 
-std::vector<UserList> generateDefaultLists();
+std::vector<UserList> generateDefaultLists(LanguageType language);
 std::vector<StandardList> generateDefaultPipeStandardList();
 
 #endif // !USER_LIST_H_

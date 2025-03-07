@@ -1385,6 +1385,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtMoc Include="..\..\include\gui\Dialog\DialogImportImage.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogImportPCObject.h" />
     <ClInclude Include="..\..\include\gui\GuiData\GuiDataAuthor.h" />
+    <ClInclude Include="..\..\include\gui\LanguageType.h" />
     <ClInclude Include="..\..\include\gui\style\CustomCursors.h" />
     <ClInclude Include="..\..\include\gui\style\IconObject.h" />
     <ClInclude Include="..\..\include\gui\texts\AuthorTexts.hpp" />

@@ -1,7 +1,6 @@
 #ifndef AUTHOR_LIST_DIALOG_H_
 #define AUTHOR_LIST_DIALOG_H_
 
-#include <QtGui/qstandarditemmodel.h>
 #include "gui/Dialog/ADialog.h"
 #include "gui/IDataDispatcher.h"
 #include "ui_AuthorDialog.h"
@@ -33,7 +32,6 @@ private:
 
 	Ui::AuthorListDialog m_ui;
 
-	QStandardItemModel *model = nullptr;
 	QMenu* m_contextualMenu = nullptr;
 };
 

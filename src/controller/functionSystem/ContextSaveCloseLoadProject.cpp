@@ -6,7 +6,6 @@
 #include "controller/messages/ModalMessage.h"
 #include "controller/messages/NewProjectMessage.h"
 #include "controller/messages/CameraMessage.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataContextRequest.h"
 #include "gui/GuiData/GuiDataIO.h"
@@ -43,7 +42,6 @@ ContextSaveCloseCreateProject::~ContextSaveCloseCreateProject()
 ContextState ContextSaveCloseCreateProject::start(Controller& controller)
 {
     controller.updateInfo(new GuiDataContextRequestActiveCamera(m_id));
-    controller.updateInfo(new GuiDataNewProject(controller.getContext().getProjectsPath(), Utils::System::getFolderFromDirectory(Utils::System::getOSTProgramDataTemplatePath())));
 
     m_closeLastProject = controller.getContext().isProjectLoaded();
 
@@ -60,7 +58,7 @@ ContextState ContextSaveCloseCreateProject::feedMessage(IMessage* message, Contr
         m_projectInfo = msg->m_projectInfo;
         m_folderPath = msg->m_folderPath;
         m_templatePath = msg->m_templatePath;
-        m_projectTemplate = msg->m_baseProjectTemplate;
+        m_languageTemplate = msg->language_template_;
 
 		if (controller.getContext().getIsCurrentProjectSaved() == false) {
 			controller.updateInfo(new GuiDataModal(Yes | No | Cancel, TEXT_SAVELOADCLOSE_SAVE_QUESTION));
@@ -109,10 +107,10 @@ ContextState ContextSaveCloseCreateProject::launch(Controller& controller)
     }
     m_projectInfo.m_author = controller.getContext().getActiveAuthor();
 
-    if (m_projectTemplate.m_lists.empty() || m_projectTemplate.m_template.empty())
+    if (m_languageTemplate == LanguageType::Nothing)
         controller.getControlListener()->notifyUIControl(new control::project::Create(m_projectInfo, m_folderPath, m_templatePath));
     else
-        controller.getControlListener()->notifyUIControl(new control::project::Create(m_projectInfo, m_folderPath, m_projectTemplate));
+        controller.getControlListener()->notifyUIControl(new control::project::Create(m_projectInfo, m_folderPath, m_languageTemplate));
 
     return (m_state = ContextState::done);
 }

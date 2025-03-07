@@ -2,21 +2,20 @@
 #define DIALOG_PROJECT_CREATION_H
 
 #include "ui_DialogProjectCreation.h"
-#include "models/project/ProjectTypes.h"
 #include "gui/Dialog/ADialog.h"
 
-#include <unordered_map>
 #include <filesystem>
-
-enum LangageType;
 
 class DialogProjectCreation : public ADialog
 {
     Q_OBJECT
 
  public:
-    DialogProjectCreation(IDataDispatcher& dataDispatcher, QString folderPath, const std::vector<std::filesystem::path>& templates, const std::unordered_map<LangageType, ProjectTemplate>& projectTemplates, QWidget* parent);
+    DialogProjectCreation(IDataDispatcher& dataDispatcher, QWidget* parent);
     ~DialogProjectCreation();
+
+    void setDefaultValues(const std::filesystem::path& folderPath, std::wstring default_name, std::wstring default_company);
+    void setAdditionalTemplatesPath(const std::vector<std::filesystem::path>& templates_path);
 
 private:
     void informData(IGuiData* keyValue);
@@ -27,7 +26,6 @@ private:
 
 private:
     Ui::DialogProjectCreation m_ui;
-    std::unordered_map<LangageType, ProjectTemplate> m_projectTemplates;
 
     QString m_openPath;
 };

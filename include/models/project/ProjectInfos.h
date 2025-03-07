@@ -18,8 +18,7 @@ public:
 	ProjectInfos();
 
 	//new
-	ProjectInfos(const xg::Guid id, const std::wstring& projectName, const SafePtr<Author>& author, const std::wstring& company,
-		const std::wstring& location, const std::wstring& description, const bool& isCentral);
+	ProjectInfos(const xg::Guid id, const std::wstring& projectName, const SafePtr<Author>& author, const std::wstring& company, const std::wstring& location, const std::wstring& description, const bool& isCentral);
 
 	ProjectInfos(const ProjectInfos& p);
 

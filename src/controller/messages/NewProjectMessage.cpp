@@ -4,14 +4,14 @@ NewProjectMessage::NewProjectMessage(const ProjectInfos& projectInfo, const std:
     : m_projectInfo(projectInfo)
     , m_folderPath(folderPath)
     , m_templatePath(templatePath)
-    , m_baseProjectTemplate()
+    , language_template_(LanguageType::Nothing)
 {}
 
-NewProjectMessage::NewProjectMessage(const ProjectInfos& projectInfo, const std::filesystem::path& folderPath, const ProjectTemplate& projectTemplate)
+NewProjectMessage::NewProjectMessage(const ProjectInfos& projectInfo, const std::filesystem::path& folderPath, LanguageType language_template)
     : m_projectInfo(projectInfo)
-    ,m_folderPath(folderPath)
+    , m_folderPath(folderPath)
     , m_templatePath(std::filesystem::path())
-    , m_baseProjectTemplate(projectTemplate)
+    , language_template_(language_template)
 {
 }
 

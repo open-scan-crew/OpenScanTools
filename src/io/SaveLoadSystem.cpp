@@ -988,7 +988,7 @@ void SaveLoadSystem::ImportJsonProject(const std::filesystem::path& importPath, 
 	{
 		//If failed to load list go back to default.
 		// Note (aurélien) : improvement with message box.
-		controller.getContext().setUserLists(generateDefaultLists(), true);
+		controller.getContext().setUserLists(generateDefaultLists(LanguageType::English), true);
 		IOLOG << "Fall back to load default [" << File_Lists << "]" << LOGENDL;
 	}
 
@@ -1005,7 +1005,7 @@ void SaveLoadSystem::ImportJsonProject(const std::filesystem::path& importPath, 
 	// Note (aurélien) : improvement with message box.
 	if (!controller.getContext().setTemplates(templates, true))
 	{
-		templates = sma::GenerateDefaultTemplates();
+		templates = sma::GenerateDefaultTemplates(LanguageType::English);
 		controller.getContext().setTemplates(templates, true);
 		IOLOG << "Fall back to generate default templates" << LOGENDL;
 	}

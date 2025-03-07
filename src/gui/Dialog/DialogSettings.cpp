@@ -5,6 +5,7 @@
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/IDataDispatcher.h"
 #include "gui/UnitUsage.h"
+#include "gui/Translator.h"
 #include "models/project/ProjectTypes.h"
 #include "models/3d/OpticalFunctions.h"
 #include "utils/Config.h"
@@ -21,18 +22,17 @@
 static std::vector<UnitType> s_settingUnits = { UnitType::M, UnitType::CM, UnitType::MM, UnitType::YD, UnitType::FT, UnitType::INC };
 static std::vector<UnitType> s_settingVolumeUnits = { UnitType::M3, UnitType::LITRE};
 
-DialogSettings::DialogSettings(IDataDispatcher& dataDispatcher, Translator* translator, QWidget* parent)
+DialogSettings::DialogSettings(IDataDispatcher& dataDispatcher, QWidget* parent)
 	: ADialog(dataDispatcher, parent)
-	, m_translator(translator)
-	, m_type(m_translator->getActiveLangage())
 	, m_guizmoParams(dataDispatcher, this)
 {
 	m_guizmoParams.hide();
 	m_ui.setupUi(this);
 
-	for (const auto& lang : m_translator->getAvailableLangage())
-		m_ui.langageComboBox->addItem(Translator::languageDictionnary.at(lang), QVariant((uint32_t)lang));
-	m_ui.langageComboBox->setCurrentIndex(m_translator->getActiveLangage());
+	for (const auto& lang : Translator::getAvailableLanguage())
+		m_ui.langageComboBox->addItem(Translator::getLanguageQStr(lang), QVariant((uint32_t)lang));
+
+	m_ui.langageComboBox->setCurrentIndex((int)Translator::getActiveLanguage());
 
 	for (UnitType unit : s_settingUnits) {
 		QString text = unit_converter::getUnitText(unit);
@@ -58,7 +58,7 @@ DialogSettings::DialogSettings(IDataDispatcher& dataDispatcher, Translator* tran
 	m_ui.lineEdit_limitOrtho->setType(NumericType::DISTANCE);
 
 	connect(m_ui.okButton, &QPushButton::released, this, &DialogSettings::onOk);
-	connect(m_ui.langageComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &DialogSettings::onLangageChanged);
+	connect(m_ui.langageComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &DialogSettings::onLanguageChanged);
 	connect(m_ui.spinBox_digits, QOverload<int>::of(&QSpinBox::valueChanged), this, &DialogSettings::onUnitUsageChanged);
 	connect(m_ui.distanceUnitBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &DialogSettings::onUnitUsageChanged);
 	connect(m_ui.diameterUnitBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &DialogSettings::onUnitUsageChanged);
@@ -229,7 +229,7 @@ void DialogSettings::blockSignal(bool active)
 void DialogSettings::showEvent(QShowEvent* event)
 {
 	m_ui.langageComboBox->blockSignals(true);
-	m_ui.langageComboBox->setCurrentIndex(m_translator->getActiveLangage());
+	m_ui.langageComboBox->setCurrentIndex((int)Translator::getActiveLanguage());
 	m_ui.langageComboBox->blockSignals(false);
 }
 
@@ -238,7 +238,7 @@ QCheckBox* DialogSettings::getFramelessCheckBox()
     return m_ui.framelessCheckBox;
 }
 
-void DialogSettings::onLangageChanged(const uint32_t& index)
+void DialogSettings::onLanguageChanged(const uint32_t& index)
 {
 	//fixme (Aurélien) for dynamic lang modification
 	//m_translator->setActiveLangage((Translator::LangageType)m_ui.langageComboBox->currentData().toInt());
@@ -296,16 +296,15 @@ void DialogSettings::onColorPicking()
 
 void DialogSettings::onOk()
 {
-	LangageType type((LangageType)m_ui.langageComboBox->currentData().toInt());
-	if (type != m_type)
-	{
-		m_type = type;
-		m_dataDispatcher.sendControl(new control::application::SetLangage(type));
-	}
+    LanguageType type((LanguageType)m_ui.langageComboBox->currentData().toInt());
+    if (type != Translator::getActiveLanguage())
+    {
+        m_dataDispatcher.sendControl(new control::application::SetLanguage(type));
+    }
     // Actualize the decimation options if they have been changed
     sendDecimationOptions();
 
-	hide();
+    hide();
 }
 
 void DialogSettings::onCancel()

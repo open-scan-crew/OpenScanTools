@@ -149,6 +149,35 @@ int ScantraInterface::stopInterface()
     return 0;
 }
 
+void ScantraInterface::project_created(const std::filesystem::path& path, const std::wstring& name)
+{
+    if (!data_)
+        return;
+    {
+        scoped_lock<interprocess_mutex> lock(data_->mutex); /// or mutex ?
+
+        std::wcsncpy(data_->w_array[0], path.c_str(), 256);
+        std::wcsncpy(data_->w_array[1], name.c_str(), 256);
+        data_->n_w = 2;
+
+        observer_->message_ = ScantraInterprocessObserver::hasOpenedProject;
+    }
+    data_->update(observer_);
+}
+
+void ScantraInterface::project_opened(const std::filesystem::path& path)
+{
+    if (!data_)
+        return;
+    {
+        scoped_lock<interprocess_mutex> lock(data_->mutex);
+
+        std::wcsncpy(data_->w_array[0], path.c_str(), 256);
+        data_->n_w = 1;
+    }
+    data_->update(observer_);
+}
+
 void ScantraInterface::run()
 {
     while (!done_)
@@ -436,20 +465,22 @@ void ScantraInterface::editStationAdjustment()
     glm::dquat station_rot(q0, qx, qy, qz);
 
     SafePtr<AGraphNode> scan = getScanOnName(station_id);
+    SafePtr<AGraphNode> datum = getScanOnName(datum_id);
 
     // Reset the geometric link. All computation are done in the global space.
     AGraphNode::addGeometricLink(graph_.getRoot(), scan);
 
-    if (datum_id.compare(L"GlobalCoordinateSystem") == 0 || datum_id.compare(station_id) == 0)
+    if (datum == scan)
     {
-        WritePtr<AGraphNode> wPtr = scan.get();
-        wPtr->setPosition(station_pos);
-        wPtr->setRotation(station_rot);
+        WritePtr<AGraphNode> wScan = scan.get();
+        if (wScan)
+        {
+            wScan->setPosition(station_pos); // should be (0, 0, 0)
+            wScan->setRotation(station_rot); // should be (1, 0, 0, 0)
+        }
     }
     else
     {
-        // Try to get the reference scan
-        SafePtr<AGraphNode> datum = getScanOnName(datum_id);
         // Wait for registration
         scans_registered_.push_back({
             datum,
@@ -475,7 +506,7 @@ void ScantraInterface::createProject()
     log << "+++ Scantra-create-project +++\n";
     if (data_->n_w != 2)
     {
-        log << "Wrong parameters" << Logger::endl;
+        log << "Wrong parameter count" << Logger::endl;
         return;
     }
 
@@ -483,13 +514,13 @@ void ScantraInterface::createProject()
     std::wstring w_name(data_->w_array[1]);
     IOLOG << "Received project folder: " << w_folder << ", name: " << w_name << Logger::endl;
 
-    controller_.getControlListener()->notifyUIControl(new control::project::SaveCreate());
+    controller_.getControlListener()->notifyUIControl(new control::project::SaveCreate(w_folder, w_name));
 
-    ProjectInfos project_infos;
-    project_infos.m_projectName = w_name;
-    project_infos.m_company = L"Scantra";
-    NewProjectMessage msg(project_infos, w_folder, "");
-    controller_.getFunctionManager().feedMessage(controller_, &msg);
+    //ProjectInfos project_infos;
+    //project_infos.m_projectName = w_name;
+    //project_infos.m_company = L"Scantra";
+    //NewProjectMessage msg(project_infos, w_folder, "");
+    //controller_.getFunctionManager().feedMessage(controller_, &msg);
 }
 
 void ScantraInterface::openProject()
@@ -498,7 +529,7 @@ void ScantraInterface::openProject()
     log << "+++ Scantra-open-project +++\n";
     if (data_->n_w != 1)
     {
-        log << "Wrong parameters" << Logger::endl;
+        log << "Wrong parameter count" << Logger::endl;
         return;
     }
 
@@ -527,34 +558,32 @@ void ScantraInterface::applyRegistration()
 {
     for (auto reg : scans_registered_)
     {
-        glm::dvec3 ref_pos;
-        glm::dquat ref_rot;
         if (reg.referential == reg.station)
             continue;
-        // Compute the global coordinates
+
+        glm::dvec3 ref_pos(0.0, 0.0, 0.0);
+        glm::dquat ref_rot(1.0, 0.0, 0.0, 0.0);
+        
+        // If the referential is null, then the ref coordinates are unchanged.
         {
             ReadPtr<AGraphNode> rDatum = reg.referential.cget();
-            if (!rDatum)
+            if (rDatum)
             {
-                Logger::log(LoggerMode::IOLog) << "Error: cannot read ref scan." << Logger::endl;
-                return;
+                ref_pos = rDatum->getCenter();
+                ref_rot = rDatum->getRotation();
             }
-            ref_pos = rDatum->getCenter();
-            ref_rot = rDatum->getRotation();
         }
 
         {
             WritePtr<AGraphNode> wScan = reg.station.get();
-            if (!wScan)
+            if (wScan)
             {
-                Logger::log(LoggerMode::IOLog) << "Error: cannot write scan." << Logger::endl;
-                return;
-            }
-            wScan->setPosition(ref_pos);
-            wScan->setRotation(ref_rot);
+                wScan->setPosition(ref_pos);
+                wScan->setRotation(ref_rot);
 
-            wScan->addLocalTranslation(reg.position);
-            wScan->addPreRotation(reg.rotation);
+                wScan->addLocalTranslation(reg.position);
+                wScan->addPreRotation(reg.rotation);
+            }
         }
     }
 

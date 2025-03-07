@@ -5,6 +5,7 @@
 #include "crossguid/guid.hpp"
 #include "utils/safe_ptr.h"
 
+#include "gui/LanguageType.h"
 #include "models/application/List.h"
 
 namespace sma
@@ -115,9 +116,7 @@ namespace sma
 		std::unordered_map<tFieldId, tField> m_fields;
 	};
 
-	
-
-	std::vector<TagTemplate> GenerateDefaultTemplates();
+	std::vector<TagTemplate> GenerateDefaultTemplates(LanguageType lang);
 }
 
 namespace std

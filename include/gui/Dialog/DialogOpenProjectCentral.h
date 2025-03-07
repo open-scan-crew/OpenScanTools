@@ -6,8 +6,6 @@
 
 #include <filesystem>
 
-enum LangageType;
-
 class DialogOpenProjectCentral : public ADialog
 {
     Q_OBJECT

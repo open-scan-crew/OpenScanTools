@@ -3,7 +3,7 @@
 
 #include "controller/messages/IMessage.h"
 #include "models/project/ProjectInfos.h"
-#include "models/project/ProjectTypes.h"
+#include "gui/LanguageType.h"
 #include "models/OpenScanToolsModelEssentials.h"
 
 
@@ -13,7 +13,7 @@ class NewProjectMessage : public IMessage
 {
 public:
     NewProjectMessage(const ProjectInfos& projectInfo, const std::filesystem::path& folderPath, const std::filesystem::path& templatePath);
-    NewProjectMessage(const ProjectInfos& projectInfo, const std::filesystem::path& folderPath, const ProjectTemplate& projectTemplate);
+    NewProjectMessage(const ProjectInfos& projectInfo, const std::filesystem::path& folderPath, LanguageType language_template);
     ~NewProjectMessage();
     MessageType getType() const override;	
     IMessage* copy() const;
@@ -22,7 +22,7 @@ public:
     const ProjectInfos m_projectInfo;
     const std::filesystem::path m_folderPath;
     const std::filesystem::path m_templatePath;
-    ProjectTemplate m_baseProjectTemplate;
+    LanguageType language_template_;
 };
 
 class NewSubProjectMessage : public IMessage
