@@ -1657,9 +1657,6 @@
     <ClCompile Include="..\..\src\controller\functionSystem\ContextImportOSTObjects.cpp">
       <Filter>src\controller\contexts</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\gui\Dialog\DialogOpenProjectCentral.cpp">
-      <Filter>src\gui\Dialog</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarSlabGroup.cpp">
       <Filter>src\gui\toolBars</Filter>
     </ClCompile>
@@ -2332,9 +2329,6 @@
       <Filter>include\gui\Dialog</Filter>
     </QtMoc>
     <QtMoc Include="..\..\include\gui\Dialog\DialogImportFileObject.h">
-      <Filter>include\gui\Dialog</Filter>
-    </QtMoc>
-    <QtMoc Include="..\..\include\gui\Dialog\DialogOpenProjectCentral.h">
       <Filter>include\gui\Dialog</Filter>
     </QtMoc>
     <QtMoc Include="..\..\include\gui\Dialog\DialogExportSubProject.h">
@@ -4249,9 +4243,6 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\DialogExportFileObject.ui">
-      <Filter>Form Files</Filter>
-    </QtUic>
-    <QtUic Include="..\..\src\gui\forms\DialogOpenProjectCentral.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\DialogExportSubProject.ui">

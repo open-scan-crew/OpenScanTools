@@ -258,8 +258,6 @@ ContextState ContextSaveCloseLoadProject::feedMessage(IMessage* message, Control
                 return m_state;
             case WaitFor::Restore:
                 return (m_state = processRestoreReturn(modal->m_returnedValue));
-            case WaitFor::Central:
-                return (m_state = processOpenCentral(modal->m_returnedValue, controller));
 			}
 		}
 		break;
@@ -289,17 +287,8 @@ ContextState ContextSaveCloseLoadProject::launch(Controller& controller)
         else
             Utils::System::cleanDirectoryFromFiles(m_projectToLoad.parent_path(), File_Extension_Backup, true);
 
-        bool isCentral = false;
-        std::filesystem::path pathCentral;
-        SaveLoadSystem::readProjectTypes(controller, m_projectToLoad, isCentral, pathCentral);
-        if (isCentral)
-        {
-            m_modalsReturn = WaitFor::Central;
-            controller.updateInfo(new GuiDataOpenProjectCentral(m_projectToLoad));
-            return (m_state = ContextState::waiting_for_input);
-        }
-        else
-            controller.getControlListener()->notifyUIControl(new control::project::Load(m_projectToLoad));
+        SaveLoadSystem::readProjectTypes(controller, m_projectToLoad);
+        controller.getControlListener()->notifyUIControl(new control::project::Load(m_projectToLoad));
     }
 	return (m_state = ContextState::done);
 }
@@ -314,19 +303,6 @@ void ContextSaveCloseLoadProject::prepareRestoreModal(Controller& controller)
     for (const std::filesystem::path& file : m_backups)
         files += QString::fromStdWString(L"- " + std::filesystem::proximate(file, projectFolder).wstring()) + "\n";
     controller.updateInfo(new GuiDataModal(Yes | No | Cancel, TEXT_SAVELOADCLOSE_RESTORE_QUESTION.arg(files)));
-}
-
-ContextState ContextSaveCloseLoadProject::processOpenCentral(const uint32_t& value, Controller& controller)
-{
-    switch (value)
-    {
-    case 1:
-        controller.getControlListener()->notifyUIControl(new control::project::Load(m_projectToLoad));
-        return (m_state = ContextState::done);
-    case 0:
-        return (m_state = ContextState::abort);
-    }
-    return (m_state = ContextState::abort);
 }
 
 ContextState ContextSaveCloseLoadProject::processSaveReturn(const uint32_t& value)

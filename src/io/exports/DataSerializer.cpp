@@ -753,9 +753,6 @@ nlohmann::json DataSerializer::Serialize(const ProjectInfos& data)
 	json[Key_DefaultRampSteps] = data.m_defaultRampSteps;
 	json[Key_ImportScanTranslation] = { data.m_importScanTranslation.x, data.m_importScanTranslation.y, data.m_importScanTranslation.z };
 	json[Key_Project_Id] = data.m_id;
-	json[Key_Is_Central] = false;//data.m_isCentral;
-	json[Key_CentralId] = data.m_centralId;
-	json[Key_CentralPath] = Utils::to_utf8(data.m_centralProjectPath.wstring());
 	json[Key_CustomScanFolderPath] = Utils::to_utf8(data.m_customScanFolderPath.wstring());
 	return json;
 }

@@ -726,7 +726,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\gui\Dialog\DialogImportMeshObject.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogImportPCObject.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogImportStepSimplification.cpp" />
-    <ClCompile Include="..\..\src\gui\Dialog\DialogOpenProjectCentral.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogPointCloudObjectCreation.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogProjectCreation.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogRecentProjects.cpp" />
@@ -1373,7 +1372,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarImportObjects.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogExportFileObject.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogImportFileObject.h" />
-    <QtMoc Include="..\..\include\gui\Dialog\DialogOpenProjectCentral.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogExportSubProject.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogSubProjectInfo.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogImportAsciiPC.h" />
@@ -1937,7 +1935,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtUic Include="..\..\src\gui\forms\DialogImportPCObject.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogImportStepSimplification.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogNewOSTVersion.ui" />
-    <QtUic Include="..\..\src\gui\forms\DialogOpenProjectCentral.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogPointCloudObjectCreation.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogProjectCreation.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogProjectTemplate.ui" />

@@ -115,7 +115,6 @@ enum class guiDType
 
     newProject,
     openProject,
-	openProjectCentral,
     importScans,
 	importMeshObject,
 	//finishSimplifyStep,

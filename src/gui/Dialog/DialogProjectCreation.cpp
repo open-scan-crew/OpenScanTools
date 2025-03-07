@@ -28,8 +28,6 @@ DialogProjectCreation::DialogProjectCreation(IDataDispatcher& dataDispatcher, QW
     m_ui.lineEditCustomScanFolder->setEnabled(false);
     m_ui.toolButtonCustomScanFolder->setEnabled(false);
 
-    m_ui.checkCentralProject->setVisible(false);
-
     m_ui.comboBoxProjectTemplate->addItem(Translator::getLanguageQStr(LanguageType::English), QVariant((int)LanguageType::English));
     m_ui.comboBoxProjectTemplate->addItem(Translator::getLanguageQStr(LanguageType::Francais), QVariant((int)LanguageType::Francais));
 
@@ -96,14 +94,7 @@ void DialogProjectCreation::createProject()
     infos.m_company = m_ui.lineEditBusiness->text().toStdWString();
     infos.m_location = m_ui.lineEditLocation->text().toStdWString();
     infos.m_description = m_ui.textEditDescription->toPlainText().toStdWString();
-    
-    //new 
     infos.m_id = xg::newGuid();
-    infos.m_centralProjectPath = std::filesystem::path();
-    infos.m_centralId = xg::Guid();
-    infos.m_isCentral = false;
-    //infos.m_isCentral = (m_ui.checkCentralProject->checkState() == Qt::CheckState::Checked);
-
     infos.m_customScanFolderPath = m_ui.lineEditCustomScanFolder->text().toStdWString();
 
     NewProjectMessage* message;

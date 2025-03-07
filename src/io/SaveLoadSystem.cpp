@@ -874,7 +874,7 @@ bool SaveLoadSystem::IsBackFilesExists(const std::filesystem::path& filePath, st
 	return backups.empty();
 }
 
-bool SaveLoadSystem::readProjectTypes(const Controller& controller, const std::filesystem::path& filePath, bool& isCentral, std::filesystem::path& centralPath)
+bool SaveLoadSystem::readProjectTypes(const Controller& controller, const std::filesystem::path& filePath)
 {
 	IOLOG << "Loading file [" << filePath << "]" << LOGENDL;
 	std::ifstream fileStream(filePath);
@@ -905,9 +905,6 @@ bool SaveLoadSystem::readProjectTypes(const Controller& controller, const std::f
 		IOLOG << "Failed to import Project" << LOGENDL;
 		return (false);
 	}
-
-	isCentral = info.m_isCentral;
-	centralPath = info.m_centralProjectPath;
 
 	return true;
 }

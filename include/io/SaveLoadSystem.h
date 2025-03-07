@@ -35,7 +35,7 @@ namespace SaveLoadSystem
 	bool IsBackFilesExists(const std::filesystem::path& filePath, std::vector<std::filesystem::path>& backups);
 	bool RestoreBackupFiles(const std::vector<std::filesystem::path>& backups);
 
-	bool readProjectTypes(const Controller& controller, const std::filesystem::path& filePath, bool& isCentral, std::filesystem::path& centralPath);
+	bool readProjectTypes(const Controller& controller, const std::filesystem::path& filePath);
 	void ImportJsonProject(const std::filesystem::path& filePath, Controller& controller, std::string& errorMsg);
 	SafePtr<ScanNode> ImportNewTlsFile(const std::filesystem::path& filePath, Controller& controller, ErrorCode& errorCode);
 	SafePtr<ScanObjectNode> ImportTlsFileAsObject(const std::filesystem::path& filePath, Controller& controller, ErrorCode& errorCode);

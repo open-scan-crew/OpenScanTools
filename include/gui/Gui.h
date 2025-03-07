@@ -9,7 +9,6 @@
 #include "gui/Dialog/DialogShortcuts.h"
 #include "gui/Dialog/MessageSplashScreen.h"
 #include "gui/Dialog/DialogImportFileObject.h"
-#include "gui/Dialog/DialogOpenProjectCentral.h"
 #include "gui/Dialog/ProjectTemplateListDialog.h"
 #include "gui/widgets/PropertyClippingSettings.h"
 #include "gui/widgets/SplashScreen.h"
@@ -108,7 +107,6 @@ private:
 	void onProjectTemplateDialog(IGuiData* data);
 	void onObject3DPropertySettings(IGuiData* data);
 	void onOpenInExplorer(IGuiData* data);
-	void onOpenCentralProject(IGuiData* data);
 
 	void removeGroupInTab(const QString& tabName, const QString& widgetName);
 	void disableGroupInTab(const QString& tabName, const QString& widgetName);
@@ -147,7 +145,6 @@ private:
 	MessageSplashScreen m_messageScreen;
 	SplashScreen m_splashScreen;
 	DialogImportFileObject m_importFileObject;
-	DialogOpenProjectCentral m_openCentralProject;
 	ProjectTemplateListDialog m_projectTemplatesDialog;
 	PropertyClippingSettings m_object3DPropertySettings;
 

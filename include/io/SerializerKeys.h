@@ -186,9 +186,6 @@
 #define Key_DefaultRampSteps "DefaultRampSteps"
 #define Key_ImportScanTranslation "ImportScanTranslation"
 #define Key_Project_Id "ProjectId"
-#define Key_Is_Central "IsCentral"
-#define Key_CentralPath "CentralPath"
-#define Key_CentralId "CentralId"
 #define Key_CustomScanFolderPath "CustomScanFolderPath"
 
 //Template

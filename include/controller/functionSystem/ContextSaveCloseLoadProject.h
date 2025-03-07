@@ -61,10 +61,9 @@ public:
 	ContextType getType() const override;
 
 private:
-    enum class WaitFor{Save, Restore, Central};
+    enum class WaitFor{Save, Restore};
     void prepareRestoreModal(Controller& controller);
 
-    ContextState processOpenCentral(const uint32_t& value, Controller& controller);
     ContextState processSaveReturn(const uint32_t& value);
     ContextState processRestoreReturn(const uint32_t& value);
 

@@ -9,16 +9,6 @@
 class AGraphNode;
 class AClippingNode;
 
-class GuiDataOpenProjectCentral : public IGuiData
-{
-public:
-	GuiDataOpenProjectCentral(const std::filesystem::path& centralPath);
-	~GuiDataOpenProjectCentral();
-	guiDType getType() override;
-public:
-	std::filesystem::path m_centralPath;
-};
-
 class GuiDataOpenProject : public IGuiData
 {
 public:

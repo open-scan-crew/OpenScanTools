@@ -17,8 +17,6 @@ ProjectInfos::ProjectInfos()
 	m_location = L"";
 	m_description = L"";
 	m_id = xg::Guid();
-	m_centralId = xg::Guid();
-	m_centralProjectPath = std::filesystem::path();
 }
 
 ProjectInfos::ProjectInfos(const ProjectInfos& p)
@@ -37,13 +35,10 @@ ProjectInfos::ProjectInfos(const ProjectInfos& p)
 	this->m_defaultScan = p.m_defaultScan;
 	this->m_importScanTranslation = p.m_importScanTranslation;
 	this->m_id = p.m_id;
-	this->m_isCentral = p.m_isCentral;
-	this->m_centralId = p.m_centralId;
-	this->m_centralProjectPath = p.m_centralProjectPath;
 	this->m_customScanFolderPath = p.m_customScanFolderPath;
 }
 
-ProjectInfos::ProjectInfos(const xg::Guid id, const std::wstring & projectName, const  SafePtr<Author>& author, const std::wstring & company, const std::wstring & location, const std::wstring & description, const bool& isCentral)
+ProjectInfos::ProjectInfos(const xg::Guid id, const std::wstring & projectName, const  SafePtr<Author>& author, const std::wstring & company, const std::wstring & location, const std::wstring & description)
 	: ProjectInfos()
 {
 	m_projectName = projectName;
@@ -52,7 +47,6 @@ ProjectInfos::ProjectInfos(const xg::Guid id, const std::wstring & projectName, 
 	m_location = location;
 	m_description = description;
 	m_id = id;
-	m_isCentral = isCentral;
 }
 
 const std::filesystem::path& ProjectInternalInfo::getProjectFilePath() const

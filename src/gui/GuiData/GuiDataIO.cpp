@@ -1,19 +1,5 @@
 #include "gui/GuiData/GuiDataIO.h"
 
-// **** GuiDataOpenProjectCentral ****
-
-GuiDataOpenProjectCentral::GuiDataOpenProjectCentral(const std::filesystem::path& centralPath)
-	: m_centralPath(centralPath)
-{ }
-
-GuiDataOpenProjectCentral::~GuiDataOpenProjectCentral()
-{ }
-
-guiDType GuiDataOpenProjectCentral::getType()
-{
-	return (guiDType::openProjectCentral);
-}
-
 // **** GuiDataOpenProject ****
 
 GuiDataOpenProject::GuiDataOpenProject(const std::filesystem::path& folder)

@@ -150,7 +150,6 @@ Gui::Gui(Controller& controller)
 	, m_importFileObject(m_dataDispatcher, this)
 	, m_projectTemplatesDialog(m_dataDispatcher, this)
 	, m_object3DPropertySettings(m_dataDispatcher, this)
-	, m_openCentralProject(m_dataDispatcher, this)
 {
     QCoreApplication::setOrganizationName("OpenScanTools");
 	QCoreApplication::setApplicationName("OpenScanTools");
@@ -404,11 +403,7 @@ Gui::Gui(Controller& controller)
     registerGuiDataFunction(guiDType::projectLoaded, &Gui::onProjectLoaded);
     registerGuiDataFunction(guiDType::quitEvent, &Gui::onQuitEvent);
     registerGuiDataFunction(guiDType::newProject, &Gui::onNewProject);
-    registerGuiDataFunction(guiDType::openProject, &Gui::onOpenProject);
-
-	//new
-	//registerGuiDataFunction(guiDType::openProjectCentral, &Gui::onOpenProjectCentral);
-
+	registerGuiDataFunction(guiDType::openProject, &Gui::onOpenProject);
     registerGuiDataFunction(guiDType::importScans, &Gui::onImportScans);
     registerGuiDataFunction(guiDType::splashScreenStart, &Gui::onSplashScreenStart);
     registerGuiDataFunction(guiDType::splashScreenEnd, &Gui::onSplashScreenEnd);
@@ -419,7 +414,6 @@ Gui::Gui(Controller& controller)
 	registerGuiDataFunction(guiDType::projectTemplateDialog, &Gui::onProjectTemplateDialog);
 	registerGuiDataFunction(guiDType::clippingSettingsProperties, &Gui::onObject3DPropertySettings);
 	registerGuiDataFunction(guiDType::openInExplorer, &Gui::onOpenInExplorer);
-	registerGuiDataFunction(guiDType::openProjectCentral, &Gui::onOpenCentralProject);
     // register all properties type
     m_dataDispatcher.registerObserverOnKey(this, guiDType::projectDataProperties);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::clippingSettingsProperties);
@@ -619,33 +613,6 @@ void Gui::onOpenInExplorer(IGuiData* data)
 	QProcess* process = new QProcess(this);
 	process->start("explorer.exe", args);
 }
-
-void Gui::onOpenCentralProject(IGuiData* data)
-{
-	m_openCentralProject.show();
-}
-
-//new
-/*
-void Gui::onOpenProjectCentral(IGuiData* data)
-{
-	auto* idata = static_cast<GuiDataOpenProjectCentral*>(data);
-	QString fileName = QFileDialog::getOpenFileName(this, TEXT_OPEN_PROJECT, QString::fromStdWString(idata->m_folder.wstring()), TEXT_FILE_TYPE_TLP, nullptr);
-
-	GUILOG << "Open project Central : " << fileName.toStdString() << Logger::endl;
-	if (fileName != "")
-	{
-		m_dataDispatcher.sendControl(new control::modal::ModalReturnFiles({ fileName.toStdWString() }));
-		m_dataDispatcher.sendControl(new control::application::temporary::TemporaryPath(std::filesystem::path(fileName.toStdString()).parent_path()));
-	}
-	else
-		m_dataDispatcher.sendControl(new control::function::Validate());
-
-
-	DialogOpenProjectCentral* openProjectCentral = new DialogOpenProjectCentral(m_dataDispatcher, this);
-	openProjectCentral->show();
-
-}*/
 
 void Gui::onOpenProject(IGuiData *data)
 {
