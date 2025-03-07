@@ -56,8 +56,8 @@ void StatusPanel::onRenderUnitUsage(IGuiData * data)
 void StatusPanel::onCameraPos(double x, double y, double z)
 {
 	m_camPos = glm::dvec3(x, y, z);
-	auto valueDisplay = [&](double t) { return Utils::roundFloat(unit_converter::meterToX(t, m_valueDisplayParameters.distanceUnit), m_valueDisplayParameters.displayedDigits); };
-	std::string unitText = unit_converter::getUnitText(m_valueDisplayParameters.distanceUnit).toStdString();
+	auto valueDisplay = [&](double t) { return Utils::roundFloat(UnitConverter::meterToX(t, m_valueDisplayParameters.distanceUnit), m_valueDisplayParameters.displayedDigits); };
+	std::string unitText = UnitConverter::getUnitText(m_valueDisplayParameters.distanceUnit).toStdString();
 	std::string text = valueDisplay(x) + unitText + " " + valueDisplay(y) + unitText + " " + valueDisplay(z) + unitText;
 	m_cameraInfo->setText(TEXT_CAMERA + " " + text.c_str() + " |");
 	if (m_cameraInfo->text().size() > 350)
@@ -67,8 +67,8 @@ void StatusPanel::onCameraPos(double x, double y, double z)
 void StatusPanel::onCurrentScanData(IGuiData * data)
 {
 	GuiDataScanCurrent *currentScanata = static_cast<GuiDataScanCurrent*>(data);
-	auto valueDisplay = [&](double t) { return Utils::roundFloat(unit_converter::meterToX(t, m_valueDisplayParameters.distanceUnit), m_valueDisplayParameters.displayedDigits); };
-	std::string unitText = unit_converter::getUnitText(m_valueDisplayParameters.distanceUnit).toStdString();
+	auto valueDisplay = [&](double t) { return Utils::roundFloat(UnitConverter::meterToX(t, m_valueDisplayParameters.distanceUnit), m_valueDisplayParameters.displayedDigits); };
+	std::string unitText = UnitConverter::getUnitText(m_valueDisplayParameters.distanceUnit).toStdString();
 	std::string text = valueDisplay(currentScanata->pos.x) + unitText + " " + valueDisplay(currentScanata->pos.y) + unitText + " " + valueDisplay(currentScanata->pos.z) + unitText;
 	if (currentScanata->exists == true)
 		m_scanInfo->setText(TEXT_SCAN + " " + text.c_str() + " |");
@@ -94,8 +94,8 @@ void StatusPanel::onPicking(double x, double y, double z)
 	}
 	else
 	{
-		auto valueDisplay = [&](double t) { return Utils::roundFloat(unit_converter::meterToX(t, m_valueDisplayParameters.distanceUnit), m_valueDisplayParameters.displayedDigits); };
-		std::string unitText = unit_converter::getUnitText(m_valueDisplayParameters.distanceUnit).toStdString();
+		auto valueDisplay = [&](double t) { return Utils::roundFloat(UnitConverter::meterToX(t, m_valueDisplayParameters.distanceUnit), m_valueDisplayParameters.displayedDigits); };
+		std::string unitText = UnitConverter::getUnitText(m_valueDisplayParameters.distanceUnit).toStdString();
 		std::string text = valueDisplay(x) + unitText + " " + valueDisplay(y) + unitText + " " + valueDisplay(z) + unitText;
 		m_scanInfo->setText(TEXT_MOUSE + " " + text.c_str() + " | " + TEXT_DISTANCE + " " + valueDisplay(len).c_str() + unitText.c_str() + " |");
 		if(m_scanInfo->text().size() > 350)

@@ -838,7 +838,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\gui\UITransparencyConverter.cpp" />
     <ClCompile Include="..\..\src\gui\UnitConverter.cpp" />
     <ClCompile Include="..\..\src\gui\UrlHandler.cpp" />
-    <ClCompile Include="..\..\src\gui\UnitUsage.cpp" />
     <ClCompile Include="..\..\src\gui\viewport\PickingManager.cpp" />
     <ClCompile Include="..\..\src\gui\viewport\QuickBarNavigation.cpp" />
     <ClCompile Include="..\..\src\gui\viewport\ViewportOrganizer.cpp" />

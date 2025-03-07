@@ -159,8 +159,8 @@ void RenderingEngine::onScreenshot(IGuiData* data)
         if (!rCam)
             return;
         const DisplayParameters& params = rCam->getDisplayParameters();
-        auto valueDisplay = [&](double t) { return Utils::roundFloat(unit_converter::meterToX(t, params.m_unitUsage.distanceUnit)); };
-        std::string lengthUnit = unit_converter::getUnitText(params.m_unitUsage.distanceUnit).toStdString();
+        auto valueDisplay = [&](double t) { return Utils::roundFloat(UnitConverter::meterToX(t, params.m_unitUsage.distanceUnit)); };
+        std::string lengthUnit = UnitConverter::getUnitText(params.m_unitUsage.distanceUnit).toStdString();
         m_screenshotFilename.replace_filename("L" + valueDisplay(rCam->getWidthAt1m()) + lengthUnit + "xH" + valueDisplay(rCam->getHeightAt1m()) + lengthUnit + "_" + m_screenshotFilename.filename().string());
     }
     m_screenshotFormat = screenshot->m_format == ImageFormat::MAX_ENUM ? m_screenshotFormat : screenshot->m_format;
@@ -880,8 +880,8 @@ void RenderingEngine::drawOverlay(VkCommandBuffer cmdBuffer, const CameraNode& c
         }
 
         ImUtilsText text;
-        QString unitText = unit_converter::getUnitText(camera.m_unitUsage.distanceUnit);
-        double gridSizeUI = unit_converter::meterToX(gridSize, camera.m_unitUsage.distanceUnit);
+        QString unitText = UnitConverter::getUnitText(camera.m_unitUsage.distanceUnit);
+        double gridSizeUI = UnitConverter::meterToX(gridSize, camera.m_unitUsage.distanceUnit);
 
         text.text = TEXT_ORTHO_GRID_SIZE.arg(gridSizeUI).arg(unitText).toStdString();
         text.hovered = false;
@@ -963,8 +963,8 @@ void RenderingEngine::drawOverlayHD(VkCommandBuffer, const CameraNode& camera, c
         }
 
         ImUtilsText text;
-        QString unitText = unit_converter::getUnitText(camera.m_unitUsage.distanceUnit);
-        double gridSizeUI = unit_converter::meterToX(gridSize, camera.m_unitUsage.distanceUnit);
+        QString unitText = UnitConverter::getUnitText(camera.m_unitUsage.distanceUnit);
+        double gridSizeUI = UnitConverter::meterToX(gridSize, camera.m_unitUsage.distanceUnit);
 
         text.text = TEXT_ORTHO_GRID_SIZE.arg(gridSizeUI).arg(unitText).toStdString();
         text.hovered = false;

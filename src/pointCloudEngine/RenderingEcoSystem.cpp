@@ -110,7 +110,7 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
     hash += hash_vec3(display.m_flatColor);
     hash += hash_fn_f(display.m_distRampMin);
     hash += hash_fn_f(display.m_distRampMax);
-    hash += hash_fn_f(display.m_distRampSteps);
+    hash += hash_fn_i(display.m_distRampSteps);
 
     hash += hash_fn_32((uint32_t)display.m_blendMode);
     hash += hash_fn_32((uint32_t)display.m_negativeEffect);

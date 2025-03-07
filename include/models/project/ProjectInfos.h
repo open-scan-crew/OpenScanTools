@@ -22,12 +22,7 @@ public:
 	ProjectInfos(const ProjectInfos& p);
 
 public:
-	//new
 	xg::Guid m_id;
-	//bool m_isCentral;
-	//std::filesystem::path m_centralProjectPath;
-	//xg::Guid m_centralId;
-
 	std::filesystem::path m_customScanFolderPath;
 	
 	std::filesystem::path m_projectName;
@@ -47,7 +42,6 @@ public:
 
 	xg::Guid	m_defaultScan;
 	glm::dvec3 m_importScanTranslation;
-	
 };
 
 class ProjectInternalInfo

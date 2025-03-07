@@ -211,7 +211,7 @@ void PropertyElbow::onDiameterChange()
 void  PropertyElbow::onDiameterEdit()
 {
 	GUI_LOG << "on diameter edit" << LOGENDL;
-	double diameter(unit_converter::XToMeter(m_ui.forceDiameterField->getValue(), m_valueDisplayParameters.diameterUnit));
+	double diameter(UnitConverter::XToMeter(m_ui.forceDiameterField->getValue(), m_valueDisplayParameters.diameterUnit));
 	if (diameter && m_diameter != diameter)
 	{
 		m_diameter = diameter; 

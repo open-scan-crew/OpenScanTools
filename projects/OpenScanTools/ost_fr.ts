@@ -54,7 +54,7 @@
     <message>
         <location filename="../../src/gui/forms/AuthorCreateDialog.ui" line="32"/>
         <source>Enter author name</source>
-        <translation type="unfinished"></translation>
+        <translation>Saisissez le nom de l’auteur</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/AuthorCreateDialog.ui" line="39"/>
@@ -82,7 +82,7 @@
     <message>
         <location filename="../../src/gui/forms/AuthorDialog.ui" line="48"/>
         <source>Authors</source>
-        <translation type="unfinished">Auteurs</translation>
+        <translation>Auteurs</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/AuthorDialog.ui" line="58"/>
@@ -1132,24 +1132,6 @@ du modèle comme les scans</translation>
     </message>
 </context>
 <context>
-    <name>DialogOpenProjectCentral</name>
-    <message>
-        <location filename="../../src/gui/forms/DialogOpenProjectCentral.ui" line="14"/>
-        <source>Open Central Project</source>
-        <translation>Ouvrir projet central</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/DialogOpenProjectCentral.ui" line="23"/>
-        <source>Open the Central Project ?</source>
-        <translation>Ouvrir le projet central ?</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/DialogOpenProjectCentral.ui" line="40"/>
-        <source>Create a local copy</source>
-        <translation>Créé copie locale</translation>
-    </message>
-</context>
-<context>
     <name>DialogPointCloudObjectCreation</name>
     <message>
         <location filename="../../src/gui/forms/DialogPointCloudObjectCreation.ui" line="14"/>
@@ -1195,47 +1177,42 @@ du modèle comme les scans</translation>
         <translation>Création du projet</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogProjectCreation.ui" line="99"/>
+        <location filename="../../src/gui/forms/DialogProjectCreation.ui" line="20"/>
         <source>Enter project name :</source>
         <translation>Entrer le nom du projet:</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogProjectCreation.ui" line="113"/>
+        <location filename="../../src/gui/forms/DialogProjectCreation.ui" line="136"/>
         <source>Enter project folder :</source>
         <translation>Entrer le dossier du projet:</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogProjectCreation.ui" line="123"/>
+        <location filename="../../src/gui/forms/DialogProjectCreation.ui" line="76"/>
         <source>Set scan folder path :</source>
         <translation>Emplacement des scans :</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogProjectCreation.ui" line="136"/>
+        <location filename="../../src/gui/forms/DialogProjectCreation.ui" line="96"/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogProjectCreation.ui" line="106"/>
+        <location filename="../../src/gui/forms/DialogProjectCreation.ui" line="57"/>
         <source>Company :</source>
         <translation>Société:</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogProjectCreation.ui" line="56"/>
-        <source> Define as central project</source>
-        <translation> Définir en tant que projet central</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/DialogProjectCreation.ui" line="46"/>
+        <location filename="../../src/gui/forms/DialogProjectCreation.ui" line="30"/>
         <source>Location :</source>
         <translation>Lieu:</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogProjectCreation.ui" line="39"/>
+        <location filename="../../src/gui/forms/DialogProjectCreation.ui" line="83"/>
         <source>Template :</source>
         <translation>Modèle :</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogProjectCreation.ui" line="92"/>
+        <location filename="../../src/gui/forms/DialogProjectCreation.ui" line="129"/>
         <source>Description :</source>
         <translation>Description:</translation>
     </message>
@@ -2337,7 +2314,7 @@ Veuillez spécifier le dossier parent de ces fichiers. (Ces fichiers vont être 
     <message>
         <location filename="../../src/gui/forms/ListNameDialog.ui" line="29"/>
         <source>Enter a name...</source>
-        <translation type="unfinished"></translation>
+        <translation>Entrez un nom...</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/ListNameDialog.ui" line="42"/>
@@ -3249,6 +3226,16 @@ Veuillez spécifier le dossier parent de ces fichiers. (Ces fichiers vont être 
         <translation>Axe Y&apos;</translation>
     </message>
     <message>
+        <location filename="../../src/gui/forms/Property_User_Orientation.ui" line="88"/>
+        <source>Enter coord 2</source>
+        <translation>Coordonnée 2</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/Property_User_Orientation.ui" line="102"/>
+        <source>Enter coord 1</source>
+        <translation>Coordonnée 1</translation>
+    </message>
+    <message>
         <location filename="../../src/gui/forms/Property_User_Orientation.ui" line="126"/>
         <location filename="../../src/gui/forms/Property_User_Orientation.ui" line="247"/>
         <source>Y</source>
@@ -3313,16 +3300,6 @@ Veuillez spécifier le dossier parent de ces fichiers. (Ces fichiers vont être 
         <location filename="../../src/gui/forms/Property_User_Orientation.ui" line="414"/>
         <source>0.0</source>
         <translation>0.0</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/Property_User_Orientation.ui" line="88"/>
-        <source>Enter coord 2  </source>
-        <translation>Coordonnée 2</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/Property_User_Orientation.ui" line="102"/>
-        <source>Enter coord 1  </source>
-        <translation>Coordonnée 1</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/Property_User_Orientation.ui" line="139"/>
@@ -8077,32 +8054,32 @@ Attention : vous ne pouvez pas annuler cette action.</translation>
         <translation>Saisir le diamètre en mètres</translation>
     </message>
     <message>
-        <location filename="../../include/gui/UnitUsage.h" line="44"/>
+        <location filename="../../src/gui/UnitConverter.cpp" line="10"/>
         <source> m</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../include/gui/UnitUsage.h" line="45"/>
+        <location filename="../../src/gui/UnitConverter.cpp" line="11"/>
         <source> cm</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../include/gui/UnitUsage.h" line="46"/>
+        <location filename="../../src/gui/UnitConverter.cpp" line="12"/>
         <source> mm</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../include/gui/UnitUsage.h" line="48"/>
+        <location filename="../../src/gui/UnitConverter.cpp" line="14"/>
         <source> yd</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../include/gui/UnitUsage.h" line="49"/>
+        <location filename="../../src/gui/UnitConverter.cpp" line="15"/>
         <source> ft</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../include/gui/UnitUsage.h" line="50"/>
+        <location filename="../../src/gui/UnitConverter.cpp" line="16"/>
         <source> in</source>
         <translation></translation>
     </message>
@@ -8142,7 +8119,7 @@ Attention : vous ne pouvez pas annuler cette action.</translation>
     <message>
         <location filename="../../src/gui/forms/quickbar_navigation.ui" line="44"/>
         <source>Perspective</source>
-        <translation>Persp.</translation>
+        <translation>Perspective</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/quickbar_navigation.ui" line="61"/>
@@ -8152,7 +8129,7 @@ Attention : vous ne pouvez pas annuler cette action.</translation>
     <message>
         <location filename="../../src/gui/forms/quickbar_navigation.ui" line="64"/>
         <source>Orthographic</source>
-        <translation>Ortho.</translation>
+        <translation>Orthographique</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/quickbar_navigation.ui" line="81"/>
@@ -8666,7 +8643,7 @@ Attention : vous ne pouvez pas annuler cette action.</translation>
     <message>
         <location filename="../../src/gui/forms/toolbar_imagegroup.ui" line="88"/>
         <source>Ratio - print</source>
-        <translation>Ratio - impr.</translation>
+        <translation>Ratio - impr</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_imagegroup.ui" line="279"/>

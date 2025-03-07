@@ -1318,9 +1318,6 @@
     <ClCompile Include="..\..\src\gui\UnitConverter.cpp">
       <Filter>src\gui</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\gui\UnitUsage.cpp">
-      <Filter>src\gui</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\include\controller\messages\DataIdListMessage.cpp">
       <Filter>src\controller\messages</Filter>
     </ClCompile>

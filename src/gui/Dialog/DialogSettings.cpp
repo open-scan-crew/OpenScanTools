@@ -4,7 +4,7 @@
 #include "gui/GuiData/GuiDataRendering.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/IDataDispatcher.h"
-#include "gui/UnitUsage.h"
+#include "gui/UnitConverter.h"
 #include "gui/Translator.h"
 #include "models/project/ProjectTypes.h"
 #include "models/3d/OpticalFunctions.h"
@@ -35,13 +35,13 @@ DialogSettings::DialogSettings(IDataDispatcher& dataDispatcher, QWidget* parent)
 	m_ui.langageComboBox->setCurrentIndex((int)Translator::getActiveLanguage());
 
 	for (UnitType unit : s_settingUnits) {
-		QString text = unit_converter::getUnitText(unit);
+		QString text = UnitConverter::getUnitText(unit);
 		m_ui.distanceUnitBox->addItem(text, QVariant((uint32_t)unit));
 		m_ui.diameterUnitBox->addItem(text, QVariant((uint32_t)unit));
 	}
 
 	for(UnitType vUnit : s_settingVolumeUnits)
-		m_ui.volumeUnitBox->addItem(unit_converter::getUnitText(vUnit), QVariant((uint32_t)vUnit));
+		m_ui.volumeUnitBox->addItem(UnitConverter::getUnitText(vUnit), QVariant((uint32_t)vUnit));
 
 
 	m_ui.autosaveTimingComboBox->addItem(QString(""), QVariant(0));

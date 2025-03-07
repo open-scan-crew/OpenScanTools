@@ -151,14 +151,14 @@ void QDoubleEdit::actualize(bool useCurrentText)
 		double val(t.toDouble(&ok));
 		if (ok && checkValue(val))
 		{
-			val = unit_converter::XToMeter(val, m_unit);
+			val = UnitConverter::XToMeter(val, m_unit);
 			m_meterValue = val;
 		}
 	}
 
-	QString text = QString::number(unit_converter::meterToX(m_meterValue, m_unit), 'f', m_valueParameters.displayedDigits);
+	QString text = QString::number(UnitConverter::meterToX(m_meterValue, m_unit), 'f', m_valueParameters.displayedDigits);
 	if (isReadOnly() || !hasFocus())
-		text += unit_converter::getUnitText(m_unit) + ((m_power > 1) ? QString::number(m_power) : QString()); 
+		text += UnitConverter::getUnitText(m_unit) + ((m_power > 1) ? QString::number(m_power) : QString()); 
 
 	blockInputReject(true);
 	ACustomLineEdit::setText(text);

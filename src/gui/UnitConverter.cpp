@@ -1,4 +1,30 @@
-#include "gui\UnitConverter.h"
+#include "gui/UnitConverter.h"
+
+#include <QtCore/qobject.h>
+
+#include <unordered_map>
+
+static const std::unordered_map<UnitType, QString> unitTexts = {
+        {UnitType::NO_UNIT, QString()},
+
+        {UnitType::M, QObject::tr(" m")},
+        {UnitType::CM, QObject::tr(" cm")},
+        {UnitType::MM, QObject::tr(" mm")},
+
+        {UnitType::YD, QObject::tr(" yd")},
+        {UnitType::FT, QObject::tr(" ft")},
+        {UnitType::INC, QObject::tr(" in")},
+
+        {UnitType::DEG, QString::fromStdString(" °")},
+        {UnitType::PX, QString::fromStdString(" px")},
+
+        {UnitType::M3, QString::fromStdString(" m³")},
+        {UnitType::LITRE, QString::fromStdString(" L")}
+
+        /*{UnitType::YD_US, TEXT_UNIT_YD_US},
+        {UnitType::FT_US, TEXT_UNIT_FT_US},
+        {UnitType::IN_US, TEXT_UNIT_IN_US}*/
+};
 
 constexpr double m_to_unit[(size_t)UnitType::MAX_UNIT] = {
     1.0,         // no_unit
@@ -14,8 +40,17 @@ constexpr double m_to_unit[(size_t)UnitType::MAX_UNIT] = {
     1000.0       // LITRE
 };
 
+QString UnitConverter::getUnitText(UnitType type)
+{
+    if (unitTexts.find(type) != unitTexts.end())
+        return unitTexts.at(type);
+    else {
+        //assert(!"Unit text not found");
+        return QString("notfound");
+    }
+}
 
-double unit_converter::meterToX(double value, UnitType X)
+double UnitConverter::meterToX(double value, UnitType X)
 {
     switch (X) {
         case UnitType::M:
@@ -43,12 +78,12 @@ double unit_converter::meterToX(double value, UnitType X)
     }
 }
 
-glm::dvec3 unit_converter::meterToX(glm::dvec3 v, UnitType T)
+glm::dvec3 UnitConverter::meterToX(glm::dvec3 v, UnitType T)
 {
     return v * m_to_unit[(int)T];
 }
 
-double unit_converter::XToMeter(double value, UnitType X)
+double UnitConverter::XToMeter(double value, UnitType X)
 {
     switch (X) {
         case UnitType::M:

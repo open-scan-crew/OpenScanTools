@@ -71,8 +71,8 @@ bool PropertyPolylineMeasure::updateMeasure()
 	Measure hV = { node->getFirstPos(), node->getLastPos() };
 	glm::dvec3 polylineArea = node->computeAreaOfPolyline();
 
-	auto valueDisplay = [&](double t) { return QString::number(unit_converter::meterToX(t, m_unitUsage.distanceUnit), 'f', m_unitUsage.displayedDigits); };
-	auto valueSquaredDisplay = [&](double t) { return QString::number(unit_converter::meterToX(unit_converter::meterToX(t, m_unitUsage.distanceUnit), m_unitUsage.distanceUnit), 'f', m_unitUsage.displayedDigits); };
+	auto valueDisplay = [&](double t) { return QString::number(UnitConverter::meterToX(t, m_unitUsage.distanceUnit), 'f', m_unitUsage.displayedDigits); };
+	auto valueSquaredDisplay = [&](double t) { return QString::number(UnitConverter::meterToX(UnitConverter::meterToX(t, m_unitUsage.distanceUnit), m_unitUsage.distanceUnit), 'f', m_unitUsage.displayedDigits); };
 
 	m_ui.HorizontalInfield->setValue(hV.getDistanceHorizontal());
 	m_ui.VerticalInfield->setValue(hV.getDistanceAlongZ());
@@ -168,9 +168,9 @@ bool PropertyPolylineMeasure::updateMeasure()
 
 void PropertyPolylineMeasure::updateUI()
 {
-	m_ui.AreaLabelSquaredBracket->setText('(' + unit_converter::getUnitText(m_unitUsage.distanceUnit) + "²" + ')');
-	m_ui.SegmentsUnitWithBracketLabel->setText('(' + unit_converter::getUnitText(m_unitUsage.distanceUnit) + ')');
-	m_ui.CoordinatesUnitWithBracketLabel->setText('(' + unit_converter::getUnitText(m_unitUsage.distanceUnit) + ')');
+	m_ui.AreaLabelSquaredBracket->setText('(' + UnitConverter::getUnitText(m_unitUsage.distanceUnit) + "²" + ')');
+	m_ui.SegmentsUnitWithBracketLabel->setText('(' + UnitConverter::getUnitText(m_unitUsage.distanceUnit) + ')');
+	m_ui.CoordinatesUnitWithBracketLabel->setText('(' + UnitConverter::getUnitText(m_unitUsage.distanceUnit) + ')');
 
 	updateMeasure();
 }
