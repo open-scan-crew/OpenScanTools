@@ -514,7 +514,7 @@ void ScantraInterface::createProject()
     std::wstring w_name(data_->w_array[1]);
     IOLOG << "Received project folder: " << w_folder << ", name: " << w_name << Logger::endl;
 
-    controller_.getControlListener()->notifyUIControl(new control::project::SaveCreate(w_folder, w_name));
+    controller_.getControlListener()->notifyUIControl(new control::project::SaveCreate(w_folder, w_name, L"Scantra"));
 
     //ProjectInfos project_infos;
     //project_infos.m_projectName = w_name;

@@ -24,14 +24,14 @@ class QString;
 class GuiDataNewProject : public IGuiData
 {
 public:
-    GuiDataNewProject(const std::filesystem::path& folder, const std::vector<std::filesystem::path>& templates);
+	GuiDataNewProject();
     ~GuiDataNewProject();
     guiDType getType() override;
 public:
-    const std::filesystem::path default_folder_;
-    const std::wstring default_name_;
-    const std::wstring default_company_;
-    const std::vector<std::filesystem::path> m_templates;
+    std::filesystem::path default_folder_;
+    std::wstring default_name_;
+    std::wstring default_company_;
+    std::vector<std::filesystem::path> templates_;
 };
 
 class GuiDataAbort : public IGuiData

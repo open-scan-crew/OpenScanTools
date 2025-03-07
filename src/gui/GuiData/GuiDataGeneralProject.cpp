@@ -10,9 +10,7 @@
 
 // **** GuiDataNewProject ****
 
-GuiDataNewProject::GuiDataNewProject(const std::filesystem::path& folder, const std::vector<std::filesystem::path>& templates)
-    : default_folder_(folder)
-    , m_templates(templates)
+GuiDataNewProject::GuiDataNewProject()
 { }
 
 GuiDataNewProject::~GuiDataNewProject()

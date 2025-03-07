@@ -96,7 +96,7 @@ namespace control::project
     {
     public:
         SaveCreate();
-        SaveCreate(std::filesystem::path init_path, std::wstring init_name);
+        SaveCreate(std::filesystem::path init_path, std::wstring init_name, std::wstring init_company);
         ~SaveCreate();
         void doFunction(Controller& controller) override;
         bool canUndo() const override;
@@ -105,6 +105,7 @@ namespace control::project
     private:
         std::filesystem::path init_path_;
         std::wstring init_name_;
+        std::wstring init_company_;
     };
 
     class SaveClose : public AControl

@@ -583,7 +583,7 @@ void Gui::onNewProject(IGuiData *data)
 
     DialogProjectCreation* projectDialog = new DialogProjectCreation(m_dataDispatcher, this);
     projectDialog->setDefaultValues(idata->default_folder_, idata->default_name_, idata->default_company_);
-    projectDialog->setAdditionalTemplatesPath(idata->m_templates);
+    projectDialog->setAdditionalTemplatesPath(idata->templates_);
     projectDialog->show();
 }
 

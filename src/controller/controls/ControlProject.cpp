@@ -397,12 +397,14 @@ namespace control::project
     SaveCreate::SaveCreate()
         : init_path_("")
         , init_name_(L"")
+        , init_company_(L"")
     {
     }
 
-    SaveCreate::SaveCreate(std::filesystem::path init_path, std::wstring init_name)
+    SaveCreate::SaveCreate(std::filesystem::path init_path, std::wstring init_name, std::wstring init_company)
         : init_path_(init_path)
         , init_name_(init_name)
+        , init_company_(init_company)
     {
     }
 
@@ -417,7 +419,13 @@ namespace control::project
         if (init_path_ == "")
             init_path_ = controller.getContext().getProjectsPath();
 
-        controller.updateInfo(new GuiDataNewProject(init_path_, Utils::System::getFolderFromDirectory(Utils::System::getOSTProgramDataTemplatePath())));
+        GuiDataNewProject* gui_data = new GuiDataNewProject();
+        gui_data->default_folder_ = init_path_;
+        gui_data->default_name_ = init_name_;
+        gui_data->default_company_ = init_company_;
+        gui_data->templates_ = Utils::System::getFolderFromDirectory(Utils::System::getOSTProgramDataTemplatePath());
+
+        controller.updateInfo(gui_data);
     }
 
     bool SaveCreate::canUndo() const
