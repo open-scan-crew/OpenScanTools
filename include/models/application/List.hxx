@@ -16,6 +16,8 @@ List<Value>::List(const std::wstring& name)
 	, m_name(name)
 {}
 
+
+
 template<class Value>
 List<Value>::List(const listId& id, const std::wstring& name)
 	: m_elems({})

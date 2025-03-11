@@ -104,9 +104,11 @@ void Controller_p::autosave()
     if (!autosave_active_)
         return;
     int mins_elapsed = std::chrono::duration_cast<std::chrono::minutes>(std::chrono::system_clock::now() - autosave_tp_).count();
+
     if (mins_elapsed > autosave_period_min_)
     {
-        funcManager.launchBackgroundFunction(public_controller_, ContextType::saveProject, 0);
+        if (context.isProjectLoaded())
+            funcManager.launchBackgroundFunction(public_controller_, ContextType::saveProject, 0);
         autosave_tp_ = std::chrono::system_clock::now();
     }
 }

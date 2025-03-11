@@ -35,10 +35,6 @@ namespace sma
 
 		std::wstring m_defaultValue;
 
-		tField(tFieldId id, std::wstring name, tFieldType type, xg::Guid listId, std::wstring defaultValue)
-			: m_id(id), m_name(name), m_type(type), m_fieldReferenceId(listId), m_fieldReference(), m_defaultValue(defaultValue)
-		{}
-
 		tField()
 			: m_id(), m_name(), m_type(), m_fieldReferenceId(), m_fieldReference(), m_defaultValue()
 		{}

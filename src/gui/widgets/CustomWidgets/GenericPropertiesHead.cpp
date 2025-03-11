@@ -154,7 +154,7 @@ void GenericPropertiesHead::updatePhaseDiscipline(ReadPtr<AObjectNode>& rObject)
 
     std::wstring disciplineDefault = NA_FIELD_NAME.toStdWString();
     std::wstring phaseDefault = NA_FIELD_NAME.toStdWString();
-    
+
     disciplineDefault = rObject->getDiscipline();
     phaseDefault = rObject->getPhase();
 

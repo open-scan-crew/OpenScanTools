@@ -9,6 +9,7 @@
 #include "io/imports/DataDeserializer.h"
 #include "pointCloudEngine/PCE_core.h"
 
+#include "utils/Config.h"
 #include "utils/Logger.h"
 #include "utils/Utils.h"
 #include "utils/system.h"
@@ -974,6 +975,7 @@ void SaveLoadSystem::ImportJsonProject(const std::filesystem::path& importPath, 
 	context.initProjectInfo(importPath.parent_path(), info);
 
 	const ProjectInternalInfo& internalInfo = context.cgetProjectInternalInfo();
+	LanguageType lang = Config::getLanguage();
 
 	//Note (Aurélien) : compatibilty check
 	// remove std::filesystem::path  templatePath for getTemplatesFolderPath()
@@ -985,7 +987,7 @@ void SaveLoadSystem::ImportJsonProject(const std::filesystem::path& importPath, 
 	{
 		//If failed to load list go back to default.
 		// Note (aurélien) : improvement with message box.
-		controller.getContext().setUserLists(generateDefaultLists(LanguageType::English), true);
+		controller.getContext().setUserLists(generateDefaultLists(lang), true);
 		IOLOG << "Fall back to load default [" << File_Lists << "]" << LOGENDL;
 	}
 
@@ -1002,7 +1004,7 @@ void SaveLoadSystem::ImportJsonProject(const std::filesystem::path& importPath, 
 	// Note (aurélien) : improvement with message box.
 	if (!controller.getContext().setTemplates(templates, true))
 	{
-		templates = sma::GenerateDefaultTemplates(LanguageType::English);
+		templates = sma::GenerateDefaultTemplates(lang);
 		controller.getContext().setTemplates(templates, true);
 		IOLOG << "Fall back to generate default templates" << LOGENDL;
 	}

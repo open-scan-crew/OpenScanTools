@@ -3347,9 +3347,6 @@
     <ClInclude Include="..\..\include\models\Types.hpp">
       <Filter>include\models</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\gui\texts\DefaultTemplatesTexts.hpp">
-      <Filter>include\gui\texts</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\gui\texts\DefaultUserLists.hpp">
       <Filter>include\gui\texts</Filter>
     </ClInclude>

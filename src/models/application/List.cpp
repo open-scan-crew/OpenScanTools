@@ -1,520 +1,616 @@
 #include "models/application/List.h"
 #include "gui/texts/DefaultUserLists.hpp"
 #include "models/application/Ids.hpp"
-#include "utils/Config.h"
 #include "utils/Utils.h"
 
 
 template<>
 bool List<std::wstring>::insertStrValue(const std::wstring& strValue)
 {
-	insertValue(strValue);
-	return true;
+    insertValue(strValue);
+    return true;
 }
 
 template<>
 bool List<double>::insertStrValue(const std::wstring& strValue)
 {
-	try {
-		insertValue(std::stod(strValue));
-		return true;
-	}
-	catch (std::invalid_argument)
-	{
-		return false;
-	}
+    try {
+        insertValue(std::stod(strValue));
+        return true;
+    }
+    catch (std::invalid_argument)
+    {
+        return false;
+    }
+}
+
+template<>
+void List<std::wstring>::insertVector(const std::vector<std::array<std::wstring, 2>>& values, int li)
+{
+    for (const std::array<std::wstring, 2>& val : values)
+    {
+        m_elems.insert(val[li]);
+    }
 }
 
 template<>
 std::string List<std::wstring>::toJson(const std::wstring& value)
 {
-	return Utils::to_utf8(value);
+    return Utils::to_utf8(value);
 }
 
 template<>
 std::string List<double>::toJson(const double& value)
 {
-	return Utils::to_utf8(std::to_wstring(value));
+    return Utils::to_utf8(std::to_wstring(value));
 }
+
+std::map<xg::Guid, std::array<std::wstring, 2>> userlist_names = {
+    { xg::Guid(LIST_DISCIPLINE_ID),     { L"Discipline", L"Discipline" } },
+    { xg::Guid(LIST_PHASE_ID),          { L"Phase", L"Phase" } },
+    { xg::Guid(LIST_FREQUENCY_ID),      { L"Frequency", L"Fréquence" } },
+    { xg::Guid(LIST_LOD_ID),            { L"Level of detail", L"Niveau de détail" } },
+    { xg::Guid(LIST_SEVERITY_ID),       { L"Severity", L"Gravité" } },
+    { xg::Guid(LIST_MODELING_TYPE_ID),  { L"Modeling types", L"Type de modélisation" } },
+    { xg::Guid(LIST_MOD_ACCU_ID),       { L"Modeling accuracy", L"Précision de la modélisation" } },
+    { xg::Guid(LIST_STATUS_ID),         { L"Status", L"Statut" } },
+    { xg::Guid(LIST_RISKS_ID),          { L"Risks", L"Risques" } },
+    { xg::Guid(LIST_SECU_EQUIP_ID),     { L"Security equipment", L"Équipement de sécurité" } },
+    { xg::Guid(LIST_NON_COMPLI_ID),     { L"Non-compliance", L"Non-conformités" } }
+};
+
+List<std::wstring> init_userlist(listId id, LanguageType language)
+{
+    std::wstring name = userlist_names.at(id)[(int)language];
+    return List<std::wstring>(id, name);
+}
+
+std::array<std::wstring, 2> field_all = { L"All", L"Tous"};
+std::array<std::wstring, 2> field_NA = { L"N.A.", L"Sans object" };
+
+std::vector<std::array<std::wstring, 2>> l_discipline = {
+    field_all,
+    field_NA,
+    { L"Alarm",              L"Alarme" },
+    { L"Architecture",       L"Architecture" },
+    { L"Asbestos",           L"Bardage" },
+    { L"Certification",      L"Certification" },
+    { L"Civil engineering",  L"Génie civil" },
+    { L"Cladding",           L"Revêtements" },
+    { L"Demolition",         L"Démolition" },
+    { L"Diagnostic",         L"Diagnostique" },
+    { L"Dismantling",        L"Désamiantage" },
+    { L"Doors and openings", L"Portes et ouvertures" },
+    { L"Electricity",        L"Électricité" },
+    { L"Elevator",           L"Ascenseur" },
+    { L"Fire protection",    L"Protection incendie" },
+    { L"Flooring",           L"Revêtements de sol" },
+    { L"Framework",          L"Charpente" },
+    { L"Furnitures",         L"Mobilier" },
+    { L"HVAC",               L"CVC" },
+    { L"Heat production",    L"Production de chaleur" },
+    { L"Inspection",         L"Inspection" },
+    { L"Insulation",         L"Isolation" },
+    { L"Investigation",      L"Investigations" },
+    { L"Joineries",          L"Menuiseries" },
+    { L"Lifting",            L"Levage" },
+    { L"Maintenance",        L"Maintenance" },
+    { L"Measurement",        L"Mesures" },
+    { L"Metalwork",          L"Métallerie" },
+    { L"Misc.",              L"Divers" },
+    { L"Modeling",           L"Modélisation" },
+    { L"Partition",          L"Cloisons" },
+    { L"Piping",             L"Tuyauterie" },
+    { L"Plumbing",           L"Plomberie" },
+    { L"Power generation",   L"Production d'éléctricité" },
+    { L"Recycling",          L"Recyclage" },
+    { L"Refrigeration",      L"Production de froid" },
+    { L"Roofing",            L"Couverture" },
+    { L"Scaffolds",          L"Échafaudages" },
+    { L"Security",           L"Sécurité" },
+    { L"Special equipment",  L"Équipements spéciaux" },
+    { L"Special fluids",     L"Fluides spéciaux" },
+    { L"Storage",            L"Stockage" },
+    { L"Surface treatment",  L"Traitement de surface" },
+    { L"Water treatment"     L"Traitement des eaux" },
+};
+
+std::vector< std::array<std::wstring, 2>> l_phase = {
+    field_all,
+    field_NA,
+    { L"Audit",             L"Audit" },
+    { L"Diagnostic",        L"Diagnostique" },
+    { L"Existing",          L"Éxistant" },
+    { L"Project",           L"Projet" },
+    { L"Call for tenders",  L"Appel d'offres" },
+    { L"Technical studies", L"Études techniques" },
+    { L"Demolition",        L"Démolition" },
+    { L"Dismantling",       L"Désamiantage" },
+    { L"Construction",      L"Construction" },
+    { L"Reception",         L"Réception" },
+    { L"Warranty",          L"Warranty" },
+    { L"Production",        L"Production" },
+    { L"Maintenance",       L"Maintenance" },
+    { L"P1",                L"P1" },
+    { L"P2",                L"P2" },
+    { L"P3",                L"P3" },
+    { L"P4",                L"P4" },
+    { L"P5",                L"P5" },
+    { L"P6",                L"P6" },
+    { L"P7",                L"P7" },
+    { L"P8",                L"P8" },
+    { L"P9",                L"P9" },
+    { L"P10"                L"P10" }
+};
+
+std::vector<std::array<std::wstring, 2>> l_frequency = {
+    { L"Very low",  L"Très faible" },
+    { L"Low",       L"Faible" },
+    { L"Medium",    L"Modéré" },
+    { L"High",      L"Élevé" },
+    { L"Very high", L"Très élevé" }
+};
+
+std::vector<std::array<std::wstring, 2>> l_lod = {
+    field_NA,
+    { L"LOD100", L"LOD100" },
+    { L"LOD200", L"LOD200" },
+    { L"LOD300", L"LOD300" },
+    { L"LOD350", L"LOD350" },
+    { L"LOD400", L"LOD400" }
+};
+
+std::vector<std::array<std::wstring, 2>> l_severity = {
+    { L"Catastrophic", L"Catastrophique" },
+    { L"Major",        L"Majeur" },
+    { L"Minor",        L"Mineur" },
+    { L"Negligible",   L"Négligeable" },
+    { L"Serious",      L"Sérieux" }
+};
+
+std::vector<std::array<std::wstring, 2>> l_modeling_type = {
+    { L"2D drawing",      L"Dessin 2D" },
+    { L"3D Solid",        L"Solides 3D CAO" },
+    { L"BIM",             L"BIM" },
+    { L"Mesh",            L"Maillage" },
+    { L"Model in place",  L"In situ" }
+};
+
+std::vector<std::array<std::wstring, 2>> l_modeling_accuracy = {
+    { L"1mm",  L"1mm" },
+    { L"2mm",  L"2mm" },
+    { L"3mm",  L"3mm" },
+    { L"5mm",  L"5mm" },
+    { L"10mm", L"10mm" },
+    { L"20mm", L"20mm" },
+    { L"30mm", L"30mm" },
+    { L"50mm", L"50mm" }
+};
+
+std::vector<std::array<std::wstring, 2>> l_status = {
+    field_NA,
+    { L"To do",       L"À faire" },
+    { L"In progress", L"En cours" },
+    { L"Done",        L"Terminé" },
+    { L"Validated",   L"Validé" },
+    { L"Paused",      L"En pause" },
+    { L"Cancelled",   L"Annulé" }
+};
+
+std::vector<std::array<std::wstring, 2>> l_risks = {
+    { L"Asphyxiation",              L"Asphyxie" },
+    { L"Burns - scalds",            L"Brûlure" },
+    { L"Collision",                 L"Collision" },
+    { L"Compressed gases",          L"Gaz sous pression" },
+    { L"Corrosive",                 L"Corrosif" },
+    { L"Cuts",                      L"Coupant" },
+    { L"Electric shock",            L"Choc électrique" },
+    { L"Entrapment",                L"Piège" },
+    { L"Environ.toxicity",          L"Toxique pour l'environnement" },
+    { L"Explosive",                 L"Explosif" },
+    { L"Eye injury",                L"Blessures oculaires" },
+    { L"Falls",                     L"Chute" },
+    { L"Fire",                      L"Flammes" },
+    { L"Flammable",                 L"Inflammable" },
+    { L"Irritant",                  L"Irritant" },
+    { L"Musculoskeletal disorders", L"TMS" },
+    { L"Noise",                     L"Bruit" },
+    { L"Obstruction",               L"Obstruction" },
+    { L"Oxidizing",                 L"Oxydant" },
+    { L"Posture hazards",           L"Mauvaise posture" },
+    { L"Radiation",                 L"Radiations" },
+    { L"Slippery",                  L"Glissant" },
+    { L"Struck",                    L"Percuté" },
+    { L"Toxic"                      L"Toxique" }
+};
+
+std::vector<std::array<std::wstring, 2>> l_security_equipment = {
+    { L"Aid post",                 L"Poste de secours" },
+    { L"Alarm",                    L"Alarme" },
+    { L"Assembly point",           L"Point de rassemblement" },
+    { L"Breaker",                  L"Disjoncteur" },
+    { L"CO2 extinguisher",         L"Extincteur CO2" },
+    { L"Chemical extinguisher",    L"Extincteur poudre ABC" },
+    { L"Containment area",         L"Zone de confinement" },
+    { L"Defibrillator",            L"Défibrillateur" },
+    { L"Emergency exit",           L"Sortie de secours" },
+    { L"Eye wash",                 L"Rince-œil" },
+    { L"Fire door",                L"Porte coupe-feu" },
+    { L"Fire hose",                L"Robinet incendie armé" },
+    { L"Infirmary",                L"Infirmerie" },
+    { L"Phone",                    L"Téléphone" },
+    { L"SCBA",                     L"ARI" },
+    { L"Shower",                   L"Douche" },
+    { L"Smoke vent",               L"Désenfumage" },
+    { L"Sprinkler",                L"Sprinkler" },
+    { L"Stop push button",         L"Arrêt coup de poing" },
+    { L"Stop valve",               L"Vanne d'arrêt" },
+    { L"Water spray extinguisher", L"Extincteur eau pulvérisée" }
+};
+
+std::vector<std::array<std::wstring, 2>> l_non_compliance = {
+    { L"Asperity",            L"Aspérité" },
+    { L"Bad performances",    L"Mauvaises performances" },
+    { L"Bad welding",         L"Mauvaise soudure" },
+    { L"Badly painted",       L"Mal peint" },
+    { L"Bare",                L"Dénudé" },
+    { L"Bent",                L"Plié" },
+    { L"Breakdown",           L"En panne" },
+    { L"Broken",              L"Cassé" },
+    { L"Bump",                L"Bosse" },
+    { L"Burnt",               L"Brûlé" },
+    { L"Clogged",             L"Bouché" },
+    { L"Cluttered",           L"Encombré" },
+    { L"Cold",                L"Gelé" },
+    { L"Condensation",        L"Condensation" },
+    { L"Contact failure",     L"Faux contact" },
+    { L"Crack",               L"Fissure" },
+    { L"Dark",                L"Sombre" },
+    { L"Dirt",                L"Sale" },
+    { L"Distorted",           L"Déformé" },
+    { L"Dusty",               L"Poussière" },
+    { L"Erased",              L"Effacé" },
+    { L"Frozen",              L"Gelé" },
+    { L"Hole",                L"Trou" },
+    { L"Hollow",              L"Cavité" },
+    { L"Hot",                 L"Chaud" },
+    { L"Humid",               L"Humidité" },
+    { L"Incorrect assembly",  L"Mauvais montage" },
+    { L"Infiltration",        L"Infiltration" },
+    { L"Leakage",             L"Fuite" },
+    { L"Level too high",      L"Niveau trop haut" },
+    { L"Level too low",       L"Niveau trop bas" },
+    { L"Loose",               L"Desseré" },
+    { L"Low light",           L"Faible luminosité" },
+    { L"Low pressure",        L"Pression basse" },
+    { L"Melted",              L"Fondu" },
+    { L"Misalignment",        L"Non aligné" },
+    { L"Mismatch",            L"Décalage" },
+    { L"Mold",                L"Moisissure" },
+    { L"Noisy",               L"Bruyant" },
+    { L"Not calibrated",      L"Non calibré" },
+    { L"Not insulated",       L"Non isolé" },
+    { L"Not leveled",         L"Non nivelé" },
+    { L"Not marked out",      L"Non repéré" },
+    { L"Not protected",       L"Non protégé" },
+    { L"Out of tolerance",    L"Hors tolérance" },
+    { L"Outdated",            L"Obsolète" },
+    { L"Overloaded",          L"Surchargé" },
+    { L"Peeling",             L"S'écaille" },
+    { L"Poor flow",           L"Faible débit" },
+    { L"Poor signage",        L"Mauvaise signalisation" },
+    { L"Poor ventilation",    L"Mauvaise ventilation" },
+    { L"Pressure too high",   L"Pression trop haute" },
+    { L"Pressure too low",    L"Pression trop basse" },
+    { L"Puddle",              L"Flaque" },
+    { L"Rusty",               L"Rouillé" },
+    { L"Scratch",             L"Éraflé" },
+    { L"Sharp",               L"Coupant" },
+    { L"Slippery",            L"Glissant" },
+    { L"Smell",               L"Odeur" },
+    { L"Stagnant water",      L"Eau stagnante" },
+    { L"Stain",               L"Tache" },
+    { L"Torn",                L"Déchiré" },
+    { L"Unscrewed",           L"Dévissé" },
+    { L"Vibrations",          L"Vibrations" },
+    { L"Wet",                 L"Mouillé" },
+    { L"Wrong color",         L"Mauvaise couleur" },
+    { L"Wrong item",          L"Mauvais élément" },
+    { L"Wrong location",      L"Mauvais emplacement" },
+    { L"Wrong size",          L"Mauvaise taille" }
+};
 
 std::vector<UserList> generateDefaultLists(LanguageType language)
 {
-	std::vector<UserList> lists;
+    assert((int)language < 2);
+    std::vector<UserList> lists;
 
-	UserList discipline(xg::Guid(LIST_DISCIPLINE_ID), DISCIPLINE_USERLIST_NAME.toStdWString());
-	discipline.setOrigin(true);
-	discipline.insertStrValue(ALL_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(NA_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(ALARM_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(ARCHITECTURE_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(ASBESTOS_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(CERIFICATION_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(CIVILENGINEERING_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(CLADDING_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(DEMOLITION_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(DIAGNOSTIC_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(DISMANTLING_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(DOORSANDOPENINGS_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(ELECTRICITY_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(ELEVATOR_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(FIERPROTECTION_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(FLOORING_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(FRAMEWORK_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(FURNITURES_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(HVAC_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(HEATPRODUCTION_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(INSPECTION_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(INSULATION_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(INVESTIGATION_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(JOINERIES_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(LIFTING_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(MAINTENANCE_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(MEASUREMENT_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(METALWORK_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(MISC_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(MODELING_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(PARTITION_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(PIPING_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(PLUMBING_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(POWERGENERATION_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(RECYLCLING_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(REFREGERATION_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(ROOFING_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(SCAFFOLDS_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(SECURITY_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(SPECIALEQUIPEMENT_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(SPECIALFUILDS_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(STORAGE_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(SURFACETREATEMENT_FIELD_NAME.toStdWString());
-	discipline.insertStrValue(WATERTREATEMENT_FIELD_NAME.toStdWString());
-	lists.push_back(discipline);
+    UserList discipline = init_userlist(xg::Guid(LIST_DISCIPLINE_ID), language);
+    discipline.setOrigin(true);
+    discipline.insertVector(l_discipline, (int)language);
+    lists.push_back(discipline);
 
-	UserList phase(xg::Guid(LIST_PHASE_ID), PHASE_USERLIST_NAME.toStdWString());
-	phase.setOrigin(true);
-	phase.insertStrValue(ALL_FIELD_NAME.toStdWString());
-	phase.insertStrValue(NA_FIELD_NAME.toStdWString());
-	phase.insertStrValue(AUDIT_FIELD_NAME.toStdWString());
-	phase.insertStrValue(DIAGNOSTIC_FIELD_NAME.toStdWString());
-	phase.insertStrValue(EXISTING_FIELD_NAME.toStdWString());
-	phase.insertStrValue(PROJECT_FIELD_NAME.toStdWString());
-	phase.insertStrValue(CALLFORTENDERS_FIELD_NAME.toStdWString());
-	phase.insertStrValue(TECHNICALSTUDIES_FIELD_NAME.toStdWString());
-	phase.insertStrValue(DEMOLITION_FIELD_NAME.toStdWString());
-	phase.insertStrValue(DISMANTLING_FIELD_NAME.toStdWString());
-	phase.insertStrValue(CONSTRUCTION_FIELD_NAME.toStdWString());
-	phase.insertStrValue(RECEPTION_FIELD_NAME.toStdWString());
-	phase.insertStrValue(WARRANTY_FIELD_NAME.toStdWString());
-	phase.insertStrValue(PRODUCTION_FIELD_NAME.toStdWString());
-	phase.insertStrValue(MAINTENANCE_FIELD_NAME.toStdWString());
-	phase.insertStrValue(P1_FIELD_NAME.toStdWString());
-	phase.insertStrValue(P2_FIELD_NAME.toStdWString());
-	phase.insertStrValue(P3_FIELD_NAME.toStdWString());
-	phase.insertStrValue(P4_FIELD_NAME.toStdWString());
-	phase.insertStrValue(P5_FIELD_NAME.toStdWString());
-	phase.insertStrValue(P6_FIELD_NAME.toStdWString());
-	phase.insertStrValue(P7_FIELD_NAME.toStdWString());
-	phase.insertStrValue(P8_FIELD_NAME.toStdWString());
-	phase.insertStrValue(P9_FIELD_NAME.toStdWString());
-	phase.insertStrValue(P10_FIELD_NAME.toStdWString());
-	lists.push_back(phase);
+    UserList phase = init_userlist(xg::Guid(LIST_PHASE_ID), language);
+    phase.setOrigin(true);
+    phase.insertVector(l_phase, (int)language);
+    lists.push_back(phase);
 
-	UserList frequency(xg::Guid(LIST_FREQUENCY_ID), FREQUENCY_USERLIST_NAME.toStdWString());
-	frequency.setOrigin(true);
-	frequency.insertStrValue(VERYLOW_FIELD_NAME.toStdWString());
-	frequency.insertStrValue(LOW_FIELD_NAME.toStdWString());
-	frequency.insertStrValue(MEDIUM_FIELD_NAME.toStdWString());
-	frequency.insertStrValue(HIGH_FIELD_NAME.toStdWString());
-	frequency.insertStrValue(VERYHIGH_FIELD_NAME.toStdWString());
-	lists.push_back(frequency);
+    UserList frequency = init_userlist(xg::Guid(LIST_FREQUENCY_ID), language);
+    frequency.setOrigin(true);
+    frequency.insertVector(l_frequency, (int)language);
+    lists.push_back(frequency);
 
-	UserList lod(xg::Guid(LIST_LOD_ID), LOD_USERLIST_NAME.toStdWString());
-	lod.setOrigin(true);
-	lod.insertStrValue(NA_FIELD_NAME.toStdWString());
-	lod.insertStrValue(LOD100_FIELD_NAME.toStdWString());
-	lod.insertStrValue(LOD200_FIELD_NAME.toStdWString());
-	lod.insertStrValue(LOD300_FIELD_NAME.toStdWString());
-	lod.insertStrValue(LOD350_FIELD_NAME.toStdWString());
-	lod.insertStrValue(LOD400_FIELD_NAME.toStdWString());
-	lists.push_back(lod);
+    UserList lod = init_userlist(xg::Guid(LIST_LOD_ID), language);
+    lod.setOrigin(true);
+    lod.insertVector(l_lod, (int)language);
+    lists.push_back(lod);
 
-	UserList severity(xg::Guid(LIST_SEVERITY_ID), SEVERITY_USERLIST_NAME.toStdWString());
-	severity.setOrigin(true);
-	severity.insertStrValue(CATASTROPHIC_FIELD_NAME.toStdWString());
-	severity.insertStrValue(MAJOR_FIELD_NAME.toStdWString());
-	severity.insertStrValue(MINOR_FIELD_NAME.toStdWString());
-	severity.insertStrValue(NEGLIGIBLE_FIELD_NAME.toStdWString());
-	severity.insertStrValue(SERIOUS_FIELD_NAME.toStdWString());
-	lists.push_back(severity);
+    UserList severity = init_userlist(xg::Guid(LIST_SEVERITY_ID), language);
+    severity.setOrigin(true);
+    severity.insertVector(l_severity, (int)language);
+    lists.push_back(severity);
 
-	UserList modelingType(xg::Guid(LIST_MODELING_TYPE_ID), MODELINGTYPE_USERLIST_NAME.toStdWString());
-	modelingType.setOrigin(true);
-	modelingType.insertStrValue(DRAWING2D_FIELD_NAME.toStdWString());
-	modelingType.insertStrValue(DRAWING3D_FIELD_NAME.toStdWString());
-	modelingType.insertStrValue(BIM_FIELD_NAME.toStdWString());
-	modelingType.insertStrValue(MESH_FIELD_NAME.toStdWString());
-	modelingType.insertStrValue(MODELINPLACE_FIELD_NAME.toStdWString());
-	lists.push_back(modelingType);
+    UserList modelingType = init_userlist(xg::Guid(LIST_MODELING_TYPE_ID), language);
+    modelingType.setOrigin(true);
+    modelingType.insertVector(l_modeling_type, (int)language);
+    lists.push_back(modelingType);
 
-	UserList modelingAcc(xg::Guid(LIST_MOD_ACCU_ID), MODELINGACCURACY_USERLIST_NAME.toStdWString());
-	modelingAcc.setOrigin(true);
-	modelingAcc.insertStrValue(M1_FIELD_NAME.toStdWString());
-	modelingAcc.insertStrValue(M2_FIELD_NAME.toStdWString());
-	modelingAcc.insertStrValue(M3_FIELD_NAME.toStdWString());
-	modelingAcc.insertStrValue(M5_FIELD_NAME.toStdWString());
-	modelingAcc.insertStrValue(M10_FIELD_NAME.toStdWString());
-	modelingAcc.insertStrValue(M20_FIELD_NAME.toStdWString());
-	modelingAcc.insertStrValue(M30_FIELD_NAME.toStdWString());
-	modelingAcc.insertStrValue(M50_FIELD_NAME.toStdWString());
-	lists.push_back(modelingAcc);
+    UserList modelingAcc = init_userlist(xg::Guid(LIST_MOD_ACCU_ID), language);
+    modelingAcc.setOrigin(true);
+    modelingAcc.insertVector(l_modeling_accuracy, (int)language);
+    lists.push_back(modelingAcc);
 
-	UserList status(xg::Guid(LIST_STATUS_ID), STATUS_USERLIST_NAME.toStdWString());
-	status.setOrigin(true);
-	status.insertStrValue(NA_FIELD_NAME.toStdWString());
-	status.insertStrValue(TODO_FIELD_NAME.toStdWString());
-	status.insertStrValue(INPROGRESS_FIELD_NAME.toStdWString());
-	status.insertStrValue(DONE_FIELD_NAME.toStdWString());
-	status.insertStrValue(VALIDATED_FIELD_NAME.toStdWString());
-	status.insertStrValue(PAUSED_FIELD_NAME.toStdWString());
-	status.insertStrValue(CANCELLED_FIELD_NAME.toStdWString());
-	lists.push_back(status);
+    UserList status = init_userlist(xg::Guid(LIST_STATUS_ID), language);
+    status.setOrigin(true);
+    status.insertVector(l_status, (int)language);
+    lists.push_back(status);
 
-	UserList risks(xg::Guid(LIST_RISKS_ID), RISKS_USERLIST_NAME.toStdWString());
-	risks.setOrigin(true);
-	risks.insertStrValue(ASPHYXIATION_FILED_NAME.toStdWString());
-	risks.insertStrValue(BURNSSCALDS_FILED_NAME.toStdWString());
-	risks.insertStrValue(COLLISION_FILED_NAME.toStdWString());
-	risks.insertStrValue(COMPRESSEDGAZ_FILED_NAME.toStdWString());
-	risks.insertStrValue(CORROSIVE_FILED_NAME.toStdWString());
-	risks.insertStrValue(CUTS_FILED_NAME.toStdWString());
-	risks.insertStrValue(ELECTRICSHOCK_FILED_NAME.toStdWString());
-	risks.insertStrValue(ENTRAPEMENT_FILED_NAME.toStdWString());
-	risks.insertStrValue(ENVITOXICITY_FILED_NAME.toStdWString());
-	risks.insertStrValue(EXPLOSIVE_FILED_NAME.toStdWString());
-	risks.insertStrValue(EYEINJURY_FILED_NAME.toStdWString());
-	risks.insertStrValue(FALLS_FILED_NAME.toStdWString());
-	risks.insertStrValue(FIRE_FILED_NAME.toStdWString());
-	risks.insertStrValue(FLAMMABLE_FILED_NAME.toStdWString());
-	risks.insertStrValue(IRRITANT_FILED_NAME.toStdWString());
-	risks.insertStrValue(MUSCULOSKELETALDISORDER_FILED_NAME.toStdWString());
-	risks.insertStrValue(NOISE_FILED_NAME.toStdWString());
-	risks.insertStrValue(OBSTRUCTION_FILED_NAME.toStdWString());
-	risks.insertStrValue(OCIDIZING_FILED_NAME.toStdWString());
-	risks.insertStrValue(POSTUREHAZARD_FILED_NAME.toStdWString());
-	risks.insertStrValue(RADIATION_FILED_NAME.toStdWString());
-	risks.insertStrValue(SLIPPERY_FILED_NAME.toStdWString());
-	risks.insertStrValue(STRUCK_FILED_NAME.toStdWString());
-	risks.insertStrValue(TOXIC_FILED_NAME.toStdWString());
-	lists.push_back(risks);
+    UserList risks = init_userlist(xg::Guid(LIST_RISKS_ID), language);
+    risks.setOrigin(true);
+    risks.insertVector(l_risks, (int)language);
+    lists.push_back(risks);
 
-	UserList secEquip(xg::Guid(LIST_SECU_EQUIP_ID), SECURITYEQUIPEMENT_USERLIST_NAME.toStdWString());
-	secEquip.setOrigin(true);
-	secEquip.insertStrValue(AIDPOST_FIELD_NAME.toStdWString());
-	secEquip.insertStrValue(ALARM_FIELD_NAME.toStdWString());
-	secEquip.insertStrValue(ASSEMBLYPOINT_FIELD_NAME.toStdWString());
-	secEquip.insertStrValue(BREAKER_FIELD_NAME.toStdWString());
-	secEquip.insertStrValue(CO2EXTINGUISHER_FIELD_NAME.toStdWString());
-	secEquip.insertStrValue(CHEMICALEXTINGUISHER_FIELD_NAME.toStdWString());
-	secEquip.insertStrValue(CONTAINMENTAREA_FIELD_NAME.toStdWString());
-	secEquip.insertStrValue(DEFIBRILLATOR_FIELD_NAME.toStdWString());
-	secEquip.insertStrValue(EMERGENCYEXIT_FIELD_NAME.toStdWString());
-	secEquip.insertStrValue(EYEWASH_FIELD_NAME.toStdWString());
-	secEquip.insertStrValue(FIREDOOR_FIELD_NAME.toStdWString());
-	secEquip.insertStrValue(FIREHOSE_FIELD_NAME.toStdWString());
-	secEquip.insertStrValue(INFIRMARY_FIELD_NAME.toStdWString());
-	secEquip.insertStrValue(PHONE_FIELD_NAME.toStdWString());
-	secEquip.insertStrValue(SCBA_FIELD_NAME.toStdWString());
-	secEquip.insertStrValue(SHOWER_FIELD_NAME.toStdWString());
-	secEquip.insertStrValue(SMOKEVENT_FIELD_NAME.toStdWString());
-	secEquip.insertStrValue(SPRINKLER_FIELD_NAME.toStdWString());
-	secEquip.insertStrValue(STOPPUSHBUTTON_FIELD_NAME.toStdWString());
-	secEquip.insertStrValue(STOPVALVE_FIELD_NAME.toStdWString());
-	secEquip.insertStrValue(WATERSPRAYEXTINGUISHER_FIELD_NAME.toStdWString());
-	lists.push_back(secEquip);
+    UserList secEquip = init_userlist(xg::Guid(LIST_SECU_EQUIP_ID), language);
+    secEquip.setOrigin(true);
+    secEquip.insertVector(l_security_equipment, (int)language);
+    lists.push_back(secEquip);
 
-	UserList nonCompliance(xg::Guid(LIST_NON_COMPLI_ID), NONCONPLIANTCE_USERLIST_NAME.toStdWString());
-	nonCompliance.setOrigin(true);
-	nonCompliance.insertStrValue(ASPERITY_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(BADPERFORMANCES_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(BADWELDING_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(BADLYPAINTED_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(BARE_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(BENT_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(BREAKDOWN_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(BROKEN_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(BUMP_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(BURNT_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(CLOGGED_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(CLUTTERED_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(COLD_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(CONDENSATION_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(CONTACTFAILURE_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(CRACK_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(DARK_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(DIRT_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(DISTORTED_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(DUSTY_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(ERASED_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(FROZEN_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(HOLE_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(HOLLOW_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(HOT_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(HUMID_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(INCORRECTASSEMBLY_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(INFILTRATION_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(LEAKAGE_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(LEVELTOOHIGH_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(LEVELTOOLOW_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(LOOSE_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(LOWLIGHT_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(LOWPRESSURE_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(MELTED_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(MISALIGNEMENT_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(MISMATCH_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(MOLD_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(NOISY_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(NOTCALIBRATED_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(NOTINSULATED_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(NOTLEVELED_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(NOTMARKEDOUT_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(NOTPROTECTED_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(OUTOFTOLERANCE_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(OUTDATED_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(OVERLOADED_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(PEELING_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(POORFLOW_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(POORSIGNAGE_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(POORVENTILATION_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(PRESSURETOOHIGH_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(PRESSURETOOLOW_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(PUDDLE_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(RUSTY_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(SCRATCH_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(SHARP_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(SLIPPERY_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(SMELL_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(STAGNANTWATER_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(STAIN_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(TORN_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(UNSCREWED_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(VIBRATIONS_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(WET_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(WRONGCOLOR_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(WRONGITEM_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(WRONGLOCATION_FILED_NAME.toStdWString());
-	nonCompliance.insertStrValue(WRONGSIZE_FILED_NAME.toStdWString());
-	lists.push_back(nonCompliance);
+    UserList nonCompliance = init_userlist(xg::Guid(LIST_NON_COMPLI_ID), language);
+    nonCompliance.setOrigin(true);
+    nonCompliance.insertVector(l_non_compliance, (int)language);
+    lists.push_back(nonCompliance);
 
-	return lists;
+    return lists;
 }
+
+std::map<xg::Guid, std::wstring> stdlist_names = {
+    { xg::Guid(STD_PIPE_STAINLESS_SMS_EN_10357_ID), L"Stainless SMS EN 10357" },
+    { xg::Guid(STD_PIPE_STAINLESS_DIN_11850_ID),    L"Stainless DIN 11850" },
+    { xg::Guid(STD_PIPE_STEEL_ASME_B36_10_ID),      L"Steel ASME B36.10" },
+    { xg::Guid(STD_PIPE_STAINLESS_EN_10217_7_ID),   L"Stainless EN 10217-7" },
+    { xg::Guid(STD_PIPE_COPPER_EN_1057_ID),         L"Copper EN 1057" },
+    { xg::Guid(STD_PIPE_PVC_EN_1453_1_ID),          L"PVC EN 1453-1" },
+    { xg::Guid(STD_PIPE_DUCT_EN_1506_ID),           L"Duct EN 1506" },
+    { xg::Guid(STD_PIPE_STEEL_EN_10216_ID),         L"Steel EN 10216" },
+    { xg::Guid(STD_PIPE_STEEL_EN_10219_ID),         L"Steel EN 10219" }
+};
+
+
+List<double> init_stdlist(listId id)
+{
+    std::wstring name = stdlist_names.at(id);
+    return List<double>(id, name);
+}
+#define STANDARDPIPE_NA_NAME L"N.A."
 
 std::vector<StandardList> generateDefaultPipeStandardList()
 {
-	std::vector<StandardList> standardlists;
+    std::vector<StandardList> standardlists;
 
-	StandardList naStandard(xg::Guid(STANDARDPIPE_NA_ID), STANDARDPIPE_NA_NAME);
-	naStandard.setOrigin(true);
-	standardlists.push_back(naStandard);
+    StandardList naStandard(xg::Guid(STD_PIPE_NA_ID), STANDARDPIPE_NA_NAME);
+    naStandard.setOrigin(true);
+    standardlists.push_back(naStandard);
 
-	StandardList stainlessSMSEN10357(xg::Guid(STANDARDPIPE_STAINLESS_SMS_EN_10357_ID), STANDARDPIPE_STAINLESS_SMS_EN_10357_NAME);
-	stainlessSMSEN10357.setOrigin(false);
-	stainlessSMSEN10357.insertValue(0.025);
-	stainlessSMSEN10357.insertValue(0.038);
-	stainlessSMSEN10357.insertValue(0.051);
-	stainlessSMSEN10357.insertValue(0.0635);
-	stainlessSMSEN10357.insertValue(0.0761);
-	stainlessSMSEN10357.insertValue(0.1016);
-	stainlessSMSEN10357.insertValue(0.104);
-	standardlists.push_back(stainlessSMSEN10357);
+    StandardList stainlessSMSEN10357 = init_stdlist(xg::Guid(STD_PIPE_STAINLESS_SMS_EN_10357_ID));
+    stainlessSMSEN10357.setOrigin(false);
+    stainlessSMSEN10357.insertValue(0.025);
+    stainlessSMSEN10357.insertValue(0.038);
+    stainlessSMSEN10357.insertValue(0.051);
+    stainlessSMSEN10357.insertValue(0.0635);
+    stainlessSMSEN10357.insertValue(0.0761);
+    stainlessSMSEN10357.insertValue(0.1016);
+    stainlessSMSEN10357.insertValue(0.104);
+    standardlists.push_back(stainlessSMSEN10357);
 
-	StandardList stainlessDIN11850(xg::Guid(STANDARDPIPE_STAINLESS_DIN_11850_ID), STANDARDPIPE_STAINLESS_DIN_11850_NAME);
-	stainlessDIN11850.setOrigin(false);
-	stainlessDIN11850.insertValue(0.023);
-	stainlessDIN11850.insertValue(0.029);
-	stainlessDIN11850.insertValue(0.035);
-	stainlessDIN11850.insertValue(0.041);
-	stainlessDIN11850.insertValue(0.053);
-	stainlessDIN11850.insertValue(0.07);
-	stainlessDIN11850.insertValue(0.085);
-	stainlessDIN11850.insertValue(0.104);
-	stainlessDIN11850.insertValue(0.129);
-	stainlessDIN11850.insertValue(0.154);
-	standardlists.push_back(stainlessDIN11850);
+    StandardList stainlessDIN11850 = init_stdlist(xg::Guid(STD_PIPE_STAINLESS_DIN_11850_ID));
+    stainlessDIN11850.setOrigin(false);
+    stainlessDIN11850.insertValue(0.023);
+    stainlessDIN11850.insertValue(0.029);
+    stainlessDIN11850.insertValue(0.035);
+    stainlessDIN11850.insertValue(0.041);
+    stainlessDIN11850.insertValue(0.053);
+    stainlessDIN11850.insertValue(0.07);
+    stainlessDIN11850.insertValue(0.085);
+    stainlessDIN11850.insertValue(0.104);
+    stainlessDIN11850.insertValue(0.129);
+    stainlessDIN11850.insertValue(0.154);
+    standardlists.push_back(stainlessDIN11850);
 
-	StandardList steelASMEB36_10(xg::Guid(STANDARDPIPE_STEEL_ASME_B36_10_ID), STANDARDPIPE_STEEL_ASME_B36_10_NAME);
-	steelASMEB36_10.setOrigin(false);
-	steelASMEB36_10.insertValue(0.0213);
-	steelASMEB36_10.insertValue(0.0267);
-	steelASMEB36_10.insertValue(0.0334);
-	steelASMEB36_10.insertValue(0.0422);
-	steelASMEB36_10.insertValue(0.0483);
-	steelASMEB36_10.insertValue(0.0603);
-	steelASMEB36_10.insertValue(0.0889);
-	steelASMEB36_10.insertValue(0.1016);
-	steelASMEB36_10.insertValue(0.1143);
-	steelASMEB36_10.insertValue(0.1413);
-	steelASMEB36_10.insertValue(0.1683);
-	steelASMEB36_10.insertValue(0.2191);
-	steelASMEB36_10.insertValue(0.273);
-	steelASMEB36_10.insertValue(0.3239);
-	steelASMEB36_10.insertValue(0.3556);
-	steelASMEB36_10.insertValue(0.4064);
-	steelASMEB36_10.insertValue(0.457);
-	steelASMEB36_10.insertValue(0.508);
-	steelASMEB36_10.insertValue(0.559);
-	steelASMEB36_10.insertValue(0.61);
-	steelASMEB36_10.insertValue(0.66);
-	steelASMEB36_10.insertValue(0.711);
-	steelASMEB36_10.insertValue(0.762);
-	steelASMEB36_10.insertValue(0.813);
-	steelASMEB36_10.insertValue(0.864);
-	steelASMEB36_10.insertValue(0.914);
-	steelASMEB36_10.insertValue(0.965);
-	steelASMEB36_10.insertValue(1.016);
-	steelASMEB36_10.insertValue(1.118);
-	steelASMEB36_10.insertValue(1.168);
-	steelASMEB36_10.insertValue(1.219);
-	steelASMEB36_10.insertValue(1.321);
-	steelASMEB36_10.insertValue(1.422);
-	steelASMEB36_10.insertValue(1.524);
-	steelASMEB36_10.insertValue(1.626);
-	steelASMEB36_10.insertValue(1.727);
-	steelASMEB36_10.insertValue(1.829);
-	steelASMEB36_10.insertValue(1.93);
-	steelASMEB36_10.insertValue(2.032);
-	standardlists.push_back(steelASMEB36_10);
+    StandardList steelASMEB36_10 = init_stdlist(xg::Guid(STD_PIPE_STEEL_ASME_B36_10_ID));
+    steelASMEB36_10.setOrigin(false);
+    steelASMEB36_10.insertValue(0.0213);
+    steelASMEB36_10.insertValue(0.0267);
+    steelASMEB36_10.insertValue(0.0334);
+    steelASMEB36_10.insertValue(0.0422);
+    steelASMEB36_10.insertValue(0.0483);
+    steelASMEB36_10.insertValue(0.0603);
+    steelASMEB36_10.insertValue(0.0889);
+    steelASMEB36_10.insertValue(0.1016);
+    steelASMEB36_10.insertValue(0.1143);
+    steelASMEB36_10.insertValue(0.1413);
+    steelASMEB36_10.insertValue(0.1683);
+    steelASMEB36_10.insertValue(0.2191);
+    steelASMEB36_10.insertValue(0.273);
+    steelASMEB36_10.insertValue(0.3239);
+    steelASMEB36_10.insertValue(0.3556);
+    steelASMEB36_10.insertValue(0.4064);
+    steelASMEB36_10.insertValue(0.457);
+    steelASMEB36_10.insertValue(0.508);
+    steelASMEB36_10.insertValue(0.559);
+    steelASMEB36_10.insertValue(0.61);
+    steelASMEB36_10.insertValue(0.66);
+    steelASMEB36_10.insertValue(0.711);
+    steelASMEB36_10.insertValue(0.762);
+    steelASMEB36_10.insertValue(0.813);
+    steelASMEB36_10.insertValue(0.864);
+    steelASMEB36_10.insertValue(0.914);
+    steelASMEB36_10.insertValue(0.965);
+    steelASMEB36_10.insertValue(1.016);
+    steelASMEB36_10.insertValue(1.118);
+    steelASMEB36_10.insertValue(1.168);
+    steelASMEB36_10.insertValue(1.219);
+    steelASMEB36_10.insertValue(1.321);
+    steelASMEB36_10.insertValue(1.422);
+    steelASMEB36_10.insertValue(1.524);
+    steelASMEB36_10.insertValue(1.626);
+    steelASMEB36_10.insertValue(1.727);
+    steelASMEB36_10.insertValue(1.829);
+    steelASMEB36_10.insertValue(1.93);
+    steelASMEB36_10.insertValue(2.032);
+    standardlists.push_back(steelASMEB36_10);
 
-	StandardList stainlessEN_10217_7(xg::Guid(STANDARDPIPE_STAINLESS_EN_10217_7_ID), STANDARDPIPE_STAINLESS_EN_10217_7_NAME);
-	stainlessEN_10217_7.setOrigin(false);
-	stainlessEN_10217_7.insertValue(0.0213);
-	stainlessEN_10217_7.insertValue(0.0269);
-	stainlessEN_10217_7.insertValue(0.0337);
-	stainlessEN_10217_7.insertValue(0.0424);
-	stainlessEN_10217_7.insertValue(0.0483);
-	stainlessEN_10217_7.insertValue(0.0603);
-	stainlessEN_10217_7.insertValue(0.0761);
-	stainlessEN_10217_7.insertValue(0.0889);
-	stainlessEN_10217_7.insertValue(0.1016);
-	stainlessEN_10217_7.insertValue(0.1143);
-	stainlessEN_10217_7.insertValue(0.1397);
-	stainlessEN_10217_7.insertValue(0.1683);
-	stainlessEN_10217_7.insertValue(0.2191);
-	stainlessEN_10217_7.insertValue(0.273);
-	stainlessEN_10217_7.insertValue(0.3239);
-	stainlessEN_10217_7.insertValue(0.3556);
-	stainlessEN_10217_7.insertValue(0.4064);
-	stainlessEN_10217_7.insertValue(0.4572);
-	stainlessEN_10217_7.insertValue(0.508);
-	stainlessEN_10217_7.insertValue(0.61);
-	standardlists.push_back(stainlessEN_10217_7);
+    StandardList stainlessEN_10217_7 = init_stdlist(xg::Guid(STD_PIPE_STAINLESS_EN_10217_7_ID));
+    stainlessEN_10217_7.setOrigin(false);
+    stainlessEN_10217_7.insertValue(0.0213);
+    stainlessEN_10217_7.insertValue(0.0269);
+    stainlessEN_10217_7.insertValue(0.0337);
+    stainlessEN_10217_7.insertValue(0.0424);
+    stainlessEN_10217_7.insertValue(0.0483);
+    stainlessEN_10217_7.insertValue(0.0603);
+    stainlessEN_10217_7.insertValue(0.0761);
+    stainlessEN_10217_7.insertValue(0.0889);
+    stainlessEN_10217_7.insertValue(0.1016);
+    stainlessEN_10217_7.insertValue(0.1143);
+    stainlessEN_10217_7.insertValue(0.1397);
+    stainlessEN_10217_7.insertValue(0.1683);
+    stainlessEN_10217_7.insertValue(0.2191);
+    stainlessEN_10217_7.insertValue(0.273);
+    stainlessEN_10217_7.insertValue(0.3239);
+    stainlessEN_10217_7.insertValue(0.3556);
+    stainlessEN_10217_7.insertValue(0.4064);
+    stainlessEN_10217_7.insertValue(0.4572);
+    stainlessEN_10217_7.insertValue(0.508);
+    stainlessEN_10217_7.insertValue(0.61);
+    standardlists.push_back(stainlessEN_10217_7);
 
-	StandardList copperEN_1057(xg::Guid(STANDARDPIPE_COPPER_EN_1057_ID), STANDARDPIPE_COPPER_EN_1057_NAME);
-	copperEN_1057.setOrigin(false);
-	copperEN_1057.insertValue(0.012);
-	copperEN_1057.insertValue(0.014);
-	copperEN_1057.insertValue(0.016);
-	copperEN_1057.insertValue(0.018);
-	copperEN_1057.insertValue(0.022);
-	copperEN_1057.insertValue(0.028);
-	copperEN_1057.insertValue(0.035);
-	copperEN_1057.insertValue(0.042);
-	copperEN_1057.insertValue(0.054);
-	copperEN_1057.insertValue(0.064);
-	copperEN_1057.insertValue(0.0761);
-	copperEN_1057.insertValue(0.0889);
-	copperEN_1057.insertValue(0.108);
-	copperEN_1057.insertValue(0.133);
-	copperEN_1057.insertValue(0.159);
-	copperEN_1057.insertValue(0.219);
-	copperEN_1057.insertValue(0.267);
-	standardlists.push_back(copperEN_1057);
+    StandardList copperEN_1057 = init_stdlist(xg::Guid(STD_PIPE_COPPER_EN_1057_ID));
+    copperEN_1057.setOrigin(false);
+    copperEN_1057.insertValue(0.012);
+    copperEN_1057.insertValue(0.014);
+    copperEN_1057.insertValue(0.016);
+    copperEN_1057.insertValue(0.018);
+    copperEN_1057.insertValue(0.022);
+    copperEN_1057.insertValue(0.028);
+    copperEN_1057.insertValue(0.035);
+    copperEN_1057.insertValue(0.042);
+    copperEN_1057.insertValue(0.054);
+    copperEN_1057.insertValue(0.064);
+    copperEN_1057.insertValue(0.0761);
+    copperEN_1057.insertValue(0.0889);
+    copperEN_1057.insertValue(0.108);
+    copperEN_1057.insertValue(0.133);
+    copperEN_1057.insertValue(0.159);
+    copperEN_1057.insertValue(0.219);
+    copperEN_1057.insertValue(0.267);
+    standardlists.push_back(copperEN_1057);
 
-	StandardList PVC_EN_1453_1(xg::Guid(STANDARDPIPE_PVC_EN_1453_1_ID), STANDARDPIPE_PVC_EN_1453_1_NAME);
-	PVC_EN_1453_1.setOrigin(false);
-	PVC_EN_1453_1.insertValue(0.032);
-	PVC_EN_1453_1.insertValue(0.04);
-	PVC_EN_1453_1.insertValue(0.05);
-	PVC_EN_1453_1.insertValue(0.063);
-	PVC_EN_1453_1.insertValue(0.075);
-	PVC_EN_1453_1.insertValue(0.08);
-	PVC_EN_1453_1.insertValue(0.1);
-	PVC_EN_1453_1.insertValue(0.11);
-	PVC_EN_1453_1.insertValue(0.125);
-	PVC_EN_1453_1.insertValue(0.14);
-	PVC_EN_1453_1.insertValue(0.16);
-	PVC_EN_1453_1.insertValue(0.2);
-	PVC_EN_1453_1.insertValue(0.25);
-	PVC_EN_1453_1.insertValue(0.315);
-	standardlists.push_back(PVC_EN_1453_1);
+    StandardList PVC_EN_1453_1 = init_stdlist(xg::Guid(STD_PIPE_PVC_EN_1453_1_ID));
+    PVC_EN_1453_1.setOrigin(false);
+    PVC_EN_1453_1.insertValue(0.032);
+    PVC_EN_1453_1.insertValue(0.04);
+    PVC_EN_1453_1.insertValue(0.05);
+    PVC_EN_1453_1.insertValue(0.063);
+    PVC_EN_1453_1.insertValue(0.075);
+    PVC_EN_1453_1.insertValue(0.08);
+    PVC_EN_1453_1.insertValue(0.1);
+    PVC_EN_1453_1.insertValue(0.11);
+    PVC_EN_1453_1.insertValue(0.125);
+    PVC_EN_1453_1.insertValue(0.14);
+    PVC_EN_1453_1.insertValue(0.16);
+    PVC_EN_1453_1.insertValue(0.2);
+    PVC_EN_1453_1.insertValue(0.25);
+    PVC_EN_1453_1.insertValue(0.315);
+    standardlists.push_back(PVC_EN_1453_1);
 
-	StandardList DUCT_EN_1506(xg::Guid(STANDARDPIPE_DUCT_EN_1506_ID), STANDARDPIPE_DUCT_EN_1506_NAME);
-	DUCT_EN_1506.setOrigin(false);
-	DUCT_EN_1506.insertValue(0.08);
-	DUCT_EN_1506.insertValue(0.1);
-	DUCT_EN_1506.insertValue(0.125);
-	DUCT_EN_1506.insertValue(0.16);
-	DUCT_EN_1506.insertValue(0.2);
-	DUCT_EN_1506.insertValue(0.25);
-	DUCT_EN_1506.insertValue(0.315);
-	DUCT_EN_1506.insertValue(0.355);
-	DUCT_EN_1506.insertValue(0.4);
-	DUCT_EN_1506.insertValue(0.45);
-	DUCT_EN_1506.insertValue(0.5);
-	DUCT_EN_1506.insertValue(0.56);
-	DUCT_EN_1506.insertValue(0.63);
-	DUCT_EN_1506.insertValue(0.71);
-	DUCT_EN_1506.insertValue(0.8);
-	DUCT_EN_1506.insertValue(0.9);
-	DUCT_EN_1506.insertValue(1.0);
-	DUCT_EN_1506.insertValue(1.12);
-	DUCT_EN_1506.insertValue(1.25);
-	standardlists.push_back(DUCT_EN_1506);
+    StandardList DUCT_EN_1506 = init_stdlist(xg::Guid(STD_PIPE_DUCT_EN_1506_ID));
+    DUCT_EN_1506.setOrigin(false);
+    DUCT_EN_1506.insertValue(0.08);
+    DUCT_EN_1506.insertValue(0.1);
+    DUCT_EN_1506.insertValue(0.125);
+    DUCT_EN_1506.insertValue(0.16);
+    DUCT_EN_1506.insertValue(0.2);
+    DUCT_EN_1506.insertValue(0.25);
+    DUCT_EN_1506.insertValue(0.315);
+    DUCT_EN_1506.insertValue(0.355);
+    DUCT_EN_1506.insertValue(0.4);
+    DUCT_EN_1506.insertValue(0.45);
+    DUCT_EN_1506.insertValue(0.5);
+    DUCT_EN_1506.insertValue(0.56);
+    DUCT_EN_1506.insertValue(0.63);
+    DUCT_EN_1506.insertValue(0.71);
+    DUCT_EN_1506.insertValue(0.8);
+    DUCT_EN_1506.insertValue(0.9);
+    DUCT_EN_1506.insertValue(1.0);
+    DUCT_EN_1506.insertValue(1.12);
+    DUCT_EN_1506.insertValue(1.25);
+    standardlists.push_back(DUCT_EN_1506);
 
-	StandardList STEEL_EN_10216(xg::Guid(STANDARDPIPE_STEEL_EN_10216_ID), STANDARDPIPE_STEEL_EN_10216_NAME);
-	STEEL_EN_10216.setOrigin(false);
-	STEEL_EN_10216.insertValue(0.0213);
-	STEEL_EN_10216.insertValue(0.0269);
-	STEEL_EN_10216.insertValue(0.0337);
-	STEEL_EN_10216.insertValue(0.0424);
-	STEEL_EN_10216.insertValue(0.0483);
-	STEEL_EN_10216.insertValue(0.0603);
-	STEEL_EN_10216.insertValue(0.0761);
-	STEEL_EN_10216.insertValue(0.0889);
-	STEEL_EN_10216.insertValue(0.1016);
-	STEEL_EN_10216.insertValue(0.1143);
-	STEEL_EN_10216.insertValue(0.1397);
-	STEEL_EN_10216.insertValue(0.1683);
-	STEEL_EN_10216.insertValue(0.2191);
-	STEEL_EN_10216.insertValue(0.273);
-	STEEL_EN_10216.insertValue(0.3239);
-	STEEL_EN_10216.insertValue(0.3556);
-	STEEL_EN_10216.insertValue(0.4064);
-	STEEL_EN_10216.insertValue(0.4572);
-	STEEL_EN_10216.insertValue(0.508);
-	STEEL_EN_10216.insertValue(0.61);
-	standardlists.push_back(STEEL_EN_10216);
+    StandardList STEEL_EN_10216 = init_stdlist(xg::Guid(STD_PIPE_STEEL_EN_10216_ID));
+    STEEL_EN_10216.setOrigin(false);
+    STEEL_EN_10216.insertValue(0.0213);
+    STEEL_EN_10216.insertValue(0.0269);
+    STEEL_EN_10216.insertValue(0.0337);
+    STEEL_EN_10216.insertValue(0.0424);
+    STEEL_EN_10216.insertValue(0.0483);
+    STEEL_EN_10216.insertValue(0.0603);
+    STEEL_EN_10216.insertValue(0.0761);
+    STEEL_EN_10216.insertValue(0.0889);
+    STEEL_EN_10216.insertValue(0.1016);
+    STEEL_EN_10216.insertValue(0.1143);
+    STEEL_EN_10216.insertValue(0.1397);
+    STEEL_EN_10216.insertValue(0.1683);
+    STEEL_EN_10216.insertValue(0.2191);
+    STEEL_EN_10216.insertValue(0.273);
+    STEEL_EN_10216.insertValue(0.3239);
+    STEEL_EN_10216.insertValue(0.3556);
+    STEEL_EN_10216.insertValue(0.4064);
+    STEEL_EN_10216.insertValue(0.4572);
+    STEEL_EN_10216.insertValue(0.508);
+    STEEL_EN_10216.insertValue(0.61);
+    standardlists.push_back(STEEL_EN_10216);
 
-	StandardList STEEL_EN_10219(xg::Guid(STANDARDPIPE_STEEL_EN_10219_ID), STANDARDPIPE_STEEL_EN_10219_NAME);
-	STEEL_EN_10219.setOrigin(false);
-	STEEL_EN_10219.insertValue(0.0213);
-	STEEL_EN_10219.insertValue(0.0269);
-	STEEL_EN_10219.insertValue(0.0337);
-	STEEL_EN_10219.insertValue(0.0424);
-	STEEL_EN_10219.insertValue(0.0483);
-	STEEL_EN_10219.insertValue(0.0603);
-	STEEL_EN_10219.insertValue(0.0761);
-	STEEL_EN_10219.insertValue(0.0889);
-	STEEL_EN_10219.insertValue(0.1016);
-	STEEL_EN_10219.insertValue(0.1143);
-	STEEL_EN_10219.insertValue(0.1397);
-	STEEL_EN_10219.insertValue(0.1683);
-	STEEL_EN_10219.insertValue(0.2191);
-	STEEL_EN_10219.insertValue(0.273);
-	STEEL_EN_10219.insertValue(0.3239);
-	STEEL_EN_10219.insertValue(0.3556);
-	STEEL_EN_10219.insertValue(0.4064);
-	STEEL_EN_10219.insertValue(0.4572);
-	STEEL_EN_10219.insertValue(0.508);
-	standardlists.push_back(STEEL_EN_10219);
+    StandardList STEEL_EN_10219 = init_stdlist(xg::Guid(STD_PIPE_STEEL_EN_10219_ID));
+    STEEL_EN_10219.setOrigin(false);
+    STEEL_EN_10219.insertValue(0.0213);
+    STEEL_EN_10219.insertValue(0.0269);
+    STEEL_EN_10219.insertValue(0.0337);
+    STEEL_EN_10219.insertValue(0.0424);
+    STEEL_EN_10219.insertValue(0.0483);
+    STEEL_EN_10219.insertValue(0.0603);
+    STEEL_EN_10219.insertValue(0.0761);
+    STEEL_EN_10219.insertValue(0.0889);
+    STEEL_EN_10219.insertValue(0.1016);
+    STEEL_EN_10219.insertValue(0.1143);
+    STEEL_EN_10219.insertValue(0.1397);
+    STEEL_EN_10219.insertValue(0.1683);
+    STEEL_EN_10219.insertValue(0.2191);
+    STEEL_EN_10219.insertValue(0.273);
+    STEEL_EN_10219.insertValue(0.3239);
+    STEEL_EN_10219.insertValue(0.3556);
+    STEEL_EN_10219.insertValue(0.4064);
+    STEEL_EN_10219.insertValue(0.4572);
+    STEEL_EN_10219.insertValue(0.508);
+    standardlists.push_back(STEEL_EN_10219);
 
-	return standardlists;
+    return standardlists;
 }

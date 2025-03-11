@@ -155,12 +155,14 @@ void ScantraInterface::project_created(const std::filesystem::path& path, const 
         return;
     {
         scoped_lock<interprocess_mutex> lock(data_->mutex); /// or mutex ?
-
-        std::wcsncpy(data_->w_array[0], path.c_str(), 256);
+        std::filesystem::path formated_path = path;
+        formated_path.make_preferred();
+        std::wcsncpy(data_->w_array[0], formated_path.native().c_str(), 256);
         std::wcsncpy(data_->w_array[1], name.c_str(), 256);
         data_->n_w = 2;
 
-        observer_->message_ = ScantraInterprocessObserver::hasOpenedProject;
+        observer_->message_ = ScantraInterprocessObserver::hasCreatedProject;
+        Logger::log(LoggerMode::IOLog) << "+++ Scantra-project-created +++" << Logger::endl;
     }
     data_->update(observer_);
 }
@@ -174,6 +176,9 @@ void ScantraInterface::project_opened(const std::filesystem::path& path)
 
         std::wcsncpy(data_->w_array[0], path.c_str(), 256);
         data_->n_w = 1;
+
+        observer_->message_ = ScantraInterprocessObserver::hasOpenedProject;
+        Logger::log(LoggerMode::IOLog) << "+++ Scantra-project-opened +++" << Logger::endl;
     }
     data_->update(observer_);
 }

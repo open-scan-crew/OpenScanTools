@@ -1,8 +1,7 @@
 #include "models/application/TagTemplate.h"
-#include "gui/texts/DefaultTemplatesTexts.hpp"
 #include "models/application/Ids.hpp"
 
-#include "utils/config.h"
+#include <map>
 
 namespace sma
 {
@@ -190,42 +189,69 @@ namespace sma
 	}
 }
 
+std::map<xg::Guid, std::array<std::wstring, 2>> tmpl_names = {
+    { xg::Guid(ANNOTATION_TEMP_ID),       { L"Annotation", L"Annotation" } },
+    { xg::Guid(WARNING_TEMP_ID),          { L"Risks", L"Risques" } },
+    { xg::Guid(MODELING_GUIDE_TEMP_ID),   { L"Modeling guide", L"Guide de modélisation" } },
+    { xg::Guid(WARNING_RISK_ID),          { L"Risks", L"Risques" } },
+    { xg::Guid(MODELING_GUIDE_LOD_ID),    { L"LOD required", L"Niveau de détail" }},
+    { xg::Guid(MODELING_GUIDE_ACCU_ID),   { L"Accuracy", L"Précision" }},
+    { xg::Guid(MODELING_GUIDE_STATUS_ID), { L"Status", L"Statut" }},
+    { xg::Guid(MODELING_GUIDE_TYPE_ID),   { L"Modeling type", L"Type de modélisation" }}
+};
+
+sma::TagTemplate init_tag_tmpl(sma::templateId id, LanguageType lang)
+{
+	std::wstring name = tmpl_names.at(id)[(int)lang];
+	return sma::TagTemplate(id, name);
+}
+
+sma::tField init_field(sma::templateId id, xg::Guid listId, LanguageType lang)
+{
+	sma::tField field;
+	field.m_id = id;
+	field.m_name = tmpl_names[id][(int)lang];
+	field.m_type = sma::tFieldType::list;
+	field.m_fieldReferenceId = listId;
+	return field;
+}
+
 std::vector<sma::TagTemplate> sma::GenerateDefaultTemplates(LanguageType lang)
 {
 	std::vector<TagTemplate> templates;
 
 	//Annotation
 	{
-		TagTemplate annotation = TagTemplate(xg::Guid(ANNOTATION_TEMP_ID), ANNOTATION_TEMPLATE_NAME.toStdWString());
+		TagTemplate annotation = init_tag_tmpl(xg::Guid(ANNOTATION_TEMP_ID), lang);
 		annotation.setOriginTemplate(true);
 		templates.push_back(annotation);
 	}
 
 	//Warning
 	{
-		TagTemplate warning = TagTemplate(xg::Guid(WARNING_TEMP_ID), WARNING_TEMPLATE_NAME.toStdWString());
+		TagTemplate warning = init_tag_tmpl(xg::Guid(WARNING_TEMP_ID), lang);
 		warning.setOriginTemplate(true);
-		//risk
-		tField risk(xg::Guid(WARNING_RISK_ID), RISK_FIELD_NAME.toStdWString() , tFieldType::list, xg::Guid(LIST_RISKS_ID),L"");
+
+		tField risk = init_field(xg::Guid(WARNING_RISK_ID), xg::Guid(LIST_RISKS_ID), lang);
 		warning.addNewField(risk);
 		templates.push_back(warning);
 	}
 	
 	//Modeling Guide
 	{
-		TagTemplate modeling = TagTemplate(xg::Guid(MODELING_GUIDE_TEMP_ID), MODELINGGUIDE_TEMPLATE_NAME.toStdWString());
+		TagTemplate modeling = init_tag_tmpl(xg::Guid(MODELING_GUIDE_TEMP_ID), lang);
 		modeling.setOriginTemplate(true);
-		//lod
-		tField lod({ xg::Guid(MODELING_GUIDE_LOD_ID), LOD_FIELD_NAME.toStdWString() , tFieldType::list, xg::Guid(LIST_LOD_ID),L"" });
+
+		tField lod = init_field(xg::Guid(MODELING_GUIDE_LOD_ID), xg::Guid(LIST_LOD_ID), lang);
 		modeling.addNewField(lod);
-		//lod
-		tField accuracy({ xg::Guid(MODELING_GUIDE_ACCU_ID), ACCURACY_FIELD_NAME.toStdWString() , tFieldType::list, xg::Guid(LIST_MOD_ACCU_ID),L"" });
+
+		tField accuracy = init_field(xg::Guid(MODELING_GUIDE_ACCU_ID), xg::Guid(LIST_MOD_ACCU_ID), lang);
 		modeling.addNewField(accuracy);
-		//lod
-		tField status({ xg::Guid(MODELING_GUIDE_STATUS_ID), STATUS_FIELD_NAME.toStdWString() , tFieldType::list, xg::Guid(LIST_STATUS_ID),L"" });
+
+		tField status = init_field(xg::Guid(MODELING_GUIDE_STATUS_ID), xg::Guid(LIST_STATUS_ID), lang);
 		modeling.addNewField(status);
-		//lod
-		tField type({ xg::Guid(MODELING_GUIDE_TYPE_ID), MODELING_FIELD_NAME.toStdWString() , tFieldType::list, xg::Guid(LIST_MODELING_TYPE_ID),L"" });
+
+		tField type = init_field(xg::Guid(MODELING_GUIDE_TYPE_ID), xg::Guid(LIST_MODELING_TYPE_ID), lang);
 		modeling.addNewField(type);
 		templates.push_back(modeling);
 	}

@@ -11,6 +11,7 @@
 #include <QtCore/qstandardpaths.h>
 #include "gui/widgets/CustomWidgets/regexpedit.h"
 #include "utils/System.h"
+#include "utils/Logger.h"
 
 DialogProjectCreation::DialogProjectCreation(IDataDispatcher& dataDispatcher, QWidget* parent)
     : ADialog(dataDispatcher, parent)
@@ -100,10 +101,13 @@ void DialogProjectCreation::createProject()
     NewProjectMessage* message;
     int selectedInd = m_ui.comboBoxProjectTemplate->currentIndex();
     QVariant data = m_ui.comboBoxProjectTemplate->currentData();
+
+    std::filesystem::path project_folder = folderPath / infos.m_projectName;
+
     if (selectedInd < 2)
-        message = new NewProjectMessage(infos, folderPath / infos.m_projectName, LanguageType(data.toInt()));
+        message = new NewProjectMessage(infos, project_folder, LanguageType(data.toInt()));
     else
-        message = new NewProjectMessage(infos, folderPath / infos.m_projectName, data.toString().toStdWString());
+        message = new NewProjectMessage(infos, project_folder, data.toString().toStdWString());
 
     m_dataDispatcher.sendControl(new control::function::ForwardMessage(message));
 

@@ -1590,7 +1590,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtMoc Include="..\..\include\gui\widgets\CustomWidgets\ColorPicker.h" />
     <ClInclude Include="..\..\include\gui\texts\AboutTexts.hpp" />
     <ClInclude Include="..\..\include\gui\texts\ContextTexts.hpp" />
-    <ClInclude Include="..\..\include\gui\texts\DefaultTemplatesTexts.hpp" />
     <ClInclude Include="..\..\include\gui\texts\DefaultUserLists.hpp" />
     <ClInclude Include="..\..\include\gui\texts\ImageSettings_txt.hpp" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarOthersModelsGroup.h" />

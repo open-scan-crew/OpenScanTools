@@ -43,6 +43,7 @@ public:
 	const std::set<Value>& clist() const;
 	bool insertStrValue(const std::wstring& strValue);
 	void insertValue(const Value& value);
+	void insertVector(const std::vector<std::array<std::wstring, 2>>& values, int li);
 
 	std::string toJson(const Value& value);
 
