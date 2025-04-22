@@ -93,7 +93,7 @@ ContextState ContextSlabDetection::launch(Controller& controller)
 		return waitForNextPoint(controller, TEXT_SLAB_NOT_FOUND);
 	}
 
-	SafePtr<BoxNode> box = make_safe<BoxNode>(true);
+	SafePtr<BoxNode> box = make_safe<BoxNode>();
 	WritePtr<BoxNode> wBox = box.get();
 	if (!wBox)
 	{

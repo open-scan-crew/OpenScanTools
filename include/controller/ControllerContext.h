@@ -4,7 +4,7 @@
 #include "models/3d/DuplicationTypes.h"
 #include "models/application/List.h"
 #include "models/application/TagTemplate.h"
-#include "models/project/Marker.h"
+#include "models/data/Marker.h"
 #include "pointCloudEngine/RenderingTypes.h"
 #include "models/project/ProjectTypes.h"
 #include "models/data/PolylineMeasure/PolyLineTypes.h"

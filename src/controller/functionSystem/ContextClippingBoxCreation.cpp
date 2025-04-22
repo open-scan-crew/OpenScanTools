@@ -40,7 +40,7 @@ ContextState ContextClippingBoxCreation::launch(Controller& controller)
 
 	FUNCLOG << "ContextClippingBoxCreation launch" << LOGENDL;
 	const ClippingBoxSettings& settings = controller.getContext().getClippingSettings();
-	SafePtr<BoxNode> box = make_safe<BoxNode>(true);
+	SafePtr<BoxNode> box = make_safe<BoxNode>();
 	WritePtr<BoxNode> wBox = box.get();
 	if (!wBox)
 	{

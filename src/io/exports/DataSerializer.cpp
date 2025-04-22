@@ -143,6 +143,7 @@ void ExportData(nlohmann::json& json, const Data& data)
 	}
 	json[Key_Hyperlinks] = hLinkarray;
 	json[Key_ColorRGBA] = { data.getColor().r, data.getColor().g, data.getColor().b, data.getColor().a };
+	json[Key_IconId] = magic_enum::enum_name(data.getMarkerIcon());
 }
 
 void ExportClippingData(nlohmann::json& json, const ClippingData& data)
@@ -175,7 +176,6 @@ void ExportTagData(nlohmann::json& json, const TagData& data)
 		templateId = rTemp->getId();
 
 	json[Key_TemplateId] = templateId.str();
-	json[Key_IconId] = magic_enum::enum_name(data.getMarkerIcon());
 
 	const std::unordered_map<sma::tFieldId, std::wstring>& fields = data.getFields();
 	for (auto it = fields.cbegin(); it != fields.cend(); it++)

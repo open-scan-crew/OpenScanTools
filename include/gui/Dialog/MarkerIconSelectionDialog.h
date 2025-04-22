@@ -2,7 +2,7 @@
 #define MARKER_ICON_SELECTION_DIALOG_H_
 
 #include "gui/IPanel.h"
-#include "models/project/Marker.h"
+#include "models/data/Marker.h"
 
 #include <QtWidgets/qgridlayout.h>
 #include <QtWidgets/qboxlayout.h>

@@ -548,121 +548,139 @@ void LoadObjFile(Controller& controller, std::unordered_map<SafePtr<AGraphNode>,
 		return;
 	}
 
+	nlohmann::json json_objects;
+	if (jsonProject.find(Key_Objects) != jsonProject.end())
+		json_objects = jsonProject.at(Key_Objects);
 	//Note (Aurélien) : compatibilty check
-	// remove std::string key for Key_Objects
+	// old key was "objs"
+	else if (jsonProject.find("objs") != jsonProject.end())
+		json_objects = jsonProject.at("objs");
 
-	std::string key(Key_Objects);
-	if (jsonProject.find(Key_Objects) == jsonProject.end())
-		key = "objs";
+	if (!json_objects.is_array())
+		return;
 
 	GraphManager& graphManager = controller.getGraphManager();
 
-	if (jsonProject.find(key) != jsonProject.end() && jsonProject.at(key).is_array())
+	for (const nlohmann::json& iterator : json_objects)
 	{
-		std::string tmpError = "";
+		if (iterator.find(Key_Type) == iterator.end())
+			continue;
 
-		for (const nlohmann::json& iterator : jsonProject.at(key))
+		std::string elemTypeStr = iterator.at(Key_Type).get<std::string>();
+		//retrocompatibility
+		if (elemTypeStr == "ScanObject")
+			elemTypeStr = "PCO";
+
+		// (05-04-2025) retrocompatibility for the Grid
+		if (elemTypeStr == "Grid")
 		{
-			if (iterator.find(Key_Type) == iterator.end())
-				continue;
+			elemTypeStr = "Box";
+			// also the Box::grid_type must be forced to 'NoGrid'.
+		}
 
-			std::string elemTypeStr = iterator.at(Key_Type).get<std::string>();
-			//retrocompatibility
-			if (elemTypeStr == "ScanObject")
-				elemTypeStr = "PCO";
-			auto elemType(magic_enum::enum_cast<ElementType>(elemTypeStr));
+		auto elemType(magic_enum::enum_cast<ElementType>(elemTypeStr));
 
-			//Note (Aurélien) : compatibilty check
-			// remove std::string key for Key_Objects
-			ElementType type;
-			if (elemType.has_value())
-				type = elemType.value();
-			else
-				type = ElementType::Box;
+		//Note (Aurélien) : compatibilty check
+		// remove std::string key for Key_Objects
+		ElementType type;
+		if (elemType.has_value())
+			type = elemType.value();
+		else
+			type = ElementType::Box;
 
-			if (iterator.find(Key_Id) == iterator.end())
-				continue;
-			xg::Guid id = xg::Guid(iterator.at(Key_Id).get<std::string>());
-			if (!id.isValid())
-				continue;
+		if (iterator.find(Key_Id) == iterator.end())
+			continue;
+		xg::Guid id = xg::Guid(iterator.at(Key_Id).get<std::string>());
+		if (!id.isValid())
+			continue;
 
-			SafePtr<AGraphNode> loadedObject = graphManager.getNodeById(id);
-			switch (type)
-			{
-				case ElementType::Scan:
-					load<ScanNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializeScanNode, &make_safe<ScanNode>);
-					break;
-				case ElementType::Tag:
-					load<TagNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializeTagNode, &make_safe<TagNode>);
-					break;
-				case ElementType::SimpleMeasure:
-					load<SimpleMeasureNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializeSimpleMeasureNode, [&graphManager]() {return graphManager.createMeasureNode<SimpleMeasureNode>(); });
-					break;
-				case ElementType::PolylineMeasure:
-					load<PolylineMeasureNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializePolylineMeasureNode, [&graphManager]() {return graphManager.createMeasureNode<PolylineMeasureNode>(); });
-					break;
-				case ElementType::PointToPlaneMeasure:
-					load<PointToPlaneMeasureNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializePointToPlaneMeasureNode, [&graphManager]() {return graphManager.createMeasureNode<PointToPlaneMeasureNode>(); });
-					break;
-				case ElementType::PipeToPipeMeasure:
-					load<PipeToPipeMeasureNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializePipeToPipeMeasureNode, [&graphManager]() {return graphManager.createMeasureNode<PipeToPipeMeasureNode>(); });
-					break;
-				case ElementType::PipeToPlaneMeasure:
-					load<PipeToPlaneMeasureNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializePipeToPlaneMeasureNode, [&graphManager]() {return graphManager.createMeasureNode<PipeToPlaneMeasureNode>(); });
-					break;
-				case ElementType::PointToPipeMeasure:
-					load<PointToPipeMeasureNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializePointToPipeMeasureNode, [&graphManager]() {return graphManager.createMeasureNode<PointToPipeMeasureNode>(); });
-					break;
-				case ElementType::BeamBendingMeasure:
-					load<BeamBendingMeasureNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializeBeamBendingMeasureNode, &make_safe<BeamBendingMeasureNode>);
-					break;
-				case ElementType::ColumnTiltMeasure:
-					load<ColumnTiltMeasureNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializeColumnTiltMeasureNode, &make_safe<ColumnTiltMeasureNode>);
-					break;
-				case ElementType::Box:
-					load<BoxNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializeBoxNode, []() {return make_safe<BoxNode>(true); });
-					break;
-				case ElementType::Grid:
-					load<BoxNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializeBoxNode, []() {return make_safe<BoxNode>(false); });
-					break;
-				case ElementType::Cylinder:
-					load<CylinderNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializeCylinderNode, &make_safe<CylinderNode>);
-					break;
-				case ElementType::Torus:
-					load<TorusNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializeTorusNode, &make_safe<TorusNode>);
-					break;
-				//retro-compatibility
-				case ElementType::Piping:
-					load<ClusterNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializePiping, &make_safe<ClusterNode>);
-					break;
-				//
-				case ElementType::Cluster:
-					load<ClusterNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializeClusterNode, &make_safe<ClusterNode>);
-					break;
-				case ElementType::Point:
-					load<PointNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializePointNode, &make_safe<PointNode>);
-					break;
-				case ElementType::Sphere:
-					load<SphereNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializeSphereNode, &make_safe<SphereNode>);
-					break;
-				case ElementType::PCO:
-					load<ScanObjectNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializeScanObjectNode, &make_safe<ScanObjectNode>);
-					break;
-				case ElementType::MeshObject:
-					load<MeshObjectNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializeMeshObjectNode, &make_safe<MeshObjectNode>);
-					break;
-				case ElementType::ViewPoint:
-					load<ViewPointNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializeViewPointNode, &make_safe<ViewPointNode>);
-					break;
-			}
+		SafePtr<AGraphNode> loadedObject;
+		switch (type)
+		{
+		case ElementType::Scan:
+			load<ScanNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializeScanNode, &make_safe<ScanNode>);
+			break;
+		case ElementType::Tag:
+			load<TagNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializeTagNode, &make_safe<TagNode>);
+			break;
+		case ElementType::SimpleMeasure:
+			load<SimpleMeasureNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializeSimpleMeasureNode, [&graphManager]() {return graphManager.createMeasureNode<SimpleMeasureNode>(); });
+			break;
+		case ElementType::PolylineMeasure:
+			load<PolylineMeasureNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializePolylineMeasureNode, [&graphManager]() {return graphManager.createMeasureNode<PolylineMeasureNode>(); });
+			break;
+		case ElementType::PointToPlaneMeasure:
+			load<PointToPlaneMeasureNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializePointToPlaneMeasureNode, [&graphManager]() {return graphManager.createMeasureNode<PointToPlaneMeasureNode>(); });
+			break;
+		case ElementType::PipeToPipeMeasure:
+			load<PipeToPipeMeasureNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializePipeToPipeMeasureNode, [&graphManager]() {return graphManager.createMeasureNode<PipeToPipeMeasureNode>(); });
+			break;
+		case ElementType::PipeToPlaneMeasure:
+			load<PipeToPlaneMeasureNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializePipeToPlaneMeasureNode, [&graphManager]() {return graphManager.createMeasureNode<PipeToPlaneMeasureNode>(); });
+			break;
+		case ElementType::PointToPipeMeasure:
+			load<PointToPipeMeasureNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializePointToPipeMeasureNode, [&graphManager]() {return graphManager.createMeasureNode<PointToPipeMeasureNode>(); });
+			break;
+		case ElementType::BeamBendingMeasure:
+			load<BeamBendingMeasureNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializeBeamBendingMeasureNode, &make_safe<BeamBendingMeasureNode>);
+			break;
+		case ElementType::ColumnTiltMeasure:
+			load<ColumnTiltMeasureNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializeColumnTiltMeasureNode, &make_safe<ColumnTiltMeasureNode>);
+			break;
+		case ElementType::Box:
+		{
+			SafePtr<BoxNode> box = make_safe<BoxNode>();
+			DataDeserializer::DeserializeBoxNode(box, iterator, controller);
+			loadedObject = box;
 
-			{
-				WritePtr<AGraphNode> wLoaded = loadedObject.get();
-				if (!wLoaded)
-					assert(false);
-				wLoaded->setAuthor(author);
-				loadObj[loadedObject] = std::pair(wLoaded->getId(), iterator);
-			}
+			//load<BoxNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializeBoxNode, []() {return make_safe<BoxNode>(); });
+		break;
+		}
+		case ElementType::Cylinder:
+			load<CylinderNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializeCylinderNode, &make_safe<CylinderNode>);
+			break;
+		case ElementType::Torus:
+			load<TorusNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializeTorusNode, &make_safe<TorusNode>);
+			break;
+		//retro-compatibility
+		case ElementType::Piping:
+			load<ClusterNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializePiping, &make_safe<ClusterNode>);
+			break;
+		//
+		case ElementType::Cluster:
+			load<ClusterNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializeClusterNode, &make_safe<ClusterNode>);
+			break;
+		case ElementType::Point:
+			load<PointNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializePointNode, &make_safe<PointNode>);
+			break;
+		case ElementType::Sphere:
+			load<SphereNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializeSphereNode, &make_safe<SphereNode>);
+			break;
+		case ElementType::PCO:
+			load<ScanObjectNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializeScanObjectNode, &make_safe<ScanObjectNode>);
+			break;
+		case ElementType::MeshObject:
+			load<MeshObjectNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializeMeshObjectNode, &make_safe<MeshObjectNode>);
+			break;
+		case ElementType::ViewPoint:
+			load<ViewPointNode>(controller, iterator, loadedObject, &DataDeserializer::DeserializeViewPointNode, &make_safe<ViewPointNode>);
+			break;
+		}
+
+		// Check if the object already exist in the graph
+		SafePtr<AGraphNode> old_obj = graphManager.getNodeById(id);
+		if (old_obj)
+		{
+			// Copy
+			IOLOG << "Replacing object [" << id << "] data " << LOGENDL;
+		}
+
+		{
+			WritePtr<AGraphNode> wLoaded = loadedObject.get();
+			if (!wLoaded)
+				assert(false);
+			wLoaded->setAuthor(author);
+			loadObj[loadedObject] = std::pair(wLoaded->getId(), iterator);
 		}
 	}
 
@@ -1931,7 +1949,6 @@ bool SaveLoadSystem::ExportAuthorObjects(const Controller& controller, const std
 				}
 				break;
 			case ElementType::Box:
-			case ElementType::Grid:
 				{
 					DataSerializer::Serialize(jsonObj, static_pointer_cast<BoxNode>(object));
 				}

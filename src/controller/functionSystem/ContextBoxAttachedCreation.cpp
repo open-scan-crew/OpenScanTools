@@ -22,7 +22,7 @@ void ContextCreateBoxAttached3Points::createObject(Controller& controller, Trans
 {
 	FUNCLOG << "ContextCreateBoxAttached3Points createObject" << LOGENDL;
 	const ClippingBoxSettings& settings = controller.getContext().getClippingSettings();
-	SafePtr<BoxNode> box = make_safe<BoxNode>(true);
+	SafePtr<BoxNode> box = make_safe<BoxNode>();
 	WritePtr<BoxNode> wBox = box.get();
 	if (!wBox)
 	{
@@ -94,7 +94,7 @@ ContextState ContextCreateBoxAttached2Points::launch(Controller& controller)
 
 	mod.setPosition((P1 + P0) / 2.);
 
-	SafePtr<BoxNode> box = make_safe<BoxNode>(true);
+	SafePtr<BoxNode> box = make_safe<BoxNode>();
 	WritePtr<BoxNode> wBox = box.get();
 	if (!wBox)
 	{

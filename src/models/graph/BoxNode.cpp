@@ -4,6 +4,18 @@
 #include "gui/texts/DefaultNameTexts.hpp"
 #include "vulkan/MeshManager.h"
 
+BoxNode::BoxNode()
+    : SimpleObjectNode()
+    , grid_need_update(true)
+    , grid_type(GridType::NoGrid)
+    , grid_division(1.f, 1.f, 1.f)
+    , grid_sbuf(nullptr)
+{
+    setName(TEXT_DEFAULT_NAME_BOX.toStdWString());
+    addGenericMeshInstance();
+    Data::marker_icon_ = scs::MarkerIcon::Box;
+}
+
 BoxNode::BoxNode(const BoxNode& node)
     : SimpleObjectNode(node)
     , grid_need_update(true)
@@ -14,36 +26,25 @@ BoxNode::BoxNode(const BoxNode& node)
     addGenericMeshInstance();
 }
 
-BoxNode::BoxNode(bool isSimpleBox)
-    : SimpleObjectNode()
-    , grid_need_update(true)
-    , grid_type(isSimpleBox ? GridType::NoGrid : GridType::ByMultiple)
-    , grid_division(1.f, 1.f, 1.f)
-    , grid_sbuf(nullptr)
-{
-    setName(TEXT_DEFAULT_NAME_BOX.toStdWString());
-    addGenericMeshInstance();
-}
-
 BoxNode::~BoxNode()
 {
     MeshManager::getInstance().removeGridMesh(grid_sbuf);
     grid_sbuf.reset();
 }
 
+void BoxNode::setClippingMode(ClippingMode mode)
+{
+    m_clippingMode = isSimpleBox() ? mode : ClippingMode::showInterior;
+}
+
 ElementType BoxNode::getType() const
 {
-    return isSimpleBox() ? ElementType::Box : ElementType::Grid;
+    return ElementType::Box;
 }
 
 TreeType BoxNode::getDefaultTreeType() const
 {
     return TreeType::Boxes;
-}
-
-ClippingMode BoxNode::getClippingMode() const
-{
-    return isSimpleBox() ? m_clippingMode : ClippingMode::showInterior;
 }
 
 void BoxNode::pushClippingGeometries(ClippingAssembly& clipAssembly, const TransformationModule& transfo) const
@@ -104,12 +105,14 @@ void BoxNode::setIsSimpleBox(bool simpleBox)
 {
     grid_need_update = true;
     grid_type = simpleBox ? GridType::NoGrid : GridType::ByMultiple;
+    Data::marker_icon_ = simpleBox ? scs::MarkerIcon::Box : scs::MarkerIcon::Grid;
 }
 
 void BoxNode::setGridType(GridType type)
 {
     grid_need_update = (grid_type != type);
     grid_type = type;
+    Data::marker_icon_ = isSimpleBox() ? scs::MarkerIcon::Box : scs::MarkerIcon::Grid;
 }
 
 void BoxNode::setGridDivision(const glm::vec3& division)

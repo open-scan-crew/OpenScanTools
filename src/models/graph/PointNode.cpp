@@ -1,17 +1,15 @@
 #include "models/graph/PointNode.h"
-#include "services/MarkerDefinitions.hpp"
 #include "gui/texts/DefaultNameTexts.hpp"
 
 PointNode::PointNode(const PointNode& node)
     : AClippingNode(node)
 {
-    updateMarker();
 }
 
 PointNode::PointNode()
 {
     setName(TEXT_DEFAULT_NAME_POINT.toStdWString());
-    updateMarker();
+    Data::marker_icon_ = scs::MarkerIcon::PointObject;
 }
 
 PointNode::~PointNode()
@@ -71,38 +69,4 @@ void PointNode::setColor(const Color32& color)
     if (color == m_color)
         return;
     AObjectNode::setColor(color);
-}
-
-scs::MarkerIcon PointNode::getIconType() const
-{
-    return scs::MarkerIcon::PointObject;
-}
-
-MarkerDrawData PointNode::getMarkerDrawData(const glm::dmat4& gTransfo) const
-{
-    // Compose the style
-    uint32_t status = 0;
-    if (m_selected)
-        status |= 0x01;
-    if (m_isHovered)
-        status |= 0x02;
-    if (scs::markerStyleDefs.at(scs::MarkerIcon::PointObject).showTrueColor)
-        status |= 0x04;
-
-    return {
-        { (float)gTransfo[3][0], (float)gTransfo[3][1], (float)gTransfo[3][2] },
-        { m_color.r, m_color.g, m_color.b, m_color.a },
-        m_graphicId,
-        (uint32_t)scs::MarkerIcon::PointObject,
-        m_primitiveDef.firstVertex,
-        m_primitiveDef.vertexCount,
-        status
-    };
-}
-
-void PointNode::updateMarker()
-{
-    scs::MarkerStyleDefinition marker_style = scs::markerStyleDefs.at(scs::MarkerIcon::PointObject);
-    m_showMarkerTrueColor = marker_style.showTrueColor;
-    m_primitiveDef = scs::g_shapePrimitives.at(marker_style.shape);
 }

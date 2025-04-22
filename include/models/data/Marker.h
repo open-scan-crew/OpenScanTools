@@ -16,7 +16,7 @@ namespace scs
         // Tag Category
         Tag_Base,
         Tag_Attention,
-        Tag_Cone,       // NEW
+        Tag_Cone,
         Tag_Delete,
         Tag_Drop,
         Tag_Flag,
@@ -33,9 +33,9 @@ namespace scs
         Picto_Danger_Laser,
         Picto_Danger_Radiation,
         Picto_Danger_Hot_Surface,
-        Picto_Danger_Falling_Objects, // NEW
-        Picto_Danger_Camera,          // NEW
-        Picto_Danger_Forklift,        // NEW
+        Picto_Danger_Falling_Objects,
+        Picto_Danger_Camera,
+        Picto_Danger_Forklift,
         // Danger_2 Category
         Picto_Danger_Attention,
         Picto_Danger_Comburant,
@@ -56,8 +56,8 @@ namespace scs
         Picto_Epi_Mask,
         Picto_Epi_NoiseProtection,
         Picto_Epi_Uniform,
-        Picto_Epi_Hygiene_Cap,  // NEW
-        Picto_Epi_Overshoes,     // NEW
+        Picto_Epi_Hygiene_Cap,
+        Picto_Epi_Overshoes,
         // Rescue Category
         Picto_Rescue_Ari,
         Picto_Rescue_Stop,
@@ -73,6 +73,20 @@ namespace scs
         Picto_Security_Extinguisher,
         Picto_Security_Ria,
         Picto_Security_Phone,
+        // Arborescence
+        Torus,
+        Sphere,
+        Cylinder,
+        Box,
+        Grid,
+        PCO,
+        Simple_Measure,
+        Polyline_Measure,
+        PointToPlane_Measure,
+        PipeToPipe_Measure,
+        PointToPipe_Measure,
+        PipeToPlane_Measure,
+        MeshObject,
         Max_Enum
     };
 

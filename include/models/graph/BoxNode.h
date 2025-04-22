@@ -13,14 +13,15 @@ enum class GridType
 class BoxNode : public SimpleObjectNode
 {
 public:
+    BoxNode();
     BoxNode(const BoxNode& object);
-    BoxNode(bool isSimpleBox);
     ~BoxNode();
+
+    virtual void setClippingMode(ClippingMode) override;
 
     ElementType getType() const override;
     TreeType getDefaultTreeType() const override;
 
-    virtual ClippingMode getClippingMode() const override;
     virtual void pushClippingGeometries(ClippingAssembly& clipAssembly, const TransformationModule& transfo) const override;
     virtual void pushRampGeometries(std::vector<std::shared_ptr<IClippingGeometry>>& retGeom, const TransformationModule& transfo) const override;
 

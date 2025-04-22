@@ -95,23 +95,23 @@ void SubPropertyClipping::prepareUi(ElementType type)
 	m_ui.InteriorModeRadioBtn->setEnabled(true);
 	m_ui.ExteriorModeRadioBtn->setEnabled(true);
 
-	bool isBoxOrGrid = (type == ElementType::Box || type == ElementType::Grid);
+	bool isBox = (type == ElementType::Box);
 
-	m_ui.label_minClip->setVisible(!isBoxOrGrid);
-	m_ui.lineEdit_minClip->setVisible(!isBoxOrGrid);
-	m_ui.label_maxClip->setVisible(!isBoxOrGrid);
-	m_ui.lineEdit_maxClip->setVisible(!isBoxOrGrid);
+	m_ui.label_minClip->setVisible(!isBox);
+	m_ui.lineEdit_minClip->setVisible(!isBox);
+	m_ui.label_maxClip->setVisible(!isBox);
+	m_ui.lineEdit_maxClip->setVisible(!isBox);
 
-	m_ui.lineEdit_minRamp->setVisible(!isBoxOrGrid);
-	m_ui.label_minRamp->setVisible(!isBoxOrGrid);
-	m_ui.lineEdit_maxRamp->setVisible(!isBoxOrGrid);
-	m_ui.label_maxRamp->setVisible(!isBoxOrGrid);
+	m_ui.lineEdit_minRamp->setVisible(!isBox);
+	m_ui.label_minRamp->setVisible(!isBox);
+	m_ui.lineEdit_maxRamp->setVisible(!isBox);
+	m_ui.label_maxRamp->setVisible(!isBox);
 
-	m_ui.checkBox_clamp->setVisible(isBoxOrGrid);
-	m_ui.checkBox_clamp->setVisible(isBoxOrGrid);
+	m_ui.checkBox_clamp->setVisible(isBox);
+	m_ui.checkBox_clamp->setVisible(isBox);
 
-	m_ui.InteriorModeRadioBtn->setEnabled(type != ElementType::Grid && m_ui.group_clip->isChecked());
-	m_ui.ExteriorModeRadioBtn->setEnabled(type != ElementType::Grid && m_ui.group_clip->isChecked());
+	m_ui.InteriorModeRadioBtn->setEnabled(/*type != ElementType::Grid &&*/m_ui.group_clip->isChecked());
+	m_ui.ExteriorModeRadioBtn->setEnabled(/*type != ElementType::Grid &&*/m_ui.group_clip->isChecked());
 }
 
 void SubPropertyClipping::onShowInteriorClick()

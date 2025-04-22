@@ -188,7 +188,7 @@ void ProjectTreePanel::removeTreeNode(TreeNode* node)
 	if (node->isStructNode())
 		return;
 
-    // 1. On enlÃ¨ve de la map SafePtr<AGraphNode> -> std::vector<TreeNode*> le TreeNode correspondant
+    // 1. On enlève de la map SafePtr<AGraphNode> -> std::vector<TreeNode*> le TreeNode correspondant
     if (m_model->getTreeNodes().find(node->getData()) != m_model->getTreeNodes().end())
     {
         std::vector<TreeNode*>& nodes = m_model->getTreeNodes().at(node->getData());
@@ -223,6 +223,14 @@ void ProjectTreePanel::removeTreeNode(TreeNode* node)
 
 	if (selectionModel)
 		selectionModel->blockSignals(false);
+}
+
+void ProjectTreePanel::addRootToUpdateSystem(TreeNode* node, TreeType treeType)
+{
+	std::unordered_map<TreeType, std::vector<TreeNode*>>& rootNodes = m_rootNodes;
+	if (rootNodes.find(treeType) == rootNodes.end())
+		rootNodes[treeType] = std::vector<TreeNode*>();
+	rootNodes[treeType].push_back(node);
 }
 
 void ProjectTreePanel::updateSelection(const std::unordered_set<SafePtr<AGraphNode>>& datas)
@@ -296,13 +304,12 @@ void ProjectTreePanel::generateTreeModel()
 	hierarchyTreeNode->setSelectable(true);
 	hierarchyTreeNode->setCheckable(true);
 	hierarchyTreeNode->setCheckState(Qt::CheckState::Checked);
-    m_model->setItem(0, hierarchyTreeNode);
-	if (m_rootNodes.find(TreeType::Hierarchy) == m_rootNodes.end())
-		m_rootNodes[TreeType::Hierarchy] = std::vector<TreeNode*>();
-	m_rootNodes[TreeType::Hierarchy].push_back(hierarchyTreeNode);
+
+	m_model->setItem(0, hierarchyTreeNode);
+	addRootToUpdateSystem(hierarchyTreeNode, TreeType::Hierarchy);
 
 	m_itemsNode = m_nodeFactory->constructMasterNode(TEXT_ITEMS_TREE_NODE, TreeType::RawData);
-    m_model->setItem(1, m_itemsNode);
+	m_model->setItem(1, m_itemsNode);
 	m_itemsNode->setCheckable(true);
 	m_itemsNode->setCheckState(Qt::CheckState::Checked);
 
@@ -354,36 +361,30 @@ void ProjectTreePanel::generateTreeModel()
 	m_nodeFactory->constructStatusNodes({ ElementType::Tag }, tagsAttrNode);
 	m_nodeFactory->constructClipMethodNodes({ ElementType::Tag }, tagsAttrNode);
 
-	m_nodeFactory->constructSubList({
-		{ ElementType::Box, TEXT_SIMPLE_BOX_SUB_NODE },
-		{ ElementType::Grid, TEXT_GRID_SUB_NODE }}, boxesAttrNode);
+	m_nodeFactory->addBoxesSubList(boxesAttrNode, TEXT_SIMPLE_BOX_SUB_NODE, true);
+	m_nodeFactory->addBoxesSubList(boxesAttrNode, TEXT_GRID_SUB_NODE, false);
 
-	m_nodeFactory->constructStatusNodes({ ElementType::Box, ElementType::Grid }, boxesAttrNode);
-	m_nodeFactory->constructClipMethodNodes({ ElementType::Box, ElementType::Grid }, boxesAttrNode);
-	m_nodeFactory->constructColorNodes({ ElementType::Box, ElementType::Grid }, boxesAttrNode);
+	m_nodeFactory->constructStatusNodes({ ElementType::Box }, boxesAttrNode);
+	m_nodeFactory->constructClipMethodNodes({ ElementType::Box }, boxesAttrNode);
+	m_nodeFactory->constructColorNodes({ ElementType::Box }, boxesAttrNode);
 
+	TreeNode* simple_m = m_nodeFactory->addSubList(measureAttrNode, TEXT_SIMPLE_MEASURE, ElementType::SimpleMeasure);
+	TreeNode* poly_m = m_nodeFactory->addSubList(measureAttrNode, TEXT_POLYLINE_MEASURE, ElementType::PolylineMeasure);
+	TreeNode* ctm = m_nodeFactory->addSubList(measureAttrNode, TEXT_COLUMNTILT_MEASURE, ElementType::ColumnTiltMeasure);
+	TreeNode* bbm = m_nodeFactory->addSubList(measureAttrNode, TEXT_BEAMBENDING_MEASURE, ElementType::BeamBendingMeasure);
+	TreeNode* pipe_to_pipe = m_nodeFactory->addSubList(measureAttrNode, TEXT_PIPETOPIPE_MEASURE, ElementType::PipeToPipeMeasure);
+	TreeNode* pipe_to_plane = m_nodeFactory->addSubList(measureAttrNode, TEXT_PIPETOPLANE_MEASURE, ElementType::PipeToPlaneMeasure);
+	TreeNode* point_to_plane = m_nodeFactory->addSubList(measureAttrNode, TEXT_POINTTOPLANE_MEASURE, ElementType::PointToPlaneMeasure);
+	TreeNode* point_to_pipe = m_nodeFactory->addSubList(measureAttrNode, TEXT_POINTTOPIPE_MEASURE, ElementType::PointToPipeMeasure);
 
-	std::vector<TreeNode*> measures = m_nodeFactory->constructSubList({
-		{ ElementType::SimpleMeasure, TEXT_SIMPLE_MEASURE },
-		{ ElementType::PolylineMeasure, TEXT_POLYLINE_MEASURE },
-		{ ElementType::ColumnTiltMeasure, TEXT_COLUMNTILT_MEASURE },
-		{ ElementType::BeamBendingMeasure, TEXT_BEAMBENDING_MEASURE },
-		{ ElementType::SimpleMeasure, TEXT_SIMPLE_MEASURE },
-		{ ElementType::PolylineMeasure, TEXT_POLYLINE_MEASURE },
-		{ ElementType::PipeToPipeMeasure, TEXT_PIPETOPIPE_MEASURE },
-		{ ElementType::PipeToPlaneMeasure, TEXT_PIPETOPLANE_MEASURE },
-		{ ElementType::PointToPlaneMeasure, TEXT_POINTTOPLANE_MEASURE },
-		{ ElementType::PointToPipeMeasure, TEXT_POINTTOPIPE_MEASURE } }, measureAttrNode);
+	m_nodeFactory->constructStatusNodes({ ElementType::SimpleMeasure }, simple_m);
+	m_nodeFactory->constructClipMethodNodes({ ElementType::SimpleMeasure }, simple_m);
 
-	m_nodeFactory->constructStatusNodes({ ElementType::SimpleMeasure }, measures[0]);
-	m_nodeFactory->constructClipMethodNodes({ ElementType::SimpleMeasure }, measures[0]);
+	m_nodeFactory->constructStatusNodes({ ElementType::PolylineMeasure }, poly_m);
+	m_nodeFactory->constructClipMethodNodes({ ElementType::PolylineMeasure }, poly_m);
 
-	m_nodeFactory->constructStatusNodes({ ElementType::PolylineMeasure }, measures[1]);
-	m_nodeFactory->constructClipMethodNodes({ ElementType::PolylineMeasure }, measures[1]);
-
-	std::vector<TreeNode*> pipes = m_nodeFactory->constructSubList({
-		{ ElementType::Cylinder, TEXT_CYLINDER_SUB_NODE },
-		{ ElementType::Torus, TEXT_TORUS_SUB_NODE }}, pipesTree);
+	TreeNode* cylinder = m_nodeFactory->addSubList(pipesTree, TEXT_CYLINDER_SUB_NODE, ElementType::Cylinder);
+	TreeNode* torus = m_nodeFactory->addSubList(pipesTree, TEXT_TORUS_SUB_NODE, ElementType::Torus);
 
 	m_nodeFactory->constructStatusNodes({ ElementType::Torus, ElementType::Cylinder }, pipesTree);
 	m_nodeFactory->constructClipMethodNodes({ ElementType::Torus, ElementType::Cylinder }, pipesTree);
@@ -454,9 +455,7 @@ TreeNode* ProjectTreePanel::buildTreeModelBranch(const QString& name, TreeType t
 
 	m_nodeFactory->updateNode(item);
 
-	if (m_rootNodes.find(treetype) == m_rootNodes.end())
-		m_rootNodes[treetype] = std::vector<TreeNode*>();
-	m_rootNodes[treetype].push_back(item);
+	addRootToUpdateSystem(item, treetype);
 
 	return (item);
 }
@@ -765,7 +764,7 @@ void ProjectTreePanel::onCollapse(const QModelIndex& ind)
 	m_nodeFactory->updateNode(expandNode);
 }
 
-/*! Gï¿½nï¿½re le menu contextuel apparaï¿½sant selon le point QPoint p cliquï¿½ */
+/*! Génère le menu contextuel apparaisant selon le point QPoint p cliqué */
 void ProjectTreePanel::showTreeMenu(QPoint p)
 {
 	QModelIndex index = this->indexAt(p);
@@ -816,7 +815,6 @@ void ProjectTreePanel::showTreeMenu(QPoint p)
 	
 	// Clipping enable, disable, show intern, show extern
 	if (m_lastTreeNodeSelected->getType() == ElementType::Box ||
-		m_lastTreeNodeSelected->getType() == ElementType::Grid ||
 		m_lastTreeNodeSelected->getType() == ElementType::Tag ||
 		m_lastTreeNodeSelected->getType() == ElementType::Point ||
 		m_lastTreeNodeSelected->getType() == ElementType::SimpleMeasure ||

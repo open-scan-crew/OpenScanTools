@@ -170,7 +170,6 @@ ContextState ContextExportDxf::launch(Controller& controller)
 				}
 				break;
 			case ElementType::Box:
-			case ElementType::Grid:
 			case ElementType::PipeToPipeMeasure:
 			case ElementType::PipeToPlaneMeasure:
 			case ElementType::PointToPipeMeasure:
@@ -193,7 +192,6 @@ ContextState ContextExportDxf::launch(Controller& controller)
 		switch (type)
 		{
 			case ElementType::Box:
-			case ElementType::Grid:
 				{
 					ReadPtr<TransformationModule> transfo = static_pointer_cast<TransformationModule>(exportPtr).cget();
 					if (!transfo)
@@ -282,7 +280,6 @@ ContextState ContextExportDxf::launch(Controller& controller)
 					return processError(err, controller);
 				break;
 			case ElementType::Box:
-			case ElementType::Grid:
 			case ElementType::Cylinder:
 			case ElementType::Sphere:
 			case ElementType::Torus:
@@ -341,7 +338,6 @@ ContextExportDxf::ErrorType ContextExportDxf::getFilename(const ElementType& typ
 			name += TAG;
 			break;
 		case ElementType::Box:
-		case ElementType::Grid:
 			name += CLIPPING;
 			break;
 		case ElementType::Cylinder:

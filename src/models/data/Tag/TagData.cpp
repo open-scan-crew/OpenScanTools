@@ -15,15 +15,15 @@ TagData::~TagData()
 
 void TagData::copyTagData(const TagData& data)
 {
-	m_markerIcon = data.getMarkerIcon();
+	//Data::icon_ = data.getMarkerIcon();
 	m_fields = data.getFields();
 	m_template = data.getTemplate();
 }
 
-void TagData::setMarkerIcon(scs::MarkerIcon icon)
-{
-	m_markerIcon = icon;
-}
+//void TagData::setMarkerIcon(scs::MarkerIcon icon)
+//{
+//	Data::icon_ = icon;
+//}
 
 void TagData::setValue(sma::tFieldId id, std::wstring newValue)
 {
@@ -46,10 +46,8 @@ void TagData::removeField(sma::tFieldId id)
 
 void TagData::setDefaultData(const ControllerContext& context)
 {
-	setMarkerIcon(context.getActiveIcon());
 	setTemplate(context.getCurrentTemplate());
 }
-
 
 void TagData::setFields(const std::unordered_map<sma::tFieldId, std::wstring>& fields)
 {
@@ -67,10 +65,10 @@ SafePtr<sma::TagTemplate> TagData::getTemplate() const
 	return (m_template);
 }
 
-const scs::MarkerIcon& TagData::getMarkerIcon() const
-{
-	return (m_markerIcon);
-}
+//const scs::MarkerIcon& TagData::getMarkerIcon() const
+//{
+//	return (m_markerIcon);
+//}
 
 std::wstring TagData::getValue(sma::tFieldId id) const
 {

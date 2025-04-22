@@ -1,8 +1,9 @@
 #ifndef MARKER_DEFINITION_H
 #define MARKER_DEFINITION_H
 
-#include "models/project/Marker.h"
+#include "models/data/Marker.h"
 #include "gui/texts/MarkerTexts.hpp"
+#include "gui/texts/DefaultNameTexts.hpp"
 
 #include <unordered_map>
 #include <QtCore/qstring.h>
@@ -18,7 +19,7 @@ namespace scs
     };
 
     const static std::unordered_map<MarkerIcon, MarkerStyleDefinition> markerStyleDefs = {
-        { MarkerIcon::Scan_Base, { MarkerShape::Top_Arrow, false, QString(":icons/100x100/scan_100.png"), TEXT_MARKER_DEFINITION_SURVEY_EQUIPEMENT } },
+        { MarkerIcon::Scan_Base, { MarkerShape::Top_Arrow, false, QString(":icons/arbo/survey_equipment_100.png"), TEXT_MARKER_DEFINITION_SURVEY_EQUIPEMENT } },
         { MarkerIcon::Target, { MarkerShape::Centered, false, QString(":icons/100x100/target.png"), TEXT_MARKER_DEFINITION_TARGET } },
         { MarkerIcon::BeamBending, { MarkerShape::Top_Arrow, false, QString(":icons/tag/beam_bending.png"), TEXT_MARKER_DEFINITION_BEAMBENDING } },
         { MarkerIcon::ColumnTilt, { MarkerShape::Top_Arrow, false, QString(":/icons/100x100/column tilt.png"), TEXT_MARKER_DEFINITION_COLUMNTILT } },
@@ -77,7 +78,21 @@ namespace scs
         { MarkerIcon::Picto_Security_Alarm, { MarkerShape::Top_Arrow, true, ":icons/picto/picto_secu_alarme.png", TEXT_MARKER_DEFINITION_ALARM } },
         { MarkerIcon::Picto_Security_Extinguisher, { MarkerShape::Top_Arrow, true, ":icons/picto/picto_secu_extincteur.png", TEXT_MARKER_DEFINITION_FIRE_EXTINGUISHER } },
         { MarkerIcon::Picto_Security_Ria, { MarkerShape::Top_Arrow, true, ":icons/picto/picto_secu_ria.png", TEXT_MARKER_DEFINITION_FIRE_HOSE } },
-        { MarkerIcon::Picto_Security_Phone, { MarkerShape::Top_Arrow, true, ":icons/picto/picto_secu_tel.png", TEXT_MARKER_DEFINITION_FIRE_PHONE } }
+        { MarkerIcon::Picto_Security_Phone, { MarkerShape::Top_Arrow, true, ":icons/picto/picto_secu_tel.png", TEXT_MARKER_DEFINITION_FIRE_PHONE } },
+        // Other objects type
+        { MarkerIcon::Torus, { MarkerShape::Centered, false, ":icons/arbo/elbow.png", TEXT_DEFAULT_NAME_TORUS } },
+        { MarkerIcon::Sphere, { MarkerShape::Centered, false, ":icons/arbo/sphere.png", TEXT_DEFAULT_NAME_SPHERE } },
+        { MarkerIcon::Cylinder, { MarkerShape::Centered, false, ":icons/arbo/pipe.png", TEXT_DEFAULT_NAME_PIPE } },
+        { MarkerIcon::Box, { MarkerShape::Centered, false, ":icons/arbo/Ortho-yk.png", TEXT_DEFAULT_NAME_BOX } },
+        { MarkerIcon::Grid, { MarkerShape::Centered, false, ":icons/arbo/gridded box-yk.png", TEXT_DEFAULT_NAME_BOX } },
+        { MarkerIcon::PCO, { MarkerShape::Centered, false, ":icons/arbo/global_box.png", TEXT_DEFAULT_NAME_BOX } },
+        { MarkerIcon::Simple_Measure, { MarkerShape::Centered, false, ":icons/arbo/measure_points.png", TEXT_DEFAULT_NAME_SIMPLE_MEASURE } },
+        { MarkerIcon::Polyline_Measure, { MarkerShape::Centered, false, ":icons/arbo/polyline.png", TEXT_DEFAULT_NAME_POLYLINE } },
+        { MarkerIcon::PointToPlane_Measure, { MarkerShape::Centered, false, ":icons/100x100/point_plane_measurement.png", TEXT_DEFAULT_NAME_POINT_TO_PLANE } },
+        { MarkerIcon::PipeToPipe_Measure, { MarkerShape::Centered, false, ":icons/arbo/cylinder_cylinder_measurement.png", TEXT_DEFAULT_NAME_PIPE_TO_PIPE } },
+        { MarkerIcon::PointToPipe_Measure, { MarkerShape::Centered, false, ":icons/arbo/cylinder_point_measurement.png", TEXT_DEFAULT_NAME_POINT_TO_PIPE } },
+        { MarkerIcon::PipeToPlane_Measure, { MarkerShape::Centered, false, ":icons/arbo/cylinder_plane_measurement.png", TEXT_DEFAULT_NAME_PIPE_TO_PLANE } },
+        { MarkerIcon::MeshObject, { MarkerShape::Centered, false, ":icons/arbo/3dmodel.png", TEXT_DEFAULT_NAME_MESH } },
         /**/
     };
 
@@ -97,12 +112,11 @@ namespace scs
         { MarkerCategory::Rescue, { MarkerIcon::Picto_Rescue_Ari, 9} }
     };
 
-
-    const static std::unordered_map<scs::MarkerShape, PrimitiveDef> g_shapePrimitives =
+    const static std::unordered_map<MarkerShape, PrimitiveDef> g_shapePrimitives =
     {
         { MarkerShape::Centered, { 0, 4 } },
         { MarkerShape::Top_No_Arrow, { 4, 4 } },
-        {MarkerShape::Top_Arrow, { 8, 5 } }
+        { MarkerShape::Top_Arrow, { 8, 5 } }
     };
 }
 

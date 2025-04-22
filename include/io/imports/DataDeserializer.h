@@ -48,7 +48,7 @@ namespace DataDeserializer
 	void DeserializeScanObjectNode(WritePtr<ScanObjectNode>& nodeToEdit, const nlohmann::json& json, Controller& controller);
 	void DeserializeScanNode(WritePtr<ScanNode>& nodeToEdit, const nlohmann::json& json, Controller& controller);
 	void DeserializeClusterNode(WritePtr<ClusterNode>& nodeToEdit, const nlohmann::json& json, Controller& controller);
-	void DeserializeBoxNode(WritePtr<BoxNode>& nodeToEdit, const nlohmann::json& json, Controller& controller);
+	void DeserializeBoxNode(SafePtr<BoxNode> nodeToEdit, const nlohmann::json& json, Controller& controller);
 	void DeserializeCylinderNode(WritePtr<CylinderNode>& nodeToEdit, const nlohmann::json& json, Controller& controller);
 	void DeserializeTorusNode(WritePtr<TorusNode>& nodeToEdit, const nlohmann::json& json, Controller& controller);
 	void DeserializeSphereNode(WritePtr<SphereNode>& nodeToEdit, const nlohmann::json& json, Controller& controller);

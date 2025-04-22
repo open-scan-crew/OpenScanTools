@@ -1247,7 +1247,6 @@ void ObjectNodeVisitor::nextGeoNode(const SafePtr<AGraphNode>& node, const Trans
     switch (elemType)
     {
     case ElementType::Box:
-    case ElementType::Grid:
     case ElementType::Cylinder:
     case ElementType::Torus:
     case ElementType::Point:
@@ -1294,36 +1293,36 @@ void ObjectNodeVisitor::bakeGraphics(const SafePtr<AGraphNode>& node, const Tran
 
     glm::dmat4 transfoMat = gTransfo.getTransformation();
 
-    bool drawImguitext = m_displayParameters.m_displayAllMarkersTexts;
+    {
+        ReadPtr<AObjectNode> rObj = static_read_cast<AObjectNode>(node);
+        if (!rObj)
+            return;
+        switch (elemType)
+        {
+        case ElementType::Scan:
+            if ((m_displayParameters.m_markerMask & SHOW_SCAN_MARKER) != 0)
+                MarkerRenderer::getMarkerDrawData(transfoMat, *&rObj);
+            break;
+        case ElementType::Tag:
+            if ((m_displayParameters.m_markerMask & SHOW_TAG_MARKER) != 0)
+                MarkerRenderer::getMarkerDrawData(transfoMat, *&rObj);
+            break;
+        case ElementType::Point:
+        case ElementType::BeamBendingMeasure:
+        case ElementType::ColumnTiltMeasure:
+        case ElementType::ViewPoint:
+            MarkerRenderer::getMarkerDrawData(transfoMat, *&rObj);
+            break;
+        }
+    }
+
     switch (elemType)
     {
-    case ElementType::Tag:
-    {
-        ReadPtr<TagNode> rTag = static_read_cast<TagNode>(node);
-        if (!rTag)
-            break;
-        if ((m_displayParameters.m_markerMask & SHOW_TAG_MARKER) != 0)
-            m_markerDrawData.emplace_back(rTag->getMarkerDrawData(transfoMat));
-        break;
-    }
-    case ElementType::Point:
-    {
-        ReadPtr<PointNode> rPoint = static_read_cast<PointNode>(node);
-        if (!rPoint)
-            break;
-        m_markerDrawData.emplace_back(rPoint->getMarkerDrawData(transfoMat));
-        break;
-    }
     case ElementType::Scan:
     {
         WritePtr<ScanNode> wScan = static_write_cast<ScanNode>(node);
         if (!wScan)
             break;
-        // Marker
-        if ((m_displayParameters.m_markerMask & SHOW_SCAN_MARKER) != 0)
-            m_markerDrawData.emplace_back(wScan->getMarkerDrawData(transfoMat));
-        else
-            drawImguitext = false;
 
         // Point Cloud
         if (m_panoramicScan && (node != m_panoramicScan))
@@ -1363,33 +1362,7 @@ void ObjectNodeVisitor::bakeGraphics(const SafePtr<AGraphNode>& node, const Tran
             m_bakedPointCloud.push_back({ transfoMat, pco->getScanGuid(), color, pco->getUniform(m_uniformSwapIndex) , pco->getClippable(), true });
         break;
     }
-    case ElementType::BeamBendingMeasure:
-    {
-        ReadPtr<BeamBendingMeasureNode> rBbm = static_read_cast<BeamBendingMeasureNode>(node);
-        if (!rBbm)
-            break;
-        m_markerDrawData.emplace_back(rBbm->getMarkerDrawData(transfoMat));
-        break;
-    }
-    case ElementType::ColumnTiltMeasure:
-    {
-        ReadPtr<ColumnTiltMeasureNode> rCtm = static_read_cast<ColumnTiltMeasureNode>(node);
-        if (!rCtm)
-            break;
-        m_markerDrawData.emplace_back(rCtm->getMarkerDrawData(transfoMat));
-        break;
-    }
-    case ElementType::ViewPoint:
-    {
-        ReadPtr<ViewPointNode> rVp = static_read_cast<ViewPointNode>(node);
-        if (!rVp)
-            break;
-        m_markerDrawData.emplace_back(rVp->getMarkerDrawData(transfoMat));
-        break;
-    }
-
     // Mesh
-    case ElementType::Grid:
     case ElementType::Box:
     {
         WritePtr<BoxNode> wBox = static_write_cast<BoxNode>(node);
@@ -1459,6 +1432,8 @@ void ObjectNodeVisitor::bakeGraphics(const SafePtr<AGraphNode>& node, const Tran
         break;
     }
 
+    bool drawImguitext = m_displayParameters.m_displayAllMarkersTexts;
+    drawImguitext &= !((elemType == ElementType::Scan) && (m_displayParameters.m_markerMask & SHOW_SCAN_MARKER) == 0);
     switch (graphType)
     {
     case AGraphNode::Type::Default:

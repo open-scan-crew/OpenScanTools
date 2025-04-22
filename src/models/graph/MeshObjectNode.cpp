@@ -1,6 +1,7 @@
 #include "models/graph/MeshObjectNode.h"
 #include "vulkan/MeshManager.h"
 #include "models/3d/ManipulationTypes.h"
+#include "gui/texts/DefaultNameTexts.hpp"
 
 MeshObjectNode::MeshObjectNode(const MeshObjectNode& node)
 	: AObjectNode(node)
@@ -11,7 +12,8 @@ MeshObjectNode::MeshObjectNode(const MeshObjectNode& node)
 
 MeshObjectNode::MeshObjectNode()
 {
-
+	setName(TEXT_DEFAULT_NAME_MESH.toStdWString());
+	Data::marker_icon_ = scs::MarkerIcon::MeshObject;
 }
 
 MeshObjectNode::~MeshObjectNode()

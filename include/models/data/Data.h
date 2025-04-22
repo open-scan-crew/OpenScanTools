@@ -5,6 +5,7 @@
 #include "crossguid/guid.hpp"
 #include "utils/safe_ptr.h"
 #include "utils/Color32.hpp"
+#include "models/data/Marker.h"
 
 #include <unordered_map>
 
@@ -58,6 +59,7 @@ public:
 	void setIdentifier(const std::wstring& identifier);
 	void setHyperlinks(const std::unordered_map<hLinkId, s_hyperlink>& links);
 	virtual void setColor(const Color32& color);
+	void setMarkerIcon(scs::MarkerIcon icon);
 
 	virtual void setDefaultData(const ControllerContext& context);
 
@@ -82,6 +84,7 @@ public:
 	std::wstring getIdentifier() const;
 	const std::unordered_map<hLinkId, s_hyperlink>& getHyperlinks() const;
 	const Color32& getColor() const;
+	scs::MarkerIcon getMarkerIcon() const;
 
 protected:
 	bool m_visible = true;
@@ -103,6 +106,7 @@ protected:
 	std::unordered_map<hLinkId, s_hyperlink> m_hyperlinks;
 
 	Color32 m_color;
+	scs::MarkerIcon marker_icon_;
 };
 
 #endif // !UIDATA_H_

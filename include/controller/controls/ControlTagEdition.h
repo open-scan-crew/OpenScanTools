@@ -2,7 +2,7 @@
 #define CONTROL_TAG_EDITION_H_
 
 #include "controller/controls/AEditionControl.h"
-#include "models/project/Marker.h"
+#include "models/data/Marker.h"
 #include "models/application/TagTemplate.h"
 
 class TagNode;

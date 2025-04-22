@@ -37,7 +37,7 @@ ContextState ContextPCOCreation::start(Controller& controller)
     // Create the clipping info lists
     GraphManager& graphManager = controller.getGraphManager();
 
-    std::unordered_set<SafePtr<AGraphNode>> selectBoxes = graphManager.getNodesByTypes({ ElementType::Box , ElementType::Grid }, ObjectStatusFilter::SELECTED);
+    std::unordered_set<SafePtr<AGraphNode>> selectBoxes = graphManager.getNodesByTypes({ ElementType::Box }, ObjectStatusFilter::SELECTED);
     if (selectBoxes.empty() || selectBoxes.size() != 1)
         return (m_state = ContextState::abort);
 

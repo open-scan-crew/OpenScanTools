@@ -304,7 +304,6 @@ void GraphManager::getMeshInfoForClick(ClickInfo& click)
 	}
 
 	if (type == ElementType::Box ||
-		type == ElementType::Grid ||
 		type == ElementType::Cylinder ||
 		type == ElementType::Sphere)
 	{
@@ -536,7 +535,11 @@ std::unordered_set<SafePtr<BoxNode>> GraphManager::getGrids() const
 {
 	return getNodesOnFilter<BoxNode>(
 		[](ReadPtr<AGraphNode>& node)
-		{ return node->getType() == ElementType::Grid; });
+		{
+			if (node->getType() != ElementType::Box)
+				return false;
+			return ((const BoxNode*)(&node))->isSimpleBox();
+		});
 }
 
 uint32_t GraphManager::getActiveClippingCount() const

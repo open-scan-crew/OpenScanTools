@@ -111,7 +111,6 @@ ContextState ContextExportCSV::launch(Controller& controller)
 
 		switch (currentType)
 		{
-			
 			case ElementType::Tag:
 			{
 				SafePtr<sma::TagTemplate> tagTemplate;
@@ -127,11 +126,6 @@ ContextState ContextExportCSV::launch(Controller& controller)
 						for (auto field : rTagTemp->getFields())
 							allCustomTagFields.insert({ field.first, field.second.m_name });
 				}
-			}
-			break;
-			case ElementType::Grid:
-			{
-				currentType = ElementType::Box;
 			}
 			break;
 		}
@@ -179,7 +173,6 @@ ContextState ContextExportCSV::launch(Controller& controller)
 			case ElementType::SimpleMeasure:
 			case ElementType::PolylineMeasure:
 			case ElementType::Box:
-			case ElementType::Grid:
 			{
 				writer << L"Author" << L"Color R" << L"Color G" << L"Color B" << L"Index" << L"Identifier" << L"Name" << L"Description" << L"Discipline" << L"Phase" << L"UUID" << L"Hyperlinks" << L"Creation Date" << L"Modification Date";
 				break;
@@ -218,7 +211,6 @@ ContextState ContextExportCSV::launch(Controller& controller)
 				writer << L"X (m)" << L"Y (m)" << L"Z (m)" << L"Diameter (m)" << L"Volume (m3)";;
 				break;
 			case ElementType::Box:
-			case ElementType::Grid:
 				writer << L"X (m)" << L"Y (m)" << L"Z (m)" << L"Rot X" << L"Rot Y" << L"Rot Z" << L"Size X (m)" << L"Size Y (m)" << L"Size Z (m)" << L"Volume (m3)";
 				break;
 			case ElementType::PipeToPipeMeasure:
@@ -313,7 +305,6 @@ ContextState ContextExportCSV::launch(Controller& controller)
 					case ElementType::SimpleMeasure:
 					case ElementType::PolylineMeasure:
 					case ElementType::Box:
-					case ElementType::Grid:
 					{
 						Color32 color = readNode->getColor();
 						writer << authName << Utils::wCompleteWithZeros(color.r) << Utils::wCompleteWithZeros(color.g) << Utils::wCompleteWithZeros(color.b)
@@ -434,7 +425,6 @@ ContextState ContextExportCSV::launch(Controller& controller)
 			}
 			break;
 			case ElementType::Box:
-			case ElementType::Grid:
 			{
 				ReadPtr<AObjectNode> readBox = static_pointer_cast<AObjectNode>(dataPtr).cget();
 				if (!readBox)
@@ -633,7 +623,6 @@ ContextExportCSV::ErrorType ContextExportCSV::addTypeExtFilename(const ElementTy
 		fileName += TAG;
 		break;
 	case ElementType::Box:
-	case ElementType::Grid:
 		fileName += BOX;
 		break;
 	case ElementType::Cylinder:

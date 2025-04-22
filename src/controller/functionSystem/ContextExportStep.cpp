@@ -196,7 +196,6 @@ ContextState ContextExportStep::launch(Controller& controller)
 			}
 			break;
 			case ElementType::Box:
-			case ElementType::Grid:
 			{
 				ReadPtr<AObjectNode> readNode = static_pointer_cast<AObjectNode>(exportObj).cget();
 				if (!readNode)
@@ -338,7 +337,6 @@ void ContextExportStep::getTypeNameDirectory(const ElementType& type, ElementTyp
 		directoryName = TEXT_PIPING_TREE_ROOT_NODE.toStdWString();
 		break;
 	case ElementType::Box:
-	case ElementType::Grid:
 	{
 		directoryType = ElementType::Box;
 		directoryName = TEXT_BOXES_TREE_NODE.toStdWString();
@@ -420,7 +418,6 @@ ContextState ContextExportStep::processError(const ContextExportStep::ErrorType&
 			name += TAG;
 			break;
 		case ElementType::Box:
-		case ElementType::Grid:
 			name += CLIPPING;
 			break;
 		case ElementType::Cylinder:

@@ -1621,7 +1621,6 @@ void CameraNode::moveToData(const SafePtr<AGraphNode>& data)
     case ElementType::Torus:
     case ElementType::Sphere:
     case ElementType::Cylinder:
-    case ElementType::Grid:
     case ElementType::Box:
     case ElementType::MeshObject:
     {
@@ -1924,10 +1923,11 @@ MarkerDrawData CameraNode::getExamineTarget() const
 {
     scs::MarkerStyleDefinition marker_style = scs::markerStyleDefs.at(scs::MarkerIcon::Target);
     scs::PrimitiveDef prim = scs::g_shapePrimitives.at(marker_style.shape);
+    Color32 color = { 223u, 98u, 0u, 255u };
 
     return {
         { (float)m_examinePoint.x, (float)m_examinePoint.y, (float)m_examinePoint.z },
-        { 223u, 98u, 0u, 255u },
+        color.RGBA(),
         INVALID_PICKING_ID,
         (uint32_t)scs::MarkerIcon::Target,
         prim.firstVertex,

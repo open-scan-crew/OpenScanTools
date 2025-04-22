@@ -107,7 +107,6 @@ ContextState ContextExportObj::launch(Controller& controller)
 				}
 				break;
 			case ElementType::Box:
-			case ElementType::Grid:
 				{
 					meshData = meshManager.generateBox();
 				}

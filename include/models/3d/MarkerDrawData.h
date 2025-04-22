@@ -7,7 +7,7 @@
 struct MarkerDrawData
 {
     float position[3];    // the anchor position
-    uint8_t color[4];     // rgba color
+    uint32_t color_rgba;  // rgba color
     uint32_t graphicID;   // reference to the object. Enable action on click.
     uint32_t textureID;   // indicate which layer to sample in the 3D texture.
     uint16_t firstVertex; // used in the geometry shader

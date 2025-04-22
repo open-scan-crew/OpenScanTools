@@ -74,7 +74,7 @@ ContextState ContextBeamDetection::launch(Controller& controller)
 	/*
 	//3 box test
 	//box for planes
-	SafePtr<BoxNode> box1 = make_safe<BoxNode>(true);
+	SafePtr<BoxNode> box1 = make_safe<BoxNode>();
 
 	WritePtr<BoxNode> wBox1 = box1.get();
 	if (!wBox1)
@@ -101,7 +101,7 @@ ContextState ContextBeamDetection::launch(Controller& controller)
 
 	//second box for first plane
 
-	SafePtr<BoxNode> box11 = make_safe<BoxNode>(true);
+	SafePtr<BoxNode> box11 = make_safe<BoxNode>();
 
 	WritePtr<BoxNode> wBox11 = box11.get();
 	if (!wBox11)
@@ -126,7 +126,7 @@ ContextState ContextBeamDetection::launch(Controller& controller)
 	//controller.getControlListener()->notifyUIControl(new control::function::clipping::CreateClippingBox(box11));
 
 	//second box//
-	SafePtr<BoxNode> box2 = make_safe<BoxNode>(true);
+	SafePtr<BoxNode> box2 = make_safe<BoxNode>();
 
 	WritePtr<BoxNode> wBox2 = box2.get();
 	if (!wBox2)
@@ -154,7 +154,7 @@ ContextState ContextBeamDetection::launch(Controller& controller)
 
 	double beamLength = abs(glm::dot(beamEnd - beamStart, beamDirection));
 	double beamDisplacement = 0.5*glm::dot(beamStart + beamEnd - lastClickResult - lastClickResult, beamDirection);
-	SafePtr<BoxNode> box1 = make_safe<BoxNode>(true);
+	SafePtr<BoxNode> box1 = make_safe<BoxNode>();
 	WritePtr<BoxNode> wBox1 = box1.get();
 	if (!wBox1)
 	{

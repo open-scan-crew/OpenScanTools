@@ -5,6 +5,7 @@ PointToPlaneMeasureNode::PointToPlaneMeasureNode()
     : AMeasureNode()
 {
     setName(TEXT_DEFAULT_NAME_POINT_TO_PLANE.toStdWString());
+    Data::marker_icon_ = scs::MarkerIcon::PointToPlane_Measure;
 }
 
 PointToPlaneMeasureNode::PointToPlaneMeasureNode(const PointToPlaneMeasureNode& node)

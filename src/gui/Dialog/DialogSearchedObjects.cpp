@@ -47,7 +47,7 @@ void DialogSearchedObjects::setSearchedObjects(const std::vector<SafePtr<AGraphN
 		std::wstring name;
 		ElementType type;
 		Color32 color;
-		scs::MarkerIcon tagIcon = scs::MarkerIcon::Max_Enum;
+		scs::MarkerIcon icon = scs::MarkerIcon::Max_Enum;
 		{
 			ReadPtr<AGraphNode> rObj = obj.cget();
 			if (!rObj)
@@ -55,18 +55,11 @@ void DialogSearchedObjects::setSearchedObjects(const std::vector<SafePtr<AGraphN
 			type = rObj->getType();
 			name = rObj->getComposedName();
 			color = rObj->getColor();
-		}
-
-		if (type == ElementType::Tag)
-		{
-			ReadPtr<TagNode> rTag = static_pointer_cast<TagNode>(obj).cget();
-			if (!rTag)
-				continue;
-			tagIcon = rTag->getMarkerIcon();
+			icon = rObj->getMarkerIcon();
 		}
 
 		SearchItem* item = new SearchItem(obj);
-		item->setIcon(scs::IconManager::getInstance().getIcon(type, tagIcon, QColor(color.r, color.g, color.b)));
+		item->setIcon(scs::IconManager::getInstance().getIcon(icon, color));
 		item->setText(QString::fromStdWString(name));
 		m_model->setItem(i, 0, item);
 

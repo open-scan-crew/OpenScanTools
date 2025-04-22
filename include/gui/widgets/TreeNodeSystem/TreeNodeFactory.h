@@ -17,13 +17,20 @@ public:
 
 	TreeNode* constructMasterNode(const QString& name, TreeType treeType);
 	TreeNode* constructPlaceholderNode(TreeType treeType);
+
+	typedef std::function<std::unordered_set<SafePtr<AGraphNode>>(const GraphManager&)> fctGetChildren;
+	typedef std::function<bool(const SafePtr<AGraphNode>&)> fctCanDrop;
+	typedef std::function<void(IDataDispatcher&, std::unordered_set<SafePtr<AGraphNode>>)> fctOnDrop;
+
 	TreeNode* constructStructNode(const QString& name, 
-		std::function<std::unordered_set<SafePtr<AGraphNode>>(const GraphManager&)> getChildFonction,
-		std::function<bool(const SafePtr<AGraphNode>&)> dropFilter,
-		std::function<void(IDataDispatcher&, std::unordered_set<SafePtr<AGraphNode>>)> controlSender,
+		fctGetChildren getChildFonction,
+		fctCanDrop can_drop,
+		fctOnDrop on_drop,
 		TreeNode *parent = nullptr);
 
-	std::vector<TreeNode*> constructSubList(const std::unordered_map<ElementType, QString>& values, TreeNode* parentNode);
+	TreeNode* addSubList(TreeNode* parentNode, QString name, ElementType type);
+	// Special for Box/Grid filter
+	TreeNode* addBoxesSubList(TreeNode* parentNode, QString name, bool only_box);
 
 	TreeNode* constructColorNodes(const std::unordered_set<ElementType>& types, TreeNode* parentNode);
 	TreeNode* constructStatusNodes(const std::unordered_set<ElementType>& types, TreeNode* parentNode);

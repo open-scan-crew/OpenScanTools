@@ -15,7 +15,7 @@ public:
 
 	void copyClippingData(const ClippingData& data);
 
-	void setClippingMode(ClippingMode mode);
+	virtual void setClippingMode(ClippingMode mode);
 	void setClippingActive(bool active);
 	void setMinClipDist(float minDist);
 	void setMaxClipDist(float maxDist);
@@ -28,7 +28,7 @@ public:
 
 	void setDefaultData(const ControllerContext& context, ElementType type);
 
-	virtual ClippingMode getClippingMode() const;
+	ClippingMode getClippingMode() const;
 	bool isClippingActive() const;
 	float getMinClipDist() const;
 	float getMaxClipDist() const;

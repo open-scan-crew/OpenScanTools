@@ -23,5 +23,6 @@
 #define TEXT_DEFAULT_NAME_BEAM QObject::tr("Beam")
 #define TEXT_DEFAULT_NAME_SPHERE QObject::tr("Sphere")
 #define TEXT_DEFAULT_NAME_VIEWPOINT QObject::tr("Viewpoint")
+#define TEXT_DEFAULT_NAME_MESH QObject::tr("Mesh")
 
 #endif

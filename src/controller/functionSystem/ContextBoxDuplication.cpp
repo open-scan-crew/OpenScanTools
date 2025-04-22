@@ -42,7 +42,7 @@ ContextState ContextBoxDuplication::launch(Controller& controller)
 
     FUNCLOG << "ContextBoxDuplication launch" << LOGENDL;
     GraphManager& graphManager = controller.getGraphManager();
-    std::unordered_set<SafePtr<AGraphNode>> boxes = graphManager.getNodesByTypes({ ElementType::Box, ElementType::Grid }, ObjectStatusFilter::SELECTED);
+    std::unordered_set<SafePtr<AGraphNode>> boxes = graphManager.getNodesByTypes({ ElementType::Box }, ObjectStatusFilter::SELECTED);
 
     if (boxes.empty() || boxes.size() > 1)
         return ARayTracingContext::abort(controller);

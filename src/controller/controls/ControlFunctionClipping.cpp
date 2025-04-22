@@ -131,7 +131,7 @@ namespace control::function::clipping
         // Compute the bounding box based on the current scan transformation
         BoundingBoxD project_bbox = graphManager.getScanBoundingBox(ObjectStatusFilter::ALL);
 
-        SafePtr<BoxNode> box = make_safe<BoxNode>(true);
+        SafePtr<BoxNode> box = make_safe<BoxNode>();
         {
             WritePtr<BoxNode> wBox = box.get();
             if (!wBox)

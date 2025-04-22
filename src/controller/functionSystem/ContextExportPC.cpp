@@ -102,14 +102,17 @@ ContextState ContextExportPC::feedMessage(IMessage* message, Controller& control
             bool noGrid = true;
             for (const SafePtr<AClippingNode>& clip : clippings)
             {
-                ElementType type;
+                ElementType type = ElementType::None;
                 {
                     ReadPtr<AClippingNode> rClip = clip.cget();
                     if (rClip)
                         type = rClip->getType();
                 }
-                if (type == ElementType::Grid)
-                    noGrid = false;
+                if (type == ElementType::Box)
+                {
+                    ReadPtr<BoxNode> rBox = static_read_cast<BoxNode>(clip);
+                    noGrid |= !rBox->isSimpleBox();
+                }
             }
             // Check that at least one clipping box is selected.
             if (noGrid)

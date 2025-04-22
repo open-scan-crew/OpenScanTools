@@ -10,6 +10,7 @@ PipeToPlaneMeasureNode::PipeToPlaneMeasureNode(const PipeToPlaneMeasureNode& nod
 PipeToPlaneMeasureNode::PipeToPlaneMeasureNode()
 {
     setName(TEXT_DEFAULT_NAME_PIPE_TO_PLANE.toStdWString());
+    Data::marker_icon_ = scs::MarkerIcon::PipeToPlane_Measure;
 }
 
 std::vector<Measure> PipeToPlaneMeasureNode::getMeasures() const

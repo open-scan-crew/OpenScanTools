@@ -264,6 +264,7 @@ void TreeNodeFactory::updateNode(TreeNode* node)
 	ElementType type;
 	std::wstring name;
 	Color32 color;
+	scs::MarkerIcon icon;
 	bool isVisible;
 	bool isSelected;
 
@@ -277,16 +278,9 @@ void TreeNodeFactory::updateNode(TreeNode* node)
 			isVisible = rObj->isVisible();
 			type = rObj->getType();
 			color = rObj->getColor();
+			icon = rObj->getMarkerIcon();
 			name = rObj->getComposedName();
 			isSelected = rObj->isSelected();
-		}
-
-		scs::MarkerIcon tagIcon = scs::MarkerIcon::Max_Enum;
-		if (type == ElementType::Tag)
-		{
-			ReadPtr<TagNode> rTag = static_pointer_cast<TagNode>(data).cget();
-			if (rTag)
-				tagIcon = rTag->getMarkerIcon();
 		}
 
 		if (nodeFunctions::isMissingFile(data))
@@ -295,7 +289,7 @@ void TreeNodeFactory::updateNode(TreeNode* node)
 		m_treePanel->blockAllSignals(true);
 
 		node->setText(QString::fromStdWString(name));
-		node->setIcon(scs::IconManager::getInstance().getIcon(type, tagIcon, QColor(color.r, color.g, color.b)));
+		node->setIcon(scs::IconManager::getInstance().getIcon(icon, color));
 		if (node->isCheckable())
 			node->setCheckState(isVisible ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
 
@@ -390,41 +384,76 @@ void TreeNodeFactory::updateNode(TreeNode* node)
 	m_treePanel->blockAllSignals(false);
 }
 
-std::vector<TreeNode*> TreeNodeFactory::constructSubList(const std::unordered_map<ElementType, QString>& values, TreeNode* parentNode)
+TreeNode* TreeNodeFactory::addSubList(TreeNode* parentNode, QString name, ElementType type)
 {
-	std::vector<TreeNode*> Nodes;
-	for (const std::pair<ElementType, QString>& iterator : values)
-	{
-		ElementType type(iterator.first);
-		std::function<std::unordered_set<SafePtr<AGraphNode>>(const GraphManager&)> getChildFonction = 
+	fctGetChildren getChildFonction =
 		[type](const GraphManager& manager)
 		{
 			return manager.getNodesByTypes({ type });
 		};
 
-		TreeNode* element = constructStructNode(iterator.second, 
-													getChildFonction,
-													[](const SafePtr<AGraphNode>& data) { return false; },
-													[](IDataDispatcher&, std::unordered_set<SafePtr<AGraphNode>> data) { return; }, 
-													parentNode);
-		element->setCheckable(true);
-		element->setCheckState(Qt::CheckState::Checked);
-		Nodes.push_back(element);
-	}
+	TreeNode* element = constructStructNode(name,
+		getChildFonction,
+		[](const SafePtr<AGraphNode>& data) { return false; },
+		[](IDataDispatcher&, std::unordered_set<SafePtr<AGraphNode>> data) { return; },
+		parentNode);
+	element->setCheckable(true);
+	element->setCheckState(Qt::CheckState::Checked);
 
-	return Nodes;
+	return element;
+}
+
+TreeNode* TreeNodeFactory::addBoxesSubList(TreeNode* parentNode, QString name, bool only_box)
+{
+	std::function<bool(ReadPtr<AGraphNode>& rData)> childCondition =
+		[only_box](ReadPtr<AGraphNode>& rData)
+		{
+			if (rData->getType() != ElementType::Box)
+				return (false);
+			const BoxNode* p_box = static_cast<const BoxNode*>(&rData);
+			return (only_box == p_box->isSimpleBox());
+		};
+
+	fctGetChildren getChildFct =
+		[childCondition](const GraphManager& manager)
+		{
+			return manager.getNodesOnFilter<AGraphNode>(childCondition);
+		};
+
+	fctCanDrop canDrop = [](const SafePtr<AGraphNode>& data) { return false; };
+
+	fctOnDrop onDrop = [](IDataDispatcher&, std::unordered_set<SafePtr<AGraphNode>> data) { return; };
+
+	// constructStructNode
+	TreeNode* treeNode = new TreeNode(SafePtr<AGraphNode>(), getChildFct, canDrop, onDrop, TreeType::Boxes);
+	treeNode->setStructNode(true);
+
+	updateNode(treeNode);
+
+	treeNode->setText(name);
+
+	if (parentNode != nullptr)
+		parentNode->appendRow(treeNode);
+
+	treeNode->setCheckable(true);
+	treeNode->setCheckState(Qt::CheckState::Checked);
+
+	m_treePanel->addRootToUpdateSystem(treeNode, TreeType::Boxes);
+
+	return treeNode;
 }
 
 TreeNode* TreeNodeFactory::constructColorNodes(const std::unordered_set<ElementType>& types, TreeNode* parentNode)
 {
-	std::vector<std::pair<QString, Color32>> colors = { {TEXT_GREEN, ProjectColor::getColor("GREEN")},
-														{TEXT_RED, ProjectColor::getColor("RED")},
-														{TEXT_ORANGE, ProjectColor::getColor("ORANGE")},
-														{TEXT_YELLOW, ProjectColor::getColor("YELLOW")},
-														{TEXT_BLUE, ProjectColor::getColor("BLUE")},
-														{TEXT_PURPLE, ProjectColor::getColor("PURPLE")},
-														{TEXT_LIGHT_GREY, ProjectColor::getColor("LIGHT GREY")},
-														{TEXT_BROWN, ProjectColor::getColor("BROWN")}
+	std::vector<std::pair<QString, Color32>> colors = {
+		{ TEXT_GREEN, ProjectColor::getColor("GREEN") },
+		{ TEXT_RED, ProjectColor::getColor("RED") },
+		{ TEXT_ORANGE, ProjectColor::getColor("ORANGE") },
+		{ TEXT_YELLOW, ProjectColor::getColor("YELLOW") },
+		{ TEXT_BLUE, ProjectColor::getColor("BLUE") },
+		{ TEXT_PURPLE, ProjectColor::getColor("PURPLE") },
+		{ TEXT_LIGHT_GREY, ProjectColor::getColor("LIGHT GREY") },
+		{ TEXT_BROWN, ProjectColor::getColor("BROWN") }
 	};
 
 	TreeNode* ColorNodes = constructMasterNode(TEXT_COLORS_TREE_NODE, parentNode->getTreeType());
@@ -451,7 +480,7 @@ TreeNode* TreeNodeFactory::constructColorNodes(const std::unordered_set<ElementT
 			return manager.getNodesOnFilter<AGraphNode>(childCondition);
 		};
 
-		std::function<bool(const SafePtr<AGraphNode>& data)> df_colorClip = [color, types](const SafePtr<AGraphNode>& data)
+		std::function<bool(const SafePtr<AGraphNode>& data)> canDrop = [types](const SafePtr<AGraphNode>& data)
 		{
 			ReadPtr<AGraphNode> rData = data.cget();
 			if (!rData)
@@ -461,7 +490,7 @@ TreeNode* TreeNodeFactory::constructColorNodes(const std::unordered_set<ElementT
 			return (false);
 		};
 
-		std::function<void(IDataDispatcher& dispatcher, std::unordered_set<SafePtr<AGraphNode>>)> s_colorClip =
+		std::function<void(IDataDispatcher& dispatcher, std::unordered_set<SafePtr<AGraphNode>>)> onDrop =
 			[color](IDataDispatcher& dispatcher, std::unordered_set<SafePtr<AGraphNode>> datas)
 		{
 			std::unordered_set<SafePtr<AObjectNode>> objects;
@@ -470,7 +499,7 @@ TreeNode* TreeNodeFactory::constructColorNodes(const std::unordered_set<ElementT
 			dispatcher.sendControl(new control::dataEdition::SetColor(objects, color));
 		};
 
-		TreeNode* colorStruct = constructStructNode(colorName, getChildFonction, df_colorClip, s_colorClip, ColorNodes);
+		TreeNode* colorStruct = constructStructNode(colorName, getChildFonction, canDrop, onDrop, ColorNodes);
 		colorStruct->setCheckable(true);
 		colorStruct->setCheckState(Qt::CheckState::Checked);
 
@@ -516,7 +545,7 @@ TreeNode* TreeNodeFactory::constructStatusNodes(const std::unordered_set<Element
 			return manager.getNodesOnFilter(childCondition);
 		};
 
-		std::function<bool(const SafePtr<AGraphNode>& data)> df_statusActClip = [types](const SafePtr<AGraphNode>& data)
+		std::function<bool(const SafePtr<AGraphNode>& data)> canDrop = [types](const SafePtr<AGraphNode>& data)
 		{
 			ReadPtr<AGraphNode> rData = data.cget();
 			if (!rData)
@@ -525,7 +554,7 @@ TreeNode* TreeNodeFactory::constructStatusNodes(const std::unordered_set<Element
 			return (false);
 		};
 
-		std::function<void(IDataDispatcher& dispatcher, std::unordered_set<SafePtr<AGraphNode>>)> s_statusClip =
+		std::function<void(IDataDispatcher& dispatcher, std::unordered_set<SafePtr<AGraphNode>>)> onDrop =
 			[state](IDataDispatcher& dispatcher, std::unordered_set<SafePtr<AGraphNode>> datas)
 		{
 			std::unordered_set<SafePtr<AClippingNode>> clips;
@@ -534,7 +563,7 @@ TreeNode* TreeNodeFactory::constructStatusNodes(const std::unordered_set<Element
 			dispatcher.sendControl(new control::clippingEdition::SetClipActive(clips, state));
 		};
 
-		TreeNode* statusNode = constructStructNode(state ? TEXT_ACTIVE : TEXT_INACTIVE, getChildFonction, df_statusActClip, s_statusClip, parentStatusNode);
+		TreeNode* statusNode = constructStructNode(state ? TEXT_ACTIVE : TEXT_INACTIVE, getChildFonction, canDrop, onDrop, parentStatusNode);
 		statusNode->setCheckable(true);
 		statusNode->setCheckState(Qt::CheckState::Checked);
 	}
@@ -584,7 +613,7 @@ TreeNode* TreeNodeFactory::constructClipMethodNodes(const std::unordered_set<Ele
 			return manager.getNodesOnFilter(childCondition);
 		};
 
-		std::function<bool(const SafePtr<AGraphNode>& data)> df_CM = [types](const SafePtr<AGraphNode>& data)
+		std::function<bool(const SafePtr<AGraphNode>& data)> canDrop = [types](const SafePtr<AGraphNode>& data)
 		{
 			ReadPtr<AGraphNode> rData = data.cget();
 			if (!rData)
@@ -594,7 +623,7 @@ TreeNode* TreeNodeFactory::constructClipMethodNodes(const std::unordered_set<Ele
 			return (false);
 		};
 
-		std::function<void(IDataDispatcher& dispatcher, std::unordered_set<SafePtr<AGraphNode>>)> s_CM =
+		std::function<void(IDataDispatcher& dispatcher, std::unordered_set<SafePtr<AGraphNode>>)> onDrop =
 			[clipMode](IDataDispatcher& dispatcher, std::unordered_set<SafePtr<AGraphNode>> datas)
 		{
 			std::unordered_set<SafePtr<AClippingNode>> clips;
@@ -603,7 +632,7 @@ TreeNode* TreeNodeFactory::constructClipMethodNodes(const std::unordered_set<Ele
 			dispatcher.sendControl(new control::clippingEdition::SetMode(clips, clipMode));
 		};
 
-		TreeNode* CMNode = constructStructNode(name, getChildFonction, df_CM, s_CM, clipMethNode);
+		TreeNode* CMNode = constructStructNode(name, getChildFonction, canDrop, onDrop, clipMethNode);
 		CMNode->setCheckable(true);
 		CMNode->setCheckState(Qt::CheckState::Checked);
 	}
@@ -644,16 +673,16 @@ TreeNode* TreeNodeFactory::constructPlaceholderNode(TreeType treeType)
 }
 
 TreeNode* TreeNodeFactory::constructStructNode(const QString& name,
-	std::function<std::unordered_set<SafePtr<AGraphNode>>(const GraphManager&)> getChildFonction, 
-	std::function<bool(const SafePtr<AGraphNode>&)> dropFilter,
-	std::function<void(IDataDispatcher&, std::unordered_set<SafePtr<AGraphNode>> )> controlSender,
+	fctGetChildren getChildFct, 
+	fctCanDrop dropFilter,
+	fctOnDrop f_on_drop,
 	TreeNode *parent)
 {
 	TreeType treetype = TreeType::RawData;
 	if (parent != nullptr)
 		treetype = parent->getTreeType();
 
-	TreeNode* newNode = new TreeNode(SafePtr<AGraphNode>(), getChildFonction, dropFilter, controlSender, treetype);
+	TreeNode* newNode = new TreeNode(SafePtr<AGraphNode>(), getChildFct, dropFilter, f_on_drop, treetype);
 	newNode->setStructNode(true);
 
 	updateNode(newNode);
@@ -663,11 +692,7 @@ TreeNode* TreeNodeFactory::constructStructNode(const QString& name,
 	if (parent != nullptr)
 		parent->appendRow(newNode);
 
-	std::unordered_map<TreeType, std::vector<TreeNode*>>& rootNodes = m_treePanel->m_rootNodes;
-
-	if (rootNodes.find(treetype) == rootNodes.end())
-		rootNodes[treetype] = std::vector<TreeNode*>();
-	rootNodes[treetype].push_back(newNode);
+	m_treePanel->addRootToUpdateSystem(newNode, treetype);
 
 	return (newNode);
 }

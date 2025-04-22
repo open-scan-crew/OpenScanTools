@@ -17,6 +17,7 @@ CylinderNode::CylinderNode(const double& detectedRadius)
 {
     addGenericMeshInstance();
     setName(TEXT_DEFAULT_NAME_PIPE.toStdWString());
+    Data::marker_icon_ = scs::MarkerIcon::Cylinder;
 }
 
 CylinderNode::CylinderNode()
@@ -24,6 +25,7 @@ CylinderNode::CylinderNode()
 {
     addGenericMeshInstance();
     setName(TEXT_DEFAULT_NAME_PIPE.toStdWString());
+    Data::marker_icon_ = scs::MarkerIcon::Cylinder;
 }
 
 //FixMe (aurélien) Should be set here not in parent class

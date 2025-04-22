@@ -6,6 +6,7 @@ ScanObjectNode::ScanObjectNode()
 	: APointCloudNode()
 {
 	m_clippable = false;
+	Data::marker_icon_ = scs::MarkerIcon::PCO;
 }
 
 ScanObjectNode::ScanObjectNode(const ScanObjectNode & node)

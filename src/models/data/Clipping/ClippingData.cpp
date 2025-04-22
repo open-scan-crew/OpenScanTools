@@ -85,7 +85,7 @@ void ClippingData::setDefaultData(const ControllerContext& context, ElementType 
 
 ClippingMode ClippingData::getClippingMode() const
 {
-    return (m_clippingMode);
+    return m_clippingMode;
 }
 
 bool ClippingData::isClippingActive() const

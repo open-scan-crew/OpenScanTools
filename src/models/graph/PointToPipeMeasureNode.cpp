@@ -5,6 +5,7 @@ PointToPipeMeasureNode::PointToPipeMeasureNode()
     : AMeasureNode()
 {
     setName(TEXT_DEFAULT_NAME_POINT_TO_PIPE.toStdWString());
+    Data::marker_icon_ = scs::MarkerIcon::PointToPipe_Measure;
 }
 
 PointToPipeMeasureNode::PointToPipeMeasureNode(const PointToPipeMeasureNode& node)

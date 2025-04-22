@@ -5,7 +5,7 @@
 #include "gui/texts/ExportTexts.hpp"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "io/exports/ExportParameters.hpp"
-#include "models/graph/AClippingNode.h"
+#include "models/graph/BoxNode.h"
 
 #include <set>
 
@@ -45,9 +45,9 @@ void DialogDeletePoints::informData(IGuiData *data)
         m_clippings.clear();
         for (const SafePtr<AClippingNode>& clipping : displayParam->m_clippings)
         {
-            ReadPtr<AClippingNode> readClip = clipping.cget();
             // We do not want the grids
-            if (readClip->getType() == ElementType::Grid)
+            ReadPtr<BoxNode> rBox = static_read_cast<BoxNode>(clipping);
+            if (!rBox->isSimpleBox())
                 continue;
 
             m_clippings.push_back(clipping);

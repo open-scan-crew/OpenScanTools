@@ -15,11 +15,14 @@ TorusNode::TorusNode(const double& mainAngle, const double& mainRadius, const do
     setInsulationRadius(insulatedRadius);
     setName(TEXT_DEFAULT_NAME_TORUS.toStdWString());
     updateTorusMesh();
+    Data::marker_icon_ = scs::MarkerIcon::Torus;
 }
 
 TorusNode::TorusNode()
     : TorusData(0., 0., 0.)
-{}
+{
+    Data::marker_icon_ = scs::MarkerIcon::Torus;
+}
 
 TorusNode::~TorusNode()
 {

@@ -4,6 +4,7 @@
 PipeToPipeMeasureNode::PipeToPipeMeasureNode()
 {
     setName(TEXT_DEFAULT_NAME_PIPE_TO_PIPE.toStdWString());
+    Data::marker_icon_ = scs::MarkerIcon::PipeToPipe_Measure;
 }
 
 PipeToPipeMeasureNode::PipeToPipeMeasureNode(const PipeToPipeMeasureNode& node)

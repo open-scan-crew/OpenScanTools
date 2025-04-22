@@ -4,9 +4,6 @@
 #include "models/graph/AClippingNode.h"
 #include "models/data/Tag/TagData.h"
 
-#include "models/3d/MarkerDrawData.h"
-#include "models/project/Marker.h"
-
 class TagNode : public AClippingNode, public TagData
 {
 public:
@@ -23,22 +20,12 @@ public:
     std::unordered_set<Selection> getAcceptableSelections(const ManipulationMode& mode) const override;
     std::unordered_set<ManipulationMode> getAcceptableManipulationModes() const override;
 
-    virtual void setMarkerIcon(scs::MarkerIcon icon) override;
     // Use this function to also change the marker color
     virtual void setColor(const Color32& color) override;
 
-    void updateMarker();
-
-    // TODO - future marker interface
-    MarkerDrawData getMarkerDrawData(const glm::dmat4& gTransfo) const;
-    //NewMarkerDrawData getMarkerDrawData() const;
-
     virtual void setDefaultData(const Controller& controller) override;
 
-protected:
-    // New Marker Data
-    bool m_showMarkerTrueColor;
-    scs::PrimitiveDef m_primitiveDef;
+
 };
 
 #endif // !TAG_NODE_H_

@@ -1,6 +1,6 @@
 #include "pointCloudEngine/TargetMarkerFactory.h"
 #include "services/MarkerDefinitions.hpp"
-#include "models/project/Marker.h"
+#include "models/data/Marker.h"
 #include "models/OpenScanToolsModelEssentials.h"
 
 TargetMarkerFactory::TargetMarkerFactory()
@@ -18,7 +18,7 @@ MarkerDrawData TargetMarkerFactory::generateTargetMarkerData(const glm::dvec3& p
 
 	return {
 		{ (float)position.x, (float)position.y, (float)position.z },
-		{ color.r, color.g, color.b, color.a },
+		color.RGBA(),
 		INVALID_PICKING_ID,
 		(uint32_t)scs::MarkerIcon::Target,
 		prim.firstVertex,

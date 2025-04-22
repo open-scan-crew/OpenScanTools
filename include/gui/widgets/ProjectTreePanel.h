@@ -32,25 +32,24 @@ private:
 
 	/*! Mise à jour de l'UI de l'arborescence  */
 	void actualizeNodes(IGuiData* data);
-	void cleanTree(IGuiData* data);
 	void selectItems(IGuiData* data);
+	void cleanTree(IGuiData* data);
 
-    //void actualizeObjectNodes(std::unordered_set<SafePtr<AGraphNode>> datasToAdd, bool completeActualize);
+	void applyWaitingRefresh();
+    /*! Remove from treeId map
+        Remove from xg::Guid  multimap
+        Romove from DataNode parent
+    */
+    void removeTreeNode(TreeNode* node);
+	/*! Rafraîchit l'affichage de l'objet dans l'arbre*/
+
+	void addRootToUpdateSystem(TreeNode* node, TreeType treeType);
 
 	void updateSelection(const std::unordered_set<SafePtr<AGraphNode>>& datas);
 	//void updateFilterNodes(std::unordered_set<SafePtr<AGraphNode>> datas);
 	//void recRefreshCheckStateQtItem_ascendant(QStandardItem* node);
 	void generateTreeModel();
 	TreeNode* buildTreeModelBranch(const QString& name, TreeType type);
-	
-	/*! Rafraîchit l'affichage de l'objet dans l'arbre*/
-    void applyWaitingRefresh();
-
-    /*! Remove from treeId map
-        Remove from xg::Guid  multimap
-        Romove from DataNode parent
-    */
-    void removeTreeNode(TreeNode* node);
 
 	void treeDragEvent(QDragEnterEvent* dEvent);
 	void treeMoveEvent(QDragMoveEvent* mEvent);

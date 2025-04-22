@@ -1,8 +1,8 @@
 #ifndef ICON_OBJECT_H_
 #define ICON_OBJECT_H_
 
-#include "models/Types.hpp"
-#include "models/project/Marker.h"
+#include "models/data/Marker.h"
+#include "utils/Color32.hpp"
 #include <QtGui/qpixmap.h>
 
 class QColor;
@@ -21,10 +21,10 @@ namespace scs
 			return instance;
 		}
 
-		QPixmap getIcon(ElementType type, scs::MarkerIcon icon, QColor color);
+		QPixmap getIcon(scs::MarkerIcon icon, Color32 color);
 
 	private:
-		uint64_t getHash(ElementType type, scs::MarkerIcon icon, QColor color);
+		uint64_t getHash(scs::MarkerIcon icon, Color32 color);
 		std::unordered_map<uint64_t, QPixmap> m_hashmapIcons;
 	};
 }

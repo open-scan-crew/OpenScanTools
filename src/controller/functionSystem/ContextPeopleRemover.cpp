@@ -273,7 +273,7 @@ ContextState ContextPeopleRemover::launch(Controller& controller)
 			if (numberOfDisplayedBoxes > 5000)
 				break;
 			numberOfDisplayedBoxes++;
-			SafePtr<BoxNode> box1 = make_safe<BoxNode>(true);
+			SafePtr<BoxNode> box1 = make_safe<BoxNode>();
 			
 			TransformationModule mod;
 			ClippingAssembly clippingAssembly;

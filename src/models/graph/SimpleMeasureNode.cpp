@@ -6,6 +6,7 @@ SimpleMeasureNode::SimpleMeasureNode()
     : AMeasureNode()
 {
     setName(TEXT_DEFAULT_NAME_SIMPLE_MEASURE.toStdWString());
+    Data::marker_icon_ = scs::MarkerIcon::Simple_Measure;
 }
 
 SimpleMeasureNode::SimpleMeasureNode(const SimpleMeasureNode& node)

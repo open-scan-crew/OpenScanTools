@@ -1,8 +1,7 @@
 #include "MarkerRenderer.h"
 #include "vulkan/VulkanManager.h"
-#include "models/project/Marker.h"
 #include "models/3d/Primitives.h"
-#include "utils/Utils.h"
+#include "models/graph/AObjectNode.h"
 #include "services/MarkerDefinitions.hpp"
 #include "vulkan/VulkanHelperFunctions.h"
 
@@ -650,6 +649,43 @@ void MarkerRenderer::cleanup()
     tls::vk::destroySampler(*h_pfn, h_device, m_textureSampler);
     tls::vk::freeMemory(*h_pfn, h_device, m_textureMemory);
 }
+
+
+MarkerDrawData MarkerRenderer::getMarkerDrawData(const glm::dmat4& gTransfo, const AObjectNode& _obj)
+{
+    // All parameters needed
+    // Data::color
+    // Data::icon
+    // Data::selected         |
+    // AObjectNode::hovered   |-> This should be in the same class
+    // AGraphNode::graphicId  |
+
+    scs::MarkerStyleDefinition style;
+    if (scs::markerStyleDefs.find(_obj.getMarkerIcon()) != scs::markerStyleDefs.end())
+        style = scs::markerStyleDefs.at(_obj.getMarkerIcon());
+
+    // Compose the style
+    uint32_t status = 0;
+    if (_obj.isSelected())
+        status |= 0x01;
+    if (_obj.isHovered())
+        status |= 0x02;
+    if (style.showTrueColor)
+        status |= 0x04;
+
+    scs::PrimitiveDef primitive = scs::g_shapePrimitives.at(style.shape);
+
+    return {
+        { (float)gTransfo[3][0], (float)gTransfo[3][1], (float)gTransfo[3][2] },
+        _obj.getColor().RGBA(),
+        _obj.getGraphicId(),
+        (uint32_t)_obj.getMarkerIcon(),
+        primitive.firstVertex,
+        primitive.vertexCount,
+        status
+    };
+}
+
 
 void MarkerRenderer::drawMarkerData(VkCommandBuffer _cmdBuffer, SimpleBuffer drawDataBuf, uint32_t firstMarker, uint32_t markerCount, VkUniformOffset viewProjUniOffset, VkDescriptorSet depthDescSet)
 {

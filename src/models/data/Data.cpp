@@ -21,6 +21,7 @@ Data::Data()
 	, m_identifier(L"")
 	, m_hyperlinks({})
 	, m_color(ProjectColor::getColor("BLUE"))
+	, marker_icon_(scs::MarkerIcon::Max_Enum)
 {
 	LanguageType language = Config::getLanguage();
 	std::unordered_map<LanguageType, std::wstring> disciplineDefault;
@@ -63,6 +64,7 @@ Data::Data(const Data& copy)
 	, m_identifier(copy.getIdentifier())
 	, m_hyperlinks(copy.getHyperlinks())
 	, m_color(copy.getColor())
+	, marker_icon_(copy.marker_icon_)
 {}
 
 Data::~Data()
@@ -84,6 +86,7 @@ void Data::copyUIData(const Data& data, bool copyId)
 	m_userIndex = data.getUserIndex();
 	m_hyperlinks = data.getHyperlinks();
 	m_color = data.getColor();
+	marker_icon_ = data.getMarkerIcon();
 }
 
 void Data::setName(const std::wstring& name)
@@ -159,6 +162,11 @@ void Data::setHyperlinks(const std::unordered_map<hLinkId, s_hyperlink>& links)
 void Data::setColor(const Color32& color)
 {
 	m_color = color;
+}
+
+void Data::setMarkerIcon(scs::MarkerIcon icon)
+{
+	marker_icon_ = icon;
 }
 
 void Data::setDefaultData(const ControllerContext& context)
@@ -270,5 +278,10 @@ uint32_t Data::getUserIndex() const
 const Color32& Data::getColor() const
 {
 	return m_color;
+}
+
+scs::MarkerIcon Data::getMarkerIcon() const
+{
+	return marker_icon_;
 }
 

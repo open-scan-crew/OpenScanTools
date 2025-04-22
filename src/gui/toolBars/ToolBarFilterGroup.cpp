@@ -286,7 +286,7 @@ void ToolBarFilterGroup::toggleTagFilter()
 void ToolBarFilterGroup::toggleClippingBoxFilter()
 {
 	GUI_LOG << "toogle CBox" << ((m_ui.ClippingBoxCheckBox->checkState() == Qt::CheckState::Checked) ? "true" : "false") << LOGENDL;
-	toggleTypeFilter({ ElementType::Grid, ElementType::Box }, m_ui.ClippingBoxCheckBox);
+	toggleTypeFilter({ ElementType::Box }, m_ui.ClippingBoxCheckBox);
 }
 
 void ToolBarFilterGroup::togglePipeFilter()

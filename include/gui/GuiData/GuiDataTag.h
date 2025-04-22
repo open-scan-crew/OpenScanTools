@@ -2,7 +2,7 @@
 #define GUI_DATA_TAG_H
 
 #include "gui/GuiData/IGuiData.h"
-#include "models/project/Marker.h"
+#include "models/data/Marker.h"
 
 class GuiDataTagDefaultIcon : public IGuiData
 {

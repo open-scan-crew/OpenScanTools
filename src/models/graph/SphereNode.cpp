@@ -17,6 +17,7 @@ SphereNode::SphereNode(const double& detectedRadius)
     m_scale = glm::dvec3(m_radius);
     addGenericMeshInstance();
     setName(TEXT_DEFAULT_NAME_SPHERE.toStdWString());
+    Data::marker_icon_ = scs::MarkerIcon::Sphere;
 }
 
 SphereNode::SphereNode()
@@ -26,6 +27,7 @@ SphereNode::SphereNode()
     m_scale = glm::dvec3(m_radius);
     addGenericMeshInstance();
     setName(TEXT_DEFAULT_NAME_SPHERE.toStdWString());
+    Data::marker_icon_ = scs::MarkerIcon::Sphere;
 }
 
 void SphereNode::addGenericMeshInstance()

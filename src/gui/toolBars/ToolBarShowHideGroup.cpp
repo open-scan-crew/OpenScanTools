@@ -139,7 +139,7 @@ void ToolBarShowHideGroup::slotToogleShowClippings()
 
     toggleShowHideIcon(m_ui.ShowClippingsButton, m_showClippings);
 
-    m_dataDispatcher.sendControl(new control::special::ShowHideObjects({ ElementType::Box, ElementType::Grid }, m_showClippings));
+    m_dataDispatcher.sendControl(new control::special::ShowHideObjects({ ElementType::Box }, m_showClippings));
 }
 
 void ToolBarShowHideGroup::slotToogleShowAll()

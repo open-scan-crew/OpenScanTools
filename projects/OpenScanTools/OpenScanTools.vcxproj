@@ -1899,7 +1899,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     </ClInclude>
     <ClInclude Include="..\..\include\io\exports\txtExport.h" />
     <ClInclude Include="..\..\include\io\SaveLoadSystem.h" />
-    <ClInclude Include="..\..\include\models\project\Marker.h" />
     <ClInclude Include="..\..\include\utils\ClockLock.hpp" />
     <ClInclude Include="..\..\include\utils\Color32.hpp" />
     <ClInclude Include="..\..\include\utils\Config.h" />

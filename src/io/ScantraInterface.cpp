@@ -370,7 +370,7 @@ void ScantraInterface::editIntersectionPlane()
         auto boxes = graph_.getNodesOnFilter<BoxNode>(filter_box);
 
         create_box = boxes.size() == 0;
-        box = create_box ? make_safe<BoxNode>(true) : *boxes.begin();
+        box = create_box ? make_safe<BoxNode>() : *boxes.begin();
         graph_.addNodesToGraph({ box });
     }
 

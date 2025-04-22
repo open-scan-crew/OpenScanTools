@@ -21,7 +21,6 @@ double nodeFunctions::calculateVolume(const SafePtr<AGraphNode>& node)
 	switch (type)
 	{
 		case ElementType::Box:
-		case ElementType::Grid:
 		{
 			ReadPtr<BoxNode> rBox = static_pointer_cast<BoxNode>(node).cget();
 			if (!rBox)

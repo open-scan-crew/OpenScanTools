@@ -128,7 +128,6 @@ ContextState ContextExportFbx::launch(Controller& controller)
 		}
 		break;
 		case ElementType::Box:
-		case ElementType::Grid:
 		{
 			if (meshMap.find(exportType) == meshMap.end())
 			{

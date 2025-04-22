@@ -101,7 +101,7 @@ ContextState ContextPlaneDetection::launch(Controller& controller)
 		}
 		TransformationModule mod = rectPlane.createTransfo();
 		//box for planes
-		SafePtr<BoxNode> box = make_safe<BoxNode>(true);
+		SafePtr<BoxNode> box = make_safe<BoxNode>();
 		WritePtr<BoxNode> wBox1 = box.get();
 		if (!wBox1)
 		{
@@ -122,7 +122,7 @@ ContextState ContextPlaneDetection::launch(Controller& controller)
 	if (m_options == PlaneDetectionOptions::horizontal)
 	{
 		//box for planes
-		SafePtr<BoxNode> box = make_safe<BoxNode>(true);
+		SafePtr<BoxNode> box = make_safe<BoxNode>();
 		WritePtr<BoxNode> wBox = box.get();
 		if (!wBox)
 		{
@@ -157,7 +157,7 @@ ContextState ContextPlaneDetection::launch(Controller& controller)
 			return waitForNextPoint(controller);
 		}
 		mod = rectPlane.createTransfo();
-		SafePtr<BoxNode> box = make_safe<BoxNode>(true);
+		SafePtr<BoxNode> box = make_safe<BoxNode>();
 		WritePtr<BoxNode> wBox = box.get();
 		if (!wBox)
 		{
@@ -186,7 +186,7 @@ ContextState ContextPlaneDetection::launch(Controller& controller)
 
 		TlScanOverseer::getInstance().fitPlaneMultipleSeeds(seedPoints, mod);
 
-		SafePtr<BoxNode> box = make_safe<BoxNode>(true);
+		SafePtr<BoxNode> box = make_safe<BoxNode>();
 		WritePtr<BoxNode> wBox = box.get();
 		if (!wBox)
 		{
@@ -211,7 +211,7 @@ ContextState ContextPlaneDetection::launch(Controller& controller)
 
 		TlScanOverseer::getInstance().fitVerticalPlane(m_clickResults[0].position, m_clickResults[1].position, mod);
 
-		SafePtr<BoxNode> box = make_safe<BoxNode>(true);
+		SafePtr<BoxNode> box = make_safe<BoxNode>();
 		WritePtr<BoxNode> wBox = box.get();
 		if (!wBox)
 		{

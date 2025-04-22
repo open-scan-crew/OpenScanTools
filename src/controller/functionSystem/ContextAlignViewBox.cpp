@@ -62,7 +62,7 @@ ContextState ContextAlignViewBox::launch(Controller& controller)
 	if (selected.empty()|| selected.size() > 1)
 		return (m_state = ContextState::abort);
 	ReadPtr<AGraphNode> rObject = (SafePtr<AGraphNode>(*selected.begin())).cget();
-	if (!rObject && (rObject->getType() != ElementType::Box || rObject->getType() != ElementType::Grid))
+	if (!rObject && (rObject->getType() != ElementType::Box))
 	{
 		FUNCLOG << "ContextAlignViewBox failed do find object " << LOGENDL;
 		return (m_state = ContextState::abort);

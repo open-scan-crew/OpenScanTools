@@ -5,6 +5,7 @@ PolylineMeasureNode::PolylineMeasureNode()
     : AMeasureNode()
 {
     setName(TEXT_DEFAULT_NAME_POLYLINE.toStdWString());
+    Data::marker_icon_ = scs::MarkerIcon::Polyline_Measure;
 }
 
 PolylineMeasureNode::PolylineMeasureNode(const PolylineMeasureNode& node)

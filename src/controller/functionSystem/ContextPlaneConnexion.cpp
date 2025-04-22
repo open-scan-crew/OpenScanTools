@@ -76,7 +76,7 @@ ContextState ContextPlaneConnexion::launch(Controller& controller)
 	if (TlScanOverseer::getInstance().fitLocalPlane(clippingAssembly,m_clickResults[step].position, rectPlane))
 	{
 		//box for planes
-		SafePtr<BoxNode> box = make_safe<BoxNode>(true);
+		SafePtr<BoxNode> box = make_safe<BoxNode>();
 		WritePtr<BoxNode> wBox = box.get();
 		if (!wBox)
 		{

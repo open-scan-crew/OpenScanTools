@@ -199,10 +199,6 @@ Gui::Gui(Controller& controller)
 	m_objectProperties.insert({ ElementType::ViewPoint, new PropertyViewpoint(controller, this) });
 	m_objectProperties.insert({ ElementType::MeshObject, new PropertyMeshObject(controller, this) });
 	m_objectProperties.insert({ ElementType::Box, new PropertyBox(controller, this) });
-	// FIXME(robin) - Pourquoi 2 fois le PropertyBox ?
-	//              - Ne peut-on pas utiliser le même ?
-	//              - Plus généralemnet, vérifier si on ne peut pas s’abstenir d’initialiser la dizaine de panneau de propriété...
-	m_objectProperties.insert({ ElementType::Grid, new PropertyBox(controller, this) });
 	m_objectProperties.insert({ ElementType::Cylinder, new PropertyPipe(controller, this) });
 	m_objectProperties.insert({ ElementType::Torus, new PropertyElbow(controller, this) });
 	m_objectProperties.insert({ ElementType::Sphere, new PropertySphere(controller, this) });

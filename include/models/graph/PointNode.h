@@ -2,8 +2,6 @@
 #define POINT_NODE_H_
 
 #include "models/graph/AClippingNode.h"
-#include "models/3d/MarkerDrawData.h"
-#include "models/project/Marker.h"
 
 class PointNode : public AClippingNode
 {
@@ -22,17 +20,6 @@ public:
     std::unordered_set<ManipulationMode> getAcceptableManipulationModes() const override;
 
     void setColor(const Color32& color) override;
-
-    scs::MarkerIcon getIconType() const;
-    // TODO - future marker interface
-    MarkerDrawData getMarkerDrawData(const glm::dmat4& gTransfo) const;
-
-    void updateMarker();
-
-protected:
-    // New Marker Data
-    bool m_showMarkerTrueColor;
-    scs::PrimitiveDef m_primitiveDef;
 };
 
 #endif // !POINT_NODE_H_

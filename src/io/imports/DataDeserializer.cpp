@@ -235,18 +235,28 @@ bool ImportData(const nlohmann::json& json, Data& data)
 	}
 	data.setHyperlinks(linksStored);
 
-	{
-		nlohmann::json color;
-		if (json.find(Key_ColorRGBA) != json.end())
-			color = json.at(Key_ColorRGBA);
+	nlohmann::json color;
+	if (json.find(Key_ColorRGBA) != json.end())
+		color = json.at(Key_ColorRGBA);
 
-		if (color.is_null() || color[0].is_null() || color[1].is_null() || color[2].is_null() || color[3].is_null())
-		{
-			data.setColor(ProjectColor::getColor("BLUE"));
-			IOLOG << "ImportGenericData color read error" << LOGENDL;
-		}
-		else
-			data.setColor(Color32(color[0], color[1], color[2], color[3]));
+	if (color.is_null() || color[0].is_null() || color[1].is_null() || color[2].is_null() || color[3].is_null())
+	{
+		data.setColor(ProjectColor::getColor("BLUE"));
+		IOLOG << "ImportGenericData color read error" << LOGENDL;
+	}
+	else
+		data.setColor(Color32(color[0], color[1], color[2], color[3]));
+
+	if (json.find(Key_IconId) != json.end())
+	{
+		auto idTmp = magic_enum::enum_cast<scs::MarkerIcon>(json.at(Key_IconId).get<std::string>());
+		if (idTmp.has_value() && idTmp.value() != scs::MarkerIcon::Max_Enum)
+			data.setMarkerIcon(idTmp.value());
+	}
+	else
+	{
+		// This is not an important error as the icon is automatically set by most classes.
+		IOLOG << "No icon data found, default used." << LOGENDL;
 	}
 
 	return retVal;
@@ -1878,17 +1888,6 @@ bool ImportTagData(const nlohmann::json& json, TagData& data, const std::unorder
 		retVal = false;
 	}
 
-	if (json.find(Key_IconId) != json.end())
-	{
-		auto idTmp = magic_enum::enum_cast<scs::MarkerIcon>(json.at(Key_IconId).get<std::string>());
-		data.setMarkerIcon(idTmp.has_value() ? idTmp.value() : scs::MarkerIcon::Target);
-	}
-	else
-	{
-		IOLOG << "Tag IconId read error" << LOGENDL;
-		retVal = false;
-	}
-
 	SafePtr<sma::TagTemplate> currentTemp;
 	for (SafePtr<sma::TagTemplate> tagTemp : templates)
 	{
@@ -1899,7 +1898,6 @@ bool ImportTagData(const nlohmann::json& json, TagData& data, const std::unorder
 			data.setTemplate(tagTemp);
 			break;
 		}
-
 	}
 
 	ReadPtr<sma::TagTemplate> rCurrentTemp = currentTemp.cget();
@@ -2334,22 +2332,16 @@ void DataDeserializer::DeserializeClusterNode(WritePtr<ClusterNode>& wToEditNode
 	);
 }
 
-void DataDeserializer::DeserializeBoxNode(WritePtr<BoxNode>& wToEditNode, const nlohmann::json& json, Controller& controller)
+void DataDeserializer::DeserializeBoxNode(SafePtr<BoxNode> box, const nlohmann::json& json, Controller& controller)
 {
-	return WriteNode<BoxNode>(wToEditNode,
+	WritePtr<BoxNode> wBox = box.get();
+	if (!wBox)
+		return;
 
-		[&controller, &json](WritePtr<BoxNode>& writePtr)
-		{
-			bool success = true;
-
-			success &= ImportData(json, *&writePtr);
-			success &= ImportTransformationModule(json, *&writePtr);
-			success &= ImportClippingData(json, *&writePtr);
-			success &= ImportGridData(json, *&writePtr);
-
-			return success;
-		}
-	);
+	ImportData(json, *&wBox);
+	ImportTransformationModule(json, *&wBox);
+	ImportClippingData(json, *&wBox);
+	ImportGridData(json, *&wBox);
 }
 
 void DataDeserializer::DeserializeCameraNode(WritePtr<CameraNode>& wCam, const nlohmann::json& json)

@@ -20,7 +20,6 @@ FilterSystem::FilterSystem()
 	m_methods.insert(std::pair<ElementType, filterMethod>(ElementType::Tag, &FilterSystem::filterAdvTag));
 	m_methods.insert(std::pair<ElementType, filterMethod>(ElementType::Scan, &FilterSystem::filterScan));
 	m_methods.insert(std::pair<ElementType, filterMethod>(ElementType::Box, &FilterSystem::filterGeneric));
-	m_methods.insert(std::pair<ElementType, filterMethod>(ElementType::Grid, &FilterSystem::filterGeneric));
 	m_methods.insert(std::pair<ElementType, filterMethod>(ElementType::Sphere, &FilterSystem::filterGeneric));
 	m_methods.insert(std::pair<ElementType, filterMethod>(ElementType::Cylinder, &FilterSystem::filterGeneric));
 	m_methods.insert(std::pair<ElementType, filterMethod>(ElementType::Torus, &FilterSystem::filterGeneric));

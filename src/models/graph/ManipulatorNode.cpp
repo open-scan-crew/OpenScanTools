@@ -6,7 +6,6 @@
 #include "utils/math/trigo.h"
 #include "utils/math/geometry.h"
 
-#include "utils/Logger.h"
 #include "vulkan/MeshManager.h"
 
 #include <QtGui/qguiapplication.h>
@@ -19,7 +18,6 @@
 
 std::unordered_set<ElementType> ManipulatorNode::s_manipulableTypes = {
    ElementType::Box,
-   ElementType::Grid,
    ElementType::Cylinder,
    ElementType::Torus,
    ElementType::Sphere,

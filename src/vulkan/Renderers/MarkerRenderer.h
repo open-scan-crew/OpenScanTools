@@ -5,10 +5,13 @@
 #include "vulkan/vulkan.h"
 #include "vulkan/VkUniform.h"
 #include "pointCloudEngine/SmartBuffer.h"
+#include "models/3d/MarkerDrawData.h"
+#include "models/data/Marker.h"
 
 #include "glm/glm.hpp"
 
 class VulkanDeviceFunctions;
+class AObjectNode;
 
 class MarkerRenderer
 {
@@ -16,6 +19,7 @@ public:
     MarkerRenderer();
     ~MarkerRenderer();
 
+    static MarkerDrawData getMarkerDrawData(const glm::dmat4& gTransfo, const AObjectNode& _obj);
     // General function
     void drawMarkerData(VkCommandBuffer _cmdBuffer, SimpleBuffer drawDataBuf, uint32_t firstMarker, uint32_t markerCount, VkUniformOffset viewProjUniOffset, VkDescriptorSet depthDescSet);
 
@@ -24,6 +28,7 @@ public:
     void setBordersColorConstant(VkCommandBuffer _cmdBuffer, glm::vec4 neutral, glm::vec4 hover, glm::vec4 select);
     void setDepthRenderConstant(VkCommandBuffer _cmdBuffer, bool _useDepthRender);
     void setViewportSizeConstants(VkCommandBuffer _cmdBuffer, VkExtent2D extent);
+
 
 private:
     void cleanup();

@@ -311,7 +311,7 @@ std::unordered_set<ElementType> DialogExportPrimitives::getSelectedTypes()
 						, ElementType::ColumnTiltMeasure, ElementType::BeamBendingMeasure}},
 		{m_ui.spheresBox, {ElementType::Sphere}},
 		{m_ui.pipingBox, {ElementType::Piping, ElementType::Cylinder, ElementType::Torus}},
-		{m_ui.boxesBox, {ElementType::Box, ElementType::Grid}},
+		{m_ui.boxesBox, {ElementType::Box}},
 		{m_ui.externBox, {ElementType::MeshObject}},
 		{m_ui.viewpointBox, {ElementType::ViewPoint}}
 	};

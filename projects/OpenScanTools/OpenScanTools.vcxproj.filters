@@ -2414,9 +2414,6 @@
     <ClInclude Include="..\..\include\io\SaveLoadSystem.h">
       <Filter>include\io</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\models\project\Marker.h">
-      <Filter>include\models\project</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\utils\Logger.h">
       <Filter>include\utils</Filter>
     </ClInclude>

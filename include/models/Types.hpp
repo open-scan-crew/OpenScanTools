@@ -28,7 +28,6 @@ enum class ElementType
 	PipeToPipeMeasure,
 	MeshObject,
 	Box,
-	Grid,
 	Point,
 	Cylinder,
 	Torus,
@@ -105,7 +104,6 @@ static const std::unordered_set<ElementType> s_allTypes = {
 	ElementType::Scan,
 	ElementType::PCO,
 	ElementType::Box,
-	ElementType::Grid,
 	ElementType::Cylinder,
 	ElementType::Torus,
 	ElementType::Point,
@@ -117,7 +115,6 @@ static const std::unordered_set<ElementType> s_allTypes = {
 
 static const std::unordered_set<ElementType> s_clippingTypes = {
     ElementType::Box,
-    ElementType::Grid,
     ElementType::Cylinder,
     ElementType::Torus,
     ElementType::Point,
@@ -139,7 +136,6 @@ static const std::unordered_set<ElementType> s_measuresTypes = {
 /*
 static std::unordered_set<ElementType> s_manipulableTypes = {
 	ElementType::Box,
-	ElementType::Grid,
 	ElementType::Cylinder,
 	ElementType::Torus,
 	ElementType::Sphere,
