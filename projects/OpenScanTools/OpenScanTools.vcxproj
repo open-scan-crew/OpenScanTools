@@ -909,7 +909,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\gui\widgets\TemplatesNode.cpp" />
     <ClCompile Include="..\..\src\gui\widgets\TreeNodeSystem\TreeModel.cpp" />
     <ClCompile Include="..\..\src\gui\widgets\TreeNodeSystem\TreeNode.cpp" />
-    <ClCompile Include="..\..\src\gui\widgets\TreeNodeSystem\TreeNodeFactory.cpp" />
     <ClCompile Include="..\..\src\gui\widgets\TreeNodeSystem\TreeView.cpp" />
     <ClCompile Include="..\..\src\impl\imgui_impl_qt.cpp" />
     <ClCompile Include="..\..\src\impl\Vma_impl.cpp" />
@@ -1656,7 +1655,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtMoc Include="..\..\include\gui\widgets\TreeNodeSystem\TreeModel.h" />
     <ClInclude Include="..\..\include\gui\widgets\TreeNodeSystem\TreeNode.h" />
     <QtMoc Include="..\..\include\gui\widgets\TreeNodeSystem\TreeView.h" />
-    <ClInclude Include="..\..\include\gui\widgets\TreeNodeSystem\TreeNodeFactory.hxx" />
     <ClInclude Include="..\..\include\io\ConvertProperties.h" />
     <ClInclude Include="..\..\include\io\E57AdditionalTypes.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
@@ -1664,7 +1662,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     </ClInclude>
     <ClInclude Include="..\..\include\io\exports\DataSerializer.h" />
     <ClInclude Include="..\..\include\io\exports\ExportParameters.hpp" />
-    <ClInclude Include="..\..\include\gui\widgets\TreeNodeSystem\TreeNodeFactory.h" />
     <ClInclude Include="..\..\include\io\exports\RcpFileWriter.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>

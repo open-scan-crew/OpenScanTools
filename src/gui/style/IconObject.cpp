@@ -1,26 +1,21 @@
 #include "gui/style/IconObject.h"
 #include "services/MarkerDefinitions.hpp"
-#include <QtGui/qpainter.h>
 #include <QtGui/qimage.h>
-#include <QtWidgets/qgraphicseffect.h>
-#include <QtWidgets/qgraphicsscene.h>
-#include <QtWidgets/qgraphicsitem.h>
 
 #include "utils/Utils.h"
 
-void tint(QImage& src, Color32 color, qreal strength = 1.0) {
-    if (src.isNull())
-        return;
-    QGraphicsScene scene;
-    QGraphicsPixmapItem item;
-    item.setPixmap(QPixmap::fromImage(src));
-    QGraphicsColorizeEffect effect;
-    effect.setColor(QColor(color.r, color.g, color.b));
-    effect.setStrength(strength);
-    item.setGraphicsEffect(&effect);
-    scene.addItem(&item);
-    QPainter ptr(&src);
-    scene.render(&ptr, QRectF(), src.rect());
+void tint(QImage& image, Color32 color)
+{
+    for (int x = 0; x < image.width(); x++)
+    {
+        for (int y = 0; y < image.height(); y++)
+        {
+            QPoint pt(x, y);
+            int a = image.pixelColor(pt).alpha();
+            QColor qcolor = QColor(color.r, color.g, color.b, a);
+            image.setPixelColor(pt, qcolor);
+        }
+    }
 }
 
 QPixmap scs::IconManager::getIcon(scs::MarkerIcon icon, Color32 color)
@@ -37,7 +32,7 @@ QPixmap scs::IconManager::getIcon(scs::MarkerIcon icon, Color32 color)
 
         QImage iconImage(style.qresource);
         if (!style.showTrueColor)
-            tint(iconImage, color, 1.0);
+            tint(iconImage, color);
         pixmap = QPixmap::fromImage(iconImage);
     }
 

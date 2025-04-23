@@ -6,11 +6,10 @@
 #define GTLOG Logger::log(LoggerMode::GTLog)
 
 TreeNode::TreeNode(const SafePtr<AGraphNode>& data,
-					std::function<std::unordered_set<SafePtr<AGraphNode>>(const GraphManager&)> getChildFonction,
-					std::function<bool(SafePtr<AGraphNode>)> canBeDropFilter,
-					std::function<void(IDataDispatcher&, std::unordered_set<SafePtr<AGraphNode>>)> onDropFunction,
-					TreeType treeType
-				)
+	fctGetChildren getChildFonction,
+	fctCanDrop canBeDropFilter,
+	fctOnDrop onDropFunction,
+	TreeType treeType)
 	: QStandardItem()
 	, m_data(data)
 	, m_elemType(ElementType::None)

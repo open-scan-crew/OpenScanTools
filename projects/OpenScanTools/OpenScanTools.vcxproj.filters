@@ -952,9 +952,6 @@
     <ClCompile Include="..\..\src\gui\widgets\ConvertionOptionsBox.cpp">
       <Filter>src\gui\Dialog</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\gui\widgets\TreeNodeSystem\TreeNodeFactory.cpp">
-      <Filter>src\gui\widgets\TreeNodeSystem</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\controller\functionSystem\ContextMultipleCylindersMeasure.cpp">
       <Filter>src\controller\contexts</Filter>
     </ClCompile>
@@ -2870,9 +2867,6 @@
     <ClInclude Include="..\..\include\controller\messages\ClippingExportParametersMessage.h">
       <Filter>include\controller\messages</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\gui\widgets\TreeNodeSystem\TreeNodeFactory.h">
-      <Filter>include\gui\widgets\TreeNodeSystem</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\controller\controls\ControlObject3DEdition.h">
       <Filter>include\controller\controls</Filter>
     </ClInclude>
@@ -2920,9 +2914,6 @@
     </ClInclude>
     <ClInclude Include="..\..\include\controller\functionSystem\ContextExtendCylinderMeasure.h">
       <Filter>include\controller\contexts</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\gui\widgets\TreeNodeSystem\TreeNodeFactory.hxx">
-      <Filter>include\gui\widgets\TreeNodeSystem</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\gui\widgets\CustomWidgets\GenericPropertiesHead.h">
       <Filter>include\gui\widgets\CustomWidgets</Filter>

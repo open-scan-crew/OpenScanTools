@@ -15,12 +15,15 @@ class GraphManager;
 class TreeNode : public QStandardItem
 {
 public:
+	typedef std::function<std::unordered_set<SafePtr<AGraphNode>>(const GraphManager&)> fctGetChildren;
+	typedef std::function<bool(const SafePtr<AGraphNode>&)> fctCanDrop;
+	typedef std::function<void(IDataDispatcher&, std::unordered_set<SafePtr<AGraphNode>>)> fctOnDrop;
+
 	TreeNode(const SafePtr<AGraphNode>& data,
-				std::function<std::unordered_set<SafePtr<AGraphNode>>(const GraphManager&)> getChildFonction,
-				std::function<bool(SafePtr<AGraphNode>)> canBeDropFilter,
-				std::function<void(IDataDispatcher&, std::unordered_set<SafePtr<AGraphNode>>)> onDropFunction,
-				TreeType treeType
-			);
+		fctGetChildren getChildFonction,
+		fctCanDrop canBeDropFilter,
+		fctOnDrop onDropFunction,
+		TreeType treeType);
 	~TreeNode();
 
 	ElementType getType() const;
@@ -40,15 +43,15 @@ public:
 
 
 protected:
-	QList<QVariant>	m_nodeData;
+	QList<QVariant> m_nodeData;
 
 	SafePtr<AGraphNode> m_data;
-	TreeType	m_treeType;
+	TreeType m_treeType;
 	ElementType m_elemType;
 
-	std::function<std::unordered_set<SafePtr<AGraphNode>>(const GraphManager&)> m_getChildFonction;
-	std::function<bool(const SafePtr<AGraphNode>&)> m_canBeDropFilter;
-	std::function<void(IDataDispatcher&, std::unordered_set<SafePtr<AGraphNode>>)> m_onDropFunction;
+	fctGetChildren m_getChildFonction;
+	fctCanDrop m_canBeDropFilter;
+	fctOnDrop m_onDropFunction;
 
 	bool m_isStructNode = false;
 };
