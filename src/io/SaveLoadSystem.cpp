@@ -1495,12 +1495,10 @@ std::filesystem::path SaveLoadSystem::saveAuthors(const std::unordered_set<SafeP
 
 std::wstring SaveLoadSystem::getAuthorFilename(const Author& auth)
 {
-	/*time_t timeNow = std::time(nullptr);
-	wchar_t strDate[256];
-	std::wcsftime(strDate, sizeof(strDate), WIDE_SERIALIZE_TIME_FORMAT, std::localtime(&timeNow));
-	*/
-
-	return auth.getName() + L"_" + Utils::from_utf8(auth.getId().str());
+	std::wstring filename = auth.getName().c_str(); // Remove any null characters
+	filename += L"_";
+	filename += Utils::from_utf8(auth.getId().str());
+	return filename;
 }
 
 std::vector<std::filesystem::path> renameOldObjectFiles(const std::vector<std::filesystem::path>& oldFiles)

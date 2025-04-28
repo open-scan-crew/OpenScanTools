@@ -447,7 +447,17 @@ SafePtr<Author> ControllerContext::createAuthor(const Author& newAuthor) const
 {
 	xg::Guid authorId = newAuthor.getId();
 	SafePtr<Author> newSafeAuthor;
-	for (SafePtr<Author> author : m_contextKnownAuthors)
+	for (SafePtr<Author> author : m_localAuthors)
+	{
+		ReadPtr<Author> rAuthor = author.cget();
+		if (rAuthor && rAuthor->getId() == authorId)
+		{
+			newSafeAuthor = author;
+			break;
+		}
+	}
+
+	for (SafePtr<Author> author : m_projAuthors)
 	{
 		ReadPtr<Author> rAuthor = author.cget();
 		if (rAuthor && rAuthor->getId() == authorId)
@@ -497,7 +507,6 @@ void ControllerContext::addProjectAuthors(const std::unordered_set<SafePtr<Autho
 {
 	for (const SafePtr<Author>& auth : authors)
 	{
-		addAuthorToSet(auth, m_contextKnownAuthors);
 		addAuthorToSet(auth, m_projAuthors);
 	}
 }
@@ -506,7 +515,6 @@ void ControllerContext::addLocalAuthors(const std::unordered_set<SafePtr<Author>
 {
 	for (const SafePtr<Author>& auth : authors)
 	{
-		addAuthorToSet(auth, m_contextKnownAuthors);
 		addAuthorToSet(auth, m_localAuthors);
 	}
 }

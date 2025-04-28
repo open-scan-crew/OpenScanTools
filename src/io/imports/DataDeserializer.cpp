@@ -40,82 +40,6 @@
 
 #include "magic_enum/magic_enum.hpp"
 
-/*
-bool DataDeserializer::ImportModification(const nlohmann::json& json, std::set<xg::Guid>& object_deleted, std::set<xg::Guid>& object_added, std::map<xg::Guid, std::set<std::string>>& object_updated)
-{
-	bool retVal(true);
-
-	if (json.find("object_added") != json.end())
-	{
-		for (const nlohmann::json& child : json.at("object_added"))
-		{
-			xg::Guid i;
-
-			i = xg::Guid(child.at("id_object_added").get<std::string>());
-
-			object_added.insert(i);
-
-		}
-	}
-	else
-	{
-		retVal = false;
-	}
-
-	if (json.find("object_deleted") != json.end())
-	{
-		for (const nlohmann::json& child : json.at("object_deleted"))
-		{
-			xg::Guid j;
-
-			j = xg::Guid(child.at("id_object_deleted").get<std::string>());
-
-			object_deleted.insert(j);
-
-			object_updated.erase(j);
-
-			object_added.erase(j);
-		}
-	}
-	else
-	{
-		retVal = false;
-	}
-
-	if (json.find("object_updated") != json.end())
-	{
-		for (const nlohmann::json& child1 : json.at("object_updated"))
-		{
-			std::set<std::string> field;
-
-			if (child1.find("Field_changed") != child1.end())
-			{
-				for (const nlohmann::json& child2 : child1.at("Field_changed"))
-				{
-					field.insert(child2.get<std::string>());
-				}
-			}
-			if (child1.find("id_object_updated") != child1.end())
-			{
-				xg::Guid k;
-
-				k = xg::Guid(child1.at("id_object_updated").get<std::string>());
-
-				if (!(object_added.find(k) != object_added.end()))
-				{
-					object_updated[k] = field;
-				}
-			}
-		}
-	}
-	else
-	{
-		retVal = false;
-	}
-	return retVal;
-}
-*/
-
 #define IOLOG Logger::log(LoggerMode::IOLog)
 
 bool ImportData(const nlohmann::json& json, Data& data)
@@ -2650,35 +2574,6 @@ bool DataDeserializer::DeserializeUserOrientation(const nlohmann::json& json, Us
 bool DataDeserializer::DeserializeProjectInfos(const nlohmann::json& json, const Controller& controller, ProjectInfos& data)
 {
 	bool retVal(true);
-	/*
-	if (json.find(Key_CentralPath) != json.end())
-	{
-		data.m_centralProjectPath = (Utils::from_utf8(json.at(Key_CentralPath).get<std::string>()));
-	}
-	else
-	{
-		data.m_centralProjectPath = std::filesystem::path();
-	}
-
-	if (json.find(Key_CentralId) != json.end())
-	{
-		std::string id = json.at(Key_CentralId).get<std::string>();
-		data.m_centralId = xg::Guid(id);
-	}
-	else
-	{
-		data.m_centralId = xg::Guid();
-	}
-
-	if (json.find(Key_Is_Central) != json.end())
-	{
-		data.m_isCentral = (json.at(Key_Is_Central).get<bool>());
-	}
-	else
-	{
-		data.m_isCentral = false;
-	}
-	*/
 
 	if (json.find(Key_Project_Id) != json.end())
 	{

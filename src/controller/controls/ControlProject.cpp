@@ -316,7 +316,7 @@ namespace control::project
     {
         CONTROLLOG << "control::project::Save" << LOGENDL;
         controller.saveCurrentProject(m_camera);
-        controller.updateInfo(new GuiDataTmpMessage(TEXT_SAVE_COMPLETE, 1000));
+        controller.updateInfo(new GuiDataTmpMessage(TEXT_SAVE_COMPLETE, 3000));
     }
 
     bool Save::canUndo() const

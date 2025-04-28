@@ -156,7 +156,6 @@ private:
 	float m_renderPointSize;
 	std::vector<Color32> m_backgroundColors;
 
-	std::unordered_set<SafePtr<Author>> m_contextKnownAuthors;
 	std::unordered_set<SafePtr<Author>> m_localAuthors;
 	std::unordered_set<SafePtr<Author>> m_projAuthors;
 	SafePtr<Author> m_activeAuthor;
