@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>238</width>
-    <height>60</height>
+    <width>245</width>
+    <height>89</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -39,7 +39,7 @@
      </property>
      <property name="icon">
       <iconset resource="../../../openscantools.qrc">
-       <normaloff>:/icons/100x100/pipe.png</normaloff>:/icons/100x100/pipe.png</iconset>
+       <normaloff>:/icons/100x100/sphere.png</normaloff>:/icons/100x100/sphere.png</iconset>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -62,7 +62,7 @@
      </property>
      <property name="icon">
       <iconset resource="../../../openscantools.qrc">
-       <normaloff>:/icons/100x100/robust_pipe.png</normaloff>:/icons/100x100/robust_pipe.png</iconset>
+       <normaloff>:/icons/100x100/sphere.png</normaloff>:/icons/100x100/sphere.png</iconset>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -75,10 +75,7 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="2">
-    <widget class="QComboBox" name="standardsComboBox"/>
-   </item>
-   <item row="3" column="2">
+   <item row="3" column="1">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -91,23 +88,11 @@
      </property>
     </spacer>
    </item>
-   <item row="1" column="2">
-    <widget class="QPushButton" name="managePushButton">
-     <property name="toolTip">
-      <string>Pipe standard manager. Create and edit your own lists of standard diameters.</string>
-     </property>
-     <property name="text">
-      <string>Manage Standards</string>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
  <tabstops>
   <tabstop>robustToolButton</tabstop>
   <tabstop>sphereToolButton</tabstop>
-  <tabstop>managePushButton</tabstop>
-  <tabstop>standardsComboBox</tabstop>
  </tabstops>
  <resources>
   <include location="../../../openscantools.qrc"/>

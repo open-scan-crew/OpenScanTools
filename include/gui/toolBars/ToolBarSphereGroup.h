@@ -3,12 +3,8 @@
 
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
-#include "models/application/List.h"
-#include "utils/safe_ptr.h"
 
 #include <unordered_map>
-#include <vector>
-
 #include <QtWidgets/qwidget.h>
 
 #include "ui_toolbar_spheregroup.h"
@@ -30,18 +26,15 @@ private:
 	~ToolBarSphereGroup();
 	void onProjectLoad(IGuiData* data);
 	void onActivateFunction(IGuiData* data);
-	void onStandardRecieved(IGuiData* data);
 	void initSphereDetection();
 	void initLargeSphereDetection();
-	void slotStandardChanged(const int& index);
 	void initSphereStandardManagement();
 
 private:
 	std::unordered_map<guiDType, SphereGroupMethod> m_methods;
 	Ui::toolbar_spheregroup m_ui;
 	IDataDispatcher& m_dataDispatcher;
-	std::vector<SafePtr<StandardList>> m_standardsElems;
 };
 
-#endif // TOOLBAR_PIPEGROUP_H
+#endif
 

@@ -19,10 +19,10 @@ namespace scs
     };
 
     const static std::unordered_map<MarkerIcon, MarkerStyleDefinition> markerStyleDefs = {
-        { MarkerIcon::Scan_Base, { MarkerShape::Top_Arrow, false, QString(":icons/arbo/survey_equipment_100.png"), TEXT_MARKER_DEFINITION_SURVEY_EQUIPEMENT } },
+        { MarkerIcon::Scan_Base, { MarkerShape::Top_Arrow, false, QString(":icons/100x100/survey_equipment.png"), TEXT_MARKER_DEFINITION_SURVEY_EQUIPEMENT } },
         { MarkerIcon::Target, { MarkerShape::Centered, false, QString(":icons/100x100/target.png"), TEXT_MARKER_DEFINITION_TARGET } },
-        { MarkerIcon::BeamBending, { MarkerShape::Top_Arrow, false, QString(":icons/tag/beam_bending.png"), TEXT_MARKER_DEFINITION_BEAMBENDING } },
-        { MarkerIcon::ColumnTilt, { MarkerShape::Top_Arrow, false, QString(":/icons/100x100/column tilt.png"), TEXT_MARKER_DEFINITION_COLUMNTILT } },
+        { MarkerIcon::BeamBending, { MarkerShape::Top_Arrow, false, QString(":icons/100x100/beam_bending.png"), TEXT_MARKER_DEFINITION_BEAMBENDING } },
+        { MarkerIcon::ColumnTilt, { MarkerShape::Top_Arrow, false, QString(":/icons/100x100/column_tilt.png"), TEXT_MARKER_DEFINITION_COLUMNTILT } },
         { MarkerIcon::PointObject, { MarkerShape::Centered, false, QString(":icons/100x100/point.png"), TEXT_MARKER_DEFINITION_POINT } },
         { MarkerIcon::ViewPoint, { MarkerShape::Top_No_Arrow, false, QString(":icons/100x100/viewpoint.png"), TEXT_MARKER_DEFINITION_VIEWPOINT } },
         { MarkerIcon::Tag_Base, { MarkerShape::Top_Arrow, false, ":icons/tag/tag_base.png", TEXT_MARKER_DEFINITION_BASIC_TAG } },
@@ -80,19 +80,19 @@ namespace scs
         { MarkerIcon::Picto_Security_Ria, { MarkerShape::Top_Arrow, true, ":icons/picto/picto_secu_ria.png", TEXT_MARKER_DEFINITION_FIRE_HOSE } },
         { MarkerIcon::Picto_Security_Phone, { MarkerShape::Top_Arrow, true, ":icons/picto/picto_secu_tel.png", TEXT_MARKER_DEFINITION_FIRE_PHONE } },
         // Other objects type
-        { MarkerIcon::Torus, { MarkerShape::Centered, false, ":icons/arbo/elbow.png", TEXT_DEFAULT_NAME_TORUS } },
-        { MarkerIcon::Sphere, { MarkerShape::Centered, false, ":icons/arbo/sphere.png", TEXT_DEFAULT_NAME_SPHERE } },
-        { MarkerIcon::Cylinder, { MarkerShape::Centered, false, ":icons/arbo/pipe.png", TEXT_DEFAULT_NAME_PIPE } },
-        { MarkerIcon::Box, { MarkerShape::Centered, false, ":icons/arbo/Ortho-yk.png", TEXT_DEFAULT_NAME_BOX } },
-        { MarkerIcon::Grid, { MarkerShape::Centered, false, ":icons/arbo/gridded box-yk.png", TEXT_DEFAULT_NAME_BOX } },
-        { MarkerIcon::PCO, { MarkerShape::Centered, false, ":icons/arbo/global_box.png", TEXT_DEFAULT_NAME_BOX } },
-        { MarkerIcon::Simple_Measure, { MarkerShape::Centered, false, ":icons/arbo/measure_points.png", TEXT_DEFAULT_NAME_SIMPLE_MEASURE } },
-        { MarkerIcon::Polyline_Measure, { MarkerShape::Centered, false, ":icons/arbo/polyline.png", TEXT_DEFAULT_NAME_POLYLINE } },
+        { MarkerIcon::Torus, { MarkerShape::Centered, false, ":icons/100x100/elbow.png", TEXT_DEFAULT_NAME_TORUS } },
+        { MarkerIcon::Sphere, { MarkerShape::Centered, false, ":icons/100x100/sphere.png", TEXT_DEFAULT_NAME_SPHERE } },
+        { MarkerIcon::Cylinder, { MarkerShape::Centered, false, ":icons/100x100/pipe.png", TEXT_DEFAULT_NAME_PIPE } },
+        { MarkerIcon::Box, { MarkerShape::Centered, false, ":icons/100x100/Ortho-yk.png", TEXT_DEFAULT_NAME_BOX } },
+        { MarkerIcon::Grid, { MarkerShape::Centered, false, ":icons/100x100/gridded_box.png", TEXT_DEFAULT_NAME_BOX } },
+        { MarkerIcon::PCO, { MarkerShape::Centered, false, ":icons/100x100/global_box.png", TEXT_DEFAULT_NAME_BOX } },
+        { MarkerIcon::Simple_Measure, { MarkerShape::Centered, false, ":icons/100x100/measure_points.png", TEXT_DEFAULT_NAME_SIMPLE_MEASURE } },
+        { MarkerIcon::Polyline_Measure, { MarkerShape::Centered, false, ":icons/100x100/polyline.png", TEXT_DEFAULT_NAME_POLYLINE } },
         { MarkerIcon::PointToPlane_Measure, { MarkerShape::Centered, false, ":icons/100x100/point_plane_measurement.png", TEXT_DEFAULT_NAME_POINT_TO_PLANE } },
-        { MarkerIcon::PipeToPipe_Measure, { MarkerShape::Centered, false, ":icons/arbo/cylinder_cylinder_measurement.png", TEXT_DEFAULT_NAME_PIPE_TO_PIPE } },
-        { MarkerIcon::PointToPipe_Measure, { MarkerShape::Centered, false, ":icons/arbo/cylinder_point_measurement.png", TEXT_DEFAULT_NAME_POINT_TO_PIPE } },
-        { MarkerIcon::PipeToPlane_Measure, { MarkerShape::Centered, false, ":icons/arbo/cylinder_plane_measurement.png", TEXT_DEFAULT_NAME_PIPE_TO_PLANE } },
-        { MarkerIcon::MeshObject, { MarkerShape::Centered, false, ":icons/arbo/3dmodel.png", TEXT_DEFAULT_NAME_MESH } },
+        { MarkerIcon::PipeToPipe_Measure, { MarkerShape::Centered, false, ":icons/100x100/cylinder_cylinder_measurement.png", TEXT_DEFAULT_NAME_PIPE_TO_PIPE } },
+        { MarkerIcon::PointToPipe_Measure, { MarkerShape::Centered, false, ":icons/100x100/cylinder_point_measurement.png", TEXT_DEFAULT_NAME_POINT_TO_PIPE } },
+        { MarkerIcon::PipeToPlane_Measure, { MarkerShape::Centered, false, ":icons/100x100/cylinder_plane_measurement.png", TEXT_DEFAULT_NAME_PIPE_TO_PLANE } },
+        { MarkerIcon::MeshObject, { MarkerShape::Centered, false, ":icons/100x100/3dmodel.png", TEXT_DEFAULT_NAME_MESH } },
         /**/
     };
 

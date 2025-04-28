@@ -44,7 +44,7 @@
      </property>
      <property name="icon">
       <iconset resource="../../../openscantools.qrc">
-       <normaloff>:/icons/100x100/column tilt.png</normaloff>:/icons/100x100/column tilt.png</iconset>
+       <normaloff>:/icons/100x100/column_tilt.png</normaloff>:/icons/100x100/column_tilt.png</iconset>
      </property>
      <property name="toolButtonStyle">
       <enum>Qt::ToolButtonTextBesideIcon</enum>

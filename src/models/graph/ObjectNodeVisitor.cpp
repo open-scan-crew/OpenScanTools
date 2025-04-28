@@ -1301,18 +1301,20 @@ void ObjectNodeVisitor::bakeGraphics(const SafePtr<AGraphNode>& node, const Tran
         {
         case ElementType::Scan:
             if ((m_displayParameters.m_markerMask & SHOW_SCAN_MARKER) != 0)
-                MarkerRenderer::getMarkerDrawData(transfoMat, *&rObj);
+                m_markerDrawData.push_back(MarkerRenderer::getMarkerDrawData(transfoMat, *&rObj));
             break;
         case ElementType::Tag:
             if ((m_displayParameters.m_markerMask & SHOW_TAG_MARKER) != 0)
-                MarkerRenderer::getMarkerDrawData(transfoMat, *&rObj);
+                m_markerDrawData.push_back(MarkerRenderer::getMarkerDrawData(transfoMat, *&rObj));
             break;
         case ElementType::Point:
         case ElementType::BeamBendingMeasure:
         case ElementType::ColumnTiltMeasure:
         case ElementType::ViewPoint:
-            MarkerRenderer::getMarkerDrawData(transfoMat, *&rObj);
+            m_markerDrawData.push_back(MarkerRenderer::getMarkerDrawData(transfoMat, *&rObj));
             break;
+        case ElementType::Sphere:
+            m_markerDrawData.push_back(MarkerRenderer::getMarkerDrawData(transfoMat, *&rObj));
         }
     }
 
