@@ -63,10 +63,3 @@ std::unordered_set<ManipulationMode> PointNode::getAcceptableManipulationModes()
 {
     return {};
 }
-
-void PointNode::setColor(const Color32& color)
-{
-    if (color == m_color)
-        return;
-    AObjectNode::setColor(color);
-}

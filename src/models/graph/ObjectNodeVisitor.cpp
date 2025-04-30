@@ -1293,29 +1293,30 @@ void ObjectNodeVisitor::bakeGraphics(const SafePtr<AGraphNode>& node, const Tran
 
     glm::dmat4 transfoMat = gTransfo.getTransformation();
 
+    // Marker //
     {
+        bool show_marker = false;
         ReadPtr<AObjectNode> rObj = static_read_cast<AObjectNode>(node);
         if (!rObj)
             return;
         switch (elemType)
         {
         case ElementType::Scan:
-            if ((m_displayParameters.m_markerMask & SHOW_SCAN_MARKER) != 0)
-                m_markerDrawData.push_back(MarkerRenderer::getMarkerDrawData(transfoMat, *&rObj));
+            show_marker = (m_displayParameters.m_markerMask & SHOW_SCAN_MARKER) != 0;
             break;
         case ElementType::Tag:
-            if ((m_displayParameters.m_markerMask & SHOW_TAG_MARKER) != 0)
-                m_markerDrawData.push_back(MarkerRenderer::getMarkerDrawData(transfoMat, *&rObj));
+            show_marker = (m_displayParameters.m_markerMask & SHOW_TAG_MARKER) != 0;
             break;
         case ElementType::Point:
         case ElementType::BeamBendingMeasure:
         case ElementType::ColumnTiltMeasure:
         case ElementType::ViewPoint:
-            m_markerDrawData.push_back(MarkerRenderer::getMarkerDrawData(transfoMat, *&rObj));
+            show_marker = true;
             break;
-        case ElementType::Sphere:
-            m_markerDrawData.push_back(MarkerRenderer::getMarkerDrawData(transfoMat, *&rObj));
         }
+
+        if (show_marker)
+            m_markerDrawData.push_back(MarkerRenderer::getMarkerDrawData(transfoMat, *&rObj));
     }
 
     switch (elemType)

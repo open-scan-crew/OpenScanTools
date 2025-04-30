@@ -68,13 +68,6 @@ std::unordered_set<ManipulationMode> TagNode::getAcceptableManipulationModes() c
     return {};
 }
 
-void TagNode::setColor(const Color32& color)
-{
-    if (color == m_color)
-        return;
-    AObjectNode::setColor(color);
-}
-
 void TagNode::setDefaultData(const Controller& controller)
 {
     TagData::setDefaultData(controller.cgetContext());

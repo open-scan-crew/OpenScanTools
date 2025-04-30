@@ -33,7 +33,8 @@ ShortcutSystem::ShortcutSystem(IDataDispatcher& dataDispacher, QWidget* parent)
 		})
 {
 
-	// m_shortcutDefs.push_back({ Qt::Key_G, &ShortcutSystem::slotGenerateData }); Deactivate batch test measurements shortcut
+	// Deactivate batch test measurements shortcut
+	//m_shortcutDefs.push_back({ Qt::Key_G, &ShortcutSystem::slotGenerateData });
 
 	for (const ShortcutDef& iterator : m_shortcutDefs)
 	{

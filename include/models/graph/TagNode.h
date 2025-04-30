@@ -20,9 +20,6 @@ public:
     std::unordered_set<Selection> getAcceptableSelections(const ManipulationMode& mode) const override;
     std::unordered_set<ManipulationMode> getAcceptableManipulationModes() const override;
 
-    // Use this function to also change the marker color
-    virtual void setColor(const Color32& color) override;
-
     virtual void setDefaultData(const Controller& controller) override;
 
 

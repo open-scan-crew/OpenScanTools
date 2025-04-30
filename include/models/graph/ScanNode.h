@@ -14,18 +14,10 @@ public:
     ElementType getType() const override;
     TreeType getDefaultTreeType() const override;
 
-    //scs::MarkerIcon getIconType() const;
-
-    void setMarkerColor(const Color32& color);
-    Color32 getMarkerColor() const;
-
     std::wstring getComposedName() const override;
 
     std::unordered_set<Selection> getAcceptableSelections(const ManipulationMode& mode) const;
     std::unordered_set<ManipulationMode> getAcceptableManipulationModes() const override;
-
-protected:
-    Color32 m_markerColor;
 };
 
 #endif //! SCAN_NODE_H_

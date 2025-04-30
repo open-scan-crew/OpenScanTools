@@ -15,19 +15,9 @@ ScanNode::~ScanNode()
 {
 }
 
-Color32 ScanNode::getMarkerColor() const
-{
-	return m_markerColor;
-}
-
 std::wstring ScanNode::getComposedName() const
 {
 	return m_name;
-}
-
-void ScanNode::setMarkerColor(const Color32& color)
-{
-    m_markerColor = color;
 }
 
 ElementType ScanNode::getType() const

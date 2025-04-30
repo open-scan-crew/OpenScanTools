@@ -58,7 +58,7 @@ public:
 	void setPhase(const std::wstring& phase);
 	void setIdentifier(const std::wstring& identifier);
 	void setHyperlinks(const std::unordered_map<hLinkId, s_hyperlink>& links);
-	virtual void setColor(const Color32& color);
+	void setColor(const Color32& color);
 	void setMarkerIcon(scs::MarkerIcon icon);
 
 	virtual void setDefaultData(const ControllerContext& context);

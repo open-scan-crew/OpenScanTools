@@ -21,13 +21,11 @@ private:
 
 public slots:
 	void slotImportScantra();
-	void slotSwitchConnexion();
 
 private:
 	Ui::ToolBarImportScantra m_ui;
     IDataDispatcher &m_dataDispatcher;
 	QString m_openPath;
-	bool m_interprocess_started = false;
 };
 
 #endif // TOOLBAR_IMPORTOBJECTS_H

@@ -19,7 +19,7 @@ class Controller;
 class IDataDispatcher;
 class GraphManager;
 class AGraphNode;
-
+class BoxNode;
 
 class ScantraInterface
 {
@@ -61,6 +61,10 @@ private:
     SafePtr<AGraphNode> getScanOnName(std::wstring _name);
     void applyRegistration();
     void manageVisibility(int current_idx, int total_station, SafePtr<AGraphNode> scan);
+    void changeGraphicSettings();
+    void deactivateIntersectionBox();
+
+    SafePtr<BoxNode> getIntersectionBox();
 
 private:
     // interprocess memory

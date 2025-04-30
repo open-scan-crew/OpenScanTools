@@ -11,16 +11,11 @@ public:
     BeamBendingMeasureNode();
     ~BeamBendingMeasureNode();
 
-    void setColor(const Color32& color) override;
     ElementType getType() const override;
     TreeType getDefaultTreeType() const override;
 
     std::unordered_set<Selection> getAcceptableSelections(const ManipulationMode& mode) const override;
     std::unordered_set<ManipulationMode> getAcceptableManipulationModes() const override;
-
-
-    // TODO - future marker interface
-
 
     virtual void setMaxBendingPos(const Pos3D& pos) override;
 };

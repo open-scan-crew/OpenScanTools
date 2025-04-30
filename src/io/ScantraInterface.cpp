@@ -5,7 +5,9 @@
 #include "controller/functionSystem/FunctionManager.h"
 #include "controller/controls/ControlProject.h"
 #include "controller/controls/ControlViewport.h"
-#include "controller/messages/NewProjectMessage.h"
+
+#include "gui/GuiData/GuiDataRendering.h"
+
 #include "models/graph/GraphManager.hxx"
 #include "models/graph/ClusterNode.h"
 #include "models/graph/BoxNode.h"
@@ -358,22 +360,22 @@ void ScantraInterface::editIntersectionPlane()
     glm::dvec3 pos(t[0], t[1], t[2]);
     glm::dvec3 plane_pos = glm::mat3_cast(inv_q) * -pos;
 
-    SafePtr<BoxNode> box;
-    bool create_box = false;
     // Retreive the box or create it
+    SafePtr<BoxNode> box = getIntersectionBox();
+    if (!box)
     {
-        std::function<bool(const ReadPtr<AGraphNode>&)> filter_box =
-            [](const ReadPtr<AGraphNode>& r_node) {
-            return (r_node->getType() == ElementType::Box) &&
-                (r_node->getName().compare(L"intersection_plane") == 0);
-            };
-        auto boxes = graph_.getNodesOnFilter<BoxNode>(filter_box);
-
-        create_box = boxes.size() == 0;
-        box = create_box ? make_safe<BoxNode>() : *boxes.begin();
+        box = make_safe<BoxNode>();
+        {
+            WritePtr<BoxNode> w_box = box.get();
+            if (!w_box)
+                return;
+            w_box->setName(L"intersection_plane");
+            w_box->setSize(glm::dvec3(1000.0, 1000.0, 0.1));
+        }
         graph_.addNodesToGraph({ box });
     }
 
+    // Edit the box with the properties received
     {
         WritePtr<BoxNode> w_box = box.get();
         if (!w_box)
@@ -383,11 +385,6 @@ void ScantraInterface::editIntersectionPlane()
         w_box->setVisible(false);
         w_box->setClippingMode(ClippingMode::showInterior);
         w_box->setClippingActive(true);
-        if (create_box)
-        {
-            w_box->setName(L"intersection_plane");
-            w_box->setSize(glm::dvec3(1000.0, 1000.0, 0.1));
-        }
     }
 
     controller_.actualizeTreeView(box);
@@ -403,6 +400,8 @@ void ScantraInterface::editIntersectionPlane()
         w_cam->addPreRotation(glm::dquat(0.0, 1.0, 0.0, 0.0));
         w_cam->setPosition(plane_pos);
     }
+
+    changeGraphicSettings();
 }
 
 void ScantraInterface::editStationColor()
@@ -436,6 +435,10 @@ void ScantraInterface::editStationColor()
         WritePtr<AGraphNode> wPtr = scan.begin()->get();
         wPtr->setColor(Color32(r, g, b));
     }
+
+    changeGraphicSettings();
+
+    deactivateIntersectionBox();
 }
 
 void ScantraInterface::editStationAdjustment()
@@ -503,6 +506,10 @@ void ScantraInterface::editStationAdjustment()
     // -> On stocke les entrée que l’on reçoit
     // -> On active/désactive la visibilité des scan lors de la dernière entrée.
     manageVisibility(current_entry, total_entry, scan);
+
+    changeGraphicSettings();
+
+    deactivateIntersectionBox();
 }
 
 void ScantraInterface::createProject()
@@ -520,12 +527,6 @@ void ScantraInterface::createProject()
     IOLOG << "Received project folder: " << w_folder << ", name: " << w_name << Logger::endl;
 
     controller_.getControlListener()->notifyUIControl(new control::project::SaveCreate(w_folder, w_name, L"Scantra"));
-
-    //ProjectInfos project_infos;
-    //project_infos.m_projectName = w_name;
-    //project_infos.m_company = L"Scantra";
-    //NewProjectMessage msg(project_infos, w_folder, "");
-    //controller_.getFunctionManager().feedMessage(controller_, &msg);
 }
 
 void ScantraInterface::openProject()
@@ -644,4 +645,51 @@ void ScantraInterface::manageVisibility(int current_station, int total_station, 
         controller_.actualizeTreeView(tree_update);
         controller_.getControlListener()->notifyUIControl(new control::viewport::AdjustZoomToScene(SafePtr<CameraNode>()));
     }
+}
+
+void ScantraInterface::changeGraphicSettings()
+{
+    // Color mode : colored by scans
+    data_dispatcher_.updateInformation(new GuiDataRenderColorMode(UiRenderMode::Scans_Color, SafePtr<CameraNode>()));
+
+    // Desactivate the normals
+    PostRenderingNormals normal_settings;
+    normal_settings.show = false;
+    normal_settings.inverseTone = false;
+    normal_settings.normalStrength = 0.5f;
+    //normal_settings.blendColor = true;
+    //normal_settings.gloss = 1.f;
+    data_dispatcher_.updateInformation(new GuiDataPostRenderingNormals(normal_settings, true, SafePtr<CameraNode>()));
+}
+
+void ScantraInterface::deactivateIntersectionBox()
+{
+    SafePtr<BoxNode> box = getIntersectionBox();
+
+    if (!box)
+        return;
+
+    WritePtr<BoxNode> w_box = box.get();
+    if (!w_box)
+        return;
+    //w_box->setPosition(plane_pos);
+    //w_box->setRotation(inv_q);
+    w_box->setVisible(false);
+    //w_box->setClippingMode(ClippingMode::showInterior);
+    w_box->setClippingActive(false);
+}
+
+SafePtr<BoxNode> ScantraInterface::getIntersectionBox()
+{
+    std::function<bool(const ReadPtr<AGraphNode>&)> filter_box =
+        [](const ReadPtr<AGraphNode>& r_node) {
+        return (r_node->getType() == ElementType::Box) &&
+            (r_node->getName().compare(L"intersection_plane") == 0);
+        };
+    auto boxes = graph_.getNodesOnFilter<BoxNode>(filter_box);
+
+    if (boxes.size() != 0)
+        return *boxes.begin();
+
+    return SafePtr<BoxNode>();
 }

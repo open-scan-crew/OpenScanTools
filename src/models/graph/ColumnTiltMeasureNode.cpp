@@ -39,13 +39,6 @@ std::unordered_set<ManipulationMode> ColumnTiltMeasureNode::getAcceptableManipul
 	return {};
 }
 
-void ColumnTiltMeasureNode::setColor(const Color32& color)
-{
-    if (color == m_color)
-        return;
-	AObjectNode::setColor(color);
-}
-
 void ColumnTiltMeasureNode::setTopPoint(const Pos3D& tp)
 {
 	ColumnTiltMeasureData::setTopPoint(tp);

@@ -20,7 +20,6 @@ ToolBarImportScantra::ToolBarImportScantra(IDataDispatcher &dataDispatcher, QWid
 	m_openPath = QStandardPaths::locate(QStandardPaths::DocumentsLocation, QString(), QStandardPaths::LocateDirectory);
 
 	connect(m_ui.importScanTraButton, &QPushButton::released, this, &ToolBarImportScantra::slotImportScantra);
-	connect(m_ui.switch_connexion_btn, &QPushButton::released, this, &ToolBarImportScantra::slotSwitchConnexion);
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectPath);
@@ -65,14 +64,4 @@ void ToolBarImportScantra::slotImportScantra()
 	m_openPath = qFilepath;
 
 	m_dataDispatcher.sendControl(new control::io::ImportScantraModifications(filePath));
-}
-
-void ToolBarImportScantra::slotSwitchConnexion()
-{
-	m_dataDispatcher.sendControl(new control::application::SwitchScantraConnexion(!m_interprocess_started));
-	m_interprocess_started = !m_interprocess_started;
-
-	m_ui.switch_connexion_btn->setText(m_interprocess_started ?
-		"Disconnect with Scantra" :
-		"Connect with Scantra");
 }

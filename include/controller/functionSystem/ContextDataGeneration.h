@@ -3,6 +3,8 @@
 
 #include "controller/functionSystem/AContext.h"
 
+#include "models/graph/AGraphNode.h"
+
 class ContextDataGeneration : public AContext
 {
 public:
@@ -14,6 +16,11 @@ public:
 
     bool canAutoRelaunch() const;
     ContextType getType() const override;
+
+private:
+    void generateTags(Controller& controller, std::unordered_set<SafePtr<AGraphNode>>& ret_nodes);
+    void generateSimpleMeasures(Controller& controller, std::unordered_set<SafePtr<AGraphNode>>& ret_nodes);
+    void generatePolyMeasures(Controller& controller, std::unordered_set<SafePtr<AGraphNode>>& ret_nodes);
 
 };
 

@@ -19,11 +19,7 @@ public:
     std::unordered_set<Selection> getAcceptableSelections(const ManipulationMode& mode) const override;
     std::unordered_set<ManipulationMode> getAcceptableManipulationModes() const override;
 
-    void setColor(const Color32& color) override;
-
     virtual void setTopPoint(const Pos3D& tp) override;
-
-    void updateColumnTiltMeasure(const ColumnTiltMeasureNode& data);
 };
 
 #endif

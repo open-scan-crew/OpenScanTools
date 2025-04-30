@@ -650,6 +650,16 @@ void MarkerRenderer::cleanup()
     tls::vk::freeMemory(*h_pfn, h_device, m_textureMemory);
 }
 
+// NEW ENTITY
+// class MarkerContainer
+//{
+//  { 
+//    { IconType, position },
+//    { IconType::Target, { 0.5f, 2.f, 6.2f } },
+//  }
+//}
+
+
 
 MarkerDrawData MarkerRenderer::getMarkerDrawData(const glm::dmat4& gTransfo, const AObjectNode& _obj)
 {
