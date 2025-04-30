@@ -21,7 +21,7 @@
 #include "controller/messages/GeneralMessage.h"
 
 #include "pointCloudEngine/RenderingLimits.h"
-#include "services/MarkerDefinitions.hpp"
+#include "services/MarkerSystem.h"
 
 #include "vulkan/VulkanManager.h"
 
@@ -1921,8 +1921,7 @@ void CameraNode::setOrthoHeight(double _height)
 
 MarkerDrawData CameraNode::getExamineTarget() const
 {
-    scs::MarkerStyleDefinition marker_style = scs::markerStyleDefs.at(scs::MarkerIcon::Target);
-    scs::PrimitiveDef prim = scs::g_shapePrimitives.at(marker_style.shape);
+    MarkerSystem::RenderStyle marker_style = MarkerSystem::getRenderStyle(scs::MarkerIcon::Target);
     Color32 color = { 223u, 98u, 0u, 255u };
 
     return {
@@ -1930,8 +1929,8 @@ MarkerDrawData CameraNode::getExamineTarget() const
         color.RGBA(),
         INVALID_PICKING_ID,
         (uint32_t)scs::MarkerIcon::Target,
-        prim.firstVertex,
-        prim.vertexCount,
+        marker_style.firstVertex,
+        marker_style.vertexCount,
         0 // not hover, not selected, dont show true color
     };
 }

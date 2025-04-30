@@ -1316,7 +1316,7 @@ void ObjectNodeVisitor::bakeGraphics(const SafePtr<AGraphNode>& node, const Tran
         }
 
         if (show_marker)
-            m_markerDrawData.push_back(MarkerRenderer::getMarkerDrawData(transfoMat, *&rObj));
+            m_markerDrawData.emplace_back(MarkerRenderer::getMarkerDrawData(transfoMat, *&rObj));
     }
 
     switch (elemType)

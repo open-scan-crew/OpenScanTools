@@ -10,15 +10,7 @@
 
 namespace scs
 {
-    struct MarkerStyleDefinition
-    {
-        MarkerShape shape;
-        bool showTrueColor;
-        QString qresource;
-        QString traduction;
-    };
-
-    const static std::unordered_map<MarkerIcon, MarkerStyleDefinition> markerStyleDefs = {
+    const static std::unordered_map<MarkerIcon, MarkerSystem::Style> markerStyleDefs = {
         { MarkerIcon::Scan_Base, { MarkerShape::Top_Arrow, false, QString(":icons/100x100/survey_equipment.png"), TEXT_MARKER_DEFINITION_SURVEY_EQUIPEMENT } },
         { MarkerIcon::Target, { MarkerShape::Centered, false, QString(":icons/100x100/target.png"), TEXT_MARKER_DEFINITION_TARGET } },
         { MarkerIcon::BeamBending, { MarkerShape::Top_Arrow, false, QString(":icons/100x100/beam_bending.png"), TEXT_MARKER_DEFINITION_BEAMBENDING } },
@@ -96,28 +88,7 @@ namespace scs
         /**/
     };
 
-    struct MarkerCategoryDefinition
-    {
-        MarkerIcon firstIcon;
-        uint32_t iconCount;
-    };
 
-    const static std::unordered_map<MarkerCategory, MarkerCategoryDefinition> markerCategoryDefinitions =
-    {
-        { MarkerCategory::Tag, { MarkerIcon::Tag_Base, 12} },
-        { MarkerCategory::Epi, { MarkerIcon::Picto_Epi_Ari, 12} },
-        { MarkerCategory::Danger_2, { MarkerIcon::Picto_Danger_Attention, 8} },
-        { MarkerCategory::Danger_1, { MarkerIcon::Picto_Danger_EX, 9} },
-        { MarkerCategory::Security, { MarkerIcon::Picto_Security_Alarm, 4} },
-        { MarkerCategory::Rescue, { MarkerIcon::Picto_Rescue_Ari, 9} }
-    };
-
-    const static std::unordered_map<MarkerShape, PrimitiveDef> g_shapePrimitives =
-    {
-        { MarkerShape::Centered, { 0, 4 } },
-        { MarkerShape::Top_No_Arrow, { 4, 4 } },
-        { MarkerShape::Top_Arrow, { 8, 5 } }
-    };
 }
 
 #endif

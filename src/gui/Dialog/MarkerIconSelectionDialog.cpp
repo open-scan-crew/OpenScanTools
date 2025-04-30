@@ -1,5 +1,6 @@
 #include "gui/dialog/MarkerIconSelectionDialog.h"
-#include "services/MarkerDefinitions.hpp"
+#include "services/MarkerSystem.h"
+#include "services/MarkerCategories.h"
 
 #include <QtWidgets/qlayoutitem.h>
 
@@ -17,24 +18,23 @@ MarkerIconSelectionDialog::MarkerIconSelectionDialog(QWidget *parent, float _gui
 
     int lastRow = 0;
     int maxCol = 0;
-    for (int category = 0; category < (int)scs::MarkerCategory::Max_Enum; ++category)
+    for (int category = 0; category < (int)MarkerCategory::Max_Enum; ++category)
     {
-        auto it = scs::markerCategoryDefinitions.find((scs::MarkerCategory)category);
-        if (it == scs::markerCategoryDefinitions.end())
+        auto it = markerCategoryDefinitions.find((MarkerCategory)category);
+        if (it == markerCategoryDefinitions.end())
             continue;
 
-        scs::MarkerCategoryDefinition def = it->second;
+        MarkerCategoryDefinition def = it->second;
 
         for (int icon = 0; icon < (int)def.iconCount; ++icon)
         {
             scs::MarkerIcon iconEnum = (scs::MarkerIcon)(icon + (int)def.firstIcon);
-            if (scs::markerStyleDefs.find(iconEnum) == scs::markerStyleDefs.end())
-                assert(false);
 
             QToolButton* button = new QToolButton(this);
             button->setAutoRaise(true);
-            button->setIcon(QIcon(scs::markerStyleDefs.at(iconEnum).qresource));
-            button->setToolTip(scs::markerStyleDefs.at(iconEnum).traduction);
+            MarkerSystem::Style style = MarkerSystem::getStyle(iconEnum);
+            button->setIcon(QIcon(style.qresource));
+            button->setToolTip(style.traduction);
             button->setIconSize(QSize(50, 50) * _guiScale);
             button->setToolButtonStyle(Qt::ToolButtonIconOnly);
             button->setCheckable(true);

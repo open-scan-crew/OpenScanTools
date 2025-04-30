@@ -434,6 +434,9 @@
     <Filter Include="ext\scantra">
       <UniqueIdentifier>{4780d1aa-9caa-4287-a12f-643708707dfb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\services">
+      <UniqueIdentifier>{9137a58d-ddcc-4ae4-b34e-d2c05fce23f2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\io\exports\txtExport.cpp">
@@ -1963,6 +1966,9 @@
     <ClCompile Include="..\..\src\io\FileUtils.cpp">
       <Filter>src\io</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\services\MarkerSystem.cpp">
+      <Filter>src\services</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="..\..\include\gui\Gui.h">
@@ -2746,9 +2752,6 @@
     </ClInclude>
     <ClInclude Include="..\..\include\controller\functionSystem\ContextExamine.h">
       <Filter>include\controller\contexts</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\services\MarkerDefinitions.hpp">
-      <Filter>include\services</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\controller\functionSystem\ContextBeamBending.h">
       <Filter>include\controller\contexts</Filter>
@@ -3916,6 +3919,12 @@
     </ClInclude>
     <ClInclude Include="..\..\include\gui\LanguageType.h">
       <Filter>include\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\services\MarkerSystem.h">
+      <Filter>include\services</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\services\MarkerCategories.h">
+      <Filter>include\services</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

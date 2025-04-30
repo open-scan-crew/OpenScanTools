@@ -1113,6 +1113,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\pointCloudEngine\TargetMarkerFactory.cpp" />
     <ClCompile Include="..\..\src\pointCloudEngine\TlScanOverseer.cpp" />
     <ClCompile Include="..\..\src\pointCloudEngine\TlStreamer.cpp" />
+    <ClCompile Include="..\..\src\services\MarkerSystem.cpp" />
     <ClCompile Include="..\..\src\test\SafeDataTests.cpp" />
     <ClCompile Include="..\..\src\utils\3DConnexion\3DConnexion.cpp">
       <EnableModules Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</EnableModules>
@@ -1509,6 +1510,8 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\models\pointCloud\PointCloudInstance.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\GuiRenderingTypes.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\RenderingEcoSystem.h" />
+    <ClInclude Include="..\..\include\services\MarkerCategories.h" />
+    <ClInclude Include="..\..\include\services\MarkerSystem.h" />
     <ClInclude Include="..\..\include\utils\ArgParser.h" />
     <ClInclude Include="..\..\include\utils\ColorConversion.h" />
     <ClInclude Include="..\..\include\utils\ImGuiUtils.h" />
@@ -1763,7 +1766,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\pointCloudEngine\ShowTypes.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\SmartBuffer.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\TargetMarkerFactory.h" />
-    <ClInclude Include="..\..\include\services\MarkerDefinitions.hpp" />
     <ClInclude Include="..\..\include\utils\3DConnexion\3DConnexion.h" />
     <ClInclude Include="..\..\include\utils\FilesAndFoldersDefinitions.h" />
     <ClInclude Include="..\..\include\utils\QtUtils.h" />

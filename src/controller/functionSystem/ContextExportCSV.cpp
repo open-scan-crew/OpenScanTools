@@ -8,7 +8,7 @@
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataIO.h"
 #include "io/exports/CSVWriter.hxx"
-#include "services/MarkerDefinitions.hpp"
+#include "services/MarkerSystem.h"
 #include "utils/math/trigo.h"
 #include "magic_enum/magic_enum.hpp"
 
@@ -342,7 +342,7 @@ ContextState ContextExportCSV::launch(Controller& controller)
 				if (!readTag)
 					continue;
 				Color32 color = readTag->getColor();
-				writer << position.x << position.y << position.z << scs::markerStyleDefs.at(readTag->getMarkerIcon()).traduction.toStdWString();
+				writer << position.x << position.y << position.z << MarkerSystem::getStyle(readTag->getMarkerIcon()).traduction.toStdWString();
 				for (auto field : allCustomTagFields)
 					writer << readTag->getValue(field.first);
 			}

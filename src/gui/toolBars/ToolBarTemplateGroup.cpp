@@ -4,7 +4,7 @@
 #include "gui/GuiData/GuiDataTemplate.h"
 #include "controller/controls/ControlFunctionTag.h"
 #include "controller/controls/ControlCreationAttributesEdition.h"
-#include "services/MarkerDefinitions.hpp"
+#include "services/MarkerSystem.h"
 
 #include "models/application/Ids.hpp"
 #include <QtWidgets/qwidget.h>
@@ -60,7 +60,8 @@ void ToolBarTemplateGroup::onProjectLoad(IGuiData *data)
 void ToolBarTemplateGroup::onIconTag(IGuiData *data)
 {
 	GuiDataTagDefaultIcon *iconData = static_cast<GuiDataTagDefaultIcon*>(data);
-	m_ui.iconTagButton->setIcon(QIcon(scs::markerStyleDefs.at(iconData->icon).qresource));
+	MarkerSystem::Style style = MarkerSystem::getStyle(iconData->icon);
+	m_ui.iconTagButton->setIcon(QIcon(style.qresource));
 }
 
 void ToolBarTemplateGroup::onTemplateListReceive(IGuiData *data)
@@ -129,7 +130,8 @@ void ToolBarTemplateGroup::changeTagColor(Color32 color)
 void ToolBarTemplateGroup::changeMarkerIcon(scs::MarkerIcon icon)
 {
     m_dataDispatcher.sendControl(new control::function::tag::SetDefaultIcon(icon));
-    m_ui.iconTagButton->setIcon(QIcon(scs::markerStyleDefs.at(icon).qresource));
+	MarkerSystem::Style style = MarkerSystem::getStyle(icon);
+    m_ui.iconTagButton->setIcon(QIcon(style.qresource));
 }
 
 void ToolBarTemplateGroup::clickIconTag()

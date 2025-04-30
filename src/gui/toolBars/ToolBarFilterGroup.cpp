@@ -2,7 +2,7 @@
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataAuthor.h"
 #include "gui/Dialog/DialogSearchedObjects.h"
-#include "services/MarkerDefinitions.hpp"
+#include "services/MarkerSystem.h"
 #include "gui/GuiData/GuiDataList.h"
 #include "models/application/Author.h"
 #include "models/application/Ids.hpp"
@@ -390,7 +390,8 @@ void ToolBarFilterGroup::changeMarkerIcon(scs::MarkerIcon icon)
 {
 	m_filterSystem.clearIconFilter();
 	m_filterSystem.addIconFilter(icon);
-	m_ui.iconTagButton->setIcon(QIcon(scs::markerStyleDefs.at(icon).qresource));
+	MarkerSystem::Style style = MarkerSystem::getStyle(icon);
+	m_ui.iconTagButton->setIcon(QIcon(style.qresource));
 }
 
 void ToolBarFilterGroup::clickIconTag()

@@ -2,7 +2,7 @@
 #include "vulkan/VulkanManager.h"
 #include "models/3d/Primitives.h"
 #include "models/graph/AObjectNode.h"
-#include "services/MarkerDefinitions.hpp"
+#include "services/MarkerSystem.h"
 #include "vulkan/VulkanHelperFunctions.h"
 
 #include <iostream>
@@ -547,15 +547,15 @@ void MarkerRenderer::createPrimitives()
     std::vector<glm::vec2> positions;
     std::vector<glm::vec2> uvs;
     // Generate all different alignment
-    for (int sh = 0; sh < (int)scs::MarkerShape::Max_Enum; ++sh)
+    for (int sh = 0; sh < (int)MarkerShape::Max_Enum; ++sh)
     {
         uint32_t vertexCount = 0;
         // without arrow
-        scs::primitives::generateMarkerShape(positions, uvs, (scs::MarkerShape)sh);
+        scs::primitives::generateMarkerShape(positions, uvs, (MarkerShape)sh);
 
         vertexCount = (uint32_t)positions.size() - vertexOffset;
-        scs::PrimitiveDef prim = scs::g_shapePrimitives.at((scs::MarkerShape)sh);
-        assert(prim.firstVertex == vertexOffset && prim.vertexCount == vertexCount);
+        //MarkerSystem::RenderStyle r_style = MarkerSystem::getRenderStyle((MarkerShape)sh);
+        //assert(prim.firstVertex == vertexOffset && prim.vertexCount == vertexCount);
         vertexOffset += vertexCount;
     }
 
@@ -584,11 +584,13 @@ void MarkerRenderer::createSampler()
     }
 
     // Load texture for each layer
-    for (auto iconRes : scs::markerStyleDefs)
+    for (uint32_t icon = 0; icon < (uint32_t)scs::MarkerIcon::Max_Enum; ++icon)
     {
-        QImage iconImage(iconRes.second.qresource);
+        MarkerSystem::Style style = MarkerSystem::getStyle((scs::MarkerIcon)icon);
+        QImage iconImage(style.qresource);
         QImage::Format format = iconImage.format();
         const uchar* imageBits = iconImage.constBits();
+        bool delete_bits = false;
 
         if (format == QImage::Format::Format_Indexed8)
         {
@@ -602,17 +604,17 @@ void MarkerRenderer::createSampler()
                     memcpy(bitsRGBA + 4 * pixOffset, table.data() + imageBits[pixOffset], 4);
                 }
             }
-            if (VulkanManager::getInstance().uploadTextureArray(bitsRGBA, iconImage.width(), iconImage.height(), m_textureImage, (uint32_t)iconRes.first, layerCount) == false)
-                Logger::log(LoggerMode::VKLog) << "Failed to upload texture layer for icon " << iconRes.second.qresource.toStdString() << Logger::endl;
-            delete bitsRGBA;
+            imageBits = bitsRGBA;
+            delete_bits = true;
         }
-        else
+
+        if (VulkanManager::getInstance().uploadTextureArray(imageBits, iconImage.width(), iconImage.height(), m_textureImage, icon, layerCount) == false)
         {
-            if (VulkanManager::getInstance().uploadTextureArray(imageBits, iconImage.width(), iconImage.height(), m_textureImage, (uint32_t)iconRes.first, layerCount) == false)
-            {
-                Logger::log(LoggerMode::VKLog) << "Failed to upload texture layer for icon " << iconRes.second.qresource.toStdString() << Logger::endl;
-            }
+            Logger::log(LoggerMode::VKLog) << "Failed to upload texture layer for icon " << style.qresource.toStdString() << Logger::endl;
         }
+
+        if (delete_bits)
+            delete imageBits;
     }
 }
 
@@ -670,9 +672,7 @@ MarkerDrawData MarkerRenderer::getMarkerDrawData(const glm::dmat4& gTransfo, con
     // AObjectNode::hovered   |-> This should be in the same class
     // AGraphNode::graphicId  |
 
-    scs::MarkerStyleDefinition style;
-    if (scs::markerStyleDefs.find(_obj.getMarkerIcon()) != scs::markerStyleDefs.end())
-        style = scs::markerStyleDefs.at(_obj.getMarkerIcon());
+    MarkerSystem::RenderStyle render_style = MarkerSystem::getRenderStyle(_obj.getMarkerIcon());
 
     // Compose the style
     uint32_t status = 0;
@@ -680,18 +680,16 @@ MarkerDrawData MarkerRenderer::getMarkerDrawData(const glm::dmat4& gTransfo, con
         status |= 0x01;
     if (_obj.isHovered())
         status |= 0x02;
-    if (style.showTrueColor)
+    if (render_style.showTrueColor)
         status |= 0x04;
-
-    scs::PrimitiveDef primitive = scs::g_shapePrimitives.at(style.shape);
 
     return {
         { (float)gTransfo[3][0], (float)gTransfo[3][1], (float)gTransfo[3][2] },
         _obj.getColor().RGBA(),
         _obj.getGraphicId(),
         (uint32_t)_obj.getMarkerIcon(),
-        primitive.firstVertex,
-        primitive.vertexCount,
+        render_style.firstVertex,
+        render_style.vertexCount,
         status
     };
 }

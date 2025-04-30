@@ -56,11 +56,11 @@ ContextType ContextDataGeneration::getType() const
 
 void ContextDataGeneration::generateTags(Controller& controller, std::unordered_set<SafePtr<AGraphNode>>& ret_nodes)
 {
-    // Crée 2500 tags répartis sur une grille (X, Y)
+    // Crée 10000 tags répartis sur une grille (X, Y)
     const glm::dvec3 min_pos(-50.0, -50.0, 0.0);
-    const glm::dvec3 max_pos(50.0, 50.0, 30.0);
-    const size_t step_X = 50;
-    const size_t step_Y = 50;
+    const glm::dvec3 max_pos(50.0, 50.0, 40.0);
+    const size_t step_X = 100;
+    const size_t step_Y = 100;
     const glm::dvec3 pos_range = max_pos - min_pos;
     for (int x = 0; x < step_X; ++x)
     {

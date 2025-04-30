@@ -1,5 +1,5 @@
 #include "pointCloudEngine/TargetMarkerFactory.h"
-#include "services/MarkerDefinitions.hpp"
+#include "services/MarkerSystem.h"
 #include "models/data/Marker.h"
 #include "models/OpenScanToolsModelEssentials.h"
 
@@ -13,16 +13,15 @@ TargetMarkerFactory::~TargetMarkerFactory()
 
 MarkerDrawData TargetMarkerFactory::generateTargetMarkerData(const glm::dvec3& position, const Color32& color) const
 {
-	scs::MarkerStyleDefinition marker_style = scs::markerStyleDefs.at(scs::MarkerIcon::Target);
-	scs::PrimitiveDef prim = scs::g_shapePrimitives.at(marker_style.shape);
+	MarkerSystem::RenderStyle marker_style = MarkerSystem::getRenderStyle(scs::MarkerIcon::Target);
 
 	return {
 		{ (float)position.x, (float)position.y, (float)position.z },
 		color.RGBA(),
 		INVALID_PICKING_ID,
 		(uint32_t)scs::MarkerIcon::Target,
-		prim.firstVertex,
-		prim.vertexCount,
+		marker_style.firstVertex,
+		marker_style.vertexCount,
 		0 // not hover, not selected, dont show true color
 	};
 }

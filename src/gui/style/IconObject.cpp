@@ -1,5 +1,5 @@
 #include "gui/style/IconObject.h"
-#include "services/MarkerDefinitions.hpp"
+#include "services/MarkerSystem.h"
 #include <QtGui/qimage.h>
 
 #include "utils/Utils.h"
@@ -25,16 +25,15 @@ QPixmap scs::IconManager::getIcon(scs::MarkerIcon icon, Color32 color)
         return m_hashmapIcons.at(hashIcon);
 
     QPixmap pixmap = QPixmap();
+    if (icon == scs::MarkerIcon::Max_Enum)
+        return pixmap;
 
-    if (scs::markerStyleDefs.find(icon) != scs::markerStyleDefs.end())
-    {
-        scs::MarkerStyleDefinition style = scs::markerStyleDefs.at(icon);
+    MarkerSystem::Style style = MarkerSystem::getStyle(icon);
 
-        QImage iconImage(style.qresource);
-        if (!style.showTrueColor)
-            tint(iconImage, color);
-        pixmap = QPixmap::fromImage(iconImage);
-    }
+    QImage iconImage(style.qresource);
+    if (!style.showTrueColor)
+        tint(iconImage, color);
+    pixmap = QPixmap::fromImage(iconImage);
 
     if (!pixmap.isNull())
         m_hashmapIcons[hashIcon] = pixmap;

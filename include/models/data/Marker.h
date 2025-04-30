@@ -89,31 +89,6 @@ namespace scs
         MeshObject,
         Max_Enum
     };
-
-    enum class MarkerCategory
-    {
-        Tag,
-        Epi,
-        Danger_2,
-        Danger_1,
-        Security,
-        Rescue,
-        Max_Enum
-    };
-
-    enum class MarkerShape
-    {
-        Centered = 0,
-        Top_No_Arrow,
-        Top_Arrow,
-        Max_Enum
-    };
-
-    struct PrimitiveDef
-    {
-        uint16_t firstVertex;
-        uint16_t vertexCount;
-    };
 }
 
 #endif

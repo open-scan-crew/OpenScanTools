@@ -2,7 +2,7 @@
 #include "controller/Controller.h"
 #include "controller/controls/ControlTagEdition.h"
 #include "gui/widgets/QPFields/QPListField.h"
-#include "services/MarkerDefinitions.hpp"
+#include "services/MarkerSystem.h"
 #include "controller/Controls/ControlObject3DEdition.h"
 #include "models/graph/TagNode.h"
 
@@ -132,9 +132,8 @@ bool TemplatePropertiesPanel::updateTag()
 	m_ui.YLineEdit->blockSignals(false);
 	m_ui.ZLineEdit->blockSignals(false);
 
-
-	m_ui.ShapeToolButton->setIcon(QIcon(scs::markerStyleDefs.at(tagNode->getMarkerIcon()).qresource));
-
+	MarkerSystem::Style style = MarkerSystem::getStyle(tagNode->getMarkerIcon());
+	m_ui.ShapeToolButton->setIcon(QIcon(style.qresource));
 
 	for (auto it = tagNode->getFields().begin(); it != tagNode->getFields().end(); it++)
 	{
@@ -163,7 +162,8 @@ void TemplatePropertiesPanel::changeMarkerIcon(scs::MarkerIcon icon)
 {
 	m_dataDispatcher.sendControl(new control::tagEdition::SetMarkerIcon(m_tag, icon));
 	m_iconSelector.hide();
-	m_ui.ShapeToolButton->setIcon(QIcon(scs::markerStyleDefs.at(icon).qresource));
+	MarkerSystem::Style style = MarkerSystem::getStyle(icon);
+	m_ui.ShapeToolButton->setIcon(QIcon(style.qresource));
 }
 
 void TemplatePropertiesPanel::changePosition()

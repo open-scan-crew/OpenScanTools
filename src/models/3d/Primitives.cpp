@@ -3,7 +3,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-bool scs::primitives::generateMarkerShape(std::vector<glm::vec2>& outVertices, std::vector<glm::vec2>& outUVs, const scs::MarkerShape& shape)
+bool scs::primitives::generateMarkerShape(std::vector<glm::vec2>& outVertices, std::vector<glm::vec2>& outUVs, MarkerShape shape)
 {
     float dy;
 
