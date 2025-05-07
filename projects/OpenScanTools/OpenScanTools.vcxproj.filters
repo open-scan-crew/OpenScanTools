@@ -1969,6 +1969,9 @@
     <ClCompile Include="..\..\src\services\MarkerSystem.cpp">
       <Filter>src\services</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\TargetNode.cpp">
+      <Filter>src\models\graph</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="..\..\include\gui\Gui.h">
@@ -3925,6 +3928,9 @@
     </ClInclude>
     <ClInclude Include="..\..\include\services\MarkerCategories.h">
       <Filter>include\services</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\graph\TargetNode.h">
+      <Filter>include\models\graph</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

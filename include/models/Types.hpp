@@ -33,7 +33,8 @@ enum class ElementType
 	Torus,
 	Piping,
 	Sphere,
-	ViewPoint
+	ViewPoint,
+	Target
 };
 /*! Type d'un TreeSystem 
 	

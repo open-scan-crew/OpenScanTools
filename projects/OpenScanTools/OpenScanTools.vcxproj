@@ -1090,6 +1090,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\models\graph\SimpleObjectNode.cpp" />
     <ClCompile Include="..\..\src\models\graph\SphereNode.cpp" />
     <ClCompile Include="..\..\src\models\graph\TagNode.cpp" />
+    <ClCompile Include="..\..\src\models\graph\TargetNode.cpp" />
     <ClCompile Include="..\..\src\models\graph\TorusNode.cpp" />
     <ClCompile Include="..\..\src\models\graph\TransformationModule.cpp" />
     <ClCompile Include="..\..\src\models\graph\ViewPointNode.cpp" />
@@ -1503,6 +1504,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\models\graph\SimpleObjectNode.h" />
     <ClInclude Include="..\..\include\models\graph\SphereNode.h" />
     <ClInclude Include="..\..\include\models\graph\TagNode.h" />
+    <ClInclude Include="..\..\include\models\graph\TargetNode.h" />
     <ClInclude Include="..\..\include\models\graph\TorusNode.h" />
     <ClInclude Include="..\..\include\models\graph\TransformationModule.h" />
     <ClInclude Include="..\..\include\models\graph\ViewPointNode.h" />
