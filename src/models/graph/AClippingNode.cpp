@@ -12,7 +12,7 @@ AClippingNode::AClippingNode()
 
 void AClippingNode::setDefaultData(const Controller& controller)
 {
-	ClippingData::setDefaultData(controller.cgetContext(), { getType() });
+	ClippingData::setDefaultData(controller.cgetContext());
 	AObjectNode::setDefaultData(controller);
 }
 

@@ -873,6 +873,17 @@ glm::dmat4 CameraNode::getViewMatrix() const
     return m_viewMatrix;
 }
 
+glm::dmat4 CameraNode::getGlobalViewMatrix() const
+{
+    glm::dmat4 inverseRotation = glm::mat4_cast(glm::conjugate(m_quaternion));
+    glm::dmat4 inverseTranslation = glm::dmat4(1.0);
+    inverseTranslation[3][0] = -m_center.x;
+    inverseTranslation[3][1] = -m_center.y;
+    inverseTranslation[3][2] = -m_center.z;
+
+    return inverseRotation * inverseTranslation;
+}
+
 glm::dmat4 CameraNode::getModelMatrix() const
 {
     // NOTE - The camera does not use the geometric parent provided by the AGraphNode
@@ -886,7 +897,7 @@ glm::dmat4 CameraNode::getModelMatrix() const
 
 glm::dvec3 CameraNode::getScreenProjection(glm::dvec3 point, glm::ivec2 screenSize) const
 {
-    glm::dmat4 transfo = getProjMatrix() * m_viewMatrix;
+    glm::dmat4 transfo = getProjMatrix() * getGlobalViewMatrix();
 
     glm::dvec4 result = transfo * glm::dvec4(point, 1.0);
     result /= result.w;
@@ -1835,26 +1846,25 @@ void CameraNode::zoomOnPointOfInterest(glm::dvec2 mouse_cursor, double amount, d
     if (amount == 1.0 || amount <= 0.0)
         return;
 
-    // If we have an examine point, it becomes the POI
-    glm::dvec2 poi_centered;
-    if (isExamineActive())
-    {
-        poi_centered = m_viewMatrix * glm::dvec4(m_examinePoint, 1.0);
-        poi_centered.x /= getWidthAt1m();
-        poi_centered.y /= getHeightAt1m();
-    }
-    else
-    {
-        poi_centered = (mouse_cursor - glm::dvec2(0.5, 0.5));
-    }
-
     if (m_projectionMode == ProjectionMode::Perspective)
     {
         // TODO(Robin) - Les maths sont compliqués, à voir plus tard...
         zoom(amount, dtime);
     }
-    else
+    else // Orthographic
     {
+        // If we have an examine point, it becomes the POI
+        glm::dvec2 poi_centered;
+        if (isExamineActive())
+        {
+            poi_centered = getGlobalViewMatrix() * glm::dvec4(m_examinePoint, 1.0);
+            poi_centered.x /= getWidthAt1m();
+            poi_centered.y /= getHeightAt1m();
+        }
+        else
+        {
+            poi_centered = (mouse_cursor - glm::dvec2(0.5, 0.5));
+        }
         m_durationAnimZoomSec = dtime;
         m_start_zoom = m_prev_time;
 

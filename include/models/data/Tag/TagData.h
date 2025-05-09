@@ -15,7 +15,6 @@ public:
 
 	void setDefaultData(const ControllerContext& context);
 
-	//void setMarkerIcon(scs::MarkerIcon icon);
 	virtual void setValue(sma::tFieldId id, std::wstring newValue);
 	virtual void setFields(const std::unordered_map<sma::tFieldId, std::wstring>& fields);
 	virtual void setTemplate(const SafePtr<sma::TagTemplate>& templateId);
@@ -23,7 +22,6 @@ public:
 	virtual void removeField(sma::tFieldId id);
 
 	SafePtr<sma::TagTemplate> getTemplate() const;
-	//const scs::MarkerIcon& getMarkerIcon() const;
 	std::wstring getValue(sma::tFieldId id) const;
 	const std::unordered_map<sma::tFieldId, std::wstring>& getFields() const;
 

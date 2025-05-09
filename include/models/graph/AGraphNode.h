@@ -40,7 +40,7 @@ public:
 
 	void manipulateTransfo(const ManipulateData& manipData);
 
-	virtual void setDefaultData(const Controller& controller);
+	virtual void setDefaultData(const Controller& controller) override;
 
 	virtual ElementType getType() const;
 

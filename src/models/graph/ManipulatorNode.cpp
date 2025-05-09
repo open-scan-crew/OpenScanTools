@@ -504,7 +504,8 @@ void ManipulatorNode::updateScale(const glm::ivec2& _mousePosition, ManipulateDa
 
 glm::dvec2 ManipulatorNode::getAxisScreenProjection(const CameraNode& camera)
 {
-    glm::dmat4 transfo = camera.getProjMatrix() * camera.getViewMatrix() * computeTransformationMatrix();
+    // Camera::getViewMatrix() OR Camera::getGlobalViewMatrix() ?
+    glm::dmat4 transfo = camera.getProjMatrix() * camera.getGlobalViewMatrix() * computeTransformationMatrix();
 
     glm::dvec4 pt0(0.0, 0.0, 0.0, 1.0);
     glm::dvec4 pt1;

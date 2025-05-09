@@ -656,7 +656,7 @@ const std::vector<std::pair<std::filesystem::path, time_t>> &ControllerContext::
 	return m_recentProjects;
 }
 
-const IndexationMethod& ControllerContext::getIndexationMethod() const
+IndexationMethod ControllerContext::getIndexationMethod() const
 {
 	return m_indexationMethod;
 }

@@ -47,8 +47,6 @@ public:
 	virtual std::unordered_set<Selection> getAcceptableSelections(const ManipulationMode& mode) const;
 	virtual std::unordered_set<ManipulationMode> getAcceptableManipulationModes() const;
 
-	virtual void setDefaultData(const Controller& controller) override;
-
 	virtual MeshDrawData getMeshDrawData(const glm::dmat4& gTransfo) const;
 
 protected:

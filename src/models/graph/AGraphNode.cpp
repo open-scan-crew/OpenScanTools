@@ -1,5 +1,7 @@
 #include "models/graph/AGraphNode.h"
 
+#include "controller/Controller.h"
+
 #include "utils/Logger.h"
 
 IdGiver<uint32_t> AGraphNode::m_graphicIdGiver = IdGiver<uint32_t>(0);
@@ -565,7 +567,8 @@ void AGraphNode::manipulateTransfo(const ManipulateData& manipData)
 
 void AGraphNode::setDefaultData(const Controller& controller)
 {
-	return;
+	setUserIndex(controller.getNextUserId(getType()));
+	Data::setDefaultData(controller);
 }
 
 ElementType AGraphNode::getType() const

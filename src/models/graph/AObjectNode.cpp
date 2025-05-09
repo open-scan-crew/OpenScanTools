@@ -45,14 +45,6 @@ std::unordered_set<ManipulationMode> AObjectNode::getAcceptableManipulationModes
 	return std::unordered_set<ManipulationMode>();
 }
 
-void AObjectNode::setDefaultData(const Controller& controller)
-{
-	Data::setDefaultData(controller.cgetContext());
-	setUserIndex(controller.getNextUserId(getType()));
-	AGraphNode::setDefaultData(controller);
-
-}
-
 MeshDrawData AObjectNode::getMeshDrawData(const glm::dmat4& gTransfo) const
 {
 	MeshDrawData meshDrawData;

@@ -31,7 +31,7 @@ struct s_hyperlink
 	}
 };
 
-class ControllerContext;
+class Controller;
 
 class Data
 {
@@ -61,7 +61,7 @@ public:
 	void setColor(const Color32& color);
 	void setMarkerIcon(scs::MarkerIcon icon);
 
-	virtual void setDefaultData(const ControllerContext& context);
+	virtual void setDefaultData(const Controller& controller);
 
 	bool operator==(const Data& data) const;
 

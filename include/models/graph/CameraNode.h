@@ -129,6 +129,7 @@ public:
     void resetExaminePoint();
 
     glm::dmat4 getViewMatrix() const;
+    glm::dmat4 getGlobalViewMatrix() const;
     glm::dmat4 getModelMatrix() const;
 
     glm::dvec3 getScreenProjection(glm::dvec3 point, glm::ivec2 screenSize) const;

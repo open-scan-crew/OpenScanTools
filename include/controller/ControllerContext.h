@@ -89,7 +89,7 @@ public:
 	const std::filesystem::path& getProjectsPath() const;
 
 	const std::vector<std::pair<std::filesystem::path, time_t>>& getRecentProjects() const;
-	const IndexationMethod& getIndexationMethod() const;
+	IndexationMethod getIndexationMethod() const;
 
 	const PipeDetectionOptions& getPipeDetectionOptions() const;
 

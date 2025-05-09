@@ -26,7 +26,7 @@ public:
 	void setRampSteps(int steps);
 	void setRampClamped(bool clamped);
 
-	void setDefaultData(const ControllerContext& context, ElementType type);
+	void setDefaultData(const ControllerContext& context);
 
 	ClippingMode getClippingMode() const;
 	bool isClippingActive() const;

@@ -1,4 +1,5 @@
 #include "models/data/Data.h"
+#include "controller/Controller.h"
 #include "controller/ControllerContext.h"
 #include "gui/LanguageType.h"
 #include "utils/Utils.h"
@@ -169,8 +170,9 @@ void Data::setMarkerIcon(scs::MarkerIcon icon)
 	marker_icon_ = icon;
 }
 
-void Data::setDefaultData(const ControllerContext& context)
+void Data::setDefaultData(const Controller& controller)
 {
+	const ControllerContext& context = controller.cgetContext();
 	if(!context.getActiveName().empty())
 		setName(context.getActiveName());
 

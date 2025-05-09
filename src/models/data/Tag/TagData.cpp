@@ -20,11 +20,6 @@ void TagData::copyTagData(const TagData& data)
 	m_template = data.getTemplate();
 }
 
-//void TagData::setMarkerIcon(scs::MarkerIcon icon)
-//{
-//	Data::icon_ = icon;
-//}
-
 void TagData::setValue(sma::tFieldId id, std::wstring newValue)
 {
 	if (m_fields.find(id) != m_fields.end())
@@ -64,11 +59,6 @@ SafePtr<sma::TagTemplate> TagData::getTemplate() const
 {
 	return (m_template);
 }
-
-//const scs::MarkerIcon& TagData::getMarkerIcon() const
-//{
-//	return (m_markerIcon);
-//}
 
 std::wstring TagData::getValue(sma::tFieldId id) const
 {

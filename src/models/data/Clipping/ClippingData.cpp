@@ -72,7 +72,7 @@ void ClippingData::setRampClamped(bool clamped)
     m_rampClamped = clamped;
 }
 
-void ClippingData::setDefaultData(const ControllerContext& context, ElementType type)
+void ClippingData::setDefaultData(const ControllerContext& context)
 {
     const ProjectInfos& projInfos = context.cgetProjectInfo();
     setClippingMode(projInfos.m_defaultClipMode);

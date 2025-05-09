@@ -339,7 +339,7 @@ glm::dmat4 ViewportOrganizer::getCurrentViewMatrix() const
         return glm::dmat4(1.0);
 
     ReadPtr<CameraNode> rCam = m_viewports.at(m_activeViewport).vulkanViewport->getCamera().cget();
-    return rCam->getViewMatrix();
+    return rCam->getGlobalViewMatrix();
 }
 
 SafePtr<CameraNode> ViewportOrganizer::getActiveCameraNode()
