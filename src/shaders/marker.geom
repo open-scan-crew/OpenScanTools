@@ -31,12 +31,12 @@ layout(set = 3, binding = 4) uniform uniformCamera {
 
 layout(set = 4, binding = 5) buffer vertexPosition
 {
-    vec2 pos[];
+    readonly vec2 pos[];
 };
 
 layout(set = 4, binding = 6) buffer vertexUV
 {
-    vec2 uv[];
+    readonly vec2 uv[];
 };
 
 void main() {

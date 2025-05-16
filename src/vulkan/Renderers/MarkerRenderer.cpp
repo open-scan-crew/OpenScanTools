@@ -600,11 +600,11 @@ void MarkerRenderer::createSampler()
 
         QVector<uint> table = iconImage.colorTable();
         // We truncate the image size to the dimensions of the texture
-        for (int row = 0; row < tex_h; ++row)
+        for (uint32_t row = 0; row < tex_h; ++row)
         {
             if (format == QImage::Format::Format_Indexed8)
             {
-                for (int col = 0; col < tex_w; ++col)
+                for (uint32_t col = 0; col < tex_w; ++col)
                 {
                     uint32_t src_offset = row * img_w + col;
                     uint32_t dst_offset = (row * tex_w + col) * 4;
@@ -613,7 +613,7 @@ void MarkerRenderer::createSampler()
             }
             else
             {
-                uint32_t src_offset = std::min(row, img_h) * img_w * 4;
+                uint32_t src_offset = std::min(row, (uint32_t)img_h) * img_w * 4;
                 uint32_t dst_offset = row * tex_w * 4;
                 size_t row_size = 4 * std::min(tex_w, (uint32_t)img_w);
                 memcpy(bitsRGBA + dst_offset, imageBits + src_offset, row_size);

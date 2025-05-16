@@ -19,7 +19,7 @@ layout(push_constant) uniform PC {
 layout(set = 1, binding = 2) uniform sampler2DArray texSampler;
 layout(set = 2, binding = 3) buffer correctedDepth
 {
-    float inDepth[ ];
+    readonly float inDepth[ ];
 };
 
 void main()
