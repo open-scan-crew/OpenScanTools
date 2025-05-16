@@ -59,8 +59,8 @@ void ContextDataGeneration::generateTags(Controller& controller, std::unordered_
     // Crée 10000 tags répartis sur une grille (X, Y)
     const glm::dvec3 min_pos(-50.0, -50.0, 0.0);
     const glm::dvec3 max_pos(50.0, 50.0, 40.0);
-    const size_t step_X = 100;
-    const size_t step_Y = 100;
+    const size_t step_X = 20;
+    const size_t step_Y = 20;
     const glm::dvec3 pos_range = max_pos - min_pos;
     for (int x = 0; x < step_X; ++x)
     {
@@ -82,7 +82,7 @@ void ContextDataGeneration::generateTags(Controller& controller, std::unordered_
                     min_pos.z + dz * pos_range.z);
                 wTag->setPosition(pos);
 
-                glm::vec3 rgb(pos.x, 0.9f, 0.5f);
+                glm::vec3 rgb(dx, dy, 1.f - dx * dy);
                 wTag->setColor(Color32(rgb));
                 int random_icon = std::rand() % (int)scs::MarkerIcon::Max_Enum;
                 wTag->setMarkerIcon((scs::MarkerIcon)random_icon);

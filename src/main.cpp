@@ -19,13 +19,6 @@
 
 #include <qapplication.h>
 
-#ifdef _DEBUG_
-constexpr bool VK_VALIDATION_ENABLED = true;
-#else
-constexpr bool VK_VALIDATION_ENABLED = false;
-#endif
-
-
 #if !defined(_DEBUG_) && defined(_WIN32)
 #include <windows.h>
 #include <qevent.h>

@@ -577,7 +577,10 @@ void MarkerRenderer::createSampler()
     // TODO - How to check the sizes of the images
     uint32_t layerCount = (uint32_t)scs::MarkerIcon::Max_Enum;
 
-    if (VulkanManager::getInstance().createTextureArray(100, 100, layerCount, m_textureImage, m_textureImageView, m_textureSampler, m_textureMemory) == false)
+    uint32_t tex_w = 100; // texture width
+    uint32_t tex_h = 100; // texture height
+
+    if (VulkanManager::getInstance().createTextureArray(tex_w, tex_h, layerCount, m_textureImage, m_textureImageView, m_textureSampler, m_textureMemory) == false)
     {
         Logger::log(LoggerMode::VKLog) << "Failed to create texture array." << Logger::endl;
         return;
@@ -590,31 +593,39 @@ void MarkerRenderer::createSampler()
         QImage iconImage(style.qresource);
         QImage::Format format = iconImage.format();
         const uchar* imageBits = iconImage.constBits();
-        bool delete_bits = false;
+        int img_w = iconImage.width();
+        int img_h = iconImage.height();
+        uchar* bitsRGBA = new uchar[tex_w * tex_h * 4];
+        memset(bitsRGBA, 0, tex_w * tex_h * 4);
 
-        if (format == QImage::Format::Format_Indexed8)
+        QVector<uint> table = iconImage.colorTable();
+        // We truncate the image size to the dimensions of the texture
+        for (int row = 0; row < tex_h; ++row)
         {
-            uchar* bitsRGBA = new uchar[100 * 100 * 4];
-            QVector<uint> table = iconImage.colorTable();
-            for (int row = 0; row < 100; ++row)
+            if (format == QImage::Format::Format_Indexed8)
             {
-                for (int col = 0; col < 100; ++col)
+                for (int col = 0; col < tex_w; ++col)
                 {
-                    unsigned int pixOffset = row * 100 + col;
-                    memcpy(bitsRGBA + 4 * pixOffset, table.data() + imageBits[pixOffset], 4);
+                    uint32_t src_offset = row * img_w + col;
+                    uint32_t dst_offset = (row * tex_w + col) * 4;
+                    memcpy(bitsRGBA + dst_offset, table.data() + imageBits[src_offset], 4);
                 }
             }
-            imageBits = bitsRGBA;
-            delete_bits = true;
+            else
+            {
+                uint32_t src_offset = std::min(row, img_h) * img_w * 4;
+                uint32_t dst_offset = row * tex_w * 4;
+                size_t row_size = 4 * std::min(tex_w, (uint32_t)img_w);
+                memcpy(bitsRGBA + dst_offset, imageBits + src_offset, row_size);
+            }
         }
 
-        if (VulkanManager::getInstance().uploadTextureArray(imageBits, iconImage.width(), iconImage.height(), m_textureImage, icon, layerCount) == false)
+        if (VulkanManager::getInstance().uploadTextureArray(bitsRGBA, tex_w, tex_h, m_textureImage, icon, layerCount) == false)
         {
             Logger::log(LoggerMode::VKLog) << "Failed to upload texture layer for icon " << style.qresource.toStdString() << Logger::endl;
         }
 
-        if (delete_bits)
-            delete imageBits;
+        delete bitsRGBA;
     }
 }
 

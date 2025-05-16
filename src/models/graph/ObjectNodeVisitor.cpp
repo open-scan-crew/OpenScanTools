@@ -1486,6 +1486,9 @@ void ObjectNodeVisitor::bakeGraphics(const SafePtr<AGraphNode>& node, const Tran
     }
     case AGraphNode::Type::Camera:
     {
+        SafePtr<CameraNode> cam = static_pointer_cast<CameraNode>(node);
+        ReadPtr<CameraNode> rCam = cam.cget();
+        m_markerDrawData.emplace_back(rCam->getExamineTarget());
         break;
     }
     default:

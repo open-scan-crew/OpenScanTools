@@ -1934,8 +1934,10 @@ MarkerDrawData CameraNode::getExamineTarget() const
     MarkerSystem::RenderStyle marker_style = MarkerSystem::getRenderStyle(scs::MarkerIcon::Target);
     Color32 color = { 223u, 98u, 0u, 255u };
 
+    glm::vec3 localTarget = m_examinePoint + m_largeCoordinatesCorrection;
+
     return {
-        { (float)m_examinePoint.x, (float)m_examinePoint.y, (float)m_examinePoint.z },
+        { localTarget.x, localTarget.y, localTarget.z },
         color.RGBA(),
         INVALID_PICKING_ID,
         (uint32_t)scs::MarkerIcon::Target,

@@ -4,7 +4,7 @@
 
 #include "utils/Utils.h"
 
-void tint(QImage& image, Color32 color)
+void tint(const QImage& image, Color32 color, QImage& dst_image)
 {
     for (int x = 0; x < image.width(); x++)
     {
@@ -13,7 +13,7 @@ void tint(QImage& image, Color32 color)
             QPoint pt(x, y);
             int a = image.pixelColor(pt).alpha();
             QColor qcolor = QColor(color.r, color.g, color.b, a);
-            image.setPixelColor(pt, qcolor);
+            dst_image.setPixelColor(pt, qcolor);
         }
     }
 }
@@ -31,9 +31,17 @@ QPixmap scs::IconManager::getIcon(scs::MarkerIcon icon, Color32 color)
     MarkerSystem::Style style = MarkerSystem::getStyle(icon);
 
     QImage iconImage(style.qresource);
+
     if (!style.showTrueColor)
-        tint(iconImage, color);
-    pixmap = QPixmap::fromImage(iconImage);
+    {
+        QImage colored_icon(iconImage.width(), iconImage.height(), QImage::Format_ARGB32);
+        tint(iconImage, color, colored_icon);
+        pixmap = QPixmap::fromImage(colored_icon);
+    }
+    else
+    {
+        pixmap = QPixmap::fromImage(iconImage);
+    }
 
     if (!pixmap.isNull())
         m_hashmapIcons[hashIcon] = pixmap;
