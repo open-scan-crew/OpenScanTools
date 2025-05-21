@@ -7,7 +7,7 @@
 #ifndef VULKAN_MANAGER_H
 #define VULKAN_MANAGER_H
 
-#include <cstring>
+//#include <cstring>
 #include <cstdio>
 #include <cstdlib>
 #include <thread>

@@ -83,8 +83,7 @@ private:
 
     void startImGuiContext();
     void shutdownImGui();
-    void initVulkanImGui(const uint8_t& viewportNumber);
-    void restartVulkanImGui();
+    void initVulkanImGui();
     //void drawImGuiStats();
 
     void updateCompute();

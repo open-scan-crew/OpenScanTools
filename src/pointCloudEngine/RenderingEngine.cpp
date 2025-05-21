@@ -96,11 +96,12 @@ void RenderingEngine::registerViewport(VulkanViewport* viewport)
 {
     assert(viewport);
     std::lock_guard<std::mutex> lock(m_mutexViewports);
+    if (m_viewports.empty())
+        initVulkanImGui();
     if (m_viewports.find(viewport) == m_viewports.end())
     {
         m_viewports.insert(viewport);
         viewport->setCamera(m_graph.createCameraNode(L"Viewport"));
-        restartVulkanImGui();
     }
 }
 
@@ -111,7 +112,6 @@ void RenderingEngine::unregisterViewport(VulkanViewport* viewport)
     if (m_viewports.find(viewport) != m_viewports.end())
     {
         m_viewports.erase(viewport);
-        restartVulkanImGui();
     }
 }
 
@@ -1023,40 +1023,40 @@ void RenderingEngine::startImGuiContext()
     ImGui::StyleColorsDark();
 }
 
-void RenderingEngine::initVulkanImGui(const uint8_t& viewportNumber)
+void RenderingEngine::initVulkanImGui()
 {
     VulkanManager& vkm = VulkanManager::getInstance();
 
     ImGui_ImplQt_InitForVulkan();
-    ImGui_ImplVulkan_LoadFunctions(&VulkanDeviceFunctions::external_loader, vkm.getDeviceFunctions());
+    ImGui_ImplVulkan_LoadFunctions(VK_API_VERSION_1_0, &VulkanDeviceFunctions::external_loader, vkm.getDeviceFunctions());
 
     ImGui_ImplVulkan_InitInfo init_info = {};
+    init_info.ApiVersion = VK_API_VERSION_1_0;
     init_info.Instance = vkm.getVkInstance();
     init_info.PhysicalDevice = vkm.getPhysicalDevice();
     init_info.Device = vkm.getDevice();
     init_info.QueueFamily = vkm.getGraphicsQFI();
     init_info.Queue = vkm.getGraphicsQueue();
-    init_info.PipelineCache = VK_NULL_HANDLE;
     init_info.DescriptorPool = vkm.getDescriptorPool();
+    init_info.RenderPass = vkm.getObjectRenderPass();
+    init_info.MinImageCount = 2;
+    init_info.ImageCount = 2;
+    init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+    init_info.PipelineCache = VK_NULL_HANDLE;
     init_info.Subpass = 4;
+    init_info.UseDynamicRendering = false;
+
     init_info.Allocator = nullptr;
-    init_info.MinImageCount = 2 * viewportNumber;
-    init_info.ImageCount = 2 * viewportNumber; // vkm.getImageCount(m_framebuffer);
     init_info.CheckVkResultFn = vkm.getCheckFunction();
 
-    ImGui_ImplVulkan_Init(&init_info, vkm.getObjectRenderPass());
+    ImGui_ImplVulkan_Init(&init_info);
 
     // Upload Fonts
     // NOTE on ImGui function:
     // * Create its own VkDeviceMemory
     // * Don't free the (char*)pixels
     // * Don't check if the font resources have already been created (g_FontImage, g_FontMemory, g_FontView, g_UploadBuffer, g_UploadBufferMemory
-    VkCommandBuffer commandBuffer = vkm.beginSingleTimeCommand();
-    ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
-    vkm.endSingleTimeCommand(commandBuffer);
-
-    // Destroy the upload buffer and free the upload memory
-    ImGui_ImplVulkan_DestroyFontUploadObjects();
+    ImGui_ImplVulkan_CreateFontsTexture();
 }
 
 void RenderingEngine::shutdownImGui()
@@ -1064,12 +1064,6 @@ void RenderingEngine::shutdownImGui()
     // Free ImGui resources
     ImGui_ImplVulkan_Shutdown();
     ImGui::DestroyContext();
-}
-
-void RenderingEngine::restartVulkanImGui()
-{
-    ImGui_ImplVulkan_Shutdown();
-    initVulkanImGui((uint8_t)m_viewports.size());
 }
 
 void RenderingEngine::updateCompute()

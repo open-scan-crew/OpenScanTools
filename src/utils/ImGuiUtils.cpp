@@ -1,5 +1,5 @@
-#include "utils/ImGuiUtils.h"
 #define IMGUI_DEFINE_MATH_OPERATORS
+#include "utils/ImGuiUtils.h"
 #include "imgui/imgui_internal.h"
 #include "models/3d/DisplayParameters.h"
 

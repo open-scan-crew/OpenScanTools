@@ -40,13 +40,13 @@
 #include "utils/Utils.h"
 #include "utils/Logger.h"
 #include "utils/ColorConversion.h"
-#include "utils/ImGuiUtils.h"
 
-#include "imgui/imgui_impl_vulkan.h"
 #define IMGUI_DEFINE_MATH_OPERATORS
+#include "imgui/imgui.h"
 #include "imgui/imgui_internal.h"
-
+#include "imgui/imgui_impl_vulkan.h"
 #include "impl/imgui_impl_qt.h"
+#include "utils/ImGuiUtils.h"
 
 #include <fmt/core.h>
 
