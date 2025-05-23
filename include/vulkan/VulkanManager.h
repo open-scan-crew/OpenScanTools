@@ -172,14 +172,6 @@ public:
     bool downloadSimpleBuffer(const SimpleBuffer& smpBuf, void* pData, VkDeviceSize dataSize);
     void* getMappedPointer(SmartBuffer& sbuf);
 
-    // FIXME(robin) - Les fonctions suivantes devrait ne plus être utilisées car elles ne pas thread-safe.
-    // Les problèmes de transfert dans la mémoire locale ont été résolus mais les copies des textures et des images du framebuffer peuvent être problèmatique pour la même raison.
-    //[[deprecated]]
-    VkCommandBuffer beginSingleTimeCommand();
-    //[[deprecated]]
-    void endSingleTimeCommand(VkCommandBuffer _cmd);
-    void endSingleTimeCommand(VkCommandBuffer _cmd, VkSemaphore _semaphore);
-
     // Allocation
     void printAllocationStats(std::string& stats);
 

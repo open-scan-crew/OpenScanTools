@@ -10,7 +10,7 @@ public:
     PFN_vkVoidFunction resolveFunction(const char* pName);
 
 private:
-    void* m_hDLL = NULL;
+    void* m_hDLL = nullptr;
 };
 
 #endif

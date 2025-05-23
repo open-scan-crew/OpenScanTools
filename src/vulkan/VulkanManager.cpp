@@ -1674,59 +1674,6 @@ VkResult VulkanManager::allocateMemory(VkDeviceMemory& memory, VkMemoryRequireme
     return m_pfnDev->vkAllocateMemory(m_device, &allocInfo, nullptr, &memory);
 }
 
-VkCommandBuffer VulkanManager::beginSingleTimeCommand()
-{
-    VkCommandBufferAllocateInfo allocInfo = {};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandPool = m_graphicsCmdPool;
-    allocInfo.commandBufferCount = 1;
-
-    VkCommandBuffer commandBuffer;
-    m_pfnDev->vkAllocateCommandBuffers(m_device, &allocInfo, &commandBuffer);
-
-    VkCommandBufferBeginInfo beginInfo = {};
-    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-    m_pfnDev->vkBeginCommandBuffer(commandBuffer, &beginInfo);
-
-    return commandBuffer;
-}
-
-void VulkanManager::endSingleTimeCommand(VkCommandBuffer _cmdBuffer)
-{
-    m_pfnDev->vkEndCommandBuffer(_cmdBuffer);
-
-    VkSubmitInfo submitInfo = {};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &_cmdBuffer;
-
-    m_pfnDev->vkQueueSubmit(getQueue(m_graphicsQID), 1, &submitInfo, VK_NULL_HANDLE);
-    m_pfnDev->vkQueueWaitIdle(getQueue(m_graphicsQID));
-
-    m_pfnDev->vkFreeCommandBuffers(m_device, m_graphicsCmdPool, 1, &_cmdBuffer);
-}
-
-void VulkanManager::endSingleTimeCommand(VkCommandBuffer _cmdBuffer, VkSemaphore _semaphore)
-{
-    m_pfnDev->vkEndCommandBuffer(_cmdBuffer);
-
-    VkSubmitInfo submitInfo = {};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &_cmdBuffer;
-    submitInfo.signalSemaphoreCount = 1;
-    submitInfo.pSignalSemaphores = &_semaphore;
-
-    // TODO - place the semaphore as wait in an other submit info
-    // TODO - submit with the other graphic commands
-    m_pfnDev->vkQueueSubmit(getQueue(m_graphicsQID), 1, &submitInfo, VK_NULL_HANDLE);
-
-    m_pfnDev->vkFreeCommandBuffers(m_device, m_graphicsCmdPool, 1, &_cmdBuffer);
-}
-
 // Warning - heavy load
 void VulkanManager::printAllocationStats(std::string& log)
 {

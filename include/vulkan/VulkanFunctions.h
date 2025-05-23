@@ -1,8 +1,19 @@
 #ifndef VULKAN_FUNCTIONS_H_
 #define VULKAN_FUNCTIONS_H_
 
+#include "vulkan/vulkan_core.h"
 #include "VulkanPlatform.h"
 
+#include <unordered_map>
+
+// *** The Vulkan functions load in this order:
+// #0 Load the library specific for the platform (i.e. on Windows it is "vulkan-1.dll")
+// #1 Resolve the function "vkGetInstanceProcAddr" from the external lib
+// #2 Get zero instance level functions (mainly the one to create the instance "vkCreateInstance")
+//   [External action: create a VkInstance]
+// #3 Get the instance level functions
+//   [External action: create a VkDevice]
+// #4 Get the device level functions
 class VulkanFunctions
 {
 public:
@@ -63,6 +74,8 @@ class VulkanDeviceFunctions
 {
 public:
     VulkanDeviceFunctions(VkInstance instance, VkDevice device, PFN_vkGetInstanceProcAddr pfnGetInstanceProcAddr);
+
+    // Loader for ImGui
     static PFN_vkVoidFunction external_loader(const char* function_name, void* loader_ptr);
 
     // Bind on the Vulkan loader
@@ -167,6 +180,8 @@ private:
     PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr = nullptr;
     VkInstance h_vkInstance = VK_NULL_HANDLE;
     VkDevice h_device = VK_NULL_HANDLE;
+
+    std::unordered_map<const char*, PFN_vkVoidFunction> is_device_;
 };
 
 #endif

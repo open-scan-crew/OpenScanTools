@@ -114,7 +114,9 @@ uint32_t VulkanFunctions::version()
     }
     else
     {
-        return VK_MAKE_VERSION(1, 1, 0);
+        uint32_t version = 0;
+        vkEnumerateInstanceVersion(&version);
+        return version;
     }
 }
 
@@ -224,12 +226,31 @@ PFN_vkVoidFunction VulkanDeviceFunctions::external_loader(const char* function_n
     VulkanDeviceFunctions* pfn = reinterpret_cast<VulkanDeviceFunctions*>(loader_ptr);
     if (pfn->h_device == VK_NULL_HANDLE)
         return nullptr;
+
+    // Explicite lookup table to avoid layer validation warnings
+    std::vector<const char*> instance_func = {
+        "vkDestroySurfaceKHR",
+        "vkEnumeratePhysicalDevices",
+        "vkGetPhysicalDeviceProperties",
+        "vkGetPhysicalDeviceMemoryProperties",
+        "vkGetPhysicalDeviceQueueFamilyProperties",
+        "vkGetPhysicalDeviceSurfaceCapabilitiesKHR",
+        "vkGetPhysicalDeviceSurfaceFormatsKHR",
+        "vkGetPhysicalDeviceSurfacePresentModesKHR"
+    };
+
+    bool is_instance_level = false;
+    for (const char* func_name : instance_func)
+    {
+        is_instance_level |= (strcmp(func_name, function_name) == 0);
+    }
+
+    if (is_instance_level)
+    {
+        return pfn->vkGetInstanceProcAddr(pfn->h_vkInstance, function_name);
+    }
     else
     {
-        PFN_vkVoidFunction fct = pfn->vkGetDeviceProcAddr(pfn->h_device, function_name);
-        if (fct != nullptr)
-            return fct;
-        else
-            return pfn->vkGetInstanceProcAddr(pfn->h_vkInstance, function_name);
+        return pfn->vkGetDeviceProcAddr(pfn->h_device, function_name);
     }
 }
