@@ -48,7 +48,7 @@
 #include "impl/imgui_impl_qt.h"
 #include "utils/ImGuiUtils.h"
 
-#include <fmt/core.h>
+#include <fmt/format.h>
 
 #include <qwindow.h>
 
@@ -154,7 +154,7 @@ void ObjectNodeVisitor::getObjectMarkerText(const SafePtr<AObjectNode>& object, 
         if (filter & TEXT_SHOW_INDEX_BIT)
         {
             // Complete with zeros
-            parameters[0] = fmt::format(m_index_format.data(), rObj->getUserIndex());
+            parameters[0] = fmt::format(fmt::runtime(m_index_format), rObj->getUserIndex());
         }
         if (filter & TEXT_SHOW_IDENTIFIER_BIT)
             parameters[2] = Utils::to_utf8(rObj->getIdentifier());
@@ -172,7 +172,7 @@ void ObjectNodeVisitor::getObjectMarkerText(const SafePtr<AObjectNode>& object, 
             glm::dvec3 pos = UnitConverter::meterToX(rObj->getCenter(), m_displayParameters.m_unitUsage.distanceUnit);
 
             // Format the coordinates values
-            parameters[8] = fmt::format(m_coord_format.data(), pos.x, pos.y, pos.z);
+            parameters[8] = fmt::format(fmt::runtime(m_coord_format), pos.x, pos.y, pos.z);
         }
     }
 
@@ -190,12 +190,12 @@ void ObjectNodeVisitor::getObjectMarkerText(const SafePtr<AObjectNode>& object, 
         if (rCylinder && (filter & TEXT_SHOW_DIAMETER_BIT))
         {
             double r = UnitConverter::meterToX(2.0 * rCylinder->getRadius(), m_displayParameters.m_unitUsage.diameterUnit);
-            parameters[6] = fmt::format("diam=" + m_diameter_format, r);
+            parameters[6] = fmt::format(fmt::runtime("diam=" + m_diameter_format), r);
         }
         if (filter & TEXT_SHOW_LENGTH_BIT)
         {
             double l = UnitConverter::meterToX(rCylinder->getLength(), m_displayParameters.m_unitUsage.distanceUnit);
-            parameters[7] = fmt::format("len=" + m_length_format, l);
+            parameters[7] = fmt::format(fmt::runtime("len=" + m_length_format), l);
         }
     }
 
@@ -253,10 +253,10 @@ bool ObjectNodeVisitor::drawManipulatorText()
     case ManipulationMode::Extrusion:
     case ManipulationMode::Scale:
     case ManipulationMode::Translation:
-        text += " : " + fmt::format(m_length_format, UnitConverter::meterToX(rManipNode->getDistanceToDisplay(), m_camera.m_unitUsage.distanceUnit));
+        text += " : " + fmt::format(fmt::runtime(m_length_format), UnitConverter::meterToX(rManipNode->getDistanceToDisplay(), m_camera.m_unitUsage.distanceUnit));
         break;
     case ManipulationMode::Rotation:
-        text += " : " + fmt::format(m_simple_format, rManipNode->getDistanceToDisplay(), "Â°");
+        text += " : " + fmt::format(fmt::runtime(m_simple_format), rManipNode->getDistanceToDisplay(), "Â°");
         break;
     }
 
@@ -471,7 +471,7 @@ void ObjectNodeVisitor::drawImGuiMeasureText(const SegmentDrawData segment)
         if (csPos_mid[i].z < 0.0f)
             continue;
 
-        std::string number = fmt::format(m_length_format, UnitConverter::meterToX(length[i], m_displayParameters.m_unitUsage.distanceUnit));
+        std::string number = fmt::format(fmt::runtime(m_length_format), UnitConverter::meterToX(length[i], m_displayParameters.m_unitUsage.distanceUnit));
 
         ImUtilsText toDraw;
         //TO DO : Use segments hovered/selected data
@@ -921,7 +921,7 @@ void ObjectNodeVisitor::drawImGuiStats(VulkanViewport& viewport)
 std::string ObjectNodeVisitor::formatNumber(double num)
 {
     double d = UnitConverter::meterToX(num, m_displayParameters.m_unitUsage.distanceUnit);
-    return fmt::format(m_length_format, d);
+    return fmt::format(fmt::runtime(m_length_format), d);
 }
 
 void ObjectNodeVisitor::setLastMousePosition(const glm::ivec2& mousePos)

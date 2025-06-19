@@ -7,9 +7,6 @@
 #ifndef VULKAN_MANAGER_H
 #define VULKAN_MANAGER_H
 
-//#include <cstring>
-#include <cstdio>
-#include <cstdlib>
 #include <thread>
 #include <unordered_set>
 #include <queue>

@@ -3674,9 +3674,6 @@
     <ClInclude Include="..\..\include\io\imports\dxfFileReader.h">
       <Filter>include\io\imports</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\ext\fmt\core.h">
-      <Filter>ext\fmt</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\controller\functionSystem\ContextPeopleRemover.h">
       <Filter>include\controller\contexts</Filter>
     </ClInclude>
@@ -3931,6 +3928,9 @@
     </ClInclude>
     <ClInclude Include="..\..\include\models\graph\TargetNode.h">
       <Filter>include\models\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ext\fmt\base.h">
+      <Filter>ext\fmt</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

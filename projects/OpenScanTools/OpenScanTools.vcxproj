@@ -125,7 +125,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>FBXSDK_SHARED;_DEBUG_;NOMINMAX;BENCHMARK_;GLM_FORCE_XYZW_ONLY;VK_NO_PROTOTYPES;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>FBXSDK_SHARED;_DEBUG_;NOMINMAX;BENCHMARK_;GLM_FORCE_XYZW_ONLY;VK_NO_PROTOTYPES;_CRT_SECURE_NO_WARNINGS;FMT_UNICODE=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.\..\..\include;.\..\..\src;$(SolutionDir)\include\gui\widgets\CustomWidgets;$(SolutionDir)ext;$(SolutionDir)ext\SQLiteCpp\include;$(SolutionDir)ext\3DxWare\inc;$(SolutionDir)ext\tiny_obj_loader;$(SolutionDir)ext\ifcplusplus\include;$(SolutionDir)ext\openE57;$(SolutionDir)ext\ReCapSDK\include;$(SolutionDir)ext\ReCapSDK\include\realdwg;$(SolutionDir)ext\OCCT\inc;$(SolutionDir)ext\cpr\include;$(SolutionDir)ext\fbxSdk-2020.0.1\inc;$(SolutionDir)ext\dxflibs\;$(SolutionDir)projects\lib_tls;.\GeneratedShaders;$(VULKAN_SDK)\include;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -1178,7 +1178,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\ext\dxflibs\dl_global.h" />
     <ClInclude Include="..\..\ext\dxflibs\dl_writer.h" />
     <ClInclude Include="..\..\ext\dxflibs\dl_writer_ascii.h" />
-    <ClInclude Include="..\..\ext\fmt\core.h" />
+    <ClInclude Include="..\..\ext\fmt\base.h" />
     <ClInclude Include="..\..\ext\fmt\format.h" />
     <ClInclude Include="..\..\ext\imgui\imconfig.h" />
     <ClInclude Include="..\..\ext\imgui\imgui.h" />
