@@ -1307,6 +1307,9 @@ void ObjectNodeVisitor::bakeGraphics(const SafePtr<AGraphNode>& node, const Tran
         case ElementType::Tag:
             show_marker = (m_displayParameters.m_markerMask & SHOW_TAG_MARKER) != 0;
             break;
+        case ElementType::Target:
+            show_marker = true;
+            break;
         case ElementType::Point:
         case ElementType::BeamBendingMeasure:
         case ElementType::ColumnTiltMeasure:
@@ -1635,7 +1638,7 @@ void ObjectNodeVisitor::draw_baked_markers(VkCommandBuffer cmdBuf, MarkerRendere
     std::vector<MarkerDrawData> markerSortedAndFiltered;
     sortMarkersByDepth(m_markerDrawData, markerSortedAndFiltered, m_displayParameters.m_markerOptions.maximumDisplayDistance);
 
-    if (markerSortedAndFiltered.empty() && target.empty())
+    if (markerSortedAndFiltered.empty() && target.empty() && target_draw_data_.empty())
         return;
 
     float nearScale = m_displayParameters.m_markerOptions.nearSize * m_screenHeightAt1m * m_guiScale / (float)m_fbExtent.height;
@@ -1645,14 +1648,20 @@ void ObjectNodeVisitor::draw_baked_markers(VkCommandBuffer cmdBuf, MarkerRendere
 
     // load draw data in memory (the buffer should be reset elsewhere)
     assert(markerBuffer.alloc == nullptr);
+    VulkanManager& vkm = VulkanManager::getInstance();
     VkDeviceSize targetDataSize = target.size() * sizeof(MarkerDrawData);
-    VkDeviceSize dataSize = markerSortedAndFiltered.size() * sizeof(MarkerDrawData);
-    VulkanManager::getInstance().allocSimpleBuffer(dataSize + targetDataSize, markerBuffer, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+    VkDeviceSize data_size = markerSortedAndFiltered.size() * sizeof(MarkerDrawData);
+    VkDeviceSize target_data_size_2 = target_draw_data_.size() * sizeof(MarkerDrawData);
+    VkDeviceSize total_data_size = targetDataSize + data_size + target_data_size_2;
+    vkm.allocSimpleBuffer(total_data_size, markerBuffer, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
     VkDeviceSize offset = 0;
 
-    VulkanManager::getInstance().loadInSimpleBuffer(markerBuffer, dataSize, markerSortedAndFiltered.data(), offset, 4);
-    offset += dataSize;
-    VulkanManager::getInstance().loadInSimpleBuffer(markerBuffer, targetDataSize, target.data(), offset, 4);
+    vkm.loadInSimpleBuffer(markerBuffer, data_size, markerSortedAndFiltered.data(), offset, 4);
+    offset += data_size;
+    vkm.loadInSimpleBuffer(markerBuffer, targetDataSize, target.data(), offset, 4);
+    offset += targetDataSize;
+    vkm.loadInSimpleBuffer(markerBuffer, target_data_size_2, target_draw_data_.data(), offset, 4);
+    offset += target_data_size_2;
 
     // Draw markers
     renderer.setScaleConstants(cmdBuf, nearScale, farScale, m_displayParameters.m_markerOptions.nearLimit, m_displayParameters.m_markerOptions.farLimit);
@@ -1669,7 +1678,7 @@ void ObjectNodeVisitor::draw_baked_markers(VkCommandBuffer cmdBuf, MarkerRendere
     renderer.setScaleConstants(cmdBuf, scale, scale, m_displayParameters.m_markerOptions.nearLimit, m_displayParameters.m_markerOptions.farLimit);
     renderer.setBordersColorConstant(cmdBuf, glm::vec4(0.f, 0.f, 0.f, 0.f), glm::vec4(0.59f, 0.05f, 0.87f, 1.f), glm::vec4(0.95f, 0.84f, 0.1f, 1.f));
     renderer.setDepthRenderConstant(cmdBuf, false);
-    renderer.drawMarkerData(cmdBuf, markerBuffer, (uint32_t)markerSortedAndFiltered.size(), (uint32_t)target.size(), m_viewProjUniform, inputAttachDescSet);
+    renderer.drawMarkerData(cmdBuf, markerBuffer, (uint32_t)markerSortedAndFiltered.size(), (uint32_t)(target.size() + target_draw_data_.size()), m_viewProjUniform, inputAttachDescSet);
 }
 
 // FONCTIONNEMENT(robin)

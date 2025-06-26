@@ -2,6 +2,7 @@
 #include "vulkan/VulkanManager.h"
 #include "models/3d/Primitives.h"
 #include "models/graph/AObjectNode.h"
+#include "models/OpenScanToolsModelEssentials.h"
 #include "services/MarkerSystem.h"
 #include "vulkan/VulkanHelperFunctions.h"
 
@@ -625,7 +626,7 @@ void MarkerRenderer::createSampler()
             Logger::log(LoggerMode::VKLog) << "Failed to upload texture layer for icon " << style.qresource.toStdString() << Logger::endl;
         }
 
-        delete bitsRGBA;
+        delete[] bitsRGBA;
     }
 }
 
@@ -672,8 +673,6 @@ void MarkerRenderer::cleanup()
 //  }
 //}
 
-
-
 MarkerDrawData MarkerRenderer::getMarkerDrawData(const glm::dmat4& gTransfo, const AObjectNode& _obj)
 {
     // All parameters needed
@@ -705,6 +704,32 @@ MarkerDrawData MarkerRenderer::getMarkerDrawData(const glm::dmat4& gTransfo, con
     };
 }
 
+MarkerDrawData MarkerRenderer::getTargetDrawData(const glm::dmat4& gTransfo, const AGraphNode& _node)
+{
+    // We already know that the data model is not convenient for defining the objects.
+    // A target is a special object described by its position and a pictogramme.
+
+    // Then, a few questions remains:
+    // (*) can a target be selected/hovered ?
+    // (*) can a target have its own color ? -> Yes via AGraphNode
+
+    MarkerSystem::RenderStyle render_style = MarkerSystem::getRenderStyle(scs::MarkerIcon::Target);
+
+    // Compose the style
+    uint32_t status = 0;
+    if (render_style.showTrueColor)
+        status |= 0x04;
+
+    return {
+        { (float)gTransfo[3][0], (float)gTransfo[3][1], (float)gTransfo[3][2] },
+        _node.getColor().RGBA(),
+        INVALID_PICKING_ID,
+        (uint32_t)scs::MarkerIcon::Target,
+        render_style.firstVertex,
+        render_style.vertexCount,
+        status
+    };
+}
 
 void MarkerRenderer::drawMarkerData(VkCommandBuffer _cmdBuffer, SimpleBuffer drawDataBuf, uint32_t firstMarker, uint32_t markerCount, VkUniformOffset viewProjUniOffset, VkDescriptorSet depthDescSet)
 {

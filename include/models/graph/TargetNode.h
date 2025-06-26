@@ -7,7 +7,7 @@ class TargetNode : public AGraphNode
 {
 public:
     TargetNode(const TargetNode&);
-    TargetNode();
+    TargetNode(const glm::dvec3& position);
     ~TargetNode();
 
     ElementType getType() const override;

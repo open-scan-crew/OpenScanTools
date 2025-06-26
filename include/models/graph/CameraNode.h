@@ -126,7 +126,7 @@ public:
 
     // Examine Mode
     bool isExamineActive() const;
-    void resetExaminePoint();
+    void setExaminePoint(const glm::dvec3& position);
 
     glm::dmat4 getViewMatrix() const;
     glm::dmat4 getGlobalViewMatrix() const;

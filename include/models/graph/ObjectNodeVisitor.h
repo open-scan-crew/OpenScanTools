@@ -143,6 +143,7 @@ private:
     // baked resources
     std::vector<BakedText>          m_bakedTexts;
     std::vector<MarkerDrawData>     m_markerDrawData;
+    std::vector<MarkerDrawData>     target_draw_data_;
     // TODO - bake the targets from the graph
     // std::vector<MarkerDrawData>  m_targetDrawData;
     std::vector<SegmentDrawData>    m_segmentDrawData;

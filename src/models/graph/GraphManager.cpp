@@ -13,6 +13,7 @@
 #include "models/graph/ClusterNode.h"
 #include "models/graph/BoxNode.h"
 #include "models/graph/CameraNode.h"
+#include "models/graph/TargetNode.h"
 #include "models/project/ProjectTypes.h"
 
 #include "gui/texts/TreePanelTexts.hpp"
@@ -136,13 +137,16 @@ void GraphManager::cleanProjectObjects()
 
 	AGraphNode::cleanLinks(m_root);
 
+	// We keep the camera but we need to reset the examine point
 	{
 		WritePtr<CameraNode> wCam = m_cameraNode.get();
 		if (wCam)
-			wCam->resetExaminePoint();
+			wCam->setExaminePoint(glm::dvec3(NAN, NAN, NAN));
 	}
 
 	m_targetMarkerFactory.freeClickMarkers();
+	//deleteClickTargets(); // not necessary in this case
+
 	// Note(aurÃ©lien) on tente le nettoyage des geometries gÃ©nÃ©rÃ©es Ã  la volÃ©.
 	VulkanManager::getInstance().waitIdle();
 	m_meshManager->cleanMemory(true);
@@ -152,6 +156,16 @@ void GraphManager::cleanProjectObjects()
 TargetMarkerFactory& GraphManager::getTargetFactory()
 {
 	return m_targetMarkerFactory;
+}
+
+void GraphManager::deleteClickTargets()
+{
+    std::unordered_set<SafePtr<AGraphNode>> targets = getNodesByTypes({ ElementType::Target });
+    for (SafePtr<AGraphNode> target : targets)
+    {
+        AGraphNode::cleanLinks(target);
+        target.destroy();
+    }
 }
 
 // Is this function synchrone or asynchrone ?
@@ -205,6 +219,7 @@ void GraphManager::onFunctionChanged(IGuiData* iGuiData, bool store)
 	if (examineData->type != ContextType::none)
 	{
 		m_targetMarkerFactory.freeClickMarkers();
+		deleteClickTargets();
 	}
 }
 
@@ -219,9 +234,18 @@ void GraphManager::onClick(IGuiData* iGuiData, bool store)
 	}
 
 	if (targetData->m_reset)
+	{
 		m_targetMarkerFactory.freeClickMarkers();
+		deleteClickTargets();
+	}
 	else if (!isnan(targetData->m_position.x))
+	{
 		m_targetMarkerFactory.createClickTarget(glm::dvec4(targetData->m_position, 1.0), targetData->m_color);
+
+		// Create new target
+		SafePtr<TargetNode> target = make_safe<TargetNode>(targetData->m_position);
+		AGraphNode::addGeometricLink(m_root, target);
+	}
 }
 
 void GraphManager::onManipulationMode(IGuiData* data, bool store)

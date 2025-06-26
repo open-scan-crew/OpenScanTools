@@ -4,10 +4,11 @@ TargetNode::TargetNode(const TargetNode& ref)
     : AGraphNode(ref)
 {}
 
-TargetNode::TargetNode()
+TargetNode::TargetNode(const glm::dvec3& position)
     : AGraphNode()
 {
     marker_icon_ = scs::MarkerIcon::Target;
+    m_center = position;
 }
 
 TargetNode::~TargetNode()

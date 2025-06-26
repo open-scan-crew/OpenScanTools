@@ -61,6 +61,7 @@ public:
 	SafePtr<CameraNode> duplicateCamera(const SafePtr<CameraNode>& camera);
 
 	TargetMarkerFactory& getTargetFactory();
+    void deleteClickTargets();
 
     void setObjectsHovered(std::unordered_set<uint32_t>&& objectsHovered);
     SafePtr<AObjectNode> getSingleHoverObject() const;

@@ -10,6 +10,7 @@
 #include "models/graph/SimpleMeasureNode.h"
 #include "models/graph/PolylineMeasureNode.h"
 #include "models/graph/ViewPointNode.h"
+#include "models/graph/TargetNode.h"
 #include "models/3d/UniformClippingData.h"
 
 #include "gui/GuiData/GuiDataGeneralProject.h"
@@ -673,7 +674,7 @@ void CameraNode::moveLocal(double forward, double right, double up)
         return;
 
     if ((right != 0. || up != 0.) && !m_keepExamineOnPan)
-        resetExaminePoint();
+        setExaminePoint(glm::dvec3(NAN, NAN, NAN));
 
     // Note - Navigations constraint will be applied in the refresh function
     m_deltaLocalPos += glm::dvec3(forward, right, up);
@@ -754,9 +755,20 @@ bool CameraNode::isExamineActive() const
             !std::isnan(m_examinePoint.z));
 }
 
-void CameraNode::resetExaminePoint()
+void CameraNode::setExaminePoint(const glm::dvec3& _position)
 {
-    m_examinePoint = glm::dvec3(NAN, NAN, NAN);
+    m_examinePoint = _position;
+    // NEW
+    if (_position.x != NAN && _position.y != NAN && _position.z != NAN)
+    {
+        SafePtr<TargetNode> target = make_safe<TargetNode>(_position);
+        AGraphNode::addGeometricLink(this, target);
+    }
+    else
+    {
+
+    }
+    // FIXME - see GuiDataCameraInfo
     sendNewUIViewPoint();
 }
 
@@ -1679,9 +1691,9 @@ void CameraNode::moveToData(const SafePtr<AGraphNode>& data)
 
 
     if (type != ElementType::ViewPoint && type != ElementType::Scan)
-        m_examinePoint = position;
+        setExaminePoint(position);
     else
-        resetExaminePoint();
+        setExaminePoint(glm::dvec3(NAN, NAN, NAN));
 
     sendNewUIViewPoint();
 }
