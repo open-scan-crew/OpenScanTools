@@ -71,7 +71,6 @@ private:
     void onQuitEvent(IGuiData* data);
     void onRecordPerformance(IGuiData* data);
     void onGuizmoParameters(IGuiData* data);
-    void onRenderExamineTarget(IGuiData* data);
     void onProcessSignalCancel(IGuiData* data);
 
     void onActiveCamera(IGuiData* data);
@@ -120,7 +119,6 @@ private:
     SafePtr<CameraNode> m_activeCamera;
     glm::vec3 m_gizmoParameters = { -0.85, 0.9, 0.25 };
     float m_guiScale = 1.f; 
-    bool m_showExamineTarget = true;
 
     // Manipulator rendering parameters
     double m_manipSize = 1.0;

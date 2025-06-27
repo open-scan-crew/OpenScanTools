@@ -1,13 +1,13 @@
 #ifndef TARGET_NODE_H
 #define TARGET_NODE_H
 
-#include "models/graph/AGraphNode.h"
+#include "models/graph/AObjectNode.h"
 
-class TargetNode : public AGraphNode
+class TargetNode : public AObjectNode
 {
 public:
     TargetNode(const TargetNode&);
-    TargetNode(const glm::dvec3& position);
+    TargetNode(const glm::dvec3& _position, Color32 _color);
     ~TargetNode();
 
     ElementType getType() const override;

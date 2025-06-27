@@ -57,7 +57,6 @@ RenderingEngine::RenderingEngine(GraphManager& graphManager, IDataDispatcher& da
     registerGuiDataFunction(guiDType::hdGenerate, &RenderingEngine::onStartHDRender);
     registerGuiDataFunction(guiDType::hdPrepare, &RenderingEngine::onPrepareHDImage);
     registerGuiDataFunction(guiDType::renderGizmoParameters, &RenderingEngine::onGuizmoParameters);
-    registerGuiDataFunction(guiDType::renderTargetExamine, &RenderingEngine::onRenderExamineTarget);
     registerGuiDataFunction(guiDType::processingSplashScreenEnableCancel, &RenderingEngine::onProcessSignalCancel);
 
     startImGuiContext();
@@ -228,13 +227,6 @@ void RenderingEngine::onActiveCamera(IGuiData* data)
 void RenderingEngine::onGuizmoParameters(IGuiData* data)
 {
     m_gizmoParameters = static_cast<GuiDataGizmoParameters*>(data)->m_paramters;
-}
-
-void RenderingEngine::onRenderExamineTarget(IGuiData* iGuiData)
-{
-    auto examineData = static_cast<GuiDataRenderExamineTarget*>(iGuiData);
-
-    m_showExamineTarget = examineData->m_show;
 }
 
 void RenderingEngine::onProcessSignalCancel(IGuiData* data)
@@ -582,10 +574,10 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
     // (subpass 3) - draw markers
     vkm.getDeviceFunctions()->vkCmdNextSubpass(cmdBuffer, VK_SUBPASS_CONTENTS_INLINE);
     SimpleBuffer& markerBuffer = framebuffer->drawMarkerBuffers[framebuffer->currentImage];
-    std::vector<MarkerDrawData> targets = m_graph.getTargetFactory().generateMarkersList();
-    if (wCamera->isExamineActive() && m_showExamineTarget)
-        targets.push_back(wCamera->getExamineTarget());
-    visitor.draw_baked_markers(cmdBuffer, m_markerRenderer, targets, framebuffer->descSetInputDepth, markerBuffer);
+    //std::vector<MarkerDrawData> targets = m_graph.getTargetFactory().generateMarkersList();
+    //if (wCamera->isExamineActive() && m_showExamineTarget)
+        //targets.push_back(wCamera->getExamineTarget());
+    visitor.draw_baked_markers(cmdBuffer, m_markerRenderer, framebuffer->descSetInputDepth, markerBuffer);
 
     // (subpass 4) - ImGui
     vkm.getDeviceFunctions()->vkCmdNextSubpass(cmdBuffer, VK_SUBPASS_CONTENTS_INLINE);
@@ -741,7 +733,7 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
     // (subpass 3) - draw markers
     vkm.getDeviceFunctions()->vkCmdNextSubpass(cmdBuffer, VK_SUBPASS_CONTENTS_INLINE);
     SimpleBuffer& markerBuffer = framebuffer->drawMarkerBuffers[framebuffer->currentImage];
-    visitor.draw_baked_markers(cmdBuffer, m_markerRenderer, {}, framebuffer->descSetInputDepth, markerBuffer);
+    visitor.draw_baked_markers(cmdBuffer, m_markerRenderer, framebuffer->descSetInputDepth, markerBuffer);
 
     // (subpass 4) - ImGui
     vkm.getDeviceFunctions()->vkCmdNextSubpass(cmdBuffer, VK_SUBPASS_CONTENTS_INLINE);

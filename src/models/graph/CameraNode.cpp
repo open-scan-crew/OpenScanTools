@@ -70,6 +70,7 @@ CameraNode::CameraNode(const std::wstring& name, IDataDispatcher& dataDispatcher
     registerGuiDataFunction(guiDType::moveToData, &CameraNode::onMoveToData);
     registerGuiDataFunction(guiDType::renderActiveCamera, &CameraNode::onCameraToViewPoint);
     registerGuiDataFunction(guiDType::renderGuizmo, &CameraNode::onDisplayGizmo);
+    registerGuiDataFunction(guiDType::renderTargetExamine, &CameraNode::onRenderExamineTarget);
     registerGuiDataFunction(guiDType::renderAdjustZoom, &CameraNode::onAdjustZoomToScene);
     registerGuiDataFunction(guiDType::renderCameraMoveTo, &CameraNode::onRenderCameraMoveTo);
     registerGuiDataFunction(guiDType::renderRotateThetaPhiView, &CameraNode::onRenderRotateCamera);
@@ -674,7 +675,7 @@ void CameraNode::moveLocal(double forward, double right, double up)
         return;
 
     if ((right != 0. || up != 0.) && !m_keepExamineOnPan)
-        setExaminePoint(glm::dvec3(NAN, NAN, NAN));
+        resetExaminePoint();
 
     // Note - Navigations constraint will be applied in the refresh function
     m_deltaLocalPos += glm::dvec3(forward, right, up);
@@ -758,18 +759,13 @@ bool CameraNode::isExamineActive() const
 void CameraNode::setExaminePoint(const glm::dvec3& _position)
 {
     m_examinePoint = _position;
-    // NEW
-    if (_position.x != NAN && _position.y != NAN && _position.z != NAN)
-    {
-        SafePtr<TargetNode> target = make_safe<TargetNode>(_position);
-        AGraphNode::addGeometricLink(this, target);
-    }
-    else
-    {
-
-    }
     // FIXME - see GuiDataCameraInfo
     sendNewUIViewPoint();
+}
+
+void CameraNode::resetExaminePoint()
+{
+    setExaminePoint(glm::dvec3(NAN, NAN, NAN));
 }
 
 // When refreshing the position and Global and local matrices the operations are done in this order:
@@ -1693,7 +1689,7 @@ void CameraNode::moveToData(const SafePtr<AGraphNode>& data)
     if (type != ElementType::ViewPoint && type != ElementType::Scan)
         setExaminePoint(position);
     else
-        setExaminePoint(glm::dvec3(NAN, NAN, NAN));
+        resetExaminePoint();
 
     sendNewUIViewPoint();
 }
@@ -1726,6 +1722,13 @@ void CameraNode::onRenderFov(IGuiData* data)
 void CameraNode::onDisplayGizmo(IGuiData* data)
 {
     m_displayGizmo = static_cast<GuiDataDisplayGuizmo*>(data)->m_isDisplayed;
+}
+
+void CameraNode::onRenderExamineTarget(IGuiData* iGuiData)
+{
+    auto examineData = static_cast<GuiDataRenderExamineTarget*>(iGuiData);
+
+    m_showExamineTarget = examineData->m_show;
 }
 
 void CameraNode::onRenderNavigationConstraint(IGuiData* data)

@@ -45,6 +45,7 @@ public:
     // GUI
     RampScale      m_rampScale = { true, false, 20 }; // GUI
     bool           m_displayGizmo = true;
+    bool           m_showExamineTarget = true;
 
     // Objects
     float          m_alphaObject = 0.6f;

@@ -1308,7 +1308,8 @@ void ObjectNodeVisitor::bakeGraphics(const SafePtr<AGraphNode>& node, const Tran
             show_marker = (m_displayParameters.m_markerMask & SHOW_TAG_MARKER) != 0;
             break;
         case ElementType::Target:
-            show_marker = true;
+            target_draw_data_.emplace_back(MarkerRenderer::getTargetDrawData(transfoMat, *&rObj));
+            show_marker = false;
             break;
         case ElementType::Point:
         case ElementType::BeamBendingMeasure:
@@ -1491,7 +1492,8 @@ void ObjectNodeVisitor::bakeGraphics(const SafePtr<AGraphNode>& node, const Tran
     {
         SafePtr<CameraNode> cam = static_pointer_cast<CameraNode>(node);
         ReadPtr<CameraNode> rCam = cam.cget();
-        m_markerDrawData.emplace_back(rCam->getExamineTarget());
+        if (rCam->isExamineActive() && rCam->m_showExamineTarget)
+            target_draw_data_.emplace_back(rCam->getExamineTarget());
         break;
     }
     default:
@@ -1633,12 +1635,12 @@ void ObjectNodeVisitor::clipAndDrawPointCloud(VkCommandBuffer _cmdBuffer, Render
     m_totalClippedCells += drawInfo.cellDrawInfoCB.size();
 }
 
-void ObjectNodeVisitor::draw_baked_markers(VkCommandBuffer cmdBuf, MarkerRenderer& renderer, const std::vector<MarkerDrawData>& target, VkDescriptorSet inputAttachDescSet, SimpleBuffer& markerBuffer)
+void ObjectNodeVisitor::draw_baked_markers(VkCommandBuffer cmdBuf, MarkerRenderer& renderer, VkDescriptorSet inputAttachDescSet, SimpleBuffer& markerBuffer)
 {
     std::vector<MarkerDrawData> markerSortedAndFiltered;
     sortMarkersByDepth(m_markerDrawData, markerSortedAndFiltered, m_displayParameters.m_markerOptions.maximumDisplayDistance);
 
-    if (markerSortedAndFiltered.empty() && target.empty() && target_draw_data_.empty())
+    if (markerSortedAndFiltered.empty() && target_draw_data_.empty())
         return;
 
     float nearScale = m_displayParameters.m_markerOptions.nearSize * m_screenHeightAt1m * m_guiScale / (float)m_fbExtent.height;
@@ -1649,19 +1651,16 @@ void ObjectNodeVisitor::draw_baked_markers(VkCommandBuffer cmdBuf, MarkerRendere
     // load draw data in memory (the buffer should be reset elsewhere)
     assert(markerBuffer.alloc == nullptr);
     VulkanManager& vkm = VulkanManager::getInstance();
-    VkDeviceSize targetDataSize = target.size() * sizeof(MarkerDrawData);
     VkDeviceSize data_size = markerSortedAndFiltered.size() * sizeof(MarkerDrawData);
-    VkDeviceSize target_data_size_2 = target_draw_data_.size() * sizeof(MarkerDrawData);
-    VkDeviceSize total_data_size = targetDataSize + data_size + target_data_size_2;
+    VkDeviceSize target_data_size = target_draw_data_.size() * sizeof(MarkerDrawData);
+    VkDeviceSize total_data_size = data_size + target_data_size;
     vkm.allocSimpleBuffer(total_data_size, markerBuffer, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
     VkDeviceSize offset = 0;
 
     vkm.loadInSimpleBuffer(markerBuffer, data_size, markerSortedAndFiltered.data(), offset, 4);
     offset += data_size;
-    vkm.loadInSimpleBuffer(markerBuffer, targetDataSize, target.data(), offset, 4);
-    offset += targetDataSize;
-    vkm.loadInSimpleBuffer(markerBuffer, target_data_size_2, target_draw_data_.data(), offset, 4);
-    offset += target_data_size_2;
+    vkm.loadInSimpleBuffer(markerBuffer, target_data_size, target_draw_data_.data(), offset, 4);
+    offset += target_data_size;
 
     // Draw markers
     renderer.setScaleConstants(cmdBuf, nearScale, farScale, m_displayParameters.m_markerOptions.nearLimit, m_displayParameters.m_markerOptions.farLimit);
@@ -1678,7 +1677,7 @@ void ObjectNodeVisitor::draw_baked_markers(VkCommandBuffer cmdBuf, MarkerRendere
     renderer.setScaleConstants(cmdBuf, scale, scale, m_displayParameters.m_markerOptions.nearLimit, m_displayParameters.m_markerOptions.farLimit);
     renderer.setBordersColorConstant(cmdBuf, glm::vec4(0.f, 0.f, 0.f, 0.f), glm::vec4(0.59f, 0.05f, 0.87f, 1.f), glm::vec4(0.95f, 0.84f, 0.1f, 1.f));
     renderer.setDepthRenderConstant(cmdBuf, false);
-    renderer.drawMarkerData(cmdBuf, markerBuffer, (uint32_t)markerSortedAndFiltered.size(), (uint32_t)(target.size() + target_draw_data_.size()), m_viewProjUniform, inputAttachDescSet);
+    renderer.drawMarkerData(cmdBuf, markerBuffer, (uint32_t)markerSortedAndFiltered.size(), (uint32_t)target_draw_data_.size(), m_viewProjUniform, inputAttachDescSet);
 }
 
 // FONCTIONNEMENT(robin)

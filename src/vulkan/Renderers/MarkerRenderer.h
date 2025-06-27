@@ -20,7 +20,7 @@ public:
     ~MarkerRenderer();
 
     static MarkerDrawData getMarkerDrawData(const glm::dmat4& gTransfo, const AObjectNode& _obj);
-    static MarkerDrawData getTargetDrawData(const glm::dmat4& gTransfo, const AGraphNode& _node);
+    static MarkerDrawData getTargetDrawData(const glm::dmat4& gTransfo, const AObjectNode& _node);
     // General function
     void drawMarkerData(VkCommandBuffer _cmdBuffer, SimpleBuffer drawDataBuf, uint32_t firstMarker, uint32_t markerCount, VkUniformOffset viewProjUniOffset, VkDescriptorSet depthDescSet);
 

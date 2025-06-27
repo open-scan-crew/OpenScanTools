@@ -127,6 +127,7 @@ public:
     // Examine Mode
     bool isExamineActive() const;
     void setExaminePoint(const glm::dvec3& position);
+    void resetExaminePoint();
 
     glm::dmat4 getViewMatrix() const;
     glm::dmat4 getGlobalViewMatrix() const;
@@ -239,6 +240,7 @@ private:
     void onCameraToViewPoint(IGuiData* data);
     void onRenderFov(IGuiData* data);
     void onDisplayGizmo(IGuiData* data);
+    void onRenderExamineTarget(IGuiData* data);
     void onRenderNavigationConstraint(IGuiData* data);
     void onRenderApplyNavigationConstraint(IGuiData* data);
     void onRenderNavigationParameters(IGuiData* data);

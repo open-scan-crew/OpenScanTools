@@ -1,14 +1,16 @@
 #include "models/graph/TargetNode.h"
 
 TargetNode::TargetNode(const TargetNode& ref)
-    : AGraphNode(ref)
+    : AObjectNode(ref)
 {}
 
-TargetNode::TargetNode(const glm::dvec3& position)
-    : AGraphNode()
+TargetNode::TargetNode(const glm::dvec3& _position, Color32 _color)
+    : AObjectNode()
 {
     marker_icon_ = scs::MarkerIcon::Target;
-    m_center = position;
+    m_center = _position;
+    m_color = _color;
+    //m_graphicId = INVALID_PICKING_ID;
 }
 
 TargetNode::~TargetNode()

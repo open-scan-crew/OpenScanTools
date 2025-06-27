@@ -98,7 +98,7 @@ public:
     void draw_baked_pointClouds(VkCommandBuffer cmdBuffer, Renderer& renderer);
     void draw_baked_manipulators(VkCommandBuffer cmdBuffer, ManipulatorRenderer& renderer, double manipSize);
     void drawGizmo(VkCommandBuffer cmdBuffer, const glm::dvec3& gizmoParameters, std::shared_ptr<MeshBuffer> mesh, ManipulatorRenderer& renderer);
-    void draw_baked_markers(VkCommandBuffer cmdBuf, MarkerRenderer& renderer, const std::vector<MarkerDrawData>& target, VkDescriptorSet inputAttachDescSet, SimpleBuffer& markerBuffer);
+    void draw_baked_markers(VkCommandBuffer cmdBuf, MarkerRenderer& renderer, VkDescriptorSet inputAttachDescSet, SimpleBuffer& markerBuffer);
     void draw_baked_measures(VkCommandBuffer cmdBuffer, MeasureRenderer& renderer, SimpleBuffer& segmentBuffer);
     void draw_baked_meshes(VkCommandBuffer cmdBuffer, SimpleObjectRenderer& renderer, bool transparentPass);
     void blendTransparentPass(VkCommandBuffer cmdBuffer, SimpleObjectRenderer& renderer, VkDescriptorSet inputTransparentLayerDescSet);

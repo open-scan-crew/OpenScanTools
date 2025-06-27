@@ -704,7 +704,7 @@ MarkerDrawData MarkerRenderer::getMarkerDrawData(const glm::dmat4& gTransfo, con
     };
 }
 
-MarkerDrawData MarkerRenderer::getTargetDrawData(const glm::dmat4& gTransfo, const AGraphNode& _node)
+MarkerDrawData MarkerRenderer::getTargetDrawData(const glm::dmat4& gTransfo, const AObjectNode& _node)
 {
     // We already know that the data model is not convenient for defining the objects.
     // A target is a special object described by its position and a pictogramme.
