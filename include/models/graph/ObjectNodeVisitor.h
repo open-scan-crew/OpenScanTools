@@ -111,7 +111,7 @@ public:
 
 private:
     void initTextsFormat();
-    bool drawCamera(const VkCommandBuffer& cmdBuffer, const SafePtr<CameraNode>& camera);
+    bool drawCameraText();
     void drawManipulator(VkCommandBuffer cmdBuffer, ManipulatorRenderer& renderer, const TransformationModule& transfo, const SafePtr<ManipulatorNode>& manip, double manipSize);
     bool drawManipulatorText();
     void getObjectMarkerText(const SafePtr<AObjectNode>& object, std::string& text);

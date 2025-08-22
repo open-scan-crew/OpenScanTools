@@ -1943,21 +1943,7 @@ void CameraNode::setOrthoHeight(double _height)
     sendNewUIViewPoint();
 }
 
-
-MarkerDrawData CameraNode::getExamineTarget() const
+glm::vec3 CameraNode::getExamineTargetPosition() const
 {
-    MarkerSystem::RenderStyle marker_style = MarkerSystem::getRenderStyle(scs::MarkerIcon::Target);
-    Color32 color = { 223u, 98u, 0u, 255u };
-
-    glm::vec3 localTarget = m_examinePoint + m_largeCoordinatesCorrection;
-
-    return {
-        { localTarget.x, localTarget.y, localTarget.z },
-        color.RGBA(),
-        INVALID_PICKING_ID,
-        (uint32_t)scs::MarkerIcon::Target,
-        marker_style.firstVertex,
-        marker_style.vertexCount,
-        0 // not hover, not selected, dont show true color
-    };
+    return m_examinePoint + m_largeCoordinatesCorrection;
 }

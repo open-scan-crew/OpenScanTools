@@ -15,4 +15,5 @@ struct MarkerDrawData
     uint32_t style;       // trueColor, hover, select
 }; // size = 32
 
+
 #endif

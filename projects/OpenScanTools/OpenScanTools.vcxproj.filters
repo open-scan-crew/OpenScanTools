@@ -1246,9 +1246,6 @@
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarMarkerDisplayOptions.cpp">
       <Filter>src\gui\toolBars</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\pointCloudEngine\TargetMarkerFactory.cpp">
-      <Filter>src\pointCloudEngine</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\gui\widgets\QPFields\AQPField.cpp">
       <Filter>src\gui\widgets\QPFields</Filter>
     </ClCompile>
@@ -3104,9 +3101,6 @@
     <ClInclude Include="..\..\include\controller\Controller_p.h">
       <Filter>include\controller</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\pointCloudEngine\TargetMarkerFactory.h">
-      <Filter>include\pointCloudEngine</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\controller\functionSystem\ContextDeletePoints.h">
       <Filter>include\controller\contexts</Filter>
     </ClInclude>
@@ -3691,9 +3685,6 @@
     </ClInclude>
     <ClInclude Include="..\..\include\utils\JsonWriter.h">
       <Filter>include\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\ext\fmt\core.h">
-      <Filter>ext\fmt</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\controller\functionSystem\ContextPeopleRemover.h">
       <Filter>include\controller\contexts</Filter>

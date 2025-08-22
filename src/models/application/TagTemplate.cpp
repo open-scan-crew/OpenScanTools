@@ -192,12 +192,12 @@ namespace sma
 std::map<xg::Guid, std::array<std::wstring, 2>> tmpl_names = {
     { xg::Guid(ANNOTATION_TEMP_ID),       { L"Annotation", L"Annotation" } },
     { xg::Guid(WARNING_TEMP_ID),          { L"Risks", L"Risques" } },
-    { xg::Guid(MODELING_GUIDE_TEMP_ID),   { L"Modeling guide", L"Guide de modélisation" } },
+    { xg::Guid(MODELING_GUIDE_TEMP_ID),   { L"Modeling guide", L"Guide de modÃ©lisation" } },
     { xg::Guid(WARNING_RISK_ID),          { L"Risks", L"Risques" } },
-    { xg::Guid(MODELING_GUIDE_LOD_ID),    { L"LOD required", L"Niveau de détail" }},
-    { xg::Guid(MODELING_GUIDE_ACCU_ID),   { L"Accuracy", L"Précision" }},
+    { xg::Guid(MODELING_GUIDE_LOD_ID),    { L"LOD required", L"Niveau de dÃ©tail" }},
+    { xg::Guid(MODELING_GUIDE_ACCU_ID),   { L"Accuracy", L"PrÃ©cision" }},
     { xg::Guid(MODELING_GUIDE_STATUS_ID), { L"Status", L"Statut" }},
-    { xg::Guid(MODELING_GUIDE_TYPE_ID),   { L"Modeling type", L"Type de modélisation" }}
+    { xg::Guid(MODELING_GUIDE_TYPE_ID),   { L"Modeling type", L"Type de modÃ©lisation" }}
 };
 
 sma::TagTemplate init_tag_tmpl(sma::templateId id, LanguageType lang)

@@ -3,7 +3,7 @@
 
 #include <QtCore/qobject.h>
 
-#define TEXT_SELECT_DIRECTORY  QObject::tr("Select folder") //directory renommé en folder, plus couramment utilisé
+#define TEXT_SELECT_DIRECTORY  QObject::tr("Select folder") //directory renommÃ© en folder, plus couramment utilisÃ©
 #define TEXT_NO_DIRECTORY_SELECTED QObject::tr("Please select a destination folder.")
 
 #define TEXT_SAVE_FILENAME QObject::tr("Select destination")

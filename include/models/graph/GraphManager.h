@@ -10,7 +10,6 @@
 #include "models/OpenScanToolsModelEssentials.h"
 #include "gui/IPanel.h"
 #include "gui/GuiData/IGuiData.h"
-//#include "pointCloudEngine/TargetMarkerFactory.h"
 #include "vulkan/MeshManager.h"
 
 #include <deque>
@@ -60,7 +59,6 @@ public:
 	SafePtr<CameraNode> createCameraNode(const std::wstring& name);
 	SafePtr<CameraNode> duplicateCamera(const SafePtr<CameraNode>& camera);
 
-	//TargetMarkerFactory& getTargetFactory();
     void deleteClickTargets();
 
     void setObjectsHovered(std::unordered_set<uint32_t>&& objectsHovered);
@@ -144,9 +142,6 @@ private:
 
     std::unordered_set<SafePtr<AObjectNode>>                m_objectsHovered;
 	std::unordered_set<uint32_t>							m_selectedIds;
-
-	// TargetFactory
-	//TargetMarkerFactory         m_targetMarkerFactory;
 
 	//From Project
 	std::unordered_set<xg::Guid>							m_projectAuthorsId;

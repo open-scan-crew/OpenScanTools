@@ -704,30 +704,19 @@ MarkerDrawData MarkerRenderer::getMarkerDrawData(const glm::dmat4& gTransfo, con
     };
 }
 
-MarkerDrawData MarkerRenderer::getTargetDrawData(const glm::dmat4& gTransfo, const AObjectNode& _node)
+MarkerDrawData MarkerRenderer::getExamineDrawData(const glm::vec3& position)
 {
-    // We already know that the data model is not convenient for defining the objects.
-    // A target is a special object described by its position and a pictogramme.
-
-    // Then, a few questions remains:
-    // (*) can a target be selected/hovered ?
-    // (*) can a target have its own color ? -> Yes via AGraphNode
-
-    MarkerSystem::RenderStyle render_style = MarkerSystem::getRenderStyle(scs::MarkerIcon::Target);
-
-    // Compose the style
-    uint32_t status = 0;
-    if (render_style.showTrueColor)
-        status |= 0x04;
+    MarkerSystem::RenderStyle marker_style = MarkerSystem::getRenderStyle(scs::MarkerIcon::Target);
+    Color32 color = { 223u, 98u, 0u, 255u };
 
     return {
-        { (float)gTransfo[3][0], (float)gTransfo[3][1], (float)gTransfo[3][2] },
-        _node.getColor().RGBA(),
+        { position.x, position.y, position.z },
+        color.RGBA(),
         INVALID_PICKING_ID,
         (uint32_t)scs::MarkerIcon::Target,
-        render_style.firstVertex,
-        render_style.vertexCount,
-        status
+        marker_style.firstVertex,
+        marker_style.vertexCount,
+        0 // not hover, not selected, dont show true color
     };
 }
 

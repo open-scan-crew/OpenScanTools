@@ -345,15 +345,15 @@ void ObjectNodeVisitor::initTextsFormat()
     }
 }
 
-bool ObjectNodeVisitor::drawCamera(const VkCommandBuffer& cmdBuffer, const SafePtr<CameraNode>& camera)
+bool ObjectNodeVisitor::drawCameraText()
 {
-    return false;
-    ReadPtr<CameraNode> rCamera = camera.cget();
-
-    if (!rCamera || rCamera->getProjectionMode() == ProjectionMode::Orthographic)
+    // Draw the text for the camera
+    //  - The camera text should only be seen in perspective mode
+    //  - The camera text is only seen by other camera
+    if (m_camera.getProjectionMode() == ProjectionMode::Orthographic)
         return false;
 
-    glm::dvec4 wsPos(rCamera->AGraphNode::getTranslation(true), 1.0);
+    glm::dvec4 wsPos(m_camera.AGraphNode::getTranslation(true), 1.0);
 
     if ((m_viewMatrix * wsPos).z > m_displayParameters.m_markerOptions.maximumDisplayDistance)
         return false;
@@ -367,7 +367,7 @@ bool ObjectNodeVisitor::drawCamera(const VkCommandBuffer& cmdBuffer, const SafeP
     if (csPos.z < 0.0f)
         return false;
 
-    std::string text = Utils::to_utf8(rCamera->Data::getName());
+    std::string text = Utils::to_utf8(m_camera.Data::getName());
     // Compute the text position and the text background
 
 
@@ -1308,7 +1308,7 @@ void ObjectNodeVisitor::bakeGraphics(const SafePtr<AGraphNode>& node, const Tran
             show_marker = (m_displayParameters.m_markerMask & SHOW_TAG_MARKER) != 0;
             break;
         case ElementType::Target:
-            target_draw_data_.emplace_back(MarkerRenderer::getTargetDrawData(transfoMat, *&rObj));
+            target_draw_data_.emplace_back(MarkerRenderer::getMarkerDrawData(transfoMat, *&rObj));
             show_marker = false;
             break;
         case ElementType::Point:
@@ -1488,16 +1488,23 @@ void ObjectNodeVisitor::bakeGraphics(const SafePtr<AGraphNode>& node, const Tran
         // m_texts.push_back(wManip->getText());
         break;
     }
+    // Currently the camera is not linked in the graph
     case AGraphNode::Type::Camera:
     {
         SafePtr<CameraNode> cam = static_pointer_cast<CameraNode>(node);
         ReadPtr<CameraNode> rCam = cam.cget();
         if (rCam->isExamineActive() && rCam->m_showExamineTarget)
-            target_draw_data_.emplace_back(rCam->getExamineTarget());
+            target_draw_data_.emplace_back(MarkerRenderer::getExamineDrawData(rCam->getExamineTargetPosition()));
         break;
     }
     default:
         break;
+    }
+
+    // Draw the pictogramme for the examine target
+    if (m_camera.isExamineActive() && m_camera.m_showExamineTarget)
+    {
+        target_draw_data_.emplace_back(MarkerRenderer::getExamineDrawData(m_camera.getExamineTargetPosition()));
     }
 }
 

@@ -574,9 +574,6 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
     // (subpass 3) - draw markers
     vkm.getDeviceFunctions()->vkCmdNextSubpass(cmdBuffer, VK_SUBPASS_CONTENTS_INLINE);
     SimpleBuffer& markerBuffer = framebuffer->drawMarkerBuffers[framebuffer->currentImage];
-    //std::vector<MarkerDrawData> targets = m_graph.getTargetFactory().generateMarkersList();
-    //if (wCamera->isExamineActive() && m_showExamineTarget)
-        //targets.push_back(wCamera->getExamineTarget());
     visitor.draw_baked_markers(cmdBuffer, m_markerRenderer, framebuffer->descSetInputDepth, markerBuffer);
 
     // (subpass 4) - ImGui

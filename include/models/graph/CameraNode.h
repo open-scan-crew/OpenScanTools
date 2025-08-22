@@ -3,7 +3,6 @@
 
 #include "models/graph/AGraphNode.h"
 #include "models/3d/NavigationTypes.h"
-#include "models/3d/MarkerDrawData.h"
 #include "models/3d/BoundingBox.h"
 #include "models/application/UserOrientation.h"
 #include "gui/IPanel.h"
@@ -13,6 +12,7 @@
 #include "models/3d/RenderingParameters.h"
 
 #include <deque>
+
 
 class ViewPointNode;
 class ScanNode;
@@ -159,7 +159,7 @@ public:
     void moveToData(const SafePtr<AGraphNode>& data);
 
     // Draw camera
-    MarkerDrawData getExamineTarget() const;
+    glm::vec3 getExamineTargetPosition() const;
 
 private:
     bool integrityCheck();

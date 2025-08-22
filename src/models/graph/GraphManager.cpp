@@ -144,19 +144,11 @@ void GraphManager::cleanProjectObjects()
 			wCam->setExaminePoint(glm::dvec3(NAN, NAN, NAN));
 	}
 
-	//m_targetMarkerFactory.freeClickMarkers();
-	//deleteClickTargets(); // not necessary in this case
-
 	// Note(aurÃ©lien) on tente le nettoyage des geometries gÃ©nÃ©rÃ©es Ã  la volÃ©.
 	VulkanManager::getInstance().waitIdle();
 	m_meshManager->cleanMemory(true);
 	//m_meshManager->cleanSimpleGeometryMemory();
 }
-
-//TargetMarkerFactory& GraphManager::getTargetFactory()
-//{
-//	return m_targetMarkerFactory;
-//}
 
 void GraphManager::deleteClickTargets()
 {
@@ -218,7 +210,6 @@ void GraphManager::onFunctionChanged(IGuiData* iGuiData, bool store)
 	}
 	if (examineData->type != ContextType::none)
 	{
-		//m_targetMarkerFactory.freeClickMarkers();
 		deleteClickTargets();
 	}
 }
@@ -235,13 +226,10 @@ void GraphManager::onClick(IGuiData* iGuiData, bool store)
 
 	if (targetData->m_reset)
 	{
-		//m_targetMarkerFactory.freeClickMarkers();
 		deleteClickTargets();
 	}
 	else if (!isnan(targetData->m_position.x))
 	{
-		//m_targetMarkerFactory.createClickTarget(glm::dvec4(targetData->m_position, 1.0), targetData->m_color);
-
 		// Create new target
 		SafePtr<TargetNode> target = make_safe<TargetNode>(targetData->m_position, targetData->m_color);
 		AGraphNode::addGeometricLink(m_root, target);

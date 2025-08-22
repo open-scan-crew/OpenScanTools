@@ -502,9 +502,9 @@ void ScantraInterface::editStationAdjustment()
         applyRegistration();
 
     // On recoit les stations une par une.
-    // Il faut rendre invisible les stations que líon ne recevra pas
-    // -> On stocke les entrÈe que líon reÁoit
-    // -> On active/dÈsactive la visibilitÈ des scan lors de la derniËre entrÈe.
+    // Il faut rendre invisible les stations que l‚Äôon ne recevra pas
+    // -> On stocke les entr√©e que l‚Äôon re√ßoit
+    // -> On active/d√©sactive la visibilit√© des scan lors de la derni√®re entr√©e.
     manageVisibility(current_entry, total_entry, scan);
 
     changeGraphicSettings();
@@ -601,7 +601,7 @@ void ScantraInterface::manageVisibility(int current_station, int total_station, 
     if (current_station == 0)
         scan_selection_.clear();
 
-    // Ajoute le scan ‡ la liste des scans ‡ rendre visibles
+    // Ajoute le scan √† la liste des scans √† rendre visibles
     scan_selection_.insert(scan);
 
     // Change visibility when we have all the scans

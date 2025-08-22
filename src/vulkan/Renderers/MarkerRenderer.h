@@ -6,7 +6,6 @@
 #include "vulkan/VkUniform.h"
 #include "pointCloudEngine/SmartBuffer.h"
 #include "models/3d/MarkerDrawData.h"
-#include "models/data/Marker.h"
 
 #include "glm/glm.hpp"
 
@@ -20,7 +19,7 @@ public:
     ~MarkerRenderer();
 
     static MarkerDrawData getMarkerDrawData(const glm::dmat4& gTransfo, const AObjectNode& _obj);
-    static MarkerDrawData getTargetDrawData(const glm::dmat4& gTransfo, const AObjectNode& _node);
+    static MarkerDrawData getExamineDrawData(const glm::vec3& position);
     // General function
     void drawMarkerData(VkCommandBuffer _cmdBuffer, SimpleBuffer drawDataBuf, uint32_t firstMarker, uint32_t markerCount, VkUniformOffset viewProjUniOffset, VkDescriptorSet depthDescSet);
 

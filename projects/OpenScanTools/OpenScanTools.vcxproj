@@ -138,6 +138,7 @@
       <SDLCheck>true</SDLCheck>
       <OpenMPSupport>true</OpenMPSupport>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -208,7 +209,7 @@ xcopy /y /q "$(SolutionDir)ext\ReCapSDK\bin\*.dll" "$(SolutionDir)build\$(Config
       <LanguageStandard>stdcpp20</LanguageStandard>
       <TreatWarningAsError>false</TreatWarningAsError>
       <SDLCheck>true</SDLCheck>
-      <AdditionalOptions>/w34800 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <OpenMPSupport>true</OpenMPSupport>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
@@ -288,6 +289,7 @@ xcopy /y /q "$(SolutionDir)ext\ReCapSDK\bin\*.dll" "$(SolutionDir)build\$(Config
       <SDLCheck>true</SDLCheck>
       <OpenMPSupport>true</OpenMPSupport>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -370,6 +372,7 @@ signtool sign /sha1 "881d9294e1fdd77049171ada940dd511b709674f" /tr "http://time.
       <SDLCheck>true</SDLCheck>
       <OpenMPSupport>true</OpenMPSupport>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -449,6 +452,7 @@ signtool sign /a /fd sha256 /tr http://timestamp.comodoca.com /td sha256 $(Solut
       <SDLCheck>true</SDLCheck>
       <OpenMPSupport>true</OpenMPSupport>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -1111,7 +1115,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\pointCloudEngine\RenderingEcoSystem.cpp" />
     <ClCompile Include="..\..\src\pointCloudEngine\RenderingEngine.cpp" />
     <ClCompile Include="..\..\src\pointCloudEngine\RenderingTypes.cpp" />
-    <ClCompile Include="..\..\src\pointCloudEngine\TargetMarkerFactory.cpp" />
     <ClCompile Include="..\..\src\pointCloudEngine\TlScanOverseer.cpp" />
     <ClCompile Include="..\..\src\pointCloudEngine\TlStreamer.cpp" />
     <ClCompile Include="..\..\src\services\MarkerSystem.cpp" />
@@ -1767,7 +1770,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\pointCloudEngine\RenderingEngine.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\ShowTypes.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\SmartBuffer.h" />
-    <ClInclude Include="..\..\include\pointCloudEngine\TargetMarkerFactory.h" />
     <ClInclude Include="..\..\include\utils\3DConnexion\3DConnexion.h" />
     <ClInclude Include="..\..\include\utils\FilesAndFoldersDefinitions.h" />
     <ClInclude Include="..\..\include\utils\QtUtils.h" />
