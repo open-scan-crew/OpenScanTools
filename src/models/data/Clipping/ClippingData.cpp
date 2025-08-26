@@ -1,6 +1,5 @@
 #include "models/data/Clipping/ClippingData.h"
 #include "controller/ControllerContext.h"
-#include "models/Types.hpp"
 
 ClippingData::ClippingData(const ClippingData& data)
 {

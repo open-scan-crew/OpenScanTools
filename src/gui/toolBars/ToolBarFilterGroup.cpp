@@ -6,6 +6,7 @@
 #include "gui/GuiData/GuiDataList.h"
 #include "models/application/Author.h"
 #include "models/application/Ids.hpp"
+#include "models/FilteredTypes.h"
 
 #include "controller/Controller.h"
 #include "models/graph/GraphManager.h"

@@ -2,9 +2,10 @@
 #define CONTEXT_ALIGN_VIEWBOX_H
 
 #include "controller/functionSystem/AContext.h"
-#include "models/graph/CameraNode.h"
 
+#include "utils/safe_ptr.h"
 
+class CameraNode;
 class TransformationModule;
 
 

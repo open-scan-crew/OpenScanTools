@@ -82,7 +82,7 @@ void PropertyElbow::informData(IGuiData *data)
 	APropertyGeneral::informData(data);
 	if (m_elbowMethods.find(data->getType()) != m_elbowMethods.end())
 	{
-		PropertyElbowMethod method = m_elbowMethods.at(data->getType());
+		GuiDataFunction method = m_elbowMethods.at(data->getType());
 		(this->*method)(data);
 	}
 }

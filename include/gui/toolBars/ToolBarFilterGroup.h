@@ -85,10 +85,6 @@ private:
 	SafePtr<UserList> m_disciplineList;
 	SafePtr<UserList> m_phaseList;
 
-	//std::vector<std::string> m_disciplineSS;
-	//std::vector<std::string> m_phaseSS;
-	//std::vector<std::string> m_usersSS;
-
 	MarkerIconSelectionDialog *m_iconSelectionDialog;
 	CalendarDialog *m_activeCalendar; 
 	DialogSearchedObjects* m_activeSearchedObjectsDialog;

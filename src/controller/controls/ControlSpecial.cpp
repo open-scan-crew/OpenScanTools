@@ -12,7 +12,7 @@
 #include "models/graph/ScanNode.h"
 #include "models/graph/ScanObjectNode.h"
 #include "models/graph/MeshObjectNode.h"
-#include "models/Types.hpp"
+#include "models/ElementType.h"
 
 #include "vulkan/MeshManager.h"
 

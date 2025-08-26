@@ -7,15 +7,16 @@
 
 #include "models/project/ProjectInfos.h"
 #include "models/application/TagTemplate.h"
-#include "models/Types.hpp"
-#include "models/graph/CameraNode.h"
+#include "models/ElementType.h"
 
 #include <filesystem>
 #include <fstream>
+#include <unordered_set>
 
 #include <QtGui/qimage.h>
 
 class AGraphNode;
+class CameraNode;
 
 namespace control::io
 {
@@ -106,10 +107,10 @@ namespace control::io
     protected:
         virtual void launchContext(Controller& controller) = 0;
     protected:
-        std::filesystem::path		                        m_filePath;
-        const std::unordered_set<ElementType>				m_types;
-        const ObjectStatusFilter			                m_filter;
-		PrimitivesExportParameters                          m_parameters;
+        std::filesystem::path                   m_filePath;
+        const std::unordered_set<ElementType>   m_types;
+        const ObjectStatusFilter                m_filter;
+        PrimitivesExportParameters              m_parameters;
     };
 
     class ItemsToDxf : public ItemsTo

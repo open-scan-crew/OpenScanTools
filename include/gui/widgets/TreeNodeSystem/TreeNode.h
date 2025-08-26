@@ -1,7 +1,10 @@
 #ifndef TREE_NODE_H
 #define TREE_NODE_H
-#include "models/Types.hpp"
+#include "models/ElementType.h"
+#include "models/TreeType.h"
 #include "utils/safe_ptr.h"
+
+#include <unordered_set>
 
 #include <QtCore/qlist.h>
 #include <QtCore/qvariant.h>

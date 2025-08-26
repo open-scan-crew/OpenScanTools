@@ -3,11 +3,12 @@
 
 #include "ui_widget_generic_properties_head.h"
 #include "gui/IDataDispatcher.h"
-#include "controller/ControllerContext.h"
 
 #include "models/graph/AObjectNode.h"
 
 class Controller;
+class ControllerContext;
+
 
 class GenericPropertiesHead : public QWidget
 {

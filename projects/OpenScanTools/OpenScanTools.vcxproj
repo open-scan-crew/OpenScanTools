@@ -1479,6 +1479,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\models\data\Piping\InsulationData.h" />
     <ClInclude Include="..\..\include\models\data\Piping\StandardRadiusData.h" />
     <ClInclude Include="..\..\include\models\data\PolylineMeasure\PolyLineTypes.h" />
+    <ClInclude Include="..\..\include\models\FilteredTypes.h" />
     <ClInclude Include="..\..\include\models\graph\AClippingNode.h" />
     <ClInclude Include="..\..\include\models\graph\AGraphNode.h" />
     <ClInclude Include="..\..\include\models\graph\AMeasureNode.h" />
@@ -1513,6 +1514,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\models\graph\ViewPointNode.h" />
     <ClInclude Include="..\..\include\models\LicenceTypes.h" />
     <ClInclude Include="..\..\include\models\pointCloud\PointCloudInstance.h" />
+    <ClInclude Include="..\..\include\models\TreeType.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\GuiRenderingTypes.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\RenderingEcoSystem.h" />
     <ClInclude Include="..\..\include\services\MarkerCategories.h" />
@@ -1758,7 +1760,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\models\impl_Types.hpp" />
     <ClInclude Include="..\..\include\models\pointCloud\PointXYZIRGB.h" />
     <ClInclude Include="..\..\include\models\project\ProjectTypes.h" />
-    <ClInclude Include="..\..\include\models\Types.hpp" />
+    <ClInclude Include="..\..\include\models\ElementType.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\FrameStats.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\RenderingLimits.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\Delaunay.h">

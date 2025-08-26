@@ -9,6 +9,7 @@
 #include "controller/controls/ControlTest.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiData3dObjects.h"
+#include "models/3d/ManipulationTypes.h"
 #include "utils/Logger.h"
 
 ShortcutSystem::ShortcutSystem(IDataDispatcher& dataDispacher, QWidget* parent)

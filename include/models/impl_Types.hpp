@@ -1,7 +1,8 @@
 #ifndef IMPL_TYPES_HPP
 #define IMPL_TYPES_HPP
 
-#include "models/Types.hpp"
+#include "models/ElementType.h"
+#include "models/TreeType.h"
 
 #include <ostream>
 #include <magic_enum/magic_enum.hpp>

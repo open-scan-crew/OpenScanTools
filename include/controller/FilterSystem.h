@@ -1,7 +1,7 @@
 #ifndef FILTER_SYSTEM_CONTROLLER_H
 #define FILTER_SYSTEM_CONTROLLER_H
 
-#include "models/Types.hpp"
+#include "models/ElementType.h"
 #include "utils/Color32.hpp"
 #include "utils/safe_ptr.h"
 #include "models/data/Marker.h"

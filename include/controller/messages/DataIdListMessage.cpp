@@ -5,7 +5,7 @@ DataListMessage::DataListMessage(const std::unordered_set<SafePtr<AGraphNode>>& 
 	, m_type(ElementType::None)
 {}
 
-DataListMessage::DataListMessage(const std::unordered_set<SafePtr<AGraphNode>>& dataPtrs, const ElementType& type)
+DataListMessage::DataListMessage(const std::unordered_set<SafePtr<AGraphNode>>& dataPtrs, ElementType type)
 	: m_dataPtrs(dataPtrs)
 	, m_type(type)
 {}

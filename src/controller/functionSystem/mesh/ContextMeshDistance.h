@@ -2,11 +2,6 @@
 #define CONTEXT_MESH_DISTANCE_H
 
 #include "controller/functionSystem/ARayTracingContext.h"
-#include "models/OpenScanToolsModelEssentials.h"
-#include "models/Types.hpp"
-#include "models/3d/MeshBuffer.h"
-
-#include <unordered_set>
 
 class ContextMeshDistance : public ARayTracingContext
 {

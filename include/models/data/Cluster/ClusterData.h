@@ -1,7 +1,7 @@
 #ifndef CLUSTERDATA_H_
 #define CLUSTERDATA_H_
 
-#include "models/Types.hpp"
+#include "models/TreeType.h"
 
 class ClusterData
 {

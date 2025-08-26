@@ -4,7 +4,6 @@
 #include "controller/controls/IControl.h"
 #include "utils/safe_ptr.h"
 #include "gui/widgets/TreeNodeSystem/TreeNode.h"
-#include "models/Types.hpp"
 
 #include <list>
 

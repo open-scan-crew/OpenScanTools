@@ -4,7 +4,7 @@
 #include "ui_widget_generic_properties_feet.h"
 #include "gui/Dialog/HyperlinkAddDialog.h"
 #include "gui/IDataDispatcher.h"
-#include "models/Types.hpp"
+#include "models/ElementType.h"
 #include "models/data/Data.h"
 #include "utils/safe_ptr.h"
 

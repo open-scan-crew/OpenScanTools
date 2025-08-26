@@ -8,6 +8,7 @@
 
 #include "models/graph/AClippingNode.h"
 #include "models/application/Ids.hpp"
+#include "models/FilteredTypes.h"
 
 #include <QtWidgets/qmenu.h>
 #include <QtWidgets/qmessagebox.h>

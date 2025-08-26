@@ -2,17 +2,11 @@
 #define PROPERTY_ELBOW_H_
 
 #include "gui/widgets/APropertyGeneral.h"
+#include "models/application/List.h"
 #include "ui_Property_Elbow.h"
 
-
 class Controller;
-
 class TorusNode;
-
-class PropertyElbow;
-
-typedef void (PropertyElbow::* PropertyElbowMethod)(IGuiData*);
-
 
 class PropertyElbow : public APropertyGeneral
 {
@@ -44,7 +38,8 @@ public slots:
 
 private:
 	Ui::PropertyElbow m_ui;
-	std::unordered_map<guiDType, PropertyElbowMethod> m_elbowMethods;
+	typedef void (PropertyElbow::*GuiDataFunction)(IGuiData*);
+	std::unordered_map<guiDType, GuiDataFunction> m_elbowMethods;
 
 	SafePtr<TorusNode> m_storedTorus;
 	//double m_diameter;

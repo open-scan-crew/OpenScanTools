@@ -9,7 +9,7 @@
 
 #include <filesystem>
 
-#include "models/graph/CameraNode.h"
+class CameraNode;
 
 namespace control::project
 {

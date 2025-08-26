@@ -13,7 +13,6 @@
 
 #include <deque>
 
-
 class ViewPointNode;
 class ScanNode;
 struct UniformClippingData;

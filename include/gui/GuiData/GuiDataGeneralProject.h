@@ -3,7 +3,7 @@
 
 #include "gui/GuiData/IGuiData.h"
 
-#include "models/Types.hpp"
+#include "models/ElementType.h"
 #include "models/project/ProjectInfos.h"
 #include "models/OpenScanToolsModelEssentials.h"
 #include "controller/functionSystem/AContext.h"

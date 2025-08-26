@@ -2,7 +2,8 @@
 #define CONTROLLER_H
 
 #include "utils/safe_ptr.h"
-#include "models/Types.hpp"
+#include "models/ElementType.h"
+
 
 #include <unordered_set>
 

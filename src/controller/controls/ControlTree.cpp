@@ -6,6 +6,8 @@
 
 #include "models/graph/ClusterNode.h"
 
+#include <unordered_set>
+
 namespace control::tree
 {
 	//

@@ -4,7 +4,7 @@
 #include "ui_DialogExportPrimitives.h"
 #include "gui/Dialog/ADialog.h"
 #include "io/exports/ExportParameters.hpp"
-#include "models/Types.hpp"
+#include "models/ElementType.h"
 
 #include <unordered_set>
 

@@ -3,7 +3,7 @@
 
 #include "ui_SubProperty_Clipping.h"
 #include "gui/IDataDispatcher.h"
-#include "models/Types.hpp"
+#include "models/ElementType.h"
 #include "utils/safe_ptr.h"
 
 class Controller;

@@ -15,6 +15,7 @@
 #include "models/graph/CameraNode.h"
 #include "models/graph/TargetNode.h"
 #include "models/project/ProjectTypes.h"
+#include "models/FilteredTypes.h"
 
 #include "gui/texts/TreePanelTexts.hpp"
 
