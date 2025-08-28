@@ -67,9 +67,9 @@ PropertyBox::PropertyBox(Controller& controller, QWidget *parent, float guiScale
 	m_ui.YSizeInfield->setType(NumericType::DISTANCE);
 	m_ui.ZSizeInfield->setType(NumericType::DISTANCE);
 
-	m_ui.XOrientationInfield->setUnit(UnitType::DEG);
-	m_ui.YOrientationInfield->setUnit(UnitType::DEG);
-	m_ui.ZOrientationInfield->setUnit(UnitType::DEG);
+	m_ui.XOrientationInfield->setType(NumericType::ANGLE);
+	m_ui.YOrientationInfield->setType(NumericType::ANGLE);
+	m_ui.ZOrientationInfield->setType(NumericType::ANGLE);
 
 	m_ui.volumeLineEdit->setType(NumericType::VOLUME);
 
@@ -236,7 +236,7 @@ void PropertyBox::onOrientZEdit()
 	changeOrientation();
 }
 
-void  PropertyBox::changeCenter()
+void PropertyBox::changeCenter()
 {
 	glm::dvec3 position(m_ui.XCenterInfield->getValue(),
 						m_ui.YCenterInfield->getValue(),

@@ -254,13 +254,13 @@ bool ManipulatorNode::updateEvent(const SafePtr<ManipulatorNode>& manipNode, con
     }
 
     wManip->m_cumulatedManipData.addManipulateData(dManipData);
-    wManip->manipulateTransfo(dManipData);
     for (const SafePtr<AObjectNode>& target : wManip->m_targets)
     {
         WritePtr<AObjectNode> wTarget = target.get();
         if (wTarget)
             wTarget->manipulateTransfo(dManipData);
     }
+    wManip->m_dataDispatcher.sendControl(new control::object3DEdition::ManipulationUpdateUI(wManip->m_targets, dManipData));
 
     return true;
 }

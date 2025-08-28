@@ -1,7 +1,4 @@
 #include "models/graph/AObjectNode.h"
-#include "utils/Logger.h"
-
-#include "controller/Controller.h"
 
 AObjectNode::AObjectNode()
 	: AGraphNode()

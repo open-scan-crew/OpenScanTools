@@ -7,7 +7,7 @@
 #include "models/graph/CameraNode.h"
 #include "models/graph/CylinderNode.h"
 #include "models/graph/SphereNode.h"
-#include "models/graph/ViewPointNode.h"
+//#include "models/graph/ViewPointNode.h"
 #include "models/graph/TorusNode.h"
 #include "models/graph/APointCloudNode.h"
 #include "models/graph/ScanNode.h"
@@ -39,7 +39,6 @@
 
 #include "utils/Utils.h"
 #include "utils/Logger.h"
-#include "utils/ColorConversion.h"
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include "imgui/imgui.h"
@@ -110,7 +109,7 @@ void ObjectNodeVisitor::setCamera(const CameraNode& camera)
 //  * Les AGraphNode/AGraphObject renvoient leurs chaines de caractères pour chaque pôle.
 //  * Le filtre global est donné en paramètre à l'objet pour éviter des générations inutiles.
 //  * Le visitor/text renderer fait la mise en forme finale (index.name.id...).
-void ObjectNodeVisitor::getObjectMarkerText(const SafePtr<AObjectNode>& object, std::string& text)
+void ObjectNodeVisitor::getObjectMarkerText(const SafePtr<AObjectNode>& object, std::string& text) const
 {
     std::array<std::string, 9> parameters;
     TextFilter objectAvailableParametersDisplay = TEXT_SHOW_STANDARD_BIT;
@@ -268,12 +267,12 @@ bool ObjectNodeVisitor::drawManipulatorText()
     toDraw.wy = m_lastMI_Y + 15.f;
 
     ImVec2 dump, upLeft, botRight;
-    utils::calcTextRect(m_displayParameters, m_guiScale, toDraw.text, toDraw.wx, toDraw.wy, dump, upLeft, botRight);
+    ImGuiUtils::calcTextRect(m_displayParameters, m_guiScale, toDraw.text, toDraw.wx, toDraw.wy, dump, upLeft, botRight);
 
     toDraw.wx += (botRight.x - upLeft.x) * 0.5f;
     toDraw.wy += (botRight.y - upLeft.y) * 0.5f;
 
-    if (!utils::drawText(m_displayParameters, m_guiScale, toDraw))
+    if (!ImGuiUtils::drawText(m_displayParameters, m_guiScale, toDraw))
         return false;
     return true;
 }
@@ -286,7 +285,7 @@ void ObjectNodeVisitor::drawObjectTexts()
     }
 }
 
-bool ObjectNodeVisitor::bakeTextPosition(const glm::dmat4& transfo, float& _wx, float& _wy, bool clip_max_z)
+bool ObjectNodeVisitor::bakeTextPosition(const glm::dmat4& transfo, float& _wx, float& _wy, bool clip_max_z) const
 {
     // FIXME - Si cette fonction est géré par l'objet, alors on peut ajouter une transfo locale propre à l'objet
     glm::dvec4 csPos = m_viewProjMatrix * glm::dvec4(transfo[3][0], transfo[3][1], transfo[3][2], 1.0);
@@ -316,9 +315,9 @@ void ObjectNodeVisitor::drawBakedText(const BakedText& bakedText)
     toDraw.wy = bakedText.wy;
 
     ImVec2 dump, upLeft, botRight;
-    utils::calcTextRect(m_displayParameters, m_guiScale, toDraw.text, toDraw.wx, toDraw.wy, dump, upLeft, botRight);
+    ImGuiUtils::calcTextRect(m_displayParameters, m_guiScale, toDraw.text, toDraw.wx, toDraw.wy, dump, upLeft, botRight);
 
-    if (!utils::drawText(m_displayParameters, m_guiScale, toDraw))
+    if (!ImGuiUtils::drawText(m_displayParameters, m_guiScale, toDraw))
         return;
 
     if (upLeft.x <= m_lastMI_X && botRight.x >= m_lastMI_X && upLeft.y <= m_lastMI_Y && botRight.y >= m_lastMI_Y)
@@ -378,7 +377,7 @@ bool ObjectNodeVisitor::drawCameraText()
     toDraw.wx = wx;
     toDraw.wy = wy;
 
-    if (!utils::drawText(m_displayParameters, m_guiScale, toDraw))
+    if (!ImGuiUtils::drawText(m_displayParameters, m_guiScale, toDraw))
         return false;
 
     /*if (text != "") {
@@ -390,7 +389,7 @@ bool ObjectNodeVisitor::drawCameraText()
         ImVec2 a(textPos.x - margin.x, textPos.y - margin.y);
         ImVec2 b(textPos.x + textSize.x + margin.x, textPos.y + textSize.y + margin.y);
         ImU32 textFillColor, textTextColor;
-        utils::giveTheme(m_displayParameters, textFillColor, textTextColor);
+        ImGuiUtils::giveTheme(m_displayParameters, textFillColor, textTextColor);
 
         dl->AddRectFilled(a, b, textFillColor, 2.f);
         dl->AddText(textPos, textTextColor, text.c_str());
@@ -482,9 +481,9 @@ void ObjectNodeVisitor::drawImGuiMeasureText(const SegmentDrawData segment)
         toDraw.wy = wy;
 
         ImVec2 dump, upLeft, botRight;
-        utils::calcTextRect(m_displayParameters, m_guiScale, toDraw.text, toDraw.wx, toDraw.wy, dump, upLeft, botRight);
+        ImGuiUtils::calcTextRect(m_displayParameters, m_guiScale, toDraw.text, toDraw.wx, toDraw.wy, dump, upLeft, botRight);
 
-        if (!utils::drawText(m_displayParameters, m_guiScale, toDraw))
+        if (!ImGuiUtils::drawText(m_displayParameters, m_guiScale, toDraw))
             return;
 
         if (upLeft.x <= m_lastMI_X && botRight.x >= m_lastMI_X && upLeft.y <= m_lastMI_Y && botRight.y >= m_lastMI_Y)
@@ -503,49 +502,12 @@ void ObjectNodeVisitor::drawImGuiMeasureText(const SegmentDrawData segment)
         ImVec2 b(textPos.x + textSize.x + margin.x, textPos.y + textSize.y + margin.y);
         ImU32 textFillColor, textTextColor;
         // NOTE(robin) - try to use a special coloration for the measure texts
-        utils::giveMeasureTheme(m_displayParameters, i, textFillColor, textTextColor);
+        ImGuiUtils::giveMeasureTheme(m_displayParameters, i, textFillColor, textTextColor);
         dl->AddRectFilled(a, b, textFillColor, 2.f);
         dl->AddText(NULL, fontSize, textPos, textTextColor, number.c_str());
         if (a.x <= m_lastMI_X && b.x >= m_lastMI_X && a.y <= m_lastMI_Y && b.y >= m_lastMI_Y)
             m_textHoveredId = segment.index;
            */
-    }
-}
-
-// TODO - Make a ImGui "utility widgets" file
-inline void imgui_bigNumberLabel(const char* label, uint64_t num)
-{
-    std::string str;
-    constexpr uint64_t GG = 1000000000000000000; // 10^18
-    bool zeroPadding = false;
-    for (uint64_t d = GG; d > 0; d /= 1000)
-    {
-        uint64_t pack = num / d;
-        if (pack == 0 && d > 1 && !zeroPadding)
-            continue;
-        num = num - pack * d;
-        char buffer[8];
-        if (zeroPadding)
-            snprintf(buffer, sizeof(buffer), " %03llu", pack);
-        else
-        {
-            snprintf(buffer, sizeof(buffer), "%llu", pack);
-            zeroPadding = true;
-        }
-        str += buffer;
-    }
-
-    ImGui::LabelText(label, "%s", str.c_str());
-}
-
-void computeRampScale(int steps, std::vector<ImU32>& rampScale)
-{
-    for (int s = 0; s < steps; ++s)
-    {
-        float q = (float)s / (steps - 1);
-        float hue = (q * 2.f) / 3.f;
-        glm::vec3 rgb = utils::color::hsl2rgb(glm::vec3(hue, 1.f, 0.5f));
-        rampScale.push_back(IM_COL32(rgb.x * 255, rgb.y * 255, rgb.z * 255, 255));
     }
 }
 
@@ -696,7 +658,7 @@ void ObjectNodeVisitor::drawRampOverlay()
 
     // Color Scale
     std::vector<ImU32> rampScale;
-    computeRampScale(steps, rampScale);
+    ImGuiUtils::computeRampScale(steps, rampScale);
     float dY = (internSizeY - textSize.y) / steps;
     for (int i = 0; i < steps; ++i)
     {
@@ -729,104 +691,6 @@ float getCumulValue(void const* data, int i, int j) {
     return value;
 }
 
-void plotMultiHistogram(const std::array<FrameStats, 120>& stats)
-{
-    // CONSTANT PARAMETERS
-    // General
-    constexpr float size_y = 120.f;
-
-    // Axis
-    constexpr int axis_max_div = 6;
-    constexpr char axis_label_unit[] = "time [ms]";
-    constexpr float axis_padding = 5.f;
-
-    // Values
-    constexpr float axis_value_base = 2.f;
-
-    // Colors
-    ImColor colors[] = {
-        { 0.90f, 0.20f, 0.75f, 1.0f },  // purple
-        { 0.50f, 0.80f, 0.30f, 1.0f }, // green
-        { 0.10f, 0.60f, 0.90f, 1.0f }, // blue
-        { 0.80f, 0.00f, 0.20f, 1.0f }   // red
-    };
-
-    ImGuiContext& g = *GImGui;
-    ImGuiWindow* window = ImGui::GetCurrentWindow();
-    if (window->SkipItems)
-        return;
-    const ImGuiStyle& style = g.Style;
-
-    float maxRenderTime = 0.f;
-    for (int i = 0; i < stats.size(); ++i)
-    {
-        maxRenderTime = std::max(maxRenderTime, getCumulValue(stats.data(), i, 2));
-    }
-
-    // Dynamically adjust the axis maximum and graduation to the data
-    int axis_div = std::ceil(maxRenderTime / axis_value_base);
-    int axis_div_factor = (axis_div - 1) / axis_max_div + 1;
-    int axis_div_count = axis_div / axis_div_factor;
-    float axis_div_value = axis_value_base * axis_div_factor;
-    float axis_value_max = axis_value_base * axis_div;
-
-    float step_x = 3.f;
-    float L = stats.size() * step_x; // length of the histogram
-
-    char grad_text[16];
-    snprintf(grad_text, 16, "%.0f", axis_value_max);
-
-    // 
-    ImVec2 grad_text_size = ImGui::CalcTextSize(grad_text, NULL, true);
-
-    ImVec2 axis_size = grad_text_size + ImVec2(axis_padding, size_y);
-    ImVec2 frame_size(L, size_y);
-    ImVec2 axis_min = window->DC.CursorPos;
-    ImVec2 axis_max = axis_min + axis_size;
-    ImVec2 frame_min(axis_max.x, window->DC.CursorPos.y + grad_text_size.y / 2.f);
-    ImVec2 frame_max = frame_min + frame_size;
-
-    ImRect total_bb(axis_min, ImVec2(frame_max.x, axis_max.y));
-    ImGui::ItemSize(total_bb, style.FramePadding.y);
-
-    ImDrawList* dl = ImGui::GetWindowDrawList();
-
-    // Histogram background
-    ImGui::RenderFrame(frame_min, frame_max, ImGui::GetColorU32(ImGuiCol_FrameBg), true, 0.f);
-
-    // Draw Axis & Frame div
-    const ImU32 col_line = ImGui::GetColorU32(ImGuiCol_PlotLines);
-    for (int g = 0; g <= axis_div_count; ++g)
-    {
-        float t = g * axis_div_value;
-        float y = ImLerp(frame_max.y, frame_min.y, t / axis_value_max);
-        ImVec2 pos0(frame_min.x - 0.5f, y);
-        ImVec2 pos1(frame_max.x - 0.5f, y);
-        dl->AddLine(pos0, pos1, col_line, 1.0f);
-
-        snprintf(grad_text, 16, "%.0f", t);
-        grad_text_size = ImGui::CalcTextSize(grad_text, NULL, true);
-        ImVec2 text_pos(axis_min.x, y - grad_text_size.y / 2.0f);
-        dl->AddText(NULL, window->CalcFontSize(), text_pos, IM_COL32_WHITE, grad_text);
-    }
-
-    // Draw Histogram
-    ImVec2 zero_histo(frame_min.x, frame_max.y);
-    for (int j = 0; j < 3; ++j)
-    {
-        float t = getCumulValue(stats.data(), 0, j) / axis_value_max;
-        ImVec2 pos1 = zero_histo + ImVec2(0.0f + 0.5f, -t * frame_size.y);
-        for (int i = 1; i < stats.size(); ++i)
-        {
-            ImVec2 pos0 = pos1;
-            const FrameStats& f = stats[i];
-            t = getCumulValue(stats.data(), i, j) / axis_value_max;
-            pos1 = zero_histo + ImVec2(i * step_x + 0.5f, -t * frame_size.y);
-            dl->AddLine(pos0, pos1, colors[j], 1.0f);
-        }
-    }
-}
-
 void ObjectNodeVisitor::drawImGuiStats(VulkanViewport& viewport)
 {
     if (!viewport.m_displayRenderStats)
@@ -847,8 +711,8 @@ void ObjectNodeVisitor::drawImGuiStats(VulkanViewport& viewport)
     ImGui::Begin("Rendering Statistics [F3] CSV [F4]", NULL, windowFlags);
     ImGui::PushItemWidth(ImGui::GetFontSize() * 10);
 
-    imgui_bigNumberLabel("Total cell drawn", frameStack[frameStackIndex].cellCount);
-    imgui_bigNumberLabel("Total point drawn", frameStack[frameStackIndex].pointCount);
+    ImGuiUtils::label_big_number("Total cell drawn", frameStack[frameStackIndex].cellCount);
+    ImGuiUtils::label_big_number("Total point drawn", frameStack[frameStackIndex].pointCount);
     ImGui::LabelText("Decimation", "x%.2f", frameStack[frameStackIndex].decimation);
     int prevFSI = (frameStackIndex - 2) % frameStack.size();
     ImGui::LabelText("Last frame (ms)", "%.3f", frameStack[prevFSI].renderTime);
@@ -910,7 +774,7 @@ void ObjectNodeVisitor::drawImGuiStats(VulkanViewport& viewport)
     ImGui::PopStyleColor();
 
 
-    plotMultiHistogram(frameStack);
+    ImGuiUtils::plotMultiHistogram(frameStack);
     //ImGui::SetWindowPos(ImVec2(width() - ImGui::GetCurrentWindow()->ContentSize.x, 0), ImGuiCond_Always);
     
     ImGui::End();

@@ -306,16 +306,13 @@ enum class ControlType
 	setPointPositionEdit,
 
 	// control::objectEdition
-	setObject3DCenterEdit, 
-	addObject3DCenterEdit,
-	setObject3DSizeEdit,
-	setObject3DRotationEdit,
-	addObject3DRotationEdit,
-	setObject3DTransformationEdit,
-	addObject3DTransformationEnd,
-	addObject3DExtrudeEdit,
-	addObject3DExtrudeEditEnd,
-	setSphereRadius,
+	object3D_set_center,
+	object3D_set_size,
+	object3D_set_rotation,
+	object3D_set_transformation,
+	object3D_set_sphere_radius,
+	manipulation_end,
+	manipulation_update_ui,
 	launchManipulateContext,
 
 	// control::cylinderEdition

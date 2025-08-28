@@ -114,9 +114,9 @@ private:
     bool drawCameraText();
     void drawManipulator(VkCommandBuffer cmdBuffer, ManipulatorRenderer& renderer, const TransformationModule& transfo, const SafePtr<ManipulatorNode>& manip, double manipSize);
     bool drawManipulatorText();
-    void getObjectMarkerText(const SafePtr<AObjectNode>& object, std::string& text);
+    void getObjectMarkerText(const SafePtr<AObjectNode>& object, std::string& text) const;
     void drawObjectTexts();
-    bool bakeTextPosition(const glm::dmat4& transfo, float& wx, float& wy, bool clip_max_z);
+    bool bakeTextPosition(const glm::dmat4& transfo, float& wx, float& wy, bool clip_max_z) const;
     void drawBakedText(const BakedText& text);
     void drawMeasureTexts();
     void drawImGuiMeasureText(const SegmentDrawData segment);

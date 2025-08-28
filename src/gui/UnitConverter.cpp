@@ -15,11 +15,11 @@ static const std::unordered_map<UnitType, QString> unitTexts = {
         {UnitType::FT, QObject::tr(" ft")},
         {UnitType::INC, QObject::tr(" in")},
 
-        {UnitType::DEG, QString::fromStdString(" °")},
-        {UnitType::PX, QString::fromStdString(" px")},
+        {UnitType::DEG, QString::fromStdWString(L" °")},
+        {UnitType::PX, QString::fromStdWString(L" px")},
 
-        {UnitType::M3, QString::fromStdString(" m³")},
-        {UnitType::LITRE, QString::fromStdString(" L")}
+        {UnitType::M3, QString::fromStdWString(L" m³")},
+        {UnitType::LITRE, QString::fromStdWString(L" L")}
 
         /*{UnitType::YD_US, TEXT_UNIT_YD_US},
         {UnitType::FT_US, TEXT_UNIT_FT_US},

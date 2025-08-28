@@ -878,12 +878,12 @@ void RenderingEngine::drawOverlay(VkCommandBuffer cmdBuffer, const CameraNode& c
 
         ImVec2 textUpLeft, textBotRight, dump;
 
-        utils::calcTextRect(camera, m_guiScale, text.text, upLeft.x, botRight.y, dump, textUpLeft, textBotRight);
+        ImGuiUtils::calcTextRect(camera, m_guiScale, text.text, upLeft.x, botRight.y, dump, textUpLeft, textBotRight);
 
         text.wx = upLeft.x + (textBotRight.x - textUpLeft.x) / 2;
         text.wy = botRight.y - (textBotRight.y - textUpLeft.y);
 
-        utils::drawText(camera, m_guiScale, text);
+        ImGuiUtils::drawText(camera, m_guiScale, text);
     }
 
     ImGui::End();
@@ -961,12 +961,12 @@ void RenderingEngine::drawOverlayHD(VkCommandBuffer, const CameraNode& camera, c
 
         ImVec2 textUpLeft, textBotRight, dump;
 
-        utils::calcTextRect(camera, m_guiScale, text.text, upLeft.x, botRight.y, dump, textUpLeft, textBotRight);
+        ImGuiUtils::calcTextRect(camera, m_guiScale, text.text, upLeft.x, botRight.y, dump, textUpLeft, textBotRight);
 
         text.wx = upLeft.x + (textBotRight.x - textUpLeft.x) / 2;
         text.wy = botRight.y - (textBotRight.y - textUpLeft.y);
 
-        utils::drawText(camera, m_guiScale, text);
+        ImGuiUtils::drawText(camera, m_guiScale, text);
     }
 
     ImGui::End();
