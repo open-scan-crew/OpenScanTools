@@ -1,10 +1,10 @@
 #ifndef VIEWPOINTNODE_H_
 #define VIEWPOINTNODE_H_
 
-#include "models/graph/AObjectNode.h"
+#include "models/graph/AGraphNode.h"
 #include "models/data/ViewPoint/ViewPointData.h"
 
-class ViewPointNode : public AObjectNode, public ViewPointData
+class ViewPointNode : public AGraphNode, public ViewPointData
 {
 public:
     ViewPointNode();

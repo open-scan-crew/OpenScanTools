@@ -1,7 +1,7 @@
 #ifndef MANIPULATOR_NODE_H
 #define MANIPULATOR_NODE_H
 
-#include "models/graph/AObjectNode.h"
+#include "models/graph/AGraphNode.h"
 #include <unordered_set>
 
 class IDataDispatcher;
@@ -20,12 +20,12 @@ public:
 
 	std::shared_ptr<MeshBuffer> getActiveMeshBuffer() const;
 
-	static bool isAcceptingObjectToManip(ElementType type);
 	static double getManipSizeFactor(double factor);
 	static void setScanManipulable(bool value);
 	static std::unordered_set<ElementType> getManipulableTypes();
 
-	bool setTarget(const std::unordered_set<SafePtr<AObjectNode>>& targets);
+	bool setTargets(const std::unordered_set<SafePtr<AGraphNode>>& targets);
+	bool hasTargets() const;
 
 	void setManipulationMode(ManipulationMode mode);
 	ManipulationMode getManipulationMode() const;
@@ -63,7 +63,7 @@ protected:
 	glm::dmat4 computeTransformationMatrix();
 
 protected:
-	std::unordered_set<SafePtr<AObjectNode>>						m_targets;
+	std::unordered_set<SafePtr<AGraphNode>> m_targets;
 
 	ManipulateData	m_cumulatedManipData;
 

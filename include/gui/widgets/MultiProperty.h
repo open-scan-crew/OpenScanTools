@@ -3,18 +3,18 @@
 
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
-#include "controller/ControllerContext.h"
-#include <QtWidgets/qwidget.h>
-#include "ui_MultiProperty.h"
-#include <unordered_set>
+#include "gui/Dialog/HyperlinkAddDialog.h"
+#include "models/data/Data.h"
 #include "utils/safe_ptr.h"
 
-#include "gui/Dialog/HyperlinkAddDialog.h"
+#include "ui_MultiProperty.h"
+#include <QtWidgets/qwidget.h>
 
-#include "models/graph/AObjectNode.h"
+#include <unordered_set>
+#include <vector>
 
 class Controller;
-
+class ControllerContext;
 class AGraphNode;
 
 class MultiProperty : public QWidget, public IPanel
@@ -45,7 +45,7 @@ public slots:
 
 private:
 	Ui::multiProperty m_ui;
-	std::unordered_set<SafePtr<AObjectNode>> m_objects;
+	std::unordered_set<SafePtr<AGraphNode>> m_objects;
 	IDataDispatcher& m_dataDispatcher;
 	const ControllerContext& m_context;
 

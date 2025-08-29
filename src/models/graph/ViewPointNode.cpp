@@ -1,14 +1,14 @@
 #include "models/graph/ViewPointNode.h"
 
 ViewPointNode::ViewPointNode()
-	: AObjectNode()
+	: AGraphNode()
 	, ViewPointData()
 {
 	Data::marker_icon_ = scs::MarkerIcon::ViewPoint;
 }
 
 ViewPointNode::ViewPointNode(const ViewPointNode& node)
-	: AObjectNode(node)
+	: AGraphNode(node)
 	, ViewPointData(node)
 {
 }

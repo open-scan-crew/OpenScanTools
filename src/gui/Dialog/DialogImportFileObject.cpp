@@ -44,7 +44,7 @@ void DialogImportFileObject::setInfoFileObjects(const std::unordered_set<SafePtr
 		QString qFileName;
 		ElementType type;
 		{
-			ReadPtr<AObjectNode> readInfo = static_pointer_cast<AObjectNode>(infoPtr).cget();
+			ReadPtr<AGraphNode> readInfo = infoPtr.cget();
 			if (!readInfo)
 				continue;
 			objectName = QString::fromStdWString(readInfo->getName());

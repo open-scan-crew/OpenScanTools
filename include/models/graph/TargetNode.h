@@ -1,9 +1,9 @@
 #ifndef TARGET_NODE_H
 #define TARGET_NODE_H
 
-#include "models/graph/AObjectNode.h"
+#include "models/graph/AGraphNode.h"
 
-class TargetNode : public AObjectNode
+class TargetNode : public AGraphNode
 {
 public:
     TargetNode(const TargetNode&);

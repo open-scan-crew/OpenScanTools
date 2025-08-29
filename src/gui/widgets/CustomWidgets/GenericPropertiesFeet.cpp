@@ -1,5 +1,6 @@
 #include "gui/widgets/CustomWidgets/GenericPropertiesFeet.h"
 #include "controller/controls/ControlDataEdition.h"
+#include "models/graph/AGraphNode.h"
 #include "models/graph/ClusterNode.h"
 #include <QtWidgets/qmenu.h>
 #include "gui/Texts.hpp"
@@ -38,12 +39,12 @@ void GenericPropertiesFeet::setDataDispatcher(IDataDispatcher & dataDispatcher)
 	connect(m_hyperLinkDial, &HyperlinkAddDialog::onCreatedLink, this, &GenericPropertiesFeet::addHyperlink);
 }
 
-void GenericPropertiesFeet::setObject(const SafePtr<AObjectNode>& pData)
+void GenericPropertiesFeet::setObject(const SafePtr<AGraphNode>& pData)
 {
 	m_stored = pData;
 
 	{
-		ReadPtr<AObjectNode> object = pData.cget();
+		ReadPtr<AGraphNode> object = pData.cget();
 		if (!object)
 			return;
 
@@ -62,7 +63,7 @@ void GenericPropertiesFeet::hideEvent(QHideEvent* event)
 	m_ui.HierarchyPathInfield->blockSignals(true);
 }
 
-void GenericPropertiesFeet::setDataInformations(const SafePtr<AObjectNode>& object)
+void GenericPropertiesFeet::setDataInformations(const SafePtr<AGraphNode>& object)
 {
 
 	m_ui.DateCreatedInfield->blockSignals(true);
@@ -74,7 +75,7 @@ void GenericPropertiesFeet::setDataInformations(const SafePtr<AObjectNode>& obje
 	std::unordered_map<hLinkId, s_hyperlink> links;
 
 	{
-		ReadPtr<AObjectNode> rObject = object.cget();
+		ReadPtr<AGraphNode> rObject = object.cget();
 		if (rObject)
 		{
 			m_ui.DateCreatedInfield->setText(QString::fromStdWString(rObject->getStringTimeCreated()));
@@ -147,11 +148,11 @@ void GenericPropertiesFeet::setDataInformations(const SafePtr<AObjectNode>& obje
 	m_ui.HierarchyPathInfield->blockSignals(false);
 }
 
-void GenericPropertiesFeet::getClusterPath(std::wstring& hName, std::wstring& hPath, std::wstring& dName, std::wstring& dPath, std::wstring& pName, const SafePtr<AObjectNode>& object)
+void GenericPropertiesFeet::getClusterPath(std::wstring& hName, std::wstring& hPath, std::wstring& dName, std::wstring& dPath, std::wstring& pName, const SafePtr<AGraphNode>& object)
 {
 	TreeType dTreeType;
 	{
-		ReadPtr<AObjectNode> rObject = object.cget();
+		ReadPtr<AGraphNode> rObject = object.cget();
 		if (!rObject)
 			return;
 		dTreeType = rObject->getDefaultTreeType();

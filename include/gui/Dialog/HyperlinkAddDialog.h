@@ -6,8 +6,6 @@
 
 #include <filesystem>
 
-class AObjectNode;
-
 class HyperlinkAddDialog : public ADialog
 {
 	Q_OBJECT

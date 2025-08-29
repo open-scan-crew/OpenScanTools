@@ -3,7 +3,7 @@
 #include "vulkan/VulkanManager.h"
 
 APointCloudNode::APointCloudNode(const APointCloudNode& data)
-	: AObjectNode(data)
+	: AGraphNode(data)
 	, ScanData(data)
 {
 	// FIXME(robin) - We should get the image count from the framebuffer, it is not always 2

@@ -3,7 +3,7 @@
 #include "controller/Controller.h"
 
 AClippingNode::AClippingNode(const AClippingNode& node)
-	: AObjectNode(node)
+	: AGraphNode(node)
 	, ClippingData(node)
 {}
 
@@ -13,7 +13,7 @@ AClippingNode::AClippingNode()
 void AClippingNode::setDefaultData(const Controller& controller)
 {
 	ClippingData::setDefaultData(controller.cgetContext());
-	AObjectNode::setDefaultData(controller);
+	AGraphNode::setDefaultData(controller);
 }
 
 void AClippingNode::pushClippingGeometries(ClippingAssembly& clipAssembly, const TransformationModule& transfo) const

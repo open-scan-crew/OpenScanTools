@@ -1,5 +1,6 @@
 #include "controller/FilterSystem.h"
 #include "utils/Logger.h"
+#include "models/graph/AGraphNode.h"
 #include "models/graph/TagNode.h"
 #include "models/graph/ScanNode.h"
 #include "models/application/Author.h"
@@ -252,7 +253,7 @@ xg::Guid getAuthorId(SafePtr<Author> auth)
 	return rAuth->getId();
 }
 
-bool FilterSystem::filterAdvTag(SafePtr<AObjectNode> marker)
+bool FilterSystem::filterAdvTag(SafePtr<AGraphNode> marker)
 {
 	ReadPtr<TagNode> rTag = static_pointer_cast<TagNode>(marker).cget();
 	if (!rTag)
@@ -288,7 +289,7 @@ bool FilterSystem::filterAdvTag(SafePtr<AObjectNode> marker)
 	return (true);
 }
 
-bool FilterSystem::filterScan(SafePtr<AObjectNode> element)
+bool FilterSystem::filterScan(SafePtr<AGraphNode> element)
 {
 	ReadPtr<ScanNode> rScan = static_pointer_cast<ScanNode>(element).cget();
 	if (!rScan)
@@ -318,9 +319,9 @@ bool FilterSystem::filterScan(SafePtr<AObjectNode> element)
 	return (true);
 }
 
-bool FilterSystem::filterGeneric(SafePtr<AObjectNode> data)
+bool FilterSystem::filterGeneric(SafePtr<AGraphNode> data)
 {
-	ReadPtr<AObjectNode> rData = static_pointer_cast<AObjectNode>(data).cget();
+	ReadPtr<AGraphNode> rData = static_pointer_cast<AGraphNode>(data).cget();
 	if (!rData)
 		return false;
 
@@ -350,12 +351,12 @@ bool FilterSystem::filterGeneric(SafePtr<AObjectNode> data)
 	return (true);
 }
 
-bool FilterSystem::filter(SafePtr<AObjectNode> data)
+bool FilterSystem::filter(SafePtr<AGraphNode> data)
 {
 	assert(data);
 	ElementType type;
 	{
-		ReadPtr<AObjectNode> rData = data.cget();
+		ReadPtr<AGraphNode> rData = data.cget();
 		if (!rData)
 			return false;
 		type = rData->getType();

@@ -10,7 +10,7 @@
 #include "glm/glm.hpp"
 
 class VulkanDeviceFunctions;
-class AObjectNode;
+class AGraphNode;
 
 class MarkerRenderer
 {
@@ -18,7 +18,7 @@ public:
     MarkerRenderer();
     ~MarkerRenderer();
 
-    static MarkerDrawData getMarkerDrawData(const glm::dmat4& gTransfo, const AObjectNode& _obj);
+    static MarkerDrawData getMarkerDrawData(const glm::dmat4& gTransfo, const AGraphNode& _obj);
     static MarkerDrawData getExamineDrawData(const glm::vec3& position);
     // General function
     void drawMarkerData(VkCommandBuffer _cmdBuffer, SimpleBuffer drawDataBuf, uint32_t firstMarker, uint32_t markerCount, VkUniformOffset viewProjUniOffset, VkDescriptorSet depthDescSet);

@@ -2,12 +2,14 @@
 #define CONTEXT_EXPORT_STEP_H_
 
 #include "controller/functionSystem/AContext.h"
-#include "models/graph/AGraphNode.h"
 #include "io/exports/stepExport.h"
 #include "io/exports/ExportParameters.hpp"
+#include "models/ElementType.h"
 
 #include <filesystem>
+#include <unordered_set>
 
+class AGraphNode;
 struct Measure;
 
 class ContextExportStep : public AContext, public stepExport
@@ -21,8 +23,8 @@ public:
 	ContextState launch(Controller& controller);
 	ContextState feedMessage(IMessage* message, Controller& controller);
 
-	void addTypeDirectory(const ElementType& type);
-	void getTypeNameDirectory(const ElementType& type, ElementType& directoryType, std::wstring& directoryName);
+	void addTypeDirectory(ElementType type);
+	void getTypeNameDirectory(ElementType type, ElementType& directoryType, std::wstring& directoryName);
 	bool addPipingDirectory(const xg::Guid& pipingId, Controller& controller);
 
 	bool canAutoRelaunch() const;
@@ -30,7 +32,7 @@ public:
 
 private:
 	ContextState processError(const ErrorType& error, Controller& controller);
-	//ErrorType getFilename(const ElementType& type, std::filesystem::path& output) const;
+	//ErrorType getFilename(ElementType type, std::filesystem::path& output) const;
 
 private:
 	std::unordered_set<SafePtr<AGraphNode>>			m_listToExport;

@@ -1,11 +1,11 @@
 #ifndef COLUMN_TILT_MEASURE_NODE_H
 #define COLUMN_TILT_MEASURE_NODE_H
 
-#include "models/graph/AObjectNode.h"
+#include "models/graph/AGraphNode.h"
 #include "models/data/ColumnTiltMeasure/ColumnTiltMeasureData.h"
 
 // NOTE(robin) - Pas besoin d'hériter de AMeasureNode pour l'instant: pas de segment à afficher
-class ColumnTiltMeasureNode : public AObjectNode, public ColumnTiltMeasureData
+class ColumnTiltMeasureNode : public AGraphNode, public ColumnTiltMeasureData
 {
 public:
     ColumnTiltMeasureNode(const ColumnTiltMeasureNode& node);

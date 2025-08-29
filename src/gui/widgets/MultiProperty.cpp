@@ -1,11 +1,13 @@
 #include "gui/widgets/MultiProperty.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "controller/Controller.h"
+#include "controller/ControllerContext.h"
 #include "controller/controls/ControlDataEdition.h"
 #include "controller/controls/ControlClippingEdition.h"
 #include "controller/controls/ControlMetaControl.h"
 #include "gui/Texts.hpp"
 
+#include "models/graph/AGraphNode.h"
 #include "models/graph/AClippingNode.h"
 #include "models/application/Ids.hpp"
 #include "models/FilteredTypes.h"
@@ -13,7 +15,7 @@
 #include <QtWidgets/qmenu.h>
 #include <QtWidgets/qmessagebox.h>
 
-std::unordered_set<SafePtr<AClippingNode>> getClippingsNodes(const std::unordered_set<SafePtr<AObjectNode>>& nodes)
+std::unordered_set<SafePtr<AClippingNode>> getClippingsNodes(const std::unordered_set<SafePtr<AGraphNode>>& nodes)
 {
 	std::unordered_set<SafePtr<AClippingNode>> clipNodes;
 	for (const SafePtr<AGraphNode>& node : nodes)
@@ -113,10 +115,10 @@ void MultiProperty::informData(IGuiData* data)
 
 void MultiProperty::onMultiData(IGuiData* data)
 {
-	std::unordered_set<SafePtr<AObjectNode>> objects;
+	std::unordered_set<SafePtr<AGraphNode>> objects;
 	GuiDataMultiObjectProperties* gData = static_cast<GuiDataMultiObjectProperties*>(data);
 	for (SafePtr<AGraphNode> obj : gData->m_objects)
-		objects.insert(static_pointer_cast<AObjectNode>(obj));
+		objects.insert(static_pointer_cast<AGraphNode>(obj));
 
 	m_objects = objects;
 
@@ -170,9 +172,9 @@ void MultiProperty::clearFields()
 	bool containScan = false;
 	bool containClip = false;
 
-	for (SafePtr<AObjectNode> object : m_objects)
+	for (SafePtr<AGraphNode> object : m_objects)
 	{
-		ReadPtr<AObjectNode> rObj = object.cget();
+		ReadPtr<AGraphNode> rObj = object.cget();
 		if (!rObj)
 			continue;
 

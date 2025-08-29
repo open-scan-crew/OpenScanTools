@@ -590,10 +590,7 @@ TreeNode* ProjectTreePanel::constructColorNodes(const std::unordered_set<Element
         std::function<void(IDataDispatcher& dispatcher, std::unordered_set<SafePtr<AGraphNode>>)> onDrop =
             [color](IDataDispatcher& dispatcher, std::unordered_set<SafePtr<AGraphNode>> datas)
             {
-                std::unordered_set<SafePtr<AObjectNode>> objects;
-                for (const SafePtr<AGraphNode>& data : datas)
-                    objects.insert(static_pointer_cast<AObjectNode>(data));
-                dispatcher.sendControl(new control::dataEdition::SetColor(objects, color));
+                dispatcher.sendControl(new control::dataEdition::SetColor(datas, color));
             };
 
         TreeNode* colorStruct = constructStructNode(colorName, getChildFonction, canDrop, onDrop, ColorNodes);
@@ -748,16 +745,16 @@ void ProjectTreePanel::updateNode(TreeNode* node)
     if (data)
     {
         {
-            ReadPtr<AObjectNode> rObj = static_pointer_cast<AObjectNode>(data).cget();
-            if (!rObj)
+            ReadPtr<AGraphNode> rdata = data.cget();
+            if (!rdata)
                 return;
 
-            isVisible = rObj->isVisible();
-            type = rObj->getType();
-            color = rObj->getColor();
-            icon = rObj->getMarkerIcon();
-            name = rObj->getComposedName();
-            isSelected = rObj->isSelected();
+            isVisible = rdata->isVisible();
+            type = rdata->getType();
+            color = rdata->getColor();
+            icon = rdata->getMarkerIcon();
+            name = rdata->getComposedName();
+            isSelected = rdata->isSelected();
         }
 
         if (nodeFunctions::isMissingFile(data))

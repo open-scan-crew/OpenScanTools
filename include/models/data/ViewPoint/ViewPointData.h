@@ -9,7 +9,6 @@
 
 class ScanNode;
 class AGraphNode;
-class AObjectNode;
 class AClippingNode;
 class ViewPointNode;
 

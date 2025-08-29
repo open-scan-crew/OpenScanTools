@@ -12,7 +12,7 @@ SimpleObjectNode::SimpleObjectNode()
 
 SimpleObjectNode::~SimpleObjectNode()
 {
-	if(!m_isDead)
+	if(!is_dead_)
 		MeshManager::getInstance().removeGenericMeshInstance(m_meshId);
 }
 
@@ -23,9 +23,9 @@ GenericMeshId SimpleObjectNode::getGenericMeshId() const
 
 void SimpleObjectNode::setDead(bool isDead)
 {
-	if (!m_isDead && isDead)
+	if (!is_dead_ && isDead)
 		MeshManager::getInstance().removeGenericMeshInstance(m_meshId);
-	if (m_isDead && !isDead)
+	if (is_dead_ && !isDead)
 		addGenericMeshInstance();
 
 	AGraphNode::setDead(isDead);
@@ -52,7 +52,7 @@ std::unordered_set<ManipulationMode> SimpleObjectNode::getAcceptableManipulation
 
 MeshDrawData SimpleObjectNode::getMeshDrawData(const glm::dmat4& gTransfo) const
 {
-	MeshDrawData meshDrawData = AObjectNode::getMeshDrawData(gTransfo);
+	MeshDrawData meshDrawData = AGraphNode::getMeshDrawData(gTransfo);
 	meshDrawData.meshBuffer = MeshManager::getInstance().getGenericMesh(m_meshId);
 	return meshDrawData;
 }

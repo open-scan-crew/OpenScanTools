@@ -459,18 +459,17 @@ void ToolBarFilterGroup::updateFilterResult()
 	std::vector<SafePtr<AGraphNode>> nodes;
 	std::unordered_set<SafePtr<AGraphNode>> geoChildren = AGraphNode::getGeometricChildren_rec(m_root);
 
-	for (const SafePtr<AGraphNode>& graphNode : geoChildren)
+	for (const SafePtr<AGraphNode>& node : geoChildren)
 	{
 		{
-			ReadPtr<AGraphNode> readGraph = graphNode.cget();
-			if (!readGraph || readGraph->getGraphType() != AGraphNode::Type::Object)
+			ReadPtr<AGraphNode> readGraph = node.cget();
+			if (!readGraph || readGraph->getGraphType() != AGraphNode::Type::Default)
 				continue;
 		}
 
 		{
-			SafePtr<AObjectNode> objectNode = static_pointer_cast<AObjectNode>(graphNode);
-			if (m_filterSystem.filter(objectNode))
-				nodes.push_back(graphNode);
+			if (m_filterSystem.filter(node))
+				nodes.push_back(node);
 		}
 	}
 

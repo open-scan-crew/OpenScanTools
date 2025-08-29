@@ -1552,11 +1552,10 @@ void CameraNode::moveToData(const SafePtr<AGraphNode>& data)
     m_panoramicScan.reset();
     glm::dvec3 position;
     glm::dvec3 lookDir;
-    SafePtr<AGraphNode> object = data;
 
     ElementType type;
     {
-        ReadPtr<AGraphNode> node = object.cget();
+        ReadPtr<AGraphNode> node = data.cget();
         if (!node)
             return;
         type = node->getType();
@@ -1566,7 +1565,7 @@ void CameraNode::moveToData(const SafePtr<AGraphNode>& data)
     {
     case ElementType::Scan:
     {
-        SafePtr<ScanNode> scan = static_pointer_cast<ScanNode>(object);
+        SafePtr<ScanNode> scan = static_pointer_cast<ScanNode>(data);
         ReadPtr<ScanNode> rScan = scan.cget();
         if (rScan->getScanGuid() == tls::ScanGuid())
             return;
@@ -1578,63 +1577,58 @@ void CameraNode::moveToData(const SafePtr<AGraphNode>& data)
     }
     break;
     case ElementType::Tag:
+    case ElementType::Point:
     {
-        ReadPtr<AObjectNode> rTag = static_pointer_cast<AObjectNode>(object).cget();
-        position = rTag->getCenter();
+        ReadPtr<AGraphNode> rdata = static_pointer_cast<AGraphNode>(data).cget();
+        position = rdata->getCenter();
     }
     break;
     case ElementType::BeamBendingMeasure:
     {
-        ReadPtr<BeamBendingMeasureNode> rBbm = static_pointer_cast<BeamBendingMeasureNode>(object).cget();
+        ReadPtr<BeamBendingMeasureNode> rBbm = static_pointer_cast<BeamBendingMeasureNode>(data).cget();
         position = rBbm->getMaxBendingPos();
     }
     break;
     case ElementType::ColumnTiltMeasure:
     {
-        ReadPtr<ColumnTiltMeasureNode> rCtm = static_pointer_cast<ColumnTiltMeasureNode>(object).cget();
+        ReadPtr<ColumnTiltMeasureNode> rCtm = static_pointer_cast<ColumnTiltMeasureNode>(data).cget();
         position = rCtm->getTopPoint();
     }
     break;
     case ElementType::PipeToPipeMeasure:
     {
-        ReadPtr<PipeToPipeMeasureNode> pipim = static_pointer_cast<PipeToPipeMeasureNode>(object).cget();
+        ReadPtr<PipeToPipeMeasureNode> pipim = static_pointer_cast<PipeToPipeMeasureNode>(data).cget();
         position = pipim->getPipe1Center();
     }
     break;
     case ElementType::PipeToPlaneMeasure:
     {
-        ReadPtr<PipeToPlaneMeasureNode> piplm = static_pointer_cast<PipeToPlaneMeasureNode>(object).cget();
+        ReadPtr<PipeToPlaneMeasureNode> piplm = static_pointer_cast<PipeToPlaneMeasureNode>(data).cget();
         position = piplm->getPipeCenter();
     }
     break;
     case ElementType::PointToPipeMeasure:
     {
-        ReadPtr<PointToPipeMeasureNode> popim = static_pointer_cast<PointToPipeMeasureNode>(object).cget();
+        ReadPtr<PointToPipeMeasureNode> popim = static_pointer_cast<PointToPipeMeasureNode>(data).cget();
         position = popim->getPipeCenter();
     }
     break;
     case ElementType::PointToPlaneMeasure:
     {
-        ReadPtr<PointToPlaneMeasureNode> poplm = static_pointer_cast<PointToPlaneMeasureNode>(object).cget();
+        ReadPtr<PointToPlaneMeasureNode> poplm = static_pointer_cast<PointToPlaneMeasureNode>(data).cget();
         position = poplm->getPointOnPlane();
     }
     break;
     case ElementType::SimpleMeasure:
     {
-        ReadPtr<SimpleMeasureNode> sm = static_pointer_cast<SimpleMeasureNode>(object).cget();
+        ReadPtr<SimpleMeasureNode> sm = static_pointer_cast<SimpleMeasureNode>(data).cget();
         position = sm->getOriginPos();
     }
     break;
     case ElementType::PolylineMeasure:
     {
-        ReadPtr<PolylineMeasureNode> pm = static_pointer_cast<PolylineMeasureNode>(object).cget();
+        ReadPtr<PolylineMeasureNode> pm = static_pointer_cast<PolylineMeasureNode>(data).cget();
         position = pm->getFirstPos();
-    }
-    break;
-    case ElementType::Point:
-    {
-        ReadPtr<AObjectNode> cli = static_pointer_cast<AObjectNode>(object).cget();
-        position = cli->getCenter();
     }
     break;
     case ElementType::Torus:
@@ -1643,21 +1637,21 @@ void CameraNode::moveToData(const SafePtr<AGraphNode>& data)
     case ElementType::Box:
     case ElementType::MeshObject:
     {
-        ReadPtr<AObjectNode> cli = static_pointer_cast<AObjectNode>(object).cget();
-        position = cli->getCenter();
-        distance = glm::distance(cli->getScale(), glm::dvec3(0.0f)) * 2.0f;
+        ReadPtr<AGraphNode> rdata = static_pointer_cast<AGraphNode>(data).cget();
+        position = rdata->getCenter();
+        distance = glm::distance(rdata->getScale(), glm::dvec3(0.0f)) * 2.0f;
     }
     break;
     case ElementType::PCO:
     {
-        ReadPtr<ScanObjectNode> cli = static_pointer_cast<ScanObjectNode>(object).cget();
+        ReadPtr<ScanObjectNode> cli = static_pointer_cast<ScanObjectNode>(data).cget();
         position = cli->getCenter();
         distance = glm::distance(cli->getScale(), glm::dvec3(0.0f)) * 2.0f;
     }
     break;
     case ElementType::ViewPoint:
     {
-        SafePtr<ViewPointNode> vp = static_pointer_cast<ViewPointNode>(object);
+        SafePtr<ViewPointNode> vp = static_pointer_cast<ViewPointNode>(data);
         ReadPtr<ViewPointNode> cli = vp.cget();
         position = cli->getCenter();
         distance = 0.0f;

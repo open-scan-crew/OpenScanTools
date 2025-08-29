@@ -2,7 +2,7 @@
 #include "controller/Controller.h"
 #include "utils/Logger.h"
 
-#include "models/graph/AObjectNode.h"
+#include "models/graph/AGraphNode.h"
 #include "controller/controls/AEditionControl.hxx"
 
 #include "models/graph/GraphManager.h"
@@ -15,14 +15,14 @@ namespace control
 		** SetColor
 		*/
 
-		SetColor::SetColor(SafePtr<AObjectNode> toEditData, const Color32& newColor)
+		SetColor::SetColor(SafePtr<AGraphNode> toEditData, const Color32& newColor)
 			: ATEditionControl({ toEditData }, newColor, "SetColor", &Data::setColor, &Data::getColor)
 		{
 			m_actualize_tree_view = true;
 		}
 
-		SetColor::SetColor(const std::unordered_set<SafePtr<AObjectNode>> & toEditDatas, const Color32& newColor)
-			: ATEditionControl(toEditDatas, newColor, "SetColor", &AObjectNode::setColor, &AObjectNode::getColor)
+		SetColor::SetColor(const std::unordered_set<SafePtr<AGraphNode>> & toEditDatas, const Color32& newColor)
+			: ATEditionControl(toEditDatas, newColor, "SetColor", &AGraphNode::setColor, &AGraphNode::getColor)
 		{
 			m_actualize_tree_view = true;
 		}
@@ -40,7 +40,7 @@ namespace control
 		** SetUserId
 		*/
 
-		SetUserId::SetUserId(SafePtr<AObjectNode> toEditData, uint32_t newId)
+		SetUserId::SetUserId(SafePtr<AGraphNode> toEditData, uint32_t newId)
 			: AEditionControl()
 			, m_toEditData(toEditData)
 			, m_newId(newId)
@@ -58,7 +58,7 @@ namespace control
 			}
 
 			{
-				WritePtr<AObjectNode> doWriteData = m_toEditData.get();
+				WritePtr<AGraphNode> doWriteData = m_toEditData.get();
 				if (!doWriteData)
 				{
 					CONTROLLOG << "control::SetUserId " << actionText << " : data null" << Logger::endl;
@@ -83,7 +83,7 @@ namespace control
 		void SetUserId::doFunction(Controller& controller)
 		{
 			{
-				ReadPtr<AObjectNode> rObj = m_toEditData.cget();
+				ReadPtr<AGraphNode> rObj = m_toEditData.cget();
 				if (!rObj)
 				{
 					CONTROLLOG << "control::SetUserId do : data null" << Logger::endl;
@@ -139,13 +139,13 @@ namespace control
 		** SetDescription
 		*/
 
-		SetDescription::SetDescription(SafePtr<AObjectNode> toEditData, const std::wstring& newDesc)
-			: ATEditionControl({ toEditData }, newDesc, "SetDescription", & AObjectNode::setDescription, & AObjectNode::getDescription)
+		SetDescription::SetDescription(SafePtr<AGraphNode> toEditData, const std::wstring& newDesc)
+			: ATEditionControl({ toEditData }, newDesc, "SetDescription", & AGraphNode::setDescription, & AGraphNode::getDescription)
 		{
 		}
 
-		SetDescription::SetDescription(const std::unordered_set<SafePtr<AObjectNode>>& toEditDatas, const std::wstring& newDesc)
-			: ATEditionControl(toEditDatas, newDesc, "SetDescription", &AObjectNode::setDescription, &AObjectNode::getDescription)
+		SetDescription::SetDescription(const std::unordered_set<SafePtr<AGraphNode>>& toEditDatas, const std::wstring& newDesc)
+			: ATEditionControl(toEditDatas, newDesc, "SetDescription", &AGraphNode::setDescription, &AGraphNode::getDescription)
 		{
 		}
 
@@ -162,13 +162,13 @@ namespace control
 		** setDiscipline
 		*/
 
-		SetDiscipline::SetDiscipline(SafePtr<AObjectNode> toEditData, const std::wstring& discipline)
-			: ATEditionControl({ toEditData }, discipline, "SetDiscipline", &AObjectNode::setDiscipline, &AObjectNode::getDiscipline)
+		SetDiscipline::SetDiscipline(SafePtr<AGraphNode> toEditData, const std::wstring& discipline)
+			: ATEditionControl({ toEditData }, discipline, "SetDiscipline", &AGraphNode::setDiscipline, &AGraphNode::getDiscipline)
 		{
 		}
 
-		SetDiscipline::SetDiscipline(const std::unordered_set<SafePtr<AObjectNode>>& toEditDatas, const std::wstring& discipline)
-			: ATEditionControl(toEditDatas, discipline, "SetDiscipline", &AObjectNode::setDiscipline, &AObjectNode::getDiscipline)
+		SetDiscipline::SetDiscipline(const std::unordered_set<SafePtr<AGraphNode>>& toEditDatas, const std::wstring& discipline)
+			: ATEditionControl(toEditDatas, discipline, "SetDiscipline", &AGraphNode::setDiscipline, &AGraphNode::getDiscipline)
 		{
 		}
 
@@ -185,13 +185,13 @@ namespace control
 		** SetPhase
 		*/
 
-		SetPhase::SetPhase(SafePtr<AObjectNode> toEditData, const std::wstring& prefix)
-			: ATEditionControl({ toEditData }, prefix, "SetPhase", &AObjectNode::setPhase, &AObjectNode::getPhase)
+		SetPhase::SetPhase(SafePtr<AGraphNode> toEditData, const std::wstring& prefix)
+			: ATEditionControl({ toEditData }, prefix, "SetPhase", &AGraphNode::setPhase, &AGraphNode::getPhase)
 		{
 		}
 
-		SetPhase::SetPhase(const std::unordered_set<SafePtr<AObjectNode>>& toEditDatas, const std::wstring& prefix)
-			: ATEditionControl(toEditDatas, prefix, "SetPhase", &AObjectNode::setPhase, &AObjectNode::getPhase)
+		SetPhase::SetPhase(const std::unordered_set<SafePtr<AGraphNode>>& toEditDatas, const std::wstring& prefix)
+			: ATEditionControl(toEditDatas, prefix, "SetPhase", &AGraphNode::setPhase, &AGraphNode::getPhase)
 		{
 		}
 
@@ -207,14 +207,14 @@ namespace control
 		** SetIdentifier
 		*/
 
-		SetIdentifier::SetIdentifier(SafePtr<AObjectNode> toEditData, const std::wstring& identifer)
-			: ATEditionControl({ toEditData }, identifer, "SetIdentifier", &AObjectNode::setIdentifier, &AObjectNode::getIdentifier)
+		SetIdentifier::SetIdentifier(SafePtr<AGraphNode> toEditData, const std::wstring& identifer)
+			: ATEditionControl({ toEditData }, identifer, "SetIdentifier", &AGraphNode::setIdentifier, &AGraphNode::getIdentifier)
 		{
 			m_actualize_tree_view = true;
 		}
 
-		SetIdentifier::SetIdentifier(const std::unordered_set<SafePtr<AObjectNode>>& toEditDatas, const std::wstring& identifer)
-			: ATEditionControl(toEditDatas, identifer, "SetIdentifier", &AObjectNode::setIdentifier, &AObjectNode::getIdentifier)
+		SetIdentifier::SetIdentifier(const std::unordered_set<SafePtr<AGraphNode>>& toEditDatas, const std::wstring& identifer)
+			: ATEditionControl(toEditDatas, identifer, "SetIdentifier", &AGraphNode::setIdentifier, &AGraphNode::getIdentifier)
 		{
 			m_actualize_tree_view = true;
 		}
@@ -231,14 +231,14 @@ namespace control
 		** SetName
 		*/
 
-		SetName::SetName(SafePtr<AObjectNode> toEditData, const std::wstring& name)
-			: ATEditionControl({ toEditData }, name, "SetName", &AObjectNode::setName, &AObjectNode::getName)
+		SetName::SetName(SafePtr<AGraphNode> toEditData, const std::wstring& name)
+			: ATEditionControl({ toEditData }, name, "SetName", &AGraphNode::setName, &AGraphNode::getName)
 		{
 			m_actualize_tree_view = true;
 		}
 
-		SetName::SetName(const std::unordered_set<SafePtr<AObjectNode>>& toEditDatas, const std::wstring& name)
-			: ATEditionControl(toEditDatas, name, "SetName", &AObjectNode::setName, &AObjectNode::getName)
+		SetName::SetName(const std::unordered_set<SafePtr<AGraphNode>>& toEditDatas, const std::wstring& name)
+			: ATEditionControl(toEditDatas, name, "SetName", &AGraphNode::setName, &AGraphNode::getName)
 		{
 			m_actualize_tree_view = true;
 		}
@@ -256,8 +256,8 @@ namespace control
 		** SetHyperLinks
 		*/
 
-		SetHyperLinks::SetHyperLinks(SafePtr<AObjectNode> toEditData, const std::vector<s_hyperlink>& links)
-			: ATEditionControl({toEditData}, std::unordered_map<hLinkId, s_hyperlink>(), "SetHyperLinks", &AObjectNode::setHyperlinks, &AObjectNode::getHyperlinks)
+		SetHyperLinks::SetHyperLinks(SafePtr<AGraphNode> toEditData, const std::vector<s_hyperlink>& links)
+			: ATEditionControl({toEditData}, std::unordered_map<hLinkId, s_hyperlink>(), "SetHyperLinks", &AGraphNode::setHyperlinks, &AGraphNode::getHyperlinks)
 		{
 			std::unordered_map<hLinkId, s_hyperlink> hyperlinks;
 			for (const s_hyperlink& link : links)
@@ -270,8 +270,8 @@ namespace control
 				pair.second = hyperlinks;
 		}
 
-		SetHyperLinks::SetHyperLinks(const std::unordered_set<SafePtr<AObjectNode>>& toEditDatas, const std::vector<s_hyperlink>& links)
-			: ATEditionControl(toEditDatas, std::unordered_map<hLinkId, s_hyperlink>(), "SetHyperLinks", & AObjectNode::setHyperlinks, & AObjectNode::getHyperlinks)
+		SetHyperLinks::SetHyperLinks(const std::unordered_set<SafePtr<AGraphNode>>& toEditDatas, const std::vector<s_hyperlink>& links)
+			: ATEditionControl(toEditDatas, std::unordered_map<hLinkId, s_hyperlink>(), "SetHyperLinks", & AGraphNode::setHyperlinks, & AGraphNode::getHyperlinks)
 		{
 			std::unordered_map<hLinkId, s_hyperlink> hyperlinks;
 			for (const s_hyperlink& link : links)
@@ -297,14 +297,14 @@ namespace control
 		** addHyperlink
 		*/
 
-		addHyperlink::addHyperlink(SafePtr<AObjectNode> toEditData, const std::wstring& link, std::wstring name)
+		addHyperlink::addHyperlink(SafePtr<AGraphNode> toEditData, const std::wstring& link, std::wstring name)
 			: m_dataPtrs({ toEditData })
 			, m_link(link)
 			, m_name(name)
 		{
 		}
 
-		addHyperlink::addHyperlink(const std::unordered_set<SafePtr<AObjectNode>>& toEditDatas, const std::wstring& link, std::wstring name)
+		addHyperlink::addHyperlink(const std::unordered_set<SafePtr<AGraphNode>>& toEditDatas, const std::wstring& link, std::wstring name)
 			: m_dataPtrs(toEditDatas)
 			, m_link(link)
 			, m_name(name)
@@ -318,9 +318,9 @@ namespace control
 		void addHyperlink::doFunction(Controller& controller)
 		{
 			std::unordered_set<SafePtr<AGraphNode>> toActualize;
-			for (const SafePtr<AObjectNode>& dataPtr : m_dataPtrs)
+			for (const SafePtr<AGraphNode>& dataPtr : m_dataPtrs)
 			{
-				WritePtr<AObjectNode> writeData = dataPtr.get();
+				WritePtr<AGraphNode> writeData = dataPtr.get();
 				if (!writeData)
 				{
 					CONTROLLOG << "control::dataEdition::addHyperlink do : data null" << LOGENDL;
@@ -348,9 +348,9 @@ namespace control
 		{
 			std::unordered_set<SafePtr<AGraphNode>> toActualize;
 
-			for (std::pair<SafePtr<AObjectNode>, hLinkId> pairDataPtrLink : m_dataPtrLinks)
+			for (std::pair<SafePtr<AGraphNode>, hLinkId> pairDataPtrLink : m_dataPtrLinks)
 			{
-				WritePtr<AObjectNode> writeData = pairDataPtrLink.first.get();
+				WritePtr<AGraphNode> writeData = pairDataPtrLink.first.get();
 				if (!writeData)
 				{
 					CONTROLLOG << "control::dataEdition::addHyperlink do : data null" << LOGENDL;
@@ -375,7 +375,7 @@ namespace control
 		** removeHyperlink
 		*/
 
-		removeHyperlink::removeHyperlink(SafePtr<AObjectNode> dataPtr, hLinkId idToDel)
+		removeHyperlink::removeHyperlink(SafePtr<AGraphNode> dataPtr, hLinkId idToDel)
 			: m_dataPtr(dataPtr)
 			, m_idToDel(idToDel)
 			, m_canUndo(false)
@@ -388,7 +388,7 @@ namespace control
 
 		void removeHyperlink::doFunction(Controller& controller)
 		{
-			WritePtr<AObjectNode> writeData = m_dataPtr.get();
+			WritePtr<AGraphNode> writeData = m_dataPtr.get();
 			if (!writeData)
 			{
 				CONTROLLOG << "control::dataEdition::addHyperlink do : data null" << LOGENDL;
@@ -417,7 +417,7 @@ namespace control
 
 		void removeHyperlink::undoFunction(Controller& controller)
 		{
-			WritePtr<AObjectNode> writeData = m_dataPtr.get();
+			WritePtr<AGraphNode> writeData = m_dataPtr.get();
 			if (!writeData)
 			{
 				CONTROLLOG << "control::dataEdition::addHyperlink do : data null" << LOGENDL;

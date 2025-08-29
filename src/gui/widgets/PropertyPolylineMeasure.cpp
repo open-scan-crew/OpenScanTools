@@ -4,6 +4,7 @@
 #include "gui/Texts.hpp"
 #include "gui/UnitConverter.h"
 
+#include "models/graph/AGraphNode.h"
 #include "models/graph/PolylineMeasureNode.h"
 
 PropertyPolylineMeasure::PropertyPolylineMeasure(Controller& controller, QWidget* parent, float guiScale)
@@ -43,7 +44,7 @@ void PropertyPolylineMeasure::informData(IGuiData* data)
 	}
 }
 
-bool PropertyPolylineMeasure::actualizeProperty(SafePtr<AGraphNode> object )
+bool PropertyPolylineMeasure::actualizeProperty(SafePtr<AGraphNode> object)
 {
 	if (object)
 		m_measure = static_pointer_cast<PolylineMeasureNode>(object);

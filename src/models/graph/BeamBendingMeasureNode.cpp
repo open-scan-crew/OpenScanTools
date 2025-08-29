@@ -2,7 +2,7 @@
 #include "gui/texts/DefaultNameTexts.hpp"
 
 BeamBendingMeasureNode::BeamBendingMeasureNode(const BeamBendingMeasureNode& node)
-	: AObjectNode(node)
+	: AGraphNode(node)
 	, BeamBendingMeasureData(node)
 {
 	assert(m_geometricParent);

@@ -225,7 +225,7 @@ namespace control::viewpoint
 
         for (const SafePtr<AGraphNode>& object : graphManager.getProjectNodes())
         {
-            WritePtr<AObjectNode> writeObject = static_pointer_cast<AObjectNode>(object).get();
+            WritePtr<AGraphNode> writeObject = object.get();
             if (!writeObject)
                 continue;
 

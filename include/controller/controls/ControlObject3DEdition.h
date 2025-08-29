@@ -11,7 +11,6 @@
 #include "controller/messages/ManipulateMessage.h"
 
 class AGraphNode;
-class AObjectNode;
 class SphereNode;
 
 namespace control::object3DEdition
@@ -62,7 +61,7 @@ namespace control::object3DEdition
     class ManipulateObjects : public AEditionControl
     {
     public:
-        ManipulateObjects(const std::unordered_set<SafePtr<AObjectNode>>& targets, const ManipulateData& toAddTransfo, const SafePtr<ManipulatorNode>& manip);
+        ManipulateObjects(const std::unordered_set<SafePtr<AGraphNode>>& targets, const ManipulateData& toAddTransfo, const SafePtr<ManipulatorNode>& manip);
         ~ManipulateObjects() {};
         void doFunction(Controller& controller) override;
         bool canUndo() const override;
@@ -71,7 +70,7 @@ namespace control::object3DEdition
         void undoRedo(Controller& controller, const ManipulateData& manipData);
         ControlType getType() const override;
     private:
-        std::unordered_set<SafePtr<AObjectNode>> m_targets;
+        std::unordered_set<SafePtr<AGraphNode>> m_targets;
         ManipulateData m_toAddTransfo;
         SafePtr<ManipulatorNode> m_manip;
     };
@@ -79,13 +78,13 @@ namespace control::object3DEdition
     class ManipulationUpdateUI : public AControl
     {
     public:
-        ManipulationUpdateUI(const std::unordered_set<SafePtr<AObjectNode>>& objects, const ManipulateData& transfo);
+        ManipulationUpdateUI(const std::unordered_set<SafePtr<AGraphNode>>& objects, const ManipulateData& transfo);
         ~ManipulationUpdateUI() {};
         void doFunction(Controller& controller) override;
         bool canUndo() const override;
         ControlType getType() const override;
     private:
-        std::unordered_set<SafePtr<AObjectNode>> objects_;
+        std::unordered_set<SafePtr<AGraphNode>> objects_;
         ManipulateData transfo_;
     };
 

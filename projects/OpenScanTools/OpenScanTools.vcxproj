@@ -1070,7 +1070,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\models\graph\AClippingNode.cpp" />
     <ClCompile Include="..\..\src\models\graph\AGraphNode.cpp" />
     <ClCompile Include="..\..\src\models\graph\AMeasureNode.cpp" />
-    <ClCompile Include="..\..\src\models\graph\AObjectNode.cpp" />
     <ClCompile Include="..\..\src\models\graph\APointCloudNode.cpp" />
     <ClCompile Include="..\..\src\models\graph\BeamBendingMeasureNode.cpp" />
     <ClCompile Include="..\..\src\models\graph\BoxNode.cpp" />
@@ -1483,7 +1482,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\models\graph\AClippingNode.h" />
     <ClInclude Include="..\..\include\models\graph\AGraphNode.h" />
     <ClInclude Include="..\..\include\models\graph\AMeasureNode.h" />
-    <ClInclude Include="..\..\include\models\graph\AObjectNode.h" />
     <ClInclude Include="..\..\include\models\graph\APointCloudNode.h" />
     <ClInclude Include="..\..\include\models\graph\BeamBendingMeasureNode.h" />
     <ClInclude Include="..\..\include\models\graph\BoxNode.h" />

@@ -116,7 +116,7 @@ void ViewPointData::updateViewpointsObjectsValue(Controller& controller, SafePtr
 	std::unordered_map<SafePtr<AGraphNode>, Color32> scanClusterColors;
 	for (const SafePtr<AGraphNode>& object : graphManager.getNodesByTypes({ ElementType::Cluster, ElementType::Scan }))
 	{
-		ReadPtr<AObjectNode> rObject = static_pointer_cast<AObjectNode>(object).cget();
+		ReadPtr<AGraphNode> rObject = object.cget();
 		if (rObject)
 			scanClusterColors[object] = rObject->getColor();
 	}

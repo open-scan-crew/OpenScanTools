@@ -1,10 +1,10 @@
 #ifndef BEAM_BENDING_MEASURE_NODE_H
 #define BEAM_BENDING_MEASURE_NODE_H
 
-#include "models/graph/AObjectNode.h"
+#include "models/graph/AGraphNode.h"
 #include "models/data/BeamBendingMeasure/BeamBendingMeasureData.h"
 
-class BeamBendingMeasureNode : public AObjectNode, public BeamBendingMeasureData
+class BeamBendingMeasureNode : public AGraphNode, public BeamBendingMeasureData
 {
 public:
     BeamBendingMeasureNode(const BeamBendingMeasureNode& node);

@@ -59,18 +59,6 @@ void GraphManager::informData(IGuiData* data)
 	}
 }
 
-template<class NodeType>
-void updateMarker(AObjectNode* node)
-{
-	static_cast<NodeType*>(node)->updateMarker();
-}
-
-template<class NodeType>
-void updateMeasure(AObjectNode* node)
-{
-	static_cast<NodeType*>(node)->updateMeasure();
-}
-
 SafePtr<AGraphNode> GraphManager::getRoot()
 {
 	return m_root;
@@ -169,29 +157,28 @@ void GraphManager::setObjectsHovered(std::unordered_set<uint32_t>&& objectsHover
     std::unordered_set<SafePtr<AGraphNode>> nodesHovered = getNodesFromGraphicIds(objectsHovered);
     for (const SafePtr<AGraphNode>& node : nodesHovered)
     {
-        SafePtr<AObjectNode> object = static_pointer_cast<AObjectNode>(node);
-        WritePtr<AObjectNode> wObj = object.get();
-        if (!wObj)
+        WritePtr<AGraphNode> wNode = node.get();
+        if (!wNode)
             continue;
 
-        wObj->setHovered(true);
-        m_objectsHovered.insert(object);
+        wNode->setHovered(true);
+        m_objectsHovered.insert(node);
     }
 }
 
-SafePtr<AObjectNode> GraphManager::getSingleHoverObject() const
+SafePtr<AGraphNode> GraphManager::getSingleHoverObject() const
 {
     if (m_objectsHovered.size() == 1)
         return (*m_objectsHovered.begin());
     else
-        return SafePtr<AObjectNode>();
+        return SafePtr<AGraphNode>();
 }
 
 void GraphManager::resetObjectsHovered()
 {
-    for (const SafePtr<AObjectNode>& object : m_objectsHovered)
+    for (const SafePtr<AGraphNode>& object : m_objectsHovered)
     {
-        WritePtr<AObjectNode> wObj = object.get();
+        WritePtr<AGraphNode> wObj = object.get();
         if (!wObj)
             continue;
 
@@ -269,7 +256,7 @@ SafePtr<CameraNode> GraphManager::duplicateCamera(const SafePtr<CameraNode>& cam
 		return SafePtr<CameraNode>();
 }
 
-void GraphManager::detachManipulator(AObjectNode* parent)
+void GraphManager::detachManipulator(AGraphNode* parent)
 {
 	/*
 	if (parent->isGeometricChild(m_manipulator->getId()))
@@ -507,7 +494,7 @@ std::unordered_set<SafePtr<AGraphNode>> GraphManager::getUnSelectedNodes() const
 
 std::unordered_set<SafePtr<AGraphNode>> GraphManager::getProjectNodesByFilterType(ObjectStatusFilter filter) const
 {
-	return getNodesOnFilter<AGraphNode>([&filter](ReadPtr<AGraphNode>& node) {return isObjectFiltered(node, filter) && node->getGraphType() == AGraphNode::Type::Object; });
+	return getNodesOnFilter<AGraphNode>([&filter](ReadPtr<AGraphNode>& node) {return isObjectFiltered(node, filter) && node->getGraphType() == AGraphNode::Type::Default; });
 }
 
 std::unordered_set<SafePtr<AGraphNode>> GraphManager::getNodesByTypes(std::unordered_set<ElementType> types, ObjectStatusFilter filter) const
@@ -641,28 +628,20 @@ void GraphManager::replaceObjectsSelected(std::unordered_set<SafePtr<AGraphNode>
 
 	AGraphNode::cleanLinks(m_manipulatorNode);
 	m_manipulatorNode.reset();
-
-	std::unordered_set<SafePtr<AObjectNode>> toManipObject;
-	for (const SafePtr<AGraphNode>& selectData : toSelectDatas)
+	m_manipulatorNode = make_safe<ManipulatorNode>(m_dataDispatcher);
+	bool is_manipulator_empty = false;
 	{
-		{
-			ReadPtr<AGraphNode> rNode = selectData.cget();
-			if (!rNode || rNode->getGraphType() != AGraphNode::Type::Object || !ManipulatorNode::isAcceptingObjectToManip(rNode->getType()))
-				continue;
-		}
-		toManipObject.insert(static_pointer_cast<AObjectNode>(selectData));
+		WritePtr<ManipulatorNode> wManip = m_manipulatorNode.get();
+		wManip->setManipulationMode(m_manipulationMode);
+		// The ManipulatorNode sorts out itself the nodes that can be manipulated
+		wManip->setTargets(toSelectDatas);
+		is_manipulator_empty = !wManip->hasTargets();
 	}
 
-	if (!toManipObject.empty())
-	{
-		m_manipulatorNode = make_safe<ManipulatorNode>(m_dataDispatcher);
+	if (is_manipulator_empty)
+		m_manipulatorNode.reset();
+	else
 		addNodesToGraph({ m_manipulatorNode });
-		{
-			WritePtr<ManipulatorNode> wManip = m_manipulatorNode.get();
-			wManip->setTarget(toManipObject);
-			wManip->setManipulationMode(m_manipulationMode);
-		}
-	}
 }
 
 void GraphManager::getClippingAssembly(ClippingAssembly& retAssembly, bool filterActive, bool filterSelected) const

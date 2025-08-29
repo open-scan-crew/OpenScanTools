@@ -1,10 +1,10 @@
 #ifndef MESH_OBJECT_NODE_H
 #define MESH_OBJECT_NODE_H
 
-#include "models/graph/AObjectNode.h"
+#include "models/graph/AGraphNode.h"
 #include "models/data/MeshObject/MeshObjectData.h"
 
-class MeshObjectNode : public AObjectNode, public MeshObjectData
+class MeshObjectNode : public AGraphNode, public MeshObjectData
 {
 public:
 	MeshObjectNode(const MeshObjectNode& data);

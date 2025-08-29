@@ -1855,9 +1855,6 @@
     <ClCompile Include="..\..\src\models\graph\AMeasureNode.cpp">
       <Filter>src\models\graph</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\models\graph\AObjectNode.cpp">
-      <Filter>src\models\graph</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\models\graph\APointCloudNode.cpp">
       <Filter>src\models\graph</Filter>
     </ClCompile>
@@ -3774,9 +3771,6 @@
       <Filter>include\models\graph</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\models\graph\AMeasureNode.h">
-      <Filter>include\models\graph</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\models\graph\AObjectNode.h">
       <Filter>include\models\graph</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\models\graph\APointCloudNode.h">

@@ -4,7 +4,9 @@
 #include "gui/widgets/APropertyGeneral.h"
 #include "ui_Property_Scan.h"
 
+class AGraphNode;
 class APointCloudNode;
+class TransformationModule;
 
 class Controller;
 

@@ -48,9 +48,9 @@ bool ManipulatorNode::isDisplayed() const
     if (m_targets.empty())
         return false;
 
-    for (const SafePtr<AObjectNode>& target : m_targets)
+    for (const SafePtr<AGraphNode>& target : m_targets)
     {
-        ReadPtr<AObjectNode> rTarget = target.cget();
+        ReadPtr<AGraphNode> rTarget = target.cget();
         if (!rTarget || !rTarget->isVisible() || rTarget->isDead())
             continue;
         return true;
@@ -58,19 +58,16 @@ bool ManipulatorNode::isDisplayed() const
     return false;
 }
 
-bool ManipulatorNode::setTarget(const std::unordered_set<SafePtr<AObjectNode>>& targets)
+bool ManipulatorNode::setTargets(const std::unordered_set<SafePtr<AGraphNode>>& targets)
 {
-    if (targets.empty())
+    m_targets = targets;
+    if (m_targets.empty())
     {
-        m_targets.clear();
         return true;
     }
-
-    m_targets = targets;
-    
-    if (m_targets.size() == 1)
+    else if (m_targets.size() == 1)
     {
-        ReadPtr<AObjectNode> rTarget = m_targets.begin()->cget();
+        ReadPtr<AGraphNode> rTarget = m_targets.begin()->cget();
         if (rTarget && !rTarget->isAcceptingManipulatorMode(m_manipulationMode))
         {
             std::unordered_set modes(rTarget->getAcceptableManipulationModes());
@@ -91,11 +88,16 @@ bool ManipulatorNode::setTarget(const std::unordered_set<SafePtr<AObjectNode>>& 
     return true;
 }
 
+bool ManipulatorNode::hasTargets() const
+{
+    return !(m_targets.empty());
+}
+
 void ManipulatorNode::setManipulationMode(ManipulationMode mode)
 {
     if (m_targets.size() == 1)
     {
-        ReadPtr<AObjectNode> rTarget = m_targets.begin()->cget();
+        ReadPtr<AGraphNode> rTarget = m_targets.begin()->cget();
         if (rTarget && rTarget->isAcceptingManipulatorMode(mode))
             m_manipulationMode = mode;
     }
@@ -119,7 +121,7 @@ std::unordered_set<Selection> ManipulatorNode::getAcceptableSelections() const
 
     if (m_targets.size() == 1)
     {
-        ReadPtr<AObjectNode> rTarget = m_targets.begin()->cget();
+        ReadPtr<AGraphNode> rTarget = m_targets.begin()->cget();
         if (rTarget)
             acceptableSelections = rTarget->getAcceptableSelections(m_manipulationMode);
     }
@@ -186,13 +188,6 @@ std::shared_ptr<MeshBuffer> ManipulatorNode::getActiveMeshBuffer() const
     return MeshManager::getInstance().getManipMesh(m_manipulationMode);
 }
 
-bool ManipulatorNode::isAcceptingObjectToManip(ElementType type)
-{
-    if (s_manipulableTypes.find(type) != s_manipulableTypes.end())
-        return true;
-    return false;
-}
-
 Selection ManipulatorNode::getCurrentSelection() const
 {
     return m_currentSelection;
@@ -254,9 +249,9 @@ bool ManipulatorNode::updateEvent(const SafePtr<ManipulatorNode>& manipNode, con
     }
 
     wManip->m_cumulatedManipData.addManipulateData(dManipData);
-    for (const SafePtr<AObjectNode>& target : wManip->m_targets)
+    for (const SafePtr<AGraphNode>& target : wManip->m_targets)
     {
-        WritePtr<AObjectNode> wTarget = target.get();
+        WritePtr<AGraphNode> wTarget = target.get();
         if (wTarget)
             wTarget->manipulateTransfo(dManipData);
     }
@@ -659,7 +654,7 @@ void ManipulatorNode::updateTransfo()
 
     if (m_targets.size() == 1)
     {
-        ReadPtr<AObjectNode> rTarget = m_targets.begin()->cget();
+        ReadPtr<AGraphNode> rTarget = m_targets.begin()->cget();
         if (!rTarget || !rTarget->isVisible() || rTarget->isDead())
             return;
         setTransformationModule((TransformationModule)*&rTarget);
@@ -668,9 +663,9 @@ void ManipulatorNode::updateTransfo()
     {
         glm::dvec3 center(0);
         uint32_t counter(0);
-        for (const SafePtr<AObjectNode>& target : m_targets)
+        for (const SafePtr<AGraphNode>& target : m_targets)
         {
-            ReadPtr<AObjectNode> rTarget = target.cget();
+            ReadPtr<AGraphNode> rTarget = target.cget();
             if (!rTarget || !rTarget->isVisible() || rTarget->isDead())
                 continue;
             center += rTarget->getTranslation(true);

@@ -250,7 +250,7 @@ ClickInfo VulkanViewport::generateRaytracingInfos(const WritePtr<CameraNode>& wC
         QApplication::queryKeyboardModifiers().testFlag(Qt::KeyboardModifier::ControlModifier),
         wCam->getFovy(),
         wCam->getHeightAt1m(),
-        SafePtr<AObjectNode>(),
+        SafePtr<AGraphNode>(),
         nullptr,
         glm::dmat4(),
         m_lastPicking,

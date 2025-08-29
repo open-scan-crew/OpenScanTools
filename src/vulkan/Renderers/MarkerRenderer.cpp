@@ -1,7 +1,7 @@
 #include "MarkerRenderer.h"
 #include "vulkan/VulkanManager.h"
 #include "models/3d/Primitives.h"
-#include "models/graph/AObjectNode.h"
+#include "models/graph/AGraphNode.h"
 #include "models/OpenScanToolsModelEssentials.h"
 #include "services/MarkerSystem.h"
 #include "vulkan/VulkanHelperFunctions.h"
@@ -673,13 +673,13 @@ void MarkerRenderer::cleanup()
 //  }
 //}
 
-MarkerDrawData MarkerRenderer::getMarkerDrawData(const glm::dmat4& gTransfo, const AObjectNode& _obj)
+MarkerDrawData MarkerRenderer::getMarkerDrawData(const glm::dmat4& gTransfo, const AGraphNode& _obj)
 {
     // All parameters needed
     // Data::color
     // Data::icon
     // Data::selected         |
-    // AObjectNode::hovered   |-> This should be in the same class
+    // AGraphNode::hovered    |-> This should be in the same class
     // AGraphNode::graphicId  |
 
     MarkerSystem::RenderStyle render_style = MarkerSystem::getRenderStyle(_obj.getMarkerIcon());

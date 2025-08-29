@@ -137,7 +137,7 @@ const glm::vec3& BoxNode::getGridDivision() const
 
 MeshDrawData BoxNode::getGridMeshDrawData(const glm::dmat4& gTransfo)
 {
-    MeshDrawData meshDrawData = AObjectNode::getMeshDrawData(gTransfo);
+    MeshDrawData meshDrawData = AGraphNode::getMeshDrawData(gTransfo);
     updateGrid();
     meshDrawData.meshBuffer = grid_sbuf;
     return meshDrawData;

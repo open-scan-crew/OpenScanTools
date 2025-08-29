@@ -62,7 +62,7 @@ public:
     void deleteClickTargets();
 
     void setObjectsHovered(std::unordered_set<uint32_t>&& objectsHovered);
-    SafePtr<AObjectNode> getSingleHoverObject() const;
+    SafePtr<AGraphNode> getSingleHoverObject() const;
     void resetObjectsHovered();
 
 	std::unordered_set<SafePtr<AGraphNode>> getNodesFromGraphicIds(const std::unordered_set<uint32_t>& graphicIds) const;
@@ -123,7 +123,7 @@ private:
 	void onClick(IGuiData* iGuiData, bool store);
 	void onManipulationMode(IGuiData* data, bool store);
 
-	void detachManipulator(AObjectNode* parent);
+	void detachManipulator(AGraphNode* parent);
 
 	inline void registerGuiDataFunction(guiDType type, GraphManagerMethod fct);
 
@@ -140,12 +140,11 @@ private:
 	MeshManager*											m_meshManager;
 	std::unordered_map<guiDType, GraphManagerMethod>	m_methods;
 
-    std::unordered_set<SafePtr<AObjectNode>>                m_objectsHovered;
+    std::unordered_set<SafePtr<AGraphNode>>                m_objectsHovered;
 	std::unordered_set<uint32_t>							m_selectedIds;
 
 	//From Project
 	std::unordered_set<xg::Guid>							m_projectAuthorsId;
-
 };
 
 #endif //! GRAPH_MANAGER_H

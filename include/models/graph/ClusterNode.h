@@ -1,13 +1,13 @@
 #ifndef CLUSTER_NODE_H
 #define CLUSTER_NODE_H
 
-#include "models/graph/AObjectNode.h"
+#include "models/graph/AGraphNode.h"
 #include "models/data/Cluster/ClusterData.h"
 
 class GraphManager;
 class IDataDispatcher;
 
-class ClusterNode : public AObjectNode, public ClusterData
+class ClusterNode : public AGraphNode, public ClusterData
 {
 public:
 	ClusterNode(const ClusterNode& data);
@@ -23,8 +23,6 @@ public:
 
 	std::unordered_set<Selection> getAcceptableSelections(const ManipulationMode& mode) const;
 	std::unordered_set<ManipulationMode> getAcceptableManipulationModes() const;
-
-	static bool setGeometricChildren(const SafePtr<ClusterNode>& parentCluster, const std::unordered_set<SafePtr<AObjectNode>>& children);
 
 public:
 	bool m_isMasterCluster;

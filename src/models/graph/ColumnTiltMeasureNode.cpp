@@ -2,7 +2,7 @@
 #include "gui/texts/DefaultNameTexts.hpp"
 
 ColumnTiltMeasureNode::ColumnTiltMeasureNode(const ColumnTiltMeasureNode& node)
-	: AObjectNode(node)
+	: AGraphNode(node)
 	, ColumnTiltMeasureData(node)
 {
 	assert(m_geometricParent);

@@ -5,15 +5,15 @@
 #include "models/data/Data.h"
 #include "models/ElementType.h"
 
-class AObjectNode;
+class AGraphNode;
 
 namespace control::dataEdition
 {
-    class SetColor : public ATEditionControl<AObjectNode, Color32>
+    class SetColor : public ATEditionControl<AGraphNode, Color32>
     {
     public:
-        SetColor(SafePtr<AObjectNode> toEditData, const Color32& newColor);
-        SetColor(const std::unordered_set<SafePtr<AObjectNode>>& toEditDatas, const Color32& newColor);
+        SetColor(SafePtr<AGraphNode> toEditData, const Color32& newColor);
+        SetColor(const std::unordered_set<SafePtr<AGraphNode>>& toEditDatas, const Color32& newColor);
         ~SetColor();
         ControlType getType() const override;
     };
@@ -21,7 +21,7 @@ namespace control::dataEdition
     class SetUserId : public AEditionControl
     {
     public:
-        SetUserId(SafePtr<AObjectNode> toEditData, uint32_t newId);
+        SetUserId(SafePtr<AGraphNode> toEditData, uint32_t newId);
         ~SetUserId();
         bool changeId(Controller& controller, uint32_t toChangeId, std::string actionText);
         void doFunction(Controller& controller) override;
@@ -30,62 +30,62 @@ namespace control::dataEdition
         void redoFunction(Controller& controller) override;
         ControlType getType() const override;
     private:
-        SafePtr<AObjectNode> m_toEditData;
+        SafePtr<AGraphNode> m_toEditData;
         uint32_t m_oldId;
         uint32_t m_newId;
         ElementType m_type;
     };
 
-    class SetDescription : public ATEditionControl<AObjectNode, std::wstring>
+    class SetDescription : public ATEditionControl<AGraphNode, std::wstring>
     {
     public:
-        SetDescription(SafePtr<AObjectNode> toEditData, const std::wstring& newDesc);
-        SetDescription(const std::unordered_set<SafePtr<AObjectNode>>& toEditDatas, const std::wstring& newDesc);
+        SetDescription(SafePtr<AGraphNode> toEditData, const std::wstring& newDesc);
+        SetDescription(const std::unordered_set<SafePtr<AGraphNode>>& toEditDatas, const std::wstring& newDesc);
         ~SetDescription();
         ControlType getType() const override;
     };
 
-    class SetDiscipline : public ATEditionControl<AObjectNode, std::wstring>
+    class SetDiscipline : public ATEditionControl<AGraphNode, std::wstring>
     {
     public:
-        SetDiscipline(SafePtr<AObjectNode> toEditData, const std::wstring& discipline);
-        SetDiscipline(const std::unordered_set<SafePtr<AObjectNode>>& toEditDatas, const std::wstring& discipline);
+        SetDiscipline(SafePtr<AGraphNode> toEditData, const std::wstring& discipline);
+        SetDiscipline(const std::unordered_set<SafePtr<AGraphNode>>& toEditDatas, const std::wstring& discipline);
         ~SetDiscipline();
         ControlType getType() const override;
     };
 
-    class SetPhase : public ATEditionControl<AObjectNode, std::wstring>
+    class SetPhase : public ATEditionControl<AGraphNode, std::wstring>
     {
     public:
-        SetPhase(SafePtr<AObjectNode> toEditData, const std::wstring& prefix);
-        SetPhase(const std::unordered_set<SafePtr<AObjectNode>>& toEditDatas, const std::wstring& prefix);
+        SetPhase(SafePtr<AGraphNode> toEditData, const std::wstring& prefix);
+        SetPhase(const std::unordered_set<SafePtr<AGraphNode>>& toEditDatas, const std::wstring& prefix);
         ~SetPhase();
         ControlType getType() const override;
     };
 
-    class SetIdentifier : public ATEditionControl<AObjectNode, std::wstring>
+    class SetIdentifier : public ATEditionControl<AGraphNode, std::wstring>
     {
     public:
-        SetIdentifier(SafePtr<AObjectNode> toEditData, const std::wstring& identifer);
-        SetIdentifier(const std::unordered_set<SafePtr<AObjectNode>>& toEditDatas, const std::wstring& identifer);
+        SetIdentifier(SafePtr<AGraphNode> toEditData, const std::wstring& identifer);
+        SetIdentifier(const std::unordered_set<SafePtr<AGraphNode>>& toEditDatas, const std::wstring& identifer);
         ~SetIdentifier();
         ControlType getType() const override;
     };
 
-    class SetName : public ATEditionControl<AObjectNode, std::wstring>
+    class SetName : public ATEditionControl<AGraphNode, std::wstring>
     {
     public:
-        SetName(SafePtr<AObjectNode> toEditData, const std::wstring& name);
-        SetName(const std::unordered_set<SafePtr<AObjectNode>>& toEditDatas, const std::wstring& name);
+        SetName(SafePtr<AGraphNode> toEditData, const std::wstring& name);
+        SetName(const std::unordered_set<SafePtr<AGraphNode>>& toEditDatas, const std::wstring& name);
         ~SetName();
         ControlType getType() const override;
     };
 
-    class SetHyperLinks : public ATEditionControl<AObjectNode, std::unordered_map<hLinkId, s_hyperlink>>
+    class SetHyperLinks : public ATEditionControl<AGraphNode, std::unordered_map<hLinkId, s_hyperlink>>
     {
     public:
-        SetHyperLinks(SafePtr<AObjectNode> toEditData, const std::vector<s_hyperlink>& links);
-        SetHyperLinks(const std::unordered_set<SafePtr<AObjectNode>>& toEditDatas, const std::vector<s_hyperlink>& links);
+        SetHyperLinks(SafePtr<AGraphNode> toEditData, const std::vector<s_hyperlink>& links);
+        SetHyperLinks(const std::unordered_set<SafePtr<AGraphNode>>& toEditDatas, const std::vector<s_hyperlink>& links);
         ~SetHyperLinks();
         ControlType getType() const override;
     };
@@ -93,31 +93,31 @@ namespace control::dataEdition
     class addHyperlink : public AEditionControl
     {
     public:
-        addHyperlink(SafePtr<AObjectNode> toEditData, const std::wstring& link, std::wstring name);
-        addHyperlink(const std::unordered_set<SafePtr<AObjectNode>>& toEditDatas, const std::wstring& link, std::wstring name);
+        addHyperlink(SafePtr<AGraphNode> toEditData, const std::wstring& link, std::wstring name);
+        addHyperlink(const std::unordered_set<SafePtr<AGraphNode>>& toEditDatas, const std::wstring& link, std::wstring name);
         ~addHyperlink();
         void doFunction(Controller& controller) override;
         bool canUndo() const override;
         void undoFunction(Controller& controller) override;
         ControlType getType() const override;
     private:
-        const std::unordered_set<SafePtr<AObjectNode>> m_dataPtrs;
+        const std::unordered_set<SafePtr<AGraphNode>> m_dataPtrs;
         std::wstring m_link;
         std::wstring m_name;
-        std::unordered_map<SafePtr<AObjectNode>, hLinkId> m_dataPtrLinks;
+        std::unordered_map<SafePtr<AGraphNode>, hLinkId> m_dataPtrLinks;
     };
 
     class removeHyperlink : public AEditionControl
     {
     public:
-        removeHyperlink(SafePtr<AObjectNode> toEditData, hLinkId idToDel);
+        removeHyperlink(SafePtr<AGraphNode> toEditData, hLinkId idToDel);
         ~removeHyperlink();
         void doFunction(Controller& controller) override;
         bool canUndo() const override;
         void undoFunction(Controller& controller) override;
         ControlType getType() const override;
     private:
-        SafePtr<AObjectNode> m_dataPtr;
+        SafePtr<AGraphNode> m_dataPtr;
         hLinkId m_idToDel;
         std::wstring m_link;
         std::wstring m_name;

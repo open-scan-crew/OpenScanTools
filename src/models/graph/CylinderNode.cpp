@@ -28,25 +28,6 @@ CylinderNode::CylinderNode()
     Data::marker_icon_ = scs::MarkerIcon::Cylinder;
 }
 
-//FixMe (aurélien) Should be set here not in parent class
-/*
-bool CylinderNode::isAcceptingManipulatorMode(const ManipulationMode& mode) const
-{
-    if(MeshManager::SimpleObjectAcceptableManipulators.find(m_data->m_id.def.type)!= MeshManager::SimpleObjectAcceptableManipulators.end()
-        && MeshManager::SimpleObjectAcceptableManipulators.at(m_data->m_id.def.type).find(mode) != MeshManager::SimpleObjectAcceptableManipulators.at(m_data->m_id.def.type).end())
-            return MeshManager::SimpleObjectAcceptableManipulators.at(m_data->m_id.def.type).at(mode);
-    return (false);
-}
-
-std::unordered_set<Selection> CylinderNode::getAcceptableSelections(const ManipulationMode& mode) const
-{
-    if (MeshManager::SimpleObjectManipulatorSelections.find(m_data->m_id.def.type) != MeshManager::SimpleObjectManipulatorSelections.end()
-        && MeshManager::SimpleObjectManipulatorSelections.at(m_data->m_id.def.type).find(mode) != MeshManager::SimpleObjectManipulatorSelections.at(m_data->m_id.def.type).end())
-        return MeshManager::SimpleObjectManipulatorSelections.at(m_data->m_id.def.type).at(mode);
-    return {};
-}
-*/
-
 ElementType CylinderNode::getType() const
 {
     return ElementType::Cylinder;

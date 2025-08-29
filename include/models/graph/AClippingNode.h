@@ -1,11 +1,11 @@
 #ifndef A_CLIPPING_NODE_H
 #define A_CLIPPING_NODE_H
 
-#include "models/graph/AObjectNode.h"
+#include "models/graph/AGraphNode.h"
 #include "models/data/Clipping/ClippingData.h"
 #include "models/data/Clipping/ClippingGeometry.h"
 
-class AClippingNode : public AObjectNode, public ClippingData
+class AClippingNode : public AGraphNode, public ClippingData
 {
 public:
 	AClippingNode(const AClippingNode& node);

@@ -6,6 +6,7 @@
 
 #include "models/application/Author.h"
 #include "models/application/Ids.hpp"
+#include "models/graph/AGraphNode.h"
 #include "gui/texts/DefaultUserLists.hpp"
 
 GenericPropertiesHead::GenericPropertiesHead(QWidget* parent, float pixelRatio)
@@ -46,7 +47,7 @@ void GenericPropertiesHead::setControllerInfo(const Controller& controller)
     m_controllerContext = &controller.cgetContext();
 }
 
-void GenericPropertiesHead::setObject(SafePtr<AObjectNode> object)
+void GenericPropertiesHead::setObject(SafePtr<AGraphNode> object)
 {
     m_object = object;
     update();
@@ -108,7 +109,7 @@ void GenericPropertiesHead::update()
 
     //Object update
     {
-        ReadPtr<AObjectNode> rObject = m_object.cget();
+        ReadPtr<AGraphNode> rObject = m_object.cget();
         if (!rObject)
         {
             blockSignals(false);
@@ -144,7 +145,7 @@ void GenericPropertiesHead::update()
 
 }
 
-void GenericPropertiesHead::updatePhaseDiscipline(ReadPtr<AObjectNode>& rObject)
+void GenericPropertiesHead::updatePhaseDiscipline(ReadPtr<AGraphNode>& rObject)
 {
     if (!m_controllerContext)
         return;

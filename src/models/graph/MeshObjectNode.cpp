@@ -4,7 +4,7 @@
 #include "gui/texts/DefaultNameTexts.hpp"
 
 MeshObjectNode::MeshObjectNode(const MeshObjectNode& node)
-	: AObjectNode(node)
+	: AGraphNode(node)
 	, MeshObjectData(node)
 {
 
@@ -18,7 +18,7 @@ MeshObjectNode::MeshObjectNode()
 
 MeshObjectNode::~MeshObjectNode()
 {
-	if (!m_isDead)
+	if (!is_dead_)
 		MeshManager::getInstance().removeMeshInstance(m_meshId);
 }
 
@@ -34,9 +34,9 @@ TreeType MeshObjectNode::getDefaultTreeType() const
 
 void MeshObjectNode::setDead(bool isDead)
 {
-	if (!m_isDead && isDead)
+	if (!is_dead_ && isDead)
 		MeshManager::getInstance().removeMeshInstance(m_meshId);
-	if(m_isDead && !isDead)
+	if(is_dead_ && !isDead)
 		addMeshInstance();
 	AGraphNode::setDead(isDead);
 
@@ -72,7 +72,7 @@ std::unordered_set<ManipulationMode> MeshObjectNode::getAcceptableManipulationMo
 
 MeshDrawData MeshObjectNode::getMeshDrawData(const glm::dmat4& gTransfo) const
 {
-	MeshDrawData meshDrawData = AObjectNode::getMeshDrawData(gTransfo);
+	MeshDrawData meshDrawData = AGraphNode::getMeshDrawData(gTransfo);
 	meshDrawData.meshBuffer = MeshManager::getInstance().getMesh(m_meshId).m_mesh;
 	return meshDrawData;
 }

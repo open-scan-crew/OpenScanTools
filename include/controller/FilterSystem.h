@@ -14,9 +14,9 @@
 #include <crossguid/guid.hpp>
 
 class FilterSystem;
-class AObjectNode;
+class AGraphNode;
 
-typedef bool (FilterSystem::*filterMethod)(SafePtr<AObjectNode>);
+typedef bool (FilterSystem::*filterMethod)(SafePtr<AGraphNode>);
 
 class FilterSystem
 {
@@ -56,11 +56,11 @@ public:
 	bool setMaxTime(const time_t& time);
 	void invalidTimeFilter();
 
-	bool filter(SafePtr<AObjectNode> data);
+	bool filter(SafePtr<AGraphNode> data);
 
-	bool filterAdvTag(SafePtr<AObjectNode> tag);
-	bool filterScan(SafePtr<AObjectNode> scan);
-	bool filterGeneric(SafePtr<AObjectNode> data);
+	bool filterAdvTag(SafePtr<AGraphNode> tag);
+	bool filterScan(SafePtr<AGraphNode> scan);
+	bool filterGeneric(SafePtr<AGraphNode> data);
 
 private:
 	bool m_timeFilter;

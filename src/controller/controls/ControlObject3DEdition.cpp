@@ -192,7 +192,7 @@ namespace control::object3DEdition
     ** ExtrudeEnd
     */
 
-    ManipulateObjects::ManipulateObjects(const std::unordered_set<SafePtr<AObjectNode>>& targets, const ManipulateData& toAddTransfo, const SafePtr<ManipulatorNode>& manip)
+    ManipulateObjects::ManipulateObjects(const std::unordered_set<SafePtr<AGraphNode>>& targets, const ManipulateData& toAddTransfo, const SafePtr<ManipulatorNode>& manip)
         : m_targets(targets)
         , m_toAddTransfo(toAddTransfo)
         , m_manip(manip)
@@ -201,11 +201,7 @@ namespace control::object3DEdition
 
     void ManipulateObjects::doFunction(Controller& controller)
     {
-        std::unordered_set<SafePtr<AGraphNode>> toActualize;
-        for (const SafePtr<AObjectNode>& target : m_targets)
-            toActualize.insert(target);
-
-        controller.actualizeTreeView(toActualize);
+        controller.actualizeTreeView(m_targets);
     }
 
     bool ManipulateObjects::canUndo() const
@@ -233,16 +229,11 @@ namespace control::object3DEdition
 
     void ManipulateObjects::undoRedo(Controller& controller, const ManipulateData& manipData)
     {
-        std::unordered_set<SafePtr<AGraphNode>> toActualize;
-        for (const SafePtr<AGraphNode>& object : m_targets)
-        {
-            toActualize.insert(object);
-        }
-        controller.actualizeTreeView(toActualize);
+        controller.actualizeTreeView(m_targets);
 
-        for (const SafePtr<AObjectNode>& target : m_targets)
+        for (const SafePtr<AGraphNode>& target : m_targets)
         {
-            WritePtr<AObjectNode> wTarget = target.get();
+            WritePtr<AGraphNode> wTarget = target.get();
             if (!wTarget)
                 continue;
             wTarget->manipulateTransfo(manipData);
@@ -265,7 +256,7 @@ namespace control::object3DEdition
     ** ManipulationUpdateUI
     */
 
-    ManipulationUpdateUI::ManipulationUpdateUI(const std::unordered_set<SafePtr<AObjectNode>>& objects, const ManipulateData& transfo)
+    ManipulationUpdateUI::ManipulationUpdateUI(const std::unordered_set<SafePtr<AGraphNode>>& objects, const ManipulateData& transfo)
         : objects_(objects)
         , transfo_(transfo)
     {
@@ -273,11 +264,7 @@ namespace control::object3DEdition
 
     void ManipulationUpdateUI::doFunction(Controller& controller)
     {
-        std::unordered_set<SafePtr<AGraphNode>> toActualize;
-        for (const SafePtr<AObjectNode>& target : objects_)
-            toActualize.insert(target);
-
-        controller.actualizeTreeView(toActualize);
+        controller.actualizeTreeView(objects_);
     }
 
     bool ManipulationUpdateUI::canUndo() const

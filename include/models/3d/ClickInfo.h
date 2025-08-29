@@ -19,7 +19,7 @@ struct ClickInfo
     bool ctrl;
     double fov;
     double heightAt1m;
-    SafePtr<AGraphNode> hover; // FIXME - Le AGraphNode ne peut pas être "hover". C’est une propriété du AObjectNode.
+    SafePtr<AGraphNode> hover;
     std::shared_ptr<MeshBuffer> mesh;
     glm::dmat4 meshTransfo;
     glm::dvec3 picking; // viewport picking from ClickMessage

@@ -8,7 +8,7 @@
 #include "models/data/Data.h"
 #include "utils/safe_ptr.h"
 
-class AObjectNode;
+class AGraphNode;
 
 class GenericPropertiesFeet: public QWidget
 {
@@ -17,13 +17,13 @@ public:
 	~GenericPropertiesFeet();
 
 	void setDataDispatcher(IDataDispatcher& dataDispatcher);
-	void setObject(const SafePtr<AObjectNode>& pData);
+	void setObject(const SafePtr<AGraphNode>& pData);
 	void hideEvent(QHideEvent* event) override;
 
 private:
 	void prepareUi(ElementType objectType);
-	void setDataInformations(const SafePtr<AObjectNode>& object);
-	void getClusterPath(std::wstring& hName, std::wstring& hPath, std::wstring& dName, std::wstring& dPath, std::wstring& pName, const SafePtr<AObjectNode>& object);
+	void setDataInformations(const SafePtr<AGraphNode>& object);
+	void getClusterPath(std::wstring& hName, std::wstring& hPath, std::wstring& dName, std::wstring& dPath, std::wstring& pName, const SafePtr<AGraphNode>& object);
 
 public slots:
 	void addHyperlink(std::wstring hyperlink, std::wstring name);
@@ -32,7 +32,7 @@ public slots:
 
 private:
 	Ui::WidgetGenericPropertiesFeet m_ui;
-	SafePtr<AObjectNode>			m_stored;
+	SafePtr<AGraphNode>			m_stored;
 	HyperlinkAddDialog*				m_hyperLinkDial;
 	IDataDispatcher*				m_dataDispatcher;
 };

@@ -3,7 +3,7 @@
 #include "gui/texts/DefaultNameTexts.hpp"
 
 ClusterNode::ClusterNode(const ClusterNode& node)
-	: AObjectNode(node)
+	: AGraphNode(node)
 	, ClusterData(node)
 	, m_isMasterCluster(false)
 {
@@ -91,32 +91,4 @@ std::unordered_set<Selection> ClusterNode::getAcceptableSelections(const Manipul
 std::unordered_set<ManipulationMode> ClusterNode::getAcceptableManipulationModes() const
 {
 	return { ManipulationMode::Translation, ManipulationMode::Rotation };
-}
-
-bool ClusterNode::setGeometricChildren(const SafePtr<ClusterNode>& parentCluster, const std::unordered_set<SafePtr<AObjectNode>>& children)
-{
-	glm::dvec3 centers(0);
-	uint32_t counter(0);
-	std::unordered_set<SafePtr<AObjectNode>> newChildren;
-	for (const SafePtr<AObjectNode>& child : children)
-	{
-		ReadPtr<AObjectNode> rChild = child.cget();
-		if (!rChild)
-			continue;
-		centers += rChild->getTranslation(true);
-		newChildren.insert(child);
-		counter++;
-	}
-	if (counter == 0)
-		return false;
-	{
-		WritePtr<ClusterNode> wCluster = parentCluster.get();
-		centers /= counter;
-		wCluster->setPosition(centers);
-	}
-
-	for (const SafePtr<AObjectNode>& child : newChildren)
-		AGraphNode::addGeometricLink(parentCluster, child);
-
-	return true;
 }

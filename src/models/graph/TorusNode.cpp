@@ -26,7 +26,7 @@ TorusNode::TorusNode()
 
 TorusNode::~TorusNode()
 {
-    if(!m_isDead)
+    if(!is_dead_)
         MeshManager::getInstance().removeMeshInstance(m_meshId);
 }
 
@@ -73,9 +73,9 @@ void TorusNode::pushRampGeometries(std::vector<std::shared_ptr<IClippingGeometry
 
 void TorusNode::setDead(bool isDead)
 {
-    if (!m_isDead && isDead)
+    if (!is_dead_ && isDead)
         MeshManager::getInstance().removeMeshInstance(m_meshId);
-    if (m_isDead && !isDead)
+    if (is_dead_ && !isDead)
         MeshManager::getInstance().getTorusId(m_meshId, (float)m_mainAngle, (float)m_mainRadius, (float)getAdjustedTubeRadius());
 
     AGraphNode::setDead(isDead);
@@ -113,7 +113,7 @@ MeshId TorusNode::getMeshId() const
 
 MeshDrawData TorusNode::getMeshDrawData(const glm::dmat4& gTransfo) const
 {
-    MeshDrawData meshDrawData = AObjectNode::getMeshDrawData(gTransfo);
+    MeshDrawData meshDrawData = AGraphNode::getMeshDrawData(gTransfo);
     meshDrawData.meshBuffer = MeshManager::getInstance().getMesh(m_meshId).m_mesh;
     return meshDrawData;
 }

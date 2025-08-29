@@ -38,7 +38,7 @@ void PipeToPlaneMeasureNode::getSegmentDrawData(const glm::dmat4& gTransfo, std:
             gOri,
             gFin,
             0xFF00DDFF,
-            m_graphicId,
+            graphic_id_,
             SHOW_ALL_SEGMENT));
     }
 }

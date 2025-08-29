@@ -92,7 +92,7 @@ ContextState ContextExportDxf::launch(Controller& controller)
 		{
 			case ElementType::Scan:
 				{
-					ReadPtr<AObjectNode> data = static_pointer_cast<AObjectNode>(exportPtr).cget();
+					ReadPtr<AGraphNode> data = exportPtr.cget();
 					if (!data)
 						continue;
 					text = data->getName();
@@ -101,7 +101,7 @@ ContextState ContextExportDxf::launch(Controller& controller)
 				break;
 			case ElementType::Tag: 
 				{
-					ReadPtr<AObjectNode> tag = static_pointer_cast<AObjectNode>(exportPtr).cget();
+					ReadPtr<AGraphNode> tag = exportPtr.cget();
 					if (!tag)
 						continue;
 					text = Utils::wCompleteWithZeros(tag->getUserIndex());
@@ -114,7 +114,7 @@ ContextState ContextExportDxf::launch(Controller& controller)
 				break;
 			case ElementType::Point:
 				{
-					ReadPtr<AObjectNode> data = static_pointer_cast<AObjectNode>(exportPtr).cget();
+					ReadPtr<AGraphNode> data = exportPtr.cget();
 					if (!data)
 						continue;
 					text = Utils::wCompleteWithZeros(data->getUserIndex());
@@ -177,7 +177,7 @@ ContextState ContextExportDxf::launch(Controller& controller)
 			case ElementType::SimpleMeasure:
 			case ElementType::PolylineMeasure:
 				{
-					ReadPtr<AObjectNode> obj = static_pointer_cast<AObjectNode>(exportPtr).cget();
+					ReadPtr<AGraphNode> obj = exportPtr.cget();
 					if (!obj)
 						continue;
 					text = Utils::wCompleteWithZeros(obj->getUserIndex()) + L"-" + obj->getName();

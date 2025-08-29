@@ -5,10 +5,12 @@
 #include "ui_Property_Pipe.h"
 
 #include "models/data/Piping/StandardRadiusData.h"
+#include "utils/safe_ptr.h"
+
+#include <unordered_set>
 #include <vector>
 
 class Controller;
-
 class CylinderNode;
 class TransformationModule;
 

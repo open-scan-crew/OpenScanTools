@@ -109,7 +109,7 @@ void ObjectNodeVisitor::setCamera(const CameraNode& camera)
 //  * Les AGraphNode/AGraphObject renvoient leurs chaines de caractères pour chaque pôle.
 //  * Le filtre global est donné en paramètre à l'objet pour éviter des générations inutiles.
 //  * Le visitor/text renderer fait la mise en forme finale (index.name.id...).
-void ObjectNodeVisitor::getObjectMarkerText(const SafePtr<AObjectNode>& object, std::string& text) const
+void ObjectNodeVisitor::getObjectMarkerText(const SafePtr<AGraphNode>& object, std::string& text) const
 {
     std::array<std::string, 9> parameters;
     TextFilter objectAvailableParametersDisplay = TEXT_SHOW_STANDARD_BIT;
@@ -119,7 +119,7 @@ void ObjectNodeVisitor::getObjectMarkerText(const SafePtr<AObjectNode>& object, 
     SafePtr<Author> author;
 
     {
-        ReadPtr<AObjectNode> rObj = object.cget();
+        ReadPtr<AGraphNode> rObj = object.cget();
         if (!rObj)
             return;
 
@@ -1095,7 +1095,6 @@ void ObjectNodeVisitor::nextGeoNode(const SafePtr<AGraphNode>& node, const Trans
     }
 
     ElementType elemType = ElementType::None;
-    AGraphNode::Type graphType = AGraphNode::Type::Object;
     bool visible = false;
     {
         ReadPtr<AGraphNode> rNode = node.cget();
@@ -1103,7 +1102,6 @@ void ObjectNodeVisitor::nextGeoNode(const SafePtr<AGraphNode>& node, const Trans
         if (!rNode)
             return;
         elemType = rNode->getType();
-        graphType = rNode->getGraphType();
         visible = rNode->isVisible();
     }
 
@@ -1145,7 +1143,7 @@ void ObjectNodeVisitor::nextGeoNode(const SafePtr<AGraphNode>& node, const Trans
 void ObjectNodeVisitor::bakeGraphics(const SafePtr<AGraphNode>& node, const TransformationModule& gTransfo)
 {
     ElementType elemType = ElementType::None;
-    AGraphNode::Type graphType = AGraphNode::Type::Object;
+    AGraphNode::Type graphType = AGraphNode::Type::Default;
     {
         ReadPtr<AGraphNode> rNode = node.cget();
         // Pratique de tester le isDisplayed() une et une seule fois pour tout les types
@@ -1160,7 +1158,7 @@ void ObjectNodeVisitor::bakeGraphics(const SafePtr<AGraphNode>& node, const Tran
     // Marker //
     {
         bool show_marker = false;
-        ReadPtr<AObjectNode> rObj = static_read_cast<AObjectNode>(node);
+        ReadPtr<AGraphNode> rObj = node.cget();
         if (!rObj)
             return;
         switch (elemType)
@@ -1309,19 +1307,14 @@ void ObjectNodeVisitor::bakeGraphics(const SafePtr<AGraphNode>& node, const Tran
     {
     case AGraphNode::Type::Default:
     {
-        break;
-    }
-    case AGraphNode::Type::Object:
-    {
         if (!drawImguitext)
             break;
 
-        SafePtr<AObjectNode> obj = static_pointer_cast<AObjectNode>(node);
         bool selected = false;
         bool hovered = false;
         uint32_t graphicId = INVALID_PICKING_ID;
         {
-            ReadPtr<AObjectNode> rObj = obj.cget();
+            ReadPtr<AGraphNode> rObj = node.cget();
             if (!rObj)
                 break;
             selected = rObj->isSelected();
@@ -1333,7 +1326,7 @@ void ObjectNodeVisitor::bakeGraphics(const SafePtr<AGraphNode>& node, const Tran
             break;
 
         std::string text;
-        getObjectMarkerText(obj, text);
+        getObjectMarkerText(node, text);
         if (text == "")
             break;
         m_bakedTexts.push_back(BakedText{ text, wx, wy, selected, hovered, graphicId });

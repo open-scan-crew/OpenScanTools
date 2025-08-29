@@ -38,7 +38,7 @@ void PolylineMeasureNode::getSegmentDrawData(const glm::dmat4& gTransfo, std::ve
             gOri,
             gFin,
             0x555555AA,
-            m_graphicId,
+            graphic_id_,
             SHOW_MAIN_SEGMENT));
     }
 
@@ -49,6 +49,6 @@ void PolylineMeasureNode::getSegmentDrawData(const glm::dmat4& gTransfo, std::ve
         first,
         last,
         0x00AABBCC,
-        m_graphicId,
+        graphic_id_,
         SHOW_HORIZONTAL_SEGMENT | SHOW_VERTICAL_SEGMENT));
 }

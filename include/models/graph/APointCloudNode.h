@@ -1,12 +1,12 @@
 #ifndef APOINT_CLOUD_NODE_H
 #define APOINT_CLOUD_NODE_H
 
-#include "models/graph/AObjectNode.h"
+#include "models/graph/AGraphNode.h"
 #include "tls_def.h"
 #include "models/data/Scan/ScanData.h"
 #include "vulkan/VkUniform.h"
 
-class APointCloudNode : public AObjectNode, public ScanData
+class APointCloudNode : public AGraphNode, public ScanData
 {
 public:
 	APointCloudNode(const APointCloudNode& data);

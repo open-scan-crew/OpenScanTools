@@ -39,7 +39,7 @@ void PointToPlaneMeasureNode::getSegmentDrawData(const glm::dmat4& gTransfo, std
             gOri,
             gFin,
             0xDEAD00FF,
-            m_graphicId,
+            graphic_id_,
             SHOW_ALL_SEGMENT));
     }
 }
