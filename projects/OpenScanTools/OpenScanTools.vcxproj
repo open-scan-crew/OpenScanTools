@@ -677,7 +677,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\controller\functionSystem\ContextMeshObjectDuplication.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextViewPoint.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\FunctionManager.cpp" />
-    <ClCompile Include="..\..\src\controller\functionSystem\ABackgroundContext.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\mesh\ContextMeshDistance.cpp" />
     <ClCompile Include="..\..\src\controller\messages\CameraMessage.cpp" />
     <ClCompile Include="..\..\src\controller\messages\ClickMessage.cpp" />
@@ -1248,7 +1247,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\controller\controls\IControl.h" />
     <ClInclude Include="..\..\include\controller\FilteredFonctionnalities.h" />
     <ClInclude Include="..\..\include\controller\FilterSystem.h" />
-    <ClInclude Include="..\..\include\controller\functionSystem\ABackgroundContext.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\AContextCreateAttached.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ADuplication.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\AContextAlignView.h" />

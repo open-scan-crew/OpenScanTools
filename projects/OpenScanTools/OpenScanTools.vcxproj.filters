@@ -1210,9 +1210,6 @@
     <ClCompile Include="..\..\src\gui\viewport\QuickBarNavigation.cpp">
       <Filter>src\gui\viewport</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\controller\functionSystem\ABackgroundContext.cpp">
-      <Filter>src\controller\contexts</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarClippingParameters.cpp">
       <Filter>src\gui\toolBars</Filter>
     </ClCompile>
@@ -3400,9 +3397,6 @@
     </ClInclude>
     <ClInclude Include="..\..\include\controller\controls\ControlViewPoint.h">
       <Filter>include\controller\controls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\controller\functionSystem\ABackgroundContext.h">
-      <Filter>include\controller\contexts</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\controller\functionSystem\ContextViewPoint.h">
       <Filter>include\controller\contexts</Filter>
