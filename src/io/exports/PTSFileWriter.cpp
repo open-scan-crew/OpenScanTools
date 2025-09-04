@@ -35,7 +35,7 @@ void PTSFileWriter::insertPoint(const PointXYZIRGB& point)
 PTSFileWriter::~PTSFileWriter()
 {
     try {
-        if (m_totalPointCount == 0)
+        if (total_point_count_ == 0)
             std::filesystem::remove(m_filepath);
     }
     catch (std::exception& ex) {
@@ -67,6 +67,21 @@ bool PTSFileWriter::getWriter(const std::filesystem::path& dirPath, const std::w
     return true;
 }
 
+uint64_t PTSFileWriter::getTotalPointCount() const
+{
+    return total_point_count_;
+}
+
+uint64_t PTSFileWriter::getScanPointCount() const
+{
+    return m_scanHeader.pointCount;
+}
+
+tls::ScanHeader PTSFileWriter::getLastScanHeader() const
+{
+    return m_scanHeader;
+}
+
 FileType PTSFileWriter::getType() const
 {
     return FileType::PTS;
@@ -75,8 +90,8 @@ FileType PTSFileWriter::getType() const
 bool PTSFileWriter::appendPointCloud(const tls::ScanHeader& info, const TransformationModule& transfo)
 {
     m_scanHeader = info;
+    m_scanHeader.pointCount = 0;
     scan_transfo = transfo;
-    m_scanPointCount = 0;
 
     // FIXME - Where is the header ??
     // X Y Z (optional) r g b (optional) i
@@ -120,7 +135,7 @@ bool PTSFileWriter::mergePoints(PointXYZIRGB const* srcBuf, uint64_t srcSize, co
         insertPoint(point);
     }
 
-    m_scanPointCount += srcSize;
+    m_scanHeader.pointCount += srcSize;
     return true;
 }
 
@@ -130,7 +145,7 @@ bool PTSFileWriter::finalizePointCloud()
     {
         m_streamWriteScan.flush();
         m_streamWriteScan.close();
-        m_totalPointCount += m_scanPointCount;
+        total_point_count_ += m_scanHeader.pointCount;
         return true;
     }
     catch (std::exception& ex) {

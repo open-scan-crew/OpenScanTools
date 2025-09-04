@@ -16,11 +16,12 @@ class IScanFileWriter
 public:
     IScanFileWriter(const std::filesystem::path& filepath);
     virtual ~IScanFileWriter() {};
+
     std::filesystem::path getFilePath() const;
-    uint32_t getScanCount() const;
-    uint64_t getTotalPoints() const;
-    virtual uint64_t getScanPointCount() const;
-    virtual tls::ScanHeader getLastScanHeader() const;
+    virtual uint32_t getScanCount() const;
+    virtual uint64_t getTotalPointCount() const = 0;
+    virtual uint64_t getScanPointCount() const = 0;
+    virtual tls::ScanHeader getLastScanHeader() const = 0;
 
     virtual FileType getType() const = 0;
 
@@ -47,9 +48,6 @@ public:
 protected:
     std::filesystem::path m_filepath;
     uint32_t m_currentScanCount;
-    uint64_t m_totalPointCount;
-    uint64_t m_scanPointCount;
-    std::vector<tls::ScanHeader> out_scan_headers;
 
     glm::dvec3 post_translation_;
 };

@@ -10,8 +10,6 @@
 IScanFileWriter::IScanFileWriter(const std::filesystem::path& filepath)
     : m_filepath(filepath)
     , m_currentScanCount(0)
-    , m_totalPointCount(0)
-    , m_scanPointCount(0)
     , post_translation_(0.0, 0.0, 0.0)
 { }
 
@@ -23,23 +21,6 @@ std::filesystem::path IScanFileWriter::getFilePath() const
 uint32_t IScanFileWriter::getScanCount() const
 {
     return m_currentScanCount;
-}
-
-uint64_t IScanFileWriter::getTotalPoints() const
-{
-    return m_totalPointCount;
-}
-
-uint64_t IScanFileWriter::getScanPointCount() const
-{
-    return m_scanPointCount;
-}
-
-tls::ScanHeader IScanFileWriter::getLastScanHeader() const
-{
-    if (out_scan_headers.empty())
-        return tls::ScanHeader();
-    return out_scan_headers.back();
 }
 
 void IScanFileWriter::setPostTranslation(const glm::dvec3& translation)

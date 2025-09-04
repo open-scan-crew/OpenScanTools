@@ -329,7 +329,6 @@ void DialogExportPointCloud::refreshSourceOption()
 
     ExportClippingFilter previous_filter = (ExportClippingFilter)m_ui.comboBox_clippings->currentData().toInt();
 
-    // DO NOT CLEAR if the dialog is reopened
     m_ui.comboBox_clippings->clear();
     for (auto value : authorizedValues)
     {
@@ -357,8 +356,6 @@ void DialogExportPointCloud::refreshMethodOption()
         authorizedValues.insert(ExportClippingMethod::CLIPPING_SEPARATED);
 
     ExportClippingMethod storedMethod = (ExportClippingMethod)m_ui.comboBox_method->currentData().toInt();
-    //if (authorizedValues.find(storedMethod) == authorizedValues.end())
-    //    storedMethod = *authorizedValues.begin();
 
     // Init the type combo box
     m_ui.comboBox_method->clear();

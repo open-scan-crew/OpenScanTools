@@ -83,6 +83,21 @@ bool RcpFileWriter::getWriter(const std::filesystem::path& outPath, const std::w
     return true;
 }
 
+uint64_t RcpFileWriter::getTotalPointCount() const
+{
+    return total_point_count_;
+}
+
+uint64_t RcpFileWriter::getScanPointCount() const
+{
+    return m_scanHeader.pointCount;
+}
+
+tls::ScanHeader RcpFileWriter::getLastScanHeader() const
+{
+    return m_scanHeader;
+}
+
 FileType RcpFileWriter::getType() const
 {
     return FileType::RCP;
@@ -91,7 +106,7 @@ FileType RcpFileWriter::getType() const
 bool RcpFileWriter::appendPointCloud(const tls::ScanHeader& info, const TransformationModule& transfo)
 {
     m_scanHeader = info;
-    m_scanPointCount = 0;
+    m_scanHeader.pointCount = 0;
     // NOTE(robin) - The scan is really appended when we call finalizePointCloud() because we want to know if there is more than 0 points in the scan.
     // - The Recap API does not permit to cancel a scan with 0 points.
 
@@ -111,7 +126,7 @@ bool RcpFileWriter::addPoints(PointXYZIRGB const* src_buf, uint64_t src_size)
 
 bool RcpFileWriter::mergePoints(PointXYZIRGB const* src_buf, uint64_t src_size, const TransformationModule& src_transfo, tls::PointFormat src_format)
 {
-    m_scanPointCount += src_size;
+    m_scanHeader.pointCount += src_size;
 
     // Si on garde le choix de passer les points en coordonnées globales on ne peut pas changer leurs coordonnées après l’import.
     // Il faut soit indiquer la translation supplémentaire avant l’import, soit repasser en coordonnées local (et changer la translation du scan).
@@ -157,13 +172,14 @@ bool RcpFileWriter::finalizePointCloud()
 {
     // NOTE(robin) - This is not the exact scan point count, the processScan() can decimate the scan
     //               but we do not have this information with the scanCompletionCallback
-    if (m_scanPointCount > 0)
+    if (m_scanHeader.pointCount > 0)
     {
         RCScanMetadata scanMetadata;
 
         // Estimate for the progress bar
-        m_totalPointCount += m_scanPointCount;
-        scanMetadata.estimatedPointCount = m_scanPointCount;
+        scanMetadata.estimatedPointCount = m_scanHeader.pointCount;
+        total_point_count_ += m_scanHeader.pointCount;
+
 
         RCTransform transform;
         //RCVector3d translation(m_scanHeader.transfo.translation[0], m_scanHeader.transfo.translation[1], m_scanHeader.transfo.translation[2]);
@@ -196,7 +212,6 @@ bool RcpFileWriter::finalizePointCloud()
             m_projectImportSession->addPointsToScan(rcBuffer);
         }
         m_pointBuffers.clear();
-        m_scanPointCount = 0;
 
         m_projectImportSession->processScan(scanProgressCallback, scanCompletionCallback);
     }

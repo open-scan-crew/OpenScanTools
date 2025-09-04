@@ -15,6 +15,7 @@ public:
 
     static bool getWriter(const std::filesystem::path& dirPath, const std::wstring& fileName, std::wstring& log, IScanFileWriter** writer);
 
+    uint64_t getTotalPointCount() const override;
     uint64_t getScanPointCount() const override;
     tls::ScanHeader getLastScanHeader() const override;
 

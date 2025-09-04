@@ -16,7 +16,7 @@ E57FileWriter::~E57FileWriter()
         if (m_storedWriter)
             delete m_storedWriter;
 
-        if (m_totalPointCount == 0)
+        if (getTotalPointCount() == 0ull)
             std::filesystem::remove(m_filepath);
 
         m_imf.close();
@@ -58,6 +58,68 @@ bool E57FileWriter::getWriter(const std::filesystem::path& dirPath, const std::w
         return false;
     }
     return true;
+}
+
+uint64_t E57FileWriter::getTotalPointCount() const
+{
+    try {
+        uint64_t pointCount = 0;
+        e57::StructureNode root = m_imf.root();
+        e57::VectorNode data3D(root.get("/data3D"));
+        for (int64_t i = 0; i < data3D.childCount(); i++)
+        {
+            e57::StructureNode pointCloud(data3D.get(i));
+            e57::CompressedVectorNode points(pointCloud.get("points"));
+            pointCount += points.childCount();
+        }
+        return pointCount;
+    }
+    catch (e57::E57Exception& ex) {
+        ex.report(__FILE__, __LINE__, __FUNCTION__, std::cerr);
+        return 0;
+    }
+    catch (std::exception& ex) {
+        std::cerr << "Got an std::excetion, what=" << ex.what() << std::endl;
+        return 0;
+    }
+    catch (...) {
+        std::cerr << "Got an unknown exception" << std::endl;
+        return 0;
+    }
+}
+
+uint64_t E57FileWriter::getScanPointCount() const
+{
+    try {
+        uint64_t pointCount = 0;
+        e57::StructureNode root = m_imf.root();
+        e57::VectorNode data3D(root.get("/data3D"));
+        e57::StructureNode pointCloud(data3D.get(data3D.childCount() - 1));
+        e57::CompressedVectorNode points(pointCloud.get("points"));
+        return points.childCount();
+    }
+    catch (e57::E57Exception& ex) {
+        ex.report(__FILE__, __LINE__, __FUNCTION__, std::cerr);
+        return 0;
+    }
+    catch (std::exception& ex) {
+        std::cerr << "Got an std::excetion, what=" << ex.what() << std::endl;
+        return 0;
+    }
+    catch (...) {
+        std::cerr << "Got an unknown exception" << std::endl;
+        return 0;
+    }
+}
+
+tls::ScanHeader E57FileWriter::getLastScanHeader() const
+{
+    return m_scanHeader;
+}
+
+FileType E57FileWriter::getType() const
+{
+    return FileType::E57;
 }
 
 bool E57FileWriter::setHeader()
@@ -114,11 +176,6 @@ bool E57FileWriter::setHeader()
     return true;
 }
 
-FileType E57FileWriter::getType() const
-{
-    return FileType::E57;
-}
-
 bool E57FileWriter::appendPointCloud(const tls::ScanHeader& info, const TransformationModule& transfo)
 {
     // We can store only one writer at a time
@@ -130,7 +187,6 @@ bool E57FileWriter::appendPointCloud(const tls::ScanHeader& info, const Transfor
 
     m_scanHeader = info;
     scan_transfo = transfo;
-    m_scanPointCount = 0;
 
     e57::StructureNode root = m_imf.root();
 
@@ -256,7 +312,7 @@ bool E57FileWriter::addPoints(PointXYZIRGB const* srcBuf, uint64_t srcSize)
             m_storedWriter->cvw.write(writeSize);
             srcOffset += writeSize;
         }
-        m_scanPointCount += srcSize;
+        m_scanHeader.pointCount += srcSize;
     }
     catch (e57::E57Exception& ex) {
         ex.report(__FILE__, __LINE__, __FUNCTION__, std::cerr);
@@ -328,7 +384,7 @@ bool E57FileWriter::mergePoints(PointXYZIRGB const* srcBuf, uint64_t srcSize, co
             srcOffset += writeSize;
         }
     }
-    m_scanPointCount += srcSize;
+    m_scanHeader.pointCount += srcSize;
     return true;
 }
 
@@ -381,7 +437,6 @@ bool E57FileWriter::finalizePointCloud()
         bounds.set("zMinimum", e57::FloatNode(m_imf, m_bbox.zMin));
         bounds.set("zMaximum", e57::FloatNode(m_imf, m_bbox.zMax));
 
-        m_totalPointCount += m_scanPointCount;
         if (m_storedWriter != nullptr)
         {
             if (m_storedWriter->cvw.isOpen())

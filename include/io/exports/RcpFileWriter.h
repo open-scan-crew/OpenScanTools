@@ -21,6 +21,10 @@ public:
 
     static bool getWriter(const std::filesystem::path& filePath, const std::wstring& projectName, std::wstring& log, IScanFileWriter** writer);
 
+    uint64_t getTotalPointCount() const override;
+    uint64_t getScanPointCount() const override;
+    tls::ScanHeader getLastScanHeader() const override;
+
     FileType getType() const override;
     bool appendPointCloud(const tls::ScanHeader& header, const TransformationModule& transfo) override;
     bool addPoints(PointXYZIRGB const* src_buf, uint64_t src_size) override;
@@ -34,6 +38,7 @@ private:
 
 private:
     RCSharedPtr<RCProjectImportSession> m_projectImportSession;
+    uint64_t total_point_count_;
     bool m_hasColor;
     bool m_hasIntensity;
     double m_exportDensity;
