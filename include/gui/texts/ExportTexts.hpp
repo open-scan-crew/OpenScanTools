@@ -8,6 +8,7 @@
 #define TEXT_EXPORT_METHOD_SCAN_SEPARATED QObject::tr("One scan per file")
 #define TEXT_EXPORT_METHOD_CLIPPING_SEPARATED QObject::tr("One file per clipping (only interior mode)")
 #define TEXT_EXPORT_METHOD_SCAN_MERGED QObject::tr("Merged")
+#define TEXT_EXPORT_CLIPPING_SOURCE_NONE QObject::tr("No Clipping")
 #define TEXT_EXPORT_CLIPPING_SOURCE_SELECTED QObject::tr("Selected")
 #define TEXT_EXPORT_CLIPPING_SOURCE_ACTIVE QObject::tr("Active")
 #define TEXT_EXPORT_LABEL_MISSING  QObject::tr("<Label Missing>")

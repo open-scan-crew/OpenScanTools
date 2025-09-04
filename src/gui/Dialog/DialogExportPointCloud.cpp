@@ -30,19 +30,14 @@ void initComboBoxRestricted(QComboBox* comboBox, const std::vector<Enum_T> value
     for (Enum_T value : valuesDisplayable)
     {
         if (labelDictionnary.find(value) != labelDictionnary.cend())
-            comboBox->addItem(labelDictionnary.at(value));
+            comboBox->addItem(labelDictionnary.at(value), QVariant((int)value));
         else
-            comboBox->addItem(TEXT_EXPORT_LABEL_MISSING);
+            comboBox->addItem(TEXT_EXPORT_LABEL_MISSING, QVariant((int)value));
     }
 }
 
 DialogExportPointCloud::DialogExportPointCloud(IDataDispatcher& dataDispatcher, QWidget *parent)
     : ADialog(dataDispatcher, parent)
-    , m_parameters{ ObjectStatusFilter::ALL,
-                    true, false,
-                    ExportClippingFilter::SELECTED,
-                    ExportClippingMethod::SCAN_SEPARATED,
-                    FileType::TLS, tls::PrecisionType::TL_OCTREE_100UM, "", "", "" }
     , m_showClippingOptions(false)
     , m_showGridOptions(false)
     , m_showMergeOption(true)
@@ -56,16 +51,12 @@ DialogExportPointCloud::DialogExportPointCloud(IDataDispatcher& dataDispatcher, 
     m_ui.label_temp->setVisible(false);
 
     initComboBoxPointCloud();
-    initComboBoxRestricted<FileType>(m_ui.comboBox_format, ExportFileTypePermited, s_OutputFormatTexts);
+    initComboBoxRestricted<FileType>(m_ui.comboBox_file_format, ExportFileTypePermited, s_OutputFormatTexts);
 
     //connect(m_ui.comboBox_pointClouds, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &DialogExportPointCloud::onSelectPointCloudSource);
     connect(m_ui.comboBox_clippings, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &DialogExportPointCloud::onSelectSource);
     connect(m_ui.comboBox_method, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &DialogExportPointCloud::onSelectMethod);
-    connect(m_ui.comboBox_format, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &DialogExportPointCloud::onSelectFormat);
-
-    m_ui.comboBox_clippings->setCurrentIndex((int)m_parameters.clippingFilter);
-    m_ui.comboBox_method->setCurrentIndex((int)m_parameters.method);
-    m_ui.comboBox_format->setCurrentIndex((int)m_parameters.outFileType);
+    connect(m_ui.comboBox_file_format, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &DialogExportPointCloud::onSelectFormat);
 
     m_openPath = QStandardPaths::locate(QStandardPaths::DocumentsLocation, QString(), QStandardPaths::LocateDirectory);
 
@@ -94,10 +85,10 @@ void DialogExportPointCloud::informData(IGuiData *data)
     {
         auto displayParam = static_cast<GuiDataExportParametersDisplay*>(data);
         m_showClippingOptions = displayParam->m_useClippings;
+        setPointCloudStatus(displayParam->pc_status_filter_);
         m_showGridOptions = displayParam->m_useGrids;
         m_showMergeOption = displayParam->m_showMergeOption;
         m_clippings = displayParam->m_clippings;
-        m_parameters = displayParam->preset_export_params_;
         m_ui.label_msg->clear();
         // Show the names of the clippings in the dialog
         refreshUI();
@@ -114,20 +105,17 @@ void DialogExportPointCloud::informData(IGuiData *data)
 
 void DialogExportPointCloud::onSelectSource(int index)
 {
-    m_parameters.clippingFilter = (ExportClippingFilter)m_ui.comboBox_clippings->currentData().toInt();
     refreshClippingNames();
 }
 
 void DialogExportPointCloud::onSelectMethod(int index)
 {
-    m_parameters.method = (ExportClippingMethod)m_ui.comboBox_method->currentData().toInt();
     refreshClippingNames();
     refreshShowFileName();
 }
 
 void DialogExportPointCloud::onSelectFormat(int index)
 {
-    m_parameters.outFileType = ExportFileTypePermited[index];
     refreshShowFileName();
     refreshUI();
 }
@@ -158,7 +146,8 @@ void DialogExportPointCloud::onSelectTempFolder()
 void DialogExportPointCloud::onSelectOutFile()
 {
     QString openFormat;
-    switch (m_parameters.outFileType) {
+    FileType file_format = (FileType)m_ui.comboBox_file_format->currentData().toInt();
+    switch (file_format) {
     case FileType::E57:
         openFormat = QString("(*.e57)");
         break;
@@ -185,45 +174,54 @@ void DialogExportPointCloud::onSelectOutFile()
 
 void DialogExportPointCloud::startExport()
 {
-    m_parameters.pointCloudFilter = (ObjectStatusFilter)(m_ui.comboBox_pointClouds->currentData().toInt());
+    ClippingExportParameters parameters;
+    parameters.pointCloudStatusFilter = (ObjectStatusFilter)(m_ui.comboBox_pointClouds->currentData().toInt());
 
-    m_parameters.outFileType = ExportFileTypePermited[m_ui.comboBox_format->currentIndex()];
+    parameters.clippingFilter = (ExportClippingFilter)m_ui.comboBox_clippings->currentData().toInt();
+
+    parameters.method = (ExportClippingMethod)m_ui.comboBox_method->currentData().toInt();
+
+    parameters.outFileType = (FileType)m_ui.comboBox_file_format->currentData().toInt();
     // Get the export precision
-    m_parameters.encodingPrecision = (tls::PrecisionType)(m_ui.comboBox_precision->currentData().toInt());
+    parameters.encodingPrecision = (tls::PrecisionType)(m_ui.comboBox_precision->currentData().toInt());
 
-    m_parameters.fileName = m_ui.lineEdit_fileName->text().toStdWString();
-    if (m_parameters.fileName == "" && m_ui.lineEdit_fileName->isVisible())
+    parameters.fileName = m_ui.lineEdit_fileName->text().toStdWString();
+    if (parameters.fileName == "" && m_ui.lineEdit_fileName->isVisible())
     {
         m_ui.label_msg->setText(TEXT_MISSING_FILE_NAME);
         m_ui.label_msg->setVisible(true);
         return;
     }
 
-    m_parameters.outFolder = m_ui.lineEdit_folder->text().toStdWString();
-    if (m_parameters.outFolder == "")
+    parameters.outFolder = m_ui.lineEdit_folder->text().toStdWString();
+    if (parameters.outFolder == "")
     {
         m_ui.label_msg->setText(TEXT_NO_DIRECTORY_SELECTED);
         m_ui.label_msg->setVisible(true);
         return;
     }
-    m_parameters.tempFolder = m_ui.lineEdit_tempFolder->text().toStdWString();
+
+    parameters.tempFolder = m_ui.lineEdit_tempFolder->text().toStdWString();
+    
     bool validDensity;
     double density = m_ui.lineEdit_density->text().toDouble(&validDensity);
-    m_parameters.pointDensity = validDensity ? density : -1.0;
-    m_parameters.addOriginCube = m_ui.checkBox_addOriginCube->isChecked();
+    parameters.pointDensity = validDensity ? density : -1.0;
+    
+    parameters.addOriginCube = m_ui.checkBox_addOriginCube->isChecked();
+
     if (m_ui.groupBox_maxScan->isChecked())
     {
         bool valid;
         int value = m_ui.lineEdit_maxScan->text().toInt(&valid);
-        m_parameters.maxScanPerProject = valid ? value : 0;
+        parameters.maxScanPerProject = valid ? value : 0;
     }
     else
-        m_parameters.maxScanPerProject = 0;
+        parameters.maxScanPerProject = 0;
 
-    m_parameters.openFolderAfterExport = m_ui.checkBox_openFolderAfterExport->isChecked();
-    m_parameters.exportWithScanImportTranslation = m_ui.checkBox_restoreOriginalCoordinates->isChecked();
+    parameters.openFolderAfterExport = m_ui.checkBox_openFolderAfterExport->isChecked();
+    parameters.exportWithScanImportTranslation = m_ui.checkBox_restoreOriginalCoordinates->isChecked();
 
-    m_dataDispatcher.sendControl(new control::function::ForwardMessage(new ClippingExportParametersMessage(m_parameters)));
+    m_dataDispatcher.sendControl(new control::function::ForwardMessage(new ClippingExportParametersMessage(parameters)));
 
     hide();
 }
@@ -239,9 +237,16 @@ void DialogExportPointCloud::cancelExport()
     hide();
 }
 
+void DialogExportPointCloud::setPointCloudStatus(ObjectStatusFilter status)
+{
+    int index = m_ui.comboBox_pointClouds->findData(QVariant((int)status));
+    m_ui.comboBox_pointClouds->setCurrentIndex(index);
+}
+
 void DialogExportPointCloud::translateUI()
 {
     m_exportSourceTexts = {
+        { ExportClippingFilter::NONE, TEXT_EXPORT_CLIPPING_SOURCE_NONE },
         { ExportClippingFilter::SELECTED, TEXT_EXPORT_CLIPPING_SOURCE_SELECTED },
         { ExportClippingFilter::ACTIVE, TEXT_EXPORT_CLIPPING_SOURCE_ACTIVE }
     };
@@ -270,22 +275,11 @@ void DialogExportPointCloud::refreshUI()
     else
         setWindowTitle(TEXT_EXPORT_TITLE_NORMAL);
 
-    // grid
-    m_ui.groupBox_maxScan->setVisible(m_showGridOptions && (m_parameters.outFileType == FileType::RCP));
-    m_ui.checkBox_addOriginCube->setVisible(m_parameters.outFileType == FileType::RCP);
-
-    int index = m_ui.comboBox_pointClouds->findData(QVariant((int)m_parameters.pointCloudFilter));
-    m_ui.comboBox_pointClouds->setCurrentIndex(index);
-    // Show source options (all, some or none)
     refreshSourceOption();
     refreshMethodOption();
     refreshClippingNames();
-
-    m_ui.label_precision->setVisible(m_parameters.outFileType == FileType::TLS);
-    m_ui.comboBox_precision->setVisible(m_parameters.outFileType == FileType::TLS);
-    m_ui.label_density->setVisible(m_parameters.outFileType == FileType::RCP);
-    m_ui.label_density_unit->setVisible(m_parameters.outFileType == FileType::RCP);
-    m_ui.lineEdit_density->setVisible(m_parameters.outFileType == FileType::RCP);
+    refreshShowFileName();
+    refreshFormatOptions();
 
     m_ui.label_msg->setVisible(m_ui.label_msg->text() != "");
     adjustSize();
@@ -304,6 +298,7 @@ void DialogExportPointCloud::initComboBoxPointCloud()
 void DialogExportPointCloud::refreshClippingNames()
 {
     m_ui.listWidget_clippingNames->clear();
+    ExportClippingFilter clippingFilter = (ExportClippingFilter)m_ui.comboBox_clippings->currentData().toInt();
 
     for (const SafePtr<AClippingNode>& clip : m_clippings)
     {
@@ -311,8 +306,8 @@ void DialogExportPointCloud::refreshClippingNames()
         if (!rClip)
             continue;
 
-        if ((rClip->isSelected() && m_parameters.clippingFilter == ExportClippingFilter::SELECTED) ||
-            (rClip->isClippingActive() && m_parameters.clippingFilter == ExportClippingFilter::ACTIVE))
+        if ((rClip->isSelected() && clippingFilter == ExportClippingFilter::SELECTED) ||
+            (rClip->isClippingActive() && clippingFilter == ExportClippingFilter::ACTIVE))
         {
             m_ui.listWidget_clippingNames->addItem(QString::fromStdWString(rClip->getComposedName()));
         }
@@ -332,11 +327,9 @@ void DialogExportPointCloud::refreshSourceOption()
     if (!m_showClippingOptions && !m_showGridOptions)
         authorizedValues.insert(ExportClippingFilter::NONE);
 
-    // Work with a local value because m_parameters.clippingFilter will be modified automaticaly (signal) by m_ui.comboBox_clippings
-    ExportClippingFilter storedSource = m_parameters.clippingFilter;
-    if (authorizedValues.find(storedSource) == authorizedValues.end())
-        storedSource = *authorizedValues.begin();
+    ExportClippingFilter previous_filter = (ExportClippingFilter)m_ui.comboBox_clippings->currentData().toInt();
 
+    // DO NOT CLEAR if the dialog is reopened
     m_ui.comboBox_clippings->clear();
     for (auto value : authorizedValues)
     {
@@ -345,7 +338,7 @@ void DialogExportPointCloud::refreshSourceOption()
         else
             m_ui.comboBox_clippings->addItem(TEXT_EXPORT_LABEL_MISSING, QVariant((int)value));
 
-        if (value == storedSource)
+        if (value == previous_filter)
             m_ui.comboBox_clippings->setCurrentIndex(m_ui.comboBox_clippings->count() - 1);
     }
 
@@ -363,9 +356,9 @@ void DialogExportPointCloud::refreshMethodOption()
     if (m_showClippingOptions)
         authorizedValues.insert(ExportClippingMethod::CLIPPING_SEPARATED);
 
-    ExportClippingMethod storedMethod = m_parameters.method;
-    if (authorizedValues.find(storedMethod) == authorizedValues.end())
-        storedMethod = *authorizedValues.begin();
+    ExportClippingMethod storedMethod = (ExportClippingMethod)m_ui.comboBox_method->currentData().toInt();
+    //if (authorizedValues.find(storedMethod) == authorizedValues.end())
+    //    storedMethod = *authorizedValues.begin();
 
     // Init the type combo box
     m_ui.comboBox_method->clear();
@@ -386,10 +379,26 @@ void DialogExportPointCloud::refreshMethodOption()
 
 void DialogExportPointCloud::refreshShowFileName()
 {
-    bool askFileName = (!m_showGridOptions) && (m_parameters.method == ExportClippingMethod::CLIPPING_AND_SCAN_MERGED);
-    askFileName |= m_parameters.outFileType == FileType::RCP;
+    bool askFileName = (!m_showGridOptions);
+    askFileName &= (ExportClippingMethod)m_ui.comboBox_method->currentData().toInt() == ExportClippingMethod::CLIPPING_AND_SCAN_MERGED;
+    askFileName |= (FileType)m_ui.comboBox_file_format->currentData().toInt() == FileType::RCP;
 
     m_ui.label_fileName->setVisible(askFileName);
     m_ui.lineEdit_fileName->setVisible(askFileName);
     m_ui.toolButton_outFile->setVisible(askFileName);
+}
+
+void DialogExportPointCloud::refreshFormatOptions()
+{
+    FileType file_format = (FileType)m_ui.comboBox_file_format->currentData().toInt();
+    m_ui.groupBox_maxScan->setVisible(m_showGridOptions && (file_format == FileType::RCP));
+
+    m_ui.checkBox_addOriginCube->setVisible(file_format == FileType::RCP);
+
+    m_ui.label_precision->setVisible(file_format == FileType::TLS);
+    m_ui.comboBox_precision->setVisible(file_format == FileType::TLS);
+
+    m_ui.label_density->setVisible(file_format == FileType::RCP);
+    m_ui.label_density_unit->setVisible(file_format == FileType::RCP);
+    m_ui.lineEdit_density->setVisible(file_format == FileType::RCP);
 }

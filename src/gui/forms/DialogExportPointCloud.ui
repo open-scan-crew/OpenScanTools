@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>529</width>
-    <height>582</height>
+    <height>629</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,7 +15,7 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="4" column="1">
-    <widget class="QComboBox" name="comboBox_format"/>
+    <widget class="QComboBox" name="comboBox_file_format"/>
    </item>
    <item row="17" column="0">
     <widget class="QLabel" name="label_temp">
@@ -286,7 +286,7 @@
   <tabstop>comboBox_clippings</tabstop>
   <tabstop>listWidget_clippingNames</tabstop>
   <tabstop>comboBox_method</tabstop>
-  <tabstop>comboBox_format</tabstop>
+  <tabstop>comboBox_file_format</tabstop>
   <tabstop>groupBox_maxScan</tabstop>
   <tabstop>lineEdit_maxScan</tabstop>
   <tabstop>comboBox_precision</tabstop>

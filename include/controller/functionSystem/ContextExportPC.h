@@ -68,6 +68,8 @@ protected:
     int m_neededMessageCount;
     bool m_forSubProject;
     ClippingExportParameters m_parameters;
+    bool export_scans_;
+    bool export_pcos_;
 
 private:
     glm::dvec3 m_scanTranslationToAdd = glm::dvec3(0.);

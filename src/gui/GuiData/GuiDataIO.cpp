@@ -52,9 +52,9 @@ guiDType GuiDataConversionFilePaths::getType()
 
 // **** Clipping Export Parameters Display ****
 
-GuiDataExportParametersDisplay::GuiDataExportParametersDisplay(const std::unordered_set<SafePtr<AClippingNode>>& clippings, const ClippingExportParameters& preset_params, bool useClippings, bool useGrids, bool showMergeOption)
+GuiDataExportParametersDisplay::GuiDataExportParametersDisplay(const std::unordered_set<SafePtr<AClippingNode>>& clippings, ObjectStatusFilter pc_status, bool useClippings, bool useGrids, bool showMergeOption)
     : m_clippings(clippings)
-	, preset_export_params_(preset_params)
+	, pc_status_filter_(pc_status)
     , m_useClippings(useClippings)
     , m_useGrids(useGrids)
 	, m_showMergeOption(showMergeOption)

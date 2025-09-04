@@ -45,8 +45,10 @@
 
 ContextExportPC::ContextExportPC(const ContextId& id)
     : AContext(id)
-    , m_forSubProject(false)
     , m_neededMessageCount(2)
+    , m_forSubProject(false)
+    , export_scans_(true)
+    , export_pcos_(true)
 {
     m_state = ContextState::waiting_for_input;
 }
@@ -78,9 +80,9 @@ ContextState ContextExportPC::feedMessage(IMessage* message, Controller& control
     case IMessage::MessageType::EXPORT_INIT:
     {
         auto init_msg = static_cast<ExportInitMessage*>(message);
-        m_parameters.exportScans = init_msg->export_scans_;
-        m_parameters.exportPCOs = init_msg->export_PCOs_;
-        m_parameters.pointCloudFilter = init_msg->point_cloud_filter_;
+        export_scans_ = init_msg->export_scans_;
+        export_pcos_ = init_msg->export_PCOs_;
+        m_parameters.pointCloudStatusFilter = init_msg->point_cloud_filter_;
 
         std::unordered_set<SafePtr<AClippingNode>> clippings;
         if (init_msg->use_clippings_ || init_msg->use_grids_)
@@ -133,7 +135,7 @@ ContextState ContextExportPC::feedMessage(IMessage* message, Controller& control
         }
 
         if (!m_forSubProject)
-            controller.updateInfo(new GuiDataExportParametersDisplay(clippings, m_parameters, init_msg->use_clippings_, init_msg->use_grids_, point_clouds.size() > 1));
+            controller.updateInfo(new GuiDataExportParametersDisplay(clippings, m_parameters.pointCloudStatusFilter, init_msg->use_clippings_, init_msg->use_grids_, point_clouds.size() > 1));
 
         m_neededMessageCount--;
         break;
@@ -306,7 +308,7 @@ bool ContextExportPC::processExport(Controller& controller, CSVWriter* csv_write
 void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextExportPC::ExportTask>& export_tasks, std::vector<CopyTask>& copy_tasks)
 {
     GraphManager& graph = controller.getGraphManager();
-    std::vector<tls::PointCloudInstance> pcInfos = graph.getPointCloudInstances(xg::Guid(), m_parameters.exportScans, m_parameters.exportPCOs, m_parameters.pointCloudFilter);
+    std::vector<tls::PointCloudInstance> pcInfos = graph.getPointCloudInstances(xg::Guid(), export_scans_, export_pcos_, m_parameters.pointCloudStatusFilter);
     // We can separate the list of PCOs and scans here.
     //std::vector<tls::PointCloudInstance> pcoInfos = graph.getPointCloudInstances(xg::Guid(), false, m_parameters.exportPCOs, m_parameters.pointCloudFilter);
     tls::PointFormat common_format = getCommonFormat(pcInfos);

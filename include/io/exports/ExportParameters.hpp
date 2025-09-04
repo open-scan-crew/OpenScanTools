@@ -60,9 +60,9 @@ struct VideoExportParameters
 
 struct ClippingExportParameters
 {
-    ObjectStatusFilter pointCloudFilter;
-    bool exportScans;
-    bool exportPCOs;
+    ObjectStatusFilter pointCloudStatusFilter;
+    //bool exportScans;
+    //bool exportPCOs;
     ExportClippingFilter clippingFilter;
     ExportClippingMethod method;
     FileType outFileType;

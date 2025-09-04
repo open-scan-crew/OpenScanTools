@@ -68,9 +68,7 @@ namespace control::io
 			controller.getFunctionManager().feedMessage(controller, &imessage);
 
 			ClippingExportParameters param;
-			param.pointCloudFilter = ObjectStatusFilter::VISIBLE;
-			param.exportScans = true;
-			param.exportPCOs = true;
+			param.pointCloudStatusFilter = ObjectStatusFilter::VISIBLE;
 			param.clippingFilter = ExportClippingFilter::ACTIVE;
 			param.method = ExportClippingMethod::SCAN_SEPARATED;
 			param.outFileType = FileType::TLS;
