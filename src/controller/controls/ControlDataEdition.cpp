@@ -40,6 +40,8 @@ namespace control::dataEdition
         : AEditionControl()
         , m_toEditData(toEditData)
         , m_newId(newId)
+        , m_oldId(0)
+        , m_type(ElementType::None)
     {}
 
     SetUserId::~SetUserId()
@@ -328,6 +330,8 @@ namespace control::dataEdition
             toActualize.insert(dataPtr);
         }
 
+        controller.actualizeTreeView(toActualize);
+
         CONTROLLOG << "control::dataEdition::addHyperlink do linkId to " << m_link << LOGENDL;
     }
 
@@ -354,6 +358,8 @@ namespace control::dataEdition
             undoTimeModified(*&writeData);
             toActualize.insert(pairDataPtrLink.first);
         }
+
+        controller.actualizeTreeView(toActualize);
 
         CONTROLLOG << "control::dataEdition::addHyperlink undo" << LOGENDL;
     }
@@ -399,6 +405,8 @@ namespace control::dataEdition
         writeData->setHyperlinks(links);
         doTimeModified(*&writeData);
 
+        controller.actualizeTreeView(m_dataPtr);
+
         CONTROLLOG << "control::dataEdition::removeHyperlink do elemid link " << m_link << LOGENDL;
     }
 
@@ -421,6 +429,8 @@ namespace control::dataEdition
         links.insert(std::pair<hLinkId, s_hyperlink>(m_idToDel, { m_link, m_name }));
         writeData->setHyperlinks(links);
         undoTimeModified(*&writeData);
+
+        controller.actualizeTreeView(m_dataPtr);
 
         CONTROLLOG << "control::dataEdition::removeHyperlink undo linkId " << m_idToDel << " to " << m_link << LOGENDL;
     }
