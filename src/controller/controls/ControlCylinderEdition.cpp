@@ -5,234 +5,223 @@
 
 #include "utils/Logger.h"
 
-namespace control
+namespace control::cylinderEdition
 {
-	namespace cylinderEdition
-	{
-		/*
-		*		SetRadius
-		*/
+    /*
+    *		SetRadius
+    */
 
-		SetForcedRadius::SetForcedRadius(SafePtr<CylinderNode> toEditData, const double& radius)
-			: m_toEditData(toEditData)
-			, m_newRadius(radius)
-			, m_canUndo(false)
-		{}
+    SetForcedRadius::SetForcedRadius(SafePtr<CylinderNode> toEditData, const double& radius)
+        : m_toEditData(toEditData)
+        , m_newRadius(radius)
+    {}
 
-		SetForcedRadius::~SetForcedRadius()
-		{}
+    SetForcedRadius::~SetForcedRadius()
+    {}
 
-		void SetForcedRadius::doFunction(Controller& controller)
-		{
-			{
-				WritePtr<CylinderNode> wCyl = m_toEditData.get();
-				if (!wCyl)
-				{
-					CONTROLLOG << "control::cylinderEdition::SetRadius do : cylinder null" << LOGENDL;
-					return;
-				}
+    void SetForcedRadius::doFunction(Controller& controller)
+    {
+        {
+            WritePtr<CylinderNode> wCyl = m_toEditData.get();
+            if (!wCyl)
+            {
+                CONTROLLOG << "control::cylinderEdition::SetRadius do : cylinder null" << LOGENDL;
+                return;
+            }
 
-				m_oldRadius = wCyl->getForcedRadius();
-				m_oldDiameterSet = wCyl->getDiameterSet();
-				wCyl->setForcedRadius(m_newRadius);
-				wCyl->setDiameterSet(StandardRadiusData::DiameterSet::Forced);
+            m_oldRadius = wCyl->getForcedRadius();
+            m_oldDiameterSet = wCyl->getDiameterSet();
+            wCyl->setForcedRadius(m_newRadius);
+            wCyl->setDiameterSet(StandardRadiusData::DiameterSet::Forced);
 
-				wCyl->updateScale();
-				doTimeModified(*&wCyl);
-			}
+            wCyl->updateScale();
+            doTimeModified(*&wCyl);
+        }
 
-			m_canUndo = true;
+        CONTROLLOG << "control::cylinderEdition::SetRadius do " << LOGENDL;
+    }
 
-			CONTROLLOG << "control::cylinderEdition::SetRadius do " << LOGENDL;
-		}
+    bool SetForcedRadius::canUndo() const
+    {
+        return true;
+    }
 
-		bool SetForcedRadius::canUndo() const
-		{
-			return (m_canUndo);
-		}
+    void SetForcedRadius::undoFunction(Controller& controller)
+    {
+        {
+            WritePtr<CylinderNode> wCyl = m_toEditData.get();
+            if (!wCyl)
+            {
+                CONTROLLOG << "control::cylinderEdition::SetRadius do : cylinder null" << LOGENDL;
+                return;
+            }
 
-		void SetForcedRadius::undoFunction(Controller& controller)
-		{
-			{
-				WritePtr<CylinderNode> wCyl = m_toEditData.get();
-				if (!wCyl)
-				{
-					CONTROLLOG << "control::cylinderEdition::SetRadius do : cylinder null" << LOGENDL;
-					return;
-				}
+            wCyl->setForcedRadius(m_oldRadius);
+            wCyl->setDiameterSet(m_oldDiameterSet);
 
-				wCyl->setForcedRadius(m_oldRadius);
-				wCyl->setDiameterSet(m_oldDiameterSet);
+            wCyl->updateScale();
+            undoTimeModified(*&wCyl);
+        }
 
-				wCyl->updateScale();
-				undoTimeModified(*&wCyl);
-			}
+        CONTROLLOG << "control::cylinderEdition::SetRadius undo " << LOGENDL;
+    }
 
-			CONTROLLOG << "control::cylinderEdition::SetRadius undo " << LOGENDL;
-		}
+    ControlType SetForcedRadius::getType() const
+    {
+        return (ControlType::setForcedRadiusEdit);
+    }
 
-		ControlType SetForcedRadius::getType() const
-		{
-			return (ControlType::setForcedRadiusEdit);
-		}
+    /*
+    *		SetDetectedRadius
+    */
 
-		/*
-		*		SetDetectedRadius
-		*/
+    SetDetectedRadius::SetDetectedRadius(SafePtr<CylinderNode> toEditData)
+        : m_toEditData(toEditData)
+    {}
 
-		SetDetectedRadius::SetDetectedRadius(SafePtr<CylinderNode> toEditData)
-			: m_toEditData(toEditData)
-			, m_canUndo(false)
-		{}
+    SetDetectedRadius::~SetDetectedRadius()
+    {}
 
-		SetDetectedRadius::~SetDetectedRadius()
-		{}
+    void SetDetectedRadius::doFunction(Controller& controller)
+    {
+        {
+            WritePtr<CylinderNode> wCyl = m_toEditData.get();
+            if (!wCyl)
+            {
+                CONTROLLOG << "control::cylinderEdition::SetRadius do : cylinder null" << LOGENDL;
+                return;
+            }
 
-		void SetDetectedRadius::doFunction(Controller& controller)
-		{
-			{
-				WritePtr<CylinderNode> wCyl = m_toEditData.get();
-				if (!wCyl)
-				{
-					CONTROLLOG << "control::cylinderEdition::SetRadius do : cylinder null" << LOGENDL;
-					return;
-				}
+            m_oldDiameterSet = wCyl->getDiameterSet();
+            wCyl->setDiameterSet(StandardRadiusData::DiameterSet::Detected);
 
-				m_oldDiameterSet = wCyl->getDiameterSet();
-				wCyl->setDiameterSet(StandardRadiusData::DiameterSet::Detected);
+            wCyl->updateScale();
+            doTimeModified(*&wCyl);
+        }
 
-				wCyl->updateScale();
-				doTimeModified(*&wCyl);
-			}
+        CONTROLLOG << "control::cylinderEdition::SetRadius do " << LOGENDL;
+    }
 
-			m_canUndo = true;
+    bool SetDetectedRadius::canUndo() const
+    {
+        return true;
+    }
 
-			CONTROLLOG << "control::cylinderEdition::SetRadius do " << LOGENDL;
-		}
+    void SetDetectedRadius::undoFunction(Controller& controller)
+    {
+        {
+            WritePtr<CylinderNode> wCyl = m_toEditData.get();
+            if (!wCyl)
+            {
+                CONTROLLOG << "control::cylinderEdition::SetRadius do : cylinder null" << LOGENDL;
+                return;
+            }
 
-		bool SetDetectedRadius::canUndo() const
-		{
-			return (m_canUndo);
-		}
+            wCyl->setDiameterSet(m_oldDiameterSet);
 
-		void SetDetectedRadius::undoFunction(Controller& controller)
-		{
-			{
-				WritePtr<CylinderNode> wCyl = m_toEditData.get();
-				if (!wCyl)
-				{
-					CONTROLLOG << "control::cylinderEdition::SetRadius do : cylinder null" << LOGENDL;
-					return;
-				}
+            wCyl->updateScale();
+            undoTimeModified(*&wCyl);
+        }
 
-				wCyl->setDiameterSet(m_oldDiameterSet);
+        CONTROLLOG << "control::cylinderEdition::SetRadius undo " << LOGENDL;
+    }
 
-				wCyl->updateScale();
-				undoTimeModified(*&wCyl);
-			}
+    ControlType SetDetectedRadius::getType() const
+    {
+        return ControlType::setDetectedRadiusEdit;
+    }
 
-			CONTROLLOG << "control::cylinderEdition::SetRadius undo " << LOGENDL;
-		}
+    /*
+    *		SetStandard
+    */
 
-		ControlType SetDetectedRadius::getType() const
-		{
-			return ControlType::setDetectedRadiusEdit;
-		}
+    SetStandard::SetStandard(SafePtr<CylinderNode> toEditData, const SafePtr<StandardList>& standard)
+        : m_toEditData(toEditData)
+        , m_standard(standard)
+        , m_oldDiameterSet(StandardRadiusData::DiameterSet::Standard)
+        , m_oldStandard()
+    {}
 
-		/*
-		*		SetStandard
-		*/
+    SetStandard::~SetStandard()
+    {}
 
-		SetStandard::SetStandard(SafePtr<CylinderNode> toEditData, const SafePtr<StandardList>& standard)
-			: m_toEditData(toEditData)
-			, m_standard(standard)
-			, m_oldDiameterSet(StandardRadiusData::DiameterSet::Standard)
-			, m_oldStandard()
-		{}
+    void SetStandard::doFunction(Controller& controller)
+    {
+        {
+            WritePtr<CylinderNode> wCyl = m_toEditData.get();
+            if (!wCyl)
+            {
+                CONTROLLOG << "control::cylinderEdition::SetRadius do : cylinder null" << LOGENDL;
+                return;
+            }
 
-		SetStandard::~SetStandard()
-		{}
+            m_oldStandard = wCyl->getStandard();
+            m_oldDiameterSet = wCyl->getDiameterSet();
 
-		void SetStandard::doFunction(Controller& controller)
-		{
-			{
-				WritePtr<CylinderNode> wCyl = m_toEditData.get();
-				if (!wCyl)
-				{
-					CONTROLLOG << "control::cylinderEdition::SetRadius do : cylinder null" << LOGENDL;
-					return;
-				}
+            if (m_standard == m_oldStandard
+                && m_oldDiameterSet == StandardRadiusData::DiameterSet::Standard)
+                return;
 
-				m_oldStandard = wCyl->getStandard();
-				m_oldDiameterSet = wCyl->getDiameterSet();
+            wCyl->setStandard(m_standard);
+            wCyl->setDiameterSet(StandardRadiusData::DiameterSet::Standard);
 
-				if (m_standard == m_oldStandard
-					&& m_oldDiameterSet == StandardRadiusData::DiameterSet::Standard)
-					return;
+            wCyl->updateScale();
+            doTimeModified(*&wCyl);
+        }
 
-				wCyl->setStandard(m_standard);
-				wCyl->setDiameterSet(StandardRadiusData::DiameterSet::Standard);
+        CONTROLLOG << "control::cylinderEdition::CheckStandard do " << LOGENDL;
+    }
 
-				wCyl->updateScale();
-				doTimeModified(*&wCyl);
-			}
+    bool SetStandard::canUndo() const
+    {
+        return true;
+    }
 
-			m_canUndo = true;
+    void SetStandard::undoFunction(Controller& controller)
+    {
+        {
+            WritePtr<CylinderNode> wCyl = m_toEditData.get();
+            if (!wCyl)
+            {
+                CONTROLLOG << "control::cylinderEdition::SetRadius do : cylinder null" << LOGENDL;
+                return;
+            }
 
-			CONTROLLOG << "control::cylinderEdition::CheckStandard do " << LOGENDL;
-		}
+            wCyl->setStandard(m_oldStandard);
+            wCyl->setDiameterSet(m_oldDiameterSet);
 
-		bool SetStandard::canUndo() const
-		{
-			return m_canUndo;
-		}
+            wCyl->updateScale();
+            undoTimeModified(*&wCyl);
+        }
 
-		void SetStandard::undoFunction(Controller& controller)
-		{
-			{
-				WritePtr<CylinderNode> wCyl = m_toEditData.get();
-				if (!wCyl)
-				{
-					CONTROLLOG << "control::cylinderEdition::SetRadius do : cylinder null" << LOGENDL;
-					return;
-				}
+        CONTROLLOG << "control::cylinderEdition::CheckStandard undo " << LOGENDL;
+    }
 
-				wCyl->setStandard(m_oldStandard);
-				wCyl->setDiameterSet(m_oldDiameterSet);
+    ControlType SetStandard::getType() const
+    {
+        return (ControlType::setStandardEdit);
+    }
+        
+    /*
+    *		SetLength
+    */
 
-				wCyl->updateScale();
-				undoTimeModified(*&wCyl);
-			}
+    SetLength::SetLength(SafePtr<CylinderNode> toEditData, const double& larger)
+        : ATEditionControl({ toEditData }, larger, "SetLength", &CylinderNode::setLength, &CylinderNode::getLength)
+    {
+    }
 
-			CONTROLLOG << "control::cylinderEdition::CheckStandard undo " << LOGENDL;
-		}
+    SetLength::SetLength(const std::unordered_set<SafePtr<CylinderNode>>& toEditDatas, const double& larger)
+        : ATEditionControl(toEditDatas, larger, "SetLength", &CylinderNode::setLength, &CylinderNode::getLength)
+    {
+    }
 
-		ControlType SetStandard::getType() const
-		{
-			return (ControlType::setStandardEdit);
-		}
-		
-		/*
-		*		SetLength
-		*/
+    SetLength::~SetLength()
+    {}
 
-		SetLength::SetLength(SafePtr<CylinderNode> toEditData, const double& larger)
-			: ATEditionControl({ toEditData }, larger, "SetLength", &CylinderNode::setLength, &CylinderNode::getLength)
-		{
-		}
+    ControlType SetLength::getType() const
+    {
+        return (ControlType::setCylinderLengthEdit);
+    }
 
-		SetLength::SetLength(const std::unordered_set<SafePtr<CylinderNode>>& toEditDatas, const double& larger)
-			: ATEditionControl(toEditDatas, larger, "SetLength", &CylinderNode::setLength, &CylinderNode::getLength)
-		{
-		}
-
-		SetLength::~SetLength()
-		{}
-
-		ControlType SetLength::getType() const
-		{
-			return (ControlType::setCylinderLengthEdit);
-		}
-
-	}
 }

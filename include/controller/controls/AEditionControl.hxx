@@ -18,7 +18,6 @@ inline ATEditionControl<ObjectClass, AttrClass>::ATEditionControl(const std::uno
 	, m_controlName(controlName)
 	, m_setterAttr(setterAttr)
 	, m_getterAttr(getterAttr)
-	, m_actualize_tree_view(false)
 {}
 
 template<class ObjectClass, class AttrClass>
@@ -30,7 +29,6 @@ ATEditionControl<ObjectClass, AttrClass>::ATEditionControl(const std::unordered_
 	, m_controlName(controlName)
 	, m_setterAttr(setterAttr)
 	, m_getterAttr(getterAttr)
-	, m_actualize_tree_view(false)
 {
 	for (const SafePtr<ObjectClass>& data : toEditDatas)
 		m_toEditDatas.insert({ data, newValue });
@@ -42,7 +40,6 @@ inline ATEditionControl<ObjectClass, AttrClass>::ATEditionControl(const std::str
 	, m_controlName(controlName)
 	, m_setterAttr(setterAttr)
 	, m_getterAttr(getterAttr)
-	, m_actualize_tree_view(false)
 {}
 
 template<class ObjectClass, class AttrClass>
@@ -115,8 +112,7 @@ void ATEditionControl<ObjectClass, AttrClass>::doSimpleEdition(Controller& contr
 	if (cannotFinishEdit && !m_cannotEditWarningMessage.isEmpty())
 		controller.updateInfo(new GuiDataWarning(m_cannotEditWarningMessage));
 
-	if (m_actualize_tree_view)
-		controller.actualizeTreeView(actualizeNodes);
+	controller.actualizeTreeView(actualizeNodes);
 }
 
 
@@ -148,8 +144,7 @@ void ATEditionControl<ObjectClass, AttrClass>::undoSimpleEdition(Controller& con
 	if(cannotFinishEdit && !m_cannotEditWarningMessage.isEmpty())
 		controller.updateInfo(new GuiDataWarning(m_cannotEditWarningMessage));
 
-	if (m_actualize_tree_view)
-		controller.actualizeTreeView(actualizeNodes);
+	controller.actualizeTreeView(actualizeNodes);
 }
 
 /*

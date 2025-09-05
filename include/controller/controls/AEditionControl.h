@@ -65,7 +65,6 @@ protected:
 	std::unordered_map<SafePtr<ObjectClass>, AttrClass> m_oldValues;
 
 	std::string m_controlName;
-	bool m_actualize_tree_view;
 
 	std::function<void(ObjectClass&, const AttrClass&)> m_setterAttr;
 	std::function<AttrClass(const ObjectClass&)> m_getterAttr;

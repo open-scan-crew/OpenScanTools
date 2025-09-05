@@ -8,7 +8,6 @@ class ScanNode : public APointCloudNode
 public:
     ScanNode(const ScanNode& node);
     ScanNode();
-
     ~ScanNode();
 
     ElementType getType() const override;

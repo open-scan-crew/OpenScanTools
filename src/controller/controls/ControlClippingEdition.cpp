@@ -29,13 +29,11 @@ namespace control::clippingEdition
     SetMode::SetMode(SafePtr<AClippingNode> toEditData, ClippingMode mode)
         : ATEditionControl({ toEditData }, mode, "SetMode", & ClippingData::setClippingMode, & ClippingData::getClippingMode)
     {
-        m_actualize_tree_view = true;
     }
 
     SetMode::SetMode(const std::unordered_set<SafePtr<AClippingNode>>& toEditDatas, const ClippingMode& mode)
         : ATEditionControl(toEditDatas, mode, "SetMode", &ClippingData::setClippingMode, &ClippingData::getClippingMode)
     {
-        m_actualize_tree_view = true;
     }
 
     SetMode::~SetMode()
@@ -67,20 +65,16 @@ namespace control::clippingEdition
         m_active = active;
         m_filterClipActive = filterClipActive;
         m_filterSelected = filterSelected;
-
-        m_actualize_tree_view = true;
     }
 
     SetClipActive::SetClipActive(SafePtr<AClippingNode> toEditData, bool active)
         : ATEditionControl({ toEditData }, active, "SetClipActive", & ClippingData::setClippingActive, & ClippingData::isClippingActive)
     {
-        m_actualize_tree_view = true;
     }
 
     SetClipActive::SetClipActive(const std::unordered_set<SafePtr<AClippingNode>>& toEditDatas, bool active)
         : ATEditionControl(toEditDatas, active, "SetClipActive", &ClippingData::setClippingActive, &ClippingData::isClippingActive)
     {
-        m_actualize_tree_view = true;
     }
 
     SetClipActive::~SetClipActive()
@@ -311,13 +305,11 @@ namespace control::clippingEdition
     SwitchBoxGrid::SwitchBoxGrid(SafePtr<BoxNode> box, bool upgrade)
         : ATEditionControl({ box }, upgrade, "SwitchBoxGrid", & BoxNode::setIsSimpleBox, & BoxNode::isSimpleBox)
     {
-        m_actualize_tree_view = true;
     }
 
     SwitchBoxGrid::SwitchBoxGrid(const std::unordered_set<SafePtr<BoxNode>>& boxs, bool upgrade)
         : ATEditionControl(boxs, upgrade, "SwitchBoxGrid", &BoxNode::setIsSimpleBox, &BoxNode::isSimpleBox)
     {
-        m_actualize_tree_view = true;
     }
 
     SwitchBoxGrid::~SwitchBoxGrid()

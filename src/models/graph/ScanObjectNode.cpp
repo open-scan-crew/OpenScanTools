@@ -34,8 +34,10 @@ std::unordered_set<Selection> ScanObjectNode::getAcceptableSelections(const Mani
 	{
 	case ManipulationMode::Translation:
 	case ManipulationMode::Rotation:
-	case ManipulationMode::Extrusion:
 		return { Selection::X, Selection::Y, Selection::Z };
+	case ManipulationMode::Extrusion:
+		return { Selection::X, Selection::Y, Selection::Z,
+		         Selection::_X, Selection::_Y, Selection::_Z };
 	case ManipulationMode::Scale:
 	default:
 		return {};
