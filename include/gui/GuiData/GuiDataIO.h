@@ -49,16 +49,17 @@ public:
 class GuiDataExportParametersDisplay : public IGuiData
 {
 public:
-    GuiDataExportParametersDisplay(const std::unordered_set<SafePtr<AClippingNode>>& clippings, ObjectStatusFilter status_filter, bool useClippings, bool useGrids, bool showMergeOption);
+    GuiDataExportParametersDisplay();
     ~GuiDataExportParametersDisplay() {};
     guiDType getType() override;
 
 public:
-    std::unordered_set<SafePtr<AClippingNode>> m_clippings;
+    std::unordered_set<SafePtr<AClippingNode>> clipping_nodes_;
     ObjectStatusFilter pc_status_filter_;
-    bool m_useClippings;
-    bool m_useGrids;
-    bool m_showMergeOption;
+    ExportPointCloudSource pc_source_;
+    bool use_clippings_;
+    bool use_grids_;
+    bool show_merge_option_;
 };
 
 class GuiDataTemporaryPath : public IGuiData

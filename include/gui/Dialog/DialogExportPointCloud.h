@@ -38,6 +38,7 @@ private:
     void translateUI();
     void refreshUI();
     void initComboBoxPointCloud();
+    void refreshDialogTitle();
     void refreshClippingNames();
     void refreshSourceOption();
     void refreshMethodOption();
@@ -49,12 +50,13 @@ private:
     bool m_showClippingOptions;
     bool m_showGridOptions;
     bool m_showMergeOption;
+    ExportPointCloudSource pc_source_;
 
     std::unordered_set<SafePtr<AClippingNode>> m_clippings;
     QString m_openPath;
 
     std::unordered_map<ExportClippingFilter, QString> m_exportSourceTexts;
-    std::unordered_map<ExportClippingMethod, QString> m_exportMethodTexts;
+    std::unordered_map<ExportPointCloudMerging, QString> m_exportMethodTexts;
 };
 
 #endif

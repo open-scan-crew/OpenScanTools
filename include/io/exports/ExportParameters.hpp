@@ -21,11 +21,19 @@ enum class ExportClippingFilter
     MAX_ENUM
 };
 
-enum class ExportClippingMethod
+enum class ExportPointCloudSource
 {
-    SCAN_SEPARATED = 0,
-    CLIPPING_SEPARATED,
-    CLIPPING_AND_SCAN_MERGED,
+    ALL = 0,
+    SCAN, // real scan, raw scan, original scan
+    OBJECT, // (former point cloud object) artificial, composed, 
+    MAX_ENUM
+};
+
+enum class ExportPointCloudMerging // ExportOutputMerging
+{
+    SCAN_SEPARATED = 0, // POINT_CLOUD_SEPARATED_CLIPPING_MERGED
+    CLIPPING_SEPARATED, // POINT_CLOUD_MERGED_CLIPPING_SEPARATED
+    CLIPPING_AND_SCAN_MERGED, // POINT_CLOUD_MERGED_CLIPPING_MERGED
     MAX_ENUM
 };
 
@@ -64,7 +72,7 @@ struct ClippingExportParameters
     //bool exportScans;
     //bool exportPCOs;
     ExportClippingFilter clippingFilter;
-    ExportClippingMethod method;
+    ExportPointCloudMerging method;
     FileType outFileType;
     tls::PrecisionType encodingPrecision;
     std::filesystem::path outFolder;

@@ -744,8 +744,11 @@ std::vector<tls::PointCloudInstance> GraphManager::getPointCloudInstances(const 
 			continue;
 
 		tls::ScanHeader header;
-		if (tlGetScanHeader(rPc->getScanGuid(), header))
-			result.emplace_back(header, rPc->getTransformationModule(), rPc->getClippable());
+		if (!tlGetScanHeader(rPc->getScanGuid(), header))
+			continue;
+
+		header.name = rPc->getComposedName();
+		result.emplace_back(header, rPc->getTransformationModule(), rPc->getClippable());
 	}
 
 	return (result);

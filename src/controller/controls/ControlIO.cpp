@@ -70,7 +70,7 @@ namespace control::io
 			ClippingExportParameters param;
 			param.pointCloudStatusFilter = ObjectStatusFilter::VISIBLE;
 			param.clippingFilter = ExportClippingFilter::ACTIVE;
-			param.method = ExportClippingMethod::SCAN_SEPARATED;
+			param.method = ExportPointCloudMerging::SCAN_SEPARATED;
 			param.outFileType = FileType::TLS;
 			param.encodingPrecision = tls::PrecisionType::TL_OCTREE_100UM;
 			param.outFolder = subInternal.getScansFolderPath();

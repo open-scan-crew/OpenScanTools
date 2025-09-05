@@ -84,11 +84,12 @@ void DialogExportPointCloud::informData(IGuiData *data)
     case guiDType::exportParametersDisplay:
     {
         auto displayParam = static_cast<GuiDataExportParametersDisplay*>(data);
-        m_showClippingOptions = displayParam->m_useClippings;
+        m_showClippingOptions = displayParam->use_clippings_;
         setPointCloudStatus(displayParam->pc_status_filter_);
-        m_showGridOptions = displayParam->m_useGrids;
-        m_showMergeOption = displayParam->m_showMergeOption;
-        m_clippings = displayParam->m_clippings;
+        m_showGridOptions = displayParam->use_grids_;
+        m_showMergeOption = displayParam->show_merge_option_;
+        m_clippings = displayParam->clipping_nodes_;
+        pc_source_ = displayParam->pc_source_;
         m_ui.label_msg->clear();
         // Show the names of the clippings in the dialog
         refreshUI();
@@ -179,7 +180,7 @@ void DialogExportPointCloud::startExport()
 
     parameters.clippingFilter = (ExportClippingFilter)m_ui.comboBox_clippings->currentData().toInt();
 
-    parameters.method = (ExportClippingMethod)m_ui.comboBox_method->currentData().toInt();
+    parameters.method = (ExportPointCloudMerging)m_ui.comboBox_method->currentData().toInt();
 
     parameters.outFileType = (FileType)m_ui.comboBox_file_format->currentData().toInt();
     // Get the export precision
@@ -252,9 +253,9 @@ void DialogExportPointCloud::translateUI()
     };
 
     m_exportMethodTexts = {
-        { ExportClippingMethod::SCAN_SEPARATED, TEXT_EXPORT_METHOD_SCAN_SEPARATED },
-        { ExportClippingMethod::CLIPPING_SEPARATED, TEXT_EXPORT_METHOD_CLIPPING_SEPARATED },
-        { ExportClippingMethod::CLIPPING_AND_SCAN_MERGED, TEXT_EXPORT_METHOD_SCAN_MERGED }
+        { ExportPointCloudMerging::SCAN_SEPARATED, TEXT_EXPORT_METHOD_SCAN_SEPARATED },
+        { ExportPointCloudMerging::CLIPPING_SEPARATED, TEXT_EXPORT_METHOD_CLIPPING_SEPARATED },
+        { ExportPointCloudMerging::CLIPPING_AND_SCAN_MERGED, TEXT_EXPORT_METHOD_SCAN_MERGED }
     };
 
     // Init the precision combo box (only for the TLS format)
@@ -267,14 +268,7 @@ void DialogExportPointCloud::translateUI()
 
 void DialogExportPointCloud::refreshUI()
 {
-    // Set the Dialog title
-    if (m_showClippingOptions)
-        setWindowTitle(TEXT_EXPORT_TITLE_CLIPPING);
-    else if (m_showGridOptions)
-        setWindowTitle(TEXT_EXPORT_TITLE_GRID);
-    else
-        setWindowTitle(TEXT_EXPORT_TITLE_NORMAL);
-
+    refreshDialogTitle();
     refreshSourceOption();
     refreshMethodOption();
     refreshClippingNames();
@@ -293,6 +287,18 @@ void DialogExportPointCloud::initComboBoxPointCloud()
     m_ui.comboBox_pointClouds->addItem(TEXT_EXPORT_FILTER_ALL, QVariant((int)ObjectStatusFilter::ALL));
     m_ui.comboBox_pointClouds->addItem(TEXT_EXPORT_FILTER_SELECTED, QVariant((int)ObjectStatusFilter::SELECTED));
     m_ui.comboBox_pointClouds->addItem(TEXT_EXPORT_FILTER_DISPLAYED, QVariant((int)ObjectStatusFilter::VISIBLE));
+}
+
+void DialogExportPointCloud::refreshDialogTitle()
+{
+    if (m_showClippingOptions)
+        setWindowTitle(TEXT_EXPORT_TITLE_CLIPPING);
+    else if (m_showGridOptions)
+        setWindowTitle(TEXT_EXPORT_TITLE_GRID);
+    else if (pc_source_ == ExportPointCloudSource::OBJECT)
+        setWindowTitle(TEXT_EXPORT_TITLE_PCOS);
+    else
+        setWindowTitle(TEXT_EXPORT_TITLE_NORMAL);
 }
 
 void DialogExportPointCloud::refreshClippingNames()
@@ -348,14 +354,14 @@ void DialogExportPointCloud::refreshSourceOption()
 
 void DialogExportPointCloud::refreshMethodOption()
 {
-    std::set<ExportClippingMethod> authorizedValues;
-    authorizedValues.insert(ExportClippingMethod::SCAN_SEPARATED);
+    std::set<ExportPointCloudMerging> authorizedValues;
+    authorizedValues.insert(ExportPointCloudMerging::SCAN_SEPARATED);
     if (m_showMergeOption)
-        authorizedValues.insert(ExportClippingMethod::CLIPPING_AND_SCAN_MERGED);
+        authorizedValues.insert(ExportPointCloudMerging::CLIPPING_AND_SCAN_MERGED);
     if (m_showClippingOptions)
-        authorizedValues.insert(ExportClippingMethod::CLIPPING_SEPARATED);
+        authorizedValues.insert(ExportPointCloudMerging::CLIPPING_SEPARATED);
 
-    ExportClippingMethod storedMethod = (ExportClippingMethod)m_ui.comboBox_method->currentData().toInt();
+    ExportPointCloudMerging storedMethod = (ExportPointCloudMerging)m_ui.comboBox_method->currentData().toInt();
 
     // Init the type combo box
     m_ui.comboBox_method->clear();
@@ -377,7 +383,7 @@ void DialogExportPointCloud::refreshMethodOption()
 void DialogExportPointCloud::refreshShowFileName()
 {
     bool askFileName = (!m_showGridOptions);
-    askFileName &= (ExportClippingMethod)m_ui.comboBox_method->currentData().toInt() == ExportClippingMethod::CLIPPING_AND_SCAN_MERGED;
+    askFileName &= (ExportPointCloudMerging)m_ui.comboBox_method->currentData().toInt() == ExportPointCloudMerging::CLIPPING_AND_SCAN_MERGED;
     askFileName |= (FileType)m_ui.comboBox_file_format->currentData().toInt() == FileType::RCP;
 
     m_ui.label_fileName->setVisible(askFileName);

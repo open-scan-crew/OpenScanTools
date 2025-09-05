@@ -134,8 +134,16 @@ ContextState ContextExportPC::feedMessage(IMessage* message, Controller& control
             return (m_state = ContextState::abort);
         }
 
+        GuiDataExportParametersDisplay* guiData = new GuiDataExportParametersDisplay();
+        guiData->clipping_nodes_ = clippings;
+        guiData->pc_status_filter_ = m_parameters.pointCloudStatusFilter;
+        guiData->pc_source_ = export_pcos_ ? ExportPointCloudSource::OBJECT : ExportPointCloudSource::SCAN;
+        guiData->use_clippings_ = init_msg->use_clippings_;
+        guiData->use_grids_ = init_msg->use_grids_;
+        guiData->show_merge_option_ = point_clouds.size() > 1;
+
         if (!m_forSubProject)
-            controller.updateInfo(new GuiDataExportParametersDisplay(clippings, m_parameters.pointCloudStatusFilter, init_msg->use_clippings_, init_msg->use_grids_, point_clouds.size() > 1));
+            controller.updateInfo(guiData);
 
         m_neededMessageCount--;
         break;
@@ -370,7 +378,7 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
         }
     }
     // The output files are based on the clippings
-    else if (m_parameters.method == ExportClippingMethod::CLIPPING_SEPARATED)
+    else if (m_parameters.method == ExportPointCloudMerging::CLIPPING_SEPARATED)
     {
         std::unordered_set<SafePtr<AClippingNode>> clippings_to_export = graph.getClippingObjects(
             m_parameters.clippingFilter == ExportClippingFilter::ACTIVE,
@@ -400,7 +408,7 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
         }
     }
     // The output files are based on the scans
-    else if (m_parameters.method == ExportClippingMethod::CLIPPING_AND_SCAN_MERGED)
+    else if (m_parameters.method == ExportPointCloudMerging::CLIPPING_AND_SCAN_MERGED)
     {
         ExportTask task;
         task.file_name = m_parameters.fileName.wstring();
@@ -446,7 +454,7 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
                 task.file_name = is_rcp ? m_parameters.fileName.wstring() : pcInfo.header.name;
 
                 task.header = pcInfo.header;
-                task.header.name = task.header.name;
+                task.header.name = task.file_name;
                 task.header.precision = m_parameters.encodingPrecision;
                 task.header.format = pcInfo.header.format;
 
@@ -504,7 +512,7 @@ void ContextExportPC::logProgress(Controller& controller)
     {
     case ExportClippingFilter::SELECTED:
     case ExportClippingFilter::ACTIVE:
-        state_text = m_parameters.method == ExportClippingMethod::CLIPPING_SEPARATED ? TEXT_SPLASH_SCREEN_CLIPPING_PROCESSING : TEXT_SPLASH_SCREEN_SCAN_PROCESSING;
+        state_text = m_parameters.method == ExportPointCloudMerging::CLIPPING_SEPARATED ? TEXT_SPLASH_SCREEN_CLIPPING_PROCESSING : TEXT_SPLASH_SCREEN_SCAN_PROCESSING;
         break;
     case ExportClippingFilter::GRIDS:
         state_text = TEXT_SPLASH_SCREEN_BOX_PROCESSING;
@@ -752,7 +760,7 @@ ContextState ContextExportSubProject::launch(Controller& controller)
 {
     Utils::System::createDirectoryIfNotExist(m_subProjectInternal.getScansFolderPath());
     m_parameters.clippingFilter = ExportClippingFilter::ACTIVE;
-    m_parameters.method = ExportClippingMethod::SCAN_SEPARATED;
+    m_parameters.method = ExportPointCloudMerging::SCAN_SEPARATED;
 
     processExport(controller, nullptr);
 

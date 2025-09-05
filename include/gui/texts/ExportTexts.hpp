@@ -13,7 +13,7 @@
 #define TEXT_EXPORT_CLIPPING_SOURCE_ACTIVE QObject::tr("Active")
 #define TEXT_EXPORT_LABEL_MISSING  QObject::tr("<Label Missing>")
 #define TEXT_EXPORT_TITLE_NORMAL QObject::tr("Scans Export")
-#define TEXT_EXPORT_TITLE_PCOS QObject::tr("Point Cloud Objects Export");
+#define TEXT_EXPORT_TITLE_PCOS QObject::tr("Point Cloud Objects Export")
 #define TEXT_EXPORT_TITLE_CLIPPING QObject::tr("Clipping Export")
 #define TEXT_EXPORT_TITLE_GRID QObject::tr("Grids Export")
 #define TEXT_EXPORT_TITLE_DELETE_POINTS QObject::tr("Delete Scan Points")
