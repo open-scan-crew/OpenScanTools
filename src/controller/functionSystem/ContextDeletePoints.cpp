@@ -11,7 +11,7 @@
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "pointCloudEngine/PCE_core.h"
 
-#include "models/graph/ScanNode.h"
+#include "models/graph/PointCloudNode.h"
 #include "models/graph/GraphManager.h"
 
 #include "gui/texts/ExportTexts.hpp"
@@ -142,13 +142,13 @@ ContextState ContextDeletePoints::launch(Controller& controller)
 {
     GraphManager& graphManager = controller.getGraphManager();
 
-    std::filesystem::path temp_folder = controller.getContext().cgetProjectInternalInfo().getScansFolderPath() / "temp";
+    std::filesystem::path temp_folder = controller.getContext().cgetProjectInternalInfo().getPointCloudFolderPath(false) / "temp";
     prepareOutputDirectory(controller, temp_folder);
 
     TlStreamLock streamLock;
 
     // Listing des scan à traiter
-    std::unordered_set<SafePtr<ScanNode>> scans = graphManager.getVisibleScans(m_panoramic);
+    std::unordered_set<SafePtr<PointCloudNode>> scans = graphManager.getVisibleScans(m_panoramic);
 
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString()));
     controller.updateInfo(new GuiDataProcessingSplashScreenStart(scans.size(), TEXT_EXPORT_CLIPPING_TITLE_PROGESS, TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(0).arg(scans.size())));
@@ -160,9 +160,9 @@ ContextState ContextDeletePoints::launch(Controller& controller)
     graphManager.getClippingAssembly(clippingAssembly, filterActive, filterSelected);
 
     uint64_t scan_count = 0;
-    for (const SafePtr<ScanNode>& scan : scans)
+    for (const SafePtr<PointCloudNode>& scan : scans)
     {
-        WritePtr<ScanNode> wScan = scan.get();
+        WritePtr<PointCloudNode> wScan = scan.get();
         if (!wScan)
             continue;
 

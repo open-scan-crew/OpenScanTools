@@ -1,12 +1,11 @@
 #include "models/graph/GraphManager.hxx"
 #include "vulkan/VulkanManager.h"
-#include "utils/Logger.h"
 #include "gui/IDataDispatcher.h"
 #include "gui/GuiData/GuiData3dObjects.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataRendering.h"
 
-#include "models/graph/ScanNode.h"
+#include "models/graph/PointCloudNode.h"
 #include "models/graph/TagNode.h"
 #include "models/graph/TorusNode.h"
 #include "models/graph/MeshObjectNode.h"
@@ -567,12 +566,10 @@ uint32_t GraphManager::getActiveClippingAndRampCount() const
 
 uint32_t GraphManager::getPCOcounters(const tls::ScanGuid& scan) const
 {
-	return (uint32_t)getNodesOnFilter<APointCloudNode>(
+	return (uint32_t)getNodesOnFilter<PointCloudNode>(
 			[](ReadPtr<AGraphNode>& node)
 			{ return node->getType() == ElementType::PCO || node->getType() == ElementType::Scan; },
-
-
-			[&scan](ReadPtr<APointCloudNode>& node)
+			[&scan](ReadPtr<PointCloudNode>& node)
 			{ return node->getScanGuid() == scan; }
 		).size();
 }
@@ -602,7 +599,7 @@ bool GraphManager::isFilePathOrScanExists(const std::wstring& name, const std::f
 
 		if (type == ElementType::Scan)
 		{
-			ReadPtr<ScanNode> readScan = static_pointer_cast<ScanNode>(objectPtr).cget();
+			ReadPtr<PointCloudNode> readScan = static_pointer_cast<PointCloudNode>(objectPtr).cget();
 			if (readScan && (readScan->getName() == name || readScan->getScanPath() == filePath))
 				return (true);
 		}
@@ -681,12 +678,12 @@ BoundingBoxD GraphManager::getScanBoundingBox(ObjectStatusFilter status) const
 	return project_bbox;
 }
 
-std::unordered_set<SafePtr<ScanNode>> GraphManager::getVisibleScans(const tls::ScanGuid& pano) const
+std::unordered_set<SafePtr<PointCloudNode>> GraphManager::getVisibleScans(const tls::ScanGuid& pano) const
 {
-	return getNodesOnFilter<ScanNode>(
+	return getNodesOnFilter<PointCloudNode>(
 		[](ReadPtr<AGraphNode>& node) {
 			return node->getType() == ElementType::Scan; },
-		[&pano](ReadPtr<ScanNode>& scan) {
+		[&pano](ReadPtr<PointCloudNode>& scan) {
 			return ((pano == xg::Guid() && scan->isVisible()) || scan->getScanGuid() == pano); }
 			);
 }
@@ -702,18 +699,23 @@ std::vector<tls::PointCloudInstance> GraphManager::getPointCloudInstances(const 
 
 	if (pano != xg::Guid())
 	{
-		std::unordered_set<SafePtr<ScanNode>> scans = 
-			getNodesOnFilter<ScanNode>([&pano, &getScans, &getPcos](ReadPtr<AGraphNode>& node)
-											{ return node->getType() == ElementType::Scan; },
-									   [&pano](ReadPtr<ScanNode>& node)
-											{ return (pano != xg::Guid() && node->getScanGuid() == pano); }
+		std::unordered_set<SafePtr<PointCloudNode>> scans = 
+			getNodesOnFilter<PointCloudNode>(
+				[&pano, &getScans, &getPcos](ReadPtr<AGraphNode>& node)
+				{
+					return node->getType() == ElementType::Scan;
+				},
+				[&pano](ReadPtr<PointCloudNode>& node)
+				{
+					return (pano != xg::Guid() && node->getScanGuid() == pano);
+				}
 			);
 
 		if (scans.size() > 1)
 			assert(false);
 
-		SafePtr<ScanNode> scan = *scans.begin();
-		ReadPtr<ScanNode> rScan = scan.cget();
+		SafePtr<PointCloudNode> scan = *scans.begin();
+		ReadPtr<PointCloudNode> rScan = scan.cget();
 		if (!rScan)
 			return result;
 
@@ -725,8 +727,9 @@ std::vector<tls::PointCloudInstance> GraphManager::getPointCloudInstances(const 
 		return result;
 	}
 
-	std::unordered_set<SafePtr<APointCloudNode>> pcs =
-		getNodesOnFilter<APointCloudNode>([&getScans, &getPcos, &filterStatus](ReadPtr<AGraphNode>& node)
+	std::unordered_set<SafePtr<PointCloudNode>> pcs =
+		getNodesOnFilter<PointCloudNode>(
+			[&getScans, &getPcos, &filterStatus](ReadPtr<AGraphNode>& node)
 			{ 
 				bool verifType = getScans && node->getType() == ElementType::Scan
 					|| getPcos && node->getType() == ElementType::PCO;
@@ -735,11 +738,11 @@ std::vector<tls::PointCloudInstance> GraphManager::getPointCloudInstances(const 
 					(filterStatus == ObjectStatusFilter::SELECTED && node->isSelected()));
 				return verifType && verifState;
 			}
-			);
+		);
 
-	for (const SafePtr<APointCloudNode>& pc : pcs)
+	for (const SafePtr<PointCloudNode>& pc : pcs)
 	{
-		ReadPtr<APointCloudNode> rPc = pc.cget();
+		ReadPtr<PointCloudNode> rPc = pc.cget();
 		if (!rPc)
 			continue;
 
@@ -759,7 +762,7 @@ uint64_t GraphManager::getProjectPointsCount() const
 	uint64_t points = 0;
 	for (const SafePtr<AGraphNode>& scan : getNodesByTypes({ ElementType::Scan }, ObjectStatusFilter::ALL))
 	{
-		ReadPtr<ScanNode> rScan = static_pointer_cast<ScanNode>(scan).cget();
+		ReadPtr<PointCloudNode> rScan = static_pointer_cast<PointCloudNode>(scan).cget();
 		if (!rScan)
 			continue;
 

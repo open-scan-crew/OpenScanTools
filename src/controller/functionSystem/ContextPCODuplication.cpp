@@ -5,8 +5,8 @@
 #include "controller/IControlListener.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/PointCloudTexts.hpp"
-#include "models/graph/ScanObjectNode.h"
-#include "models/graph/GraphManager.hxx"
+#include "models/graph/PointCloudNode.h"
+#include "models/graph/GraphManager.h"
 #include "utils/Logger.h"
 
 
@@ -23,7 +23,7 @@ ContextState ContextPCODuplication::start(Controller& controller)
     m_mode = controller.getContext().CgetDuplicationSettings().type;
     std::unordered_set<SafePtr<AGraphNode>> pcos = controller.getGraphManager().getNodesByTypes({ ElementType::PCO }, ObjectStatusFilter::SELECTED);
     if (pcos.size() == 1)
-        m_pco = static_pointer_cast<ScanObjectNode>(SafePtr<AGraphNode>(*pcos.begin()));
+        m_pco = static_pointer_cast<PointCloudNode>(SafePtr<AGraphNode>(*pcos.begin()));
     else
         return ARayTracingContext::abort(controller);
 
@@ -54,10 +54,10 @@ ContextState ContextPCODuplication::launch(Controller& controller)
     FUNCLOG << "AContextPCODuplication launch" << LOGENDL;
     GraphManager& graphManager = controller.getGraphManager();
 
-    SafePtr<ScanObjectNode> newPco;
+    SafePtr<PointCloudNode> newPco;
     glm::dvec3 scale;
     {
-        ReadPtr<ScanObjectNode> rPco = m_pco.cget();
+        ReadPtr<PointCloudNode> rPco = m_pco.cget();
         if (!rPco)
         {
             FUNCLOG << "AContextPCODuplication failed do find object " << LOGENDL;
@@ -66,12 +66,12 @@ ContextState ContextPCODuplication::launch(Controller& controller)
             else
                 return (m_state = ContextState::abort);
         }
-        newPco = graphManager.createCopyNode<ScanObjectNode>(*&rPco);
+        newPco = make_safe<PointCloudNode>(*&rPco);
         scale = rPco->getScale();
     }
 
 
-    WritePtr<ScanObjectNode> wNewPco = newPco.get();
+    WritePtr<PointCloudNode> wNewPco = newPco.get();
     if (!wNewPco)
     {
         FUNCLOG << "AContextPCODuplication failed to create copy " << LOGENDL;

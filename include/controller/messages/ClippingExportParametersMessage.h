@@ -4,7 +4,6 @@
 #include "io/exports/ExportParameters.hpp"
 #include "controller/messages/IMessage.h"
 
-class APointCloudNode;
 
 class ClippingExportParametersMessage : public IMessage
 {

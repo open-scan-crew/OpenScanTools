@@ -8,7 +8,7 @@
 #include "gui/GuiData/GuiDataIO.h"
 #include "io/SaveLoadSystem.h"
 #include "models/graph/MeshObjectNode.h"
-#include "models/graph/APointCloudNode.h"
+#include "models/graph/PointCloudNode.h"
 
 #include "gui/Texts.hpp"
 
@@ -61,7 +61,7 @@ ContextState ContextExportOSTObjects::feedMessage(IMessage* message, Controller&
 				case ElementType::PCO:
 				case ElementType::Scan:
 				{
-					ReadPtr<APointCloudNode> scan = static_pointer_cast<APointCloudNode>(exportPtr).cget();
+					ReadPtr<PointCloudNode> scan = static_pointer_cast<PointCloudNode>(exportPtr).cget();
 					filePath = scan->getCurrentScanPath().wstring();
 					fileId = scan->getScanGuid();
 				}

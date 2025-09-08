@@ -52,7 +52,7 @@ public:
 	const std::filesystem::path& getProjectFilePath() const;
 	const std::filesystem::path& getProjectFolderPath() const;
 
-	std::filesystem::path getScansFolderPath() const;
+	std::filesystem::path getPointCloudFolderPath(bool is_object) const;
 	std::filesystem::path getObjectsProjectPath() const;
 	std::filesystem::path getTemplatesFolderPath() const;
 	std::filesystem::path getObjectsFilesFolderPath() const;

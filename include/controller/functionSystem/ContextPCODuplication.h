@@ -4,7 +4,7 @@
 #include "controller/functionSystem/ARayTracingContext.h"
 #include "controller/functionSystem/ADuplication.h"
 
-class ScanObjectNode;
+class PointCloudNode;
 
 class ContextPCODuplication : public ARayTracingContext, public ADuplication
 {
@@ -18,7 +18,7 @@ public:
 	ContextType getType() const override;
 
 private:
-	SafePtr<ScanObjectNode> m_pco;
+	SafePtr<PointCloudNode> m_pco;
 
 };
 

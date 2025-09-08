@@ -12,6 +12,7 @@
 #include "models/graph/ClusterNode.h"
 #include "models/graph/BoxNode.h"
 #include "models/graph/CameraNode.h"
+#include "models/graph/PointCloudNode.h"
 
 #include "io/SaveLoadSystem.h"
 
@@ -293,7 +294,7 @@ void ScantraInterface::addStation()
 
     std::filesystem::path pc_path = station.point_cloud;
     SaveLoadSystem::ErrorCode err;
-    SafePtr<ScanNode> scan = SaveLoadSystem::ImportNewTlsFile(pc_path, controller_, err);
+    SafePtr<PointCloudNode> scan = SaveLoadSystem::ImportNewTlsFile(pc_path, false, controller_, err);
 }
 
 void ScantraInterface::editStationChanged()

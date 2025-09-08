@@ -15,8 +15,7 @@
 #include "models/graph/TagNode.h"
 #include "models/graph/PointNode.h"
 
-#include "models/graph/ScanNode.h"
-#include "models/graph/ScanObjectNode.h"
+#include "models/graph/PointCloudNode.h"
 
 #include "models/graph/ViewPointNode.h"
 #include "models/graph/CameraNode.h"
@@ -343,6 +342,12 @@ bool ImportScanData(const nlohmann::json& json, ScanData& data)
 	else
 		data.setClippable(true);
 
+
+	if (json.find(Key_Type) != json.end())
+	{
+		auto elemType = magic_enum::enum_cast<ElementType>(json.at(Key_Type).get<std::string>());
+		data.setIsObject(elemType == ElementType::PCO);
+	}
 	/* A Faire après
 	tls::ScanGuid scanGuid;
 	if (tlGetScanGuid(scanFolder / data.getScanPath().filename(), scanGuid))
@@ -1969,22 +1974,7 @@ bool ImportNodeLinks(const nlohmann::json& json, const SafePtr<AGraphNode>& node
 	return retVal;
 }
 
-template<class NodeClass>
-void WriteNode(WritePtr<NodeClass>& wNodeToEdit, std::function<bool(WritePtr<NodeClass>& writePtr)> importDataFunction)
-{
-	bool retVal = true;
-
-	if (!wNodeToEdit)
-		return;
-
-	retVal = importDataFunction(wNodeToEdit);
-
-	//Détruire si retVal est faux ?
-
-	return;
-}
-
-void DataDeserializer::PostDeserializeNode(const nlohmann::json& json, const SafePtr<AGraphNode>& node, const std::unordered_map<xg::Guid, SafePtr<AGraphNode>>& nodeById)
+void DataDeserializer::PostDeserializeNode(const nlohmann::json& json, const SafePtr<AGraphNode> node, const std::unordered_map<xg::Guid, SafePtr<AGraphNode>>& nodeById)
 {
 	ElementType type;
 	{
@@ -2007,398 +1997,324 @@ void DataDeserializer::PostDeserializeNode(const nlohmann::json& json, const Saf
 	}
 }
 
-void DataDeserializer::DeserializeTagNode(WritePtr<TagNode>& wToEditNode, const nlohmann::json& json, Controller& controller)
+bool DataDeserializer::DeserializeTagNode(SafePtr<TagNode> node, const nlohmann::json& json, Controller& controller)
 {
+	WritePtr<TagNode> wNode = node.get();
+	if (!wNode)
+		return false;
 
-	return WriteNode<TagNode>(wToEditNode,
-
-		[&controller, &json](WritePtr<TagNode>& writePtr)
-		{
-			const std::unordered_set<SafePtr<sma::TagTemplate>>& templates = controller.getContext().getTemplates();
+	const std::unordered_set<SafePtr<sma::TagTemplate>>& templates = controller.getContext().getTemplates();
 			
-			bool success = true;
+	bool success = true;
 
-			success &= ImportData(json, *&writePtr);
-			success &= ImportTransformationModule(json, *&writePtr);
-			success &= ImportClippingData(json, *&writePtr);
-			success &= ImportTagData(json, *&writePtr, templates);
+	success &= ImportData(json, *&wNode);
+	success &= ImportTransformationModule(json, *&wNode);
+	success &= ImportClippingData(json, *&wNode);
+	success &= ImportTagData(json, *&wNode, templates);
 
-			return success;
-		}
-	);
+	return success;
 }
 
-void DataDeserializer::DeserializeMeshObjectNode(WritePtr<MeshObjectNode>& wToEditNode, const nlohmann::json& json, Controller& controller)
+bool DataDeserializer::DeserializeMeshObjectNode(SafePtr<MeshObjectNode> node, const nlohmann::json& json, Controller& controller)
 {
-	return WriteNode<MeshObjectNode>(wToEditNode,
+	WritePtr<MeshObjectNode> wNode = node.get();
+	if (!wNode)
+		return false;
 
-		[&controller, &json](WritePtr<MeshObjectNode>& writePtr)
-		{
-			bool success = true;
+	bool success = true;
 
-			success &= ImportData(json, *&writePtr);
-			success &= ImportTransformationModule(json, *&writePtr);
-			success &= ImportMeshObjectData(json, *&writePtr, controller.getContext().cgetProjectInternalInfo().getObjectsFilesFolderPath());
+	success &= ImportData(json, *&wNode);
+	success &= ImportTransformationModule(json, *&wNode);
+	success &= ImportMeshObjectData(json, *&wNode, controller.getContext().cgetProjectInternalInfo().getObjectsFilesFolderPath());
 
-			return success;
-		}
-	);
+	return success;
 }
 
-void DataDeserializer::DeserializeScanObjectNode(WritePtr<ScanObjectNode>& wToEditNode, const nlohmann::json& json, Controller& controller)
+bool DataDeserializer::DeserializeSimpleMeasureNode(SafePtr<SimpleMeasureNode> node, const nlohmann::json& json, Controller& controller)
 {
-	return WriteNode<ScanObjectNode>(wToEditNode,
+	WritePtr<SimpleMeasureNode> wNode = node.get();
+	if (!wNode)
+		return false;
 
-		[&controller, &json](WritePtr<ScanObjectNode>& writePtr)
-		{
-			bool success = true;
+	bool success = true;
 
-			success &= ImportData(json, *&writePtr);
-			success &= ImportTransformationModule(json, *&writePtr);
-			success &= ImportScanData(json, *&writePtr);
+	success &= ImportData(json, *&wNode);
+	success &= ImportTransformationModule(json, *&wNode);
+	success &= ImportClippingData(json, *&wNode);
+	success &= ImportSimpleMeasureData(json, *&wNode);
 
-			return success;
-		}
-	);
+	return success;
 }
 
-void DataDeserializer::DeserializeSimpleMeasureNode(WritePtr<SimpleMeasureNode>& wToEditNode, const nlohmann::json& json, Controller& controller)
+bool DataDeserializer::DeserializePolylineMeasureNode(SafePtr<PolylineMeasureNode> node, const nlohmann::json& json, Controller& controller)
 {
-	return WriteNode<SimpleMeasureNode>(wToEditNode,
+	WritePtr<PolylineMeasureNode> wNode = node.get();
+	if (!wNode)
+		return false;
 
-		[&controller, &json](WritePtr<SimpleMeasureNode>& writePtr)
-		{
-			bool success = true;
+	bool success = true;
 
-			success &= ImportData(json, *&writePtr);
-			success &= ImportTransformationModule(json, *&writePtr);
-			success &= ImportClippingData(json, *&writePtr);
-			success &= ImportSimpleMeasureData(json, *&writePtr);
+	success &= ImportData(json, *&wNode);
+	success &= ImportTransformationModule(json, *&wNode);
+	success &= ImportClippingData(json, *&wNode);
+	success &= ImportPolylineMeasureData(json, *&wNode);
 
-			return success;
-		}
-	);
+	return success;
 }
 
-void DataDeserializer::DeserializePolylineMeasureNode(WritePtr<PolylineMeasureNode>& wToEditNode, const nlohmann::json& json, Controller& controller)
+bool DataDeserializer::DeserializePointToPlaneMeasureNode(SafePtr<PointToPlaneMeasureNode> node, const nlohmann::json& json, Controller& controller)
 {
-	return WriteNode<PolylineMeasureNode>(wToEditNode,
+	WritePtr<PointToPlaneMeasureNode> wNode = node.get();
+	if (!wNode)
+		return false;
 
-		[&controller, &json](WritePtr<PolylineMeasureNode>& writePtr)
-		{
-			bool success = true;
+	bool success = true;
 
-			success &= ImportData(json, *&writePtr);
-			success &= ImportTransformationModule(json, *&writePtr);
-			success &= ImportClippingData(json, *&writePtr);
-			success &= ImportPolylineMeasureData(json, *&writePtr);
+	success &= ImportData(json, *&wNode);
+	success &= ImportTransformationModule(json, *&wNode);
+	success &= ImportClippingData(json, *&wNode);
+	success &= ImportPointToPlaneMeasureData(json, *&wNode);
 
-			return success;
-		}
-	);
+	return success;
 }
 
-void DataDeserializer::DeserializePointToPlaneMeasureNode(WritePtr<PointToPlaneMeasureNode>& wToEditNode, const nlohmann::json& json, Controller& controller)
+bool DataDeserializer::DeserializePointToPipeMeasureNode(SafePtr<PointToPipeMeasureNode> node, const nlohmann::json& json, Controller& controller)
 {
-	return WriteNode<PointToPlaneMeasureNode>(wToEditNode,
+	WritePtr<PointToPipeMeasureNode> wNode = node.get();
+	if (!wNode)
+		return false;
 
-		[&controller, &json](WritePtr<PointToPlaneMeasureNode>& writePtr)
-		{
-			bool success = true;
+	bool success = true;
 
-			success &= ImportData(json, *&writePtr);
-			success &= ImportTransformationModule(json, *&writePtr);
-			success &= ImportClippingData(json, *&writePtr);
-			success &= ImportPointToPlaneMeasureData(json, *&writePtr);
+	success &= ImportData(json, *&wNode);
+	success &= ImportTransformationModule(json, *&wNode);
+	success &= ImportClippingData(json, *&wNode);
+	success &= ImportPointToPipeMeasureData(json, *&wNode);
 
-			return success;
-		}
-	);
+	return success;
 }
 
-void DataDeserializer::DeserializePointToPipeMeasureNode(WritePtr<PointToPipeMeasureNode>& wToEditNode, const nlohmann::json& json, Controller& controller)
+bool DataDeserializer::DeserializePipeToPlaneMeasureNode(SafePtr<PipeToPlaneMeasureNode> node, const nlohmann::json& json, Controller& controller)
 {
-	return WriteNode<PointToPipeMeasureNode>(wToEditNode,
+	WritePtr<PipeToPlaneMeasureNode> wNode = node.get();
+	if (!wNode)
+		return false;
 
-		[&controller, &json](WritePtr<PointToPipeMeasureNode>& writePtr)
-		{
-			bool success = true;
+	bool success = true;
 
-			success &= ImportData(json, *&writePtr);
-			success &= ImportTransformationModule(json, *&writePtr);
-			success &= ImportClippingData(json, *&writePtr);
-			success &= ImportPointToPipeMeasureData(json, *&writePtr);
+	success &= ImportData(json, *&wNode);
+	success &= ImportTransformationModule(json, *&wNode);
+	success &= ImportClippingData(json, *&wNode);
+	success &= ImportPipeToPlaneMeasureData(json, *&wNode);
 
-			return success;
-		}
-	);
+	return success;
 }
 
-void DataDeserializer::DeserializePipeToPlaneMeasureNode(WritePtr<PipeToPlaneMeasureNode>& wToEditNode, const nlohmann::json& json, Controller& controller)
+bool DataDeserializer::DeserializePipeToPipeMeasureNode(SafePtr<PipeToPipeMeasureNode> node, const nlohmann::json& json, Controller& controller)
 {
-	return WriteNode<PipeToPlaneMeasureNode>(wToEditNode,
+	WritePtr<PipeToPipeMeasureNode> wNode = node.get();
+	if (!wNode)
+		return false;
 
-		[&controller, &json](WritePtr<PipeToPlaneMeasureNode>& writePtr)
-		{
-			bool success = true;
+	bool success = true;
 
-			success &= ImportData(json, *&writePtr);
-			success &= ImportTransformationModule(json, *&writePtr);
-			success &= ImportClippingData(json, *&writePtr);
-			success &= ImportPipeToPlaneMeasureData(json, *&writePtr);
+	success &= ImportData(json, *&wNode);
+	success &= ImportTransformationModule(json, *&wNode);
+	success &= ImportClippingData(json, *&wNode);
+	success &= ImportPipeToPipeMeasureData(json, *&wNode);
 
-			return success;
-		}
-	);
+	return success;
 }
 
-void DataDeserializer::DeserializePipeToPipeMeasureNode(WritePtr<PipeToPipeMeasureNode>& wToEditNode, const nlohmann::json& json, Controller& controller)
+bool DataDeserializer::DeserializeBeamBendingMeasureNode(SafePtr<BeamBendingMeasureNode> node, const nlohmann::json& json, Controller& controller)
 {
-	return WriteNode<PipeToPipeMeasureNode>(wToEditNode,
+	WritePtr<BeamBendingMeasureNode> wNode = node.get();
+	if (!wNode)
+		return false;
 
-		[&controller, &json](WritePtr<PipeToPipeMeasureNode>& writePtr)
-		{
-			bool success = true;
+	bool success = true;
 
-			success &= ImportData(json, *&writePtr);
-			success &= ImportTransformationModule(json, *&writePtr);
-			success &= ImportClippingData(json, *&writePtr);
-			success &= ImportPipeToPipeMeasureData(json, *&writePtr);
+	success &= ImportData(json, *&wNode);
+	success &= ImportTransformationModule(json, *&wNode);
+	success &= ImportBeamBendingMeasureData(json, *&wNode);
 
-			return success;
-		}
-	);
+	return success;
 }
 
-void DataDeserializer::DeserializeBeamBendingMeasureNode(WritePtr<BeamBendingMeasureNode>& wToEditNode, const nlohmann::json& json, Controller& controller)
+bool DataDeserializer::DeserializeColumnTiltMeasureNode(SafePtr<ColumnTiltMeasureNode> node, const nlohmann::json& json, Controller& controller)
 {
-	return WriteNode<BeamBendingMeasureNode>(wToEditNode,
+	WritePtr<ColumnTiltMeasureNode> wNode = node.get();
+	if (!wNode)
+		return false;
 
-		[&controller, &json](WritePtr<BeamBendingMeasureNode>& writePtr)
-		{
-			bool success = true;
+	bool success = true;
 
-			success &= ImportData(json, *&writePtr);
-			success &= ImportTransformationModule(json, *&writePtr);
-			success &= ImportBeamBendingMeasureData(json, *&writePtr);
+	success &= ImportData(json, *&wNode);
+	success &= ImportTransformationModule(json, *&wNode);
+	success &= ImportColumnTiltMeasureData(json, *&wNode);
 
-			return success;
-		}
-	);
+	return success;
 }
 
-void DataDeserializer::DeserializeColumnTiltMeasureNode(WritePtr<ColumnTiltMeasureNode>& wToEditNode, const nlohmann::json& json, Controller& controller)
+bool DataDeserializer::DeserializePointCloudNode(SafePtr<PointCloudNode> node, const nlohmann::json& json, Controller& controller)
 {
-	return WriteNode<ColumnTiltMeasureNode>(wToEditNode,
+	WritePtr<PointCloudNode> wNode = node.get();
+	if (!wNode)
+		return false;
 
-		[&controller, &json](WritePtr<ColumnTiltMeasureNode>& writePtr)
-		{
-			bool success = true;
+	bool success = true;
 
-			success &= ImportData(json, *&writePtr);
-			success &= ImportTransformationModule(json, *&writePtr);
-			success &= ImportColumnTiltMeasureData(json, *&writePtr);
+	success &= ImportData(json, *&wNode);
+	success &= ImportTransformationModule(json, *&wNode);
+	success &= ImportScanData(json, *&wNode);
 
-			return success;
-		}
-	);
+	return success;
 }
 
-void DataDeserializer::DeserializeScanNode(WritePtr<ScanNode>& wToEditNode, const nlohmann::json& json, Controller& controller)
+bool DataDeserializer::DeserializeViewPointNode(SafePtr<ViewPointNode> node, const nlohmann::json& json, Controller& controller)
 {
-	return WriteNode<ScanNode>(wToEditNode,
+	WritePtr<ViewPointNode> wNode = node.get();
+	if (!wNode)
+		return false;
 
-		[&controller, &json](WritePtr<ScanNode>& writePtr)
-		{
-			bool success = true;
+	bool success = true;
 
-			success &= ImportData(json, *&writePtr);
-			success &= ImportTransformationModule(json, *&writePtr);
-			success &= ImportScanData(json, *&writePtr);
+	success &= ImportData(json, *&wNode);
+	success &= ImportTransformationModule(json, *&wNode);
+	success &= ImportDisplayParameters(json, *&wNode);
+	success &= ImportProjectionData(json, *&wNode);
 
-			return success;
-		}
-	);
+	return success;
 }
 
-void DataDeserializer::DeserializeViewPointNode(WritePtr<ViewPointNode>& wToEditNode, const nlohmann::json& json, Controller& controller)
+bool DataDeserializer::DeserializeClusterNode(SafePtr<ClusterNode> node, const nlohmann::json& json, Controller& controller)
 {
-	return WriteNode<ViewPointNode>(wToEditNode,
+	WritePtr<ClusterNode> wNode = node.get();
+	if (!wNode)
+		return false;
 
-		[&controller, &json](WritePtr<ViewPointNode>& writePtr)
-		{
-			bool success = true;
+	bool success = true;
 
-			success &= ImportData(json, *&writePtr);
-			success &= ImportTransformationModule(json, *&writePtr);
-			success &= ImportDisplayParameters(json, *&writePtr);
-			success &= ImportProjectionData(json, *&writePtr);
+	success &= ImportData(json, *&wNode);
+	success &= ImportTransformationModule(json, *&wNode);
+	success &= ImportClusterData(json, *&wNode);
 
-			return success;
-		}
-	);
+	return success;
 }
 
-void DataDeserializer::DeserializeClusterNode(WritePtr<ClusterNode>& wToEditNode, const nlohmann::json& json, Controller& controller)
+bool DataDeserializer::DeserializeBoxNode(SafePtr<BoxNode> node, const nlohmann::json& json, Controller& controller)
 {
-	return WriteNode<ClusterNode>(wToEditNode,
+	WritePtr<BoxNode> wNode = node.get();
+	if (!wNode)
+		return false;
 
-		[&controller, &json](WritePtr<ClusterNode>& writePtr)
-		{
-			bool success = true;
-
-			success &= ImportData(json, *&writePtr);
-			success &= ImportTransformationModule(json, *&writePtr);
-			success &= ImportClusterData(json, *&writePtr);
-
-			return success;
-		}
-	);
+	bool success = true;
+	success &= ImportData(json, *&wNode);
+	success &= ImportTransformationModule(json, *&wNode);
+	success &= ImportClippingData(json, *&wNode);
+	success &= ImportGridData(json, *&wNode);
+	return success;
 }
 
-void DataDeserializer::DeserializeBoxNode(SafePtr<BoxNode> box, const nlohmann::json& json, Controller& controller)
+bool DataDeserializer::DeserializeCameraNode(SafePtr<CameraNode> node, const nlohmann::json& json)
 {
-	WritePtr<BoxNode> wBox = box.get();
-	if (!wBox)
-		return;
+	WritePtr<CameraNode> wNode = node.get();
+	if (!wNode)
+		return false;
 
-	ImportData(json, *&wBox);
-	ImportTransformationModule(json, *&wBox);
-	ImportClippingData(json, *&wBox);
-	ImportGridData(json, *&wBox);
+	bool success = true;
+	success &= ImportTransformationModule(json, *&wNode);
+	success &= ImportData(json, *&wNode);
+	success &= ImportDisplayParameters(json, *&wNode);
+	success &= ImportProjectionData(json, *&wNode);
+
+	return success;
 }
 
-void DataDeserializer::DeserializeCameraNode(WritePtr<CameraNode>& wCam, const nlohmann::json& json)
+bool DataDeserializer::DeserializePointNode(SafePtr<PointNode> node, const nlohmann::json& json, Controller& controller)
 {
-	if (!wCam)
-		return;
+	WritePtr<PointNode> wNode = node.get();
+	if (!wNode)
+		return false;
 
-	ImportTransformationModule(json, *&wCam);
-	ImportData(json, *&wCam);
-	ImportDisplayParameters(json, *&wCam);
-	ImportProjectionData(json, *&wCam);
+	bool success = true;
 
-	return;
+	success &= ImportData(json, *&wNode);
+	success &= ImportTransformationModule(json, *&wNode);
+	success &= ImportClippingData(json, *&wNode);
+
+	return success;
 }
 
-void DataDeserializer::DeserializePointNode(WritePtr<PointNode>& wToEditNode, const nlohmann::json& json, Controller& controller)
+bool DataDeserializer::DeserializeCylinderNode(SafePtr<CylinderNode> node, const nlohmann::json& json, Controller& controller)
 {
-	return WriteNode<PointNode>(wToEditNode,
+	WritePtr<CylinderNode> wNode = node.get();
+	if (!wNode)
+		return false;
 
-		[&controller, &json](WritePtr<PointNode>& writePtr)
-		{
-			bool success = true;
+	bool success = true;
 
-			success &= ImportData(json, *&writePtr);
-			success &= ImportTransformationModule(json, *&writePtr);
-			success &= ImportClippingData(json, *&writePtr);
+	success &= ImportData(json, *&wNode);
+	success &= ImportTransformationModule(json, *&wNode);
+	success &= ImportClippingData(json, *&wNode);
+	success &= ImportStandardRadiusData(json, *&wNode, controller);
+	success &= ImportInsulationData(json, *&wNode, controller);
 
-			return success;
-		}
-	);
+	if (json.find(Key_Length) != json.end())
+		wNode->setLength((json.at(Key_Length).get<double>()));
+	else
+		wNode->setLength(wNode->getScale().z * 2.0);
+
+	return success;
 }
 
-void DataDeserializer::DeserializeCylinderNode(WritePtr<CylinderNode>& wToEditNode, const nlohmann::json& json, Controller& controller)
+bool DataDeserializer::DeserializeTorusNode(SafePtr<TorusNode> node, const nlohmann::json& json, Controller& controller)
 {
-	return WriteNode<CylinderNode>(wToEditNode,
+	WritePtr<TorusNode> wNode = node.get();
+	if (!wNode)
+		return false;
 
-		[&controller, &json](WritePtr<CylinderNode>& writePtr)
-		{
-			bool success = true;
+	bool success = true;
 
-			success &= ImportData(json, *&writePtr);
-			success &= ImportTransformationModule(json, *&writePtr);
-			success &= ImportClippingData(json, *&writePtr);
-			success &= ImportStandardRadiusData(json, *&writePtr, controller);
-			success &= ImportInsulationData(json, *&writePtr, controller);
+	success &= ImportData(json, *&wNode);
+	success &= ImportTransformationModule(json, *&wNode);
+	success &= ImportClippingData(json, *&wNode);
+	success &= ImportTorusData(json, *&wNode);
 
-			if (json.find(Key_Length) != json.end())
-				writePtr->setLength((json.at(Key_Length).get<double>()));
-			else
-				writePtr->setLength(writePtr->getScale().z * 2.0);
+	wNode->updateTorusMesh();
 
-			return success;
-		}
-	);
+	return success;
 }
 
-void DataDeserializer::DeserializeTorusNode(WritePtr<TorusNode>& wToEditNode, const nlohmann::json& json, Controller& controller)
+bool DataDeserializer::DeserializeSphereNode(SafePtr<SphereNode> node, const nlohmann::json& json, Controller& controller)
 {
-	return WriteNode<TorusNode>(wToEditNode,
+	WritePtr<SphereNode> wNode = node.get();
+	if (!wNode)
+		return false;
 
-		[&controller, &json](WritePtr<TorusNode>& writePtr)
-		{	
-			bool success = true;
+	bool success = true;
 
-			success &= ImportData(json, *&writePtr);
-			success &= ImportTransformationModule(json, *&writePtr);
-			success &= ImportClippingData(json, *&writePtr);
-			success &= ImportTorusData(json, *&writePtr);
+	success &= ImportData(json, *&wNode);
+	success &= ImportTransformationModule(json, *&wNode);
+	success &= ImportClippingData(json, *&wNode);
 
-			writePtr->updateTorusMesh();
+	if (json.find(Key_ForcedRadius) != json.end())
+		wNode->setRadius((json.at(Key_ForcedRadius).get<double>()));
+	else
+		success &= false;
 
-			return success;
-		}
-	);
+	return success;
 }
 
-void DataDeserializer::DeserializeSphereNode(WritePtr<SphereNode>& wToEditNode, const nlohmann::json& json, Controller& controller)
+bool DataDeserializer::DeserializePiping(SafePtr<ClusterNode> node, const nlohmann::json& json, Controller& controller)
 {
-	return WriteNode<SphereNode>(wToEditNode,
+	WritePtr<ClusterNode> wNode = node.get();
+	if (!wNode)
+		return false;
 
-		[&controller, &json](WritePtr<SphereNode>& writePtr)
-		{
-			bool success = true;
-
-			success &= ImportData(json, *&writePtr);
-			success &= ImportTransformationModule(json, *&writePtr);
-			success &= ImportClippingData(json, *&writePtr);
-
-			if (json.find(Key_ForcedRadius) != json.end())
-				writePtr->setRadius((json.at(Key_ForcedRadius).get<double>()));
-			else
-				success &= false;
-
-
-			return success;
-		}
-	);
+	wNode->setTreeType(TreeType::Piping);
+	return ImportData(json, *&wNode);
 }
-
-void DataDeserializer::DeserializePiping(WritePtr<ClusterNode>& wToEditNode, const nlohmann::json& json, Controller& controller)
-{
-	return WriteNode<ClusterNode>(wToEditNode,
-
-		[&controller, &json](WritePtr<ClusterNode>& writePtr)
-		{
-			writePtr->setTreeType(TreeType::Piping);
-			return ImportData(json, *&writePtr);
-		}
-	);
-}
-/*
-bool DataDeserializer::Deserialize(const nlohmann::json& json, Piping& data)
-{
-	bool retVal(true);
-	std::list<xg::Guid> listGuid;
-	if (json.find(Key_PipingElems) != json.end())
-	{
-		for (const nlohmann::json& elemIt : json.at(Key_PipingElems))
-		{
-			if (elemIt.find(Key_InternId) != elemIt.end())
-				listGuid.push_back(xg::Guid(elemIt.at(Key_InternId).get<std::string>()));
-			else
-			{
-				IOLOG << "Piping InternId read error" << LOGENDL;
-				retVal = false;
-			}
-		}
-		//data.setPipingList(listGuid);
-	}
-	return retVal;
-
-}*/
-
 
 bool DataDeserializer::DeserializeStandards(const nlohmann::json& json, std::unordered_map<StandardType, std::vector<StandardList>>& data)
 {

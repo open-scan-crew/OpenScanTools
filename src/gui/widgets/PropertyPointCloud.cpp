@@ -5,7 +5,7 @@
 #include "controller/controls/ControlScanEdition.h"
 #include "controller/controls/ControlDataEdition.h"
 #include "controller/controls/ControlObject3DEdition.h"
-#include "models/graph/APointCloudNode.h"
+#include "models/graph/PointCloudNode.h"
 
 #include "QtWidgets/qcolordialog.h"
 
@@ -67,7 +67,7 @@ void PropertyPointCloud::hideEvent(QHideEvent* event)
 bool PropertyPointCloud::actualizeProperty(SafePtr<AGraphNode> object )
 {
     if (object)
-        m_storedScan = static_pointer_cast<APointCloudNode>(object);
+        m_storedScan = static_pointer_cast<PointCloudNode>(object);
 
     m_ui.genericPropsHeadWidget->setObject(m_storedScan);
     m_ui.genericPropsFeetWidget->setObject(m_storedScan);
@@ -77,7 +77,7 @@ bool PropertyPointCloud::actualizeProperty(SafePtr<AGraphNode> object )
 
 bool PropertyPointCloud::update()
 {
-    ReadPtr<APointCloudNode> pointCloud = m_storedScan.cget();
+    ReadPtr<PointCloudNode> pointCloud = m_storedScan.cget();
     if (!pointCloud)
         return false;
 
@@ -164,7 +164,7 @@ void PropertyPointCloud::setObject3DParameters(const TransformationModule& data)
 
 void PropertyPointCloud::slotSetScanColor()
 {
-    ReadPtr<APointCloudNode> scan = m_storedScan.cget();
+    ReadPtr<PointCloudNode> scan = m_storedScan.cget();
     QColor color = QColorDialog::getColor(QColorFromColor32(scan->getColor()), this);
 
     if (color.isValid() == true)

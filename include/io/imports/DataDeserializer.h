@@ -10,8 +10,7 @@
 class AGraphNode;
 
 class TagNode;
-class ScanObjectNode;
-class ScanNode;
+class PointCloudNode;
 class ClusterNode;
 class BoxNode;
 class CylinderNode;
@@ -44,31 +43,30 @@ class GraphManager;
 
 namespace DataDeserializer
 {
-	void DeserializeTagNode(WritePtr<TagNode>& nodeToEdit, const nlohmann::json& json, Controller& controller);
-	void DeserializeScanObjectNode(WritePtr<ScanObjectNode>& nodeToEdit, const nlohmann::json& json, Controller& controller);
-	void DeserializeScanNode(WritePtr<ScanNode>& nodeToEdit, const nlohmann::json& json, Controller& controller);
-	void DeserializeClusterNode(WritePtr<ClusterNode>& nodeToEdit, const nlohmann::json& json, Controller& controller);
-	void DeserializeBoxNode(SafePtr<BoxNode> nodeToEdit, const nlohmann::json& json, Controller& controller);
-	void DeserializeCylinderNode(WritePtr<CylinderNode>& nodeToEdit, const nlohmann::json& json, Controller& controller);
-	void DeserializeTorusNode(WritePtr<TorusNode>& nodeToEdit, const nlohmann::json& json, Controller& controller);
-	void DeserializeSphereNode(WritePtr<SphereNode>& nodeToEdit, const nlohmann::json& json, Controller& controller);
-	void DeserializePointNode(WritePtr<PointNode>& nodeToEdit, const nlohmann::json& json, Controller& controller);
-	void DeserializeMeshObjectNode(WritePtr<MeshObjectNode>& nodeToEdit, const nlohmann::json& json, Controller& controller);
-	void DeserializeSimpleMeasureNode(WritePtr<SimpleMeasureNode>& nodeToEdit, const nlohmann::json& json, Controller& controller);
-	void DeserializePolylineMeasureNode(WritePtr<PolylineMeasureNode>& nodeToEdit, const nlohmann::json& json, Controller& controller);
-	void DeserializePointToPlaneMeasureNode(WritePtr<PointToPlaneMeasureNode>& nodeToEdit, const nlohmann::json& json, Controller& controller);
-	void DeserializePointToPipeMeasureNode(WritePtr<PointToPipeMeasureNode>& nodeToEdit, const nlohmann::json& json, Controller& controller);
-	void DeserializePipeToPlaneMeasureNode(WritePtr<PipeToPlaneMeasureNode>& nodeToEdit, const nlohmann::json& json, Controller& controller);
-	void DeserializePipeToPipeMeasureNode(WritePtr<PipeToPipeMeasureNode>& nodeToEdit, const nlohmann::json& json, Controller& controller);
-	void DeserializeBeamBendingMeasureNode(WritePtr<BeamBendingMeasureNode>& nodeToEdit, const nlohmann::json& json, Controller& controller);
-	void DeserializeColumnTiltMeasureNode(WritePtr<ColumnTiltMeasureNode>& nodeToEdit, const nlohmann::json& json, Controller& controller);
-	void DeserializeViewPointNode(WritePtr<ViewPointNode>& nodeToEdit, const nlohmann::json& json, Controller& controller);
+	bool DeserializeTagNode(SafePtr<TagNode> node, const nlohmann::json& json, Controller& controller);
+	bool DeserializePointCloudNode(SafePtr<PointCloudNode> node, const nlohmann::json& json, Controller& controller);
+	bool DeserializeClusterNode(SafePtr<ClusterNode> node, const nlohmann::json& json, Controller& controller);
+	bool DeserializeBoxNode(SafePtr<BoxNode> node, const nlohmann::json& json, Controller& controller);
+	bool DeserializeCylinderNode(SafePtr<CylinderNode> node, const nlohmann::json& json, Controller& controller);
+	bool DeserializeTorusNode(SafePtr<TorusNode> node, const nlohmann::json& json, Controller& controller);
+	bool DeserializeSphereNode(SafePtr<SphereNode> node, const nlohmann::json& json, Controller& controller);
+	bool DeserializePointNode(SafePtr<PointNode> node, const nlohmann::json& json, Controller& controller);
+	bool DeserializeMeshObjectNode(SafePtr<MeshObjectNode> node, const nlohmann::json& json, Controller& controller);
+	bool DeserializeSimpleMeasureNode(SafePtr<SimpleMeasureNode> node, const nlohmann::json& json, Controller& controller);
+	bool DeserializePolylineMeasureNode(SafePtr<PolylineMeasureNode> node, const nlohmann::json& json, Controller& controller);
+	bool DeserializePointToPlaneMeasureNode(SafePtr<PointToPlaneMeasureNode> node, const nlohmann::json& json, Controller& controller);
+	bool DeserializePointToPipeMeasureNode(SafePtr<PointToPipeMeasureNode> node, const nlohmann::json& json, Controller& controller);
+	bool DeserializePipeToPlaneMeasureNode(SafePtr<PipeToPlaneMeasureNode> node, const nlohmann::json& json, Controller& controller);
+	bool DeserializePipeToPipeMeasureNode(SafePtr<PipeToPipeMeasureNode> node, const nlohmann::json& json, Controller& controller);
+	bool DeserializeBeamBendingMeasureNode(SafePtr<BeamBendingMeasureNode> node, const nlohmann::json& json, Controller& controller);
+	bool DeserializeColumnTiltMeasureNode(SafePtr<ColumnTiltMeasureNode> node, const nlohmann::json& json, Controller& controller);
+	bool DeserializeViewPointNode(SafePtr<ViewPointNode> node, const nlohmann::json& json, Controller& controller);
 
-	void DeserializePiping(WritePtr<ClusterNode>& nodeToEdit, const nlohmann::json& json, Controller& controller); //retro-compatibility
+	bool DeserializePiping(SafePtr<ClusterNode> node, const nlohmann::json& json, Controller& controller); //retro-compatibility
 
-	void DeserializeCameraNode(WritePtr<CameraNode>& cameraNode, const nlohmann::json& json);
+	bool DeserializeCameraNode(SafePtr<CameraNode> cameraNode, const nlohmann::json& json);
 
-	void PostDeserializeNode(const nlohmann::json& json, const SafePtr<AGraphNode>& node, const std::unordered_map<xg::Guid, SafePtr<AGraphNode>>& nodeById);
+	void PostDeserializeNode(const nlohmann::json& json, const SafePtr<AGraphNode> node, const std::unordered_map<xg::Guid, SafePtr<AGraphNode>>& nodeById);
 
 	template<class ListType>
 	bool DeserializeList(const nlohmann::json& json, ListType& data);

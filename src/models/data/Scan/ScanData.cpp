@@ -18,6 +18,20 @@ void ScanData::copyScanData(const ScanData& uiScanData)
 {
 	m_scanPath = uiScanData.getScanPath();
 	m_scanGuid = uiScanData.getScanGuid();
+	m_clippable = uiScanData.m_clippable;
+	is_object_ = uiScanData.is_object_;
+}
+
+void ScanData::setIsObject(bool is_object)
+{
+	is_object_ = is_object;
+	// FIXME - cannot change the marker icon here - not defined
+	//Data::marker_icon_ = is_object ? scs::MarkerIcon::PCO : scs::MarkerIcon::Scan_Base;
+}
+
+bool ScanData::getIsObject() const
+{
+	return is_object_;
 }
 
 void ScanData::freeScanFile()

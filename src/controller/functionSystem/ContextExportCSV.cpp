@@ -20,7 +20,7 @@
 #include "models/graph/PointToPlaneMeasureNode.h"
 #include "models/graph/BeamBendingMeasureNode.h"
 #include "models/graph/ColumnTiltMeasureNode.h"
-#include "models/graph/ScanNode.h"
+#include "models/graph/PointCloudNode.h"
 #include "models/graph/CylinderNode.h"
 #include "models/graph/SphereNode.h"
 #include "models/graph/TorusNode.h"
@@ -329,7 +329,7 @@ ContextState ContextExportCSV::launch(Controller& controller)
             {
             case ElementType::Scan:
             {
-                ReadPtr<ScanNode> readScan = static_pointer_cast<ScanNode>(dataPtr).cget();
+                ReadPtr<PointCloudNode> readScan = static_pointer_cast<PointCloudNode>(dataPtr).cget();
                 if (!readScan)
                     continue;
                 glm::vec3 rotation = tls::math::quat_to_euler_zyx_deg(transfoModule.getOrientation());

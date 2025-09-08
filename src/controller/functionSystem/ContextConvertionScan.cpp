@@ -19,8 +19,7 @@
 #include "gui/widgets/ConvertionOptionsBox.h"
 
 
-#include "models/graph/ScanNode.h"
-#include "models/graph/ScanObjectNode.h"
+#include "models/graph/PointCloudNode.h"
 #include "models/graph/GraphManager.h"
 
 #include "utils/Utils.h"
@@ -87,7 +86,7 @@ ContextState ContextConvertionScan::feedMessage(IMessage* message, Controller& c
         uint64_t maskType(ConvertionOptionsBox::BoxOptions::TRUNCATE_COORDINATES);
         bool force(false);
         std::vector<std::filesystem::path> outputFiles;
-        std::filesystem::path scanDir = controller.getContext().cgetProjectInternalInfo().getScansFolderPath();
+        std::filesystem::path scanDir = controller.getContext().cgetProjectInternalInfo().getPointCloudFolderPath(false);
 
         controller.updateInfo(new GuiDataSplashScreenStart(TEXT_MESSAGE_SPLASH_SCREEN_READING_DATA, GuiDataSplashScreenStart::SplashScreenType::Message));
         for (const std::filesystem::path& file : m_scanInfo.paths)
@@ -257,51 +256,46 @@ ContextType ContextConvertionScan::getType() const
 
 void ContextConvertionScan::registerConvertedScan(Controller& controller, const std::filesystem::path& filename, bool overwritedFile, bool asObject, float time)
 {
-    bool importSuccess = false;
-	SaveLoadSystem::ErrorCode error;
+    SaveLoadSystem::ErrorCode error;
+
+    SafePtr<PointCloudNode> pcObj = SaveLoadSystem::ImportNewTlsFile(filename, m_scanInfo.asObject, controller, error);
+
+    if (error != SaveLoadSystem::ErrorCode::Success)
+    {
+        QString log;
+        if (overwritedFile == false)
+        {
+            FUNCLOG << "Error during ContextConversionScan" << LOGENDL;
+            log = QString(TEXT_SCAN_IMPORT_FAILED).arg(QString::fromStdWString(filename.stem().wstring()));
+        }
+        else
+            log = QString(TEXT_SCAN_IMPORT_DONE_TEXT).arg(QString::fromStdWString(filename.stem().wstring()));
+
+        controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(log));
+        controller.updateInfo(new GuiDataTmpMessage(log));
+        return;
+    }
 
     if (m_scanInfo.asObject)
     {
-        SafePtr<ScanObjectNode> scanObj = SaveLoadSystem::ImportTlsFileAsObject(filename, controller, error);
-        if (scanObj)
+        WritePtr<PointCloudNode> wPcObj = pcObj.get();
+        if (!wPcObj)
+            return;
+        switch (m_scanInfo.positionOption)
         {
-            WritePtr<ScanObjectNode> wScanObj = scanObj.get();
-            switch (m_scanInfo.positionOption)
-            {
-            case PositionOptions::ClickPosition:
-                wScanObj->setPosition(m_clickResults[0].position);
-                break;
-            case PositionOptions::GivenCoordinates:
-                wScanObj->setPosition(m_scanInfo.positionAsObject);
-                break;
-            }
-            importSuccess = true;
+        case PositionOptions::ClickPosition:
+            wPcObj->setPosition(m_clickResults[0].position);
+            break;
+        case PositionOptions::GivenCoordinates:
+            wPcObj->setPosition(m_scanInfo.positionAsObject);
+            break;
         }
     }
-    else
-        importSuccess = bool(SaveLoadSystem::ImportNewTlsFile(filename, controller, error));
 
-	if (!importSuccess)
-	{
-		QString log;
-		if (overwritedFile == false)
-		{
-			FUNCLOG << "Error during control::project::ImportScan" << LOGENDL;
-			log = QString(TEXT_SCAN_IMPORT_FAILED).arg(QString::fromStdWString(filename.stem().wstring()));
-		}
-		else
-			log = QString(TEXT_SCAN_IMPORT_DONE_TEXT).arg(QString::fromStdWString(filename.stem().wstring()));
-
-		controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(log));
-		controller.updateInfo(new GuiDataTmpMessage(log));
-		return;
-	}
-	FUNCLOG << "update infos during control::project::ImportScan" << LOGENDL;
 	QString log(QString(TEXT_SCAN_IMPORT_DONE_TIMING_TEXT).arg(QString::fromStdWString(filename.stem().wstring()),QString::number(time)));
 
 	controller.updateInfo(new GuiDataTmpMessage(log));
 	controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(log));
-
 }
 
 void ContextConvertionScan::convertFile(Controller& controller, const std::filesystem::path& inputFile, const tls::PrecisionType& precision)
@@ -337,12 +331,8 @@ void ContextConvertionScan::convertFile(Controller& controller, const std::files
 
         std::filesystem::path outputDir;
 
-        if(!m_scanInfo.asObject)
-            outputDir = controller.getContext().cgetProjectInternalInfo().getScansFolderPath();
-        else
-            outputDir = controller.getContext().cgetProjectInternalInfo().getObjectsFilesFolderPath();
+        outputDir = controller.getContext().cgetProjectInternalInfo().getPointCloudFolderPath(m_scanInfo.asObject);
 
-       
         std::wstring outputName;
         if (fileReader->getScanCount() > 1)
         {

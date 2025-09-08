@@ -5,7 +5,7 @@
 #include "ui_Property_Scan.h"
 
 class AGraphNode;
-class APointCloudNode;
+class PointCloudNode;
 class TransformationModule;
 
 class Controller;
@@ -47,7 +47,7 @@ public slots:
 
 
 private:
-	SafePtr<APointCloudNode> m_storedScan;
+	SafePtr<PointCloudNode> m_storedScan;
 	Ui::PropertyScan m_ui;
 };
 

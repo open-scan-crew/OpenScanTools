@@ -9,7 +9,7 @@
 
 #include "models/graph/CylinderNode.h"
 #include "models/graph/PipeToPlaneMeasureNode.h"
-#include "models/graph/GraphManager.hxx"
+#include "models/graph/GraphManager.h"
 
 #include "utils/Logger.h"
 
@@ -114,7 +114,7 @@ ContextState ContextCylinderToPlane3Measure::launch(Controller& controller)
 	controller.getControlListener()->notifyUIControl(new control::function::AddNodes(cylinder));
 
 	//create measure
-	SafePtr<PipeToPlaneMeasureNode> measure = graphManager.createMeasureNode<PipeToPlaneMeasureNode>();
+	SafePtr<PipeToPlaneMeasureNode> measure = make_safe<PipeToPlaneMeasureNode>();
 	WritePtr<PipeToPlaneMeasureNode> wMeasure = measure.get();
 	if (!wMeasure)
 	{

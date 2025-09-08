@@ -505,7 +505,7 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
 
     // Visit all the graph and store graphic resources for the final draw
     // TODO - Set the panoramic scan
-    //        SafePtr<APointCloudNode> panoScan = wCamera->getPanoramicScan();
+    //        SafePtr<PointCloudNode> panoScan = wCamera->getPanoramicScan();
     visitor.bakeGraph(m_graph.getRoot());
     bool refreshPCRender = viewport.compareFrameHash(visitor.getFrameHash());
 

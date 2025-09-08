@@ -13,7 +13,7 @@
 #include "gui/texts/PointCloudTexts.hpp"
 
 #include "models/graph/CameraNode.h"
-#include "models/graph/ScanNode.h"
+#include "models/graph/PointCloudNode.h"
 #include "models/graph/BoxNode.h"
 #include "models/graph/GraphManager.h"
 
@@ -79,7 +79,7 @@ ContextState ContextPCOCreation::feedMessage(IMessage* message, Controller& cont
             break;
 
         m_panoramic = xg::Guid();
-        ReadPtr<ScanNode> rScan = rCam->getPanoramicScan().cget();
+        ReadPtr<PointCloudNode> rScan = rCam->getPanoramicScan().cget();
         if (!rScan)
             break;
         m_panoramic = rScan->getScanGuid();

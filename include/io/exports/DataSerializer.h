@@ -13,8 +13,7 @@
 class AGraphNode;
 
 class TagNode;
-class ScanObjectNode;
-class ScanNode;
+class PointCloudNode;
 class ClusterNode;
 class BoxNode;
 class CylinderNode;
@@ -45,8 +44,7 @@ namespace sma
 namespace DataSerializer
 {
 	void Serialize(nlohmann::json& json, const SafePtr<TagNode>& data);
-	void Serialize(nlohmann::json& json, const SafePtr<ScanObjectNode>& data);
-	void Serialize(nlohmann::json& json, const SafePtr<ScanNode>& data);
+	void Serialize(nlohmann::json& json, const SafePtr<PointCloudNode>& data);
 	void Serialize(nlohmann::json& json, const SafePtr<ClusterNode>& data);
 	void Serialize(nlohmann::json& json, const SafePtr<BoxNode>& data);
 	void Serialize(nlohmann::json& json, const SafePtr<CylinderNode>& data);

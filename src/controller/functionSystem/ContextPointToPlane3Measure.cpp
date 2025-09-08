@@ -7,7 +7,7 @@
 #include "gui/texts/ContextTexts.hpp"
 #include "controller/controls/ControlFunction.h"
 
-#include "models/graph/GraphManager.hxx"
+#include "models/graph/GraphManager.h"
 #include "models/graph/PointToPlaneMeasureNode.h"
 
 ContextPointToPlane3Measure::ContextPointToPlane3Measure(const ContextId& id)
@@ -60,7 +60,7 @@ ContextState ContextPointToPlane3Measure::launch(Controller& controller)
 		normalVector /= glm::length(normalVector);
 		glm::dvec3 projectedPoint = MeasureClass::projectPointToPlane(m_clickResults[0].position, plane);
 
-		SafePtr<PointToPlaneMeasureNode> measure = graphManager.createMeasureNode<PointToPlaneMeasureNode>();
+		SafePtr<PointToPlaneMeasureNode> measure = make_safe<PointToPlaneMeasureNode>();
 		WritePtr<PointToPlaneMeasureNode> wMeasure = measure.get();
 		if (!wMeasure)
 		{

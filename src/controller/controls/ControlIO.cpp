@@ -26,7 +26,7 @@
 
 #include "models/graph/GraphManager.h"
 #include "models/graph/ClusterNode.h"
-#include "models/graph/APointCloudNode.h"
+#include "models/graph/PointCloudNode.h"
 
 #include "io/exports/CSVWriter.h"
 
@@ -73,7 +73,7 @@ namespace control::io
 			param.method = ExportPointCloudMerging::SCAN_SEPARATED;
 			param.outFileType = FileType::TLS;
 			param.encodingPrecision = tls::PrecisionType::TL_OCTREE_100UM;
-			param.outFolder = subInternal.getScansFolderPath();
+			param.outFolder = subInternal.getPointCloudFolderPath(false);
 			param.openFolderAfterExport = m_openFolderAfterExport;
 			param.maxScanPerProject = 0;
 			IOLOG << "Sub project out scan folder : " << param.outFolder.string() << LOGENDL;
@@ -219,7 +219,7 @@ namespace control::io
 		std::unordered_set<SafePtr<AGraphNode>> scans = controller.cgetGraphManager().getNodesByTypes({ ElementType::Scan, ElementType::PCO });
 		for (const SafePtr<AGraphNode>& scan : scans)
 		{
-			WritePtr<APointCloudNode> wScan = static_pointer_cast<APointCloudNode>(scan).get();
+			WritePtr<PointCloudNode> wScan = static_pointer_cast<PointCloudNode>(scan).get();
 			if (!wScan)
 				continue;
 			wScan->freeScanFile();

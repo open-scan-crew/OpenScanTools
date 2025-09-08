@@ -5,7 +5,7 @@
 #include "controller/IControlListener.h"
 #include "io/SaveLoadSystem.h"
 
-#include "models/graph/ScanObjectNode.h"
+#include "models/graph/PointCloudNode.h"
 #include "models/graph/GraphManager.h"
 
 #include "gui/GuiData/GuiDataMessages.h"
@@ -73,39 +73,33 @@ ContextState ContextImportScan::launch(Controller& controller)
 		controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString::fromStdWString(inputFile.wstring())));
 		SaveLoadSystem::ErrorCode error;
 
-		bool importSuccess = false;
+		SafePtr<PointCloudNode> pcObj = SaveLoadSystem::ImportNewTlsFile(inputFile, m_scanInfo.asObject, controller, error);
 
-		if (m_scanInfo.asObject)
+		if (error != SaveLoadSystem::ErrorCode::Success)
 		{
-			SafePtr<ScanObjectNode> scanObj = SaveLoadSystem::ImportTlsFileAsObject(inputFile, controller, error);
-			if (scanObj)
-			{
-				WritePtr<ScanObjectNode> wScanObj = scanObj.get();
-				switch (m_scanInfo.positionOption)
-				{
-					case PositionOptions::ClickPosition:
-						wScanObj->setPosition(m_clickResults[0].position);
-						break;
-					case PositionOptions::GivenCoordinates:
-						wScanObj->setPosition(m_scanInfo.positionAsObject);
-						break;
-				}
-				importSuccess = true;
-			}
-		}
-		else
-			importSuccess = bool(SaveLoadSystem::ImportNewTlsFile(inputFile, controller, error));
-
-		if (!importSuccess)
-		{
-			CONTROLLOG << "Error during control::project::ImportScan" << LOGENDL;
+			CONTROLLOG << "Error during ContextImportScan" << LOGENDL;
 			controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString(TEXT_SCAN_IMPORT_FAILED).arg(QString::fromStdWString(inputFile.wstring()))));
 			controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));
 			controller.getControlListener()->notifyUIControl(new control::project::StartSave());
-
 			continue;
 		}
-		CONTROLLOG << "update infos during control::project::ImportScan" << LOGENDL;
+
+		if (m_scanInfo.asObject)
+		{
+			WritePtr<PointCloudNode> wPcObj = pcObj.get();
+			if (!wPcObj)
+				continue;
+			switch (m_scanInfo.positionOption)
+			{
+			case PositionOptions::ClickPosition:
+				wPcObj->setPosition(m_clickResults[0].position);
+				break;
+			case PositionOptions::GivenCoordinates:
+				wPcObj->setPosition(m_scanInfo.positionAsObject);
+				break;
+			}
+		}
+
 		updateStep(controller, QString(TEXT_SCAN_IMPORT_DONE_TEXT).arg(QString::fromStdWString(inputFile.stem().wstring())), 1);
 	}
 

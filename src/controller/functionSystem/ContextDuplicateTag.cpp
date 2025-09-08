@@ -7,7 +7,7 @@
 #include "utils/Logger.h"
 #include "gui/texts/ContextTexts.hpp"
 
-#include "models/graph/GraphManager.hxx"
+#include "models/graph/GraphManager.h"
 
 ContextDuplicateTag::ContextDuplicateTag(const ContextId& id)
 	: ARayTracingContext(id)
@@ -67,7 +67,7 @@ ContextState ContextDuplicateTag::launch(Controller& controller)
 			assert(readDupNode);
 			if (!readDupNode)
 				return ARayTracingContext::abort(controller);
-			createNode = graphManager.createCopyNode(*&readDupNode);
+			createNode = make_safe<TagNode>(*&readDupNode);
 		}
 		xg::Guid newId = xg::newGuid();
 

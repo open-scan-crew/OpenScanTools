@@ -10,7 +10,7 @@
 
 #include "models/graph/PointToPipeMeasureNode.h"
 #include "models/graph/CylinderNode.h"
-#include "models/graph/GraphManager.hxx"
+#include "models/graph/GraphManager.h"
 
 
 #include <glm/gtx/quaternion.hpp>
@@ -84,7 +84,7 @@ ContextState ContextPointToCylinderMeasure::launch(Controller& controller)
 		controller.getControlListener()->notifyUIControl(new control::function::AddNodes(cyl));
 
 		//create measure
-		SafePtr<PointToPipeMeasureNode> measure = graphManager.createMeasureNode<PointToPipeMeasureNode>();
+		SafePtr<PointToPipeMeasureNode> measure = make_safe<PointToPipeMeasureNode>();
 		WritePtr<PointToPipeMeasureNode> wMeasure = measure.get();
 		if (!wMeasure)
 		{

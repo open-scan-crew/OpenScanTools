@@ -8,7 +8,7 @@
 #include "controller/controls/ControlFunction.h"
 
 
-#include "models/graph/GraphManager.hxx"
+#include "models/graph/GraphManager.h"
 #include "models/graph/PointToPlaneMeasureNode.h"
 
 ContextPointToPlaneMeasure::ContextPointToPlaneMeasure(const ContextId& id)
@@ -77,7 +77,7 @@ ContextState ContextPointToPlaneMeasure::launch(Controller& controller)
 	if (plane.size() == 4)
 	{
 		glm::dvec3 projectedPoint = MeasureClass::projectPointToPlane(m_clickResults[0].position, plane);
-		SafePtr<PointToPlaneMeasureNode> measure = graphManager.createMeasureNode<PointToPlaneMeasureNode>();
+		SafePtr<PointToPlaneMeasureNode> measure = make_safe<PointToPlaneMeasureNode>();
 		WritePtr<PointToPlaneMeasureNode> wMeasure = measure.get();
 		if (!wMeasure)
 		{

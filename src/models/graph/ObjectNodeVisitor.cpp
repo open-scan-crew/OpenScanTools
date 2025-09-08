@@ -9,8 +9,7 @@
 #include "models/graph/SphereNode.h"
 //#include "models/graph/ViewPointNode.h"
 #include "models/graph/TorusNode.h"
-#include "models/graph/APointCloudNode.h"
-#include "models/graph/ScanNode.h"
+#include "models/graph/PointCloudNode.h"
 #include "models/graph/TagNode.h"
 #include "models/graph/PointNode.h"
 #include "models/graph/AMeasureNode.h"
@@ -1189,7 +1188,7 @@ void ObjectNodeVisitor::bakeGraphics(const SafePtr<AGraphNode>& node, const Tran
     {
     case ElementType::Scan:
     {
-        WritePtr<ScanNode> wScan = static_write_cast<ScanNode>(node);
+        WritePtr<PointCloudNode> wScan = static_write_cast<PointCloudNode>(node);
         if (!wScan)
             break;
 
@@ -1222,7 +1221,7 @@ void ObjectNodeVisitor::bakeGraphics(const SafePtr<AGraphNode>& node, const Tran
     }
     case ElementType::PCO:
     {
-        WritePtr<APointCloudNode> pco = static_write_cast<APointCloudNode>(node);
+        WritePtr<PointCloudNode> pco = static_write_cast<PointCloudNode>(node);
         if (!pco)
             break;
         Color32 color = pco->getColor();

@@ -1,7 +1,7 @@
 #include "controller/ControllerContext.h"
 
 // Data Model
-#include "models/graph/ScanNode.h"
+#include "models/graph/PointCloudNode.h"
 
 #include "utils/ProjectColor.hpp"
 #include "utils/ProjectStringSets.hpp"
@@ -626,12 +626,12 @@ SafePtr<StandardList> ControllerContext::getCurrentStandard(const StandardType& 
 	return SafePtr<StandardList>();
 }
 
-void ControllerContext::setDefaultScanId(SafePtr<ScanNode> defaultScan)
+void ControllerContext::setDefaultScanId(SafePtr<PointCloudNode> defaultScan)
 {
 	m_defaultScan = defaultScan;
 }
 
-SafePtr<ScanNode> ControllerContext::getDefaultScan()
+SafePtr<PointCloudNode> ControllerContext::getDefaultScan()
 {
 	return m_defaultScan;
 }

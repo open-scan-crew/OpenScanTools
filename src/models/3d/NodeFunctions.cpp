@@ -3,7 +3,7 @@
 #include "models/graph/SphereNode.h"
 #include "models/graph/BoxNode.h"
 #include "models/graph/CylinderNode.h"
-#include "models/graph/APointCloudNode.h"
+#include "models/graph/PointCloudNode.h"
 #include "models/graph/MeshObjectNode.h"
 
 #include "utils/math/basic_define.h"
@@ -80,7 +80,7 @@ bool nodeFunctions::isMissingFile(const SafePtr<AGraphNode>& node)
 	case ElementType::PCO:
 	case ElementType::Scan:
 	{
-		ReadPtr<APointCloudNode> rPc = static_pointer_cast<APointCloudNode>(node).cget();
+		ReadPtr<PointCloudNode> rPc = static_pointer_cast<PointCloudNode>(node).cget();
 		if (!rPc)
 			break;
 		missingFile = !(rPc->getScanGuid().isValid());

@@ -3,21 +3,6 @@
 
 #include "models/graph/GraphManager.h"
 
-template<class NodeClass>
-inline SafePtr<NodeClass> GraphManager::createCopyNode(const NodeClass& nodeClass)
-{
-	SafePtr<NodeClass> newNode = make_safe<NodeClass>(nodeClass);
-	//AGraphNode::duplicateLink(newNode, nodeClass);
-	return newNode;
-}
-
-template<class MeasureClass>
-inline SafePtr<MeasureClass> GraphManager::createMeasureNode()
-{
-	SafePtr<MeasureClass> measureNode = make_safe<MeasureClass>();
-	return measureNode;
-}
-
 template<typename T>
 inline std::unordered_set<SafePtr<T>> GraphManager::getNodesOnFilter(
 	std::function<bool(ReadPtr<AGraphNode>&)> graphNodeFilter,

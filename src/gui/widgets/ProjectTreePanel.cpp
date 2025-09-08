@@ -16,10 +16,9 @@
 #include "gui/style/IconObject.h"
 
 #include "models/graph/ClusterNode.h"
-#include "models/graph/APointCloudNode.h"
+#include "models/graph/PointCloudNode.h"
 #include "models/graph/GraphManager.h"
 #include "models/graph/GraphManager.hxx"
-#include "models/graph/TagNode.h"
 
 #include "models/3d/NodeFunctions.h"
 
@@ -1316,13 +1315,13 @@ void ProjectTreePanel::dropEvent(QDropEvent* dEvent)
 void ProjectTreePanel::exportScan()
 {
     QModelIndexList list = this->selectionModel()->selectedIndexes();
-    std::unordered_set<SafePtr<APointCloudNode>> pcsToExport;
+    std::unordered_set<SafePtr<PointCloudNode>> pcsToExport;
 
     for (const QModelIndex& index : list)
     {
         TreeNode* node = static_cast<TreeNode*>(m_model->itemFromIndex(index));
         if (node->getData())
-            pcsToExport.insert(static_pointer_cast<APointCloudNode>(node->getData()));
+            pcsToExport.insert(static_pointer_cast<PointCloudNode>(node->getData()));
     }
     if (pcsToExport.empty())
         return;

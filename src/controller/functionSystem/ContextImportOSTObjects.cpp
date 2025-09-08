@@ -12,7 +12,7 @@
 #include "models/graph/GraphManager.h"
 #include "models/graph/MeshObjectNode.h"
 #include "models/graph/AGraphNode.h"
-#include "models/graph/APointCloudNode.h"
+#include "models/graph/PointCloudNode.h"
 #include "models/graph/ClusterNode.h"
 
 #include "io/SaveLoadSystem.h"
@@ -200,7 +200,7 @@ ContextState ContextLinkOSTObjects::start(Controller& controller)
 			case ElementType::Scan:
 			case ElementType::PCO:
 			{
-				ReadPtr<APointCloudNode> scan = static_pointer_cast<APointCloudNode>(projObj).cget();
+				ReadPtr<PointCloudNode> scan = static_pointer_cast<PointCloudNode>(projObj).cget();
 				if (!scan)
 					continue;
 				insertData = (scan->getScanGuid() == tls::ScanGuid());

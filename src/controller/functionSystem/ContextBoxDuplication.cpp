@@ -7,7 +7,7 @@
 #include "gui/texts/ContextTexts.hpp"
 #include "utils/Logger.h"
 
-#include "models/graph/GraphManager.hxx"
+#include "models/graph/GraphManager.h"
 #include "models/graph/BoxNode.h"
 
 ContextBoxDuplication::ContextBoxDuplication(const ContextId& id)
@@ -54,7 +54,7 @@ ContextState ContextBoxDuplication::launch(Controller& controller)
             FUNCLOG << "ContextBoxDuplication failed do find box " << LOGENDL;
             return ARayTracingContext::abort(controller);
         }
-        newBox = graphManager.createCopyNode(*&boxSelected);
+        newBox = make_safe<BoxNode>(*&boxSelected);
     }
    
     WritePtr<BoxNode> wBox = newBox.get();

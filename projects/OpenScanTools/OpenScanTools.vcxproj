@@ -1069,7 +1069,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\models\graph\AClippingNode.cpp" />
     <ClCompile Include="..\..\src\models\graph\AGraphNode.cpp" />
     <ClCompile Include="..\..\src\models\graph\AMeasureNode.cpp" />
-    <ClCompile Include="..\..\src\models\graph\APointCloudNode.cpp" />
+    <ClCompile Include="..\..\src\models\graph\PointCloudNode.cpp" />
     <ClCompile Include="..\..\src\models\graph\BeamBendingMeasureNode.cpp" />
     <ClCompile Include="..\..\src\models\graph\BoxNode.cpp" />
     <ClCompile Include="..\..\src\models\graph\CameraNode.cpp" />
@@ -1086,8 +1086,20 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\models\graph\PointToPipeMeasureNode.cpp" />
     <ClCompile Include="..\..\src\models\graph\PointToPlaneMeasureNode.cpp" />
     <ClCompile Include="..\..\src\models\graph\PolylineMeasureNode.cpp" />
-    <ClCompile Include="..\..\src\models\graph\ScanNode.cpp" />
-    <ClCompile Include="..\..\src\models\graph\ScanObjectNode.cpp" />
+    <ClCompile Include="..\..\src\models\graph\ScanNode.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\models\graph\ScanObjectNode.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\src\models\graph\SimpleMeasureNode.cpp" />
     <ClCompile Include="..\..\src\models\graph\SimpleObjectNode.cpp" />
     <ClCompile Include="..\..\src\models\graph\SphereNode.cpp" />
@@ -1480,7 +1492,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\models\graph\AClippingNode.h" />
     <ClInclude Include="..\..\include\models\graph\AGraphNode.h" />
     <ClInclude Include="..\..\include\models\graph\AMeasureNode.h" />
-    <ClInclude Include="..\..\include\models\graph\APointCloudNode.h" />
+    <ClInclude Include="..\..\include\models\graph\PointCloudNode.h" />
     <ClInclude Include="..\..\include\models\graph\BeamBendingMeasureNode.h" />
     <ClInclude Include="..\..\include\models\graph\BoxNode.h" />
     <ClInclude Include="..\..\include\models\graph\CameraNode.h" />

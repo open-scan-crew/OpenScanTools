@@ -14,6 +14,10 @@ public:
 
 	void copyScanData(const ScanData& uiScan);
 
+	// New attribute to determine if a scan is an object
+	void setIsObject(bool is_object);
+	bool getIsObject() const;
+
 	//Functions
 	void freeScanFile();
 	void eraseScanFile();
@@ -39,13 +43,13 @@ public:
 	void setClippable(bool clippable);
 	void setScanPath(const std::filesystem::path& scanPath);
 
-
 protected:
 	std::filesystem::path m_scanPath = "";
 	tls::PointFormat m_pointFormat = tls::TL_POINT_FORMAT_UNDEFINED;
 	uint64_t m_NbPoint = 0;
 	tls::ScanGuid m_scanGuid = xg::Guid();
 	bool m_clippable = true;
+	bool is_object_ = false;
 
 	std::wstring m_sensorModel = L"";
 	std::wstring m_sensorSerialNumber = L"";

@@ -8,7 +8,7 @@
 #include "gui/texts/FileSystemTexts.hpp"
 
 #include "models/graph/MeshObjectNode.h"
-#include "models/graph/APointCloudNode.h"
+#include "models/graph/PointCloudNode.h"
 
 
 #include <QtWidgets/qfiledialog.h>
@@ -56,7 +56,7 @@ void DialogImportFileObject::setInfoFileObjects(const std::unordered_set<SafePtr
 			case ElementType::Scan:
 			case ElementType::PCO:
 			{
-				ReadPtr<APointCloudNode> readInfo = static_pointer_cast<APointCloudNode>(infoPtr).cget();
+				ReadPtr<PointCloudNode> readInfo = static_pointer_cast<PointCloudNode>(infoPtr).cget();
 				if (!readInfo)
 					continue;
 				qFileName = QDir::toNativeSeparators(QString::fromStdWString(readInfo->getScanPath().wstring()));

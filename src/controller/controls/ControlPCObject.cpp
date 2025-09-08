@@ -51,7 +51,7 @@ namespace control
 			for (const std::filesystem::path& path : m_files)
 			{
 				SaveLoadSystem::ErrorCode error;
-				SaveLoadSystem::ImportTlsFileAsObject(path, controller, error);
+				SaveLoadSystem::ImportNewTlsFile(path, true, controller, error);
 				if (error == SaveLoadSystem::ErrorCode::Success)
 					CONTROLLOG << "control::pcObject::CreatePCObjectFromFile do " << LOGENDL;
 				else

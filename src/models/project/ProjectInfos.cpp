@@ -59,13 +59,15 @@ const std::filesystem::path& ProjectInternalInfo::getProjectFolderPath() const
 	return (m_projectFolderPath);
 }
 
-std::filesystem::path ProjectInternalInfo::getScansFolderPath() const
+std::filesystem::path ProjectInternalInfo::getPointCloudFolderPath(bool is_object) const
 {
+	if (is_object)
+		return getObjectsFilesFolderPath();
+
 	if(m_customScanFolderPath.empty())
 		return (m_projectFolderPath / Folder_Scans);
 	else
 		return (m_customScanFolderPath);
-
 }
 
 std::filesystem::path ProjectInternalInfo::getObjectsProjectPath() const

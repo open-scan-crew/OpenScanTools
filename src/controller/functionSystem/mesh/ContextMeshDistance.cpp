@@ -5,7 +5,6 @@
 #include "controller/controls/ControlFunction.h"
 
 #include "models/graph/SimpleMeasureNode.h"
-#include "models/graph/GraphManager.hxx"
 
 #include "gui/texts/RayTracingTexts.hpp"
 
@@ -72,7 +71,7 @@ ContextState ContextMeshDistance::launch(Controller& controller)
     Logger::log(LoggerMode::FunctionLog) << "CPU projection on triangles : " << dta << "[ms]." << Logger::endl;
 
     // Crée une mesure simple entre le point de départ et le point projeté
-    SafePtr<SimpleMeasureNode> measure = controller.getGraphManager().createMeasureNode<SimpleMeasureNode>();
+    SafePtr<SimpleMeasureNode> measure = make_safe<SimpleMeasureNode>();
     WritePtr<SimpleMeasureNode> wMeasure = measure.get();
     if (!wMeasure)
     {

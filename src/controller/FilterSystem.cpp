@@ -2,7 +2,7 @@
 #include "utils/Logger.h"
 #include "models/graph/AGraphNode.h"
 #include "models/graph/TagNode.h"
-#include "models/graph/ScanNode.h"
+#include "models/graph/PointCloudNode.h"
 #include "models/application/Author.h"
 
 #include "magic_enum/magic_enum.hpp"
@@ -291,7 +291,7 @@ bool FilterSystem::filterAdvTag(SafePtr<AGraphNode> marker)
 
 bool FilterSystem::filterScan(SafePtr<AGraphNode> element)
 {
-	ReadPtr<ScanNode> rScan = static_pointer_cast<ScanNode>(element).cget();
+	ReadPtr<PointCloudNode> rScan = static_pointer_cast<PointCloudNode>(element).cget();
 	if (!rScan)
 		return false;
 

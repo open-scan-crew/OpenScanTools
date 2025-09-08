@@ -1852,7 +1852,7 @@
     <ClCompile Include="..\..\src\models\graph\AMeasureNode.cpp">
       <Filter>src\models\graph</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\models\graph\APointCloudNode.cpp">
+    <ClCompile Include="..\..\src\models\graph\PointCloudNode.cpp">
       <Filter>src\models\graph</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\models\graph\BeamBendingMeasureNode.cpp">
@@ -3404,9 +3404,6 @@
     <ClInclude Include="..\..\include\models\3d\ProjectionData.h">
       <Filter>include\models\3d</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\controller\functionSystem\ABackgroundContext.h">
-      <Filter>include\controller\contexts</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\controller\functionSystem\ContextCylinderToCylinderMeasure.h">
       <Filter>include\controller\contexts</Filter>
     </ClInclude>
@@ -3767,7 +3764,7 @@
     <ClInclude Include="..\..\include\models\graph\AMeasureNode.h">
       <Filter>include\models\graph</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\models\graph\APointCloudNode.h">
+    <ClInclude Include="..\..\include\models\graph\PointCloudNode.h">
       <Filter>include\models\graph</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\models\graph\BeamBendingMeasureNode.h">

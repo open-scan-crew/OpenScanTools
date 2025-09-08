@@ -1,10 +1,9 @@
 #include "controller/controls/ControlScanEdition.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "pointCloudEngine/PCE_core.h"
 
 #include "models/graph/GraphManager.h"
-#include "models/graph/ScanNode.h"
+#include "models/graph/PointCloudNode.h"
 #include "controller/controls/AEditionControl.hxx"
 
 #include "utils/ColorConversion.h"
@@ -18,8 +17,8 @@ namespace control::scanEdition
     ** SetClippable
     */
 
-    SetClippable::SetClippable(SafePtr<APointCloudNode> toEditData, bool clippable)
-        : ATEditionControl({ toEditData }, clippable, "SetClippable", &APointCloudNode::setClippable, &APointCloudNode::getClippable)
+    SetClippable::SetClippable(SafePtr<PointCloudNode> toEditData, bool clippable)
+        : ATEditionControl({ toEditData }, clippable, "SetClippable", &PointCloudNode::setClippable, &PointCloudNode::getClippable)
     {}
 
     SetClippable::~SetClippable()
@@ -52,8 +51,7 @@ namespace control::scanEdition
         int base = 1031;
         for (const SafePtr<AGraphNode>& nodePtr : scanToEdit)
         {
-            //pas obligé d'être un ScanNode ici
-            WritePtr<ScanNode> wScan = static_pointer_cast<ScanNode>(nodePtr).get();
+            WritePtr<PointCloudNode> wScan = static_pointer_cast<PointCloudNode>(nodePtr).get();
             if (!wScan)
                 continue;
 

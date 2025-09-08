@@ -8,7 +8,7 @@
 #include "gui/GuiData/GuiDataUserOrientation.h"
 
 #include "models/graph/CameraNode.h"
-#include "models/graph/ScanNode.h"
+#include "models/graph/PointCloudNode.h"
 #include "models/graph/ManipulatorNode.h"
 
 #include "utils/math/trigo.h"
@@ -242,7 +242,7 @@ ClickInfo VulkanViewport::generateRaytracingInfos(const WritePtr<CameraNode>& wC
     uint32_t w = m_framebuffer->extent.width;
     uint32_t h = m_framebuffer->extent.height;
 
-    ReadPtr<ScanNode> panoramic = wCam->getPanoramicScan().cget();
+    ReadPtr<PointCloudNode> panoramic = wCam->getPanoramicScan().cget();
 
     return ClickInfo(
         w,

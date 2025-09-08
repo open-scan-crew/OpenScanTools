@@ -8,7 +8,6 @@
 #include "gui/texts/ContextTexts.hpp"
 
 #include "models/graph/PolylineMeasureNode.h"
-#include "models/graph/GraphManager.hxx"
 #include "utils/Logger.h"
 #include "magic_enum/magic_enum.hpp"
 
@@ -100,7 +99,7 @@ ContextState ContextPointsMeasure::launch(Controller& controller)
 		ReadPtr<PolylineMeasureNode> readPoly = m_polylineToEdit.cget();
 		if (!readPoly || readPoly->isDead())
 		{
-			m_polylineToEdit = controller.getGraphManager().createMeasureNode<PolylineMeasureNode>();
+			m_polylineToEdit = make_safe<PolylineMeasureNode>();
 			WritePtr<PolylineMeasureNode> wMeasure = m_polylineToEdit.get();
 			m_isPolylineCreated = true;
 

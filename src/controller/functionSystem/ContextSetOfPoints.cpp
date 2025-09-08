@@ -9,7 +9,7 @@
 #include "utils/Logger.h"
 #include "controller/messages/PlaneMessage.h"
 #include "pointCloudEngine/OctreeRayTracing.h"
-#include "models/graph/GraphManager.hxx"
+#include "models/graph/GraphManager.h"
 #include "models/graph/PointNode.h"
 #include "controller/controls/ControlFunction.h"
 #include "pointCloudEngine/MeasureClass.h"
@@ -230,7 +230,7 @@ ContextState ContextSetOfPoints::launch(Controller& controller)
 					newMeasure.origin = createdPoints[i];
 					newMeasure.final = createdPoints2[i];
 
-					SafePtr<SimpleMeasureNode> measure = controller.getGraphManager().createMeasureNode<SimpleMeasureNode>();
+					SafePtr<SimpleMeasureNode> measure = make_safe<SimpleMeasureNode>();
 					WritePtr<SimpleMeasureNode> wMeasure = measure.get();
 					if (!wMeasure)
 					{
@@ -518,7 +518,7 @@ ContextState ContextSetOfPoints::launch(Controller& controller)
 					newMeasure.origin = createdPointStart[i];
 					newMeasure.final = createdPointEnd[i];
 
-					SafePtr<SimpleMeasureNode> measure = controller.getGraphManager().createMeasureNode<SimpleMeasureNode>();
+					SafePtr<SimpleMeasureNode> measure = make_safe<SimpleMeasureNode>();
 					WritePtr<SimpleMeasureNode> wMeasure = measure.get();
 					if (!wMeasure)
 					{
@@ -614,7 +614,7 @@ ContextState ContextSetOfPoints::launch(Controller& controller)
 					newMeasure.origin = createdPointStart[i];
 					newMeasure.final = createdPointEnd[i];
 
-					SafePtr<SimpleMeasureNode> measure = controller.getGraphManager().createMeasureNode<SimpleMeasureNode>();
+					SafePtr<SimpleMeasureNode> measure = make_safe<SimpleMeasureNode>();
 					WritePtr<SimpleMeasureNode> wMeasure = measure.get();
 					if (!wMeasure)
 					{
@@ -701,7 +701,7 @@ ContextState ContextSetOfPoints::launch(Controller& controller)
 					newMeasure.origin = createdPointStart[i];
 					newMeasure.final = createdPointEnd[i];
 
-					SafePtr<SimpleMeasureNode> measure = controller.getGraphManager().createMeasureNode<SimpleMeasureNode>();
+					SafePtr<SimpleMeasureNode> measure = make_safe<SimpleMeasureNode>();
 					WritePtr<SimpleMeasureNode> wMeasure = measure.get();
 					if (!wMeasure)
 					{
@@ -803,7 +803,7 @@ ContextState ContextSetOfPoints::launch(Controller& controller)
 					newMeasure.origin = createdPointStart[i];
 					newMeasure.final = createdPointEnd[i];
 
-					SafePtr<SimpleMeasureNode> measure = controller.getGraphManager().createMeasureNode<SimpleMeasureNode>();
+					SafePtr<SimpleMeasureNode> measure = make_safe<SimpleMeasureNode>();
 					WritePtr<SimpleMeasureNode> wMeasure = measure.get();
 					if (!wMeasure)
 					{
@@ -915,7 +915,7 @@ ContextState ContextSetOfPoints::launch(Controller& controller)
 					newMeasure.origin = createdPointStart[i];
 					newMeasure.final = createdPointEnd[i];
 
-					SafePtr<SimpleMeasureNode> measure = controller.getGraphManager().createMeasureNode<SimpleMeasureNode>();
+					SafePtr<SimpleMeasureNode> measure = make_safe<SimpleMeasureNode>();
 					WritePtr<SimpleMeasureNode> wMeasure = measure.get();
 					if (!wMeasure)
 					{

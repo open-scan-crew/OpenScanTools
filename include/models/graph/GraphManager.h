@@ -20,8 +20,7 @@ class AClippingNode;
 class CameraNode;
 class BoxNode;
 class ClusterNode;
-class ScanNode;
-class ScanObjectNode;
+class PointCloudNode;
 class TagNode;
 
 class GraphManager;
@@ -48,13 +47,7 @@ public:
 	void setHierarchyMasterCluster(const SafePtr<ClusterNode>& hierarchy);
 	void createHierarchyMasterCluster();
 
-	template<class NodeClass> 
-	SafePtr<NodeClass> createCopyNode(const NodeClass& nodeClass);
-
 	void addNodesToGraph(const std::unordered_set<SafePtr<AGraphNode>>& nodes);
-
-	template<class MeasureClass>
-	SafePtr<MeasureClass> createMeasureNode();
 
 	SafePtr<CameraNode> createCameraNode(const std::wstring& name);
 	SafePtr<CameraNode> duplicateCamera(const SafePtr<CameraNode>& camera);
@@ -103,7 +96,7 @@ public:
 	void getClippingAssembly(ClippingAssembly& retAssembly, bool filterActive, bool filterSelected) const;
 
 	BoundingBoxD getScanBoundingBox(ObjectStatusFilter status) const;
-	std::unordered_set<SafePtr<ScanNode>> getVisibleScans(const tls::ScanGuid& pano) const;
+	std::unordered_set<SafePtr<PointCloudNode>> getVisibleScans(const tls::ScanGuid& pano) const;
 	std::vector<tls::PointCloudInstance> getVisiblePointCloudInstances(const tls::ScanGuid& pano, bool scans, bool pcos) const;
 	std::vector<tls::PointCloudInstance> getPointCloudInstances(const tls::ScanGuid& pano, bool scans, bool pcos, ObjectStatusFilter status) const;
 	uint64_t getProjectPointsCount() const;

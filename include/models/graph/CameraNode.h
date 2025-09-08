@@ -14,7 +14,7 @@
 #include <deque>
 
 class ViewPointNode;
-class ScanNode;
+class PointCloudNode;
 struct UniformClippingData;
 
 struct KeyPoint {
@@ -47,7 +47,7 @@ public:
     ~CameraNode();
 
     Type getGraphType() const;
-    SafePtr<ScanNode> getPanoramicScan() const;
+    SafePtr<PointCloudNode> getPanoramicScan() const;
     void resetPanoramicScan();
 
     void informData(IGuiData* guiData) override;
@@ -249,7 +249,7 @@ private:
 private:
     IDataDispatcher& m_dataDispatcher;
 
-    SafePtr<ScanNode> m_panoramicScan;
+    SafePtr<PointCloudNode> m_panoramicScan;
 
     //GuiData
     std::unordered_map<guiDType, GuiDataFunction> m_functions;

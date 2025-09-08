@@ -4,9 +4,7 @@
 
 #include "models/graph/TagNode.h"
 #include "models/graph/PointNode.h"
-
-#include "models/graph/ScanNode.h"
-#include "models/graph/ScanObjectNode.h"
+#include "models/graph/PointCloudNode.h"
 
 #include "models/graph/ViewPointNode.h"
 #include "models/graph/CameraNode.h"
@@ -186,6 +184,7 @@ void ExportScanData(nlohmann::json& json, const ScanData& data)
 {
 	json[Key_Path] = Utils::to_utf8(data.getScanPath().wstring());
 	json[Key_Clippable] = data.getClippable();
+	//json[Key_PointCloud_IsObject] = data.is_object_;
 }
 
 void ExportClusterData(nlohmann::json& json, const ClusterData& data)
@@ -456,23 +455,10 @@ void DataSerializer::Serialize(nlohmann::json& json, const SafePtr<TagNode>& obj
 	ExportLinks(json, object);
 }
 
-void DataSerializer::Serialize(nlohmann::json& json, const SafePtr<ScanObjectNode>& object)
+void DataSerializer::Serialize(nlohmann::json& json, const SafePtr<PointCloudNode>& object)
 {
 	{
-		ReadPtr<ScanObjectNode> rObj = object.cget();
-		if (!rObj)
-			return;
-		ExportData(json, *&rObj);
-		ExportTransformationModule(json, *&rObj);
-		ExportScanData(json, *&rObj);
-	}
-	ExportLinks(json, object);
-}
-
-void DataSerializer::Serialize(nlohmann::json& json, const SafePtr<ScanNode>& object)
-{
-	{
-		ReadPtr<ScanNode> rObj = object.cget();
+		ReadPtr<PointCloudNode> rObj = object.cget();
 		if (!rObj)
 			return;
 		ExportData(json, *&rObj);

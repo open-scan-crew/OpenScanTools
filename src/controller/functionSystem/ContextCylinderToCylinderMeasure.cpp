@@ -9,7 +9,7 @@
 
 #include "models/graph/PipeToPipeMeasureNode.h"
 #include "models/graph/CylinderNode.h"
-#include "models/graph/GraphManager.hxx"
+#include "models/graph/GraphManager.h"
 
 #include <glm/gtx/quaternion.hpp>
 
@@ -109,7 +109,7 @@ ContextState ContextCylinderToCylinderMeasure::launch(Controller& controller)
     createCylinder(controller, cylinder2Radius, correctedCenter2, cylinder2Direction, lenght2);
 
 	//create measure
-    SafePtr<PipeToPipeMeasureNode> measure = controller.getGraphManager().createMeasureNode<PipeToPipeMeasureNode>();
+    SafePtr<PipeToPipeMeasureNode> measure = make_safe<PipeToPipeMeasureNode>();
     WritePtr<PipeToPipeMeasureNode> wMeasure = measure.get();
     if (!wMeasure)
     {

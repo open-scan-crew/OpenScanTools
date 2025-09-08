@@ -23,7 +23,7 @@
 #include <vector>
 
 class Author;
-class ScanNode;
+class PointCloudNode;
 
 struct CreationAttributes
 {
@@ -125,8 +125,8 @@ public:
 	void setRecentProjects(std::vector<std::pair<std::filesystem::path, time_t>> projects);
 	void setIndexationMethod(IndexationMethod method);
 
-	void setDefaultScanId(SafePtr<ScanNode> defaultScan);
-	SafePtr<ScanNode> getDefaultScan();
+	void setDefaultScanId(SafePtr<PointCloudNode> defaultScan);
+	SafePtr<PointCloudNode> getDefaultScan();
 
 	void setPipeDetectionOptions(const PipeDetectionOptions& pipeDetectionOptions);
 
@@ -168,7 +168,7 @@ private:
 	std::unordered_set<SafePtr<sma::TagTemplate>> m_templates;
 	SafePtr<sma::TagTemplate> m_currentTemplate;
 
-	SafePtr<ScanNode> m_defaultScan;
+	SafePtr<PointCloudNode> m_defaultScan;
 	
 	std::vector<std::pair<std::filesystem::path, time_t>> m_recentProjects;
 

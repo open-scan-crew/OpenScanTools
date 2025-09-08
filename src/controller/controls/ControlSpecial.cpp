@@ -9,8 +9,7 @@
 #include "gui/GuiData/GuiDataGeneralProject.h"
 
 #include "models/graph/GraphManager.h"
-#include "models/graph/ScanNode.h"
-#include "models/graph/ScanObjectNode.h"
+#include "models/graph/PointCloudNode.h"
 #include "models/graph/MeshObjectNode.h"
 #include "models/ElementType.h"
 
@@ -56,20 +55,12 @@ namespace control::special
 			}
 
 			//A gérer dans le setDead() ?
-			if (type == ElementType::Scan)
-			{
-				WritePtr<ScanNode> scan = static_pointer_cast<ScanNode>(obj).get();
-				if (!scan)
-					continue;
-				scan->freeScanFile();
-			}
-
-			if (type == ElementType::PCO)
+			if (type == ElementType::Scan || type == ElementType::PCO)
 			{
 				tls::ScanGuid scanGuid;
-				SafePtr<ScanObjectNode> scan = static_pointer_cast<ScanObjectNode>(obj);
+				SafePtr<PointCloudNode> scan = static_pointer_cast<PointCloudNode>(obj);
 				{
-					ReadPtr<ScanObjectNode> rScan = scan.cget();
+					ReadPtr<PointCloudNode> rScan = scan.cget();
 					if (!rScan)
 						continue;
 					scanGuid = rScan->getScanGuid();
@@ -77,13 +68,12 @@ namespace control::special
 
 				if (controller.getGraphManager().getPCOcounters(scanGuid) == 0)
 				{
-					WritePtr<ScanObjectNode> wScan = scan.get();
+					WritePtr<PointCloudNode> wScan = scan.get();
 					if (!wScan)
 						continue;
 					wScan->freeScanFile();
 				}
 			}
-
 		}
 
 		controller.changeSelection({});
@@ -170,7 +160,7 @@ namespace control::special
 				case ElementType::Scan:
 				case ElementType::PCO:
 				{
-					WritePtr<APointCloudNode> scan = static_pointer_cast<APointCloudNode>(pNode).get();
+					WritePtr<PointCloudNode> scan = static_pointer_cast<PointCloudNode>(pNode).get();
 					if (!scan)
 						continue;
 
@@ -325,7 +315,7 @@ namespace control::special
 					break;
 				case ElementType::Scan:
 				{
-					ReadPtr<ScanNode> scan = static_pointer_cast<ScanNode>(toDelete).cget();
+					ReadPtr<PointCloudNode> scan = static_pointer_cast<PointCloudNode>(toDelete).cget();
 					if (!scan)
 						continue;
 					if(scan->getScanGuid().isValid())
@@ -336,7 +326,7 @@ namespace control::special
 				break;
 				case ElementType::PCO:
 				{
-					ReadPtr<ScanObjectNode> scanObj = static_pointer_cast<ScanObjectNode>(toDelete).cget();
+					ReadPtr<PointCloudNode> scanObj = static_pointer_cast<PointCloudNode>(toDelete).cget();
 					if (!scanObj)
 						continue;
 					tls::ScanGuid scanGuid = scanObj->getScanGuid();
@@ -402,7 +392,7 @@ namespace control::special
 					case ElementType::PCO:
 					case ElementType::Scan:
 					{
-						ReadPtr<APointCloudNode> scan = static_pointer_cast<APointCloudNode>(importantData).cget();
+						ReadPtr<PointCloudNode> scan = static_pointer_cast<PointCloudNode>(importantData).cget();
 						if (scan)
 							filePath = scan->getCurrentScanPath();
 						break;

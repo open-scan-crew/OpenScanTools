@@ -1,6 +1,6 @@
 #include "models/data/ViewPoint/ViewPointData.h"
 
-#include "models/graph/GraphManager.hxx"
+#include "models/graph/GraphManager.h"
 #include "controller/Controller.h"
 
 #include "models/graph/AClippingNode.h"
@@ -9,7 +9,7 @@
 ViewPointData::ViewPointData()
 {}
 
-ViewPointData::ViewPointData(const RenderingParameters& data, const SafePtr<ScanNode>& panoramicScan)
+ViewPointData::ViewPointData(const RenderingParameters& data, const SafePtr<PointCloudNode>& panoramicScan)
 	: RenderingParameters(data)
 	, m_panoramicScan(panoramicScan)
 {}
@@ -28,7 +28,7 @@ void ViewPointData::copyViewPointData(const ViewPointData& data)
 	m_scanClusterColors = data.getScanClusterColors();
 }
 
-void ViewPointData::setPanoramicScan(SafePtr<ScanNode> id)
+void ViewPointData::setPanoramicScan(SafePtr<PointCloudNode> id)
 {
 	m_panoramicScan = id;
 }
@@ -63,7 +63,7 @@ bool ViewPointData::isPanoramicScan() const
 	return bool(m_panoramicScan); //Rajouter une vérification isNull const
 }
 
-SafePtr<ScanNode> ViewPointData::getPanoramicScan() const
+SafePtr<PointCloudNode> ViewPointData::getPanoramicScan() const
 {
 	return m_panoramicScan;
 }

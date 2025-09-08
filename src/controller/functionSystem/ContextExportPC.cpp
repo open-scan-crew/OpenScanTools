@@ -27,7 +27,7 @@
 #include "models/3d/GridCalculation.h"
 
 #include "models/graph/CameraNode.h"
-#include "models/graph/ScanNode.h"
+#include "models/graph/PointCloudNode.h"
 #include "models/graph/GraphManager.h"
 #include "models/graph/BoxNode.h"
 #include "io/SaveLoadSystem.h"
@@ -758,7 +758,7 @@ ContextState ContextExportSubProject::feedMessage(IMessage* message, Controller&
 
 ContextState ContextExportSubProject::launch(Controller& controller)
 {
-    Utils::System::createDirectoryIfNotExist(m_subProjectInternal.getScansFolderPath());
+    Utils::System::createDirectoryIfNotExist(m_subProjectInternal.getPointCloudFolderPath(false));
     m_parameters.clippingFilter = ExportClippingFilter::ACTIVE;
     m_parameters.method = ExportPointCloudMerging::SCAN_SEPARATED;
 
@@ -796,10 +796,10 @@ void ContextExportSubProject::exportObjects(Controller& controller) const
 
     for (const SafePtr<AGraphNode>& scanPtr : graphManager.getNodesByTypes({ ElementType::Scan }))
     {
-        ReadPtr<ScanNode> scan = static_pointer_cast<ScanNode>(scanPtr).cget();
+        ReadPtr<PointCloudNode> scan = static_pointer_cast<PointCloudNode>(scanPtr).cget();
         if (!scan)
             continue;
-        std::filesystem::path scanPath = m_subProjectInternal.getScansFolderPath() / scan->getScanPath().filename();
+        std::filesystem::path scanPath = m_subProjectInternal.getPointCloudFolderPath(false) / scan->getScanPath().filename();
         if (!std::filesystem::exists(scanPath))
             continue;
         exports.insert(scanPtr);

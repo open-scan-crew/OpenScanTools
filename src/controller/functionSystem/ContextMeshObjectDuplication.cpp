@@ -8,7 +8,7 @@
 #include "utils/Logger.h"
 
 #include "models/graph/MeshObjectNode.h"
-#include "models/graph/GraphManager.hxx"
+#include "models/graph/GraphManager.h"
 
 ContextMeshObjectDuplication::ContextMeshObjectDuplication(const ContextId& id)
 	: ARayTracingContext(id)
@@ -65,7 +65,7 @@ ContextState ContextMeshObjectDuplication::launch(Controller& controller)
             else
                 return (m_state = ContextState::abort);
         }
-        newObj = graphManager.createCopyNode(*&rMesh);
+        newObj = make_safe<MeshObjectNode>(*&rMesh);
         dim = glm::dvec4(rMesh->getDimension(), 1.0);
         scale = rMesh->getScale();
     }

@@ -1,6 +1,5 @@
 #include "models/graph/CameraNode.h"
-#include "models/graph/ScanNode.h"
-#include "models/graph/ScanObjectNode.h"
+#include "models/graph/PointCloudNode.h"
 #include "models/graph/BeamBendingMeasureNode.h"
 #include "models/graph/ColumnTiltMeasureNode.h"
 #include "models/graph/PipeToPipeMeasureNode.h"
@@ -112,10 +111,10 @@ UIViewPoint CameraNode::getUIViewPoint() const
     return UIViewPoint(ViewPointData(*this, m_panoramicScan), *this, *this);
 }*/
 
-SafePtr<ScanNode> CameraNode::getPanoramicScan() const
+SafePtr<PointCloudNode> CameraNode::getPanoramicScan() const
 {
     if (m_isAnimated)
-        return SafePtr<ScanNode>();
+        return SafePtr<PointCloudNode>();
     return m_panoramicScan;
 }
 
@@ -1565,8 +1564,8 @@ void CameraNode::moveToData(const SafePtr<AGraphNode>& data)
     {
     case ElementType::Scan:
     {
-        SafePtr<ScanNode> scan = static_pointer_cast<ScanNode>(data);
-        ReadPtr<ScanNode> rScan = scan.cget();
+        SafePtr<PointCloudNode> scan = static_pointer_cast<PointCloudNode>(data);
+        ReadPtr<PointCloudNode> rScan = scan.cget();
         if (rScan->getScanGuid() == tls::ScanGuid())
             return;
         distance = 0.0f;
@@ -1644,7 +1643,7 @@ void CameraNode::moveToData(const SafePtr<AGraphNode>& data)
     break;
     case ElementType::PCO:
     {
-        ReadPtr<ScanObjectNode> cli = static_pointer_cast<ScanObjectNode>(data).cget();
+        ReadPtr<PointCloudNode> cli = static_pointer_cast<PointCloudNode>(data).cget();
         position = cli->getCenter();
         distance = glm::distance(cli->getScale(), glm::dvec3(0.0f)) * 2.0f;
     }

@@ -6,7 +6,6 @@
 #include "controller/controls/ControlFunction.h"
 
 #include "models/graph/SimpleMeasureNode.h"
-#include "models/graph/GraphManager.hxx"
 
 
 ContextSimpleMeasure::ContextSimpleMeasure(const ContextId& id)
@@ -33,7 +32,7 @@ ContextState ContextSimpleMeasure::launch(Controller& controller)
 	newMeasure.origin = m_clickResults[size - 2].position;
 	newMeasure.final = m_clickResults[size - 1].position;
 
-	SafePtr<SimpleMeasureNode> measure = controller.getGraphManager().createMeasureNode<SimpleMeasureNode>();
+	SafePtr<SimpleMeasureNode> measure = make_safe<SimpleMeasureNode>();
 	WritePtr<SimpleMeasureNode> wMeasure = measure.get();
 	if (!wMeasure)
 	{
