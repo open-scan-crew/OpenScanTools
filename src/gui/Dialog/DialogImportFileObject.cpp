@@ -59,7 +59,7 @@ void DialogImportFileObject::setInfoFileObjects(const std::unordered_set<SafePtr
 				ReadPtr<PointCloudNode> readInfo = static_pointer_cast<PointCloudNode>(infoPtr).cget();
 				if (!readInfo)
 					continue;
-				qFileName = QDir::toNativeSeparators(QString::fromStdWString(readInfo->getScanPath().wstring()));
+				qFileName = QDir::toNativeSeparators(QString::fromStdWString(readInfo->getTlsFilePath().wstring()));
 			}
 			case ElementType::MeshObject:
 			{

@@ -158,21 +158,10 @@ std::string importJsonTree(Controller& controller, const nlohmann::json& json, c
         {
             SafePtr<PointCloudNode> pc = make_safe<PointCloudNode>(false);
             DataDeserializer::DeserializePointCloudNode(pc, json, controller);
+            // TODO - check tls file path
             WritePtr<PointCloudNode> wpc = pc.get();
             if (!wpc)
                 break;
-
-            tls::ScanGuid scanGuid;
-            if (tlGetScanGuid(controller.getContext().cgetProjectInternalInfo().getPointCloudFolderPath(false) / wpc->getScanPath().filename(), scanGuid))
-            {
-                // store the references for future use (copy, delete, etc)
-                wpc->setScanGuid(scanGuid);
-            }
-            else
-            {
-                wpc->setScanGuid(tls::ScanGuid());
-                IOLOG << "Error: Unable to read the tls file." << LOGENDL;
-            }
             nodeById[wpc->getId()] = pc;
             child = pc;
         }
@@ -321,10 +310,11 @@ void SaveLoadSystem::checkPointCloudPath(SafePtr<PointCloudNode> pcNode)
 std::filesystem::path SaveLoadSystem::findPointCloudPath(WritePtr<PointCloudNode>& wPCNode, const ProjectInternalInfo& internalInfo, const std::filesystem::path& searchFolder)
 {
     std::vector<std::filesystem::path> possiblePaths;
-    possiblePaths.push_back(wPCNode->getScanPath()); // no copy, stay where it is
-    possiblePaths.push_back(searchFolder / wPCNode->getScanPath().filename()); // copy
-    possiblePaths.push_back(internalInfo.getPointCloudFolderPath(false) / wPCNode->getScanPath().filename());
-    possiblePaths.push_back(internalInfo.getPointCloudFolderPath(true) / wPCNode->getScanPath().filename());
+    possiblePaths.push_back(wPCNode->getTlsFilePath());
+    possiblePaths.push_back(wPCNode->getBackupFilePath());
+    possiblePaths.push_back(searchFolder / wPCNode->getBackupFilePath().filename());
+    possiblePaths.push_back(internalInfo.getPointCloudFolderPath(false) / wPCNode->getBackupFilePath().filename());
+    possiblePaths.push_back(internalInfo.getPointCloudFolderPath(true) / wPCNode->getBackupFilePath().filename());
 
     for (auto path : possiblePaths)
     {
@@ -333,7 +323,7 @@ std::filesystem::path SaveLoadSystem::findPointCloudPath(WritePtr<PointCloudNode
     }
     // If not found, we return the saved path in the node.
     // Any error will be raised later depending of the context.
-    return wPCNode->getScanPath();
+    return wPCNode->getBackupFilePath();
 }
 
 std::unordered_set<SafePtr<AGraphNode>> SaveLoadSystem::LoadFileObjects(Controller& controller, const std::unordered_set<SafePtr<AGraphNode>>& fileObjects, std::filesystem::path folder, bool forceCopy)
@@ -364,20 +354,14 @@ std::unordered_set<SafePtr<AGraphNode>> SaveLoadSystem::LoadFileObjects(Controll
                 continue;
 
             std::filesystem::path pcPath = findPointCloudPath(wPCNode, internalInfo, folder);
-            tls::ScanGuid scanGuid;
-
-            if (tlGetScanGuid(pcPath, scanGuid))
-            {
-                wPCNode->setScanGuid(scanGuid);
-                // On ne copie le scan que si il provient d’un dossier externe
-                if (forceCopy)
-                {
-                    std::filesystem::path dstPath = internalInfo.getPointCloudFolderPath(wPCNode->getType() == ElementType::PCO) / wPCNode->getScanPath().filename();;
-                    tlCopyScanFile(scanGuid, dstPath, true, true, false);
-                }
-            }
-            else
+            wPCNode->setTlsFilePath(pcPath, false);
+            if (wPCNode->getScanGuid() == tls::ScanGuid())
                 failedFileImport.insert(object);
+            else if (forceCopy)
+            {
+                std::filesystem::path dstPath = internalInfo.getPointCloudFolderPath(wPCNode->getType() == ElementType::PCO) / wPCNode->getTlsFilePath().filename();;
+                tlCopyScanFile(wPCNode->getScanGuid(), dstPath, true, true, false);
+            }
         }
         break;
         case ElementType::MeshObject:
@@ -452,8 +436,8 @@ void SaveLoadSystem::ExportToProjectFileObjects(Controller& controller, const Pr
                 ReadPtr<PointCloudNode> rScan = static_pointer_cast<PointCloudNode>(object).cget();
                 if (!rScan)
                     continue;
-                from = rScan->getCurrentScanPath();
-                to = exportProjectInfo.getPointCloudFolderPath(type == ElementType::PCO) / rScan->getScanPath().filename();
+                from = rScan->getTlsFilePath();
+                to = exportProjectInfo.getPointCloudFolderPath(type == ElementType::PCO) / rScan->getTlsFilePath().filename();
             }
             break;
             case ElementType::MeshObject:
@@ -966,7 +950,7 @@ bool SaveLoadSystem::readProjectTypes(const Controller& controller, const std::f
     return true;
 }
 
-void SaveLoadSystem::ImportJsonProject(const std::filesystem::path& importPath, Controller& controller, std::string& errorMsg)
+void SaveLoadSystem::importJsonProject(const std::filesystem::path& importPath, Controller& controller, std::string& errorMsg)
 {
     ControllerContext& context = controller.getContext();
     GraphManager& graphManager = controller.getGraphManager();
@@ -1146,7 +1130,7 @@ void SaveLoadSystem::ImportJsonProject(const std::filesystem::path& importPath, 
     }
 
     //trees (old version for compatibility)
-    importAllTrees(controller, jsonProject, nodeById);
+//    importAllTrees(controller, jsonProject, nodeById);
 
     for (const std::pair<xg::Guid, SafePtr<AGraphNode>>& pair : nodeById)
         graphManager.addNodesToGraph({ pair.second });
@@ -1262,7 +1246,7 @@ SafePtr<PointCloudNode> SaveLoadSystem::ImportNewTlsFile(const std::filesystem::
     if (graphManager.isFilePathOrScanExists(filePath.stem().wstring(), filePath) == true)
     {
         IOLOG << "Error : file or name already exists in the project : " << filePath.stem().string() << LOGENDL;
-        // FIXME - Ask the user if he want to save the Scanunder an other name (or append it)
+        // TODO - Ask the user if he want to save the Scanunder an other name (or append it)
         //return ("Error : file or name already exists and the Scanhas been copied");
         errorCode = ErrorCode::Failed_Write_Permission;
         return SafePtr<PointCloudNode>();
@@ -1289,21 +1273,9 @@ SafePtr<PointCloudNode> SaveLoadSystem::ImportNewTlsFile(const std::filesystem::
         }
 
         wpc->setDefaultData(controller);
-        wpc->setScanPath(dst_path);
+        wpc->setTlsFilePath(dst_path, true);
         if (!is_object)
             wpc->setColor(Color32(rand() % 255, rand() % 255, rand() % 255, 255));
-
-        // Set the tls ref and all the informations contained in the tls
-        // FIXME - manage all the scans contained in one file
-        wpc->setScanGuid(scanGuid);
-        wpc->setName(filePath.stem().wstring());
-
-        tls::ScanHeader scanHeader;
-        if (tlGetScanHeader(scanGuid, scanHeader))
-        {
-            wpc->setPosition(glm::dvec3(scanHeader.transfo.translation[0], scanHeader.transfo.translation[1], scanHeader.transfo.translation[2]));
-            wpc->setRotation({ scanHeader.transfo.quaternion[3], scanHeader.transfo.quaternion[0], scanHeader.transfo.quaternion[1], scanHeader.transfo.quaternion[2] });
-        }
     }
 
     controller.getDataDispatcher().sendControl(new control::function::AddNodes(pc, is_object));
@@ -2069,14 +2041,12 @@ bool SaveLoadSystem::ExportAuthorObjects(const Controller& controller, const std
             return false;
         }
 
-
-
         IOLOG << "Creation of objs file " << name << LOGENDL;
     }
     return true;
 }
 
-void SaveLoadSystem::ImportAuthorObjects(const std::vector<std::filesystem::path>& importFiles, std::unordered_set<SafePtr<AGraphNode>>& succesfulImport, std::unordered_set<SafePtr<AGraphNode>>& fileNotFoundObjectImport, Controller& controller)
+void SaveLoadSystem::importAuthorObjects(const std::vector<std::filesystem::path>& importFiles, std::unordered_set<SafePtr<AGraphNode>>& succesfulImport, std::unordered_set<SafePtr<AGraphNode>>& fileNotFoundObjectImport, Controller& controller)
 {
     std::unordered_map<SafePtr<AGraphNode>, std::pair<xg::Guid, nlohmann::json>> loadObjs;
     for (const std::filesystem::path& p : importFiles)

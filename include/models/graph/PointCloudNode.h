@@ -18,7 +18,10 @@ public:
     TreeType getDefaultTreeType() const override;
 
     std::wstring getComposedName() const override;
-    void setScanGuid(tls::ScanGuid scanGuid);
+
+    void setTlsFilePath(const std::filesystem::path& file_path, bool init_position);
+    std::filesystem::path getTlsFilePath() const;
+    //void setScanGuid(tls::ScanGuid scanGuid);
 
     std::unordered_set<Selection> getAcceptableSelections(const ManipulationMode& mode) const override;
     std::unordered_set<ManipulationMode> getAcceptableManipulationModes() const override;

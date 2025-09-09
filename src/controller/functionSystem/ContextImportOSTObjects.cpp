@@ -85,7 +85,7 @@ ContextState ContextImportOSTObjects::launch(Controller& controller)
 
 	if (m_importData.empty())
 	{
-		SaveLoadSystem::ImportAuthorObjects(m_importFiles, m_importData, m_missingFileObjects, controller);
+		SaveLoadSystem::importAuthorObjects(m_importFiles, m_importData, m_missingFileObjects, controller);
 
 		if (m_importData.empty())
 			return m_state = ContextState::abort;

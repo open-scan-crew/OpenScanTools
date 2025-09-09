@@ -34,10 +34,10 @@ namespace SaveLoadSystem
     bool RestoreBackupFiles(const std::vector<std::filesystem::path>& backups);
 
     bool readProjectTypes(const Controller& controller, const std::filesystem::path& filePath);
-    void ImportJsonProject(const std::filesystem::path& filePath, Controller& controller, std::string& errorMsg);
+    void importJsonProject(const std::filesystem::path& filePath, Controller& controller, std::string& errorMsg);
     SafePtr<PointCloudNode> ImportNewTlsFile(const std::filesystem::path& filePath, bool is_object, Controller& controller, ErrorCode& errorCode);
 
-    void ImportAuthorObjects(const std::vector<std::filesystem::path>& importFiles, std::unordered_set<SafePtr<AGraphNode>>& succesfulImport, std::unordered_set<SafePtr<AGraphNode>>& fileNotFoundObjectImport, Controller& controller);
+    void importAuthorObjects(const std::vector<std::filesystem::path>& importFiles, std::unordered_set<SafePtr<AGraphNode>>& succesfulImport, std::unordered_set<SafePtr<AGraphNode>>& fileNotFoundObjectImport, Controller& controller);
 
     void checkPointCloudPath(SafePtr<PointCloudNode> pcNode);
     std::filesystem::path findPointCloudPath(WritePtr<PointCloudNode>& wPCNode, const ProjectInternalInfo& internalInfo, const std::filesystem::path& searchFolder);

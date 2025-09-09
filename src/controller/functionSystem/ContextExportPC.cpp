@@ -799,7 +799,7 @@ void ContextExportSubProject::exportObjects(Controller& controller) const
         ReadPtr<PointCloudNode> scan = static_pointer_cast<PointCloudNode>(scanPtr).cget();
         if (!scan)
             continue;
-        std::filesystem::path scanPath = m_subProjectInternal.getPointCloudFolderPath(false) / scan->getScanPath().filename();
+        std::filesystem::path scanPath = scan->getTlsFilePath();
         if (!std::filesystem::exists(scanPath))
             continue;
         exports.insert(scanPtr);

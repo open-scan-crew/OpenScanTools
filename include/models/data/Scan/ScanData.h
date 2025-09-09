@@ -8,52 +8,44 @@
 class ScanData
 {
 public:
-	ScanData();
-	ScanData(const ScanData& data);
-	~ScanData();
+    ScanData();
+    ScanData(const ScanData& data);
+    ~ScanData();
 
-	void copyScanData(const ScanData& uiScan);
+    void copyScanData(const ScanData& uiScan);
 
-	// New attribute to determine if a scan is an object
-	void setIsObject(bool is_object);
-	bool getIsObject() const;
+    // New attribute to determine if a scan is an object
+    void setIsObject(bool is_object);
+    bool getIsObject() const;
 
-	//Functions
-	void freeScanFile();
-	void eraseScanFile();
+    void setClippable(bool clippable);
+    bool getClippable() const;
 
-	//Getters
-	bool getClippable() const;
+    void freeScanFile() const;
+    void eraseScanFile() const;
 
-	const std::filesystem::path& getScanPath() const;
-	std::filesystem::path getCurrentScanPath() const;
-	bool getTlsPresent() const;
-	tls::PointFormat getPointFormat() const;
-	bool getRGBAvailable() const;
-	bool getIntensityAvailable() const;
-	uint64_t getNbPoint() const;
-	const tls::ScanGuid getScanGuid() const;
+    const tls::ScanGuid getScanGuid() const;
+    bool getTlsPresent() const;
 
-	const std::wstring& getSensorModel() const;
-	const std::wstring& getSensorSerialNumber() const;
-	time_t getAcquisitionTime() const;
-	const std::wstring getStringAcquisitionTime() const;
+    tls::PointFormat getPointFormat() const;
+    bool getRGBAvailable() const;
+    bool getIntensityAvailable() const;
+    uint64_t getNbPoint() const;
 
-	//Setters
-	void setClippable(bool clippable);
-	void setScanPath(const std::filesystem::path& scanPath);
+    std::wstring getSensorModel() const;
+    std::wstring getSensorSerialNumber() const;
+    time_t getAcquisitionTime() const;
+    const std::wstring getStringAcquisitionTime() const;
+
+    std::filesystem::path getBackupFilePath() const;
 
 protected:
-	std::filesystem::path m_scanPath = "";
-	tls::PointFormat m_pointFormat = tls::TL_POINT_FORMAT_UNDEFINED;
-	uint64_t m_NbPoint = 0;
-	tls::ScanGuid m_scanGuid = xg::Guid();
-	bool m_clippable = true;
-	bool is_object_ = false;
-
-	std::wstring m_sensorModel = L"";
-	std::wstring m_sensorSerialNumber = L"";
-	time_t m_acquisitionTime = 0;
+    // We store the file path even if the TlScanOverseer also store it.
+    // It is used to look for the file when it is missing.
+    std::filesystem::path backup_file_path_;
+    tls::ScanGuid m_scanGuid = xg::Guid();
+    bool m_clippable = true;
+    bool is_object_ = false;
 };
 
 

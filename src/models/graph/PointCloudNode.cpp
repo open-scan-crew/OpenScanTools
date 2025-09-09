@@ -45,21 +45,25 @@ std::wstring PointCloudNode::getComposedName() const
     }
 }
 
-void PointCloudNode::setScanGuid(tls::ScanGuid scanGuid)
+void PointCloudNode::setTlsFilePath(const std::filesystem::path& scanPath, bool init_position)
 {
-    m_scanGuid = scanGuid;
+    tlGetScanGuid(scanPath, m_scanGuid);
+    setName(scanPath.stem().wstring());
+    backup_file_path_ = scanPath;
 
     tls::ScanHeader scanHeader;
-    if (tlGetScanHeader(m_scanGuid, scanHeader) == true)
+    if (init_position && tlGetScanHeader(m_scanGuid, scanHeader))
     {
-        //A enregistrer dans le json ? Ou on garde ça dans le fichier de scan
-        m_pointFormat = scanHeader.format;
-        m_NbPoint = scanHeader.pointCount;
-        m_sensorModel = scanHeader.sensorModel;
-        m_sensorSerialNumber = scanHeader.sensorSerialNumber;
-        m_acquisitionTime = scanHeader.acquisitionDate;
+        setPosition(glm::dvec3(scanHeader.transfo.translation[0], scanHeader.transfo.translation[1], scanHeader.transfo.translation[2]));
+        setRotation({ scanHeader.transfo.quaternion[3], scanHeader.transfo.quaternion[0], scanHeader.transfo.quaternion[1], scanHeader.transfo.quaternion[2] });
     }
-    // else, the tls guid automaticaly is zero-initialized
+}
+
+std::filesystem::path PointCloudNode::getTlsFilePath() const
+{
+    std::filesystem::path file_path;
+    tlGetCurrentScanPath(m_scanGuid, file_path);
+    return file_path;
 }
 
 std::unordered_set<Selection> PointCloudNode::getAcceptableSelections(const ManipulationMode& mode) const

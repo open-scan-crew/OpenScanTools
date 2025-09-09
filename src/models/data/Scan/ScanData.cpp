@@ -8,7 +8,7 @@ ScanData::ScanData()
 
 ScanData::ScanData(const ScanData & data)
 {
-	copyScanData(data);
+    copyScanData(data);
 }
 
 ScanData::~ScanData()
@@ -16,120 +16,118 @@ ScanData::~ScanData()
 
 void ScanData::copyScanData(const ScanData& uiScanData)
 {
-	m_scanPath = uiScanData.getScanPath();
-	m_scanGuid = uiScanData.getScanGuid();
-	m_clippable = uiScanData.m_clippable;
-	is_object_ = uiScanData.is_object_;
-}
-
-void ScanData::setIsObject(bool is_object)
-{
-	is_object_ = is_object;
-	// FIXME - cannot change the marker icon here - not defined
-	//Data::marker_icon_ = is_object ? scs::MarkerIcon::PCO : scs::MarkerIcon::Scan_Base;
-}
-
-bool ScanData::getIsObject() const
-{
-	return is_object_;
-}
-
-void ScanData::freeScanFile()
-{
-	tlFreeScan(m_scanGuid);
-}
-
-void ScanData::eraseScanFile()
-{
-	tlHardDeleteScanFile(m_scanGuid);
-}
-
-void ScanData::setScanPath(const std::filesystem::path& scanPath)
-{
-	m_scanPath = scanPath;
-}
-
-const std::wstring& ScanData::getSensorModel() const
-{
-	return (m_sensorModel);
-}
-
-const std::wstring& ScanData::getSensorSerialNumber() const
-{
-	return (m_sensorSerialNumber);
-}
-
-time_t ScanData::getAcquisitionTime() const
-{
-	return (m_acquisitionTime);
-}
-
-const std::wstring ScanData::getStringAcquisitionTime() const
-{
-	if (m_acquisitionTime == 0)
-		return L"Not available";
-	else
-	{
-		wchar_t strDate[128];
-		std::time_t acquisitionTime(m_acquisitionTime);
-		std::wcsftime(strDate, sizeof(strDate), DISPLAY_WIDE_TIME_FORMAT, std::localtime(&acquisitionTime));
-
-		return (std::wstring(strDate));
-	}
-}
-
-const std::filesystem::path& ScanData::getScanPath() const
-{
-	return (m_scanPath);
-}
-
-std::filesystem::path ScanData::getCurrentScanPath() const
-{
-	std::filesystem::path currentUsedPath;
-	tlGetCurrentScanPath(m_scanGuid, currentUsedPath);
-	return currentUsedPath;
-}
-
-bool ScanData::getTlsPresent() const
-{
-	xg::Guid nullGuid;
-
-	return (m_scanGuid != nullGuid);
-}
-
-tls::PointFormat ScanData::getPointFormat() const
-{
-	return m_pointFormat;
-}
-
-bool ScanData::getRGBAvailable() const
-{
-	return (m_pointFormat == tls::TL_POINT_XYZ_I_RGB ||
-		m_pointFormat == tls::TL_POINT_XYZ_RGB);
-}
-
-bool ScanData::getIntensityAvailable() const
-{
-	return (m_pointFormat == tls::TL_POINT_XYZ_I ||
-		m_pointFormat == tls::TL_POINT_XYZ_I_RGB);
-}
-
-uint64_t ScanData::getNbPoint() const
-{
-	return (m_NbPoint);
-}
-
-const tls::ScanGuid ScanData::getScanGuid() const
-{
-	return (m_scanGuid);
-}
-
-bool ScanData::getClippable() const
-{
-	return (m_clippable);
+    m_scanGuid = uiScanData.getScanGuid();
+    m_clippable = uiScanData.m_clippable;
+    is_object_ = uiScanData.is_object_;
 }
 
 void ScanData::setClippable(bool clippable)
 {
-	m_clippable = clippable;
+    m_clippable = clippable;
+}
+
+bool ScanData::getClippable() const
+{
+    return (m_clippable);
+}
+
+void ScanData::setIsObject(bool is_object)
+{
+    is_object_ = is_object;
+    // TODO - cannot change the marker icon here - not defined
+    //Data::marker_icon_ = is_object ? scs::MarkerIcon::PCO : scs::MarkerIcon::Scan_Base;
+}
+
+bool ScanData::getIsObject() const
+{
+    return is_object_;
+}
+
+void ScanData::freeScanFile() const
+{
+    tlFreeScan(m_scanGuid);
+}
+
+void ScanData::eraseScanFile() const
+{
+    tlHardDeleteScanFile(m_scanGuid);
+}
+
+const tls::ScanGuid ScanData::getScanGuid() const
+{
+    return (m_scanGuid);
+}
+
+bool ScanData::getTlsPresent() const
+{
+    xg::Guid nullGuid;
+
+    return (m_scanGuid != nullGuid);
+}
+
+tls::PointFormat ScanData::getPointFormat() const
+{
+    tls::ScanHeader header;
+    tlGetScanHeader(m_scanGuid, header);
+    return header.format;
+}
+
+bool ScanData::getRGBAvailable() const
+{
+    tls::PointFormat format = getPointFormat();
+    return (format == tls::TL_POINT_XYZ_I_RGB ||
+        format == tls::TL_POINT_XYZ_RGB);
+}
+
+bool ScanData::getIntensityAvailable() const
+{
+    tls::PointFormat format = getPointFormat();
+    return (format == tls::TL_POINT_XYZ_I ||
+        format == tls::TL_POINT_XYZ_I_RGB);
+}
+
+uint64_t ScanData::getNbPoint() const
+{
+    tls::ScanHeader header;
+    tlGetScanHeader(m_scanGuid, header);
+    return header.pointCount;
+}
+
+std::wstring ScanData::getSensorModel() const
+{
+    tls::ScanHeader header;
+    tlGetScanHeader(m_scanGuid, header);
+    return header.sensorModel;
+}
+
+std::wstring ScanData::getSensorSerialNumber() const
+{
+    tls::ScanHeader header;
+    tlGetScanHeader(m_scanGuid, header);
+    return header.sensorSerialNumber;
+}
+
+time_t ScanData::getAcquisitionTime() const
+{
+    tls::ScanHeader header;
+    tlGetScanHeader(m_scanGuid, header);
+    return header.acquisitionDate;
+}
+
+const std::wstring ScanData::getStringAcquisitionTime() const
+{
+    time_t t = getAcquisitionTime();
+    if (t == 0)
+        return L"Not available";
+    else
+    {
+        wchar_t strDate[128];
+        std::wcsftime(strDate, sizeof(strDate), DISPLAY_WIDE_TIME_FORMAT, std::localtime(&t));
+        return (std::wstring(strDate));
+    }
+}
+
+std::filesystem::path ScanData::getBackupFilePath() const
+{
+    return backup_file_path_;
 }

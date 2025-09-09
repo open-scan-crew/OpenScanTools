@@ -174,7 +174,7 @@ namespace control::project
         // Load the new project
         std::string errorMsg;
 
-        SaveLoadSystem::ImportJsonProject(m_loadPath, controller, errorMsg);
+        SaveLoadSystem::importJsonProject(m_loadPath, controller, errorMsg);
 
         ControllerContext& context = controller.getContext();
         if (!context.isProjectLoaded())

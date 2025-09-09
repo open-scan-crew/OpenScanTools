@@ -164,7 +164,7 @@ namespace control::special
 					if (!scan)
 						continue;
 
-					CONTROLLOG << "The file " << scan->getCurrentScanPath() << " -- {" << scan->getScanGuid() << "} will be definitly deleted." << LOGENDL;
+					CONTROLLOG << "The file " << scan->getTlsFilePath() << " -- {" << scan->getScanGuid() << "} will be definitly deleted." << LOGENDL;
 					scan->eraseScanFile();
 					break;
 				}
@@ -394,7 +394,7 @@ namespace control::special
 					{
 						ReadPtr<PointCloudNode> scan = static_pointer_cast<PointCloudNode>(importantData).cget();
 						if (scan)
-							filePath = scan->getCurrentScanPath();
+							filePath = scan->getTlsFilePath();
 						break;
 					}
 					case ElementType::MeshObject:

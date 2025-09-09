@@ -182,7 +182,6 @@ void ExportTagData(nlohmann::json& json, const TagData& data)
 
 void ExportScanData(nlohmann::json& json, const ScanData& data)
 {
-	json[Key_Path] = Utils::to_utf8(data.getScanPath().wstring());
 	json[Key_Clippable] = data.getClippable();
 	//json[Key_PointCloud_IsObject] = data.is_object_;
 }
@@ -464,6 +463,7 @@ void DataSerializer::Serialize(nlohmann::json& json, const SafePtr<PointCloudNod
 		ExportData(json, *&rObj);
 		ExportTransformationModule(json, *&rObj);
 		ExportScanData(json, *&rObj);
+		json[Key_Path] = Utils::to_utf8(rObj->getTlsFilePath().wstring());
 	}
 	ExportLinks(json, object);
 }

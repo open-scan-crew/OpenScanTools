@@ -1086,20 +1086,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\models\graph\PointToPipeMeasureNode.cpp" />
     <ClCompile Include="..\..\src\models\graph\PointToPlaneMeasureNode.cpp" />
     <ClCompile Include="..\..\src\models\graph\PolylineMeasureNode.cpp" />
-    <ClCompile Include="..\..\src\models\graph\ScanNode.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\src\models\graph\ScanObjectNode.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="..\..\src\models\graph\SimpleMeasureNode.cpp" />
     <ClCompile Include="..\..\src\models\graph\SimpleObjectNode.cpp" />
     <ClCompile Include="..\..\src\models\graph\SphereNode.cpp" />
@@ -1510,8 +1496,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\models\graph\PointToPipeMeasureNode.h" />
     <ClInclude Include="..\..\include\models\graph\PointToPlaneMeasureNode.h" />
     <ClInclude Include="..\..\include\models\graph\PolylineMeasureNode.h" />
-    <ClInclude Include="..\..\include\models\graph\ScanNode.h" />
-    <ClInclude Include="..\..\include\models\graph\ScanObjectNode.h" />
     <ClInclude Include="..\..\include\models\graph\SimpleMeasureNode.h" />
     <ClInclude Include="..\..\include\models\graph\SimpleObjectNode.h" />
     <ClInclude Include="..\..\include\models\graph\SphereNode.h" />
