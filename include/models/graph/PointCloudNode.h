@@ -2,7 +2,6 @@
 #define POINT_CLOUD_NODE_H
 
 #include "models/graph/AGraphNode.h"
-#include "tls_def.h"
 #include "models/data/Scan/ScanData.h"
 #include "vulkan/VkUniform.h"
 
@@ -21,15 +20,17 @@ public:
 
     void setTlsFilePath(const std::filesystem::path& file_path, bool init_position);
     std::filesystem::path getTlsFilePath() const;
-    //void setScanGuid(tls::ScanGuid scanGuid);
 
-    std::unordered_set<Selection> getAcceptableSelections(const ManipulationMode& mode) const override;
-    std::unordered_set<ManipulationMode> getAcceptableManipulationModes() const override;
+    void setManipulable(bool is_manipulable);
+
+    bool isManipulable(ManipulationMode mode) const override;
+    std::unordered_set<Selection> getAcceptableSelections(ManipulationMode mode) const override;
 
     void uploadUniform(glm::mat4 modelTransfo, uint32_t swapIndex);
     VkUniformOffset getUniform(uint32_t swapIndex) const;
 
 protected:
+    bool is_manipulable_;
     VkMultiUniform m_modelUni;
 };
 

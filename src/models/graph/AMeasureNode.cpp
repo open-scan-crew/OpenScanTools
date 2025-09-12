@@ -5,25 +5,20 @@ AMeasureNode::AMeasureNode()
 {}
 
 AMeasureNode::AMeasureNode(const AMeasureNode& node)
-	: AClippingNode(node)
+    : AClippingNode(node)
 {}
 
 AMeasureNode::~AMeasureNode()
 {}
 
-std::unordered_set<Selection> AMeasureNode::getAcceptableSelections(const ManipulationMode& mode) const
+std::unordered_set<Selection> AMeasureNode::getAcceptableSelections(ManipulationMode mode) const
 {
-	return {};
-}
-
-std::unordered_set<ManipulationMode> AMeasureNode::getAcceptableManipulationModes() const
-{
-	return {};
+    return {};
 }
 
 std::vector<Measure> AMeasureNode::getMeasures() const
 {
-	return std::vector<Measure>();
+    return std::vector<Measure>();
 }
 
 void AMeasureNode::pushClippingGeometries(ClippingAssembly& clipAssembly, const TransformationModule& transfo) const

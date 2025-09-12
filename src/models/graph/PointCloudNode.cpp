@@ -5,12 +5,16 @@
 PointCloudNode::PointCloudNode(const PointCloudNode& data)
     : AGraphNode(data)
     , ScanData(data)
+    , is_manipulable_(true)
 {
     // FIXME(robin) - We should get the image count from the framebuffer, it is not always 2
     VulkanManager::getInstance().allocUniform(sizeof(glm::mat4), 2, m_modelUni);
 }
 
 PointCloudNode::PointCloudNode(bool is_object)
+    : AGraphNode()
+    , ScanData()
+    , is_manipulable_(is_object)
 {
     is_object_ = is_object;
     Data::marker_icon_ = is_object ? scs::MarkerIcon::PCO : scs::MarkerIcon::Scan_Base;
@@ -66,7 +70,20 @@ std::filesystem::path PointCloudNode::getTlsFilePath() const
     return file_path;
 }
 
-std::unordered_set<Selection> PointCloudNode::getAcceptableSelections(const ManipulationMode& mode) const
+void PointCloudNode::setManipulable(bool is_manipulable)
+{
+    is_manipulable_ = is_manipulable;
+}
+
+bool PointCloudNode::isManipulable(ManipulationMode mode) const
+{
+    if (!is_manipulable_)
+        return false;
+    else
+        return !getAcceptableSelections(mode).empty();
+}
+
+std::unordered_set<Selection> PointCloudNode::getAcceptableSelections(ManipulationMode mode) const
 {
     switch (mode)
     {
@@ -82,11 +99,6 @@ std::unordered_set<Selection> PointCloudNode::getAcceptableSelections(const Mani
     default:
         return {};
     }
-}
-
-std::unordered_set<ManipulationMode> PointCloudNode::getAcceptableManipulationModes() const
-{
-    return { ManipulationMode::Translation, ManipulationMode::Rotation };
 }
 
 void PointCloudNode::uploadUniform(glm::mat4 modelTransfo, uint32_t swapIndex)

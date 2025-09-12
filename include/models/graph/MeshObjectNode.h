@@ -7,22 +7,21 @@
 class MeshObjectNode : public AGraphNode, public MeshObjectData
 {
 public:
-	MeshObjectNode(const MeshObjectNode& data);
-	MeshObjectNode();
-	~MeshObjectNode();
+    MeshObjectNode(const MeshObjectNode& data);
+    MeshObjectNode();
+    ~MeshObjectNode();
 
-	ElementType getType() const override;
-	TreeType getDefaultTreeType() const override;
+    ElementType getType() const override;
+    TreeType getDefaultTreeType() const override;
 
-	virtual void setDead(bool isDead) override;
+    virtual void setDead(bool isDead) override;
 
-	std::unordered_set<Selection> getAcceptableSelections(const ManipulationMode& mode) const override;
-	std::unordered_set<ManipulationMode> getAcceptableManipulationModes() const override;
+    std::unordered_set<Selection> getAcceptableSelections(ManipulationMode mode) const override;
 
-	virtual MeshDrawData getMeshDrawData(const glm::dmat4& gTransfo) const override;
+    virtual MeshDrawData getMeshDrawData(const glm::dmat4& gTransfo) const override;
 
 private:
-	void addMeshInstance();
+    void addMeshInstance();
 };
 
 #endif

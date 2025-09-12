@@ -54,12 +54,7 @@ void PointNode::pushRampGeometries(std::vector<std::shared_ptr<IClippingGeometry
     retGeom.push_back(geom);
 }
 
-std::unordered_set<Selection> PointNode::getAcceptableSelections(const ManipulationMode& mode) const
-{
-    return {};
-}
-
-std::unordered_set<ManipulationMode> PointNode::getAcceptableManipulationModes() const
+std::unordered_set<Selection> PointNode::getAcceptableSelections(ManipulationMode mode) const
 {
     return {};
 }

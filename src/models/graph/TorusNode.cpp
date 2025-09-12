@@ -87,7 +87,7 @@ void TorusNode::updateTorusMesh()
     MeshManager::getInstance().getTorusId(m_meshId, (float)m_mainAngle, (float)m_mainRadius, (float)getAdjustedTubeRadius());
 }
 
-std::unordered_set<Selection> TorusNode::getAcceptableSelections(const ManipulationMode& mode) const
+std::unordered_set<Selection> TorusNode::getAcceptableSelections(ManipulationMode mode) const
 {
     switch (mode)
     {
@@ -99,11 +99,6 @@ std::unordered_set<Selection> TorusNode::getAcceptableSelections(const Manipulat
     default:
         return {};
     };
-}
-
-std::unordered_set<ManipulationMode> TorusNode::getAcceptableManipulationModes() const
-{
-    return { ManipulationMode::Translation };
 }
 
 MeshId TorusNode::getMeshId() const

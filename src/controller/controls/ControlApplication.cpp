@@ -3,7 +3,7 @@
 #include "controller/ControllerContext.h"
 
 #include "models/graph/GraphManager.h"
-#include "models/graph/ManipulatorNode.h"
+#include "models/graph/PointCloudNode.h"
 #include "models/graph/CameraNode.h"
 
 #include "gui/GuiData/GuiDataIO.h"
@@ -879,9 +879,16 @@ namespace control::application
         if (m_save && !Config::setUnlockScanManipulation(m_unlock))
             controller.updateInfo(new GuiDataWarning(TEXT_SETTINGS_FAILED_TO_SAVE));
 
-        ManipulatorNode::setScanManipulable(m_unlock);
+        std::unordered_set<SafePtr<AGraphNode>> scans = controller.getGraphManager().getNodesByTypes({ ElementType::Scan });
 
-        CONTROLLOG << "control::application::SetManipulatorSize" << LOGENDL;
+        for (SafePtr<AGraphNode> scan : scans)
+        {
+            WritePtr<PointCloudNode> wScan = static_write_cast<PointCloudNode>(scan);
+            if (wScan)
+                wScan->setManipulable(m_unlock);
+        }
+
+        CONTROLLOG << "control::application::UnlockScanManipulation(" << m_unlock << ")" << LOGENDL;
     }
 
     ControlType UnlockScanManipulation::getType() const

@@ -2,17 +2,17 @@
 #include "gui/texts/DefaultNameTexts.hpp"
 
 BeamBendingMeasureNode::BeamBendingMeasureNode(const BeamBendingMeasureNode& node)
-	: AGraphNode(node)
-	, BeamBendingMeasureData(node)
+    : AGraphNode(node)
+    , BeamBendingMeasureData(node)
 {
-	assert(m_geometricParent);
-	m_center = BeamBendingMeasureData::m_maxBendPos;
+    assert(m_geometricParent);
+    m_center = BeamBendingMeasureData::m_maxBendPos;
 }
 
 BeamBendingMeasureNode::BeamBendingMeasureNode()
 {
-	setName(TEXT_DEFAULT_NAME_BEAM_BENDING.toStdWString());
-	Data::marker_icon_ = scs::MarkerIcon::BeamBending;
+    setName(TEXT_DEFAULT_NAME_BEAM_BENDING.toStdWString());
+    Data::marker_icon_ = scs::MarkerIcon::BeamBending;
 }
 
 BeamBendingMeasureNode::~BeamBendingMeasureNode()
@@ -21,27 +21,22 @@ BeamBendingMeasureNode::~BeamBendingMeasureNode()
 
 ElementType BeamBendingMeasureNode::getType() const
 {
-	return ElementType::BeamBendingMeasure;
+    return ElementType::BeamBendingMeasure;
 }
 
 TreeType BeamBendingMeasureNode::getDefaultTreeType() const
 {
-	return TreeType::Measures;
+    return TreeType::Measures;
 }
 
-std::unordered_set<Selection> BeamBendingMeasureNode::getAcceptableSelections(const ManipulationMode& mode) const
+std::unordered_set<Selection> BeamBendingMeasureNode::getAcceptableSelections(ManipulationMode mode) const
 {
     return {};
 }
 
-std::unordered_set<ManipulationMode> BeamBendingMeasureNode::getAcceptableManipulationModes() const
-{
-	return {};
-}
-
 void BeamBendingMeasureNode::setMaxBendingPos(const Pos3D& pos)
 {
-	BeamBendingMeasureData::setMaxBendingPos(pos);
-	setPosition(pos);
+    BeamBendingMeasureData::setMaxBendingPos(pos);
+    setPosition(pos);
 }
 

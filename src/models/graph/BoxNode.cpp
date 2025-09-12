@@ -81,7 +81,7 @@ void BoxNode::addGenericMeshInstance()
     MeshManager::getInstance().getBoxId(m_meshId);
 }
 
-std::unordered_set<Selection> BoxNode::getAcceptableSelections(const ManipulationMode& mode) const
+std::unordered_set<Selection> BoxNode::getAcceptableSelections(ManipulationMode mode) const
 {
     switch (mode)
     {
@@ -94,11 +94,6 @@ std::unordered_set<Selection> BoxNode::getAcceptableSelections(const Manipulatio
     default:
         return {};
     }
-}
-
-std::unordered_set<ManipulationMode> BoxNode::getAcceptableManipulationModes() const
-{
-    return { ManipulationMode::Translation,	ManipulationMode::Rotation, ManipulationMode::Scale, ManipulationMode::Extrusion };
 }
 
 void BoxNode::setIsSimpleBox(bool simpleBox)

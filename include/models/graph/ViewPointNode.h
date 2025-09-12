@@ -14,8 +14,7 @@ public:
     ElementType getType() const override;
     TreeType getDefaultTreeType() const override;
 
-    std::unordered_set<Selection> getAcceptableSelections(const ManipulationMode& mode) const override;
-    std::unordered_set<ManipulationMode> getAcceptableManipulationModes() const override;
+    std::unordered_set<Selection> getAcceptableSelections(ManipulationMode mode) const override;
 };
 
 #endif // !VIEWPOINTNODE_H_

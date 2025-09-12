@@ -27,8 +27,7 @@ public:
 
     virtual void addGenericMeshInstance() override;
 
-    std::unordered_set<Selection> getAcceptableSelections(const ManipulationMode& mode) const override;
-    std::unordered_set<ManipulationMode> getAcceptableManipulationModes() const override;
+    std::unordered_set<Selection> getAcceptableSelections(ManipulationMode mode) const override;
 
     void setIsSimpleBox(bool simpleBox);
     void setGridType(GridType type);

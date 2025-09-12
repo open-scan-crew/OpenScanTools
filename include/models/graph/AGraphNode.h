@@ -49,9 +49,8 @@ public:
     TransformationModule getCumulTransformationModule() const;
 
     void manipulateTransfo(const ManipulateData& manipData);
-    bool isAcceptingManipulatorMode(const ManipulationMode& mode) const;
-    virtual std::unordered_set<Selection> getAcceptableSelections(const ManipulationMode& mode) const;
-    virtual std::unordered_set<ManipulationMode> getAcceptableManipulationModes() const;
+    virtual bool isManipulable(ManipulationMode mode) const;
+    virtual std::unordered_set<Selection> getAcceptableSelections(ManipulationMode mode) const;
 
     virtual bool isAcceptableOwningChild(const SafePtr<AGraphNode>& child) const;
 

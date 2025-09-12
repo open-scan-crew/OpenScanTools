@@ -99,29 +99,30 @@ bool PropertyPointCloud::update()
     palPicker.setColor(QPalette::ButtonText, !color);
     m_ui.colorPicker->setPalette(palPicker);
 
-    // *** Différences d’affichage entre Scan et PCO ***
-    bool trueScan = (pointCloud->getType() == ElementType::Scan);
-
     // NOTE - This title will later be used by the DockWidget that host this widget.
-    setWindowTitle(trueScan ? TEXT_SCAN_PROPERTIES : TEXT_PCO_PROPERTIES);
+    setWindowTitle((pointCloud->getType() == ElementType::Scan) ? TEXT_SCAN_PROPERTIES : TEXT_PCO_PROPERTIES);
 
-    m_ui.posX->setReadOnly(trueScan);
-    m_ui.posY->setReadOnly(trueScan);
-    m_ui.posZ->setReadOnly(trueScan);
+    bool fixed_pos = !pointCloud->isManipulable(ManipulationMode::Translation);
+    m_ui.posX->setReadOnly(fixed_pos);
+    m_ui.posY->setReadOnly(fixed_pos);
+    m_ui.posZ->setReadOnly(fixed_pos);
 
-    m_ui.rotX->setReadOnly(trueScan);
-    m_ui.rotY->setReadOnly(trueScan);
-    m_ui.rotZ->setReadOnly(trueScan);
+    bool fixed_rot = !pointCloud->isManipulable(ManipulationMode::Rotation);
+    m_ui.rotX->setReadOnly(fixed_rot);
+    m_ui.rotY->setReadOnly(fixed_rot);
+    m_ui.rotZ->setReadOnly(fixed_rot);
 
-    m_ui.scaleX->setReadOnly(trueScan);
-    m_ui.scaleY->setReadOnly(trueScan);
-    m_ui.scaleZ->setReadOnly(trueScan);
+    bool fixed_scale = !pointCloud->isManipulable(ManipulationMode::Extrusion);
+    m_ui.scaleX->setReadOnly(fixed_scale);
+    m_ui.scaleY->setReadOnly(fixed_scale);
+    m_ui.scaleZ->setReadOnly(fixed_scale);
 
-    m_ui.scannerModel->setVisible(trueScan);
-    m_ui.label_scanner_model->setVisible(trueScan);
-    m_ui.scannerSerialNumber->setVisible(trueScan);
-    m_ui.label_scanner_serial_number->setVisible(trueScan);
-    m_ui.colorPicker->setVisible(trueScan);
+    bool show_scanner_info = !pointCloud->getIsObject();
+    m_ui.scannerModel->setVisible(show_scanner_info);
+    m_ui.label_scanner_model->setVisible(show_scanner_info);
+    m_ui.scannerSerialNumber->setVisible(show_scanner_info);
+    m_ui.label_scanner_serial_number->setVisible(show_scanner_info);
+    m_ui.colorPicker->setVisible(show_scanner_info);
 
     return true;
 }

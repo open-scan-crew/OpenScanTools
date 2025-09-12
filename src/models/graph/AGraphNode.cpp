@@ -223,19 +223,14 @@ void AGraphNode::manipulateTransfo(const ManipulateData& manipData)
     addPostRotation(manipData.addRotation, relativeRotationCenter);
 }
 
-bool AGraphNode::isAcceptingManipulatorMode(const ManipulationMode& mode) const
+bool AGraphNode::isManipulable(ManipulationMode mode) const
 {
     return !getAcceptableSelections(mode).empty();
 }
 
-std::unordered_set<Selection> AGraphNode::getAcceptableSelections(const ManipulationMode& mode) const
+std::unordered_set<Selection> AGraphNode::getAcceptableSelections(ManipulationMode mode) const
 {
     return std::unordered_set<Selection>();
-}
-
-std::unordered_set<ManipulationMode> AGraphNode::getAcceptableManipulationModes() const
-{
-    return std::unordered_set<ManipulationMode>();
 }
 
 bool AGraphNode::isAcceptableOwningChild(const SafePtr<AGraphNode>& child) const

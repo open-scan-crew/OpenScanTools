@@ -22,8 +22,7 @@ public:
     virtual void setDead(bool isDead) override;
     void updateTorusMesh();
 
-    std::unordered_set<Selection> getAcceptableSelections(const ManipulationMode& mode) const override;
-    std::unordered_set<ManipulationMode> getAcceptableManipulationModes() const override;
+    std::unordered_set<Selection> getAcceptableSelections(ManipulationMode mode) const override;
 
     MeshId getMeshId() const;
 

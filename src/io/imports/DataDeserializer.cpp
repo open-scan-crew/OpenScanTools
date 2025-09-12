@@ -1872,6 +1872,8 @@ bool ImportNodeLinks(const nlohmann::json& json, const SafePtr<AGraphNode>& node
         IOLOG << "AGraphNode couldnt read geometric children" << LOGENDL;
     }
 
+    // NOTE - All nodes when added to the GraphManager are automatically connected to the root.
+    //      - In short, the geometric link is not exploited correctly.
     if (json.find(Key_GeometricParent) != json.end())
     {
         xg::Guid guid = xg::Guid(json.at(Key_GeometricParent).get<std::string>());
@@ -1880,8 +1882,6 @@ bool ImportNodeLinks(const nlohmann::json& json, const SafePtr<AGraphNode>& node
             SafePtr<AGraphNode> parentNode = nodeById.at(guid);
             AGraphNode::addGeometricLink(parentNode, nodePtr);
         }
-        else
-            IOLOG << "AGraphNode couldnt find geometric parent" << LOGENDL;
     }
     else
     {
@@ -1982,7 +1982,7 @@ void DataDeserializer::PostDeserializeNode(const nlohmann::json& json, const Saf
     }
 
     ImportNodeLinks(json, node, nodeById);
-    
+
     switch (type)
     {
         case ElementType::ViewPoint:

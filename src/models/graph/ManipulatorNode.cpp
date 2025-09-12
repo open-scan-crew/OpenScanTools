@@ -16,15 +16,6 @@
 
 #define SLOW_MANIPULATOR 0.05
 
-std::unordered_set<ElementType> ManipulatorNode::s_manipulableTypes = {
-   ElementType::Box,
-   ElementType::Cylinder,
-   ElementType::Torus,
-   ElementType::Sphere,
-   ElementType::PCO,
-   ElementType::MeshObject
-};
-
 ManipulatorNode::ManipulatorNode(IDataDispatcher& dataDispatcher)
 	: AGraphNode()
     , m_isLocalManipulation(true)
@@ -60,26 +51,19 @@ bool ManipulatorNode::isDisplayed() const
 
 bool ManipulatorNode::setTargets(const std::unordered_set<SafePtr<AGraphNode>>& targets)
 {
-    m_targets = targets;
-    if (m_targets.empty())
+    m_targets.clear();
+    for (SafePtr<AGraphNode> target : targets)
     {
-        return true;
+        ReadPtr<AGraphNode> rTarget = target.cget();
+        if (rTarget && rTarget->isManipulable(m_manipulationMode))
+            m_targets.insert(target);
     }
-    else if (m_targets.size() == 1)
+
+    // When there are more than 1 target eligible, the extrusion is forbidden
+    // But then we have to test all the targets for translation or rotation !
+    if (m_targets.size() > 1 && m_manipulationMode == ManipulationMode::Extrusion)
     {
-        ReadPtr<AGraphNode> rTarget = m_targets.begin()->cget();
-        if (rTarget && !rTarget->isAcceptingManipulatorMode(m_manipulationMode))
-        {
-            std::unordered_set modes(rTarget->getAcceptableManipulationModes());
-            if (modes.empty())
-                return false;
-            m_manipulationMode = *modes.begin();
-        }
-    }
-    else
-    {
-        if (m_manipulationMode != ManipulationMode::Translation && m_manipulationMode != ManipulationMode::Rotation)
-            m_manipulationMode = ManipulationMode::Translation;
+        m_manipulationMode = ManipulationMode::Translation;
     }
 
     m_decalPosition = glm::dvec3(NAN);
@@ -98,7 +82,7 @@ void ManipulatorNode::setManipulationMode(ManipulationMode mode)
     if (m_targets.size() == 1)
     {
         ReadPtr<AGraphNode> rTarget = m_targets.begin()->cget();
-        if (rTarget && rTarget->isAcceptingManipulatorMode(mode))
+        if (rTarget && rTarget->isManipulable(mode))
             m_manipulationMode = mode;
     }
     else
@@ -630,19 +614,6 @@ double ManipulatorNode::getManipSizeFactor(double factor)
     userScaleMultiplicator = userScaleMultiplicator < MIN_SCALE ? MIN_SCALE : userScaleMultiplicator;
     userScaleMultiplicator = userScaleMultiplicator > MAX_SCALE ? MAX_SCALE : userScaleMultiplicator;
     return userScaleMultiplicator;
-}
-
-void ManipulatorNode::setScanManipulable(bool value)
-{
-    if (value)
-        s_manipulableTypes.insert(ElementType::Scan);
-    else
-        s_manipulableTypes.erase(ElementType::Scan);
-}
-
-std::unordered_set<ElementType> ManipulatorNode::getManipulableTypes()
-{
-    return s_manipulableTypes;
 }
 
 void ManipulatorNode::updateTransfo()

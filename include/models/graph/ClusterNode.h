@@ -10,22 +10,21 @@ class IDataDispatcher;
 class ClusterNode : public AGraphNode, public ClusterData
 {
 public:
-	ClusterNode(const ClusterNode& data);
-	ClusterNode();
-	~ClusterNode();
+    ClusterNode(const ClusterNode& data);
+    ClusterNode();
+    ~ClusterNode();
 
-	virtual ElementType getType() const override;
-	virtual bool isAcceptableOwningChild(const SafePtr<AGraphNode>& child) const;
+    virtual ElementType getType() const override;
+    virtual bool isAcceptableOwningChild(const SafePtr<AGraphNode>& child) const;
 
-	virtual TreeType getDefaultTreeType() const override;
+    virtual TreeType getDefaultTreeType() const override;
 
-	virtual std::wstring getComposedName() const override;
+    virtual std::wstring getComposedName() const override;
 
-	std::unordered_set<Selection> getAcceptableSelections(const ManipulationMode& mode) const;
-	std::unordered_set<ManipulationMode> getAcceptableManipulationModes() const;
+    std::unordered_set<Selection> getAcceptableSelections(ManipulationMode mode) const;
 
 public:
-	bool m_isMasterCluster;
+    bool m_isMasterCluster;
 };
 
 #endif CLUSTER_NODE_H

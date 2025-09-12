@@ -16,8 +16,7 @@ public:
     ElementType getType() const override;
     TreeType getDefaultTreeType() const override;
 
-    std::unordered_set<Selection> getAcceptableSelections(const ManipulationMode& mode) const override;
-    std::unordered_set<ManipulationMode> getAcceptableManipulationModes() const override;
+    std::unordered_set<Selection> getAcceptableSelections(ManipulationMode mode) const override;
 
     virtual void setTopPoint(const Pos3D& tp) override;
 };

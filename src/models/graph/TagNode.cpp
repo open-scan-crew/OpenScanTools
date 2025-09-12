@@ -58,12 +58,7 @@ void TagNode::pushRampGeometries(std::vector<std::shared_ptr<IClippingGeometry>>
     retGeom.push_back(geom);
 }
 
-std::unordered_set<Selection> TagNode::getAcceptableSelections(const ManipulationMode& mode) const
-{
-    return {};
-}
-
-std::unordered_set<ManipulationMode> TagNode::getAcceptableManipulationModes() const
+std::unordered_set<Selection> TagNode::getAcceptableSelections(ManipulationMode mode) const
 {
     return {};
 }
