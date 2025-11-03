@@ -3,7 +3,7 @@
 
 #define MyAppName "OpenScanTools"
 #define MyAppVersion "1.0"
-#define MyBuildVersion "1.0.9"
+#define MyBuildVersion "1.0.10"
 #define MyAppPublisher "OpenScanTools"
 #define MyAppURL "https://www.openscantools.com/"
 #define MyAppExeName "OpenScanTools.exe"
@@ -14,7 +14,7 @@
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.) 
-;SignTool=MsSign $f
+SignTool=MsSign $f
 AppId={{5A22B828-728C-4E4C-9F70-5B8F1FAEFE15}}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}

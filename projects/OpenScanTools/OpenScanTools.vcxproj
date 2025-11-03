@@ -333,7 +333,7 @@ xcopy /y /q "$(SolutionDir)ext\ReCapSDK\bin\*.dll" "$(SolutionDir)build\$(Config
 windeployqt $(SolutionDir)build\$(Configuration)\OpenScanTools.exe
 xcopy /y "$(SolutionDir)translations\" "$(SolutionDir)build\$(Configuration)\translations"
 
-signtool sign /sha1 "881d9294e1fdd77049171ada940dd511b709674f" /tr "http://time.certum.pl" /td sha256 /fd sha256 /v "$(SolutionDir)build\install\OpenScanTools.exe"</Command>
+signtool sign /sha1 "F8E2618D741F443D4DB24A8FCDEAB4CAD55E11E4" /tr "http://time.certum.pl" /td sha256 /fd sha256 /v "$(SolutionDir)build\$(Configuration)\OpenScanTools.exe"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copying Resources to $(SolutionDir)build\$(Configuration)</Message>

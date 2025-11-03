@@ -37,6 +37,7 @@ void DialogAbout::setDialog(float guiScale)
         TEXT_ABOUT_COPYRIGHT.arg(OPENSCANTOOLS_YEAR) + "<br>" +
         TEXT_ABOUT_WEBSITE + "<br>" +
         TEXT_ABOUT_EMAIL + "<br>" +
+        TEXT_ABOUT_AUTHORS +
         TEXT_ABOUT_CREDITS +
         "<ul><li>" + TEXT_ABOUT_QT +
         "</li><li>" + TEXT_ABOUT_ICONS +
@@ -45,6 +46,7 @@ void DialogAbout::setDialog(float guiScale)
         "</li><li>" + TEXT_ABOUT_VULKAN +
         "</li><li>" + TEXT_ABOUT_VMA +
         "</li><li>" + TEXT_ABOUT_BADUIT +
+        "</li><li>" + TEXT_ABOUT_FMT +
         "</li><li>" + TEXT_ABOUT_OCCT +
         "</li><li>" + TEXT_ABOUT_FBXSDK +
         "</li><li>" + TEXT_ABOUT_IFCPP +

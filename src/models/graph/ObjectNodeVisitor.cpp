@@ -7,7 +7,6 @@
 #include "models/graph/CameraNode.h"
 #include "models/graph/CylinderNode.h"
 #include "models/graph/SphereNode.h"
-//#include "models/graph/ViewPointNode.h"
 #include "models/graph/TorusNode.h"
 #include "models/graph/PointCloudNode.h"
 #include "models/graph/TagNode.h"
@@ -1301,6 +1300,7 @@ void ObjectNodeVisitor::bakeGraphics(const SafePtr<AGraphNode>& node, const Tran
     }
 
     bool drawImguitext = m_displayParameters.m_displayAllMarkersTexts;
+    drawImguitext &= !(elemType == ElementType::None);
     drawImguitext &= !((elemType == ElementType::Scan) && (m_displayParameters.m_markerMask & SHOW_SCAN_MARKER) == 0);
     switch (graphType)
     {
