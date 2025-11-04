@@ -9,6 +9,7 @@
 #define MyAppExeName "OpenScanTools.exe"
 #define MyRepo "../.."
 #define MyQt GetEnv('QT_PATH')
+#define SDKFaro "FARO_LS_SDK_2021.5.1.9021_Setup.exe"
         
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -62,6 +63,7 @@ Name: "{commonprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFi
 Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\OpenScanTools.ico"; Tasks: desktopicon
 
 [Run]
+Filename: "{app}\{#SDKFaro}"; Description: "{cm:InstallFaroSDK}"; Flags: postinstall skipifsilent
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 [UninstallDelete]
