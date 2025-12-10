@@ -504,11 +504,17 @@ std::unordered_set<SafePtr<AGraphNode>> GraphManager::getNodesByTypes(std::unord
 std::unordered_set<SafePtr<AClippingNode>> GraphManager::getClippingObjects(bool filterActive, bool filterSelected) const
 {
     return getNodesOnFilter<AClippingNode>(
-        [](ReadPtr<AGraphNode>& node) 
+        [](ReadPtr<AGraphNode>& node)
         { return s_clippingTypes.find(node->getType()) != s_clippingTypes.end(); },
 
         [filterActive, filterSelected](ReadPtr<AClippingNode>& clip)
-    { return (filterSelected && clip->isSelected()) || (filterActive && clip->isClippingActive()); });
+        // clipping status for viewpoints issue correction
+        {
+            bool activeOk = !filterActive || clip->isClippingActive();
+            bool selectedOk = !filterSelected || clip->isSelected();
+
+            return activeOk && selectedOk;
+        });
 }
 
 std::unordered_set<SafePtr<AClippingNode>> GraphManager::getRampObjects(bool filterActive, bool filterSelected) const
@@ -517,7 +523,13 @@ std::unordered_set<SafePtr<AClippingNode>> GraphManager::getRampObjects(bool fil
         [](ReadPtr<AGraphNode>& node)
     { return s_clippingTypes.find(node->getType()) != s_clippingTypes.end(); },
         [filterActive, filterSelected](ReadPtr<AClippingNode>& clip)
-    { return (filterSelected && clip->isSelected()) || (filterActive && clip->isRampActive()); });
+		// ramp status for viewpoints issue correction
+        {
+            bool activeOk = !filterActive || clip->isRampActive();
+            bool selectedOk = !filterSelected || clip->isSelected();
+
+            return activeOk && selectedOk;
+        });
 }
 
 std::unordered_set<SafePtr<AClippingNode>> GraphManager::getActivatedOrSelectedClippingObjects() const
