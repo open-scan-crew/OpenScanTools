@@ -10,6 +10,7 @@ enum class ImageFormat {
     JPG,
     JPEG,
     PNG,
+	PNG16,
 	TIFF,
     MAX_ENUM
     /*NOTE Not working : GIF,*/
@@ -22,6 +23,7 @@ const std::map<ImageFormat, std::string> ImageFormatDictio = {
 	{ ImageFormat::JPG, "JPG" },
 	{ ImageFormat::JPEG, "JPEG" },
 	{ ImageFormat::PNG, "PNG" },
+	{ ImageFormat::PNG16, "PNG16" },
 	{ ImageFormat::TIFF, "TIFF" },
 	/*{ ImageFormat::PBM, "PBM" },
 	{ ImageFormat::PGM, "PGM" },
@@ -29,6 +31,25 @@ const std::map<ImageFormat, std::string> ImageFormatDictio = {
 	{ ImageFormat::XBM, "XBM" },
 	{ ImageFormat::XPM, "XPM" } */
 };
+
+inline std::string getImageExtension(const ImageFormat format)
+{
+	switch (format)
+	{
+	case ImageFormat::PNG:
+	case ImageFormat::PNG16:
+		return "PNG";
+	case ImageFormat::JPG:
+	case ImageFormat::JPEG:
+		return "JPG";
+	case ImageFormat::TIFF:
+		return "TIFF";
+	case ImageFormat::BMP:
+		return "BMP";
+	default:
+		return "PNG";
+	}
+}
 
 struct ImageHDMetadata
 {

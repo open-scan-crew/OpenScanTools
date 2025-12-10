@@ -18,12 +18,12 @@ bool ImageWriter::saveScreenshot(const std::filesystem::path& filepath, ImageFor
     width_ = width;
     height_ = height;
     format_ = format;
-    byte_per_pixel_ = 4u;
+    byte_per_pixel_ = format == ImageFormat::PNG16 ? 8u : 4u;
 
     if (!allocateBuffer())
         return false;
 
-    VulkanManager::getInstance().doImageTransfer(transfer, width_, height_, image_buffer_, buffer_size_, 0u, 0u, 0u);
+    VulkanManager::getInstance().doImageTransfer(transfer, width_, height_, image_buffer_, buffer_size_, 0u, 0u, 0u, format == ImageFormat::PNG16);
     saveImage(filepath);
 
     return true;
@@ -34,13 +34,13 @@ bool ImageWriter::startCapture(ImageFormat format, uint32_t width, uint32_t heig
     width_ = width;
     height_ = height;
     format_ = format;
-    byte_per_pixel_ = 4u;
+    byte_per_pixel_ = format == ImageFormat::PNG16 ? 8u : 4u;
     return allocateBuffer();
 }
 
 void ImageWriter::transferImageTile(ImageTransferEvent transfer, uint32_t dstOffsetW, uint32_t dstOffsetH)
 {
-    VulkanManager::getInstance().doImageTransfer(transfer, width_, height_, image_buffer_, buffer_size_, dstOffsetW, dstOffsetH, 1u);
+    VulkanManager::getInstance().doImageTransfer(transfer, width_, height_, image_buffer_, buffer_size_, dstOffsetW, dstOffsetH, 1u, format_ == ImageFormat::PNG16);
 }
 
 bool ImageWriter::save(const std::filesystem::path& file_path, ImageHDMetadata metadata)
@@ -95,11 +95,14 @@ bool ImageWriter::saveMetadata(const std::filesystem::path& file_path, ImageHDMe
 
 bool ImageWriter::saveImage(const std::filesystem::path& file_path)
 {
-    assert(image_buffer_);
-    // TODO - Essayer une option pour QImage::Format::Format_RGBA64
-    QImage qImage((uchar*)image_buffer_, width_, height_, QImage::Format::Format_ARGB32);
+    assert(image_buffer_);    
+    QImage qImage;
+    if (format_ == ImageFormat::PNG16)
+        qImage = QImage(reinterpret_cast<uchar*>(image_buffer_), width_, height_, QImage::Format::Format_RGBA64);
+    else
+        qImage = QImage(reinterpret_cast<uchar*>(image_buffer_), width_, height_, QImage::Format::Format_ARGB32);
     std::filesystem::path ext_path = file_path;
-    ext_path.replace_extension("." + ImageFormatDictio.at(format_));
+    ext_path.replace_extension("." + getImageExtension(format_));
     bool ret(qImage.save(QString::fromStdWString(ext_path.generic_wstring())));
 
     return ret;

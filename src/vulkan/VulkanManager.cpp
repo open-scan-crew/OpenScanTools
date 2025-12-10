@@ -8,12 +8,16 @@
 
 #include "magic_enum/magic_enum.hpp"
 
+#include <algorithm>
+#include <cmath>
 #include <cstring>
 #include <cstdlib>
 #include <cassert>
 #include <chrono>
 #include <map>
 #include <set>
+
+#include <glm/gtc/packing.hpp>
 
 #define TL_ENGINE_VERSION VK_MAKE_VERSION(0, 1, 0)
 
@@ -323,27 +327,30 @@ bool VulkanManager::createVirtualViewport(uint32_t _width, uint32_t _height, int
     return true;
 }
 
-ImageTransferEvent VulkanManager::transferFramebufferImage(TlFramebuffer _framebuffer, VkCommandBuffer _cmdBuffer) const
+ImageTransferEvent VulkanManager::transferFramebufferImage(TlFramebuffer _framebuffer, VkCommandBuffer _cmdBuffer, bool preciseColor) const
 {
     // Source for the copy is the last rendered swapchain image
-    VkImage srcImage = _framebuffer->pImages[_framebuffer->currentImage];
+    VkImage srcImage = preciseColor ? _framebuffer->pcColorImage : _framebuffer->pImages[_framebuffer->currentImage];
+    VkImageLayout srcLayout = preciseColor ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    VkFormat transferFormat = preciseColor ? _framebuffer->pcFormat : VK_FORMAT_B8G8R8A8_UNORM;
 
     // Create the image and his memory
     ImageTransferEvent ite = {};
 
     // Create the linear tiled destination image to copy to and to read the memory from
-    createImage(_framebuffer->extent, 1u, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_TILING_LINEAR, VK_SAMPLE_COUNT_1_BIT, VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, ite.image, ite.memory);
+    createImage(_framebuffer->extent, 1u, transferFormat, VK_IMAGE_TILING_LINEAR, VK_SAMPLE_COUNT_1_BIT, VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, ite.image, ite.memory);
     ite.width = _framebuffer->extent.width;
     ite.height = _framebuffer->extent.height;
+    ite.format = transferFormat;    
 
     VkImageMemoryBarrier imgBarriers[2] = {
-        // Transition swapchain image from present to transfer source layout
+        // Transition source image from present/general to transfer source layout
         {
             VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
             nullptr,
             VK_ACCESS_MEMORY_READ_BIT,
             VK_ACCESS_TRANSFER_READ_BIT,
-            VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+            srcLayout,
             VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
             VK_QUEUE_FAMILY_IGNORED,
             VK_QUEUE_FAMILY_IGNORED,
@@ -453,7 +460,7 @@ ImageTransferEvent VulkanManager::transferFramebufferImage(TlFramebuffer _frameb
 
 // TODO - add the pixel encoding/size
 // TODO - This function is best handled by the 'ImageWriter' dedicated class
-bool VulkanManager::doImageTransfer(ImageTransferEvent ite, uint32_t dstW, uint32_t dstH, char* dstBuffer, size_t dstSize, uint32_t dstOffsetW, uint32_t dstOffsetH, uint32_t border) const
+bool VulkanManager::doImageTransfer(ImageTransferEvent ite, uint32_t dstW, uint32_t dstH, char* dstBuffer, size_t dstSize, uint32_t dstOffsetW, uint32_t dstOffsetH, uint32_t border, bool preciseColor) const
 {
     assert(dstBuffer);
     if (dstOffsetW > dstW || dstOffsetH > dstH)
@@ -485,11 +492,36 @@ bool VulkanManager::doImageTransfer(ImageTransferEvent ite, uint32_t dstW, uint3
     uint32_t innerH = ite.height - 2 * border;
     uint32_t clampedW = std::min(innerW, dstW - dstOffsetW);
     uint32_t clampedH = std::min(innerH, dstH - dstOffsetH);
+    const bool convertToUint16 = preciseColor && ite.format == VK_FORMAT_R16G16B16A16_SFLOAT;
+    const size_t bytesPerPixel = convertToUint16 ? 8ull : 4ull;
+
     for (uint32_t h = 0; h < clampedH; h++)
-    {
-        size_t srcOffset = 4ull * border;
-        size_t dstOffset = 4ull * (dstOffsetW + (h + (size_t)dstOffsetH) * dstW);
-        memcpy_s(dstBuffer + dstOffset, dstSize, srcBuffer + srcOffset, 4 * (size_t)clampedW);
+    {        
+        size_t srcOffset = bytesPerPixel * border;
+        size_t dstOffset = bytesPerPixel * (dstOffsetW + (h + (size_t)dstOffsetH) * dstW);
+
+        if (convertToUint16)
+        {
+            const uint16_t* srcRow = reinterpret_cast<const uint16_t*>(srcBuffer + srcOffset);
+            uint16_t* dstRow = reinterpret_cast<uint16_t*>(dstBuffer + dstOffset);
+            for (uint32_t w = 0; w < clampedW; ++w)
+            {
+                const uint16_t* srcPixel = srcRow + 4ull * w;
+                // Components are stored as float16 -> convert to uint16_t in [0, 65535]
+                float r = glm::unpackHalf1x16(srcPixel[0]);
+                float g = glm::unpackHalf1x16(srcPixel[1]);
+                float b = glm::unpackHalf1x16(srcPixel[2]);
+                float a = glm::unpackHalf1x16(srcPixel[3]);
+                dstRow[4ull * w + 0] = static_cast<uint16_t>(std::round(std::clamp(r, 0.f, 1.f) * 65535.f));
+                dstRow[4ull * w + 1] = static_cast<uint16_t>(std::round(std::clamp(g, 0.f, 1.f) * 65535.f));
+                dstRow[4ull * w + 2] = static_cast<uint16_t>(std::round(std::clamp(b, 0.f, 1.f) * 65535.f));
+                dstRow[4ull * w + 3] = static_cast<uint16_t>(std::round(std::clamp(a, 0.f, 1.f) * 65535.f));
+            }
+        }
+        else
+        {
+            memcpy_s(dstBuffer + dstOffset, dstSize, srcBuffer + srcOffset, bytesPerPixel * (size_t)clampedW);
+        }
         srcBuffer += subResourceLayout.rowPitch;
     }
 

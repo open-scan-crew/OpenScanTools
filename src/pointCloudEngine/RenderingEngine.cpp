@@ -600,7 +600,8 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
     if (!m_screenshotFilename.empty())
     {
         // We use an VkEvent for recording the VkImage transfer and get it on the host later
-        ImageTransferEvent ite = vkm.transferFramebufferImage(framebuffer, cmdBuffer);
+        const bool preciseScreenshot = m_screenshotFormat == ImageFormat::PNG16;
+        ImageTransferEvent ite = vkm.transferFramebufferImage(framebuffer, cmdBuffer, preciseScreenshot);
         ImageWriter imgWriter;
         imgWriter.saveScreenshot(m_screenshotFilename, m_screenshotFormat, ite, framebuffer->extent.width, framebuffer->extent.height);
         m_screenshotFilename.clear();
@@ -749,7 +750,8 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
     vkm.endObjectRenderPass(framebuffer);
     // -----------------------------
     //vkm.applyPicking(framebuffer, viewport.getMousePos(), nullptr);
-    transferEvent = vkm.transferFramebufferImage(framebuffer, cmdBuffer);
+    const bool preciseScreenshot = m_hdFormat == ImageFormat::PNG16;
+    transferEvent = vkm.transferFramebufferImage(framebuffer, cmdBuffer, preciseScreenshot);
     vkm.endCommandBuffer(cmdBuffer);
 
     vkm.submitVirtualFramebuffer(framebuffer);

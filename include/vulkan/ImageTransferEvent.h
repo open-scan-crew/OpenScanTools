@@ -10,6 +10,7 @@ struct ImageTransferEvent
     VkEvent transferEvent;
     uint32_t width;
     uint32_t height;
+    VkFormat format = VK_FORMAT_UNDEFINED;
 };
 
 #endif

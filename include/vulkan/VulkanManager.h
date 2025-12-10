@@ -94,8 +94,9 @@ public:
     void destroyFramebuffer(TlFramebuffer& framebuffer);
     bool createVirtualViewport(uint32_t width, uint32_t height, int multisample, TlFramebuffer& virtualViewport);
 
-    ImageTransferEvent transferFramebufferImage(TlFramebuffer _framebuffer, VkCommandBuffer _cmdBuffer) const;
-    bool doImageTransfer(ImageTransferEvent ite, uint32_t dstW, uint32_t dstH, char* dstBuffer, size_t dstSize, uint32_t dstOffsetW, uint32_t dstOffsetH, uint32_t border) const;
+    ImageTransferEvent transferFramebufferImage(TlFramebuffer _framebuffer, VkCommandBuffer _cmdBuffer, bool preciseColor = false) const;
+    bool doImageTransfer(ImageTransferEvent ite, uint32_t dstW, uint32_t dstH, char* dstBuffer, size_t dstSize, uint32_t dstOffsetW, uint32_t dstOffsetH, uint32_t border, bool preciseColor) const;
+
     static void resizeFramebuffer(TlFramebuffer, int _width, int _height);
     static VkCommandBuffer getGraphicsCmdBuffer(TlFramebuffer framebuffer);
     static uint32_t getImageCount(TlFramebuffer framebuffer);
