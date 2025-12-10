@@ -321,6 +321,7 @@ void RenderingEngine::update()
     }
     m_mutexViewports.unlock();
     VulkanManager::getInstance().submitMultipleFramebuffer(m_framebuffersToRender);
+    processPendingScreenshots();
     timeRendering(m_framebuffersToRender.size() > 0);
 
     // NOTE(robin) - Un sleep de 16ms dure en pratique entre 16 et 35ms
@@ -602,8 +603,7 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
         // We use an VkEvent for recording the VkImage transfer and get it on the host later
         const bool preciseScreenshot = m_screenshotFormat == ImageFormat::PNG16;
         ImageTransferEvent ite = vkm.transferFramebufferImage(framebuffer, cmdBuffer, preciseScreenshot);
-        ImageWriter imgWriter;
-        imgWriter.saveScreenshot(m_screenshotFilename, m_screenshotFormat, ite, framebuffer->extent.width, framebuffer->extent.height);
+        m_pendingScreenshots.push_back({ m_screenshotFilename, m_screenshotFormat, ite, framebuffer->extent.width, framebuffer->extent.height });
         m_screenshotFilename.clear();
     }
 
@@ -1055,6 +1055,22 @@ void RenderingEngine::shutdownImGui()
     // Free ImGui resources
     ImGui_ImplVulkan_Shutdown();
     ImGui::DestroyContext();
+}
+void RenderingEngine::processPendingScreenshots()
+{
+    if (m_pendingScreenshots.empty())
+        return;
+
+    VulkanManager& vkm = VulkanManager::getInstance();
+    vkm.waitIdle();
+
+    for (PendingScreenshot& pending : m_pendingScreenshots)
+    {
+        ImageWriter imgWriter;
+        imgWriter.saveScreenshot(pending.filepath, pending.format, pending.transfer, pending.width, pending.height);
+    }
+
+    m_pendingScreenshots.clear();
 }
 
 void RenderingEngine::updateCompute()

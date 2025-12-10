@@ -341,7 +341,7 @@ ImageTransferEvent VulkanManager::transferFramebufferImage(TlFramebuffer _frameb
     createImage(_framebuffer->extent, 1u, transferFormat, VK_IMAGE_TILING_LINEAR, VK_SAMPLE_COUNT_1_BIT, VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, ite.image, ite.memory);
     ite.width = _framebuffer->extent.width;
     ite.height = _framebuffer->extent.height;
-    ite.format = transferFormat;    
+    ite.format = transferFormat;
 
     VkImageMemoryBarrier imgBarriers[2] = {
         // Transition source image from present/general to transfer source layout
@@ -1224,14 +1224,16 @@ void VulkanManager::submitMultipleFramebuffer(std::vector<TlFramebuffer> fbs)
     m_pfnDev->vkResetFences(m_device, 1, &m_renderFence);
 
     std::vector<VkSubmitInfo> submitInfos;
-    for (TlFramebuffer fb : fbs)
+    std::vector<VkPipelineStageFlags> waitStageMasks(fbs.size(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+    submitInfos.reserve(fbs.size());
+    for (size_t i = 0; i < fbs.size(); ++i)
     {
-        VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+        TlFramebuffer fb = fbs[i];
         VkSubmitInfo submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.waitSemaphoreCount = 1;
         submitInfo.pWaitSemaphores = &fb->imageAvailableSemaphore[fb->currentFrame];
-        submitInfo.pWaitDstStageMask = waitStages;
+        submitInfo.pWaitDstStageMask = &waitStageMasks[i];
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &fb->graphicsCmdBuffers[fb->currentFrame];
         submitInfo.signalSemaphoreCount = 1;
