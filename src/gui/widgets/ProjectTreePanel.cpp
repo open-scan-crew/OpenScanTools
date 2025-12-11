@@ -1072,10 +1072,11 @@ void ProjectTreePanel::pickItems()
 
 void ProjectTreePanel::dropManualItems()
 {
+    m_dropList.clear();
+    
     QModelIndex index = this->indexAt(m_lastPoint);
     if (index.isValid() == false)
-    {
-        m_dropList.clear();
+    {        
         return;
     }
 
