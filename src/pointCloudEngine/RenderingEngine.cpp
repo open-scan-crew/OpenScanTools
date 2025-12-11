@@ -1068,6 +1068,7 @@ void RenderingEngine::processPendingScreenshots()
     {
         ImageWriter imgWriter;
         imgWriter.saveScreenshot(pending.filepath, pending.format, pending.transfer, pending.width, pending.height);
+        m_dataDispatcher.sendControl(new control::function::ForwardMessage(new GeneralMessage(GeneralInfo::IMAGEEND)));
     }
 
     m_pendingScreenshots.clear();
