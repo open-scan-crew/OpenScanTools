@@ -830,6 +830,13 @@ void RenderingEngine::drawOverlay(VkCommandBuffer cmdBuffer, const CameraNode& c
         glm::vec2 margin((sizeCam - frameSize) / (sizeCam * 2.0));
         ImVec2 frameUpLeft = ImVec2(margin.x * extent.width, margin.y * extent.height);
         ImVec2 frameBotRight = ImVec2((1 - margin.x) * extent.width, (1 - margin.y) * extent.height);
+
+        // Shade the viewport outside of the HD frame
+        ImColor shadeColor(96, 96, 96, 216);
+        dl->AddRectFilled(upLeft, ImVec2(botRight.x, frameUpLeft.y), shadeColor);
+        dl->AddRectFilled(ImVec2(upLeft.x, frameBotRight.y), botRight, shadeColor);
+        dl->AddRectFilled(ImVec2(upLeft.x, frameUpLeft.y), ImVec2(frameUpLeft.x, frameBotRight.y), shadeColor);
+        dl->AddRectFilled(ImVec2(frameBotRight.x, frameUpLeft.y), ImVec2(botRight.x, frameBotRight.y), shadeColor);
         dl->AddRect(frameUpLeft, frameBotRight, ImColor(238, 315, 119, 255), 0.f, 0, 2.f);
     }
 
