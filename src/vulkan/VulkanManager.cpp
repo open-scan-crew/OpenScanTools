@@ -468,10 +468,14 @@ bool VulkanManager::doImageTransfer(ImageTransferEvent ite, uint32_t dstW, uint3
         return false;
     // Wait for the event to be signaled
     int count = 0;
+    // Try a few times without a long sleep to avoid stalling when the GPU finishes quickly
     while (m_pfnDev->vkGetEventStatus(m_device, ite.transferEvent) != VK_EVENT_SET && count < 1000)
     {
-        std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(15.0f));
-        count++;
+        if (count < 10)
+            std::this_thread::yield();
+        else
+            std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(2.0f));
+        ++count;
     }
     // NOTE - This is not a big problem if we continue with a VkEvent not signaled.
     //        This does not break any Vulkan rules.

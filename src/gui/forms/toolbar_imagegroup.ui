@@ -286,53 +286,6 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="11">
-    <widget class="QLabel" name="label">
-     <property name="toolTip">
-      <string>If you have problems creating an image, lower the value.
-However, the creation time will be increased.</string>
-     </property>
-     <property name="text">
-      <string>Tiles Size</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="12">
-    <widget class="QComboBox" name="comboBox_hdtilesize">
-     <property name="toolTip">
-      <string>If you have problems creating an image, lower the value.
-However, the creation time will be increased.</string>
-     </property>
-     <property name="currentIndex">
-      <number>2</number>
-     </property>
-     <item>
-      <property name="text">
-       <string>64</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>128</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>256</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>512</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>1024</string>
-      </property>
-     </item>
-    </widget>
-   </item>
   </layout>
  </widget>
  <tabstops>

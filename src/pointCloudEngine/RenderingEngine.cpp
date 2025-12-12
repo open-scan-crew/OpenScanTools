@@ -342,7 +342,7 @@ void RenderingEngine::updateHD()
 
     // Should be input parameters
     constexpr uint32_t border = 1;
-    constexpr uint32_t minTileSize = 256;
+    constexpr uint32_t minTileSize = 64;
     constexpr int samples = 1;
     VulkanManager& vkm = VulkanManager::getInstance();
 
@@ -365,7 +365,7 @@ void RenderingEngine::updateHD()
         };
 
     // If the requested tile size leads to too many tiles, scale it up to reduce per-tile overhead.
-    constexpr uint32_t targetTileBudget = 256;
+    constexpr uint32_t targetTileBudget = 64;
     auto [tileCountX, tileCountY] = computeTileCount(frameW, frameH);
     uint32_t tileTotal = tileCountX * tileCountY;
     if (tileTotal > targetTileBudget)
@@ -379,8 +379,7 @@ void RenderingEngine::updateHD()
     TlFramebuffer virtualViewport = TL_NULL_HANDLE;
     bool viewportReady = false;
     while (frameW >= minTileSize && viewportReady == false)
-    {
-        //control::gui::ErrorMessage("Image HD : Something went wrong");
+    {        
         const uint32_t viewportW = frameW + border * 2;
         const uint32_t viewportH = frameH + border * 2;
         if (vkm.createVirtualViewport(viewportW, viewportH, samples, virtualViewport))
@@ -394,6 +393,11 @@ void RenderingEngine::updateHD()
 
     if (!viewportReady)
         return;
+
+    // Clear the 2-frame safety buffer once before tiling instead of per tile to reduce overhead.
+    vkm.startNextFrame();
+    vkm.startNextFrame();
+    vkm.startNextFrame();
 
     ImageWriter imgWriter;
     if (imgWriter.startCapture(m_hdFormat, m_hdExtent.x, m_hdExtent.y) == false)
@@ -672,13 +676,7 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
     VulkanManager& vkm = VulkanManager::getInstance();
     const DisplayParameters& displayParam = camera.getDisplayParameters();
 
-    // Start 3 frames to nullify the 2 frame safety of the point buffers.
-    // This way we can free all the previous buffers.
-    // It is safe only because we waited for the previous render to finish.
-    vkm.startNextFrame();
-    vkm.startNextFrame();
-    vkm.startNextFrame();
-
+    
     // We must have a valid framebuffer for virtual rendering
     if (framebuffer->pImages[framebuffer->currentImage] == VK_NULL_HANDLE)
         return false;

@@ -554,8 +554,8 @@ void ToolBarImageGroup::slotCreateImage(std::filesystem::path filepath, bool sho
 	char timeStr[100];
 	std::strftime(timeStr, sizeof(timeStr), "%Y/%m/%d %H:%M:%S", std::localtime(&t));
 	metadata.date = std::string(timeStr);
-
-	int hdtilesize = m_ui.comboBox_hdtilesize->currentText().toInt();
+	// Note (Yan): as the former comboBox_hdtilesize is not needed anymore, we set a fixed tile size
+	constexpr int hdtilesize = 256;
 
 	if (resW && resH && width > 0 && height > 0)
 		m_dataDispatcher.sendControl(new control::io::SetupImageHD(m_focusCamera, glm::ivec2(width, height), multisample, format, metadata, filepath, showProgressBar, hdtilesize));
