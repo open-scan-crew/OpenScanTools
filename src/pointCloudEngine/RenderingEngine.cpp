@@ -30,6 +30,8 @@
 #include "impl/imgui_impl_qt.h"
 
 
+#include <cmath>
+
 constexpr double HD_MARGIN = 0.05;
 
 #define TEXT_ORTHO_GRID_SIZE QObject::tr("Grid cell size : %1 %2")
@@ -340,30 +342,65 @@ void RenderingEngine::updateHD()
 
     // Should be input parameters
     constexpr uint32_t border = 1;
-    uint32_t frameW = m_hdtilesize;
-    uint32_t frameH = m_hdtilesize;
-    uint32_t viewportW = frameW + border * 2;
-    uint32_t viewportH = frameH + border * 2;
+    constexpr uint32_t minTileSize = 256;
     constexpr int samples = 1;
+    VulkanManager& vkm = VulkanManager::getInstance();
+
+    auto clampTileSize = [&](uint32_t size) {
+        const uint32_t maxImageSize = std::max(2u, vkm.getPhysicalDeviceLimits().maxImageDimension2D);
+        const uint32_t maxAllowed = maxImageSize > border * 2 ? maxImageSize - border * 2 : minTileSize;
+        return std::max(minTileSize, std::min(size, maxAllowed));
+        };
+
+    uint32_t frameW = clampTileSize(m_hdtilesize);
+    uint32_t frameH = frameW;
 
     if (m_hdExtent.x == 0 || m_hdExtent.y == 0)
         return;
 
-    // Create a virtual viewport
+    auto computeTileCount = [&](uint32_t tileW, uint32_t tileH) {
+        const uint32_t tileCountX = (m_hdExtent.x - 1) / tileW + 1;
+        const uint32_t tileCountY = (m_hdExtent.y - 1) / tileH + 1;
+        return std::pair<uint32_t, uint32_t>(tileCountX, tileCountY);
+        };
+
+    // If the requested tile size leads to too many tiles, scale it up to reduce per-tile overhead.
+    constexpr uint32_t targetTileBudget = 256;
+    auto [tileCountX, tileCountY] = computeTileCount(frameW, frameH);
+    uint32_t tileTotal = tileCountX * tileCountY;
+    if (tileTotal > targetTileBudget)
+    {
+        const double scale = std::sqrt(static_cast<double>(tileTotal) / static_cast<double>(targetTileBudget));
+        frameW = clampTileSize(static_cast<uint32_t>(std::ceil(frameW * scale)));
+        frameH = frameW;
+    }
+
+    // Create a virtual viewport, falling back to smaller tiles if necessary (low VRAM cases)
     TlFramebuffer virtualViewport = TL_NULL_HANDLE;
-    VulkanManager& vkm = VulkanManager::getInstance();
-    if (vkm.createVirtualViewport(viewportW, viewportH, samples, virtualViewport) == false)
+    bool viewportReady = false;
+    while (frameW >= minTileSize && viewportReady == false)
     {
         //control::gui::ErrorMessage("Image HD : Something went wrong");
+        const uint32_t viewportW = frameW + border * 2;
+        const uint32_t viewportH = frameH + border * 2;
+        if (vkm.createVirtualViewport(viewportW, viewportH, samples, virtualViewport))
+        {
+            viewportReady = true;
+            break;
+        }
+        frameW = clampTileSize(frameW / 2);
+        frameH = frameW;
     }
+
+    if (!viewportReady)
+        return;
 
     ImageWriter imgWriter;
     if (imgWriter.startCapture(m_hdFormat, m_hdExtent.x, m_hdExtent.y) == false)
         return;
 
     // Projection parameters
-    uint32_t tileCountX = (m_hdExtent.x - 1) / frameW + 1;
-    uint32_t tileCountY = (m_hdExtent.y - 1) / frameH + 1;
+    std::tie(tileCountX, tileCountY) = computeTileCount(frameW, frameH);
     uint32_t count = 0;
     double sleepedTime = 0.0;
     SafePtr<CameraNode> cameraHD = m_graph.duplicateCamera(m_activeCamera);

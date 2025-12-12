@@ -11,7 +11,11 @@ ImageWriter::ImageWriter()
 {}
 
 ImageWriter::~ImageWriter()
-{}
+{
+    delete[] image_buffer_;
+    image_buffer_ = nullptr;
+    buffer_size_ = 0;
+}
 
 bool ImageWriter::saveScreenshot(const std::filesystem::path& filepath, ImageFormat format, ImageTransferEvent transfer, uint32_t width, uint32_t height)
 {
@@ -110,9 +114,21 @@ bool ImageWriter::saveImage(const std::filesystem::path& file_path)
 
 bool ImageWriter::allocateBuffer()
 {
-    if (image_buffer_ != nullptr)
+    const size_t required_size = static_cast<size_t>(width_) * height_ * byte_per_pixel_;
+    if (required_size == 0)
         return false;
-    buffer_size_ = (size_t)width_ * height_ * byte_per_pixel_;
+    if (image_buffer_ != nullptr)
+    {
+        // Reuse the existing buffer if it is already large enough
+        if (buffer_size_ >= required_size)
+            return true;
+
+        delete[] image_buffer_;
+        image_buffer_ = nullptr;
+        buffer_size_ = 0;
+    }
+
+    buffer_size_ = required_size;
     try
     {
         image_buffer_ = new char[buffer_size_];
