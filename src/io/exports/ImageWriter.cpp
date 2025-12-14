@@ -42,9 +42,9 @@ bool ImageWriter::startCapture(ImageFormat format, uint32_t width, uint32_t heig
     return allocateBuffer();
 }
 
-void ImageWriter::transferImageTile(ImageTransferEvent transfer, uint32_t dstOffsetW, uint32_t dstOffsetH)
+void ImageWriter::transferImageTile(ImageTransferEvent transfer, uint32_t dstOffsetW, uint32_t dstOffsetH, uint32_t border)
 {
-    VulkanManager::getInstance().doImageTransfer(transfer, width_, height_, image_buffer_, buffer_size_, dstOffsetW, dstOffsetH, 1u, format_ == ImageFormat::PNG16);
+    VulkanManager::getInstance().doImageTransfer(transfer, width_, height_, image_buffer_, buffer_size_, dstOffsetW, dstOffsetH, border, format_ == ImageFormat::PNG16);
 }
 
 bool ImageWriter::save(const std::filesystem::path& file_path, ImageHDMetadata metadata)

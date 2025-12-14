@@ -341,7 +341,10 @@ void RenderingEngine::updateHD()
     m_graph.refreshScene();
 
     // Should be input parameters
-    constexpr uint32_t border = 1;
+    // NOTE: Gap filling relies on a 3x3 kernel. Using a 2px border keeps a one-pixel safety zone
+    // after the image transfer cropping and avoids visible seams between tiles when the texel
+    // threshold is low (e.g., 2).
+    constexpr uint32_t border = 2;
     constexpr uint32_t minTileSize = 64;
     constexpr int samples = 1;
     VulkanManager& vkm = VulkanManager::getInstance();
@@ -457,7 +460,7 @@ void RenderingEngine::updateHD()
 
                 ImageTransferEvent ite;
                 renderVirtualViewport(virtualViewport, *&wCameraHD, screenOffset, sleepedTime, ite);
-                imgWriter.transferImageTile(ite, tileX * frameW, tileY * frameH);
+                imgWriter.transferImageTile(ite, tileX * frameW, tileY * frameH, border);
 
                 // Copy du rendu dans l'image de destination
                 if (m_showProgressBar)
