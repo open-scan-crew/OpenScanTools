@@ -403,6 +403,11 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
         retVal = false;
     }
 
+    if (json.find(Key_Gap_Filling_Texel_Threshold) != json.end())
+    {
+        data.m_gapFillingTexelThreshold = json.at(Key_Gap_Filling_Texel_Threshold).get<int>();
+    }
+
     if (json.find(Key_Alpha_Object) != json.end())
     {
         data.m_alphaObject = json.at(Key_Alpha_Object).get<float>();

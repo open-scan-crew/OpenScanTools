@@ -31,6 +31,7 @@ public:
     void setConstantScreenSize(VkExtent2D screenSize, glm::vec2 pixelSize, VkCommandBuffer _cmdBuffer);
     void setConstantScreenOffset(glm::vec2 offset, VkCommandBuffer cmdBuffer);
     void setConstantProjMode(bool isPerspective, VkCommandBuffer _cmdBuffer);
+    void setConstantTexelThreshold(int texelThreshold, VkCommandBuffer _cmdBuffer);
     void setConstantLighting(const PostRenderingNormals& lighting, VkCommandBuffer _cmdBuffer) const;
 
     void setConstantHDR(float transparency, bool substract, bool noFlash, VkExtent2D screenSize, Color32 background, VkCommandBuffer _cmdBuffer);

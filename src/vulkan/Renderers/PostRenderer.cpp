@@ -365,6 +365,11 @@ void PostRenderer::setConstantProjMode(bool isPerspective, VkCommandBuffer _cmdB
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_normalPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 32, 4, &mode);
 }
 
+void PostRenderer::setConstantTexelThreshold(int texelThreshold, VkCommandBuffer _cmdBuffer)
+{
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_fillingPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 56, 4, &texelThreshold);
+}
+
 void PostRenderer::setConstantLighting(const PostRenderingNormals& lighting, VkCommandBuffer _cmdBuffer) const
 {
     int tone = lighting.inverseTone ? 1 : 0;
