@@ -62,6 +62,7 @@ CameraNode::CameraNode(const std::wstring& name, IDataDispatcher& dataDispatcher
     registerGuiDataFunction(guiDType::renderMarkerDisplayOptions, &CameraNode::onRenderMarkerDisplayOptions);
     registerGuiDataFunction(guiDType::renderAlphaObjectsRendering, &CameraNode::onRenderAlphaObjects);
     registerGuiDataFunction(guiDType::renderPostRenderingNormals, &CameraNode::onRenderNormals);
+    registerGuiDataFunction(guiDType::renderEdgeAwareBlur, &CameraNode::onRenderEdgeAwareBlur);
     registerGuiDataFunction(guiDType::renderRampScale, &CameraNode::onRenderRampScale);
     registerGuiDataFunction(guiDType::renderFovValueChanged, &CameraNode::onRenderFov);
     registerGuiDataFunction(guiDType::renderExamine, &CameraNode::onRenderExamine);
@@ -1457,6 +1458,14 @@ void CameraNode::onRenderNormals(IGuiData* data)
     }
     else
         m_postRenderingNormals = normalsInfo->m_normals;
+
+    sendNewUIViewPoint();
+}
+
+void CameraNode::onRenderEdgeAwareBlur(IGuiData* data)
+{
+    auto blurData = static_cast<GuiDataEdgeAwareBlur*>(data);
+    m_edgeAwareBlur = blurData->m_blur;
 
     sendNewUIViewPoint();
 }

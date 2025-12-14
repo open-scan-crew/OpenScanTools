@@ -301,6 +301,17 @@ public:
 	bool m_onlySimpleNormalsInfo;
 };
 
+class GuiDataEdgeAwareBlur : public GuiDataActiveCamera
+{
+public:
+	GuiDataEdgeAwareBlur(const EdgeAwareBlur& blurSettings, SafePtr<CameraNode> camera);
+	~GuiDataEdgeAwareBlur() {};
+	virtual guiDType getType() override;
+
+public:
+	EdgeAwareBlur m_blur;
+};
+
 class GuiDataRenderDistanceRampValues : public GuiDataActiveCamera
 {
 public:

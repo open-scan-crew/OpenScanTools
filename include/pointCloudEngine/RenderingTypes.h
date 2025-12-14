@@ -79,6 +79,15 @@ struct PostRenderingNormals
     float gloss;
 };
 
+struct EdgeAwareBlur
+{
+    bool enabled = false;
+    float radius = 2.0f;
+    float depthThreshold = 0.35f;
+    float blendStrength = 0.6f;
+    float resolutionScale = 1.0f; // 1.0 = full res, 0.5 = half res
+};
+
 enum class ProjectionMode
 {
     Perspective = 0,

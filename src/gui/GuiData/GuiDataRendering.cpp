@@ -310,6 +310,16 @@ guiDType GuiDataPostRenderingNormals::getType()
 	return  guiDType::renderPostRenderingNormals;
 }
 
+GuiDataEdgeAwareBlur::GuiDataEdgeAwareBlur(const EdgeAwareBlur& blurSettings, SafePtr<CameraNode> camera)
+	: GuiDataActiveCamera(camera)
+	, m_blur(blurSettings)
+{}
+
+guiDType GuiDataEdgeAwareBlur::getType()
+{
+	return  guiDType::renderEdgeAwareBlur;
+}
+
 /*** Distance Ramp ***/
 
 GuiDataRenderDistanceRampValues::GuiDataRenderDistanceRampValues(float min, float max, int steps, SafePtr<CameraNode> camera)

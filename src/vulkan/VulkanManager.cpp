@@ -954,6 +954,11 @@ void VulkanManager::beginPostTreatmentNormal(TlFramebuffer _fb)
         sizeof(barriers) / sizeof(VkImageMemoryBarrier), barriers);
 }
 
+void VulkanManager::beginPostTreatmentEdgeAwareBlur(TlFramebuffer _fb)
+{
+    beginPostTreatmentNormal(_fb);
+}
+
 void VulkanManager::beginPostTreatmentTransparency(TlFramebuffer _fb)
 {
     // Transition image layout for sampling

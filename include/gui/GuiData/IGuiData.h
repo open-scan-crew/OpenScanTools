@@ -68,6 +68,7 @@ enum class guiDType
 	renderFovValueChanged,
 	renderAlphaObjectsRendering,
 	renderPostRenderingNormals,
+	renderEdgeAwareBlur,
 	renderRampScale,
 	renderDisplayParameters,
 	renderUpdate,
