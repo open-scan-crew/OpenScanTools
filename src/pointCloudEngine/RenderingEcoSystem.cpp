@@ -128,6 +128,11 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
     hash += hash_fn_f(display.m_edgeAwareBlur.depthThreshold);
     hash += hash_fn_f(display.m_edgeAwareBlur.blendStrength);
     hash += hash_fn_f(display.m_edgeAwareBlur.resolutionScale);
+    hash += hash_fn_b(display.m_depthLining.enabled);
+    hash += hash_fn_f(display.m_depthLining.strength);
+    hash += hash_fn_f(display.m_depthLining.threshold);
+    hash += hash_fn_f(display.m_depthLining.sensitivity);
+    hash += hash_fn_b(display.m_depthLining.strongMode);
 
     //hash += hash_fn_f(display.m_alphaObject);             // Do not affect the point cloud
 

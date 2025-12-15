@@ -959,6 +959,11 @@ void VulkanManager::beginPostTreatmentEdgeAwareBlur(TlFramebuffer _fb)
     beginPostTreatmentNormal(_fb);
 }
 
+void VulkanManager::beginPostTreatmentDepthLining(TlFramebuffer _fb)
+{
+    beginPostTreatmentNormal(_fb);
+}
+
 void VulkanManager::beginPostTreatmentTransparency(TlFramebuffer _fb)
 {
     // Transition image layout for sampling
