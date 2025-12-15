@@ -445,7 +445,9 @@ void PostRenderer::processDepthLining(VkCommandBuffer _cmdBuffer, const DepthLin
         glm::ivec2 screenSize;
         float strength;
         float threshold;
-    } pc = { glm::ivec2(_extent.width, _extent.height), liningSettings.strength, liningSettings.threshold };
+        float sensitivity;
+        int strongMode;
+    } pc = { glm::ivec2(_extent.width, _extent.height), liningSettings.strength, liningSettings.threshold, liningSettings.sensitivity, liningSettings.strongMode ? 1 : 0 };
 
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_depthLiningPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(pc), &pc);
 

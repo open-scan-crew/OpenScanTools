@@ -74,6 +74,8 @@ private slots:
         void slotEdgeAwareBlurResolutionChanged(int index);
         void slotDepthLiningToggled(int state);
         void slotDepthLiningValueChanged(int value);
+        void slotDepthLiningSensitivityChanged(int value);
+        void slotDepthLiningStrongModeToggled(int state);
 
 private:
         std::unordered_map<guiDType, GuiDataFunction> m_methods;
