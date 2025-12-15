@@ -42,18 +42,20 @@ private:
 		m_methods.insert({ type, fct });
 	};
 
-	void blockAllSignals(bool block);
+        void blockAllSignals(bool block);
 
     void showContrastBrightness();
     void showSaturationLuminance();
-	void enableFalseColor(bool);
-	bool rampValidValue(float& min, float& max, int& step);
-	void sendTransparency();
-	void updateEdgeAwareBlurUi(bool enabled);
-	EdgeAwareBlur getEdgeAwareBlurFromUi() const;
-	void populateEdgeAwareResolutionCombo();
+        void enableFalseColor(bool);
+        bool rampValidValue(float& min, float& max, int& step);
+        void sendTransparency();
+        void updateEdgeAwareBlurUi(bool enabled);
+        EdgeAwareBlur getEdgeAwareBlurFromUi() const;
+        void populateEdgeAwareResolutionCombo();
+        void updateDepthLiningUi(bool enabled);
+        DepthLining getDepthLiningFromUi() const;
 
-	void changeEvent(QEvent* event) override;
+        void changeEvent(QEvent* event) override;
 
 private slots:
 	void slotBrightnessLuminanceValueChanged(int value);
@@ -64,16 +66,18 @@ private slots:
 	void slotAlphaBoxesValueChanged(int value);
 	void slotSetPointSize(int pointSize);
 	void slotSetRenderMode(int mode);
-	void slotColorPicking();
-	void slotRampValues();
-	void slotNormalsChanged();
-	void slotEdgeAwareBlurToggled(int state);
-	void slotEdgeAwareBlurValueChanged(int value);
-	void slotEdgeAwareBlurResolutionChanged(int index);
+        void slotColorPicking();
+        void slotRampValues();
+        void slotNormalsChanged();
+        void slotEdgeAwareBlurToggled(int state);
+        void slotEdgeAwareBlurValueChanged(int value);
+        void slotEdgeAwareBlurResolutionChanged(int index);
+        void slotDepthLiningToggled(int state);
+        void slotDepthLiningValueChanged(int value);
 
 private:
-	std::unordered_map<guiDType, GuiDataFunction> m_methods;
-	Ui::toolbar_rendersettingsgroup m_ui;
+        std::unordered_map<guiDType, GuiDataFunction> m_methods;
+        Ui::toolbar_rendersettingsgroup m_ui;
 	IDataDispatcher &m_dataDispatcher;
     UiRenderMode m_currentRenderMode;
 	int m_brightness;
