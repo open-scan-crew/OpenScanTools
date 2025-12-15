@@ -92,7 +92,7 @@ struct DepthLining
 {
     bool enabled = false;
     float strength = 0.45f;
-    float threshold = 0.02f;
+    float threshold = 0.006f;
 };
 
 enum class ProjectionMode

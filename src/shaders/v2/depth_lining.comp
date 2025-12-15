@@ -38,12 +38,13 @@ void main()
         return;
     }
 
-    float gx = fetchDepth(gid + ivec2(1, 0)) - fetchDepth(gid + ivec2(-1, 0));
-    float gy = fetchDepth(gid + ivec2(0, 1)) - fetchDepth(gid + ivec2(0, -1));
+    float centerLogDepth = log2(max(centerDepth, 1e-6) + 1.0);
+
+    float gx = log2(max(fetchDepth(gid + ivec2(1, 0)), 1e-6) + 1.0) - centerLogDepth;
+    float gy = log2(max(fetchDepth(gid + ivec2(0, 1)), 1e-6) + 1.0) - centerLogDepth;
 
     float gradient = max(abs(gx), abs(gy));
-    float relativeGradient = gradient / max(abs(centerDepth), 1e-3);
-    float edge = smoothstep(pc.threshold, pc.threshold * 4.0, relativeGradient);
+    float edge = smoothstep(pc.threshold, pc.threshold * 4.0, gradient);
 
     float shading = 1.0 - clamp(pc.strength, 0.0, 1.0) * edge;
     imageStore(inOutColorImage, gid, vec4(color.rgb * shading, color.a));

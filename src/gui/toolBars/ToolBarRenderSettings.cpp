@@ -439,11 +439,11 @@ void ToolBarRenderSettings::updateDepthLiningUi(bool enabled)
 
 DepthLining ToolBarRenderSettings::getDepthLiningFromUi() const
 {
-        DepthLining settings = {};
-        settings.enabled = m_ui.checkBox_depthLining->isChecked();
-        settings.strength = m_ui.spinBox_depthLiningStrength->value() / 100.f;
-        settings.threshold = 0.02f; // UI kept simple for the first iteration
-        return settings;
+    DepthLining settings = {};
+    settings.enabled = m_ui.checkBox_depthLining->isChecked();
+    settings.strength = m_ui.spinBox_depthLiningStrength->value() / 100.f;
+    settings.threshold = 0.006f; // UI kept simple for the first iteration
+    return settings;
 }
 
 void ToolBarRenderSettings::switchRenderMode(const int& mode)
