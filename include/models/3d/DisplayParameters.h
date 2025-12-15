@@ -43,6 +43,7 @@ public:
     // Post processing
     PostRenderingNormals    m_postRenderingNormals = { true, false, true, 0.5f, 1.f };
     EdgeAwareBlur           m_edgeAwareBlur = {};
+    DepthLining             m_depthLining = {};
 
     // GUI
     RampScale      m_rampScale = { true, false, 20 }; // GUI
