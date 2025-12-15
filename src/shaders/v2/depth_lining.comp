@@ -1,0 +1,103 @@
+#version 450
+
+layout (local_size_x = 16, local_size_y = 16) in;
+
+layout(set = 0, binding = 0, rgba8) uniform image2D inOutColorImage;
+layout(set = 1, binding = 2) buffer correctedDepth
+{
+    float depth[];
+};
+
+layout(push_constant) uniform PC {
+   layout(offset = 0) ivec2 screenSize;
+   layout(offset = 8) float strength;
+   layout(offset = 12) float threshold;
+   layout(offset = 16) float sensitivity;
+   layout(offset = 20) int strongMode;
+} pc;
+
+float fetchDepth(ivec2 coord)
+{
+    ivec2 clamped = clamp(coord, ivec2(0), pc.screenSize - ivec2(1));
+    uint idx = uint(clamped.x + clamped.y * pc.screenSize.x);
+    return depth[idx];
+}
+
+float diffDepth(ivec2 origin, float centerDepth, ivec2 offset)
+{
+    float d = fetchDepth(origin + offset);
+    if (d <= 0.0f)
+        return 0.0f;
+    float norm = max(max(centerDepth, d), 1e-6);
+    return abs(d - centerDepth) / norm;
+}
+
+void main()
+{
+    ivec2 gid = ivec2(gl_GlobalInvocationID.xy);
+    if (gid.x >= pc.screenSize.x || gid.y >= pc.screenSize.y)
+        return;
+
+    uint idx = uint(gid.x + gid.y * pc.screenSize.x);
+    vec4 color = imageLoad(inOutColorImage, gid);
+    float centerDepth = depth[idx];
+
+    // Skip empty pixels
+    if (centerDepth <= 0.0f)
+    {
+        imageStore(inOutColorImage, gid, color);
+        return;
+    }
+
+    float gradient = 0.0;
+
+    if (pc.strongMode != 0)
+    {
+        float center = centerDepth;
+        float maxLinear = 0.0;
+
+        maxLinear = max(maxLinear, diffDepth(gid, center, ivec2(1, 0)));
+        maxLinear = max(maxLinear, diffDepth(gid, center, ivec2(-1, 0)));
+        maxLinear = max(maxLinear, diffDepth(gid, center, ivec2(0, 1)));
+        maxLinear = max(maxLinear, diffDepth(gid, center, ivec2(0, -1)));
+        maxLinear = max(maxLinear, diffDepth(gid, center, ivec2(1, 1)));
+        maxLinear = max(maxLinear, diffDepth(gid, center, ivec2(-1, -1)));
+        maxLinear = max(maxLinear, diffDepth(gid, center, ivec2(1, -1)));
+        maxLinear = max(maxLinear, diffDepth(gid, center, ivec2(-1, 1)));
+
+        // Softer far sampling to avoid overly thick strokes
+        maxLinear = max(maxLinear, diffDepth(gid, center, ivec2(2, 0)) * 0.5);
+        maxLinear = max(maxLinear, diffDepth(gid, center, ivec2(-2, 0)) * 0.5);
+        maxLinear = max(maxLinear, diffDepth(gid, center, ivec2(0, 2)) * 0.5);
+        maxLinear = max(maxLinear, diffDepth(gid, center, ivec2(0, -2)) * 0.5);
+
+        float centerLogDepth = log2(max(centerDepth, 1e-6) + 1.0);
+        float logGradient = 0.0;
+        logGradient = max(logGradient, abs(log2(max(fetchDepth(gid + ivec2(1, 0)), 1e-6) + 1.0) - centerLogDepth));
+        logGradient = max(logGradient, abs(log2(max(fetchDepth(gid + ivec2(0, 1)), 1e-6) + 1.0) - centerLogDepth));
+
+        gradient = mix(logGradient, maxLinear, 0.6);
+    }
+    else
+    {
+        float centerLogDepth = log2(max(centerDepth, 1e-6) + 1.0);
+
+        float gx = log2(max(fetchDepth(gid + ivec2(1, 0)), 1e-6) + 1.0) - centerLogDepth;
+        float gy = log2(max(fetchDepth(gid + ivec2(0, 1)), 1e-6) + 1.0) - centerLogDepth;
+
+        gradient = max(abs(gx), abs(gy));
+    }
+
+    float sensitivity = clamp(pc.sensitivity, 0.0, 1.0);
+    float threshold = mix(pc.threshold * 1.35, pc.threshold * 0.4, sensitivity);
+    float rangeFactor = (pc.strongMode != 0) ? 2.6 : 3.5;
+    float edge = smoothstep(threshold, threshold * rangeFactor, gradient);
+    float curved = pow(edge, mix(1.0, 0.75, sensitivity));
+
+    float floorEdge = 0.0;
+    if (pc.strongMode != 0)
+        floorEdge = smoothstep(threshold * 0.55, threshold, gradient) * 0.12;
+
+    float shading = 1.0 - clamp(pc.strength, 0.0, 1.0) * max(curved, floorEdge);
+    imageStore(inOutColorImage, gid, vec4(color.rgb * shading, color.a));
+}
