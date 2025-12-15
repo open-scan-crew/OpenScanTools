@@ -83,12 +83,13 @@ void main()
 
     float sensitivity = clamp(pc.sensitivity, 0.0, 1.0);
     float threshold = mix(pc.threshold * 1.5, pc.threshold * 0.25, sensitivity);
-    float edge = smoothstep(threshold, threshold * 4.0, gradient);
+    float rangeFactor = (pc.strongMode != 0) ? 2.0 : 3.5;
+    float edge = smoothstep(threshold, threshold * rangeFactor, gradient);
     float curved = pow(edge, mix(1.0, 0.65, sensitivity));
 
     float floorEdge = 0.0;
     if (pc.strongMode != 0)
-        floorEdge = smoothstep(threshold * 0.3, threshold, gradient) * 0.25;
+        floorEdge = smoothstep(threshold * 0.45, threshold, gradient) * 0.2;
 
     float shading = 1.0 - clamp(pc.strength, 0.0, 1.0) * max(curved, floorEdge);
     imageStore(inOutColorImage, gid, vec4(color.rgb * shading, color.a));
