@@ -43,6 +43,20 @@
      </property>
     </widget>
    </item>
+   <item row="2" column="16">
+    <widget class="QCheckBox" name="checkBox_depthLining">
+     <property name="text">
+      <string>Contours</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="16">
+    <widget class="QCheckBox" name="checkBox_depthLiningStrongMode">
+     <property name="text">
+      <string>Mode renforcé</string>
+     </property>
+    </widget>
+   </item>
    <item row="4" column="0">
     <widget class="QCheckBox" name="transparencyCheckBox">
      <property name="enabled">
@@ -553,6 +567,72 @@
     <widget class="QSlider" name="slider_edgeAwareBlend">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="18">
+    <widget class="QLabel" name="label_depthLiningStrength">
+     <property name="text">
+      <string>Contour</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="18">
+    <widget class="QLabel" name="label_depthLiningSensitivity">
+     <property name="text">
+      <string>Sensibilite</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="19">
+    <widget class="QSlider" name="slider_depthLiningStrength">
+     <property name="minimum">
+      <number>0</number>
+     </property>
+     <property name="maximum">
+      <number>100</number>
+     </property>
+     <property name="value">
+      <number>45</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="19">
+    <widget class="QSlider" name="slider_depthLiningSensitivity">
+     <property name="minimum">
+      <number>0</number>
+     </property>
+     <property name="maximum">
+      <number>100</number>
+     </property>
+     <property name="value">
+      <number>60</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="21">
+    <widget class="QSpinBox" name="spinBox_depthLiningStrength">
+     <property name="maximum">
+      <number>100</number>
+     </property>
+     <property name="value">
+      <number>45</number>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="21">
+    <widget class="QSpinBox" name="spinBox_depthLiningSensitivity">
+     <property name="maximum">
+      <number>100</number>
+     </property>
+     <property name="value">
+      <number>60</number>
      </property>
     </widget>
    </item>
