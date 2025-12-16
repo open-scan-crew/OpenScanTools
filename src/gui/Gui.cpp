@@ -738,8 +738,8 @@ void Gui::keyReleaseEvent(QKeyEvent* _event)
 {
 	if (m_isEditing || _event->isAutoRepeat())
 		return;
-	if (_event->key() == Qt::Key_ScreenSaver)
-		m_dataDispatcher.sendControl(new control::io::QuickScreenshot(ImageFormat::MAX_ENUM));
+        if (_event->key() == Qt::Key_ScreenSaver || _event->key() == Qt::Key_Print)
+                m_dataDispatcher.sendControl(new control::io::QuickScreenshot(ImageFormat::MAX_ENUM));
 
 	if (_event->key() == Qt::Key_C)
 	{
