@@ -373,7 +373,7 @@ void VulkanViewport::doAction(const WritePtr<CameraNode>& wCam, SafePtr<Manipula
                 ReadPtr<AGraphNode> hoveredNode = hoverObject.cget();
                 if (hoveredNode)
                 {
-                    isPointCloudHover = dynamic_cast<const PointCloudNode*>(&*hoveredNode) != nullptr;
+                    isPointCloudHover = dynamic_cast<const PointCloudNode*>(hoveredNode.operator->()) != nullptr;
                 }
             }
 
