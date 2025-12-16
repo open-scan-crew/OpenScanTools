@@ -74,9 +74,10 @@ signals:
 private:
     bool event(QEvent* event) override;
     void closeEvent(QCloseEvent *event) override;
-	void keyPressEvent(QKeyEvent* _event) override;
-	void keyReleaseEvent(QKeyEvent* _event) override;
-	void changeEvent(QEvent* event) override;
+        void keyPressEvent(QKeyEvent* _event) override;
+        void keyReleaseEvent(QKeyEvent* _event) override;
+    bool nativeEvent(const QByteArray& eventType, void* message, long* result) override;
+        void changeEvent(QEvent* event) override;
 
     typedef void (Gui::*GuiMethod)(IGuiData*);
     inline void registerGuiDataFunction(guiDType type, GuiMethod fct)

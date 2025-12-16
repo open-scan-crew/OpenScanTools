@@ -28,7 +28,8 @@ ShortcutSystem::ShortcutSystem(IDataDispatcher& dataDispacher, QWidget* parent)
 						{ Qt::Key_V, &ShortcutSystem::slotCreateViewPoint},
 						{ Qt::Key_F4, &ShortcutSystem::slotRecordPreformance},
 						{ Qt::Key_D, &ShortcutSystem::slotActivateMeasure},
-						{ Qt::Key_ScreenSaver, &ShortcutSystem::slotQuickScreenshot},
+                                               { Qt::Key_Print, &ShortcutSystem::slotQuickScreenshot},
+                                               { Qt::Key_ScreenSaver, &ShortcutSystem::slotQuickScreenshot},
 						{ Qt::Key_H, &ShortcutSystem::slotHideSelectedObjects},
 						{ Qt::Key_Escape, &ShortcutSystem::slotAbort }
 		})
