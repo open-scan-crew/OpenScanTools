@@ -310,6 +310,26 @@ guiDType GuiDataPostRenderingNormals::getType()
 	return  guiDType::renderPostRenderingNormals;
 }
 
+GuiDataEdgeAwareBlur::GuiDataEdgeAwareBlur(const EdgeAwareBlur& blurSettings, SafePtr<CameraNode> camera)
+        : GuiDataActiveCamera(camera)
+        , m_blur(blurSettings)
+{}
+
+guiDType GuiDataEdgeAwareBlur::getType()
+{
+        return  guiDType::renderEdgeAwareBlur;
+}
+
+GuiDataDepthLining::GuiDataDepthLining(const DepthLining& liningSettings, SafePtr<CameraNode> camera)
+        : GuiDataActiveCamera(camera)
+        , m_lining(liningSettings)
+{}
+
+guiDType GuiDataDepthLining::getType()
+{
+        return guiDType::renderDepthLining;
+}
+
 /*** Distance Ramp ***/
 
 GuiDataRenderDistanceRampValues::GuiDataRenderDistanceRampValues(float min, float max, int steps, SafePtr<CameraNode> camera)

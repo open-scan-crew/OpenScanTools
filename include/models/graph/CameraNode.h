@@ -228,6 +228,8 @@ private:
     void onRenderMarkerDisplayOptions(IGuiData* data);
     void onRenderAlphaObjects(IGuiData* data);
     void onRenderNormals(IGuiData* data);
+    void onRenderEdgeAwareBlur(IGuiData* data);
+    void onRenderDepthLining(IGuiData* data);
     void onRenderRampScale(IGuiData* data);
     void onBackgroundColor(IGuiData* data);
     void onAdjustZoomToScene(IGuiData* data);

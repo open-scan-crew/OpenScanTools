@@ -301,6 +301,28 @@ public:
 	bool m_onlySimpleNormalsInfo;
 };
 
+class GuiDataEdgeAwareBlur : public GuiDataActiveCamera
+{
+public:
+        GuiDataEdgeAwareBlur(const EdgeAwareBlur& blurSettings, SafePtr<CameraNode> camera);
+        ~GuiDataEdgeAwareBlur() {};
+        virtual guiDType getType() override;
+
+public:
+        EdgeAwareBlur m_blur;
+};
+
+class GuiDataDepthLining : public GuiDataActiveCamera
+{
+public:
+        GuiDataDepthLining(const DepthLining& liningSettings, SafePtr<CameraNode> camera);
+        ~GuiDataDepthLining() {};
+        virtual guiDType getType() override;
+
+public:
+        DepthLining m_lining;
+};
+
 class GuiDataRenderDistanceRampValues : public GuiDataActiveCamera
 {
 public:

@@ -593,6 +593,18 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
                 m_postRenderer.processNormalShading(cmdBuffer, wCamera->getInversedViewUniform(m_renderSwapIndex), framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
         }
 
+        if (display.m_depthLining.enabled)
+        {
+            vkm.beginPostTreatmentDepthLining(framebuffer);
+            m_postRenderer.processDepthLining(cmdBuffer, display.m_depthLining, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
+        }
+
+        if (display.m_edgeAwareBlur.enabled)
+        {
+            vkm.beginPostTreatmentEdgeAwareBlur(framebuffer);
+            m_postRenderer.processEdgeAwareBlur(cmdBuffer, display.m_edgeAwareBlur, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
+        }
+
         if (display.m_blendMode != BlendMode::Opaque && display.m_transparency > 0.f)
         {
             vkm.beginPostTreatmentTransparency(framebuffer);

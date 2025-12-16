@@ -1,0 +1,62 @@
+#version 450
+
+layout (local_size_x = 16, local_size_y = 16) in;
+
+layout(set = 0, binding = 0, rgba8) uniform image2D inOutColorImage;
+layout(set = 1, binding = 2) buffer correctedDepth
+{
+    float depth[ ];
+};
+
+layout(push_constant) uniform PC {
+   layout(offset = 0) ivec2 screenSize;
+   layout(offset = 8) float radius;
+   layout(offset = 12) float depthThreshold;
+   layout(offset = 16) float blendStrength;
+   layout(offset = 20) float resolutionScale;
+} pc;
+
+void main()
+{
+   ivec2 gid = ivec2(gl_GlobalInvocationID.xy);
+   if (gid.x >= pc.screenSize.x || gid.y >= pc.screenSize.y)
+      return;
+
+   // Base data
+   uint idx = uint(gid.x + gid.y * pc.screenSize.x);
+   vec4 centerColor = imageLoad(inOutColorImage, gid);
+   float centerDepth = depth[idx];
+
+   // Parameters
+   int r = int(max(pc.radius, 1.0));
+   float depthSigma = max(pc.depthThreshold, 1e-4);
+   float radiusNorm = float(r);
+   int stride = int(round(max(1.0, 1.0 / max(pc.resolutionScale, 0.001))));
+
+   vec3 accumColor = vec3(0.0);
+   float accumWeight = 0.0;
+
+   for (int y = -r; y <= r; y += stride)
+   {
+      for (int x = -r; x <= r; x += stride)
+      {
+         ivec2 coord = clamp(gid + ivec2(x, y), ivec2(0), pc.screenSize - ivec2(1));
+         uint sampleIdx = uint(coord.x + coord.y * pc.screenSize.x);
+         float sampleDepth = depth[sampleIdx];
+         vec3 sampleColor = imageLoad(inOutColorImage, coord).rgb;
+
+         float dist2 = float(x * x + y * y);
+         float spatialWeight = exp(-dist2 / (2.0 * radiusNorm * radiusNorm));
+         float depthDelta = sampleDepth - centerDepth;
+         float depthWeight = exp(-(depthDelta * depthDelta) / (2.0 * depthSigma * depthSigma));
+
+         float w = spatialWeight * depthWeight;
+         accumColor += sampleColor * w;
+         accumWeight += w;
+      }
+   }
+
+   vec3 blurred = (accumWeight > 0.0) ? (accumColor / accumWeight) : centerColor.rgb;
+   vec3 mixed = mix(centerColor.rgb, blurred, clamp(pc.blendStrength, 0.0, 1.0));
+   imageStore(inOutColorImage, gid, vec4(mixed, centerColor.a));
+}

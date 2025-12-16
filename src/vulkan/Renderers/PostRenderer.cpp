@@ -28,6 +28,16 @@ static std::vector<uint32_t> transparency_hdr_comp_spv =
 #include "transparency_hdr.comp.spv"
 };
 
+static std::vector<uint32_t> edge_aware_blur_comp_spv =
+{
+#include "edge_aware_blur.comp.spv"
+};
+
+static std::vector<uint32_t> depth_lining_comp_spv =
+{
+#include "depth_lining.comp.spv"
+};
+
 // ********************************************
 
 PostRenderer::PostRenderer()
@@ -62,6 +72,8 @@ void PostRenderer::createShaders()
     loadShaderSPV(m_normalShadingCompShader, normal_shading_comp_spv);
     loadShaderSPV(m_normalColoredCompShader, normal_colored_comp_spv);
     loadShaderSPV(m_transparencyHDRCompShader, transparency_hdr_comp_spv);
+    loadShaderSPV(m_edgeAwareBlurCompShader, edge_aware_blur_comp_spv);
+    loadShaderSPV(m_depthLiningCompShader, depth_lining_comp_spv);
 }
 
 void PostRenderer::createDescriptorSetLayout()
@@ -141,6 +153,8 @@ void PostRenderer::createPipelines()
     // Create all the pipelines defined
     createFillingPipeline();
     createNormalPipeline();
+    createEdgeAwarePipeline();
+    createDepthLiningPipeline();
     createTransparencyHDRPipeline();
 }
 
@@ -171,6 +185,18 @@ void PostRenderer::createPipelineLayouts()
     pipelineLayoutInfo.setLayoutCount = sizeof(DSLayout_normal) / sizeof(VkDescriptorSetLayout);
     pipelineLayoutInfo.pSetLayouts = DSLayout_normal;
     err = h_pfn->vkCreatePipelineLayout(h_device, &pipelineLayoutInfo, nullptr, &m_normalPipelineLayout);
+    check_vk_result(err, "Create Pipeline Layout");
+
+    VkDescriptorSetLayout DSLayout_edgeAware[] = { VulkanManager::getDSLayout_fillingSamplers(), VulkanManager::getDSLayout_finalOutput() };
+    pipelineLayoutInfo.setLayoutCount = sizeof(DSLayout_edgeAware) / sizeof(VkDescriptorSetLayout);
+    pipelineLayoutInfo.pSetLayouts = DSLayout_edgeAware;
+    err = h_pfn->vkCreatePipelineLayout(h_device, &pipelineLayoutInfo, nullptr, &m_edgeAwarePipelineLayout);
+    check_vk_result(err, "Create Pipeline Layout");
+
+    VkDescriptorSetLayout DSLayout_depthLining[] = { VulkanManager::getDSLayout_fillingSamplers(), VulkanManager::getDSLayout_finalOutput() };
+    pipelineLayoutInfo.setLayoutCount = sizeof(DSLayout_depthLining) / sizeof(VkDescriptorSetLayout);
+    pipelineLayoutInfo.pSetLayouts = DSLayout_depthLining;
+    err = h_pfn->vkCreatePipelineLayout(h_device, &pipelineLayoutInfo, nullptr, &m_depthLiningPipelineLayout);
     check_vk_result(err, "Create Pipeline Layout");
 
     VkDescriptorSetLayout setLayouts_tHDR[] = { VulkanManager::getDSLayout_fillingSamplers() };
@@ -237,6 +263,58 @@ void PostRenderer::createNormalPipeline()
     compStageInfo.module = m_normalColoredCompShader.module();
     info.stage = compStageInfo;
     err = h_pfn->vkCreateComputePipelines(h_device, m_pipelineCache, 1, &info, nullptr, &m_normalColoredPipeline);
+    check_vk_result(err, "Create Compute Pipeline");
+}
+
+void PostRenderer::createEdgeAwarePipeline()
+{
+    VkPipelineShaderStageCreateInfo compStageInfo = {
+        VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+        nullptr,
+        0,
+        VK_SHADER_STAGE_COMPUTE_BIT,
+        m_edgeAwareBlurCompShader.module(),
+        "main",
+        nullptr
+    };
+
+    VkComputePipelineCreateInfo info = {
+        VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO,
+        nullptr,                  // pNext
+        0,                        // flags
+        compStageInfo,            // stage
+        m_edgeAwarePipelineLayout,// layout
+        VK_NULL_HANDLE,           // basePipelineHandle
+        0,                        // basePipelineIndex
+    };
+
+    VkResult err = h_pfn->vkCreateComputePipelines(h_device, m_pipelineCache, 1, &info, nullptr, &m_edgeAwarePipeline);
+    check_vk_result(err, "Create Compute Pipeline");
+}
+
+void PostRenderer::createDepthLiningPipeline()
+{
+    VkPipelineShaderStageCreateInfo compStageInfo = {
+        VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+        nullptr,
+        0,
+        VK_SHADER_STAGE_COMPUTE_BIT,
+        m_depthLiningCompShader.module(),
+        "main",
+        nullptr
+    };
+
+    VkComputePipelineCreateInfo info = {
+        VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO,
+        nullptr,                  // pNext
+        0,                        // flags
+        compStageInfo,            // stage
+        m_depthLiningPipelineLayout,// layout
+        VK_NULL_HANDLE,           // basePipelineHandle
+        0,                        // basePipelineIndex
+    };
+
+    VkResult err = h_pfn->vkCreateComputePipelines(h_device, m_pipelineCache, 1, &info, nullptr, &m_depthLiningPipeline);
     check_vk_result(err, "Create Compute Pipeline");
 }
 
@@ -334,6 +412,61 @@ void PostRenderer::processTransparencyHDR(VkCommandBuffer _cmdBuffer, VkDescript
     h_pfn->vkCmdDispatch(_cmdBuffer, (_extent.width + 15) / 16, (_extent.height + 15) / 16, 1);
 }
 
+void PostRenderer::processEdgeAwareBlur(VkCommandBuffer _cmdBuffer, const EdgeAwareBlur& blurSettings, VkDescriptorSet descSetColor, VkDescriptorSet descSetDepth, VkExtent2D _extent)
+{
+    h_pfn->vkCmdBindPipeline(_cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_edgeAwarePipeline);
+
+    VkDescriptorSet descSets[] = { descSetColor, descSetDepth };
+    h_pfn->vkCmdBindDescriptorSets(_cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_edgeAwarePipelineLayout, 0, 2, descSets, 0, nullptr);
+
+    struct
+    {
+        glm::ivec2 screenSize;
+        float radius;
+        float depthThreshold;
+        float blendStrength;
+        float resolutionScale;
+    } pc = { glm::ivec2(_extent.width, _extent.height), blurSettings.radius, blurSettings.depthThreshold, blurSettings.blendStrength, blurSettings.resolutionScale };
+
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_edgeAwarePipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(pc), &pc);
+
+    h_pfn->vkCmdDispatch(_cmdBuffer, (_extent.width + 15) / 16, (_extent.height + 15) / 16, 1);
+}
+
+void PostRenderer::processDepthLining(VkCommandBuffer _cmdBuffer, const DepthLining& liningSettings, VkDescriptorSet descSetColor, VkDescriptorSet descSetDepth, VkExtent2D _extent)
+{
+    h_pfn->vkCmdBindPipeline(_cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_depthLiningPipeline);
+
+    VkDescriptorSet descSets[] = { descSetColor, descSetDepth };
+    h_pfn->vkCmdBindDescriptorSets(_cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_depthLiningPipelineLayout, 0, 2, descSets, 0, nullptr);
+
+    struct
+    {
+        glm::ivec2 screenSize;
+        float strength;
+        float threshold;
+        float sensitivity;
+        int strongMode;
+    } pc = { glm::ivec2(_extent.width, _extent.height), liningSettings.strength, liningSettings.threshold, liningSettings.sensitivity, liningSettings.strongMode ? 1 : 0 };
+
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_depthLiningPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(pc), &pc);
+
+    h_pfn->vkCmdDispatch(_cmdBuffer, (_extent.width + 15) / 16, (_extent.height + 15) / 16, 1);
+}
+
+bool PostRenderer::initEdgeAwareBlur(VulkanManager& vkm, uint32_t /*swapChainImageCount*/)
+{
+    (void)vkm;
+    // The edge-aware blur pipeline is fully initialized in the constructor via createPipelines().
+    // This helper simply mirrors the pattern used by other platforms expecting an explicit init call.
+    return m_edgeAwarePipeline != VK_NULL_HANDLE && m_edgeAwareBlurCompShader.isValid();
+}
+
+void PostRenderer::transitionAndDispatchEdgeAwareBlur(VkCommandBuffer _cmdBuffer, const EdgeAwareBlur& blurSettings, VkDescriptorSet descSetColor, VkDescriptorSet descSetDepth, VkExtent2D extent)
+{
+    processEdgeAwareBlur(_cmdBuffer, blurSettings, descSetColor, descSetDepth, extent);
+}
+
 void PostRenderer::setConstantZRange(float nearZ, float farZ, VkCommandBuffer _cmdBuffer)
 {
     float nearFar[2] = { nearZ, farZ };
@@ -415,6 +548,16 @@ void PostRenderer::cleanup()
         m_normalPipelineLayout = VK_NULL_HANDLE;
     }
 
+    if (m_edgeAwarePipelineLayout) {
+        h_pfn->vkDestroyPipelineLayout(h_device, m_edgeAwarePipelineLayout, nullptr);
+        m_edgeAwarePipelineLayout = VK_NULL_HANDLE;
+    }
+
+    if (m_depthLiningPipelineLayout) {
+        h_pfn->vkDestroyPipelineLayout(h_device, m_depthLiningPipelineLayout, nullptr);
+        m_depthLiningPipelineLayout = VK_NULL_HANDLE;
+    }
+
     if (m_transparencyHDRPipelineLayout) {
         h_pfn->vkDestroyPipelineLayout(h_device, m_transparencyHDRPipelineLayout, nullptr);
         m_transparencyHDRPipelineLayout = VK_NULL_HANDLE;
@@ -437,6 +580,18 @@ void PostRenderer::cleanup()
     {
         h_pfn->vkDestroyPipeline(h_device, m_normalColoredPipeline, nullptr);
         m_normalColoredPipeline = VK_NULL_HANDLE;
+    }
+
+    if (m_edgeAwarePipeline)
+    {
+        h_pfn->vkDestroyPipeline(h_device, m_edgeAwarePipeline, nullptr);
+        m_edgeAwarePipeline = VK_NULL_HANDLE;
+    }
+
+    if (m_depthLiningPipeline)
+    {
+        h_pfn->vkDestroyPipeline(h_device, m_depthLiningPipeline, nullptr);
+        m_depthLiningPipeline = VK_NULL_HANDLE;
     }
 
     if (m_transparencyHDRPipeline) {

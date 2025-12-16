@@ -13,6 +13,7 @@
 #include <vector>
 
 class VulkanDeviceFunctions;
+class VulkanManager;
 
 class PostRenderer
 {
@@ -26,7 +27,12 @@ public:
     void processNormalShading(VkCommandBuffer _cmdBuffer, VkUniformOffset matrixUniOffset, VkDescriptorSet descSetColor, VkDescriptorSet descSetOutput, VkExtent2D extent);
     void processNormalColored(VkCommandBuffer _cmdBuffer, VkUniformOffset matrixUniOffset, VkDescriptorSet descSetColor, VkDescriptorSet descSetOutput, VkExtent2D extent);
     void processTransparencyHDR(VkCommandBuffer _cmdBuffer, VkDescriptorSet descSetColor, VkExtent2D extent);
+    void processEdgeAwareBlur(VkCommandBuffer _cmdBuffer, const EdgeAwareBlur& blurSettings, VkDescriptorSet descSetColor, VkDescriptorSet descSetDepth, VkExtent2D extent);
+    void processDepthLining(VkCommandBuffer _cmdBuffer, const DepthLining& liningSettings, VkDescriptorSet descSetColor, VkDescriptorSet descSetDepth, VkExtent2D extent);
 
+    // Compatibility helpers used by some build targets
+    bool initEdgeAwareBlur(VulkanManager& vkm, uint32_t swapChainImageCount);
+    void transitionAndDispatchEdgeAwareBlur(VkCommandBuffer _cmdBuffer, const EdgeAwareBlur& blurSettings, VkDescriptorSet descSetColor, VkDescriptorSet descSetDepth, VkExtent2D extent);
     void setConstantZRange(float nearZ, float farZ, VkCommandBuffer _cmdBuffer);
     void setConstantScreenSize(VkExtent2D screenSize, glm::vec2 pixelSize, VkCommandBuffer _cmdBuffer);
     void setConstantScreenOffset(glm::vec2 offset, VkCommandBuffer cmdBuffer);
@@ -46,6 +52,8 @@ private:
     void createPipelineLayouts();
     void createFillingPipeline();
     void createNormalPipeline();
+    void createEdgeAwarePipeline();
+    void createDepthLiningPipeline();
     void createTransparencyHDRPipeline();
 
     void loadShaderSPV(Shader& shader, const std::vector<uint32_t>& code_spv);
@@ -70,12 +78,19 @@ private:
     Shader m_normalShadingCompShader;
     Shader m_normalColoredCompShader;
     Shader m_transparencyHDRCompShader;
+    Shader m_edgeAwareBlurCompShader;
+    Shader m_depthLiningCompShader;
 
     VkPipeline m_fillingPipeline;
     VkPipeline m_normalColoredPipeline;
     VkPipeline m_normalShadingPipeline;
     VkPipeline m_transparencyHDRPipeline;
     VkPipeline m_hdrSubsPipeline;
+    VkPipeline m_edgeAwarePipeline;
+    VkPipeline m_depthLiningPipeline;
+
+    VkPipelineLayout m_edgeAwarePipelineLayout = VK_NULL_HANDLE;
+    VkPipelineLayout m_depthLiningPipelineLayout = VK_NULL_HANDLE;
 };
 
 #endif
