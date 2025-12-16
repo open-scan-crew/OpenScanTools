@@ -5,11 +5,21 @@
 #include "utils/Logger.h"
 
 ContextExamine::ContextExamine(const ContextId& id)
-	: ARayTracingContext(id)
-	, m_target()
+        : ARayTracingContext(id)
+        , m_target()
 {
-    m_usages.push_back({ true, {ElementType::Point, ElementType::Tag, ElementType::Scan}, ""});
-	m_isDisplayingClickTarget = false;
+    m_usages.push_back({ false,
+        { ElementType::Point,
+          ElementType::Tag,
+          ElementType::Scan,
+          ElementType::Box,
+          ElementType::Sphere,
+          ElementType::Cylinder,
+          ElementType::Torus,
+          ElementType::Piping,
+          ElementType::MeshObject },
+        "" });
+        m_isDisplayingClickTarget = false;
 }
 
 ContextExamine::~ContextExamine()
@@ -20,12 +30,14 @@ ContextState ContextExamine::feedMessage(IMessage* message, Controller& controll
     ARayTracingContext::feedMessage(message, controller);
 	switch (message->getType())
     {
-	case IMessage::MessageType::FULL_CLICK:
-	{
+        case IMessage::MessageType::FULL_CLICK:
+        {
         auto msg = static_cast<FullClickMessage*>(message);
+        if (!m_usages.empty())
+            m_usages[0].getObjectCenter = msg->m_clickInfo.useObjectCenter;
         m_target = msg->m_clickInfo.viewport;
         break;
-	}
+        }
 	default:
 		break;
 	}

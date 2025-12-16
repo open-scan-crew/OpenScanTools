@@ -49,6 +49,7 @@ VulkanViewport::VulkanViewport(IDataDispatcher& dataDispatcher, float guiScale)
     , m_lastPicking(NAN, NAN, NAN)
     , m_3dMouseUpdate(false)
     , m_actionToPull(Action::None)
+    , m_examineUseObjectCenter(false)
 {
     setSurfaceType(QSurface::VulkanSurface);
 
@@ -227,7 +228,7 @@ void VulkanViewport::slotForceUpdate(int state)
     m_forceUpdate = (state == 2) ? true : false;
 }
 
-ClickInfo VulkanViewport::generateRaytracingInfos(const WritePtr<CameraNode>& wCam)
+ClickInfo VulkanViewport::generateRaytracingInfos(const WritePtr<CameraNode>& wCam, bool useObjectCenter)
 {
     assert(wCam);
 
@@ -258,7 +259,8 @@ ClickInfo VulkanViewport::generateRaytracingInfos(const WritePtr<CameraNode>& wC
         ray,
         rayOrigin,
         panoramic ? panoramic->getScanGuid() : tls::ScanGuid(),
-        getCamera()
+        getCamera(),
+        useObjectCenter
     );
 }
 
@@ -361,7 +363,9 @@ void VulkanViewport::doAction(const WritePtr<CameraNode>& wCam, SafePtr<Manipula
 {
     if (m_actionToPull != VulkanViewport::Action::None)
     {
-        ClickInfo click = generateRaytracingInfos(wCam);
+        bool useObjectCenter = (m_actionToPull == VulkanViewport::Action::Examine && m_examineUseObjectCenter);
+
+        ClickInfo click = generateRaytracingInfos(wCam, useObjectCenter);
         click.hover = hoverObject;
 
         switch (m_actionToPull)
@@ -397,6 +401,7 @@ void VulkanViewport::doAction(const WritePtr<CameraNode>& wCam, SafePtr<Manipula
         }
     }
     m_actionToPull = Action::None;
+    m_examineUseObjectCenter = false;
 }
 
 void VulkanViewport::updateProjNaviMode(WritePtr<CameraNode>& wCam)
@@ -567,7 +572,10 @@ void VulkanViewport::mouseDoubleClickEvent(QMouseEvent* _event)
     m_MI.lastY = _event->pos().y();
 
     if (_event->button() == Qt::LeftButton)
+    {
         m_actionToPull = Action::Examine;
+        m_examineUseObjectCenter = true;
+    }
     else
         m_actionToPull = Action::DoubleClick;
 }
@@ -1239,6 +1247,7 @@ void VulkanViewport::mousePointAction(bool examineAction)
 {
     if (examineAction)
     {
+        m_examineUseObjectCenter = false;
         m_actionToPull = Action::Examine;
     }
     else

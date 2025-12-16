@@ -109,9 +109,10 @@ bool ARayTracingContext::getNextPosition(Controller& controller)
         }
     }
 
-    ElementType objectType;
+    ElementType objectType = ElementType::None;
     bool skipRayTracing = false;
     glm::dvec3 objectCenter;
+    bool useObjectCenter = false;
     {
         ReadPtr<AGraphNode> object = clickInfo.hover.cget();
         if (object)
@@ -124,13 +125,21 @@ bool ARayTracingContext::getNextPosition(Controller& controller)
                 skipRayTracing = true;
             else
                 FUNCLOG << "[ARayTracingContext] Object type not accepted" << LOGENDL;
+
+            useObjectCenter = clickUsage.getObjectCenter &&
+                (objectType == ElementType::Box ||
+                 objectType == ElementType::Sphere ||
+                 objectType == ElementType::Cylinder ||
+                 objectType == ElementType::Torus ||
+                 objectType == ElementType::Piping ||
+                 objectType == ElementType::MeshObject);
         }
     }
 
-	if (objectPtr && clickUsage.getObjectCenter) {
+        if (objectPtr && useObjectCenter) {
 
-		std::vector<Measure> measures;
-		switch (objectType) {
+                std::vector<Measure> measures;
+                switch (objectType) {
 			case ElementType::PipeToPipeMeasure:
 			case ElementType::PipeToPlaneMeasure:
 			case ElementType::PointToPipeMeasure:

@@ -210,7 +210,7 @@ private:
 
     void updateProjNaviMode(WritePtr<CameraNode>& wCam);
 
-    ClickInfo generateRaytracingInfos(const WritePtr<CameraNode>& rCam);
+    ClickInfo generateRaytracingInfos(const WritePtr<CameraNode>& rCam, bool useObjectCenter = false);
 
 public:
     // ******* Statistics ******* //
@@ -224,8 +224,9 @@ private:
     std::unordered_map<guiDType, GuiDataFunction> m_functions;
 
     //To maange cylcing and area "gaussian" selection
-    PickingManager m_pickingManager; 
+    PickingManager m_pickingManager;
     Action m_actionToPull;
+    bool m_examineUseObjectCenter;
 
     // Window state
     bool m_initialized;
