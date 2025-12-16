@@ -585,8 +585,9 @@ void VulkanViewport::mouseDoubleClickEvent(QMouseEvent* _event)
     m_MI.lastX = _event->pos().x();
     m_MI.lastY = _event->pos().y();
 
-    m_doubleClickWithoutMovement = (_event->button() == Qt::LeftButton && m_hasLastClickPosition && !m_mouseMovedSinceLastClick
-        && glm::ivec2(m_MI.lastX, m_MI.lastY) == m_lastClickPosition);
+    const bool samePositionAsLastClick = glm::ivec2(m_MI.lastX, m_MI.lastY) == m_lastClickPosition;
+    m_doubleClickWithoutMovement = (_event->button() == Qt::LeftButton && !m_mouseMovedSinceLastClick
+        && (!m_hasLastClickPosition || samePositionAsLastClick));
 
     m_lastClickPosition = { m_MI.lastX, m_MI.lastY };
     m_hasLastClickPosition = true;
