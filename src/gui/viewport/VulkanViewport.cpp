@@ -547,7 +547,15 @@ void VulkanViewport::mouseMoveEvent(QMouseEvent *_event)
 
 void VulkanViewport::mouseDoubleClickEvent(QMouseEvent* _event)
 {
-   m_actionToPull = Action::DoubleClick;
+    std::lock_guard<std::mutex> lock(m_inputMutex);
+
+    m_MI.lastX = _event->pos().x();
+    m_MI.lastY = _event->pos().y();
+
+    if (_event->button() == Qt::LeftButton)
+        m_actionToPull = Action::Examine;
+    else
+        m_actionToPull = Action::DoubleClick;
 }
 
 void VulkanViewport::keyPressEvent(QKeyEvent *_event)
