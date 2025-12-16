@@ -109,16 +109,17 @@ bool ARayTracingContext::getNextPosition(Controller& controller)
         }
     }
 
-    ElementType objectType;
+    ElementType objectType = ElementType::None;
     bool skipRayTracing = false;
     glm::dvec3 objectCenter;
+    bool forceObjectCenter = clickInfo.useObjectCenter;
     {
         ReadPtr<AGraphNode> object = clickInfo.hover.cget();
         if (object)
         {
             objectType = object->getType();
             objectCenter = object->getCenter();
-            if (clickUsage.objectTypesAccepted.find(objectType) != clickUsage.objectTypesAccepted.end())
+            if (forceObjectCenter || clickUsage.objectTypesAccepted.find(objectType) != clickUsage.objectTypesAccepted.end())
                 objectPtr = clickInfo.hover;
             else if (object->getType() == ElementType::Scan)
                 skipRayTracing = true;
@@ -127,11 +128,17 @@ bool ARayTracingContext::getNextPosition(Controller& controller)
         }
     }
 
-	if (objectPtr && clickUsage.getObjectCenter) {
+        if (objectPtr && (forceObjectCenter || clickUsage.getObjectCenter)) {
 
-		std::vector<Measure> measures;
-		switch (objectType) {
-			case ElementType::PipeToPipeMeasure:
+                if (forceObjectCenter)
+                {
+                        bestPoint = objectCenter;
+                }
+                else
+                {
+                std::vector<Measure> measures;
+                switch (objectType) {
+                        case ElementType::PipeToPipeMeasure:
 			case ElementType::PipeToPlaneMeasure:
 			case ElementType::PointToPipeMeasure:
 			case ElementType::PointToPlaneMeasure:
@@ -154,9 +161,9 @@ bool ARayTracingContext::getNextPosition(Controller& controller)
 
 		if(measures.empty())
 			bestPoint = objectCenter;
-		else
-		{
-			float bestAngle = glm_extended::angleBetweenV3(measures[0].origin - clickInfo.rayOrigin, clickInfo.ray);
+                else
+                {
+                        float bestAngle = glm_extended::angleBetweenV3(measures[0].origin - clickInfo.rayOrigin, clickInfo.ray);
 			bestPoint = measures[0].origin;
 			for (Measure measure : measures) {
 				float angleToOrigin = glm_extended::angleBetweenV3(measure.origin - clickInfo.rayOrigin, clickInfo.ray);

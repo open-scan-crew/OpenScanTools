@@ -271,6 +271,8 @@ private:
 
     // Markers & Object hovered
     uint32_t m_hoveredId = INVALID_PICKING_ID;
+    bool m_hoveredFromText = false;
+    bool m_examineFromDoubleClick = false;
 
     // Animation
     bool m_saveImagesAnim;
