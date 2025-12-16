@@ -6,6 +6,7 @@
 
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qtoolbutton.h>
+#include <QtWidgets/qshortcut.h>
 
 #include "gui/texts/ImageSettings_txt.hpp"
 
@@ -230,11 +231,21 @@ ToolBarImageGroup::ToolBarImageGroup(IDataDispatcher& dataDispatcher, QWidget* p
 	, m_viewportSize(10.0, 10.0)
 	, m_focusCamera()
 {
-	m_ui.setupUi(this);
-	setEnabled(false);
+        m_ui.setupUi(this);
+        setEnabled(false);
 
-	QObject::connect(m_ui.toolButton_screenshot, &QPushButton::released, this, [this]() {quickScreenshot(""); });
-	QObject::connect(m_ui.checkBox_frame, &QCheckBox::toggled, this, &ToolBarImageGroup::slotShowFrame);
+        QObject::connect(m_ui.toolButton_screenshot, &QPushButton::released, this, [this]() {quickScreenshot(""); });
+        QObject::connect(m_ui.checkBox_frame, &QCheckBox::toggled, this, &ToolBarImageGroup::slotShowFrame);
+
+        QShortcut* printShortcut = new QShortcut(QKeySequence(Qt::Key_Print), this);
+        printShortcut->setContext(Qt::ApplicationShortcut);
+        printShortcut->setAutoRepeat(false);
+        QObject::connect(printShortcut, &QShortcut::activated, m_ui.toolButton_screenshot, &QToolButton::click);
+
+        QShortcut* screensaverShortcut = new QShortcut(QKeySequence(Qt::Key_ScreenSaver), this);
+        screensaverShortcut->setContext(Qt::ApplicationShortcut);
+        screensaverShortcut->setAutoRepeat(false);
+        QObject::connect(screensaverShortcut, &QShortcut::activated, m_ui.toolButton_screenshot, &QToolButton::click);
 
 	QObject::connect(m_ui.formatComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarImageGroup::imageFormat);
 	QObject::connect(m_ui.comboBox_print, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarImageGroup::slotRatioChanged);

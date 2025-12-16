@@ -731,20 +731,23 @@ void Gui::keyPressEvent(QKeyEvent* _event)
 		ReadPtr<CameraNode> rCam = m_centralWrapper->getActiveCameraNode().cget();
 		if(rCam)
 			m_dataDispatcher.updateInformation(new GuiDataRenderTransparency(BlendMode::Transparent, rCam->getDisplayParameters().m_transparency, m_centralWrapper->getActiveCameraNode()), this);
-	}
+        }
+}
+
+bool Gui::nativeEvent(const QByteArray& eventType, void* message, long* result)
+{
+        return QMainWindow::nativeEvent(eventType, message, result);
 }
 
 void Gui::keyReleaseEvent(QKeyEvent* _event)
 {
-	if (m_isEditing || _event->isAutoRepeat())
-		return;
-	if (_event->key() == Qt::Key_ScreenSaver)
-		m_dataDispatcher.sendControl(new control::io::QuickScreenshot(ImageFormat::MAX_ENUM));
+        if (m_isEditing || _event->isAutoRepeat())
+                return;
 
-	if (_event->key() == Qt::Key_C)
-	{
-		ReadPtr<CameraNode> rCam = m_centralWrapper->getActiveCameraNode().cget();
-		if (rCam)
+        if (_event->key() == Qt::Key_C)
+        {
+                ReadPtr<CameraNode> rCam = m_centralWrapper->getActiveCameraNode().cget();
+                if (rCam)
 			m_dataDispatcher.updateInformation(new GuiDataRenderTransparency(BlendMode::Opaque, rCam->getDisplayParameters().m_transparency, m_centralWrapper->getActiveCameraNode()), this);
 	}
 }

@@ -23,15 +23,14 @@ ShortcutSystem::ShortcutSystem(IDataDispatcher& dataDispacher, QWidget* parent)
 						{ Qt::Key_T, &ShortcutSystem::slotManipulatorTranslation},
 						{ Qt::Key_R, &ShortcutSystem::slotManipulatorRotation},
 						{ Qt::Key_E, &ShortcutSystem::slotManipulatorExtrusion},
-						{ Qt::Key_S, &ShortcutSystem::slotManipulatorMode},
-						{ Qt::Key_K, &ShortcutSystem::slotRandomScanColor},
-						{ Qt::Key_V, &ShortcutSystem::slotCreateViewPoint},
-						{ Qt::Key_F4, &ShortcutSystem::slotRecordPreformance},
-						{ Qt::Key_D, &ShortcutSystem::slotActivateMeasure},
-						{ Qt::Key_ScreenSaver, &ShortcutSystem::slotQuickScreenshot},
-						{ Qt::Key_H, &ShortcutSystem::slotHideSelectedObjects},
-						{ Qt::Key_Escape, &ShortcutSystem::slotAbort }
-		})
+                                                { Qt::Key_S, &ShortcutSystem::slotManipulatorMode},
+                                                { Qt::Key_K, &ShortcutSystem::slotRandomScanColor},
+                                                { Qt::Key_V, &ShortcutSystem::slotCreateViewPoint},
+                                                { Qt::Key_F4, &ShortcutSystem::slotRecordPreformance},
+                                                { Qt::Key_D, &ShortcutSystem::slotActivateMeasure},
+                                                { Qt::Key_H, &ShortcutSystem::slotHideSelectedObjects},
+                                                { Qt::Key_Escape, &ShortcutSystem::slotAbort }
+                })
 {
 
 	// Deactivate batch test measurements shortcut
@@ -162,17 +161,12 @@ void ShortcutSystem::slotRecordPreformance()
 
 void ShortcutSystem::slotActivateMeasure()
 {
-	m_dataDispatcher.sendControl(new control::measure::ActivateSimpleMeasure());
-}
-
-void ShortcutSystem::slotQuickScreenshot()
-{
-	m_dataDispatcher.sendControl(new control::io::QuickScreenshot(ImageFormat::MAX_ENUM));
+        m_dataDispatcher.sendControl(new control::measure::ActivateSimpleMeasure());
 }
 
 void ShortcutSystem::slotHideSelectedObjects()
 {
-	m_dataDispatcher.sendControl(new control::special::ShowHideCurrentObjects(false));
+        m_dataDispatcher.sendControl(new control::special::ShowHideCurrentObjects(false));
 }
 
 void ShortcutSystem::slotAlignView2PointsFunction()

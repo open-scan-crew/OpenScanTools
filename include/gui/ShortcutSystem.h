@@ -31,16 +31,15 @@ public slots :
 	void slotManipulatorExtrusion(); 
 	void slotManipulatorScale();
 	void slotManipulatorMode();
-	void slotRandomScanColor();
-	void slotCreateViewPoint();
-	void slotEdition(const bool& isEditing);
-	void slotRecordPreformance();
+        void slotRandomScanColor();
+        void slotCreateViewPoint();
+        void slotEdition(const bool& isEditing);
+        void slotRecordPreformance();
 
-	void slotActivateMeasure();
-	void slotQuickScreenshot();
-	void slotHideSelectedObjects();
+        void slotActivateMeasure();
+        void slotHideSelectedObjects();
 
-	void slotAlignView2PointsFunction();
+        void slotAlignView2PointsFunction();
 
 	void slotGenerateData();
 
