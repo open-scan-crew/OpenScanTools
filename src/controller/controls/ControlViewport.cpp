@@ -17,7 +17,7 @@ namespace control::viewport
     {}
 
     Examine::Examine(SafePtr<CameraNode> target)
-        : m_clickInfo{ 0, 0, false, NAN, 0.0, SafePtr<AGraphNode>(), nullptr, glm::dmat4(), glm::dvec3(), glm::dvec3(), glm::dvec3(), xg::Guid(), target }
+        : m_clickInfo{ 0, 0, false, NAN, 0.0, SafePtr<AGraphNode>(), nullptr, glm::dmat4(), glm::dvec3(), glm::dvec3(), glm::dvec3(), xg::Guid(), target, false }
     {}
 
     Examine::~Examine()
