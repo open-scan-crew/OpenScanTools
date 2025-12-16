@@ -224,8 +224,9 @@ private:
     std::unordered_map<guiDType, GuiDataFunction> m_functions;
 
     //To maange cylcing and area "gaussian" selection
-    PickingManager m_pickingManager; 
+    PickingManager m_pickingManager;
     Action m_actionToPull;
+    bool m_forceObjectCenterOnExamine = false;
 
     // Window state
     bool m_initialized;

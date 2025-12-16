@@ -112,6 +112,29 @@ bool ARayTracingContext::getNextPosition(Controller& controller)
     ElementType objectType;
     bool skipRayTracing = false;
     glm::dvec3 objectCenter;
+    auto is3DObjectForExamine = [](ElementType type)
+    {
+        switch (type)
+        {
+        case ElementType::Box:
+        case ElementType::Sphere:
+        case ElementType::Cylinder:
+        case ElementType::Torus:
+        case ElementType::Piping:
+        case ElementType::MeshObject:
+        case ElementType::SimpleMeasure:
+        case ElementType::PolylineMeasure:
+        case ElementType::BeamBendingMeasure:
+        case ElementType::ColumnTiltMeasure:
+        case ElementType::PointToPlaneMeasure:
+        case ElementType::PointToPipeMeasure:
+        case ElementType::PipeToPlaneMeasure:
+        case ElementType::PipeToPipeMeasure:
+            return true;
+        default:
+            return false;
+        }
+    };
     {
         ReadPtr<AGraphNode> object = clickInfo.hover.cget();
         if (object)
@@ -127,10 +150,14 @@ bool ARayTracingContext::getNextPosition(Controller& controller)
         }
     }
 
-	if (objectPtr && clickUsage.getObjectCenter) {
+        bool useObjectCenter = clickUsage.getObjectCenter;
+        if (objectPtr && is3DObjectForExamine(objectType) && !clickInfo.forceObjectCenter)
+            useObjectCenter = false;
 
-		std::vector<Measure> measures;
-		switch (objectType) {
+        if (objectPtr && useObjectCenter) {
+
+                std::vector<Measure> measures;
+                switch (objectType) {
 			case ElementType::PipeToPipeMeasure:
 			case ElementType::PipeToPlaneMeasure:
 			case ElementType::PointToPipeMeasure:

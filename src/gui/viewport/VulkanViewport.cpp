@@ -258,7 +258,8 @@ ClickInfo VulkanViewport::generateRaytracingInfos(const WritePtr<CameraNode>& wC
         ray,
         rayOrigin,
         panoramic ? panoramic->getScanGuid() : tls::ScanGuid(),
-        getCamera()
+        getCamera(),
+        false
     );
 }
 
@@ -363,6 +364,7 @@ void VulkanViewport::doAction(const WritePtr<CameraNode>& wCam, SafePtr<Manipula
     {
         ClickInfo click = generateRaytracingInfos(wCam);
         click.hover = hoverObject;
+        click.forceObjectCenter = m_forceObjectCenterOnExamine;
 
         switch (m_actionToPull)
         {
@@ -396,6 +398,7 @@ void VulkanViewport::doAction(const WritePtr<CameraNode>& wCam, SafePtr<Manipula
             break;
         }
     }
+    m_forceObjectCenterOnExamine = false;
     m_actionToPull = Action::None;
 }
 
@@ -567,7 +570,10 @@ void VulkanViewport::mouseDoubleClickEvent(QMouseEvent* _event)
     m_MI.lastY = _event->pos().y();
 
     if (_event->button() == Qt::LeftButton)
+    {
+        m_forceObjectCenterOnExamine = true;
         m_actionToPull = Action::Examine;
+    }
     else
         m_actionToPull = Action::DoubleClick;
 }
@@ -1239,6 +1245,7 @@ void VulkanViewport::mousePointAction(bool examineAction)
 {
     if (examineAction)
     {
+        m_forceObjectCenterOnExamine = false;
         m_actionToPull = Action::Examine;
     }
     else
