@@ -5,11 +5,21 @@
 #include "utils/Logger.h"
 
 ContextExamine::ContextExamine(const ContextId& id)
-	: ARayTracingContext(id)
-	, m_target()
+        : ARayTracingContext(id)
+        , m_target()
 {
-    m_usages.push_back({ true, {ElementType::Point, ElementType::Tag, ElementType::Scan}, ""});
-	m_isDisplayingClickTarget = false;
+    m_usages.push_back({ true,
+        { ElementType::Point,
+          ElementType::Tag,
+          ElementType::Scan,
+          ElementType::Box,
+          ElementType::Sphere,
+          ElementType::Cylinder,
+          ElementType::Torus,
+          ElementType::Piping,
+          ElementType::MeshObject },
+        "" });
+        m_isDisplayingClickTarget = false;
 }
 
 ContextExamine::~ContextExamine()
