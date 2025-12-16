@@ -17,6 +17,7 @@ struct ClickInfo
     uint32_t width;
     uint32_t height;
     bool ctrl;
+    bool useObjectCenter = false;
     double fov;
     double heightAt1m;
     SafePtr<AGraphNode> hover;

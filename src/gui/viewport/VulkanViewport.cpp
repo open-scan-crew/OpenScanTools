@@ -46,6 +46,7 @@ VulkanViewport::VulkanViewport(IDataDispatcher& dataDispatcher, float guiScale)
     , m_saveImagesAnim(false)
     , m_guiScale(guiScale)
     , m_hoveredId(INVALID_PICKING_ID)
+    , m_hoveredFromText(false)
     , m_lastPicking(NAN, NAN, NAN)
     , m_3dMouseUpdate(false)
     , m_actionToPull(Action::None)
@@ -249,6 +250,7 @@ ClickInfo VulkanViewport::generateRaytracingInfos(const WritePtr<CameraNode>& wC
         w,
         h,
         QApplication::queryKeyboardModifiers().testFlag(Qt::KeyboardModifier::ControlModifier),
+        false,
         wCam->getFovy(),
         wCam->getHeightAt1m(),
         SafePtr<AGraphNode>(),
@@ -306,13 +308,15 @@ std::unordered_set<uint32_t> VulkanViewport::getHoveredIds() const
 void VulkanViewport::refreshHoveredId(uint32_t textId)
 {
     // Priorités des hover : Manipulateurs, textes, objets
-    
+
     m_hoveredId = VulkanManager::getInstance().sampleIndex(m_framebuffer, (uint32_t)m_MI.lastX, (uint32_t)m_MI.lastY);
+    m_hoveredFromText = false;
 
     if ((m_hoveredId == INVALID_PICKING_ID || (m_hoveredId & RESERVED_DATA_ID_MASK) == 0) &&
         textId != INVALID_PICKING_ID)
     {
         m_hoveredId = textId;
+        m_hoveredFromText = true;
     }
 }
 
@@ -375,11 +379,25 @@ void VulkanViewport::doAction(const WritePtr<CameraNode>& wCam, SafePtr<Manipula
         case VulkanViewport::Action::Examine:
         {
             ElementType hoverType = ElementType::None;
-            if (click.hover)
+            ReadPtr<AGraphNode> rHover = click.hover.cget();
+            if (rHover)
+                hoverType = rHover->getType();
+
+            auto mustUseCenterForLabel = [](ElementType type)
             {
-                ReadPtr<AGraphNode> rHover = click.hover.cget();
-                if (rHover)
-                    hoverType = rHover->getType();
+                return type == ElementType::Box ||
+                    type == ElementType::Cylinder ||
+                    type == ElementType::Torus ||
+                    type == ElementType::Piping ||
+                    type == ElementType::Sphere ||
+                    type == ElementType::MeshObject ||
+                    type == ElementType::PCO;
+            };
+
+            if (m_hoveredFromText && rHover && mustUseCenterForLabel(hoverType))
+            {
+                click.picking = rHover->getCenter();
+                click.useObjectCenter = true;
             }
 
             if (hoverType == ElementType::Scan || hoverType == ElementType::ViewPoint)
