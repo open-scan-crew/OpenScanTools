@@ -10,6 +10,7 @@
 #include "models/graph/CameraNode.h"
 #include "models/graph/PointCloudNode.h"
 #include "models/graph/ManipulatorNode.h"
+#include "models/ElementType.h"
 
 #include "utils/math/trigo.h"
 
@@ -372,8 +373,21 @@ void VulkanViewport::doAction(const WritePtr<CameraNode>& wCam, SafePtr<Manipula
             m_dataDispatcher.sendControl(new control::picking::Click(click));
             break;
         case VulkanViewport::Action::Examine:
-            m_dataDispatcher.sendControl(new control::viewport::Examine(click));
+        {
+            ElementType hoverType = ElementType::None;
+            if (click.hover)
+            {
+                ReadPtr<AGraphNode> rHover = click.hover.cget();
+                if (rHover)
+                    hoverType = rHover->getType();
+            }
+
+            if (hoverType == ElementType::Scan || hoverType == ElementType::ViewPoint)
+                m_dataDispatcher.updateInformation(new GuiDataMoveToData(click.hover));
+            else
+                m_dataDispatcher.sendControl(new control::viewport::Examine(click));
             break;
+        }
         //case VulkanViewport::Action::BeginManipulation:
         //    ManipulatorNode::setCurrentSelection(m_hoveredId & RESERVED_DATA_ID_MASK, glm::ivec2(m_MI.lastX, m_MI.lastY), manipNode);
         //    break;
