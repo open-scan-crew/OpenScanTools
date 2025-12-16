@@ -31,6 +31,11 @@
 #include "gui/widgets/MultiProperty.h"
 #include "gui/widgets/QPFields/TemplatePropertiesPanel.h"
 
+#ifdef _WIN32
+#define NOMINMAX
+#include <windows.h>
+#endif
+
 #include "gui/viewport/ViewportOrganizer.h"
 #include "gui/viewport/EventManagerViewport.h"
 #include "gui/toolBars/MainToolBar.h"
