@@ -56,6 +56,7 @@ public:
 
     void setObjectsHovered(std::unordered_set<uint32_t>&& objectsHovered);
     SafePtr<AGraphNode> getSingleHoverObject() const;
+    bool isPointCloudHovered(const std::unordered_set<uint32_t>& graphicIds) const;
     void resetObjectsHovered();
 
 	std::unordered_set<SafePtr<AGraphNode>> getNodesFromGraphicIds(const std::unordered_set<uint32_t>& graphicIds) const;
