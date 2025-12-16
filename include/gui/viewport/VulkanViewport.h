@@ -256,6 +256,11 @@ private:
     Rect2D m_hoverRect;
     Pos3D m_lastPicking;
 
+    glm::ivec2 m_lastClickPosition{ 0, 0 };
+    bool m_hasLastClickPosition{ false };
+    bool m_mouseMovedSinceLastClick{ false };
+    bool m_doubleClickWithoutMovement{ false };
+
     // Only used in the render loop --> synchronized
     DecimationOptions m_decimationOptions;
     bool m_refreshViewport = false;
