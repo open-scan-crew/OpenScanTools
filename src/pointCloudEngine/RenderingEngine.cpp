@@ -298,8 +298,12 @@ void RenderingEngine::update()
             continue;
 
         // Single & Multi hover
-        m_graph.setObjectsHovered(viewport->getHoveredIds());
+        auto hoveredIds = viewport->getHoveredIds();
+        bool hoveringPointCloud = m_graph.isPointCloudHovered(hoveredIds);
+
+        m_graph.setObjectsHovered(std::move(hoveredIds));
         SafePtr<AGraphNode> hoverNode = m_graph.getSingleHoverObject();
+        viewport->setHoveringPointCloud(hoveringPointCloud);
 
         // Single & Multi selection
         // NOTE(robin) - the control will not reach in time the graph for this frame. So the items will be selected for the next frame.

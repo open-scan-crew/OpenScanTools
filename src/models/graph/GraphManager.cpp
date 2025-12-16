@@ -165,6 +165,22 @@ void GraphManager::setObjectsHovered(std::unordered_set<uint32_t>&& objectsHover
     }
 }
 
+bool GraphManager::isPointCloudHovered(const std::unordered_set<uint32_t>& graphicIds) const
+{
+    std::unordered_set<SafePtr<AGraphNode>> nodesHovered = getNodesFromGraphicIds(graphicIds);
+    for (const SafePtr<AGraphNode>& node : nodesHovered)
+    {
+        ReadPtr<AGraphNode> rNode = node.cget();
+        if (!rNode)
+            continue;
+
+        if (dynamic_cast<const PointCloudNode*>(rNode.operator->()) != nullptr)
+            return true;
+    }
+
+    return false;
+}
+
 SafePtr<AGraphNode> GraphManager::getSingleHoverObject() const
 {
     if (m_objectsHovered.size() == 1)

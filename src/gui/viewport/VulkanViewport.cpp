@@ -340,6 +340,11 @@ void VulkanViewport::setMissingScanPart(bool isMissingScanPart)
     m_updateMissingScanPart = isMissingScanPart;
 }
 
+void VulkanViewport::setHoveringPointCloud(bool hoveringPointCloud)
+{
+    m_hoveringPointCloud = hoveringPointCloud;
+}
+
 bool VulkanViewport::mustRenderFullScans()
 {
     return m_updateScansFullRender;
@@ -366,8 +371,30 @@ void VulkanViewport::doAction(const WritePtr<CameraNode>& wCam, SafePtr<Manipula
         switch (m_actionToPull)
         {
         case VulkanViewport::Action::DoubleClick:
-            m_dataDispatcher.updateInformation(new GuiDataMoveToData(click.hover));
+        {
+            bool isPointCloudHover = false;
+            if (m_doubleClickWithoutMovement)
+            {
+                ReadPtr<AGraphNode> hoveredNode = hoverObject.cget();
+                if (hoveredNode)
+                {
+                    isPointCloudHover = dynamic_cast<const PointCloudNode*>(hoveredNode.operator->()) != nullptr;
+                }
+
+                if (!isPointCloudHover && m_hoveringPointCloud)
+                    isPointCloudHover = true;
+            }
+
+            if (isPointCloudHover)
+            {
+                m_dataDispatcher.sendControl(new control::viewport::Examine(click));
+            }
+            else
+            {
+                m_dataDispatcher.updateInformation(new GuiDataMoveToData(click.hover));
+            }
             break;
+        }
         case VulkanViewport::Action::Click:
             m_dataDispatcher.sendControl(new control::picking::Click(click));
             break;
@@ -486,6 +513,9 @@ void VulkanViewport::mousePressEvent(QMouseEvent *_event)
 {
     std::lock_guard<std::mutex> lock(m_inputMutex);
 
+    m_MI.lastX = _event->pos().x();
+    m_MI.lastY = _event->pos().y();
+
     emit activeViewport(this);
     switch (_event->button())
     {
@@ -506,6 +536,8 @@ void VulkanViewport::mousePressEvent(QMouseEvent *_event)
 void VulkanViewport::mouseReleaseEvent(QMouseEvent *_event)
 {
     std::lock_guard<std::mutex> lock(m_inputMutex);
+    m_MI.lastX = _event->pos().x();
+    m_MI.lastY = _event->pos().y();
     if (!(m_MI.leftButtonPressed || m_MI.rightButtonPressed || m_MI.middleButtonPressed))
         return;
 
@@ -519,8 +551,12 @@ void VulkanViewport::mouseReleaseEvent(QMouseEvent *_event)
         m_MI.leftButtonPressed = false;
         if (m_mouseInputEffect == MouseInputEffect::None)
         {
-            m_actionToPull = Action::Click;
+            if (m_actionToPull != Action::DoubleClick)
+                m_actionToPull = Action::Click;
         }
+        m_lastClickPosition = { _event->pos().x(), _event->pos().y() };
+        m_hasLastClickPosition = true;
+        m_mouseMovedSinceLastClick = false;
         break;
     }
     case Qt::RightButton:
@@ -543,11 +579,28 @@ void VulkanViewport::mouseMoveEvent(QMouseEvent *_event)
 
     m_MI.lastX = _event->pos().x();
     m_MI.lastY = _event->pos().y();
+
+    if (m_hasLastClickPosition && (m_lastClickPosition.x != m_MI.lastX || m_lastClickPosition.y != m_MI.lastY))
+    {
+        m_mouseMovedSinceLastClick = true;
+    }
 }
 
 void VulkanViewport::mouseDoubleClickEvent(QMouseEvent* _event)
 {
-   m_actionToPull = Action::DoubleClick;
+    std::lock_guard<std::mutex> lock(m_inputMutex);
+
+    m_MI.lastX = _event->pos().x();
+    m_MI.lastY = _event->pos().y();
+
+    const bool samePositionAsLastClick = glm::ivec2(m_MI.lastX, m_MI.lastY) == m_lastClickPosition;
+    m_doubleClickWithoutMovement = (_event->button() == Qt::LeftButton
+        && (!m_hasLastClickPosition || samePositionAsLastClick));
+
+    m_lastClickPosition = { m_MI.lastX, m_MI.lastY };
+    m_hasLastClickPosition = true;
+    m_mouseMovedSinceLastClick = false;
+    m_actionToPull = Action::DoubleClick;
 }
 
 void VulkanViewport::keyPressEvent(QKeyEvent *_event)
