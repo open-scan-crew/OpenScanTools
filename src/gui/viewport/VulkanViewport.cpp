@@ -10,6 +10,7 @@
 #include "models/graph/CameraNode.h"
 #include "models/graph/PointCloudNode.h"
 #include "models/graph/ManipulatorNode.h"
+#include "models/ElementType.h"
 
 #include "utils/math/trigo.h"
 
@@ -45,6 +46,7 @@ VulkanViewport::VulkanViewport(IDataDispatcher& dataDispatcher, float guiScale)
     , m_saveImagesAnim(false)
     , m_guiScale(guiScale)
     , m_hoveredId(INVALID_PICKING_ID)
+    , m_hoveredFromText(false)
     , m_lastPicking(NAN, NAN, NAN)
     , m_3dMouseUpdate(false)
     , m_actionToPull(Action::None)
@@ -248,6 +250,7 @@ ClickInfo VulkanViewport::generateRaytracingInfos(const WritePtr<CameraNode>& wC
         w,
         h,
         QApplication::queryKeyboardModifiers().testFlag(Qt::KeyboardModifier::ControlModifier),
+        false,
         wCam->getFovy(),
         wCam->getHeightAt1m(),
         SafePtr<AGraphNode>(),
@@ -305,13 +308,15 @@ std::unordered_set<uint32_t> VulkanViewport::getHoveredIds() const
 void VulkanViewport::refreshHoveredId(uint32_t textId)
 {
     // Priorités des hover : Manipulateurs, textes, objets
-    
+
     m_hoveredId = VulkanManager::getInstance().sampleIndex(m_framebuffer, (uint32_t)m_MI.lastX, (uint32_t)m_MI.lastY);
+    m_hoveredFromText = false;
 
     if ((m_hoveredId == INVALID_PICKING_ID || (m_hoveredId & RESERVED_DATA_ID_MASK) == 0) &&
         textId != INVALID_PICKING_ID)
     {
         m_hoveredId = textId;
+        m_hoveredFromText = true;
     }
 }
 
@@ -372,8 +377,35 @@ void VulkanViewport::doAction(const WritePtr<CameraNode>& wCam, SafePtr<Manipula
             m_dataDispatcher.sendControl(new control::picking::Click(click));
             break;
         case VulkanViewport::Action::Examine:
-            m_dataDispatcher.sendControl(new control::viewport::Examine(click));
+        {
+            ElementType hoverType = ElementType::None;
+            ReadPtr<AGraphNode> rHover = click.hover.cget();
+            if (rHover)
+                hoverType = rHover->getType();
+
+            auto mustUseCenterForObject = [](ElementType type)
+            {
+                return type == ElementType::Box ||
+                    type == ElementType::Cylinder ||
+                    type == ElementType::Torus ||
+                    type == ElementType::Piping ||
+                    type == ElementType::Sphere ||
+                    type == ElementType::MeshObject ||
+                    type == ElementType::PCO;
+            };
+
+            if (rHover && mustUseCenterForObject(hoverType) && (m_hoveredFromText || m_examineFromDoubleClick))
+            {
+                click.picking = rHover->getCenter();
+                click.useObjectCenter = true;
+            }
+
+            if (hoverType == ElementType::Scan || hoverType == ElementType::ViewPoint)
+                m_dataDispatcher.updateInformation(new GuiDataMoveToData(click.hover));
+            else
+                m_dataDispatcher.sendControl(new control::viewport::Examine(click));
             break;
+        }
         //case VulkanViewport::Action::BeginManipulation:
         //    ManipulatorNode::setCurrentSelection(m_hoveredId & RESERVED_DATA_ID_MASK, glm::ivec2(m_MI.lastX, m_MI.lastY), manipNode);
         //    break;
@@ -382,6 +414,7 @@ void VulkanViewport::doAction(const WritePtr<CameraNode>& wCam, SafePtr<Manipula
             break;
         }
     }
+    m_examineFromDoubleClick = false;
     m_actionToPull = Action::None;
 }
 
@@ -547,7 +580,20 @@ void VulkanViewport::mouseMoveEvent(QMouseEvent *_event)
 
 void VulkanViewport::mouseDoubleClickEvent(QMouseEvent* _event)
 {
-   m_actionToPull = Action::DoubleClick;
+    std::lock_guard<std::mutex> lock(m_inputMutex);
+
+    m_MI.lastX = _event->pos().x();
+    m_MI.lastY = _event->pos().y();
+
+    m_examineFromDoubleClick = false;
+
+    if (_event->button() == Qt::LeftButton)
+    {
+        m_actionToPull = Action::Examine;
+        m_examineFromDoubleClick = true;
+    }
+    else
+        m_actionToPull = Action::DoubleClick;
 }
 
 void VulkanViewport::keyPressEvent(QKeyEvent *_event)
