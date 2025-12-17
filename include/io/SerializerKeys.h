@@ -203,6 +203,10 @@
 #define Key_Rendering_Mode				"RenderingMode"
 #define Key_Background_Color			"BackgroundColor"
 #define Key_Point_Size					"PointSize"
+#define Key_Adaptive_Point_Size					"AdaptivePointSize"
+#define Key_Point_Filling_Strength				"PointFillingStrength"
+#define Key_Reduce_Point_Size_Distance			"ReducePointSizeDistance"
+#define Key_Point_Distance_Attenuation			"PointDistanceAttenuation"
 #define Key_Delta_Filling				"DeltaFilling"
 #define Key_Gap_Filling_Texel_Threshold	"GapFillingTexelThreshold"
 

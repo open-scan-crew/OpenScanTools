@@ -393,6 +393,26 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
         retVal = false;
     }
 
+    if (json.find(Key_Adaptive_Point_Size) != json.end())
+    {
+        data.m_adaptivePointSize = json.at(Key_Adaptive_Point_Size).get<bool>();
+    }
+
+    if (json.find(Key_Point_Filling_Strength) != json.end())
+    {
+        data.m_pointFillingStrength = json.at(Key_Point_Filling_Strength).get<float>();
+    }
+
+    if (json.find(Key_Reduce_Point_Size_Distance) != json.end())
+    {
+        data.m_reducePointSizeWithDistance = json.at(Key_Reduce_Point_Size_Distance).get<bool>();
+    }
+
+    if (json.find(Key_Point_Distance_Attenuation) != json.end())
+    {
+        data.m_pointDistanceAttenuation = json.at(Key_Point_Distance_Attenuation).get<float>();
+    }
+
     if (json.find(Key_Delta_Filling) != json.end())
     {
         data.m_deltaFilling = json.at(Key_Delta_Filling).get<float>();
@@ -401,6 +421,11 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
     {
         IOLOG << "ViewPoint DeltaFilling read error" << LOGENDL;
         retVal = false;
+    }
+
+    if (json.find(Key_Point_Filling_Strength) == json.end())
+    {
+        data.m_pointFillingStrength = data.m_deltaFilling;
     }
 
     if (json.find(Key_Gap_Filling_Texel_Threshold) != json.end())

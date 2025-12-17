@@ -6,6 +6,7 @@
 #include "gui/UITransparencyConverter.h"
 
 #include <algorithm>
+#include <cmath>
 #include <qcolordialog.h>
 
 #include "models/graph/CameraNode.h"
@@ -13,6 +14,8 @@
 namespace
 {
     constexpr float DEPTH_LINING_UI_SCALE = 1.5f;
+    constexpr float POINT_FILLING_SLIDER_TO_VALUE = 0.05f;
+    constexpr float POINT_DISTANCE_SLIDER_TO_VALUE = 0.01f;
 }
 
 ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QWidget *parent, float guiScale)
@@ -57,11 +60,17 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
     m_ui.pushButton_color->setPalette(QPalette(m_selectedColor));
     switchRenderMode((int)m_currentRenderMode);
 
-	connect(m_ui.comboBox_renderMode,QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarRenderSettings::slotSetRenderMode);
+        connect(m_ui.comboBox_renderMode,QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarRenderSettings::slotSetRenderMode);
 
-	connect(m_ui.spinBox_pointSize, qOverload<int>(&QSpinBox::valueChanged), this, &ToolBarRenderSettings::slotSetPointSize);
+        connect(m_ui.spinBox_pointSize, qOverload<int>(&QSpinBox::valueChanged), this, &ToolBarRenderSettings::slotSetPointSize);
+        connect(m_ui.checkBox_adaptivePointSize, &QCheckBox::stateChanged, this, &ToolBarRenderSettings::slotAdaptivePointSizeToggled);
+        connect(m_ui.slider_pointFillingStrength, &QSlider::valueChanged, this, &ToolBarRenderSettings::slotAdaptivePointFillingChanged);
+        connect(m_ui.doubleSpinBox_pointFillingStrength, qOverload<double>(&QDoubleSpinBox::valueChanged), this, &ToolBarRenderSettings::slotAdaptivePointFillingSpinChanged);
+        connect(m_ui.checkBox_pointDistanceAttenuation, &QCheckBox::stateChanged, this, &ToolBarRenderSettings::slotDistanceAttenuationToggled);
+        connect(m_ui.slider_pointDistanceAttenuation, &QSlider::valueChanged, this, &ToolBarRenderSettings::slotDistanceAttenuationChanged);
+        connect(m_ui.doubleSpinBox_pointDistanceAttenuation, qOverload<double>(&QDoubleSpinBox::valueChanged), this, &ToolBarRenderSettings::slotDistanceAttenuationSpinChanged);
 
-	connect(m_ui.pushButton_color, &QPushButton::clicked, this, &ToolBarRenderSettings::slotColorPicking);
+        connect(m_ui.pushButton_color, &QPushButton::clicked, this, &ToolBarRenderSettings::slotColorPicking);
 
 	// Slider - Spin box automation
 	connect(m_ui.brightnessLuminanceSlider, &QSlider::valueChanged, m_ui.brightnessLuminanceSpinBox, &QSpinBox::setValue);
@@ -122,19 +131,28 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
         updateEdgeAwareBlurUi(m_ui.checkBox_edgeAwareBlur->isChecked());
         updateDepthLiningUi(m_ui.checkBox_depthLining->isChecked());
 
-	registerGuiDataFunction(guiDType::renderBrightness, &ToolBarRenderSettings::onRenderBrightness);
-	registerGuiDataFunction(guiDType::renderContrast, &ToolBarRenderSettings::onRenderContrast);
-	registerGuiDataFunction(guiDType::renderColorMode, &ToolBarRenderSettings::onRenderColorMode);
-	registerGuiDataFunction(guiDType::renderLuminance, &ToolBarRenderSettings::onRenderLuminance);
-	registerGuiDataFunction(guiDType::renderBlending, &ToolBarRenderSettings::onRenderBlending);
-	registerGuiDataFunction(guiDType::renderPointSize, &ToolBarRenderSettings::onRenderPointSize);
+        registerGuiDataFunction(guiDType::renderBrightness, &ToolBarRenderSettings::onRenderBrightness);
+        registerGuiDataFunction(guiDType::renderContrast, &ToolBarRenderSettings::onRenderContrast);
+        registerGuiDataFunction(guiDType::renderColorMode, &ToolBarRenderSettings::onRenderColorMode);
+        registerGuiDataFunction(guiDType::renderLuminance, &ToolBarRenderSettings::onRenderLuminance);
+        registerGuiDataFunction(guiDType::renderBlending, &ToolBarRenderSettings::onRenderBlending);
+        registerGuiDataFunction(guiDType::renderPointSize, &ToolBarRenderSettings::onRenderPointSize);
+        registerGuiDataFunction(guiDType::renderAdaptivePointSize, &ToolBarRenderSettings::onRenderAdaptivePointSize);
         registerGuiDataFunction(guiDType::renderSaturation, &ToolBarRenderSettings::onRenderSaturation);
         
         registerGuiDataFunction(guiDType::renderValueDisplay, &ToolBarRenderSettings::onRenderUnitUsage);
-	registerGuiDataFunction(guiDType::renderActiveCamera, &ToolBarRenderSettings::onActiveCamera);
-	registerGuiDataFunction(guiDType::focusViewport, &ToolBarRenderSettings::onFocusViewport);
+        registerGuiDataFunction(guiDType::renderActiveCamera, &ToolBarRenderSettings::onActiveCamera);
+        registerGuiDataFunction(guiDType::focusViewport, &ToolBarRenderSettings::onFocusViewport);
 
-	registerGuiDataFunction(guiDType::projectLoaded, &ToolBarRenderSettings::onProjectLoad);
+        registerGuiDataFunction(guiDType::projectLoaded, &ToolBarRenderSettings::onProjectLoad);
+
+        m_ui.doubleSpinBox_pointFillingStrength->blockSignals(true);
+        m_ui.doubleSpinBox_pointFillingStrength->setValue(m_ui.slider_pointFillingStrength->value() * POINT_FILLING_SLIDER_TO_VALUE);
+        m_ui.doubleSpinBox_pointFillingStrength->blockSignals(false);
+        m_ui.doubleSpinBox_pointDistanceAttenuation->blockSignals(true);
+        m_ui.doubleSpinBox_pointDistanceAttenuation->setValue(m_ui.slider_pointDistanceAttenuation->value() * POINT_DISTANCE_SLIDER_TO_VALUE);
+        m_ui.doubleSpinBox_pointDistanceAttenuation->blockSignals(false);
+        updateAdaptivePointUiState(m_ui.checkBox_adaptivePointSize->isChecked());
 }
 
 ToolBarRenderSettings::~ToolBarRenderSettings()
@@ -199,13 +217,34 @@ void ToolBarRenderSettings::onRenderBlending(IGuiData* idata)
 
 void ToolBarRenderSettings::onRenderPointSize(IGuiData* idata)
 {
-	GuiDataRenderPointSize* data = static_cast<GuiDataRenderPointSize*>(idata);
-	if (data->m_pointSize != m_ui.spinBox_pointSize->value())
-	{
-		m_ui.spinBox_pointSize->blockSignals(true);
-	    m_ui.spinBox_pointSize->setValue(data->m_pointSize);
-		m_ui.spinBox_pointSize->blockSignals(false);
-	}
+        GuiDataRenderPointSize* data = static_cast<GuiDataRenderPointSize*>(idata);
+        if (data->m_pointSize != m_ui.spinBox_pointSize->value())
+        {
+                m_ui.spinBox_pointSize->blockSignals(true);
+            m_ui.spinBox_pointSize->setValue(data->m_pointSize);
+                m_ui.spinBox_pointSize->blockSignals(false);
+        }
+}
+
+void ToolBarRenderSettings::onRenderAdaptivePointSize(IGuiData* idata)
+{
+    auto data = static_cast<GuiDataRenderAdaptivePointSize*>(idata);
+    blockAllSignals(true);
+
+    m_ui.checkBox_adaptivePointSize->setChecked(data->m_adaptiveEnabled);
+    int fillingSlider = static_cast<int>(std::round(data->m_fillingStrength / POINT_FILLING_SLIDER_TO_VALUE));
+    fillingSlider = std::clamp(fillingSlider, m_ui.slider_pointFillingStrength->minimum(), m_ui.slider_pointFillingStrength->maximum());
+    m_ui.slider_pointFillingStrength->setValue(fillingSlider);
+    m_ui.doubleSpinBox_pointFillingStrength->setValue(data->m_fillingStrength);
+
+    m_ui.checkBox_pointDistanceAttenuation->setChecked(data->m_reduceWithDistance);
+    int distanceSlider = static_cast<int>(std::round(data->m_distanceAttenuation / POINT_DISTANCE_SLIDER_TO_VALUE));
+    distanceSlider = std::clamp(distanceSlider, m_ui.slider_pointDistanceAttenuation->minimum(), m_ui.slider_pointDistanceAttenuation->maximum());
+    m_ui.slider_pointDistanceAttenuation->setValue(distanceSlider);
+    m_ui.doubleSpinBox_pointDistanceAttenuation->setValue(data->m_distanceAttenuation);
+
+    blockAllSignals(false);
+    updateAdaptivePointUiState(data->m_adaptiveEnabled);
 }
 void ToolBarRenderSettings::onRenderSaturation(IGuiData* idata) 
 {
@@ -288,8 +327,19 @@ void ToolBarRenderSettings::onActiveCamera(IGuiData* idata)
 	m_ui.falseColorSpinBox->setValue(displayParameters.m_hue);
 	m_ui.falseColorSlider->setValue(displayParameters.m_hue);
 
-	if (displayParameters.m_pointSize != m_ui.spinBox_pointSize->value())
-		m_ui.spinBox_pointSize->setValue(displayParameters.m_pointSize);
+        if (displayParameters.m_pointSize != m_ui.spinBox_pointSize->value())
+                m_ui.spinBox_pointSize->setValue(displayParameters.m_pointSize);
+
+        m_ui.checkBox_adaptivePointSize->setChecked(displayParameters.m_adaptivePointSize);
+        int fillingSliderValue = static_cast<int>(std::round(displayParameters.m_pointFillingStrength / POINT_FILLING_SLIDER_TO_VALUE));
+        fillingSliderValue = std::clamp(fillingSliderValue, m_ui.slider_pointFillingStrength->minimum(), m_ui.slider_pointFillingStrength->maximum());
+        m_ui.slider_pointFillingStrength->setValue(fillingSliderValue);
+        m_ui.doubleSpinBox_pointFillingStrength->setValue(displayParameters.m_pointFillingStrength);
+        m_ui.checkBox_pointDistanceAttenuation->setChecked(displayParameters.m_reducePointSizeWithDistance);
+        int distanceSliderValue = static_cast<int>(std::round(displayParameters.m_pointDistanceAttenuation / POINT_DISTANCE_SLIDER_TO_VALUE));
+        distanceSliderValue = std::clamp(distanceSliderValue, m_ui.slider_pointDistanceAttenuation->minimum(), m_ui.slider_pointDistanceAttenuation->maximum());
+        m_ui.slider_pointDistanceAttenuation->setValue(distanceSliderValue);
+        m_ui.doubleSpinBox_pointDistanceAttenuation->setValue(displayParameters.m_pointDistanceAttenuation);
 
 	int value(100 - (int)(displayParameters.m_alphaObject * 100));
 	m_ui.alphaObjectsSpinBox->setValue(value);
@@ -331,11 +381,11 @@ void ToolBarRenderSettings::onActiveCamera(IGuiData* idata)
         m_ui.slider_edgeAwareRadius->setValue(radiusValue);
         m_ui.spinBox_edgeAwareRadius->setValue(radiusValue);
 
-	m_ui.slider_edgeAwareDepth->setValue(depthValue);
-	m_ui.spinBox_edgeAwareDepth->setValue(depthValue);
+        m_ui.slider_edgeAwareDepth->setValue(depthValue);
+        m_ui.spinBox_edgeAwareDepth->setValue(depthValue);
 
-	m_ui.slider_edgeAwareBlend->setValue(blendValue);
-	m_ui.spinBox_edgeAwareBlend->setValue(blendValue);
+        m_ui.slider_edgeAwareBlend->setValue(blendValue);
+        m_ui.spinBox_edgeAwareBlend->setValue(blendValue);
 
         if (blurSettings.resolutionScale <= 0.35f)
                 m_ui.comboBox_edgeAwareResolution->setCurrentIndex(2);
@@ -352,6 +402,8 @@ void ToolBarRenderSettings::onActiveCamera(IGuiData* idata)
         m_ui.spinBox_depthLiningSensitivity->setValue(liningSensitivity);
         m_ui.checkBox_depthLiningStrongMode->setChecked(liningSettings.strongMode);
         updateDepthLiningUi(liningSettings.enabled);
+
+        updateAdaptivePointUiState(displayParameters.m_adaptivePointSize);
 
         blockAllSignals(false);
 }
@@ -375,11 +427,17 @@ void ToolBarRenderSettings::blockAllSignals(bool block)
 	m_ui.comboBox_renderMode->blockSignals(block);
 	m_ui.brightnessLuminanceSpinBox->blockSignals(block);
 	m_ui.brightnessLuminanceSlider->blockSignals(block);
-	m_ui.falseColorSpinBox->blockSignals(block);
-	m_ui.falseColorSlider->blockSignals(block);
-	m_ui.spinBox_pointSize->blockSignals(block);
-	m_ui.contrastSaturationSpinBox->blockSignals(block);
-	m_ui.contrastSaturationSlider->blockSignals(block);
+        m_ui.falseColorSpinBox->blockSignals(block);
+        m_ui.falseColorSlider->blockSignals(block);
+        m_ui.spinBox_pointSize->blockSignals(block);
+        m_ui.checkBox_adaptivePointSize->blockSignals(block);
+        m_ui.slider_pointFillingStrength->blockSignals(block);
+        m_ui.doubleSpinBox_pointFillingStrength->blockSignals(block);
+        m_ui.checkBox_pointDistanceAttenuation->blockSignals(block);
+        m_ui.slider_pointDistanceAttenuation->blockSignals(block);
+        m_ui.doubleSpinBox_pointDistanceAttenuation->blockSignals(block);
+        m_ui.contrastSaturationSpinBox->blockSignals(block);
+        m_ui.contrastSaturationSlider->blockSignals(block);
 	m_ui.alphaObjectsSpinBox->blockSignals(block);
 	m_ui.alphaObjectsSlider->blockSignals(block);
 	m_ui.lineEdit_rampMax->blockSignals(block);
@@ -577,10 +635,32 @@ void ToolBarRenderSettings::enableFalseColor(bool enable)
 
 void ToolBarRenderSettings::sendTransparency()
 {
-	int uiTransparency = m_ui.transparencySlider->value();
-	float t = ui::transparency::uiValue_to_trueValue(uiTransparency);
-	BlendMode blend = m_ui.transparencyCheckBox->isChecked() ? BlendMode::Transparent : BlendMode::Opaque;
-	m_dataDispatcher.updateInformation(new GuiDataRenderTransparency(blend, t, m_focusCamera), this);
+        int uiTransparency = m_ui.transparencySlider->value();
+        float t = ui::transparency::uiValue_to_trueValue(uiTransparency);
+        BlendMode blend = m_ui.transparencyCheckBox->isChecked() ? BlendMode::Transparent : BlendMode::Opaque;
+        m_dataDispatcher.updateInformation(new GuiDataRenderTransparency(blend, t, m_focusCamera), this);
+}
+
+void ToolBarRenderSettings::sendAdaptivePointSize()
+{
+    const bool adaptiveEnabled = m_ui.checkBox_adaptivePointSize->isChecked();
+    const bool distanceEnabled = m_ui.checkBox_pointDistanceAttenuation->isChecked();
+    const float fillingStrength = static_cast<float>(m_ui.doubleSpinBox_pointFillingStrength->value());
+    const float distanceAttenuation = static_cast<float>(m_ui.doubleSpinBox_pointDistanceAttenuation->value());
+
+    m_dataDispatcher.updateInformation(new GuiDataRenderAdaptivePointSize(adaptiveEnabled, fillingStrength, distanceEnabled, distanceAttenuation, m_focusCamera), this);
+}
+
+void ToolBarRenderSettings::updateAdaptivePointUiState(bool adaptiveEnabled)
+{
+    m_ui.spinBox_pointSize->setEnabled(!adaptiveEnabled);
+    m_ui.slider_pointFillingStrength->setEnabled(adaptiveEnabled);
+    m_ui.doubleSpinBox_pointFillingStrength->setEnabled(adaptiveEnabled);
+    m_ui.checkBox_pointDistanceAttenuation->setEnabled(adaptiveEnabled);
+
+    const bool distanceControlsEnabled = adaptiveEnabled && m_ui.checkBox_pointDistanceAttenuation->isChecked();
+    m_ui.slider_pointDistanceAttenuation->setEnabled(distanceControlsEnabled);
+    m_ui.doubleSpinBox_pointDistanceAttenuation->setEnabled(distanceControlsEnabled);
 }
 
 void ToolBarRenderSettings::slotBrightnessLuminanceValueChanged(int value)
@@ -619,6 +699,53 @@ void ToolBarRenderSettings::slotTransparencyValueChanged(int value)
 void ToolBarRenderSettings::slotSetPointSize(int pointSize)
 {
     m_dataDispatcher.sendControl(new control::application::SetRenderPointSize(pointSize, m_focusCamera));
+}
+
+void ToolBarRenderSettings::slotAdaptivePointSizeToggled(int state)
+{
+    updateAdaptivePointUiState(state == Qt::Checked);
+    sendAdaptivePointSize();
+}
+
+void ToolBarRenderSettings::slotAdaptivePointFillingChanged(int value)
+{
+    m_ui.doubleSpinBox_pointFillingStrength->blockSignals(true);
+    m_ui.doubleSpinBox_pointFillingStrength->setValue(value * POINT_FILLING_SLIDER_TO_VALUE);
+    m_ui.doubleSpinBox_pointFillingStrength->blockSignals(false);
+    sendAdaptivePointSize();
+}
+
+void ToolBarRenderSettings::slotAdaptivePointFillingSpinChanged(double value)
+{
+    const int sliderValue = static_cast<int>(std::round(value / POINT_FILLING_SLIDER_TO_VALUE));
+    m_ui.slider_pointFillingStrength->blockSignals(true);
+    m_ui.slider_pointFillingStrength->setValue(std::clamp(sliderValue, m_ui.slider_pointFillingStrength->minimum(), m_ui.slider_pointFillingStrength->maximum()));
+    m_ui.slider_pointFillingStrength->blockSignals(false);
+    sendAdaptivePointSize();
+}
+
+void ToolBarRenderSettings::slotDistanceAttenuationToggled(int state)
+{
+    Q_UNUSED(state);
+    updateAdaptivePointUiState(m_ui.checkBox_adaptivePointSize->isChecked());
+    sendAdaptivePointSize();
+}
+
+void ToolBarRenderSettings::slotDistanceAttenuationChanged(int value)
+{
+    m_ui.doubleSpinBox_pointDistanceAttenuation->blockSignals(true);
+    m_ui.doubleSpinBox_pointDistanceAttenuation->setValue(value * POINT_DISTANCE_SLIDER_TO_VALUE);
+    m_ui.doubleSpinBox_pointDistanceAttenuation->blockSignals(false);
+    sendAdaptivePointSize();
+}
+
+void ToolBarRenderSettings::slotDistanceAttenuationSpinChanged(double value)
+{
+    const int sliderValue = static_cast<int>(std::round(value / POINT_DISTANCE_SLIDER_TO_VALUE));
+    m_ui.slider_pointDistanceAttenuation->blockSignals(true);
+    m_ui.slider_pointDistanceAttenuation->setValue(std::clamp(sliderValue, m_ui.slider_pointDistanceAttenuation->minimum(), m_ui.slider_pointDistanceAttenuation->maximum()));
+    m_ui.slider_pointDistanceAttenuation->blockSignals(false);
+    sendAdaptivePointSize();
 }
 
 void ToolBarRenderSettings::slotSetRenderMode(int mode)

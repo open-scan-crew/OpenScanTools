@@ -516,6 +516,108 @@
      </property>
     </widget>
    </item>
+   <item row="1" column="9">
+    <widget class="QCheckBox" name="checkBox_adaptivePointSize">
+     <property name="toolTip">
+      <string>Adapt point size to fill nearby gaps. Disables fixed size control.</string>
+     </property>
+     <property name="text">
+      <string>Adaptive size</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="10">
+    <widget class="QSlider" name="slider_pointFillingStrength">
+     <property name="toolTip">
+      <string>Adjust filling strength to cover nearby empty spaces.</string>
+     </property>
+     <property name="minimum">
+      <number>0</number>
+     </property>
+     <property name="maximum">
+      <number>100</number>
+     </property>
+     <property name="singleStep">
+      <number>1</number>
+     </property>
+     <property name="pageStep">
+      <number>5</number>
+     </property>
+     <property name="value">
+      <number>0</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="11">
+    <widget class="QDoubleSpinBox" name="doubleSpinBox_pointFillingStrength">
+     <property name="toolTip">
+      <string>Adjust filling strength to cover nearby empty spaces.</string>
+     </property>
+     <property name="decimals">
+      <number>2</number>
+     </property>
+     <property name="maximum">
+      <double>5.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>0.050000000000000</double>
+     </property>
+     <property name="value">
+      <double>0.000000000000000</double>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="9">
+    <widget class="QCheckBox" name="checkBox_pointDistanceAttenuation">
+     <property name="toolTip">
+      <string>Shrink points progressively with distance when adaptive sizing is enabled.</string>
+     </property>
+     <property name="text">
+      <string>Reduce with distance</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="10">
+    <widget class="QSlider" name="slider_pointDistanceAttenuation">
+     <property name="minimum">
+      <number>0</number>
+     </property>
+     <property name="maximum">
+      <number>100</number>
+     </property>
+     <property name="singleStep">
+      <number>1</number>
+     </property>
+     <property name="pageStep">
+      <number>5</number>
+     </property>
+     <property name="value">
+      <number>0</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="11">
+    <widget class="QDoubleSpinBox" name="doubleSpinBox_pointDistanceAttenuation">
+     <property name="decimals">
+      <number>3</number>
+     </property>
+     <property name="maximum">
+      <double>1.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>0.010000000000000</double>
+     </property>
+     <property name="value">
+      <double>0.000000000000000</double>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="1" colspan="2">
     <widget class="QComboBox" name="comboBox_renderMode">
      <property name="focusPolicy">
@@ -660,6 +762,12 @@
  </customwidgets>
  <tabstops>
   <tabstop>spinBox_pointSize</tabstop>
+  <tabstop>checkBox_adaptivePointSize</tabstop>
+  <tabstop>slider_pointFillingStrength</tabstop>
+  <tabstop>doubleSpinBox_pointFillingStrength</tabstop>
+  <tabstop>checkBox_pointDistanceAttenuation</tabstop>
+  <tabstop>slider_pointDistanceAttenuation</tabstop>
+  <tabstop>doubleSpinBox_pointDistanceAttenuation</tabstop>
   <tabstop>brightnessLuminanceSlider</tabstop>
   <tabstop>brightnessLuminanceSpinBox</tabstop>
   <tabstop>contrastSaturationSlider</tabstop>
