@@ -184,6 +184,20 @@
      </property>
     </widget>
    </item>
+   <item row="0" column="7">
+    <widget class="QCheckBox" name="checkBox_supersampling">
+     <property name="text">
+      <string>Supersampling</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="8">
+    <widget class="QComboBox" name="comboBox_supersampling">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
    <item row="1" column="9">
     <widget class="QLabel" name="label_imageW">
      <property name="text">
@@ -300,6 +314,8 @@
   <tabstop>lineEdit_areaH</tabstop>
   <tabstop>lineEdit_imageW</tabstop>
   <tabstop>lineEdit_imageH</tabstop>
+  <tabstop>checkBox_supersampling</tabstop>
+  <tabstop>comboBox_supersampling</tabstop>
   <tabstop>comboBox_scale</tabstop>
   <tabstop>comboBox_dpi</tabstop>
   <tabstop>formatComboBox</tabstop>
