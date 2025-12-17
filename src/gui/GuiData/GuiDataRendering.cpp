@@ -154,13 +154,26 @@ guiDType GuiDataRenderTargetClick::getType()
 
 //*** Point Size ***//
 GuiDataRenderPointSize::GuiDataRenderPointSize(float _pointSize, SafePtr<CameraNode> camera)
-	: GuiDataActiveCamera(camera)
-	, m_pointSize(_pointSize)
+        : GuiDataActiveCamera(camera)
+        , m_pointSize(_pointSize)
 {}
 
 guiDType GuiDataRenderPointSize::getType()
 {
     return guiDType::renderPointSize;
+}
+
+GuiDataRenderAdaptivePointSize::GuiDataRenderAdaptivePointSize(bool adaptiveEnabled, float fillingStrength, bool reduceWithDistance, float distanceAttenuation, SafePtr<CameraNode> camera)
+    : GuiDataActiveCamera(camera)
+    , m_adaptiveEnabled(adaptiveEnabled)
+    , m_fillingStrength(fillingStrength)
+    , m_reduceWithDistance(reduceWithDistance)
+    , m_distanceAttenuation(distanceAttenuation)
+{}
+
+guiDType GuiDataRenderAdaptivePointSize::getType()
+{
+    return guiDType::renderAdaptivePointSize;
 }
 
 //*** Brightness ***//

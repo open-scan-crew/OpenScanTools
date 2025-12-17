@@ -341,12 +341,16 @@ void ExportRenderingParameters(nlohmann::json& json, const RenderingParameters& 
 	json[Key_Projection_Mode] = magic_enum::enum_name(data.getProjectionMode());
 	json[Key_Projection_Box] = { data.getProjectionFrustum().l, data.getProjectionFrustum().r, data.getProjectionFrustum().b, data.getProjectionFrustum().t, data.getProjectionFrustum().n, data.getProjectionFrustum().f };
 
-	DisplayParameters params = data.getDisplayParameters();
-	json[Key_Rendering_Mode] = magic_enum::enum_name(params.m_mode);
-	json[Key_Background_Color] = { params.m_backgroundColor.Red(), params.m_backgroundColor.Green(), params.m_backgroundColor.Blue() };
-	json[Key_Point_Size] = params.m_pointSize;
-	json[Key_Delta_Filling] = params.m_deltaFilling;
-	json[Key_Gap_Filling_Texel_Threshold] = params.m_gapFillingTexelThreshold;
+        DisplayParameters params = data.getDisplayParameters();
+        json[Key_Rendering_Mode] = magic_enum::enum_name(params.m_mode);
+        json[Key_Background_Color] = { params.m_backgroundColor.Red(), params.m_backgroundColor.Green(), params.m_backgroundColor.Blue() };
+        json[Key_Point_Size] = params.m_pointSize;
+        json[Key_Adaptive_Point_Size] = params.m_adaptivePointSize;
+        json[Key_Point_Filling_Strength] = params.m_pointFillingStrength;
+        json[Key_Reduce_Point_Size_Distance] = params.m_reducePointSizeWithDistance;
+        json[Key_Point_Distance_Attenuation] = params.m_pointDistanceAttenuation;
+        json[Key_Delta_Filling] = params.m_deltaFilling;
+        json[Key_Gap_Filling_Texel_Threshold] = params.m_gapFillingTexelThreshold;
 
 	json[Key_Contrast] = params.m_contrast;
 	json[Key_Brightness] = params.m_brightness;
