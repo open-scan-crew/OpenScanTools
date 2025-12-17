@@ -20,8 +20,11 @@ public:
     UiRenderMode   m_mode = UiRenderMode::RGB;
     Color32        m_backgroundColor = Color32(0, 0, 0, 0);
     float          m_pointSize = 1.f;
+    bool           m_adaptivePointSize = false;
+    float          m_adaptivePointMinDistance = 1.f;
+    float          m_adaptivePointMaxDistance = 10.f;
     float          m_deltaFilling = 0.f;
-	int            m_gapFillingTexelThreshold = 2; // Default value was 4. 2 seems to be slightly better to fill gaps.
+        int            m_gapFillingTexelThreshold = 2; // Default value was 4. 2 seems to be slightly better to fill gaps.
     float          m_contrast = 0.f;
     float          m_brightness = 0.f;
     float          m_saturation = 0.f;

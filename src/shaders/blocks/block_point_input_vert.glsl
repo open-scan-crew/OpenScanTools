@@ -20,6 +20,8 @@ layout(location = 0) out vec4 fragColor;
 
 layout(push_constant) uniform PC {
     layout(offset = 0) float ptSize;
+    layout(offset = 40) float adaptivePointMinDistance;
+    layout(offset = 44) float adaptivePointMaxDistance;
     layout(offset = 8) float contrast;
     layout(offset = 12) float brightness;
     layout(offset = 16) float saturation;
@@ -29,6 +31,7 @@ layout(push_constant) uniform PC {
     layout(offset = 32) float rampMax;
     layout(offset = 36) int rampSteps;
     layout(offset = 48) vec3 ptColor;
+    layout(offset = 60) float adaptivePointSizeEnabled;
 } pc;
 
 layout(set = 0, binding = 0) uniform uniformCamera {
@@ -40,3 +43,30 @@ layout(set = 0, binding = 0) uniform uniformCamera {
 layout(set = 0, binding = 1) uniform uniformScan{
     mat4 model;
 } uScan;
+
+vec4 getWorldPosition()
+{
+    return uScan.model * vec4(vec3(posXY, posZ) * coordPrec + origin, 1.0);
+}
+
+float computePointSize(const vec4 worldPos)
+{
+    if (pc.adaptivePointSizeEnabled < 0.5f)
+        return pc.ptSize;
+
+    float minDistance = max(pc.adaptivePointMinDistance, 0.0001f);
+    float maxDistance = max(minDistance, pc.adaptivePointMaxDistance);
+    float distanceToCamera = length((uCam.view * worldPos).xyz);
+
+    if (maxDistance <= minDistance)
+        return distanceToCamera <= minDistance ? pc.ptSize : 1.0f;
+
+    if (distanceToCamera <= minDistance)
+        return pc.ptSize;
+
+    if (distanceToCamera >= maxDistance)
+        return 1.0f;
+
+    float t = (distanceToCamera - minDistance) / (maxDistance - minDistance);
+    return mix(pc.ptSize, 1.0f, t);
+}

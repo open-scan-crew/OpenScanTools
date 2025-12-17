@@ -516,6 +516,77 @@
      </property>
     </widget>
    </item>
+   <item row="1" column="2" colspan="2">
+    <widget class="QWidget" name="adaptivePointSizeWidget" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout_adaptivePointSize">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QCheckBox" name="checkBox_adaptivePointSize">
+        <property name="text">
+         <string>Taille adaptative</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_adaptiveMin">
+        <property name="text">
+         <string>Min (m)</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QDoubleSpinBox" name="doubleSpinBox_adaptivePointMin">
+        <property name="minimum">
+         <double>0.010000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>1000000.000000000000000</double>
+        </property>
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="value">
+         <double>1.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_adaptiveMax">
+        <property name="text">
+         <string>Max (m)</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QDoubleSpinBox" name="doubleSpinBox_adaptivePointMax">
+        <property name="minimum">
+         <double>0.010000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>1000000.000000000000000</double>
+        </property>
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="value">
+         <double>10.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
    <item row="0" column="1" colspan="2">
     <widget class="QComboBox" name="comboBox_renderMode">
      <property name="focusPolicy">
@@ -660,6 +731,9 @@
  </customwidgets>
  <tabstops>
   <tabstop>spinBox_pointSize</tabstop>
+  <tabstop>checkBox_adaptivePointSize</tabstop>
+  <tabstop>doubleSpinBox_adaptivePointMin</tabstop>
+  <tabstop>doubleSpinBox_adaptivePointMax</tabstop>
   <tabstop>brightnessLuminanceSlider</tabstop>
   <tabstop>brightnessLuminanceSpinBox</tabstop>
   <tabstop>contrastSaturationSlider</tabstop>

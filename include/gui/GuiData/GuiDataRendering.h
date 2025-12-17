@@ -167,6 +167,19 @@ public:
     float m_pointSize;
 };
 
+class GuiDataRenderAdaptivePointSize : public GuiDataActiveCamera
+{
+public:
+    GuiDataRenderAdaptivePointSize(bool enabled, float minDistance, float maxDistance, SafePtr<CameraNode> camera);
+    ~GuiDataRenderAdaptivePointSize() {};
+    virtual guiDType getType() override;
+
+public:
+    bool m_enabled;
+    float m_minDistance;
+    float m_maxDistance;
+};
+
 class GuiDataRenderBrightness : public GuiDataActiveCamera
 {
 public:

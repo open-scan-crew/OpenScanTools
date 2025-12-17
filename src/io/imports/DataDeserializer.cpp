@@ -3,6 +3,8 @@
 
 #include "utils/Logger.h"
 
+#include <algorithm>
+
 #include "models/application/UserOrientation.h"
 #include "models/project/ProjectInfos.h"
 #include "models/application/Author.h"
@@ -392,6 +394,25 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
         IOLOG << "ViewPoint Blending read error" << LOGENDL;
         retVal = false;
     }
+
+    if (json.find(Key_Adaptive_Point_Size_Enable) != json.end())
+    {
+        data.m_adaptivePointSize = json.at(Key_Adaptive_Point_Size_Enable).get<bool>();
+        if (json.find(Key_Adaptive_Point_Dist_Min) != json.end())
+            data.m_adaptivePointMinDistance = json.at(Key_Adaptive_Point_Dist_Min).get<float>();
+        if (json.find(Key_Adaptive_Point_Dist_Max) != json.end())
+            data.m_adaptivePointMaxDistance = json.at(Key_Adaptive_Point_Dist_Max).get<float>();
+    }
+    else
+    {
+        data.m_adaptivePointSize = false;
+        data.m_adaptivePointMinDistance = 1.f;
+        data.m_adaptivePointMaxDistance = 10.f;
+    }
+
+    data.m_adaptivePointMinDistance = std::max(0.0001f, data.m_adaptivePointMinDistance);
+    if (data.m_adaptivePointMaxDistance < data.m_adaptivePointMinDistance)
+        data.m_adaptivePointMaxDistance = data.m_adaptivePointMinDistance;
 
     if (json.find(Key_Delta_Filling) != json.end())
     {

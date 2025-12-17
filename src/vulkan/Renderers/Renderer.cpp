@@ -474,7 +474,7 @@ void Renderer::createPointPipelineLayout()
     // NAME        | offset | size
     //-------------+--------+-----------------------
     // ptSize      | 0      | 4
-    // transparency| 4      | 4
+    // transparency(v2) | 4 | 4
     // contrast    | 8      | 4
     // brightness  | 12     | 4
     // saturation  | 16     | 4
@@ -483,7 +483,10 @@ void Renderer::createPointPipelineLayout()
     // rampMin     | 28     | 4
     // rampMax     | 32     | 4
     // rampSteps   | 36     | 4
+    // adaptiveMin | 40     | 4
+    // adaptiveMax | 44     | 4
     // ptColor     | 48     | 12
+    // adaptiveOn  | 60     | 4
     //-------------+---------------------------------
     VkPushConstantRange pcr[] =
     {
@@ -917,11 +920,20 @@ void Renderer::drawPointsClipping(const TlScanDrawInfo &_drawInfo, const VkUnifo
     }
 }
 
-void Renderer::setConstantPointSize(float ptSize, VkCommandBuffer _cmdBuffer)
+void Renderer::setConstantPointSize(float ptSize, float adaptiveMinDistance, float adaptiveMaxDistance, bool adaptiveEnabled, VkCommandBuffer _cmdBuffer)
 {
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, 4, &ptSize);
-
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT, 0, 4, &ptSize);
+
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 40, 4, &adaptiveMinDistance);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT, 40, 4, &adaptiveMinDistance);
+
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 44, 4, &adaptiveMaxDistance);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT, 44, 4, &adaptiveMaxDistance);
+
+    float enabled = adaptiveEnabled ? 1.f : 0.f;
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 60, 4, &enabled);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT, 60, 4, &enabled);
 }
 
 void Renderer::setConstantContrastBrightness(float contrast, float brightness, VkCommandBuffer _cmdBuffer)

@@ -48,7 +48,7 @@ public:
     void drawPoints(const TlScanDrawInfo &drawInfo, const VkUniformOffset& viewProjUni, RenderMode _renderMode, VkCommandBuffer _cmdBuffer, BlendMode blendMode, VkFormat renderFormat) const;
     void drawPointsClipping(const TlScanDrawInfo &drawInfo, const VkUniformOffset& viewProjUni, const VkUniformOffset& clippingBoxUni, RenderMode _renderMode, VkCommandBuffer _cmdBuffer, BlendMode blendMode, VkFormat renderFormat) const;
 
-    void setConstantPointSize(float ptSize, VkCommandBuffer _cmdBuffer);
+    void setConstantPointSize(float ptSize, float adaptiveMinDistance, float adaptiveMaxDistance, bool adaptiveEnabled, VkCommandBuffer _cmdBuffer);
     void setConstantContrastBrightness(float contrast, float brightness, VkCommandBuffer _cmdBuffer);
 	void setConstantSaturationLuminance(float saturation, float luminance, VkCommandBuffer _cmdBuffer);
     void setConstantBlending(float blending, VkCommandBuffer _cmdBuffer);
