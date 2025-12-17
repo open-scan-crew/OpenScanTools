@@ -759,6 +759,18 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
             m_postRenderer.processNormalShading(cmdBuffer, camera.getInversedViewUniform(m_renderSwapIndex), framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
     }
 
+    if (displayParam.m_depthLining.enabled)
+    {
+        vkm.beginPostTreatmentDepthLining(framebuffer);
+        m_postRenderer.processDepthLining(cmdBuffer, displayParam.m_depthLining, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
+    }
+
+    if (displayParam.m_edgeAwareBlur.enabled)
+    {
+        vkm.beginPostTreatmentEdgeAwareBlur(framebuffer);
+        m_postRenderer.processEdgeAwareBlur(cmdBuffer, displayParam.m_edgeAwareBlur, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
+    }
+
     if (displayParam.m_blendMode != BlendMode::Opaque && displayParam.m_transparency > 0.f)
     {
         vkm.beginPostTreatmentTransparency(framebuffer);
