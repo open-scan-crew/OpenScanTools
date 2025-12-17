@@ -12,7 +12,8 @@
 
 namespace
 {
-    constexpr float DEPTH_LINING_UI_SCALE = 1.5f;
+    constexpr float DEPTH_LINING_STRENGTH_UI_SCALE = 1.5f;
+    constexpr float DEPTH_LINING_SENSITIVITY_UI_SCALE = 3.0f;
 }
 
 ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QWidget *parent, float guiScale)
@@ -324,8 +325,8 @@ void ToolBarRenderSettings::onActiveCamera(IGuiData* idata)
         int depthValue = std::clamp(static_cast<int>(std::round(blurSettings.depthThreshold * 100.f)), m_ui.slider_edgeAwareDepth->minimum(), m_ui.slider_edgeAwareDepth->maximum());
         int blendValue = std::clamp(static_cast<int>(std::round(blurSettings.blendStrength * 100.f)), m_ui.slider_edgeAwareBlend->minimum(), m_ui.slider_edgeAwareBlend->maximum());
         const DepthLining& liningSettings = displayParameters.m_depthLining;
-        int liningStrength = std::clamp(static_cast<int>(std::round((liningSettings.strength / DEPTH_LINING_UI_SCALE) * 100.f)), m_ui.slider_depthLiningStrength->minimum(), m_ui.slider_depthLiningStrength->maximum());
-        int liningSensitivity = std::clamp(static_cast<int>(std::round((liningSettings.sensitivity / DEPTH_LINING_UI_SCALE) * 100.f)), m_ui.slider_depthLiningSensitivity->minimum(), m_ui.slider_depthLiningSensitivity->maximum());
+        int liningStrength = std::clamp(static_cast<int>(std::round((liningSettings.strength / DEPTH_LINING_STRENGTH_UI_SCALE) * 100.f)), m_ui.slider_depthLiningStrength->minimum(), m_ui.slider_depthLiningStrength->maximum());
+        int liningSensitivity = std::clamp(static_cast<int>(std::round((liningSettings.sensitivity / DEPTH_LINING_SENSITIVITY_UI_SCALE) * 100.f)), m_ui.slider_depthLiningSensitivity->minimum(), m_ui.slider_depthLiningSensitivity->maximum());
 
         m_ui.checkBox_edgeAwareBlur->setChecked(blurSettings.enabled);
         m_ui.slider_edgeAwareRadius->setValue(radiusValue);
@@ -462,8 +463,8 @@ DepthLining ToolBarRenderSettings::getDepthLiningFromUi() const
     settings.enabled = m_ui.checkBox_depthLining->isChecked();
     const float strengthPct = m_ui.spinBox_depthLiningStrength->value() / 100.f;
     const float sensitivityPct = m_ui.spinBox_depthLiningSensitivity->value() / 100.f;
-    settings.strength = strengthPct * DEPTH_LINING_UI_SCALE;
-    settings.sensitivity = sensitivityPct * DEPTH_LINING_UI_SCALE;
+    settings.strength = strengthPct * DEPTH_LINING_STRENGTH_UI_SCALE;
+    settings.sensitivity = sensitivityPct * DEPTH_LINING_SENSITIVITY_UI_SCALE;
     settings.threshold = std::lerp(0.012f, 0.001f, sensitivityPct);
     settings.strongMode = m_ui.checkBox_depthLiningStrongMode->isChecked();
     return settings;
