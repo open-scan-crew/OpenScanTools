@@ -390,7 +390,15 @@ void ExportRenderingParameters(nlohmann::json& json, const RenderingParameters& 
 
 void ExportViewPointData(nlohmann::json& json, const ViewPointData& data)
 {
-	ExportRenderingParameters(json, data);
+        ExportRenderingParameters(json, data);
+
+        const DisplayParameters& displayParams = data.getDisplayParameters();
+        json[Key_Edge_Aware_Blur] = { displayParams.m_edgeAwareBlur.enabled, displayParams.m_edgeAwareBlur.radius,
+                displayParams.m_edgeAwareBlur.depthThreshold, displayParams.m_edgeAwareBlur.blendStrength,
+                displayParams.m_edgeAwareBlur.resolutionScale };
+        json[Key_Depth_Lining] = { displayParams.m_depthLining.enabled, displayParams.m_depthLining.strength,
+                displayParams.m_depthLining.threshold, displayParams.m_depthLining.sensitivity,
+                displayParams.m_depthLining.strongMode };
 
 	nlohmann::json childrenElem = nlohmann::json::array();
 	for (const SafePtr<AClippingNode>& clip : data.getActiveClippings())
