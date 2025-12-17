@@ -49,9 +49,12 @@ std::wstring PointCloudNode::getComposedName() const
     }
 }
 
-void PointCloudNode::setTlsFilePath(const std::filesystem::path& scanPath, bool init_position)
+void PointCloudNode::setTlsFilePath(const std::filesystem::path& scanPath, bool init_position, const tls::ScanGuid& scanGuid)
 {
-    tlGetScanGuid(scanPath, m_scanGuid);
+    if (scanGuid != tls::ScanGuid())
+        m_scanGuid = scanGuid;
+    else
+        tlGetScanGuid(scanPath, m_scanGuid);
     setName(scanPath.stem().wstring());
     backup_file_path_ = scanPath;
 
