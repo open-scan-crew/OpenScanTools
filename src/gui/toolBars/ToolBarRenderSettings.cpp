@@ -503,10 +503,10 @@ void ToolBarRenderSettings::switchRenderMode(const int& mode)
         case UiRenderMode::Scans_Color:
         case UiRenderMode::Clusters_Color:
         {
-            showContrastBrightness();
+            showSaturationLuminance();
             m_ui.ramp_options->setVisible(false);
             m_ui.pushButton_color->hide();
-			enableFalseColor(false);
+                        enableFalseColor(false);
         }
         break;
 		case UiRenderMode::Intensity:
