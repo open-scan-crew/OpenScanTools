@@ -1,10 +1,12 @@
 void main() {
-    gl_PointSize = pc.ptSize;
+    vec4 worldPos = uScan.model * vec4(vec3(posXY, posZ) * coordPrec + origin, 1.0);
+    vec4 clipPos = uCam.projView * worldPos;
 #ifdef _CLIPPING_ACTIVATED
-    gl_Position = uScan.model * vec4(vec3(posXY, posZ) * coordPrec + origin, 1.0);
+    gl_Position = worldPos;
 #else
-    gl_Position = uCam.projView * uScan.model * vec4(vec3(posXY, posZ) * coordPrec + origin, 1.0);
+    gl_Position = clipPos;
 #endif
+    gl_PointSize = computeAdaptivePointSize(clipPos);
     float fi = pc.contrast * (intensity / 255.0 + pc.brightness) + 0.5;
 
     //fragColor = vec4(pc.ptColor * fi, pc.transparency);

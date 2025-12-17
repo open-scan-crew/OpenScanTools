@@ -64,6 +64,8 @@ CameraNode::CameraNode(const std::wstring& name, IDataDispatcher& dataDispatcher
     registerGuiDataFunction(guiDType::renderPostRenderingNormals, &CameraNode::onRenderNormals);
     registerGuiDataFunction(guiDType::renderEdgeAwareBlur, &CameraNode::onRenderEdgeAwareBlur);
     registerGuiDataFunction(guiDType::renderDepthLining, &CameraNode::onRenderDepthLining);
+    registerGuiDataFunction(guiDType::renderBillboard, &CameraNode::onRenderBillboard);
+    registerGuiDataFunction(guiDType::renderEyeDomeLighting, &CameraNode::onRenderEyeDomeLighting);
     registerGuiDataFunction(guiDType::renderRampScale, &CameraNode::onRenderRampScale);
     registerGuiDataFunction(guiDType::renderFovValueChanged, &CameraNode::onRenderFov);
     registerGuiDataFunction(guiDType::renderExamine, &CameraNode::onRenderExamine);
@@ -1476,6 +1478,20 @@ void CameraNode::onRenderDepthLining(IGuiData* data)
     auto liningData = static_cast<GuiDataDepthLining*>(data);
     m_depthLining = liningData->m_lining;
 
+    sendNewUIViewPoint();
+}
+
+void CameraNode::onRenderBillboard(IGuiData* data)
+{
+    auto billboardData = static_cast<GuiDataBillboardRendering*>(data);
+    m_billboard = billboardData->m_billboard;
+    sendNewUIViewPoint();
+}
+
+void CameraNode::onRenderEyeDomeLighting(IGuiData* data)
+{
+    auto edlData = static_cast<GuiDataEyeDomeLighting*>(data);
+    m_eyeDomeLighting = edlData->m_edl;
     sendNewUIViewPoint();
 }
 

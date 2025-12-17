@@ -9,6 +9,7 @@
 #include <chrono>
 
 static const int UNIFORM_DATA_SIZE = 16 * sizeof(float);
+static constexpr VkShaderStageFlags POINT_STAGE_FLAGS = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 
 // ********** Shaders Declaration *************
 
@@ -483,14 +484,18 @@ void Renderer::createPointPipelineLayout()
     // rampMin     | 28     | 4
     // rampMax     | 32     | 4
     // rampSteps   | 36     | 4
+    // billboardEn | 40     | 4
+    // billboardFe | 44     | 4
     // ptColor     | 48     | 12
+    // billboardAdap| 60    | 4
+    // billboardBoost|64    | 4
     //-------------+---------------------------------
     VkPushConstantRange pcr[] =
     {
         {
-            VK_SHADER_STAGE_VERTEX_BIT,
+            VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
             0,
-            64
+            68
         },
         {
             VK_SHADER_STAGE_GEOMETRY_BIT,
@@ -919,9 +924,9 @@ void Renderer::drawPointsClipping(const TlScanDrawInfo &_drawInfo, const VkUnifo
 
 void Renderer::setConstantPointSize(float ptSize, VkCommandBuffer _cmdBuffer)
 {
-    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, 4, &ptSize);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, POINT_STAGE_FLAGS, 0, 4, &ptSize);
 
-    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT, 0, 4, &ptSize);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, POINT_STAGE_FLAGS, 0, 4, &ptSize);
 }
 
 void Renderer::setConstantContrastBrightness(float contrast, float brightness, VkCommandBuffer _cmdBuffer)
@@ -930,11 +935,11 @@ void Renderer::setConstantContrastBrightness(float contrast, float brightness, V
     float contrast_vs = (259.f * (contrast + 255.f)) / (255.f * (259.f - contrast));
     float brightness_vs = brightness / 100.f - 0.5f;
 
-    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 8, 4, &contrast_vs);
-    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 12, 4, &brightness_vs);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, POINT_STAGE_FLAGS, 8, 4, &contrast_vs);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, POINT_STAGE_FLAGS, 12, 4, &brightness_vs);
 
-    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT, 8, 4, &contrast_vs);
-    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT, 12, 4, &brightness_vs);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, POINT_STAGE_FLAGS, 8, 4, &contrast_vs);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, POINT_STAGE_FLAGS, 12, 4, &brightness_vs);
 }
 
 void Renderer::setConstantSaturationLuminance(float saturation, float luminance, VkCommandBuffer _cmdBuffer)
@@ -942,37 +947,52 @@ void Renderer::setConstantSaturationLuminance(float saturation, float luminance,
     float fluminance = (luminance + 50.f) / 50.f;
     float fsaturation = (saturation + 50.f) / 50.f;
 
-    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 16, 4, &fsaturation);
-    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 20, 4, &fluminance);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, POINT_STAGE_FLAGS, 16, 4, &fsaturation);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, POINT_STAGE_FLAGS, 20, 4, &fluminance);
 
-    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT, 16, 4, &fsaturation);
-    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT, 20, 4, &fluminance);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, POINT_STAGE_FLAGS, 16, 4, &fsaturation);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, POINT_STAGE_FLAGS, 20, 4, &fluminance);
 }
 
 void Renderer::setConstantBlending(float blending, VkCommandBuffer _cmdBuffer)
 {
     float fblending = blending / 200.f;
 
-    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 24, 4, &fblending);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, POINT_STAGE_FLAGS, 24, 4, &fblending);
 
-    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT, 24, 4, &fblending);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, POINT_STAGE_FLAGS, 24, 4, &fblending);
 }
 
 void Renderer::setConstantRampDistance(float min, float max, int steps, VkCommandBuffer _cmdBuffer)
 {
-    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 28, 4, &min);
-    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 32, 4, &max);
-    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 36, 4, &steps);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, POINT_STAGE_FLAGS, 28, 4, &min);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, POINT_STAGE_FLAGS, 32, 4, &max);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, POINT_STAGE_FLAGS, 36, 4, &steps);
 
-    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT, 28, 4, &min);
-    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT, 32, 4, &max);
-    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT, 36, 4, &steps);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, POINT_STAGE_FLAGS, 28, 4, &min);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, POINT_STAGE_FLAGS, 32, 4, &max);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, POINT_STAGE_FLAGS, 36, 4, &steps);
 }
 
 void Renderer::setConstantPtColor(const glm::vec3& color, VkCommandBuffer _cmdBuffer)
 {
-    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 48, 12, &color[0]);
-    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT, 48, 12, &color[0]);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, POINT_STAGE_FLAGS, 48, 12, &color[0]);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, POINT_STAGE_FLAGS, 48, 12, &color[0]);
+}
+
+void Renderer::setConstantBillboard(bool enabled, float feather, bool adaptiveSize, float adaptiveStrength, VkCommandBuffer _cmdBuffer)
+{
+    float enableFlag = enabled ? 1.0f : 0.0f;
+    float adaptiveEnable = adaptiveSize ? 1.0f : 0.0f;
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, POINT_STAGE_FLAGS, 40, 4, &enableFlag);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, POINT_STAGE_FLAGS, 44, 4, &feather);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, POINT_STAGE_FLAGS, 60, 4, &adaptiveEnable);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, POINT_STAGE_FLAGS, 64, 4, &adaptiveStrength);
+
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, POINT_STAGE_FLAGS, 40, 4, &enableFlag);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, POINT_STAGE_FLAGS, 44, 4, &feather);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, POINT_STAGE_FLAGS, 60, 4, &adaptiveEnable);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, POINT_STAGE_FLAGS, 64, 4, &adaptiveStrength);
 }
 
 void Renderer::setClippingIndexes(const ClippingGpuId indexes[MAX_CLIPPING_PER_CELL + 1], VkCommandBuffer _cmdBuffer) const

@@ -50,10 +50,11 @@ public:
 
     void setConstantPointSize(float ptSize, VkCommandBuffer _cmdBuffer);
     void setConstantContrastBrightness(float contrast, float brightness, VkCommandBuffer _cmdBuffer);
-	void setConstantSaturationLuminance(float saturation, float luminance, VkCommandBuffer _cmdBuffer);
+        void setConstantSaturationLuminance(float saturation, float luminance, VkCommandBuffer _cmdBuffer);
     void setConstantBlending(float blending, VkCommandBuffer _cmdBuffer);
     void setConstantRampDistance(float min, float max, int steps, VkCommandBuffer _cmdBuffer);
-	void setConstantPtColor(const glm::vec3& color, VkCommandBuffer _cmdBuffer);
+        void setConstantPtColor(const glm::vec3& color, VkCommandBuffer _cmdBuffer);
+    void setConstantBillboard(bool enabled, float feather, bool adaptiveSize, float adaptiveStrength, VkCommandBuffer _cmdBuffer);
     void setClippingIndexes(const ClippingGpuId indexes[MAX_CLIPPING_PER_CELL + 1], VkCommandBuffer _cmdBuffer) const;
 
     void cleanup();

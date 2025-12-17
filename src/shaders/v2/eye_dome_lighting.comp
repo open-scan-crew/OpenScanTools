@@ -1,0 +1,83 @@
+#version 450
+
+layout (local_size_x = 16, local_size_y = 16) in;
+
+layout(set = 0, binding = 0, rgba8) uniform image2D inOutColorImage;
+layout(set = 1, binding = 2) buffer correctedDepth
+{
+    float depth[];
+};
+
+layout(push_constant) uniform PC {
+    layout(offset = 0) ivec2 screenSize;
+    layout(offset = 8) float strength;
+    layout(offset = 12) float radius;
+    layout(offset = 16) float bias;
+} pc;
+
+float fetchDepth(ivec2 coord)
+{
+    ivec2 clamped = clamp(coord, ivec2(0), pc.screenSize - ivec2(1));
+    uint idx = uint(clamped.x + clamped.y * pc.screenSize.x);
+    return depth[idx];
+}
+
+void main()
+{
+    ivec2 gid = ivec2(gl_GlobalInvocationID.xy);
+    if (gid.x >= pc.screenSize.x || gid.y >= pc.screenSize.y)
+        return;
+
+    uint idx = uint(gid.x + gid.y * pc.screenSize.x);
+    vec4 color = imageLoad(inOutColorImage, gid);
+    float centerDepth = depth[idx];
+
+    if (centerDepth <= 0.0f)
+    {
+        imageStore(inOutColorImage, gid, color);
+        return;
+    }
+
+    float radiusPx = max(pc.radius, 0.5);
+    float fineRadiusPx = max(radiusPx * 0.5, 0.5);
+    int r = int(ceil(radiusPx));
+    int rFine = int(ceil(fineRadiusPx));
+
+    const ivec2 offsets[8] = ivec2[8](
+        ivec2(1, 0), ivec2(-1, 0), ivec2(0, 1), ivec2(0, -1),
+        ivec2(1, 1), ivec2(-1, -1), ivec2(1, -1), ivec2(-1, 1)
+    );
+
+    float sumDiff = 0.0f;
+    int samples = 0;
+    float invNorm = 1.0f / max(centerDepth, 1e-4f);
+
+    for (int i = 0; i < 8; ++i)
+    {
+        float d = fetchDepth(gid + offsets[i] * r);
+        if (d > 0.0f)
+        {
+            float diff = max((centerDepth - d) * invNorm - pc.bias, 0.0f);
+            sumDiff += diff;
+            samples++;
+        }
+
+        float df = fetchDepth(gid + offsets[i] * rFine);
+        if (df > 0.0f)
+        {
+            float diffFine = max((centerDepth - df) * invNorm - pc.bias * 0.5f, 0.0f);
+            sumDiff += diffFine;
+            samples++;
+        }
+    }
+
+    if (samples == 0)
+    {
+        imageStore(inOutColorImage, gid, color);
+        return;
+    }
+
+    float occlusion = (sumDiff / float(samples)) * pc.strength * 2.0f;
+    float shading = exp(-occlusion);
+    imageStore(inOutColorImage, gid, vec4(color.rgb * shading, color.a));
+}

@@ -593,6 +593,12 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
                 m_postRenderer.processNormalShading(cmdBuffer, wCamera->getInversedViewUniform(m_renderSwapIndex), framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
         }
 
+        if (display.m_eyeDomeLighting.enabled)
+        {
+            vkm.beginPostTreatmentDepthLining(framebuffer);
+            m_postRenderer.processEyeDomeLighting(cmdBuffer, display.m_eyeDomeLighting, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
+        }
+
         if (display.m_depthLining.enabled)
         {
             vkm.beginPostTreatmentDepthLining(framebuffer);

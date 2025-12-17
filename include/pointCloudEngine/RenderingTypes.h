@@ -97,6 +97,22 @@ struct DepthLining
     bool strongMode = false;
 };
 
+struct BillboardRendering
+{
+    bool enabled = false;
+    float feather = 0.08f; // [0, 1] edge softening factor
+    bool adaptiveSizeEnabled = false;
+    float adaptiveSizeStrength = 0.5f; // [0, 2] additional size factor driven by depth
+};
+
+struct EyeDomeLighting
+{
+    bool enabled = false;
+    float strength = 1.0f;
+    float radius = 1.5f;
+    float bias = 0.1f;
+};
+
 enum class ProjectionMode
 {
     Perspective = 0,
@@ -139,4 +155,4 @@ struct MarkerDisplayOptions
     float farSize;
 };
 
-#endif
+#endif // RENDERING_TYPES_H

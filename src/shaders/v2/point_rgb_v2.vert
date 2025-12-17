@@ -30,7 +30,11 @@ layout(push_constant) uniform PC {
     layout(offset = 28) float rampMin;
     layout(offset = 32) float rampMax;
     layout(offset = 36) int rampSteps;
+    layout(offset = 40) float billboardEnable;
+    layout(offset = 44) float billboardFeather;
     layout(offset = 48) vec3 ptColor;
+    layout(offset = 60) float adaptiveSizeEnable;
+    layout(offset = 64) float adaptiveSizeStrength;
 } pc;
 
 layout(set = 0, binding = 0) uniform uniformCamera {
@@ -42,8 +46,16 @@ layout(set = 0, binding = 1) uniform uniformModelScan{
 } uScan;
 
 void main() {
-    gl_PointSize = pc.ptSize;
-    gl_Position = uCam.projView * uScan.model * vec4(vec3(posXY, posZ) * coordPrec + origin, 1.0);
+    vec4 clipPos = uCam.projView * uScan.model * vec4(vec3(posXY, posZ) * coordPrec + origin, 1.0);
+    float pointSize = pc.ptSize;
+    if (pc.adaptiveSizeEnable > 0.5f)
+    {
+        float depthMetric = log2(abs(clipPos.w) + 1.001f);
+        float depthFactor = clamp(depthMetric * 0.35f, 0.0f, 1.0f);
+        pointSize *= mix(1.0f, 1.0f + pc.adaptiveSizeStrength, depthFactor);
+    }
+    gl_PointSize = pointSize;
+    gl_Position = clipPos;
     vec3 hsl = rgb2hsl(color.rgb);
     hsl.z *= pc.luminance;
     hsl.y *= pc.saturation;
