@@ -28,6 +28,8 @@ layout(push_constant) uniform PC {
     layout(offset = 28) float rampMin;
     layout(offset = 32) float rampMax;
     layout(offset = 36) int rampSteps;
+    layout(offset = 40) float billboardEnable;
+    layout(offset = 44) float billboardFeather;
     layout(offset = 48) vec3 ptColor;
 } pc;
 

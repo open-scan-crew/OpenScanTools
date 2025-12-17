@@ -366,6 +366,8 @@ void ExportRenderingParameters(nlohmann::json& json, const RenderingParameters& 
     json[Key_Post_Rendering_Normals] = { params.m_postRenderingNormals.show, params.m_postRenderingNormals.inverseTone, params.m_postRenderingNormals.blendColor, params.m_postRenderingNormals.normalStrength, params.m_postRenderingNormals.gloss };
     json[Key_Edge_Aware_Blur] = { params.m_edgeAwareBlur.enabled, params.m_edgeAwareBlur.radius, params.m_edgeAwareBlur.depthThreshold, params.m_edgeAwareBlur.blendStrength, params.m_edgeAwareBlur.resolutionScale };
     json[Key_Depth_Lining] = { params.m_depthLining.enabled, params.m_depthLining.strength, params.m_depthLining.threshold, params.m_depthLining.sensitivity, params.m_depthLining.strongMode };
+    json[Key_Billboard_Rendering] = { params.m_billboard.enabled, params.m_billboard.feather };
+    json[Key_Eye_Dome_Lighting] = { params.m_eyeDomeLighting.enabled, params.m_eyeDomeLighting.strength, params.m_eyeDomeLighting.radius, params.m_eyeDomeLighting.bias };
 
     json[Key_Display_Guizmo] = params.m_displayGizmo;
 	json[Key_Ramp_Scale_Options] = { params.m_rampScale.showScale, params.m_rampScale.graduationCount, params.m_rampScale.centerBoxScale };
@@ -399,6 +401,9 @@ void ExportViewPointData(nlohmann::json& json, const ViewPointData& data)
         json[Key_Depth_Lining] = { displayParams.m_depthLining.enabled, displayParams.m_depthLining.strength,
                 displayParams.m_depthLining.threshold, displayParams.m_depthLining.sensitivity,
                 displayParams.m_depthLining.strongMode };
+        json[Key_Billboard_Rendering] = { displayParams.m_billboard.enabled, displayParams.m_billboard.feather };
+        json[Key_Eye_Dome_Lighting] = { displayParams.m_eyeDomeLighting.enabled, displayParams.m_eyeDomeLighting.strength,
+                displayParams.m_eyeDomeLighting.radius, displayParams.m_eyeDomeLighting.bias };
 
 	nlohmann::json childrenElem = nlohmann::json::array();
 	for (const SafePtr<AClippingNode>& clip : data.getActiveClippings())

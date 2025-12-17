@@ -323,6 +323,28 @@ public:
         DepthLining m_lining;
 };
 
+class GuiDataBillboardRendering : public GuiDataActiveCamera
+{
+public:
+    GuiDataBillboardRendering(const BillboardRendering& billboardSettings, SafePtr<CameraNode> camera);
+    ~GuiDataBillboardRendering() {};
+    virtual guiDType getType() override;
+
+public:
+    BillboardRendering m_billboard;
+};
+
+class GuiDataEyeDomeLighting : public GuiDataActiveCamera
+{
+public:
+    GuiDataEyeDomeLighting(const EyeDomeLighting& edlSettings, SafePtr<CameraNode> camera);
+    ~GuiDataEyeDomeLighting() {};
+    virtual guiDType getType() override;
+
+public:
+    EyeDomeLighting m_edl;
+};
+
 class GuiDataRenderDistanceRampValues : public GuiDataActiveCamera
 {
 public:
