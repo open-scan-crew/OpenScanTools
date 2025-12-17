@@ -20,7 +20,7 @@ void main() {
                 float mask = clamp((radius - dist) / softness, 0.0f, 1.0f);
                 if (mask <= 0.0f)
                         discard;
-                outColor = vec4(fragColor.rgb, fragColor.a * mask);
+                outColor = vec4(fragColor.rgb * mask, fragColor.a * mask);
         }
         else
         {

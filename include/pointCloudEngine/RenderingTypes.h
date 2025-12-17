@@ -108,7 +108,7 @@ struct EyeDomeLighting
     bool enabled = false;
     float strength = 1.0f;
     float radius = 1.5f;
-    float bias = 0.35f;
+    float bias = 0.1f;
 };
 
 enum class ProjectionMode

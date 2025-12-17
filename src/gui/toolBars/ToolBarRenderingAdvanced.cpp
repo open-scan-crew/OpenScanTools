@@ -26,8 +26,8 @@ ToolBarRenderingAdvanced::ToolBarRenderingAdvanced(IDataDispatcher& dataDispatch
     m_ui.doubleSpinBox_edlStrength->setValue(1.0);
     m_ui.slider_edlRadius->setValue(15);
     m_ui.doubleSpinBox_edlRadius->setValue(1.5);
-    m_ui.slider_edlBias->setValue(35);
-    m_ui.doubleSpinBox_edlBias->setValue(0.35);
+    m_ui.slider_edlBias->setValue(10);
+    m_ui.doubleSpinBox_edlBias->setValue(0.10);
 
     m_ui.slider_billboardFeather->setEnabled(false);
     m_ui.doubleSpinBox_billboardFeather->setEnabled(false);
