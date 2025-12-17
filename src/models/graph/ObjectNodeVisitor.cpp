@@ -18,6 +18,8 @@
 #include "models/application/Author.h"
 #include "models/3d/NodeFunctions.h"
 
+#include <algorithm>
+
 #include "models/3d/UniformClippingData.h"
 
 #include "gui/UnitConverter.h"
@@ -1427,7 +1429,6 @@ void ObjectNodeVisitor::draw_baked_pointClouds(VkCommandBuffer cmdBuffer, Render
     m_totalClippedCells = 0;
 
     renderer.setViewportAndScissor(0, 0, m_fbExtent.width, m_fbExtent.height, cmdBuffer);
-    renderer.setConstantPointSize(m_displayParameters.m_pointSize, cmdBuffer);
     renderer.setConstantContrastBrightness((float)m_displayParameters.m_contrast, (float)m_displayParameters.m_brightness, cmdBuffer);
     renderer.setConstantSaturationLuminance((float)m_displayParameters.m_saturation, (float)m_displayParameters.m_luminance, cmdBuffer);
     renderer.setConstantBlending((float)m_displayParameters.m_hue, cmdBuffer);
@@ -1439,13 +1440,32 @@ void ObjectNodeVisitor::draw_baked_pointClouds(VkCommandBuffer cmdBuffer, Render
     // *** Traverse the scan using the frustum matrix as a clipping box ***
     // The projection info are common for all the scans
     // The Model matrix will be edited by each drawScan()
-    TlProjectionInfo projInfoNode{ glm::dmat4(), m_viewProjMatrix, m_fbExtent.width, m_fbExtent.height, m_displayParameters.m_pointSize, m_decimationRatio, m_displayParameters.m_deltaFilling };
+    const bool adaptivePointSize = m_displayParameters.m_adaptivePointSize;
+    const bool distanceAttenuation = m_displayParameters.m_reducePointSizeWithDistance;
+    const float basePointSize = m_displayParameters.m_pointSize;
+    const float baseFillingStrength = adaptivePointSize ? m_displayParameters.m_pointFillingStrength : 0.f;
+    const float fillingScale = 1.f + baseFillingStrength;
+    TlProjectionInfo projInfoNode{ glm::dmat4(), m_viewProjMatrix, m_fbExtent.width, m_fbExtent.height, basePointSize, m_decimationRatio, baseFillingStrength };
 
     m_drawHasMissingScanPart = false;
     ClippingAssembly emptyAssembly;
 
     for (const PointCloudDrawData& bakedPC : m_bakedPointCloud)
     {
+        double distanceScale = 1.0;
+        if (adaptivePointSize && distanceAttenuation)
+        {
+            distanceScale = 1.0 / (1.0 + glm::length(m_cameraPosition - glm::dvec3(bakedPC.transfo[3])) * m_displayParameters.m_pointDistanceAttenuation);
+            distanceScale = std::clamp(distanceScale, 0.1, 1.0);
+        }
+
+        float pointSize = static_cast<float>(basePointSize * fillingScale * distanceScale);
+        float filling = static_cast<float>(baseFillingStrength * distanceScale);
+
+        renderer.setConstantPointSize(pointSize, cmdBuffer);
+        projInfoNode.octreePointSize = pointSize;
+        projInfoNode.deltaFilling = filling;
+
         clipAndDrawPointCloud(cmdBuffer, renderer, bakedPC, projInfoNode, bakedPC.clippable ? m_clippingAssembly : emptyAssembly);
     }
 }
