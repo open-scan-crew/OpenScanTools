@@ -3984,6 +3984,9 @@
     <QtUic Include="..\..\src\gui\forms\toolbar_showhidegroup.ui">
       <Filter>Form Files</Filter>
     </QtUic>
+    <QtUic Include="..\..\src\gui\forms\toolbar_renderingadvancedgroup.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
     <QtUic Include="..\..\src\gui\forms\toolbar_rendersettingsgroup.ui">
       <Filter>Form Files</Filter>
     </QtUic>

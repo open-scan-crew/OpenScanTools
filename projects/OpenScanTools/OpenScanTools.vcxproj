@@ -826,6 +826,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarShareGroup.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarShowHideGroup.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderSettings.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderingAdvanced.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarAnimationGroup.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarSlabGroup.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarSphereGroup.cpp" />
@@ -1999,6 +2000,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtUic Include="..\..\src\gui\forms\toolbar_pipegroup.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_pointEdition.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_ramp_default_values.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_renderingadvancedgroup.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_rendersettingsgroup.ui" />
     <QtUic Include="..\..\src\gui\forms\TagTemplateNameDialog.ui" />
     <QtUic Include="..\..\src\gui\forms\TemplateEditorDialog.ui" />
