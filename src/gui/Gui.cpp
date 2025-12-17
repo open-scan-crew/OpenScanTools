@@ -80,6 +80,7 @@
 #include "gui/toolBars/ToolBarViewPoint.h"
 #include "gui/toolBars/ToolBarSlabGroup.h"
 #include "gui/toolBars/ToolBarOrthoGrid.h"
+#include "gui/toolBars/ToolBarRenderingAdvanced.h"
 #include "gui/toolBars/ToolBarAutoSeeding.h"
 #include "gui/toolBars/ToolBarExportVideo.h"
 #include "gui/toolBars/ToolBarManipulateObjects.h"
@@ -239,15 +240,20 @@ Gui::Gui(Controller& controller)
 	ToolBarMeasureSimple* measureSimple = new ToolBarMeasureSimple(m_dataDispatcher, this, m_guiScale);
 	measureSimple->setPolyligneOptions(false);
 	ribbonTabContent->addWidget(TEXT_MEASURE, measureSimple);
-	ToolBarRenderSettings* rendering = new ToolBarRenderSettings(m_dataDispatcher, this, m_guiScale);
-	ribbonTabContent->addWidget(TEXT_POINT_CLOUD, rendering);
-	m_ribbon->addTab(TEXT_HOME, ribbonTabContent);
-	rendering->switchRenderMode();
+        ToolBarRenderSettings* rendering = new ToolBarRenderSettings(m_dataDispatcher, this, m_guiScale);
+        ribbonTabContent->addWidget(TEXT_POINT_CLOUD, rendering);
+        m_ribbon->addTab(TEXT_HOME, ribbonTabContent);
+        rendering->switchRenderMode();
 
-	// Add groups to the View Tab
-	ribbonTabContent = new RibbonTabContent();
-	ribbonTabContent->addWidget(TEXT_SHOW_HIDE, new ToolBarShowHideGroup(m_dataDispatcher, this, m_guiScale));
-	ribbonTabContent->addWidget(TEXT_TEXT_DISPLAY, new ToolBarTextDisplay(m_dataDispatcher, this, m_guiScale));
+        // Add groups to the Rendering Tab
+        ribbonTabContent = new RibbonTabContent();
+        ribbonTabContent->addWidget(TEXT_RENDERING, new ToolBarRenderingAdvanced(m_dataDispatcher, this, m_guiScale));
+        m_ribbon->addTab(TEXT_RENDERING, ribbonTabContent);
+
+        // Add groups to the View Tab
+        ribbonTabContent = new RibbonTabContent();
+        ribbonTabContent->addWidget(TEXT_SHOW_HIDE, new ToolBarShowHideGroup(m_dataDispatcher, this, m_guiScale));
+        ribbonTabContent->addWidget(TEXT_TEXT_DISPLAY, new ToolBarTextDisplay(m_dataDispatcher, this, m_guiScale));
 	ribbonTabContent->addWidget(TEXT_MARKER_DISPLAY_OPTIONS, new ToolBarMarkerDisplayOptions(m_dataDispatcher, this, m_guiScale));
 	ribbonTabContent->addWidget(TEXT_TAB_TRANSPARENCY, new ToolBarRenderTransparency(m_dataDispatcher, this, m_guiScale));
 	ribbonTabContent->addWidget(TEXT_NORMALS_OPTIONS, new ToolBarRenderNormals(m_dataDispatcher, this, m_guiScale));

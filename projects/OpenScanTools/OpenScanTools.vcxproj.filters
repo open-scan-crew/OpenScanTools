@@ -748,6 +748,9 @@
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderSettings.cpp">
       <Filter>src\gui\toolBars</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderingAdvanced.cpp">
+      <Filter>src\gui\toolBars</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\controller\controls\ControlModal.cpp">
       <Filter>src\controller\controls</Filter>
     </ClCompile>
@@ -2041,6 +2044,9 @@
       <Filter>include\gui\Dialog</Filter>
     </QtMoc>
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarRenderSettings.h">
+      <Filter>include\gui\toolBars</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarRenderingAdvanced.h">
       <Filter>include\gui\toolBars</Filter>
     </QtMoc>
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarRenderSettings.h">
@@ -4439,6 +4445,9 @@
       <Filter>shaders\post rendering</Filter>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\v2\depth_lining.comp">
+      <Filter>shaders\post rendering</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\v2\eye_dome_lighting.comp">
       <Filter>shaders\post rendering</Filter>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\v2\fillingGap.comp">

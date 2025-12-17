@@ -699,6 +699,20 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
             IOLOG << "ViewPoint DepthLining malformed" << LOGENDL;
     }
 
+    if (json.find(Key_Billboard_Rendering) != json.end())
+    {
+        nlohmann::json options = json.at(Key_Billboard_Rendering);
+        if (options.size() >= 2)
+            data.m_billboard = { options[0], options[1] };
+    }
+
+    if (json.find(Key_Eye_Dome_Lighting) != json.end())
+    {
+        nlohmann::json options = json.at(Key_Eye_Dome_Lighting);
+        if (options.size() >= 4)
+            data.m_eyeDomeLighting = { options[0], options[1], options[2], options[3] };
+    }
+
     if (json.find(Key_Ortho_Grid_Active) != json.end())
     {
         data.m_orthoGridActive = json.at(Key_Ortho_Grid_Active).get<bool>();
@@ -1710,6 +1724,20 @@ bool ImportViewPointData(const nlohmann::json& json, ViewPointData& data, const 
             data.m_depthLining = { options[0], options[1], options[2], options[3], options[4] };
         else
             IOLOG << "ViewPoint DepthLining malformed" << LOGENDL;
+    }
+
+    if (json.find(Key_Billboard_Rendering) != json.end())
+    {
+        nlohmann::json options = json.at(Key_Billboard_Rendering);
+        if (options.size() >= 2)
+            data.m_billboard = { options[0], options[1] };
+    }
+
+    if (json.find(Key_Eye_Dome_Lighting) != json.end())
+    {
+        nlohmann::json options = json.at(Key_Eye_Dome_Lighting);
+        if (options.size() >= 4)
+            data.m_eyeDomeLighting = { options[0], options[1], options[2], options[3] };
     }
 
     if (json.find(Key_Active_Clippings) != json.end())
