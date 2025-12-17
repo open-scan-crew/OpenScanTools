@@ -330,6 +330,26 @@ guiDType GuiDataDepthLining::getType()
         return guiDType::renderDepthLining;
 }
 
+GuiDataBillboardRendering::GuiDataBillboardRendering(const BillboardRendering& billboardSettings, SafePtr<CameraNode> camera)
+    : GuiDataActiveCamera(camera)
+    , m_billboard(billboardSettings)
+{}
+
+guiDType GuiDataBillboardRendering::getType()
+{
+    return guiDType::renderBillboard;
+}
+
+GuiDataEyeDomeLighting::GuiDataEyeDomeLighting(const EyeDomeLighting& edlSettings, SafePtr<CameraNode> camera)
+    : GuiDataActiveCamera(camera)
+    , m_edl(edlSettings)
+{}
+
+guiDType GuiDataEyeDomeLighting::getType()
+{
+    return guiDType::renderEyeDomeLighting;
+}
+
 /*** Distance Ramp ***/
 
 GuiDataRenderDistanceRampValues::GuiDataRenderDistanceRampValues(float min, float max, int steps, SafePtr<CameraNode> camera)

@@ -44,6 +44,8 @@ public:
     PostRenderingNormals    m_postRenderingNormals = { true, false, true, 0.5f, 1.f };
     EdgeAwareBlur           m_edgeAwareBlur = {};
     DepthLining             m_depthLining = {};
+    BillboardRendering      m_billboard = {};
+    EyeDomeLighting         m_eyeDomeLighting = {};
 
     // GUI
     RampScale      m_rampScale = { true, false, 20 }; // GUI

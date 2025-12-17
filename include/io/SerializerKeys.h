@@ -224,6 +224,8 @@
 #define Key_Post_Rendering_Normals		"PostRenderingNormals"
 #define Key_Edge_Aware_Blur			"EdgeAwareBlur"
 #define Key_Depth_Lining			"DepthLining"
+#define Key_Billboard_Rendering		"BillboardRendering"
+#define Key_Eye_Dome_Lighting			"EyeDomeLighting"
 #define Key_Display_Guizmo				"DisplayGuizmo"
 #define Key_Ramp_Scale_Options			"RampScaleOptions"
 
