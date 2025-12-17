@@ -142,6 +142,7 @@ private:
     SafePtr<ViewPointNode> m_hdViewPoint;
     ImageFormat m_hdFormat;
     glm::ivec2 m_hdExtent;
+    glm::ivec2 m_hdRenderExtent;
     int m_hdMultisampling;
     std::filesystem::path m_hdImageFilepath;
     bool m_showHDFrame;

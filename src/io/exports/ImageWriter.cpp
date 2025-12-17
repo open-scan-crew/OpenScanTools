@@ -21,6 +21,8 @@ bool ImageWriter::saveScreenshot(const std::filesystem::path& filepath, ImageFor
 {
     width_ = width;
     height_ = height;
+    outputWidth_ = width;
+    outputHeight_ = height;
     format_ = format;
     byte_per_pixel_ = format == ImageFormat::PNG16 ? 8u : 4u;
 
@@ -33,10 +35,12 @@ bool ImageWriter::saveScreenshot(const std::filesystem::path& filepath, ImageFor
     return true;
 }
 
-bool ImageWriter::startCapture(ImageFormat format, uint32_t width, uint32_t height)
+bool ImageWriter::startCapture(ImageFormat format, uint32_t width, uint32_t height, uint32_t outputWidth, uint32_t outputHeight)
 {
     width_ = width;
     height_ = height;
+    outputWidth_ = outputWidth;
+    outputHeight_ = outputHeight;
     format_ = format;
     byte_per_pixel_ = format == ImageFormat::PNG16 ? 8u : 4u;
     return allocateBuffer();
@@ -70,7 +74,7 @@ bool ImageWriter::saveMetadata(const std::filesystem::path& file_path, ImageHDMe
     }
 
     os << "Image resolution" << std::endl;
-    os << width_ << " x " << height_ << std::endl;
+    os << outputWidth_ << " x " << outputHeight_ << std::endl;
     os << std::endl;
 
     os << "Image date" << std::endl;
@@ -99,12 +103,17 @@ bool ImageWriter::saveMetadata(const std::filesystem::path& file_path, ImageHDMe
 
 bool ImageWriter::saveImage(const std::filesystem::path& file_path)
 {
-    assert(image_buffer_);    
+    assert(image_buffer_);
     QImage qImage;
     if (format_ == ImageFormat::PNG16)
         qImage = QImage(reinterpret_cast<uchar*>(image_buffer_), width_, height_, QImage::Format::Format_RGBA64);
     else
         qImage = QImage(reinterpret_cast<uchar*>(image_buffer_), width_, height_, QImage::Format::Format_ARGB32);
+
+    if (outputWidth_ > 0 && outputHeight_ > 0 && (outputWidth_ != width_ || outputHeight_ != height_))
+    {
+        qImage = qImage.scaled(outputWidth_, outputHeight_, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    }
     std::filesystem::path ext_path = file_path;
     ext_path.replace_extension("." + getImageExtension(format_));
     bool ret(qImage.save(QString::fromStdWString(ext_path.generic_wstring())));

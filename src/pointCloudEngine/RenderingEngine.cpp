@@ -31,6 +31,7 @@
 
 
 #include <cmath>
+#include <algorithm>
 
 constexpr double HD_MARGIN = 0.05;
 
@@ -47,6 +48,8 @@ RenderingEngine::RenderingEngine(GraphManager& graphManager, IDataDispatcher& da
     , m_guiScale(guiScale)
     , m_screenshotFormat(ImageFormat::JPG)
     , m_previousFrameSkipped(false)
+    , m_hdMultisampling(1)
+    , m_hdRenderExtent(0)
     , m_hdtilesize(256)
 {
     registerGuiDataFunction(guiDType::screenshot, &RenderingEngine::onScreenshot);
@@ -197,7 +200,8 @@ void RenderingEngine::onStartHDRender(IGuiData* data)
 
     m_hdFormat = guiData->m_imageFormat;
     m_hdExtent = guiData->m_imageSize;
-    m_hdMultisampling = guiData->m_multisampling;
+    m_hdMultisampling = std::max(1, guiData->m_multisampling);
+    m_hdRenderExtent = glm::ivec2(m_hdExtent.x * m_hdMultisampling, m_hdExtent.y * m_hdMultisampling);
     m_hdImageFilepath = guiData->m_filepath;
     m_imageMetadata = guiData->m_metadata;
     m_showProgressBar = guiData->m_showProgressBar;
@@ -346,7 +350,7 @@ void RenderingEngine::updateHD()
     // threshold is low (e.g., 2).
     constexpr uint32_t border = 2;
     constexpr uint32_t minTileSize = 64;
-    constexpr int samples = 1;
+    const int samples = std::max(1, m_hdMultisampling);
     VulkanManager& vkm = VulkanManager::getInstance();
 
     auto clampTileSize = [&](uint32_t size) {
@@ -358,12 +362,12 @@ void RenderingEngine::updateHD()
     uint32_t frameW = clampTileSize(m_hdtilesize);
     uint32_t frameH = frameW;
 
-    if (m_hdExtent.x == 0 || m_hdExtent.y == 0)
+    if (m_hdRenderExtent.x == 0 || m_hdRenderExtent.y == 0)
         return;
 
     auto computeTileCount = [&](uint32_t tileW, uint32_t tileH) {
-        const uint32_t tileCountX = (m_hdExtent.x - 1) / tileW + 1;
-        const uint32_t tileCountY = (m_hdExtent.y - 1) / tileH + 1;
+        const uint32_t tileCountX = (m_hdRenderExtent.x - 1) / tileW + 1;
+        const uint32_t tileCountY = (m_hdRenderExtent.y - 1) / tileH + 1;
         return std::pair<uint32_t, uint32_t>(tileCountX, tileCountY);
         };
 
@@ -403,7 +407,7 @@ void RenderingEngine::updateHD()
     vkm.startNextFrame();
 
     ImageWriter imgWriter;
-    if (imgWriter.startCapture(m_hdFormat, m_hdExtent.x, m_hdExtent.y) == false)
+    if (imgWriter.startCapture(m_hdFormat, m_hdRenderExtent.x, m_hdRenderExtent.y, m_hdExtent.x, m_hdExtent.y) == false)
         return;
 
     // Projection parameters
@@ -445,18 +449,18 @@ void RenderingEngine::updateHD()
                 // Set (x, y, z, left, right, top, bottom, near, far);
                 double minW = double(tileX) * frameW - border;
                 double maxW = (double(tileX) + 1) * frameW + border;
-                double dl = frustum.l * (1.0 - minW / m_hdExtent.x) + frustum.r * minW / m_hdExtent.x;
-                double dr = frustum.l * (1.0 - maxW / m_hdExtent.x) + frustum.r * maxW / m_hdExtent.x;
+                double dl = frustum.l * (1.0 - minW / m_hdRenderExtent.x) + frustum.r * minW / m_hdRenderExtent.x;
+                double dr = frustum.l * (1.0 - maxW / m_hdRenderExtent.x) + frustum.r * maxW / m_hdRenderExtent.x;
                 double minH = double(tileY) * frameH - border;
                 double maxH = (double(tileY) + 1) * frameH + border;
-                double db = frustum.b * (1.0 - minH / m_hdExtent.y) + frustum.t * minH / m_hdExtent.y;
-                double dt = frustum.b * (1.0 - maxH / m_hdExtent.y) + frustum.t * maxH / m_hdExtent.y;
+                double db = frustum.b * (1.0 - minH / m_hdRenderExtent.y) + frustum.t * minH / m_hdRenderExtent.y;
+                double dt = frustum.b * (1.0 - maxH / m_hdRenderExtent.y) + frustum.t * maxH / m_hdRenderExtent.y;
                 wCameraHD->setProjectionFrustum(dl, dr, db, dt, frustum.n, frustum.f);
                 wCameraHD->refresh();
                 wCameraHD->prepareUniforms(m_renderSwapIndex);
 
-                glm::vec2 screenOffset((2 * tileX * (float)frameW - m_hdExtent.x) / 2.f,
-                    (2 * tileY * (float)frameH - m_hdExtent.y) / 2.f);
+                glm::vec2 screenOffset((2 * tileX * (float)frameW - m_hdRenderExtent.x) / 2.f,
+                    (2 * tileY * (float)frameH - m_hdRenderExtent.y) / 2.f);
 
                 ImageTransferEvent ite;
                 renderVirtualViewport(virtualViewport, *&wCameraHD, screenOffset, sleepedTime, ite);
