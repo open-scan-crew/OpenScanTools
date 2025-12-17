@@ -31,6 +31,7 @@
 
 
 #include <cmath>
+#include <algorithm>
 
 constexpr double HD_MARGIN = 0.05;
 
@@ -47,6 +48,7 @@ RenderingEngine::RenderingEngine(GraphManager& graphManager, IDataDispatcher& da
     , m_guiScale(guiScale)
     , m_screenshotFormat(ImageFormat::JPG)
     , m_previousFrameSkipped(false)
+    , m_hdMultisampling(1)
     , m_hdtilesize(256)
 {
     registerGuiDataFunction(guiDType::screenshot, &RenderingEngine::onScreenshot);
@@ -346,7 +348,7 @@ void RenderingEngine::updateHD()
     // threshold is low (e.g., 2).
     constexpr uint32_t border = 2;
     constexpr uint32_t minTileSize = 64;
-    constexpr int samples = 1;
+    const int samples = std::max(1, m_hdMultisampling);
     VulkanManager& vkm = VulkanManager::getInstance();
 
     auto clampTileSize = [&](uint32_t size) {

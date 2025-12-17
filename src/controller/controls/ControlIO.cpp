@@ -536,8 +536,8 @@ namespace control::io
 		}
 				
 		m_filepath.replace_extension(getImageExtension(m_format));
-		controller.updateInfo(new GuiDataGenerateHDImage(m_imageSize, 1, m_format, m_viewport, m_filepath, m_metadata, m_showProgressBar, m_hdimagetilesize));
-	}
+                controller.updateInfo(new GuiDataGenerateHDImage(m_imageSize, m_multisample, m_format, m_viewport, m_filepath, m_metadata, m_showProgressBar, m_hdimagetilesize));
+        }
 
 	bool SetupImageHD::canUndo() const
 	{

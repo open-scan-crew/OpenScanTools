@@ -187,15 +187,15 @@ const std::unordered_map<ImageScale, double> g_imageScaleValues = {
 
 enum class ImageDPI
 {
-	DPI_72,
-	DPI_96,
-	DPI_150,
+        DPI_72,
+        DPI_96,
+        DPI_150,
 	DPI_200,
 	DPI_300,
 	DPI_400,
 	DPI_600,
-	DPI_1200,
-	MAX_ENUM
+        DPI_1200,
+        MAX_ENUM
 };
 
 const std::map<ImageDPI, QString> g_imageDPIDictio = {
@@ -205,8 +205,8 @@ const std::map<ImageDPI, QString> g_imageDPIDictio = {
 	{ ImageDPI::DPI_200, "200" },
 	{ ImageDPI::DPI_300, "300" },
 	{ ImageDPI::DPI_400, "400" },
-	{ ImageDPI::DPI_600, "600" },
-	{ ImageDPI::DPI_1200, "1200" }
+        { ImageDPI::DPI_600, "600" },
+        { ImageDPI::DPI_1200, "1200" }
 };
 
 const std::unordered_map<ImageDPI, double> g_imageDPIValues = {
@@ -215,9 +215,29 @@ const std::unordered_map<ImageDPI, double> g_imageDPIValues = {
 	{ ImageDPI::DPI_150, 150 },
 	{ ImageDPI::DPI_200, 200 },
 	{ ImageDPI::DPI_300, 300 },
-	{ ImageDPI::DPI_400, 400 },
-	{ ImageDPI::DPI_600, 600 },
-	{ ImageDPI::DPI_1200, 1200 }
+        { ImageDPI::DPI_400, 400 },
+        { ImageDPI::DPI_600, 600 },
+        { ImageDPI::DPI_1200, 1200 }
+};
+
+enum class HDSupersampling
+{
+        LOW,
+        MEDIUM,
+        HIGH,
+        MAX_ENUM,
+};
+
+const std::map<HDSupersampling, QString> g_hdSupersamplingDictio = {
+        { HDSupersampling::LOW, "Low x2" },
+        { HDSupersampling::MEDIUM, "Medium x4" },
+        { HDSupersampling::HIGH, "High x8" },
+};
+
+const std::unordered_map<HDSupersampling, int> g_hdSupersamplingValues = {
+        { HDSupersampling::LOW, 2 },
+        { HDSupersampling::MEDIUM, 4 },
+        { HDSupersampling::HIGH, 8 },
 };
 
 ToolBarImageGroup::ToolBarImageGroup(IDataDispatcher& dataDispatcher, QWidget* parent, const float& guiScale)
@@ -233,13 +253,16 @@ ToolBarImageGroup::ToolBarImageGroup(IDataDispatcher& dataDispatcher, QWidget* p
 	m_ui.setupUi(this);
 	setEnabled(false);
 
-	QObject::connect(m_ui.toolButton_screenshot, &QPushButton::released, this, [this]() {quickScreenshot(""); });
-	QObject::connect(m_ui.checkBox_frame, &QCheckBox::toggled, this, &ToolBarImageGroup::slotShowFrame);
+        QObject::connect(m_ui.toolButton_screenshot, &QPushButton::released, this, [this]() {quickScreenshot(""); });
+        QObject::connect(m_ui.checkBox_frame, &QCheckBox::toggled, this, &ToolBarImageGroup::slotShowFrame);
+        QObject::connect(m_ui.checkBox_supersampling, &QCheckBox::toggled, this, [this](bool checked) {
+                m_ui.comboBox_supersampling->setEnabled(checked);
+        });
 
-	QObject::connect(m_ui.formatComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarImageGroup::imageFormat);
-	QObject::connect(m_ui.comboBox_print, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarImageGroup::slotRatioChanged);
-	QObject::connect(m_ui.comboBox_ratioImage, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarImageGroup::slotRatioChanged);
-	QObject::connect(m_ui.comboBox_scale, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarImageGroup::slotScaleChanged);
+        QObject::connect(m_ui.formatComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarImageGroup::imageFormat);
+        QObject::connect(m_ui.comboBox_print, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarImageGroup::slotRatioChanged);
+        QObject::connect(m_ui.comboBox_ratioImage, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarImageGroup::slotRatioChanged);
+        QObject::connect(m_ui.comboBox_scale, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarImageGroup::slotScaleChanged);
 	QObject::connect(m_ui.comboBox_dpi, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarImageGroup::slotDPIChanged);
 	QObject::connect(m_ui.toolButton_createImage, &QToolButton::released, this, [this]() {slotCreateImage("", true); });
 	QObject::connect(m_ui.lineEdit_imageW, &QLineEdit::textChanged, this, &ToolBarImageGroup::refreshImageSize);
@@ -267,19 +290,25 @@ ToolBarImageGroup::ToolBarImageGroup(IDataDispatcher& dataDispatcher, QWidget* p
 	setSilentWidthHeight(3000, 2000);
 	m_storePerspImageSize = glm::ivec2(3000, 2000);
 
-	for (const auto& iterator : g_imageScaleDictio)
-	{
-		m_ui.comboBox_scale->addItem(iterator.second, QVariant((int)iterator.first));
-	}
-	m_ui.comboBox_scale->setCurrentIndex((int)ImageScale::SCALE_1_50);
+        for (const auto& iterator : g_imageScaleDictio)
+        {
+                m_ui.comboBox_scale->addItem(iterator.second, QVariant((int)iterator.first));
+        }
+        m_ui.comboBox_scale->setCurrentIndex((int)ImageScale::SCALE_1_50);
 
-	for (const auto& iterator : g_imageDPIDictio)
-	{
-		m_ui.comboBox_dpi->addItem(iterator.second, QVariant((int)iterator.first));
-	}
-	m_ui.comboBox_dpi->setCurrentIndex((int)ImageDPI::DPI_150);
+        for (const auto& iterator : g_imageDPIDictio)
+        {
+                m_ui.comboBox_dpi->addItem(iterator.second, QVariant((int)iterator.first));
+        }
+        m_ui.comboBox_dpi->setCurrentIndex((int)ImageDPI::DPI_150);
 
-	refreshShowUI();
+        for (const auto& iterator : g_hdSupersamplingDictio)
+        {
+                m_ui.comboBox_supersampling->addItem(iterator.second, QVariant((int)iterator.first));
+        }
+        m_ui.comboBox_supersampling->setCurrentIndex((int)HDSupersampling::LOW);
+
+        refreshShowUI();
 
 	registerGuiDataFunction(guiDType::projectLoaded, &ToolBarImageGroup::onProjectLoad);
 	registerGuiDataFunction(guiDType::focusViewport, &ToolBarImageGroup::onFocusViewport);
@@ -512,11 +541,16 @@ uint32_t ToolBarImageGroup::resetHeight()
 void ToolBarImageGroup::slotCreateImage(std::filesystem::path filepath, bool showProgressBar)
 {
 	ImageFormat format = (ImageFormat)m_ui.formatComboBox->currentIndex();
-	bool resW = false;
-	bool resH = false;
-	uint32_t width = m_ui.lineEdit_imageW->text().toUInt(&resW, 10);
-	uint32_t height = m_ui.lineEdit_imageH->text().toUInt(&resH, 10);
-	int multisample = 1;
+        bool resW = false;
+        bool resH = false;
+        uint32_t width = m_ui.lineEdit_imageW->text().toUInt(&resW, 10);
+        uint32_t height = m_ui.lineEdit_imageH->text().toUInt(&resH, 10);
+        int multisample = 1;
+        if (m_ui.checkBox_supersampling->isChecked())
+        {
+                HDSupersampling supersampling = static_cast<HDSupersampling>(m_ui.comboBox_supersampling->currentData().toInt());
+                multisample = g_hdSupersamplingValues.at(supersampling);
+        }
 
 	ImageHDMetadata metadata;
 	metadata.saveTextFile = true;
