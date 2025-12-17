@@ -341,10 +341,32 @@ void RenderingEngine::updateHD()
     m_graph.refreshScene();
 
     // Should be input parameters
-    // NOTE: Gap filling relies on a 3x3 kernel. Using a 2px border keeps a one-pixel safety zone
+    // NOTE: Gap filling relies on a 3x3 kernel. A base 2px border keeps a one-pixel safety zone
     // after the image transfer cropping and avoids visible seams between tiles when the texel
-    // threshold is low (e.g., 2).
-    constexpr uint32_t border = 2;
+    // threshold is low (e.g., 2). Post-processing passes like edge-aware blur and depth lining can
+    // require a larger footprint, so the border is expanded accordingly.
+    auto computeTileBorder = [](const DisplayParameters& display) {
+        constexpr uint32_t baseBorder = 2;
+        uint32_t border = baseBorder;
+
+        if (display.m_edgeAwareBlur.enabled)
+        {
+            const float resolutionScale = std::max(display.m_edgeAwareBlur.resolutionScale, 0.1f);
+            const uint32_t blurFootprint = static_cast<uint32_t>(std::ceil(display.m_edgeAwareBlur.radius / resolutionScale));
+            border = std::max(border, blurFootprint + 1u); // +1 to keep a safety band after cropping
+        }
+
+        if (display.m_depthLining.enabled)
+            border = std::max<uint32_t>(border, 3u);
+
+        return border;
+    };
+
+    DisplayParameters hdDisplayParams = {};
+    if (ReadPtr<CameraNode> rCam = m_activeCamera.cget())
+        hdDisplayParams = rCam->getDisplayParameters();
+
+    const uint32_t border = computeTileBorder(hdDisplayParams);
     constexpr uint32_t minTileSize = 64;
     constexpr int samples = 1;
     VulkanManager& vkm = VulkanManager::getInstance();
