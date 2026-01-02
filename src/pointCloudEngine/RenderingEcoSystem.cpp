@@ -116,6 +116,8 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
     hash += hash_fn_32((uint32_t)display.m_blendMode);
     hash += hash_fn_32((uint32_t)display.m_negativeEffect);
     hash += hash_fn_32((uint32_t)display.m_reduceFlash);
+    hash += hash_fn_f(display.m_flashExposure);
+    hash += hash_fn_32((uint32_t)display.m_highlightCompressionMode);
     hash += hash_fn_f(display.m_transparency);
 
     hash += hash_fn_b(display.m_postRenderingNormals.show);

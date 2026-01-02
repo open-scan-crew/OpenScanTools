@@ -223,16 +223,18 @@ guiDType GuiDataRenderTransparency::getType()
 
 //*** Transparency Options ***//
 
-GuiDataRenderTransparencyOptions::GuiDataRenderTransparencyOptions(bool negativeEffect, bool reduceFlash, float hlt, SafePtr<CameraNode> camera)
-	: GuiDataActiveCamera(camera)
-	, m_negativeEffect(negativeEffect)
-	, m_reduceFlash(reduceFlash)
-	, m_highLuminosityThreshold(hlt)
+GuiDataRenderTransparencyOptions::GuiDataRenderTransparencyOptions(bool negativeEffect, bool reduceFlash, float flashExposure, HighlightCompressionMode compressionMode, float hlt, SafePtr<CameraNode> camera)
+    : GuiDataActiveCamera(camera)
+    , m_negativeEffect(negativeEffect)
+    , m_reduceFlash(reduceFlash)
+    , m_flashExposure(flashExposure)
+    , m_compressionMode(compressionMode)
+    , m_highLuminosityThreshold(hlt)
 {}
 
 guiDType GuiDataRenderTransparencyOptions::getType()
 {
-	return guiDType::renderTransparencyOptions;
+    return guiDType::renderTransparencyOptions;
 }
 
 //*** Blending ***//
