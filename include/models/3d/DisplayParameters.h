@@ -38,6 +38,8 @@ public:
     BlendMode      m_blendMode = BlendMode::Opaque;
     bool           m_negativeEffect = false;
     bool           m_reduceFlash = true;
+    HighlightCompressionMode m_highlightCompressionMode = HighlightCompressionMode::Reinhard;
+    float          m_flashExposure = 1.0f;
     float          m_transparency = 10.f; // [0.0, 100.0]
 
     // Post processing

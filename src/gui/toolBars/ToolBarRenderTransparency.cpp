@@ -5,6 +5,30 @@
 
 #include "models/graph/CameraNode.h"
 
+#include <algorithm>
+#include <cmath>
+
+namespace
+{
+    constexpr float k_flashExposureMin = 0.2f;
+    constexpr float k_flashExposureMax = 5.0f;
+
+    inline float slider_to_exposure(int sliderValue)
+    {
+        float clamped = std::clamp(sliderValue, 0, 100) / 100.f;
+        float range = std::log(k_flashExposureMax / k_flashExposureMin);
+        return k_flashExposureMin * std::exp(clamped * range);
+    }
+
+    inline int exposure_to_slider(float exposure)
+    {
+        float clamped = std::clamp(exposure, k_flashExposureMin, k_flashExposureMax);
+        float range = std::log(k_flashExposureMax / k_flashExposureMin);
+        float ratio = std::log(clamped / k_flashExposureMin) / range;
+        return static_cast<int>(std::round(ratio * 100.f));
+    }
+}
+
 ToolBarRenderTransparency::ToolBarRenderTransparency(IDataDispatcher& dataDispatcher, QWidget* parent, float guiScale)
     : QWidget(parent)
     , m_dataDispatcher(dataDispatcher)
@@ -23,6 +47,9 @@ ToolBarRenderTransparency::ToolBarRenderTransparency(IDataDispatcher& dataDispat
 
     connect(m_ui.checkBox_enhanceContrast, &QCheckBox::stateChanged, this, &ToolBarRenderTransparency::slotTransparencyOptionsChanged);
     connect(m_ui.checkBox_negativeEffect, &QCheckBox::stateChanged, this, &ToolBarRenderTransparency::slotTransparencyOptionsChanged);
+    connect(m_ui.slider_flashControl, &QSlider::valueChanged, this, &ToolBarRenderTransparency::slotTransparencyOptionsChanged);
+    connect(m_ui.reinhardRadioButton, &QRadioButton::toggled, this, &ToolBarRenderTransparency::slotTransparencyOptionsChanged);
+    connect(m_ui.exponentialRadioButton, &QRadioButton::toggled, this, &ToolBarRenderTransparency::slotTransparencyOptionsChanged);
 
     registerGuiDataFunction(guiDType::projectLoaded, &ToolBarRenderTransparency::onProjectLoad);
     registerGuiDataFunction(guiDType::renderActiveCamera, &ToolBarRenderTransparency::onActiveCamera);
@@ -75,10 +102,16 @@ void ToolBarRenderTransparency::onActiveCamera(IGuiData* idata)
     float uiTransparency = ui::transparency::trueValue_to_uiValue(displayParameters.m_transparency);
 	m_ui.spinBox_transparency->setValue(uiTransparency);
 	m_ui.slider_transparency->setValue(uiTransparency);
-    enableUI(transparencyActive);
-
-	m_ui.checkBox_negativeEffect->setChecked(displayParameters.m_negativeEffect);
+    m_ui.checkBox_negativeEffect->setChecked(displayParameters.m_negativeEffect);
     m_ui.checkBox_enhanceContrast->setChecked(displayParameters.m_reduceFlash);
+    int flashSlider = exposure_to_slider(displayParameters.m_flashExposure);
+    m_ui.slider_flashControl->setValue(flashSlider);
+    if (displayParameters.m_highlightCompressionMode == HighlightCompressionMode::Exponential)
+        m_ui.exponentialRadioButton->setChecked(true);
+    else
+        m_ui.reinhardRadioButton->setChecked(true);
+
+    enableUI(transparencyActive);
 
 	blockAllSignals(false);
 }
@@ -91,12 +124,19 @@ void ToolBarRenderTransparency::blockAllSignals(bool block)
     m_ui.checkBox_transparency->blockSignals(block);
     m_ui.checkBox_negativeEffect->blockSignals(block);
     m_ui.checkBox_enhanceContrast->blockSignals(block);
+    m_ui.slider_flashControl->blockSignals(block);
+    m_ui.reinhardRadioButton->blockSignals(block);
+    m_ui.exponentialRadioButton->blockSignals(block);
 }
 
 void ToolBarRenderTransparency::enableUI(bool transparencyActive)
 {
     m_ui.spinBox_transparency->setEnabled(transparencyActive);
     m_ui.slider_transparency->setEnabled(transparencyActive);
+    bool flashEnabled = transparencyActive && m_ui.checkBox_enhanceContrast->isChecked();
+    m_ui.slider_flashControl->setEnabled(flashEnabled);
+    m_ui.reinhardRadioButton->setEnabled(flashEnabled);
+    m_ui.exponentialRadioButton->setEnabled(flashEnabled);
 }
 
 void ToolBarRenderTransparency::sendTransparency()
@@ -109,7 +149,9 @@ void ToolBarRenderTransparency::sendTransparency()
 
 void ToolBarRenderTransparency::sendTransparencyOptions()
 {
-    m_dataDispatcher.updateInformation(new GuiDataRenderTransparencyOptions(m_ui.checkBox_negativeEffect->isChecked(), m_ui.checkBox_enhanceContrast->isChecked(), 0.f, m_focusCamera));
+    float exposure = slider_to_exposure(m_ui.slider_flashControl->value());
+    HighlightCompressionMode mode = m_ui.exponentialRadioButton->isChecked() ? HighlightCompressionMode::Exponential : HighlightCompressionMode::Reinhard;
+    m_dataDispatcher.updateInformation(new GuiDataRenderTransparencyOptions(m_ui.checkBox_negativeEffect->isChecked(), m_ui.checkBox_enhanceContrast->isChecked(), exposure, mode, 0.f, m_focusCamera));
 }
 
 void ToolBarRenderTransparency::slotTranparencyActivationChanged(int value)
@@ -125,6 +167,7 @@ void ToolBarRenderTransparency::slotTransparencyValueChanged(int value)
 
 void ToolBarRenderTransparency::slotTransparencyOptionsChanged(int value)
 {
+    Q_UNUSED(value);
+    enableUI(m_ui.checkBox_transparency->isChecked());
     sendTransparencyOptions();
 }
-

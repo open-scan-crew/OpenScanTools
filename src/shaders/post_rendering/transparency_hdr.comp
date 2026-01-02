@@ -1,7 +1,4 @@
 #version 450
-#extension GL_GOOGLE_include_directive : enable
-#include "../blocks/block_hsv_functions.glsl"
-
 layout (local_size_x = 16, local_size_y = 16) in;
 
 layout(set = 0, binding = 0, rgba16) uniform image2D inOutColorImage;
@@ -12,6 +9,8 @@ layout(push_constant) uniform PC {
    layout(offset = 8) ivec2 screenSize;
    layout(offset = 16) vec3 background;
    layout(offset = 28) int noFlash;
+   layout(offset = 32) float exposure;
+   layout(offset = 36) int compressionMode; // 0 = Reinhard, 1 = Exponential
 } pc;
 
 void main() 
@@ -25,22 +24,32 @@ void main()
    float a = 1.f - pow(pc.transparency, n);
    vec3 c_rgb = n > 0.f ? inColor.rgb / n : vec3(0.0, 0.0, 0.0);
 
-   // Traitement HDR
+   // Highlight compression in linear space
    if (pc.noFlash != 0)
    {
-      float S = 0.5f;  // seuil
-      vec3 c_hsl = rgb2hsl(c_rgb);
-      if (a > S)
+      const float knee = 0.6;
+      float exposure = max(pc.exposure, 0.0);
+
+      float Y = dot(c_rgb, vec3(0.2126, 0.7152, 0.0722));
+      if (Y > 0.0)
       {
-         c_hsl.z = mix(c_hsl.z, 1.f, (a - S) / (1.0 - S));
-         a = 1.0;
+         float over = max(Y - knee, 0.0);
+         float Yt;
+         if (over > 0.0)
+         {
+            float overTone = (pc.compressionMode == 0)
+               ? (over * exposure) / (1.0 + over * exposure)
+               : 1.0 - exp(-exposure * over);
+            Yt = knee + overTone;
+         }
+         else
+         {
+            Yt = Y;
+         }
+
+         float scale = Yt / max(Y, 1e-6);
+         c_rgb = clamp(c_rgb * scale, vec3(0.0), vec3(1.0));
       }
-      else
-      {
-         a = a / S;
-      }
-      c_rgb = hsl2rgb(c_hsl);
-   
    }
    // ***** Inversion des couleurs *****
    if (pc.substractiveMode == 1)
