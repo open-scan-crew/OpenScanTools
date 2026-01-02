@@ -33,13 +33,13 @@ private:
 	void blockAllSignals(bool block);
 	void enableUI(bool transparencyActive);
 
-	void sendTransparency();
-	void sendTransparencyOptions();
+    void sendTransparency();
+    void sendTransparencyOptions();
 
 private slots:
-	void slotTranparencyActivationChanged(int value);
-	void slotTransparencyValueChanged(int value);
-	void slotTransparencyOptionsChanged(int value);
+    void slotTranparencyActivationChanged(int value);
+    void slotTransparencyValueChanged(int value);
+    void slotTransparencyOptionsChanged(int value);
 
 private:
 	std::unordered_map<guiDType, GuiDataFunction> m_methods;

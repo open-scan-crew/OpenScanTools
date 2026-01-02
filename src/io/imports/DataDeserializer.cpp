@@ -38,6 +38,7 @@
 #include "models/graph/MeshObjectNode.h"
 
 #include "magic_enum/magic_enum.hpp"
+#include "pointCloudEngine/RenderingTypes.h"
 
 #define IOLOG Logger::log(LoggerMode::IOLog)
 
@@ -529,6 +530,27 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
     {
         IOLOG << "ViewPoint ReduceFlash read error" << LOGENDL;
 
+    }
+
+    if (json.find(Key_FlashExposure) != json.end())
+    {
+        data.m_flashExposure = json.at(Key_FlashExposure).get<float>();
+    }
+    else
+    {
+        IOLOG << "ViewPoint FlashExposure read error" << LOGENDL;
+        data.m_flashExposure = 1.0f;
+    }
+
+    if (json.find(Key_FlashMode) != json.end())
+    {
+        auto mode = magic_enum::enum_cast<HighlightCompressionMode>(json.at(Key_FlashMode).get<std::string>());
+        data.m_highlightCompressionMode = mode.value_or(HighlightCompressionMode::Reinhard);
+    }
+    else
+    {
+        IOLOG << "ViewPoint FlashMode read error" << LOGENDL;
+        data.m_highlightCompressionMode = HighlightCompressionMode::Reinhard;
     }
 
     if (json.find(Key_Transparency) != json.end())

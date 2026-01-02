@@ -219,6 +219,8 @@
 #define Key_Blend_Mode					"BlendMode"
 #define Key_NegativeEffect				"NegativeEffect"
 #define Key_ReduceFlash					"ReduceFlash"
+#define Key_FlashExposure               "FlashExposure"
+#define Key_FlashMode                   "FlashMode"
 #define Key_Transparency				"Transparency"
 
 #define Key_Post_Rendering_Normals		"PostRenderingNormals"
