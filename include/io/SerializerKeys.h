@@ -204,6 +204,7 @@
 #define Key_Background_Color			"BackgroundColor"
 #define Key_Point_Size					"PointSize"
 #define Key_Delta_Filling				"DeltaFilling"
+#define Key_Gap_Filling_Texel_Threshold	"GapFillingTexelThreshold"
 
 #define Key_Contrast					"Contrast"
 #define Key_Brightness					"Brightness"
@@ -221,6 +222,8 @@
 #define Key_Transparency				"Transparency"
 
 #define Key_Post_Rendering_Normals		"PostRenderingNormals"
+#define Key_Edge_Aware_Blur			"EdgeAwareBlur"
+#define Key_Depth_Lining			"DepthLining"
 #define Key_Display_Guizmo				"DisplayGuizmo"
 #define Key_Ramp_Scale_Options			"RampScaleOptions"
 

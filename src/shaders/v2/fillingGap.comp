@@ -14,6 +14,7 @@ layout(push_constant) uniform PC {
    layout(offset = 8) ivec2 screenSize;
    layout(offset = 16) float pxSize;
    layout(offset = 20) int projMode;
+   layout(offset = 56) int texelThreshold;
 } pc;
 
 void fillIn(in vec4[9] color, in float[9] depth, in int texelThreshold, out vec4 newColor, out float newDepth)
@@ -104,7 +105,7 @@ void main()
    // Calcule la couleur et la profondeur par extrapolation des pixels voisins
    vec4 newC;
    float newZ;
-   fillIn(imageData.color, imageData.depth, 4, newC, newZ);
+   fillIn(imageData.color, imageData.depth, pc.texelThreshold, newC, newZ);
    float newD = pc.projMode == 0 ?
                 (pc.nearFar.y - mulFarNear / newZ) / diffFarNear :
                 (newZ - pc.nearFar.x) / diffFarNear;

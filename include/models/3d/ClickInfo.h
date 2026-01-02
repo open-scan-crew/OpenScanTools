@@ -27,6 +27,7 @@ struct ClickInfo
     glm::dvec3 rayOrigin;
     tls::ScanGuid panoramic;
     SafePtr<CameraNode> viewport;
+    bool forceObjectCenter = false;
 };
 
 #endif

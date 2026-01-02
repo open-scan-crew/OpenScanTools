@@ -10,6 +10,7 @@
 #include "models/graph/CameraNode.h"
 #include "models/graph/PointCloudNode.h"
 #include "models/graph/ManipulatorNode.h"
+#include "models/ElementType.h"
 
 #include "utils/math/trigo.h"
 
@@ -257,7 +258,8 @@ ClickInfo VulkanViewport::generateRaytracingInfos(const WritePtr<CameraNode>& wC
         ray,
         rayOrigin,
         panoramic ? panoramic->getScanGuid() : tls::ScanGuid(),
-        getCamera()
+        getCamera(),
+        false
     );
 }
 
@@ -362,6 +364,7 @@ void VulkanViewport::doAction(const WritePtr<CameraNode>& wCam, SafePtr<Manipula
     {
         ClickInfo click = generateRaytracingInfos(wCam);
         click.hover = hoverObject;
+        click.forceObjectCenter = m_forceObjectCenterOnExamine;
 
         switch (m_actionToPull)
         {
@@ -372,8 +375,21 @@ void VulkanViewport::doAction(const WritePtr<CameraNode>& wCam, SafePtr<Manipula
             m_dataDispatcher.sendControl(new control::picking::Click(click));
             break;
         case VulkanViewport::Action::Examine:
-            m_dataDispatcher.sendControl(new control::viewport::Examine(click));
+        {
+            ElementType hoverType = ElementType::None;
+            if (click.hover)
+            {
+                ReadPtr<AGraphNode> rHover = click.hover.cget();
+                if (rHover)
+                    hoverType = rHover->getType();
+            }
+
+            if (hoverType == ElementType::Scan || hoverType == ElementType::ViewPoint)
+                m_dataDispatcher.updateInformation(new GuiDataMoveToData(click.hover));
+            else
+                m_dataDispatcher.sendControl(new control::viewport::Examine(click));
             break;
+        }
         //case VulkanViewport::Action::BeginManipulation:
         //    ManipulatorNode::setCurrentSelection(m_hoveredId & RESERVED_DATA_ID_MASK, glm::ivec2(m_MI.lastX, m_MI.lastY), manipNode);
         //    break;
@@ -382,6 +398,7 @@ void VulkanViewport::doAction(const WritePtr<CameraNode>& wCam, SafePtr<Manipula
             break;
         }
     }
+    m_forceObjectCenterOnExamine = false;
     m_actionToPull = Action::None;
 }
 
@@ -547,7 +564,18 @@ void VulkanViewport::mouseMoveEvent(QMouseEvent *_event)
 
 void VulkanViewport::mouseDoubleClickEvent(QMouseEvent* _event)
 {
-   m_actionToPull = Action::DoubleClick;
+    std::lock_guard<std::mutex> lock(m_inputMutex);
+
+    m_MI.lastX = _event->pos().x();
+    m_MI.lastY = _event->pos().y();
+
+    if (_event->button() == Qt::LeftButton)
+    {
+        m_forceObjectCenterOnExamine = true;
+        m_actionToPull = Action::Examine;
+    }
+    else
+        m_actionToPull = Action::DoubleClick;
 }
 
 void VulkanViewport::keyPressEvent(QKeyEvent *_event)
@@ -1217,6 +1245,7 @@ void VulkanViewport::mousePointAction(bool examineAction)
 {
     if (examineAction)
     {
+        m_forceObjectCenterOnExamine = false;
         m_actionToPull = Action::Examine;
     }
     else

@@ -15,7 +15,7 @@ public:
     bool saveScreenshot(const std::filesystem::path& filepath, ImageFormat format, ImageTransferEvent transfer, uint32_t width, uint32_t height);
 
     bool startCapture(ImageFormat format, uint32_t width, uint32_t height);
-    void transferImageTile(ImageTransferEvent transfer, uint32_t dstOffsetW, uint32_t dstOffsetH);
+    void transferImageTile(ImageTransferEvent transfer, uint32_t dstOffsetW, uint32_t dstOffsetH, uint32_t border);
     bool save(const std::filesystem::path& file_path, ImageHDMetadata metadata);
 
 private:

@@ -450,7 +450,7 @@ namespace control::io
 			std::tm* time = localtime(&result);
 			m_filepath /= std::to_string(1900 + time->tm_year) + "-" + Utils::completeWithZeros(1 + time->tm_mon, 2) + "-" + Utils::completeWithZeros(time->tm_mday, 2) + "_" + std::to_string(time->tm_hour) + "-" + Utils::completeWithZeros(time->tm_min, 2) + "-" + Utils::completeWithZeros(time->tm_sec, 2);
 		}
-		m_filepath.replace_extension(".png");
+		m_filepath.replace_extension("." + getImageExtension(m_format));
 		controller.updateInfo(new GuiDataScreenshot(m_filepath, m_format));
 	}
 
@@ -534,8 +534,8 @@ namespace control::io
 			size_t count = std::strftime(timeStr, sizeof(timeStr), "%Y-%m-%d_%H-%M-%S", std::localtime(&t));
 			m_filepath += std::string(timeStr);
 		}
-
-		m_filepath.replace_extension(ImageFormatDictio.at(m_format));
+				
+		m_filepath.replace_extension(getImageExtension(m_format));
 		controller.updateInfo(new GuiDataGenerateHDImage(m_imageSize, 1, m_format, m_viewport, m_filepath, m_metadata, m_showProgressBar, m_hdimagetilesize));
 	}
 

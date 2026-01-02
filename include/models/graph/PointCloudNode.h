@@ -18,7 +18,7 @@ public:
 
     std::wstring getComposedName() const override;
 
-    void setTlsFilePath(const std::filesystem::path& file_path, bool init_position);
+    void setTlsFilePath(const std::filesystem::path& file_path, bool init_position, const tls::ScanGuid& scan_guid = tls::ScanGuid());
     std::filesystem::path getTlsFilePath() const;
 
     void setManipulable(bool is_manipulable);

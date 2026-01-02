@@ -940,7 +940,7 @@ void Renderer::setConstantContrastBrightness(float contrast, float brightness, V
 void Renderer::setConstantSaturationLuminance(float saturation, float luminance, VkCommandBuffer _cmdBuffer)
 {
     float fluminance = (luminance + 50.f) / 50.f;
-    float fsaturation = (saturation + 50.f) / 50.f;
+    float fsaturation = 1.f + (saturation / 25.f);
 
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 16, 4, &fsaturation);
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 20, 4, &fluminance);

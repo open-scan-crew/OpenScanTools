@@ -403,6 +403,11 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
         retVal = false;
     }
 
+    if (json.find(Key_Gap_Filling_Texel_Threshold) != json.end())
+    {
+        data.m_gapFillingTexelThreshold = json.at(Key_Gap_Filling_Texel_Threshold).get<int>();
+    }
+
     if (json.find(Key_Alpha_Object) != json.end())
     {
         data.m_alphaObject = json.at(Key_Alpha_Object).get<float>();
@@ -674,6 +679,24 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
     {
         IOLOG << "ViewPoint PostRenderingNormals read error" << LOGENDL;
         retVal = false;
+    }
+
+    if (json.find(Key_Edge_Aware_Blur) != json.end())
+    {
+        nlohmann::json options = json.at(Key_Edge_Aware_Blur);
+        if (options.size() == 5)
+            data.m_edgeAwareBlur = { options[0], options[1], options[2], options[3], options[4] };
+        else
+            IOLOG << "ViewPoint EdgeAwareBlur malformed" << LOGENDL;
+    }
+
+    if (json.find(Key_Depth_Lining) != json.end())
+    {
+        nlohmann::json options = json.at(Key_Depth_Lining);
+        if (options.size() == 5)
+            data.m_depthLining = { options[0], options[1], options[2], options[3], options[4] };
+        else
+            IOLOG << "ViewPoint DepthLining malformed" << LOGENDL;
     }
 
     if (json.find(Key_Ortho_Grid_Active) != json.end())
@@ -1671,6 +1694,24 @@ bool ImportColumnTiltMeasureData(const nlohmann::json& json, ColumnTiltMeasureDa
 bool ImportViewPointData(const nlohmann::json& json, ViewPointData& data, const std::unordered_map<xg::Guid, SafePtr<AGraphNode>>& nodeById)
 {
     bool retVal(true);
+    if (json.find(Key_Edge_Aware_Blur) != json.end())
+    {
+        nlohmann::json options = json.at(Key_Edge_Aware_Blur);
+        if (options.size() == 5)
+            data.m_edgeAwareBlur = { options[0], options[1], options[2], options[3], options[4] };
+        else
+            IOLOG << "ViewPoint EdgeAwareBlur malformed" << LOGENDL;
+    }
+
+    if (json.find(Key_Depth_Lining) != json.end())
+    {
+        nlohmann::json options = json.at(Key_Depth_Lining);
+        if (options.size() == 5)
+            data.m_depthLining = { options[0], options[1], options[2], options[3], options[4] };
+        else
+            IOLOG << "ViewPoint DepthLining malformed" << LOGENDL;
+    }
+
     if (json.find(Key_Active_Clippings) != json.end())
     {
         std::unordered_set<SafePtr<AClippingNode>> list;

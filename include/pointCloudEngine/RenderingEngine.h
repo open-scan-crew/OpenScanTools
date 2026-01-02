@@ -23,6 +23,7 @@
 #include <atomic>
 #include <thread>
 #include <set>
+#include <vector>
 
 class VulkanViewport;
 class ObjectNodeVisitor;
@@ -86,6 +87,7 @@ private:
     //void drawImGuiStats();
 
     void updateCompute();
+    void processPendingScreenshots();
 
 private:
     IDataDispatcher& m_dataDispatcher;
@@ -152,9 +154,19 @@ private:
     std::atomic<bool> m_computeRender = false;
     ComputePrograms m_computePrograms;
 
+    struct PendingScreenshot
+    {
+        std::filesystem::path filepath;
+        ImageFormat format;
+        ImageTransferEvent transfer;
+        uint32_t width;
+        uint32_t height;
+    };
+
     //Screenshot
     std::filesystem::path   m_screenshotFilename;
     ImageFormat             m_screenshotFormat;
+    std::vector<PendingScreenshot> m_pendingScreenshots;
 
     //Pref record
     CSVWriter               m_perfRecord;

@@ -100,7 +100,7 @@
    <item row="1" column="4">
     <widget class="QCheckBox" name="checkBox_blendColor">
      <property name="text">
-      <string>Smooth colors</string>
+      <string>Blend colors</string>
      </property>
      <property name="checked">
       <bool>true</bool>

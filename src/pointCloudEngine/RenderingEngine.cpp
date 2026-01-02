@@ -30,6 +30,8 @@
 #include "impl/imgui_impl_qt.h"
 
 
+#include <cmath>
+
 constexpr double HD_MARGIN = 0.05;
 
 #define TEXT_ORTHO_GRID_SIZE QObject::tr("Grid cell size : %1 %2")
@@ -321,6 +323,7 @@ void RenderingEngine::update()
     }
     m_mutexViewports.unlock();
     VulkanManager::getInstance().submitMultipleFramebuffer(m_framebuffersToRender);
+    processPendingScreenshots();
     timeRendering(m_framebuffersToRender.size() > 0);
 
     // NOTE(robin) - Un sleep de 16ms dure en pratique entre 16 et 35ms
@@ -338,31 +341,95 @@ void RenderingEngine::updateHD()
     m_graph.refreshScene();
 
     // Should be input parameters
-    constexpr uint32_t border = 1;
-    uint32_t frameW = m_hdtilesize;
-    uint32_t frameH = m_hdtilesize;
-    uint32_t viewportW = frameW + border * 2;
-    uint32_t viewportH = frameH + border * 2;
+    // NOTE: Gap filling relies on a 3x3 kernel. A base 2px border keeps a one-pixel safety zone
+    // after the image transfer cropping and avoids visible seams between tiles when the texel
+    // threshold is low (e.g., 2). Post-processing passes like edge-aware blur and depth lining can
+    // require a larger footprint, so the border is expanded accordingly.
+    auto computeTileBorder = [](const DisplayParameters& display) {
+        constexpr uint32_t baseBorder = 2;
+        uint32_t border = baseBorder;
+
+        if (display.m_edgeAwareBlur.enabled)
+        {
+            const float resolutionScale = std::max(display.m_edgeAwareBlur.resolutionScale, 0.1f);
+            const uint32_t blurFootprint = static_cast<uint32_t>(std::ceil(display.m_edgeAwareBlur.radius / resolutionScale));
+            border = std::max(border, blurFootprint + 1u); // +1 to keep a safety band after cropping
+        }
+
+        if (display.m_depthLining.enabled)
+            border = std::max<uint32_t>(border, 3u);
+
+        return border;
+    };
+
+    DisplayParameters hdDisplayParams = {};
+    if (ReadPtr<CameraNode> rCam = m_activeCamera.cget())
+        hdDisplayParams = rCam->getDisplayParameters();
+
+    const uint32_t border = computeTileBorder(hdDisplayParams);
+    constexpr uint32_t minTileSize = 64;
     constexpr int samples = 1;
+    VulkanManager& vkm = VulkanManager::getInstance();
+
+    auto clampTileSize = [&](uint32_t size) {
+        const uint32_t maxImageSize = std::max(2u, vkm.getPhysicalDeviceLimits().maxImageDimension2D);
+        const uint32_t maxAllowed = maxImageSize > border * 2 ? maxImageSize - border * 2 : minTileSize;
+        return std::max(minTileSize, std::min(size, maxAllowed));
+        };
+
+    uint32_t frameW = clampTileSize(m_hdtilesize);
+    uint32_t frameH = frameW;
 
     if (m_hdExtent.x == 0 || m_hdExtent.y == 0)
         return;
 
-    // Create a virtual viewport
-    TlFramebuffer virtualViewport = TL_NULL_HANDLE;
-    VulkanManager& vkm = VulkanManager::getInstance();
-    if (vkm.createVirtualViewport(viewportW, viewportH, samples, virtualViewport) == false)
+    auto computeTileCount = [&](uint32_t tileW, uint32_t tileH) {
+        const uint32_t tileCountX = (m_hdExtent.x - 1) / tileW + 1;
+        const uint32_t tileCountY = (m_hdExtent.y - 1) / tileH + 1;
+        return std::pair<uint32_t, uint32_t>(tileCountX, tileCountY);
+        };
+
+    // If the requested tile size leads to too many tiles, scale it up to reduce per-tile overhead.
+    constexpr uint32_t targetTileBudget = 64;
+    auto [tileCountX, tileCountY] = computeTileCount(frameW, frameH);
+    uint32_t tileTotal = tileCountX * tileCountY;
+    if (tileTotal > targetTileBudget)
     {
-        //control::gui::ErrorMessage("Image HD : Something went wrong");
+        const double scale = std::sqrt(static_cast<double>(tileTotal) / static_cast<double>(targetTileBudget));
+        frameW = clampTileSize(static_cast<uint32_t>(std::ceil(frameW * scale)));
+        frameH = frameW;
     }
+
+    // Create a virtual viewport, falling back to smaller tiles if necessary (low VRAM cases)
+    TlFramebuffer virtualViewport = TL_NULL_HANDLE;
+    bool viewportReady = false;
+    while (frameW >= minTileSize && viewportReady == false)
+    {        
+        const uint32_t viewportW = frameW + border * 2;
+        const uint32_t viewportH = frameH + border * 2;
+        if (vkm.createVirtualViewport(viewportW, viewportH, samples, virtualViewport))
+        {
+            viewportReady = true;
+            break;
+        }
+        frameW = clampTileSize(frameW / 2);
+        frameH = frameW;
+    }
+
+    if (!viewportReady)
+        return;
+
+    // Clear the 2-frame safety buffer once before tiling instead of per tile to reduce overhead.
+    vkm.startNextFrame();
+    vkm.startNextFrame();
+    vkm.startNextFrame();
 
     ImageWriter imgWriter;
     if (imgWriter.startCapture(m_hdFormat, m_hdExtent.x, m_hdExtent.y) == false)
         return;
 
     // Projection parameters
-    uint32_t tileCountX = (m_hdExtent.x - 1) / frameW + 1;
-    uint32_t tileCountY = (m_hdExtent.y - 1) / frameH + 1;
+    std::tie(tileCountX, tileCountY) = computeTileCount(frameW, frameH);
     uint32_t count = 0;
     double sleepedTime = 0.0;
     SafePtr<CameraNode> cameraHD = m_graph.duplicateCamera(m_activeCamera);
@@ -415,7 +482,7 @@ void RenderingEngine::updateHD()
 
                 ImageTransferEvent ite;
                 renderVirtualViewport(virtualViewport, *&wCameraHD, screenOffset, sleepedTime, ite);
-                imgWriter.transferImageTile(ite, tileX * frameW, tileY * frameH);
+                imgWriter.transferImageTile(ite, tileX * frameW, tileY * frameH, border);
 
                 // Copy du rendu dans l'image de destination
                 if (m_showProgressBar)
@@ -533,6 +600,7 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
         m_postRenderer.setConstantZRange(wCamera->getNear(), wCamera->getFar(), cmdBuffer);
         m_postRenderer.setConstantScreenSize(framebuffer->extent, wCamera->getPixelSize1m(framebuffer->extent.width, framebuffer->extent.height), cmdBuffer);
         m_postRenderer.setConstantProjMode(wCamera->getProjectionMode() == ProjectionMode::Perspective, cmdBuffer);
+        m_postRenderer.setConstantTexelThreshold(display.m_gapFillingTexelThreshold, cmdBuffer);
         m_postRenderer.processPointFilling(cmdBuffer, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
 
         // Second compute shader (Normals)
@@ -545,6 +613,18 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
                 m_postRenderer.processNormalColored(cmdBuffer, wCamera->getInversedViewUniform(m_renderSwapIndex), framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
             else
                 m_postRenderer.processNormalShading(cmdBuffer, wCamera->getInversedViewUniform(m_renderSwapIndex), framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
+        }
+
+        if (display.m_depthLining.enabled)
+        {
+            vkm.beginPostTreatmentDepthLining(framebuffer);
+            m_postRenderer.processDepthLining(cmdBuffer, display.m_depthLining, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
+        }
+
+        if (display.m_edgeAwareBlur.enabled)
+        {
+            vkm.beginPostTreatmentEdgeAwareBlur(framebuffer);
+            m_postRenderer.processEdgeAwareBlur(cmdBuffer, display.m_edgeAwareBlur, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
         }
 
         if (display.m_blendMode != BlendMode::Opaque && display.m_transparency > 0.f)
@@ -600,9 +680,9 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
     if (!m_screenshotFilename.empty())
     {
         // We use an VkEvent for recording the VkImage transfer and get it on the host later
-        ImageTransferEvent ite = vkm.transferFramebufferImage(framebuffer, cmdBuffer);
-        ImageWriter imgWriter;
-        imgWriter.saveScreenshot(m_screenshotFilename, m_screenshotFormat, ite, framebuffer->extent.width, framebuffer->extent.height);
+        const bool preciseScreenshot = m_screenshotFormat == ImageFormat::PNG16;
+        ImageTransferEvent ite = vkm.transferFramebufferImage(framebuffer, cmdBuffer, preciseScreenshot);
+        m_pendingScreenshots.push_back({ m_screenshotFilename, m_screenshotFormat, ite, framebuffer->extent.width, framebuffer->extent.height });
         m_screenshotFilename.clear();
     }
 
@@ -634,13 +714,7 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
     VulkanManager& vkm = VulkanManager::getInstance();
     const DisplayParameters& displayParam = camera.getDisplayParameters();
 
-    // Start 3 frames to nullify the 2 frame safety of the point buffers.
-    // This way we can free all the previous buffers.
-    // It is safe only because we waited for the previous render to finish.
-    vkm.startNextFrame();
-    vkm.startNextFrame();
-    vkm.startNextFrame();
-
+    
     // We must have a valid framebuffer for virtual rendering
     if (framebuffer->pImages[framebuffer->currentImage] == VK_NULL_HANDLE)
         return false;
@@ -692,6 +766,7 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
     m_postRenderer.setConstantZRange(camera.getNear(), camera.getFar(), cmdBuffer);
     m_postRenderer.setConstantScreenSize(framebuffer->extent, camera.getPixelSize1m(framebuffer->extent.width, framebuffer->extent.height), cmdBuffer);
     m_postRenderer.setConstantProjMode(camera.getProjectionMode() == ProjectionMode::Perspective, cmdBuffer);
+    m_postRenderer.setConstantTexelThreshold(displayParam.m_gapFillingTexelThreshold, cmdBuffer);
     m_postRenderer.processPointFilling(cmdBuffer, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
 
     // Second compute shader (Normals)
@@ -704,6 +779,18 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
             m_postRenderer.processNormalColored(cmdBuffer, camera.getInversedViewUniform(m_renderSwapIndex), framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
         else
             m_postRenderer.processNormalShading(cmdBuffer, camera.getInversedViewUniform(m_renderSwapIndex), framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
+    }
+
+    if (displayParam.m_depthLining.enabled)
+    {
+        vkm.beginPostTreatmentDepthLining(framebuffer);
+        m_postRenderer.processDepthLining(cmdBuffer, displayParam.m_depthLining, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
+    }
+
+    if (displayParam.m_edgeAwareBlur.enabled)
+    {
+        vkm.beginPostTreatmentEdgeAwareBlur(framebuffer);
+        m_postRenderer.processEdgeAwareBlur(cmdBuffer, displayParam.m_edgeAwareBlur, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
     }
 
     if (displayParam.m_blendMode != BlendMode::Opaque && displayParam.m_transparency > 0.f)
@@ -749,7 +836,8 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
     vkm.endObjectRenderPass(framebuffer);
     // -----------------------------
     //vkm.applyPicking(framebuffer, viewport.getMousePos(), nullptr);
-    transferEvent = vkm.transferFramebufferImage(framebuffer, cmdBuffer);
+    const bool preciseScreenshot = m_hdFormat == ImageFormat::PNG16;
+    transferEvent = vkm.transferFramebufferImage(framebuffer, cmdBuffer, preciseScreenshot);
     vkm.endCommandBuffer(cmdBuffer);
 
     vkm.submitVirtualFramebuffer(framebuffer);
@@ -828,6 +916,13 @@ void RenderingEngine::drawOverlay(VkCommandBuffer cmdBuffer, const CameraNode& c
         glm::vec2 margin((sizeCam - frameSize) / (sizeCam * 2.0));
         ImVec2 frameUpLeft = ImVec2(margin.x * extent.width, margin.y * extent.height);
         ImVec2 frameBotRight = ImVec2((1 - margin.x) * extent.width, (1 - margin.y) * extent.height);
+
+        // Shade the viewport outside of the HD frame
+        ImColor shadeColor(96, 96, 96, 216);
+        dl->AddRectFilled(upLeft, ImVec2(botRight.x, frameUpLeft.y), shadeColor);
+        dl->AddRectFilled(ImVec2(upLeft.x, frameBotRight.y), botRight, shadeColor);
+        dl->AddRectFilled(ImVec2(upLeft.x, frameUpLeft.y), ImVec2(frameUpLeft.x, frameBotRight.y), shadeColor);
+        dl->AddRectFilled(ImVec2(frameBotRight.x, frameUpLeft.y), ImVec2(botRight.x, frameBotRight.y), shadeColor);
         dl->AddRect(frameUpLeft, frameBotRight, ImColor(238, 315, 119, 255), 0.f, 0, 2.f);
     }
 
@@ -1053,6 +1148,23 @@ void RenderingEngine::shutdownImGui()
     // Free ImGui resources
     ImGui_ImplVulkan_Shutdown();
     ImGui::DestroyContext();
+}
+void RenderingEngine::processPendingScreenshots()
+{
+    if (m_pendingScreenshots.empty())
+        return;
+
+    VulkanManager& vkm = VulkanManager::getInstance();
+    vkm.waitIdle();
+
+    for (PendingScreenshot& pending : m_pendingScreenshots)
+    {
+        ImageWriter imgWriter;
+        imgWriter.saveScreenshot(pending.filepath, pending.format, pending.transfer, pending.width, pending.height);
+        m_dataDispatcher.sendControl(new control::function::ForwardMessage(new GeneralMessage(GeneralInfo::IMAGEEND)));
+    }
+
+    m_pendingScreenshots.clear();
 }
 
 void RenderingEngine::updateCompute()
