@@ -7,4 +7,10 @@ namespace ui::transparency
     int trueValue_to_uiValue(float trueTransparency);
 }
 
+namespace ui::flashControl
+{
+    float uiValue_to_exposure(int uiValue);
+    int exposure_to_uiValue(float exposure);
+}
+
 #endif // UI_TRANSPARENCY_CONVERTER

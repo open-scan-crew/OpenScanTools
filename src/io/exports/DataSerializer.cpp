@@ -361,6 +361,8 @@ void ExportRenderingParameters(nlohmann::json& json, const RenderingParameters& 
 	json[Key_Blend_Mode] = magic_enum::enum_name(params.m_blendMode);
 	json[Key_NegativeEffect] = params.m_negativeEffect;
 	json[Key_ReduceFlash] = params.m_reduceFlash;
+    json[Key_EnhanceContrastMode] = magic_enum::enum_name(params.m_enhanceContrastMode);
+    json[Key_FlashControl] = params.m_flashControl;
 	json[Key_Transparency] = params.m_transparency;
 
     json[Key_Post_Rendering_Normals] = { params.m_postRenderingNormals.show, params.m_postRenderingNormals.inverseTone, params.m_postRenderingNormals.blendColor, params.m_postRenderingNormals.normalStrength, params.m_postRenderingNormals.gloss };

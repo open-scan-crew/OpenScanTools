@@ -17,6 +17,7 @@
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ScreenshotTexts.hpp"
 #include "gui/UnitConverter.h"
+#include "gui/UITransparencyConverter.h"
 
 #include "io/ImageWriter.h"
 #include "io/exports/CSVWriter.hxx"
@@ -35,6 +36,15 @@
 constexpr double HD_MARGIN = 0.05;
 
 #define TEXT_ORTHO_GRID_SIZE QObject::tr("Grid cell size : %1 %2")
+
+namespace
+{
+    float flashControlToExposure(float flashControl)
+    {
+        int uiValue = static_cast<int>(std::round(flashControl));
+        return ui::flashControl::uiValue_to_exposure(uiValue);
+    }
+}
 
 IRenderingEngine* scs::createRenderingEngine(GraphManager& graphManager, IDataDispatcher& dataDispatcher, const float& guiScale)
 {
@@ -630,7 +640,8 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
         if (display.m_blendMode != BlendMode::Opaque && display.m_transparency > 0.f)
         {
             vkm.beginPostTreatmentTransparency(framebuffer);
-            m_postRenderer.setConstantHDR(display.m_transparency, display.m_negativeEffect, display.m_reduceFlash, framebuffer->extent, display.m_backgroundColor, cmdBuffer);
+            float flashExposure = flashControlToExposure(display.m_flashControl);
+            m_postRenderer.setConstantHDR(display.m_transparency, display.m_negativeEffect, display.m_reduceFlash, display.m_enhanceContrastMode, flashExposure, framebuffer->extent, display.m_backgroundColor, cmdBuffer);
             m_postRenderer.processTransparencyHDR(cmdBuffer, framebuffer->descSetSamplers, framebuffer->extent);
         }
     }
@@ -796,7 +807,8 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
     if (displayParam.m_blendMode != BlendMode::Opaque && displayParam.m_transparency > 0.f)
     {
         vkm.beginPostTreatmentTransparency(framebuffer);
-        m_postRenderer.setConstantHDR(displayParam.m_transparency, displayParam.m_negativeEffect, displayParam.m_reduceFlash, framebuffer->extent, displayParam.m_backgroundColor, cmdBuffer);
+        float flashExposure = flashControlToExposure(displayParam.m_flashControl);
+        m_postRenderer.setConstantHDR(displayParam.m_transparency, displayParam.m_negativeEffect, displayParam.m_reduceFlash, displayParam.m_enhanceContrastMode, flashExposure, framebuffer->extent, displayParam.m_backgroundColor, cmdBuffer);
         m_postRenderer.processTransparencyHDR(cmdBuffer, framebuffer->descSetSamplers, framebuffer->extent);
     }
 

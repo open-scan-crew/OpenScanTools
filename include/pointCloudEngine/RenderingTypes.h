@@ -40,6 +40,12 @@ enum class BlendMode {
     MaxEnum
 };
 
+enum class EnhanceContrastMode
+{
+    Basic = 0,
+    Exponential = 1
+};
+
 std::unordered_map<UiRenderMode, std::string> getTradUiRenderMode();
 
 const static std::unordered_map<UiRenderMode, RenderMode> correspUiRenderMode = {

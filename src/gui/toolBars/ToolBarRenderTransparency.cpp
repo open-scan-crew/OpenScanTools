@@ -5,6 +5,9 @@
 
 #include "models/graph/CameraNode.h"
 
+#include <algorithm>
+#include <cmath>
+
 ToolBarRenderTransparency::ToolBarRenderTransparency(IDataDispatcher& dataDispatcher, QWidget* parent, float guiScale)
     : QWidget(parent)
     , m_dataDispatcher(dataDispatcher)
@@ -14,6 +17,7 @@ ToolBarRenderTransparency::ToolBarRenderTransparency(IDataDispatcher& dataDispat
     setEnabled(false);
 
     m_ui.slider_transparency->setMinimumWidth(100.f * guiScale);
+    m_ui.slider_flashControl->setMinimumWidth(100.f * guiScale);
 
     connect(m_ui.slider_transparency, &QSlider::valueChanged, m_ui.spinBox_transparency, &QSpinBox::setValue);
     connect(m_ui.spinBox_transparency, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), m_ui.slider_transparency, &QSlider::setValue);
@@ -23,6 +27,11 @@ ToolBarRenderTransparency::ToolBarRenderTransparency(IDataDispatcher& dataDispat
 
     connect(m_ui.checkBox_enhanceContrast, &QCheckBox::stateChanged, this, &ToolBarRenderTransparency::slotTransparencyOptionsChanged);
     connect(m_ui.checkBox_negativeEffect, &QCheckBox::stateChanged, this, &ToolBarRenderTransparency::slotTransparencyOptionsChanged);
+    connect(m_ui.basicEnhanceContrastRadioButton, &QRadioButton::toggled, this, &ToolBarRenderTransparency::slotEnhanceContrastModeChanged);
+    connect(m_ui.expEnhanceContrastRadioButton, &QRadioButton::toggled, this, &ToolBarRenderTransparency::slotEnhanceContrastModeChanged);
+    connect(m_ui.slider_flashControl, &QSlider::valueChanged, m_ui.spinBox_flashControl, &QSpinBox::setValue);
+    connect(m_ui.spinBox_flashControl, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), m_ui.slider_flashControl, &QSlider::setValue);
+    connect(m_ui.slider_flashControl, &QSlider::valueChanged, this, &ToolBarRenderTransparency::slotFlashControlChanged);
 
     registerGuiDataFunction(guiDType::projectLoaded, &ToolBarRenderTransparency::onProjectLoad);
     registerGuiDataFunction(guiDType::renderActiveCamera, &ToolBarRenderTransparency::onActiveCamera);
@@ -75,10 +84,15 @@ void ToolBarRenderTransparency::onActiveCamera(IGuiData* idata)
     float uiTransparency = ui::transparency::trueValue_to_uiValue(displayParameters.m_transparency);
 	m_ui.spinBox_transparency->setValue(uiTransparency);
 	m_ui.slider_transparency->setValue(uiTransparency);
+    m_ui.checkBox_enhanceContrast->setChecked(displayParameters.m_reduceFlash);
+    m_ui.basicEnhanceContrastRadioButton->setChecked(displayParameters.m_enhanceContrastMode != EnhanceContrastMode::Exponential);
+    m_ui.expEnhanceContrastRadioButton->setChecked(displayParameters.m_enhanceContrastMode == EnhanceContrastMode::Exponential);
+    int flashControlUi = std::clamp(static_cast<int>(std::round(displayParameters.m_flashControl)), 0, 100);
+    m_ui.spinBox_flashControl->setValue(flashControlUi);
+    m_ui.slider_flashControl->setValue(flashControlUi);
     enableUI(transparencyActive);
 
 	m_ui.checkBox_negativeEffect->setChecked(displayParameters.m_negativeEffect);
-    m_ui.checkBox_enhanceContrast->setChecked(displayParameters.m_reduceFlash);
 
 	blockAllSignals(false);
 }
@@ -91,12 +105,28 @@ void ToolBarRenderTransparency::blockAllSignals(bool block)
     m_ui.checkBox_transparency->blockSignals(block);
     m_ui.checkBox_negativeEffect->blockSignals(block);
     m_ui.checkBox_enhanceContrast->blockSignals(block);
+    m_ui.basicEnhanceContrastRadioButton->blockSignals(block);
+    m_ui.expEnhanceContrastRadioButton->blockSignals(block);
+    m_ui.slider_flashControl->blockSignals(block);
+    m_ui.spinBox_flashControl->blockSignals(block);
 }
 
 void ToolBarRenderTransparency::enableUI(bool transparencyActive)
 {
     m_ui.spinBox_transparency->setEnabled(transparencyActive);
     m_ui.slider_transparency->setEnabled(transparencyActive);
+
+    m_ui.checkBox_enhanceContrast->setEnabled(transparencyActive);
+    m_ui.checkBox_negativeEffect->setEnabled(transparencyActive);
+
+    bool enhanceActive = transparencyActive && m_ui.checkBox_enhanceContrast->isChecked();
+    m_ui.basicEnhanceContrastRadioButton->setEnabled(enhanceActive);
+    m_ui.expEnhanceContrastRadioButton->setEnabled(enhanceActive);
+
+    bool exponentialMode = enhanceActive && m_ui.expEnhanceContrastRadioButton->isChecked();
+    m_ui.slider_flashControl->setEnabled(exponentialMode);
+    m_ui.spinBox_flashControl->setEnabled(exponentialMode);
+    m_ui.label_flashControl->setEnabled(exponentialMode);
 }
 
 void ToolBarRenderTransparency::sendTransparency()
@@ -109,7 +139,13 @@ void ToolBarRenderTransparency::sendTransparency()
 
 void ToolBarRenderTransparency::sendTransparencyOptions()
 {
-    m_dataDispatcher.updateInformation(new GuiDataRenderTransparencyOptions(m_ui.checkBox_negativeEffect->isChecked(), m_ui.checkBox_enhanceContrast->isChecked(), 0.f, m_focusCamera));
+    EnhanceContrastMode mode = m_ui.expEnhanceContrastRadioButton->isChecked() ? EnhanceContrastMode::Exponential : EnhanceContrastMode::Basic;
+    m_dataDispatcher.updateInformation(new GuiDataRenderTransparencyOptions(m_ui.checkBox_negativeEffect->isChecked(),
+                                                                           m_ui.checkBox_enhanceContrast->isChecked(),
+                                                                           mode,
+                                                                           static_cast<float>(m_ui.slider_flashControl->value()),
+                                                                           0.f,
+                                                                           m_focusCamera));
 }
 
 void ToolBarRenderTransparency::slotTranparencyActivationChanged(int value)
@@ -125,6 +161,18 @@ void ToolBarRenderTransparency::slotTransparencyValueChanged(int value)
 
 void ToolBarRenderTransparency::slotTransparencyOptionsChanged(int value)
 {
+    Q_UNUSED(value);
+    enableUI(m_ui.checkBox_transparency->isChecked());
     sendTransparencyOptions();
 }
 
+void ToolBarRenderTransparency::slotEnhanceContrastModeChanged(bool)
+{
+    enableUI(m_ui.checkBox_transparency->isChecked());
+    sendTransparencyOptions();
+}
+
+void ToolBarRenderTransparency::slotFlashControlChanged(int)
+{
+    sendTransparencyOptions();
+}

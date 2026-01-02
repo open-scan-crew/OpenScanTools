@@ -150,7 +150,8 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
                 rStart->m_postRenderingNormals.inverseTone == rFinish->m_postRenderingNormals.inverseTone &&
                 rStart->m_mode == rFinish->m_mode &&
                 rStart->m_negativeEffect == rFinish->m_negativeEffect &&
-                rStart->m_reduceFlash == rFinish->m_reduceFlash
+                rStart->m_reduceFlash == rFinish->m_reduceFlash &&
+                rStart->m_enhanceContrastMode == rFinish->m_enhanceContrastMode
                 )
             {
                 m_addTranspUIScale = (ui::transparency::trueValue_to_uiValue(rFinish->m_transparency) - ui::transparency::trueValue_to_uiValue(rStart->m_transparency)) / m_totalFrames;
@@ -165,6 +166,7 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
                 m_addLumi = (rFinish->m_luminance - rStart->m_luminance) / m_totalFrames;
                 m_addContr = (rFinish->m_contrast - rStart->m_contrast) / m_totalFrames;
                 m_addAlpha = (rFinish->m_alphaObject - rStart->m_alphaObject) / m_totalFrames;
+                m_addFlashControl = (rFinish->m_flashControl - rStart->m_flashControl) / m_totalFrames;
 
                 m_addFovy = (rFinish->getFovy() - rStart->getFovy()) / m_totalFrames;
             }
@@ -207,6 +209,7 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
                     wCam->m_saturation += m_addSatur;
                     wCam->m_hue += m_addHue;
                     wCam->m_alphaObject += m_addAlpha;
+                    wCam->m_flashControl += m_addFlashControl;
                     wCam->setFovy(wCam->getFovy() + m_addFovy);
                 }
             }
