@@ -38,6 +38,8 @@ public:
     BlendMode      m_blendMode = BlendMode::Opaque;
     bool           m_negativeEffect = false;
     bool           m_reduceFlash = true;
+    EnhanceContrastMode m_enhanceContrastMode = EnhanceContrastMode::Basic;
+    float          m_flashControl = 50.f; // slider value [0..100]
     float          m_transparency = 10.f; // [0.0, 100.0]
 
     // Post processing

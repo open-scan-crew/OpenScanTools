@@ -11,7 +11,10 @@ layout(push_constant) uniform PC {
    layout(offset = 4) int substractiveMode;
    layout(offset = 8) ivec2 screenSize;
    layout(offset = 16) vec3 background;
-   layout(offset = 28) int noFlash;
+   layout(offset = 28) int reduceFlash;
+   layout(offset = 32) float exposure;
+   layout(offset = 36) int enhanceMode;
+   layout(offset = 40) float kneeStart;
 } pc;
 
 void main() 
@@ -26,21 +29,35 @@ void main()
    vec3 c_rgb = n > 0.f ? inColor.rgb / n : vec3(0.0, 0.0, 0.0);
 
    // Traitement HDR
-   if (pc.noFlash != 0)
+   if (pc.reduceFlash != 0)
    {
-      float S = 0.5f;  // seuil
-      vec3 c_hsl = rgb2hsl(c_rgb);
-      if (a > S)
+      if (pc.enhanceMode == 0)
       {
-         c_hsl.z = mix(c_hsl.z, 1.f, (a - S) / (1.0 - S));
-         a = 1.0;
+         float S = 0.5f;  // seuil
+         vec3 c_hsl = rgb2hsl(c_rgb);
+         if (a > S)
+         {
+            c_hsl.z = mix(c_hsl.z, 1.f, (a - S) / (1.0 - S));
+            a = 1.0;
+         }
+         else
+         {
+            a = a / S;
+         }
+         c_rgb = hsl2rgb(c_hsl);
       }
       else
       {
-         a = a / S;
+         float Y = dot(c_rgb, vec3(0.2126, 0.7152, 0.0722));
+         if (Y > pc.kneeStart)
+         {
+            float Yk = Y - pc.kneeStart;
+            float Yt = pc.kneeStart + (1.0 - exp(-pc.exposure * Yk));
+            Yt = clamp(Yt, 0.0, 1.0);
+            float scale = Yt / max(Y, 1e-6);
+            c_rgb *= scale;
+         }
       }
-      c_rgb = hsl2rgb(c_hsl);
-   
    }
    // ***** Inversion des couleurs *****
    if (pc.substractiveMode == 1)

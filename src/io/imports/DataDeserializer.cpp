@@ -531,6 +531,27 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
 
     }
 
+    if (json.find(Key_EnhanceContrastMode) != json.end())
+    {
+        auto mode = magic_enum::enum_cast<EnhanceContrastMode>(json.at(Key_EnhanceContrastMode).get<std::string>());
+        data.m_enhanceContrastMode = mode.value_or(EnhanceContrastMode::Basic);
+    }
+    else
+    {
+        data.m_enhanceContrastMode = EnhanceContrastMode::Basic;
+        IOLOG << "ViewPoint EnhanceContrastMode read error" << LOGENDL;
+    }
+
+    if (json.find(Key_FlashControl) != json.end())
+    {
+        data.m_flashControl = json.at(Key_FlashControl).get<float>();
+    }
+    else
+    {
+        data.m_flashControl = 50.f;
+        IOLOG << "ViewPoint FlashControl read error" << LOGENDL;
+    }
+
     if (json.find(Key_Transparency) != json.end())
     {
         data.m_transparency = json.at(Key_Transparency).get<float>();
