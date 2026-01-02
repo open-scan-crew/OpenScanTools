@@ -40,6 +40,8 @@ private slots:
 	void slotTranparencyActivationChanged(int value);
 	void slotTransparencyValueChanged(int value);
 	void slotTransparencyOptionsChanged(int value);
+    void slotEnhanceContrastModeChanged(bool checked);
+    void slotFlashControlChanged(int value);
 
 private:
 	std::unordered_map<guiDType, GuiDataFunction> m_methods;

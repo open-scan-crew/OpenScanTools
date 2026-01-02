@@ -1391,6 +1391,8 @@ void CameraNode::onRenderTransparencyOptions(IGuiData* data)
     auto castData = static_cast<GuiDataRenderTransparencyOptions*>(data);
     m_reduceFlash = castData->m_reduceFlash;
     m_negativeEffect = castData->m_negativeEffect;
+    m_enhanceContrastMode = castData->m_enhanceContrastMode;
+    m_flashControl = castData->m_flashControl;
     sendNewUIViewPoint();
 }
 
