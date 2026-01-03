@@ -136,7 +136,7 @@
      </property>
     </spacer>
    </item>
-   <item row="2" column="0">
+   <item row="3" column="0">
     <widget class="QCheckBox" name="checkBox_negativeEffect">
      <property name="text">
       <string>Negative Effect</string>
@@ -167,14 +167,81 @@
     </widget>
    </item>
    <item row="1" column="0">
-    <widget class="QCheckBox" name="checkBox_enhanceContrast">
-     <property name="text">
-      <string>Enhance Contrast</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayoutEnhance">
+     <item>
+      <widget class="QCheckBox" name="checkBox_enhanceContrast">
+       <property name="text">
+        <string>Enhance Contrast</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="basicEnhanceContrastRadioButton">
+       <property name="text">
+        <string>Basic</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="advEnhanceContrastRadioButton">
+       <property name="text">
+        <string>Advanced</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="2" column="0" colspan="3">
+    <layout class="QHBoxLayout" name="horizontalLayoutFlashControl">
+     <item>
+      <widget class="QLabel" name="label_flashControl">
+       <property name="text">
+        <string>Flash control</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSlider" name="slider_flashControl">
+       <property name="minimum">
+        <number>0</number>
+       </property>
+       <property name="maximum">
+        <number>100</number>
+       </property>
+       <property name="value">
+        <number>50</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="tickPosition">
+        <enum>QSlider::TicksAbove</enum>
+       </property>
+       <property name="tickInterval">
+        <number>10</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="spinBox_flashControl">
+       <property name="minimum">
+        <number>0</number>
+       </property>
+       <property name="maximum">
+        <number>100</number>
+       </property>
+       <property name="value">
+        <number>50</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item row="0" column="0">
     <widget class="QCheckBox" name="checkBox_transparency">
