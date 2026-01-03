@@ -255,9 +255,44 @@ namespace control::application
     {
     }
 
-    ControlType SetTemporaryFolder::getType() const
+	ControlType SetTemporaryFolder::getType() const
+	{
+		return (ControlType::setTemporaryFolder);
+	}
+
+    /*
+    ** SetFFmpegFolder
+    */
+
+    SetFFmpegFolder::SetFFmpegFolder(const std::filesystem::path& path, const bool& save)
+        : m_path(path)
+        , m_save(save)
     {
-        return (ControlType::setTemporaryFolder);
+    }
+
+    SetFFmpegFolder::~SetFFmpegFolder()
+    {
+    }
+
+    void SetFFmpegFolder::doFunction(Controller& controller)
+    {
+        if (m_save && !Config::setFFmpegPath(m_path))
+            controller.updateInfo(new GuiDataWarning(TEXT_SETTINGS_FAILED_TO_SAVE));
+        CONTROLLOG << "control::application::SetFFmpegFolder" << LOGENDL;
+    }
+
+    bool SetFFmpegFolder::canUndo() const
+    {
+        return (false);
+    }
+
+    void SetFFmpegFolder::undoFunction(Controller& controller)
+    {
+    }
+
+    ControlType SetFFmpegFolder::getType() const
+    {
+        return (ControlType::setFFmpegFolder);
     }
 
     /*

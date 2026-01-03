@@ -24,8 +24,26 @@
 #include "utils/math/basic_define.h"
 #include <cmath>
 #include <algorithm>
+#include <filesystem>
 #include <QtCore/QProcess>
 #include <QtCore/QStringList>
+#include "utils/Config.h"
+
+namespace
+{
+QString resolveFfmpegExecutable()
+{
+    std::filesystem::path ffmpegDir = Config::getFFmpegPath();
+    if (!ffmpegDir.empty())
+    {
+        std::filesystem::path candidate = ffmpegDir / "ffmpeg.exe";
+        if (!std::filesystem::exists(candidate))
+            candidate = ffmpegDir / "ffmpeg";
+        return QString::fromStdWString(candidate.wstring());
+    }
+    return QStringLiteral("ffmpeg");
+}
+}
 
 ContextExportVideoHD::ContextExportVideoHD(const ContextId& id)
 	: AContext(id)
@@ -328,7 +346,12 @@ bool ContextExportVideoHD::encodeVideo()
          << "-pix_fmt" << "yuv420p"
          << QString::fromStdWString(m_videoFilePath.wstring());
 
-    ffmpeg.start("ffmpeg", args);
+    ffmpeg.start(resolveFfmpegExecutable(), args);
+    if (!ffmpeg.waitForStarted(3000))
+    {
+        ffmpeg.kill();
+        return false;
+    }
     if (!ffmpeg.waitForFinished(-1))
     {
         ffmpeg.kill();

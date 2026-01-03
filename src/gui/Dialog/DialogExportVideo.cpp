@@ -7,6 +7,7 @@
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataIO.h"
+#include "utils/Config.h"
 
 #include "models/graph/ViewPointNode.h"
 
@@ -16,6 +17,23 @@
 #include <QtWidgets/QSpinBox>
 #include <QtCore/QProcess>
 #include <QtCore/qstandardpaths.h>
+#include <filesystem>
+
+namespace
+{
+QString resolveFfmpegExecutable()
+{
+    std::filesystem::path ffmpegDir = Config::getFFmpegPath();
+    if (!ffmpegDir.empty())
+    {
+        std::filesystem::path candidate = ffmpegDir / "ffmpeg.exe";
+        if (!std::filesystem::exists(candidate))
+            candidate = ffmpegDir / "ffmpeg";
+        return QString::fromStdWString(candidate.wstring());
+    }
+    return QStringLiteral("ffmpeg");
+}
+}
 
 
 DialogExportVideo::DialogExportVideo(IDataDispatcher& dataDispatcher, QWidget *parent, float guiScale)
@@ -278,7 +296,12 @@ bool DialogExportVideo::checkResolutionForMp4() const
 bool DialogExportVideo::isX265Available() const
 {
     QProcess ffmpegCheck;
-    ffmpegCheck.start("ffmpeg", { "-hide_banner", "-encoders" });
+    ffmpegCheck.start(resolveFfmpegExecutable(), { "-hide_banner", "-encoders" });
+    if (!ffmpegCheck.waitForStarted(3000))
+    {
+        ffmpegCheck.kill();
+        return false;
+    }
     if (!ffmpegCheck.waitForFinished(3000))
     {
         ffmpegCheck.kill();
