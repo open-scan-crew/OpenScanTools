@@ -4,6 +4,7 @@
 #include "controller/functionSystem/AContext.h"
 #include "io/exports/ExportParameters.hpp"
 #include "pointCloudEngine/RenderingTypes.h"
+#include <optional>
 
 class ContextExportVideoHD : public AContext
 {
@@ -24,12 +25,17 @@ public:
 	virtual ContextType getType() const override;
 
 private:
+	bool encodeVideo();
+	std::optional<std::filesystem::path> firstFrameFilepath() const;
+
 	VideoExportParameters m_parameters;
 	std::filesystem::path m_exportPath;
+	std::filesystem::path m_videoFilePath;
 	int m_exportState = 0;
 
 	long m_totalFrames;
 	long m_animFrame = 0;
+	uint8_t m_frameDigits = 0;
 
 	glm::dvec3 m_addPosition = glm::dvec3(0.);
 	double m_addTheta = 0.;

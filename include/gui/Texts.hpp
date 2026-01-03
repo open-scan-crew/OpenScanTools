@@ -275,5 +275,7 @@
 #define TEXT_EXPORT_VIDEO_MISSING_VIEWPOINTS QObject::tr("Error : Viewpoints are missing.")
 #define TEXT_EXPORT_VIDEO_SAME_VIEWPOINTS QObject::tr("Error : Same selected viewpoints.")
 #define TEXT_EXPORT_VIDEO_ORTHO_VIEWPOINT QObject::tr("Error : Orthographic viewpoint not allowed.")
+#define TEXT_EXPORT_VIDEO_MP4_RESOLUTION_TOO_HIGH QObject::tr("The image resolution is too high. It cannot exceed 8294400 pixels (4K). Please reduce it.")
+#define TEXT_EXPORT_VIDEO_MP4_X265_MISSING QObject::tr("x265 encoder not found. Please install ffmpeg first")
 
 #endif
