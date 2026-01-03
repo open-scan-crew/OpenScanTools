@@ -47,6 +47,8 @@ private:
     float m_addFlashControl = 0.f;
     float m_addFlashAdvanced = 0.f;
     float m_flashAdvancedValue = 0.f;
+    float m_flashControlStart = 0.f;
+    float m_flashAdvancedStart = 0.f;
 
 	double m_addFovy = 0.;
 
