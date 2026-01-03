@@ -32,6 +32,9 @@ private:
 
 	void blockAllSignals(bool block);
 	void enableUI(bool transparencyActive);
+    void updateFlashControlState();
+    int flashControlToSlider(float value) const { return static_cast<int>(std::round(value * 10.f)); }
+    float sliderToFlashControl(int sliderValue) const { return static_cast<float>(sliderValue) / 10.f; }
 
 	void sendTransparency();
 	void sendTransparencyOptions();

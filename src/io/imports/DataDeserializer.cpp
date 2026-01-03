@@ -531,6 +531,24 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
 
     }
 
+    if (json.find(Key_FlashAdvanced) != json.end())
+    {
+        data.m_flashAdvanced = json.at(Key_FlashAdvanced).get<bool>();
+    }
+    else
+    {
+        data.m_flashAdvanced = false;
+    }
+
+    if (json.find(Key_FlashControl) != json.end())
+    {
+        data.m_flashControl = json.at(Key_FlashControl).get<float>();
+    }
+    else
+    {
+        data.m_flashControl = 50.f;
+    }
+
     if (json.find(Key_Transparency) != json.end())
     {
         data.m_transparency = json.at(Key_Transparency).get<float>();
