@@ -22,6 +22,28 @@
 #include "utils/Logger.h"
 #include "utils/Utils.h"
 #include "utils/math/basic_define.h"
+#include <cmath>
+#include <algorithm>
+#include <filesystem>
+#include <QtCore/QProcess>
+#include <QtCore/QStringList>
+#include "utils/Config.h"
+
+namespace
+{
+QString resolveFfmpegExecutable()
+{
+    std::filesystem::path ffmpegDir = Config::getFFmpegPath();
+    if (!ffmpegDir.empty())
+    {
+        std::filesystem::path candidate = ffmpegDir / "ffmpeg.exe";
+        if (!std::filesystem::exists(candidate))
+            candidate = ffmpegDir / "ffmpeg";
+        return QString::fromStdWString(candidate.wstring());
+    }
+    return QStringLiteral("ffmpeg");
+}
+}
 
 ContextExportVideoHD::ContextExportVideoHD(const ContextId& id)
 	: AContext(id)
@@ -49,6 +71,7 @@ ContextState ContextExportVideoHD::feedMessage(IMessage* message, Controller& co
         {
             VideoExportParametersMessage* out = static_cast<VideoExportParametersMessage*>(message);
             m_parameters = out->m_parameters;
+            m_videoFilePath = m_parameters.outputFilePath;
             m_state = m_exportPath.empty() ? ContextState::waiting_for_input : ContextState::ready_for_using;
         }
         break;
@@ -115,6 +138,7 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
             return abort(controller);
         m_totalFrames = (long)m_parameters.length * (long)m_parameters.fps;
         m_animFrame = 1;
+        m_frameDigits = std::max<uint8_t>(1, (uint8_t)(std::log10(std::max<long>(1, m_totalFrames)) + 1));
 
         controller.updateInfo(new GuiDataProcessingSplashScreenStart(m_totalFrames, TEXT_CONTEXT_EXPORT_VIDEO, TEXT_CONTEXT_EXPORT_VIDEO_STEPS.arg(0).arg(m_totalFrames)));
         m_tpStart = std::chrono::steady_clock::now();
@@ -229,8 +253,16 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
 
     if (m_exportState == 3)
     {
+        if (!encodeVideo())
+            return abort(controller);
+
         if(m_parameters.openFolderAfterExport)
-            controller.updateInfo(new GuiDataOpenInExplorer(m_exportPath));
+        {
+            std::filesystem::path folderToOpen = m_exportPath;
+            if (m_parameters.outputType == VideoExportOutputType::MP4 && !m_videoFilePath.empty())
+                folderToOpen = m_videoFilePath;
+            controller.updateInfo(new GuiDataOpenInExplorer(folderToOpen));
+        }
         return validate(controller);
     }
 
@@ -240,6 +272,8 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
 ContextState ContextExportVideoHD::abort(Controller& controller)
 {
     controller.updateInfo(new GuiDataRenderDecimationOptions(m_precedentOptions));
+
+    encodeVideo();
 
     std::chrono::steady_clock::time_point tpEnd = std::chrono::steady_clock::now();
     double totalDurationSeconds = std::chrono::duration<double>(tpEnd - m_tpStart).count();
@@ -268,12 +302,102 @@ bool ContextExportVideoHD::canAutoRelaunch() const
 	return false;
 }
 
+bool ContextExportVideoHD::encodeVideo()
+{
+    if (m_parameters.outputType != VideoExportOutputType::MP4)
+        return true;
+
+    long producedFrames = std::max<long>(0, m_animFrame - 1);
+    if (producedFrames <= 0)
+        return false;
+
+    if (m_videoFilePath.empty())
+    {
+        m_videoFilePath = m_exportPath;
+        m_videoFilePath.replace_extension(".mp4");
+    }
+
+    std::wstring baseName = m_exportPath.stem().wstring();
+    if (baseName.empty())
+        baseName = L"video";
+
+    auto firstFrame = firstFrameFilepath();
+    if (!firstFrame.has_value())
+        return false;
+
+    std::wstring extension = firstFrame->extension().wstring();
+    if (extension.empty())
+        return false;
+
+    uint8_t padding = std::max<uint8_t>(1, m_frameDigits);
+    std::filesystem::path patternPath = m_exportPath / (baseName + L"_%0" + std::to_wstring(padding) + L"d" + extension);
+
+    QProcess ffmpeg;
+    QStringList args;
+    args << "-y"
+         << "-v" << "error"
+         << "-stats"
+         << "-framerate" << QString::number(m_parameters.fps)
+         << "-start_number" << "1"
+         << "-i" << QString::fromStdWString(patternPath.wstring())
+         << "-frames:v" << QString::number(producedFrames)
+         << "-c:v" << "libx265"
+         << "-b:v" << QString::number(m_parameters.bitrateKbps) + "k"
+         << "-pix_fmt" << "yuv420p"
+         << QString::fromStdWString(m_videoFilePath.wstring());
+
+    ffmpeg.start(resolveFfmpegExecutable(), args);
+    if (!ffmpeg.waitForStarted(3000))
+    {
+        ffmpeg.kill();
+        return false;
+    }
+    if (!ffmpeg.waitForFinished(-1))
+    {
+        ffmpeg.kill();
+        return false;
+    }
+    return ffmpeg.exitStatus() == QProcess::NormalExit && ffmpeg.exitCode() == 0;
+}
+
+std::optional<std::filesystem::path> ContextExportVideoHD::firstFrameFilepath() const
+{
+    if (m_exportPath.empty())
+        return std::nullopt;
+
+    uint8_t padding = std::max<uint8_t>(1, m_frameDigits);
+    std::filesystem::path baseFramePath = m_exportPath / (m_exportPath.stem().wstring() + L"_" + Utils::wCompleteWithZeros(1, padding));
+
+    const std::wstring extensions[] = { L".PNG", L".JPG", L".JPEG", L".TIFF", L".BMP" };
+    for (const auto& ext : extensions)
+    {
+        std::filesystem::path candidate = baseFramePath;
+        candidate += ext;
+        if (std::filesystem::exists(candidate))
+            return candidate;
+    }
+
+    try
+    {
+        for (const auto& entry : std::filesystem::directory_iterator(m_exportPath))
+        {
+            if (entry.is_regular_file())
+                return entry.path();
+        }
+    }
+    catch (const std::exception&)
+    {
+    }
+
+    return std::nullopt;
+}
+
 std::filesystem::path ContextExportVideoHD::getNextFramePath()
 {
     std::filesystem::path nextPath = m_exportPath;
     std::wstring filename = m_exportPath.stem().wstring();
-    uint8_t size = std::log10(m_totalFrames) + 1;
-    nextPath = nextPath / (filename + L"_" + Utils::wCompleteWithZeros(m_animFrame, size));
+    uint8_t padding = m_frameDigits ? m_frameDigits : (uint8_t)(std::log10(std::max<long>(1, m_totalFrames)) + 1);
+    nextPath = nextPath / (filename + L"_" + Utils::wCompleteWithZeros(m_animFrame, padding));
     try
     {
         std::filesystem::create_directories(nextPath.parent_path());

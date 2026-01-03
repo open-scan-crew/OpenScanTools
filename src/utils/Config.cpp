@@ -27,6 +27,7 @@
 #define FRAMELESS_JSON_KEY "frameless"
 #define PROJS_JSON_KEY "projs"
 #define TEMP_JSON_KEY "temp"
+#define FFMPEG_JSON_KEY "ffmpeg_path"
 #define USERCOLOR_JSON_KEY "usercolor"
 #define DECIMATE_OPTIONS_JSON_KEY "decimate_options"
 #define DECIMATE_MODE_JSON_KEY "decimate_mode"
@@ -318,6 +319,19 @@ namespace Config
 	bool setTemporaryPath(const std::filesystem::path& type)
 	{
 		jsonConfig[TEMP_JSON_KEY] = Utils::to_utf8(type.wstring());
+		return saveConfigFile(filePath);
+	}
+
+	std::filesystem::path getFFmpegPath()
+	{
+		if (jsonConfig.find(FFMPEG_JSON_KEY) == jsonConfig.end())
+			return "";
+		return cleanWString(jsonConfig.at(FFMPEG_JSON_KEY).dump());
+	}
+
+	bool setFFmpegPath(const std::filesystem::path& type)
+	{
+		jsonConfig[FFMPEG_JSON_KEY] = Utils::to_utf8(type.wstring());
 		return saveConfigFile(filePath);
 	}
 
