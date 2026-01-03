@@ -38,6 +38,8 @@ public:
     BlendMode      m_blendMode = BlendMode::Opaque;
     bool           m_negativeEffect = false;
     bool           m_reduceFlash = true;
+    bool           m_flashAdvanced = false;
+    float          m_flashControl = 50.f; // [0.0, 100.0]
     float          m_transparency = 10.f; // [0.0, 100.0]
 
     // Post processing
