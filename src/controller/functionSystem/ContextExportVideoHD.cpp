@@ -153,20 +153,27 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
                 rStart->m_reduceFlash == rFinish->m_reduceFlash
                 )
             {
-                m_addTranspUIScale = (ui::transparency::trueValue_to_uiValue(rFinish->m_transparency) - ui::transparency::trueValue_to_uiValue(rStart->m_transparency)) / m_totalFrames;
+                const float denom = std::max(1l, m_totalFrames - 1);
+                m_addTranspUIScale = (ui::transparency::trueValue_to_uiValue(rFinish->m_transparency) - ui::transparency::trueValue_to_uiValue(rStart->m_transparency)) / denom;
 
-                m_addNStren = (rFinish->m_postRenderingNormals.normalStrength - rStart->m_postRenderingNormals.normalStrength) / m_totalFrames;
-                m_addNGloss = (rFinish->m_postRenderingNormals.gloss - rStart->m_postRenderingNormals.gloss) / m_totalFrames;
+                m_addNStren = (rFinish->m_postRenderingNormals.normalStrength - rStart->m_postRenderingNormals.normalStrength) / denom;
+                m_addNGloss = (rFinish->m_postRenderingNormals.gloss - rStart->m_postRenderingNormals.gloss) / denom;
 
-                m_addHue = (rFinish->m_hue - rStart->m_hue) / m_totalFrames;
+                m_addHue = (rFinish->m_hue - rStart->m_hue) / denom;
 
-                m_addBright = (rFinish->m_brightness - rStart->m_brightness) / m_totalFrames;
-                m_addSatur = (rFinish->m_saturation - rStart->m_saturation) / m_totalFrames;
-                m_addLumi = (rFinish->m_luminance - rStart->m_luminance) / m_totalFrames;
-                m_addContr = (rFinish->m_contrast - rStart->m_contrast) / m_totalFrames;
-                m_addAlpha = (rFinish->m_alphaObject - rStart->m_alphaObject) / m_totalFrames;
+                m_addBright = (rFinish->m_brightness - rStart->m_brightness) / denom;
+                m_addSatur = (rFinish->m_saturation - rStart->m_saturation) / denom;
+                m_addLumi = (rFinish->m_luminance - rStart->m_luminance) / denom;
+                m_addContr = (rFinish->m_contrast - rStart->m_contrast) / denom;
+                m_addAlpha = (rFinish->m_alphaObject - rStart->m_alphaObject) / denom;
 
-                m_addFovy = (rFinish->getFovy() - rStart->getFovy()) / m_totalFrames;
+                m_flashControlStart = rStart->m_flashControl;
+                m_addFlashControl = (rFinish->m_flashControl - rStart->m_flashControl) / denom;
+                m_flashAdvancedStart = rStart->m_flashAdvanced ? 1.f : 0.f;
+                float targetFlashAdvanced = rFinish->m_flashAdvanced ? 1.f : 0.f;
+                m_addFlashAdvanced = (targetFlashAdvanced - m_flashAdvancedStart) / denom;
+
+                m_addFovy = (rFinish->getFovy() - rStart->getFovy()) / denom;
             }
         }
         else
@@ -207,6 +214,10 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
                     wCam->m_saturation += m_addSatur;
                     wCam->m_hue += m_addHue;
                     wCam->m_alphaObject += m_addAlpha;
+                    long step = std::max(0l, m_animFrame - 1);
+                    wCam->m_flashControl = m_flashControlStart + m_addFlashControl * step;
+                    m_flashAdvancedValue = m_flashAdvancedStart + m_addFlashAdvanced * step;
+                    wCam->m_flashAdvanced = m_flashAdvancedValue >= 0.5f;
                     wCam->setFovy(wCam->getFovy() + m_addFovy);
                 }
             }
