@@ -238,13 +238,15 @@ public:
 class GuiDataRenderTransparencyOptions : public GuiDataActiveCamera
 {
 public:
-	GuiDataRenderTransparencyOptions(bool negativeColors, bool reduceFlash, float hlt, SafePtr<CameraNode> camera);
+	GuiDataRenderTransparencyOptions(bool negativeColors, bool reduceFlash, bool flashAdvanced, float flashControl, float hlt, SafePtr<CameraNode> camera);
 	~GuiDataRenderTransparencyOptions() {};
 	virtual guiDType getType() override;
 
 public:
 	bool m_negativeEffect;
 	bool m_reduceFlash;
+    bool m_flashAdvanced;
+    float m_flashControl;
 	float m_highLuminosityThreshold;
 };
 
