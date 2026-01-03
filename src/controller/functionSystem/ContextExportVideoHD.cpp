@@ -167,6 +167,10 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
                 m_addLumi = (rFinish->m_luminance - rStart->m_luminance) / m_totalFrames;
                 m_addContr = (rFinish->m_contrast - rStart->m_contrast) / m_totalFrames;
                 m_addAlpha = (rFinish->m_alphaObject - rStart->m_alphaObject) / m_totalFrames;
+                m_addFlashControl = (rFinish->m_flashControl - rStart->m_flashControl) / m_totalFrames;
+                m_flashAdvancedValue = rStart->m_flashAdvanced ? 1.f : 0.f;
+                float targetFlashAdvanced = rFinish->m_flashAdvanced ? 1.f : 0.f;
+                m_addFlashAdvanced = (targetFlashAdvanced - m_flashAdvancedValue) / m_totalFrames;
 
                 m_addFovy = (rFinish->getFovy() - rStart->getFovy()) / m_totalFrames;
             }
@@ -209,6 +213,9 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
                     wCam->m_saturation += m_addSatur;
                     wCam->m_hue += m_addHue;
                     wCam->m_alphaObject += m_addAlpha;
+                    wCam->m_flashControl += m_addFlashControl;
+                    m_flashAdvancedValue += m_addFlashAdvanced;
+                    wCam->m_flashAdvanced = m_flashAdvancedValue >= 0.5f;
                     wCam->setFovy(wCam->getFovy() + m_addFovy);
                 }
             }
