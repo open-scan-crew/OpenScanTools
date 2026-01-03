@@ -350,14 +350,18 @@ bool ContextExportVideoHD::encodeVideo()
     if (!ffmpeg.waitForStarted(3000))
     {
         ffmpeg.kill();
+        cleanupFrames();
         return false;
     }
     if (!ffmpeg.waitForFinished(-1))
     {
         ffmpeg.kill();
+        cleanupFrames();
         return false;
     }
-    return ffmpeg.exitStatus() == QProcess::NormalExit && ffmpeg.exitCode() == 0;
+    bool success = ffmpeg.exitStatus() == QProcess::NormalExit && ffmpeg.exitCode() == 0;
+    cleanupFrames();
+    return success;
 }
 
 std::optional<std::filesystem::path> ContextExportVideoHD::firstFrameFilepath() const
@@ -390,6 +394,21 @@ std::optional<std::filesystem::path> ContextExportVideoHD::firstFrameFilepath() 
     }
 
     return std::nullopt;
+}
+
+void ContextExportVideoHD::cleanupFrames()
+{
+    if (m_parameters.outputType != VideoExportOutputType::MP4)
+        return;
+
+    try
+    {
+        if (!m_exportPath.empty() && std::filesystem::exists(m_exportPath))
+            std::filesystem::remove_all(m_exportPath);
+    }
+    catch (const std::exception&)
+    {
+    }
 }
 
 std::filesystem::path ContextExportVideoHD::getNextFramePath()

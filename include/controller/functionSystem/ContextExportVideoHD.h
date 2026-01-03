@@ -27,6 +27,7 @@ public:
 private:
 	bool encodeVideo();
 	std::optional<std::filesystem::path> firstFrameFilepath() const;
+	void cleanupFrames();
 
 	VideoExportParameters m_parameters;
 	std::filesystem::path m_exportPath;
