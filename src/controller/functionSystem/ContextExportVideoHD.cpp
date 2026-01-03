@@ -150,7 +150,9 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
                 rStart->m_postRenderingNormals.inverseTone == rFinish->m_postRenderingNormals.inverseTone &&
                 rStart->m_mode == rFinish->m_mode &&
                 rStart->m_negativeEffect == rFinish->m_negativeEffect &&
-                rStart->m_reduceFlash == rFinish->m_reduceFlash
+                rStart->m_reduceFlash == rFinish->m_reduceFlash &&
+                rStart->m_flashAdvanced == rFinish->m_flashAdvanced &&
+                rStart->m_flashControl == rFinish->m_flashControl
                 )
             {
                 const float denom = std::max(1l, m_totalFrames - 1);
