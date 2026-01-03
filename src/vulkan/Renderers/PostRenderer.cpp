@@ -513,7 +513,7 @@ void PostRenderer::setConstantLighting(const PostRenderingNormals& lighting, VkC
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_normalPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 52, 4, &blend);
 }
 
-void PostRenderer::setConstantHDR(float opacity, bool substract, bool noFlash, VkExtent2D screenSize, Color32 background, VkCommandBuffer _cmdBuffer)
+void PostRenderer::setConstantHDR(float opacity, bool substract, bool noFlash, bool flashAdvanced, float flashControl, VkExtent2D screenSize, Color32 background, VkCommandBuffer _cmdBuffer)
 {
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_transparencyHDRPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, 4, &opacity);
     int mode = substract ? 1 : 0;
@@ -523,6 +523,9 @@ void PostRenderer::setConstantHDR(float opacity, bool substract, bool noFlash, V
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_transparencyHDRPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 16, 12, background_f);
     int iNoFlash = noFlash ? 1 : 0;
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_transparencyHDRPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 28, 4, &iNoFlash);
+    int iAdvanced = flashAdvanced ? 1 : 0;
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_transparencyHDRPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 32, 4, &iAdvanced);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_transparencyHDRPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 36, 4, &flashControl);
 }
 
 void PostRenderer::cleanup()
