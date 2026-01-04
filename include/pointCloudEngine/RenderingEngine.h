@@ -54,7 +54,7 @@ private:
     void updateHD();
     void resetDrawBuffers(TlFramebuffer fb);
     bool updateFramebuffer(VulkanViewport& viewport);
-    bool renderVirtualViewport(TlFramebuffer framebuffer, const CameraNode& camera, glm::vec2 screenOffset, double& sleepedTime, ImageTransferEvent& transferEvent);
+    bool renderVirtualViewport(TlFramebuffer framebuffer, const CameraNode& camera, glm::vec2 screenOffset, double& sleepedTime, ImageTransferEvent& transferEvent, bool fullResolutionTraversal);
 
     typedef void (RenderingEngine::*GuiDataFunction)(IGuiData*);
     inline void registerGuiDataFunction(guiDType type, GuiDataFunction fct)
@@ -149,6 +149,7 @@ private:
     ImageHDMetadata m_imageMetadata;
     bool m_showProgressBar;
     uint32_t m_hdtilesize;
+    bool m_hdFullResolutionTraversal = false;
 
     // *** Compute *** //
     std::atomic<bool> m_computeRender = false;

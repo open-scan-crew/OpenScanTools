@@ -202,6 +202,7 @@ void RenderingEngine::onStartHDRender(IGuiData* data)
     m_imageMetadata = guiData->m_metadata;
     m_showProgressBar = guiData->m_showProgressBar;
     m_hdtilesize = guiData->m_hdimagetilesize;
+    m_hdFullResolutionTraversal = guiData->m_fullResolutionTraversal;
 
     // FIXME - On peut directement garder la camera sans passer par son viewport
     m_activeCamera = guiData->m_camera;
@@ -481,7 +482,7 @@ void RenderingEngine::updateHD()
                     (2 * tileY * (float)frameH - m_hdExtent.y) / 2.f);
 
                 ImageTransferEvent ite;
-                renderVirtualViewport(virtualViewport, *&wCameraHD, screenOffset, sleepedTime, ite);
+                renderVirtualViewport(virtualViewport, *&wCameraHD, screenOffset, sleepedTime, ite, m_hdFullResolutionTraversal);
                 imgWriter.transferImageTile(ite, tileX * frameW, tileY * frameH, border);
 
                 // Copy du rendu dans l'image de destination
@@ -714,7 +715,7 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
     return true;
 }
 
-bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const CameraNode& camera, glm::vec2 screenOffset, double& _sleepedTime, ImageTransferEvent& transferEvent)
+bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const CameraNode& camera, glm::vec2 screenOffset, double& _sleepedTime, ImageTransferEvent& transferEvent, bool fullResolutionTraversal)
 {
     VulkanManager& vkm = VulkanManager::getInstance();
     const DisplayParameters& displayParam = camera.getDisplayParameters();
@@ -725,7 +726,8 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
         return false;
 
     // Dynamic rendering variables
-    float decimationRatio = (displayParam.m_transparency > 0) && (displayParam.m_blendMode == BlendMode::Transparent) ? 0.f : 1.f;  // no decimation (0.0) with transparency
+    const bool transparencyForcesFullTraversal = (displayParam.m_transparency > 0) && (displayParam.m_blendMode == BlendMode::Transparent);
+    float decimationRatio = (transparencyForcesFullTraversal || fullResolutionTraversal) ? 0.f : 1.f;  // no decimation (0.0) with transparency or explicit full traversal
 
     resetDrawBuffers(framebuffer);
     // Visitors

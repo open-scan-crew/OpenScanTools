@@ -201,7 +201,7 @@ namespace control::io
     class SetupImageHD : public AControl
     {
     public:
-        SetupImageHD(SafePtr<CameraNode> viewport, glm::ivec2 imageSize, int samples, ImageFormat format, ImageHDMetadata metadata, std::filesystem::path filepath, bool showProgressBar, uint32_t hdimagetilesize);
+        SetupImageHD(SafePtr<CameraNode> viewport, glm::ivec2 imageSize, int samples, ImageFormat format, ImageHDMetadata metadata, std::filesystem::path filepath, bool showProgressBar, uint32_t hdimagetilesize, bool fullResolutionTraversal);
         ~SetupImageHD();
         void doFunction(Controller& controller) override;
         bool canUndo() const override;
@@ -216,6 +216,7 @@ namespace control::io
         std::filesystem::path m_filepath;
         bool m_showProgressBar;
         uint32_t m_hdimagetilesize;
+        bool m_fullResolutionTraversal;
     };
 
     class GenerateVideoHD : public AControl
