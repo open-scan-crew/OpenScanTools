@@ -30,8 +30,10 @@ public slots:
     void onLanguageChanged(const uint32_t& index);
     void onSelectTempFolder();
     void onSelectProjsFolder();
+    void onSelectFfmpegFolder();
     void onTempFolder();
     void onProjsFolder();
+    void onFfmpegFolder();
     void onUnitUsageChanged();
     void onColorPicking();
     void onOk();

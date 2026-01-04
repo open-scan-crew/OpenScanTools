@@ -65,8 +65,10 @@ DialogSettings::DialogSettings(IDataDispatcher& dataDispatcher, QWidget* parent)
 	connect(m_ui.volumeUnitBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &DialogSettings::onUnitUsageChanged);
 	connect(m_ui.toolButton_folder, &QToolButton::clicked, this, &DialogSettings::onSelectProjsFolder);
 	connect(m_ui.toolButton_temporary, &QToolButton::clicked, this, &DialogSettings::onSelectTempFolder);
+	connect(m_ui.toolButton_ffmpegFolder, &QToolButton::clicked, this, &DialogSettings::onSelectFfmpegFolder);
 	connect(m_ui.lineEdit_project, &QLineEdit::editingFinished, this, &DialogSettings::onProjsFolder);
 	connect(m_ui.lineEdit_temporary, &QLineEdit::editingFinished, this, &DialogSettings::onTempFolder);
+	connect(m_ui.lineEdit_ffmpeg, &QLineEdit::editingFinished, this, &DialogSettings::onFfmpegFolder);
 	connect(m_ui.pushButton_color, &QPushButton::clicked, this, &DialogSettings::onColorPicking);
 	connect(m_ui.templateProjectBtn, &QToolButton::clicked, [this]() 
 		{
@@ -159,6 +161,7 @@ void DialogSettings::initConfigValues()
 
     m_ui.lineEdit_project->setText(QString::fromStdWString(Config::getProjectsPath().wstring()));
     m_ui.lineEdit_temporary->setText(QString::fromStdWString(Config::getTemporaryPath().wstring()));
+    m_ui.lineEdit_ffmpeg->setText(QString::fromStdWString(Config::getFFmpegPath().wstring()));
     m_ui.framelessCheckBox->setChecked(Config::getMaximizedFrameless());
 	m_ui.keepExamineOnPanBox->setChecked(Config::getKeepingExamineConfiguration());
     m_ui.examineDisplayCheckBox->setChecked(Config::getExamineDisplayMode());
@@ -216,6 +219,7 @@ void DialogSettings::blockSignal(bool active)
 	m_ui.spinBox_digits->blockSignals(active);
 	m_ui.lineEdit_project->blockSignals(active);
 	m_ui.lineEdit_temporary->blockSignals(active);
+	m_ui.lineEdit_ffmpeg->blockSignals(active);
 	m_ui.manipulatorSizeSlider->blockSignals(active);
 	m_ui.manipulatorSizeSpinBox->blockSignals(active);
 	m_ui.pushButton_color->blockSignals(active);
@@ -282,6 +286,23 @@ void DialogSettings::onTempFolder()
 void DialogSettings::onProjsFolder()
 {
 	m_dataDispatcher.sendControl(new control::application::SetProjectsFolder(std::filesystem::path(m_ui.lineEdit_project->text().toStdWString())));
+}
+
+void DialogSettings::onSelectFfmpegFolder()
+{
+	QString folderPath = QFileDialog::getExistingDirectory(this, TEXT_SELECT_DIRECTORY, m_ui.lineEdit_ffmpeg->text()
+		, QFileDialog::ShowDirsOnly);
+
+	if (folderPath != "")
+	{
+		m_ui.lineEdit_ffmpeg->setText(folderPath);
+		m_dataDispatcher.sendControl(new control::application::SetFFmpegFolder(std::filesystem::path(folderPath.toStdWString())));
+	}
+}
+
+void DialogSettings::onFfmpegFolder()
+{
+	m_dataDispatcher.sendControl(new control::application::SetFFmpegFolder(std::filesystem::path(m_ui.lineEdit_ffmpeg->text().toStdWString())));
 }
 
 void DialogSettings::onColorPicking()

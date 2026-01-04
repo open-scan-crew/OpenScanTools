@@ -30,6 +30,7 @@ enum class ControlType
 	setDigitsDisplay, //Free
 	setProjectsFolder, //Free
 	setTemporaryFolder, //Free
+	setFFmpegFolder, //Free
 	setUserColor, //Free
     setDecimationOptions, //Free
     setRenderPointSize, //Free

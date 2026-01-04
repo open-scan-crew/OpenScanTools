@@ -4,6 +4,8 @@
 #include "ui_DialogExportVideo.h"
 #include "gui/Dialog/ADialog.h"
 #include "io/exports/ExportParameters.hpp"
+#include <optional>
+#include <utility>
 
 class DialogExportVideo : public ADialog
 {
@@ -26,6 +28,11 @@ private:
     void onSelectOutFolder();
 	void onSelectOutFile();
 
+    void onOutputTypeChanged();
+    bool checkResolutionForMp4() const;
+    bool isX265Available() const;
+    std::optional<std::pair<uint32_t, uint32_t>> currentImageResolution() const;
+
     void startGeneration();
     void cancelGeneration();
 
@@ -36,6 +43,7 @@ private:
     int m_viewpointToEdit = -1;
 	VideoExportParameters m_parameters;
 
+    static constexpr uint64_t MAX_MP4_PIXELS = 8294400;
 };
 
 #endif
