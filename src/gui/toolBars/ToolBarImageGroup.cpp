@@ -558,7 +558,10 @@ void ToolBarImageGroup::slotCreateImage(std::filesystem::path filepath, bool sho
 	constexpr int hdtilesize = 256;
 
 	if (resW && resH && width > 0 && height > 0)
-		m_dataDispatcher.sendControl(new control::io::SetupImageHD(m_focusCamera, glm::ivec2(width, height), multisample, format, metadata, filepath, showProgressBar, hdtilesize));
+	{
+		const bool fullResolutionTraversal = true;
+		m_dataDispatcher.sendControl(new control::io::SetupImageHD(m_focusCamera, glm::ivec2(width, height), multisample, format, metadata, filepath, showProgressBar, hdtilesize, fullResolutionTraversal));
+	}
 	// else 
 	//    return a error message
 }
