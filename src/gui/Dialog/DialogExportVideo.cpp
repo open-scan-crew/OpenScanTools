@@ -7,11 +7,33 @@
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataIO.h"
+#include "utils/Config.h"
 
 #include "models/graph/ViewPointNode.h"
 
 #include <QtWidgets/qfiledialog.h>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QLineEdit>
+#include <QtWidgets/QSpinBox>
+#include <QtCore/QProcess>
 #include <QtCore/qstandardpaths.h>
+#include <filesystem>
+
+namespace
+{
+QString resolveFfmpegExecutable()
+{
+    std::filesystem::path ffmpegDir = Config::getFFmpegPath();
+    if (!ffmpegDir.empty())
+    {
+        std::filesystem::path candidate = ffmpegDir / "ffmpeg.exe";
+        if (!std::filesystem::exists(candidate))
+            candidate = ffmpegDir / "ffmpeg";
+        return QString::fromStdWString(candidate.wstring());
+    }
+    return QStringLiteral("ffmpeg");
+}
+}
 
 
 DialogExportVideo::DialogExportVideo(IDataDispatcher& dataDispatcher, QWidget *parent, float guiScale)
@@ -39,6 +61,10 @@ DialogExportVideo::DialogExportVideo(IDataDispatcher& dataDispatcher, QWidget *p
     m_dataDispatcher.registerObserverOnKey(this, guiDType::objectSelected);
 	this->setMinimumWidth(344 * guiScale);
 	adjustSize();
+
+    connect(m_ui.mp4RadioButton, &QRadioButton::toggled, this, &DialogExportVideo::onOutputTypeChanged);
+    connect(m_ui.imageRadioButton, &QRadioButton::toggled, this, &DialogExportVideo::onOutputTypeChanged);
+    onOutputTypeChanged();
 }
 
 DialogExportVideo::~DialogExportVideo()
@@ -174,13 +200,40 @@ void DialogExportVideo::startGeneration()
 		}
 	}
 	
+    m_parameters.outputType = m_ui.mp4RadioButton->isChecked() ? VideoExportOutputType::MP4 : VideoExportOutputType::IMAGES;
+    m_parameters.bitrateKbps = m_ui.bitrateSpinBox->value();
+
+    if (m_parameters.outputType == VideoExportOutputType::MP4)
+    {
+        if (!checkResolutionForMp4())
+            return;
+
+        if (!isX265Available())
+        {
+            m_dataDispatcher.updateInformation(new GuiDataWarning(TEXT_EXPORT_VIDEO_MP4_X265_MISSING));
+            return;
+        }
+    }
+
+    std::filesystem::path exportBasePath = exportFolder / filename;
+    exportBasePath.replace_extension();
+    if (m_parameters.outputType == VideoExportOutputType::MP4)
+    {
+        m_parameters.outputFilePath = exportBasePath;
+        m_parameters.outputFilePath.replace_extension(".mp4");
+    }
+    else
+    {
+        m_parameters.outputFilePath.clear();
+    }
+
 	m_parameters.length = m_ui.lengthSpinBox->value();
 	m_parameters.fps = m_ui.fpsSpinBox->value();
 	m_parameters.hdImage = m_ui.imageHDRadioButton->isChecked();
 	m_parameters.openFolderAfterExport = m_ui.openExplorerFolderCheckBox->isChecked();
 	m_parameters.interpolateRenderingBetweenViewpoints = m_ui.interpolateCheckBox->isChecked();
 
-	m_dataDispatcher.sendControl(new control::io::GenerateVideoHD(exportFolder / filename, m_parameters));
+	m_dataDispatcher.sendControl(new control::io::GenerateVideoHD(exportBasePath, m_parameters));
 
     hide();
 }
@@ -194,4 +247,68 @@ void DialogExportVideo::closeEvent(QCloseEvent* event)
 void DialogExportVideo::cancelGeneration()
 {
     hide();
+}
+
+void DialogExportVideo::onOutputTypeChanged()
+{
+    bool mp4Selected = m_ui.mp4RadioButton->isChecked();
+    m_ui.bitrateSpinBox->setEnabled(mp4Selected);
+    m_ui.bitrateLabel->setEnabled(mp4Selected);
+}
+
+std::optional<std::pair<uint32_t, uint32_t>> DialogExportVideo::currentImageResolution() const
+{
+    for (QWidget* topLevel : QApplication::topLevelWidgets())
+    {
+        if (!topLevel)
+            continue;
+        QLineEdit* widthEdit = topLevel->findChild<QLineEdit*>("lineEdit_imageW");
+        QLineEdit* heightEdit = topLevel->findChild<QLineEdit*>("lineEdit_imageH");
+        if (widthEdit && heightEdit)
+        {
+            bool okW = false;
+            bool okH = false;
+            uint32_t w = widthEdit->text().toUInt(&okW, 10);
+            uint32_t h = heightEdit->text().toUInt(&okH, 10);
+            if (okW && okH)
+                return std::make_pair(w, h);
+            return std::nullopt;
+        }
+    }
+    return std::nullopt;
+}
+
+bool DialogExportVideo::checkResolutionForMp4() const
+{
+    auto res = currentImageResolution();
+    if (!res.has_value())
+        return true;
+
+    uint64_t pixels = static_cast<uint64_t>(res->first) * static_cast<uint64_t>(res->second);
+    if (pixels > MAX_MP4_PIXELS)
+    {
+        m_dataDispatcher.updateInformation(new GuiDataWarning(TEXT_EXPORT_VIDEO_MP4_RESOLUTION_TOO_HIGH));
+        return false;
+    }
+    return true;
+}
+
+bool DialogExportVideo::isX265Available() const
+{
+    QProcess ffmpegCheck;
+    ffmpegCheck.start(resolveFfmpegExecutable(), { "-hide_banner", "-encoders" });
+    if (!ffmpegCheck.waitForStarted(3000))
+    {
+        ffmpegCheck.kill();
+        return false;
+    }
+    if (!ffmpegCheck.waitForFinished(3000))
+    {
+        ffmpegCheck.kill();
+        return false;
+    }
+
+    QString output = ffmpegCheck.readAllStandardOutput();
+    output.append(ffmpegCheck.readAllStandardError());
+    return output.contains("libx265", Qt::CaseInsensitive) || output.contains("x265", Qt::CaseInsensitive);
 }

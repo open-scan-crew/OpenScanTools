@@ -50,6 +50,9 @@ namespace Config
 	std::filesystem::path getTemporaryPath();
 	bool setTemporaryPath(const std::filesystem::path& type);
 
+	std::filesystem::path getFFmpegPath();
+	bool setFFmpegPath(const std::filesystem::path& type);
+
     std::filesystem::path getResourcesPath();
 
     DecimationOptions getDecimationOptions();
