@@ -503,7 +503,7 @@ namespace control::io
 	** SetupImageHD
 	*/
 
-	SetupImageHD::SetupImageHD(SafePtr<CameraNode> _viewport, glm::ivec2 _imageSize, int _samples, ImageFormat _format, ImageHDMetadata _metadata, std::filesystem::path filepath, bool showProgressBar, uint32_t hdimagetilesize)
+	SetupImageHD::SetupImageHD(SafePtr<CameraNode> _viewport, glm::ivec2 _imageSize, int _samples, ImageFormat _format, ImageHDMetadata _metadata, std::filesystem::path filepath, bool showProgressBar, uint32_t hdimagetilesize, bool fullResolutionTraversal)
 		: m_viewport(_viewport)
 		, m_imageSize(_imageSize)
 		, m_multisample(_samples)
@@ -512,6 +512,7 @@ namespace control::io
 		, m_filepath(filepath)
 		, m_showProgressBar(showProgressBar)
 		, m_hdimagetilesize(hdimagetilesize)
+		, m_fullResolutionTraversal(fullResolutionTraversal)
 	{}
 
 	SetupImageHD::~SetupImageHD()
@@ -536,7 +537,7 @@ namespace control::io
 		}
 				
 		m_filepath.replace_extension(getImageExtension(m_format));
-		controller.updateInfo(new GuiDataGenerateHDImage(m_imageSize, 1, m_format, m_viewport, m_filepath, m_metadata, m_showProgressBar, m_hdimagetilesize));
+		controller.updateInfo(new GuiDataGenerateHDImage(m_imageSize, 1, m_format, m_viewport, m_filepath, m_metadata, m_showProgressBar, m_hdimagetilesize, m_fullResolutionTraversal));
 	}
 
 	bool SetupImageHD::canUndo() const
