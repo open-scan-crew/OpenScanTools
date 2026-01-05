@@ -12,7 +12,7 @@ guiDType GuiDataPrepareHDImage::getType()
     return guiDType::hdPrepare;
 }
 
-GuiDataGenerateHDImage::GuiDataGenerateHDImage(glm::ivec2 imageSize, int multisampling, ImageFormat format, SafePtr<CameraNode> camera, const std::filesystem::path& filepath, const ImageHDMetadata& metadata, bool showProgressBar, uint32_t hdimagetilesize, bool fullResolutionTraversal)
+GuiDataGenerateHDImage::GuiDataGenerateHDImage(glm::ivec2 imageSize, int multisampling, ImageFormat format, SafePtr<CameraNode> camera, const std::filesystem::path& filepath, const ImageHDMetadata& metadata, bool showProgressBar, uint32_t hdimagetilesize, bool fullResolutionTraversal, ImageHDAntialiasing antialiasing)
     : m_imageSize(imageSize)
     , m_multisampling(multisampling)
     , m_imageFormat(format)
@@ -22,6 +22,7 @@ GuiDataGenerateHDImage::GuiDataGenerateHDImage(glm::ivec2 imageSize, int multisa
     , m_showProgressBar(showProgressBar)
     , m_hdimagetilesize(hdimagetilesize)
     , m_fullResolutionTraversal(fullResolutionTraversal)
+    , m_antialiasing(antialiasing)
 { }
 
 guiDType GuiDataGenerateHDImage::getType()
