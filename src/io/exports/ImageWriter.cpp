@@ -17,12 +17,13 @@ ImageWriter::~ImageWriter()
     buffer_size_ = 0;
 }
 
-bool ImageWriter::saveScreenshot(const std::filesystem::path& filepath, ImageFormat format, ImageTransferEvent transfer, uint32_t width, uint32_t height)
+bool ImageWriter::saveScreenshot(const std::filesystem::path& filepath, ImageFormat format, ImageTransferEvent transfer, uint32_t width, uint32_t height, bool includeAlpha)
 {
     width_ = width;
     height_ = height;
     format_ = format;
     byte_per_pixel_ = format == ImageFormat::PNG16 ? 8u : 4u;
+    include_alpha_ = includeAlpha;
 
     if (!allocateBuffer())
         return false;
@@ -33,12 +34,13 @@ bool ImageWriter::saveScreenshot(const std::filesystem::path& filepath, ImageFor
     return true;
 }
 
-bool ImageWriter::startCapture(ImageFormat format, uint32_t width, uint32_t height)
+bool ImageWriter::startCapture(ImageFormat format, uint32_t width, uint32_t height, bool includeAlpha)
 {
     width_ = width;
     height_ = height;
     format_ = format;
     byte_per_pixel_ = format == ImageFormat::PNG16 ? 8u : 4u;
+    include_alpha_ = includeAlpha;
     return allocateBuffer();
 }
 
@@ -122,6 +124,13 @@ bool ImageWriter::saveImage(const std::filesystem::path& file_path)
         qImage = QImage(reinterpret_cast<uchar*>(image_buffer_), width_, height_, QImage::Format::Format_RGBA64);
     else
         qImage = QImage(reinterpret_cast<uchar*>(image_buffer_), width_, height_, QImage::Format::Format_ARGB32);
+    if (include_alpha_ == false)
+    {
+        if (format_ == ImageFormat::PNG16 || format_ == ImageFormat::TIFF)
+            qImage = qImage.convertToFormat(QImage::Format::Format_RGBX64);
+        else
+            qImage = qImage.convertToFormat(QImage::Format::Format_RGB32);
+    }
     std::filesystem::path ext_path = file_path;
     ext_path.replace_extension("." + getImageExtension(format_));
     bool ret(qImage.save(QString::fromStdWString(ext_path.generic_wstring())));

@@ -55,6 +55,7 @@ struct ImageHDMetadata
 {
 	bool saveTextFile;
 	bool ortho;
+	bool includeAlpha = true;
 
 	std::string date;
 	std::string imageRatioLabel;

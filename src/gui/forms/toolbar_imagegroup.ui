@@ -141,9 +141,22 @@
         <property name="checked">
          <bool>true</bool>
         </property>
-       </widget>
-      </item>
-     </layout>
+      </widget>
+     </item>
+    </layout>
+    </widget>
+   </item>
+   <item row="0" column="3">
+    <widget class="QCheckBox" name="checkBox_alphaImage">
+     <property name="toolTip">
+      <string>Activates the alpha channel on png and tiff formats.</string>
+     </property>
+     <property name="text">
+      <string>Alpha</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item row="1" column="11">
@@ -300,6 +313,7 @@
  </widget>
  <tabstops>
   <tabstop>checkBox_frame</tabstop>
+  <tabstop>checkBox_alphaImage</tabstop>
   <tabstop>radioButton_ratioImage</tabstop>
   <tabstop>radioButton_print</tabstop>
   <tabstop>comboBox_ratioImage</tabstop>
