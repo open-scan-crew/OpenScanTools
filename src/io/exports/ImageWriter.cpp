@@ -112,6 +112,22 @@ bool ImageWriter::saveMetadata(const std::filesystem::path& file_path, ImageHDMe
     os << (long)round(metadata.dpi) << std::endl;
     os << std::endl;
 
+    if (metadata.hasBottomZ)
+    {
+        os << "Z coordinate (m) - image bottom" << std::endl;
+        os << Utils::roundFloat(metadata.imageBottomZ, 3) << std::endl;
+        os << std::endl;
+    }
+
+    if (metadata.hasVerticalCorners)
+    {
+        os << "XY coordinates (m), image bottom left" << std::endl;
+        os << Utils::roundFloat(metadata.imageBottomLeft.x, 3) << " " << Utils::roundFloat(metadata.imageBottomLeft.y, 3) << std::endl;
+        os << "XY coordinates (m), image top right" << std::endl;
+        os << Utils::roundFloat(metadata.imageTopRight.x, 3) << " " << Utils::roundFloat(metadata.imageTopRight.y, 3) << std::endl;
+        os << std::endl;
+    }
+
     os.close();
     return true;
 }

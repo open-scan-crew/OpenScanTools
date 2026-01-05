@@ -477,6 +477,35 @@ void RenderingEngine::updateHD()
 
         ProjectionData proj = wCameraHD->getTruncatedProjection(m_hdFrameRatio, m_showHDFrame ? HD_MARGIN : 0.0);
         ProjectionFrustum frustum = proj.getProjectionFrustum();
+        m_imageMetadata.hasBottomZ = false;
+        m_imageMetadata.hasVerticalCorners = false;
+        if (m_imageMetadata.ortho)
+        {
+            const glm::dvec3 viewDir = glm::normalize(wCameraHD->getViewAxis());
+            const double verticalComponent = std::abs(viewDir.z);
+            constexpr double alignmentThreshold = 1e-3;
+            const glm::dmat4 modelMatrix = wCameraHD->getModelMatrix();
+            auto toWorld = [&](double x, double y) {
+                glm::dvec4 pos = modelMatrix * glm::dvec4(x, y, 0.0, 1.0);
+                return glm::dvec3(pos);
+            };
+
+            if (verticalComponent >= (1.0 - alignmentThreshold))
+            {
+                const glm::dvec3 bottomLeftWorld = toWorld(frustum.l, frustum.t);
+                const glm::dvec3 topRightWorld = toWorld(frustum.r, frustum.b);
+                m_imageMetadata.hasVerticalCorners = true;
+                m_imageMetadata.imageBottomLeft = glm::dvec2(bottomLeftWorld.x, bottomLeftWorld.y);
+                m_imageMetadata.imageTopRight = glm::dvec2(topRightWorld.x, topRightWorld.y);
+            }
+            else if (verticalComponent <= alignmentThreshold)
+            {
+                const glm::dvec3 bottomLeftWorld = toWorld(frustum.l, frustum.t);
+                const glm::dvec3 bottomRightWorld = toWorld(frustum.r, frustum.t);
+                m_imageMetadata.hasBottomZ = true;
+                m_imageMetadata.imageBottomZ = (bottomLeftWorld.z + bottomRightWorld.z) / 2.0;
+            }
+        }
         std::vector<uint64_t> tileAccumulation;
         std::vector<char> tileBuffer;
         const bool preciseColor = m_hdFormat == ImageFormat::PNG16;
