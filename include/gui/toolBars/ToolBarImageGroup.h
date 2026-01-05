@@ -6,6 +6,7 @@
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
 #include "pointCloudEngine/RenderingTypes.h"
+#include "io/ImageTypes.h"
 
 #include "utils/safe_ptr.h"
 
