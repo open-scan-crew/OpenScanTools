@@ -429,30 +429,31 @@ namespace control::io
 	}
 
 	/*
-	** QuickScreenshot
-	*/
+** QuickScreenshot
+*/
 
-	QuickScreenshot::QuickScreenshot(ImageFormat format, std::filesystem::path filepath)
-		: m_format(format)
-		, m_filepath(filepath)
-	{}
+QuickScreenshot::QuickScreenshot(ImageFormat format, std::filesystem::path filepath, bool includeAlpha)
+	: m_format(format)
+	, m_filepath(filepath)
+	, m_includeAlpha(includeAlpha)
+{}
 
-	QuickScreenshot::~QuickScreenshot()
-	{}
+QuickScreenshot::~QuickScreenshot()
+{}
 
 	void QuickScreenshot::doFunction(Controller& controller)
 	{
 		if (m_filepath.empty())
-		{
-			m_filepath = controller.getContext().cgetProjectInternalInfo().getQuickScreenshotsFolderPath();
-			Utils::System::createDirectoryIfNotExist(m_filepath);
-			std::time_t result = std::time(nullptr);
-			std::tm* time = localtime(&result);
-			m_filepath /= std::to_string(1900 + time->tm_year) + "-" + Utils::completeWithZeros(1 + time->tm_mon, 2) + "-" + Utils::completeWithZeros(time->tm_mday, 2) + "_" + std::to_string(time->tm_hour) + "-" + Utils::completeWithZeros(time->tm_min, 2) + "-" + Utils::completeWithZeros(time->tm_sec, 2);
-		}
-		m_filepath.replace_extension("." + getImageExtension(m_format));
-		controller.updateInfo(new GuiDataScreenshot(m_filepath, m_format));
+	{
+		m_filepath = controller.getContext().cgetProjectInternalInfo().getQuickScreenshotsFolderPath();
+		Utils::System::createDirectoryIfNotExist(m_filepath);
+		std::time_t result = std::time(nullptr);
+		std::tm* time = localtime(&result);
+		m_filepath /= std::to_string(1900 + time->tm_year) + "-" + Utils::completeWithZeros(1 + time->tm_mon, 2) + "-" + Utils::completeWithZeros(time->tm_mday, 2) + "_" + std::to_string(time->tm_hour) + "-" + Utils::completeWithZeros(time->tm_min, 2) + "-" + Utils::completeWithZeros(time->tm_sec, 2);
 	}
+	m_filepath.replace_extension("." + getImageExtension(m_format));
+	controller.updateInfo(new GuiDataScreenshot(m_filepath, m_format, m_includeAlpha));
+}
 
 	bool  QuickScreenshot::canUndo() const
 	{

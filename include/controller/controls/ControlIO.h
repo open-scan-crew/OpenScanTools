@@ -176,7 +176,7 @@ namespace control::io
     class QuickScreenshot : public AControl
     {
     public:
-        QuickScreenshot(ImageFormat format, std::filesystem::path filepath = "");
+        QuickScreenshot(ImageFormat format, std::filesystem::path filepath = "", bool includeAlpha = true);
         ~QuickScreenshot();
         void doFunction(Controller& controller) override;
         bool canUndo() const override;
@@ -185,6 +185,7 @@ namespace control::io
     private:
         const ImageFormat m_format;
         std::filesystem::path m_filepath;
+        bool m_includeAlpha;
     };
 
     class RecordPerformance : public AControl
