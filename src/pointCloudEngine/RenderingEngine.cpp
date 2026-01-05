@@ -342,6 +342,10 @@ void RenderingEngine::updateHD()
 {
     m_processSignalCancel.store(false);
     m_notEnoughMemoryForHD = false;
+    m_imageMetadata.cameraOrientation = ImageHDMetadata::CameraOrientation::None;
+    m_imageMetadata.hasBottomZ = false;
+    m_imageMetadata.hasBottomLeftXY = false;
+    m_imageMetadata.hasTopRightXY = false;
 
     // Refresh the Scene
     m_renderSwapIndex = 0;
@@ -480,6 +484,38 @@ void RenderingEngine::updateHD()
         std::vector<uint64_t> tileAccumulation;
         std::vector<char> tileBuffer;
         const bool preciseColor = m_hdFormat == ImageFormat::PNG16;
+        auto updateOrthoMetadata = [&](const ProjectionFrustum& baseFrustum)
+        {
+            if (!m_imageMetadata.ortho)
+                return;
+
+            const glm::dvec3 viewDir = glm::normalize(wCameraHD->getViewAxis());
+            const double absDotZ = std::abs(viewDir.z);
+            constexpr double verticalDotThreshold = 0.999;
+            constexpr double horizontalZThreshold = 0.01;
+
+            if (absDotZ >= verticalDotThreshold)
+            {
+                const glm::dmat4 model = wCameraHD->getModelMatrix();
+                const glm::dvec3 bottomLeftWorld = glm::dvec3(model * glm::dvec4(baseFrustum.l, baseFrustum.b, 0.0, 1.0));
+                const glm::dvec3 topRightWorld = glm::dvec3(model * glm::dvec4(baseFrustum.r, baseFrustum.t, 0.0, 1.0));
+
+                m_imageMetadata.cameraOrientation = ImageHDMetadata::CameraOrientation::Vertical;
+                m_imageMetadata.hasBottomLeftXY = true;
+                m_imageMetadata.hasTopRightXY = true;
+                m_imageMetadata.bottomLeftXY = glm::dvec2(bottomLeftWorld.x, bottomLeftWorld.y);
+                m_imageMetadata.topRightXY = glm::dvec2(topRightWorld.x, topRightWorld.y);
+            }
+            else if (absDotZ <= horizontalZThreshold)
+            {
+                const glm::dmat4 model = wCameraHD->getModelMatrix();
+                const glm::dvec3 bottomCenterWorld = glm::dvec3(model * glm::dvec4(0.0, baseFrustum.b, 0.0, 1.0));
+
+                m_imageMetadata.cameraOrientation = ImageHDMetadata::CameraOrientation::Horizontal;
+                m_imageMetadata.hasBottomZ = true;
+                m_imageMetadata.bottomZ = bottomCenterWorld.z;
+            }
+        };
         for (uint32_t tileX = 0; tileX < tileCountX; tileX++)
         {
             for (uint32_t tileY = 0; tileY < tileCountY; tileY++)
@@ -583,6 +619,7 @@ void RenderingEngine::updateHD()
                     m_dataDispatcher.updateInformation(new GuiDataProcessingSplashScreenProgressBarUpdate(TEXT_SCREENSHOT_PROCESSING.arg(count).arg(tileCountX * tileCountY), count));
             }
         }
+        updateOrthoMetadata(frustum);
     }
 
     if (m_showProgressBar)

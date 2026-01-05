@@ -67,6 +67,21 @@ struct ImageHDMetadata
 
 	bool progressBar;
 
+	enum class CameraOrientation
+	{
+		None,
+		Vertical,
+		Horizontal
+	};
+
+	CameraOrientation cameraOrientation = CameraOrientation::None;
+	bool hasBottomZ = false;
+	double bottomZ = 0.0;
+	bool hasBottomLeftXY = false;
+	glm::dvec2 bottomLeftXY = glm::dvec2(0.0);
+	bool hasTopRightXY = false;
+	glm::dvec2 topRightXY = glm::dvec2(0.0);
+
 };
 
 #endif
