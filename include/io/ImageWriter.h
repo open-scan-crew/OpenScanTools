@@ -16,6 +16,7 @@ public:
 
     bool startCapture(ImageFormat format, uint32_t width, uint32_t height);
     void transferImageTile(ImageTransferEvent transfer, uint32_t dstOffsetW, uint32_t dstOffsetH, uint32_t border);
+    void writeTile(const void* tileBuffer, uint32_t tileW, uint32_t tileH, uint32_t dstOffsetW, uint32_t dstOffsetH);
     bool save(const std::filesystem::path& file_path, ImageHDMetadata metadata);
 
 private:
