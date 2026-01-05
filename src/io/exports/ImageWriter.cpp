@@ -112,6 +112,23 @@ bool ImageWriter::saveMetadata(const std::filesystem::path& file_path, ImageHDMe
     os << (long)round(metadata.dpi) << std::endl;
     os << std::endl;
 
+    if (metadata.cameraOrientation == ImageHDMetadata::CameraOrientation::Horizontal && metadata.hasBottomZ)
+    {
+        os << "Z coordinate (m) - image bottom" << std::endl;
+        os << Utils::roundFloat(metadata.bottomZ, 3) << std::endl;
+        os << std::endl;
+    }
+    else if (metadata.cameraOrientation == ImageHDMetadata::CameraOrientation::Vertical && metadata.hasBottomLeftXY && metadata.hasTopRightXY)
+    {
+        os << "XY coordinates (m), image bottom left" << std::endl;
+        os << Utils::roundFloat(metadata.bottomLeftXY.x, 3) << " ; " << Utils::roundFloat(metadata.bottomLeftXY.y, 3) << std::endl;
+        os << std::endl;
+
+        os << "XY coordinates (m), image top right" << std::endl;
+        os << Utils::roundFloat(metadata.topRightXY.x, 3) << " ; " << Utils::roundFloat(metadata.topRightXY.y, 3) << std::endl;
+        os << std::endl;
+    }
+
     os.close();
     return true;
 }
