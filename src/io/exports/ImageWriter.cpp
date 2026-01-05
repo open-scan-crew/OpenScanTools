@@ -47,6 +47,23 @@ void ImageWriter::transferImageTile(ImageTransferEvent transfer, uint32_t dstOff
     VulkanManager::getInstance().doImageTransfer(transfer, width_, height_, image_buffer_, buffer_size_, dstOffsetW, dstOffsetH, border, format_ == ImageFormat::PNG16);
 }
 
+void ImageWriter::writeTile(const void* tileBuffer, uint32_t tileW, uint32_t tileH, uint32_t dstOffsetW, uint32_t dstOffsetH)
+{
+    if (!tileBuffer || !image_buffer_ || tileW == 0 || tileH == 0)
+        return;
+
+    const size_t bytesPerPixel = byte_per_pixel_;
+    const size_t dstRowStride = bytesPerPixel * width_;
+    const size_t srcRowStride = bytesPerPixel * tileW;
+
+    for (uint32_t h = 0; h < tileH; ++h)
+    {
+        const size_t dstOffset = bytesPerPixel * (dstOffsetW + static_cast<size_t>(dstOffsetH + h) * width_);
+        const char* srcRow = static_cast<const char*>(tileBuffer) + srcRowStride * h;
+        memcpy_s(image_buffer_ + dstOffset, buffer_size_ - dstOffset, srcRow, srcRowStride);
+    }
+}
+
 bool ImageWriter::save(const std::filesystem::path& file_path, ImageHDMetadata metadata)
 {
     bool result = true;
