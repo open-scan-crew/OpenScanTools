@@ -4,6 +4,7 @@
 #include "vulkan/VulkanManager.h"
 
 #include <fstream>
+#include <vector>
 
 #include <QtGui/qimage.h>
 
@@ -45,6 +46,23 @@ bool ImageWriter::startCapture(ImageFormat format, uint32_t width, uint32_t heig
 void ImageWriter::transferImageTile(ImageTransferEvent transfer, uint32_t dstOffsetW, uint32_t dstOffsetH, uint32_t border)
 {
     VulkanManager::getInstance().doImageTransfer(transfer, width_, height_, image_buffer_, buffer_size_, dstOffsetW, dstOffsetH, border, format_ == ImageFormat::PNG16);
+}
+
+void ImageWriter::writeTile(const void* tileBuffer, uint32_t tileW, uint32_t tileH, uint32_t dstOffsetW, uint32_t dstOffsetH)
+{
+    if (!tileBuffer || !image_buffer_ || tileW == 0 || tileH == 0)
+        return;
+
+    const size_t bytesPerPixel = byte_per_pixel_;
+    const size_t dstRowStride = bytesPerPixel * width_;
+    const size_t srcRowStride = bytesPerPixel * tileW;
+
+    for (uint32_t h = 0; h < tileH; ++h)
+    {
+        const size_t dstOffset = bytesPerPixel * (dstOffsetW + static_cast<size_t>(dstOffsetH + h) * width_);
+        const char* srcRow = static_cast<const char*>(tileBuffer) + srcRowStride * h;
+        memcpy_s(image_buffer_ + dstOffset, buffer_size_ - dstOffset, srcRow, srcRowStride);
+    }
 }
 
 bool ImageWriter::save(const std::filesystem::path& file_path, ImageHDMetadata metadata)
@@ -101,10 +119,29 @@ bool ImageWriter::saveImage(const std::filesystem::path& file_path)
 {
     assert(image_buffer_);    
     QImage qImage;
+    std::vector<uint8_t> opaqueBuffer;
     if (format_ == ImageFormat::PNG16)
+    {
         qImage = QImage(reinterpret_cast<uchar*>(image_buffer_), width_, height_, QImage::Format::Format_RGBA64);
+    }
+    else if (format_ == ImageFormat::TIFF)
+    {
+        const size_t pixelCount = static_cast<size_t>(width_) * height_;
+        opaqueBuffer.resize(pixelCount * 4ull);
+        const uint8_t* src = reinterpret_cast<const uint8_t*>(image_buffer_);
+        for (size_t i = 0; i < pixelCount; ++i)
+        {
+            opaqueBuffer[i * 4 + 0] = src[i * 4 + 0];
+            opaqueBuffer[i * 4 + 1] = src[i * 4 + 1];
+            opaqueBuffer[i * 4 + 2] = src[i * 4 + 2];
+            opaqueBuffer[i * 4 + 3] = 255; // Force opaque background
+        }
+        qImage = QImage(reinterpret_cast<uchar*>(opaqueBuffer.data()), width_, height_, QImage::Format::Format_RGB32);
+    }
     else
+    {
         qImage = QImage(reinterpret_cast<uchar*>(image_buffer_), width_, height_, QImage::Format::Format_ARGB32);
+    }
     std::filesystem::path ext_path = file_path;
     ext_path.replace_extension("." + getImageExtension(format_));
     bool ret(qImage.save(QString::fromStdWString(ext_path.generic_wstring())));

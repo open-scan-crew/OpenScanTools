@@ -47,6 +47,7 @@ RenderingEngine::RenderingEngine(GraphManager& graphManager, IDataDispatcher& da
     , m_guiScale(guiScale)
     , m_screenshotFormat(ImageFormat::JPG)
     , m_previousFrameSkipped(false)
+    , m_hdMultisampling(1)
     , m_hdtilesize(256)
 {
     registerGuiDataFunction(guiDType::screenshot, &RenderingEngine::onScreenshot);
@@ -369,8 +370,29 @@ void RenderingEngine::updateHD()
 
     const uint32_t border = computeTileBorder(hdDisplayParams);
     constexpr uint32_t minTileSize = 64;
-    constexpr int samples = 1;
+    const int sampleCount = std::max(1, m_hdMultisampling);
     VulkanManager& vkm = VulkanManager::getInstance();
+    const bool useAccumulation = sampleCount > 1;
+    const size_t bytesPerPixel = m_hdFormat == ImageFormat::PNG16 ? 8ull : 4ull;
+
+    auto buildSampleOffsets = [](int count) {
+        switch (count)
+        {
+        case 2:
+            return std::vector<glm::vec2>{ {-0.25f, -0.25f}, {0.25f, 0.25f} };
+        case 4:
+            return std::vector<glm::vec2>{ {-0.25f, -0.25f}, {0.25f, -0.25f}, {-0.25f, 0.25f}, {0.25f, 0.25f} };
+        case 8:
+            return std::vector<glm::vec2>{
+                {-0.25f, -0.125f}, {0.25f, -0.125f}, {-0.25f, 0.125f}, {0.25f, 0.125f},
+                {-0.125f, -0.25f}, {0.125f, -0.25f}, {-0.125f, 0.25f}, {0.125f, 0.25f}
+            };
+        default:
+            return std::vector<glm::vec2>(std::max(count, 1), glm::vec2(0.f));
+        }
+    };
+
+    const std::vector<glm::vec2> sampleOffsets = buildSampleOffsets(sampleCount);
 
     auto clampTileSize = [&](uint32_t size) {
         const uint32_t maxImageSize = std::max(2u, vkm.getPhysicalDeviceLimits().maxImageDimension2D);
@@ -408,7 +430,7 @@ void RenderingEngine::updateHD()
     {        
         const uint32_t viewportW = frameW + border * 2;
         const uint32_t viewportH = frameH + border * 2;
-        if (vkm.createVirtualViewport(viewportW, viewportH, samples, virtualViewport))
+        if (vkm.createVirtualViewport(viewportW, viewportH, sampleCount, virtualViewport))
         {
             viewportReady = true;
             break;
@@ -450,6 +472,9 @@ void RenderingEngine::updateHD()
 
         ProjectionData proj = wCameraHD->getTruncatedProjection(m_hdFrameRatio, m_showHDFrame ? HD_MARGIN : 0.0);
         ProjectionFrustum frustum = proj.getProjectionFrustum();
+        std::vector<uint64_t> tileAccumulation;
+        std::vector<char> tileBuffer;
+        const bool preciseColor = m_hdFormat == ImageFormat::PNG16;
         for (uint32_t tileX = 0; tileX < tileCountX; tileX++)
         {
             for (uint32_t tileY = 0; tileY < tileCountY; tileY++)
@@ -464,26 +489,89 @@ void RenderingEngine::updateHD()
                 }
 
                 count++;
+                const uint32_t tileOffsetW = tileX * frameW;
+                const uint32_t tileOffsetH = tileY * frameH;
+                const uint32_t tileWidth = std::min<uint32_t>(frameW, m_hdExtent.x - tileOffsetW);
+                const uint32_t tileHeight = std::min<uint32_t>(frameH, m_hdExtent.y - tileOffsetH);
+                if (tileWidth == 0 || tileHeight == 0)
+                    continue;
 
-                // Set (x, y, z, left, right, top, bottom, near, far);
-                double minW = double(tileX) * frameW - border;
-                double maxW = (double(tileX) + 1) * frameW + border;
-                double dl = frustum.l * (1.0 - minW / m_hdExtent.x) + frustum.r * minW / m_hdExtent.x;
-                double dr = frustum.l * (1.0 - maxW / m_hdExtent.x) + frustum.r * maxW / m_hdExtent.x;
-                double minH = double(tileY) * frameH - border;
-                double maxH = (double(tileY) + 1) * frameH + border;
-                double db = frustum.b * (1.0 - minH / m_hdExtent.y) + frustum.t * minH / m_hdExtent.y;
-                double dt = frustum.b * (1.0 - maxH / m_hdExtent.y) + frustum.t * maxH / m_hdExtent.y;
-                wCameraHD->setProjectionFrustum(dl, dr, db, dt, frustum.n, frustum.f);
-                wCameraHD->refresh();
-                wCameraHD->prepareUniforms(m_renderSwapIndex);
+                if (useAccumulation)
+                {
+                    tileAccumulation.assign(static_cast<size_t>(tileWidth) * tileHeight * 4ull, 0ull);
+                    tileBuffer.resize(static_cast<size_t>(tileWidth) * tileHeight * bytesPerPixel);
+                }
+                int accumulatedSamples = 0;
 
-                glm::vec2 screenOffset((2 * tileX * (float)frameW - m_hdExtent.x) / 2.f,
-                    (2 * tileY * (float)frameH - m_hdExtent.y) / 2.f);
+                for (int sampleIdx = 0; sampleIdx < sampleCount; ++sampleIdx)
+                {
+                    const glm::vec2 sampleJitter = sampleOffsets[static_cast<size_t>(sampleIdx % static_cast<int>(sampleOffsets.size()))];
 
-                ImageTransferEvent ite;
-                renderVirtualViewport(virtualViewport, *&wCameraHD, screenOffset, sleepedTime, ite, m_hdFullResolutionTraversal);
-                imgWriter.transferImageTile(ite, tileX * frameW, tileY * frameH, border);
+                    // Set (x, y, z, left, right, top, bottom, near, far);
+                    double minW = double(tileX) * frameW - border + sampleJitter.x;
+                    double maxW = (double(tileX) + 1) * frameW + border + sampleJitter.x;
+                    double dl = frustum.l * (1.0 - minW / m_hdExtent.x) + frustum.r * minW / m_hdExtent.x;
+                    double dr = frustum.l * (1.0 - maxW / m_hdExtent.x) + frustum.r * maxW / m_hdExtent.x;
+                    double minH = double(tileY) * frameH - border + sampleJitter.y;
+                    double maxH = (double(tileY) + 1) * frameH + border + sampleJitter.y;
+                    double db = frustum.b * (1.0 - minH / m_hdExtent.y) + frustum.t * minH / m_hdExtent.y;
+                    double dt = frustum.b * (1.0 - maxH / m_hdExtent.y) + frustum.t * maxH / m_hdExtent.y;
+                    wCameraHD->setProjectionFrustum(dl, dr, db, dt, frustum.n, frustum.f);
+                    wCameraHD->refresh();
+                    wCameraHD->prepareUniforms(m_renderSwapIndex);
+
+                    glm::vec2 screenOffset((2 * tileX * (float)frameW - m_hdExtent.x) / 2.f + sampleJitter.x,
+                        (2 * tileY * (float)frameH - m_hdExtent.y) / 2.f + sampleJitter.y);
+
+                    ImageTransferEvent ite;
+                    renderVirtualViewport(virtualViewport, *&wCameraHD, screenOffset, sleepedTime, ite, m_hdFullResolutionTraversal);
+
+                    if (useAccumulation)
+                    {
+                        if (vkm.doImageTransfer(ite, tileWidth, tileHeight, tileBuffer.data(), tileBuffer.size(), 0u, 0u, border, preciseColor))
+                        {
+                            if (preciseColor)
+                            {
+                                const uint16_t* srcRow = reinterpret_cast<const uint16_t*>(tileBuffer.data());
+                                for (size_t idx = 0; idx < static_cast<size_t>(tileWidth) * tileHeight * 4ull; ++idx)
+                                    tileAccumulation[idx] += srcRow[idx];
+                            }
+                            else
+                            {
+                                const uint8_t* srcRow = reinterpret_cast<const uint8_t*>(tileBuffer.data());
+                                for (size_t idx = 0; idx < static_cast<size_t>(tileWidth) * tileHeight * 4ull; ++idx)
+                                    tileAccumulation[idx] += srcRow[idx];
+                            }
+                            ++accumulatedSamples;
+                        }
+                    }
+                    else
+                    {
+                        imgWriter.transferImageTile(ite, tileOffsetW, tileOffsetH, border);
+                    }
+                }
+
+                if (useAccumulation)
+                {
+                    const double divisor = static_cast<double>(std::max(1, accumulatedSamples));
+                    if (preciseColor)
+                    {
+                        uint16_t* dst = reinterpret_cast<uint16_t*>(tileBuffer.data());
+                        for (size_t idx = 0; idx < static_cast<size_t>(tileWidth) * tileHeight * 4ull; ++idx)
+                        {
+                            dst[idx] = static_cast<uint16_t>(std::round(static_cast<double>(tileAccumulation[idx]) / divisor));
+                        }
+                    }
+                    else
+                    {
+                        uint8_t* dst = reinterpret_cast<uint8_t*>(tileBuffer.data());
+                        for (size_t idx = 0; idx < static_cast<size_t>(tileWidth) * tileHeight * 4ull; ++idx)
+                        {
+                            dst[idx] = static_cast<uint8_t>(std::round(static_cast<double>(tileAccumulation[idx]) / divisor));
+                        }
+                    }
+                    imgWriter.writeTile(tileBuffer.data(), tileWidth, tileHeight, tileOffsetW, tileOffsetH);
+                }
 
                 // Copy du rendu dans l'image de destination
                 if (m_showProgressBar)
