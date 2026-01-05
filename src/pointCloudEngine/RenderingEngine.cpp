@@ -492,16 +492,16 @@ void RenderingEngine::updateHD()
 
             if (verticalComponent >= (1.0 - alignmentThreshold))
             {
-                const glm::dvec3 bottomLeftWorld = toWorld(frustum.l, frustum.b);
-                const glm::dvec3 topRightWorld = toWorld(frustum.r, frustum.t);
+                const glm::dvec3 bottomLeftWorld = toWorld(frustum.l, frustum.t);
+                const glm::dvec3 topRightWorld = toWorld(frustum.r, frustum.b);
                 m_imageMetadata.hasVerticalCorners = true;
                 m_imageMetadata.imageBottomLeft = glm::dvec2(bottomLeftWorld.x, bottomLeftWorld.y);
                 m_imageMetadata.imageTopRight = glm::dvec2(topRightWorld.x, topRightWorld.y);
             }
             else if (verticalComponent <= alignmentThreshold)
             {
-                const glm::dvec3 bottomLeftWorld = toWorld(frustum.l, frustum.b);
-                const glm::dvec3 bottomRightWorld = toWorld(frustum.r, frustum.b);
+                const glm::dvec3 bottomLeftWorld = toWorld(frustum.l, frustum.t);
+                const glm::dvec3 bottomRightWorld = toWorld(frustum.r, frustum.t);
                 m_imageMetadata.hasBottomZ = true;
                 m_imageMetadata.imageBottomZ = (bottomLeftWorld.z + bottomRightWorld.z) / 2.0;
             }
