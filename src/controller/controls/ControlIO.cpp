@@ -503,7 +503,7 @@ namespace control::io
 	** SetupImageHD
 	*/
 
-	SetupImageHD::SetupImageHD(SafePtr<CameraNode> _viewport, glm::ivec2 _imageSize, int _samples, ImageFormat _format, ImageHDMetadata _metadata, std::filesystem::path filepath, bool showProgressBar, uint32_t hdimagetilesize, bool fullResolutionTraversal)
+	SetupImageHD::SetupImageHD(SafePtr<CameraNode> _viewport, glm::ivec2 _imageSize, int _samples, ImageFormat _format, ImageHDMetadata _metadata, std::filesystem::path filepath, bool showProgressBar, uint32_t hdimagetilesize, bool fullResolutionTraversal, ImageHDAntialiasing antialiasing)
 		: m_viewport(_viewport)
 		, m_imageSize(_imageSize)
 		, m_multisample(_samples)
@@ -513,6 +513,7 @@ namespace control::io
 		, m_showProgressBar(showProgressBar)
 		, m_hdimagetilesize(hdimagetilesize)
 		, m_fullResolutionTraversal(fullResolutionTraversal)
+		, m_antialiasing(antialiasing)
 	{}
 
 	SetupImageHD::~SetupImageHD()
@@ -537,7 +538,7 @@ namespace control::io
 		}
 				
 		m_filepath.replace_extension(getImageExtension(m_format));
-		controller.updateInfo(new GuiDataGenerateHDImage(m_imageSize, 1, m_format, m_viewport, m_filepath, m_metadata, m_showProgressBar, m_hdimagetilesize, m_fullResolutionTraversal));
+		controller.updateInfo(new GuiDataGenerateHDImage(m_imageSize, 1, m_format, m_viewport, m_filepath, m_metadata, m_showProgressBar, m_hdimagetilesize, m_fullResolutionTraversal, m_antialiasing));
 	}
 
 	bool SetupImageHD::canUndo() const

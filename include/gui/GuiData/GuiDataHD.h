@@ -29,7 +29,7 @@ public:
 class GuiDataGenerateHDImage : public IGuiData
 {
 public:
-    GuiDataGenerateHDImage(glm::ivec2 imageSize, int multisampling, ImageFormat format, SafePtr<CameraNode> camera, const std::filesystem::path& filepath, const ImageHDMetadata& metadata, bool showProgressBar, uint32_t hdimagetilesize, bool fullResolutionTraversal);
+    GuiDataGenerateHDImage(glm::ivec2 imageSize, int multisampling, ImageFormat format, SafePtr<CameraNode> camera, const std::filesystem::path& filepath, const ImageHDMetadata& metadata, bool showProgressBar, uint32_t hdimagetilesize, bool fullResolutionTraversal, ImageHDAntialiasing antialiasing);
     ~GuiDataGenerateHDImage() {};
     virtual guiDType getType() override;
 
@@ -44,6 +44,7 @@ public:
     bool m_showProgressBar;
     uint32_t m_hdimagetilesize;
     bool m_fullResolutionTraversal;
+    ImageHDAntialiasing m_antialiasing;
 };
 
 

@@ -1,6 +1,7 @@
 #ifndef IMAGE_TYPES_H
 #define IMAGE_TYPES_H
 
+#include <cstdint>
 #include <map>
 #include <glm/glm.hpp>
 #include <string>
@@ -67,5 +68,29 @@ struct ImageHDMetadata
 	bool progressBar;
 
 };
+
+enum class ImageHDAntialiasing
+{
+	Off = 0,
+	Low,
+	Mid,
+	High
+};
+
+inline uint32_t getImageHDAntialiasingPasses(ImageHDAntialiasing level)
+{
+	switch (level)
+	{
+	case ImageHDAntialiasing::Low:
+		return 2u;
+	case ImageHDAntialiasing::Mid:
+		return 4u;
+	case ImageHDAntialiasing::High:
+		return 8u;
+	case ImageHDAntialiasing::Off:
+	default:
+		return 1u;
+	}
+}
 
 #endif

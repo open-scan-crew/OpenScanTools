@@ -12,6 +12,8 @@
 #include "io/ImageTypes.h"
 
 #include "models/graph/CameraNode.h"
+#include <utility>
+#include <vector>
 
 /*
 enum class PrintSize
@@ -103,6 +105,13 @@ const std::unordered_map<RatioFractional, double> g_ratioFractionalValues = {
 	{ RatioFractional::N3_D2, 1.5 },
 	{ RatioFractional::N4_D3, 4.0 / 3.0 },
 	{ RatioFractional::N1_D1, 1.0 }
+};
+
+const std::vector<std::pair<QString, ImageHDAntialiasing>> g_hdAntialiasingOptions = {
+	{ "Off", ImageHDAntialiasing::Off },
+	{ "Low", ImageHDAntialiasing::Low },
+	{ "Mid", ImageHDAntialiasing::Mid },
+	{ "High", ImageHDAntialiasing::High }
 };
 
 enum class ImageScale
@@ -278,6 +287,12 @@ ToolBarImageGroup::ToolBarImageGroup(IDataDispatcher& dataDispatcher, QWidget* p
 		m_ui.comboBox_dpi->addItem(iterator.second, QVariant((int)iterator.first));
 	}
 	m_ui.comboBox_dpi->setCurrentIndex((int)ImageDPI::DPI_150);
+
+	for (const auto& option : g_hdAntialiasingOptions)
+	{
+		m_ui.comboBox_antialiasHD->addItem(option.first, QVariant((int)option.second));
+	}
+	m_ui.comboBox_antialiasHD->setCurrentIndex(static_cast<int>(ImageHDAntialiasing::Off));
 
 	refreshShowUI();
 
@@ -517,6 +532,8 @@ void ToolBarImageGroup::slotCreateImage(std::filesystem::path filepath, bool sho
 	uint32_t width = m_ui.lineEdit_imageW->text().toUInt(&resW, 10);
 	uint32_t height = m_ui.lineEdit_imageH->text().toUInt(&resH, 10);
 	int multisample = 1;
+	QVariant antialiasingVariant = m_ui.comboBox_antialiasHD->currentData();
+	ImageHDAntialiasing antialiasing = static_cast<ImageHDAntialiasing>(antialiasingVariant.isValid() ? antialiasingVariant.toInt() : 0);
 
 	ImageHDMetadata metadata;
 	metadata.saveTextFile = true;
@@ -560,7 +577,7 @@ void ToolBarImageGroup::slotCreateImage(std::filesystem::path filepath, bool sho
 	if (resW && resH && width > 0 && height > 0)
 	{
 		const bool fullResolutionTraversal = true;
-		m_dataDispatcher.sendControl(new control::io::SetupImageHD(m_focusCamera, glm::ivec2(width, height), multisample, format, metadata, filepath, showProgressBar, hdtilesize, fullResolutionTraversal));
+		m_dataDispatcher.sendControl(new control::io::SetupImageHD(m_focusCamera, glm::ivec2(width, height), multisample, format, metadata, filepath, showProgressBar, hdtilesize, fullResolutionTraversal, antialiasing));
 	}
 	// else 
 	//    return a error message
