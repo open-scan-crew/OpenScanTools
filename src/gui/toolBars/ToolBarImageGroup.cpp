@@ -220,6 +220,29 @@ const std::unordered_map<ImageDPI, double> g_imageDPIValues = {
 	{ ImageDPI::DPI_1200, 1200 }
 };
 
+enum class ImageAntialiasing
+{
+	Off = 0,
+	Low,
+	Mid,
+	High,
+	MAX_ENUM
+};
+
+const std::map<ImageAntialiasing, QString> g_imageAntialiasingDictio = {
+	{ ImageAntialiasing::Off, "Off" },
+	{ ImageAntialiasing::Low, "Low" },
+	{ ImageAntialiasing::Mid, "Mid" },
+	{ ImageAntialiasing::High, "High" }
+};
+
+const std::unordered_map<ImageAntialiasing, int> g_imageAntialiasingSamples = {
+	{ ImageAntialiasing::Off, 1 },
+	{ ImageAntialiasing::Low, 2 },
+	{ ImageAntialiasing::Mid, 4 },
+	{ ImageAntialiasing::High, 8 }
+};
+
 ToolBarImageGroup::ToolBarImageGroup(IDataDispatcher& dataDispatcher, QWidget* parent, const float& guiScale)
 	: QWidget(parent)
 	, m_dataDispatcher(dataDispatcher)
@@ -278,6 +301,12 @@ ToolBarImageGroup::ToolBarImageGroup(IDataDispatcher& dataDispatcher, QWidget* p
 		m_ui.comboBox_dpi->addItem(iterator.second, QVariant((int)iterator.first));
 	}
 	m_ui.comboBox_dpi->setCurrentIndex((int)ImageDPI::DPI_150);
+
+	for (const auto& iterator : g_imageAntialiasingDictio)
+	{
+		m_ui.comboBox_antialiasHD->addItem(iterator.second, QVariant((int)iterator.first));
+	}
+	m_ui.comboBox_antialiasHD->setCurrentIndex((int)ImageAntialiasing::Off);
 
 	refreshShowUI();
 
@@ -516,7 +545,7 @@ void ToolBarImageGroup::slotCreateImage(std::filesystem::path filepath, bool sho
 	bool resH = false;
 	uint32_t width = m_ui.lineEdit_imageW->text().toUInt(&resW, 10);
 	uint32_t height = m_ui.lineEdit_imageH->text().toUInt(&resH, 10);
-	int multisample = 1;
+	int multisample = g_imageAntialiasingSamples.at((ImageAntialiasing)m_ui.comboBox_antialiasHD->currentData().toInt());
 
 	ImageHDMetadata metadata;
 	metadata.saveTextFile = true;
