@@ -6,6 +6,7 @@
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
 #include "pointCloudEngine/RenderingTypes.h"
+#include "io/ImageTypes.h"
 
 #include "utils/safe_ptr.h"
 
@@ -30,6 +31,7 @@ public:
 
 	void quickScreenshot(std::filesystem::path filepath);
 	void imageFormat();
+	bool isAlphaChannelEnabled() const;
 
 private:
 	~ToolBarImageGroup();
@@ -54,6 +56,7 @@ private:
 	void setSilentWidthHeight(uint32_t w, uint32_t h);
 	uint32_t resetWidth();
 	uint32_t resetHeight();
+	bool hasAlphaSupport(ImageFormat format) const;
 
 private slots:
 	void slotCreateImage(std::filesystem::path filepath, bool showProgressBar);
@@ -81,4 +84,3 @@ private:
 };
 
 #endif // TOOLBAR_IMAGEGROUP_H
-

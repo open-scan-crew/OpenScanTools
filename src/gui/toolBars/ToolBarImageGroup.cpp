@@ -260,6 +260,7 @@ ToolBarImageGroup::ToolBarImageGroup(IDataDispatcher& dataDispatcher, QWidget* p
 	QObject::connect(m_ui.checkBox_frame, &QCheckBox::toggled, this, &ToolBarImageGroup::slotShowFrame);
 
 	QObject::connect(m_ui.formatComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarImageGroup::imageFormat);
+	QObject::connect(m_ui.checkBox_alphaImage, &QCheckBox::toggled, this, &ToolBarImageGroup::imageFormat);
 	QObject::connect(m_ui.comboBox_print, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarImageGroup::slotRatioChanged);
 	QObject::connect(m_ui.comboBox_ratioImage, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarImageGroup::slotRatioChanged);
 	QObject::connect(m_ui.comboBox_scale, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarImageGroup::slotScaleChanged);
@@ -397,13 +398,24 @@ void ToolBarImageGroup::onCallHD(IGuiData* data)
 }
 
 void ToolBarImageGroup::quickScreenshot(std::filesystem::path filepath)
-{	
-	m_dataDispatcher.sendControl(new control::io::QuickScreenshot((ImageFormat)m_ui.formatComboBox->currentIndex(), filepath));
+{
+	m_dataDispatcher.sendControl(new control::io::QuickScreenshot((ImageFormat)m_ui.formatComboBox->currentIndex(), filepath, isAlphaChannelEnabled()));
 }
 
 void ToolBarImageGroup::imageFormat()
 {
-	m_dataDispatcher.updateInformation(new GuiDataRenderImagesFormat((ImageFormat)m_ui.formatComboBox->currentIndex()), this);
+	m_dataDispatcher.updateInformation(new GuiDataRenderImagesFormat((ImageFormat)m_ui.formatComboBox->currentIndex(), isAlphaChannelEnabled()), this);
+}
+
+bool ToolBarImageGroup::isAlphaChannelEnabled() const
+{
+	ImageFormat format = static_cast<ImageFormat>(m_ui.formatComboBox->currentIndex());
+	return hasAlphaSupport(format) && m_ui.checkBox_alphaImage->isChecked();
+}
+
+bool ToolBarImageGroup::hasAlphaSupport(ImageFormat format) const
+{
+	return format == ImageFormat::PNG || format == ImageFormat::PNG16 || format == ImageFormat::TIFF;
 }
 
 void ToolBarImageGroup::refreshShowUI()
@@ -552,6 +564,7 @@ void ToolBarImageGroup::slotCreateImage(std::filesystem::path filepath, bool sho
 	metadata.ortho = m_projection == ProjectionMode::Orthographic;
 	metadata.dpi = g_imageDPIValues.at((ImageDPI)(m_ui.comboBox_dpi->currentData().toInt()));
 	metadata.scaleInv = 1/m_scale;
+	metadata.includeAlpha = isAlphaChannelEnabled();
 
 	bool useFrame = m_ui.checkBox_frame->isChecked();
 	if (useFrame)

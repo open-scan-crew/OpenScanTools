@@ -159,6 +159,7 @@ private:
     {
         std::filesystem::path filepath;
         ImageFormat format;
+        bool includeAlpha = true;
         ImageTransferEvent transfer;
         uint32_t width;
         uint32_t height;
@@ -167,6 +168,7 @@ private:
     //Screenshot
     std::filesystem::path   m_screenshotFilename;
     ImageFormat             m_screenshotFormat;
+    bool                    m_screenshotIncludeAlpha = true;
     std::vector<PendingScreenshot> m_pendingScreenshots;
 
     //Pref record

@@ -405,8 +405,9 @@ guiDType GuiDataRenderRecordPerformances::getType()
 	return guiDType::renderRecordPerformance;
 }
 
-GuiDataRenderImagesFormat::GuiDataRenderImagesFormat(const ImageFormat& format)
+GuiDataRenderImagesFormat::GuiDataRenderImagesFormat(const ImageFormat& format, bool includeAlpha)
 	:m_format(format)
+	, m_includeAlpha(includeAlpha)
 {}
 
 guiDType GuiDataRenderImagesFormat::getType()

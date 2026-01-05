@@ -405,12 +405,13 @@ public:
 class GuiDataRenderImagesFormat : public IGuiData
 {
 public:
-	GuiDataRenderImagesFormat(const ImageFormat& format);
+	GuiDataRenderImagesFormat(const ImageFormat& format, bool includeAlpha);
 	~GuiDataRenderImagesFormat() {};
 	virtual guiDType getType() override;
 
 public:
 	const ImageFormat m_format;
+	const bool m_includeAlpha;
 };
 
 class GuiDataRenderUnitUsage : public GuiDataActiveCamera

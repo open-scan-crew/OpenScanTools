@@ -147,6 +147,7 @@ void RenderingEngine::onScreenshotFormat(IGuiData* data)
 {
     auto screenshotData = static_cast<GuiDataRenderImagesFormat*>(data);
     m_screenshotFormat = screenshotData->m_format;
+    m_screenshotIncludeAlpha = screenshotData->m_includeAlpha;
 }
 
 void RenderingEngine::onScreenshot(IGuiData* data)
@@ -165,7 +166,11 @@ void RenderingEngine::onScreenshot(IGuiData* data)
         std::string lengthUnit = UnitConverter::getUnitText(params.m_unitUsage.distanceUnit).toStdString();
         m_screenshotFilename.replace_filename("L" + valueDisplay(rCam->getWidthAt1m()) + lengthUnit + "xH" + valueDisplay(rCam->getHeightAt1m()) + lengthUnit + "_" + m_screenshotFilename.filename().string());
     }
-    m_screenshotFormat = screenshot->m_format == ImageFormat::MAX_ENUM ? m_screenshotFormat : screenshot->m_format;
+    if (screenshot->m_format != ImageFormat::MAX_ENUM)
+    {
+        m_screenshotFormat = screenshot->m_format;
+        m_screenshotIncludeAlpha = screenshot->m_includeAlpha;
+    }
 }
 
 void RenderingEngine::onQuitEvent(IGuiData* data)
@@ -448,7 +453,7 @@ void RenderingEngine::updateHD()
     vkm.startNextFrame();
 
     ImageWriter imgWriter;
-    if (imgWriter.startCapture(m_hdFormat, m_hdExtent.x, m_hdExtent.y) == false)
+    if (imgWriter.startCapture(m_hdFormat, m_hdExtent.x, m_hdExtent.y, m_imageMetadata.includeAlpha) == false)
         return;
 
     // Projection parameters
@@ -776,7 +781,7 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
         // We use an VkEvent for recording the VkImage transfer and get it on the host later
         const bool preciseScreenshot = m_screenshotFormat == ImageFormat::PNG16;
         ImageTransferEvent ite = vkm.transferFramebufferImage(framebuffer, cmdBuffer, preciseScreenshot);
-        m_pendingScreenshots.push_back({ m_screenshotFilename, m_screenshotFormat, ite, framebuffer->extent.width, framebuffer->extent.height });
+        m_pendingScreenshots.push_back({ m_screenshotFilename, m_screenshotFormat, m_screenshotIncludeAlpha, ite, framebuffer->extent.width, framebuffer->extent.height });
         m_screenshotFilename.clear();
     }
 
@@ -1255,7 +1260,7 @@ void RenderingEngine::processPendingScreenshots()
     for (PendingScreenshot& pending : m_pendingScreenshots)
     {
         ImageWriter imgWriter;
-        imgWriter.saveScreenshot(pending.filepath, pending.format, pending.transfer, pending.width, pending.height);
+        imgWriter.saveScreenshot(pending.filepath, pending.format, pending.transfer, pending.width, pending.height, pending.includeAlpha);
         m_dataDispatcher.sendControl(new control::function::ForwardMessage(new GeneralMessage(GeneralInfo::IMAGEEND)));
     }
 
