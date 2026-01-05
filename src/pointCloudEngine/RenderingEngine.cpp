@@ -31,6 +31,8 @@
 
 
 #include <cmath>
+#include <algorithm>
+#include <array>
 
 constexpr double HD_MARGIN = 0.05;
 
@@ -484,6 +486,31 @@ void RenderingEngine::updateHD()
         std::vector<uint64_t> tileAccumulation;
         std::vector<char> tileBuffer;
         const bool preciseColor = m_hdFormat == ImageFormat::PNG16;
+        struct CornerInfo
+        {
+            glm::dvec3 world;
+            glm::dvec2 screen;
+        };
+        auto computeCorners = [&](const ProjectionFrustum& baseFrustum) {
+            std::vector<CornerInfo> corners;
+            corners.reserve(4);
+            const std::array<glm::dvec2, 4> frustumCorners = {
+                glm::dvec2(baseFrustum.l, baseFrustum.b),
+                glm::dvec2(baseFrustum.l, baseFrustum.t),
+                glm::dvec2(baseFrustum.r, baseFrustum.b),
+                glm::dvec2(baseFrustum.r, baseFrustum.t)
+            };
+
+            const glm::dmat4 model = wCameraHD->getModelMatrix();
+            for (const auto& c : frustumCorners)
+            {
+                CornerInfo info;
+                info.world = glm::dvec3(model * glm::dvec4(c.x, c.y, 0.0, 1.0));
+                info.screen = wCameraHD->getScreenProjection(info.world, m_hdExtent);
+                corners.push_back(info);
+            }
+            return corners;
+        };
         auto updateOrthoMetadata = [&](const ProjectionFrustum& baseFrustum)
         {
             if (!m_imageMetadata.ortho)
@@ -496,24 +523,43 @@ void RenderingEngine::updateHD()
 
             if (absDotZ >= verticalDotThreshold)
             {
-                const glm::dmat4 model = wCameraHD->getModelMatrix();
-                const glm::dvec3 bottomLeftWorld = glm::dvec3(model * glm::dvec4(baseFrustum.l, baseFrustum.b, 0.0, 1.0));
-                const glm::dvec3 topRightWorld = glm::dvec3(model * glm::dvec4(baseFrustum.r, baseFrustum.t, 0.0, 1.0));
+                const std::vector<CornerInfo> corners = computeCorners(baseFrustum);
+                const auto bottomLeftIt = std::min_element(corners.begin(), corners.end(), [](const CornerInfo& a, const CornerInfo& b) {
+                    if (a.screen.y == b.screen.y)
+                        return a.screen.x < b.screen.x;
+                    return a.screen.y < b.screen.y;
+                });
+                const auto topRightIt = std::max_element(corners.begin(), corners.end(), [](const CornerInfo& a, const CornerInfo& b) {
+                    if (a.screen.y == b.screen.y)
+                        return a.screen.x < b.screen.x;
+                    return a.screen.y < b.screen.y;
+                });
 
                 m_imageMetadata.cameraOrientation = ImageHDMetadata::CameraOrientation::Vertical;
-                m_imageMetadata.hasBottomLeftXY = true;
-                m_imageMetadata.hasTopRightXY = true;
-                m_imageMetadata.bottomLeftXY = glm::dvec2(bottomLeftWorld.x, bottomLeftWorld.y);
-                m_imageMetadata.topRightXY = glm::dvec2(topRightWorld.x, topRightWorld.y);
+                if (bottomLeftIt != corners.end())
+                {
+                    m_imageMetadata.hasBottomLeftXY = true;
+                    m_imageMetadata.bottomLeftXY = glm::dvec2(bottomLeftIt->world.x, bottomLeftIt->world.y);
+                }
+                if (topRightIt != corners.end())
+                {
+                    m_imageMetadata.hasTopRightXY = true;
+                    m_imageMetadata.topRightXY = glm::dvec2(topRightIt->world.x, topRightIt->world.y);
+                }
             }
             else if (absDotZ <= horizontalZThreshold)
             {
-                const glm::dmat4 model = wCameraHD->getModelMatrix();
-                const glm::dvec3 bottomCenterWorld = glm::dvec3(model * glm::dvec4(0.0, baseFrustum.b, 0.0, 1.0));
+                const std::vector<CornerInfo> corners = computeCorners(baseFrustum);
+                const auto bottomIt = std::min_element(corners.begin(), corners.end(), [](const CornerInfo& a, const CornerInfo& b) {
+                    return a.screen.y < b.screen.y;
+                });
 
                 m_imageMetadata.cameraOrientation = ImageHDMetadata::CameraOrientation::Horizontal;
-                m_imageMetadata.hasBottomZ = true;
-                m_imageMetadata.bottomZ = bottomCenterWorld.z;
+                if (bottomIt != corners.end())
+                {
+                    m_imageMetadata.hasBottomZ = true;
+                    m_imageMetadata.bottomZ = bottomIt->world.z;
+                }
             }
         };
         for (uint32_t tileX = 0; tileX < tileCountX; tileX++)
