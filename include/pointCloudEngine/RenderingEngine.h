@@ -150,6 +150,7 @@ private:
     bool m_showProgressBar;
     uint32_t m_hdtilesize;
     bool m_hdFullResolutionTraversal = false;
+    ImageHDAntialiasing m_hdAntialiasing = ImageHDAntialiasing::Off;
 
     // *** Compute *** //
     std::atomic<bool> m_computeRender = false;

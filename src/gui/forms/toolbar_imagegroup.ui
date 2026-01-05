@@ -267,6 +267,16 @@
      </property>
     </widget>
    </item>
+   <item row="0" column="11">
+    <widget class="QLabel" name="label_antialiasing">
+     <property name="text">
+      <string>Antialiasing</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="12">
+    <widget class="QComboBox" name="comboBox_antialiasHD"/>
+   </item>
    <item row="0" column="9" colspan="2">
     <widget class="QToolButton" name="toolButton_createImage">
      <property name="sizePolicy">
@@ -302,6 +312,7 @@
   <tabstop>lineEdit_imageH</tabstop>
   <tabstop>comboBox_scale</tabstop>
   <tabstop>comboBox_dpi</tabstop>
+  <tabstop>comboBox_antialiasHD</tabstop>
   <tabstop>formatComboBox</tabstop>
   <tabstop>toolButton_createImage</tabstop>
   <tabstop>toolButton_screenshot</tabstop>

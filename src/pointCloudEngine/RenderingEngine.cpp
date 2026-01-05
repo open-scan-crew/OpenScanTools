@@ -31,6 +31,9 @@
 
 
 #include <cmath>
+#include <array>
+#include <algorithm>
+#include <limits>
 
 constexpr double HD_MARGIN = 0.05;
 
@@ -203,13 +206,14 @@ void RenderingEngine::onStartHDRender(IGuiData* data)
     m_showProgressBar = guiData->m_showProgressBar;
     m_hdtilesize = guiData->m_hdimagetilesize;
     m_hdFullResolutionTraversal = guiData->m_fullResolutionTraversal;
+    m_hdAntialiasing = guiData->m_antialiasing;
 
     // FIXME - On peut directement garder la camera sans passer par son viewport
     m_activeCamera = guiData->m_camera;
 
     // The extent provided by the GuiData must be coherent with the ratio
-    assert(abs((double)m_hdExtent.y * m_hdFrameRatio - (double)m_hdExtent.x) <= std::max(m_hdFrameRatio, 1.0));
-    m_hdFrameRatio = (double)m_hdExtent.x / (double)m_hdExtent.y;
+    m_hdFrameRatio = static_cast<double>(m_hdExtent.x) / static_cast<double>(m_hdExtent.y);
+    assert(std::abs(static_cast<double>(m_hdExtent.y) * m_hdFrameRatio - static_cast<double>(m_hdExtent.x)) <= std::max(m_hdFrameRatio, 1.0));
     m_doHDRender.store(true);
 }
 
@@ -429,11 +433,52 @@ void RenderingEngine::updateHD()
     if (imgWriter.startCapture(m_hdFormat, m_hdExtent.x, m_hdExtent.y) == false)
         return;
 
+    const uint32_t aaPassCount = std::max(1u, getImageHDAntialiasingPasses(m_hdAntialiasing));
+    const std::vector<glm::dvec2> jitterOffsets = [this, aaPassCount]() {
+        switch (m_hdAntialiasing)
+        {
+        case ImageHDAntialiasing::Low:
+            return std::vector<glm::dvec2>{
+                { 0.25, 0.25 },
+                { -0.25, -0.25 },
+            };
+        case ImageHDAntialiasing::Mid:
+            return std::vector<glm::dvec2>{
+                { 0.25, 0.25 },
+                { -0.25, 0.25 },
+                { 0.25, -0.25 },
+                { -0.25, -0.25 },
+            };
+        case ImageHDAntialiasing::High:
+            return std::vector<glm::dvec2>{
+                { 0.125, 0.375 },
+                { -0.125, 0.375 },
+                { 0.375, 0.125 },
+                { -0.375, 0.125 },
+                { 0.375, -0.125 },
+                { -0.375, -0.125 },
+                { 0.125, -0.375 },
+                { -0.125, -0.375 },
+            };
+        case ImageHDAntialiasing::Off:
+        default:
+            (void)aaPassCount;
+            return std::vector<glm::dvec2>{ glm::dvec2(0.0, 0.0) };
+        }
+    }();
+
+    const uint32_t bytePerPixel = imgWriter.getBytePerPixel();
+    const size_t pixelCount = static_cast<size_t>(m_hdExtent.x) * static_cast<size_t>(m_hdExtent.y);
+    std::vector<double> accumulation(pixelCount * 4ull, 0.0);
+
     // Projection parameters
     std::tie(tileCountX, tileCountY) = computeTileCount(frameW, frameH);
-    uint32_t count = 0;
+    uint64_t count = 0;
+    const uint64_t totalTiles = static_cast<uint64_t>(tileCountX) * static_cast<uint64_t>(tileCountY) * static_cast<uint64_t>(aaPassCount);
     double sleepedTime = 0.0;
     SafePtr<CameraNode> cameraHD = m_graph.duplicateCamera(m_activeCamera);
+    bool canceled = false;
+    uint32_t completedPasses = 0;
     {
         WritePtr<CameraNode> wCameraHD = cameraHD.get();
         if (!wCameraHD)
@@ -446,55 +491,115 @@ void RenderingEngine::updateHD()
         wCameraHD->refresh();
 
         if(m_showProgressBar)
-            m_dataDispatcher.updateInformation(new GuiDataProcessingSplashScreenStart((uint64_t)tileCountX * tileCountY, TEXT_SCREENSHOT_START, TEXT_SCREENSHOT_PROCESSING.arg(count).arg(tileCountX * tileCountY)));
+            m_dataDispatcher.updateInformation(new GuiDataProcessingSplashScreenStart(totalTiles, TEXT_SCREENSHOT_START, TEXT_SCREENSHOT_PROCESSING.arg(count).arg(totalTiles)));
 
-        ProjectionData proj = wCameraHD->getTruncatedProjection(m_hdFrameRatio, m_showHDFrame ? HD_MARGIN : 0.0);
-        ProjectionFrustum frustum = proj.getProjectionFrustum();
-        for (uint32_t tileX = 0; tileX < tileCountX; tileX++)
+        for (uint32_t pass = 0; pass < aaPassCount; ++pass)
         {
-            for (uint32_t tileY = 0; tileY < tileCountY; tileY++)
+            imgWriter.clearBuffer();
+            const glm::dvec2 jitter = jitterOffsets[pass % jitterOffsets.size()];
+
+            ProjectionData proj = wCameraHD->getTruncatedProjection(m_hdFrameRatio, m_showHDFrame ? HD_MARGIN : 0.0);
+            ProjectionFrustum frustum = proj.getProjectionFrustum();
+            const double frustumWidth = frustum.r - frustum.l;
+            const double frustumHeight = frustum.t - frustum.b;
+            const double jitterShiftX = frustumWidth * jitter.x / static_cast<double>(m_hdExtent.x);
+            const double jitterShiftY = frustumHeight * jitter.y / static_cast<double>(m_hdExtent.y);
+
+            for (uint32_t tileX = 0; tileX < tileCountX; tileX++)
             {
-                // Test si on veut interrompre le rendu
-                if (m_processSignalCancel.exchange(false))
+                for (uint32_t tileY = 0; tileY < tileCountY; tileY++)
                 {
-                    if (m_notEnoughMemoryForHD)
-                        m_dataDispatcher.updateInformation(new GuiDataProcessingSplashScreenLogUpdate(QString(TEXT_HD_FAILED_NOT_ENOUGH_MEMORY)));
-                    tileX = tileCountX;
-                    break;
+                    // Test si on veut interrompre le rendu
+                    if (m_processSignalCancel.exchange(false))
+                    {
+                        canceled = true;
+                        if (m_notEnoughMemoryForHD)
+                            m_dataDispatcher.updateInformation(new GuiDataProcessingSplashScreenLogUpdate(QString(TEXT_HD_FAILED_NOT_ENOUGH_MEMORY)));
+                        tileX = tileCountX;
+                        break;
+                    }
+
+                    count++;
+
+                    // Set (x, y, z, left, right, top, bottom, near, far);
+                    double minW = double(tileX) * frameW - border;
+                    double maxW = (double(tileX) + 1) * frameW + border;
+                    double dl = frustum.l * (1.0 - minW / m_hdExtent.x) + frustum.r * minW / m_hdExtent.x;
+                    double dr = frustum.l * (1.0 - maxW / m_hdExtent.x) + frustum.r * maxW / m_hdExtent.x;
+                    double minH = double(tileY) * frameH - border;
+                    double maxH = (double(tileY) + 1) * frameH + border;
+                    double db = frustum.b * (1.0 - minH / m_hdExtent.y) + frustum.t * minH / m_hdExtent.y;
+                    double dt = frustum.b * (1.0 - maxH / m_hdExtent.y) + frustum.t * maxH / m_hdExtent.y;
+                    wCameraHD->setProjectionFrustum(dl + jitterShiftX, dr + jitterShiftX, db + jitterShiftY, dt + jitterShiftY, frustum.n, frustum.f);
+                    wCameraHD->refresh();
+                    wCameraHD->prepareUniforms(m_renderSwapIndex);
+
+                    glm::vec2 screenOffset((2 * tileX * (float)frameW - m_hdExtent.x) / 2.f,
+                        (2 * tileY * (float)frameH - m_hdExtent.y) / 2.f);
+
+                    ImageTransferEvent ite;
+                    renderVirtualViewport(virtualViewport, *&wCameraHD, screenOffset, sleepedTime, ite, m_hdFullResolutionTraversal);
+                    imgWriter.transferImageTile(ite, tileX * frameW, tileY * frameH, border);
+
+                    // Copy du rendu dans l'image de destination
+                    if (m_showProgressBar)
+                        m_dataDispatcher.updateInformation(new GuiDataProcessingSplashScreenProgressBarUpdate(TEXT_SCREENSHOT_PROCESSING.arg(count).arg(totalTiles), count));
                 }
-
-                count++;
-
-                // Set (x, y, z, left, right, top, bottom, near, far);
-                double minW = double(tileX) * frameW - border;
-                double maxW = (double(tileX) + 1) * frameW + border;
-                double dl = frustum.l * (1.0 - minW / m_hdExtent.x) + frustum.r * minW / m_hdExtent.x;
-                double dr = frustum.l * (1.0 - maxW / m_hdExtent.x) + frustum.r * maxW / m_hdExtent.x;
-                double minH = double(tileY) * frameH - border;
-                double maxH = (double(tileY) + 1) * frameH + border;
-                double db = frustum.b * (1.0 - minH / m_hdExtent.y) + frustum.t * minH / m_hdExtent.y;
-                double dt = frustum.b * (1.0 - maxH / m_hdExtent.y) + frustum.t * maxH / m_hdExtent.y;
-                wCameraHD->setProjectionFrustum(dl, dr, db, dt, frustum.n, frustum.f);
-                wCameraHD->refresh();
-                wCameraHD->prepareUniforms(m_renderSwapIndex);
-
-                glm::vec2 screenOffset((2 * tileX * (float)frameW - m_hdExtent.x) / 2.f,
-                    (2 * tileY * (float)frameH - m_hdExtent.y) / 2.f);
-
-                ImageTransferEvent ite;
-                renderVirtualViewport(virtualViewport, *&wCameraHD, screenOffset, sleepedTime, ite, m_hdFullResolutionTraversal);
-                imgWriter.transferImageTile(ite, tileX * frameW, tileY * frameH, border);
-
-                // Copy du rendu dans l'image de destination
-                if (m_showProgressBar)
-                    m_dataDispatcher.updateInformation(new GuiDataProcessingSplashScreenProgressBarUpdate(TEXT_SCREENSHOT_PROCESSING.arg(count).arg(tileCountX * tileCountY), count));
             }
+
+            const char* passBuffer = imgWriter.getBuffer();
+            if (!passBuffer)
+                continue;
+
+            if (bytePerPixel == 8u)
+            {
+                const uint16_t* src = reinterpret_cast<const uint16_t*>(passBuffer);
+                for (size_t idx = 0; idx < accumulation.size(); ++idx)
+                    accumulation[idx] += static_cast<double>(src[idx]);
+            }
+            else
+            {
+                const uint8_t* src = reinterpret_cast<const uint8_t*>(passBuffer);
+                for (size_t idx = 0; idx < accumulation.size(); ++idx)
+                    accumulation[idx] += static_cast<double>(src[idx]);
+            }
+
+            completedPasses++;
+            if (canceled)
+                break;
         }
     }
 
     if (m_showProgressBar)
-        m_dataDispatcher.updateInformation(new GuiDataProcessingSplashScreenProgressBarUpdate(TEXT_SCREENSHOT_PROCESSING.arg(count).arg(tileCountX * tileCountY), count));
+        m_dataDispatcher.updateInformation(new GuiDataProcessingSplashScreenProgressBarUpdate(TEXT_SCREENSHOT_PROCESSING.arg(count).arg(totalTiles), count));
     Logger::log(LoggerMode::VKLog) << "Sleeped time during rendering " << sleepedTime << " seconds !" << Logger::endl;
+
+    if (!accumulation.empty())
+    {
+        imgWriter.clearBuffer();
+        const uint32_t normalizationPasses = std::max(completedPasses, 1u);
+        const double invPassCount = 1.0 / static_cast<double>(normalizationPasses);
+        if (bytePerPixel == 8u)
+        {
+            uint16_t* dst = reinterpret_cast<uint16_t*>(imgWriter.getBuffer());
+            const double maxValue = static_cast<double>(std::numeric_limits<uint16_t>::max());
+            for (size_t idx = 0; idx < accumulation.size(); ++idx)
+            {
+                const double averaged = accumulation[idx] * invPassCount;
+                dst[idx] = static_cast<uint16_t>(std::lround(std::clamp(averaged, 0.0, maxValue)));
+            }
+        }
+        else
+        {
+            uint8_t* dst = reinterpret_cast<uint8_t*>(imgWriter.getBuffer());
+            const double maxValue = static_cast<double>(std::numeric_limits<uint8_t>::max());
+            for (size_t idx = 0; idx < accumulation.size(); ++idx)
+            {
+                const double averaged = accumulation[idx] * invPassCount;
+                dst[idx] = static_cast<uint8_t>(std::lround(std::clamp(averaged, 0.0, maxValue)));
+            }
+        }
+    }
 
     cameraHD.destroy();
     vkm.destroyFramebuffer(virtualViewport);

@@ -4,6 +4,7 @@
 #include "vulkan/VulkanManager.h"
 
 #include <fstream>
+#include <cstring>
 
 #include <QtGui/qimage.h>
 
@@ -95,6 +96,27 @@ bool ImageWriter::saveMetadata(const std::filesystem::path& file_path, ImageHDMe
 
     os.close();
     return true;
+}
+
+char* ImageWriter::getBuffer()
+{
+    return image_buffer_;
+}
+
+const char* ImageWriter::getBuffer() const
+{
+    return image_buffer_;
+}
+
+uint32_t ImageWriter::getBytePerPixel() const
+{
+    return byte_per_pixel_;
+}
+
+void ImageWriter::clearBuffer()
+{
+    if (image_buffer_ && buffer_size_ > 0)
+        std::memset(image_buffer_, 0, buffer_size_);
 }
 
 bool ImageWriter::saveImage(const std::filesystem::path& file_path)

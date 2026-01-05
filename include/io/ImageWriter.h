@@ -5,6 +5,7 @@
 #include "io/ImageTypes.h"
 
 #include <filesystem>
+#include <cstdint>
 
 class ImageWriter
 {
@@ -17,6 +18,10 @@ public:
     bool startCapture(ImageFormat format, uint32_t width, uint32_t height);
     void transferImageTile(ImageTransferEvent transfer, uint32_t dstOffsetW, uint32_t dstOffsetH, uint32_t border);
     bool save(const std::filesystem::path& file_path, ImageHDMetadata metadata);
+    char* getBuffer();
+    const char* getBuffer() const;
+    uint32_t getBytePerPixel() const;
+    void clearBuffer();
 
 private:
     bool saveMetadata(const std::filesystem::path& path, ImageHDMetadata metadata);
