@@ -67,6 +67,12 @@ struct ImageHDMetadata
 
 	bool progressBar;
 
+	bool hasBottomZ = false;
+	bool hasVerticalCorners = false;
+	double imageBottomZ = 0.0;
+	glm::dvec2 imageBottomLeft = glm::dvec2(0.0);
+	glm::dvec2 imageTopRight = glm::dvec2(0.0);
+
 };
 
 #endif
