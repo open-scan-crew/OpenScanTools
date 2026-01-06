@@ -90,10 +90,8 @@ void main()
             vec2(1, 1), vec2(-1, 1), vec2(1, -1), vec2(-1, -1),
             vec2(2, 0), vec2(-2, 0), vec2(0, 2), vec2(0, -2));
 
-         float pixelScale = max(min(pc.pxSize.x, pc.pxSize.y), 1e-5);
-         float worldRadius = pc.aoRadius * max(0.02, 0.05 * centerDepth);
-         float radiusPx = 2.0 + worldRadius / pixelScale;
-         float bias = max(centerDepth * 0.005, 0.001);
+         float radiusPx = 3.0 + pc.aoRadius * 18.0;
+         float bias = max(centerDepth * 0.001, 0.00025);
          float occ = 0.0;
          float weightSum = 0.0;
 
@@ -117,7 +115,7 @@ void main()
             if (delta > 0.0)
             {
                float range = delta / (centerDepth + bias);
-               float occlusion = clamp(range * 3.5, 0.0, 1.0) * falloff;
+               float occlusion = clamp(range * 5.0, 0.0, 1.0) * falloff;
                occ += occlusion * dirWeight;
             }
             weightSum += dirWeight;
@@ -126,14 +124,15 @@ void main()
          if (weightSum > 0.0)
          {
             float aoVis = clamp(occ / weightSum, 0.0, 1.0);
-            aoVis = pow(aoVis, 0.85);
-            aoFactor = 1.0 - clamp(pc.aoIntensity * aoVis, 0.0, 0.7);
+            aoVis = pow(aoVis, 0.6);
+            aoFactor = 1.0 - clamp(pc.aoIntensity * aoVis, 0.0, 0.5);
          }
          else
          {
-            aoFactor = 0.9;
+            aoFactor = 0.8;
          }
       }
+      aoFactor = min(aoFactor, 0.8);
    }
 
    float topLight = 1.0;
