@@ -87,6 +87,7 @@ void main()
    }
 
    float aoFactor = 1.0;
+   float aoVis = 0.0;
    if (pc.aoEnabled != 0 && pc.aoIntensity > 0.0)
    {
       float centerDepth = imageDepth[4];
@@ -130,17 +131,10 @@ void main()
 
          if (weightSum > 0.0)
          {
-            float aoVis = clamp(occ / weightSum, 0.0, 1.0);
+            aoVis = clamp(occ / weightSum, 0.0, 1.0);
             aoVis = pow(aoVis, 0.6);
-            aoFactor = 1.0 - clamp(pc.aoIntensity * aoVis, 0.0, 0.5);
-         }
-         else
-         {
-            aoFactor = 0.8;
          }
       }
-      // Plancher pour garantir un assombrissement perceptible si AO activé
-      aoFactor = min(aoFactor, 0.8);
    }
 
    float topLight = 1.0;
@@ -154,6 +148,17 @@ void main()
          topLight = mix(1.0, nz, clamp(pc.aoTopLightStrength, 0.0, 1.0));
       }
    }
+
+   // AO appliqué comme masque d'ombre uniquement (évite le voile global)
+   float shadowWeight = 1.0;
+   float normLen = length(normal);
+   if (normLen > 1e-4)
+   {
+      vec3 n = normal / normLen;
+      shadowWeight = clamp(1.0 - max(n.z, 0.0), 0.0, 1.0);
+   }
+   float occlusionStrength = clamp(pc.aoIntensity * aoVis, 0.0, 0.5);
+   aoFactor = 1.0 - occlusionStrength * shadowWeight;
 
    vec3 finalColor = shadedColor * aoFactor * topLight;
    imageStore(inOutColorImage, ivec2(gl_GlobalInvocationID.xy), vec4(finalColor, imageColor.a));
