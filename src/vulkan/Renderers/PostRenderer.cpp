@@ -616,7 +616,7 @@ void PostRenderer::processAmbientOcclusion(VkCommandBuffer _cmdBuffer, VkDescrip
         float radius;
         float depthReject;
         float bias;
-    } pc = { glm::ivec2(_extent.width, _extent.height), 14.0f, 0.35f, 0.02f };
+    } pc = { glm::ivec2(_extent.width, _extent.height), 12.0f, 0.18f, 0.006f };
 
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_aoPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(pc), &pc);
 

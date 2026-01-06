@@ -93,7 +93,7 @@ void main()
     }
 
     const float centerLog = log2(max(centerDepth, 1e-6) + 1.0);
-    const float radiusPx = pc.radius * mix(0.75, 1.35, clamp(centerDepth * 0.04, 0.0, 1.0));
+    const float radiusPx = pc.radius * mix(0.8, 1.2, clamp(centerDepth * 0.035, 0.0, 1.0));
     const float angle = hash12(uvec2(gid)) * 6.2831853;
     const vec2 noise = vec2(cos(angle), sin(angle));
     const mat2 rot = mat2(noise.x, -noise.y, noise.y, noise.x);
@@ -120,7 +120,8 @@ void main()
             continue;
 
         float dirWeight = clamp(dot(normal, normalize(vec3(dir, 0.8))), 0.0, 1.0);
-        float occlusion = smoothstep(0.0, guard, logDelta) * dirWeight;
+        float normDelta = clamp(logDelta / max(guard, 1e-4), 0.0, 1.0);
+        float occlusion = pow(normDelta, 0.75) * dirWeight;
         occAccum += occlusion;
         sampleCount += 1.0;
     }
