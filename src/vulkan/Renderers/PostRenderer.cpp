@@ -511,11 +511,10 @@ void PostRenderer::setConstantLighting(const PostRenderingNormals& lighting, con
     const float gloss = lighting.gloss;
 
     const int aoEnabled = ao.enabled ? 1 : 0;
-    const bool useTopLight = ao.enabled && ao.useTopLight;
-    const int aoTopLight = useTopLight ? 1 : 0;
+    const int aoTopLight = ao.enabled ? 1 : 0;
     const float aoRadius = ao.enabled ? ao.radius : 0.0f;
     const float aoIntensity = ao.enabled ? ao.intensity : 0.0f;
-    const float aoTopLightStrength = useTopLight ? ao.topLightStrength : 0.0f;
+    const float aoTopLightStrength = ao.enabled ? ao.topLightStrength : 0.0f;
     const int normalsEnabled = enableNormals ? 1 : 0;
 
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_normalPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 36, 4, &tone);

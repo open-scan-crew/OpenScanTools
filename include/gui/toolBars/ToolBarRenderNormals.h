@@ -26,9 +26,9 @@ private:
 	void onFocusViewport(IGuiData* data);
     void onTransparencyChanged(IGuiData* data);
 
-	void updateNormals(const PostRenderingNormals& normalsParams);
+    void updateNormals(const PostRenderingNormals& normalsParams);
     void updateAmbientOcclusion(const AmbientOcclusion& aoParams);
-	void blockAllSignals(bool block);
+    void blockAllSignals(bool block);
     void applyAOEnabledState();
     void applyTransparencyLock(bool transparent);
 

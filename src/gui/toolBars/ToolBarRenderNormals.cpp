@@ -18,7 +18,6 @@ ToolBarRenderNormals::ToolBarRenderNormals(IDataDispatcher& dataDispatcher, QWid
 	m_ui.doubleSpinBox_sharpness->setEnabled(false);
 	m_ui.checkBox_blendColor->setEnabled(true);
 	m_ui.checkBox_ao->setEnabled(true);
-	m_ui.checkBox_aoTopLight->setEnabled(true);
 	m_ui.slider_aoSize->setEnabled(false);
 	m_ui.doubleSpinBox_aoSize->setEnabled(false);
 	m_ui.slider_aoIntensity->setEnabled(false);
@@ -28,7 +27,6 @@ ToolBarRenderNormals::ToolBarRenderNormals(IDataDispatcher& dataDispatcher, QWid
 	connect(m_ui.normals_checkBox, &QCheckBox::stateChanged, this, &ToolBarRenderNormals::slotNormalsChanged);
 	connect(m_ui.checkBox_blendColor, &QCheckBox::stateChanged, this, &ToolBarRenderNormals::slotNormalsChanged);
 	connect(m_ui.checkBox_ao, &QCheckBox::stateChanged, this, &ToolBarRenderNormals::slotAOChanged);
-	connect(m_ui.checkBox_aoTopLight, &QCheckBox::stateChanged, this, &ToolBarRenderNormals::slotAOChanged);
 
 	connect(m_ui.slider_normalStrength, &QSlider::valueChanged, m_ui.spinBox_normalStrength, &QSpinBox::setValue);
 	connect(m_ui.slider_normalStrength, &QSlider::valueChanged, this, &ToolBarRenderNormals::slotNormalsChanged);
@@ -60,7 +58,6 @@ ToolBarRenderNormals::ToolBarRenderNormals(IDataDispatcher& dataDispatcher, QWid
 	m_ui.doubleSpinBox_aoSize->setValue(0.8);
 	m_ui.slider_aoIntensity->setValue(120);
 	m_ui.doubleSpinBox_aoIntensity->setValue(1.2);
-	m_ui.checkBox_aoTopLight->setChecked(true);
 
 	// GuiData link
 	registerGuiDataFunction(guiDType::projectLoaded, &ToolBarRenderNormals::onProjectLoad);
@@ -146,7 +143,6 @@ void ToolBarRenderNormals::updateAmbientOcclusion(const AmbientOcclusion& aoPara
 {
 	blockAllSignals(true);
 	m_ui.checkBox_ao->setChecked(aoParams.enabled && !m_transparencyActive);
-	m_ui.checkBox_aoTopLight->setChecked(aoParams.useTopLight);
 	m_ui.slider_aoSize->setValue(static_cast<int>(std::round(aoParams.radius * 100.f)));
 	m_ui.doubleSpinBox_aoSize->setValue(aoParams.radius);
 	m_ui.slider_aoIntensity->setValue(static_cast<int>(std::round(aoParams.intensity * 100.f)));
@@ -163,7 +159,6 @@ void ToolBarRenderNormals::blockAllSignals(bool block)
 	m_ui.doubleSpinBox_sharpness->blockSignals(block);
 	m_ui.checkBox_blendColor->blockSignals(block);
 	m_ui.checkBox_ao->blockSignals(block);
-	m_ui.checkBox_aoTopLight->blockSignals(block);
 	m_ui.slider_aoSize->blockSignals(block);
 	m_ui.doubleSpinBox_aoSize->blockSignals(block);
 	m_ui.slider_aoIntensity->blockSignals(block);
@@ -199,8 +194,8 @@ void ToolBarRenderNormals::slotAOChanged()
 	ao.enabled = m_ui.checkBox_ao->isChecked() && !m_transparencyActive;
 	ao.radius = static_cast<float>(m_ui.doubleSpinBox_aoSize->value());
 	ao.intensity = static_cast<float>(m_ui.doubleSpinBox_aoIntensity->value());
-	ao.useTopLight = m_ui.checkBox_aoTopLight->isChecked();
-	ao.topLightStrength = 0.5f;
+	ao.useTopLight = true;
+	ao.topLightStrength = 1.0f;
 
 	applyAOEnabledState();
 	m_dataDispatcher.updateInformation(new GuiDataAmbientOcclusion(ao, m_focusCamera), this);
@@ -210,7 +205,6 @@ void ToolBarRenderNormals::applyAOEnabledState()
 {
 	const bool aoControlsEnabled = m_ui.checkBox_ao->isChecked() && !m_transparencyActive;
 	m_ui.checkBox_ao->setEnabled(!m_transparencyActive);
-	m_ui.checkBox_aoTopLight->setEnabled(aoControlsEnabled);
 	m_ui.slider_aoSize->setEnabled(aoControlsEnabled);
 	m_ui.doubleSpinBox_aoSize->setEnabled(aoControlsEnabled);
 	m_ui.slider_aoIntensity->setEnabled(aoControlsEnabled);

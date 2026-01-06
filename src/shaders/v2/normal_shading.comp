@@ -132,7 +132,7 @@ void main()
          if (weightSum > 0.0)
          {
             aoVis = clamp(occ / weightSum, 0.0, 1.0);
-            aoVis = pow(aoVis, 0.6);
+            aoVis = pow(aoVis, 0.45);
          }
       }
    }
@@ -157,7 +157,7 @@ void main()
       vec3 n = normal / normLen;
       shadowWeight = clamp(1.0 - max(n.z, 0.0), 0.0, 1.0);
    }
-   float occlusionStrength = clamp(pc.aoIntensity * aoVis, 0.0, 0.5);
+   float occlusionStrength = clamp(pc.aoIntensity * aoVis, 0.0, 0.8);
    aoFactor = 1.0 - occlusionStrength * shadowWeight;
 
    vec3 finalColor = shadedColor * aoFactor * topLight;
