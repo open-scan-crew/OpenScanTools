@@ -332,6 +332,16 @@ guiDType GuiDataDepthLining::getType()
         return guiDType::renderDepthLining;
 }
 
+GuiDataAmbientOcclusion::GuiDataAmbientOcclusion(const AmbientOcclusionSettings& settings, SafePtr<CameraNode> camera)
+    : GuiDataActiveCamera(camera)
+    , m_settings(settings)
+{}
+
+guiDType GuiDataAmbientOcclusion::getType()
+{
+    return guiDType::renderAmbientOcclusion;
+}
+
 /*** Distance Ramp ***/
 
 GuiDataRenderDistanceRampValues::GuiDataRenderDistanceRampValues(float min, float max, int steps, SafePtr<CameraNode> camera)
