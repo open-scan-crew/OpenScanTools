@@ -98,8 +98,8 @@ void main()
             vec2(1, 1), vec2(-1, 1), vec2(1, -1), vec2(-1, -1),
             vec2(2, 0), vec2(-2, 0), vec2(0, 2), vec2(0, -2));
 
-         float radiusPx = 3.0 + pc.aoRadius * 18.0;
-         float bias = max(centerDepth * 0.001, 0.00025);
+         float radiusPx = 2.0 + pc.aoRadius * 12.0;
+         float bias = max(centerDepth * 0.0005, 0.0002);
          float occ = 0.0;
          float weightSum = 0.0;
 
@@ -132,7 +132,7 @@ void main()
          if (weightSum > 0.0)
          {
             aoVis = clamp(occ / weightSum, 0.0, 1.0);
-            aoVis = pow(aoVis, 0.45);
+            aoVis = pow(aoVis, 0.35);
          }
       }
    }
@@ -157,9 +157,13 @@ void main()
       vec3 n = normal / normLen;
       shadowWeight = clamp(1.0 - max(n.z, 0.0), 0.0, 1.0);
    }
-   float occlusionStrength = clamp(pc.aoIntensity * aoVis, 0.0, 0.8);
+   float occlusionStrength = clamp(pc.aoIntensity * aoVis, 0.0, 1.0);
    aoFactor = 1.0 - occlusionStrength * shadowWeight;
 
-   vec3 finalColor = shadedColor * aoFactor * topLight;
+   float ambientFloor = 0.75;
+   float aoDark = max(aoFactor, ambientFloor);
+
+   vec3 litColor = shadedColor * topLight;
+   vec3 finalColor = litColor * mix(1.0, aoDark, shadowWeight);
    imageStore(inOutColorImage, ivec2(gl_GlobalInvocationID.xy), vec4(finalColor, imageColor.a));
 }
