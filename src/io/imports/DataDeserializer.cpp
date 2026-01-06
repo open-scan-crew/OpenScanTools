@@ -699,6 +699,15 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
         retVal = false;
     }
 
+    if (json.find(Key_Ambient_Occlusion) != json.end())
+    {
+        nlohmann::json options = json.at(Key_Ambient_Occlusion);
+        if (options.size() == 5)
+            data.m_ambientOcclusion = { options[0], options[1], options[2], options[3], options[4] };
+        else
+            IOLOG << "ViewPoint AmbientOcclusion malformed" << LOGENDL;
+    }
+
     if (json.find(Key_Edge_Aware_Blur) != json.end())
     {
         nlohmann::json options = json.at(Key_Edge_Aware_Blur);
