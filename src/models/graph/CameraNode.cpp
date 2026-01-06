@@ -64,6 +64,7 @@ CameraNode::CameraNode(const std::wstring& name, IDataDispatcher& dataDispatcher
     registerGuiDataFunction(guiDType::renderPostRenderingNormals, &CameraNode::onRenderNormals);
     registerGuiDataFunction(guiDType::renderEdgeAwareBlur, &CameraNode::onRenderEdgeAwareBlur);
     registerGuiDataFunction(guiDType::renderDepthLining, &CameraNode::onRenderDepthLining);
+    registerGuiDataFunction(guiDType::renderAmbientOcclusion, &CameraNode::onRenderAmbientOcclusion);
     registerGuiDataFunction(guiDType::renderRampScale, &CameraNode::onRenderRampScale);
     registerGuiDataFunction(guiDType::renderFovValueChanged, &CameraNode::onRenderFov);
     registerGuiDataFunction(guiDType::renderExamine, &CameraNode::onRenderExamine);
@@ -1477,6 +1478,14 @@ void CameraNode::onRenderDepthLining(IGuiData* data)
 {
     auto liningData = static_cast<GuiDataDepthLining*>(data);
     m_depthLining = liningData->m_lining;
+
+    sendNewUIViewPoint();
+}
+
+void CameraNode::onRenderAmbientOcclusion(IGuiData* data)
+{
+    auto aoData = static_cast<GuiDataAmbientOcclusion*>(data);
+    m_ambientOcclusion = aoData->m_settings;
 
     sendNewUIViewPoint();
 }

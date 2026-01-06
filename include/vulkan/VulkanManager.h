@@ -114,6 +114,7 @@ public:
     static VkDescriptorSetLayout getDSLayout_fillingSamplers();
     static VkDescriptorSetLayout getDSLayout_finalOutput();
     static VkDescriptorSetLayout getDSLayout_inputTransparentLayer();
+    static VkDescriptorSetLayout getDSLayout_aoImages();
 
     VkBuffer getUniformBuffer() const;
     checkFct getCheckFunction() const;
@@ -140,6 +141,7 @@ public:
     void beginPostTreatmentNormal(TlFramebuffer framebuffer);
     void beginPostTreatmentEdgeAwareBlur(TlFramebuffer framebuffer);
     void beginPostTreatmentDepthLining(TlFramebuffer framebuffer);
+    void beginPostTreatmentAmbientOcclusion(TlFramebuffer framebuffer);
     void beginPostTreatmentTransparency(TlFramebuffer framebuffer);
 
     // 3D Objects Render pass
@@ -365,6 +367,7 @@ private:
     VkDescriptorSetLayout m_descSetLayout_filling = VK_NULL_HANDLE;
     VkDescriptorSetLayout m_descSetLayout_finalOutput = VK_NULL_HANDLE;
     VkDescriptorSetLayout m_descSetLayout_inputTransparentLayer = VK_NULL_HANDLE;
+    VkDescriptorSetLayout m_descSetLayout_aoImages = VK_NULL_HANDLE;
 
     // Commons Resources pools
     VkCommandPool m_graphicsCmdPool = VK_NULL_HANDLE;

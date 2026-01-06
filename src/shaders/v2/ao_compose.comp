@@ -1,0 +1,25 @@
+#version 450
+
+// Compositing pass: color *= mix(1, ao, strength)
+layout (local_size_x = 16, local_size_y = 16) in;
+
+layout(set = 0, binding = 0, rgba8) uniform image2D colorImage;
+layout(set = 0, binding = 1, r16f) uniform image2D aoImage;
+
+layout(push_constant) uniform PC {
+   layout(offset = 0) float strength;
+} pc;
+
+void main()
+{
+    ivec2 gid = ivec2(gl_GlobalInvocationID.xy);
+    ivec2 size = imageSize(colorImage);
+    if (gid.x >= size.x || gid.y >= size.y)
+        return;
+
+    vec4 color = imageLoad(colorImage, gid);
+    float ao = imageLoad(aoImage, gid).r;
+    float aoStrength = clamp(pc.strength, 0.0, 1.0);
+    float factor = mix(1.0, ao, aoStrength);
+    imageStore(colorImage, gid, vec4(color.rgb * factor, color.a));
+}
