@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>412</width>
-    <height>116</height>
+    <height>180</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -84,19 +84,6 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="4">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
    <item row="1" column="4">
     <widget class="QCheckBox" name="checkBox_blendColor">
      <property name="text">
@@ -104,6 +91,13 @@
      </property>
      <property name="checked">
       <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="5">
+    <widget class="QCheckBox" name="checkBox_ao">
+     <property name="text">
+      <string>Ambient occlusion</string>
      </property>
     </widget>
    </item>
@@ -127,16 +121,112 @@
      </property>
     </widget>
    </item>
+   <item row="3" column="4">
+    <widget class="QLabel" name="label_aoSize">
+     <property name="text">
+      <string>AO size</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="5">
+    <widget class="QSlider" name="slider_aoSize">
+     <property name="maximum">
+      <number>200</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="tickPosition">
+      <enum>QSlider::TicksAbove</enum>
+     </property>
+     <property name="value">
+      <number>80</number>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="6">
+    <widget class="QDoubleSpinBox" name="doubleSpinBox_aoSize">
+     <property name="decimals">
+      <number>2</number>
+     </property>
+     <property name="maximum">
+      <double>2.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>0.050000000000000</double>
+     </property>
+     <property name="value">
+      <double>0.800000000000000</double>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="4">
+    <widget class="QLabel" name="label_aoIntensity">
+     <property name="text">
+      <string>AO intensity</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="5">
+    <widget class="QSlider" name="slider_aoIntensity">
+     <property name="maximum">
+      <number>600</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="tickPosition">
+      <enum>QSlider::TicksAbove</enum>
+     </property>
+     <property name="value">
+      <number>120</number>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="6">
+    <widget class="QDoubleSpinBox" name="doubleSpinBox_aoIntensity">
+     <property name="decimals">
+      <number>2</number>
+     </property>
+     <property name="maximum">
+      <double>6.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>0.050000000000000</double>
+     </property>
+     <property name="value">
+      <double>1.200000000000000</double>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="4">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <tabstops>
-  <tabstop>normals_checkBox</tabstop>
-  <tabstop>slider_normalStrength</tabstop>
-  <tabstop>spinBox_normalStrength</tabstop>
-  <tabstop>checkBox_blendColor</tabstop>
-  <tabstop>doubleSpinBox_sharpness</tabstop>
- </tabstops>
+   <tabstops>
+    <tabstop>normals_checkBox</tabstop>
+    <tabstop>slider_normalStrength</tabstop>
+    <tabstop>spinBox_normalStrength</tabstop>
+    <tabstop>checkBox_blendColor</tabstop>
+   <tabstop>checkBox_ao</tabstop>
+    <tabstop>doubleSpinBox_sharpness</tabstop>
+    <tabstop>slider_aoSize</tabstop>
+    <tabstop>doubleSpinBox_aoSize</tabstop>
+    <tabstop>slider_aoIntensity</tabstop>
+    <tabstop>doubleSpinBox_aoIntensity</tabstop>
+  </tabstops>
  <resources>
   <include location="../../../openscantools.qrc"/>
  </resources>

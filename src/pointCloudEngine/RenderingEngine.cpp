@@ -731,12 +731,16 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
         m_postRenderer.setConstantTexelThreshold(display.m_gapFillingTexelThreshold, cmdBuffer);
         m_postRenderer.processPointFilling(cmdBuffer, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
 
-        // Second compute shader (Normals)
-        if (display.m_postRenderingNormals.show && display.m_blendMode == BlendMode::Opaque)
+        const bool isOpaque = display.m_blendMode == BlendMode::Opaque;
+        const bool aoEnabled = display.m_ambientOcclusion.enabled && isOpaque;
+        const bool normalsEnabled = display.m_postRenderingNormals.show && isOpaque;
+
+        // Second compute shader (Normals + AO)
+        if (isOpaque && (normalsEnabled || aoEnabled))
         {
             vkm.beginPostTreatmentNormal(framebuffer);
             m_postRenderer.setConstantScreenOffset(-glm::vec2((float)framebuffer->extent.width / 2.f, (float)framebuffer->extent.height / 2.f), cmdBuffer);
-            m_postRenderer.setConstantLighting(display.m_postRenderingNormals, cmdBuffer);
+            m_postRenderer.setConstantLighting(display.m_postRenderingNormals, display.m_ambientOcclusion, normalsEnabled, cmdBuffer);
             if (display.m_mode == UiRenderMode::Normals_Colored)
                 m_postRenderer.processNormalColored(cmdBuffer, wCamera->getInversedViewUniform(m_renderSwapIndex), framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
             else
@@ -898,12 +902,15 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
     m_postRenderer.setConstantTexelThreshold(displayParam.m_gapFillingTexelThreshold, cmdBuffer);
     m_postRenderer.processPointFilling(cmdBuffer, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
 
+    const bool isOpaque = displayParam.m_blendMode == BlendMode::Opaque;
+    const bool aoEnabled = displayParam.m_ambientOcclusion.enabled && isOpaque;
+    const bool normalsEnabled = displayParam.m_postRenderingNormals.show && isOpaque;
     // Second compute shader (Normals)
-    if (displayParam.m_postRenderingNormals.show && displayParam.m_blendMode == BlendMode::Opaque)
+    if (isOpaque && (normalsEnabled || aoEnabled))
     {
         vkm.beginPostTreatmentNormal(framebuffer);
         m_postRenderer.setConstantScreenOffset(screenOffset, cmdBuffer);
-        m_postRenderer.setConstantLighting(displayParam.m_postRenderingNormals, cmdBuffer);
+        m_postRenderer.setConstantLighting(displayParam.m_postRenderingNormals, displayParam.m_ambientOcclusion, normalsEnabled, cmdBuffer);
         if (displayParam.m_mode  == UiRenderMode::Normals_Colored)
             m_postRenderer.processNormalColored(cmdBuffer, camera.getInversedViewUniform(m_renderSwapIndex), framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
         else
