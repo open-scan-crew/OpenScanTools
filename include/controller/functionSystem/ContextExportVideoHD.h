@@ -45,6 +45,7 @@ private:
 	float m_addTransp = 0.f;
 	float m_addNGloss = 0.f;
 	float m_addNStren = 0.f;
+	float m_addAO = 0.f;
 	float m_addHue = 0.f;
 	float m_addBright = 0.f;
 	float m_addSatur = 0.f;

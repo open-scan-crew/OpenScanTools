@@ -3,11 +3,13 @@
 #include "gui/GuiData/GuiDataGeneralProject.h"
 
 #include "models/graph/CameraNode.h"
+#include <algorithm>
 
 ToolBarRenderNormals::ToolBarRenderNormals(IDataDispatcher& dataDispatcher, QWidget* parent, float guiScale)
 	: QWidget(parent)
 	, m_dataDispatcher(dataDispatcher)
 	, m_focusCamera()
+    , m_transparencyActive(false)
 {
 	m_ui.setupUi(this);
 	setEnabled(false);
@@ -16,6 +18,9 @@ ToolBarRenderNormals::ToolBarRenderNormals(IDataDispatcher& dataDispatcher, QWid
 	m_ui.slider_normalStrength->setEnabled(false);
 	m_ui.doubleSpinBox_sharpness->setEnabled(false);
 	m_ui.checkBox_blendColor->setEnabled(true);
+    m_ui.checkBox_ao->setChecked(false);
+    m_ui.slider_aoStrength->setEnabled(false);
+    m_ui.spinBox_aoStrength->setEnabled(false);
 
 	// Connect widgets
 	connect(m_ui.normals_checkBox, &QCheckBox::stateChanged, this, &ToolBarRenderNormals::slotNormalsChanged);
@@ -26,9 +31,14 @@ ToolBarRenderNormals::ToolBarRenderNormals(IDataDispatcher& dataDispatcher, QWid
 	connect(m_ui.spinBox_normalStrength, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), m_ui.slider_normalStrength, &QSlider::setValue);
 
 	connect(m_ui.doubleSpinBox_sharpness, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ToolBarRenderNormals::slotSharpnessChanged);
+    connect(m_ui.checkBox_ao, &QCheckBox::stateChanged, this, &ToolBarRenderNormals::slotAoChanged);
+    connect(m_ui.slider_aoStrength, &QSlider::valueChanged, m_ui.spinBox_aoStrength, &QSpinBox::setValue);
+    connect(m_ui.slider_aoStrength, &QSlider::valueChanged, this, &ToolBarRenderNormals::slotAoChanged);
+    connect(m_ui.spinBox_aoStrength, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), m_ui.slider_aoStrength, &QSlider::setValue);
 
 	m_ui.spinBox_normalStrength->setValue(50);
 	m_ui.doubleSpinBox_sharpness->setValue(1.0);
+    m_ui.spinBox_aoStrength->setValue(40);
 
 	// GuiData link
 	registerGuiDataFunction(guiDType::projectLoaded, &ToolBarRenderNormals::onProjectLoad);
@@ -69,7 +79,9 @@ void ToolBarRenderNormals::onActiveCamera(IGuiData* data)
 	if (!rCam)
 		return;
 	const DisplayParameters& displayParameters = rCam->getDisplayParameters();
+    m_transparencyActive = displayParameters.m_blendMode == BlendMode::Transparent;
 	updateNormals(displayParameters.m_postRenderingNormals);
+    updateAmbientOcclusion(displayParameters.m_ambientOcclusion);
 }
 
 void ToolBarRenderNormals::updateNormals(const PostRenderingNormals& normalsParams)
@@ -106,6 +118,24 @@ void ToolBarRenderNormals::updateNormals(const PostRenderingNormals& normalsPara
 	blockAllSignals(false);
 }
 
+void ToolBarRenderNormals::updateAmbientOcclusion(const AmbientOcclusionSettings& aoSettings)
+{
+    blockAllSignals(true);
+
+    m_ui.checkBox_ao->setChecked(aoSettings.enabled);
+
+    int aoValue = std::clamp(static_cast<int>(std::round(aoSettings.strength * 100.f)), m_ui.slider_aoStrength->minimum(), m_ui.slider_aoStrength->maximum());
+    m_ui.slider_aoStrength->setValue(aoValue);
+    m_ui.spinBox_aoStrength->setValue(aoValue);
+
+    bool enableControls = aoSettings.enabled && !m_transparencyActive;
+    m_ui.slider_aoStrength->setEnabled(enableControls);
+    m_ui.spinBox_aoStrength->setEnabled(enableControls);
+    m_ui.checkBox_ao->setEnabled(!m_transparencyActive);
+
+    blockAllSignals(false);
+}
+
 void ToolBarRenderNormals::blockAllSignals(bool block)
 {
 	m_ui.normals_checkBox->blockSignals(block);
@@ -113,6 +143,9 @@ void ToolBarRenderNormals::blockAllSignals(bool block)
 	m_ui.spinBox_normalStrength->blockSignals(block);
 	m_ui.doubleSpinBox_sharpness->blockSignals(block);
 	m_ui.checkBox_blendColor->blockSignals(block);
+    m_ui.checkBox_ao->blockSignals(block);
+    m_ui.slider_aoStrength->blockSignals(block);
+    m_ui.spinBox_aoStrength->blockSignals(block);
 }
 
 void ToolBarRenderNormals::slotNormalsChanged()
@@ -131,6 +164,19 @@ void ToolBarRenderNormals::slotNormalsChanged()
 	lighting.blendColor = m_ui.checkBox_blendColor->isChecked();
 
 	m_dataDispatcher.updateInformation(new GuiDataPostRenderingNormals(lighting, false, m_focusCamera), this);
+}
+
+void ToolBarRenderNormals::slotAoChanged()
+{
+    AmbientOcclusionSettings ao = {};
+    bool enabledInUi = m_ui.checkBox_ao->isChecked();
+    bool enableControls = enabledInUi && !m_transparencyActive;
+    m_ui.slider_aoStrength->setEnabled(enableControls);
+    m_ui.spinBox_aoStrength->setEnabled(enableControls);
+    ao.enabled = enabledInUi && !m_transparencyActive;
+    ao.strength = m_ui.spinBox_aoStrength->value() / 100.f;
+
+    m_dataDispatcher.updateInformation(new GuiDataAmbientOcclusion(ao, m_focusCamera), this);
 }
 
 void ToolBarRenderNormals::slotSharpnessChanged(double value)

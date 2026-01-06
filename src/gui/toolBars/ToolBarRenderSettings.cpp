@@ -96,6 +96,11 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 	connect(m_ui.slider_normals, &QSlider::valueChanged, this, &ToolBarRenderSettings::slotNormalsChanged);
 	connect(m_ui.spinBox_normals, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), m_ui.slider_normals, &QSlider::setValue);
 
+        connect(m_ui.checkBox_ao, &QCheckBox::stateChanged, this, &ToolBarRenderSettings::slotAoToggled);
+        connect(m_ui.slider_aoStrength, &QSlider::valueChanged, m_ui.spinBox_aoStrength, &QSpinBox::setValue);
+        connect(m_ui.slider_aoStrength, &QSlider::valueChanged, this, &ToolBarRenderSettings::slotAoValueChanged);
+        connect(m_ui.spinBox_aoStrength, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), m_ui.slider_aoStrength, &QSlider::setValue);
+
         connect(m_ui.checkBox_edgeAwareBlur, &QCheckBox::stateChanged, this, &ToolBarRenderSettings::slotEdgeAwareBlurToggled);
         connect(m_ui.slider_edgeAwareRadius, &QSlider::valueChanged, m_ui.spinBox_edgeAwareRadius, &QSpinBox::setValue);
         connect(m_ui.spinBox_edgeAwareRadius, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), m_ui.slider_edgeAwareRadius, &QSlider::setValue);
@@ -122,6 +127,7 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 
         updateEdgeAwareBlurUi(m_ui.checkBox_edgeAwareBlur->isChecked());
         updateDepthLiningUi(m_ui.checkBox_depthLining->isChecked());
+        updateAoUi(m_ui.transparencyCheckBox->isChecked());
 
 	registerGuiDataFunction(guiDType::renderBrightness, &ToolBarRenderSettings::onRenderBrightness);
 	registerGuiDataFunction(guiDType::renderContrast, &ToolBarRenderSettings::onRenderContrast);
@@ -320,6 +326,12 @@ void ToolBarRenderSettings::onActiveCamera(IGuiData* idata)
 	m_ui.spinBox_normals->setEnabled(normalState != Qt::CheckState::Unchecked);
 	m_ui.spinBox_normals->setValue(newNormalValue);
 
+        int aoUiValue = std::clamp(static_cast<int>(std::round(displayParameters.m_ambientOcclusion.strength * 100.f)), m_ui.slider_aoStrength->minimum(), m_ui.slider_aoStrength->maximum());
+        m_ui.checkBox_ao->setChecked(displayParameters.m_ambientOcclusion.enabled);
+        m_ui.slider_aoStrength->setValue(aoUiValue);
+        m_ui.spinBox_aoStrength->setValue(aoUiValue);
+        updateAoUi(displayParameters.m_blendMode == BlendMode::Transparent);
+
         const EdgeAwareBlur& blurSettings = displayParameters.m_edgeAwareBlur;
         int radiusValue = std::clamp(static_cast<int>(std::round(blurSettings.radius)), m_ui.slider_edgeAwareRadius->minimum(), m_ui.slider_edgeAwareRadius->maximum());
         int depthValue = std::clamp(static_cast<int>(std::round(blurSettings.depthThreshold * 100.f)), m_ui.slider_edgeAwareDepth->minimum(), m_ui.slider_edgeAwareDepth->maximum());
@@ -390,6 +402,9 @@ void ToolBarRenderSettings::blockAllSignals(bool block)
 	m_ui.checkBox_normals->blockSignals(block);
 	m_ui.slider_normals->blockSignals(block);
 	m_ui.spinBox_normals->blockSignals(block);
+        m_ui.checkBox_ao->blockSignals(block);
+        m_ui.slider_aoStrength->blockSignals(block);
+        m_ui.spinBox_aoStrength->blockSignals(block);
 	m_ui.checkBox_edgeAwareBlur->blockSignals(block);
 	m_ui.slider_edgeAwareRadius->blockSignals(block);
 	m_ui.spinBox_edgeAwareRadius->blockSignals(block);
@@ -412,6 +427,22 @@ void ToolBarRenderSettings::populateEdgeAwareResolutionCombo()
 	m_ui.comboBox_edgeAwareResolution->addItem(tr("Full res"));
 	m_ui.comboBox_edgeAwareResolution->addItem(tr("Half res"));
 	m_ui.comboBox_edgeAwareResolution->addItem(tr("Quarter res"));
+}
+
+void ToolBarRenderSettings::updateAoUi(bool transparencyActive)
+{
+        bool aoChecked = m_ui.checkBox_ao->isChecked();
+        bool enableControls = aoChecked && !transparencyActive;
+        m_ui.slider_aoStrength->setEnabled(enableControls);
+        m_ui.spinBox_aoStrength->setEnabled(enableControls);
+}
+
+AmbientOcclusionSettings ToolBarRenderSettings::getAoSettingsFromUi() const
+{
+        AmbientOcclusionSettings settings = {};
+        settings.enabled = m_ui.checkBox_ao->isChecked() && !m_ui.transparencyCheckBox->isChecked();
+        settings.strength = m_ui.spinBox_aoStrength->value() / 100.f;
+        return settings;
 }
 
 void ToolBarRenderSettings::updateEdgeAwareBlurUi(bool enabled)
@@ -609,7 +640,9 @@ void ToolBarRenderSettings::slotTranparencyActivationChanged(int value)
 {
 	m_ui.transparencySpinBox->setEnabled(value > 0);
 	m_ui.transparencySlider->setEnabled(value > 0);
+        updateAoUi(value > 0);
 	sendTransparency();
+        m_dataDispatcher.updateInformation(new GuiDataAmbientOcclusion(getAoSettingsFromUi(), m_focusCamera), this);
 }
 
 void ToolBarRenderSettings::slotTransparencyValueChanged(int value)
@@ -672,6 +705,23 @@ void ToolBarRenderSettings::slotNormalsChanged()
 	lighting.inverseTone = (m_ui.checkBox_normals->checkState() == Qt::CheckState::PartiallyChecked);
 	lighting.normalStrength = m_ui.spinBox_normals->value() / 100.f;
 	m_dataDispatcher.updateInformation(new GuiDataPostRenderingNormals(lighting, true, m_focusCamera), this);
+}
+
+void ToolBarRenderSettings::slotAoToggled(int state)
+{
+        (void)state;
+        updateAoUi(m_ui.transparencyCheckBox->isChecked());
+        m_dataDispatcher.updateInformation(new GuiDataAmbientOcclusion(getAoSettingsFromUi(), m_focusCamera), this);
+}
+
+void ToolBarRenderSettings::slotAoValueChanged(int value)
+{
+        (void)value;
+        if (!m_ui.checkBox_ao->isChecked())
+                return;
+
+        updateAoUi(m_ui.transparencyCheckBox->isChecked());
+        m_dataDispatcher.updateInformation(new GuiDataAmbientOcclusion(getAoSettingsFromUi(), m_focusCamera), this);
 }
 
 void ToolBarRenderSettings::slotEdgeAwareBlurToggled(int state)

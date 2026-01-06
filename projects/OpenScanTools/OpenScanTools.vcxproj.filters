@@ -4441,6 +4441,15 @@
     <CustomBuild Include="..\..\src\shaders\v2\depth_lining.comp">
       <Filter>shaders\post rendering</Filter>
     </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\v2\ssao.comp">
+      <Filter>shaders\post rendering</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\v2\ao_blur.comp">
+      <Filter>shaders\post rendering</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\v2\ao_composite.comp">
+      <Filter>shaders\post rendering</Filter>
+    </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\v2\fillingGap.comp">
       <Filter>shaders\post rendering</Filter>
     </CustomBuild>

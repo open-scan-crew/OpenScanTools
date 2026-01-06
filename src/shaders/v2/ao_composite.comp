@@ -1,0 +1,38 @@
+#version 450
+
+layout (local_size_x = 16, local_size_y = 16) in;
+
+layout(set = 0, binding = 0, rgba8) uniform image2D inOutColorImage;
+layout(set = 1, binding = 0, r16f) uniform image2D aoImage;
+layout(set = 2, binding = 2) buffer correctedDepth
+{
+    float depth[];
+};
+
+// Depth convention: depth > 0 means valid pixel; empty pixels are <= 0.
+layout(push_constant) uniform PC {
+    layout(offset = 0) ivec2 screenSize;
+    layout(offset = 8) float strength;
+    layout(offset = 12) float padding;
+} pc;
+
+void main()
+{
+    ivec2 gid = ivec2(gl_GlobalInvocationID.xy);
+    if (gid.x >= pc.screenSize.x || gid.y >= pc.screenSize.y)
+        return;
+
+    uint idx = uint(gid.x + gid.y * pc.screenSize.x);
+    float d = depth[idx];
+    vec4 color = imageLoad(inOutColorImage, gid);
+
+    if (d <= 0.0f || color.a == 0.0f)
+    {
+        imageStore(inOutColorImage, gid, color);
+        return;
+    }
+
+    float ao = imageLoad(aoImage, gid).r;
+    float factor = mix(1.0, ao, clamp(pc.strength, 0.0, 1.0));
+    imageStore(inOutColorImage, gid, vec4(color.rgb * factor, color.a));
+}

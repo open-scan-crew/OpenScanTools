@@ -29,6 +29,9 @@ public:
     void processTransparencyHDR(VkCommandBuffer _cmdBuffer, VkDescriptorSet descSetColor, VkExtent2D extent);
     void processEdgeAwareBlur(VkCommandBuffer _cmdBuffer, const EdgeAwareBlur& blurSettings, VkDescriptorSet descSetColor, VkDescriptorSet descSetDepth, VkExtent2D extent);
     void processDepthLining(VkCommandBuffer _cmdBuffer, const DepthLining& liningSettings, VkDescriptorSet descSetColor, VkDescriptorSet descSetDepth, VkExtent2D extent);
+    void processSSAO(VkCommandBuffer _cmdBuffer, VkDescriptorSet descSetAO, VkDescriptorSet descSetDepth, VkExtent2D extent) const;
+    void processAOBlur(VkCommandBuffer _cmdBuffer, VkDescriptorSet descSetAO, VkDescriptorSet descSetDepth, VkExtent2D extent, bool horizontal) const;
+    void processAOCompose(VkCommandBuffer _cmdBuffer, VkDescriptorSet descSetColor, VkDescriptorSet descSetAO, VkDescriptorSet descSetDepth, float aoStrength, VkExtent2D extent) const;
 
     // Compatibility helpers used by some build targets
     bool initEdgeAwareBlur(VulkanManager& vkm, uint32_t swapChainImageCount);
@@ -55,6 +58,9 @@ private:
     void createEdgeAwarePipeline();
     void createDepthLiningPipeline();
     void createTransparencyHDRPipeline();
+    void createAOPipeline();
+    void createAOBlurPipeline();
+    void createAOComposePipeline();
 
     void loadShaderSPV(Shader& shader, const std::vector<uint32_t>& code_spv);
 
@@ -73,6 +79,8 @@ private:
     VkPipelineLayout m_fillingPipelineLayout = VK_NULL_HANDLE;
     VkPipelineLayout m_normalPipelineLayout = VK_NULL_HANDLE;
     VkPipelineLayout m_transparencyHDRPipelineLayout = VK_NULL_HANDLE;
+    VkPipelineLayout m_aoPipelineLayout = VK_NULL_HANDLE;
+    VkPipelineLayout m_aoComposePipelineLayout = VK_NULL_HANDLE;
 
     Shader m_fillingCompShader;
     Shader m_normalShadingCompShader;
@@ -80,6 +88,9 @@ private:
     Shader m_transparencyHDRCompShader;
     Shader m_edgeAwareBlurCompShader;
     Shader m_depthLiningCompShader;
+    Shader m_ssaoCompShader;
+    Shader m_aoBlurCompShader;
+    Shader m_aoComposeCompShader;
 
     VkPipeline m_fillingPipeline;
     VkPipeline m_normalColoredPipeline;
@@ -88,6 +99,9 @@ private:
     VkPipeline m_hdrSubsPipeline;
     VkPipeline m_edgeAwarePipeline;
     VkPipeline m_depthLiningPipeline;
+    VkPipeline m_ssaoPipeline = VK_NULL_HANDLE;
+    VkPipeline m_aoBlurPipeline = VK_NULL_HANDLE;
+    VkPipeline m_aoComposePipeline = VK_NULL_HANDLE;
 
     VkPipelineLayout m_edgeAwarePipelineLayout = VK_NULL_HANDLE;
     VkPipelineLayout m_depthLiningPipelineLayout = VK_NULL_HANDLE;

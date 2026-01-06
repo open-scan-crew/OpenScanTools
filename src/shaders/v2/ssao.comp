@@ -1,0 +1,103 @@
+#version 450
+
+layout (local_size_x = 16, local_size_y = 16) in;
+
+layout(set = 0, binding = 0, r16f) uniform image2D aoOutput;
+layout(set = 0, binding = 1, r16f) uniform image2D aoScratch;
+layout(set = 1, binding = 2) buffer correctedDepth
+{
+    float depth[];
+};
+
+// Depth convention: depth > 0 means valid pixel, increasing with distance. Empty pixels are <= 0.
+layout(push_constant) uniform PC {
+    layout(offset = 0) ivec2 screenSize;
+    layout(offset = 8) float radius;
+    layout(offset = 12) float depthReject;
+    layout(offset = 16) float intensity;
+} pc;
+
+const vec2 kernel[8] = vec2[](
+    vec2(1.0, 0.0),
+    vec2(-1.0, 0.0),
+    vec2(0.0, 1.0),
+    vec2(0.0, -1.0),
+    normalize(vec2(1.0, 1.0)),
+    normalize(vec2(-1.0, 1.0)),
+    normalize(vec2(1.0, -1.0)),
+    normalize(vec2(-1.0, -1.0))
+);
+
+float hashNoise(uvec2 p)
+{
+    p = p * 1664525u + 1013904223u;
+    uint h = (p.x ^ p.y) * 374761393u + 668265263u;
+    return float(h & 0x00FFFFFFu) / float(0x01000000u);
+}
+
+float fetchDepth(ivec2 coord)
+{
+    ivec2 clamped = clamp(coord, ivec2(0), pc.screenSize - ivec2(1));
+    uint idx = uint(clamped.x + clamped.y * pc.screenSize.x);
+    return depth[idx];
+}
+
+void main()
+{
+    ivec2 gid = ivec2(gl_GlobalInvocationID.xy);
+    if (gid.x >= pc.screenSize.x || gid.y >= pc.screenSize.y)
+        return;
+
+    uint idx = uint(gid.x + gid.y * pc.screenSize.x);
+    float centerDepth = depth[idx];
+
+    if (centerDepth <= 0.0f)
+    {
+        imageStore(aoOutput, gid, vec4(1.0, 0.0, 0.0, 0.0));
+        return;
+    }
+
+    float logScale = log2(max(centerDepth, 1e-6) + 1.0);
+    float sampleRadius = pc.radius * (0.65 + 0.35 * logScale);
+
+    float angle = hashNoise(uvec2(gid)) * 6.2831853;
+    mat2 rotation = mat2(
+        cos(angle), -sin(angle),
+        sin(angle),  cos(angle)
+    );
+
+    float occlusion = 0.0;
+    int sampleCount = 0;
+    for (int i = 0; i < 8; ++i)
+    {
+        vec2 dir = rotation * kernel[i];
+        vec2 offset = dir * sampleRadius;
+        ivec2 sampleCoord = gid + ivec2(offset);
+
+        float sampleDepth = fetchDepth(sampleCoord);
+        if (sampleDepth <= 0.0f)
+            continue;
+
+        float norm = max(max(centerDepth, sampleDepth), 1e-6);
+        float rel = (centerDepth - sampleDepth) / norm;
+        float absRel = abs(rel);
+
+        if (absRel > pc.depthReject)
+            continue;
+
+        float weight = smoothstep(pc.depthReject, 0.0, absRel);
+        float facing = smoothstep(0.0, pc.depthReject, rel);
+
+        occlusion += weight * facing;
+        sampleCount++;
+    }
+
+    float ao = 1.0;
+    if (sampleCount > 0)
+    {
+        float normalized = occlusion / float(sampleCount);
+        ao = clamp(1.0 - normalized * pc.intensity, 0.0, 1.0);
+    }
+
+    imageStore(aoOutput, gid, vec4(ao, 0.0, 0.0, 0.0));
+}

@@ -31,6 +31,7 @@
 
 
 #include <cmath>
+#include <algorithm>
 
 constexpr double HD_MARGIN = 0.05;
 
@@ -743,6 +744,36 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
                 m_postRenderer.processNormalShading(cmdBuffer, wCamera->getInversedViewUniform(m_renderSwapIndex), framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
         }
 
+        auto barrierAoImage = [&](VkImage image)
+        {
+            VkImageMemoryBarrier barrier = {
+                VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+                nullptr,
+                VK_ACCESS_SHADER_WRITE_BIT,
+                VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT,
+                VK_IMAGE_LAYOUT_GENERAL,
+                VK_IMAGE_LAYOUT_GENERAL,
+                VK_QUEUE_FAMILY_IGNORED,
+                VK_QUEUE_FAMILY_IGNORED,
+                image,
+                { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 }
+            };
+            vkm.getDeviceFunctions()->vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+        };
+
+        if (display.m_ambientOcclusion.enabled && display.m_blendMode == BlendMode::Opaque)
+        {
+            float aoStrength = std::clamp(display.m_ambientOcclusion.strength, 0.f, 1.f);
+            vkm.beginPostTreatmentAmbientOcclusion(framebuffer);
+            m_postRenderer.processSSAO(cmdBuffer, framebuffer->descSetAO, framebuffer->descSetCorrectedDepth, framebuffer->extent);
+            barrierAoImage(framebuffer->aoImage);
+            m_postRenderer.processAOBlur(cmdBuffer, framebuffer->descSetAOBlur, framebuffer->descSetCorrectedDepth, framebuffer->extent, true);
+            barrierAoImage(framebuffer->aoBlurImage);
+            m_postRenderer.processAOBlur(cmdBuffer, framebuffer->descSetAOBlurSwap, framebuffer->descSetCorrectedDepth, framebuffer->extent, false);
+            barrierAoImage(framebuffer->aoImage);
+            m_postRenderer.processAOCompose(cmdBuffer, framebuffer->descSetSamplers, framebuffer->descSetAOCompose, framebuffer->descSetCorrectedDepth, aoStrength, framebuffer->extent);
+        }
+
         if (display.m_depthLining.enabled)
         {
             vkm.beginPostTreatmentDepthLining(framebuffer);
@@ -908,6 +939,36 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
             m_postRenderer.processNormalColored(cmdBuffer, camera.getInversedViewUniform(m_renderSwapIndex), framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
         else
             m_postRenderer.processNormalShading(cmdBuffer, camera.getInversedViewUniform(m_renderSwapIndex), framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
+    }
+
+    auto barrierAoImage = [&](VkImage image)
+    {
+        VkImageMemoryBarrier barrier = {
+            VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            nullptr,
+            VK_ACCESS_SHADER_WRITE_BIT,
+            VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT,
+            VK_IMAGE_LAYOUT_GENERAL,
+            VK_IMAGE_LAYOUT_GENERAL,
+            VK_QUEUE_FAMILY_IGNORED,
+            VK_QUEUE_FAMILY_IGNORED,
+            image,
+            { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 }
+        };
+        vkm.getDeviceFunctions()->vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+    };
+
+    if (displayParam.m_ambientOcclusion.enabled && displayParam.m_blendMode == BlendMode::Opaque)
+    {
+        float aoStrength = std::clamp(displayParam.m_ambientOcclusion.strength, 0.f, 1.f);
+        vkm.beginPostTreatmentAmbientOcclusion(framebuffer);
+        m_postRenderer.processSSAO(cmdBuffer, framebuffer->descSetAO, framebuffer->descSetCorrectedDepth, framebuffer->extent);
+        barrierAoImage(framebuffer->aoImage);
+        m_postRenderer.processAOBlur(cmdBuffer, framebuffer->descSetAOBlur, framebuffer->descSetCorrectedDepth, framebuffer->extent, true);
+        barrierAoImage(framebuffer->aoBlurImage);
+        m_postRenderer.processAOBlur(cmdBuffer, framebuffer->descSetAOBlurSwap, framebuffer->descSetCorrectedDepth, framebuffer->extent, false);
+        barrierAoImage(framebuffer->aoImage);
+        m_postRenderer.processAOCompose(cmdBuffer, framebuffer->descSetSamplers, framebuffer->descSetAOCompose, framebuffer->descSetCorrectedDepth, aoStrength, framebuffer->extent);
     }
 
     if (displayParam.m_depthLining.enabled)
