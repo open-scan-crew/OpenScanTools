@@ -56,10 +56,10 @@ ToolBarRenderNormals::ToolBarRenderNormals(IDataDispatcher& dataDispatcher, QWid
 
 	m_ui.spinBox_normalStrength->setValue(50);
 	m_ui.doubleSpinBox_sharpness->setValue(1.0);
-	m_ui.slider_aoSize->setValue(50);
-	m_ui.doubleSpinBox_aoSize->setValue(0.5);
-	m_ui.slider_aoIntensity->setValue(50);
-	m_ui.doubleSpinBox_aoIntensity->setValue(0.5);
+	m_ui.slider_aoSize->setValue(80);
+	m_ui.doubleSpinBox_aoSize->setValue(0.8);
+	m_ui.slider_aoIntensity->setValue(120);
+	m_ui.doubleSpinBox_aoIntensity->setValue(1.2);
 	m_ui.checkBox_aoTopLight->setChecked(true);
 
 	// GuiData link

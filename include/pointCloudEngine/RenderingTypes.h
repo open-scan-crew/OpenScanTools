@@ -82,10 +82,10 @@ struct PostRenderingNormals
 struct AmbientOcclusion
 {
     bool enabled = false;
-    float radius = 0.5f;
-    float intensity = 0.5f;
+    float radius = 0.8f;
+    float intensity = 1.2f;
     bool useTopLight = true;
-    float topLightStrength = 0.5f;
+    float topLightStrength = 1.0f;
 };
 
 struct EdgeAwareBlur

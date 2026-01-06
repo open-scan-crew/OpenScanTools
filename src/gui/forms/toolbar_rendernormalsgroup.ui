@@ -141,7 +141,7 @@
    <item row="3" column="5">
     <widget class="QSlider" name="slider_aoSize">
      <property name="maximum">
-      <number>100</number>
+      <number>200</number>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -150,7 +150,7 @@
       <enum>QSlider::TicksAbove</enum>
      </property>
      <property name="value">
-      <number>50</number>
+      <number>80</number>
      </property>
     </widget>
    </item>
@@ -160,13 +160,13 @@
       <number>2</number>
      </property>
      <property name="maximum">
-      <double>1.000000000000000</double>
+      <double>2.000000000000000</double>
      </property>
      <property name="singleStep">
       <double>0.050000000000000</double>
      </property>
      <property name="value">
-      <double>0.500000000000000</double>
+      <double>0.800000000000000</double>
      </property>
     </widget>
    </item>
@@ -180,7 +180,7 @@
    <item row="4" column="5">
     <widget class="QSlider" name="slider_aoIntensity">
      <property name="maximum">
-      <number>200</number>
+      <number>400</number>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -189,7 +189,7 @@
       <enum>QSlider::TicksAbove</enum>
      </property>
      <property name="value">
-      <number>50</number>
+      <number>120</number>
      </property>
     </widget>
    </item>
@@ -199,13 +199,13 @@
       <number>2</number>
      </property>
      <property name="maximum">
-      <double>2.000000000000000</double>
+      <double>4.000000000000000</double>
      </property>
      <property name="singleStep">
       <double>0.050000000000000</double>
      </property>
      <property name="value">
-      <double>0.500000000000000</double>
+      <double>1.200000000000000</double>
      </property>
     </widget>
    </item>
