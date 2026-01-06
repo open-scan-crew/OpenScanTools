@@ -26,11 +26,14 @@ private:
 	void onFocusViewport(IGuiData* data);
 
 	void updateNormals(const PostRenderingNormals& normalsParams);
+    void updateAmbientOcclusion(const AmbientOcclusionSettings& aoSettings, bool transparencyActive);
+    AmbientOcclusionSettings getAmbientOcclusionFromUi() const;
 	void blockAllSignals(bool block);
 
 private slots:
 	void slotNormalsChanged();
 	void slotSharpnessChanged(double value);
+    void slotAmbientOcclusionChanged();
 
 private:
 	typedef void (ToolBarRenderNormals::*GuiDataFunction)(IGuiData*);
@@ -45,6 +48,7 @@ private:
 	Ui::toolbar_rendernormalsgroup m_ui;
 	IDataDispatcher& m_dataDispatcher;
 	SafePtr<CameraNode>	m_focusCamera;
+    bool m_aoBlockedByTransparency = false;
 
 };
 

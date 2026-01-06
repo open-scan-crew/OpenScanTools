@@ -325,6 +325,17 @@ public:
         DepthLining m_lining;
 };
 
+class GuiDataAmbientOcclusion : public GuiDataActiveCamera
+{
+public:
+    GuiDataAmbientOcclusion(const AmbientOcclusionSettings& settings, SafePtr<CameraNode> camera);
+    ~GuiDataAmbientOcclusion() {};
+    virtual guiDType getType() override;
+
+public:
+    AmbientOcclusionSettings m_settings;
+};
+
 class GuiDataRenderDistanceRampValues : public GuiDataActiveCamera
 {
 public:

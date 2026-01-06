@@ -366,6 +366,12 @@ void RenderingEngine::updateHD()
         if (display.m_depthLining.enabled)
             border = std::max<uint32_t>(border, 3u);
 
+        if (display.m_ambientOcclusion.enabled && display.m_blendMode == BlendMode::Opaque)
+        {
+            constexpr uint32_t aoPadding = 18u;
+            border = std::max<uint32_t>(border, aoPadding);
+        }
+
         return border;
     };
 
@@ -743,6 +749,20 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
                 m_postRenderer.processNormalShading(cmdBuffer, wCamera->getInversedViewUniform(m_renderSwapIndex), framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
         }
 
+        const bool aoEnabled = display.m_ambientOcclusion.enabled && display.m_blendMode == BlendMode::Opaque;
+        if (aoEnabled)
+        {
+            vkm.beginPostTreatmentAmbientOcclusion(framebuffer);
+            m_postRenderer.processAmbientOcclusion(cmdBuffer, framebuffer->descSetAmbientOcclusion, framebuffer->descSetCorrectedDepth, framebuffer->extent);
+            vkm.beginPostTreatmentAmbientOcclusion(framebuffer);
+            m_postRenderer.processAmbientOcclusionBlur(cmdBuffer, framebuffer->descSetAoBlur, framebuffer->descSetCorrectedDepth, framebuffer->extent, true);
+            vkm.beginPostTreatmentAmbientOcclusion(framebuffer);
+            m_postRenderer.processAmbientOcclusionBlur(cmdBuffer, framebuffer->descSetAoBlurSwap, framebuffer->descSetCorrectedDepth, framebuffer->extent, false);
+            vkm.beginPostTreatmentAmbientOcclusion(framebuffer);
+            vkm.beginPostTreatmentNormal(framebuffer);
+            m_postRenderer.processAmbientOcclusionCompose(cmdBuffer, display.m_ambientOcclusion.strength, framebuffer->descSetAoComposite, framebuffer->extent);
+        }
+
         if (display.m_depthLining.enabled)
         {
             vkm.beginPostTreatmentDepthLining(framebuffer);
@@ -908,6 +928,20 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
             m_postRenderer.processNormalColored(cmdBuffer, camera.getInversedViewUniform(m_renderSwapIndex), framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
         else
             m_postRenderer.processNormalShading(cmdBuffer, camera.getInversedViewUniform(m_renderSwapIndex), framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
+    }
+
+    const bool aoEnabled = displayParam.m_ambientOcclusion.enabled && displayParam.m_blendMode == BlendMode::Opaque;
+    if (aoEnabled)
+    {
+        vkm.beginPostTreatmentAmbientOcclusion(framebuffer);
+        m_postRenderer.processAmbientOcclusion(cmdBuffer, framebuffer->descSetAmbientOcclusion, framebuffer->descSetCorrectedDepth, framebuffer->extent);
+        vkm.beginPostTreatmentAmbientOcclusion(framebuffer);
+        m_postRenderer.processAmbientOcclusionBlur(cmdBuffer, framebuffer->descSetAoBlur, framebuffer->descSetCorrectedDepth, framebuffer->extent, true);
+        vkm.beginPostTreatmentAmbientOcclusion(framebuffer);
+        m_postRenderer.processAmbientOcclusionBlur(cmdBuffer, framebuffer->descSetAoBlurSwap, framebuffer->descSetCorrectedDepth, framebuffer->extent, false);
+        vkm.beginPostTreatmentAmbientOcclusion(framebuffer);
+        vkm.beginPostTreatmentNormal(framebuffer);
+        m_postRenderer.processAmbientOcclusionCompose(cmdBuffer, displayParam.m_ambientOcclusion.strength, framebuffer->descSetAoComposite, framebuffer->extent);
     }
 
     if (displayParam.m_depthLining.enabled)
