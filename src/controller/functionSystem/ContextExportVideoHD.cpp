@@ -172,6 +172,7 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
                 rStart->m_postRenderingNormals.show == rFinish->m_postRenderingNormals.show &&
                 rStart->m_postRenderingNormals.blendColor == rFinish->m_postRenderingNormals.blendColor &&
                 rStart->m_postRenderingNormals.inverseTone == rFinish->m_postRenderingNormals.inverseTone &&
+                rStart->m_ambientOcclusion.enabled == rFinish->m_ambientOcclusion.enabled &&
                 rStart->m_mode == rFinish->m_mode &&
                 rStart->m_negativeEffect == rFinish->m_negativeEffect &&
                 rStart->m_reduceFlash == rFinish->m_reduceFlash &&
@@ -183,6 +184,7 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
 
                 m_addNStren = (rFinish->m_postRenderingNormals.normalStrength - rStart->m_postRenderingNormals.normalStrength) / m_totalFrames;
                 m_addNGloss = (rFinish->m_postRenderingNormals.gloss - rStart->m_postRenderingNormals.gloss) / m_totalFrames;
+                m_addAO = (rFinish->m_ambientOcclusion.strength - rStart->m_ambientOcclusion.strength) / m_totalFrames;
 
                 m_addHue = (rFinish->m_hue - rStart->m_hue) / m_totalFrames;
 
@@ -227,6 +229,7 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
                     wCam->m_transparency = ui::transparency::uiValue_to_trueValue(ui::transparency::trueValue_to_uiValue(wCam->m_transparency) + m_addTransp);
                     wCam->m_postRenderingNormals.normalStrength += m_addNStren;
                     wCam->m_postRenderingNormals.gloss += m_addNGloss;
+                    wCam->m_ambientOcclusion.strength += m_addAO;
                     wCam->m_contrast += m_addContr;
                     wCam->m_brightness += m_addBright;
                     wCam->m_luminance += m_addLumi;

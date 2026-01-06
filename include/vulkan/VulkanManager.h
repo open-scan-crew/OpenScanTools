@@ -114,6 +114,8 @@ public:
     static VkDescriptorSetLayout getDSLayout_fillingSamplers();
     static VkDescriptorSetLayout getDSLayout_finalOutput();
     static VkDescriptorSetLayout getDSLayout_inputTransparentLayer();
+    static VkDescriptorSetLayout getDSLayout_ambientOcclusion();
+    static VkDescriptorSetLayout getDSLayout_ambientOcclusionCompose();
 
     VkBuffer getUniformBuffer() const;
     checkFct getCheckFunction() const;
@@ -138,6 +140,7 @@ public:
     // Point cloud post treatment
     void beginPostTreatmentFilling(TlFramebuffer framebuffer);
     void beginPostTreatmentNormal(TlFramebuffer framebuffer);
+    void beginPostTreatmentAmbientOcclusion(TlFramebuffer framebuffer);
     void beginPostTreatmentEdgeAwareBlur(TlFramebuffer framebuffer);
     void beginPostTreatmentDepthLining(TlFramebuffer framebuffer);
     void beginPostTreatmentTransparency(TlFramebuffer framebuffer);
@@ -365,6 +368,8 @@ private:
     VkDescriptorSetLayout m_descSetLayout_filling = VK_NULL_HANDLE;
     VkDescriptorSetLayout m_descSetLayout_finalOutput = VK_NULL_HANDLE;
     VkDescriptorSetLayout m_descSetLayout_inputTransparentLayer = VK_NULL_HANDLE;
+    VkDescriptorSetLayout m_descSetLayout_ambientOcclusion = VK_NULL_HANDLE;
+    VkDescriptorSetLayout m_descSetLayout_aoCompose = VK_NULL_HANDLE;
 
     // Commons Resources pools
     VkCommandPool m_graphicsCmdPool = VK_NULL_HANDLE;

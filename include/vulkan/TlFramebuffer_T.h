@@ -73,6 +73,14 @@ struct TlFramebuffer_T
     VkDeviceSize correctedDepthSize = 0;
     VkBuffer correctedDepthBuffer = VK_NULL_HANDLE;
 
+    // Ambient Occlusion targets
+    VkDeviceMemory aoMemory = VK_NULL_HANDLE;
+    VkImage aoImage = VK_NULL_HANDLE;
+    VkImageView aoImageView = VK_NULL_HANDLE;
+    VkDeviceMemory aoBlurMemory = VK_NULL_HANDLE;
+    VkImage aoBlurImage = VK_NULL_HANDLE;
+    VkImageView aoBlurImageView = VK_NULL_HANDLE;
+
     // Depth & Stencil objects
     VkDeviceMemory objectDepthMemory = VK_NULL_HANDLE;
     VkImage objectDepthImage = VK_NULL_HANDLE;
@@ -110,9 +118,16 @@ struct TlFramebuffer_T
     VkDescriptorSet descSetSamplers = VK_NULL_HANDLE;
     VkDescriptorSet descSetCorrectedDepth = VK_NULL_HANDLE;
     VkDescriptorSet descSetInputTransparentLayer = VK_NULL_HANDLE;
+    VkDescriptorSet descSetAO = VK_NULL_HANDLE;
+    VkDescriptorSet descSetAOBlur = VK_NULL_HANDLE;
+    VkDescriptorSet descSetAOBlurSwap = VK_NULL_HANDLE;
+    VkDescriptorSet descSetAOCompose = VK_NULL_HANDLE;
 
     std::vector<SimpleBuffer> drawMarkerBuffers; // size of 'imageCount'
     std::vector<SimpleBuffer> drawMeasureBuffers; // size of 'imageCount'
+
+    bool initAOLayout = true;
+    bool initAOBlurLayout = true;
 };
 
 

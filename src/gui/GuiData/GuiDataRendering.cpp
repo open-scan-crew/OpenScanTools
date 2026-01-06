@@ -312,6 +312,16 @@ guiDType GuiDataPostRenderingNormals::getType()
 	return  guiDType::renderPostRenderingNormals;
 }
 
+GuiDataAmbientOcclusion::GuiDataAmbientOcclusion(const AmbientOcclusionSettings& ao, SafePtr<CameraNode> camera)
+    : GuiDataActiveCamera(camera)
+    , m_ao(ao)
+{}
+
+guiDType GuiDataAmbientOcclusion::getType()
+{
+    return guiDType::renderAmbientOcclusion;
+}
+
 GuiDataEdgeAwareBlur::GuiDataEdgeAwareBlur(const EdgeAwareBlur& blurSettings, SafePtr<CameraNode> camera)
         : GuiDataActiveCamera(camera)
         , m_blur(blurSettings)

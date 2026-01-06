@@ -49,6 +49,8 @@ private:
         void enableFalseColor(bool);
         bool rampValidValue(float& min, float& max, int& step);
         void sendTransparency();
+        void updateAoUi(bool transparencyActive);
+        AmbientOcclusionSettings getAoSettingsFromUi() const;
         void updateEdgeAwareBlurUi(bool enabled);
         EdgeAwareBlur getEdgeAwareBlurFromUi() const;
         void populateEdgeAwareResolutionCombo();
@@ -62,13 +64,15 @@ private slots:
 	void slotContrastSaturationValueChanged(int value);
 	void slotTranparencyActivationChanged(int value);
 	void slotTransparencyValueChanged(int value);
-	void slotFakeColorValueChanged(int value);
-	void slotAlphaBoxesValueChanged(int value);
-	void slotSetPointSize(int pointSize);
-	void slotSetRenderMode(int mode);
+        void slotFakeColorValueChanged(int value);
+        void slotAlphaBoxesValueChanged(int value);
+        void slotSetPointSize(int pointSize);
+        void slotSetRenderMode(int mode);
         void slotColorPicking();
         void slotRampValues();
         void slotNormalsChanged();
+        void slotAoToggled(int state);
+        void slotAoValueChanged(int value);
         void slotEdgeAwareBlurToggled(int state);
         void slotEdgeAwareBlurValueChanged(int value);
         void slotEdgeAwareBlurResolutionChanged(int index);
