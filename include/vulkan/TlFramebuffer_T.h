@@ -27,6 +27,8 @@ struct TlFramebuffer_T
     std::atomic<bool> mustRecreateSwapchain = false;
     int initLayout = 0;
     bool initColorLayout = true;
+    bool initAoImageLayout = true;
+    bool initAoBlurImageLayout = true;
 
     VkSurfaceKHR surface = VK_NULL_HANDLE;
     VkSurfaceFormatKHR surfaceFormat;
@@ -56,6 +58,12 @@ struct TlFramebuffer_T
     VkDeviceMemory pcColorMemory = VK_NULL_HANDLE;
     VkImage pcColorImage = VK_NULL_HANDLE;
     VkImageView pcColorImageView = VK_NULL_HANDLE;
+    VkDeviceMemory aoImageMemory = VK_NULL_HANDLE;
+    VkImage aoImage = VK_NULL_HANDLE;
+    VkImageView aoImageView = VK_NULL_HANDLE;
+    VkDeviceMemory aoBlurImageMemory = VK_NULL_HANDLE;
+    VkImage aoBlurImage = VK_NULL_HANDLE;
+    VkImageView aoBlurImageView = VK_NULL_HANDLE;
 
     // Depth Usage :
     // VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
@@ -110,6 +118,10 @@ struct TlFramebuffer_T
     VkDescriptorSet descSetSamplers = VK_NULL_HANDLE;
     VkDescriptorSet descSetCorrectedDepth = VK_NULL_HANDLE;
     VkDescriptorSet descSetInputTransparentLayer = VK_NULL_HANDLE;
+    VkDescriptorSet descSetAmbientOcclusion = VK_NULL_HANDLE;
+    VkDescriptorSet descSetAoBlur = VK_NULL_HANDLE;
+    VkDescriptorSet descSetAoBlurSwap = VK_NULL_HANDLE;
+    VkDescriptorSet descSetAoComposite = VK_NULL_HANDLE;
 
     std::vector<SimpleBuffer> drawMarkerBuffers; // size of 'imageCount'
     std::vector<SimpleBuffer> drawMeasureBuffers; // size of 'imageCount'

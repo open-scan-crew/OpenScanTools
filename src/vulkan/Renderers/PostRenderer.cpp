@@ -3,6 +3,7 @@
 #include "utils/Logger.h"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <algorithm>
 
 static const int UNIFORM_DATA_SIZE = 16 * sizeof(float);
 
@@ -36,6 +37,21 @@ static std::vector<uint32_t> edge_aware_blur_comp_spv =
 static std::vector<uint32_t> depth_lining_comp_spv =
 {
 #include "depth_lining.comp.spv"
+};
+
+static std::vector<uint32_t> ambient_occlusion_comp_spv =
+{
+#include "ambient_occlusion.comp.spv"
+};
+
+static std::vector<uint32_t> ao_blur_comp_spv =
+{
+#include "ao_blur.comp.spv"
+};
+
+static std::vector<uint32_t> ao_compose_comp_spv =
+{
+#include "ao_compose.comp.spv"
 };
 
 // ********************************************
@@ -74,6 +90,9 @@ void PostRenderer::createShaders()
     loadShaderSPV(m_transparencyHDRCompShader, transparency_hdr_comp_spv);
     loadShaderSPV(m_edgeAwareBlurCompShader, edge_aware_blur_comp_spv);
     loadShaderSPV(m_depthLiningCompShader, depth_lining_comp_spv);
+    loadShaderSPV(m_ambientOcclusionCompShader, ambient_occlusion_comp_spv);
+    loadShaderSPV(m_aoBlurCompShader, ao_blur_comp_spv);
+    loadShaderSPV(m_aoComposeCompShader, ao_compose_comp_spv);
 }
 
 void PostRenderer::createDescriptorSetLayout()
@@ -156,6 +175,9 @@ void PostRenderer::createPipelines()
     createEdgeAwarePipeline();
     createDepthLiningPipeline();
     createTransparencyHDRPipeline();
+    createAmbientOcclusionPipeline();
+    createAmbientOcclusionBlurPipeline();
+    createAmbientOcclusionComposePipeline();
 }
 
 void PostRenderer::createPipelineLayouts()
@@ -203,6 +225,55 @@ void PostRenderer::createPipelineLayouts()
     pipelineLayoutInfo.setLayoutCount = sizeof(setLayouts_tHDR) / sizeof(VkDescriptorSetLayout);
     pipelineLayoutInfo.pSetLayouts = setLayouts_tHDR;
     err = h_pfn->vkCreatePipelineLayout(h_device, &pipelineLayoutInfo, nullptr, &m_transparencyHDRPipelineLayout);
+    check_vk_result(err, "Create Pipeline Layout");
+
+    VkPushConstantRange pcr_ao[] =
+    {
+        {
+            VK_SHADER_STAGE_COMPUTE_BIT,
+            0,
+            24
+        }
+    };
+
+    VkDescriptorSetLayout setLayoutsAo[] = { VulkanManager::getDSLayout_aoImages(), VulkanManager::getDSLayout_finalOutput() };
+    pipelineLayoutInfo.pushConstantRangeCount = sizeof(pcr_ao) / sizeof(VkPushConstantRange);
+    pipelineLayoutInfo.pPushConstantRanges = pcr_ao;
+    pipelineLayoutInfo.setLayoutCount = sizeof(setLayoutsAo) / sizeof(VkDescriptorSetLayout);
+    pipelineLayoutInfo.pSetLayouts = setLayoutsAo;
+    err = h_pfn->vkCreatePipelineLayout(h_device, &pipelineLayoutInfo, nullptr, &m_aoPipelineLayout);
+    check_vk_result(err, "Create Pipeline Layout");
+
+    VkPushConstantRange pcr_aoBlur[] =
+    {
+        {
+            VK_SHADER_STAGE_COMPUTE_BIT,
+            0,
+            24
+        }
+    };
+    VkDescriptorSetLayout setLayoutsAoBlur[] = { VulkanManager::getDSLayout_aoImages(), VulkanManager::getDSLayout_finalOutput() };
+    pipelineLayoutInfo.pushConstantRangeCount = sizeof(pcr_aoBlur) / sizeof(VkPushConstantRange);
+    pipelineLayoutInfo.pPushConstantRanges = pcr_aoBlur;
+    pipelineLayoutInfo.setLayoutCount = sizeof(setLayoutsAoBlur) / sizeof(VkDescriptorSetLayout);
+    pipelineLayoutInfo.pSetLayouts = setLayoutsAoBlur;
+    err = h_pfn->vkCreatePipelineLayout(h_device, &pipelineLayoutInfo, nullptr, &m_aoBlurPipelineLayout);
+    check_vk_result(err, "Create Pipeline Layout");
+
+    VkPushConstantRange pcr_aoCompose[] =
+    {
+        {
+            VK_SHADER_STAGE_COMPUTE_BIT,
+            0,
+            8
+        }
+    };
+    VkDescriptorSetLayout setLayoutsAoCompose[] = { VulkanManager::getDSLayout_aoImages() };
+    pipelineLayoutInfo.pushConstantRangeCount = sizeof(pcr_aoCompose) / sizeof(VkPushConstantRange);
+    pipelineLayoutInfo.pPushConstantRanges = pcr_aoCompose;
+    pipelineLayoutInfo.setLayoutCount = sizeof(setLayoutsAoCompose) / sizeof(VkDescriptorSetLayout);
+    pipelineLayoutInfo.pSetLayouts = setLayoutsAoCompose;
+    err = h_pfn->vkCreatePipelineLayout(h_device, &pipelineLayoutInfo, nullptr, &m_aoComposePipelineLayout);
     check_vk_result(err, "Create Pipeline Layout");
 }
 
@@ -345,6 +416,84 @@ void PostRenderer::createTransparencyHDRPipeline()
     check_vk_result(err, "Create Compute Pipeline");
 }
 
+void PostRenderer::createAmbientOcclusionPipeline()
+{
+    VkPipelineShaderStageCreateInfo compStageInfo = {
+        VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+        nullptr,
+        0,
+        VK_SHADER_STAGE_COMPUTE_BIT,
+        m_ambientOcclusionCompShader.module(),
+        "main",
+        nullptr
+    };
+
+    VkComputePipelineCreateInfo info = {
+        VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO,
+        nullptr,
+        0,
+        compStageInfo,
+        m_aoPipelineLayout,
+        VK_NULL_HANDLE,
+        0,
+    };
+
+    VkResult err = h_pfn->vkCreateComputePipelines(h_device, m_pipelineCache, 1, &info, nullptr, &m_ambientOcclusionPipeline);
+    check_vk_result(err, "Create Compute Pipeline");
+}
+
+void PostRenderer::createAmbientOcclusionBlurPipeline()
+{
+    VkPipelineShaderStageCreateInfo compStageInfo = {
+        VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+        nullptr,
+        0,
+        VK_SHADER_STAGE_COMPUTE_BIT,
+        m_aoBlurCompShader.module(),
+        "main",
+        nullptr
+    };
+
+    VkComputePipelineCreateInfo info = {
+        VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO,
+        nullptr,
+        0,
+        compStageInfo,
+        m_aoBlurPipelineLayout,
+        VK_NULL_HANDLE,
+        0,
+    };
+
+    VkResult err = h_pfn->vkCreateComputePipelines(h_device, m_pipelineCache, 1, &info, nullptr, &m_aoBlurPipeline);
+    check_vk_result(err, "Create Compute Pipeline");
+}
+
+void PostRenderer::createAmbientOcclusionComposePipeline()
+{
+    VkPipelineShaderStageCreateInfo compStageInfo = {
+        VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+        nullptr,
+        0,
+        VK_SHADER_STAGE_COMPUTE_BIT,
+        m_aoComposeCompShader.module(),
+        "main",
+        nullptr
+    };
+
+    VkComputePipelineCreateInfo info = {
+        VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO,
+        nullptr,
+        0,
+        compStageInfo,
+        m_aoComposePipelineLayout,
+        VK_NULL_HANDLE,
+        0,
+    };
+
+    VkResult err = h_pfn->vkCreateComputePipelines(h_device, m_pipelineCache, 1, &info, nullptr, &m_aoComposePipeline);
+    check_vk_result(err, "Create Compute Pipeline");
+}
+
 // Must be called inside a renderpass
 void PostRenderer::setViewportAndScissor(int32_t _xPos, int32_t _yPos, uint32_t _width, uint32_t _height, VkCommandBuffer _cmdBuffer)
 {
@@ -450,6 +599,63 @@ void PostRenderer::processDepthLining(VkCommandBuffer _cmdBuffer, const DepthLin
     } pc = { glm::ivec2(_extent.width, _extent.height), liningSettings.strength, liningSettings.threshold, liningSettings.sensitivity, liningSettings.strongMode ? 1 : 0 };
 
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_depthLiningPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(pc), &pc);
+
+    h_pfn->vkCmdDispatch(_cmdBuffer, (_extent.width + 15) / 16, (_extent.height + 15) / 16, 1);
+}
+
+void PostRenderer::processAmbientOcclusion(VkCommandBuffer _cmdBuffer, VkDescriptorSet descSetAO, VkDescriptorSet descSetDepth, VkExtent2D _extent)
+{
+    h_pfn->vkCmdBindPipeline(_cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_ambientOcclusionPipeline);
+
+    VkDescriptorSet descSets[] = { descSetAO, descSetDepth };
+    h_pfn->vkCmdBindDescriptorSets(_cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_aoPipelineLayout, 0, 2, descSets, 0, nullptr);
+
+    struct
+    {
+        glm::ivec2 screenSize;
+        float radius;
+        float depthReject;
+        float bias;
+    } pc = { glm::ivec2(_extent.width, _extent.height), 14.0f, 0.35f, 0.02f };
+
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_aoPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(pc), &pc);
+
+    h_pfn->vkCmdDispatch(_cmdBuffer, (_extent.width + 15) / 16, (_extent.height + 15) / 16, 1);
+}
+
+void PostRenderer::processAmbientOcclusionBlur(VkCommandBuffer _cmdBuffer, VkDescriptorSet descSetAO, VkDescriptorSet descSetDepth, VkExtent2D _extent, bool horizontal)
+{
+    h_pfn->vkCmdBindPipeline(_cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_aoBlurPipeline);
+
+    VkDescriptorSet descSets[] = { descSetAO, descSetDepth };
+    h_pfn->vkCmdBindDescriptorSets(_cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_aoBlurPipelineLayout, 0, 2, descSets, 0, nullptr);
+
+    struct
+    {
+        glm::ivec2 screenSize;
+        glm::ivec2 direction;
+        float radius;
+        float depthSigma;
+    } pc = { glm::ivec2(_extent.width, _extent.height), horizontal ? glm::ivec2(1, 0) : glm::ivec2(0, 1), 2.5f, 0.6f };
+
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_aoBlurPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(pc), &pc);
+
+    h_pfn->vkCmdDispatch(_cmdBuffer, (_extent.width + 15) / 16, (_extent.height + 15) / 16, 1);
+}
+
+void PostRenderer::processAmbientOcclusionCompose(VkCommandBuffer _cmdBuffer, float aoStrength, VkDescriptorSet descSetColorAndAo, VkExtent2D _extent)
+{
+    h_pfn->vkCmdBindPipeline(_cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_aoComposePipeline);
+
+    VkDescriptorSet descSets[] = { descSetColorAndAo };
+    h_pfn->vkCmdBindDescriptorSets(_cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_aoComposePipelineLayout, 0, 1, descSets, 0, nullptr);
+
+    struct
+    {
+        float strength;
+    } pc = { std::clamp(aoStrength, 0.0f, 1.0f) };
+
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_aoComposePipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(pc), &pc);
 
     h_pfn->vkCmdDispatch(_cmdBuffer, (_extent.width + 15) / 16, (_extent.height + 15) / 16, 1);
 }
@@ -561,6 +767,21 @@ void PostRenderer::cleanup()
         m_depthLiningPipelineLayout = VK_NULL_HANDLE;
     }
 
+    if (m_aoPipelineLayout) {
+        h_pfn->vkDestroyPipelineLayout(h_device, m_aoPipelineLayout, nullptr);
+        m_aoPipelineLayout = VK_NULL_HANDLE;
+    }
+
+    if (m_aoBlurPipelineLayout) {
+        h_pfn->vkDestroyPipelineLayout(h_device, m_aoBlurPipelineLayout, nullptr);
+        m_aoBlurPipelineLayout = VK_NULL_HANDLE;
+    }
+
+    if (m_aoComposePipelineLayout) {
+        h_pfn->vkDestroyPipelineLayout(h_device, m_aoComposePipelineLayout, nullptr);
+        m_aoComposePipelineLayout = VK_NULL_HANDLE;
+    }
+
     if (m_transparencyHDRPipelineLayout) {
         h_pfn->vkDestroyPipelineLayout(h_device, m_transparencyHDRPipelineLayout, nullptr);
         m_transparencyHDRPipelineLayout = VK_NULL_HANDLE;
@@ -595,6 +816,24 @@ void PostRenderer::cleanup()
     {
         h_pfn->vkDestroyPipeline(h_device, m_depthLiningPipeline, nullptr);
         m_depthLiningPipeline = VK_NULL_HANDLE;
+    }
+
+    if (m_ambientOcclusionPipeline)
+    {
+        h_pfn->vkDestroyPipeline(h_device, m_ambientOcclusionPipeline, nullptr);
+        m_ambientOcclusionPipeline = VK_NULL_HANDLE;
+    }
+
+    if (m_aoBlurPipeline)
+    {
+        h_pfn->vkDestroyPipeline(h_device, m_aoBlurPipeline, nullptr);
+        m_aoBlurPipeline = VK_NULL_HANDLE;
+    }
+
+    if (m_aoComposePipeline)
+    {
+        h_pfn->vkDestroyPipeline(h_device, m_aoComposePipeline, nullptr);
+        m_aoComposePipeline = VK_NULL_HANDLE;
     }
 
     if (m_transparencyHDRPipeline) {

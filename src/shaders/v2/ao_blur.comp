@@ -1,0 +1,77 @@
+#version 450
+
+// Depth-aware bilateral blur for the SSAO buffer.
+// Depth convention: correctedDepth.depth[] stores positive distances, <= 0 means empty pixel.
+
+layout (local_size_x = 16, local_size_y = 16) in;
+
+layout(set = 0, binding = 0, r16f) uniform image2D aoOutput;
+layout(set = 0, binding = 1, r16f) uniform image2D aoInput;
+layout(set = 1, binding = 2) buffer correctedDepth
+{
+    float depth[];
+};
+
+layout(push_constant) uniform PC {
+   layout(offset = 0) ivec2 screenSize;
+   layout(offset = 8) ivec2 direction;
+   layout(offset = 16) float radius;
+   layout(offset = 20) float depthSigma;
+} pc;
+
+float fetchDepth(ivec2 coord)
+{
+    ivec2 clamped = clamp(coord, ivec2(0), pc.screenSize - ivec2(1));
+    uint idx = uint(clamped.x + clamped.y * pc.screenSize.x);
+    return depth[idx];
+}
+
+float fetchAO(ivec2 coord)
+{
+    ivec2 clamped = clamp(coord, ivec2(0), pc.screenSize - ivec2(1));
+    return imageLoad(aoInput, clamped).r;
+}
+
+void main()
+{
+    ivec2 gid = ivec2(gl_GlobalInvocationID.xy);
+    if (gid.x >= pc.screenSize.x || gid.y >= pc.screenSize.y)
+        return;
+
+    const uint idx = uint(gid.x + gid.y * pc.screenSize.x);
+    const float centerDepth = depth[idx];
+    const float centerAO = fetchAO(gid);
+
+    if (centerDepth <= 0.0)
+    {
+        imageStore(aoOutput, gid, vec4(centerAO, 0.0, 0.0, 1.0));
+        return;
+    }
+
+    int r = int(ceil(pc.radius));
+    float invRadius = 1.0 / max(pc.radius * pc.radius, 1e-4);
+    float centerLog = log2(max(centerDepth, 1e-6) + 1.0);
+
+    float accum = 0.0;
+    float weight = 0.0;
+
+    for (int i = -r; i <= r; ++i)
+    {
+        ivec2 coord = gid + pc.direction * i;
+        float sampleDepth = fetchDepth(coord);
+        if (sampleDepth <= 0.0)
+            continue;
+
+        float sampleAO = fetchAO(coord);
+        float spatial = exp(-float(i * i) * invRadius);
+        float logSample = log2(max(sampleDepth, 1e-6) + 1.0);
+        float depthDelta = abs(logSample - centerLog);
+        float depthWeight = exp(-(depthDelta * depthDelta) / max(2.0 * pc.depthSigma * pc.depthSigma, 1e-5));
+        float w = spatial * depthWeight;
+        accum += sampleAO * w;
+        weight += w;
+    }
+
+    float ao = (weight > 0.0) ? (accum / weight) : centerAO;
+    imageStore(aoOutput, gid, vec4(ao, 0.0, 0.0, 1.0));
+}

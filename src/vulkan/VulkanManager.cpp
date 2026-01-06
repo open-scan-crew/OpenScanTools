@@ -658,6 +658,10 @@ VkDescriptorSetLayout VulkanManager::getDSLayout_inputTransparentLayer()
     return getInstance().m_descSetLayout_inputTransparentLayer;
 }
 
+VkDescriptorSetLayout VulkanManager::getDSLayout_aoImages()
+{
+    return getInstance().m_descSetLayout_aoImages;
+}
 uint32_t VulkanManager::getImageCount(TlFramebuffer _fb)
 {
     return (_fb->imageCount);
@@ -962,6 +966,61 @@ void VulkanManager::beginPostTreatmentEdgeAwareBlur(TlFramebuffer _fb)
 void VulkanManager::beginPostTreatmentDepthLining(TlFramebuffer _fb)
 {
     beginPostTreatmentNormal(_fb);
+}
+
+void VulkanManager::beginPostTreatmentAmbientOcclusion(TlFramebuffer _fb)
+{
+    VkImageMemoryBarrier imageBarriers[] = {
+        {
+            VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            nullptr,
+            _fb->initAoImageLayout ? 0u : (VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT),
+            VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT,
+            _fb->initAoImageLayout ? VK_IMAGE_LAYOUT_UNDEFINED : VK_IMAGE_LAYOUT_GENERAL,
+            VK_IMAGE_LAYOUT_GENERAL,
+            VK_QUEUE_FAMILY_IGNORED,
+            VK_QUEUE_FAMILY_IGNORED,
+            _fb->aoImage,
+            { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 }
+        },
+        {
+            VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            nullptr,
+            _fb->initAoBlurImageLayout ? 0u : (VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT),
+            VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT,
+            _fb->initAoBlurImageLayout ? VK_IMAGE_LAYOUT_UNDEFINED : VK_IMAGE_LAYOUT_GENERAL,
+            VK_IMAGE_LAYOUT_GENERAL,
+            VK_QUEUE_FAMILY_IGNORED,
+            VK_QUEUE_FAMILY_IGNORED,
+            _fb->aoBlurImage,
+            { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 }
+        }
+    };
+
+    VkBufferMemoryBarrier buffer_barrier =
+    {
+        VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+        nullptr,
+        VK_ACCESS_SHADER_WRITE_BIT,
+        VK_ACCESS_SHADER_READ_BIT,
+        VK_QUEUE_FAMILY_IGNORED,
+        VK_QUEUE_FAMILY_IGNORED,
+        _fb->correctedDepthBuffer,
+        0,
+        _fb->correctedDepthSize
+    };
+
+    m_pfnDev->vkCmdPipelineBarrier(
+        _fb->graphicsCmdBuffers[_fb->currentFrame],
+        VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+        VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+        0,
+        0, nullptr,
+        sizeof(buffer_barrier) / sizeof(VkBufferMemoryBarrier), &buffer_barrier,
+        sizeof(imageBarriers) / sizeof(VkImageMemoryBarrier), imageBarriers);
+
+    _fb->initAoImageLayout = false;
+    _fb->initAoBlurImageLayout = false;
 }
 
 void VulkanManager::beginPostTreatmentTransparency(TlFramebuffer _fb)
@@ -2847,7 +2906,7 @@ bool VulkanManager::createDescriptorPool()
         { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 6 }, // for ImGui, how much ?
         { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 24 },  // for PointCloud Engine
         { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 4},
-        { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 10 }, // 5 by viewport
+        { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 24 }, // AO + post-processing per viewport
         { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 8 }
     };
 
@@ -2921,6 +2980,28 @@ bool VulkanManager::createDescriptorSetLayouts()
     descLayoutInfo.bindingCount = sizeof(layoutBindings3) / sizeof(VkDescriptorSetLayoutBinding);
     descLayoutInfo.pBindings = layoutBindings3;
     err = m_pfnDev->vkCreateDescriptorSetLayout(m_device, &descLayoutInfo, nullptr, &m_descSetLayout_finalOutput);
+    check_vk_result(err, "Create Descriptor Set Layout");
+
+    VkDescriptorSetLayoutBinding layoutBindingsAO[] = {
+        {
+            0,
+            VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+            1,
+            VK_SHADER_STAGE_COMPUTE_BIT,
+            nullptr
+        },
+        {
+            1,
+            VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+            1,
+            VK_SHADER_STAGE_COMPUTE_BIT,
+            nullptr
+        }
+    };
+
+    descLayoutInfo.bindingCount = sizeof(layoutBindingsAO) / sizeof(VkDescriptorSetLayoutBinding);
+    descLayoutInfo.pBindings = layoutBindingsAO;
+    err = m_pfnDev->vkCreateDescriptorSetLayout(m_device, &descLayoutInfo, nullptr, &m_descSetLayout_aoImages);
     check_vk_result(err, "Create Descriptor Set Layout");
 
     // ********* Layout for Input attachment of transparent rendering ***********
@@ -3135,6 +3216,14 @@ void VulkanManager::createAttachments(TlFramebuffer _fb)
 
     _fb->pcColorImageView = createImageView(_fb->pcColorImage, _fb->pcFormat, VK_IMAGE_ASPECT_COLOR_BIT);
 
+    // ambient occlusion buffers
+    createImage(_fb->extent, 1, VK_FORMAT_R16_SFLOAT, VK_IMAGE_TILING_OPTIMAL, VK_SAMPLE_COUNT_1_BIT, VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _fb->aoImage, _fb->aoImageMemory);
+    _fb->aoImageView = createImageView(_fb->aoImage, VK_FORMAT_R16_SFLOAT, VK_IMAGE_ASPECT_COLOR_BIT);
+    createImage(_fb->extent, 1, VK_FORMAT_R16_SFLOAT, VK_IMAGE_TILING_OPTIMAL, VK_SAMPLE_COUNT_1_BIT, VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _fb->aoBlurImage, _fb->aoBlurImageMemory);
+    _fb->aoBlurImageView = createImageView(_fb->aoBlurImage, VK_FORMAT_R16_SFLOAT, VK_IMAGE_ASPECT_COLOR_BIT);
+    _fb->initAoImageLayout = true;
+    _fb->initAoBlurImageLayout = true;
+
     // object id attachment
     createImage(_fb->extent, 1, VK_FORMAT_R32_UINT, VK_IMAGE_TILING_OPTIMAL, VK_SAMPLE_COUNT_1_BIT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _fb->idAttImage, _fb->idAttMemory);
 
@@ -3337,6 +3426,170 @@ void VulkanManager::allocateDescriptorSet(TlFramebuffer _fb)
         writeDescFinal.pBufferInfo = &bufferInfo;
 
         m_pfnDev->vkUpdateDescriptorSets(m_device, 1, &writeDescFinal, 0, nullptr);
+    }
+    {
+        VkDescriptorSetAllocateInfo allocInfo = {
+            VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+            nullptr,
+            m_descPool,
+            1,
+            &m_descSetLayout_aoImages
+        };
+        VkResult err = m_pfnDev->vkAllocateDescriptorSets(m_device, &allocInfo, &_fb->descSetAmbientOcclusion);
+        check_vk_result(err, "Allocate Descriptor Sets Ambient Occlusion");
+
+        VkDescriptorImageInfo imageInfos[2] = {
+            {
+                VK_NULL_HANDLE,
+                _fb->aoImageView,
+                VK_IMAGE_LAYOUT_GENERAL
+            },
+            {
+                VK_NULL_HANDLE,
+                _fb->aoImageView,
+                VK_IMAGE_LAYOUT_GENERAL
+            }
+        };
+
+        VkWriteDescriptorSet writeDesc[2] = {};
+        writeDesc[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        writeDesc[0].dstSet = _fb->descSetAmbientOcclusion;
+        writeDesc[0].dstBinding = 0;
+        writeDesc[0].descriptorCount = 1;
+        writeDesc[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+        writeDesc[0].pImageInfo = &imageInfos[0];
+
+        writeDesc[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        writeDesc[1].dstSet = _fb->descSetAmbientOcclusion;
+        writeDesc[1].dstBinding = 1;
+        writeDesc[1].descriptorCount = 1;
+        writeDesc[1].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+        writeDesc[1].pImageInfo = &imageInfos[1];
+
+        m_pfnDev->vkUpdateDescriptorSets(m_device, 2, writeDesc, 0, nullptr);
+    }
+    {
+        VkDescriptorSetAllocateInfo allocInfo = {
+            VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+            nullptr,
+            m_descPool,
+            1,
+            &m_descSetLayout_aoImages
+        };
+        VkResult err = m_pfnDev->vkAllocateDescriptorSets(m_device, &allocInfo, &_fb->descSetAoBlur);
+        check_vk_result(err, "Allocate Descriptor Sets AO Blur");
+
+        VkDescriptorImageInfo imageInfos[2] = {
+            {
+                VK_NULL_HANDLE,
+                _fb->aoBlurImageView,
+                VK_IMAGE_LAYOUT_GENERAL
+            },
+            {
+                VK_NULL_HANDLE,
+                _fb->aoImageView,
+                VK_IMAGE_LAYOUT_GENERAL
+            }
+        };
+
+        VkWriteDescriptorSet writeDesc[2] = {};
+        writeDesc[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        writeDesc[0].dstSet = _fb->descSetAoBlur;
+        writeDesc[0].dstBinding = 0;
+        writeDesc[0].descriptorCount = 1;
+        writeDesc[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+        writeDesc[0].pImageInfo = &imageInfos[0];
+
+        writeDesc[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        writeDesc[1].dstSet = _fb->descSetAoBlur;
+        writeDesc[1].dstBinding = 1;
+        writeDesc[1].descriptorCount = 1;
+        writeDesc[1].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+        writeDesc[1].pImageInfo = &imageInfos[1];
+
+        m_pfnDev->vkUpdateDescriptorSets(m_device, 2, writeDesc, 0, nullptr);
+    }
+    {
+        VkDescriptorSetAllocateInfo allocInfo = {
+            VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+            nullptr,
+            m_descPool,
+            1,
+            &m_descSetLayout_aoImages
+        };
+        VkResult err = m_pfnDev->vkAllocateDescriptorSets(m_device, &allocInfo, &_fb->descSetAoBlurSwap);
+        check_vk_result(err, "Allocate Descriptor Sets AO Blur Swap");
+
+        VkDescriptorImageInfo imageInfos[2] = {
+            {
+                VK_NULL_HANDLE,
+                _fb->aoImageView,
+                VK_IMAGE_LAYOUT_GENERAL
+            },
+            {
+                VK_NULL_HANDLE,
+                _fb->aoBlurImageView,
+                VK_IMAGE_LAYOUT_GENERAL
+            }
+        };
+
+        VkWriteDescriptorSet writeDesc[2] = {};
+        writeDesc[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        writeDesc[0].dstSet = _fb->descSetAoBlurSwap;
+        writeDesc[0].dstBinding = 0;
+        writeDesc[0].descriptorCount = 1;
+        writeDesc[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+        writeDesc[0].pImageInfo = &imageInfos[0];
+
+        writeDesc[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        writeDesc[1].dstSet = _fb->descSetAoBlurSwap;
+        writeDesc[1].dstBinding = 1;
+        writeDesc[1].descriptorCount = 1;
+        writeDesc[1].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+        writeDesc[1].pImageInfo = &imageInfos[1];
+
+        m_pfnDev->vkUpdateDescriptorSets(m_device, 2, writeDesc, 0, nullptr);
+    }
+    {
+        VkDescriptorSetAllocateInfo allocInfo = {
+            VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+            nullptr,
+            m_descPool,
+            1,
+            &m_descSetLayout_aoImages
+        };
+        VkResult err = m_pfnDev->vkAllocateDescriptorSets(m_device, &allocInfo, &_fb->descSetAoComposite);
+        check_vk_result(err, "Allocate Descriptor Sets AO Composite");
+
+        VkDescriptorImageInfo imageInfos[2] = {
+            {
+                VK_NULL_HANDLE,
+                _fb->pcColorImageView,
+                VK_IMAGE_LAYOUT_GENERAL
+            },
+            {
+                VK_NULL_HANDLE,
+                _fb->aoImageView,
+                VK_IMAGE_LAYOUT_GENERAL
+            }
+        };
+
+        VkWriteDescriptorSet writeDesc[2] = {};
+        writeDesc[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        writeDesc[0].dstSet = _fb->descSetAoComposite;
+        writeDesc[0].dstBinding = 0;
+        writeDesc[0].descriptorCount = 1;
+        writeDesc[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+        writeDesc[0].pImageInfo = &imageInfos[0];
+
+        writeDesc[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        writeDesc[1].dstSet = _fb->descSetAoComposite;
+        writeDesc[1].dstBinding = 1;
+        writeDesc[1].descriptorCount = 1;
+        writeDesc[1].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+        writeDesc[1].pImageInfo = &imageInfos[1];
+
+        m_pfnDev->vkUpdateDescriptorSets(m_device, 2, writeDesc, 0, nullptr);
     }
     //----------------------------------//
     {
@@ -4209,6 +4462,7 @@ void VulkanManager::cleanupAll()
         destroyDescriptorSetLayout(*m_pfnDev, m_device, m_descSetLayout_inputDepth);
         destroyDescriptorSetLayout(*m_pfnDev, m_device, m_descSetLayout_filling);
         destroyDescriptorSetLayout(*m_pfnDev, m_device, m_descSetLayout_finalOutput);
+        destroyDescriptorSetLayout(*m_pfnDev, m_device, m_descSetLayout_aoImages);
         destroyDescriptorSetLayout(*m_pfnDev, m_device, m_descSetLayout_inputTransparentLayer);
 
         destroyFence(*m_pfnDev, m_device, m_renderFence);
@@ -4284,6 +4538,14 @@ void VulkanManager::cleanupSizeDependantResources(TlFramebuffer _fb)
         tls::vk::destroyImage(*m_pfnDev, m_device, _fb->pcColorImage);
         tls::vk::freeMemory(*m_pfnDev, m_device, _fb->pcColorMemory);
 
+        tls::vk::destroyImageView(*m_pfnDev, m_device, _fb->aoImageView);
+        tls::vk::destroyImage(*m_pfnDev, m_device, _fb->aoImage);
+        tls::vk::freeMemory(*m_pfnDev, m_device, _fb->aoImageMemory);
+
+        tls::vk::destroyImageView(*m_pfnDev, m_device, _fb->aoBlurImageView);
+        tls::vk::destroyImage(*m_pfnDev, m_device, _fb->aoBlurImage);
+        tls::vk::freeMemory(*m_pfnDev, m_device, _fb->aoBlurImageMemory);
+
         // pc depth
         tls::vk::destroyImageView(*m_pfnDev, m_device, _fb->pcDepthImageView);
         tls::vk::destroyImage(*m_pfnDev, m_device, _fb->pcDepthImage);
@@ -4329,6 +4591,10 @@ void VulkanManager::cleanupSizeDependantResources(TlFramebuffer _fb)
         tls::vk::freeDescriptorSet(*m_pfnDev, m_device, m_descPool, _fb->descSetSamplers);
         tls::vk::freeDescriptorSet(*m_pfnDev, m_device, m_descPool, _fb->descSetCorrectedDepth);
         tls::vk::freeDescriptorSet(*m_pfnDev, m_device, m_descPool, _fb->descSetInputTransparentLayer);
+        tls::vk::freeDescriptorSet(*m_pfnDev, m_device, m_descPool, _fb->descSetAmbientOcclusion);
+        tls::vk::freeDescriptorSet(*m_pfnDev, m_device, m_descPool, _fb->descSetAoBlur);
+        tls::vk::freeDescriptorSet(*m_pfnDev, m_device, m_descPool, _fb->descSetAoBlurSwap);
+        tls::vk::freeDescriptorSet(*m_pfnDev, m_device, m_descPool, _fb->descSetAoComposite);
 
         // Swap Chain
         tls::vk::destroyMultiImageView(*m_pfnDev, m_device, _fb->pImageViews, _fb->imageCount);
@@ -4482,4 +4748,3 @@ void VulkanManager::defragmentMemory()
         }
     }
 }
-

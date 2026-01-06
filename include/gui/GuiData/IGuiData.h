@@ -70,6 +70,7 @@ enum class guiDType
         renderPostRenderingNormals,
         renderEdgeAwareBlur,
         renderDepthLining,
+        renderAmbientOcclusion,
         renderRampScale,
         renderDisplayParameters,
         renderUpdate,
