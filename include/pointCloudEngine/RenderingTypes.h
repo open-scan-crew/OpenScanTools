@@ -79,6 +79,15 @@ struct PostRenderingNormals
     float gloss;
 };
 
+struct AmbientOcclusion
+{
+    bool enabled = false;
+    float radius = 0.5f;
+    float intensity = 0.5f;
+    bool useTopLight = true;
+    float topLightStrength = 0.5f;
+};
+
 struct EdgeAwareBlur
 {
     bool enabled = false;

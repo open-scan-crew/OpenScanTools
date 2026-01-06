@@ -23,12 +23,26 @@ layout(push_constant) uniform PC {
    layout(offset = 40) float ka;
    layout(offset = 48) float diffuse_pow;
    layout(offset = 52) int blendColor;
+   layout(offset = 56) float aoRadius;
+   layout(offset = 60) float aoIntensity;
+   layout(offset = 64) int aoEnabled;
+   layout(offset = 68) int aoUseTopLight;
+   layout(offset = 72) float aoTopLightStrength;
+   layout(offset = 76) int normalsEnabled;
 } pc;
 
 #include "./normal_functions.glsl"
 
 vec4 imageColor;
 float imageDepth[9];
+
+float depthToLinear(float rawDepth, float diffFarNear, float mulFarNear)
+{
+   // projMode : 0 == perspective ; 1 == orthographic
+   if (pc.projMode == 0)
+      return mulFarNear / (pc.nearFar.y - rawDepth * diffFarNear);
+   return rawDepth * diffFarNear + pc.nearFar.x;
+}
 
 void main() 
 {
@@ -50,12 +64,7 @@ void main()
       {
          ++n;
          uint index = int(gl_GlobalInvocationID.x + i) + int(gl_GlobalInvocationID.y + j) * pc.screenSize.x;
-         float rawDepth = inDepth[index];
-         // projMode : 0 == perspective ; 1 == orthographic
-         if (pc.projMode == 0)
-            imageDepth[n] = mulFarNear / (pc.nearFar.y - rawDepth * diffFarNear);
-         else
-            imageDepth[n] = rawDepth * diffFarNear + pc.nearFar.x;
+         imageDepth[n] = depthToLinear(inDepth[index], diffFarNear, mulFarNear);
       }
    }
 
@@ -63,13 +72,77 @@ void main()
 
    vec3 normal = (pc.projMode == 0) ? computeNormal_perspective(imageDepth) : computeNormal_ortho(imageDepth);
 
-   // Take cosinus or sinus
-   float diffuse_base = (pc.inverseTone == 0) ? normal.z : length(normal.xy);
+   vec3 shadedColor = imageColor.rgb;
+   if (pc.normalsEnabled != 0)
+   {
+      // Take cosinus or sinus
+      float diffuse_base = (pc.inverseTone == 0) ? normal.z : length(normal.xy);
 
-   if (diffuse_base < 0.0)
-      diffuse_base = 0.0;
+      if (diffuse_base < 0.0)
+         diffuse_base = 0.0;
 
-   float id = pow(diffuse_base, pc.diffuse_pow);
-   vec3 shade = (pc.blendColor == 1) ? vec3(id) : imageColor.rgb * id;
-   imageStore(inOutColorImage, ivec2(gl_GlobalInvocationID.xy), vec4(mix(imageColor.rgb, shade, pc.ka), imageColor.a));
+      float id = pow(diffuse_base, pc.diffuse_pow);
+      vec3 shade = (pc.blendColor == 1) ? vec3(id) : imageColor.rgb * id;
+      shadedColor = mix(imageColor.rgb, shade, pc.ka);
+   }
+
+   float aoFactor = 1.0;
+   if (pc.aoEnabled != 0 && pc.aoIntensity > 0.0)
+   {
+      float centerDepth = imageDepth[4];
+      if (centerDepth > 0.0 && centerDepth < pc.nearFar.y - 1.0)
+      {
+         const vec2 kernel[8] = vec2[8](vec2(1, 0), vec2(-1, 0), vec2(0, 1), vec2(0, -1), vec2(1, 1), vec2(-1, 1), vec2(1, -1), vec2(-1, -1));
+         float radiusPx = 1.0 + pc.aoRadius * 7.0;
+         float bias = max(centerDepth * 0.02, 0.001);
+         float occ = 0.0;
+         float weightSum = 0.0;
+
+         for (int k = 0; k < 8; ++k)
+         {
+            vec2 dir = kernel[k];
+            float lenDir = length(dir);
+            float scaled = radiusPx / max(lenDir, 1.0);
+            ivec2 offset = ivec2(round(dir * scaled));
+            ivec2 sampleCoord = clamp(ivec2(gl_GlobalInvocationID.xy) + offset, ivec2(1), pc.screenSize - ivec2(2));
+            uint sampleIndex = uint(sampleCoord.x + sampleCoord.y * pc.screenSize.x);
+            float rawDepth = inDepth[sampleIndex];
+            if (rawDepth <= 0.0f)
+               continue;
+
+            float sampleDepth = depthToLinear(rawDepth, diffFarNear, mulFarNear);
+            float delta = centerDepth - sampleDepth - bias;
+            float dirWeight = 1.0 / (1.0 + lenDir);
+            float falloff = 1.0 - clamp(length(vec2(offset)) / (radiusPx + 1e-3), 0.0, 1.0);
+
+            if (delta > 0.0)
+            {
+               float range = delta / (centerDepth + bias);
+               float occlusion = clamp(range * 1.6, 0.0, 1.0) * falloff;
+               occ += occlusion * dirWeight;
+            }
+            weightSum += dirWeight;
+         }
+
+         if (weightSum > 0.0)
+         {
+            float aoVis = clamp(occ / weightSum, 0.0, 1.0);
+            aoFactor = 1.0 - clamp(pc.aoIntensity * aoVis, 0.0, 0.95);
+         }
+      }
+   }
+
+   float topLight = 1.0;
+   if (pc.aoUseTopLight != 0 && pc.aoEnabled != 0)
+   {
+      float normLen = length(normal);
+      if (normLen > 1e-4)
+      {
+         float nz = clamp(normal.z + 0.25, 0.0, 1.0);
+         topLight = mix(1.0, nz, clamp(pc.aoTopLightStrength, 0.0, 1.0));
+      }
+   }
+
+   vec3 finalColor = shadedColor * aoFactor * topLight;
+   imageStore(inOutColorImage, ivec2(gl_GlobalInvocationID.xy), vec4(finalColor, imageColor.a));
 }

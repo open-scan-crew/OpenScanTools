@@ -167,7 +167,7 @@ void PostRenderer::createPipelineLayouts()
         {
             VK_SHADER_STAGE_COMPUTE_BIT,
             0,
-            64
+            80
         }
     };
 
@@ -503,14 +503,31 @@ void PostRenderer::setConstantTexelThreshold(int texelThreshold, VkCommandBuffer
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_fillingPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 56, 4, &texelThreshold);
 }
 
-void PostRenderer::setConstantLighting(const PostRenderingNormals& lighting, VkCommandBuffer _cmdBuffer) const
+void PostRenderer::setConstantLighting(const PostRenderingNormals& lighting, const AmbientOcclusion& ao, bool enableNormals, VkCommandBuffer _cmdBuffer) const
 {
-    int tone = lighting.inverseTone ? 1 : 0;
-    int blend = lighting.blendColor ? 1 : 0;
+    const int tone = (enableNormals && lighting.inverseTone) ? 1 : 0;
+    const int blend = (enableNormals && lighting.blendColor) ? 1 : 0;
+    const float normalStrength = enableNormals ? lighting.normalStrength : 0.0f;
+    const float gloss = lighting.gloss;
+
+    const int aoEnabled = ao.enabled ? 1 : 0;
+    const bool useTopLight = ao.enabled && ao.useTopLight;
+    const int aoTopLight = useTopLight ? 1 : 0;
+    const float aoRadius = ao.enabled ? ao.radius : 0.0f;
+    const float aoIntensity = ao.enabled ? ao.intensity : 0.0f;
+    const float aoTopLightStrength = useTopLight ? ao.topLightStrength : 0.0f;
+    const int normalsEnabled = enableNormals ? 1 : 0;
+
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_normalPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 36, 4, &tone);
-    h_pfn->vkCmdPushConstants(_cmdBuffer, m_normalPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 40, 4, &lighting.normalStrength);
-    h_pfn->vkCmdPushConstants(_cmdBuffer, m_normalPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 48, 4, &lighting.gloss);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_normalPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 40, 4, &normalStrength);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_normalPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 48, 4, &gloss);
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_normalPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 52, 4, &blend);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_normalPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 56, 4, &aoRadius);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_normalPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 60, 4, &aoIntensity);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_normalPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 64, 4, &aoEnabled);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_normalPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 68, 4, &aoTopLight);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_normalPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 72, 4, &aoTopLightStrength);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_normalPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 76, 4, &normalsEnabled);
 }
 
 void PostRenderer::setConstantHDR(float opacity, bool substract, bool noFlash, bool flashAdvanced, float flashControl, VkExtent2D screenSize, Color32 background, VkCommandBuffer _cmdBuffer)
