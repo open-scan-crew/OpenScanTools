@@ -237,6 +237,6 @@ void ToolBarRenderNormals::slotAmbientOcclusionChanged()
 void ToolBarRenderNormals::onRenderTransparency(IGuiData* data)
 {
 	auto transparencyData = static_cast<GuiDataRenderTransparency*>(data);
-	m_transparencyActive = (transparencyData->m_blendMode == BlendMode::Transparent);
+	m_transparencyActive = (transparencyData->m_mode == BlendMode::Transparent);
 	updateAmbientOcclusionUi(m_ui.checkBox_ao->isChecked());
 }
