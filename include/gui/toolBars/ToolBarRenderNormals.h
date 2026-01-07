@@ -24,13 +24,17 @@ private:
 	void onProjectLoad(IGuiData* data);
 	void onActiveCamera(IGuiData* data);
 	void onFocusViewport(IGuiData* data);
+	void onRenderTransparency(IGuiData* data);
 
 	void updateNormals(const PostRenderingNormals& normalsParams);
+	void updateAmbientOcclusion(const PostRenderingAmbientOcclusion& aoParams);
+	void updateAmbientOcclusionUi(bool aoEnabled);
 	void blockAllSignals(bool block);
 
 private slots:
 	void slotNormalsChanged();
 	void slotSharpnessChanged(double value);
+	void slotAmbientOcclusionChanged();
 
 private:
 	typedef void (ToolBarRenderNormals::*GuiDataFunction)(IGuiData*);
@@ -45,6 +49,7 @@ private:
 	Ui::toolbar_rendernormalsgroup m_ui;
 	IDataDispatcher& m_dataDispatcher;
 	SafePtr<CameraNode>	m_focusCamera;
+	bool m_transparencyActive = false;
 
 };
 

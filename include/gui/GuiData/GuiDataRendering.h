@@ -303,6 +303,17 @@ public:
 	bool m_onlySimpleNormalsInfo;
 };
 
+class GuiDataRenderAmbientOcclusion : public GuiDataActiveCamera
+{
+public:
+	GuiDataRenderAmbientOcclusion(const PostRenderingAmbientOcclusion& aoParams, SafePtr<CameraNode> camera);
+	~GuiDataRenderAmbientOcclusion() {};
+	virtual guiDType getType() override;
+
+public:
+	PostRenderingAmbientOcclusion m_ao;
+};
+
 class GuiDataEdgeAwareBlur : public GuiDataActiveCamera
 {
 public:
