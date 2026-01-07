@@ -312,6 +312,16 @@ guiDType GuiDataPostRenderingNormals::getType()
 	return  guiDType::renderPostRenderingNormals;
 }
 
+GuiDataPostRenderingSSAO::GuiDataPostRenderingSSAO(const PostRenderingSSAO& ssaoParams, SafePtr<CameraNode> camera)
+        : GuiDataActiveCamera(camera)
+        , m_ssao(ssaoParams)
+{}
+
+guiDType GuiDataPostRenderingSSAO::getType()
+{
+        return guiDType::renderPostRenderingSSAO;
+}
+
 GuiDataEdgeAwareBlur::GuiDataEdgeAwareBlur(const EdgeAwareBlur& blurSettings, SafePtr<CameraNode> camera)
         : GuiDataActiveCamera(camera)
         , m_blur(blurSettings)

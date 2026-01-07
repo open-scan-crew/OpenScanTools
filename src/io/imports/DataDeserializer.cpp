@@ -699,6 +699,15 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
         retVal = false;
     }
 
+    if (json.find(Key_Post_Rendering_SSAO) != json.end())
+    {
+        nlohmann::json options = json.at(Key_Post_Rendering_SSAO);
+        if (options.size() == 5)
+            data.m_postRenderingSSAO = { options[0], options[1], options[2], options[3], options[4] };
+        else
+            IOLOG << "ViewPoint PostRenderingSSAO malformed" << LOGENDL;
+    }
+
     if (json.find(Key_Edge_Aware_Blur) != json.end())
     {
         nlohmann::json options = json.at(Key_Edge_Aware_Blur);

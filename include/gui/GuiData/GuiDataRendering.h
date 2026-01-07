@@ -303,6 +303,16 @@ public:
 	bool m_onlySimpleNormalsInfo;
 };
 
+class GuiDataPostRenderingSSAO : public GuiDataActiveCamera
+{
+public:
+        GuiDataPostRenderingSSAO(const PostRenderingSSAO& ssaoParams, SafePtr<CameraNode> camera);
+        ~GuiDataPostRenderingSSAO() {};
+        virtual guiDType getType() override;
+public:
+        PostRenderingSSAO m_ssao;
+};
+
 class GuiDataEdgeAwareBlur : public GuiDataActiveCamera
 {
 public:
