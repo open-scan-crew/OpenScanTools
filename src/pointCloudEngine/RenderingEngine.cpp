@@ -743,6 +743,12 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
                 m_postRenderer.processNormalShading(cmdBuffer, wCamera->getInversedViewUniform(m_renderSwapIndex), framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
         }
 
+        if (display.m_postRenderingAmbientOcclusion.enabled && display.m_blendMode == BlendMode::Opaque)
+        {
+            vkm.beginPostTreatmentAmbientOcclusion(framebuffer);
+            m_postRenderer.processAmbientOcclusion(cmdBuffer, display.m_postRenderingAmbientOcclusion, wCamera->getNear(), wCamera->getFar(), wCamera->getProjectionMode() == ProjectionMode::Perspective, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
+        }
+
         if (display.m_depthLining.enabled)
         {
             vkm.beginPostTreatmentDepthLining(framebuffer);
@@ -908,6 +914,12 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
             m_postRenderer.processNormalColored(cmdBuffer, camera.getInversedViewUniform(m_renderSwapIndex), framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
         else
             m_postRenderer.processNormalShading(cmdBuffer, camera.getInversedViewUniform(m_renderSwapIndex), framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
+    }
+
+    if (displayParam.m_postRenderingAmbientOcclusion.enabled && displayParam.m_blendMode == BlendMode::Opaque)
+    {
+        vkm.beginPostTreatmentAmbientOcclusion(framebuffer);
+        m_postRenderer.processAmbientOcclusion(cmdBuffer, displayParam.m_postRenderingAmbientOcclusion, camera.getNear(), camera.getFar(), camera.getProjectionMode() == ProjectionMode::Perspective, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
     }
 
     if (displayParam.m_depthLining.enabled)

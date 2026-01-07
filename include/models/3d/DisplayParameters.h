@@ -44,6 +44,7 @@ public:
 
     // Post processing
     PostRenderingNormals    m_postRenderingNormals = { true, false, true, 0.5f, 1.f };
+    PostRenderingAmbientOcclusion m_postRenderingAmbientOcclusion = {};
     EdgeAwareBlur           m_edgeAwareBlur = {};
     DepthLining             m_depthLining = {};
 
