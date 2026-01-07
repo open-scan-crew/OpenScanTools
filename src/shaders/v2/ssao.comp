@@ -1,5 +1,7 @@
 #version 450
 
+#define DEBUG_SSAO 1
+
 layout (local_size_x = 16, local_size_y = 16) in;
 
 layout(set = 0, binding = 0, rgba8) uniform image2D inOutColorImage;
@@ -89,5 +91,9 @@ void main()
     float ao = 1.0 - contrastOcc * intensity;
     ao = clamp(ao, pc.aoMin, 1.0);
 
+    #if DEBUG_SSAO
+    imageStore(inOutColorImage, coord, vec4(vec3(ao), color.a));
+    #else
     imageStore(inOutColorImage, coord, vec4(color.rgb * ao, color.a));
+    #endif
 }
