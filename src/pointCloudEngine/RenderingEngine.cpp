@@ -743,6 +743,12 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
                 m_postRenderer.processNormalShading(cmdBuffer, wCamera->getInversedViewUniform(m_renderSwapIndex), framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
         }
 
+        if (display.m_postRenderingSSAO.enabled && display.m_blendMode == BlendMode::Opaque)
+        {
+            vkm.beginPostTreatmentSSAO(framebuffer);
+            m_postRenderer.processSSAO(cmdBuffer, display.m_postRenderingSSAO, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
+        }
+
         if (display.m_depthLining.enabled)
         {
             vkm.beginPostTreatmentDepthLining(framebuffer);
@@ -908,6 +914,12 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
             m_postRenderer.processNormalColored(cmdBuffer, camera.getInversedViewUniform(m_renderSwapIndex), framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
         else
             m_postRenderer.processNormalShading(cmdBuffer, camera.getInversedViewUniform(m_renderSwapIndex), framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
+    }
+
+    if (displayParam.m_postRenderingSSAO.enabled && displayParam.m_blendMode == BlendMode::Opaque)
+    {
+        vkm.beginPostTreatmentSSAO(framebuffer);
+        m_postRenderer.processSSAO(cmdBuffer, displayParam.m_postRenderingSSAO, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
     }
 
     if (displayParam.m_depthLining.enabled)

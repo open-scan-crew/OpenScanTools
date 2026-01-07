@@ -1,0 +1,104 @@
+#version 450
+
+#define DEBUG_SSAO 1
+
+layout (local_size_x = 16, local_size_y = 16) in;
+
+layout(set = 0, binding = 0, rgba8) uniform image2D inOutColorImage;
+layout(set = 1, binding = 2) buffer correctedDepth
+{
+    float inDepth[ ];
+};
+
+layout(push_constant) uniform PC
+{
+    layout(offset = 0) ivec2 screenSize;
+    layout(offset = 8) float radius;
+    layout(offset = 12) float intensity;
+    layout(offset = 16) float bias;
+    layout(offset = 20) float aoMin;
+} pc;
+
+const vec2 kernel[24] = vec2[](
+    vec2(0.5381, 0.1856),
+    vec2(0.1379, 0.2486),
+    vec2(0.3371, 0.5679),
+    vec2(-0.6999, -0.0451),
+    vec2(0.0689, -0.1598),
+    vec2(0.0560, 0.0069),
+    vec2(-0.0146, 0.1402),
+    vec2(0.0100, -0.1924),
+    vec2(-0.3577, -0.5301),
+    vec2(-0.3169, 0.1063),
+    vec2(0.0103, 0.5884),
+    vec2(-0.0897, -0.4940),
+    vec2(0.7119, -0.0154),
+    vec2(-0.0533, 0.0596),
+    vec2(0.0352, -0.0631),
+    vec2(-0.4776, 0.2847),
+    vec2(0.2524, -0.6725),
+    vec2(-0.7831, 0.2168),
+    vec2(0.4651, 0.7192),
+    vec2(-0.1275, -0.7426),
+    vec2(0.8203, 0.1162),
+    vec2(-0.6342, -0.3118),
+    vec2(0.1794, 0.3627),
+    vec2(-0.2517, 0.7741)
+);
+
+void main()
+{
+    ivec2 coord = ivec2(gl_GlobalInvocationID.xy);
+    if (coord.x >= pc.screenSize.x || coord.y >= pc.screenSize.y)
+        return;
+
+    vec4 color = imageLoad(inOutColorImage, coord);
+    if (color.a == 0.0)
+        return;
+
+    uint index = uint(coord.x + coord.y * pc.screenSize.x);
+    float centerDepth = inDepth[index];
+    if (centerDepth <= 0.0)
+        return;
+
+    float occSum = 0.0;
+    float weightSum = 0.0;
+    float radius = 28.0;
+    float zScale = max(0.05 * centerDepth, 0.0005);
+
+    for (int i = 0; i < 24; ++i)
+    {
+        vec2 offset = kernel[i] * radius;
+        ivec2 sampleCoord = coord + ivec2(round(offset));
+        if (sampleCoord.x < 0 || sampleCoord.y < 0 || sampleCoord.x >= pc.screenSize.x || sampleCoord.y >= pc.screenSize.y)
+            continue;
+
+        uint sampleIndex = uint(sampleCoord.x + sampleCoord.y * pc.screenSize.x);
+        float sampleDepth = inDepth[sampleIndex];
+        if (sampleDepth <= 0.0)
+            continue;
+
+        float dz = centerDepth - sampleDepth;
+        float dist = length(offset);
+        float distWeight = 1.0 - clamp(dist / radius, 0.0, 1.0);
+        float zWeight = exp(-abs(dz) / zScale);
+        float weight = distWeight * zWeight;
+        occSum += weight;
+        weightSum += weight;
+    }
+
+    float occ = (weightSum > 0.0) ? occSum / weightSum : 0.0;
+    float aoRaw = 1.0 - clamp(occ, 0.0, 1.0);
+
+    float intensity = pc.intensity * pc.intensity;
+    float contrastThreshold = 0.08;
+    float contrastOcc = max(0.0, (1.0 - aoRaw) - contrastThreshold);
+    float ao = 1.0 - contrastOcc * intensity;
+    ao = clamp(ao, pc.aoMin, 1.0);
+
+    #if DEBUG_SSAO
+    imageStore(inOutColorImage, coord, vec4(vec3(aoRaw), color.a));
+    #else
+    imageStore(inOutColorImage, coord, vec4(color.rgb * ao, color.a));
+    #endif
+}

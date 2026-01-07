@@ -79,6 +79,15 @@ struct PostRenderingNormals
     float gloss;
 };
 
+struct PostRenderingSSAO
+{
+    bool enabled = false;
+    float size = 0.5f;
+    float intensity = 0.6f;
+    float bias = 0.002f;
+    float minAO = 0.7f;
+};
+
 struct EdgeAwareBlur
 {
     bool enabled = false;
