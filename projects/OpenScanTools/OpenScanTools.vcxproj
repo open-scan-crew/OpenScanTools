@@ -2142,6 +2142,14 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\v2\ambient_occlusion.comp">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+    </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\post_rendering\transparency_hdr.comp">
       <FileType>Document</FileType>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)/src/shaders/blocks/block_hsv_functions.glsl;%(AdditionalInputs)</AdditionalInputs>
