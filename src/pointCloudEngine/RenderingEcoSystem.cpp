@@ -125,6 +125,11 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
     hash += hash_fn_b(display.m_postRenderingNormals.blendColor);
     hash += hash_fn_f(display.m_postRenderingNormals.normalStrength);
     hash += hash_fn_f(display.m_postRenderingNormals.gloss);
+    hash += hash_fn_b(display.m_postRenderingSSAO.enabled);
+    hash += hash_fn_f(display.m_postRenderingSSAO.size);
+    hash += hash_fn_f(display.m_postRenderingSSAO.intensity);
+    hash += hash_fn_f(display.m_postRenderingSSAO.bias);
+    hash += hash_fn_f(display.m_postRenderingSSAO.minAO);
     hash += hash_fn_b(display.m_edgeAwareBlur.enabled);
     hash += hash_fn_f(display.m_edgeAwareBlur.radius);
     hash += hash_fn_f(display.m_edgeAwareBlur.depthThreshold);

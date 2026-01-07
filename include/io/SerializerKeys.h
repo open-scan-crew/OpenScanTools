@@ -224,6 +224,7 @@
 #define Key_Transparency				"Transparency"
 
 #define Key_Post_Rendering_Normals		"PostRenderingNormals"
+#define Key_Post_Rendering_SSAO		"PostRenderingSSAO"
 #define Key_Edge_Aware_Blur			"EdgeAwareBlur"
 #define Key_Depth_Lining			"DepthLining"
 #define Key_Display_Guizmo				"DisplayGuizmo"
