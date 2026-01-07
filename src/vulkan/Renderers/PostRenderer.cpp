@@ -3,6 +3,7 @@
 #include "utils/Logger.h"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <algorithm>
 
 static const int UNIFORM_DATA_SIZE = 16 * sizeof(float);
 
@@ -36,6 +37,11 @@ static std::vector<uint32_t> edge_aware_blur_comp_spv =
 static std::vector<uint32_t> depth_lining_comp_spv =
 {
 #include "depth_lining.comp.spv"
+};
+
+static std::vector<uint32_t> ssao_comp_spv =
+{
+#include "ssao.comp.spv"
 };
 
 // ********************************************
@@ -74,6 +80,7 @@ void PostRenderer::createShaders()
     loadShaderSPV(m_transparencyHDRCompShader, transparency_hdr_comp_spv);
     loadShaderSPV(m_edgeAwareBlurCompShader, edge_aware_blur_comp_spv);
     loadShaderSPV(m_depthLiningCompShader, depth_lining_comp_spv);
+    loadShaderSPV(m_ssaoCompShader, ssao_comp_spv);
 }
 
 void PostRenderer::createDescriptorSetLayout()
@@ -156,6 +163,7 @@ void PostRenderer::createPipelines()
     createEdgeAwarePipeline();
     createDepthLiningPipeline();
     createTransparencyHDRPipeline();
+    createSSAOPipeline();
 }
 
 void PostRenderer::createPipelineLayouts()
@@ -197,6 +205,12 @@ void PostRenderer::createPipelineLayouts()
     pipelineLayoutInfo.setLayoutCount = sizeof(DSLayout_depthLining) / sizeof(VkDescriptorSetLayout);
     pipelineLayoutInfo.pSetLayouts = DSLayout_depthLining;
     err = h_pfn->vkCreatePipelineLayout(h_device, &pipelineLayoutInfo, nullptr, &m_depthLiningPipelineLayout);
+    check_vk_result(err, "Create Pipeline Layout");
+
+    VkDescriptorSetLayout DSLayout_ssao[] = { VulkanManager::getDSLayout_fillingSamplers(), VulkanManager::getDSLayout_finalOutput() };
+    pipelineLayoutInfo.setLayoutCount = sizeof(DSLayout_ssao) / sizeof(VkDescriptorSetLayout);
+    pipelineLayoutInfo.pSetLayouts = DSLayout_ssao;
+    err = h_pfn->vkCreatePipelineLayout(h_device, &pipelineLayoutInfo, nullptr, &m_ssaoPipelineLayout);
     check_vk_result(err, "Create Pipeline Layout");
 
     VkDescriptorSetLayout setLayouts_tHDR[] = { VulkanManager::getDSLayout_fillingSamplers() };
@@ -345,6 +359,32 @@ void PostRenderer::createTransparencyHDRPipeline()
     check_vk_result(err, "Create Compute Pipeline");
 }
 
+void PostRenderer::createSSAOPipeline()
+{
+    VkPipelineShaderStageCreateInfo compStageInfo = {
+        VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+        nullptr,
+        0,
+        VK_SHADER_STAGE_COMPUTE_BIT,
+        m_ssaoCompShader.module(),
+        "main",
+        nullptr
+    };
+
+    VkComputePipelineCreateInfo info = {
+        VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO,
+        nullptr,
+        0,
+        compStageInfo,
+        m_ssaoPipelineLayout,
+        VK_NULL_HANDLE,
+        0,
+    };
+
+    VkResult err = h_pfn->vkCreateComputePipelines(h_device, m_pipelineCache, 1, &info, nullptr, &m_ssaoPipeline);
+    check_vk_result(err, "Create Compute Pipeline");
+}
+
 // Must be called inside a renderpass
 void PostRenderer::setViewportAndScissor(int32_t _xPos, int32_t _yPos, uint32_t _width, uint32_t _height, VkCommandBuffer _cmdBuffer)
 {
@@ -450,6 +490,32 @@ void PostRenderer::processDepthLining(VkCommandBuffer _cmdBuffer, const DepthLin
     } pc = { glm::ivec2(_extent.width, _extent.height), liningSettings.strength, liningSettings.threshold, liningSettings.sensitivity, liningSettings.strongMode ? 1 : 0 };
 
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_depthLiningPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(pc), &pc);
+
+    h_pfn->vkCmdDispatch(_cmdBuffer, (_extent.width + 15) / 16, (_extent.height + 15) / 16, 1);
+}
+
+void PostRenderer::processSSAO(VkCommandBuffer _cmdBuffer, const PostRenderingSSAO& ssaoSettings, VkDescriptorSet descSetColor, VkDescriptorSet descSetDepth, VkExtent2D _extent)
+{
+    h_pfn->vkCmdBindPipeline(_cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_ssaoPipeline);
+
+    VkDescriptorSet descSets[] = { descSetColor, descSetDepth };
+    h_pfn->vkCmdBindDescriptorSets(_cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_ssaoPipelineLayout, 0, 2, descSets, 0, nullptr);
+
+    float clampedSize = std::max(0.0f, std::min(ssaoSettings.size, 1.0f));
+    float clampedIntensity = std::max(0.0f, std::min(ssaoSettings.intensity, 1.0f));
+    float radius = 4.0f + (32.0f - 4.0f) * clampedSize;
+    float aoMin = std::max(0.0f, std::min(ssaoSettings.minAO, 1.0f));
+
+    struct
+    {
+        glm::ivec2 screenSize;
+        float radius;
+        float intensity;
+        float bias;
+        float aoMin;
+    } pc = { glm::ivec2(_extent.width, _extent.height), radius, clampedIntensity, ssaoSettings.bias, aoMin };
+
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_ssaoPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(pc), &pc);
 
     h_pfn->vkCmdDispatch(_cmdBuffer, (_extent.width + 15) / 16, (_extent.height + 15) / 16, 1);
 }
@@ -561,6 +627,11 @@ void PostRenderer::cleanup()
         m_depthLiningPipelineLayout = VK_NULL_HANDLE;
     }
 
+    if (m_ssaoPipelineLayout) {
+        h_pfn->vkDestroyPipelineLayout(h_device, m_ssaoPipelineLayout, nullptr);
+        m_ssaoPipelineLayout = VK_NULL_HANDLE;
+    }
+
     if (m_transparencyHDRPipelineLayout) {
         h_pfn->vkDestroyPipelineLayout(h_device, m_transparencyHDRPipelineLayout, nullptr);
         m_transparencyHDRPipelineLayout = VK_NULL_HANDLE;
@@ -595,6 +666,12 @@ void PostRenderer::cleanup()
     {
         h_pfn->vkDestroyPipeline(h_device, m_depthLiningPipeline, nullptr);
         m_depthLiningPipeline = VK_NULL_HANDLE;
+    }
+
+    if (m_ssaoPipeline)
+    {
+        h_pfn->vkDestroyPipeline(h_device, m_ssaoPipeline, nullptr);
+        m_ssaoPipeline = VK_NULL_HANDLE;
     }
 
     if (m_transparencyHDRPipeline) {

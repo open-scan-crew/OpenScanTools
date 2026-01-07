@@ -24,13 +24,21 @@ private:
 	void onProjectLoad(IGuiData* data);
 	void onActiveCamera(IGuiData* data);
 	void onFocusViewport(IGuiData* data);
+	void onRenderTransparency(IGuiData* data);
 
 	void updateNormals(const PostRenderingNormals& normalsParams);
+	void updateSSAO(const PostRenderingSSAO& ssaoParams, BlendMode blendMode);
 	void blockAllSignals(bool block);
+	void updateSsaoUiState(bool transparencyActive);
 
 private slots:
 	void slotNormalsChanged();
 	void slotSharpnessChanged(double value);
+	void slotSsaoChanged();
+	void slotSsaoSizeSliderChanged(int value);
+	void slotSsaoIntensitySliderChanged(int value);
+	void slotSsaoSizeSpinBoxChanged(double value);
+	void slotSsaoIntensitySpinBoxChanged(double value);
 
 private:
 	typedef void (ToolBarRenderNormals::*GuiDataFunction)(IGuiData*);
@@ -45,6 +53,8 @@ private:
 	Ui::toolbar_rendernormalsgroup m_ui;
 	IDataDispatcher& m_dataDispatcher;
 	SafePtr<CameraNode>	m_focusCamera;
+	PostRenderingSSAO m_ssaoParams;
+	BlendMode m_blendMode = BlendMode::Opaque;
 
 };
 
