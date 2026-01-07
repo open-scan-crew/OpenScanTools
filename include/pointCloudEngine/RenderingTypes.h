@@ -79,6 +79,13 @@ struct PostRenderingNormals
     float gloss;
 };
 
+struct PostRenderingAmbientOcclusion
+{
+    bool enabled = false;
+    float radius = 16.0f;
+    float intensity = 0.5f;
+};
+
 struct EdgeAwareBlur
 {
     bool enabled = false;
