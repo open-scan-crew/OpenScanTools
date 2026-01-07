@@ -2,6 +2,8 @@
 #include "vulkan/VulkanManager.h"
 #include "utils/Logger.h"
 
+#include <algorithm>
+#include <cmath>
 #include <glm/gtc/matrix_transform.hpp>
 
 static const int UNIFORM_DATA_SIZE = 16 * sizeof(float);
@@ -36,6 +38,11 @@ static std::vector<uint32_t> edge_aware_blur_comp_spv =
 static std::vector<uint32_t> depth_lining_comp_spv =
 {
 #include "depth_lining.comp.spv"
+};
+
+static std::vector<uint32_t> ambient_occlusion_comp_spv =
+{
+#include "ambient_occlusion.comp.spv"
 };
 
 // ********************************************
@@ -74,6 +81,7 @@ void PostRenderer::createShaders()
     loadShaderSPV(m_transparencyHDRCompShader, transparency_hdr_comp_spv);
     loadShaderSPV(m_edgeAwareBlurCompShader, edge_aware_blur_comp_spv);
     loadShaderSPV(m_depthLiningCompShader, depth_lining_comp_spv);
+    loadShaderSPV(m_ambientOcclusionCompShader, ambient_occlusion_comp_spv);
 }
 
 void PostRenderer::createDescriptorSetLayout()
@@ -153,6 +161,7 @@ void PostRenderer::createPipelines()
     // Create all the pipelines defined
     createFillingPipeline();
     createNormalPipeline();
+    createAmbientOcclusionPipeline();
     createEdgeAwarePipeline();
     createDepthLiningPipeline();
     createTransparencyHDRPipeline();
@@ -186,6 +195,26 @@ void PostRenderer::createPipelineLayouts()
     pipelineLayoutInfo.pSetLayouts = DSLayout_normal;
     err = h_pfn->vkCreatePipelineLayout(h_device, &pipelineLayoutInfo, nullptr, &m_normalPipelineLayout);
     check_vk_result(err, "Create Pipeline Layout");
+
+    VkPushConstantRange pcr_ao[] =
+    {
+        {
+            VK_SHADER_STAGE_COMPUTE_BIT,
+            0,
+            32
+        }
+    };
+
+    VkDescriptorSetLayout DSLayout_ao[] = { VulkanManager::getDSLayout_fillingSamplers(), VulkanManager::getDSLayout_finalOutput() };
+    pipelineLayoutInfo.pushConstantRangeCount = sizeof(pcr_ao) / sizeof(VkPushConstantRange);
+    pipelineLayoutInfo.pPushConstantRanges = pcr_ao;
+    pipelineLayoutInfo.setLayoutCount = sizeof(DSLayout_ao) / sizeof(VkDescriptorSetLayout);
+    pipelineLayoutInfo.pSetLayouts = DSLayout_ao;
+    err = h_pfn->vkCreatePipelineLayout(h_device, &pipelineLayoutInfo, nullptr, &m_ambientOcclusionPipelineLayout);
+    check_vk_result(err, "Create Pipeline Layout");
+
+    pipelineLayoutInfo.pushConstantRangeCount = sizeof(pcr_2) / sizeof(VkPushConstantRange);
+    pipelineLayoutInfo.pPushConstantRanges = pcr_2;
 
     VkDescriptorSetLayout DSLayout_edgeAware[] = { VulkanManager::getDSLayout_fillingSamplers(), VulkanManager::getDSLayout_finalOutput() };
     pipelineLayoutInfo.setLayoutCount = sizeof(DSLayout_edgeAware) / sizeof(VkDescriptorSetLayout);
@@ -263,6 +292,32 @@ void PostRenderer::createNormalPipeline()
     compStageInfo.module = m_normalColoredCompShader.module();
     info.stage = compStageInfo;
     err = h_pfn->vkCreateComputePipelines(h_device, m_pipelineCache, 1, &info, nullptr, &m_normalColoredPipeline);
+    check_vk_result(err, "Create Compute Pipeline");
+}
+
+void PostRenderer::createAmbientOcclusionPipeline()
+{
+    VkPipelineShaderStageCreateInfo compStageInfo = {
+        VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+        nullptr,
+        0,
+        VK_SHADER_STAGE_COMPUTE_BIT,
+        m_ambientOcclusionCompShader.module(),
+        "main",
+        nullptr
+    };
+
+    VkComputePipelineCreateInfo info = {
+        VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO,
+        nullptr,
+        0,
+        compStageInfo,
+        m_ambientOcclusionPipelineLayout,
+        VK_NULL_HANDLE,
+        0,
+    };
+
+    VkResult err = h_pfn->vkCreateComputePipelines(h_device, m_pipelineCache, 1, &info, nullptr, &m_ambientOcclusionPipeline);
     check_vk_result(err, "Create Compute Pipeline");
 }
 
@@ -397,6 +452,31 @@ void PostRenderer::processNormalColored(VkCommandBuffer _cmdBuffer, VkUniformOff
 
     uint32_t offsets[] = { matrixUniOffset };
     h_pfn->vkCmdBindDescriptorSets(_cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_normalPipelineLayout, 2, 1, &m_descSetMatrixCompute, 1, offsets);
+
+    h_pfn->vkCmdDispatch(_cmdBuffer, (_extent.width + 15) / 16, (_extent.height + 15) / 16, 1);
+}
+
+void PostRenderer::processAmbientOcclusion(VkCommandBuffer _cmdBuffer, const PostRenderingAmbientOcclusion& aoSettings, float nearZ, float farZ, bool isPerspective, VkDescriptorSet descSetColor, VkDescriptorSet descSetDepth, VkExtent2D _extent)
+{
+    h_pfn->vkCmdBindPipeline(_cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_ambientOcclusionPipeline);
+
+    VkDescriptorSet descSets[] = { descSetColor, descSetDepth };
+    h_pfn->vkCmdBindDescriptorSets(_cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_ambientOcclusionPipelineLayout, 0, 2, descSets, 0, nullptr);
+
+    float intensity = std::pow(std::clamp(aoSettings.intensity, 0.0f, 1.0f), 1.8f);
+    float radius = std::max(0.0f, aoSettings.radius);
+    int projMode = isPerspective ? 0 : 1;
+    struct
+    {
+        glm::ivec2 screenSize;
+        glm::vec2 nearFar;
+        float radius;
+        float intensity;
+        int projMode;
+        float padding;
+    } pc = { glm::ivec2(_extent.width, _extent.height), glm::vec2(nearZ, farZ), radius, intensity, projMode, 0.0f };
+
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_ambientOcclusionPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(pc), &pc);
 
     h_pfn->vkCmdDispatch(_cmdBuffer, (_extent.width + 15) / 16, (_extent.height + 15) / 16, 1);
 }
@@ -551,6 +631,11 @@ void PostRenderer::cleanup()
         m_normalPipelineLayout = VK_NULL_HANDLE;
     }
 
+    if (m_ambientOcclusionPipelineLayout) {
+        h_pfn->vkDestroyPipelineLayout(h_device, m_ambientOcclusionPipelineLayout, nullptr);
+        m_ambientOcclusionPipelineLayout = VK_NULL_HANDLE;
+    }
+
     if (m_edgeAwarePipelineLayout) {
         h_pfn->vkDestroyPipelineLayout(h_device, m_edgeAwarePipelineLayout, nullptr);
         m_edgeAwarePipelineLayout = VK_NULL_HANDLE;
@@ -583,6 +668,12 @@ void PostRenderer::cleanup()
     {
         h_pfn->vkDestroyPipeline(h_device, m_normalColoredPipeline, nullptr);
         m_normalColoredPipeline = VK_NULL_HANDLE;
+    }
+
+    if (m_ambientOcclusionPipeline)
+    {
+        h_pfn->vkDestroyPipeline(h_device, m_ambientOcclusionPipeline, nullptr);
+        m_ambientOcclusionPipeline = VK_NULL_HANDLE;
     }
 
     if (m_edgeAwarePipeline)

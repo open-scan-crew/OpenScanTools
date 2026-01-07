@@ -954,6 +954,11 @@ void VulkanManager::beginPostTreatmentNormal(TlFramebuffer _fb)
         sizeof(barriers) / sizeof(VkImageMemoryBarrier), barriers);
 }
 
+void VulkanManager::beginPostTreatmentAmbientOcclusion(TlFramebuffer _fb)
+{
+    beginPostTreatmentNormal(_fb);
+}
+
 void VulkanManager::beginPostTreatmentEdgeAwareBlur(TlFramebuffer _fb)
 {
     beginPostTreatmentNormal(_fb);
@@ -4482,4 +4487,3 @@ void VulkanManager::defragmentMemory()
         }
     }
 }
-
