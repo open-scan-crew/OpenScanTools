@@ -366,6 +366,12 @@ void RenderingEngine::updateHD()
         if (display.m_depthLining.enabled)
             border = std::max<uint32_t>(border, 3u);
 
+        if (display.m_postRenderingAmbientOcclusion.enabled)
+        {
+            const uint32_t aoFootprint = static_cast<uint32_t>(std::ceil(std::max(0.0f, display.m_postRenderingAmbientOcclusion.radius)));
+            border = std::max(border, aoFootprint + 1u);
+        }
+
         return border;
     };
 
