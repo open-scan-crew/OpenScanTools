@@ -191,7 +191,7 @@ HEADERS += ../../ext/imgui/imconfig.h \
     ../../include/gui/GuiData/GuiDataTree.h \
     ../../include/gui/GuiData/IGuiData.h \
     ../../include/gui/toolBars/ToolBarSlabGroup.h \
-    ../../include/gui/toolBars/ToolBarRenderTransparency.h \
+    ../../include/gui/toolBars/ToolBarRenderings.h \
     ../../include/gui/toolBars/ToolBarAnimationGroup.h \
     ../../include/gui/toolBars/ToolBarMeasureShowOptions.h \
     ../../include/gui/toolBars/ToolBarClippingGroup.h \
@@ -215,14 +215,13 @@ HEADERS += ../../ext/imgui/imconfig.h \
     ../../include/gui/toolBars/ToolBarSphereGroup.h \
     ../../include/gui/toolBars/ToolBarConnectPipeGroup.h \
     ../../include/gui/toolBars/ToolBarBeamDetection.h \
-    ../../include/gui/toolBars/ToolBarRenderNormals.h \
+    ../../include/gui/toolBars/ToolBarRenderSettings.h \
     ../../include/gui/toolBars/ToolBarViewPoint.h \
     ../../include/gui/toolBars/ToolBarProjectGroup.h \
     ../../include/gui/toolBars/ToolBarTagGroup.h \
     ../../include/gui/toolBars/ToolBarFilterGroup.h \
     ../../include/gui/toolBars/ToolBarExportGroup.h \
     ../../include/gui/toolBars/ToolBarListGroup.h \
-    ../../include/gui/toolBars/ToolBarRenderSettings.h \
     ../../include/gui/toolBars/ToolBarImageGroup.h \
     ../../include/gui/toolBars/ToolBarMeasureGroup.h \
     ../../include/gui/toolBars/ToolBarShowHideGroup.h \
@@ -794,8 +793,7 @@ SOURCES += ../../ext/imgui/imgui.cpp \
     ../../src/gui/toolBars/ToolBarPointCloudObjectGroup.cpp \
     ../../src/gui/toolBars/ToolBarPointEdition.cpp \
     ../../src/gui/toolBars/ToolBarProjectGroup.cpp \
-    ../../src/gui/toolBars/ToolBarRenderNormals.cpp \
-    ../../src/gui/toolBars/ToolBarRenderTransparency.cpp \
+    ../../src/gui/toolBars/ToolBarRenderings.cpp \
     ../../src/gui/toolBars/ToolBarShowHideGroup.cpp \
     ../../src/gui/toolBars/ToolBarRenderSettings.cpp \
     ../../src/gui/toolBars/ToolBarAnimationGroup.cpp \
@@ -1394,8 +1392,7 @@ FORMS += ../../src/gui/forms/AddHyperlinkDialog.ui \
     ../../src/gui/forms/toolbar_listGroup.ui \
     ../../src/gui/forms/toolbar_measuregroup.ui \
     ../../src/gui/forms/toolbar_projectgroup.ui \
-    ../../src/gui/forms/toolbar_rendernormalsgroup.ui \
-    ../../src/gui/forms/toolbar_rendertransparencygroup.ui \
+    ../../src/gui/forms/toolbar_renderings.ui \
     ../../src/gui/forms/toolbar_showhidegroup.ui \
     ../../src/gui/forms/toolbar_slabgroup.ui \
     ../../src/gui/forms/toolbar_spheregroup.ui \

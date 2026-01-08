@@ -1477,7 +1477,7 @@
     <ClCompile Include="..\..\src\utils\3DConnexion\3DConnexion.cpp">
       <Filter>src\utils\3DConnexion</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderNormals.cpp">
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderings.cpp">
       <Filter>src\gui\toolBars</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\models\data\ViewPoint\ViewPointData.cpp">
@@ -1551,9 +1551,6 @@
     </ClCompile>
     <ClCompile Include="..\..\src\io\imports\objFileReader.cpp">
       <Filter>src\io\imports</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderTransparency.cpp">
-      <Filter>src\gui\toolBars</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\io\imports\IMeshReader.cpp">
       <Filter>src\io\imports</Filter>
@@ -2277,7 +2274,7 @@
     <QtMoc Include="..\..\include\gui\Dialog\DialogImageHD.h">
       <Filter>include\gui\Dialog</Filter>
     </QtMoc>
-    <QtMoc Include="..\..\include\gui\toolBars\ToolBarRenderNormals.h">
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarRenderings.h">
       <Filter>include\gui\toolBars</Filter>
     </QtMoc>
     <QtMoc Include="..\..\include\gui\widgets\PropertyViewpoint.h">
@@ -2296,9 +2293,6 @@
       <Filter>include\gui\widgets</Filter>
     </QtMoc>
     <QtMoc Include="..\..\include\gui\toolBars\MainToolBar.h">
-      <Filter>include\gui\toolBars</Filter>
-    </QtMoc>
-    <QtMoc Include="..\..\include\gui\toolBars\ToolBarRenderTransparency.h">
       <Filter>include\gui\toolBars</Filter>
     </QtMoc>
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarSlabGroup.h">
@@ -4179,7 +4173,7 @@
     <QtUic Include="..\..\src\gui\forms\DialogImageHD.ui">
       <Filter>Form Files</Filter>
     </QtUic>
-    <QtUic Include="..\..\src\gui\forms\toolbar_rendernormalsgroup.ui">
+    <QtUic Include="..\..\src\gui\forms\toolbar_renderings.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\Property_Viewpoint.ui">
@@ -4195,9 +4189,6 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\Property_Project.ui">
-      <Filter>Form Files</Filter>
-    </QtUic>
-    <QtUic Include="..\..\src\gui\forms\toolbar_rendertransparencygroup.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\toolbar_slabgroup.ui">
