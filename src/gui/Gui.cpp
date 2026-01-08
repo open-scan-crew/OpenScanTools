@@ -696,7 +696,7 @@ bool Gui::event(QEvent* _event)
             setWindowState(windowState() | Qt::WindowFullScreen);
 		bool forceMaximizeBtn(windowState() == Qt::WindowFullScreen);
 		
-        m_mainToolBar->slotWindowResized(forceMaximizeBtn | isMaximized(), isFullScreen());
+        m_mainToolBar->slotWindowResized(forceMaximizeBtn || isMaximized(), isFullScreen());
 		if (forceMaximizeBtn)
 			toggleMaximized();
     }
