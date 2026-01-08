@@ -4179,7 +4179,7 @@
     <QtUic Include="..\..\src\gui\forms\DialogImageHD.ui">
       <Filter>Form Files</Filter>
     </QtUic>
-    <QtUic Include="..\..\src\gui\forms\toolbar_rendernormalsgroup.ui">
+    <QtUic Include="..\..\src\gui\forms\toolbar_renderings.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\Property_Viewpoint.ui">
@@ -4195,9 +4195,6 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\Property_Project.ui">
-      <Filter>Form Files</Filter>
-    </QtUic>
-    <QtUic Include="..\..\src\gui\forms\toolbar_rendertransparencygroup.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\toolbar_slabgroup.ui">
