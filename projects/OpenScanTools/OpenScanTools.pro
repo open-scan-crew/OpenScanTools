@@ -1394,8 +1394,7 @@ FORMS += ../../src/gui/forms/AddHyperlinkDialog.ui \
     ../../src/gui/forms/toolbar_listGroup.ui \
     ../../src/gui/forms/toolbar_measuregroup.ui \
     ../../src/gui/forms/toolbar_projectgroup.ui \
-    ../../src/gui/forms/toolbar_rendernormalsgroup.ui \
-    ../../src/gui/forms/toolbar_rendertransparencygroup.ui \
+    ../../src/gui/forms/toolbar_renderings.ui \
     ../../src/gui/forms/toolbar_showhidegroup.ui \
     ../../src/gui/forms/toolbar_slabgroup.ui \
     ../../src/gui/forms/toolbar_spheregroup.ui \
