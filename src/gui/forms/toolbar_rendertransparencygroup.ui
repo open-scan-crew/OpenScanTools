@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>482</width>
+    <width>462</width>
     <height>105</height>
    </rect>
   </property>
@@ -47,7 +47,7 @@
     <widget class="QSlider" name="slider_transparency">
      <property name="minimumSize">
       <size>
-       <width>120</width>
+       <width>100</width>
        <height>0</height>
       </size>
      </property>
@@ -76,7 +76,7 @@
     <widget class="QSlider" name="slider_flashControl">
      <property name="minimumSize">
       <size>
-       <width>120</width>
+       <width>100</width>
        <height>0</height>
       </size>
      </property>

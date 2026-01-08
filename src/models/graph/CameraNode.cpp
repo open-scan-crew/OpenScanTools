@@ -62,6 +62,7 @@ CameraNode::CameraNode(const std::wstring& name, IDataDispatcher& dataDispatcher
     registerGuiDataFunction(guiDType::renderMarkerDisplayOptions, &CameraNode::onRenderMarkerDisplayOptions);
     registerGuiDataFunction(guiDType::renderAlphaObjectsRendering, &CameraNode::onRenderAlphaObjects);
     registerGuiDataFunction(guiDType::renderPostRenderingNormals, &CameraNode::onRenderNormals);
+    registerGuiDataFunction(guiDType::renderAmbientOcclusion, &CameraNode::onRenderAmbientOcclusion);
     registerGuiDataFunction(guiDType::renderEdgeAwareBlur, &CameraNode::onRenderEdgeAwareBlur);
     registerGuiDataFunction(guiDType::renderDepthLining, &CameraNode::onRenderDepthLining);
     registerGuiDataFunction(guiDType::renderRampScale, &CameraNode::onRenderRampScale);
@@ -1461,6 +1462,14 @@ void CameraNode::onRenderNormals(IGuiData* data)
     }
     else
         m_postRenderingNormals = normalsInfo->m_normals;
+
+    sendNewUIViewPoint();
+}
+
+void CameraNode::onRenderAmbientOcclusion(IGuiData* data)
+{
+    auto aoInfo = static_cast<GuiDataRenderAmbientOcclusion*>(data);
+    m_postRenderingAmbientOcclusion = aoInfo->m_ao;
 
     sendNewUIViewPoint();
 }

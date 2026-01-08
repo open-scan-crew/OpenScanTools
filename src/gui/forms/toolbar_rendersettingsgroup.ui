@@ -525,6 +525,9 @@
    </item>
    <item row="2" column="12">
     <widget class="QCheckBox" name="checkBox_normals">
+     <property name="toolTip">
+      <string>Two types of normals are available: normal type 1 (greyed out), normal type 2 (ticked).</string>
+     </property>
      <property name="text">
       <string>Normals</string>
      </property>
