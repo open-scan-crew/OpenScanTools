@@ -39,6 +39,7 @@ public slots :
 	void slotActivateMeasure();
 	void slotQuickScreenshot();
 	void slotHideSelectedObjects();
+	void slotCreateHdImage();
 
 	void slotAlignView2PointsFunction();
 
