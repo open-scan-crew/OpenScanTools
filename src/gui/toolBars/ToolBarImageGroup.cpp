@@ -392,7 +392,10 @@ void ToolBarImageGroup::onCallHD(IGuiData* data)
 	GuiDataCallImage* castData = static_cast<GuiDataCallImage*>(data);
 
 	if (castData->m_callHDImage)
-		slotCreateImage(castData->m_filepath, false);
+	{
+		const bool showProgressBar = castData->m_filepath.empty();
+		slotCreateImage(castData->m_filepath, showProgressBar);
+	}
 	else
 		quickScreenshot(castData->m_filepath);
 }
