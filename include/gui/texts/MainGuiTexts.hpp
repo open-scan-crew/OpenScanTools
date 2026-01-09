@@ -7,10 +7,11 @@
 #define TEXT_PROPERTIES QObject::tr("Properties")
 #define TEXT_TOOLBAR QObject::tr("ToolBar")
 #define TEXT_HOME QObject::tr("Home")
+#define TEXT_RENDERINGS QObject::tr("Renderings")
 #define TEXT_TAG QObject::tr("Tag")
 #define TEXT_EXPORT QObject::tr("Export")
 #define TEXT_SHARE QObject::tr("Share")
-#define TEXT_POINT_CLOUD QObject::tr("Point Cloud")
+#define TEXT_POINT_CLOUD QObject::tr("General")
 #define TEXT_MEASURE QObject::tr("Measure")
 #define TEXT_EXPERIMENT QObject::tr("Experiment")
 #define TEXT_MEASURE_DISPLAY QObject::tr("Display")
@@ -60,5 +61,6 @@
 #define TEXT_NORMALS_OPTIONS QObject::tr("Normals")
 #define TEXT_ORTHO_GRID QObject::tr("Ortho Grid")
 #define TEXT_TAB_TRANSPARENCY QObject::tr("Transparency")
+#define TEXT_RENDER_ENHANCE QObject::tr("Enhance")
 
 #endif

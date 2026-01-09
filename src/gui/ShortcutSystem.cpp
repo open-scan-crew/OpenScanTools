@@ -8,6 +8,7 @@
 #include "controller/controls/ControlMeasure.h"
 #include "controller/controls/ControlTest.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
+#include "gui/GuiData/GuiDataHD.h"
 #include "gui/GuiData/GuiData3dObjects.h"
 #include "models/3d/ManipulationTypes.h"
 #include "utils/Logger.h"
@@ -29,6 +30,7 @@ ShortcutSystem::ShortcutSystem(IDataDispatcher& dataDispacher, QWidget* parent)
 						{ Qt::Key_F4, &ShortcutSystem::slotRecordPreformance},
 						{ Qt::Key_D, &ShortcutSystem::slotActivateMeasure},
 						{ Qt::Key_ScreenSaver, &ShortcutSystem::slotQuickScreenshot},
+						{ Qt::Key_F12, &ShortcutSystem::slotCreateHdImage},
 						{ Qt::Key_H, &ShortcutSystem::slotHideSelectedObjects},
 						{ Qt::Key_Escape, &ShortcutSystem::slotAbort }
 		})
@@ -168,6 +170,11 @@ void ShortcutSystem::slotActivateMeasure()
 void ShortcutSystem::slotQuickScreenshot()
 {
 	m_dataDispatcher.sendControl(new control::io::QuickScreenshot(ImageFormat::MAX_ENUM));
+}
+
+void ShortcutSystem::slotCreateHdImage()
+{
+	m_dataDispatcher.updateInformation(new GuiDataCallImage(true, ""));
 }
 
 void ShortcutSystem::slotHideSelectedObjects()
