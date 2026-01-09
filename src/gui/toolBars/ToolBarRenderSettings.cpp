@@ -640,6 +640,16 @@ void ToolBarRenderSettings::slotColorPicking()
 	}
 }
 
+void ToolBarRenderSettings::hideTransparencyNormalsControls()
+{
+	m_ui.transparencyCheckBox->hide();
+	m_ui.transparencySlider->hide();
+	m_ui.transparencySpinBox->hide();
+	m_ui.checkBox_normals->hide();
+	m_ui.slider_normals->hide();
+	m_ui.spinBox_normals->hide();
+}
+
 bool ToolBarRenderSettings::rampValidValue(float& min, float& max, int& step)
 {
 	min = m_ui.lineEdit_rampMin->getValue();
