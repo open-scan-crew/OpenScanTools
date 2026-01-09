@@ -144,7 +144,8 @@ private:
     glm::ivec2 m_hdExtent;
     int m_hdMultisampling;
     std::filesystem::path m_hdImageFilepath;
-    bool m_showHDFrame;
+    bool m_showHDFrame = false;
+    bool m_showHDFrameGrid = false;
     double m_hdFrameRatio;
     ImageHDMetadata m_imageMetadata;
     bool m_showProgressBar;

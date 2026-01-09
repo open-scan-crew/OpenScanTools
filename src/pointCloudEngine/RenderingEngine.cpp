@@ -223,6 +223,7 @@ void RenderingEngine::onPrepareHDImage(IGuiData* data)
 {
     GuiDataPrepareHDImage* guiData = static_cast<GuiDataPrepareHDImage*>(data);
     m_showHDFrame = guiData->m_showFrame;
+    m_showHDFrameGrid = guiData->m_showGrid;
     m_hdFrameRatio = guiData->m_frameRatio;
 }
 
@@ -1070,7 +1071,27 @@ void RenderingEngine::drawOverlay(VkCommandBuffer cmdBuffer, const CameraNode& c
         dl->AddRectFilled(ImVec2(upLeft.x, frameBotRight.y), botRight, shadeColor);
         dl->AddRectFilled(ImVec2(upLeft.x, frameUpLeft.y), ImVec2(frameUpLeft.x, frameBotRight.y), shadeColor);
         dl->AddRectFilled(ImVec2(frameBotRight.x, frameUpLeft.y), ImVec2(botRight.x, frameBotRight.y), shadeColor);
-        dl->AddRect(frameUpLeft, frameBotRight, ImColor(238, 315, 119, 255), 0.f, 0, 2.f);
+        ImColor frameColor(238, 315, 119, 255);
+        dl->AddRect(frameUpLeft, frameBotRight, frameColor, 0.f, 0, 2.f);
+
+        if (m_showHDFrameGrid)
+        {
+            const float lineWidth = 1.0f;
+            const float thirdWidth = (frameBotRight.x - frameUpLeft.x) / 3.0f;
+            const float thirdHeight = (frameBotRight.y - frameUpLeft.y) / 3.0f;
+
+            for (int i = 1; i <= 2; ++i)
+            {
+                const float x = frameUpLeft.x + thirdWidth * i;
+                const float y = frameUpLeft.y + thirdHeight * i;
+
+                dl->AddLine(ImVec2(x, frameUpLeft.y), ImVec2(x, frameBotRight.y), frameColor, lineWidth);
+                dl->AddLine(ImVec2(frameUpLeft.x, y), ImVec2(frameBotRight.x, y), frameColor, lineWidth);
+            }
+
+            dl->AddLine(frameUpLeft, frameBotRight, frameColor, lineWidth);
+            dl->AddLine(ImVec2(frameBotRight.x, frameUpLeft.y), ImVec2(frameUpLeft.x, frameBotRight.y), frameColor, lineWidth);
+        }
     }
 
     // Ortho Grid
