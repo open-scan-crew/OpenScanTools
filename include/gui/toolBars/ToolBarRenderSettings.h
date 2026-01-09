@@ -18,6 +18,8 @@ public:
 	~ToolBarRenderSettings();
 
 	void switchRenderMode(const int& mode = 0);
+	void setPostProcessingVisible(bool visible);
+	void setTransparencyNormalsVisible(bool visible);
 
 private:
 	void informData(IGuiData *data) override;
