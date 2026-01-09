@@ -240,15 +240,19 @@ Gui::Gui(Controller& controller)
 	measureSimple->setPolyligneOptions(false);
 	ribbonTabContent->addWidget(TEXT_MEASURE, measureSimple);
 	ToolBarRenderSettings* rendering = new ToolBarRenderSettings(m_dataDispatcher, this, m_guiScale);
+	rendering->setPostProcessingVisible(false);
 	ribbonTabContent->addWidget(TEXT_POINT_CLOUD, rendering);
 	m_ribbon->addTab(TEXT_HOME, ribbonTabContent);
 	rendering->switchRenderMode();
 
 	// Add groups to the Renderings Tab
 	ribbonTabContent = new RibbonTabContent();
+	ToolBarRenderSettings* renderingSettings = new ToolBarRenderSettings(m_dataDispatcher, this, m_guiScale);
+	ribbonTabContent->addWidget(TEXT_POINT_CLOUD, renderingSettings);
 	ribbonTabContent->addWidget(TEXT_NORMALS_OPTIONS, new ToolBarRenderNormals(m_dataDispatcher, this, m_guiScale));
 	ribbonTabContent->addWidget(TEXT_TAB_TRANSPARENCY, new ToolBarRenderTransparency(m_dataDispatcher, this, m_guiScale));
 	m_ribbon->addTab(TEXT_RENDERINGS, ribbonTabContent);
+	renderingSettings->switchRenderMode();
 
 
 	// Add groups to the View Tab

@@ -142,6 +142,31 @@ ToolBarRenderSettings::~ToolBarRenderSettings()
 {
 	m_dataDispatcher.unregisterObserver(this);
 }
+
+void ToolBarRenderSettings::setPostProcessingVisible(bool visible)
+{
+	m_ui.checkBox_edgeAwareBlur->setVisible(visible);
+	m_ui.label_radius->setVisible(visible);
+	m_ui.slider_edgeAwareRadius->setVisible(visible);
+	m_ui.spinBox_edgeAwareRadius->setVisible(visible);
+	m_ui.label_edgeSensibility->setVisible(visible);
+	m_ui.slider_edgeAwareDepth->setVisible(visible);
+	m_ui.spinBox_edgeAwareDepth->setVisible(visible);
+	m_ui.label_mix->setVisible(visible);
+	m_ui.slider_edgeAwareBlend->setVisible(visible);
+	m_ui.spinBox_edgeAwareBlend->setVisible(visible);
+	m_ui.label_resolution->setVisible(visible);
+	m_ui.comboBox_edgeAwareResolution->setVisible(visible);
+
+	m_ui.checkBox_depthLining->setVisible(visible);
+	m_ui.label_depthLiningSensitivity->setVisible(visible);
+	m_ui.slider_depthLiningSensitivity->setVisible(visible);
+	m_ui.spinBox_depthLiningSensitivity->setVisible(visible);
+	m_ui.label_depthLiningStrength->setVisible(visible);
+	m_ui.slider_depthLiningStrength->setVisible(visible);
+	m_ui.spinBox_depthLiningStrength->setVisible(visible);
+	m_ui.checkBox_depthLiningStrongMode->setVisible(visible);
+}
 //fixme POC dynamic langage
 void ToolBarRenderSettings::changeEvent(QEvent* event)
 {
