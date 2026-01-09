@@ -204,7 +204,6 @@
 #define Key_Background_Color			"BackgroundColor"
 #define Key_Point_Size					"PointSize"
 #define Key_Delta_Filling				"DeltaFilling"
-#define Key_Gap_Filling_Texel_Threshold	"GapFillingTexelThreshold"
 
 #define Key_Contrast					"Contrast"
 #define Key_Brightness					"Brightness"
