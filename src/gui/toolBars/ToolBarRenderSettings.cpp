@@ -322,7 +322,6 @@ void ToolBarRenderSettings::blockAllSignals(bool block)
 	m_ui.slider_normals->blockSignals(block);
 	m_ui.spinBox_normals->blockSignals(block);
 }
-}
 
 void ToolBarRenderSettings::switchRenderMode(const int& mode)
 {
