@@ -823,6 +823,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderNormals.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderRampGroup.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderTransparency.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderEnhance.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarShareGroup.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarShowHideGroup.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderSettings.cpp" />
@@ -1452,6 +1453,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarRenderTransparency.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarRenderEnhance.h" />
     <ClInclude Include="..\..\include\io\imports\PtsFileReader.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
@@ -2010,6 +2012,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtUic Include="..\..\src\gui\forms\toolbar_projectgroup.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_rendernormalsgroup.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_rendertransparencygroup.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_renderenhance.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_render_ramp_group.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_importScantra.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_sharegroup.ui" />

@@ -1555,6 +1555,9 @@
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderTransparency.cpp">
       <Filter>src\gui\toolBars</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderEnhance.cpp">
+      <Filter>src\gui\toolBars</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\io\imports\IMeshReader.cpp">
       <Filter>src\io\imports</Filter>
     </ClCompile>
@@ -2299,6 +2302,9 @@
       <Filter>include\gui\toolBars</Filter>
     </QtMoc>
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarRenderTransparency.h">
+      <Filter>include\gui\toolBars</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarRenderEnhance.h">
       <Filter>include\gui\toolBars</Filter>
     </QtMoc>
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarSlabGroup.h">
@@ -4198,6 +4204,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\toolbar_rendertransparencygroup.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="..\..\src\gui\forms\toolbar_renderenhance.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\toolbar_slabgroup.ui">
