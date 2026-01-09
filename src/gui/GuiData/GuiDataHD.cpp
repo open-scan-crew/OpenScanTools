@@ -1,8 +1,9 @@
 #include "gui/guiData/GuiDataHD.h"
 
 
-GuiDataPrepareHDImage::GuiDataPrepareHDImage(bool showFrame, double frameRatio, SafePtr<CameraNode> viewport)
+GuiDataPrepareHDImage::GuiDataPrepareHDImage(bool showFrame, bool showGrid, double frameRatio, SafePtr<CameraNode> viewport)
     : m_showFrame(showFrame)
+    , m_showGrid(showGrid)
     , m_frameRatio(frameRatio)
     , m_viewport(viewport)
 { }

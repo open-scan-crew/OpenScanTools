@@ -258,6 +258,7 @@ ToolBarImageGroup::ToolBarImageGroup(IDataDispatcher& dataDispatcher, QWidget* p
 
 	QObject::connect(m_ui.toolButton_screenshot, &QPushButton::released, this, [this]() {quickScreenshot(""); });
 	QObject::connect(m_ui.checkBox_frame, &QCheckBox::toggled, this, &ToolBarImageGroup::slotShowFrame);
+	QObject::connect(m_ui.checkBox_hdImageGrid, &QCheckBox::toggled, this, &ToolBarImageGroup::slotShowFrame);
 
 	QObject::connect(m_ui.formatComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarImageGroup::imageFormat);
 	QObject::connect(m_ui.checkBox_alphaImage, &QCheckBox::toggled, this, &ToolBarImageGroup::imageFormat);
@@ -425,6 +426,7 @@ void ToolBarImageGroup::refreshShowUI()
 {
 	m_ui.widget_ratios->setEnabled(m_ui.checkBox_frame->isChecked());
 	m_ui.widget_layout->setEnabled(m_ui.checkBox_frame->isChecked());
+	m_ui.checkBox_hdImageGrid->setEnabled(m_ui.checkBox_frame->isChecked());
 	m_ui.toolButton_createImage->setText(m_projection == ProjectionMode::Perspective ? TEXT_CREATE_HD_IMAGE : TEXT_CREATE_ORTHOIMAGE);
 	m_ui.lineEdit_imageW->setEnabled(m_projection == ProjectionMode::Perspective);
 	m_ui.lineEdit_imageH->setEnabled(m_projection == ProjectionMode::Perspective);
@@ -441,6 +443,7 @@ void ToolBarImageGroup::refreshImageSize()
 	uint32_t area_width = 0;
 	uint32_t area_height = 0;
 	bool useFrame = m_ui.checkBox_frame->isChecked();
+	bool showGrid = useFrame && m_ui.checkBox_hdImageGrid->isChecked();
 	glm::dvec2 frameOrthoSize = glm::dvec2(1.0, 1.0);
 	double ratio = getRatioWH();
 	double frameFactor = useFrame ? 0.9 : 1.0;
@@ -487,7 +490,7 @@ void ToolBarImageGroup::refreshImageSize()
 	setSilentWidthHeight(width, height);
 
 	// Indique au viewport les dimmensions du 
-	m_dataDispatcher.updateInformation(new GuiDataPrepareHDImage(useFrame, ratio, m_focusCamera), this);
+	m_dataDispatcher.updateInformation(new GuiDataPrepareHDImage(useFrame, showGrid, ratio, m_focusCamera), this);
 }
 
 double ToolBarImageGroup::getRatioWH()
