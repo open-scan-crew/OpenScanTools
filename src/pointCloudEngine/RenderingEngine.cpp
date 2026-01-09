@@ -36,6 +36,34 @@ constexpr double HD_MARGIN = 0.05;
 
 #define TEXT_ORTHO_GRID_SIZE QObject::tr("Grid cell size : %1 %2")
 
+namespace
+{
+    struct GapFillingSettings
+    {
+        int texelThreshold;
+        float gapMultiplier;
+        int passes;
+    };
+
+    GapFillingSettings getGapFillingSettings(GapFillingLevel level)
+    {
+        switch (level)
+        {
+        case GapFillingLevel::None:
+            return { 9, 1.0f, 1 };
+        case GapFillingLevel::Low:
+            return { 2, 1.0f, 1 };
+        case GapFillingLevel::Medium:
+            return { 2, 1.5f, 2 };
+        case GapFillingLevel::High:
+            return { 2, 2.0f, 3 };
+        case GapFillingLevel::VeryHigh:
+            return { 2, 2.5f, 4 };
+        }
+        return { 2, 1.0f, 1 };
+    }
+}
+
 IRenderingEngine* scs::createRenderingEngine(GraphManager& graphManager, IDataDispatcher& dataDispatcher, const float& guiScale)
 {
     return new RenderingEngine(graphManager, dataDispatcher, guiScale);
@@ -734,8 +762,11 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
         m_postRenderer.setConstantZRange(wCamera->getNear(), wCamera->getFar(), cmdBuffer);
         m_postRenderer.setConstantScreenSize(framebuffer->extent, wCamera->getPixelSize1m(framebuffer->extent.width, framebuffer->extent.height), cmdBuffer);
         m_postRenderer.setConstantProjMode(wCamera->getProjectionMode() == ProjectionMode::Perspective, cmdBuffer);
-        m_postRenderer.setConstantTexelThreshold(2, cmdBuffer);
-        m_postRenderer.processPointFilling(cmdBuffer, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
+        const GapFillingSettings gapSettings = getGapFillingSettings(display.m_gapFillingLevel);
+        m_postRenderer.setConstantGapMultiplier(gapSettings.gapMultiplier, cmdBuffer);
+        m_postRenderer.setConstantTexelThreshold(gapSettings.texelThreshold, cmdBuffer);
+        for (int pass = 0; pass < gapSettings.passes; ++pass)
+            m_postRenderer.processPointFilling(cmdBuffer, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
 
         // Second compute shader (Normals)
         if (display.m_postRenderingNormals.show && display.m_blendMode == BlendMode::Opaque)
@@ -907,8 +938,11 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
     m_postRenderer.setConstantZRange(camera.getNear(), camera.getFar(), cmdBuffer);
     m_postRenderer.setConstantScreenSize(framebuffer->extent, camera.getPixelSize1m(framebuffer->extent.width, framebuffer->extent.height), cmdBuffer);
     m_postRenderer.setConstantProjMode(camera.getProjectionMode() == ProjectionMode::Perspective, cmdBuffer);
-    m_postRenderer.setConstantTexelThreshold(2, cmdBuffer);
-    m_postRenderer.processPointFilling(cmdBuffer, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
+    const GapFillingSettings gapSettings = getGapFillingSettings(displayParam.m_gapFillingLevel);
+    m_postRenderer.setConstantGapMultiplier(gapSettings.gapMultiplier, cmdBuffer);
+    m_postRenderer.setConstantTexelThreshold(gapSettings.texelThreshold, cmdBuffer);
+    for (int pass = 0; pass < gapSettings.passes; ++pass)
+        m_postRenderer.processPointFilling(cmdBuffer, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
 
     // Second compute shader (Normals)
     if (displayParam.m_postRenderingNormals.show && displayParam.m_blendMode == BlendMode::Opaque)

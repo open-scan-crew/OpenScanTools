@@ -32,6 +32,7 @@ private:
 	void onRenderSaturation(IGuiData* data);
 	void onRenderAlphaObjects(IGuiData* data);
 	void onRenderUnitUsage(IGuiData* data);
+	void onRenderGapFilling(IGuiData* data);
 
 	void onActiveCamera(IGuiData* data);
 	void onFocusViewport(IGuiData* data);
@@ -61,6 +62,7 @@ private slots:
 	void slotAlphaBoxesValueChanged(int value);
 	void slotSetPointSize(int pointSize);
 	void slotSetRenderMode(int mode);
+	void slotGapFillingChanged(int index);
         void slotColorPicking();
         void slotRampValues();
         void slotNormalsChanged();

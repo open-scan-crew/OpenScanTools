@@ -722,6 +722,13 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
             IOLOG << "ViewPoint DepthLining malformed" << LOGENDL;
     }
 
+    if (json.find(Key_Gap_Filling) != json.end())
+    {
+        auto level = magic_enum::enum_cast<GapFillingLevel>(json.at(Key_Gap_Filling).get<std::string>());
+        if (level.has_value())
+            data.m_gapFillingLevel = level.value();
+    }
+
     if (json.find(Key_Ortho_Grid_Active) != json.end())
     {
         data.m_orthoGridActive = json.at(Key_Ortho_Grid_Active).get<bool>();
