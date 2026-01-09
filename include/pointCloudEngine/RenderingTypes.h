@@ -104,6 +104,15 @@ struct DepthLining
     bool strongMode = false;
 };
 
+enum class GapFillingLevel
+{
+    None,
+    Low,
+    Medium,
+    High,
+    VeryHigh
+};
+
 enum class ProjectionMode
 {
     Perspective = 0,

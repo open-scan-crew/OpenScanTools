@@ -342,6 +342,16 @@ guiDType GuiDataDepthLining::getType()
         return guiDType::renderDepthLining;
 }
 
+GuiDataRenderGapFilling::GuiDataRenderGapFilling(GapFillingLevel level, SafePtr<CameraNode> camera)
+        : GuiDataActiveCamera(camera)
+        , m_level(level)
+{}
+
+guiDType GuiDataRenderGapFilling::getType()
+{
+        return guiDType::renderGapFilling;
+}
+
 /*** Distance Ramp ***/
 
 GuiDataRenderDistanceRampValues::GuiDataRenderDistanceRampValues(float min, float max, int steps, SafePtr<CameraNode> camera)
