@@ -1,7 +1,7 @@
 #ifndef TOOLBAR_RENDER_ENHANCE_H
 #define TOOLBAR_RENDER_ENHANCE_H
 
-#include "ui_toolbar_renderenhance.h"
+#include "ui_toolbar_renderenhancegroup.h"
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
 #include "pointCloudEngine/RenderingTypes.h"
@@ -39,7 +39,7 @@ private:
 	};
 
 	std::unordered_map<guiDType, GuiDataFunction> m_methods;
-	Ui::toolbar_renderenhance m_ui;
+	Ui::toolbar_renderenhancegroup m_ui;
 	IDataDispatcher& m_dataDispatcher;
 	SafePtr<CameraNode> m_focusCamera;
 

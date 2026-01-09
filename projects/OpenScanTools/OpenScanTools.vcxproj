@@ -2012,7 +2012,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtUic Include="..\..\src\gui\forms\toolbar_projectgroup.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_rendernormalsgroup.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_rendertransparencygroup.ui" />
-    <QtUic Include="..\..\src\gui\forms\toolbar_renderenhance.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_renderenhancegroup.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_render_ramp_group.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_importScantra.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_sharegroup.ui" />
