@@ -192,6 +192,7 @@ HEADERS += ../../ext/imgui/imconfig.h \
     ../../include/gui/GuiData/IGuiData.h \
     ../../include/gui/toolBars/ToolBarSlabGroup.h \
     ../../include/gui/toolBars/ToolBarRenderTransparency.h \
+    ../../include/gui/toolBars/ToolBarRenderEnhance.h \
     ../../include/gui/toolBars/ToolBarAnimationGroup.h \
     ../../include/gui/toolBars/ToolBarMeasureShowOptions.h \
     ../../include/gui/toolBars/ToolBarClippingGroup.h \
@@ -796,6 +797,7 @@ SOURCES += ../../ext/imgui/imgui.cpp \
     ../../src/gui/toolBars/ToolBarProjectGroup.cpp \
     ../../src/gui/toolBars/ToolBarRenderNormals.cpp \
     ../../src/gui/toolBars/ToolBarRenderTransparency.cpp \
+    ../../src/gui/toolBars/ToolBarRenderEnhance.cpp \
     ../../src/gui/toolBars/ToolBarShowHideGroup.cpp \
     ../../src/gui/toolBars/ToolBarRenderSettings.cpp \
     ../../src/gui/toolBars/ToolBarAnimationGroup.cpp \
@@ -1396,6 +1398,7 @@ FORMS += ../../src/gui/forms/AddHyperlinkDialog.ui \
     ../../src/gui/forms/toolbar_projectgroup.ui \
     ../../src/gui/forms/toolbar_rendernormalsgroup.ui \
     ../../src/gui/forms/toolbar_rendertransparencygroup.ui \
+    ../../src/gui/forms/toolbar_renderenhancegroup.ui \
     ../../src/gui/forms/toolbar_showhidegroup.ui \
     ../../src/gui/forms/toolbar_slabgroup.ui \
     ../../src/gui/forms/toolbar_spheregroup.ui \
