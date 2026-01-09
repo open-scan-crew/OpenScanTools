@@ -15,12 +15,13 @@ class CameraNode;
 class GuiDataPrepareHDImage : public IGuiData
 {
 public:
-    GuiDataPrepareHDImage(bool showFrame, double frameRatio, SafePtr<CameraNode> viewport);
+    GuiDataPrepareHDImage(bool showFrame, bool showGrid, double frameRatio, SafePtr<CameraNode> viewport);
     ~GuiDataPrepareHDImage() {};
     virtual guiDType getType() override;
 
 public:
     bool m_showFrame;
+    bool m_showGrid;
     double m_frameRatio;
     SafePtr<CameraNode> m_viewport;
 };
