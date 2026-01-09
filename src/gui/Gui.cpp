@@ -58,6 +58,7 @@
 #include "gui/toolBars/ToolBarRenderNormals.h"
 #include "gui/toolBars/ToolBarRenderRampGroup.h"
 #include "gui/toolBars/ToolBarRenderTransparency.h"
+#include "gui/toolBars/ToolBarRenderEnhance.h"
 #include "gui/toolBars/ToolBarClippingGroup.h"
 #include "gui/toolBars/ToolBarMeasureShowOptions.h"
 #include "gui/toolBars/ToolBarStructureAnalysis.h"
@@ -247,9 +248,11 @@ Gui::Gui(Controller& controller)
 	// Add groups to the View Tab
 	ribbonTabContent = new RibbonTabContent();
 	ToolBarRenderSettings* renderingsettings = new ToolBarRenderSettings(m_dataDispatcher, this, m_guiScale);
+	renderingsettings->hideTransparencyNormalsControls();
 	ribbonTabContent->addWidget(TEXT_POINT_CLOUD, renderingsettings);
 	ribbonTabContent->addWidget(TEXT_TAB_TRANSPARENCY, new ToolBarRenderTransparency(m_dataDispatcher, this, m_guiScale));
 	ribbonTabContent->addWidget(TEXT_NORMALS_OPTIONS, new ToolBarRenderNormals(m_dataDispatcher, this, m_guiScale));
+	ribbonTabContent->addWidget(TEXT_RENDER_ENHANCE, new ToolBarRenderEnhance(m_dataDispatcher, this, m_guiScale));
 	m_ribbon->addTab(TEXT_RENDERINGS, ribbonTabContent);
 	renderingsettings->switchRenderMode();
 

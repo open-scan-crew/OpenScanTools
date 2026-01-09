@@ -18,6 +18,7 @@ public:
 	~ToolBarRenderSettings();
 
 	void switchRenderMode(const int& mode = 0);
+	void hideTransparencyNormalsControls();
 
 private:
 	void informData(IGuiData *data) override;
