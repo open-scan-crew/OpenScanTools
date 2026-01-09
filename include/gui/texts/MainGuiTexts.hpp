@@ -7,6 +7,7 @@
 #define TEXT_PROPERTIES QObject::tr("Properties")
 #define TEXT_TOOLBAR QObject::tr("ToolBar")
 #define TEXT_HOME QObject::tr("Home")
+#define TEXT_RENDERINGS QObject::tr("Renderings")
 #define TEXT_TAG QObject::tr("Tag")
 #define TEXT_EXPORT QObject::tr("Export")
 #define TEXT_SHARE QObject::tr("Share")

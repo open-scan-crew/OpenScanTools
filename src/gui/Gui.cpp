@@ -244,13 +244,18 @@ Gui::Gui(Controller& controller)
 	m_ribbon->addTab(TEXT_HOME, ribbonTabContent);
 	rendering->switchRenderMode();
 
+	// Add groups to the Renderings Tab
+	ribbonTabContent = new RibbonTabContent();
+	ribbonTabContent->addWidget(TEXT_NORMALS_OPTIONS, new ToolBarRenderNormals(m_dataDispatcher, this, m_guiScale));
+	ribbonTabContent->addWidget(TEXT_TAB_TRANSPARENCY, new ToolBarRenderTransparency(m_dataDispatcher, this, m_guiScale));
+	m_ribbon->addTab(TEXT_RENDERINGS, ribbonTabContent);
+
+
 	// Add groups to the View Tab
 	ribbonTabContent = new RibbonTabContent();
 	ribbonTabContent->addWidget(TEXT_SHOW_HIDE, new ToolBarShowHideGroup(m_dataDispatcher, this, m_guiScale));
 	ribbonTabContent->addWidget(TEXT_TEXT_DISPLAY, new ToolBarTextDisplay(m_dataDispatcher, this, m_guiScale));
-	ribbonTabContent->addWidget(TEXT_MARKER_DISPLAY_OPTIONS, new ToolBarMarkerDisplayOptions(m_dataDispatcher, this, m_guiScale));
-	ribbonTabContent->addWidget(TEXT_TAB_TRANSPARENCY, new ToolBarRenderTransparency(m_dataDispatcher, this, m_guiScale));
-	ribbonTabContent->addWidget(TEXT_NORMALS_OPTIONS, new ToolBarRenderNormals(m_dataDispatcher, this, m_guiScale));
+	ribbonTabContent->addWidget(TEXT_MARKER_DISPLAY_OPTIONS, new ToolBarMarkerDisplayOptions(m_dataDispatcher, this, m_guiScale));	
 	ribbonTabContent->addWidget(TEXT_ORTHO_GRID, new ToolBarOrthoGrid(m_dataDispatcher, this, m_guiScale));
 
 	m_ribbon->addTab(TEXT_VIEW, ribbonTabContent);
