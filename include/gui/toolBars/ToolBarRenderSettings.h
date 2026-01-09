@@ -18,6 +18,7 @@ public:
 	~ToolBarRenderSettings();
 
 	void switchRenderMode(const int& mode = 0);
+	void hideTransparencyNormalsControls();
 
 private:
 	void informData(IGuiData *data) override;
@@ -49,12 +50,6 @@ private:
         void enableFalseColor(bool);
         bool rampValidValue(float& min, float& max, int& step);
         void sendTransparency();
-        void updateEdgeAwareBlurUi(bool enabled);
-        EdgeAwareBlur getEdgeAwareBlurFromUi() const;
-        void populateEdgeAwareResolutionCombo();
-        void updateDepthLiningUi(bool enabled);
-        DepthLining getDepthLiningFromUi() const;
-
         void changeEvent(QEvent* event) override;
 
 private slots:
@@ -69,13 +64,6 @@ private slots:
         void slotColorPicking();
         void slotRampValues();
         void slotNormalsChanged();
-        void slotEdgeAwareBlurToggled(int state);
-        void slotEdgeAwareBlurValueChanged(int value);
-        void slotEdgeAwareBlurResolutionChanged(int index);
-        void slotDepthLiningToggled(int state);
-        void slotDepthLiningValueChanged(int value);
-        void slotDepthLiningSensitivityChanged(int value);
-        void slotDepthLiningStrongModeToggled(int state);
 
 private:
         std::unordered_map<guiDType, GuiDataFunction> m_methods;
