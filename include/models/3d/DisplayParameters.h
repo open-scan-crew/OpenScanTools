@@ -46,6 +46,7 @@ public:
     PostRenderingAmbientOcclusion m_postRenderingAmbientOcclusion = {};
     EdgeAwareBlur           m_edgeAwareBlur = {};
     DepthLining             m_depthLining = {};
+    GapFillingLevel         m_gapFillingLevel = GapFillingLevel::Low;
 
     // GUI
     RampScale      m_rampScale = { true, false, 20 }; // GUI

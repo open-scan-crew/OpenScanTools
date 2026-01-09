@@ -336,6 +336,17 @@ public:
         DepthLining m_lining;
 };
 
+class GuiDataRenderGapFilling : public GuiDataActiveCamera
+{
+public:
+        GuiDataRenderGapFilling(GapFillingLevel level, SafePtr<CameraNode> camera);
+        ~GuiDataRenderGapFilling() {};
+        virtual guiDType getType() override;
+
+public:
+        GapFillingLevel m_level;
+};
+
 class GuiDataRenderDistanceRampValues : public GuiDataActiveCamera
 {
 public:

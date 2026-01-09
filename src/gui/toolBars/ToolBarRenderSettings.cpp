@@ -35,6 +35,13 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
         m_ui.comboBox_renderMode->addItem(QString::fromStdString(tradUiRenderMode.at(UiRenderMode(iterator))),QVariant(iterator));
     }
 
+    m_ui.comboBox_gap_Filling->addItem(tr("No filling"), QVariant(static_cast<int>(GapFillingLevel::None)));
+    m_ui.comboBox_gap_Filling->addItem(tr("Low"), QVariant(static_cast<int>(GapFillingLevel::Low)));
+    m_ui.comboBox_gap_Filling->addItem(tr("Medium"), QVariant(static_cast<int>(GapFillingLevel::Medium)));
+    m_ui.comboBox_gap_Filling->addItem(tr("High"), QVariant(static_cast<int>(GapFillingLevel::High)));
+    m_ui.comboBox_gap_Filling->addItem(tr("Very high"), QVariant(static_cast<int>(GapFillingLevel::VeryHigh)));
+    m_ui.comboBox_gap_Filling->setCurrentIndex(1);
+
 	m_ui.brightnessLuminanceSlider->setMinimumWidth(100.f * guiScale);
 	m_ui.contrastSaturationSlider->setMinimumWidth(100.f * guiScale);
 	m_ui.transparencySlider->setMinimumWidth(100.f * guiScale);
@@ -51,6 +58,7 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
     switchRenderMode((int)m_currentRenderMode);
 
 	connect(m_ui.comboBox_renderMode,QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarRenderSettings::slotSetRenderMode);
+	connect(m_ui.comboBox_gap_Filling, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarRenderSettings::slotGapFillingChanged);
 
 	connect(m_ui.spinBox_pointSize, qOverload<int>(&QSpinBox::valueChanged), this, &ToolBarRenderSettings::slotSetPointSize);
 
@@ -97,6 +105,7 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
         registerGuiDataFunction(guiDType::renderSaturation, &ToolBarRenderSettings::onRenderSaturation);
         
         registerGuiDataFunction(guiDType::renderValueDisplay, &ToolBarRenderSettings::onRenderUnitUsage);
+	registerGuiDataFunction(guiDType::renderGapFilling, &ToolBarRenderSettings::onRenderGapFilling);
 	registerGuiDataFunction(guiDType::renderActiveCamera, &ToolBarRenderSettings::onActiveCamera);
 	registerGuiDataFunction(guiDType::focusViewport, &ToolBarRenderSettings::onFocusViewport);
 
@@ -196,6 +205,18 @@ void ToolBarRenderSettings::onRenderUnitUsage(IGuiData * idata)
 	m_ui.lineEdit_rampMax->setUnit(castdata->m_valueParameters.distanceUnit);
 }
 
+void ToolBarRenderSettings::onRenderGapFilling(IGuiData* idata)
+{
+	auto data = static_cast<GuiDataRenderGapFilling*>(idata);
+	int index = m_ui.comboBox_gap_Filling->findData(QVariant(static_cast<int>(data->m_level)));
+	if (index >= 0)
+	{
+		m_ui.comboBox_gap_Filling->blockSignals(true);
+		m_ui.comboBox_gap_Filling->setCurrentIndex(index);
+		m_ui.comboBox_gap_Filling->blockSignals(false);
+	}
+}
+
 void ToolBarRenderSettings::onProjectLoad(IGuiData* idata)
 {
 	GuiDataProjectLoaded* plData = static_cast<GuiDataProjectLoaded*>(idata);
@@ -257,6 +278,10 @@ void ToolBarRenderSettings::onActiveCamera(IGuiData* idata)
 	if (displayParameters.m_pointSize != m_ui.spinBox_pointSize->value())
 		m_ui.spinBox_pointSize->setValue(displayParameters.m_pointSize);
 
+	int gapIndex = m_ui.comboBox_gap_Filling->findData(QVariant(static_cast<int>(displayParameters.m_gapFillingLevel)));
+	if (gapIndex >= 0)
+		m_ui.comboBox_gap_Filling->setCurrentIndex(gapIndex);
+
 	int value(100 - (int)(displayParameters.m_alphaObject * 100));
 	m_ui.alphaObjectsSpinBox->setValue(value);
 	m_ui.alphaObjectsSlider->setValue(value);
@@ -312,6 +337,7 @@ void ToolBarRenderSettings::blockAllSignals(bool block)
 	m_ui.spinBox_pointSize->blockSignals(block);
 	m_ui.contrastSaturationSpinBox->blockSignals(block);
 	m_ui.contrastSaturationSlider->blockSignals(block);
+	m_ui.comboBox_gap_Filling->blockSignals(block);
 	m_ui.alphaObjectsSpinBox->blockSignals(block);
 	m_ui.alphaObjectsSlider->blockSignals(block);
 	m_ui.lineEdit_rampMax->blockSignals(block);
@@ -480,6 +506,13 @@ void ToolBarRenderSettings::slotSetRenderMode(int mode)
 	switchRenderMode(m_ui.comboBox_renderMode->currentData().toInt());
 
 	m_dataDispatcher.sendControl(new control::application::RenderModeUpdate(UiRenderMode(m_ui.comboBox_renderMode->currentData().toInt()), m_focusCamera));	
+}
+
+void ToolBarRenderSettings::slotGapFillingChanged(int index)
+{
+	Q_UNUSED(index);
+	auto level = static_cast<GapFillingLevel>(m_ui.comboBox_gap_Filling->currentData().toInt());
+	m_dataDispatcher.updateInformation(new GuiDataRenderGapFilling(level, m_focusCamera), this);
 }
 
 void ToolBarRenderSettings::slotColorPicking()

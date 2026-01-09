@@ -137,6 +137,7 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
     hash += hash_fn_f(display.m_depthLining.threshold);
     hash += hash_fn_f(display.m_depthLining.sensitivity);
     hash += hash_fn_b(display.m_depthLining.strongMode);
+    hash += hash_fn_32(static_cast<uint32_t>(display.m_gapFillingLevel));
 
     //hash += hash_fn_f(display.m_alphaObject);             // Do not affect the point cloud
 
