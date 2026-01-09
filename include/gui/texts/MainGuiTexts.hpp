@@ -61,5 +61,6 @@
 #define TEXT_NORMALS_OPTIONS QObject::tr("Normals")
 #define TEXT_ORTHO_GRID QObject::tr("Ortho Grid")
 #define TEXT_TAB_TRANSPARENCY QObject::tr("Transparency")
+#define TEXT_RENDER_ENHANCE QObject::tr("Enhance")
 
 #endif
