@@ -407,11 +407,21 @@
      <property name="value">
       <number>1</number>
      </property>
-    </widget>
-   </item>
-   <item row="0" column="1" colspan="2">
-    <widget class="QComboBox" name="comboBox_renderMode">
-     <property name="focusPolicy">
+   </widget>
+  </item>
+  <item row="1" column="2">
+   <widget class="QComboBox" name="comboBox_adaptativePointSize">
+    <property name="minimumSize">
+     <size>
+      <width>110</width>
+      <height>0</height>
+     </size>
+    </property>
+   </widget>
+  </item>
+  <item row="0" column="1" colspan="2">
+   <widget class="QComboBox" name="comboBox_renderMode">
+    <property name="focusPolicy">
       <enum>Qt::NoFocus</enum>
      </property>
     </widget>
@@ -496,6 +506,7 @@
  </customwidgets>
  <tabstops>
   <tabstop>spinBox_pointSize</tabstop>
+  <tabstop>comboBox_adaptativePointSize</tabstop>
   <tabstop>brightnessLuminanceSlider</tabstop>
   <tabstop>brightnessLuminanceSpinBox</tabstop>
   <tabstop>contrastSaturationSlider</tabstop>

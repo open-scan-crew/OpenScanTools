@@ -6,7 +6,9 @@
 
 #include "tls_impl.h"
 
+#include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <future>
 #include <set>
 #ifndef PORTABLE
@@ -18,6 +20,73 @@ float EmbeddedScan::decode_time_ = 0.f;
 float EmbeddedScan::merge_time_ = 0.f;
 
 using namespace std::chrono;
+
+namespace
+{
+    float computeScreenArea(const HCube& cube, uint32_t width, uint32_t height)
+    {
+        bool hasPoint = false;
+        double minX = 0.0;
+        double maxX = 0.0;
+        double minY = 0.0;
+        double maxY = 0.0;
+
+        for (const glm::dvec4& corner : cube.corner)
+        {
+            if (corner.w == 0.0)
+                continue;
+            double invW = 1.0 / corner.w;
+            double ndcX = corner.x * invW;
+            double ndcY = corner.y * invW;
+            if (!std::isfinite(ndcX) || !std::isfinite(ndcY))
+                continue;
+
+            double screenX = (ndcX * 0.5 + 0.5) * static_cast<double>(width);
+            double screenY = (ndcY * 0.5 + 0.5) * static_cast<double>(height);
+
+            if (!hasPoint)
+            {
+                minX = maxX = screenX;
+                minY = maxY = screenY;
+                hasPoint = true;
+            }
+            else
+            {
+                minX = std::min(minX, screenX);
+                maxX = std::max(maxX, screenX);
+                minY = std::min(minY, screenY);
+                maxY = std::max(maxY, screenY);
+            }
+        }
+
+        if (!hasPoint)
+            return 0.0f;
+
+        double widthPx = std::max(0.0, maxX - minX);
+        double heightPx = std::max(0.0, maxY - minY);
+        return static_cast<float>(widthPx * heightPx);
+    }
+
+    float computeAdaptivePointSize(const HCube& cube, const TlProjectionInfo& projInfo, uint32_t pointCount)
+    {
+        float basePointSize = projInfo.octreePointSize;
+        float maxFactor = projInfo.adaptivePointSizeMaxFactor;
+
+        if (maxFactor <= 1.0f || pointCount <= 1 || basePointSize <= 0.0f)
+            return basePointSize;
+
+        float screenArea = computeScreenArea(cube, projInfo.width, projInfo.height);
+        if (screenArea <= 0.0f)
+            return basePointSize;
+
+        float averageSpacing = std::sqrt(screenArea / static_cast<float>(pointCount));
+        float scale = averageSpacing / basePointSize;
+        if (scale <= 1.0f)
+            return basePointSize;
+
+        return basePointSize * std::min(scale, maxFactor);
+    }
+}
 
 EmbeddedScan::EmbeddedScan(std::filesystem::path const& filepath)
     : pt_format_(tls::PointFormat::TL_POINT_FORMAT_UNDEFINED)
@@ -790,7 +859,8 @@ bool EmbeddedScan::getVisibleTree_impl(uint32_t _cellId, std::vector<TlCellDrawI
     // Check that the buffer is loaded
     if (VulkanManager::getInstance().touchSmartBuffer(m_pCellBuffers[_cellId]))
     {
-        _result.push_back({ m_pCellBuffers[_cellId].buffer, _cellId, cell.m_layerIndexes[renderDepth], cell.m_iOffset, cell.m_rgbOffset });
+        float pointSize = computeAdaptivePointSize(_frustumTest.cube, _projInfo, cell.m_layerIndexes[renderDepth]);
+        _result.push_back({ m_pCellBuffers[_cellId].buffer, _cellId, cell.m_layerIndexes[renderDepth], cell.m_iOffset, cell.m_rgbOffset, pointSize });
         return true;
     }
     else
@@ -921,8 +991,9 @@ bool EmbeddedScan::getVisibleTreeMultiClip_impl(uint32_t _cellId, std::vector<Tl
     // Check that the buffer is loaded
     if (VulkanManager::getInstance().touchSmartBuffer(m_pCellBuffers[_cellId]))
     {
+        float pointSize = computeAdaptivePointSize(_frustumTest.cube, _projInfo, cell.m_layerIndexes[renderDepth]);
         if (acceptAssembly)
-            _result.push_back({ m_pCellBuffers[_cellId].buffer, _cellId, cell.m_layerIndexes[renderDepth], cell.m_iOffset, cell.m_rgbOffset });
+            _result.push_back({ m_pCellBuffers[_cellId].buffer, _cellId, cell.m_layerIndexes[renderDepth], cell.m_iOffset, cell.m_rgbOffset, pointSize });
         else
         {
             std::vector<ClippingGpuId> gpuClip;
@@ -933,7 +1004,7 @@ bool EmbeddedScan::getVisibleTreeMultiClip_impl(uint32_t _cellId, std::vector<Tl
             for (std::shared_ptr<IClippingGeometry>& cg : childAssembly.rampActives)
                 gpuClip.push_back(cg->gpuDrawId);
 
-            _resultCB.push_back({ m_pCellBuffers[_cellId].buffer, _cellId, cell.m_layerIndexes[renderDepth], cell.m_iOffset, cell.m_rgbOffset, gpuClip });
+            _resultCB.push_back({ m_pCellBuffers[_cellId].buffer, _cellId, cell.m_layerIndexes[renderDepth], cell.m_iOffset, cell.m_rgbOffset, pointSize, gpuClip });
         }
         return true;
     }

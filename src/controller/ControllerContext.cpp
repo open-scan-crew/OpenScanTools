@@ -563,6 +563,11 @@ void ControllerContext::setRenderPointSize(float pointSize)
     m_renderPointSize = pointSize;
 }
 
+void ControllerContext::setRenderAdaptivePointSizeMode(AdaptivePointSizeMode mode)
+{
+	m_renderAdaptivePointSizeMode = mode;
+}
+
 void ControllerContext::setTemporaryPath(const std::filesystem::path& path)
 {
 	m_temporaryPath = path;
@@ -580,6 +585,11 @@ void ControllerContext::setUserBackgroundColor(const Color32& color, const uint3
 float ControllerContext::getRenderPointSize() const
 {
     return m_renderPointSize;
+}
+
+AdaptivePointSizeMode ControllerContext::getRenderAdaptivePointSizeMode() const
+{
+	return m_renderAdaptivePointSizeMode;
 }
 
 Color32 ControllerContext::getActiveBackgroundColor()

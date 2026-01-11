@@ -20,6 +20,7 @@ public:
     UiRenderMode   m_mode = UiRenderMode::RGB;
     Color32        m_backgroundColor = Color32(0, 0, 0, 0);
     float          m_pointSize = 1.f;
+    AdaptivePointSizeMode m_adaptivePointSizeMode = AdaptivePointSizeMode::Off;
     float          m_deltaFilling = 0.f;	
     float          m_contrast = 0.f;
     float          m_brightness = 0.f;

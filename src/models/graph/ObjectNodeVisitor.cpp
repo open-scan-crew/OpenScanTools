@@ -1439,7 +1439,7 @@ void ObjectNodeVisitor::draw_baked_pointClouds(VkCommandBuffer cmdBuffer, Render
     // *** Traverse the scan using the frustum matrix as a clipping box ***
     // The projection info are common for all the scans
     // The Model matrix will be edited by each drawScan()
-    TlProjectionInfo projInfoNode{ glm::dmat4(), m_viewProjMatrix, m_fbExtent.width, m_fbExtent.height, m_displayParameters.m_pointSize, m_decimationRatio, m_displayParameters.m_deltaFilling };
+    TlProjectionInfo projInfoNode{ glm::dmat4(), m_viewProjMatrix, m_fbExtent.width, m_fbExtent.height, m_displayParameters.m_pointSize, m_decimationRatio, m_displayParameters.m_deltaFilling, getAdaptivePointSizeMaxFactor(m_displayParameters.m_adaptivePointSizeMode) };
 
     m_drawHasMissingScanPart = false;
     ClippingAssembly emptyAssembly;
