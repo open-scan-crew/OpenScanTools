@@ -836,23 +836,7 @@
         </widget>
        </item>
        <item row="8" column="3">
-        <widget class="QComboBox" name="comboBox_octreePrecision">
-         <item>
-          <property name="text">
-           <string>Analysis</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Normal</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Performances</string>
-          </property>
-         </item>
-        </widget>
+        <widget class="QComboBox" name="comboBox_octreePrecision"/>
        </item>
        <item row="9" column="2">
         <spacer name="verticalSpacer_3">

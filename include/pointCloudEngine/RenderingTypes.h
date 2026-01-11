@@ -141,7 +141,7 @@ inline float getOctreePrecisionMultiplier(OctreePrecision precision)
     switch (precision)
     {
     case OctreePrecision::Analysis:
-        return 4.0f;
+        return 10.0f;
     case OctreePrecision::Performances:
         return 0.5f;
     case OctreePrecision::Normal:

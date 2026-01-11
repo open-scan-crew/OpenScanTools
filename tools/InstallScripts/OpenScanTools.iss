@@ -2,8 +2,8 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "OpenScanTools"
-#define MyAppVersion "1.0"
-#define MyBuildVersion "1.0.11"
+#define MyAppVersion "1.1"
+#define MyBuildVersion "1.1.0"
 #define MyAppPublisher "OpenScanTools"
 #define MyAppURL "https://www.openscantools.com/"
 #define MyAppExeName "OpenScanTools.exe"

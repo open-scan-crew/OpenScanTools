@@ -47,7 +47,6 @@ DialogSettings::DialogSettings(IDataDispatcher& dataDispatcher, QWidget* parent)
 		m_ui.comboBox_octreePrecision->addItem(QString("Normal"), QVariant(static_cast<int>(OctreePrecision::Normal)));
 		m_ui.comboBox_octreePrecision->addItem(QString("Performances"), QVariant(static_cast<int>(OctreePrecision::Performances)));
 
-
 		m_ui.autosaveTimingComboBox->addItem(QString(""), QVariant(0));
 	for (const uint8_t& time : Config::Timing)
 		m_ui.autosaveTimingComboBox->addItem(TEXT_SETTINGS_MINUTES.arg(time), QVariant(time));
