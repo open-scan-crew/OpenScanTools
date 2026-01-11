@@ -163,6 +163,17 @@ guiDType GuiDataRenderPointSize::getType()
     return guiDType::renderPointSize;
 }
 
+//*** Texel Threshold ***//
+GuiDataRenderTexelThreshold::GuiDataRenderTexelThreshold(int texelThreshold, SafePtr<CameraNode> camera)
+	: GuiDataActiveCamera(camera)
+	, m_texelThreshold(texelThreshold)
+{}
+
+guiDType GuiDataRenderTexelThreshold::getType()
+{
+	return guiDType::renderTexelThreshold;
+}
+
 //*** Brightness ***//
 GuiDataRenderBrightness::GuiDataRenderBrightness(int _brightness, SafePtr<CameraNode> camera)
 	: GuiDataActiveCamera(camera)

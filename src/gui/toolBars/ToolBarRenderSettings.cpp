@@ -46,6 +46,12 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 	m_ui.lineEdit_rampMax->setType(NumericType::DISTANCE);
 	m_ui.lineEdit_rampMin->setType(NumericType::DISTANCE);
 
+	m_ui.comboBox_gapFillingStrength->addItem(tr("Off"), 8);
+	m_ui.comboBox_gapFillingStrength->addItem(tr("Low"), 4);
+	m_ui.comboBox_gapFillingStrength->addItem(tr("Mid"), 2);
+	m_ui.comboBox_gapFillingStrength->addItem(tr("High"), 1);
+	m_ui.comboBox_gapFillingStrength->setCurrentIndex(1);
+
     // Init render options UI
     m_ui.pushButton_color->setPalette(QPalette(m_selectedColor));
     switchRenderMode((int)m_currentRenderMode);
@@ -53,6 +59,7 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 	connect(m_ui.comboBox_renderMode,QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarRenderSettings::slotSetRenderMode);
 
 	connect(m_ui.spinBox_pointSize, qOverload<int>(&QSpinBox::valueChanged), this, &ToolBarRenderSettings::slotSetPointSize);
+	connect(m_ui.comboBox_gapFillingStrength, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarRenderSettings::slotSetTexelThreshold);
 
 	connect(m_ui.pushButton_color, &QPushButton::clicked, this, &ToolBarRenderSettings::slotColorPicking);
 
@@ -94,6 +101,7 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 	registerGuiDataFunction(guiDType::renderLuminance, &ToolBarRenderSettings::onRenderLuminance);
 	registerGuiDataFunction(guiDType::renderBlending, &ToolBarRenderSettings::onRenderBlending);
 	registerGuiDataFunction(guiDType::renderPointSize, &ToolBarRenderSettings::onRenderPointSize);
+	registerGuiDataFunction(guiDType::renderTexelThreshold, &ToolBarRenderSettings::onRenderTexelThreshold);
         registerGuiDataFunction(guiDType::renderSaturation, &ToolBarRenderSettings::onRenderSaturation);
         
         registerGuiDataFunction(guiDType::renderValueDisplay, &ToolBarRenderSettings::onRenderUnitUsage);
@@ -171,6 +179,17 @@ void ToolBarRenderSettings::onRenderPointSize(IGuiData* idata)
 		m_ui.spinBox_pointSize->blockSignals(true);
 	    m_ui.spinBox_pointSize->setValue(data->m_pointSize);
 		m_ui.spinBox_pointSize->blockSignals(false);
+	}
+}
+void ToolBarRenderSettings::onRenderTexelThreshold(IGuiData* idata)
+{
+	GuiDataRenderTexelThreshold* data = static_cast<GuiDataRenderTexelThreshold*>(idata);
+	int index = m_ui.comboBox_gapFillingStrength->findData(data->m_texelThreshold);
+	if (index != -1 && index != m_ui.comboBox_gapFillingStrength->currentIndex())
+	{
+		m_ui.comboBox_gapFillingStrength->blockSignals(true);
+		m_ui.comboBox_gapFillingStrength->setCurrentIndex(index);
+		m_ui.comboBox_gapFillingStrength->blockSignals(false);
 	}
 }
 void ToolBarRenderSettings::onRenderSaturation(IGuiData* idata) 
@@ -257,6 +276,10 @@ void ToolBarRenderSettings::onActiveCamera(IGuiData* idata)
 	if (displayParameters.m_pointSize != m_ui.spinBox_pointSize->value())
 		m_ui.spinBox_pointSize->setValue(displayParameters.m_pointSize);
 
+	int texelIndex = m_ui.comboBox_gapFillingStrength->findData(displayParameters.m_texelThreshold);
+	if (texelIndex != -1)
+		m_ui.comboBox_gapFillingStrength->setCurrentIndex(texelIndex);
+
 	int value(100 - (int)(displayParameters.m_alphaObject * 100));
 	m_ui.alphaObjectsSpinBox->setValue(value);
 	m_ui.alphaObjectsSlider->setValue(value);
@@ -310,6 +333,7 @@ void ToolBarRenderSettings::blockAllSignals(bool block)
 	m_ui.falseColorSpinBox->blockSignals(block);
 	m_ui.falseColorSlider->blockSignals(block);
 	m_ui.spinBox_pointSize->blockSignals(block);
+	m_ui.comboBox_gapFillingStrength->blockSignals(block);
 	m_ui.contrastSaturationSpinBox->blockSignals(block);
 	m_ui.contrastSaturationSlider->blockSignals(block);
 	m_ui.alphaObjectsSpinBox->blockSignals(block);
@@ -473,6 +497,12 @@ void ToolBarRenderSettings::slotTransparencyValueChanged(int value)
 void ToolBarRenderSettings::slotSetPointSize(int pointSize)
 {
     m_dataDispatcher.sendControl(new control::application::SetRenderPointSize(pointSize, m_focusCamera));
+}
+
+void ToolBarRenderSettings::slotSetTexelThreshold(int index)
+{
+	int texelThreshold = m_ui.comboBox_gapFillingStrength->itemData(index).toInt();
+	m_dataDispatcher.updateInformation(new GuiDataRenderTexelThreshold(texelThreshold, m_focusCamera), this);
 }
 
 void ToolBarRenderSettings::slotSetRenderMode(int mode)

@@ -203,6 +203,7 @@
 #define Key_Rendering_Mode				"RenderingMode"
 #define Key_Background_Color			"BackgroundColor"
 #define Key_Point_Size					"PointSize"
+#define Key_Texel_Threshold				"TexelThreshold"
 #define Key_Delta_Filling				"DeltaFilling"
 
 #define Key_Contrast					"Contrast"
