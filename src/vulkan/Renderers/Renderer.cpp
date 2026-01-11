@@ -859,10 +859,16 @@ void Renderer::drawPoints(const TlScanDrawInfo &_drawInfo, const VkUniformOffset
     uint32_t offsets[] = { viewProjUni, _drawInfo.modelUni, };
     h_pfn->vkCmdBindDescriptorSets(_cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 1, &m_descSet, 2, offsets);
 
+    float lastPointSize = -1.0f;
     for (const TlCellDrawInfo& cellDrawInfo : _drawInfo.cellDrawInfo)
     {
+        if (cellDrawInfo.pointSize != lastPointSize)
+        {
+            setConstantPointSize(cellDrawInfo.pointSize, _cmdBuffer);
+            lastPointSize = cellDrawInfo.pointSize;
+        }
         bindVertexBuffers(_cmdBuffer, _renderMode, _drawInfo.format, cellDrawInfo);
-        
+
         // Draw
         h_pfn->vkCmdDraw(_cmdBuffer, cellDrawInfo.vertexCount, 1, 0, cellDrawInfo.cellIndex);
     }
@@ -886,10 +892,16 @@ void Renderer::drawPointsClipping(const TlScanDrawInfo &_drawInfo, const VkUnifo
     h_pfn->vkCmdBindDescriptorSets(_cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout_cb, 0, 1, &m_descSet_cb, 4, offsets);
 
     bool showWarningMsg = false;
+    float lastPointSize = -1.0f;
     uint32_t maxConcurrentClipping = 0;
     for (const TlCellDrawInfo_multiCB& cellDraw : _drawInfo.cellDrawInfoCB)
     {
-        TlCellDrawInfo castCellDraw{ cellDraw.buffer, cellDraw.cellIndex, cellDraw.vertexCount, cellDraw.m_iOffset, cellDraw.m_rgbOffset };
+        if (cellDraw.pointSize != lastPointSize)
+        {
+            setConstantPointSize(cellDraw.pointSize, _cmdBuffer);
+            lastPointSize = cellDraw.pointSize;
+        }
+        TlCellDrawInfo castCellDraw{ cellDraw.buffer, cellDraw.cellIndex, cellDraw.vertexCount, cellDraw.m_iOffset, cellDraw.m_rgbOffset, cellDraw.pointSize };
         bindVertexBuffers(_cmdBuffer, _renderMode, _drawInfo.format, castCellDraw);
 
         // Prepare the clipping indexes for the geometry shader

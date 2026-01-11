@@ -404,6 +404,40 @@ namespace control::application
         return  (ControlType::setRenderPointSize);
     }
 
+    /*
+    ** SetRenderAdaptivePointSizeMode
+    */
+
+    SetRenderAdaptivePointSizeMode::SetRenderAdaptivePointSizeMode(AdaptivePointSizeMode mode, SafePtr<CameraNode> camera)
+        : m_mode(mode)
+        , m_camera(camera)
+    {
+    }
+
+    SetRenderAdaptivePointSizeMode::~SetRenderAdaptivePointSizeMode()
+    {
+    }
+
+    void SetRenderAdaptivePointSizeMode::doFunction(Controller& controller)
+    {
+        controller.getContext().setRenderAdaptivePointSizeMode(m_mode);
+        controller.updateInfo(new GuiDataRenderAdaptivePointSize(m_mode, m_camera));
+    }
+
+    bool SetRenderAdaptivePointSizeMode::canUndo() const
+    {
+        return (false);
+    }
+
+    void SetRenderAdaptivePointSizeMode::undoFunction(Controller& controller)
+    {
+    }
+
+    ControlType SetRenderAdaptivePointSizeMode::getType() const
+    {
+        return (ControlType::setRenderAdaptivePointSize);
+    }
+
 
     /*
     ** SetExamineCentering

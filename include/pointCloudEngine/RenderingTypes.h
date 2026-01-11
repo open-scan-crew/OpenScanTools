@@ -21,6 +21,39 @@ enum class UiRenderMode
     UiRenderMode_MaxEnum
 };
 
+enum class AdaptivePointSizeMode
+{
+    Off,
+    Low,
+    Mid,
+    High,
+    VeryHigh,
+    AdaptivePointSizeMode_MaxEnum
+};
+
+inline float getAdaptivePointSizeMaxFactor(AdaptivePointSizeMode mode)
+{
+    switch (mode)
+    {
+    case AdaptivePointSizeMode::Low:
+        return 2.0f;
+    case AdaptivePointSizeMode::Mid:
+        return 3.0f;
+    case AdaptivePointSizeMode::High:
+        return 5.0f;
+    case AdaptivePointSizeMode::VeryHigh:
+        return 8.0f;
+    case AdaptivePointSizeMode::Off:
+    default:
+        return 1.0f;
+    }
+}
+
+inline bool isAdaptivePointSizeEnabled(AdaptivePointSizeMode mode)
+{
+    return mode != AdaptivePointSizeMode::Off;
+}
+
 enum RenderMode
 {
     Intensity,

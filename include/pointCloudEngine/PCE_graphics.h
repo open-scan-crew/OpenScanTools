@@ -21,6 +21,7 @@ struct TlCellDrawInfo
     uint32_t vertexCount;
     uint32_t m_iOffset = 0;
     uint32_t m_rgbOffset = 0;
+    float pointSize = 1.0f;
 };
 
 struct TlCellDrawInfo_multiCB
@@ -30,6 +31,7 @@ struct TlCellDrawInfo_multiCB
     uint32_t vertexCount;
     uint32_t m_iOffset = 0;
     uint32_t m_rgbOffset = 0;
+    float pointSize = 1.0f;
     std::vector<ClippingGpuId> clippingGpuIds;
 };
 
@@ -54,6 +56,7 @@ struct TlProjectionInfo
     float octreePointSize = 1.f;
     float decimationRatio = 1.f;
     float deltaFilling = 0.f;
+    float adaptivePointSizeMaxFactor = 1.0f;
 };
 
 #endif

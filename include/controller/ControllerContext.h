@@ -48,6 +48,7 @@ public:
 	const std::wstring& getActiveDiscipline() const;
 	const std::wstring& getActivePhase() const;
 	float getRenderPointSize() const;
+	AdaptivePointSizeMode getRenderAdaptivePointSizeMode() const;
 	Color32 getActiveBackgroundColor();
 	Color32 getNextBackgroundColor();
 	void setUserBackgroundColor(const Color32& color, const uint32_t& position);
@@ -121,6 +122,7 @@ public:
 	void setTemporaryPath(const std::filesystem::path& path);
 	void setProjectsPath(const std::filesystem::path& path);
 	void setRenderPointSize(float pointSize);
+	void setRenderAdaptivePointSizeMode(AdaptivePointSizeMode mode);
 
 	void setRecentProjects(std::vector<std::pair<std::filesystem::path, time_t>> projects);
 	void setIndexationMethod(IndexationMethod method);
@@ -154,6 +156,7 @@ private:
 	uint32_t m_currentBackgroundColor;
 	DecimationOptions m_decimationOptions;
 	float m_renderPointSize;
+	AdaptivePointSizeMode m_renderAdaptivePointSizeMode = AdaptivePointSizeMode::Off;
 	std::vector<Color32> m_backgroundColors;
 
 	std::unordered_set<SafePtr<Author>> m_localAuthors;

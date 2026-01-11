@@ -34,6 +34,7 @@ enum class ControlType
 	setUserColor, //Free
     setDecimationOptions, //Free
     setRenderPointSize, //Free
+	setRenderAdaptivePointSize, //Free
 	setExamineOptions, //Free
 	setFramelessMode, //Free
 	setGizmoParameters, //Free

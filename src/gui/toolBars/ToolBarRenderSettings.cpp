@@ -53,6 +53,12 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 	connect(m_ui.comboBox_renderMode,QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarRenderSettings::slotSetRenderMode);
 
 	connect(m_ui.spinBox_pointSize, qOverload<int>(&QSpinBox::valueChanged), this, &ToolBarRenderSettings::slotSetPointSize);
+	m_ui.comboBox_adaptativePointSize->addItem(tr("Off"), static_cast<int>(AdaptivePointSizeMode::Off));
+	m_ui.comboBox_adaptativePointSize->addItem(tr("Low"), static_cast<int>(AdaptivePointSizeMode::Low));
+	m_ui.comboBox_adaptativePointSize->addItem(tr("Mid"), static_cast<int>(AdaptivePointSizeMode::Mid));
+	m_ui.comboBox_adaptativePointSize->addItem(tr("High"), static_cast<int>(AdaptivePointSizeMode::High));
+	m_ui.comboBox_adaptativePointSize->addItem(tr("Very High"), static_cast<int>(AdaptivePointSizeMode::VeryHigh));
+	connect(m_ui.comboBox_adaptativePointSize, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarRenderSettings::slotSetAdaptivePointSize);
 
 	connect(m_ui.pushButton_color, &QPushButton::clicked, this, &ToolBarRenderSettings::slotColorPicking);
 
@@ -94,6 +100,7 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 	registerGuiDataFunction(guiDType::renderLuminance, &ToolBarRenderSettings::onRenderLuminance);
 	registerGuiDataFunction(guiDType::renderBlending, &ToolBarRenderSettings::onRenderBlending);
 	registerGuiDataFunction(guiDType::renderPointSize, &ToolBarRenderSettings::onRenderPointSize);
+	registerGuiDataFunction(guiDType::renderAdaptivePointSize, &ToolBarRenderSettings::onRenderAdaptivePointSize);
         registerGuiDataFunction(guiDType::renderSaturation, &ToolBarRenderSettings::onRenderSaturation);
         
         registerGuiDataFunction(guiDType::renderValueDisplay, &ToolBarRenderSettings::onRenderUnitUsage);
@@ -171,6 +178,18 @@ void ToolBarRenderSettings::onRenderPointSize(IGuiData* idata)
 		m_ui.spinBox_pointSize->blockSignals(true);
 	    m_ui.spinBox_pointSize->setValue(data->m_pointSize);
 		m_ui.spinBox_pointSize->blockSignals(false);
+	}
+}
+
+void ToolBarRenderSettings::onRenderAdaptivePointSize(IGuiData* idata)
+{
+	GuiDataRenderAdaptivePointSize* data = static_cast<GuiDataRenderAdaptivePointSize*>(idata);
+	int targetIndex = m_ui.comboBox_adaptativePointSize->findData(static_cast<int>(data->m_mode));
+	if (targetIndex >= 0 && m_ui.comboBox_adaptativePointSize->currentIndex() != targetIndex)
+	{
+		m_ui.comboBox_adaptativePointSize->blockSignals(true);
+		m_ui.comboBox_adaptativePointSize->setCurrentIndex(targetIndex);
+		m_ui.comboBox_adaptativePointSize->blockSignals(false);
 	}
 }
 void ToolBarRenderSettings::onRenderSaturation(IGuiData* idata) 
@@ -256,6 +275,9 @@ void ToolBarRenderSettings::onActiveCamera(IGuiData* idata)
 
 	if (displayParameters.m_pointSize != m_ui.spinBox_pointSize->value())
 		m_ui.spinBox_pointSize->setValue(displayParameters.m_pointSize);
+	int adaptiveIndex = m_ui.comboBox_adaptativePointSize->findData(static_cast<int>(displayParameters.m_adaptivePointSizeMode));
+	if (adaptiveIndex >= 0)
+		m_ui.comboBox_adaptativePointSize->setCurrentIndex(adaptiveIndex);
 
 	int value(100 - (int)(displayParameters.m_alphaObject * 100));
 	m_ui.alphaObjectsSpinBox->setValue(value);
@@ -310,6 +332,7 @@ void ToolBarRenderSettings::blockAllSignals(bool block)
 	m_ui.falseColorSpinBox->blockSignals(block);
 	m_ui.falseColorSlider->blockSignals(block);
 	m_ui.spinBox_pointSize->blockSignals(block);
+	m_ui.comboBox_adaptativePointSize->blockSignals(block);
 	m_ui.contrastSaturationSpinBox->blockSignals(block);
 	m_ui.contrastSaturationSlider->blockSignals(block);
 	m_ui.alphaObjectsSpinBox->blockSignals(block);
@@ -473,6 +496,15 @@ void ToolBarRenderSettings::slotTransparencyValueChanged(int value)
 void ToolBarRenderSettings::slotSetPointSize(int pointSize)
 {
     m_dataDispatcher.sendControl(new control::application::SetRenderPointSize(pointSize, m_focusCamera));
+}
+
+void ToolBarRenderSettings::slotSetAdaptivePointSize(int index)
+{
+	QVariant modeData = m_ui.comboBox_adaptativePointSize->itemData(index);
+	if (!modeData.isValid())
+		return;
+	auto mode = static_cast<AdaptivePointSizeMode>(modeData.toInt());
+	m_dataDispatcher.sendControl(new control::application::SetRenderAdaptivePointSizeMode(mode, m_focusCamera));
 }
 
 void ToolBarRenderSettings::slotSetRenderMode(int mode)
