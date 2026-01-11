@@ -7,6 +7,7 @@
 
 #include <cmath>
 #include <qcolordialog.h>
+#include <QSignalBlocker>
 
 #include "models/graph/CameraNode.h"
 
@@ -131,6 +132,8 @@ void ToolBarRenderSettings::informData(IGuiData *data)
 void ToolBarRenderSettings::onRenderBrightness(IGuiData* idata)
 {
 	GuiDataRenderBrightness* data = static_cast<GuiDataRenderBrightness*>(idata);
+	const QSignalBlocker spinBlocker(m_ui.brightnessLuminanceSpinBox);
+	const QSignalBlocker sliderBlocker(m_ui.brightnessLuminanceSlider);
 	m_ui.brightnessLuminanceSpinBox->setValue(data->m_brightness);
 	m_ui.brightnessLuminanceSlider->setValue(data->m_brightness);
 }
@@ -138,6 +141,8 @@ void ToolBarRenderSettings::onRenderBrightness(IGuiData* idata)
 void ToolBarRenderSettings::onRenderContrast(IGuiData* idata)
 {
 	GuiDataRenderContrast* data = static_cast<GuiDataRenderContrast*>(idata);
+	const QSignalBlocker spinBlocker(m_ui.contrastSaturationSpinBox);
+	const QSignalBlocker sliderBlocker(m_ui.contrastSaturationSlider);
 	m_ui.contrastSaturationSpinBox->setValue(data->m_contrast);
 	m_ui.contrastSaturationSlider->setValue(data->m_contrast);
 }
@@ -152,6 +157,8 @@ void ToolBarRenderSettings::onRenderColorMode(IGuiData* idata)
 void ToolBarRenderSettings::onRenderLuminance(IGuiData* idata)
 {
 	GuiDataRenderLuminance* data = static_cast<GuiDataRenderLuminance*>(idata);
+	const QSignalBlocker spinBlocker(m_ui.brightnessLuminanceSpinBox);
+	const QSignalBlocker sliderBlocker(m_ui.brightnessLuminanceSlider);
 	m_ui.brightnessLuminanceSpinBox->setValue(data->m_luminance);
 	m_ui.brightnessLuminanceSlider->setValue(data->m_luminance);
 }
@@ -176,6 +183,8 @@ void ToolBarRenderSettings::onRenderPointSize(IGuiData* idata)
 void ToolBarRenderSettings::onRenderSaturation(IGuiData* idata) 
 {
 	GuiDataRenderSaturation* data = static_cast<GuiDataRenderSaturation*>(idata);
+	const QSignalBlocker spinBlocker(m_ui.contrastSaturationSpinBox);
+	const QSignalBlocker sliderBlocker(m_ui.contrastSaturationSlider);
 	m_ui.contrastSaturationSpinBox->setValue(data->m_saturation);
 	m_ui.contrastSaturationSlider->setValue(data->m_saturation);
 }
