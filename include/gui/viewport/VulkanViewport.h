@@ -141,6 +141,7 @@ public:
     void updateRenderingNecessityState(WritePtr<CameraNode>& writeCamera, bool& refreshPCRender);
     bool compareFrameHash(uint64_t newFrameHash);
     float decimatePointSize(bool refreshPCRender);
+	float getOctreePrecisionMultiplier() const;
     void recordFrameStats(const FrameStats& stats);
     uint64_t getPreviousPointDrawnCount() const;
     void setPreviousRenderTime(float totalRenderTime);
@@ -180,6 +181,7 @@ protected:
     void onProjectOrientation(IGuiData* data); // FIXME - Move to CameraNode
     void onQuitEvent(IGuiData* data);
     void onRenderDecimationOptions(IGuiData* data);
+	void onRenderOctreePrecision(IGuiData* data);
 
 private:
     void initSurface();
@@ -259,6 +261,7 @@ private:
 
     // Only used in the render loop --> synchronized
     DecimationOptions m_decimationOptions;
+	OctreePrecision m_octreePrecision = OctreePrecision::Normal;
     bool m_refreshViewport = false;
     bool m_updateScansFullRender = false;
     bool m_previousRenderDecimated = false; // NEW //

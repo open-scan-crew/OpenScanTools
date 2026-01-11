@@ -63,6 +63,7 @@ VulkanViewport::VulkanViewport(IDataDispatcher& dataDispatcher, float guiScale)
     registerGuiDataFunction(guiDType::projectOrientation, &VulkanViewport::onProjectOrientation);
     registerGuiDataFunction(guiDType::quitEvent, &VulkanViewport::onQuitEvent);
     registerGuiDataFunction(guiDType::renderDecimationOptions, &VulkanViewport::onRenderDecimationOptions);
+	registerGuiDataFunction(guiDType::renderOctreePrecision, &VulkanViewport::onRenderOctreePrecision);
 }
 
 VulkanViewport::~VulkanViewport()
@@ -162,6 +163,12 @@ void VulkanViewport::onQuitEvent(IGuiData* data)
 void VulkanViewport::onRenderDecimationOptions(IGuiData* data)
 {
     m_decimationOptions = static_cast<GuiDataRenderDecimationOptions*>(data)->m_options;
+}
+
+void VulkanViewport::onRenderOctreePrecision(IGuiData* data)
+{
+	m_octreePrecision = static_cast<GuiDataRenderOctreePrecision*>(data)->m_precision;
+	m_refreshViewport = true;
 }
 
 void VulkanViewport::initSurface()
@@ -1221,6 +1228,11 @@ float VulkanViewport::decimatePointSize(bool refreshPCRender)
         return (decimation_n0);
     }
     return 1.f;
+}
+
+float VulkanViewport::getOctreePrecisionMultiplier() const
+{
+	return ::getOctreePrecisionMultiplier(m_octreePrecision);
 }
 
 void VulkanViewport::recordFrameStats(const FrameStats& _stats)

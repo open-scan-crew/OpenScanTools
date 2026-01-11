@@ -451,12 +451,23 @@ guiDType GuiDataRenderUnitUsage::getType()
 /*** Decimation Options ***/
 
 GuiDataRenderDecimationOptions::GuiDataRenderDecimationOptions(DecimationOptions _options)
-	: m_options(_options)
+    : m_options(_options)
 {}
 
 guiDType GuiDataRenderDecimationOptions::getType()
 {
     return guiDType::renderDecimationOptions;
+}
+
+/*** Octree Precision ***/
+
+GuiDataRenderOctreePrecision::GuiDataRenderOctreePrecision(OctreePrecision precision)
+	: m_precision(precision)
+{}
+
+guiDType GuiDataRenderOctreePrecision::getType()
+{
+	return guiDType::renderOctreePrecision;
 }
 
 /*** Navigation Constraint ***/

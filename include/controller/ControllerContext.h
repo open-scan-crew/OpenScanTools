@@ -53,6 +53,8 @@ public:
 	void setUserBackgroundColor(const Color32& color, const uint32_t& position);
 	DecimationOptions getDecimationOptions();
 	void setDecimationOptions(const DecimationOptions& options);
+	OctreePrecision getOctreePrecision() const;
+	void setOctreePrecision(const OctreePrecision precision);
 	scs::MarkerIcon getActiveIcon() const;
 	bool getShowClusterColors() const;
 	void setShowClusterColors(bool show);
@@ -153,6 +155,7 @@ private:
 	bool m_isCurrentProjectSaved = true;
 	uint32_t m_currentBackgroundColor;
 	DecimationOptions m_decimationOptions;
+	OctreePrecision m_octreePrecision = OctreePrecision::Normal;
 	float m_renderPointSize;
 	std::vector<Color32> m_backgroundColors;
 
