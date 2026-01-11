@@ -393,6 +393,12 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
         retVal = false;
     }
 
+    if (json.find(Key_Adaptive_Point_Size) != json.end())
+    {
+        auto mode = magic_enum::enum_cast<AdaptivePointSizeMode>(json.at(Key_Adaptive_Point_Size).get<std::string>());
+        data.m_adaptivePointSizeMode = (mode.has_value() ? mode.value() : AdaptivePointSizeMode::Off);
+    }
+
     if (json.find(Key_Delta_Filling) != json.end())
     {
         data.m_deltaFilling = json.at(Key_Delta_Filling).get<float>();

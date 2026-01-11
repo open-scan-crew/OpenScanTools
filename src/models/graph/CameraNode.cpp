@@ -45,6 +45,7 @@ CameraNode::CameraNode(const std::wstring& name, IDataDispatcher& dataDispatcher
 
     registerGuiDataFunction(guiDType::renderColorMode, &CameraNode::onRenderColorMode);
     registerGuiDataFunction(guiDType::renderPointSize, &CameraNode::onRenderPointSize);
+    registerGuiDataFunction(guiDType::renderAdaptivePointSize, &CameraNode::onRenderAdaptivePointSize);
     registerGuiDataFunction(guiDType::renderBrightness, &CameraNode::onRenderBrightness);
     registerGuiDataFunction(guiDType::renderContrast, &CameraNode::onRenderContrast);
     registerGuiDataFunction(guiDType::renderLuminance, &CameraNode::onRenderLuminance);
@@ -1352,6 +1353,11 @@ void CameraNode::onRenderColorMode(IGuiData* data)
 void CameraNode::onRenderPointSize(IGuiData* data)
 {
     m_pointSize = static_cast<GuiDataRenderPointSize*>(data)->m_pointSize;
+}
+
+void CameraNode::onRenderAdaptivePointSize(IGuiData* data)
+{
+    m_adaptivePointSizeMode = static_cast<GuiDataRenderAdaptivePointSize*>(data)->m_mode;
 }
 
 void CameraNode::onRenderBrightness(IGuiData* data)

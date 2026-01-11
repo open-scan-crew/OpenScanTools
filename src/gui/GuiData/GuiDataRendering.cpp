@@ -163,6 +163,18 @@ guiDType GuiDataRenderPointSize::getType()
     return guiDType::renderPointSize;
 }
 
+//*** Adaptive Point Size ***//
+GuiDataRenderAdaptivePointSize::GuiDataRenderAdaptivePointSize(AdaptivePointSizeMode mode, SafePtr<CameraNode> camera)
+	: GuiDataActiveCamera(camera)
+	, m_mode(mode)
+{
+}
+
+guiDType GuiDataRenderAdaptivePointSize::getType()
+{
+	return guiDType::renderAdaptivePointSize;
+}
+
 //*** Brightness ***//
 GuiDataRenderBrightness::GuiDataRenderBrightness(int _brightness, SafePtr<CameraNode> camera)
 	: GuiDataActiveCamera(camera)

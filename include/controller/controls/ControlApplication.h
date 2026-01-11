@@ -163,6 +163,20 @@ namespace control::application
         SafePtr<CameraNode> m_camera;
     };
 
+    class SetRenderAdaptivePointSizeMode : public AControl
+    {
+    public:
+        SetRenderAdaptivePointSizeMode(AdaptivePointSizeMode mode, SafePtr<CameraNode> camera);
+        ~SetRenderAdaptivePointSizeMode();
+        void doFunction(Controller& controller) override;
+        bool canUndo() const override;
+        void undoFunction(Controller& controller) override;
+        ControlType getType() const override;
+    private:
+        const AdaptivePointSizeMode m_mode;
+        SafePtr<CameraNode> m_camera;
+    };
+
     class SetExamineOptions : public AControl
     {
     public:

@@ -39,6 +39,7 @@ static const std::unordered_map<ControlType, std::unordered_set<LicenceVersion>>
 	{ControlType::setUserColor, {LicenceVersion::Free}},
 	{ControlType::setDecimationOptions, {LicenceVersion::Free}},
 	{ControlType::setRenderPointSize, {LicenceVersion::Free}},
+	{ControlType::setRenderAdaptivePointSize, {LicenceVersion::Free}},
 	{ControlType::setExamineOptions, {LicenceVersion::Free}},
 	{ControlType::setFramelessMode, {LicenceVersion::Free}},
 	{ControlType::setGizmoParameters, {LicenceVersion::Free}},
