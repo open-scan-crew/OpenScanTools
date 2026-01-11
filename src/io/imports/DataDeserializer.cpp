@@ -393,6 +393,15 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
         retVal = false;
     }
 
+    if (json.find(Key_Texel_Threshold) != json.end())
+    {
+        data.m_texelThreshold = json.at(Key_Texel_Threshold).get<int>();
+    }
+    else
+    {
+        data.m_texelThreshold = 4;
+    }
+
     if (json.find(Key_Delta_Filling) != json.end())
     {
         data.m_deltaFilling = json.at(Key_Delta_Filling).get<float>();

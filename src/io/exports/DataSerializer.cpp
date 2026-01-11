@@ -345,6 +345,7 @@ void ExportRenderingParameters(nlohmann::json& json, const RenderingParameters& 
 	json[Key_Rendering_Mode] = magic_enum::enum_name(params.m_mode);
 	json[Key_Background_Color] = { params.m_backgroundColor.Red(), params.m_backgroundColor.Green(), params.m_backgroundColor.Blue() };
 	json[Key_Point_Size] = params.m_pointSize;
+	json[Key_Texel_Threshold] = params.m_texelThreshold;
 	json[Key_Delta_Filling] = params.m_deltaFilling;
 	
 	json[Key_Contrast] = params.m_contrast;
