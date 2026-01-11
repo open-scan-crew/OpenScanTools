@@ -17,6 +17,7 @@
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ScreenshotTexts.hpp"
 #include "gui/UnitConverter.h"
+#include "utils/Config.h"
 
 #include "io/ImageWriter.h"
 #include "io/exports/CSVWriter.hxx"
@@ -714,6 +715,8 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
     // The rendering necissities must be validated
     viewport.updateRenderingNecessityState(wCamera, refreshPCRender);
     float decimationRatio = viewport.decimatePointSize(refreshPCRender);
+    if (decimationRatio > 0.f)
+        decimationRatio *= viewport.getOctreePrecisionMultiplier();
     visitor.setDecimationRatio(decimationRatio);
 
     std::chrono::steady_clock::time_point tp_scans = std::chrono::steady_clock::now();
@@ -863,6 +866,8 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
     // Dynamic rendering variables
     const bool transparencyForcesFullTraversal = (displayParam.m_transparency > 0) && (displayParam.m_blendMode == BlendMode::Transparent);
     float decimationRatio = (transparencyForcesFullTraversal || fullResolutionTraversal) ? 0.f : 1.f;  // no decimation (0.0) with transparency or explicit full traversal
+	if (decimationRatio > 0.f)
+		decimationRatio *= getOctreePrecisionMultiplier(Config::getOctreePrecision());
 
     resetDrawBuffers(framebuffer);
     // Visitors
