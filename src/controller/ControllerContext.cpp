@@ -603,6 +603,16 @@ void ControllerContext::setDecimationOptions(const DecimationOptions& options)
     m_decimationOptions = options;
 }
 
+OctreePrecision ControllerContext::getOctreePrecision() const
+{
+	return m_octreePrecision;
+}
+
+void ControllerContext::setOctreePrecision(const OctreePrecision precision)
+{
+	m_octreePrecision = precision;
+}
+
 Color32 ControllerContext::getNextBackgroundColor()
 {
 	if (!m_backgroundColors.empty())

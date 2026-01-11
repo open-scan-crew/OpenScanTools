@@ -456,6 +456,16 @@ public:
     const DecimationOptions m_options;
 };
 
+class GuiDataRenderOctreePrecision : public IGuiData
+{
+public:
+	GuiDataRenderOctreePrecision(OctreePrecision precision);
+	~GuiDataRenderOctreePrecision() {}
+	guiDType getType() override;
+public:
+	const OctreePrecision m_precision;
+};
+
 class GuiDataRenderNavigationConstraint : public GuiDataActiveCamera
 {
 public:

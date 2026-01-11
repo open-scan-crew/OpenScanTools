@@ -33,6 +33,7 @@ enum class ControlType
 	setFFmpegFolder, //Free
 	setUserColor, //Free
     setDecimationOptions, //Free
+	setOctreePrecision, //Free
     setRenderPointSize, //Free
 	setExamineOptions, //Free
 	setFramelessMode, //Free

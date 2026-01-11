@@ -57,6 +57,8 @@ namespace Config
 
     DecimationOptions getDecimationOptions();
     bool setDecimationOptions(const DecimationOptions& options);
+	OctreePrecision getOctreePrecision();
+	bool setOctreePrecision(const OctreePrecision precision);
 
     bool getMaximizedFrameless();
     bool setMaximizedFrameless(bool value);

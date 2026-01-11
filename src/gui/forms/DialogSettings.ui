@@ -795,19 +795,6 @@
          </layout>
         </widget>
        </item>
-       <item row="8" column="2">
-        <spacer name="verticalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>0</width>
-           <height>0</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
        <item row="4" column="2" colspan="3">
         <widget class="QPushButton" name="pushButton_color">
          <property name="sizePolicy">
@@ -840,6 +827,45 @@
           <string>Gizmo Configuration</string>
          </property>
         </widget>
+       </item>
+       <item row="8" column="2">
+        <widget class="QLabel" name="labelOctreePrecision">
+         <property name="text">
+          <string>Octree precision</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="3">
+        <widget class="QComboBox" name="comboBox_octreePrecision">
+         <item>
+          <property name="text">
+           <string>Analysis</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Normal</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Performances</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="9" column="2">
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
        </item>
        <item row="5" column="4">
         <widget class="QSpinBox" name="manipulatorSizeSpinBox">
@@ -970,6 +996,7 @@
   <tabstop>pushButton_color</tabstop>
   <tabstop>manipulatorSizeSlider</tabstop>
   <tabstop>manipulatorSizeSpinBox</tabstop>
+  <tabstop>comboBox_octreePrecision</tabstop>
   <tabstop>toolButtonGuizmo</tabstop>
   <tabstop>okButton</tabstop>
  </tabstops>

@@ -371,6 +371,44 @@ namespace control::application
         return  (ControlType::setDecimationOptions);
     }
 
+	/*
+	** SetOctreePrecision
+	*/
+
+	SetOctreePrecision::SetOctreePrecision(const OctreePrecision precision, const bool& set, const bool& save)
+		: m_precision(precision)
+		, m_save(save)
+		, m_set(set)
+	{
+	}
+
+	SetOctreePrecision::~SetOctreePrecision()
+	{
+	}
+
+	void SetOctreePrecision::doFunction(Controller& controller)
+	{
+		controller.getContext().setOctreePrecision(m_precision);
+		if (m_save && !Config::setOctreePrecision(m_precision))
+			controller.updateInfo(new GuiDataWarning(TEXT_SETTINGS_FAILED_TO_SAVE));
+		if (m_set)
+			controller.updateInfo(new GuiDataRenderOctreePrecision(m_precision));
+	}
+
+	bool SetOctreePrecision::canUndo() const
+	{
+		return (false);
+	}
+
+	void SetOctreePrecision::undoFunction(Controller& controller)
+	{
+	}
+
+	ControlType SetOctreePrecision::getType() const
+	{
+		return  (ControlType::setOctreePrecision);
+	}
+
     /*
     ** SetRenderPointSize
     */
