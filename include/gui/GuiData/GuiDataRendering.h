@@ -167,6 +167,17 @@ public:
     float m_pointSize;
 };
 
+class GuiDataRenderTexelThreshold : public GuiDataActiveCamera
+{
+public:
+    GuiDataRenderTexelThreshold(int texelThreshold, SafePtr<CameraNode> camera);
+    ~GuiDataRenderTexelThreshold() {};
+    virtual guiDType getType() override;
+
+public:
+    int m_texelThreshold;
+};
+
 class GuiDataRenderBrightness : public GuiDataActiveCamera
 {
 public:
