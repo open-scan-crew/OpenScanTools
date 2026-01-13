@@ -92,6 +92,10 @@ bool E57FileReader::getData3dInfo(uint32_t _id, tls::ScanHeader& _info, std::str
             return false;
 
         e57::StructureNode dataSet(data3D.get(_id));
+        const bool hasPoseTranslation = dataSet.isDefined("pose/translation");
+        if (_id >= m_hasPoseTranslation.size())
+            m_hasPoseTranslation.resize(_id + 1, false);
+        m_hasPoseTranslation[_id] = hasPoseTranslation;
 
         // Get the name of the Scan(optional in e57)
         if (dataSet.isDefined("name"))
@@ -148,8 +152,8 @@ bool E57FileReader::getData3dInfo(uint32_t _id, tls::ScanHeader& _info, std::str
         }
         else
         {
-            _info.limits = { (float)_info.transfo.translation[0], (float)_info.transfo.translation[0], 
-                (float)_info.transfo.translation[1], (float)_info.transfo.translation[1], 
+            _info.limits = { (float)_info.transfo.translation[0], (float)_info.transfo.translation[0],
+                (float)_info.transfo.translation[1], (float)_info.transfo.translation[1],
                 (float)_info.transfo.translation[2], (float)_info.transfo.translation[2] };
         }
 
@@ -228,6 +232,13 @@ tls::ScanHeader E57FileReader::getTlsScanHeader(uint32_t scanNumber) const
         return m_scanHeaders[scanNumber];
     else
         return (tls::ScanHeader{});
+}
+
+bool E57FileReader::hasPoseTranslation(uint32_t scanNumber) const
+{
+    if (scanNumber < m_hasPoseTranslation.size())
+        return m_hasPoseTranslation[scanNumber];
+    return false;
 }
 
 bool E57FileReader::startReadingScan(uint32_t scanNumber)

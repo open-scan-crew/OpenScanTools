@@ -10,6 +10,7 @@
 #include "controller/ControllerContext.h"
 #include "controller/IControlListener.h"
 #include "io/SaveLoadSystem.h"
+#include "io/imports/E57FileReader.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataIO.h"
 #include "gui/GuiData/GuiData3dObjects.h"
@@ -109,7 +110,24 @@ ContextState ContextConvertionScan::feedMessage(IMessage* message, Controller& c
                 maskType |= ConvertionOptionsBox::BoxOptions::AUTO_RENAMING_MULTISCAN;
     
             for (const tls::ScanHeader& header : headers)
-                m_importScanPosition.push_back(glm::dvec3(header.transfo.translation[0], header.transfo.translation[1], header.transfo.translation[2]));
+            {
+                const auto& limits = header.limits;
+                bool hasLimits = (limits.xMin != limits.xMax) || (limits.yMin != limits.yMax) || (limits.zMin != limits.zMax);
+                if (hasLimits)
+                {
+                    m_importScanPosition.push_back(glm::dvec3(
+                        (limits.xMin + limits.xMax) / 2.0,
+                        (limits.yMin + limits.yMax) / 2.0,
+                        (limits.zMin + limits.zMax) / 2.0));
+                }
+                else
+                {
+                    m_importScanPosition.push_back(glm::dvec3(
+                        header.transfo.translation[0],
+                        header.transfo.translation[1],
+                        header.transfo.translation[2]));
+                }
+            }
 
             switch (FileUtils::getType(file))
             {
@@ -397,10 +415,20 @@ bool ContextConvertionScan::convertOne(IScanFileReader* reader, uint32_t readerO
 
     // Define the metadata of the future point cloud
     outHeader.precision = outPrec;
+    if (reader->getType() == FileType::E57)
+    {
+        const E57FileReader* e57Reader = dynamic_cast<E57FileReader*>(reader);
+        if (e57Reader && !e57Reader->hasPoseTranslation(readerOffset))
+        {
+            outHeader.transfo.translation[0] = 0.0;
+            outHeader.transfo.translation[1] = 0.0;
+            outHeader.transfo.translation[2] = 0.0;
+        }
+    }
     TransformationModule transfo;
-    double* t = inHeader.transfo.translation;
+    double* t = outHeader.transfo.translation;
     transfo.setPosition(glm::dvec3(t[0], t[1], t[2]));
-    double* q = inHeader.transfo.quaternion;
+    double* q = outHeader.transfo.quaternion;
     transfo.setRotation(glm::dquat(q[3], q[0], q[1], q[2]));
 
     // Begin new point cloud in file

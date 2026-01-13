@@ -33,6 +33,7 @@ public:
 
     tls::FileHeader getTlsHeader() const override;
     tls::ScanHeader getTlsScanHeader(uint32_t scanNumber) const override;
+    bool hasPoseTranslation(uint32_t scanNumber) const;
 
 private:
     E57FileReader(const std::filesystem::path& filepath, e57::ImageFile imf);
@@ -45,6 +46,7 @@ private:
 
     tls::FileHeader m_header;
     std::vector<tls::ScanHeader> m_scanHeaders;
+    std::vector<bool> m_hasPoseTranslation;
 
     StagingBuffers m_stagingBuffers;
     CVReaderWrapper* m_cvReaderWrapper;
