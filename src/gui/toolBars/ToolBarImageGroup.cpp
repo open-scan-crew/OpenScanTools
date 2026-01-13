@@ -229,13 +229,6 @@ enum class ImageAntialiasing
 	MAX_ENUM
 };
 
-const std::map<ImageAntialiasing, QString> g_imageAntialiasingDictio = {
-	{ ImageAntialiasing::Off, "Off" },
-	{ ImageAntialiasing::Low, "Low" },
-	{ ImageAntialiasing::Mid, "Mid" },
-	{ ImageAntialiasing::High, "High" }
-};
-
 const std::unordered_map<ImageAntialiasing, int> g_imageAntialiasingSamples = {
 	{ ImageAntialiasing::Off, 1 },
 	{ ImageAntialiasing::Low, 2 },
@@ -304,10 +297,10 @@ ToolBarImageGroup::ToolBarImageGroup(IDataDispatcher& dataDispatcher, QWidget* p
 	}
 	m_ui.comboBox_dpi->setCurrentIndex((int)ImageDPI::DPI_150);
 
-	for (const auto& iterator : g_imageAntialiasingDictio)
-	{
-		m_ui.comboBox_antialiasHD->addItem(iterator.second, QVariant((int)iterator.first));
-	}
+	m_ui.comboBox_antialiasHD->addItem(tr("Off"), QVariant((int)ImageAntialiasing::Off));
+	m_ui.comboBox_antialiasHD->addItem(tr("Low"), QVariant((int)ImageAntialiasing::Low));
+	m_ui.comboBox_antialiasHD->addItem(tr("Mid"), QVariant((int)ImageAntialiasing::Mid));
+	m_ui.comboBox_antialiasHD->addItem(tr("High"), QVariant((int)ImageAntialiasing::High));
 	m_ui.comboBox_antialiasHD->setCurrentIndex((int)ImageAntialiasing::Off);
 
 	refreshShowUI();
