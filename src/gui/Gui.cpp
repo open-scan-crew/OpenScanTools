@@ -806,6 +806,7 @@ void Gui::initGeneralSettings()
     m_dataDispatcher.sendControl(new control::application::SetProjectsFolder(Config::getProjectsPath(), false));
     m_dataDispatcher.sendControl(new control::application::SetUserColor(Config::getUserColor(), 3, false, false));
     m_dataDispatcher.sendControl(new control::application::SetDecimationOptions(Config::getDecimationOptions(), true, false));
+	m_dataDispatcher.sendControl(new control::application::SetOctreePrecision(Config::getOctreePrecision(), true, false));
 	m_dataDispatcher.sendControl(new control::application::SetExamineDisplayMode(Config::getExamineDisplayMode(), false));
 	m_dataDispatcher.sendControl(new control::application::SetRecentProjects(Config::getRecentProjects(), false));
 	m_dataDispatcher.sendControl(new control::application::SetAutoSaveParameters(Config::getIsAutoSaveActive(), Config::getAutoSaveTiming(), false));
