@@ -148,9 +148,16 @@ bool E57FileReader::getData3dInfo(uint32_t _id, tls::ScanHeader& _info, std::str
         }
         else
         {
-            _info.limits = { (float)_info.transfo.translation[0], (float)_info.transfo.translation[0], 
-                (float)_info.transfo.translation[1], (float)_info.transfo.translation[1], 
+            _info.limits = { (float)_info.transfo.translation[0], (float)_info.transfo.translation[0],
+                (float)_info.transfo.translation[1], (float)_info.transfo.translation[1],
                 (float)_info.transfo.translation[2], (float)_info.transfo.translation[2] };
+        }
+
+        if (!dataSet.isDefined("pose/translation") && dataSet.isDefined("cartesianBounds"))
+        {
+            _info.transfo.translation[0] = (_info.limits.xMin + _info.limits.xMax) / 2.0;
+            _info.transfo.translation[1] = (_info.limits.yMin + _info.limits.yMax) / 2.0;
+            _info.transfo.translation[2] = (_info.limits.zMin + _info.limits.zMax) / 2.0;
         }
 
         E57AttribFormat e57Format;
