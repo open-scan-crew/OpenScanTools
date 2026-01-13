@@ -199,7 +199,7 @@ namespace Config
 	
 	bool setLanguage(LanguageType type)
 	{
-		jsonConfig[LANG_JSON_KEY] = Translator::getLanguageQStr(type).toStdWString();
+		jsonConfig[LANG_JSON_KEY] = std::string(magic_enum::enum_name(type));
 		return saveConfigFile(filePath);
 	}
 
