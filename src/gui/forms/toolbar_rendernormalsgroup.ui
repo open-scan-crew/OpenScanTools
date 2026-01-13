@@ -14,7 +14,7 @@
    <string>RenderSettings</string>
   </property>
   <property name="toolTip">
-   <string>Two types of normals are available: normal type 1 (greyed out), normal type 2 (ticked).</string>
+   <string/>
   </property>
   <layout class="QGridLayout" name="gridLayout_4">
    <property name="leftMargin">

@@ -132,6 +132,12 @@
    </item>
    <item row="1" column="6">
     <widget class="QSlider" name="slider_depthLiningSensitivity">
+     <property name="minimumSize">
+      <size>
+       <width>80</width>
+       <height>0</height>
+      </size>
+     </property>
      <property name="minimum">
       <number>0</number>
      </property>

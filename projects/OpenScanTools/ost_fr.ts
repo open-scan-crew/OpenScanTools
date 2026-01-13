@@ -7721,6 +7721,26 @@ Attention : vous ne pouvez pas annuler cette action.</translation>
         <source>Format:</source>
         <translation>Format:</translation>
     </message>
+    <message>
+        <location filename="../../src/gui/toolBars/ToolBarImageGroup.cpp" line="300"/>
+        <source>Off</source>
+        <translation type="unfinished">Off</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/toolBars/ToolBarImageGroup.cpp" line="301"/>
+        <source>Low</source>
+        <translation>Bas</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/toolBars/ToolBarImageGroup.cpp" line="302"/>
+        <source>Mid</source>
+        <translation>Moyen</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/toolBars/ToolBarImageGroup.cpp" line="303"/>
+        <source>High</source>
+        <translation>Elevé</translation>
+    </message>
 </context>
 <context>
     <name>ToolBarImportObjects</name>
