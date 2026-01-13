@@ -148,8 +148,8 @@ bool E57FileReader::getData3dInfo(uint32_t _id, tls::ScanHeader& _info, std::str
         }
         else
         {
-            _info.limits = { (float)_info.transfo.translation[0], (float)_info.transfo.translation[0], 
-                (float)_info.transfo.translation[1], (float)_info.transfo.translation[1], 
+            _info.limits = { (float)_info.transfo.translation[0], (float)_info.transfo.translation[0],
+                (float)_info.transfo.translation[1], (float)_info.transfo.translation[1],
                 (float)_info.transfo.translation[2], (float)_info.transfo.translation[2] };
         }
 

@@ -109,7 +109,24 @@ ContextState ContextConvertionScan::feedMessage(IMessage* message, Controller& c
                 maskType |= ConvertionOptionsBox::BoxOptions::AUTO_RENAMING_MULTISCAN;
     
             for (const tls::ScanHeader& header : headers)
-                m_importScanPosition.push_back(glm::dvec3(header.transfo.translation[0], header.transfo.translation[1], header.transfo.translation[2]));
+            {
+                const auto& limits = header.limits;
+                bool hasLimits = (limits.xMin != limits.xMax) || (limits.yMin != limits.yMax) || (limits.zMin != limits.zMax);
+                if (hasLimits)
+                {
+                    m_importScanPosition.push_back(glm::dvec3(
+                        (limits.xMin + limits.xMax) / 2.0,
+                        (limits.yMin + limits.yMax) / 2.0,
+                        (limits.zMin + limits.zMax) / 2.0));
+                }
+                else
+                {
+                    m_importScanPosition.push_back(glm::dvec3(
+                        header.transfo.translation[0],
+                        header.transfo.translation[1],
+                        header.transfo.translation[2]));
+                }
+            }
 
             switch (FileUtils::getType(file))
             {
