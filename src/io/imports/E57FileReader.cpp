@@ -47,6 +47,7 @@ E57FileReader::E57FileReader(const std::filesystem::path& filepath, e57::ImageFi
 
     e57::VectorNode data3D(root.get("/data3D"));
     m_header.scanCount = (uint32_t)data3D.childCount();
+    m_hasPoseTranslation.assign(m_header.scanCount, false);
 
     if (root.isDefined("/creationDateTime"))
     {
@@ -92,6 +93,7 @@ bool E57FileReader::getData3dInfo(uint32_t _id, tls::ScanHeader& _info, std::str
             return false;
 
         e57::StructureNode dataSet(data3D.get(_id));
+        m_hasPoseTranslation[_id] = dataSet.isDefined("pose/translation");
 
         // Get the name of the Scan(optional in e57)
         if (dataSet.isDefined("name"))
@@ -235,6 +237,13 @@ tls::ScanHeader E57FileReader::getTlsScanHeader(uint32_t scanNumber) const
         return m_scanHeaders[scanNumber];
     else
         return (tls::ScanHeader{});
+}
+
+bool E57FileReader::hasPoseTranslation(uint32_t scanNumber) const
+{
+    if (scanNumber < m_hasPoseTranslation.size())
+        return m_hasPoseTranslation[scanNumber];
+    return false;
 }
 
 bool E57FileReader::startReadingScan(uint32_t scanNumber)
