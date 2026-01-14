@@ -153,6 +153,13 @@ bool E57FileReader::getData3dInfo(uint32_t _id, tls::ScanHeader& _info, std::str
                 (float)_info.transfo.translation[2], (float)_info.transfo.translation[2] };
         }
 
+        if (!dataSet.isDefined("pose/translation") && dataSet.isDefined("cartesianBounds"))
+        {
+            _info.transfo.translation[0] = round((_info.limits.xMin + _info.limits.xMax) / 200) * 100;
+            _info.transfo.translation[1] = round((_info.limits.yMin + _info.limits.yMax) / 200) * 100;
+            _info.transfo.translation[2] = round((_info.limits.zMin + _info.limits.zMax) / 200) * 100;
+        }
+
         E57AttribFormat e57Format;
 
         // Format
