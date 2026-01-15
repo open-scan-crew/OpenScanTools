@@ -44,6 +44,7 @@ private:
 	};
 
 	void onProjectLoad(IGuiData* data);
+	void onProjectProperties(IGuiData* data);
 	void onFocusViewport(IGuiData* data);
 	void onActiveCamera(IGuiData* data);
 	void onCallHD(IGuiData* data);
@@ -77,6 +78,7 @@ private:
 	glm::dvec2 m_cameraOrthoSize;
 	glm::ivec2 m_viewportSize;
 	glm::ivec2 m_storePerspImageSize;
+	glm::dvec3 m_importScanTranslation = glm::dvec3(0.0);
 	SafePtr<CameraNode> m_focusCamera;
 	std::unordered_map<guiDType, ImageGroupMethod> m_guiDFunctions;
 

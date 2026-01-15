@@ -72,6 +72,7 @@ struct ImageHDMetadata
 	double imageBottomZ = 0.0;
 	glm::dvec2 imageBottomLeft = glm::dvec2(0.0);
 	glm::dvec2 imageTopRight = glm::dvec2(0.0);
+	glm::dvec3 scanTranslation = glm::dvec3(0.0);
 
 };
 

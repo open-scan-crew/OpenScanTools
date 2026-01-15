@@ -4,6 +4,7 @@
 #include "vulkan/VulkanManager.h"
 
 #include <fstream>
+#include <cmath>
 
 #include <QtGui/qimage.h>
 
@@ -116,6 +117,12 @@ bool ImageWriter::saveMetadata(const std::filesystem::path& file_path, ImageHDMe
     {
         os << "Z coordinate (m) - image bottom" << std::endl;
         os << Utils::roundFloat(metadata.imageBottomZ, 3) << std::endl;
+        if (std::abs(metadata.scanTranslation.z) > 0.0)
+        {
+            os << std::endl;
+            os << "Z original coordinate (m) - image bottom" << std::endl;
+            os << Utils::roundFloat(metadata.imageBottomZ - metadata.scanTranslation.z, 3) << std::endl;
+        }
         os << std::endl;
     }
 
@@ -125,6 +132,16 @@ bool ImageWriter::saveMetadata(const std::filesystem::path& file_path, ImageHDMe
         os << Utils::roundFloat(metadata.imageBottomLeft.x, 3) << " " << Utils::roundFloat(metadata.imageBottomLeft.y, 3) << std::endl;
         os << "XY coordinates (m), image top right" << std::endl;
         os << Utils::roundFloat(metadata.imageTopRight.x, 3) << " " << Utils::roundFloat(metadata.imageTopRight.y, 3) << std::endl;
+        if (std::abs(metadata.scanTranslation.x) > 0.0 || std::abs(metadata.scanTranslation.y) > 0.0)
+        {
+            os << std::endl;
+            os << "XY original coordinates (m), image bottom left" << std::endl;
+            os << Utils::roundFloat(metadata.imageBottomLeft.x - metadata.scanTranslation.x, 3) << " "
+               << Utils::roundFloat(metadata.imageBottomLeft.y - metadata.scanTranslation.y, 3) << std::endl;
+            os << "XY original coordinates (m), image top right" << std::endl;
+            os << Utils::roundFloat(metadata.imageTopRight.x - metadata.scanTranslation.x, 3) << " "
+               << Utils::roundFloat(metadata.imageTopRight.y - metadata.scanTranslation.y, 3) << std::endl;
+        }
         os << std::endl;
     }
 
