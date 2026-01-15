@@ -5,6 +5,7 @@
 #include "openE57.h"
 #include "io/E57Utils.h"
 #include "io/StagingBuffers.h"
+#include "glm/glm.hpp"
 
 #include <vector>
 
@@ -36,6 +37,7 @@ public:
     tls::FileHeader getTlsHeader() const override;
     tls::ScanHeader getTlsScanHeader(uint32_t scanNumber) const override;
     bool hasPoseTranslation(uint32_t scanNumber) const;
+    bool usesLocalOffsets(uint32_t scanNumber) const;
 
 private:
     E57FileReader(const std::filesystem::path& filepath, e57::ImageFile imf);
@@ -49,9 +51,12 @@ private:
     tls::FileHeader m_header;
     std::vector<tls::ScanHeader> m_scanHeaders;
     std::vector<bool> m_hasPoseTranslation;
+    std::vector<bool> m_hasLocalOffsets;
+    std::vector<glm::dvec3> m_localOffsets;
 
     StagingBuffers m_stagingBuffers;
     CVReaderWrapper* m_cvReaderWrapper;
+    uint32_t m_currentScanIndex = 0;
 };
 
 #endif

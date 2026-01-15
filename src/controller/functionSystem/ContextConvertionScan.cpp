@@ -407,7 +407,7 @@ bool ContextConvertionScan::convertOne(IScanFileReader* reader, uint32_t readerO
     if (reader->getType() == FileType::E57)
     {
         auto e57Reader = dynamic_cast<E57FileReader*>(reader);
-        if (e57Reader && !e57Reader->hasPoseTranslation(readerOffset))
+        if (e57Reader && !e57Reader->hasPoseTranslation(readerOffset) && !e57Reader->usesLocalOffsets(readerOffset))
         {
             outHeader.transfo.translation[0] = 0.0;
             outHeader.transfo.translation[1] = 0.0;

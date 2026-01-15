@@ -44,15 +44,16 @@ PtsFileReader::PtsFileReader(const std::filesystem::path& filepath, const Import
 	m_scanHeader.sensorModel = L"Not provided";
 	m_scanHeader.sensorSerialNumber = L"Not provided";
 
-	PointXYZIRGB translationPoint;
+	PointXYZIRGB translationPoint{};
 	while (!fileStream.eof())
 	{
 		std::string line;
-		PointXYZIRGB point;
+		AsciiPointD point;
 		std::getline(fileStream, line);
 		if (getNextPoint(line, point))
 		{
-			translationPoint = point;
+			translationPoint = { static_cast<float>(point.x), static_cast<float>(point.y), static_cast<float>(point.z), point.i, point.r, point.g, point.b };
+			m_doubleTranslation = glm::dvec3(point.x, point.y, point.z);
 			break;
 		}
 	}
@@ -149,23 +150,22 @@ bool PtsFileReader::readPoints(PointXYZIRGB* dstBuf, uint64_t bufSize, uint64_t&
 		if (line.empty())
 			return true;
 
-		PointXYZIRGB point;
-		point.i = 255;
+		AsciiPointD point;
 		if (!getNextPoint(line, point))
 			continue;
 
-		point.x -= (float)(m_scanHeader.transfo.translation[0]);
-		point.y -= (float)(m_scanHeader.transfo.translation[1]);
-		point.z -= (float)(m_scanHeader.transfo.translation[2]);
+		const double x = point.x - m_doubleTranslation.x;
+		const double y = point.y - m_doubleTranslation.y;
+		const double z = point.z - m_doubleTranslation.z;
 
-		dstBuf[readCount] = point;
+		dstBuf[readCount] = { static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), point.i, point.r, point.g, point.b };
 		readCount++;
 	}
 
 	return true;
 }
 
-bool PtsFileReader::getNextPoint(const std::string& line, PointXYZIRGB& point)
+bool PtsFileReader::getNextPoint(const std::string& line, AsciiPointD& point)
 {
 	std::string temp;
 	int valueInd = 0;
@@ -207,30 +207,33 @@ bool PtsFileReader::getNextPoint(const std::string& line, PointXYZIRGB& point)
 
 		Import::AsciiValueRole role = m_asciiInfo.columnsRole[valueInd];
 
-		if (!fillPoint(temp, point, role))
-			return false;
+			if (!fillPoint(temp, point, role))
+				return false;
 		return true;
 	}
 }
 
-bool PtsFileReader::fillPoint(const std::string& value, PointXYZIRGB& point, const Import::AsciiValueRole& valueRole)
+bool PtsFileReader::fillPoint(const std::string& value, AsciiPointD& point, const Import::AsciiValueRole& valueRole)
 {
 	try {
 		switch (valueRole)
 		{
 			case Import::AsciiValueRole::X:
 			{
-				point.x = std::stof(value);
+				point.x = std::stod(value);
+				point.hasX = true;
 			}
 			break;
 			case Import::AsciiValueRole::Y:
 			{
-				point.y = std::stof(value);
+				point.y = std::stod(value);
+				point.hasY = true;
 			}
 			break;
 			case Import::AsciiValueRole::Z:
 			{
-				point.z = std::stof(value);
+				point.z = std::stod(value);
+				point.hasZ = true;
 			}
 			break;
 			case Import::AsciiValueRole::R:
