@@ -47,6 +47,7 @@ private:
 	void onFocusViewport(IGuiData* data);
 	void onActiveCamera(IGuiData* data);
 	void onCallHD(IGuiData* data);
+	void onProjectProperties(IGuiData* data);
 
 	void refreshShowUI();
 	void refreshImageSize();
@@ -78,6 +79,7 @@ private:
 	glm::ivec2 m_viewportSize;
 	glm::ivec2 m_storePerspImageSize;
 	SafePtr<CameraNode> m_focusCamera;
+	glm::dvec3 m_importScanTranslation = glm::dvec3(0.0);
 	std::unordered_map<guiDType, ImageGroupMethod> m_guiDFunctions;
 
 	Ui::ToolBarImageGroup m_ui;

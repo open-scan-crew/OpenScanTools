@@ -3,7 +3,9 @@
 #include "utils/Utils.h"
 #include "vulkan/VulkanManager.h"
 
+#include <cmath>
 #include <fstream>
+#include <limits>
 
 #include <QtGui/qimage.h>
 
@@ -116,6 +118,11 @@ bool ImageWriter::saveMetadata(const std::filesystem::path& file_path, ImageHDMe
     {
         os << "Z coordinate (m) - image bottom" << std::endl;
         os << Utils::roundFloat(metadata.imageBottomZ, 3) << std::endl;
+        if (std::abs(metadata.importScanTranslation.z) > std::numeric_limits<double>::epsilon())
+        {
+            os << "Z original coordinate (m) - image bottom" << std::endl;
+            os << Utils::roundFloat(metadata.imageBottomZ - metadata.importScanTranslation.z, 3) << std::endl;
+        }
         os << std::endl;
     }
 
@@ -125,6 +132,16 @@ bool ImageWriter::saveMetadata(const std::filesystem::path& file_path, ImageHDMe
         os << Utils::roundFloat(metadata.imageBottomLeft.x, 3) << " " << Utils::roundFloat(metadata.imageBottomLeft.y, 3) << std::endl;
         os << "XY coordinates (m), image top right" << std::endl;
         os << Utils::roundFloat(metadata.imageTopRight.x, 3) << " " << Utils::roundFloat(metadata.imageTopRight.y, 3) << std::endl;
+        if (std::abs(metadata.importScanTranslation.x) > std::numeric_limits<double>::epsilon()
+            || std::abs(metadata.importScanTranslation.y) > std::numeric_limits<double>::epsilon())
+        {
+            os << "XY original coordinates (m), image bottom left" << std::endl;
+            os << Utils::roundFloat(metadata.imageBottomLeft.x - metadata.importScanTranslation.x, 3) << " "
+               << Utils::roundFloat(metadata.imageBottomLeft.y - metadata.importScanTranslation.y, 3) << std::endl;
+            os << "XY original coordinates (m), image top right" << std::endl;
+            os << Utils::roundFloat(metadata.imageTopRight.x - metadata.importScanTranslation.x, 3) << " "
+               << Utils::roundFloat(metadata.imageTopRight.y - metadata.importScanTranslation.y, 3) << std::endl;
+        }
         os << std::endl;
     }
 
