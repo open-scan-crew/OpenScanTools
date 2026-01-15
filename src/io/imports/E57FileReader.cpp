@@ -351,15 +351,15 @@ bool E57FileReader::readPoints(PointXYZIRGB* dstBuf, uint64_t bufSize, uint64_t 
             {
                 if (applyLocalOffset)
                 {
-                    dstBuf[n].x = static_cast<float>(static_cast<double>(m_stagingBuffers.cartesianX[n]) - localOffset.x);
-                    dstBuf[n].y = static_cast<float>(static_cast<double>(m_stagingBuffers.cartesianY[n]) - localOffset.y);
-                    dstBuf[n].z = static_cast<float>(static_cast<double>(m_stagingBuffers.cartesianZ[n]) - localOffset.z);
+                    dstBuf[n].x = static_cast<float>(m_stagingBuffers.cartesianX[n] - localOffset.x);
+                    dstBuf[n].y = static_cast<float>(m_stagingBuffers.cartesianY[n] - localOffset.y);
+                    dstBuf[n].z = static_cast<float>(m_stagingBuffers.cartesianZ[n] - localOffset.z);
                 }
                 else
                 {
-                    dstBuf[n].x = m_stagingBuffers.cartesianX[n];
-                    dstBuf[n].y = m_stagingBuffers.cartesianY[n];
-                    dstBuf[n].z = m_stagingBuffers.cartesianZ[n];
+                    dstBuf[n].x = static_cast<float>(m_stagingBuffers.cartesianX[n]);
+                    dstBuf[n].y = static_cast<float>(m_stagingBuffers.cartesianY[n]);
+                    dstBuf[n].z = static_cast<float>(m_stagingBuffers.cartesianZ[n]);
                 }
             }
         }
@@ -367,9 +367,9 @@ bool E57FileReader::readPoints(PointXYZIRGB* dstBuf, uint64_t bufSize, uint64_t 
         {
             for (unsigned int n = 0; n < N; n++)
             {
-                float r = m_stagingBuffers.sphericalRange[n];
-                float a = m_stagingBuffers.sphericalAzimuth[n];
-                float e = m_stagingBuffers.sphericalElevation[n];
+                double r = m_stagingBuffers.sphericalRange[n];
+                double a = m_stagingBuffers.sphericalAzimuth[n];
+                double e = m_stagingBuffers.sphericalElevation[n];
 
                 const double x = r * cos(a) * cos(e);
                 const double y = r * sin(a) * cos(e);
@@ -434,15 +434,15 @@ bool E57FileReader::readPoints(PointXYZIRGB* dstBuf, uint64_t bufSize, uint64_t 
 
             if (applyLocalOffset)
             {
-                dstBuf[validPoints].x = static_cast<float>(static_cast<double>(m_stagingBuffers.cartesianX[n]) - localOffset.x);
-                dstBuf[validPoints].y = static_cast<float>(static_cast<double>(m_stagingBuffers.cartesianY[n]) - localOffset.y);
-                dstBuf[validPoints].z = static_cast<float>(static_cast<double>(m_stagingBuffers.cartesianZ[n]) - localOffset.z);
+                dstBuf[validPoints].x = static_cast<float>(m_stagingBuffers.cartesianX[n] - localOffset.x);
+                dstBuf[validPoints].y = static_cast<float>(m_stagingBuffers.cartesianY[n] - localOffset.y);
+                dstBuf[validPoints].z = static_cast<float>(m_stagingBuffers.cartesianZ[n] - localOffset.z);
             }
             else
             {
-                dstBuf[validPoints].x = m_stagingBuffers.cartesianX[n];
-                dstBuf[validPoints].y = m_stagingBuffers.cartesianY[n];
-                dstBuf[validPoints].z = m_stagingBuffers.cartesianZ[n];
+                dstBuf[validPoints].x = static_cast<float>(m_stagingBuffers.cartesianX[n]);
+                dstBuf[validPoints].y = static_cast<float>(m_stagingBuffers.cartesianY[n]);
+                dstBuf[validPoints].z = static_cast<float>(m_stagingBuffers.cartesianZ[n]);
             }
 
             if (format.color == TL_RGB_UINT8_FORMAT)
