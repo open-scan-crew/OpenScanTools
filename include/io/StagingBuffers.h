@@ -7,12 +7,12 @@
 struct StagingBuffers
 {
     uint64_t size = 0;
-    float* cartesianX = nullptr;
-    float* cartesianY = nullptr;
-    float* cartesianZ = nullptr;
-    float* sphericalRange = nullptr;
-    float* sphericalAzimuth = nullptr;
-    float* sphericalElevation = nullptr;
+    double* cartesianX = nullptr;
+    double* cartesianY = nullptr;
+    double* cartesianZ = nullptr;
+    double* sphericalRange = nullptr;
+    double* sphericalAzimuth = nullptr;
+    double* sphericalElevation = nullptr;
     uint8_t* uIntensity = nullptr;
     float* fIntensity = nullptr;
     uint8_t* colorRed = nullptr;
@@ -61,15 +61,15 @@ struct StagingBuffers
 
         if (format.coordinates == TL_COORD_SPHERICAL_FLOAT)
         {
-            sphericalRange = new float[newSize];
-            sphericalAzimuth = new float[newSize];
-            sphericalElevation = new float[newSize];
+            sphericalRange = new double[newSize];
+            sphericalAzimuth = new double[newSize];
+            sphericalElevation = new double[newSize];
         }
         else
         {
-            cartesianX = new float[newSize];
-            cartesianY = new float[newSize];
-            cartesianZ = new float[newSize];
+            cartesianX = new double[newSize];
+            cartesianY = new double[newSize];
+            cartesianZ = new double[newSize];
         }
         uIntensity = new uint8_t[newSize];
         fIntensity = new float[newSize];
