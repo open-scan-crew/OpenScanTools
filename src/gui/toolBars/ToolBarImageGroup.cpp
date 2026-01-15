@@ -309,6 +309,8 @@ ToolBarImageGroup::ToolBarImageGroup(IDataDispatcher& dataDispatcher, QWidget* p
 	registerGuiDataFunction(guiDType::focusViewport, &ToolBarImageGroup::onFocusViewport);
 	registerGuiDataFunction(guiDType::renderActiveCamera, &ToolBarImageGroup::onActiveCamera);
 	registerGuiDataFunction(guiDType::hdCall, &ToolBarImageGroup::onCallHD);
+	registerGuiDataFunction(guiDType::projectDataProperties, &ToolBarImageGroup::onProjectProperties);
+	registerGuiDataFunction(guiDType::projectDataPropertiesNoOpen, &ToolBarImageGroup::onProjectProperties);
 }
 
 ToolBarImageGroup::~ToolBarImageGroup()
@@ -330,6 +332,8 @@ void ToolBarImageGroup::onProjectLoad(IGuiData* data)
 {
 	GuiDataProjectLoaded* cData = static_cast<GuiDataProjectLoaded*>(data);
 	setEnabled(cData->m_isProjectLoad);
+	if (!cData->m_isProjectLoad)
+		m_importScanTranslation = glm::dvec3(0.0);
 }
 
 void ToolBarImageGroup::onFocusViewport(IGuiData* data)
@@ -392,6 +396,12 @@ void ToolBarImageGroup::onCallHD(IGuiData* data)
 	}
 	else
 		quickScreenshot(castData->m_filepath);
+}
+
+void ToolBarImageGroup::onProjectProperties(IGuiData* data)
+{
+	GuiDataProjectProperties* castData = static_cast<GuiDataProjectProperties*>(data);
+	m_importScanTranslation = castData->m_projectInfo.m_importScanTranslation;
 }
 
 void ToolBarImageGroup::quickScreenshot(std::filesystem::path filepath)
@@ -564,6 +574,7 @@ void ToolBarImageGroup::slotCreateImage(std::filesystem::path filepath, bool sho
 	metadata.dpi = g_imageDPIValues.at((ImageDPI)(m_ui.comboBox_dpi->currentData().toInt()));
 	metadata.scaleInv = 1/m_scale;
 	metadata.includeAlpha = isAlphaChannelEnabled();
+	metadata.importScanTranslation = m_importScanTranslation;
 
 	bool useFrame = m_ui.checkBox_frame->isChecked();
 	if (useFrame)
