@@ -1304,7 +1304,7 @@ void ProjectTreePanel::dragEnterEvent(QDragEnterEvent* qevent)
 void ProjectTreePanel::dragMoveEvent(QDragMoveEvent* mevent)
 {
     constexpr int kAutoScrollMargin = 20;
-    constexpr int kAutoScrollStep = 20;
+    constexpr int kAutoScrollStep = 5;
     const QRect viewRect = viewport()->rect();
     const QRect allowedRect = viewRect.adjusted(-kAutoScrollMargin, -kAutoScrollMargin,
                                                 kAutoScrollMargin, kAutoScrollMargin);
