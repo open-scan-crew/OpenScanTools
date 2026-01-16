@@ -307,6 +307,8 @@ bool E57FileWriter::addPoints(PointXYZIRGB const* srcBuf, uint64_t srcSize)
                 m_stagingBufs.colorRed[n] = srcBuf[srcOffset + n].r;
                 m_stagingBufs.colorGreen[n] = srcBuf[srcOffset + n].g;
                 m_stagingBufs.colorBlue[n] = srcBuf[srcOffset + n].b;
+
+                updateBoundingBox(srcBuf[srcOffset + n]);
             }
 
             m_storedWriter->cvw.write(writeSize);
