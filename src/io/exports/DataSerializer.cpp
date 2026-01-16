@@ -425,6 +425,16 @@ void ExportViewPointData(nlohmann::json& json, const ViewPointData& data)
 	json[Key_Interior_Clippings] = childrenElem;
 
 	childrenElem.clear();
+	for (const SafePtr<AClippingNode>& clip : data.getPhaseClippings())
+	{
+		ReadPtr<AClippingNode> rClip = clip.cget();
+		if (!rClip)
+			continue;
+		childrenElem.push_back(rClip->getId());
+	}
+	json[Key_Phase_Clippings] = childrenElem;
+
+	childrenElem.clear();
 	for (const SafePtr<AClippingNode>& ramp : data.getActiveRamps())
 	{
 		ReadPtr<AClippingNode> rRamp = ramp.cget();

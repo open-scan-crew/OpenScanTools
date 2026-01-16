@@ -56,6 +56,7 @@ void BoxNode::pushClippingGeometries(ClippingAssembly& clipAssembly, const Trans
 
     std::shared_ptr<IClippingGeometry> geom = std::make_shared<BoxClippingGeometry>(getClippingMode(), transfo.getInverseRotationTranslation(), params, 0);
     geom->isSelected = m_selected;
+    geom->clipperPhase = getPhase();
 
     if (m_clippingMode == ClippingMode::showInterior)
         clipAssembly.clippingUnion.push_back(geom);

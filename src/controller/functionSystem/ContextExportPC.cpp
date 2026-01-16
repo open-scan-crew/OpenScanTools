@@ -292,7 +292,15 @@ bool ContextExportPC::processExport(Controller& controller, CSVWriter* csv_write
             if (m_state != ContextState::running || !success)
                 break;
 
-            success &= TlScanOverseer::getInstance().clipScan(pc.header.guid, pc.transfo, task.clippings, scanFileWriter.get());
+            const ClippingAssembly* clippingsToUse = &task.clippings;
+            ClippingAssembly resolvedAssembly;
+            if (task.clippings.hasPhaseClipping())
+            {
+                resolvedAssembly = task.clippings.resolveByPhase(pc.phase);
+                clippingsToUse = &resolvedAssembly;
+            }
+
+            success &= TlScanOverseer::getInstance().clipScan(pc.header.guid, pc.transfo, *clippingsToUse, scanFileWriter.get());
         }
 
         // TODO - FileType::RCP & m_parameters.pointDensity

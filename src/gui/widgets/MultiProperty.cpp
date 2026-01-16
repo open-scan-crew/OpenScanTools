@@ -90,7 +90,7 @@ MultiProperty::MultiProperty(Controller& controller, QWidget* parent, float guiS
 
 	//Clipping
 	m_toolbuttonWidgets[m_ui.clippingActiveToolButton] = { m_ui.clipActiveCheckBox };
-	m_toolbuttonWidgets[m_ui.clipMethodToolButton] = { m_ui.interiorClipRadioButton, m_ui.exteriorClipRadioButton, m_ui.clipMethodLabel };
+	m_toolbuttonWidgets[m_ui.clipMethodToolButton] = { m_ui.interiorClipRadioButton, m_ui.exteriorClipRadioButton, m_ui.phaseClipRadioButton, m_ui.clipMethodLabel };
 	m_toolbuttonWidgets[m_ui.clipMaxToolButton] = { m_ui.clipMaxLineEdit, m_ui.clipMaxLabel };
 	m_toolbuttonWidgets[m_ui.clipMinToolButton] = { m_ui.clipMinLineEdit, m_ui.clipMinLabel };
 
@@ -205,6 +205,7 @@ void MultiProperty::clearFields()
 
 	m_ui.interiorClipRadioButton->setChecked(false);
 	m_ui.exteriorClipRadioButton->setChecked(false);
+	m_ui.phaseClipRadioButton->setChecked(false);
 
 	m_ui.clipActiveCheckBox->setChecked(false);
 
@@ -310,7 +311,14 @@ void MultiProperty::onActivateChanges()
 	if (m_ui.clippingActiveToolButton->isChecked())
 		m_dataDispatcher.sendControl(new control::clippingEdition::SetClipActive(clipNodes, m_ui.clipActiveCheckBox->isChecked()));
 	if (m_ui.clipMethodToolButton->isChecked())
-		m_dataDispatcher.sendControl(new control::clippingEdition::SetMode(clipNodes, m_ui.interiorClipRadioButton->isChecked() ? ClippingMode::showInterior : ClippingMode::showExterior));
+	{
+		ClippingMode mode = ClippingMode::showExterior;
+		if (m_ui.interiorClipRadioButton->isChecked())
+			mode = ClippingMode::showInterior;
+		else if (m_ui.phaseClipRadioButton->isChecked())
+			mode = ClippingMode::byPhase;
+		m_dataDispatcher.sendControl(new control::clippingEdition::SetMode(clipNodes, mode));
+	}
 	if (m_ui.clipMinToolButton->isChecked())
 		m_dataDispatcher.sendControl(new control::clippingEdition::SetMinClipDist(clipNodes, m_ui.clipMinLineEdit->getValue()));
 	if (m_ui.clipMaxToolButton->isChecked())

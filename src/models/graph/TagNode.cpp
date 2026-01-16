@@ -39,6 +39,7 @@ void TagNode::pushClippingGeometries(ClippingAssembly& clipAssembly, const Trans
 
     std::shared_ptr<IClippingGeometry> geom = std::make_shared<SphereClippingGeometry>(m_clippingMode, transfo.getInverseRotationTranslation(), params, 0);
     geom->isSelected = m_selected;
+    geom->clipperPhase = getPhase();
 
     if (m_clippingMode == ClippingMode::showInterior)
         clipAssembly.clippingUnion.push_back(geom);
@@ -69,4 +70,3 @@ void TagNode::setDefaultData(const Controller& controller)
     AClippingNode::setDefaultData(controller);
     setMarkerIcon(controller.cgetContext().getActiveIcon());
 }
-

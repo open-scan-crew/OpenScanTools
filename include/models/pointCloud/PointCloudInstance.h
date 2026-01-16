@@ -4,6 +4,8 @@
 #include "tls_def.h"
 #include "models/graph/TransformationModule.h"
 
+#include <string>
+
 namespace tls
 {
     struct PointCloudInstance
@@ -11,6 +13,7 @@ namespace tls
         ScanHeader header;
         TransformationModule transfo;
         bool isClippable;
+        std::wstring phase;
     };
 }
 
