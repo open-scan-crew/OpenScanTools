@@ -170,6 +170,7 @@ namespace control::viewpoint
     void UpdateStatesFromViewpoint::doFunction(Controller& controller)
     {
         std::unordered_set<SafePtr<AClippingNode>> interiorList;
+        std::unordered_set<SafePtr<AClippingNode>> phaseList;
         std::unordered_set<SafePtr<AClippingNode>> activeList;
         std::unordered_set<SafePtr<AClippingNode>> activeRampList;
 
@@ -182,6 +183,7 @@ namespace control::viewpoint
                 return;
 
             interiorList = readViewpoint->getInteriorClippings();
+            phaseList = readViewpoint->getPhaseClippings();
             activeList = readViewpoint->getActiveClippings();
             activeRampList = readViewpoint->getActiveRamps(); // NEW
             visibleList = readViewpoint->getVisibleObjects();
@@ -197,7 +199,11 @@ namespace control::viewpoint
         for (const SafePtr<AClippingNode>& clipping : clippings)
         {
             bool activeState = activeList.find(clipping) != activeList.end();
-            ClippingMode clippingMode = interiorList.find(clipping) != interiorList.end() ? ClippingMode::showInterior : ClippingMode::showExterior;
+            ClippingMode clippingMode = ClippingMode::showExterior;
+            if (phaseList.find(clipping) != phaseList.end())
+                clippingMode = ClippingMode::byPhase;
+            else if (interiorList.find(clipping) != interiorList.end())
+                clippingMode = ClippingMode::showInterior;
 
             WritePtr<AClippingNode> writeClipping = clipping.get();
 

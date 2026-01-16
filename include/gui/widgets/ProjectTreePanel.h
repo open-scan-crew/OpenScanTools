@@ -92,6 +92,7 @@ private:
     void disableAllRamps();
     void externCliping();
     void internClipping();
+    void phaseClipping();
     void pickItems();
     void dropManualItems();
     void dropElem(TreeNode* dest);

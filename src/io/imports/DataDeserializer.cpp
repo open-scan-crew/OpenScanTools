@@ -1790,6 +1790,28 @@ bool ImportViewPointData(const nlohmann::json& json, ViewPointData& data, const 
         retVal = false;
     }
 
+    if (json.find(Key_Phase_Clippings) != json.end())
+    {
+        std::unordered_set<SafePtr<AClippingNode>> list;
+        for (const nlohmann::json& child : json.at(Key_Phase_Clippings))
+        {
+            xg::Guid guid = xg::Guid(child.get<std::string>());
+            if (nodeById.find(guid) == nodeById.end())
+            {
+                IOLOG << "ViewPoint PhaseClippings couldnt find object" << LOGENDL;
+                continue;
+            }
+            SafePtr<AGraphNode> childNode = nodeById.at(guid);
+            if (childNode)
+                list.insert(static_pointer_cast<AClippingNode>(childNode));
+        }
+        data.setPhaseClippings(list);
+    }
+    else
+    {
+        IOLOG << "ViewPoint PhaseClippings read missing" << LOGENDL;
+    }
+
     if (json.find(Key_Active_Ramps) != json.end())
     {
         std::unordered_set<SafePtr<AClippingNode>> list;

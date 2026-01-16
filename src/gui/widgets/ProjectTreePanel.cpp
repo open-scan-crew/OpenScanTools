@@ -664,7 +664,8 @@ TreeNode* ProjectTreePanel::constructStatusNodes(const std::unordered_set<Elemen
 TreeNode* ProjectTreePanel::constructClipMethodNodes(const std::unordered_set<ElementType>& types, TreeNode* parentNode)
 {
     std::vector<std::pair<QString, ClippingMode>> clipModes = { {TEXT_CLIPINTERN, ClippingMode::showInterior},
-                                                                {TEXT_CLIPEXTERN, ClippingMode::showExterior}
+                                                                {TEXT_CLIPEXTERN, ClippingMode::showExterior},
+                                                                {TEXT_CLIPPHASE, ClippingMode::byPhase}
     };
 
     TreeNode* clipMethNode = constructMasterNode(TEXT_CLIPMETH_TREE_NODE, parentNode->getTreeType());
@@ -1064,6 +1065,11 @@ void ProjectTreePanel::internClipping()
     m_dataDispatcher.sendControl(new control::clippingEdition::SetMode(ClippingMode::showInterior, false, true));
 }
 
+void ProjectTreePanel::phaseClipping()
+{
+    m_dataDispatcher.sendControl(new control::clippingEdition::SetMode(ClippingMode::byPhase, false, true));
+}
+
 void ProjectTreePanel::pickItems()
 {
     QModelIndexList list = this->selectionModel()->selectedIndexes();
@@ -1239,6 +1245,7 @@ void ProjectTreePanel::showTreeMenu(QPoint p)
         addActionToMenu(menu, new QAction(TEXT_CONTEXT_DISABLE_CLIPPING, this), &ProjectTreePanel::disableClipping);
         addActionToMenu(menu, new QAction(TEXT_CONTEXT_INTERIOR_CLIPPING, this), &ProjectTreePanel::internClipping);
         addActionToMenu(menu, new QAction(TEXT_CONTEXT_EXTERIOR_CLIPPING, this), &ProjectTreePanel::externCliping);
+        addActionToMenu(menu, new QAction(TEXT_CONTEXT_PHASE_CLIPPING, this), &ProjectTreePanel::phaseClipping);
     }
 
     // Desactivate all clippings

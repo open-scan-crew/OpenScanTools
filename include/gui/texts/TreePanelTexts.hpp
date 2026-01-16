@@ -58,6 +58,7 @@
 #define TEXT_CONTEXT_DISABLE_CLIPPING QObject::tr("Disable")
 #define TEXT_CONTEXT_EXTERIOR_CLIPPING QObject::tr("Show exterior")
 #define TEXT_CONTEXT_INTERIOR_CLIPPING QObject::tr("Show interior")
+#define TEXT_CONTEXT_PHASE_CLIPPING QObject::tr("By phase")
 #define TEXT_CONTEXT_DISABLE_ALL_CLIPPING QObject::tr("Desactivate all active clippings")
 #define TEXT_CONTEXT_DISABLE_ALL_RAMPS QObject::tr("Desactivate all active ramps")
 #define TEXT_CONTEXT_DISCONNECT_LINE QObject::tr("Disconnect the line")
