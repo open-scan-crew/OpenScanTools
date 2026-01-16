@@ -81,6 +81,7 @@
 //ClippingMethod
 #define TEXT_CLIPINTERN QObject::tr("Show interior")
 #define TEXT_CLIPEXTERN QObject::tr("Show exterior")
+#define TEXT_CLIPPHASE QObject::tr("By phase")
 
 //ClippingControl
 #define TEXT_ACTIVE_CLIPPING_RAMP_MAX_REACHED QObject::tr("You can't activate more clippings or rampes, the maximum is reached (max: %1).")

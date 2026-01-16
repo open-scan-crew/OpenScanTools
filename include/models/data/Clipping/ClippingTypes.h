@@ -7,6 +7,7 @@ enum class ClippingMode
 {
     showInterior,
     showExterior,
+    byPhase,
     colorInterior,
     Max_Enum
 

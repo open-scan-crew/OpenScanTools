@@ -1215,7 +1215,7 @@ void ObjectNodeVisitor::bakeGraphics(const SafePtr<AGraphNode>& node, const Tran
 
         wScan->uploadUniform(transfoMat, m_uniformSwapIndex);
         if(wScan->getScanGuid().isValid())
-            m_bakedPointCloud.push_back({ transfoMat, wScan->getScanGuid(), color, wScan->getUniform(m_uniformSwapIndex) , wScan->getClippable(), false });
+            m_bakedPointCloud.push_back({ transfoMat, wScan->getScanGuid(), color, wScan->getUniform(m_uniformSwapIndex) , wScan->getClippable(), wScan->getPhase(), false });
         break;
     }
     case ElementType::PCO:
@@ -1226,7 +1226,7 @@ void ObjectNodeVisitor::bakeGraphics(const SafePtr<AGraphNode>& node, const Tran
         Color32 color = pco->getColor();
         pco->uploadUniform(transfoMat, m_uniformSwapIndex);
         if (pco->getScanGuid().isValid())
-            m_bakedPointCloud.push_back({ transfoMat, pco->getScanGuid(), color, pco->getUniform(m_uniformSwapIndex) , pco->getClippable(), true });
+            m_bakedPointCloud.push_back({ transfoMat, pco->getScanGuid(), color, pco->getUniform(m_uniformSwapIndex) , pco->getClippable(), pco->getPhase(), true });
         break;
     }
     // Mesh
@@ -1460,6 +1460,18 @@ void ObjectNodeVisitor::clipAndDrawPointCloud(VkCommandBuffer _cmdBuffer, Render
     drawInfo.modelUni = bakedPC.uniform;
     drawInfo.color = bakedPC.color.toVector();
 
+    const ClippingAssembly* assemblyToUse = &_clippingAssembly;
+    ClippingAssembly resolvedAssembly;
+    if (_clippingAssembly.hasPhaseClipping())
+    {
+        resolvedAssembly = _clippingAssembly.resolveByPhase(bakedPC.phase);
+        assemblyToUse = &resolvedAssembly;
+
+        std::vector<UniformClippingData> uniformData;
+        generateUniformData(resolvedAssembly, uniformData);
+        m_camera.uploadClippingUniform(uniformData, m_uniformSwapIndex);
+    }
+
     if (((m_displayParameters.m_mode == UiRenderMode::Flat) ||
         (m_displayParameters.m_mode == UiRenderMode::Grey_Colored)) &&
         !bakedPC.isObject)
@@ -1468,7 +1480,7 @@ void ObjectNodeVisitor::clipAndDrawPointCloud(VkCommandBuffer _cmdBuffer, Render
         renderer.setConstantPtColor(drawInfo.color, _cmdBuffer);
 
     // Clip the octree and get the resulting parts to show on screen
-    if (overseer.getScanView(bakedPC.scanGuid, projInfo, _clippingAssembly, drawInfo, needStreaming) == false)
+    if (overseer.getScanView(bakedPC.scanGuid, projInfo, *assemblyToUse, drawInfo, needStreaming) == false)
         return;
 
     m_drawHasMissingScanPart |= needStreaming;

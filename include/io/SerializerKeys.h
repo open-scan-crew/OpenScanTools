@@ -245,6 +245,7 @@
 #define Key_Active_Scans				"ActiveScans"
 #define Key_Active_Clippings			"ActiveClippings"
 #define Key_Interior_Clippings			"InteriorClippings"
+#define Key_Phase_Clippings			"PhaseClippings"
 #define Key_Active_Ramps				"ActiveRamps"
 #define Key_Visible_Objects				"VisibleObjects"
 #define Key_Objects_Colors				"ObjectsColors"

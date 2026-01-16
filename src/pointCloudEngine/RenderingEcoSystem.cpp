@@ -56,6 +56,7 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
     std::hash<bool> hash_fn_b;
     std::hash<float> hash_fn_f;
     std::hash<int> hash_fn_i;
+    std::hash<std::wstring> hash_fn_w;
 
     hash += hash_fn_32(viewportExtent.width);
     hash += hash_fn_32(viewportExtent.height);
@@ -68,6 +69,7 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
         hash += hash_dmat4(clipping->matRT_inv);
         hash += hash_vec4(clipping->params);
         hash += hash_fn_i(clipping->rampSteps);
+        hash += hash_fn_w(clipping->clipperPhase);
     }
 
     for (auto clipping : clipAssembly.clippingIntersection)
@@ -76,6 +78,7 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
         hash += hash_dmat4(clipping->matRT_inv);
         hash += hash_vec4(clipping->params);
         hash += hash_fn_i(clipping->rampSteps);
+        hash += hash_fn_w(clipping->clipperPhase);
     }
 
     for (auto clipping : clipAssembly.rampActives)
@@ -94,6 +97,7 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
         hash += hash_dmat4(pcdd.transfo);
         hash += hash_fn_32(*reinterpret_cast<uint32_t const*>(&pcdd.color));
         hash += hash_fn_32(pcdd.clippable);
+        hash += hash_fn_w(pcdd.phase);
     }
 
     // DisplayParameters

@@ -51,6 +51,7 @@ void TorusNode::pushClippingGeometries(ClippingAssembly& clipAssembly, const Tra
 
     std::shared_ptr<IClippingGeometry> geom = std::make_shared<TorusClippingGeometry>(m_clippingMode, transfo.getInverseRotationTranslation(), params, m_rampSteps);
     geom->isSelected = m_selected;
+    geom->clipperPhase = getPhase();
 
     if (m_clippingMode == ClippingMode::showInterior)
         clipAssembly.clippingUnion.push_back(geom);

@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <memory>
+#include <string>
 #include <glm/glm.hpp>
 
 // Notes sur le design des classes "ClippingGeometry"
@@ -133,6 +134,7 @@ public:
     glm::vec3 color;
     int rampSteps;
     ClippingGpuId gpuDrawId; // optional for the export
+    std::wstring clipperPhase;
 
     bool isSelected = false;
 
@@ -218,6 +220,8 @@ public:
     bool testPoint(const glm::dvec4& point) const;
     void clearMatrix();
     bool empty();
+    bool hasPhaseClipping() const;
+    ClippingAssembly resolveByPhase(const std::wstring& scanPhase) const;
 public:
     std::vector<std::shared_ptr<IClippingGeometry>> clippingUnion;
     std::vector<std::shared_ptr<IClippingGeometry>> clippingIntersection;
