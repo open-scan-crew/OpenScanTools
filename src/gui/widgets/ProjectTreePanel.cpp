@@ -25,6 +25,8 @@
 #include "utils/Logger.h"
 #include "utils/ProjectColor.hpp"
 
+#include <algorithm>
+
 #include <QtWidgets/qscrollbar.h>
 #include <QtWidgets/qmenu.h>
 #include <QtGui/qevent.h>
@@ -878,7 +880,20 @@ void ProjectTreePanel::treeDragEvent(QDragEnterEvent* dEvent)
 
 void ProjectTreePanel::treeMoveEvent(QDragMoveEvent* mevent)
 {
-    QModelIndex highlightIndex = this->indexAt(mevent->pos());
+    const QRect viewRect = viewport()->rect();
+    QPoint hitPos = mevent->pos();
+    if (!viewRect.contains(hitPos))
+    {
+        hitPos.setX(std::clamp(hitPos.x(), viewRect.left(), viewRect.right()));
+        hitPos.setY(std::clamp(hitPos.y(), viewRect.top(), viewRect.bottom()));
+    }
+
+    QModelIndex highlightIndex = this->indexAt(hitPos);
+    if (!highlightIndex.isValid())
+    {
+        mevent->setAccepted(false);
+        return;
+    }
 
     TreeNode* destNode = static_cast<TreeNode*>(m_model->itemFromIndex(highlightIndex));
     bool canDrop = true;
@@ -1288,13 +1303,22 @@ void ProjectTreePanel::dragEnterEvent(QDragEnterEvent* qevent)
 /*! Redï¿½finition de la mï¿½thode Qt qui traite l'ï¿½venement de 'DragMove' (se rï¿½pï¿½te entre un ï¿½vï¿½nement de 'Drag' et 'Drop') */
 void ProjectTreePanel::dragMoveEvent(QDragMoveEvent* mevent)
 {
-    QModelIndex index = indexAt(mevent->pos());
+    constexpr int kAutoScrollMargin = 20;
+    constexpr int kAutoScrollStep = 20;
+    const QRect viewRect = viewport()->rect();
+    const QRect allowedRect = viewRect.adjusted(-kAutoScrollMargin, -kAutoScrollMargin,
+                                                kAutoScrollMargin, kAutoScrollMargin);
 
-    if (index.isValid() == false)
+    if (!allowedRect.contains(mevent->pos()))
     {
         mevent->setDropAction(Qt::IgnoreAction);
         return;
     }
+
+    if (mevent->pos().y() < kAutoScrollMargin)
+        verticalScrollBar()->setValue(verticalScrollBar()->value() - kAutoScrollStep);
+    else if (mevent->pos().y() > viewRect.bottom() - kAutoScrollMargin)
+        verticalScrollBar()->setValue(verticalScrollBar()->value() + kAutoScrollStep);
 
     treeMoveEvent(mevent);
 }
