@@ -20,6 +20,15 @@ public:
 	void switchRenderMode(const int& mode = 0);
 	void hideTransparencyNormalsControls();
 
+	void setDisplayPresetNames(const QStringList& names, const QString& selectedName);
+	void setDisplayPresetSelection(const QString& name);
+	QString currentDisplayPresetName() const;
+
+signals:
+	void displayPresetSelectionChanged(const QString& name);
+	void displayPresetNewRequested();
+	void displayPresetEditRequested(const QString& name);
+
 private:
 	void informData(IGuiData *data) override;
 	void onProjectLoad(IGuiData* data);
@@ -66,6 +75,9 @@ private slots:
         void slotColorPicking();
         void slotRampValues();
         void slotNormalsChanged();
+	void slotDisplayPresetSelectionChanged(int index);
+	void slotDisplayPresetNew();
+	void slotDisplayPresetEdit();
 
 private:
         std::unordered_map<guiDType, GuiDataFunction> m_methods;

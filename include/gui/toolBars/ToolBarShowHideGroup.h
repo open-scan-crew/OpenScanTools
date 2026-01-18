@@ -6,8 +6,11 @@
 
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
+#include "models/ElementType.h"
 
 #include "utils/safe_ptr.h"
+
+#include <unordered_set>
 
 class CameraNode;
 
@@ -21,6 +24,23 @@ public:
 
 	// From IPanel
 	void informData(IGuiData *keyValue);
+
+	struct ShowHideState
+	{
+		bool showTagMarkers = true;
+		bool showViewpointMarkers = true;
+		bool showClippings = true;
+		bool showPoints = true;
+		bool showPipes = true;
+		bool showAll = true;
+		bool showObjectTexts = true;
+		bool showSelected = true;
+		bool showUnselected = true;
+		bool showMeasures = true;
+	};
+
+	ShowHideState currentShowHideState() const;
+	void applyShowHideState(const ShowHideState& state);
 
 private:
 	typedef void (ToolBarShowHideGroup::* GuiDataFunction)(IGuiData*);
@@ -36,6 +56,7 @@ private:
 	void onActiveCamera(IGuiData* data);
 
 	void toggleShowHideIcon(QToolButton* button, bool show);
+	void applyShowHideObjects(const std::unordered_set<ElementType>& types, bool show);
 
 private slots:
 	void slotToogleShowScanMarkers();
@@ -69,4 +90,3 @@ private:
 };
 
 #endif // TOOLBAR_SHOWHIDEGROUP_H
-
