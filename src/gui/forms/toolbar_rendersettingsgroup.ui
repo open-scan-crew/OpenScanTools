@@ -351,9 +351,16 @@
     </spacer>
    </item>
    <item row="1" column="2">
-    <widget class="QLabel" name="label_gapFilling">
+   <widget class="QLabel" name="label_gapFilling">
      <property name="text">
       <string>Gap filling</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <widget class="QPushButton" name="pushButton_editDisplayPresets">
+     <property name="text">
+      <string>Edit</string>
      </property>
     </widget>
    </item>
@@ -364,10 +371,30 @@
      </property>
     </widget>
    </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_displayPreset">
+     <property name="toolTip">
+      <string>Use this section to save renderings and visibility parameters</string>
+     </property>
+     <property name="text">
+      <string>Presets</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QComboBox" name="comboBox_displayPresets"/>
+   </item>
    <item row="0" column="3">
     <widget class="QPushButton" name="pushButton_color">
      <property name="text">
       <string>Selected Color</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="3">
+    <widget class="QPushButton" name="pushButton_newDisplayPresets">
+     <property name="text">
+      <string>New</string>
      </property>
     </widget>
    </item>
@@ -534,6 +561,9 @@
  <tabstops>
   <tabstop>spinBox_pointSize</tabstop>
   <tabstop>comboBox_gapFillingStrength</tabstop>
+  <tabstop>comboBox_displayPresets</tabstop>
+  <tabstop>pushButton_editDisplayPresets</tabstop>
+  <tabstop>pushButton_newDisplayPresets</tabstop>
   <tabstop>brightnessLuminanceSlider</tabstop>
   <tabstop>brightnessLuminanceSpinBox</tabstop>
   <tabstop>contrastSaturationSlider</tabstop>

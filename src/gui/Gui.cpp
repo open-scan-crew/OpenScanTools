@@ -85,6 +85,7 @@
 #include "gui/toolBars/ToolBarExportVideo.h"
 #include "gui/toolBars/ToolBarManipulateObjects.h"
 #include "gui/toolBars/ToolBarConvertImage.h"
+#include "gui/DisplayPresetManager.h"
 
 #include "gui/Dialog/DialogExportFileObject.h"
 #include "gui/dialog/DialogExportPointCloud.h"
@@ -240,29 +241,34 @@ Gui::Gui(Controller& controller)
 	ToolBarMeasureSimple* measureSimple = new ToolBarMeasureSimple(m_dataDispatcher, this, m_guiScale);
 	measureSimple->setPolyligneOptions(false);
 	ribbonTabContent->addWidget(TEXT_MEASURE, measureSimple);
-	ToolBarRenderSettings* rendering = new ToolBarRenderSettings(m_dataDispatcher, this, m_guiScale);
-	ribbonTabContent->addWidget(TEXT_POINT_CLOUD, rendering);
+	m_renderSettingsHome = new ToolBarRenderSettings(m_dataDispatcher, this, m_guiScale);
+	ribbonTabContent->addWidget(TEXT_POINT_CLOUD, m_renderSettingsHome);
 	m_ribbon->addTab(TEXT_HOME, ribbonTabContent);
-	rendering->switchRenderMode();
+	m_renderSettingsHome->switchRenderMode();
 
 	// Add groups to the View Tab
 	ribbonTabContent = new RibbonTabContent();
-	ToolBarRenderSettings* renderingsettings = new ToolBarRenderSettings(m_dataDispatcher, this, m_guiScale);
-	renderingsettings->hideTransparencyNormalsControls();
-	ribbonTabContent->addWidget(TEXT_POINT_CLOUD, renderingsettings);
+	m_renderSettingsRendering = new ToolBarRenderSettings(m_dataDispatcher, this, m_guiScale);
+	m_renderSettingsRendering->hideTransparencyNormalsControls();
+	ribbonTabContent->addWidget(TEXT_POINT_CLOUD, m_renderSettingsRendering);
 	ribbonTabContent->addWidget(TEXT_TAB_TRANSPARENCY, new ToolBarRenderTransparency(m_dataDispatcher, this, m_guiScale));
 	ribbonTabContent->addWidget(TEXT_NORMALS_OPTIONS, new ToolBarRenderNormals(m_dataDispatcher, this, m_guiScale));
 	ribbonTabContent->addWidget(TEXT_RENDER_ENHANCE, new ToolBarRenderEnhance(m_dataDispatcher, this, m_guiScale));
 	m_ribbon->addTab(TEXT_RENDERINGS, ribbonTabContent);
-	renderingsettings->switchRenderMode();
+	m_renderSettingsRendering->switchRenderMode();
 
 	// Add groups to the View Tab
 	ribbonTabContent = new RibbonTabContent();
-	ribbonTabContent->addWidget(TEXT_SHOW_HIDE, new ToolBarShowHideGroup(m_dataDispatcher, this, m_guiScale));
+	m_showHideGroup = new ToolBarShowHideGroup(m_dataDispatcher, this, m_guiScale);
+	ribbonTabContent->addWidget(TEXT_SHOW_HIDE, m_showHideGroup);
 	ribbonTabContent->addWidget(TEXT_TEXT_DISPLAY, new ToolBarTextDisplay(m_dataDispatcher, this, m_guiScale));
 	ribbonTabContent->addWidget(TEXT_MARKER_DISPLAY_OPTIONS, new ToolBarMarkerDisplayOptions(m_dataDispatcher, this, m_guiScale));	
 	ribbonTabContent->addWidget(TEXT_ORTHO_GRID, new ToolBarOrthoGrid(m_dataDispatcher, this, m_guiScale));
 	m_ribbon->addTab(TEXT_VIEW, ribbonTabContent);
+
+	m_displayPresetManager = std::make_unique<DisplayPresetManager>(m_dataDispatcher, m_showHideGroup, this);
+	m_displayPresetManager->registerRenderSettings(m_renderSettingsHome);
+	m_displayPresetManager->registerRenderSettings(m_renderSettingsRendering);
 	
 //#363 Porposal Viewpoint
 	// Add groups to the ViewPoint Tab
