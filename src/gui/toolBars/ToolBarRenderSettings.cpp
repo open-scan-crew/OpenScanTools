@@ -8,6 +8,7 @@
 #include <cmath>
 #include <qcolordialog.h>
 #include <QSignalBlocker>
+#include <QStringList>
 
 #include "models/graph/CameraNode.h"
 
@@ -95,6 +96,9 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 	connect(m_ui.slider_normals, &QSlider::valueChanged, m_ui.spinBox_normals, &QSpinBox::setValue);
 	connect(m_ui.slider_normals, &QSlider::valueChanged, this, &ToolBarRenderSettings::slotNormalsChanged);
 	connect(m_ui.spinBox_normals, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), m_ui.slider_normals, &QSlider::setValue);
+	connect(m_ui.comboBox_displayPresets, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarRenderSettings::slotDisplayPresetSelectionChanged);
+	connect(m_ui.pushButton_newDisplayPresets, &QPushButton::clicked, this, &ToolBarRenderSettings::slotDisplayPresetNew);
+	connect(m_ui.pushButton_editDisplayPresets, &QPushButton::clicked, this, &ToolBarRenderSettings::slotDisplayPresetEdit);
 
 	registerGuiDataFunction(guiDType::renderBrightness, &ToolBarRenderSettings::onRenderBrightness);
 	registerGuiDataFunction(guiDType::renderContrast, &ToolBarRenderSettings::onRenderContrast);
@@ -424,6 +428,27 @@ void ToolBarRenderSettings::switchRenderMode(const int& mode)
 	//adjustSize();
 }
 
+void ToolBarRenderSettings::setDisplayPresetNames(const QStringList& names, const QString& selectedName)
+{
+	const QSignalBlocker blocker(m_ui.comboBox_displayPresets);
+	m_ui.comboBox_displayPresets->clear();
+	m_ui.comboBox_displayPresets->addItems(names);
+	setDisplayPresetSelection(selectedName);
+}
+
+void ToolBarRenderSettings::setDisplayPresetSelection(const QString& name)
+{
+	const int index = m_ui.comboBox_displayPresets->findText(name);
+	if (index >= 0)
+		m_ui.comboBox_displayPresets->setCurrentIndex(index);
+	m_ui.pushButton_editDisplayPresets->setEnabled(m_ui.comboBox_displayPresets->currentText() != "Initial");
+}
+
+QString ToolBarRenderSettings::currentDisplayPresetName() const
+{
+	return m_ui.comboBox_displayPresets->currentText();
+}
+
 void ToolBarRenderSettings::showContrastBrightness()
 {
     if (!m_intensityActive)
@@ -579,4 +604,22 @@ void ToolBarRenderSettings::slotNormalsChanged()
 void ToolBarRenderSettings::slotAlphaBoxesValueChanged(int value)
 {
 	m_dataDispatcher.updateInformation(new GuiDataAlphaObjectsRendering(1.0f - (value / 100.0f), m_focusCamera), this);
+}
+
+void ToolBarRenderSettings::slotDisplayPresetSelectionChanged(int index)
+{
+	Q_UNUSED(index)
+	const QString selected = m_ui.comboBox_displayPresets->currentText();
+	m_ui.pushButton_editDisplayPresets->setEnabled(selected != "Initial");
+	emit displayPresetSelectionChanged(selected);
+}
+
+void ToolBarRenderSettings::slotDisplayPresetNew()
+{
+	emit displayPresetNewRequested();
+}
+
+void ToolBarRenderSettings::slotDisplayPresetEdit()
+{
+	emit displayPresetEditRequested(m_ui.comboBox_displayPresets->currentText());
 }
