@@ -71,6 +71,8 @@ private:
 	};
 
 	void onProjectLoad(IGuiData* data);
+	void onNewProject(IGuiData* data);
+	void onOpenProject(IGuiData* data);
 	void onFocusViewport(IGuiData* data);
 	void onActiveCamera(IGuiData* data);
 

@@ -399,6 +399,8 @@ DisplayPresetManager::DisplayPresetManager(IDataDispatcher& dataDispatcher, Tool
 	connect(m_dialog->cancelButton(), &QPushButton::clicked, this, &DisplayPresetManager::handleDialogCancel);
 
 	registerGuiDataFunction(guiDType::projectLoaded, &DisplayPresetManager::onProjectLoad);
+	registerGuiDataFunction(guiDType::newProject, &DisplayPresetManager::onNewProject);
+	registerGuiDataFunction(guiDType::openProject, &DisplayPresetManager::onOpenProject);
 	registerGuiDataFunction(guiDType::renderActiveCamera, &DisplayPresetManager::onActiveCamera);
 	registerGuiDataFunction(guiDType::focusViewport, &DisplayPresetManager::onFocusViewport);
 
@@ -568,8 +570,18 @@ void DisplayPresetManager::onProjectLoad(IGuiData* data)
 {
 	GuiDataProjectLoaded* plData = static_cast<GuiDataProjectLoaded*>(data);
 	m_isProjectLoaded = plData->m_isProjectLoad;
-	if (m_isProjectLoaded)
-		m_applyDefaultPending = true;
+}
+
+void DisplayPresetManager::onNewProject(IGuiData* data)
+{
+	Q_UNUSED(data)
+	m_applyDefaultPending = true;
+}
+
+void DisplayPresetManager::onOpenProject(IGuiData* data)
+{
+	Q_UNUSED(data)
+	m_applyDefaultPending = false;
 }
 
 void DisplayPresetManager::onFocusViewport(IGuiData* data)
