@@ -63,16 +63,6 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="4">
-    <widget class="QSlider" name="slider_edgeAwareDepth">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="5">
-    <widget class="QSpinBox" name="spinBox_edgeAwareDepth"/>
-   </item>
    <item row="1" column="0">
     <widget class="QLabel" name="label_radius">
      <property name="text">
@@ -137,18 +127,27 @@
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="QSlider" name="slider_edgeAwareRadius">
-     <property name="minimumSize">
-      <size>
-       <width>80</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
+   <widget class="QSlider" name="slider_edgeAwareRadius">
+    <property name="minimumSize">
+     <size>
+      <width>80</width>
+      <height>0</height>
+     </size>
+    </property>
+    <property name="minimum">
+     <number>0</number>
+    </property>
+    <property name="maximum">
+     <number>20</number>
+    </property>
+    <property name="value">
+     <number>2</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+  </item>
    <item row="2" column="7">
     <widget class="QSlider" name="slider_depthLiningStrength">
      <property name="minimum">
@@ -165,15 +164,18 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="3">
-    <widget class="QLabel" name="label_edgeSensibility">
-     <property name="text">
-      <string>Edge sens.</string>
+   <item row="1" column="2">
+    <widget class="QSpinBox" name="spinBox_edgeAwareRadius">
+     <property name="minimum">
+      <number>0</number>
+     </property>
+     <property name="maximum">
+      <number>20</number>
+     </property>
+     <property name="value">
+      <number>2</number>
      </property>
     </widget>
-   </item>
-   <item row="1" column="2">
-    <widget class="QSpinBox" name="spinBox_edgeAwareRadius"/>
    </item>
    <item row="2" column="0">
     <widget class="QLabel" name="label_mix">
@@ -183,30 +185,27 @@
     </widget>
    </item>
    <item row="2" column="1">
-    <widget class="QSlider" name="slider_edgeAwareBlend">
-     <property name="minimumSize">
-      <size>
-       <width>80</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+   <widget class="QSlider" name="slider_edgeAwareBlend">
+    <property name="minimumSize">
+     <size>
+      <width>80</width>
+      <height>0</height>
+     </size>
+    </property>
+    <property name="value">
+     <number>30</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+  </item>
+  <item row="2" column="2">
+    <widget class="QSpinBox" name="spinBox_edgeAwareBlend">
+     <property name="value">
+      <number>30</number>
      </property>
     </widget>
-   </item>
-   <item row="2" column="2">
-    <widget class="QSpinBox" name="spinBox_edgeAwareBlend"/>
-   </item>
-   <item row="0" column="3">
-    <widget class="QLabel" name="label_resolution">
-     <property name="text">
-      <string>Res.</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="4">
-    <widget class="QComboBox" name="comboBox_edgeAwareResolution"/>
    </item>
   </layout>
  </widget>
