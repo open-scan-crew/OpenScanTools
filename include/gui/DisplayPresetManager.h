@@ -92,7 +92,7 @@ private:
 	void setDefaultPresetName(const QString& name);
 
 	void showErrorMessage(const QString& message);
-	bool validatePresetName(const QString& name, const QString& currentName = QString()) const;
+	bool validatePresetName(const QString& name, const QString& currentName = QString());
 
 private:
 	IDataDispatcher& m_dataDispatcher;

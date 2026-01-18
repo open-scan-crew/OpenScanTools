@@ -772,15 +772,15 @@ void DisplayPresetManager::loadPresets()
 	nlohmann::json jsonPresets;
 	fileStream >> jsonPresets;
 
-	if (jsonPresets.contains(kDefaultPresetKey))
+	if (jsonPresets.find(kDefaultPresetKey) != jsonPresets.end())
 		m_defaultPresetName = QString::fromUtf8(jsonPresets.at(kDefaultPresetKey).get<std::string>().c_str());
 
-	if (!jsonPresets.contains(kPresetsKey) || !jsonPresets.at(kPresetsKey).is_array())
+	if (jsonPresets.find(kPresetsKey) == jsonPresets.end() || !jsonPresets.at(kPresetsKey).is_array())
 		return;
 
 	for (const nlohmann::json& entry : jsonPresets.at(kPresetsKey))
 	{
-		if (!entry.contains(kPresetNameKey))
+		if (entry.find(kPresetNameKey) == entry.end())
 			continue;
 
 		DisplayPreset preset;
@@ -788,7 +788,7 @@ void DisplayPresetManager::loadPresets()
 		if (preset.name.isEmpty() || preset.name == kInitialPresetName)
 			continue;
 
-		if (entry.contains(kPresetDisplayParametersKey))
+		if (entry.find(kPresetDisplayParametersKey) != entry.end())
 		{
 			DisplayParameters params;
 			if (deserializeDisplayParameters(entry.at(kPresetDisplayParametersKey), params))
@@ -796,7 +796,7 @@ void DisplayPresetManager::loadPresets()
 		}
 
 		const ShowHideState fallback = getDefaultShowHideState();
-		if (entry.contains(kPresetShowHideKey))
+		if (entry.find(kPresetShowHideKey) != entry.end())
 			preset.showHideState = deserializeShowHideState(entry.at(kPresetShowHideKey), fallback);
 		else
 			preset.showHideState = fallback;
@@ -846,7 +846,7 @@ void DisplayPresetManager::showErrorMessage(const QString& message)
 		m_messageScreen->setShowMessage(message);
 }
 
-bool DisplayPresetManager::validatePresetName(const QString& name, const QString& currentName) const
+bool DisplayPresetManager::validatePresetName(const QString& name, const QString& currentName)
 {
 	if (name.isEmpty())
 	{
