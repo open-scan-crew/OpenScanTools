@@ -1236,15 +1236,18 @@ void VulkanManager::applyPicking(TlFramebuffer _fb, glm::ivec2 _pickingPos, VkCo
 void VulkanManager::submitMultipleFramebuffer(std::vector<TlFramebuffer> fbs)
 {
     VkResult err;
-    m_pfnDev->vkWaitForFences(m_device, 1, &m_renderFence, VK_TRUE, UINT64_MAX);
 
     if (fbs.empty())
         return;
 
-    m_pfnDev->vkResetFences(m_device, 1, &m_renderFence);
+    const uint32_t fenceIndex = m_currentFrameIndex.load() % MAX_FRAMES_IN_FLIGHT;
+    VkFence renderFence = m_renderFences[fenceIndex];
+    m_pfnDev->vkResetFences(m_device, 1, &renderFence);
 
     std::vector<VkSubmitInfo> submitInfos;
-    std::vector<VkPipelineStageFlags> waitStageMasks(fbs.size(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+    std::vector<VkPipelineStageFlags> waitStageMasks(
+        fbs.size(),
+        VK_PIPELINE_STAGE_TRANSFER_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
     submitInfos.reserve(fbs.size());
     for (size_t i = 0; i < fbs.size(); ++i)
     {
@@ -1261,7 +1264,7 @@ void VulkanManager::submitMultipleFramebuffer(std::vector<TlFramebuffer> fbs)
 
         submitInfos.push_back(submitInfo);
     }
-    err = m_pfnDev->vkQueueSubmit(getQueue(m_graphicsQID), (uint32_t)submitInfos.size(), submitInfos.data(), m_renderFence);
+    err = m_pfnDev->vkQueueSubmit(getQueue(m_graphicsQID), (uint32_t)submitInfos.size(), submitInfos.data(), renderFence);
     check_vk_result(err, "Submit Graphic Queue");
 
     for (TlFramebuffer fb : fbs)
@@ -1293,8 +1296,9 @@ void VulkanManager::submitMultipleFramebuffer(std::vector<TlFramebuffer> fbs)
 void VulkanManager::submitVirtualFramebuffer(TlFramebuffer fb)
 {
     VkResult err;
-    m_pfnDev->vkWaitForFences(m_device, 1, &m_renderFence, VK_TRUE, UINT64_MAX);
-    m_pfnDev->vkResetFences(m_device, 1, &m_renderFence);
+    const uint32_t fenceIndex = m_currentFrameIndex.load() % MAX_FRAMES_IN_FLIGHT;
+    VkFence renderFence = m_renderFences[fenceIndex];
+    m_pfnDev->vkResetFences(m_device, 1, &renderFence);
 
     VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
     VkSubmitInfo submitInfo = {};
@@ -1307,8 +1311,15 @@ void VulkanManager::submitVirtualFramebuffer(TlFramebuffer fb)
     submitInfo.signalSemaphoreCount = 0;
     submitInfo.pSignalSemaphores = nullptr;
 
-    err = m_pfnDev->vkQueueSubmit(getQueue(m_graphicsQID), 1, &submitInfo, m_renderFence);
+    err = m_pfnDev->vkQueueSubmit(getQueue(m_graphicsQID), 1, &submitInfo, renderFence);
     check_vk_result(err, "Submit Graphic Queue");
+}
+
+void VulkanManager::waitForRenderFence()
+{
+    const uint32_t fenceIndex = m_currentFrameIndex.load() % MAX_FRAMES_IN_FLIGHT;
+    VkFence renderFence = m_renderFences[fenceIndex];
+    m_pfnDev->vkWaitForFences(m_device, 1, &renderFence, VK_TRUE, UINT64_MAX);
 }
 
 void VulkanManager::waitIdle()
@@ -2956,9 +2967,12 @@ bool VulkanManager::createFences()
     fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-    VkResult err;
-    err = m_pfnDev->vkCreateFence(m_device, &fenceInfo, nullptr, &m_renderFence);
-    check_vk_result(err, "Create Fence");
+    VkResult err = VK_SUCCESS;
+    for (size_t i = 0; i < m_renderFences.size(); ++i)
+    {
+        err = m_pfnDev->vkCreateFence(m_device, &fenceInfo, nullptr, &m_renderFences[i]);
+        check_vk_result(err, "Create Fence");
+    }
     return err == VkResult::VK_SUCCESS;
 }
 
@@ -4216,7 +4230,8 @@ void VulkanManager::cleanupAll()
         destroyDescriptorSetLayout(*m_pfnDev, m_device, m_descSetLayout_finalOutput);
         destroyDescriptorSetLayout(*m_pfnDev, m_device, m_descSetLayout_inputTransparentLayer);
 
-        destroyFence(*m_pfnDev, m_device, m_renderFence);
+        for (VkFence fence : m_renderFences)
+            destroyFence(*m_pfnDev, m_device, fence);
 
         // Memory and Buffers
         destroyBuffer(*m_pfnDev, m_device, m_stagingBuf);
