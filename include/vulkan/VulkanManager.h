@@ -18,6 +18,7 @@
 #include "vulkan/VulkanFunctions.h"
 #include "vulkan/VkUniformAllocator.h"
 #include "vulkan/TlFramebuffer.h"
+#include "vulkan/TlFramebuffer_T.h"
 #include "vulkan/ImageTransferEvent.h"
 #include "VulkanMemoryAllocator/vk_mem_alloc.h"
 #include "pointCloudEngine/TlStreamer.h"
