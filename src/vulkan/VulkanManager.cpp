@@ -1244,7 +1244,9 @@ void VulkanManager::submitMultipleFramebuffer(std::vector<TlFramebuffer> fbs)
     m_pfnDev->vkResetFences(m_device, 1, &m_renderFence);
 
     std::vector<VkSubmitInfo> submitInfos;
-    std::vector<VkPipelineStageFlags> waitStageMasks(fbs.size(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+    std::vector<VkPipelineStageFlags> waitStageMasks(
+        fbs.size(),
+        VK_PIPELINE_STAGE_TRANSFER_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
     submitInfos.reserve(fbs.size());
     for (size_t i = 0; i < fbs.size(); ++i)
     {
@@ -1309,6 +1311,11 @@ void VulkanManager::submitVirtualFramebuffer(TlFramebuffer fb)
 
     err = m_pfnDev->vkQueueSubmit(getQueue(m_graphicsQID), 1, &submitInfo, m_renderFence);
     check_vk_result(err, "Submit Graphic Queue");
+}
+
+void VulkanManager::waitForRenderFence()
+{
+    m_pfnDev->vkWaitForFences(m_device, 1, &m_renderFence, VK_TRUE, UINT64_MAX);
 }
 
 void VulkanManager::waitIdle()
