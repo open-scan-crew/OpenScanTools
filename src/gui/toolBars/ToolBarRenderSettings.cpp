@@ -178,6 +178,8 @@ void ToolBarRenderSettings::onRenderLuminance(IGuiData* idata)
 void ToolBarRenderSettings::onRenderBlending(IGuiData* idata)
 {
 	GuiDataRenderBlending* data = static_cast<GuiDataRenderBlending*>(idata);
+	const QSignalBlocker spinBlocker(m_ui.falseColorSpinBox);
+	const QSignalBlocker sliderBlocker(m_ui.falseColorSlider);
 	m_ui.falseColorSpinBox->setValue(data->m_hue);
 	m_ui.falseColorSlider->setValue(data->m_hue);
 }
