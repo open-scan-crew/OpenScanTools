@@ -10,6 +10,7 @@
 #include <thread>
 #include <unordered_set>
 #include <queue>
+#include <array>
 #include <future>
 #include <type_traits>
 
@@ -17,6 +18,7 @@
 #include "vulkan/VulkanFunctions.h"
 #include "vulkan/VkUniformAllocator.h"
 #include "vulkan/TlFramebuffer.h"
+#include "vulkan/TlFramebuffer_T.h"
 #include "vulkan/ImageTransferEvent.h"
 #include "VulkanMemoryAllocator/vk_mem_alloc.h"
 #include "pointCloudEngine/TlStreamer.h"
@@ -88,6 +90,7 @@ public:
     void initStreaming();
     void stopStreaming();
     void startTransferThread();
+    void waitForRenderFence();
 
     // Framebuffer management
     bool initFramebuffer(TlFramebuffer& framebuffer, uint64_t winId, int _width, int _height, bool preciseColor);
@@ -392,7 +395,7 @@ private:
     void *m_pStaging = nullptr;
 
     // Synchronization Objects
-    VkFence m_renderFence = VK_NULL_HANDLE;
+    std::array<VkFence, MAX_FRAMES_IN_FLIGHT> m_renderFences{};
 
     // Vulkan Memory Allocator
     VmaPool m_hostPool = VK_NULL_HANDLE;
