@@ -53,6 +53,12 @@
    </item>
    <item row="1" column="9">
     <widget class="QSlider" name="aoIntensitySlider">
+     <property name="minimumSize">
+      <size>
+       <width>80</width>
+       <height>0</height>
+      </size>
+     </property>
      <property name="maximum">
       <number>100</number>
      </property>

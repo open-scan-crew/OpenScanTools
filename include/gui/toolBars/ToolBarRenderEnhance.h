@@ -27,7 +27,6 @@ private:
 	void blockAllSignals(bool block);
 	void updateEdgeAwareBlurUi(bool enabled);
 	EdgeAwareBlur getEdgeAwareBlurFromUi() const;
-	void populateEdgeAwareResolutionCombo();
 	void updateDepthLiningUi(bool enabled);
 	DepthLining getDepthLiningFromUi() const;
 
@@ -46,7 +45,6 @@ private:
 private slots:
 	void slotEdgeAwareBlurToggled(int state);
 	void slotEdgeAwareBlurValueChanged(int value);
-	void slotEdgeAwareBlurResolutionChanged(int index);
 	void slotDepthLiningToggled(int state);
 	void slotDepthLiningValueChanged(int value);
 	void slotDepthLiningSensitivityChanged(int value);

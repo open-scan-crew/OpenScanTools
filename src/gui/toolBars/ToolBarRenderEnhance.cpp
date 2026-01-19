@@ -5,12 +5,16 @@
 #include "models/graph/CameraNode.h"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 
 namespace
 {
 	constexpr float DEPTH_LINING_STRENGTH_UI_SCALE = 1.5f;
 	constexpr float DEPTH_LINING_SENSITIVITY_UI_SCALE = 3.0f;
+	constexpr int EDGE_AWARE_DEPTH_FIXED = 5;
+	[[maybe_unused]] constexpr std::array<const char*, 3> EDGE_AWARE_RESOLUTION_LABELS = { "Full res", "Half res", "Quarter res" };
+	constexpr std::array<float, 3> EDGE_AWARE_RESOLUTION_SCALES = { 1.0f, 0.5f, 0.25f };
 }
 
 ToolBarRenderEnhance::ToolBarRenderEnhance(IDataDispatcher& dataDispatcher, QWidget* parent, float guiScale)
@@ -22,22 +26,14 @@ ToolBarRenderEnhance::ToolBarRenderEnhance(IDataDispatcher& dataDispatcher, QWid
 	setEnabled(false);
 	(void)guiScale;
 
-	populateEdgeAwareResolutionCombo();
-
 	connect(m_ui.checkBox_edgeAwareBlur, &QCheckBox::stateChanged, this, &ToolBarRenderEnhance::slotEdgeAwareBlurToggled);
 	connect(m_ui.slider_edgeAwareRadius, &QSlider::valueChanged, m_ui.spinBox_edgeAwareRadius, &QSpinBox::setValue);
 	connect(m_ui.spinBox_edgeAwareRadius, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), m_ui.slider_edgeAwareRadius, &QSlider::setValue);
 	connect(m_ui.slider_edgeAwareRadius, &QSlider::valueChanged, this, &ToolBarRenderEnhance::slotEdgeAwareBlurValueChanged);
 
-	connect(m_ui.slider_edgeAwareDepth, &QSlider::valueChanged, m_ui.spinBox_edgeAwareDepth, &QSpinBox::setValue);
-	connect(m_ui.spinBox_edgeAwareDepth, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), m_ui.slider_edgeAwareDepth, &QSlider::setValue);
-	connect(m_ui.slider_edgeAwareDepth, &QSlider::valueChanged, this, &ToolBarRenderEnhance::slotEdgeAwareBlurValueChanged);
-
 	connect(m_ui.slider_edgeAwareBlend, &QSlider::valueChanged, m_ui.spinBox_edgeAwareBlend, &QSpinBox::setValue);
 	connect(m_ui.spinBox_edgeAwareBlend, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), m_ui.slider_edgeAwareBlend, &QSlider::setValue);
 	connect(m_ui.slider_edgeAwareBlend, &QSlider::valueChanged, this, &ToolBarRenderEnhance::slotEdgeAwareBlurValueChanged);
-
-	connect(m_ui.comboBox_edgeAwareResolution, qOverload<int>(&QComboBox::currentIndexChanged), this, &ToolBarRenderEnhance::slotEdgeAwareBlurResolutionChanged);
 
 	connect(m_ui.checkBox_depthLining, &QCheckBox::stateChanged, this, &ToolBarRenderEnhance::slotDepthLiningToggled);
 	connect(m_ui.slider_depthLiningStrength, &QSlider::valueChanged, m_ui.spinBox_depthLiningStrength, &QSpinBox::setValue);
@@ -87,7 +83,6 @@ void ToolBarRenderEnhance::onActiveCamera(IGuiData* data)
 
 	const EdgeAwareBlur& blurSettings = displayParameters.m_edgeAwareBlur;
 	int radiusValue = std::clamp(static_cast<int>(std::round(blurSettings.radius)), m_ui.slider_edgeAwareRadius->minimum(), m_ui.slider_edgeAwareRadius->maximum());
-	int depthValue = std::clamp(static_cast<int>(std::round(blurSettings.depthThreshold * 100.f)), m_ui.slider_edgeAwareDepth->minimum(), m_ui.slider_edgeAwareDepth->maximum());
 	int blendValue = std::clamp(static_cast<int>(std::round(blurSettings.blendStrength * 100.f)), m_ui.slider_edgeAwareBlend->minimum(), m_ui.slider_edgeAwareBlend->maximum());
 
 	const DepthLining& liningSettings = displayParameters.m_depthLining;
@@ -97,17 +92,9 @@ void ToolBarRenderEnhance::onActiveCamera(IGuiData* data)
 	m_ui.checkBox_edgeAwareBlur->setChecked(blurSettings.enabled);
 	m_ui.slider_edgeAwareRadius->setValue(radiusValue);
 	m_ui.spinBox_edgeAwareRadius->setValue(radiusValue);
-	m_ui.slider_edgeAwareDepth->setValue(depthValue);
-	m_ui.spinBox_edgeAwareDepth->setValue(depthValue);
 	m_ui.slider_edgeAwareBlend->setValue(blendValue);
 	m_ui.spinBox_edgeAwareBlend->setValue(blendValue);
 
-	if (blurSettings.resolutionScale <= 0.35f)
-		m_ui.comboBox_edgeAwareResolution->setCurrentIndex(2);
-	else if (blurSettings.resolutionScale <= 0.75f)
-		m_ui.comboBox_edgeAwareResolution->setCurrentIndex(1);
-	else
-		m_ui.comboBox_edgeAwareResolution->setCurrentIndex(0);
 	updateEdgeAwareBlurUi(blurSettings.enabled);
 
 	m_ui.checkBox_depthLining->setChecked(liningSettings.enabled);
@@ -133,11 +120,8 @@ void ToolBarRenderEnhance::blockAllSignals(bool block)
 	m_ui.checkBox_edgeAwareBlur->blockSignals(block);
 	m_ui.slider_edgeAwareRadius->blockSignals(block);
 	m_ui.spinBox_edgeAwareRadius->blockSignals(block);
-	m_ui.slider_edgeAwareDepth->blockSignals(block);
-	m_ui.spinBox_edgeAwareDepth->blockSignals(block);
 	m_ui.slider_edgeAwareBlend->blockSignals(block);
 	m_ui.spinBox_edgeAwareBlend->blockSignals(block);
-	m_ui.comboBox_edgeAwareResolution->blockSignals(block);
 	m_ui.checkBox_depthLining->blockSignals(block);
 	m_ui.slider_depthLiningStrength->blockSignals(block);
 	m_ui.spinBox_depthLiningStrength->blockSignals(block);
@@ -146,23 +130,12 @@ void ToolBarRenderEnhance::blockAllSignals(bool block)
 	m_ui.checkBox_depthLiningStrongMode->blockSignals(block);
 }
 
-void ToolBarRenderEnhance::populateEdgeAwareResolutionCombo()
-{
-	m_ui.comboBox_edgeAwareResolution->clear();
-	m_ui.comboBox_edgeAwareResolution->addItem(tr("Full res"));
-	m_ui.comboBox_edgeAwareResolution->addItem(tr("Half res"));
-	m_ui.comboBox_edgeAwareResolution->addItem(tr("Quarter res"));
-}
-
 void ToolBarRenderEnhance::updateEdgeAwareBlurUi(bool enabled)
 {
 	m_ui.slider_edgeAwareRadius->setEnabled(enabled);
 	m_ui.spinBox_edgeAwareRadius->setEnabled(enabled);
-	m_ui.slider_edgeAwareDepth->setEnabled(enabled);
-	m_ui.spinBox_edgeAwareDepth->setEnabled(enabled);
 	m_ui.slider_edgeAwareBlend->setEnabled(enabled);
 	m_ui.spinBox_edgeAwareBlend->setEnabled(enabled);
-	m_ui.comboBox_edgeAwareResolution->setEnabled(enabled);
 }
 
 EdgeAwareBlur ToolBarRenderEnhance::getEdgeAwareBlurFromUi() const
@@ -170,20 +143,9 @@ EdgeAwareBlur ToolBarRenderEnhance::getEdgeAwareBlurFromUi() const
 	EdgeAwareBlur settings = {};
 	settings.enabled = m_ui.checkBox_edgeAwareBlur->isChecked();
 	settings.radius = static_cast<float>(m_ui.spinBox_edgeAwareRadius->value());
-	settings.depthThreshold = m_ui.spinBox_edgeAwareDepth->value() / 100.f;
+	settings.depthThreshold = static_cast<float>(EDGE_AWARE_DEPTH_FIXED) / 100.f;
 	settings.blendStrength = m_ui.spinBox_edgeAwareBlend->value() / 100.f;
-	switch (m_ui.comboBox_edgeAwareResolution->currentIndex())
-	{
-	case 1:
-		settings.resolutionScale = 0.5f;
-		break;
-	case 2:
-		settings.resolutionScale = 0.25f;
-		break;
-	default:
-		settings.resolutionScale = 1.0f;
-		break;
-	}
+	settings.resolutionScale = EDGE_AWARE_RESOLUTION_SCALES.front();
 
 	return settings;
 }
@@ -219,15 +181,6 @@ void ToolBarRenderEnhance::slotEdgeAwareBlurToggled(int state)
 void ToolBarRenderEnhance::slotEdgeAwareBlurValueChanged(int value)
 {
 	(void)value;
-	if (!m_ui.checkBox_edgeAwareBlur->isChecked())
-		return;
-
-	m_dataDispatcher.updateInformation(new GuiDataEdgeAwareBlur(getEdgeAwareBlurFromUi(), m_focusCamera), this);
-}
-
-void ToolBarRenderEnhance::slotEdgeAwareBlurResolutionChanged(int index)
-{
-	(void)index;
 	if (!m_ui.checkBox_edgeAwareBlur->isChecked())
 		return;
 

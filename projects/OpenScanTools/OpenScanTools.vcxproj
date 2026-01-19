@@ -716,6 +716,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\gui\Dialog\DialogDeleteScanTypeSelect.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogAbout.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogDeviceSelection.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogDisplayPresets.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogExportFileObject.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogExportPointCloud.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogExportPrimitives.cpp" />
@@ -756,6 +757,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\gui\Dialog\TagTemplateNameDialog.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\TemplateEditorDialog.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\TemplateManagerDialog.cpp" />
+    <ClCompile Include="..\..\src\gui\DisplayPresetManager.cpp" />
     <ClCompile Include="..\..\src\gui\Gui.cpp">
       <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">input</DynamicSource>
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">%(Filename).moc</QtMocFileName>
@@ -1557,6 +1559,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtMoc Include="..\..\include\gui\Dialog\DialogImportStepSimplification.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogGizmo.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogDeviceSelection.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogDisplayPresets.h" />
     <QtMoc Include="..\..\include\gui\Dialog\HyperlinkAddDialog.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogSettings.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogDeleteScanTypeSelect.h" />
@@ -1612,6 +1615,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarSphereGroup.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarConnectPipeGroup.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarBeamDetection.h" />
+    <QtMoc Include="..\..\include\gui\DisplayPresetManager.h" />
     <ClInclude Include="..\..\include\gui\texts\ProjectTemplateTexts.hpp" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarRenderNormals.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarViewPoint.h" />
@@ -1917,6 +1921,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtUic Include="..\..\src\gui\forms\DialogDeleteScanTypeSelection.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogAbout.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogDeviceSelection.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogDisplayPresets.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogExportFileObject.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogExportPointCloud.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogExportPrimitives.ui" />
