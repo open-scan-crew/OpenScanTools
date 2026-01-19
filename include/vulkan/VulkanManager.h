@@ -88,6 +88,7 @@ public:
     void initStreaming();
     void stopStreaming();
     void startTransferThread();
+    void waitForRenderFence();
 
     // Framebuffer management
     bool initFramebuffer(TlFramebuffer& framebuffer, uint64_t winId, int _width, int _height, bool preciseColor);

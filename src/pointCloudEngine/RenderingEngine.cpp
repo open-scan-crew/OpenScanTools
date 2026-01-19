@@ -288,7 +288,9 @@ void RenderingEngine::update()
 
     std::vector<TlFramebuffer> m_framebuffersToRender;
     // Instruct the drawing for each viewport (if necessary)
-    VulkanManager::getInstance().startNextFrame();
+    VulkanManager& vkm = VulkanManager::getInstance();
+    vkm.waitForRenderFence();
+    vkm.startNextFrame();
     // Refresh the Inputs for each viewport.
     // Also apply the viewport inputs on the graph before updating the scene.
 
@@ -723,6 +725,7 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
 
     VkCommandBuffer cmdBuffer = vkm.getGraphicsCmdBuffer(framebuffer);
     const DisplayParameters& display = wCamera->getDisplayParameters();
+    vkm.resetCommandBuffer(cmdBuffer);
     vkm.beginCommandBuffer(cmdBuffer);
     if (refreshPCRender)
     {
@@ -883,6 +886,8 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
 
     // Scan render pass
     // Traverse the octree with full definition -> wait for the streaming to load the PC -> build the draw command with another octree traversal
+    vkm.waitForRenderFence();
+    vkm.resetCommandBuffer(cmdBuffer);
     vkm.beginCommandBuffer(cmdBuffer);
     vkm.beginScanRenderPass(framebuffer, getVkClearColor(displayParam.m_blendMode, displayParam.m_backgroundColor));
     visitor.draw_baked_pointClouds(cmdBuffer, m_pcRenderer);
