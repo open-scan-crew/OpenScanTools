@@ -289,8 +289,8 @@ void RenderingEngine::update()
     std::vector<TlFramebuffer> m_framebuffersToRender;
     // Instruct the drawing for each viewport (if necessary)
     VulkanManager& vkm = VulkanManager::getInstance();
-    vkm.waitForRenderFence();
     vkm.startNextFrame();
+    vkm.waitForRenderFence();
     // Refresh the Inputs for each viewport.
     // Also apply the viewport inputs on the graph before updating the scene.
 

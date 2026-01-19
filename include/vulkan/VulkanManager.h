@@ -10,6 +10,7 @@
 #include <thread>
 #include <unordered_set>
 #include <queue>
+#include <array>
 #include <future>
 #include <type_traits>
 
@@ -393,7 +394,7 @@ private:
     void *m_pStaging = nullptr;
 
     // Synchronization Objects
-    VkFence m_renderFence = VK_NULL_HANDLE;
+    std::array<VkFence, MAX_FRAMES_IN_FLIGHT> m_renderFences{};
 
     // Vulkan Memory Allocator
     VmaPool m_hostPool = VK_NULL_HANDLE;
