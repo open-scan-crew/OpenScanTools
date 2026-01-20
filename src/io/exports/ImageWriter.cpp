@@ -1,4 +1,5 @@
 #include "io/ImageWriter.h"
+#include "gui/UnitConverter.h"
 #include "utils/Logger.h"
 #include "utils/Utils.h"
 #include "vulkan/VulkanManager.h"
@@ -7,7 +8,10 @@
 #include <fstream>
 #include <limits>
 
+#include <QtCore/qobject.h>
 #include <QtGui/qimage.h>
+#include <QtGui/qfontmetrics.h>
+#include <QtGui/qpainter.h>
 
 ImageWriter::ImageWriter()
 {}
@@ -66,6 +70,70 @@ void ImageWriter::writeTile(const void* tileBuffer, uint32_t tileW, uint32_t til
         const char* srcRow = static_cast<const char*>(tileBuffer) + srcRowStride * h;
         memcpy_s(image_buffer_ + dstOffset, buffer_size_ - dstOffset, srcRow, srcRowStride);
     }
+}
+
+void ImageWriter::applyOrthoGridOverlay(const ImageHDMetadata& metadata, const OrthoGridOverlay& overlay)
+{
+    if (!overlay.active || !metadata.ortho)
+        return;
+    if (width_ == 0 || height_ == 0 || overlay.step <= 0.f)
+        return;
+    if (metadata.orthoSize.x <= 0.0 || metadata.orthoSize.y <= 0.0)
+        return;
+
+    QImage qImage;
+    if (format_ == ImageFormat::PNG16)
+        qImage = QImage(reinterpret_cast<uchar*>(image_buffer_), width_, height_, QImage::Format::Format_RGBA64);
+    else
+        qImage = QImage(reinterpret_cast<uchar*>(image_buffer_), width_, height_, QImage::Format::Format_ARGB32);
+    if (qImage.isNull())
+        return;
+
+    QPainter painter(&qImage);
+    painter.setRenderHint(QPainter::Antialiasing, false);
+    QPen pen(QColor(overlay.color.r, overlay.color.g, overlay.color.b, overlay.color.a));
+    pen.setWidthF(static_cast<qreal>(overlay.lineWidth));
+    painter.setPen(pen);
+
+    const float gridW = static_cast<float>(overlay.step * static_cast<double>(width_) / metadata.orthoSize.x);
+    const float gridH = static_cast<float>(overlay.step * static_cast<double>(height_) / metadata.orthoSize.y);
+    const float limitGridW = 5.f;
+    const float totalW = static_cast<float>(width_);
+    const float totalH = static_cast<float>(height_);
+
+    if (gridW > limitGridW && gridH > 0.f)
+    {
+        const float numLineH = std::trunc(totalH / gridH);
+        const float decalH = totalH - gridH * numLineH;
+
+        for (float w = 0.f; w < totalW; w += gridW)
+        {
+            const float x = std::roundf(w);
+            painter.drawLine(QPointF(x, 0.f), QPointF(x, totalH));
+        }
+
+        for (float h = 0.f; h < totalH; h += gridH)
+        {
+            const float y = std::roundf(h + decalH);
+            painter.drawLine(QPointF(0.f, y), QPointF(totalW, y));
+        }
+    }
+
+    const QString unitText = UnitConverter::getUnitText(overlay.distanceUnit);
+    const double gridSizeUI = UnitConverter::meterToX(overlay.step, overlay.distanceUnit);
+    const QString label = QObject::tr("Grid cell size : %1 %2").arg(gridSizeUI).arg(unitText);
+
+    QFont font = painter.font();
+    font.setPixelSize(12);
+    painter.setFont(font);
+    painter.setPen(QColor(overlay.color.r, overlay.color.g, overlay.color.b, overlay.color.a));
+
+    const QFontMetrics metrics(font);
+    const int textWidth = metrics.horizontalAdvance(label);
+    const int textHeight = metrics.height();
+    const int margin = 4;
+    const QRect textRect(margin, static_cast<int>(height_) - textHeight - margin, textWidth, textHeight);
+    painter.drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, label);
 }
 
 bool ImageWriter::save(const std::filesystem::path& file_path, ImageHDMetadata metadata)
