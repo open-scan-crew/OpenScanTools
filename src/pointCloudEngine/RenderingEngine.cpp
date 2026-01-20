@@ -568,7 +568,8 @@ void RenderingEngine::updateHD()
                         (2 * tileY * (float)frameH - m_hdExtent.y) / 2.f + sampleJitter.y);
 
                     ImageTransferEvent ite;
-                    renderVirtualViewport(virtualViewport, *&wCameraHD, screenOffset, sleepedTime, ite, m_hdFullResolutionTraversal);
+                    renderVirtualViewport(virtualViewport, *&wCameraHD, screenOffset, sleepedTime, ite, m_hdFullResolutionTraversal,
+                        m_hdExtent, glm::ivec2(tileOffsetW, tileOffsetH), glm::ivec2(tileWidth, tileHeight), border);
 
                     if (useAccumulation)
                     {
@@ -856,7 +857,9 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
     return true;
 }
 
-bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const CameraNode& camera, glm::vec2 screenOffset, double& _sleepedTime, ImageTransferEvent& transferEvent, bool fullResolutionTraversal)
+bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const CameraNode& camera, glm::vec2 screenOffset, double& _sleepedTime,
+    ImageTransferEvent& transferEvent, bool fullResolutionTraversal, const glm::ivec2& fullExtent, const glm::ivec2& tileOffset,
+    const glm::ivec2& tileExtent, uint32_t border)
 {
     VulkanManager& vkm = VulkanManager::getInstance();
     const DisplayParameters& displayParam = camera.getDisplayParameters();
@@ -983,7 +986,7 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
     visitor.drawImGuiBegin(m_graph.getRoot(), cmdBuffer);
     // TODO - Draw the selection rectangle with ImGui
     // Draw 2D Overlay (selection rectangle, ui, etc)
-    //drawOverlayHD(cmdBuffer, camera, framebuffer->extent, screenOffset);
+    drawOverlayHD(cmdBuffer, camera, framebuffer->extent, fullExtent, tileOffset, tileExtent, border);
     visitor.drawImGuiEnd(cmdBuffer);
 
     // (subpass 5) - draw gizmos
@@ -1164,7 +1167,8 @@ void RenderingEngine::drawOverlay(VkCommandBuffer cmdBuffer, const CameraNode& c
     ImGui::PopStyleColor(2);
 }
 
-void RenderingEngine::drawOverlayHD(VkCommandBuffer, const CameraNode& camera, const VkExtent2D& extent, const glm::vec2& screenOffset)
+void RenderingEngine::drawOverlayHD(VkCommandBuffer, const CameraNode& camera, const VkExtent2D& extent, const glm::ivec2& fullExtent,
+    const glm::ivec2& tileOffset, const glm::ivec2& tileExtent, uint32_t border)
 {
     ImGuiWindowFlags windowFlags = 0;
     windowFlags |= ImGuiWindowFlags_NoMove;
@@ -1184,8 +1188,8 @@ void RenderingEngine::drawOverlayHD(VkCommandBuffer, const CameraNode& camera, c
     ImGui::Begin("OverlayHD", NULL, windowFlags);
     ImDrawList* dl = ImGui::GetWindowDrawList();
 
-    ImVec2 upLeft = ImVec2(0., 0.);
-    ImVec2 botRight = ImVec2(extent.width, extent.height);
+    ImVec2 upLeft = ImVec2(static_cast<float>(border), static_cast<float>(border));
+    ImVec2 botRight = ImVec2(static_cast<float>(border + tileExtent.x), static_cast<float>(border + tileExtent.y));
 
     // Ortho Grid
     if (camera.getProjectionMode() == ProjectionMode::Orthographic && camera.m_orthoGridActive)
@@ -1197,54 +1201,71 @@ void RenderingEngine::drawOverlayHD(VkCommandBuffer, const CameraNode& camera, c
 
         float limitGridW = 5.f;
 
-        float gridW = (gridSize * extent.width) / float(camera.getWidthAt1m());
-        float gridH = (gridSize * extent.height) / float(camera.getHeightAt1m());
+        float gridW = (gridSize * fullExtent.x) / float(camera.getWidthAt1m());
+        float gridH = (gridSize * fullExtent.y) / float(camera.getHeightAt1m());
 
-        float totalW = botRight.x - upLeft.x;
-        float totalH = botRight.y - upLeft.y;
+        float totalW = static_cast<float>(fullExtent.x);
+        float totalH = static_cast<float>(fullExtent.y);
 
         float numLineH = std::trunc(totalH / gridH);
 
         if (gridW > limitGridW)
         {
             float decalH = totalH - gridH * numLineH;
+            float offsetX = std::fmod(static_cast<float>(tileOffset.x), gridW);
+            float offsetY = std::fmod(static_cast<float>(tileOffset.y), gridH);
+            float startX = upLeft.x - offsetX;
+            float startY = upLeft.y + decalH - offsetY;
 
-            for (float w = 0.f; w < totalW; w += gridW)
+            while (startX < upLeft.x)
+                startX += gridW;
+
+            while (startY < upLeft.y)
+                startY += gridH;
+
+            for (float w = startX; w < botRight.x; w += gridW)
             {
-                ImVec2 a(std::roundf(w + upLeft.x), std::roundf(upLeft.y));
-                ImVec2 b(std::roundf(w + upLeft.x), std::roundf(botRight.y));
+                ImVec2 a(std::roundf(w), std::roundf(upLeft.y));
+                ImVec2 b(std::roundf(w), std::roundf(botRight.y));
                 dl->AddLine(a, b, color, lineWidth);
             }
 
-            for (float h = 0.f; h < totalH; h += gridH)
+            for (float h = startY; h < botRight.y; h += gridH)
             {
-                ImVec2 a(std::roundf(upLeft.x), std::roundf(h + decalH + upLeft.y));
-                ImVec2 b(std::roundf(botRight.x), std::roundf(h + decalH + upLeft.y));
+                ImVec2 a(std::roundf(upLeft.x), std::roundf(h));
+                ImVec2 b(std::roundf(botRight.x), std::roundf(h));
                 dl->AddLine(a, b, color, lineWidth);
             }
         }
 
-        ImUtilsText text;
-        QString unitText = UnitConverter::getUnitText(camera.m_unitUsage.distanceUnit);
-        double gridSizeUI = UnitConverter::meterToX(gridSize, camera.m_unitUsage.distanceUnit);
+        const int bottomY = fullExtent.y - 1;
+        const bool containsBottomLeft = (tileOffset.x == 0)
+            && (tileOffset.y <= bottomY)
+            && (tileOffset.y + tileExtent.y > bottomY);
 
-        text.text = TEXT_ORTHO_GRID_SIZE.arg(gridSizeUI).arg(unitText).toStdString();
-        text.hovered = false;
-        text.selected = false;
+        if (containsBottomLeft)
+        {
+            ImUtilsText text;
+            QString unitText = UnitConverter::getUnitText(camera.m_unitUsage.distanceUnit);
+            double gridSizeUI = UnitConverter::meterToX(gridSize, camera.m_unitUsage.distanceUnit);
 
-        ImVec2 textUpLeft, textBotRight, dump;
+            text.text = TEXT_ORTHO_GRID_SIZE.arg(gridSizeUI).arg(unitText).toStdString();
+            text.hovered = false;
+            text.selected = false;
 
-        ImGuiUtils::calcTextRect(camera, m_guiScale, text.text, upLeft.x, botRight.y, dump, textUpLeft, textBotRight);
+            ImVec2 textUpLeft, textBotRight, dump;
+            ImGuiUtils::calcTextRect(camera, m_guiScale, text.text, 0.0f, static_cast<float>(fullExtent.y), dump, textUpLeft, textBotRight);
 
-        text.wx = upLeft.x + (textBotRight.x - textUpLeft.x) / 2;
-        text.wy = botRight.y - (textBotRight.y - textUpLeft.y);
+            text.wx = 0.0f;
+            text.wy = static_cast<float>(fullExtent.y) - (textBotRight.y - textUpLeft.y);
 
-        ImGuiUtils::drawText(camera, m_guiScale, text);
+            text.wx = text.wx - static_cast<float>(tileOffset.x) + upLeft.x;
+            text.wy = text.wy - static_cast<float>(tileOffset.y) + upLeft.y;
+
+            ImGuiUtils::drawText(camera, m_guiScale, text);
+        }
     }
 
-    ImGui::End();
-    ImGui::PopStyleVar();
-    ImGui::PopStyleColor(2);
     ImGui::End();
     ImGui::PopStyleVar();
     ImGui::PopStyleColor(2);
