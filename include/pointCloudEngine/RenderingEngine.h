@@ -54,7 +54,7 @@ private:
     void updateHD();
     void resetDrawBuffers(TlFramebuffer fb);
     bool updateFramebuffer(VulkanViewport& viewport);
-    bool renderVirtualViewport(TlFramebuffer framebuffer, const CameraNode& camera, glm::vec2 screenOffset, double& sleepedTime, ImageTransferEvent& transferEvent, bool fullResolutionTraversal);
+    bool renderVirtualViewport(TlFramebuffer framebuffer, const CameraNode& camera, const glm::ivec2& tileOrigin, const glm::ivec2& fullExtent, glm::vec2 screenOffset, double& sleepedTime, ImageTransferEvent& transferEvent, bool fullResolutionTraversal);
 
     typedef void (RenderingEngine::*GuiDataFunction)(IGuiData*);
     inline void registerGuiDataFunction(guiDType type, GuiDataFunction fct)
@@ -78,7 +78,7 @@ private:
 
     void drawSelectionRect(VkCommandBuffer, const VulkanViewport& viewport);
     void drawOverlay(VkCommandBuffer, const CameraNode& camera, const VkExtent2D& extend);
-    void drawOverlayHD(VkCommandBuffer, const CameraNode& camera, const VkExtent2D& extend, const glm::vec2& screenOffset);
+    void drawOverlayHD(VkCommandBuffer, const CameraNode& camera, const VkExtent2D& extent, const glm::ivec2& tileOrigin, const glm::ivec2& fullExtent, const glm::vec2& screenOffset);
     void timeRendering(bool newFrameSubmited);
 
     void startImGuiContext();
