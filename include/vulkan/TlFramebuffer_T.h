@@ -2,6 +2,7 @@
 #define TL_SWAPCHAIN_H
 
 #include "vulkan/vulkan.h"
+#include "pointCloudEngine/SmartBuffer.h"
 
 #include <atomic>
 #include <vector>
