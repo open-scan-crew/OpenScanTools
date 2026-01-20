@@ -463,6 +463,7 @@ void RenderingEngine::updateHD()
     vkm.startNextFrame();
 
     ImageWriter imgWriter;
+    OrthoGridOverlay orthoGridOverlay;
     if (imgWriter.startCapture(m_hdFormat, m_hdExtent.x, m_hdExtent.y, m_imageMetadata.includeAlpha) == false)
         return;
 
@@ -481,6 +482,14 @@ void RenderingEngine::updateHD()
 
         // Update internal matrixes
         wCameraHD->refresh();
+        orthoGridOverlay.active = wCameraHD->getProjectionMode() == ProjectionMode::Orthographic && wCameraHD->m_orthoGridActive;
+        if (orthoGridOverlay.active)
+        {
+            orthoGridOverlay.step = wCameraHD->m_orthoGridStep;
+            orthoGridOverlay.lineWidth = wCameraHD->m_orthoGridLineWidth;
+            orthoGridOverlay.color = wCameraHD->m_orthoGridColor;
+            orthoGridOverlay.distanceUnit = wCameraHD->m_unitUsage.distanceUnit;
+        }
 
         if(m_showProgressBar)
             m_dataDispatcher.updateInformation(new GuiDataProcessingSplashScreenStart((uint64_t)tileCountX * tileCountY, TEXT_SCREENSHOT_START, TEXT_SCREENSHOT_PROCESSING.arg(count).arg(tileCountX * tileCountY)));
@@ -630,6 +639,9 @@ void RenderingEngine::updateHD()
 
     cameraHD.destroy();
     vkm.destroyFramebuffer(virtualViewport);
+
+    if (orthoGridOverlay.active)
+        imgWriter.applyOrthoGridOverlay(m_imageMetadata, orthoGridOverlay);
 
     if (imgWriter.save(m_hdImageFilepath, m_imageMetadata))
     {
