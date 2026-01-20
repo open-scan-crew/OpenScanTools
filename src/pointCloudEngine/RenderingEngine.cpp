@@ -983,7 +983,7 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
     visitor.drawImGuiBegin(m_graph.getRoot(), cmdBuffer);
     // TODO - Draw the selection rectangle with ImGui
     // Draw 2D Overlay (selection rectangle, ui, etc)
-    //drawOverlayHD(cmdBuffer, camera, framebuffer->extent, screenOffset);
+    drawOverlayHD(cmdBuffer, camera, framebuffer->extent, screenOffset);
     visitor.drawImGuiEnd(cmdBuffer);
 
     // (subpass 5) - draw gizmos
@@ -1203,23 +1203,40 @@ void RenderingEngine::drawOverlayHD(VkCommandBuffer, const CameraNode& camera, c
         float totalW = botRight.x - upLeft.x;
         float totalH = botRight.y - upLeft.y;
 
-        float numLineH = std::trunc(totalH / gridH);
+        float gridOriginX = upLeft.x;
+        float gridOriginY = botRight.y;
+
+        if (m_showHDFrame)
+        {
+            ProjectionData HDFrame = camera.getTruncatedProjection(m_hdFrameRatio, HD_MARGIN);
+
+            glm::dvec2 frameSize(HDFrame.getWidthAt1m(), HDFrame.getHeightAt1m());
+            glm::dvec2 sizeCam(camera.getWidthAt1m(), camera.getHeightAt1m());
+
+            glm::vec2 margin((sizeCam - frameSize) / (sizeCam * 2.0));
+            ImVec2 frameUpLeft = ImVec2(margin.x * extent.width, margin.y * extent.height);
+            ImVec2 frameBotRight = ImVec2((1 - margin.x) * extent.width, (1 - margin.y) * extent.height);
+
+            gridOriginX = frameUpLeft.x;
+            gridOriginY = frameBotRight.y;
+        }
 
         if (gridW > limitGridW)
         {
-            float decalH = totalH - gridH * numLineH;
+            float startX = gridOriginX - std::floor((gridOriginX - upLeft.x) / gridW) * gridW;
+            float startY = gridOriginY - std::floor((gridOriginY - upLeft.y) / gridH) * gridH;
 
-            for (float w = 0.f; w < totalW; w += gridW)
+            for (float x = startX; x <= botRight.x; x += gridW)
             {
-                ImVec2 a(std::roundf(w + upLeft.x), std::roundf(upLeft.y));
-                ImVec2 b(std::roundf(w + upLeft.x), std::roundf(botRight.y));
+                ImVec2 a(std::roundf(x), std::roundf(upLeft.y));
+                ImVec2 b(std::roundf(x), std::roundf(botRight.y));
                 dl->AddLine(a, b, color, lineWidth);
             }
 
-            for (float h = 0.f; h < totalH; h += gridH)
+            for (float y = startY; y <= botRight.y; y += gridH)
             {
-                ImVec2 a(std::roundf(upLeft.x), std::roundf(h + decalH + upLeft.y));
-                ImVec2 b(std::roundf(botRight.x), std::roundf(h + decalH + upLeft.y));
+                ImVec2 a(std::roundf(upLeft.x), std::roundf(y));
+                ImVec2 b(std::roundf(botRight.x), std::roundf(y));
                 dl->AddLine(a, b, color, lineWidth);
             }
         }
