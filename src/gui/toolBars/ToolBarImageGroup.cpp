@@ -220,6 +220,22 @@ const std::unordered_map<ImageDPI, double> g_imageDPIValues = {
 	{ ImageDPI::DPI_1200, 1200 }
 };
 
+enum class ImageAntialiasing
+{
+	Off = 0,
+	Low,
+	Mid,
+	High,
+	MAX_ENUM
+};
+
+const std::unordered_map<ImageAntialiasing, int> g_imageAntialiasingSamples = {
+	{ ImageAntialiasing::Off, 1 },
+	{ ImageAntialiasing::Low, 2 },
+	{ ImageAntialiasing::Mid, 4 },
+	{ ImageAntialiasing::High, 8 }
+};
+
 ToolBarImageGroup::ToolBarImageGroup(IDataDispatcher& dataDispatcher, QWidget* parent, const float& guiScale)
 	: QWidget(parent)
 	, m_dataDispatcher(dataDispatcher)
@@ -235,8 +251,10 @@ ToolBarImageGroup::ToolBarImageGroup(IDataDispatcher& dataDispatcher, QWidget* p
 
 	QObject::connect(m_ui.toolButton_screenshot, &QPushButton::released, this, [this]() {quickScreenshot(""); });
 	QObject::connect(m_ui.checkBox_frame, &QCheckBox::toggled, this, &ToolBarImageGroup::slotShowFrame);
+	QObject::connect(m_ui.checkBox_hdImageGrid, &QCheckBox::toggled, this, &ToolBarImageGroup::slotShowFrame);
 
 	QObject::connect(m_ui.formatComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarImageGroup::imageFormat);
+	QObject::connect(m_ui.checkBox_alphaImage, &QCheckBox::toggled, this, &ToolBarImageGroup::imageFormat);
 	QObject::connect(m_ui.comboBox_print, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarImageGroup::slotRatioChanged);
 	QObject::connect(m_ui.comboBox_ratioImage, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarImageGroup::slotRatioChanged);
 	QObject::connect(m_ui.comboBox_scale, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarImageGroup::slotScaleChanged);
@@ -279,12 +297,20 @@ ToolBarImageGroup::ToolBarImageGroup(IDataDispatcher& dataDispatcher, QWidget* p
 	}
 	m_ui.comboBox_dpi->setCurrentIndex((int)ImageDPI::DPI_150);
 
+	m_ui.comboBox_antialiasHD->addItem(tr("Off"), QVariant((int)ImageAntialiasing::Off));
+	m_ui.comboBox_antialiasHD->addItem(tr("Low"), QVariant((int)ImageAntialiasing::Low));
+	m_ui.comboBox_antialiasHD->addItem(tr("Mid"), QVariant((int)ImageAntialiasing::Mid));
+	m_ui.comboBox_antialiasHD->addItem(tr("High"), QVariant((int)ImageAntialiasing::High));
+	m_ui.comboBox_antialiasHD->setCurrentIndex((int)ImageAntialiasing::Off);
+
 	refreshShowUI();
 
 	registerGuiDataFunction(guiDType::projectLoaded, &ToolBarImageGroup::onProjectLoad);
 	registerGuiDataFunction(guiDType::focusViewport, &ToolBarImageGroup::onFocusViewport);
 	registerGuiDataFunction(guiDType::renderActiveCamera, &ToolBarImageGroup::onActiveCamera);
 	registerGuiDataFunction(guiDType::hdCall, &ToolBarImageGroup::onCallHD);
+	registerGuiDataFunction(guiDType::projectDataProperties, &ToolBarImageGroup::onProjectProperties);
+	registerGuiDataFunction(guiDType::projectDataPropertiesNoOpen, &ToolBarImageGroup::onProjectProperties);
 }
 
 ToolBarImageGroup::~ToolBarImageGroup()
@@ -306,6 +332,8 @@ void ToolBarImageGroup::onProjectLoad(IGuiData* data)
 {
 	GuiDataProjectLoaded* cData = static_cast<GuiDataProjectLoaded*>(data);
 	setEnabled(cData->m_isProjectLoad);
+	if (!cData->m_isProjectLoad)
+		m_importScanTranslation = glm::dvec3(0.0);
 }
 
 void ToolBarImageGroup::onFocusViewport(IGuiData* data)
@@ -362,25 +390,46 @@ void ToolBarImageGroup::onCallHD(IGuiData* data)
 	GuiDataCallImage* castData = static_cast<GuiDataCallImage*>(data);
 
 	if (castData->m_callHDImage)
-		slotCreateImage(castData->m_filepath, false);
+	{
+		const bool showProgressBar = castData->m_filepath.empty();
+		slotCreateImage(castData->m_filepath, showProgressBar);
+	}
 	else
 		quickScreenshot(castData->m_filepath);
 }
 
+void ToolBarImageGroup::onProjectProperties(IGuiData* data)
+{
+	GuiDataProjectProperties* castData = static_cast<GuiDataProjectProperties*>(data);
+	m_importScanTranslation = castData->m_projectInfo.m_importScanTranslation;
+}
+
 void ToolBarImageGroup::quickScreenshot(std::filesystem::path filepath)
-{	
-	m_dataDispatcher.sendControl(new control::io::QuickScreenshot((ImageFormat)m_ui.formatComboBox->currentIndex(), filepath));
+{
+	m_dataDispatcher.sendControl(new control::io::QuickScreenshot((ImageFormat)m_ui.formatComboBox->currentIndex(), filepath, isAlphaChannelEnabled()));
 }
 
 void ToolBarImageGroup::imageFormat()
 {
-	m_dataDispatcher.updateInformation(new GuiDataRenderImagesFormat((ImageFormat)m_ui.formatComboBox->currentIndex()), this);
+	m_dataDispatcher.updateInformation(new GuiDataRenderImagesFormat((ImageFormat)m_ui.formatComboBox->currentIndex(), isAlphaChannelEnabled()), this);
+}
+
+bool ToolBarImageGroup::isAlphaChannelEnabled() const
+{
+	ImageFormat format = static_cast<ImageFormat>(m_ui.formatComboBox->currentIndex());
+	return hasAlphaSupport(format) && m_ui.checkBox_alphaImage->isChecked();
+}
+
+bool ToolBarImageGroup::hasAlphaSupport(ImageFormat format) const
+{
+	return format == ImageFormat::PNG || format == ImageFormat::PNG16 || format == ImageFormat::TIFF;
 }
 
 void ToolBarImageGroup::refreshShowUI()
 {
 	m_ui.widget_ratios->setEnabled(m_ui.checkBox_frame->isChecked());
 	m_ui.widget_layout->setEnabled(m_ui.checkBox_frame->isChecked());
+	m_ui.checkBox_hdImageGrid->setEnabled(m_ui.checkBox_frame->isChecked());
 	m_ui.toolButton_createImage->setText(m_projection == ProjectionMode::Perspective ? TEXT_CREATE_HD_IMAGE : TEXT_CREATE_ORTHOIMAGE);
 	m_ui.lineEdit_imageW->setEnabled(m_projection == ProjectionMode::Perspective);
 	m_ui.lineEdit_imageH->setEnabled(m_projection == ProjectionMode::Perspective);
@@ -397,6 +446,7 @@ void ToolBarImageGroup::refreshImageSize()
 	uint32_t area_width = 0;
 	uint32_t area_height = 0;
 	bool useFrame = m_ui.checkBox_frame->isChecked();
+	bool showGrid = useFrame && m_ui.checkBox_hdImageGrid->isChecked();
 	glm::dvec2 frameOrthoSize = glm::dvec2(1.0, 1.0);
 	double ratio = getRatioWH();
 	double frameFactor = useFrame ? 0.9 : 1.0;
@@ -443,7 +493,7 @@ void ToolBarImageGroup::refreshImageSize()
 	setSilentWidthHeight(width, height);
 
 	// Indique au viewport les dimmensions du 
-	m_dataDispatcher.updateInformation(new GuiDataPrepareHDImage(useFrame, ratio, m_focusCamera), this);
+	m_dataDispatcher.updateInformation(new GuiDataPrepareHDImage(useFrame, showGrid, ratio, m_focusCamera), this);
 }
 
 double ToolBarImageGroup::getRatioWH()
@@ -516,13 +566,15 @@ void ToolBarImageGroup::slotCreateImage(std::filesystem::path filepath, bool sho
 	bool resH = false;
 	uint32_t width = m_ui.lineEdit_imageW->text().toUInt(&resW, 10);
 	uint32_t height = m_ui.lineEdit_imageH->text().toUInt(&resH, 10);
-	int multisample = 1;
+	int multisample = g_imageAntialiasingSamples.at((ImageAntialiasing)m_ui.comboBox_antialiasHD->currentData().toInt());
 
 	ImageHDMetadata metadata;
 	metadata.saveTextFile = true;
 	metadata.ortho = m_projection == ProjectionMode::Orthographic;
 	metadata.dpi = g_imageDPIValues.at((ImageDPI)(m_ui.comboBox_dpi->currentData().toInt()));
 	metadata.scaleInv = 1/m_scale;
+	metadata.includeAlpha = isAlphaChannelEnabled();
+	metadata.importScanTranslation = m_importScanTranslation;
 
 	bool useFrame = m_ui.checkBox_frame->isChecked();
 	if (useFrame)
@@ -558,7 +610,10 @@ void ToolBarImageGroup::slotCreateImage(std::filesystem::path filepath, bool sho
 	constexpr int hdtilesize = 256;
 
 	if (resW && resH && width > 0 && height > 0)
-		m_dataDispatcher.sendControl(new control::io::SetupImageHD(m_focusCamera, glm::ivec2(width, height), multisample, format, metadata, filepath, showProgressBar, hdtilesize));
+	{
+		const bool fullResolutionTraversal = true;
+		m_dataDispatcher.sendControl(new control::io::SetupImageHD(m_focusCamera, glm::ivec2(width, height), multisample, format, metadata, filepath, showProgressBar, hdtilesize, fullResolutionTraversal));
+	}
 	// else 
 	//    return a error message
 }

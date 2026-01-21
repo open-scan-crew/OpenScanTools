@@ -167,6 +167,17 @@ public:
     float m_pointSize;
 };
 
+class GuiDataRenderTexelThreshold : public GuiDataActiveCamera
+{
+public:
+    GuiDataRenderTexelThreshold(int texelThreshold, SafePtr<CameraNode> camera);
+    ~GuiDataRenderTexelThreshold() {};
+    virtual guiDType getType() override;
+
+public:
+    int m_texelThreshold;
+};
+
 class GuiDataRenderBrightness : public GuiDataActiveCamera
 {
 public:
@@ -238,13 +249,15 @@ public:
 class GuiDataRenderTransparencyOptions : public GuiDataActiveCamera
 {
 public:
-	GuiDataRenderTransparencyOptions(bool negativeColors, bool reduceFlash, float hlt, SafePtr<CameraNode> camera);
+	GuiDataRenderTransparencyOptions(bool negativeColors, bool reduceFlash, bool flashAdvanced, float flashControl, float hlt, SafePtr<CameraNode> camera);
 	~GuiDataRenderTransparencyOptions() {};
 	virtual guiDType getType() override;
 
 public:
 	bool m_negativeEffect;
 	bool m_reduceFlash;
+    bool m_flashAdvanced;
+    float m_flashControl;
 	float m_highLuminosityThreshold;
 };
 
@@ -299,6 +312,17 @@ public:
 public:
 	PostRenderingNormals m_normals;
 	bool m_onlySimpleNormalsInfo;
+};
+
+class GuiDataRenderAmbientOcclusion : public GuiDataActiveCamera
+{
+public:
+	GuiDataRenderAmbientOcclusion(const PostRenderingAmbientOcclusion& aoParams, SafePtr<CameraNode> camera);
+	~GuiDataRenderAmbientOcclusion() {};
+	virtual guiDType getType() override;
+
+public:
+	PostRenderingAmbientOcclusion m_ao;
 };
 
 class GuiDataEdgeAwareBlur : public GuiDataActiveCamera
@@ -403,12 +427,13 @@ public:
 class GuiDataRenderImagesFormat : public IGuiData
 {
 public:
-	GuiDataRenderImagesFormat(const ImageFormat& format);
+	GuiDataRenderImagesFormat(const ImageFormat& format, bool includeAlpha);
 	~GuiDataRenderImagesFormat() {};
 	virtual guiDType getType() override;
 
 public:
 	const ImageFormat m_format;
+	const bool m_includeAlpha;
 };
 
 class GuiDataRenderUnitUsage : public GuiDataActiveCamera
@@ -429,6 +454,16 @@ public:
     guiDType getType() override;
 public:
     const DecimationOptions m_options;
+};
+
+class GuiDataRenderOctreePrecision : public IGuiData
+{
+public:
+	GuiDataRenderOctreePrecision(OctreePrecision precision);
+	~GuiDataRenderOctreePrecision() {}
+	guiDType getType() override;
+public:
+	const OctreePrecision m_precision;
 };
 
 class GuiDataRenderNavigationConstraint : public GuiDataActiveCamera

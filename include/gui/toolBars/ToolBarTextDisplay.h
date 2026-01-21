@@ -4,6 +4,7 @@
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
 #include "pointCloudEngine/ShowTypes.h"
+#include "utils/safe_ptr.h"
 
 #include <QtWidgets/qwidget.h>
 
@@ -12,6 +13,7 @@
 class ToolBarTextDisplay;
 
 typedef void (ToolBarTextDisplay::*TextDisplayMethod)(IGuiData*);
+class CameraNode;
 
 class ToolBarTextDisplay : public QWidget, public IPanel
 {
@@ -23,6 +25,8 @@ public :
 	void informData(IGuiData *data) override;
 
 	void onProjectLoad(IGuiData *data);
+	void onActiveCamera(IGuiData* data);
+	void onFocusViewport(IGuiData* data);
 
 protected :
 
@@ -32,6 +36,8 @@ private:
 
 	TextFilter m_textFilter;
 	inline void addRemoveFilter(TextFilter& textFilter, bool checked, int filter);
+	void updateUiFromCamera();
+	void blockAllSignals(bool block);
 
 	void toggleRenderParameter(bool checked, int parameter);
 	void changeTheme(int theme);
@@ -41,7 +47,7 @@ private:
 
 	Ui::ToolBarTextDisplay m_ui;
 	IDataDispatcher &m_dataDispatcher;
+	SafePtr<CameraNode> m_focusCamera;
 };
 
 #endif // TOOLBAR_TAGGROUP_H
-

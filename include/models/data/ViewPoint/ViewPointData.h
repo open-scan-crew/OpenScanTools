@@ -27,6 +27,7 @@ public:
 
 	void setActiveClippings(const std::unordered_set<SafePtr<AClippingNode>>& list);
 	void setInteriorClippings(const std::unordered_set<SafePtr<AClippingNode>>& list);
+	void setPhaseClippings(const std::unordered_set<SafePtr<AClippingNode>>& list);
 	void setActiveRamps(const std::unordered_set<SafePtr<AClippingNode>>& list);
 
 	void setVisibleObjects(const std::unordered_set<SafePtr<AGraphNode>>& list);
@@ -38,6 +39,7 @@ public:
 
 	const std::unordered_set<SafePtr<AClippingNode>>& getActiveClippings() const;
 	const std::unordered_set<SafePtr<AClippingNode>>& getInteriorClippings() const;
+	const std::unordered_set<SafePtr<AClippingNode>>& getPhaseClippings() const;
 	const std::unordered_set<SafePtr<AClippingNode>>& getActiveRamps() const;
 
 	const std::unordered_set<SafePtr<AGraphNode>>& getVisibleObjects() const;
@@ -51,6 +53,7 @@ protected:
 
 	std::unordered_set<SafePtr<AClippingNode>> m_activeClippings;
 	std::unordered_set<SafePtr<AClippingNode>> m_interiorClippings;
+	std::unordered_set<SafePtr<AClippingNode>> m_phaseClippings;
 	std::unordered_set<SafePtr<AClippingNode>> m_activeRamps;
 
 	std::unordered_set<SafePtr<AGraphNode>> m_visibleObjects;

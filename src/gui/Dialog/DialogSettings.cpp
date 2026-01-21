@@ -40,11 +40,14 @@ DialogSettings::DialogSettings(IDataDispatcher& dataDispatcher, QWidget* parent)
 		m_ui.diameterUnitBox->addItem(text, QVariant((uint32_t)unit));
 	}
 
-	for(UnitType vUnit : s_settingVolumeUnits)
-		m_ui.volumeUnitBox->addItem(UnitConverter::getUnitText(vUnit), QVariant((uint32_t)vUnit));
+		for(UnitType vUnit : s_settingVolumeUnits)
+			m_ui.volumeUnitBox->addItem(UnitConverter::getUnitText(vUnit), QVariant((uint32_t)vUnit));
 
+		m_ui.comboBox_octreePrecision->addItem(QString("Analysis"), QVariant(static_cast<int>(OctreePrecision::Analysis)));
+		m_ui.comboBox_octreePrecision->addItem(QString("Normal"), QVariant(static_cast<int>(OctreePrecision::Normal)));
+		m_ui.comboBox_octreePrecision->addItem(QString("Performances"), QVariant(static_cast<int>(OctreePrecision::Performances)));
 
-	m_ui.autosaveTimingComboBox->addItem(QString(""), QVariant(0));
+		m_ui.autosaveTimingComboBox->addItem(QString(""), QVariant(0));
 	for (const uint8_t& time : Config::Timing)
 		m_ui.autosaveTimingComboBox->addItem(TEXT_SETTINGS_MINUTES.arg(time), QVariant(time));
 
@@ -65,8 +68,10 @@ DialogSettings::DialogSettings(IDataDispatcher& dataDispatcher, QWidget* parent)
 	connect(m_ui.volumeUnitBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &DialogSettings::onUnitUsageChanged);
 	connect(m_ui.toolButton_folder, &QToolButton::clicked, this, &DialogSettings::onSelectProjsFolder);
 	connect(m_ui.toolButton_temporary, &QToolButton::clicked, this, &DialogSettings::onSelectTempFolder);
+	connect(m_ui.toolButton_ffmpegFolder, &QToolButton::clicked, this, &DialogSettings::onSelectFfmpegFolder);
 	connect(m_ui.lineEdit_project, &QLineEdit::editingFinished, this, &DialogSettings::onProjsFolder);
 	connect(m_ui.lineEdit_temporary, &QLineEdit::editingFinished, this, &DialogSettings::onTempFolder);
+	connect(m_ui.lineEdit_ffmpeg, &QLineEdit::editingFinished, this, &DialogSettings::onFfmpegFolder);
 	connect(m_ui.pushButton_color, &QPushButton::clicked, this, &DialogSettings::onColorPicking);
 	connect(m_ui.templateProjectBtn, &QToolButton::clicked, [this]() 
 		{
@@ -89,6 +94,7 @@ DialogSettings::DialogSettings(IDataDispatcher& dataDispatcher, QWidget* parent)
 	connect(m_ui.autosaveTimingComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &DialogSettings::onAutosaveComboxBoxChanged);
 	connect(m_ui.manipulatorSizeSlider, &QSlider::valueChanged, this, &DialogSettings::onManipulatorSizeChanged);
 	connect(m_ui.manipulatorSizeSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &DialogSettings::onManipulatorSizeChanged);
+	connect(m_ui.comboBox_octreePrecision, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &DialogSettings::onOctreePrecisionChanged);
 	connect(m_ui.toolButtonGuizmo, &QToolButton::clicked, [this]()
 		{
 			m_guizmoParams.exec();
@@ -109,6 +115,7 @@ DialogSettings::DialogSettings(IDataDispatcher& dataDispatcher, QWidget* parent)
 	m_ui.okButton->setFocus();
 
     m_dataDispatcher.registerObserverOnKey(this, guiDType::renderDecimationOptions);
+	m_dataDispatcher.registerObserverOnKey(this, guiDType::renderOctreePrecision);
 
     initConfigValues();
 	adjustSize();
@@ -125,6 +132,10 @@ void DialogSettings::informData(IGuiData* idata)
         m_savedDecimationOptions = static_cast<GuiDataRenderDecimationOptions*>(idata)->m_options;
         showDecimationOptions();
         break;
+	case guiDType::renderOctreePrecision:
+		m_savedOctreePrecision = static_cast<GuiDataRenderOctreePrecision*>(idata)->m_precision;
+		initComboBox(m_ui.comboBox_octreePrecision, static_cast<int>(m_savedOctreePrecision));
+		break;
     default:
         break;
     }
@@ -159,9 +170,12 @@ void DialogSettings::initConfigValues()
 
     m_ui.lineEdit_project->setText(QString::fromStdWString(Config::getProjectsPath().wstring()));
     m_ui.lineEdit_temporary->setText(QString::fromStdWString(Config::getTemporaryPath().wstring()));
-    m_ui.framelessCheckBox->setChecked(Config::getMaximizedFrameless());
+    m_ui.lineEdit_ffmpeg->setText(QString::fromStdWString(Config::getFFmpegPath().wstring()));
+	m_ui.framelessCheckBox->setChecked(Config::getMaximizedFrameless());
 	m_ui.keepExamineOnPanBox->setChecked(Config::getKeepingExamineConfiguration());
     m_ui.examineDisplayCheckBox->setChecked(Config::getExamineDisplayMode());
+	m_savedOctreePrecision = Config::getOctreePrecision();
+	initComboBox(m_ui.comboBox_octreePrecision, static_cast<int>(m_savedOctreePrecision));
 	m_ui.autosaveTimingComboBox->setEnabled(Config::getIsAutoSaveActive());
 	m_ui.autosaveActivateCheckBox->setChecked(Config::getIsAutoSaveActive());
 	m_ui.fillMissingRadioButton->setChecked(Config::getIndexationMethod() == IndexationMethod::FillMissingIndex);
@@ -216,10 +230,12 @@ void DialogSettings::blockSignal(bool active)
 	m_ui.spinBox_digits->blockSignals(active);
 	m_ui.lineEdit_project->blockSignals(active);
 	m_ui.lineEdit_temporary->blockSignals(active);
+	m_ui.lineEdit_ffmpeg->blockSignals(active);
 	m_ui.manipulatorSizeSlider->blockSignals(active);
 	m_ui.manipulatorSizeSpinBox->blockSignals(active);
 	m_ui.pushButton_color->blockSignals(active);
 	m_ui.framelessCheckBox->blockSignals(active);
+	m_ui.comboBox_octreePrecision->blockSignals(active);
 
 	m_ui.examineMinimumDistanceLineEdit->blockSignals(active);
 	m_ui.translationSpeedSlider->blockSignals(active);
@@ -284,6 +300,23 @@ void DialogSettings::onProjsFolder()
 	m_dataDispatcher.sendControl(new control::application::SetProjectsFolder(std::filesystem::path(m_ui.lineEdit_project->text().toStdWString())));
 }
 
+void DialogSettings::onSelectFfmpegFolder()
+{
+	QString folderPath = QFileDialog::getExistingDirectory(this, TEXT_SELECT_DIRECTORY, m_ui.lineEdit_ffmpeg->text()
+		, QFileDialog::ShowDirsOnly);
+
+	if (folderPath != "")
+	{
+		m_ui.lineEdit_ffmpeg->setText(folderPath);
+		m_dataDispatcher.sendControl(new control::application::SetFFmpegFolder(std::filesystem::path(folderPath.toStdWString())));
+	}
+}
+
+void DialogSettings::onFfmpegFolder()
+{
+	m_dataDispatcher.sendControl(new control::application::SetFFmpegFolder(std::filesystem::path(m_ui.lineEdit_ffmpeg->text().toStdWString())));
+}
+
 void DialogSettings::onColorPicking()
 {
 	QColor selectedColor = QColorDialog::getColor(QColorFromColor32(Config::getUserColor()));
@@ -319,6 +352,16 @@ void DialogSettings::onDecimationChanged()
     m_ui.constantDecimationSlider->setEnabled(m_ui.constantDecimationRB->isChecked());
     m_ui.minDecimationValue->setEnabled(m_ui.dynamicDecimationRB->isChecked());
     m_ui.constantDecimationLabel->setText(QString("%1%").arg(m_ui.constantDecimationSlider->value()));
+}
+
+void DialogSettings::onOctreePrecisionChanged()
+{
+	OctreePrecision precision = static_cast<OctreePrecision>(m_ui.comboBox_octreePrecision->currentData().toInt());
+	if (precision != m_savedOctreePrecision)
+	{
+		m_savedOctreePrecision = precision;
+		m_dataDispatcher.sendControl(new control::application::SetOctreePrecision(precision, true, true));
+	}
 }
 
 void DialogSettings::onExamineOptions()

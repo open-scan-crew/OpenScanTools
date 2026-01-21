@@ -166,6 +166,14 @@ ContextState ContextDeletePoints::launch(Controller& controller)
         if (!wScan)
             continue;
 
+        const ClippingAssembly* clippingToUse = &clippingAssembly;
+        ClippingAssembly resolvedAssembly;
+        if (clippingAssembly.hasPhaseClipping())
+        {
+            resolvedAssembly = clippingAssembly.resolveByPhase(wScan->getPhase());
+            clippingToUse = &resolvedAssembly;
+        }
+
         size_t initial_point_count = wScan->getNbPoint();
         uint64_t deleted_point_count = 0;
         std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
@@ -173,7 +181,7 @@ ContextState ContextDeletePoints::launch(Controller& controller)
         tls::ScanGuid old_guid = wScan->getScanGuid();
         tls::ScanGuid new_guid = old_guid;
 
-        if (TlScanOverseer::getInstance().testClippingEffect(old_guid, (TransformationModule)*&wScan, clippingAssembly))
+        if (TlScanOverseer::getInstance().testClippingEffect(old_guid, (TransformationModule)*&wScan, *clippingToUse))
         {
             TlsFileWriter* tls_writer = nullptr;
             std::wstring log;
@@ -186,7 +194,7 @@ ContextState ContextDeletePoints::launch(Controller& controller)
             header.guid = xg::newGuid();
             tls_writer->appendPointCloud(header, wScan->getTransformation());
 
-            bool res = TlScanOverseer::getInstance().clipScan(old_guid, (TransformationModule)*&wScan, clippingAssembly, tls_writer);
+            bool res = TlScanOverseer::getInstance().clipScan(old_guid, (TransformationModule)*&wScan, *clippingToUse, tls_writer);
 
             res &= tls_writer->finalizePointCloud();
 

@@ -3,8 +3,19 @@
 
 #include "vulkan/ImageTransferEvent.h"
 #include "io/ImageTypes.h"
+#include "gui/UnitUsage.h"
+#include "utils/Color32.hpp"
 
 #include <filesystem>
+
+struct OrthoGridOverlay
+{
+    bool active = false;
+    float step = 0.f;
+    uint32_t lineWidth = 1;
+    Color32 color = Color32(128, 128, 128);
+    UnitType distanceUnit = UnitType::M;
+};
 
 class ImageWriter
 {
@@ -12,10 +23,12 @@ public:
     ImageWriter();
     ~ImageWriter();
 
-    bool saveScreenshot(const std::filesystem::path& filepath, ImageFormat format, ImageTransferEvent transfer, uint32_t width, uint32_t height);
+    bool saveScreenshot(const std::filesystem::path& filepath, ImageFormat format, ImageTransferEvent transfer, uint32_t width, uint32_t height, bool includeAlpha);
 
-    bool startCapture(ImageFormat format, uint32_t width, uint32_t height);
+    bool startCapture(ImageFormat format, uint32_t width, uint32_t height, bool includeAlpha);
     void transferImageTile(ImageTransferEvent transfer, uint32_t dstOffsetW, uint32_t dstOffsetH, uint32_t border);
+    void writeTile(const void* tileBuffer, uint32_t tileW, uint32_t tileH, uint32_t dstOffsetW, uint32_t dstOffsetH);
+    void applyOrthoGridOverlay(const ImageHDMetadata& metadata, const OrthoGridOverlay& overlay);
     bool save(const std::filesystem::path& file_path, ImageHDMetadata metadata);
 
 private:
@@ -33,6 +46,7 @@ private:
     uint32_t height_ = 0;
     ImageFormat format_ = ImageFormat::MAX_ENUM;
     uint32_t byte_per_pixel_ = 4;
+    bool include_alpha_ = true;
 
     ImageHDMetadata metadata_;
 };

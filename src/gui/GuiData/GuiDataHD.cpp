@@ -1,8 +1,9 @@
 #include "gui/guiData/GuiDataHD.h"
 
 
-GuiDataPrepareHDImage::GuiDataPrepareHDImage(bool showFrame, double frameRatio, SafePtr<CameraNode> viewport)
+GuiDataPrepareHDImage::GuiDataPrepareHDImage(bool showFrame, bool showGrid, double frameRatio, SafePtr<CameraNode> viewport)
     : m_showFrame(showFrame)
+    , m_showGrid(showGrid)
     , m_frameRatio(frameRatio)
     , m_viewport(viewport)
 { }
@@ -12,7 +13,7 @@ guiDType GuiDataPrepareHDImage::getType()
     return guiDType::hdPrepare;
 }
 
-GuiDataGenerateHDImage::GuiDataGenerateHDImage(glm::ivec2 imageSize, int multisampling, ImageFormat format, SafePtr<CameraNode> camera, const std::filesystem::path& filepath, const ImageHDMetadata& metadata, bool showProgressBar, uint32_t hdimagetilesize)
+GuiDataGenerateHDImage::GuiDataGenerateHDImage(glm::ivec2 imageSize, int multisampling, ImageFormat format, SafePtr<CameraNode> camera, const std::filesystem::path& filepath, const ImageHDMetadata& metadata, bool showProgressBar, uint32_t hdimagetilesize, bool fullResolutionTraversal)
     : m_imageSize(imageSize)
     , m_multisampling(multisampling)
     , m_imageFormat(format)
@@ -21,6 +22,7 @@ GuiDataGenerateHDImage::GuiDataGenerateHDImage(glm::ivec2 imageSize, int multisa
     , m_metadata(metadata)
     , m_showProgressBar(showProgressBar)
     , m_hdimagetilesize(hdimagetilesize)
+    , m_fullResolutionTraversal(fullResolutionTraversal)
 { }
 
 guiDType GuiDataGenerateHDImage::getType()

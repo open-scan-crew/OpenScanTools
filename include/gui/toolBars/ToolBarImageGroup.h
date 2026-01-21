@@ -6,6 +6,7 @@
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
 #include "pointCloudEngine/RenderingTypes.h"
+#include "io/ImageTypes.h"
 
 #include "utils/safe_ptr.h"
 
@@ -30,6 +31,7 @@ public:
 
 	void quickScreenshot(std::filesystem::path filepath);
 	void imageFormat();
+	bool isAlphaChannelEnabled() const;
 
 private:
 	~ToolBarImageGroup();
@@ -45,6 +47,7 @@ private:
 	void onFocusViewport(IGuiData* data);
 	void onActiveCamera(IGuiData* data);
 	void onCallHD(IGuiData* data);
+	void onProjectProperties(IGuiData* data);
 
 	void refreshShowUI();
 	void refreshImageSize();
@@ -54,6 +57,7 @@ private:
 	void setSilentWidthHeight(uint32_t w, uint32_t h);
 	uint32_t resetWidth();
 	uint32_t resetHeight();
+	bool hasAlphaSupport(ImageFormat format) const;
 
 private slots:
 	void slotCreateImage(std::filesystem::path filepath, bool showProgressBar);
@@ -75,10 +79,10 @@ private:
 	glm::ivec2 m_viewportSize;
 	glm::ivec2 m_storePerspImageSize;
 	SafePtr<CameraNode> m_focusCamera;
+	glm::dvec3 m_importScanTranslation = glm::dvec3(0.0);
 	std::unordered_map<guiDType, ImageGroupMethod> m_guiDFunctions;
 
 	Ui::ToolBarImageGroup m_ui;
 };
 
 #endif // TOOLBAR_IMAGEGROUP_H
-

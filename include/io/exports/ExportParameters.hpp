@@ -53,11 +53,21 @@ enum class VideoAnimationMode
     MAX_ENUM
 };
 
+enum class VideoExportOutputType
+{
+    IMAGES = 0,
+    MP4,
+    MAX_ENUM
+};
+
 struct VideoExportParameters
 {
     int fps = 60;
     int length = 30;
     bool hdImage = true;
+    VideoExportOutputType outputType = VideoExportOutputType::IMAGES;
+    int bitrateKbps = 5000;
+    std::filesystem::path outputFilePath;
     VideoAnimationMode animMode = VideoAnimationMode::NONE;
     SafePtr<ViewPointNode> start;
     SafePtr<ViewPointNode> finish;

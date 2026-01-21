@@ -23,6 +23,7 @@ void ViewPointData::copyViewPointData(const ViewPointData& data)
 	m_panoramicScan = data.getPanoramicScan();
 	m_activeClippings = data.getActiveClippings();
 	m_interiorClippings = data.getInteriorClippings();
+	m_phaseClippings = data.getPhaseClippings();
 	m_activeRamps = data.getActiveRamps();
 	m_visibleObjects = data.getVisibleObjects();
 	m_scanClusterColors = data.getScanClusterColors();
@@ -41,6 +42,11 @@ void ViewPointData::setActiveClippings(const std::unordered_set<SafePtr<AClippin
 void ViewPointData::setInteriorClippings(const std::unordered_set<SafePtr<AClippingNode>>& list)
 {
 	m_interiorClippings = list;
+}
+
+void ViewPointData::setPhaseClippings(const std::unordered_set<SafePtr<AClippingNode>>& list)
+{
+	m_phaseClippings = list;
 }
 
 void ViewPointData::setActiveRamps(const std::unordered_set<SafePtr<AClippingNode>>& list)
@@ -78,6 +84,11 @@ const std::unordered_set<SafePtr<AClippingNode>>& ViewPointData::getInteriorClip
 	return m_interiorClippings;
 }
 
+const std::unordered_set<SafePtr<AClippingNode>>& ViewPointData::getPhaseClippings() const
+{
+	return m_phaseClippings;
+}
+
 const std::unordered_set<SafePtr<AClippingNode>>& ViewPointData::getActiveRamps() const
 {
 	return m_activeRamps;
@@ -104,11 +115,17 @@ void ViewPointData::updateViewpointsObjectsValue(Controller& controller, SafePtr
 
 	std::unordered_set<SafePtr<AClippingNode>> activeClippings = graphManager.getClippingObjects(true, false);
 	std::unordered_set<SafePtr<AClippingNode>> interiors;
+	std::unordered_set<SafePtr<AClippingNode>> phases;
 	for (const SafePtr<AClippingNode>& clip : activeClippings)
 	{
 		ReadPtr<AClippingNode> rClip = clip.cget();
-		if (rClip && rClip->getClippingMode() == ClippingMode::showInterior)
-			interiors.insert(clip);
+		if (rClip)
+		{
+			if (rClip->getClippingMode() == ClippingMode::showInterior)
+				interiors.insert(clip);
+			else if (rClip->getClippingMode() == ClippingMode::byPhase)
+				phases.insert(clip);
+		}
 	}
 
 	std::unordered_set<SafePtr<AClippingNode>> activeRamps = graphManager.getRampObjects(true, false);
@@ -132,6 +149,7 @@ void ViewPointData::updateViewpointsObjectsValue(Controller& controller, SafePtr
 
 	wVP->setActiveClippings(activeClippings);
 	wVP->setInteriorClippings(interiors);
+	wVP->setPhaseClippings(phases);
 	wVP->setActiveRamps(activeRamps);
 	wVP->setScanClusterColors(scanClusterColors);
 	wVP->setVisibleObjects(visible);

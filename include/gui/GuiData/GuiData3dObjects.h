@@ -73,13 +73,14 @@ public:
 class GuiDataScreenshot : public IGuiData
 {
 public:
-	GuiDataScreenshot(const std::filesystem::path& filename, const ImageFormat& format);
+	GuiDataScreenshot(const std::filesystem::path& filename, const ImageFormat& format, bool includeAlpha);
 	~GuiDataScreenshot() {};
 	virtual guiDType getType() { return (guiDType::screenshot); };
 
 public:
 	const std::filesystem::path m_filename;
 	const ImageFormat m_format;
+	const bool m_includeAlpha;
 };
 
 #endif

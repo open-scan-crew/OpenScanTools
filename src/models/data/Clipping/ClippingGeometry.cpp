@@ -4,6 +4,7 @@
 constexpr ClipAccepted g_decisionTable[(size_t)ClippingMode::Max_Enum][(size_t)ClipResult::Max_Enum] = {
     { ClipAccepted::No, ClipAccepted::Partially, ClipAccepted::Yes }, // ClippingMode::showInterior
     { ClipAccepted::Yes, ClipAccepted::Partially, ClipAccepted::No }, // ClippingMode::showExterior
+    { ClipAccepted::No, ClipAccepted::Partially, ClipAccepted::Yes }, // ClippingMode::byPhase (resolved per scan)
     { ClipAccepted::No, ClipAccepted::Partially, ClipAccepted::Yes }, // ClippingMode::ramp
 };
 
@@ -499,6 +500,95 @@ void ClippingAssembly::clearMatrix()
 bool ClippingAssembly::empty()
 {
     return (clippingIntersection.empty() && clippingUnion.empty());
+}
+
+bool ClippingAssembly::hasPhaseClipping() const
+{
+    auto hasPhase = [](const std::vector<std::shared_ptr<IClippingGeometry>>& geometries)
+        {
+            for (const std::shared_ptr<IClippingGeometry>& geom : geometries)
+            {
+                if (geom && geom->mode == ClippingMode::byPhase)
+                    return true;
+            }
+            return false;
+        };
+
+    return hasPhase(clippingUnion) || hasPhase(clippingIntersection);
+}
+
+namespace
+{
+    std::shared_ptr<IClippingGeometry> cloneGeometryWithMode(const std::shared_ptr<IClippingGeometry>& geom, ClippingMode mode)
+    {
+        if (!geom)
+            return nullptr;
+
+        std::shared_ptr<IClippingGeometry> cloned;
+        switch (geom->getShape())
+        {
+        case ClippingShape::box:
+            cloned = std::make_shared<BoxClippingGeometry>(mode, geom->matRT_inv, geom->params, geom->rampSteps);
+            break;
+        case ClippingShape::cylinder:
+            cloned = std::make_shared<CylinderClippingGeometry>(mode, geom->matRT_inv, geom->params, geom->rampSteps);
+            break;
+        case ClippingShape::sphere:
+            cloned = std::make_shared<SphereClippingGeometry>(mode, geom->matRT_inv, geom->params, geom->rampSteps);
+            break;
+        case ClippingShape::torus:
+            cloned = std::make_shared<TorusClippingGeometry>(mode, geom->matRT_inv, geom->params, geom->rampSteps);
+            break;
+        default:
+            return nullptr;
+        }
+
+        cloned->color = geom->color;
+        cloned->gpuDrawId = geom->gpuDrawId;
+        cloned->isSelected = geom->isSelected;
+        cloned->clipperPhase = geom->clipperPhase;
+        return cloned;
+    }
+
+    void resolveGeometryByPhase(const std::shared_ptr<IClippingGeometry>& geom, const std::wstring& scanPhase, ClippingAssembly& resolved)
+    {
+        if (!geom)
+            return;
+
+        if (geom->mode != ClippingMode::byPhase)
+        {
+            if (geom->mode == ClippingMode::showInterior)
+                resolved.clippingUnion.push_back(geom);
+            else
+                resolved.clippingIntersection.push_back(geom);
+            return;
+        }
+
+        ClippingMode resolvedMode = (geom->clipperPhase == scanPhase) ? ClippingMode::showInterior : ClippingMode::showExterior;
+        std::shared_ptr<IClippingGeometry> resolvedGeom = cloneGeometryWithMode(geom, resolvedMode);
+        if (!resolvedGeom)
+            return;
+
+        if (resolvedMode == ClippingMode::showInterior)
+            resolved.clippingUnion.push_back(resolvedGeom);
+        else
+            resolved.clippingIntersection.push_back(resolvedGeom);
+    }
+}
+
+ClippingAssembly ClippingAssembly::resolveByPhase(const std::wstring& scanPhase) const
+{
+    ClippingAssembly resolved;
+
+    for (const std::shared_ptr<IClippingGeometry>& geom : clippingUnion)
+        resolveGeometryByPhase(geom, scanPhase, resolved);
+
+    for (const std::shared_ptr<IClippingGeometry>& geom : clippingIntersection)
+        resolveGeometryByPhase(geom, scanPhase, resolved);
+
+    resolved.rampActives = rampActives;
+
+    return resolved;
 }
 
 /*

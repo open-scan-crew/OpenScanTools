@@ -716,6 +716,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\gui\Dialog\DialogDeleteScanTypeSelect.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogAbout.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogDeviceSelection.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogDisplayPresets.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogExportFileObject.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogExportPointCloud.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogExportPrimitives.cpp" />
@@ -756,6 +757,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\gui\Dialog\TagTemplateNameDialog.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\TemplateEditorDialog.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\TemplateManagerDialog.cpp" />
+    <ClCompile Include="..\..\src\gui\DisplayPresetManager.cpp" />
     <ClCompile Include="..\..\src\gui\Gui.cpp">
       <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">input</DynamicSource>
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">%(Filename).moc</QtMocFileName>
@@ -823,6 +825,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderNormals.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderRampGroup.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderTransparency.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderEnhance.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarShareGroup.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarShowHideGroup.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderSettings.cpp" />
@@ -1452,6 +1455,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarRenderTransparency.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarRenderEnhance.h" />
     <ClInclude Include="..\..\include\io\imports\PtsFileReader.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
@@ -1555,6 +1559,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtMoc Include="..\..\include\gui\Dialog\DialogImportStepSimplification.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogGizmo.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogDeviceSelection.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogDisplayPresets.h" />
     <QtMoc Include="..\..\include\gui\Dialog\HyperlinkAddDialog.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogSettings.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogDeleteScanTypeSelect.h" />
@@ -1610,6 +1615,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarSphereGroup.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarConnectPipeGroup.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarBeamDetection.h" />
+    <QtMoc Include="..\..\include\gui\DisplayPresetManager.h" />
     <ClInclude Include="..\..\include\gui\texts\ProjectTemplateTexts.hpp" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarRenderNormals.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarViewPoint.h" />
@@ -1915,6 +1921,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtUic Include="..\..\src\gui\forms\DialogDeleteScanTypeSelection.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogAbout.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogDeviceSelection.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogDisplayPresets.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogExportFileObject.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogExportPointCloud.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogExportPrimitives.ui" />
@@ -2010,6 +2017,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtUic Include="..\..\src\gui\forms\toolbar_projectgroup.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_rendernormalsgroup.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_rendertransparencygroup.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_renderenhancegroup.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_render_ramp_group.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_importScantra.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_sharegroup.ui" />
@@ -2135,6 +2143,14 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\v2\depth_lining.comp">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Prod|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\v2\ambient_occlusion.comp">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslangValidator -V -x "%(FullPath)" -o ".\GeneratedShaders\%(Filename)%(Extension).spv"</Command>

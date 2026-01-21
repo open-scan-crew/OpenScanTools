@@ -47,6 +47,9 @@ E57FileReader::E57FileReader(const std::filesystem::path& filepath, e57::ImageFi
 
     e57::VectorNode data3D(root.get("/data3D"));
     m_header.scanCount = (uint32_t)data3D.childCount();
+    m_hasPoseTranslation.assign(m_header.scanCount, false);
+    m_hasLocalOffsets.assign(m_header.scanCount, false);
+    m_localOffsets.assign(m_header.scanCount, glm::dvec3(0.0));
 
     if (root.isDefined("/creationDateTime"))
     {
@@ -92,6 +95,7 @@ bool E57FileReader::getData3dInfo(uint32_t _id, tls::ScanHeader& _info, std::str
             return false;
 
         e57::StructureNode dataSet(data3D.get(_id));
+        m_hasPoseTranslation[_id] = dataSet.isDefined("pose/translation");
 
         // Get the name of the Scan(optional in e57)
         if (dataSet.isDefined("name"))
@@ -151,6 +155,15 @@ bool E57FileReader::getData3dInfo(uint32_t _id, tls::ScanHeader& _info, std::str
             _info.limits = { (float)_info.transfo.translation[0], (float)_info.transfo.translation[0], 
                 (float)_info.transfo.translation[1], (float)_info.transfo.translation[1], 
                 (float)_info.transfo.translation[2], (float)_info.transfo.translation[2] };
+        }
+
+        if (!dataSet.isDefined("pose/translation") && dataSet.isDefined("cartesianBounds"))
+        {
+            _info.transfo.translation[0] = round((_info.limits.xMin + _info.limits.xMax) / 200) * 100;
+            _info.transfo.translation[1] = round((_info.limits.yMin + _info.limits.yMax) / 200) * 100;
+            _info.transfo.translation[2] = round((_info.limits.zMin + _info.limits.zMax) / 200) * 100;
+            m_hasLocalOffsets[_id] = true;
+            m_localOffsets[_id] = glm::dvec3(_info.transfo.translation[0], _info.transfo.translation[1], _info.transfo.translation[2]);
         }
 
         E57AttribFormat e57Format;
@@ -230,10 +243,25 @@ tls::ScanHeader E57FileReader::getTlsScanHeader(uint32_t scanNumber) const
         return (tls::ScanHeader{});
 }
 
+bool E57FileReader::hasPoseTranslation(uint32_t scanNumber) const
+{
+    if (scanNumber < m_hasPoseTranslation.size())
+        return m_hasPoseTranslation[scanNumber];
+    return false;
+}
+
+bool E57FileReader::usesLocalOffsets(uint32_t scanNumber) const
+{
+    if (scanNumber < m_hasLocalOffsets.size())
+        return m_hasLocalOffsets[scanNumber];
+    return false;
+}
+
 bool E57FileReader::startReadingScan(uint32_t scanNumber)
 {
     if (scanNumber >= m_header.scanCount)
         return false;
+    m_currentScanIndex = scanNumber;
 
     TlResult result;
     try {
@@ -302,6 +330,8 @@ bool E57FileReader::readPoints(PointXYZIRGB* dstBuf, uint64_t bufSize, uint64_t 
 
     E57AttribFormat& format = m_cvReaderWrapper->format;
     Limits& limits = m_cvReaderWrapper->limits;
+    const bool applyLocalOffset = usesLocalOffsets(m_currentScanIndex);
+    const glm::dvec3 localOffset = applyLocalOffset ? m_localOffsets[m_currentScanIndex] : glm::dvec3(0.0);
 
     // Check if the read is finished
     if (N == 0)
@@ -319,22 +349,43 @@ bool E57FileReader::readPoints(PointXYZIRGB* dstBuf, uint64_t bufSize, uint64_t 
         {
             for (unsigned int n = 0; n < N; n++)
             {
-                dstBuf[n].x = m_stagingBuffers.cartesianX[n];
-                dstBuf[n].y = m_stagingBuffers.cartesianY[n];
-                dstBuf[n].z = m_stagingBuffers.cartesianZ[n];
+                if (applyLocalOffset)
+                {
+                    dstBuf[n].x = static_cast<float>(m_stagingBuffers.cartesianX[n] - localOffset.x);
+                    dstBuf[n].y = static_cast<float>(m_stagingBuffers.cartesianY[n] - localOffset.y);
+                    dstBuf[n].z = static_cast<float>(m_stagingBuffers.cartesianZ[n] - localOffset.z);
+                }
+                else
+                {
+                    dstBuf[n].x = static_cast<float>(m_stagingBuffers.cartesianX[n]);
+                    dstBuf[n].y = static_cast<float>(m_stagingBuffers.cartesianY[n]);
+                    dstBuf[n].z = static_cast<float>(m_stagingBuffers.cartesianZ[n]);
+                }
             }
         }
         else if (format.coordinates == TL_COORD_SPHERICAL_FLOAT)
         {
             for (unsigned int n = 0; n < N; n++)
             {
-                float r = m_stagingBuffers.sphericalRange[n];
-                float a = m_stagingBuffers.sphericalAzimuth[n];
-                float e = m_stagingBuffers.sphericalElevation[n];
+                double r = m_stagingBuffers.sphericalRange[n];
+                double a = m_stagingBuffers.sphericalAzimuth[n];
+                double e = m_stagingBuffers.sphericalElevation[n];
 
-                dstBuf[n].x = r * cos(a) * cos(e);
-                dstBuf[n].y = r * sin(a) * cos(e);
-                dstBuf[n].z = r * sin(e);
+                const double x = r * cos(a) * cos(e);
+                const double y = r * sin(a) * cos(e);
+                const double z = r * sin(e);
+                if (applyLocalOffset)
+                {
+                    dstBuf[n].x = static_cast<float>(x - localOffset.x);
+                    dstBuf[n].y = static_cast<float>(y - localOffset.y);
+                    dstBuf[n].z = static_cast<float>(z - localOffset.z);
+                }
+                else
+                {
+                    dstBuf[n].x = static_cast<float>(x);
+                    dstBuf[n].y = static_cast<float>(y);
+                    dstBuf[n].z = static_cast<float>(z);
+                }
             }
         }
 
@@ -381,9 +432,18 @@ bool E57FileReader::readPoints(PointXYZIRGB* dstBuf, uint64_t bufSize, uint64_t 
             if (m_stagingBuffers.state[n] != 0)
                 continue;
 
-            dstBuf[validPoints].x = m_stagingBuffers.cartesianX[n];
-            dstBuf[validPoints].y = m_stagingBuffers.cartesianY[n];
-            dstBuf[validPoints].z = m_stagingBuffers.cartesianZ[n];
+            if (applyLocalOffset)
+            {
+                dstBuf[validPoints].x = static_cast<float>(m_stagingBuffers.cartesianX[n] - localOffset.x);
+                dstBuf[validPoints].y = static_cast<float>(m_stagingBuffers.cartesianY[n] - localOffset.y);
+                dstBuf[validPoints].z = static_cast<float>(m_stagingBuffers.cartesianZ[n] - localOffset.z);
+            }
+            else
+            {
+                dstBuf[validPoints].x = static_cast<float>(m_stagingBuffers.cartesianX[n]);
+                dstBuf[validPoints].y = static_cast<float>(m_stagingBuffers.cartesianY[n]);
+                dstBuf[validPoints].z = static_cast<float>(m_stagingBuffers.cartesianZ[n]);
+            }
 
             if (format.color == TL_RGB_UINT8_FORMAT)
             {

@@ -29,7 +29,8 @@ GuiDataMoveToData::GuiDataMoveToData(const GuiDataMoveToData& ref)
     : m_object(ref.m_object)
 {}
 
-GuiDataScreenshot::GuiDataScreenshot(const std::filesystem::path& filename, const ImageFormat& format)
+GuiDataScreenshot::GuiDataScreenshot(const std::filesystem::path& filename, const ImageFormat& format, bool includeAlpha)
 	: m_filename(filename)
 	, m_format(format)
+	, m_includeAlpha(includeAlpha)
 {}

@@ -38,6 +38,7 @@ static const std::unordered_map<ControlType, std::unordered_set<LicenceVersion>>
 	{ControlType::setTemporaryFolder, {LicenceVersion::Free}},
 	{ControlType::setUserColor, {LicenceVersion::Free}},
 	{ControlType::setDecimationOptions, {LicenceVersion::Free}},
+	{ControlType::setOctreePrecision, {LicenceVersion::Free}},
 	{ControlType::setRenderPointSize, {LicenceVersion::Free}},
 	{ControlType::setExamineOptions, {LicenceVersion::Free}},
 	{ControlType::setFramelessMode, {LicenceVersion::Free}},

@@ -27,11 +27,13 @@
 #define FRAMELESS_JSON_KEY "frameless"
 #define PROJS_JSON_KEY "projs"
 #define TEMP_JSON_KEY "temp"
+#define FFMPEG_JSON_KEY "ffmpeg_path"
 #define USERCOLOR_JSON_KEY "usercolor"
 #define DECIMATE_OPTIONS_JSON_KEY "decimate_options"
 #define DECIMATE_MODE_JSON_KEY "decimate_mode"
 #define DECIMATE_CONST_VALUE_JSON_KEY "constant_value"
 #define DECIMATE_ADAPTIVE_MIN_JSON_KEY "adaptive_minimum"
+#define OCTREE_PRECISION_JSON_KEY "octree_precision"
 #define RECENT_PROJECTS_JSON_KEY "recent_projects"
 #define VALUE_DISPLAY_PARAMETERS_JSON_KEY "value_display_parameters"
 #define DIGITS_JSON_KEY "digits"
@@ -197,7 +199,7 @@ namespace Config
 	
 	bool setLanguage(LanguageType type)
 	{
-		jsonConfig[LANG_JSON_KEY] = Translator::getLanguageQStr(type).toStdWString();
+		jsonConfig[LANG_JSON_KEY] = std::string(magic_enum::enum_name(type));
 		return saveConfigFile(filePath);
 	}
 
@@ -321,6 +323,19 @@ namespace Config
 		return saveConfigFile(filePath);
 	}
 
+	std::filesystem::path getFFmpegPath()
+	{
+		if (jsonConfig.find(FFMPEG_JSON_KEY) == jsonConfig.end())
+			return "";
+		return cleanWString(jsonConfig.at(FFMPEG_JSON_KEY).dump());
+	}
+
+	bool setFFmpegPath(const std::filesystem::path& type)
+	{
+		jsonConfig[FFMPEG_JSON_KEY] = Utils::to_utf8(type.wstring());
+		return saveConfigFile(filePath);
+	}
+
     std::filesystem::path getResourcesPath()
     {
         return applicationDirPath / "resources";
@@ -342,6 +357,24 @@ namespace Config
         return (options);
     }
 
+	OctreePrecision getOctreePrecision()
+	{
+		if (jsonConfig.find(OCTREE_PRECISION_JSON_KEY) == jsonConfig.end())
+			return OctreePrecision::Normal;
+
+		int precision = jsonConfig.at(OCTREE_PRECISION_JSON_KEY);
+		switch (precision)
+		{
+		case static_cast<int>(OctreePrecision::Analysis):
+			return OctreePrecision::Analysis;
+		case static_cast<int>(OctreePrecision::Performances):
+			return OctreePrecision::Performances;
+		case static_cast<int>(OctreePrecision::Normal):
+		default:
+			return OctreePrecision::Normal;
+		}
+	}
+
     bool setDecimationOptions(const DecimationOptions& options)
     {
         try {
@@ -357,6 +390,18 @@ namespace Config
             return false;
         }
     }
+
+	bool setOctreePrecision(const OctreePrecision precision)
+	{
+		try {
+			jsonConfig[OCTREE_PRECISION_JSON_KEY] = static_cast<int>(precision);
+			return saveConfigFile(filePath);
+		}
+		catch (...)
+		{
+			return false;
+		}
+	}
 
     bool getMaximizedFrameless()
     {

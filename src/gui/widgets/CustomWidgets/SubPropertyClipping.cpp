@@ -20,6 +20,7 @@ SubPropertyClipping::SubPropertyClipping(QWidget *parent, float guiScale)
 	connect(m_ui.group_clip, &QGroupBox::clicked, this, &SubPropertyClipping::onActiveClipping);
 	connect(m_ui.InteriorModeRadioBtn, SIGNAL(pressed()), this, SLOT(onShowInteriorClick()));
 	connect(m_ui.ExteriorModeRadioBtn, SIGNAL(pressed()), this, SLOT(onShowExteriorClick()));
+	connect(m_ui.PhaseModeRadioBtn, SIGNAL(pressed()), this, SLOT(onShowPhaseClick()));
 	connect(m_ui.lineEdit_minClip, &QLineEdit::editingFinished, this, &SubPropertyClipping::onMinClipDistEdit);
 	connect(m_ui.lineEdit_maxClip, &QLineEdit::editingFinished, this, &SubPropertyClipping::onMaxClipDistEdit);
 
@@ -75,6 +76,7 @@ void SubPropertyClipping::update()
 	m_ui.group_clip->setChecked(rClip->isClippingActive());
 	m_ui.InteriorModeRadioBtn->setChecked(rClip->getClippingMode() == ClippingMode::showInterior ? true : false);
 	m_ui.ExteriorModeRadioBtn->setChecked(rClip->getClippingMode() == ClippingMode::showExterior ? true : false);
+	m_ui.PhaseModeRadioBtn->setChecked(rClip->getClippingMode() == ClippingMode::byPhase ? true : false);
 
 	m_ui.lineEdit_minClip->setValue(rClip->getMinClipDist());
 	m_ui.lineEdit_maxClip->setValue(rClip->getMaxClipDist());
@@ -94,6 +96,7 @@ void SubPropertyClipping::prepareUi(ElementType type)
 {
 	m_ui.InteriorModeRadioBtn->setEnabled(true);
 	m_ui.ExteriorModeRadioBtn->setEnabled(true);
+	m_ui.PhaseModeRadioBtn->setEnabled(true);
 
 	bool isBox = (type == ElementType::Box);
 
@@ -112,6 +115,7 @@ void SubPropertyClipping::prepareUi(ElementType type)
 
 	m_ui.InteriorModeRadioBtn->setEnabled(/*type != ElementType::Grid &&*/m_ui.group_clip->isChecked());
 	m_ui.ExteriorModeRadioBtn->setEnabled(/*type != ElementType::Grid &&*/m_ui.group_clip->isChecked());
+	m_ui.PhaseModeRadioBtn->setEnabled(/*type != ElementType::Grid &&*/m_ui.group_clip->isChecked());
 }
 
 void SubPropertyClipping::onShowInteriorClick()
@@ -124,6 +128,12 @@ void SubPropertyClipping::onShowExteriorClick()
 {
 	if (m_dataDispatcher)
 		m_dataDispatcher->sendControl(new control::clippingEdition::SetMode(m_storedClip, ClippingMode::showExterior));
+}
+
+void SubPropertyClipping::onShowPhaseClick()
+{
+	if (m_dataDispatcher)
+		m_dataDispatcher->sendControl(new control::clippingEdition::SetMode(m_storedClip, ClippingMode::byPhase));
 }
 
 void SubPropertyClipping::onActiveClipping()
@@ -178,6 +188,7 @@ void SubPropertyClipping::blockSignals(bool value)
 {
 	m_ui.InteriorModeRadioBtn->blockSignals(value);
 	m_ui.ExteriorModeRadioBtn->blockSignals(value);
+	m_ui.PhaseModeRadioBtn->blockSignals(value);
 	m_ui.group_clip->blockSignals(value);
 	m_ui.lineEdit_minClip->blockSignals(value);
 	m_ui.lineEdit_maxClip->blockSignals(value);

@@ -39,6 +39,7 @@ void AMeasureNode::pushClippingGeometries(ClippingAssembly& clipAssembly, const 
 
         std::shared_ptr<IClippingGeometry> geom = std::make_shared<CylinderClippingGeometry>(m_clippingMode, localMat, params, 0);
         geom->isSelected = m_selected;
+        geom->clipperPhase = getPhase();
 
         if (m_clippingMode == ClippingMode::showInterior)
             clipAssembly.clippingUnion.push_back(geom);

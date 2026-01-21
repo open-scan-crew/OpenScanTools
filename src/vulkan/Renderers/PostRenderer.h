@@ -27,6 +27,7 @@ public:
     void processNormalShading(VkCommandBuffer _cmdBuffer, VkUniformOffset matrixUniOffset, VkDescriptorSet descSetColor, VkDescriptorSet descSetOutput, VkExtent2D extent);
     void processNormalColored(VkCommandBuffer _cmdBuffer, VkUniformOffset matrixUniOffset, VkDescriptorSet descSetColor, VkDescriptorSet descSetOutput, VkExtent2D extent);
     void processTransparencyHDR(VkCommandBuffer _cmdBuffer, VkDescriptorSet descSetColor, VkExtent2D extent);
+    void processAmbientOcclusion(VkCommandBuffer _cmdBuffer, const PostRenderingAmbientOcclusion& aoSettings, float nearZ, float farZ, bool isPerspective, VkDescriptorSet descSetColor, VkDescriptorSet descSetDepth, VkExtent2D extent);
     void processEdgeAwareBlur(VkCommandBuffer _cmdBuffer, const EdgeAwareBlur& blurSettings, VkDescriptorSet descSetColor, VkDescriptorSet descSetDepth, VkExtent2D extent);
     void processDepthLining(VkCommandBuffer _cmdBuffer, const DepthLining& liningSettings, VkDescriptorSet descSetColor, VkDescriptorSet descSetDepth, VkExtent2D extent);
 
@@ -40,7 +41,7 @@ public:
     void setConstantTexelThreshold(int texelThreshold, VkCommandBuffer _cmdBuffer);
     void setConstantLighting(const PostRenderingNormals& lighting, VkCommandBuffer _cmdBuffer) const;
 
-    void setConstantHDR(float transparency, bool substract, bool noFlash, VkExtent2D screenSize, Color32 background, VkCommandBuffer _cmdBuffer);
+    void setConstantHDR(float transparency, bool substract, bool noFlash, bool flashAdvanced, float flashControl, VkExtent2D screenSize, Color32 background, VkCommandBuffer _cmdBuffer);
 
     void cleanup();
 
@@ -52,6 +53,7 @@ private:
     void createPipelineLayouts();
     void createFillingPipeline();
     void createNormalPipeline();
+    void createAmbientOcclusionPipeline();
     void createEdgeAwarePipeline();
     void createDepthLiningPipeline();
     void createTransparencyHDRPipeline();
@@ -72,18 +74,21 @@ private:
 
     VkPipelineLayout m_fillingPipelineLayout = VK_NULL_HANDLE;
     VkPipelineLayout m_normalPipelineLayout = VK_NULL_HANDLE;
+    VkPipelineLayout m_ambientOcclusionPipelineLayout = VK_NULL_HANDLE;
     VkPipelineLayout m_transparencyHDRPipelineLayout = VK_NULL_HANDLE;
 
     Shader m_fillingCompShader;
     Shader m_normalShadingCompShader;
     Shader m_normalColoredCompShader;
     Shader m_transparencyHDRCompShader;
+    Shader m_ambientOcclusionCompShader;
     Shader m_edgeAwareBlurCompShader;
     Shader m_depthLiningCompShader;
 
     VkPipeline m_fillingPipeline;
     VkPipeline m_normalColoredPipeline;
     VkPipeline m_normalShadingPipeline;
+    VkPipeline m_ambientOcclusionPipeline = VK_NULL_HANDLE;
     VkPipeline m_transparencyHDRPipeline;
     VkPipeline m_hdrSubsPipeline;
     VkPipeline m_edgeAwarePipeline;

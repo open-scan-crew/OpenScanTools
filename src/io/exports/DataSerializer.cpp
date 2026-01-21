@@ -345,9 +345,9 @@ void ExportRenderingParameters(nlohmann::json& json, const RenderingParameters& 
 	json[Key_Rendering_Mode] = magic_enum::enum_name(params.m_mode);
 	json[Key_Background_Color] = { params.m_backgroundColor.Red(), params.m_backgroundColor.Green(), params.m_backgroundColor.Blue() };
 	json[Key_Point_Size] = params.m_pointSize;
+	json[Key_Texel_Threshold] = params.m_texelThreshold;
 	json[Key_Delta_Filling] = params.m_deltaFilling;
-	json[Key_Gap_Filling_Texel_Threshold] = params.m_gapFillingTexelThreshold;
-
+	
 	json[Key_Contrast] = params.m_contrast;
 	json[Key_Brightness] = params.m_brightness;
 	json[Key_Saturation] = params.m_saturation;
@@ -361,9 +361,12 @@ void ExportRenderingParameters(nlohmann::json& json, const RenderingParameters& 
 	json[Key_Blend_Mode] = magic_enum::enum_name(params.m_blendMode);
 	json[Key_NegativeEffect] = params.m_negativeEffect;
 	json[Key_ReduceFlash] = params.m_reduceFlash;
+    json[Key_FlashAdvanced] = params.m_flashAdvanced;
+    json[Key_FlashControl] = params.m_flashControl;
 	json[Key_Transparency] = params.m_transparency;
 
     json[Key_Post_Rendering_Normals] = { params.m_postRenderingNormals.show, params.m_postRenderingNormals.inverseTone, params.m_postRenderingNormals.blendColor, params.m_postRenderingNormals.normalStrength, params.m_postRenderingNormals.gloss };
+    json[Key_Post_Rendering_Ambient_Occlusion] = { params.m_postRenderingAmbientOcclusion.enabled, params.m_postRenderingAmbientOcclusion.radius, params.m_postRenderingAmbientOcclusion.intensity };
     json[Key_Edge_Aware_Blur] = { params.m_edgeAwareBlur.enabled, params.m_edgeAwareBlur.radius, params.m_edgeAwareBlur.depthThreshold, params.m_edgeAwareBlur.blendStrength, params.m_edgeAwareBlur.resolutionScale };
     json[Key_Depth_Lining] = { params.m_depthLining.enabled, params.m_depthLining.strength, params.m_depthLining.threshold, params.m_depthLining.sensitivity, params.m_depthLining.strongMode };
 
@@ -396,6 +399,7 @@ void ExportViewPointData(nlohmann::json& json, const ViewPointData& data)
         json[Key_Edge_Aware_Blur] = { displayParams.m_edgeAwareBlur.enabled, displayParams.m_edgeAwareBlur.radius,
                 displayParams.m_edgeAwareBlur.depthThreshold, displayParams.m_edgeAwareBlur.blendStrength,
                 displayParams.m_edgeAwareBlur.resolutionScale };
+        json[Key_Post_Rendering_Ambient_Occlusion] = { displayParams.m_postRenderingAmbientOcclusion.enabled, displayParams.m_postRenderingAmbientOcclusion.radius, displayParams.m_postRenderingAmbientOcclusion.intensity };
         json[Key_Depth_Lining] = { displayParams.m_depthLining.enabled, displayParams.m_depthLining.strength,
                 displayParams.m_depthLining.threshold, displayParams.m_depthLining.sensitivity,
                 displayParams.m_depthLining.strongMode };
@@ -419,6 +423,16 @@ void ExportViewPointData(nlohmann::json& json, const ViewPointData& data)
 		childrenElem.push_back(rClip->getId());
 	}
 	json[Key_Interior_Clippings] = childrenElem;
+
+	childrenElem.clear();
+	for (const SafePtr<AClippingNode>& clip : data.getPhaseClippings())
+	{
+		ReadPtr<AClippingNode> rClip = clip.cget();
+		if (!rClip)
+			continue;
+		childrenElem.push_back(rClip->getId());
+	}
+	json[Key_Phase_Clippings] = childrenElem;
 
 	childrenElem.clear();
 	for (const SafePtr<AClippingNode>& ramp : data.getActiveRamps())

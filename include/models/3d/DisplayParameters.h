@@ -20,11 +20,11 @@ public:
     UiRenderMode   m_mode = UiRenderMode::RGB;
     Color32        m_backgroundColor = Color32(0, 0, 0, 0);
     float          m_pointSize = 1.f;
-    float          m_deltaFilling = 0.f;
-	int            m_gapFillingTexelThreshold = 2; // Default value was 4. 2 seems to be slightly better to fill gaps.
+    int            m_texelThreshold = 2;
+    float          m_deltaFilling = 0.f;	
     float          m_contrast = 0.f;
     float          m_brightness = 0.f;
-    float          m_saturation = 0.f;
+    float          m_saturation = 30.f;
     float          m_luminance = 0.f;
     float          m_hue = 0.f;
     glm::vec3      m_flatColor = glm::vec3(0.5f);
@@ -32,16 +32,19 @@ public:
     // Ramp Distance
     float          m_distRampMin = 0.f;
     float          m_distRampMax = 10.f;
-    int            m_distRampSteps = 16; // max 240
+    int            m_distRampSteps = 240; // max 240
 
     // Transparency
     BlendMode      m_blendMode = BlendMode::Opaque;
     bool           m_negativeEffect = false;
     bool           m_reduceFlash = true;
+    bool           m_flashAdvanced = false;
+    float          m_flashControl = 80.f; // [0.0, 100.0]
     float          m_transparency = 10.f; // [0.0, 100.0]
 
     // Post processing
-    PostRenderingNormals    m_postRenderingNormals = { true, false, true, 0.5f, 1.f };
+    PostRenderingNormals    m_postRenderingNormals = { true, false, true, 0.4f, 1.f };
+    PostRenderingAmbientOcclusion m_postRenderingAmbientOcclusion = {};
     EdgeAwareBlur           m_edgeAwareBlur = {};
     DepthLining             m_depthLining = {};
 
@@ -51,7 +54,7 @@ public:
     bool           m_showExamineTarget = true;
 
     // Objects
-    float          m_alphaObject = 0.6f;
+    float          m_alphaObject = 0.1f;
     UnitUsage      m_unitUsage = unit_usage::by_default;
     MeasureShowMask         m_measureMask = SHOW_ALL_SEGMENT | SHOW_VALUES;
     MarkerShowMask          m_markerMask = SHOW_ALL_MARKER;

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>512</width>
-    <height>167</height>
+    <width>462</width>
+    <height>105</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -29,35 +29,28 @@
    <property name="verticalSpacing">
     <number>3</number>
    </property>
-   <item row="4" column="0">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="2" column="0">
-    <widget class="QCheckBox" name="checkBox_negativeEffect">
-     <property name="text">
-      <string>Negative Effect</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="2">
-    <widget class="QSpinBox" name="spinBox_transparency">
-     <property name="maximum">
-      <number>100</number>
-     </property>
-    </widget>
+   <item row="1" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayoutEnhance">
+     <item>
+      <widget class="QCheckBox" name="checkBox_enhanceContrast">
+       <property name="text">
+        <string>Enhance Contrast</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item row="0" column="1">
     <widget class="QSlider" name="slider_transparency">
+     <property name="minimumSize">
+      <size>
+       <width>100</width>
+       <height>0</height>
+      </size>
+     </property>
      <property name="maximum">
       <number>100</number>
      </property>
@@ -72,24 +65,72 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QCheckBox" name="checkBox_enhanceContrast">
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_flashControl">
      <property name="text">
-      <string>Enhance Contrast</string>
+      <string>Flash control</string>
      </property>
     </widget>
    </item>
-   <item row="0" column="0">
-    <widget class="QCheckBox" name="checkBox_transparency">
-     <property name="text">
-      <string>transparency</string>
+   <item row="2" column="1">
+    <widget class="QSlider" name="slider_flashControl">
+     <property name="minimumSize">
+      <size>
+       <width>100</width>
+       <height>0</height>
+      </size>
      </property>
-    </widget>
-   </item>
-   <item row="0" column="3" rowspan="3">
-    <spacer name="horizontalSpacer">
+     <property name="minimum">
+      <number>0</number>
+     </property>
+     <property name="maximum">
+      <number>100</number>
+     </property>
+     <property name="value">
+      <number>50</number>
+     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="tickPosition">
+      <enum>QSlider::TicksAbove</enum>
+     </property>
+     <property name="tickInterval">
+      <number>10</number>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <widget class="QSpinBox" name="spinBox_transparency">
+     <property name="maximum">
+      <number>100</number>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QRadioButton" name="advEnhanceContrastRadioButton">
+     <property name="text">
+      <string>Advanced</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <widget class="QSpinBox" name="spinBox_flashControl">
+     <property name="minimum">
+      <number>0</number>
+     </property>
+     <property name="maximum">
+      <number>100</number>
+     </property>
+     <property name="value">
+      <number>50</number>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0" colspan="3">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
@@ -99,12 +140,50 @@
      </property>
     </spacer>
    </item>
+   <item row="0" column="0">
+    <widget class="QCheckBox" name="checkBox_transparency">
+     <property name="text">
+      <string>transparency</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QRadioButton" name="basicEnhanceContrastRadioButton">
+     <property name="text">
+      <string>Basic</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3" rowspan="4">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Expanding</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="0" column="3">
+    <widget class="QCheckBox" name="checkBox_negativeEffect">
+     <property name="text">
+      <string>Negative Effect</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <tabstops>
   <tabstop>checkBox_transparency</tabstop>
-  <tabstop>checkBox_enhanceContrast</tabstop>
-  <tabstop>checkBox_negativeEffect</tabstop>
   <tabstop>slider_transparency</tabstop>
   <tabstop>spinBox_transparency</tabstop>
  </tabstops>

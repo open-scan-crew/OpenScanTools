@@ -1507,6 +1507,9 @@
     <ClCompile Include="..\..\src\gui\Dialog\DialogDeviceSelection.cpp">
       <Filter>src\gui\Dialog</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\gui\Dialog\DialogDisplayPresets.cpp">
+      <Filter>src\gui\Dialog</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\vulkan\Renderers\ManipulatorRenderer.cpp">
       <Filter>src\vulkan\Renderers</Filter>
     </ClCompile>
@@ -1553,6 +1556,9 @@
       <Filter>src\io\imports</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderTransparency.cpp">
+      <Filter>src\gui\toolBars</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderEnhance.cpp">
       <Filter>src\gui\toolBars</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\io\imports\IMeshReader.cpp">
@@ -1757,6 +1763,9 @@
       <Filter>src\models\data\Piping</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\gui\UrlHandler.cpp">
+      <Filter>src\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\DisplayPresetManager.cpp">
       <Filter>src\gui</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\gui\Gui.cpp">
@@ -2253,6 +2262,9 @@
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarBeamDetection.h">
       <Filter>include\gui\toolBars</Filter>
     </QtMoc>
+    <QtMoc Include="..\..\include\gui\DisplayPresetManager.h">
+      <Filter>include\gui</Filter>
+    </QtMoc>
     <QtMoc Include="..\..\include\gui\Dialog\DialogExportPrimitives.h">
       <Filter>include\gui\Dialog</Filter>
     </QtMoc>
@@ -2292,6 +2304,9 @@
     <QtMoc Include="..\..\include\gui\Dialog\DialogDeviceSelection.h">
       <Filter>include\gui\Dialog</Filter>
     </QtMoc>
+    <QtMoc Include="..\..\include\gui\Dialog\DialogDisplayPresets.h">
+      <Filter>include\gui\Dialog</Filter>
+    </QtMoc>
     <QtMoc Include="..\..\include\gui\widgets\FocusWatcher.h">
       <Filter>include\gui\widgets</Filter>
     </QtMoc>
@@ -2299,6 +2314,9 @@
       <Filter>include\gui\toolBars</Filter>
     </QtMoc>
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarRenderTransparency.h">
+      <Filter>include\gui\toolBars</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarRenderEnhance.h">
       <Filter>include\gui\toolBars</Filter>
     </QtMoc>
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarSlabGroup.h">
@@ -4194,10 +4212,16 @@
     <QtUic Include="..\..\src\gui\forms\DialogDeviceSelection.ui">
       <Filter>Form Files</Filter>
     </QtUic>
+    <QtUic Include="..\..\src\gui\forms\DialogDisplayPresets.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
     <QtUic Include="..\..\src\gui\forms\Property_Project.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\toolbar_rendertransparencygroup.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="..\..\src\gui\forms\toolbar_renderenhancegroup.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\toolbar_slabgroup.ui">

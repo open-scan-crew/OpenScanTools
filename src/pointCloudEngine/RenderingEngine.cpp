@@ -17,6 +17,7 @@
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ScreenshotTexts.hpp"
 #include "gui/UnitConverter.h"
+#include "utils/Config.h"
 
 #include "io/ImageWriter.h"
 #include "io/exports/CSVWriter.hxx"
@@ -47,6 +48,7 @@ RenderingEngine::RenderingEngine(GraphManager& graphManager, IDataDispatcher& da
     , m_guiScale(guiScale)
     , m_screenshotFormat(ImageFormat::JPG)
     , m_previousFrameSkipped(false)
+    , m_hdMultisampling(1)
     , m_hdtilesize(256)
 {
     registerGuiDataFunction(guiDType::screenshot, &RenderingEngine::onScreenshot);
@@ -146,6 +148,7 @@ void RenderingEngine::onScreenshotFormat(IGuiData* data)
 {
     auto screenshotData = static_cast<GuiDataRenderImagesFormat*>(data);
     m_screenshotFormat = screenshotData->m_format;
+    m_screenshotIncludeAlpha = screenshotData->m_includeAlpha;
 }
 
 void RenderingEngine::onScreenshot(IGuiData* data)
@@ -164,7 +167,11 @@ void RenderingEngine::onScreenshot(IGuiData* data)
         std::string lengthUnit = UnitConverter::getUnitText(params.m_unitUsage.distanceUnit).toStdString();
         m_screenshotFilename.replace_filename("L" + valueDisplay(rCam->getWidthAt1m()) + lengthUnit + "xH" + valueDisplay(rCam->getHeightAt1m()) + lengthUnit + "_" + m_screenshotFilename.filename().string());
     }
-    m_screenshotFormat = screenshot->m_format == ImageFormat::MAX_ENUM ? m_screenshotFormat : screenshot->m_format;
+    if (screenshot->m_format != ImageFormat::MAX_ENUM)
+    {
+        m_screenshotFormat = screenshot->m_format;
+        m_screenshotIncludeAlpha = screenshot->m_includeAlpha;
+    }
 }
 
 void RenderingEngine::onQuitEvent(IGuiData* data)
@@ -202,6 +209,7 @@ void RenderingEngine::onStartHDRender(IGuiData* data)
     m_imageMetadata = guiData->m_metadata;
     m_showProgressBar = guiData->m_showProgressBar;
     m_hdtilesize = guiData->m_hdimagetilesize;
+    m_hdFullResolutionTraversal = guiData->m_fullResolutionTraversal;
 
     // FIXME - On peut directement garder la camera sans passer par son viewport
     m_activeCamera = guiData->m_camera;
@@ -216,6 +224,7 @@ void RenderingEngine::onPrepareHDImage(IGuiData* data)
 {
     GuiDataPrepareHDImage* guiData = static_cast<GuiDataPrepareHDImage*>(data);
     m_showHDFrame = guiData->m_showFrame;
+    m_showHDFrameGrid = guiData->m_showGrid;
     m_hdFrameRatio = guiData->m_frameRatio;
 }
 
@@ -279,7 +288,9 @@ void RenderingEngine::update()
 
     std::vector<TlFramebuffer> m_framebuffersToRender;
     // Instruct the drawing for each viewport (if necessary)
-    VulkanManager::getInstance().startNextFrame();
+    VulkanManager& vkm = VulkanManager::getInstance();
+    vkm.startNextFrame();
+    vkm.waitForRenderFence();
     // Refresh the Inputs for each viewport.
     // Also apply the viewport inputs on the graph before updating the scene.
 
@@ -359,6 +370,12 @@ void RenderingEngine::updateHD()
         if (display.m_depthLining.enabled)
             border = std::max<uint32_t>(border, 3u);
 
+        if (display.m_postRenderingAmbientOcclusion.enabled)
+        {
+            const uint32_t aoFootprint = static_cast<uint32_t>(std::ceil(std::max(0.0f, display.m_postRenderingAmbientOcclusion.radius)));
+            border = std::max(border, aoFootprint + 1u);
+        }
+
         return border;
     };
 
@@ -368,8 +385,29 @@ void RenderingEngine::updateHD()
 
     const uint32_t border = computeTileBorder(hdDisplayParams);
     constexpr uint32_t minTileSize = 64;
-    constexpr int samples = 1;
+    const int sampleCount = std::max(1, m_hdMultisampling);
     VulkanManager& vkm = VulkanManager::getInstance();
+    const bool useAccumulation = sampleCount > 1;
+    const size_t bytesPerPixel = m_hdFormat == ImageFormat::PNG16 ? 8ull : 4ull;
+
+    auto buildSampleOffsets = [](int count) {
+        switch (count)
+        {
+        case 2:
+            return std::vector<glm::vec2>{ {-0.25f, -0.25f}, {0.25f, 0.25f} };
+        case 4:
+            return std::vector<glm::vec2>{ {-0.25f, -0.25f}, {0.25f, -0.25f}, {-0.25f, 0.25f}, {0.25f, 0.25f} };
+        case 8:
+            return std::vector<glm::vec2>{
+                {-0.25f, -0.125f}, {0.25f, -0.125f}, {-0.25f, 0.125f}, {0.25f, 0.125f},
+                {-0.125f, -0.25f}, {0.125f, -0.25f}, {-0.125f, 0.25f}, {0.125f, 0.25f}
+            };
+        default:
+            return std::vector<glm::vec2>(std::max(count, 1), glm::vec2(0.f));
+        }
+    };
+
+    const std::vector<glm::vec2> sampleOffsets = buildSampleOffsets(sampleCount);
 
     auto clampTileSize = [&](uint32_t size) {
         const uint32_t maxImageSize = std::max(2u, vkm.getPhysicalDeviceLimits().maxImageDimension2D);
@@ -407,7 +445,7 @@ void RenderingEngine::updateHD()
     {        
         const uint32_t viewportW = frameW + border * 2;
         const uint32_t viewportH = frameH + border * 2;
-        if (vkm.createVirtualViewport(viewportW, viewportH, samples, virtualViewport))
+        if (vkm.createVirtualViewport(viewportW, viewportH, sampleCount, virtualViewport))
         {
             viewportReady = true;
             break;
@@ -425,7 +463,8 @@ void RenderingEngine::updateHD()
     vkm.startNextFrame();
 
     ImageWriter imgWriter;
-    if (imgWriter.startCapture(m_hdFormat, m_hdExtent.x, m_hdExtent.y) == false)
+    OrthoGridOverlay orthoGridOverlay;
+    if (imgWriter.startCapture(m_hdFormat, m_hdExtent.x, m_hdExtent.y, m_imageMetadata.includeAlpha) == false)
         return;
 
     // Projection parameters
@@ -443,12 +482,52 @@ void RenderingEngine::updateHD()
 
         // Update internal matrixes
         wCameraHD->refresh();
+        orthoGridOverlay.active = wCameraHD->getProjectionMode() == ProjectionMode::Orthographic && wCameraHD->m_orthoGridActive;
+        if (orthoGridOverlay.active)
+        {
+            orthoGridOverlay.step = wCameraHD->m_orthoGridStep;
+            orthoGridOverlay.lineWidth = wCameraHD->m_orthoGridLineWidth;
+            orthoGridOverlay.color = wCameraHD->m_orthoGridColor;
+            orthoGridOverlay.distanceUnit = wCameraHD->m_unitUsage.distanceUnit;
+        }
 
         if(m_showProgressBar)
             m_dataDispatcher.updateInformation(new GuiDataProcessingSplashScreenStart((uint64_t)tileCountX * tileCountY, TEXT_SCREENSHOT_START, TEXT_SCREENSHOT_PROCESSING.arg(count).arg(tileCountX * tileCountY)));
 
         ProjectionData proj = wCameraHD->getTruncatedProjection(m_hdFrameRatio, m_showHDFrame ? HD_MARGIN : 0.0);
         ProjectionFrustum frustum = proj.getProjectionFrustum();
+        m_imageMetadata.hasBottomZ = false;
+        m_imageMetadata.hasVerticalCorners = false;
+        if (m_imageMetadata.ortho)
+        {
+            const glm::dvec3 viewDir = glm::normalize(wCameraHD->getViewAxis());
+            const double verticalComponent = std::abs(viewDir.z);
+            constexpr double alignmentThreshold = 1e-3;
+            const glm::dmat4 modelMatrix = wCameraHD->getModelMatrix();
+            auto toWorld = [&](double x, double y) {
+                glm::dvec4 pos = modelMatrix * glm::dvec4(x, y, 0.0, 1.0);
+                return glm::dvec3(pos);
+            };
+
+            if (verticalComponent >= (1.0 - alignmentThreshold))
+            {
+                const glm::dvec3 bottomLeftWorld = toWorld(frustum.l, frustum.t);
+                const glm::dvec3 topRightWorld = toWorld(frustum.r, frustum.b);
+                m_imageMetadata.hasVerticalCorners = true;
+                m_imageMetadata.imageBottomLeft = glm::dvec2(bottomLeftWorld.x, bottomLeftWorld.y);
+                m_imageMetadata.imageTopRight = glm::dvec2(topRightWorld.x, topRightWorld.y);
+            }
+            else if (verticalComponent <= alignmentThreshold)
+            {
+                const glm::dvec3 bottomLeftWorld = toWorld(frustum.l, frustum.t);
+                const glm::dvec3 bottomRightWorld = toWorld(frustum.r, frustum.t);
+                m_imageMetadata.hasBottomZ = true;
+                m_imageMetadata.imageBottomZ = (bottomLeftWorld.z + bottomRightWorld.z) / 2.0;
+            }
+        }
+        std::vector<uint64_t> tileAccumulation;
+        std::vector<char> tileBuffer;
+        const bool preciseColor = m_hdFormat == ImageFormat::PNG16;
         for (uint32_t tileX = 0; tileX < tileCountX; tileX++)
         {
             for (uint32_t tileY = 0; tileY < tileCountY; tileY++)
@@ -463,26 +542,89 @@ void RenderingEngine::updateHD()
                 }
 
                 count++;
+                const uint32_t tileOffsetW = tileX * frameW;
+                const uint32_t tileOffsetH = tileY * frameH;
+                const uint32_t tileWidth = std::min<uint32_t>(frameW, m_hdExtent.x - tileOffsetW);
+                const uint32_t tileHeight = std::min<uint32_t>(frameH, m_hdExtent.y - tileOffsetH);
+                if (tileWidth == 0 || tileHeight == 0)
+                    continue;
 
-                // Set (x, y, z, left, right, top, bottom, near, far);
-                double minW = double(tileX) * frameW - border;
-                double maxW = (double(tileX) + 1) * frameW + border;
-                double dl = frustum.l * (1.0 - minW / m_hdExtent.x) + frustum.r * minW / m_hdExtent.x;
-                double dr = frustum.l * (1.0 - maxW / m_hdExtent.x) + frustum.r * maxW / m_hdExtent.x;
-                double minH = double(tileY) * frameH - border;
-                double maxH = (double(tileY) + 1) * frameH + border;
-                double db = frustum.b * (1.0 - minH / m_hdExtent.y) + frustum.t * minH / m_hdExtent.y;
-                double dt = frustum.b * (1.0 - maxH / m_hdExtent.y) + frustum.t * maxH / m_hdExtent.y;
-                wCameraHD->setProjectionFrustum(dl, dr, db, dt, frustum.n, frustum.f);
-                wCameraHD->refresh();
-                wCameraHD->prepareUniforms(m_renderSwapIndex);
+                if (useAccumulation)
+                {
+                    tileAccumulation.assign(static_cast<size_t>(tileWidth) * tileHeight * 4ull, 0ull);
+                    tileBuffer.resize(static_cast<size_t>(tileWidth) * tileHeight * bytesPerPixel);
+                }
+                int accumulatedSamples = 0;
 
-                glm::vec2 screenOffset((2 * tileX * (float)frameW - m_hdExtent.x) / 2.f,
-                    (2 * tileY * (float)frameH - m_hdExtent.y) / 2.f);
+                for (int sampleIdx = 0; sampleIdx < sampleCount; ++sampleIdx)
+                {
+                    const glm::vec2 sampleJitter = sampleOffsets[static_cast<size_t>(sampleIdx % static_cast<int>(sampleOffsets.size()))];
 
-                ImageTransferEvent ite;
-                renderVirtualViewport(virtualViewport, *&wCameraHD, screenOffset, sleepedTime, ite);
-                imgWriter.transferImageTile(ite, tileX * frameW, tileY * frameH, border);
+                    // Set (x, y, z, left, right, top, bottom, near, far);
+                    double minW = double(tileX) * frameW - border + sampleJitter.x;
+                    double maxW = (double(tileX) + 1) * frameW + border + sampleJitter.x;
+                    double dl = frustum.l * (1.0 - minW / m_hdExtent.x) + frustum.r * minW / m_hdExtent.x;
+                    double dr = frustum.l * (1.0 - maxW / m_hdExtent.x) + frustum.r * maxW / m_hdExtent.x;
+                    double minH = double(tileY) * frameH - border + sampleJitter.y;
+                    double maxH = (double(tileY) + 1) * frameH + border + sampleJitter.y;
+                    double db = frustum.b * (1.0 - minH / m_hdExtent.y) + frustum.t * minH / m_hdExtent.y;
+                    double dt = frustum.b * (1.0 - maxH / m_hdExtent.y) + frustum.t * maxH / m_hdExtent.y;
+                    wCameraHD->setProjectionFrustum(dl, dr, db, dt, frustum.n, frustum.f);
+                    wCameraHD->refresh();
+                    wCameraHD->prepareUniforms(m_renderSwapIndex);
+
+                    glm::vec2 screenOffset((2 * tileX * (float)frameW - m_hdExtent.x) / 2.f + sampleJitter.x,
+                        (2 * tileY * (float)frameH - m_hdExtent.y) / 2.f + sampleJitter.y);
+
+                    ImageTransferEvent ite;
+                    renderVirtualViewport(virtualViewport, *&wCameraHD, screenOffset, sleepedTime, ite, m_hdFullResolutionTraversal);
+
+                    if (useAccumulation)
+                    {
+                        if (vkm.doImageTransfer(ite, tileWidth, tileHeight, tileBuffer.data(), tileBuffer.size(), 0u, 0u, border, preciseColor))
+                        {
+                            if (preciseColor)
+                            {
+                                const uint16_t* srcRow = reinterpret_cast<const uint16_t*>(tileBuffer.data());
+                                for (size_t idx = 0; idx < static_cast<size_t>(tileWidth) * tileHeight * 4ull; ++idx)
+                                    tileAccumulation[idx] += srcRow[idx];
+                            }
+                            else
+                            {
+                                const uint8_t* srcRow = reinterpret_cast<const uint8_t*>(tileBuffer.data());
+                                for (size_t idx = 0; idx < static_cast<size_t>(tileWidth) * tileHeight * 4ull; ++idx)
+                                    tileAccumulation[idx] += srcRow[idx];
+                            }
+                            ++accumulatedSamples;
+                        }
+                    }
+                    else
+                    {
+                        imgWriter.transferImageTile(ite, tileOffsetW, tileOffsetH, border);
+                    }
+                }
+
+                if (useAccumulation)
+                {
+                    const double divisor = static_cast<double>(std::max(1, accumulatedSamples));
+                    if (preciseColor)
+                    {
+                        uint16_t* dst = reinterpret_cast<uint16_t*>(tileBuffer.data());
+                        for (size_t idx = 0; idx < static_cast<size_t>(tileWidth) * tileHeight * 4ull; ++idx)
+                        {
+                            dst[idx] = static_cast<uint16_t>(std::round(static_cast<double>(tileAccumulation[idx]) / divisor));
+                        }
+                    }
+                    else
+                    {
+                        uint8_t* dst = reinterpret_cast<uint8_t*>(tileBuffer.data());
+                        for (size_t idx = 0; idx < static_cast<size_t>(tileWidth) * tileHeight * 4ull; ++idx)
+                        {
+                            dst[idx] = static_cast<uint8_t>(std::round(static_cast<double>(tileAccumulation[idx]) / divisor));
+                        }
+                    }
+                    imgWriter.writeTile(tileBuffer.data(), tileWidth, tileHeight, tileOffsetW, tileOffsetH);
+                }
 
                 // Copy du rendu dans l'image de destination
                 if (m_showProgressBar)
@@ -498,18 +640,26 @@ void RenderingEngine::updateHD()
     cameraHD.destroy();
     vkm.destroyFramebuffer(virtualViewport);
 
+    if (orthoGridOverlay.active)
+        imgWriter.applyOrthoGridOverlay(m_imageMetadata, orthoGridOverlay);
+
     if (imgWriter.save(m_hdImageFilepath, m_imageMetadata))
     {
-        m_dataDispatcher.updateInformation(new GuiDataProcessingSplashScreenLogUpdate(TEXT_SCREENSHOT_DONE.arg(m_hdImageFilepath.generic_wstring())));
-        m_dataDispatcher.updateInformation(new GuiDataProcessingSplashScreenEnd(TEXT_SCREENSHOT_PROCESSING_DONE));
-        m_dataDispatcher.updateInformation(new GuiDataTmpMessage(TEXT_SCREENSHOT_DONE.arg(m_hdImageFilepath.generic_wstring())));
-        m_dataDispatcher.sendControl(new control::function::ForwardMessage(new GeneralMessage(GeneralInfo::IMAGEEND)));
+        if (m_showProgressBar)
+        {
+            m_dataDispatcher.updateInformation(new GuiDataProcessingSplashScreenLogUpdate(TEXT_SCREENSHOT_DONE.arg(m_hdImageFilepath.generic_wstring())));
+            m_dataDispatcher.updateInformation(new GuiDataProcessingSplashScreenEnd(TEXT_SCREENSHOT_PROCESSING_DONE));
+            m_dataDispatcher.updateInformation(new GuiDataTmpMessage(TEXT_SCREENSHOT_DONE.arg(m_hdImageFilepath.generic_wstring())));
+        }
     }
     else
     {
-        m_dataDispatcher.updateInformation(new GuiDataProcessingSplashScreenEnd(TEXT_SCREENSHOT_FAILED));
+        if (m_showProgressBar)
+            m_dataDispatcher.updateInformation(new GuiDataProcessingSplashScreenEnd(TEXT_SCREENSHOT_FAILED));
         IOLOG << "Failed to write " << m_hdImageFilepath << LOGENDL;
     }
+
+    m_dataDispatcher.sendControl(new control::function::ForwardMessage(new GeneralMessage(GeneralInfo::IMAGEEND)));
 
     m_hdImageFilepath.clear();
     m_doHDRender.store(false);
@@ -579,12 +729,15 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
     // The rendering necissities must be validated
     viewport.updateRenderingNecessityState(wCamera, refreshPCRender);
     float decimationRatio = viewport.decimatePointSize(refreshPCRender);
+    if (decimationRatio > 0.f)
+        decimationRatio *= viewport.getOctreePrecisionMultiplier();
     visitor.setDecimationRatio(decimationRatio);
 
     std::chrono::steady_clock::time_point tp_scans = std::chrono::steady_clock::now();
 
     VkCommandBuffer cmdBuffer = vkm.getGraphicsCmdBuffer(framebuffer);
     const DisplayParameters& display = wCamera->getDisplayParameters();
+    vkm.resetCommandBuffer(cmdBuffer);
     vkm.beginCommandBuffer(cmdBuffer);
     if (refreshPCRender)
     {
@@ -600,7 +753,7 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
         m_postRenderer.setConstantZRange(wCamera->getNear(), wCamera->getFar(), cmdBuffer);
         m_postRenderer.setConstantScreenSize(framebuffer->extent, wCamera->getPixelSize1m(framebuffer->extent.width, framebuffer->extent.height), cmdBuffer);
         m_postRenderer.setConstantProjMode(wCamera->getProjectionMode() == ProjectionMode::Perspective, cmdBuffer);
-        m_postRenderer.setConstantTexelThreshold(display.m_gapFillingTexelThreshold, cmdBuffer);
+        m_postRenderer.setConstantTexelThreshold(display.m_texelThreshold, cmdBuffer);
         m_postRenderer.processPointFilling(cmdBuffer, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
 
         // Second compute shader (Normals)
@@ -613,6 +766,12 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
                 m_postRenderer.processNormalColored(cmdBuffer, wCamera->getInversedViewUniform(m_renderSwapIndex), framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
             else
                 m_postRenderer.processNormalShading(cmdBuffer, wCamera->getInversedViewUniform(m_renderSwapIndex), framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
+        }
+
+        if (display.m_postRenderingAmbientOcclusion.enabled && display.m_blendMode == BlendMode::Opaque)
+        {
+            vkm.beginPostTreatmentAmbientOcclusion(framebuffer);
+            m_postRenderer.processAmbientOcclusion(cmdBuffer, display.m_postRenderingAmbientOcclusion, wCamera->getNear(), wCamera->getFar(), wCamera->getProjectionMode() == ProjectionMode::Perspective, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
         }
 
         if (display.m_depthLining.enabled)
@@ -630,7 +789,7 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
         if (display.m_blendMode != BlendMode::Opaque && display.m_transparency > 0.f)
         {
             vkm.beginPostTreatmentTransparency(framebuffer);
-            m_postRenderer.setConstantHDR(display.m_transparency, display.m_negativeEffect, display.m_reduceFlash, framebuffer->extent, display.m_backgroundColor, cmdBuffer);
+            m_postRenderer.setConstantHDR(display.m_transparency, display.m_negativeEffect, display.m_reduceFlash, display.m_flashAdvanced, display.m_flashControl, framebuffer->extent, display.m_backgroundColor, cmdBuffer);
             m_postRenderer.processTransparencyHDR(cmdBuffer, framebuffer->descSetSamplers, framebuffer->extent);
         }
     }
@@ -682,7 +841,7 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
         // We use an VkEvent for recording the VkImage transfer and get it on the host later
         const bool preciseScreenshot = m_screenshotFormat == ImageFormat::PNG16;
         ImageTransferEvent ite = vkm.transferFramebufferImage(framebuffer, cmdBuffer, preciseScreenshot);
-        m_pendingScreenshots.push_back({ m_screenshotFilename, m_screenshotFormat, ite, framebuffer->extent.width, framebuffer->extent.height });
+        m_pendingScreenshots.push_back({ m_screenshotFilename, m_screenshotFormat, m_screenshotIncludeAlpha, ite, framebuffer->extent.width, framebuffer->extent.height });
         m_screenshotFilename.clear();
     }
 
@@ -709,7 +868,7 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
     return true;
 }
 
-bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const CameraNode& camera, glm::vec2 screenOffset, double& _sleepedTime, ImageTransferEvent& transferEvent)
+bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const CameraNode& camera, glm::vec2 screenOffset, double& _sleepedTime, ImageTransferEvent& transferEvent, bool fullResolutionTraversal)
 {
     VulkanManager& vkm = VulkanManager::getInstance();
     const DisplayParameters& displayParam = camera.getDisplayParameters();
@@ -720,7 +879,10 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
         return false;
 
     // Dynamic rendering variables
-    float decimationRatio = (displayParam.m_transparency > 0) && (displayParam.m_blendMode == BlendMode::Transparent) ? 0.f : 1.f;  // no decimation (0.0) with transparency
+    const bool transparencyForcesFullTraversal = (displayParam.m_transparency > 0) && (displayParam.m_blendMode == BlendMode::Transparent);
+    float decimationRatio = (transparencyForcesFullTraversal || fullResolutionTraversal) ? 0.f : 1.f;  // no decimation (0.0) with transparency or explicit full traversal
+	if (decimationRatio > 0.f)
+		decimationRatio *= getOctreePrecisionMultiplier(Config::getOctreePrecision());
 
     resetDrawBuffers(framebuffer);
     // Visitors
@@ -736,6 +898,8 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
 
     // Scan render pass
     // Traverse the octree with full definition -> wait for the streaming to load the PC -> build the draw command with another octree traversal
+    vkm.waitForRenderFence();
+    vkm.resetCommandBuffer(cmdBuffer);
     vkm.beginCommandBuffer(cmdBuffer);
     vkm.beginScanRenderPass(framebuffer, getVkClearColor(displayParam.m_blendMode, displayParam.m_backgroundColor));
     visitor.draw_baked_pointClouds(cmdBuffer, m_pcRenderer);
@@ -766,7 +930,7 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
     m_postRenderer.setConstantZRange(camera.getNear(), camera.getFar(), cmdBuffer);
     m_postRenderer.setConstantScreenSize(framebuffer->extent, camera.getPixelSize1m(framebuffer->extent.width, framebuffer->extent.height), cmdBuffer);
     m_postRenderer.setConstantProjMode(camera.getProjectionMode() == ProjectionMode::Perspective, cmdBuffer);
-    m_postRenderer.setConstantTexelThreshold(displayParam.m_gapFillingTexelThreshold, cmdBuffer);
+    m_postRenderer.setConstantTexelThreshold(displayParam.m_texelThreshold, cmdBuffer);
     m_postRenderer.processPointFilling(cmdBuffer, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
 
     // Second compute shader (Normals)
@@ -779,6 +943,12 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
             m_postRenderer.processNormalColored(cmdBuffer, camera.getInversedViewUniform(m_renderSwapIndex), framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
         else
             m_postRenderer.processNormalShading(cmdBuffer, camera.getInversedViewUniform(m_renderSwapIndex), framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
+    }
+
+    if (displayParam.m_postRenderingAmbientOcclusion.enabled && displayParam.m_blendMode == BlendMode::Opaque)
+    {
+        vkm.beginPostTreatmentAmbientOcclusion(framebuffer);
+        m_postRenderer.processAmbientOcclusion(cmdBuffer, displayParam.m_postRenderingAmbientOcclusion, camera.getNear(), camera.getFar(), camera.getProjectionMode() == ProjectionMode::Perspective, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
     }
 
     if (displayParam.m_depthLining.enabled)
@@ -796,7 +966,7 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
     if (displayParam.m_blendMode != BlendMode::Opaque && displayParam.m_transparency > 0.f)
     {
         vkm.beginPostTreatmentTransparency(framebuffer);
-        m_postRenderer.setConstantHDR(displayParam.m_transparency, displayParam.m_negativeEffect, displayParam.m_reduceFlash, framebuffer->extent, displayParam.m_backgroundColor, cmdBuffer);
+        m_postRenderer.setConstantHDR(displayParam.m_transparency, displayParam.m_negativeEffect, displayParam.m_reduceFlash, displayParam.m_flashAdvanced, displayParam.m_flashControl, framebuffer->extent, displayParam.m_backgroundColor, cmdBuffer);
         m_postRenderer.processTransparencyHDR(cmdBuffer, framebuffer->descSetSamplers, framebuffer->extent);
     }
 
@@ -923,7 +1093,27 @@ void RenderingEngine::drawOverlay(VkCommandBuffer cmdBuffer, const CameraNode& c
         dl->AddRectFilled(ImVec2(upLeft.x, frameBotRight.y), botRight, shadeColor);
         dl->AddRectFilled(ImVec2(upLeft.x, frameUpLeft.y), ImVec2(frameUpLeft.x, frameBotRight.y), shadeColor);
         dl->AddRectFilled(ImVec2(frameBotRight.x, frameUpLeft.y), ImVec2(botRight.x, frameBotRight.y), shadeColor);
-        dl->AddRect(frameUpLeft, frameBotRight, ImColor(238, 315, 119, 255), 0.f, 0, 2.f);
+        ImColor frameColor(238, 315, 119, 255);
+        dl->AddRect(frameUpLeft, frameBotRight, frameColor, 0.f, 0, 2.f);
+
+        if (m_showHDFrameGrid)
+        {
+            const float lineWidth = 1.0f;
+            const float thirdWidth = (frameBotRight.x - frameUpLeft.x) / 3.0f;
+            const float thirdHeight = (frameBotRight.y - frameUpLeft.y) / 3.0f;
+
+            for (int i = 1; i <= 2; ++i)
+            {
+                const float x = frameUpLeft.x + thirdWidth * i;
+                const float y = frameUpLeft.y + thirdHeight * i;
+
+                dl->AddLine(ImVec2(x, frameUpLeft.y), ImVec2(x, frameBotRight.y), frameColor, lineWidth);
+                dl->AddLine(ImVec2(frameUpLeft.x, y), ImVec2(frameBotRight.x, y), frameColor, lineWidth);
+            }
+
+            dl->AddLine(frameUpLeft, frameBotRight, frameColor, lineWidth);
+            dl->AddLine(ImVec2(frameBotRight.x, frameUpLeft.y), ImVec2(frameUpLeft.x, frameBotRight.y), frameColor, lineWidth);
+        }
     }
 
     // Ortho Grid
@@ -1160,7 +1350,7 @@ void RenderingEngine::processPendingScreenshots()
     for (PendingScreenshot& pending : m_pendingScreenshots)
     {
         ImageWriter imgWriter;
-        imgWriter.saveScreenshot(pending.filepath, pending.format, pending.transfer, pending.width, pending.height);
+        imgWriter.saveScreenshot(pending.filepath, pending.format, pending.transfer, pending.width, pending.height, pending.includeAlpha);
         m_dataDispatcher.sendControl(new control::function::ForwardMessage(new GeneralMessage(GeneralInfo::IMAGEEND)));
     }
 

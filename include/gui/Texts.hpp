@@ -81,6 +81,7 @@
 //ClippingMethod
 #define TEXT_CLIPINTERN QObject::tr("Show interior")
 #define TEXT_CLIPEXTERN QObject::tr("Show exterior")
+#define TEXT_CLIPPHASE QObject::tr("By phase")
 
 //ClippingControl
 #define TEXT_ACTIVE_CLIPPING_RAMP_MAX_REACHED QObject::tr("You can't activate more clippings or rampes, the maximum is reached (max: %1).")
@@ -275,5 +276,7 @@
 #define TEXT_EXPORT_VIDEO_MISSING_VIEWPOINTS QObject::tr("Error : Viewpoints are missing.")
 #define TEXT_EXPORT_VIDEO_SAME_VIEWPOINTS QObject::tr("Error : Same selected viewpoints.")
 #define TEXT_EXPORT_VIDEO_ORTHO_VIEWPOINT QObject::tr("Error : Orthographic viewpoint not allowed.")
+#define TEXT_EXPORT_VIDEO_MP4_RESOLUTION_TOO_HIGH QObject::tr("The image resolution is too high. It cannot exceed 8294400 pixels (4K). Please reduce it.")
+#define TEXT_EXPORT_VIDEO_MP4_X265_MISSING QObject::tr("x265 encoder not found. Please install ffmpeg first, then add the folder that contains ffmpeg.exe in the general settings of OpenScanTools.")
 
 #endif

@@ -733,7 +733,7 @@ std::vector<tls::PointCloudInstance> GraphManager::getPointCloudInstances(const 
 
         tls::ScanHeader header;
         tlGetScanHeader(rScan->getScanGuid(), header);
-        result.emplace_back(header, *&rScan, rScan->getClippable());
+        result.push_back(tls::PointCloudInstance{ header, *&rScan, rScan->getClippable(), rScan->getPhase() });
 
         // QUESTION - Est-ce que le scan panoramique annule l'export des pcos ?
         return result;
@@ -763,7 +763,7 @@ std::vector<tls::PointCloudInstance> GraphManager::getPointCloudInstances(const 
             continue;
 
         header.name = rPc->getComposedName();
-        result.emplace_back(header, rPc->getTransformationModule(), rPc->getClippable());
+        result.push_back(tls::PointCloudInstance{ header, rPc->getTransformationModule(), rPc->getClippable(), rPc->getPhase() });
     }
 
     return (result);

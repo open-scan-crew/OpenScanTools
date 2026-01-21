@@ -141,10 +141,23 @@
         <property name="checked">
          <bool>true</bool>
         </property>
-       </widget>
-      </item>
-     </layout>
+      </widget>
+     </item>
+    </layout>
     </widget>
+   </item>
+   <item row="0" column="4">
+    <widget class="QCheckBox" name="checkBox_alphaImage">
+     <property name="toolTip">
+      <string>Activates the alpha channel on png and tiff formats.</string>
+     </property>
+     <property name="text">
+      <string>Alpha</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+   </widget>
    </item>
    <item row="1" column="11">
     <widget class="QLabel" name="label_scale">
@@ -170,6 +183,16 @@
      </property>
     </widget>
    </item>
+   <item row="0" column="3">
+    <widget class="QCheckBox" name="checkBox_hdImageGrid">
+     <property name="text">
+      <string>Grid</string>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
    <item row="2" column="4">
     <widget class="QLabel" name="label_viewportH">
      <property name="text">
@@ -177,7 +200,7 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="4">
+   <item row="0" column="5">
     <widget class="QLabel" name="formatLabel">
      <property name="text">
       <string>Format:</string>
@@ -286,10 +309,22 @@
      </property>
     </widget>
    </item>
+   <item row="0" column="11">
+    <widget class="QLabel" name="label_antialiasing">
+     <property name="text">
+      <string>Antialiasing</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="12">
+    <widget class="QComboBox" name="comboBox_antialiasHD"/>
+   </item>
   </layout>
  </widget>
  <tabstops>
   <tabstop>checkBox_frame</tabstop>
+  <tabstop>checkBox_hdImageGrid</tabstop>
+  <tabstop>checkBox_alphaImage</tabstop>
   <tabstop>radioButton_ratioImage</tabstop>
   <tabstop>radioButton_print</tabstop>
   <tabstop>comboBox_ratioImage</tabstop>
@@ -303,6 +338,7 @@
   <tabstop>comboBox_scale</tabstop>
   <tabstop>comboBox_dpi</tabstop>
   <tabstop>formatComboBox</tabstop>
+  <tabstop>comboBox_antialiasHD</tabstop>
   <tabstop>toolButton_createImage</tabstop>
   <tabstop>toolButton_screenshot</tabstop>
  </tabstops>

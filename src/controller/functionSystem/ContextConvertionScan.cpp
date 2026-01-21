@@ -2,6 +2,7 @@
 #include "io/FileUtils.h"
 #include "models/pointCloud/PointXYZIRGB.h"
 #include "io/imports/IScanFileReader.h"
+#include "io/imports/E57FileReader.h"
 #include "io/exports/IScanFileWriter.h"
 #include "controller/messages/ConvertionMessage.h"
 #include "controller/Controller.h"
@@ -402,6 +403,18 @@ bool ContextConvertionScan::convertOne(IScanFileReader* reader, uint32_t readerO
     transfo.setPosition(glm::dvec3(t[0], t[1], t[2]));
     double* q = inHeader.transfo.quaternion;
     transfo.setRotation(glm::dquat(q[3], q[0], q[1], q[2]));
+
+    if (reader->getType() == FileType::E57)
+    {
+        auto e57Reader = dynamic_cast<E57FileReader*>(reader);
+        if (e57Reader && !e57Reader->hasPoseTranslation(readerOffset) && !e57Reader->usesLocalOffsets(readerOffset))
+        {
+            outHeader.transfo.translation[0] = 0.0;
+            outHeader.transfo.translation[1] = 0.0;
+            outHeader.transfo.translation[2] = 0.0;
+            transfo.setPosition(glm::dvec3(0.0, 0.0, 0.0));
+        }
+    }
 
     // Begin new point cloud in file
     writer->appendPointCloud(outHeader, transfo);

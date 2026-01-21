@@ -176,7 +176,7 @@ namespace control::io
     class QuickScreenshot : public AControl
     {
     public:
-        QuickScreenshot(ImageFormat format, std::filesystem::path filepath = "");
+        QuickScreenshot(ImageFormat format, std::filesystem::path filepath = "", bool includeAlpha = true);
         ~QuickScreenshot();
         void doFunction(Controller& controller) override;
         bool canUndo() const override;
@@ -185,6 +185,7 @@ namespace control::io
     private:
         const ImageFormat m_format;
         std::filesystem::path m_filepath;
+        bool m_includeAlpha;
     };
 
     class RecordPerformance : public AControl
@@ -201,7 +202,7 @@ namespace control::io
     class SetupImageHD : public AControl
     {
     public:
-        SetupImageHD(SafePtr<CameraNode> viewport, glm::ivec2 imageSize, int samples, ImageFormat format, ImageHDMetadata metadata, std::filesystem::path filepath, bool showProgressBar, uint32_t hdimagetilesize);
+        SetupImageHD(SafePtr<CameraNode> viewport, glm::ivec2 imageSize, int samples, ImageFormat format, ImageHDMetadata metadata, std::filesystem::path filepath, bool showProgressBar, uint32_t hdimagetilesize, bool fullResolutionTraversal);
         ~SetupImageHD();
         void doFunction(Controller& controller) override;
         bool canUndo() const override;
@@ -216,6 +217,7 @@ namespace control::io
         std::filesystem::path m_filepath;
         bool m_showProgressBar;
         uint32_t m_hdimagetilesize;
+        bool m_fullResolutionTraversal;
     };
 
     class GenerateVideoHD : public AControl

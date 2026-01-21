@@ -25,6 +25,8 @@
 #include "utils/Logger.h"
 #include "utils/ProjectColor.hpp"
 
+#include <algorithm>
+
 #include <QtWidgets/qscrollbar.h>
 #include <QtWidgets/qmenu.h>
 #include <QtGui/qevent.h>
@@ -662,7 +664,8 @@ TreeNode* ProjectTreePanel::constructStatusNodes(const std::unordered_set<Elemen
 TreeNode* ProjectTreePanel::constructClipMethodNodes(const std::unordered_set<ElementType>& types, TreeNode* parentNode)
 {
     std::vector<std::pair<QString, ClippingMode>> clipModes = { {TEXT_CLIPINTERN, ClippingMode::showInterior},
-                                                                {TEXT_CLIPEXTERN, ClippingMode::showExterior}
+                                                                {TEXT_CLIPEXTERN, ClippingMode::showExterior},
+                                                                {TEXT_CLIPPHASE, ClippingMode::byPhase}
     };
 
     TreeNode* clipMethNode = constructMasterNode(TEXT_CLIPMETH_TREE_NODE, parentNode->getTreeType());
@@ -878,7 +881,20 @@ void ProjectTreePanel::treeDragEvent(QDragEnterEvent* dEvent)
 
 void ProjectTreePanel::treeMoveEvent(QDragMoveEvent* mevent)
 {
-    QModelIndex highlightIndex = this->indexAt(mevent->pos());
+    const QRect viewRect = viewport()->rect();
+    QPoint hitPos = mevent->pos();
+    if (!viewRect.contains(hitPos))
+    {
+        hitPos.setX(std::clamp(hitPos.x(), viewRect.left(), viewRect.right()));
+        hitPos.setY(std::clamp(hitPos.y(), viewRect.top(), viewRect.bottom()));
+    }
+
+    QModelIndex highlightIndex = this->indexAt(hitPos);
+    if (!highlightIndex.isValid())
+    {
+        mevent->setAccepted(false);
+        return;
+    }
 
     TreeNode* destNode = static_cast<TreeNode*>(m_model->itemFromIndex(highlightIndex));
     bool canDrop = true;
@@ -1047,6 +1063,11 @@ void ProjectTreePanel::externCliping()
 void ProjectTreePanel::internClipping()
 {
     m_dataDispatcher.sendControl(new control::clippingEdition::SetMode(ClippingMode::showInterior, false, true));
+}
+
+void ProjectTreePanel::phaseClipping()
+{
+    m_dataDispatcher.sendControl(new control::clippingEdition::SetMode(ClippingMode::byPhase, false, true));
 }
 
 void ProjectTreePanel::pickItems()
@@ -1224,6 +1245,7 @@ void ProjectTreePanel::showTreeMenu(QPoint p)
         addActionToMenu(menu, new QAction(TEXT_CONTEXT_DISABLE_CLIPPING, this), &ProjectTreePanel::disableClipping);
         addActionToMenu(menu, new QAction(TEXT_CONTEXT_INTERIOR_CLIPPING, this), &ProjectTreePanel::internClipping);
         addActionToMenu(menu, new QAction(TEXT_CONTEXT_EXTERIOR_CLIPPING, this), &ProjectTreePanel::externCliping);
+        addActionToMenu(menu, new QAction(TEXT_CONTEXT_PHASE_CLIPPING, this), &ProjectTreePanel::phaseClipping);
     }
 
     // Desactivate all clippings
@@ -1288,13 +1310,22 @@ void ProjectTreePanel::dragEnterEvent(QDragEnterEvent* qevent)
 /*! Redï¿½finition de la mï¿½thode Qt qui traite l'ï¿½venement de 'DragMove' (se rï¿½pï¿½te entre un ï¿½vï¿½nement de 'Drag' et 'Drop') */
 void ProjectTreePanel::dragMoveEvent(QDragMoveEvent* mevent)
 {
-    QModelIndex index = indexAt(mevent->pos());
+    constexpr int kAutoScrollMargin = 40;
+    constexpr int kAutoScrollStep = 5;
+    const QRect viewRect = viewport()->rect();
+    const QRect allowedRect = viewRect.adjusted(-kAutoScrollMargin, -kAutoScrollMargin,
+                                                kAutoScrollMargin, kAutoScrollMargin);
 
-    if (index.isValid() == false)
+    if (!allowedRect.contains(mevent->pos()))
     {
         mevent->setDropAction(Qt::IgnoreAction);
         return;
     }
+
+    if (mevent->pos().y() < kAutoScrollMargin)
+        verticalScrollBar()->setValue(verticalScrollBar()->value() - kAutoScrollStep);
+    else if (mevent->pos().y() > viewRect.bottom() - kAutoScrollMargin)
+        verticalScrollBar()->setValue(verticalScrollBar()->value() + kAutoScrollStep);
 
     treeMoveEvent(mevent);
 }

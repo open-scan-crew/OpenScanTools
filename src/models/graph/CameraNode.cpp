@@ -45,6 +45,7 @@ CameraNode::CameraNode(const std::wstring& name, IDataDispatcher& dataDispatcher
 
     registerGuiDataFunction(guiDType::renderColorMode, &CameraNode::onRenderColorMode);
     registerGuiDataFunction(guiDType::renderPointSize, &CameraNode::onRenderPointSize);
+    registerGuiDataFunction(guiDType::renderTexelThreshold, &CameraNode::onRenderTexelThreshold);
     registerGuiDataFunction(guiDType::renderBrightness, &CameraNode::onRenderBrightness);
     registerGuiDataFunction(guiDType::renderContrast, &CameraNode::onRenderContrast);
     registerGuiDataFunction(guiDType::renderLuminance, &CameraNode::onRenderLuminance);
@@ -62,6 +63,7 @@ CameraNode::CameraNode(const std::wstring& name, IDataDispatcher& dataDispatcher
     registerGuiDataFunction(guiDType::renderMarkerDisplayOptions, &CameraNode::onRenderMarkerDisplayOptions);
     registerGuiDataFunction(guiDType::renderAlphaObjectsRendering, &CameraNode::onRenderAlphaObjects);
     registerGuiDataFunction(guiDType::renderPostRenderingNormals, &CameraNode::onRenderNormals);
+    registerGuiDataFunction(guiDType::renderAmbientOcclusion, &CameraNode::onRenderAmbientOcclusion);
     registerGuiDataFunction(guiDType::renderEdgeAwareBlur, &CameraNode::onRenderEdgeAwareBlur);
     registerGuiDataFunction(guiDType::renderDepthLining, &CameraNode::onRenderDepthLining);
     registerGuiDataFunction(guiDType::renderRampScale, &CameraNode::onRenderRampScale);
@@ -1353,6 +1355,11 @@ void CameraNode::onRenderPointSize(IGuiData* data)
     m_pointSize = static_cast<GuiDataRenderPointSize*>(data)->m_pointSize;
 }
 
+void CameraNode::onRenderTexelThreshold(IGuiData* data)
+{
+    m_texelThreshold = static_cast<GuiDataRenderTexelThreshold*>(data)->m_texelThreshold;
+}
+
 void CameraNode::onRenderBrightness(IGuiData* data)
 {
     m_brightness = static_cast<GuiDataRenderBrightness*>(data)->m_brightness;
@@ -1390,6 +1397,8 @@ void CameraNode::onRenderTransparencyOptions(IGuiData* data)
 {
     auto castData = static_cast<GuiDataRenderTransparencyOptions*>(data);
     m_reduceFlash = castData->m_reduceFlash;
+    m_flashAdvanced = castData->m_flashAdvanced;
+    m_flashControl = castData->m_flashControl;
     m_negativeEffect = castData->m_negativeEffect;
     sendNewUIViewPoint();
 }
@@ -1459,6 +1468,14 @@ void CameraNode::onRenderNormals(IGuiData* data)
     }
     else
         m_postRenderingNormals = normalsInfo->m_normals;
+
+    sendNewUIViewPoint();
+}
+
+void CameraNode::onRenderAmbientOcclusion(IGuiData* data)
+{
+    auto aoInfo = static_cast<GuiDataRenderAmbientOcclusion*>(data);
+    m_postRenderingAmbientOcclusion = aoInfo->m_ao;
 
     sendNewUIViewPoint();
 }

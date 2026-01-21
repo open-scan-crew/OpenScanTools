@@ -56,6 +56,7 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
     std::hash<bool> hash_fn_b;
     std::hash<float> hash_fn_f;
     std::hash<int> hash_fn_i;
+    std::hash<std::wstring> hash_fn_w;
 
     hash += hash_fn_32(viewportExtent.width);
     hash += hash_fn_32(viewportExtent.height);
@@ -68,6 +69,7 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
         hash += hash_dmat4(clipping->matRT_inv);
         hash += hash_vec4(clipping->params);
         hash += hash_fn_i(clipping->rampSteps);
+        hash += hash_fn_w(clipping->clipperPhase);
     }
 
     for (auto clipping : clipAssembly.clippingIntersection)
@@ -76,6 +78,7 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
         hash += hash_dmat4(clipping->matRT_inv);
         hash += hash_vec4(clipping->params);
         hash += hash_fn_i(clipping->rampSteps);
+        hash += hash_fn_w(clipping->clipperPhase);
     }
 
     for (auto clipping : clipAssembly.rampActives)
@@ -94,6 +97,7 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
         hash += hash_dmat4(pcdd.transfo);
         hash += hash_fn_32(*reinterpret_cast<uint32_t const*>(&pcdd.color));
         hash += hash_fn_32(pcdd.clippable);
+        hash += hash_fn_w(pcdd.phase);
     }
 
     // DisplayParameters
@@ -101,9 +105,9 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
     hash += hash_fn_32(*reinterpret_cast<uint32_t const*>(&display.m_backgroundColor));
 
     hash += hash_fn_f(display.m_pointSize);
+    hash += hash_fn_i(display.m_texelThreshold);
     hash += hash_fn_f(display.m_deltaFilling);
-    hash += hash_fn_f(display.m_contrast);
-    hash += hash_fn_i(display.m_gapFillingTexelThreshold);
+    hash += hash_fn_f(display.m_contrast);    
     hash += hash_fn_f(display.m_brightness);
     hash += hash_fn_f(display.m_saturation);
     hash += hash_fn_f(display.m_luminance);
@@ -116,6 +120,8 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
     hash += hash_fn_32((uint32_t)display.m_blendMode);
     hash += hash_fn_32((uint32_t)display.m_negativeEffect);
     hash += hash_fn_32((uint32_t)display.m_reduceFlash);
+    hash += hash_fn_32((uint32_t)display.m_flashAdvanced);
+    hash += hash_fn_f(display.m_flashControl);
     hash += hash_fn_f(display.m_transparency);
 
     hash += hash_fn_b(display.m_postRenderingNormals.show);
@@ -123,6 +129,9 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
     hash += hash_fn_b(display.m_postRenderingNormals.blendColor);
     hash += hash_fn_f(display.m_postRenderingNormals.normalStrength);
     hash += hash_fn_f(display.m_postRenderingNormals.gloss);
+    hash += hash_fn_b(display.m_postRenderingAmbientOcclusion.enabled);
+    hash += hash_fn_f(display.m_postRenderingAmbientOcclusion.radius);
+    hash += hash_fn_f(display.m_postRenderingAmbientOcclusion.intensity);
     hash += hash_fn_b(display.m_edgeAwareBlur.enabled);
     hash += hash_fn_f(display.m_edgeAwareBlur.radius);
     hash += hash_fn_f(display.m_edgeAwareBlur.depthThreshold);

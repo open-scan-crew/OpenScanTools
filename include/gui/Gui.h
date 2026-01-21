@@ -18,6 +18,7 @@
 #include <QtWidgets/qmainwindow.h>
 #include <QtWidgets/qwidget.h>
 
+#include <memory>
 #include <unordered_set>
 
 #define GUILOG Logger::log(LoggerMode::GuiLog)
@@ -27,8 +28,11 @@ class ViewportOrganizer;
 class MainToolBar;
 class LicenseWindowsManager;
 class ToolBarProjectGroup;
+class ToolBarRenderSettings;
+class ToolBarShowHideGroup;
 class Controller;
 class APropertyGeneral;
+class DisplayPresetManager;
 
 /*! \class Gui
  * \brief Class that controll all the interaction and all the definition of the UI
@@ -147,8 +151,13 @@ private:
 	DialogImportFileObject m_importFileObject;
 	ProjectTemplateListDialog m_projectTemplatesDialog;
 	PropertyClippingSettings m_object3DPropertySettings;
+	std::unique_ptr<DisplayPresetManager> m_displayPresetManager;
 
     IRenderingEngine* m_renderingEngine;
+
+	ToolBarRenderSettings* m_renderSettingsHome = nullptr;
+	ToolBarRenderSettings* m_renderSettingsRendering = nullptr;
+	ToolBarShowHideGroup* m_showHideGroup = nullptr;
 };
 
 #endif // !_GUI_H_

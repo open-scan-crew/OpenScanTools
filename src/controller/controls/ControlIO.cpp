@@ -429,30 +429,31 @@ namespace control::io
 	}
 
 	/*
-	** QuickScreenshot
-	*/
+** QuickScreenshot
+*/
 
-	QuickScreenshot::QuickScreenshot(ImageFormat format, std::filesystem::path filepath)
-		: m_format(format)
-		, m_filepath(filepath)
-	{}
+QuickScreenshot::QuickScreenshot(ImageFormat format, std::filesystem::path filepath, bool includeAlpha)
+	: m_format(format)
+	, m_filepath(filepath)
+	, m_includeAlpha(includeAlpha)
+{}
 
-	QuickScreenshot::~QuickScreenshot()
-	{}
+QuickScreenshot::~QuickScreenshot()
+{}
 
 	void QuickScreenshot::doFunction(Controller& controller)
 	{
 		if (m_filepath.empty())
-		{
-			m_filepath = controller.getContext().cgetProjectInternalInfo().getQuickScreenshotsFolderPath();
-			Utils::System::createDirectoryIfNotExist(m_filepath);
-			std::time_t result = std::time(nullptr);
-			std::tm* time = localtime(&result);
-			m_filepath /= std::to_string(1900 + time->tm_year) + "-" + Utils::completeWithZeros(1 + time->tm_mon, 2) + "-" + Utils::completeWithZeros(time->tm_mday, 2) + "_" + std::to_string(time->tm_hour) + "-" + Utils::completeWithZeros(time->tm_min, 2) + "-" + Utils::completeWithZeros(time->tm_sec, 2);
-		}
-		m_filepath.replace_extension("." + getImageExtension(m_format));
-		controller.updateInfo(new GuiDataScreenshot(m_filepath, m_format));
+	{
+		m_filepath = controller.getContext().cgetProjectInternalInfo().getQuickScreenshotsFolderPath();
+		Utils::System::createDirectoryIfNotExist(m_filepath);
+		std::time_t result = std::time(nullptr);
+		std::tm* time = localtime(&result);
+		m_filepath /= std::to_string(1900 + time->tm_year) + "-" + Utils::completeWithZeros(1 + time->tm_mon, 2) + "-" + Utils::completeWithZeros(time->tm_mday, 2) + "_" + std::to_string(time->tm_hour) + "-" + Utils::completeWithZeros(time->tm_min, 2) + "-" + Utils::completeWithZeros(time->tm_sec, 2);
 	}
+	m_filepath.replace_extension("." + getImageExtension(m_format));
+	controller.updateInfo(new GuiDataScreenshot(m_filepath, m_format, m_includeAlpha));
+}
 
 	bool  QuickScreenshot::canUndo() const
 	{
@@ -503,7 +504,7 @@ namespace control::io
 	** SetupImageHD
 	*/
 
-	SetupImageHD::SetupImageHD(SafePtr<CameraNode> _viewport, glm::ivec2 _imageSize, int _samples, ImageFormat _format, ImageHDMetadata _metadata, std::filesystem::path filepath, bool showProgressBar, uint32_t hdimagetilesize)
+	SetupImageHD::SetupImageHD(SafePtr<CameraNode> _viewport, glm::ivec2 _imageSize, int _samples, ImageFormat _format, ImageHDMetadata _metadata, std::filesystem::path filepath, bool showProgressBar, uint32_t hdimagetilesize, bool fullResolutionTraversal)
 		: m_viewport(_viewport)
 		, m_imageSize(_imageSize)
 		, m_multisample(_samples)
@@ -512,6 +513,7 @@ namespace control::io
 		, m_filepath(filepath)
 		, m_showProgressBar(showProgressBar)
 		, m_hdimagetilesize(hdimagetilesize)
+		, m_fullResolutionTraversal(fullResolutionTraversal)
 	{}
 
 	SetupImageHD::~SetupImageHD()
@@ -536,7 +538,7 @@ namespace control::io
 		}
 				
 		m_filepath.replace_extension(getImageExtension(m_format));
-		controller.updateInfo(new GuiDataGenerateHDImage(m_imageSize, 1, m_format, m_viewport, m_filepath, m_metadata, m_showProgressBar, m_hdimagetilesize));
+		controller.updateInfo(new GuiDataGenerateHDImage(m_imageSize, m_multisample, m_format, m_viewport, m_filepath, m_metadata, m_showProgressBar, m_hdimagetilesize, m_fullResolutionTraversal));
 	}
 
 	bool SetupImageHD::canUndo() const

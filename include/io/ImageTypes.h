@@ -55,6 +55,7 @@ struct ImageHDMetadata
 {
 	bool saveTextFile;
 	bool ortho;
+	bool includeAlpha = true;
 
 	std::string date;
 	std::string imageRatioLabel;
@@ -65,6 +66,13 @@ struct ImageHDMetadata
 	glm::dvec2 orthoSize;
 
 	bool progressBar;
+
+	bool hasBottomZ = false;
+	bool hasVerticalCorners = false;
+	double imageBottomZ = 0.0;
+	glm::dvec2 imageBottomLeft = glm::dvec2(0.0);
+	glm::dvec2 imageTopRight = glm::dvec2(0.0);
+	glm::dvec3 importScanTranslation = glm::dvec3(0.0);
 
 };
 

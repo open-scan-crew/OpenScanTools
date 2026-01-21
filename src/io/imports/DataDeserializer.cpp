@@ -393,6 +393,15 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
         retVal = false;
     }
 
+    if (json.find(Key_Texel_Threshold) != json.end())
+    {
+        data.m_texelThreshold = json.at(Key_Texel_Threshold).get<int>();
+    }
+    else
+    {
+        data.m_texelThreshold = 4;
+    }
+
     if (json.find(Key_Delta_Filling) != json.end())
     {
         data.m_deltaFilling = json.at(Key_Delta_Filling).get<float>();
@@ -403,11 +412,7 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
         retVal = false;
     }
 
-    if (json.find(Key_Gap_Filling_Texel_Threshold) != json.end())
-    {
-        data.m_gapFillingTexelThreshold = json.at(Key_Gap_Filling_Texel_Threshold).get<int>();
-    }
-
+    
     if (json.find(Key_Alpha_Object) != json.end())
     {
         data.m_alphaObject = json.at(Key_Alpha_Object).get<float>();
@@ -529,6 +534,24 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
     {
         IOLOG << "ViewPoint ReduceFlash read error" << LOGENDL;
 
+    }
+
+    if (json.find(Key_FlashAdvanced) != json.end())
+    {
+        data.m_flashAdvanced = json.at(Key_FlashAdvanced).get<bool>();
+    }
+    else
+    {
+        data.m_flashAdvanced = false;
+    }
+
+    if (json.find(Key_FlashControl) != json.end())
+    {
+        data.m_flashControl = json.at(Key_FlashControl).get<float>();
+    }
+    else
+    {
+        data.m_flashControl = 50.f;
     }
 
     if (json.find(Key_Transparency) != json.end())
@@ -679,6 +702,15 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
     {
         IOLOG << "ViewPoint PostRenderingNormals read error" << LOGENDL;
         retVal = false;
+    }
+
+    if (json.find(Key_Post_Rendering_Ambient_Occlusion) != json.end())
+    {
+        nlohmann::json options = json.at(Key_Post_Rendering_Ambient_Occlusion);
+        if (options.size() == 3)
+            data.m_postRenderingAmbientOcclusion = { options[0], options[1], options[2] };
+        else
+            IOLOG << "ViewPoint PostRenderingAmbientOcclusion malformed" << LOGENDL;
     }
 
     if (json.find(Key_Edge_Aware_Blur) != json.end())
@@ -1756,6 +1788,28 @@ bool ImportViewPointData(const nlohmann::json& json, ViewPointData& data, const 
     {
         IOLOG << "ViewPoint InteriorClippings read error" << LOGENDL;
         retVal = false;
+    }
+
+    if (json.find(Key_Phase_Clippings) != json.end())
+    {
+        std::unordered_set<SafePtr<AClippingNode>> list;
+        for (const nlohmann::json& child : json.at(Key_Phase_Clippings))
+        {
+            xg::Guid guid = xg::Guid(child.get<std::string>());
+            if (nodeById.find(guid) == nodeById.end())
+            {
+                IOLOG << "ViewPoint PhaseClippings couldnt find object" << LOGENDL;
+                continue;
+            }
+            SafePtr<AGraphNode> childNode = nodeById.at(guid);
+            if (childNode)
+                list.insert(static_pointer_cast<AClippingNode>(childNode));
+        }
+        data.setPhaseClippings(list);
+    }
+    else
+    {
+        IOLOG << "ViewPoint PhaseClippings read missing" << LOGENDL;
     }
 
     if (json.find(Key_Active_Ramps) != json.end())

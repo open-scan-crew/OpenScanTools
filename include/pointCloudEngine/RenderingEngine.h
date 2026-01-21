@@ -54,7 +54,7 @@ private:
     void updateHD();
     void resetDrawBuffers(TlFramebuffer fb);
     bool updateFramebuffer(VulkanViewport& viewport);
-    bool renderVirtualViewport(TlFramebuffer framebuffer, const CameraNode& camera, glm::vec2 screenOffset, double& sleepedTime, ImageTransferEvent& transferEvent);
+    bool renderVirtualViewport(TlFramebuffer framebuffer, const CameraNode& camera, glm::vec2 screenOffset, double& sleepedTime, ImageTransferEvent& transferEvent, bool fullResolutionTraversal);
 
     typedef void (RenderingEngine::*GuiDataFunction)(IGuiData*);
     inline void registerGuiDataFunction(guiDType type, GuiDataFunction fct)
@@ -144,11 +144,13 @@ private:
     glm::ivec2 m_hdExtent;
     int m_hdMultisampling;
     std::filesystem::path m_hdImageFilepath;
-    bool m_showHDFrame;
+    bool m_showHDFrame = false;
+    bool m_showHDFrameGrid = false;
     double m_hdFrameRatio;
     ImageHDMetadata m_imageMetadata;
     bool m_showProgressBar;
     uint32_t m_hdtilesize;
+    bool m_hdFullResolutionTraversal = false;
 
     // *** Compute *** //
     std::atomic<bool> m_computeRender = false;
@@ -158,6 +160,7 @@ private:
     {
         std::filesystem::path filepath;
         ImageFormat format;
+        bool includeAlpha = true;
         ImageTransferEvent transfer;
         uint32_t width;
         uint32_t height;
@@ -166,6 +169,7 @@ private:
     //Screenshot
     std::filesystem::path   m_screenshotFilename;
     ImageFormat             m_screenshotFormat;
+    bool                    m_screenshotIncludeAlpha = true;
     std::vector<PendingScreenshot> m_pendingScreenshots;
 
     //Pref record

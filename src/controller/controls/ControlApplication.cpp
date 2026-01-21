@@ -255,9 +255,44 @@ namespace control::application
     {
     }
 
-    ControlType SetTemporaryFolder::getType() const
+	ControlType SetTemporaryFolder::getType() const
+	{
+		return (ControlType::setTemporaryFolder);
+	}
+
+    /*
+    ** SetFFmpegFolder
+    */
+
+    SetFFmpegFolder::SetFFmpegFolder(const std::filesystem::path& path, const bool& save)
+        : m_path(path)
+        , m_save(save)
     {
-        return (ControlType::setTemporaryFolder);
+    }
+
+    SetFFmpegFolder::~SetFFmpegFolder()
+    {
+    }
+
+    void SetFFmpegFolder::doFunction(Controller& controller)
+    {
+        if (m_save && !Config::setFFmpegPath(m_path))
+            controller.updateInfo(new GuiDataWarning(TEXT_SETTINGS_FAILED_TO_SAVE));
+        CONTROLLOG << "control::application::SetFFmpegFolder" << LOGENDL;
+    }
+
+    bool SetFFmpegFolder::canUndo() const
+    {
+        return (false);
+    }
+
+    void SetFFmpegFolder::undoFunction(Controller& controller)
+    {
+    }
+
+    ControlType SetFFmpegFolder::getType() const
+    {
+        return (ControlType::setFFmpegFolder);
     }
 
     /*
@@ -335,6 +370,44 @@ namespace control::application
     {
         return  (ControlType::setDecimationOptions);
     }
+
+	/*
+	** SetOctreePrecision
+	*/
+
+	SetOctreePrecision::SetOctreePrecision(const OctreePrecision precision, const bool& set, const bool& save)
+		: m_precision(precision)
+		, m_save(save)
+		, m_set(set)
+	{
+	}
+
+	SetOctreePrecision::~SetOctreePrecision()
+	{
+	}
+
+	void SetOctreePrecision::doFunction(Controller& controller)
+	{
+		controller.getContext().setOctreePrecision(m_precision);
+		if (m_save && !Config::setOctreePrecision(m_precision))
+			controller.updateInfo(new GuiDataWarning(TEXT_SETTINGS_FAILED_TO_SAVE));
+		if (m_set)
+			controller.updateInfo(new GuiDataRenderOctreePrecision(m_precision));
+	}
+
+	bool SetOctreePrecision::canUndo() const
+	{
+		return (false);
+	}
+
+	void SetOctreePrecision::undoFunction(Controller& controller)
+	{
+	}
+
+	ControlType SetOctreePrecision::getType() const
+	{
+		return  (ControlType::setOctreePrecision);
+	}
 
     /*
     ** SetRenderPointSize

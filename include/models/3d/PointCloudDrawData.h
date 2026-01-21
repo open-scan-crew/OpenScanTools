@@ -5,6 +5,7 @@
 #include "utils/Color32.hpp"
 #include "vulkan/VkUniform.h"
 #include <glm/glm.hpp>
+#include <string>
 
 struct PointCloudDrawData
 {
@@ -13,6 +14,7 @@ struct PointCloudDrawData
     Color32 color;
     VkUniformOffset uniform;
     bool clippable;
+    std::wstring phase;
 
     bool isObject;
     // #ClippingAssembly ?

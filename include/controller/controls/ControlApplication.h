@@ -104,6 +104,20 @@ namespace control::application
         const bool m_save;
     };
 
+    class SetFFmpegFolder : public AControl
+    {
+    public:
+        SetFFmpegFolder(const std::filesystem::path& path, const bool& save = true);
+        ~SetFFmpegFolder();
+        void doFunction(Controller& controller) override;
+        bool canUndo() const override;
+        void undoFunction(Controller& controller) override;
+        ControlType getType() const override;
+    private:
+        const std::filesystem::path m_path;
+        const bool m_save;
+    };
+
     class SetUserColor : public AControl
     {
     public:
@@ -134,6 +148,21 @@ namespace control::application
         const bool m_save;
         const bool m_set;
     };
+
+	class SetOctreePrecision : public AControl
+	{
+	public:
+		SetOctreePrecision(const OctreePrecision precision, const bool& set = true, const bool& save = true);
+		~SetOctreePrecision();
+		void doFunction(Controller& controller) override;
+		bool canUndo() const override;
+		void undoFunction(Controller& controller) override;
+		ControlType getType() const override;
+	private:
+		const OctreePrecision m_precision;
+		const bool m_save;
+		const bool m_set;
+	};
 
     class SetRenderPointSize : public AControl
     {

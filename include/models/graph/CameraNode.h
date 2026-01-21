@@ -211,6 +211,7 @@ private:
     void onRenderUnitUsage(IGuiData* data);
     void onRenderColorMode(IGuiData* data);
     void onRenderPointSize(IGuiData* data);
+    void onRenderTexelThreshold(IGuiData* data);
     void onRenderBrightness(IGuiData* data);
     void onRenderContrast(IGuiData* data);
     void onRenderLuminance(IGuiData* data);
@@ -228,6 +229,7 @@ private:
     void onRenderMarkerDisplayOptions(IGuiData* data);
     void onRenderAlphaObjects(IGuiData* data);
     void onRenderNormals(IGuiData* data);
+    void onRenderAmbientOcclusion(IGuiData* data);
     void onRenderEdgeAwareBlur(IGuiData* data);
     void onRenderDepthLining(IGuiData* data);
     void onRenderRampScale(IGuiData* data);

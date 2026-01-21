@@ -84,12 +84,117 @@ void ToolBarShowHideGroup::onActiveCamera(IGuiData* data)
     DisplayParameters displayParam = cam->getDisplayParameters();
 
     toggleShowHideIcon(m_ui.ShowHideScanButton, displayParam.m_markerMask & SHOW_SCAN_MARKER);
-    toggleShowHideIcon(m_ui.ShowHideTagButton, displayParam.m_markerMask & SHOW_TAG_MARKER);
+    toggleShowHideIcon(m_ui.ShowHideTagButton, m_showTagMarkers);
+    m_showObjectTexts = displayParam.m_displayAllMarkersTexts;
+    toggleShowHideIcon(m_ui.ShowHideMarkersTextButton, m_showObjectTexts);
 }
 
 void ToolBarShowHideGroup::toggleShowHideIcon(QToolButton* button, bool show)
 {
     button->setIcon(show ? QIcon(":icons/100x100/show.png") : QIcon(":icons/100x100/hide.png"));
+}
+
+ToolBarShowHideGroup::ShowHideState ToolBarShowHideGroup::currentShowHideState() const
+{
+	return {
+		m_showTagMarkers,
+		m_showViewpointMarkers,
+		m_showClippings,
+		m_showPoints,
+		m_showPipes,
+		m_showAll,
+		m_showObjectTexts,
+		m_showSelected,
+		m_showUnselected,
+		m_showMeasure
+	};
+}
+
+void ToolBarShowHideGroup::applyShowHideState(const ShowHideState& state)
+{
+	if (m_showTagMarkers != state.showTagMarkers)
+	{
+		m_showTagMarkers = state.showTagMarkers;
+		toggleShowHideIcon(m_ui.ShowHideTagButton, m_showTagMarkers);
+		applyShowHideObjects({ ElementType::Tag }, m_showTagMarkers);
+	}
+
+	if (m_showViewpointMarkers != state.showViewpointMarkers)
+	{
+		m_showViewpointMarkers = state.showViewpointMarkers;
+		toggleShowHideIcon(m_ui.ShowHideViewpointButton, m_showViewpointMarkers);
+		applyShowHideObjects({ ElementType::ViewPoint }, m_showViewpointMarkers);
+	}
+
+	if (m_showClippings != state.showClippings)
+	{
+		m_showClippings = state.showClippings;
+		toggleShowHideIcon(m_ui.ShowClippingsButton, m_showClippings);
+		applyShowHideObjects({ ElementType::Box }, m_showClippings);
+	}
+
+	if (m_showPoints != state.showPoints)
+	{
+		m_showPoints = state.showPoints;
+		toggleShowHideIcon(m_ui.ShowHidePointsButton, m_showPoints);
+		applyShowHideObjects({ ElementType::Point }, m_showPoints);
+	}
+
+	if (m_showPipes != state.showPipes)
+	{
+		m_showPipes = state.showPipes;
+		toggleShowHideIcon(m_ui.ShowHidePipesButton, m_showPipes);
+		applyShowHideObjects({ ElementType::Cylinder, ElementType::Torus }, m_showPipes);
+	}
+
+	if (m_showMeasure != state.showMeasures)
+	{
+		m_showMeasure = state.showMeasures;
+		toggleShowHideIcon(m_ui.ShowHideMeasurementsButton, m_showMeasure);
+		m_dataDispatcher.sendControl(new control::special::ShowHideObjects({
+			ElementType::BeamBendingMeasure,
+			ElementType::ColumnTiltMeasure,
+			ElementType::PipeToPipeMeasure,
+			ElementType::PipeToPlaneMeasure,
+			ElementType::PointToPipeMeasure,
+			ElementType::PointToPlaneMeasure,
+			ElementType::SimpleMeasure,
+			ElementType::PolylineMeasure,
+			ElementType::PolylineMeasure }, m_showMeasure));
+	}
+
+	if (m_showObjectTexts != state.showObjectTexts)
+	{
+		m_showObjectTexts = state.showObjectTexts;
+		toggleShowHideIcon(m_ui.ShowHideMarkersTextButton, m_showObjectTexts);
+		m_dataDispatcher.updateInformation(new GuiDataRenderDisplayObjectTexts(m_showObjectTexts, SafePtr<CameraNode>()));
+	}
+
+	if (m_showSelected != state.showSelected)
+	{
+		m_showSelected = state.showSelected;
+		toggleShowHideIcon(m_ui.ShowHideSelectedButton, m_showSelected);
+		m_dataDispatcher.sendControl(new control::special::ShowHideCurrentObjects(m_showSelected));
+	}
+
+	if (m_showUnselected != state.showUnselected)
+	{
+		m_showUnselected = state.showUnselected;
+		toggleShowHideIcon(m_ui.ShowHideUnselectedButton, m_showUnselected);
+		m_dataDispatcher.sendControl(new control::special::ShowHideUncurrentObjects(m_showUnselected));
+	}
+
+	if (m_showAll != state.showAll)
+	{
+		m_showAll = state.showAll;
+		toggleShowHideIcon(m_ui.ShowHideAll, m_showAll);
+		m_dataDispatcher.sendControl(new control::special::ShowAll(m_showAll));
+	}
+}
+
+void ToolBarShowHideGroup::applyShowHideObjects(const std::unordered_set<ElementType>& types, bool show)
+{
+	m_dataDispatcher.sendControl(new control::special::ShowHideObjects(types, show));
 }
 
 void ToolBarShowHideGroup::slotToogleShowScanMarkers()

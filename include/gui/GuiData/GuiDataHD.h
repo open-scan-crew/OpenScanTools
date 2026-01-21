@@ -15,12 +15,13 @@ class CameraNode;
 class GuiDataPrepareHDImage : public IGuiData
 {
 public:
-    GuiDataPrepareHDImage(bool showFrame, double frameRatio, SafePtr<CameraNode> viewport);
+    GuiDataPrepareHDImage(bool showFrame, bool showGrid, double frameRatio, SafePtr<CameraNode> viewport);
     ~GuiDataPrepareHDImage() {};
     virtual guiDType getType() override;
 
 public:
     bool m_showFrame;
+    bool m_showGrid;
     double m_frameRatio;
     SafePtr<CameraNode> m_viewport;
 };
@@ -29,7 +30,7 @@ public:
 class GuiDataGenerateHDImage : public IGuiData
 {
 public:
-    GuiDataGenerateHDImage(glm::ivec2 imageSize, int multisampling, ImageFormat format, SafePtr<CameraNode> camera, const std::filesystem::path& filepath, const ImageHDMetadata& metadata, bool showProgressBar, uint32_t hdimagetilesize);
+    GuiDataGenerateHDImage(glm::ivec2 imageSize, int multisampling, ImageFormat format, SafePtr<CameraNode> camera, const std::filesystem::path& filepath, const ImageHDMetadata& metadata, bool showProgressBar, uint32_t hdimagetilesize, bool fullResolutionTraversal);
     ~GuiDataGenerateHDImage() {};
     virtual guiDType getType() override;
 
@@ -43,6 +44,7 @@ public:
     ImageHDMetadata m_metadata;
     bool m_showProgressBar;
     uint32_t m_hdimagetilesize;
+    bool m_fullResolutionTraversal;
 };
 
 

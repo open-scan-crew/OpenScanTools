@@ -4,7 +4,7 @@
 #include <QObject>
 //About
 #define TEXT_ABOUT_COPYRIGHT QObject::tr("Copyright 2024-%1 OpenScanTools under the <a style='color:#3877F2' href='https://github.com/open-scan-crew/OpenScanTools/blob/main/LICENSE'> GNU General Public License v3.0</a>")
-#define TEXT_ABOUT_VERSION QObject::tr("version 1.0")
+#define TEXT_ABOUT_VERSION QObject::tr("version 1.1")
 #define TEXT_ABOUT_WEBSITE QObject::tr("Website: <a style='color:#3877F2' href='https://www.openscantools.com/'>https://www.openscantools.com/</a>")
 #define TEXT_ABOUT_EMAIL QObject::tr("E-mail: <a style='color:#3877F2' href='mailto:openscantools@gmail.com'>openscantools@gmail.com</a>")
 

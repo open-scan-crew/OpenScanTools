@@ -30,8 +30,10 @@ public slots:
     void onLanguageChanged(const uint32_t& index);
     void onSelectTempFolder();
     void onSelectProjsFolder();
+    void onSelectFfmpegFolder();
     void onTempFolder();
     void onProjsFolder();
+    void onFfmpegFolder();
     void onUnitUsageChanged();
     void onColorPicking();
     void onOk();
@@ -44,6 +46,7 @@ public slots:
     void onAutosaveComboxBoxChanged();
     void onIndexationMethodChoice();
     void onManipulatorSizeChanged(int manipulatorSize);
+	void onOctreePrecisionChanged();
 
     void onNavigationParametersChanged();
     void onRenderPerspDistanceChanged();
@@ -58,6 +61,7 @@ private:
 private:
     Ui::DialogSettings      m_ui;
     DecimationOptions       m_savedDecimationOptions;
+	OctreePrecision         m_savedOctreePrecision = OctreePrecision::Normal;
     DialogGizmo            m_guizmoParams;
  };
 #endif

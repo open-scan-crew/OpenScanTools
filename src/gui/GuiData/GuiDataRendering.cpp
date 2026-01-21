@@ -163,6 +163,17 @@ guiDType GuiDataRenderPointSize::getType()
     return guiDType::renderPointSize;
 }
 
+//*** Texel Threshold ***//
+GuiDataRenderTexelThreshold::GuiDataRenderTexelThreshold(int texelThreshold, SafePtr<CameraNode> camera)
+	: GuiDataActiveCamera(camera)
+	, m_texelThreshold(texelThreshold)
+{}
+
+guiDType GuiDataRenderTexelThreshold::getType()
+{
+	return guiDType::renderTexelThreshold;
+}
+
 //*** Brightness ***//
 GuiDataRenderBrightness::GuiDataRenderBrightness(int _brightness, SafePtr<CameraNode> camera)
 	: GuiDataActiveCamera(camera)
@@ -223,10 +234,12 @@ guiDType GuiDataRenderTransparency::getType()
 
 //*** Transparency Options ***//
 
-GuiDataRenderTransparencyOptions::GuiDataRenderTransparencyOptions(bool negativeEffect, bool reduceFlash, float hlt, SafePtr<CameraNode> camera)
+GuiDataRenderTransparencyOptions::GuiDataRenderTransparencyOptions(bool negativeEffect, bool reduceFlash, bool flashAdvanced, float flashControl, float hlt, SafePtr<CameraNode> camera)
 	: GuiDataActiveCamera(camera)
 	, m_negativeEffect(negativeEffect)
 	, m_reduceFlash(reduceFlash)
+    , m_flashAdvanced(flashAdvanced)
+    , m_flashControl(flashControl)
 	, m_highLuminosityThreshold(hlt)
 {}
 
@@ -308,6 +321,16 @@ GuiDataPostRenderingNormals::GuiDataPostRenderingNormals(const PostRenderingNorm
 guiDType GuiDataPostRenderingNormals::getType()
 {
 	return  guiDType::renderPostRenderingNormals;
+}
+
+GuiDataRenderAmbientOcclusion::GuiDataRenderAmbientOcclusion(const PostRenderingAmbientOcclusion& aoParams, SafePtr<CameraNode> camera)
+	: GuiDataActiveCamera(camera)
+	, m_ao(aoParams)
+{}
+
+guiDType GuiDataRenderAmbientOcclusion::getType()
+{
+	return guiDType::renderAmbientOcclusion;
 }
 
 GuiDataEdgeAwareBlur::GuiDataEdgeAwareBlur(const EdgeAwareBlur& blurSettings, SafePtr<CameraNode> camera)
@@ -403,8 +426,9 @@ guiDType GuiDataRenderRecordPerformances::getType()
 	return guiDType::renderRecordPerformance;
 }
 
-GuiDataRenderImagesFormat::GuiDataRenderImagesFormat(const ImageFormat& format)
+GuiDataRenderImagesFormat::GuiDataRenderImagesFormat(const ImageFormat& format, bool includeAlpha)
 	:m_format(format)
+	, m_includeAlpha(includeAlpha)
 {}
 
 guiDType GuiDataRenderImagesFormat::getType()
@@ -427,12 +451,23 @@ guiDType GuiDataRenderUnitUsage::getType()
 /*** Decimation Options ***/
 
 GuiDataRenderDecimationOptions::GuiDataRenderDecimationOptions(DecimationOptions _options)
-	: m_options(_options)
+    : m_options(_options)
 {}
 
 guiDType GuiDataRenderDecimationOptions::getType()
 {
     return guiDType::renderDecimationOptions;
+}
+
+/*** Octree Precision ***/
+
+GuiDataRenderOctreePrecision::GuiDataRenderOctreePrecision(OctreePrecision precision)
+	: m_precision(precision)
+{}
+
+guiDType GuiDataRenderOctreePrecision::getType()
+{
+	return guiDType::renderOctreePrecision;
 }
 
 /*** Navigation Constraint ***/

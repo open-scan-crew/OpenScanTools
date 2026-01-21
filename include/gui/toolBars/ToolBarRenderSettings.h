@@ -18,6 +18,16 @@ public:
 	~ToolBarRenderSettings();
 
 	void switchRenderMode(const int& mode = 0);
+	void hideTransparencyNormalsControls();
+
+	void setDisplayPresetNames(const QStringList& names, const QString& selectedName);
+	void setDisplayPresetSelection(const QString& name);
+	QString currentDisplayPresetName() const;
+
+signals:
+	void displayPresetSelectionChanged(const QString& name);
+	void displayPresetNewRequested();
+	void displayPresetEditRequested(const QString& name);
 
 private:
 	void informData(IGuiData *data) override;
@@ -28,6 +38,7 @@ private:
 	void onRenderLuminance(IGuiData* data);
 	void onRenderBlending(IGuiData* data);
 	void onRenderPointSize(IGuiData* data);
+	void onRenderTexelThreshold(IGuiData* data);
 	void onRenderSaturation(IGuiData* data);
 	void onRenderAlphaObjects(IGuiData* data);
 	void onRenderUnitUsage(IGuiData* data);
@@ -49,12 +60,6 @@ private:
         void enableFalseColor(bool);
         bool rampValidValue(float& min, float& max, int& step);
         void sendTransparency();
-        void updateEdgeAwareBlurUi(bool enabled);
-        EdgeAwareBlur getEdgeAwareBlurFromUi() const;
-        void populateEdgeAwareResolutionCombo();
-        void updateDepthLiningUi(bool enabled);
-        DepthLining getDepthLiningFromUi() const;
-
         void changeEvent(QEvent* event) override;
 
 private slots:
@@ -65,17 +70,14 @@ private slots:
 	void slotFakeColorValueChanged(int value);
 	void slotAlphaBoxesValueChanged(int value);
 	void slotSetPointSize(int pointSize);
+	void slotSetTexelThreshold(int index);
 	void slotSetRenderMode(int mode);
         void slotColorPicking();
         void slotRampValues();
         void slotNormalsChanged();
-        void slotEdgeAwareBlurToggled(int state);
-        void slotEdgeAwareBlurValueChanged(int value);
-        void slotEdgeAwareBlurResolutionChanged(int index);
-        void slotDepthLiningToggled(int state);
-        void slotDepthLiningValueChanged(int value);
-        void slotDepthLiningSensitivityChanged(int value);
-        void slotDepthLiningStrongModeToggled(int state);
+	void slotDisplayPresetSelectionChanged(int index);
+	void slotDisplayPresetNew();
+	void slotDisplayPresetEdit();
 
 private:
         std::unordered_map<guiDType, GuiDataFunction> m_methods;

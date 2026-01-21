@@ -5,16 +5,12 @@
 #include "gui/texts/RenderingTexts.hpp"
 #include "gui/UITransparencyConverter.h"
 
-#include <algorithm>
+#include <cmath>
 #include <qcolordialog.h>
+#include <QSignalBlocker>
+#include <QStringList>
 
 #include "models/graph/CameraNode.h"
-
-namespace
-{
-    constexpr float DEPTH_LINING_STRENGTH_UI_SCALE = 1.5f;
-    constexpr float DEPTH_LINING_SENSITIVITY_UI_SCALE = 3.0f;
-}
 
 ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QWidget *parent, float guiScale)
     : QWidget(parent)
@@ -29,8 +25,6 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 {
 	m_ui.setupUi(this);
 	setEnabled(false);
-
-	populateEdgeAwareResolutionCombo();
 
 	std::unordered_map<UiRenderMode, std::string> tradUiRenderMode(getTradUiRenderMode());
     for (uint32_t iterator(0); iterator < (uint32_t)UiRenderMode::UiRenderMode_MaxEnum; iterator++)
@@ -54,6 +48,12 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 	m_ui.lineEdit_rampMax->setType(NumericType::DISTANCE);
 	m_ui.lineEdit_rampMin->setType(NumericType::DISTANCE);
 
+	m_ui.comboBox_gapFillingStrength->addItem(tr("Off"), 9);
+	m_ui.comboBox_gapFillingStrength->addItem(tr("Low"), 4);
+	m_ui.comboBox_gapFillingStrength->addItem(tr("Mid"), 2);
+	m_ui.comboBox_gapFillingStrength->addItem(tr("High"), 1);
+	m_ui.comboBox_gapFillingStrength->setCurrentIndex(1);
+
     // Init render options UI
     m_ui.pushButton_color->setPalette(QPalette(m_selectedColor));
     switchRenderMode((int)m_currentRenderMode);
@@ -61,6 +61,7 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 	connect(m_ui.comboBox_renderMode,QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarRenderSettings::slotSetRenderMode);
 
 	connect(m_ui.spinBox_pointSize, qOverload<int>(&QSpinBox::valueChanged), this, &ToolBarRenderSettings::slotSetPointSize);
+	connect(m_ui.comboBox_gapFillingStrength, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarRenderSettings::slotSetTexelThreshold);
 
 	connect(m_ui.pushButton_color, &QPushButton::clicked, this, &ToolBarRenderSettings::slotColorPicking);
 
@@ -95,33 +96,9 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 	connect(m_ui.slider_normals, &QSlider::valueChanged, m_ui.spinBox_normals, &QSpinBox::setValue);
 	connect(m_ui.slider_normals, &QSlider::valueChanged, this, &ToolBarRenderSettings::slotNormalsChanged);
 	connect(m_ui.spinBox_normals, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), m_ui.slider_normals, &QSlider::setValue);
-
-        connect(m_ui.checkBox_edgeAwareBlur, &QCheckBox::stateChanged, this, &ToolBarRenderSettings::slotEdgeAwareBlurToggled);
-        connect(m_ui.slider_edgeAwareRadius, &QSlider::valueChanged, m_ui.spinBox_edgeAwareRadius, &QSpinBox::setValue);
-        connect(m_ui.spinBox_edgeAwareRadius, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), m_ui.slider_edgeAwareRadius, &QSlider::setValue);
-        connect(m_ui.slider_edgeAwareRadius, &QSlider::valueChanged, this, &ToolBarRenderSettings::slotEdgeAwareBlurValueChanged);
-
-        connect(m_ui.slider_edgeAwareDepth, &QSlider::valueChanged, m_ui.spinBox_edgeAwareDepth, &QSpinBox::setValue);
-	connect(m_ui.spinBox_edgeAwareDepth, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), m_ui.slider_edgeAwareDepth, &QSlider::setValue);
-	connect(m_ui.slider_edgeAwareDepth, &QSlider::valueChanged, this, &ToolBarRenderSettings::slotEdgeAwareBlurValueChanged);
-
-	connect(m_ui.slider_edgeAwareBlend, &QSlider::valueChanged, m_ui.spinBox_edgeAwareBlend, &QSpinBox::setValue);
-	connect(m_ui.spinBox_edgeAwareBlend, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), m_ui.slider_edgeAwareBlend, &QSlider::setValue);
-        connect(m_ui.slider_edgeAwareBlend, &QSlider::valueChanged, this, &ToolBarRenderSettings::slotEdgeAwareBlurValueChanged);
-
-        connect(m_ui.comboBox_edgeAwareResolution, qOverload<int>(&QComboBox::currentIndexChanged), this, &ToolBarRenderSettings::slotEdgeAwareBlurResolutionChanged);
-
-        connect(m_ui.checkBox_depthLining, &QCheckBox::stateChanged, this, &ToolBarRenderSettings::slotDepthLiningToggled);
-        connect(m_ui.slider_depthLiningStrength, &QSlider::valueChanged, m_ui.spinBox_depthLiningStrength, &QSpinBox::setValue);
-        connect(m_ui.spinBox_depthLiningStrength, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), m_ui.slider_depthLiningStrength, &QSlider::setValue);
-        connect(m_ui.slider_depthLiningStrength, &QSlider::valueChanged, this, &ToolBarRenderSettings::slotDepthLiningValueChanged);
-        connect(m_ui.slider_depthLiningSensitivity, &QSlider::valueChanged, m_ui.spinBox_depthLiningSensitivity, &QSpinBox::setValue);
-        connect(m_ui.spinBox_depthLiningSensitivity, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), m_ui.slider_depthLiningSensitivity, &QSlider::setValue);
-        connect(m_ui.slider_depthLiningSensitivity, &QSlider::valueChanged, this, &ToolBarRenderSettings::slotDepthLiningSensitivityChanged);
-        connect(m_ui.checkBox_depthLiningStrongMode, &QCheckBox::stateChanged, this, &ToolBarRenderSettings::slotDepthLiningStrongModeToggled);
-
-        updateEdgeAwareBlurUi(m_ui.checkBox_edgeAwareBlur->isChecked());
-        updateDepthLiningUi(m_ui.checkBox_depthLining->isChecked());
+	connect(m_ui.comboBox_displayPresets, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarRenderSettings::slotDisplayPresetSelectionChanged);
+	connect(m_ui.pushButton_newDisplayPresets, &QPushButton::clicked, this, &ToolBarRenderSettings::slotDisplayPresetNew);
+	connect(m_ui.pushButton_editDisplayPresets, &QPushButton::clicked, this, &ToolBarRenderSettings::slotDisplayPresetEdit);
 
 	registerGuiDataFunction(guiDType::renderBrightness, &ToolBarRenderSettings::onRenderBrightness);
 	registerGuiDataFunction(guiDType::renderContrast, &ToolBarRenderSettings::onRenderContrast);
@@ -129,6 +106,7 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 	registerGuiDataFunction(guiDType::renderLuminance, &ToolBarRenderSettings::onRenderLuminance);
 	registerGuiDataFunction(guiDType::renderBlending, &ToolBarRenderSettings::onRenderBlending);
 	registerGuiDataFunction(guiDType::renderPointSize, &ToolBarRenderSettings::onRenderPointSize);
+	registerGuiDataFunction(guiDType::renderTexelThreshold, &ToolBarRenderSettings::onRenderTexelThreshold);
         registerGuiDataFunction(guiDType::renderSaturation, &ToolBarRenderSettings::onRenderSaturation);
         
         registerGuiDataFunction(guiDType::renderValueDisplay, &ToolBarRenderSettings::onRenderUnitUsage);
@@ -166,6 +144,11 @@ void ToolBarRenderSettings::informData(IGuiData *data)
 void ToolBarRenderSettings::onRenderBrightness(IGuiData* idata)
 {
 	GuiDataRenderBrightness* data = static_cast<GuiDataRenderBrightness*>(idata);
+	m_brightness = data->m_brightness;
+	if (!m_intensityActive)
+		return;
+	const QSignalBlocker spinBlocker(m_ui.brightnessLuminanceSpinBox);
+	const QSignalBlocker sliderBlocker(m_ui.brightnessLuminanceSlider);
 	m_ui.brightnessLuminanceSpinBox->setValue(data->m_brightness);
 	m_ui.brightnessLuminanceSlider->setValue(data->m_brightness);
 }
@@ -173,6 +156,11 @@ void ToolBarRenderSettings::onRenderBrightness(IGuiData* idata)
 void ToolBarRenderSettings::onRenderContrast(IGuiData* idata)
 {
 	GuiDataRenderContrast* data = static_cast<GuiDataRenderContrast*>(idata);
+	m_contrast = data->m_contrast;
+	if (!m_intensityActive)
+		return;
+	const QSignalBlocker spinBlocker(m_ui.contrastSaturationSpinBox);
+	const QSignalBlocker sliderBlocker(m_ui.contrastSaturationSlider);
 	m_ui.contrastSaturationSpinBox->setValue(data->m_contrast);
 	m_ui.contrastSaturationSlider->setValue(data->m_contrast);
 }
@@ -187,6 +175,11 @@ void ToolBarRenderSettings::onRenderColorMode(IGuiData* idata)
 void ToolBarRenderSettings::onRenderLuminance(IGuiData* idata)
 {
 	GuiDataRenderLuminance* data = static_cast<GuiDataRenderLuminance*>(idata);
+	m_lumiance = data->m_luminance;
+	if (m_intensityActive)
+		return;
+	const QSignalBlocker spinBlocker(m_ui.brightnessLuminanceSpinBox);
+	const QSignalBlocker sliderBlocker(m_ui.brightnessLuminanceSlider);
 	m_ui.brightnessLuminanceSpinBox->setValue(data->m_luminance);
 	m_ui.brightnessLuminanceSlider->setValue(data->m_luminance);
 }
@@ -194,6 +187,8 @@ void ToolBarRenderSettings::onRenderLuminance(IGuiData* idata)
 void ToolBarRenderSettings::onRenderBlending(IGuiData* idata)
 {
 	GuiDataRenderBlending* data = static_cast<GuiDataRenderBlending*>(idata);
+	const QSignalBlocker spinBlocker(m_ui.falseColorSpinBox);
+	const QSignalBlocker sliderBlocker(m_ui.falseColorSlider);
 	m_ui.falseColorSpinBox->setValue(data->m_hue);
 	m_ui.falseColorSlider->setValue(data->m_hue);
 }
@@ -208,9 +203,25 @@ void ToolBarRenderSettings::onRenderPointSize(IGuiData* idata)
 		m_ui.spinBox_pointSize->blockSignals(false);
 	}
 }
+void ToolBarRenderSettings::onRenderTexelThreshold(IGuiData* idata)
+{
+	GuiDataRenderTexelThreshold* data = static_cast<GuiDataRenderTexelThreshold*>(idata);
+	int index = m_ui.comboBox_gapFillingStrength->findData(data->m_texelThreshold);
+	if (index != -1 && index != m_ui.comboBox_gapFillingStrength->currentIndex())
+	{
+		m_ui.comboBox_gapFillingStrength->blockSignals(true);
+		m_ui.comboBox_gapFillingStrength->setCurrentIndex(index);
+		m_ui.comboBox_gapFillingStrength->blockSignals(false);
+	}
+}
 void ToolBarRenderSettings::onRenderSaturation(IGuiData* idata) 
 {
 	GuiDataRenderSaturation* data = static_cast<GuiDataRenderSaturation*>(idata);
+	m_saturation = data->m_saturation;
+	if (m_intensityActive)
+		return;
+	const QSignalBlocker spinBlocker(m_ui.contrastSaturationSpinBox);
+	const QSignalBlocker sliderBlocker(m_ui.contrastSaturationSlider);
 	m_ui.contrastSaturationSpinBox->setValue(data->m_saturation);
 	m_ui.contrastSaturationSlider->setValue(data->m_saturation);
 }
@@ -292,6 +303,10 @@ void ToolBarRenderSettings::onActiveCamera(IGuiData* idata)
 	if (displayParameters.m_pointSize != m_ui.spinBox_pointSize->value())
 		m_ui.spinBox_pointSize->setValue(displayParameters.m_pointSize);
 
+	int texelIndex = m_ui.comboBox_gapFillingStrength->findData(displayParameters.m_texelThreshold);
+	if (texelIndex != -1)
+		m_ui.comboBox_gapFillingStrength->setCurrentIndex(texelIndex);
+
 	int value(100 - (int)(displayParameters.m_alphaObject * 100));
 	m_ui.alphaObjectsSpinBox->setValue(value);
 	m_ui.alphaObjectsSlider->setValue(value);
@@ -320,40 +335,6 @@ void ToolBarRenderSettings::onActiveCamera(IGuiData* idata)
 	m_ui.spinBox_normals->setEnabled(normalState != Qt::CheckState::Unchecked);
 	m_ui.spinBox_normals->setValue(newNormalValue);
 
-        const EdgeAwareBlur& blurSettings = displayParameters.m_edgeAwareBlur;
-        int radiusValue = std::clamp(static_cast<int>(std::round(blurSettings.radius)), m_ui.slider_edgeAwareRadius->minimum(), m_ui.slider_edgeAwareRadius->maximum());
-        int depthValue = std::clamp(static_cast<int>(std::round(blurSettings.depthThreshold * 100.f)), m_ui.slider_edgeAwareDepth->minimum(), m_ui.slider_edgeAwareDepth->maximum());
-        int blendValue = std::clamp(static_cast<int>(std::round(blurSettings.blendStrength * 100.f)), m_ui.slider_edgeAwareBlend->minimum(), m_ui.slider_edgeAwareBlend->maximum());
-        const DepthLining& liningSettings = displayParameters.m_depthLining;
-        int liningStrength = std::clamp(static_cast<int>(std::round((liningSettings.strength / DEPTH_LINING_STRENGTH_UI_SCALE) * 100.f)), m_ui.slider_depthLiningStrength->minimum(), m_ui.slider_depthLiningStrength->maximum());
-        int liningSensitivity = std::clamp(static_cast<int>(std::round((liningSettings.sensitivity / DEPTH_LINING_SENSITIVITY_UI_SCALE) * 100.f)), m_ui.slider_depthLiningSensitivity->minimum(), m_ui.slider_depthLiningSensitivity->maximum());
-
-        m_ui.checkBox_edgeAwareBlur->setChecked(blurSettings.enabled);
-        m_ui.slider_edgeAwareRadius->setValue(radiusValue);
-        m_ui.spinBox_edgeAwareRadius->setValue(radiusValue);
-
-	m_ui.slider_edgeAwareDepth->setValue(depthValue);
-	m_ui.spinBox_edgeAwareDepth->setValue(depthValue);
-
-	m_ui.slider_edgeAwareBlend->setValue(blendValue);
-	m_ui.spinBox_edgeAwareBlend->setValue(blendValue);
-
-        if (blurSettings.resolutionScale <= 0.35f)
-                m_ui.comboBox_edgeAwareResolution->setCurrentIndex(2);
-        else if (blurSettings.resolutionScale <= 0.75f)
-                m_ui.comboBox_edgeAwareResolution->setCurrentIndex(1);
-        else
-                m_ui.comboBox_edgeAwareResolution->setCurrentIndex(0);
-        updateEdgeAwareBlurUi(blurSettings.enabled);
-
-        m_ui.checkBox_depthLining->setChecked(liningSettings.enabled);
-        m_ui.slider_depthLiningStrength->setValue(liningStrength);
-        m_ui.spinBox_depthLiningStrength->setValue(liningStrength);
-        m_ui.slider_depthLiningSensitivity->setValue(liningSensitivity);
-        m_ui.spinBox_depthLiningSensitivity->setValue(liningSensitivity);
-        m_ui.checkBox_depthLiningStrongMode->setChecked(liningSettings.strongMode);
-        updateDepthLiningUi(liningSettings.enabled);
-
         blockAllSignals(false);
 }
 
@@ -379,6 +360,7 @@ void ToolBarRenderSettings::blockAllSignals(bool block)
 	m_ui.falseColorSpinBox->blockSignals(block);
 	m_ui.falseColorSlider->blockSignals(block);
 	m_ui.spinBox_pointSize->blockSignals(block);
+	m_ui.comboBox_gapFillingStrength->blockSignals(block);
 	m_ui.contrastSaturationSpinBox->blockSignals(block);
 	m_ui.contrastSaturationSlider->blockSignals(block);
 	m_ui.alphaObjectsSpinBox->blockSignals(block);
@@ -390,84 +372,6 @@ void ToolBarRenderSettings::blockAllSignals(bool block)
 	m_ui.checkBox_normals->blockSignals(block);
 	m_ui.slider_normals->blockSignals(block);
 	m_ui.spinBox_normals->blockSignals(block);
-	m_ui.checkBox_edgeAwareBlur->blockSignals(block);
-	m_ui.slider_edgeAwareRadius->blockSignals(block);
-	m_ui.spinBox_edgeAwareRadius->blockSignals(block);
-	m_ui.slider_edgeAwareDepth->blockSignals(block);
-	m_ui.spinBox_edgeAwareDepth->blockSignals(block);
-        m_ui.slider_edgeAwareBlend->blockSignals(block);
-        m_ui.spinBox_edgeAwareBlend->blockSignals(block);
-        m_ui.comboBox_edgeAwareResolution->blockSignals(block);
-        m_ui.checkBox_depthLining->blockSignals(block);
-        m_ui.slider_depthLiningStrength->blockSignals(block);
-        m_ui.spinBox_depthLiningStrength->blockSignals(block);
-        m_ui.slider_depthLiningSensitivity->blockSignals(block);
-        m_ui.spinBox_depthLiningSensitivity->blockSignals(block);
-        m_ui.checkBox_depthLiningStrongMode->blockSignals(block);
-}
-
-void ToolBarRenderSettings::populateEdgeAwareResolutionCombo()
-{
-	m_ui.comboBox_edgeAwareResolution->clear();
-	m_ui.comboBox_edgeAwareResolution->addItem(tr("Full res"));
-	m_ui.comboBox_edgeAwareResolution->addItem(tr("Half res"));
-	m_ui.comboBox_edgeAwareResolution->addItem(tr("Quarter res"));
-}
-
-void ToolBarRenderSettings::updateEdgeAwareBlurUi(bool enabled)
-{
-        m_ui.slider_edgeAwareRadius->setEnabled(enabled);
-        m_ui.spinBox_edgeAwareRadius->setEnabled(enabled);
-        m_ui.slider_edgeAwareDepth->setEnabled(enabled);
-        m_ui.spinBox_edgeAwareDepth->setEnabled(enabled);
-        m_ui.slider_edgeAwareBlend->setEnabled(enabled);
-        m_ui.spinBox_edgeAwareBlend->setEnabled(enabled);
-        m_ui.comboBox_edgeAwareResolution->setEnabled(enabled);
-}
-
-EdgeAwareBlur ToolBarRenderSettings::getEdgeAwareBlurFromUi() const
-{
-        EdgeAwareBlur settings = {};
-        settings.enabled = m_ui.checkBox_edgeAwareBlur->isChecked();
-        settings.radius = static_cast<float>(m_ui.spinBox_edgeAwareRadius->value());
-        settings.depthThreshold = m_ui.spinBox_edgeAwareDepth->value() / 100.f;
-        settings.blendStrength = m_ui.spinBox_edgeAwareBlend->value() / 100.f;
-        switch (m_ui.comboBox_edgeAwareResolution->currentIndex())
-        {
-        case 1:
-                settings.resolutionScale = 0.5f;
-                break;
-        case 2:
-                settings.resolutionScale = 0.25f;
-                break;
-        default:
-                settings.resolutionScale = 1.0f;
-                break;
-        }
-
-        return settings;
-}
-
-void ToolBarRenderSettings::updateDepthLiningUi(bool enabled)
-{
-        m_ui.slider_depthLiningStrength->setEnabled(enabled);
-        m_ui.spinBox_depthLiningStrength->setEnabled(enabled);
-        m_ui.slider_depthLiningSensitivity->setEnabled(enabled);
-        m_ui.spinBox_depthLiningSensitivity->setEnabled(enabled);
-        m_ui.checkBox_depthLiningStrongMode->setEnabled(enabled);
-}
-
-DepthLining ToolBarRenderSettings::getDepthLiningFromUi() const
-{
-    DepthLining settings = {};
-    settings.enabled = m_ui.checkBox_depthLining->isChecked();
-    const float strengthPct = m_ui.spinBox_depthLiningStrength->value() / 100.f;
-    const float sensitivityPct = m_ui.spinBox_depthLiningSensitivity->value() / 100.f;
-    settings.strength = strengthPct * DEPTH_LINING_STRENGTH_UI_SCALE;
-    settings.sensitivity = sensitivityPct * DEPTH_LINING_SENSITIVITY_UI_SCALE;
-    settings.threshold = std::lerp(0.012f, 0.001f, sensitivityPct);
-    settings.strongMode = m_ui.checkBox_depthLiningStrongMode->isChecked();
-    return settings;
 }
 
 void ToolBarRenderSettings::switchRenderMode(const int& mode)
@@ -536,6 +440,27 @@ void ToolBarRenderSettings::switchRenderMode(const int& mode)
 		break;
 	}
 	//adjustSize();
+}
+
+void ToolBarRenderSettings::setDisplayPresetNames(const QStringList& names, const QString& selectedName)
+{
+	const QSignalBlocker blocker(m_ui.comboBox_displayPresets);
+	m_ui.comboBox_displayPresets->clear();
+	m_ui.comboBox_displayPresets->addItems(names);
+	setDisplayPresetSelection(selectedName);
+}
+
+void ToolBarRenderSettings::setDisplayPresetSelection(const QString& name)
+{
+	const int index = m_ui.comboBox_displayPresets->findText(name);
+	if (index >= 0)
+		m_ui.comboBox_displayPresets->setCurrentIndex(index);
+	m_ui.pushButton_editDisplayPresets->setEnabled(m_ui.comboBox_displayPresets->currentText() != "Initial");
+}
+
+QString ToolBarRenderSettings::currentDisplayPresetName() const
+{
+	return m_ui.comboBox_displayPresets->currentText();
 }
 
 void ToolBarRenderSettings::showContrastBrightness()
@@ -622,6 +547,12 @@ void ToolBarRenderSettings::slotSetPointSize(int pointSize)
     m_dataDispatcher.sendControl(new control::application::SetRenderPointSize(pointSize, m_focusCamera));
 }
 
+void ToolBarRenderSettings::slotSetTexelThreshold(int index)
+{
+	int texelThreshold = m_ui.comboBox_gapFillingStrength->itemData(index).toInt();
+	m_dataDispatcher.updateInformation(new GuiDataRenderTexelThreshold(texelThreshold, m_focusCamera), this);
+}
+
 void ToolBarRenderSettings::slotSetRenderMode(int mode)
 {
 	switchRenderMode(m_ui.comboBox_renderMode->currentData().toInt());
@@ -638,6 +569,16 @@ void ToolBarRenderSettings::slotColorPicking()
 		m_ui.pushButton_color->setPalette(QPalette(m_selectedColor));
 		m_dataDispatcher.updateInformation(new GuiDataRenderFlatColor(m_selectedColor.redF(), m_selectedColor.greenF(), m_selectedColor.blueF(), m_focusCamera), this);
 	}
+}
+
+void ToolBarRenderSettings::hideTransparencyNormalsControls()
+{
+	m_ui.transparencyCheckBox->hide();
+	m_ui.transparencySlider->hide();
+	m_ui.transparencySpinBox->hide();
+	m_ui.checkBox_normals->hide();
+	m_ui.slider_normals->hide();
+	m_ui.spinBox_normals->hide();
 }
 
 bool ToolBarRenderSettings::rampValidValue(float& min, float& max, int& step)
@@ -674,67 +615,25 @@ void ToolBarRenderSettings::slotNormalsChanged()
 	m_dataDispatcher.updateInformation(new GuiDataPostRenderingNormals(lighting, true, m_focusCamera), this);
 }
 
-void ToolBarRenderSettings::slotEdgeAwareBlurToggled(int state)
-{
-        updateEdgeAwareBlurUi(state == Qt::Checked);
-        m_dataDispatcher.updateInformation(new GuiDataEdgeAwareBlur(getEdgeAwareBlurFromUi(), m_focusCamera), this);
-}
-
-void ToolBarRenderSettings::slotEdgeAwareBlurValueChanged(int value)
-{
-	(void)value;
-	if (!m_ui.checkBox_edgeAwareBlur->isChecked())
-		return;
-
-	m_dataDispatcher.updateInformation(new GuiDataEdgeAwareBlur(getEdgeAwareBlurFromUi(), m_focusCamera), this);
-}
-
-void ToolBarRenderSettings::slotEdgeAwareBlurResolutionChanged(int index)
-{
-        (void)index;
-        if (!m_ui.checkBox_edgeAwareBlur->isChecked())
-                return;
-
-        m_dataDispatcher.updateInformation(new GuiDataEdgeAwareBlur(getEdgeAwareBlurFromUi(), m_focusCamera), this);
-}
-
-void ToolBarRenderSettings::slotDepthLiningToggled(int state)
-{
-        updateDepthLiningUi(state == Qt::Checked);
-        m_dataDispatcher.updateInformation(new GuiDataDepthLining(getDepthLiningFromUi(), m_focusCamera), this);
-}
-
-void ToolBarRenderSettings::slotDepthLiningValueChanged(int value)
-{
-        (void)value;
-        if (!m_ui.checkBox_depthLining->isChecked())
-                return;
-
-        m_dataDispatcher.updateInformation(new GuiDataDepthLining(getDepthLiningFromUi(), m_focusCamera), this);
-}
-
-void ToolBarRenderSettings::slotDepthLiningSensitivityChanged(int value)
-{
-        (void)value;
-        if (!m_ui.checkBox_depthLining->isChecked())
-                return;
-
-        m_dataDispatcher.updateInformation(new GuiDataDepthLining(getDepthLiningFromUi(), m_focusCamera), this);
-}
-
-void ToolBarRenderSettings::slotDepthLiningStrongModeToggled(int state)
-{
-        (void)state;
-        if (!m_ui.checkBox_depthLining->isChecked())
-        {
-                updateDepthLiningUi(false);
-                return;
-        }
-
-        m_dataDispatcher.updateInformation(new GuiDataDepthLining(getDepthLiningFromUi(), m_focusCamera), this);
-}
-
 void ToolBarRenderSettings::slotAlphaBoxesValueChanged(int value)
 {
 	m_dataDispatcher.updateInformation(new GuiDataAlphaObjectsRendering(1.0f - (value / 100.0f), m_focusCamera), this);
+}
+
+void ToolBarRenderSettings::slotDisplayPresetSelectionChanged(int index)
+{
+	Q_UNUSED(index)
+	const QString selected = m_ui.comboBox_displayPresets->currentText();
+	m_ui.pushButton_editDisplayPresets->setEnabled(selected != "Initial");
+	emit displayPresetSelectionChanged(selected);
+}
+
+void ToolBarRenderSettings::slotDisplayPresetNew()
+{
+	emit displayPresetNewRequested();
+}
+
+void ToolBarRenderSettings::slotDisplayPresetEdit()
+{
+	emit displayPresetEditRequested(m_ui.comboBox_displayPresets->currentText());
 }
