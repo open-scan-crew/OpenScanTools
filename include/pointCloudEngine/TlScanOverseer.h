@@ -14,6 +14,7 @@
 #include "models/data/clipping/ClippingGeometry.h"
 #include "models/graph/TransformationModule.h"
 #include "models/3d/Measures.h"
+#include "pointCloudEngine/SmoothPointsParameters.h"
 
 #include "pointCloudEngine/OctreeRayTracing.h"
 
@@ -216,6 +217,7 @@ public:
     // Compute
     bool testClippingEffect(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly);
     bool clipScan(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, IScanFileWriter* outScan);
+    bool smoothScan(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const SmoothPointsParameters& params, IScanFileWriter* outScan, uint64_t& movedPoints);
     //tls::ScanGuid clipNewScan(tls::ScanGuid scanGuid, const glm::dmat4& modelMat, const ClippingAssembly& clippingAssembly, const std::filesystem::path& outPath, uint64_t& pointDeletedCount);
 
     // Lucas functions

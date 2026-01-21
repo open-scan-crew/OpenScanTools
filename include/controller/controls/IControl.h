@@ -105,8 +105,9 @@ enum class ControlType
     startExport, //Free
 	startExportPCO, //Free
 	startSingleExport, //Free
-	startGridExport,
+    startGridExport,
     startDeletePoints,
+	startSmoothPoints,
 
 	// control::function
 	functionAbort, //Free
