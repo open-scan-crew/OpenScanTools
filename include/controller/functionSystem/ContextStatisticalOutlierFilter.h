@@ -4,6 +4,8 @@
 #include "controller/functionSystem/AContext.h"
 #include "models/graph/TransformationModule.h"
 
+#include "crossguid/guid.hpp"
+
 #include <filesystem>
 
 class ContextStatisticalOutlierFilter : public AContext
