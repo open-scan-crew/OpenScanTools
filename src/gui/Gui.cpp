@@ -90,6 +90,7 @@
 #include "gui/Dialog/DialogExportFileObject.h"
 #include "gui/dialog/DialogExportPointCloud.h"
 #include "gui/dialog/DialogDeletePoints.h"
+#include "gui/dialog/DialogStatisticalOutlierFilter.h"
 #include "gui/dialog/DialogPointCloudObjectCreation.h"
 #include "gui/Dialog/ProcessingSplashScreen.h"
 
@@ -212,6 +213,7 @@ Gui::Gui(Controller& controller)
 #endif
 	m_dialogs.insert(new DialogExportPointCloud(m_dataDispatcher, this) );
 	m_dialogs.insert(new DialogDeletePoints(m_dataDispatcher, this) );
+	m_dialogs.insert(new DialogStatisticalOutlierFilter(m_dataDispatcher, this) );
 	m_dialogs.insert(new DialogPointCloudObjectCreation(m_dataDispatcher, this) );
 
 	m_properties.insert({ guiDType::projectDataProperties, new PropertiesProjectPanel(m_dataDispatcher, this) });

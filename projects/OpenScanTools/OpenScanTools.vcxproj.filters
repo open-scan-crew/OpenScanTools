@@ -1249,13 +1249,22 @@
     <ClCompile Include="..\..\src\controller\functionSystem\ContextDeletePoints.cpp">
       <Filter>src\controller\contexts</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextStatisticalOutlierFilter.cpp">
+      <Filter>src\controller\contexts</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarPointEdition.cpp">
       <Filter>src\gui\toolBars</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\controller\messages\DeletePointsMessage.cpp">
       <Filter>src\controller\messages</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\controller\messages\StatisticalOutlierFilterMessage.cpp">
+      <Filter>src\controller\messages</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\gui\Dialog\DialogDeletePoints.cpp">
+      <Filter>src\gui\Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\Dialog\DialogStatisticalOutlierFilter.cpp">
       <Filter>src\gui\Dialog</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\models\data\Clipping\ClippingGeometry.cpp">
@@ -2235,6 +2244,9 @@
     <QtMoc Include="..\..\include\gui\Dialog\DialogDeletePoints.h">
       <Filter>include\gui\Dialog</Filter>
     </QtMoc>
+    <QtMoc Include="..\..\include\gui\Dialog\DialogStatisticalOutlierFilter.h">
+      <Filter>include\gui\Dialog</Filter>
+    </QtMoc>
     <QtMoc Include="..\..\include\gui\Dialog\DialogRecentProjects.h">
       <Filter>include\gui\Dialog</Filter>
     </QtMoc>
@@ -2900,6 +2912,9 @@
     <ClInclude Include="..\..\include\pointCloudEngine\EmbeddedScan.h">
       <Filter>include\pointCloudEngine</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\pointCloudEngine\OutlierStats.h">
+      <Filter>include\pointCloudEngine</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\include\pointCloudEngine\SmartBuffer.h">
       <Filter>include\pointCloudEngine</Filter>
     </ClInclude>
@@ -3110,7 +3125,13 @@
     <ClInclude Include="..\..\include\controller\functionSystem\ContextDeletePoints.h">
       <Filter>include\controller\contexts</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextStatisticalOutlierFilter.h">
+      <Filter>include\controller\contexts</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\include\controller\messages\DeletePointsMessage.h">
+      <Filter>include\controller\messages</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\controller\messages\StatisticalOutlierFilterMessage.h">
       <Filter>include\controller\messages</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\models\data\Clipping\ClippingGeometry.h">
@@ -4144,6 +4165,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\DialogDeletePoints.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="..\..\src\gui\forms\DialogStatisticalOutlierFilter.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\Property_Scan.ui">
