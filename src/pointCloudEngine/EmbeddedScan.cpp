@@ -6,6 +6,8 @@
 
 #include "tls_impl.h"
 
+#include <algorithm>
+#include <cmath>
 #include <chrono>
 #include <future>
 #include <set>
@@ -266,6 +268,161 @@ bool EmbeddedScan::clipAndWrite(const TransformationModule& src_transfo, const C
         merge_time_ += std::chrono::duration<float, std::ratio<1>>(tp_2 - tp_1).count();
     }
     return (resultOk);
+}
+
+namespace
+{
+    struct RunningStats
+    {
+        uint64_t count = 0;
+        double mean = 0.0;
+        double m2 = 0.0;
+
+        void add(double value)
+        {
+            count++;
+            double delta = value - mean;
+            mean += delta / static_cast<double>(count);
+            double delta2 = value - mean;
+            m2 += delta * delta2;
+        }
+
+        double stddev() const
+        {
+            if (count < 2)
+                return 0.0;
+            double variance = m2 / static_cast<double>(count - 1);
+            return sqrt(variance);
+        }
+    };
+
+    double computeMeanNeighborDistance(const std::vector<PointXYZIRGB>& points, size_t index, size_t kNeighbors)
+    {
+        if (points.size() <= 1)
+            return 0.0;
+
+        size_t target = std::min(kNeighbors, points.size() - 1);
+        std::vector<double> nearest;
+        nearest.reserve(target);
+
+        const PointXYZIRGB& base = points[index];
+        for (size_t j = 0; j < points.size(); ++j)
+        {
+            if (j == index)
+                continue;
+
+            double dx = static_cast<double>(base.x - points[j].x);
+            double dy = static_cast<double>(base.y - points[j].y);
+            double dz = static_cast<double>(base.z - points[j].z);
+            double dist = sqrt(dx * dx + dy * dy + dz * dz);
+
+            if (nearest.size() < target)
+            {
+                nearest.push_back(dist);
+            }
+            else
+            {
+                auto maxIt = std::max_element(nearest.begin(), nearest.end());
+                if (dist < *maxIt)
+                    *maxIt = dist;
+            }
+        }
+
+        if (nearest.empty())
+            return 0.0;
+
+        double sum = 0.0;
+        for (double value : nearest)
+            sum += value;
+        return sum / static_cast<double>(nearest.size());
+    }
+}
+
+bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, OutlierStats& stats)
+{
+    ClippingAssembly localAssembly = clippingAssembly;
+    localAssembly.clearMatrix();
+    glm::dmat4 src_transfo_mat = src_transfo.getTransformation();
+    localAssembly.addTransformation(src_transfo_mat);
+
+    std::vector<std::pair<uint32_t, bool>> cells;
+    getClippedCells_impl(m_uRootCell, localAssembly, cells);
+
+    RunningStats running;
+    const size_t neighborCount = std::max(1, kNeighbors);
+
+    for (const std::pair<uint32_t, bool>& cell : cells)
+    {
+        std::vector<PointXYZIRGB> points;
+        points.resize(tls_point_cloud_.getCellPointCount(cell.first));
+        if (!tls_point_cloud_.getCellPoints(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+            continue;
+
+        if (cell.second)
+        {
+            std::vector<PointXYZIRGB> pointsClipped;
+            clipIndividualPoints(points, pointsClipped, localAssembly);
+            points.swap(pointsClipped);
+        }
+
+        for (size_t i = 0; i < points.size(); ++i)
+        {
+            double meanDistance = computeMeanNeighborDistance(points, i, neighborCount);
+            running.add(meanDistance);
+        }
+    }
+
+    stats.count = running.count;
+    stats.mean = running.mean;
+    stats.stddev = running.stddev();
+
+    return true;
+}
+
+bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, IScanFileWriter* writer, uint64_t& removedPoints)
+{
+    ClippingAssembly localAssembly = clippingAssembly;
+    localAssembly.clearMatrix();
+    glm::dmat4 src_transfo_mat = src_transfo.getTransformation();
+    localAssembly.addTransformation(src_transfo_mat);
+
+    std::vector<std::pair<uint32_t, bool>> cells;
+    getClippedCells_impl(m_uRootCell, localAssembly, cells);
+
+    const size_t neighborCount = std::max(1, kNeighbors);
+    double threshold = stats.mean + nSigma * stats.stddev;
+    bool resultOk = true;
+    removedPoints = 0;
+
+    for (const std::pair<uint32_t, bool>& cell : cells)
+    {
+        std::vector<PointXYZIRGB> points;
+        points.resize(tls_point_cloud_.getCellPointCount(cell.first));
+        if (!tls_point_cloud_.getCellPoints(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+            continue;
+
+        if (cell.second)
+        {
+            std::vector<PointXYZIRGB> pointsClipped;
+            clipIndividualPoints(points, pointsClipped, localAssembly);
+            points.swap(pointsClipped);
+        }
+
+        std::vector<PointXYZIRGB> filtered;
+        filtered.reserve(points.size());
+
+        for (size_t i = 0; i < points.size(); ++i)
+        {
+            double meanDistance = computeMeanNeighborDistance(points, i, neighborCount);
+            if (meanDistance <= threshold || stats.count == 0)
+                filtered.push_back(points[i]);
+        }
+
+        removedPoints += points.size() - filtered.size();
+        resultOk &= writer->mergePoints(filtered.data(), filtered.size(), src_transfo, pt_format_);
+    }
+
+    return resultOk;
 }
 
 void EmbeddedScan::logClipAndWriteTimings()
