@@ -8,6 +8,7 @@
 #include "io/exports/TlsFileWriter.h"
 #include "models/graph/GraphManager.h"
 #include "models/graph/PointCloudNode.h"
+#include "pointCloudEngine/PCE_stream.h"
 #include "pointCloudEngine/TlScanOverseer.h"
 
 #include "gui/texts/ExportTexts.hpp"
