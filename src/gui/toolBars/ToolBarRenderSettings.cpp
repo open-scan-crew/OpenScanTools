@@ -144,6 +144,9 @@ void ToolBarRenderSettings::informData(IGuiData *data)
 void ToolBarRenderSettings::onRenderBrightness(IGuiData* idata)
 {
 	GuiDataRenderBrightness* data = static_cast<GuiDataRenderBrightness*>(idata);
+	m_brightness = data->m_brightness;
+	if (!m_intensityActive)
+		return;
 	const QSignalBlocker spinBlocker(m_ui.brightnessLuminanceSpinBox);
 	const QSignalBlocker sliderBlocker(m_ui.brightnessLuminanceSlider);
 	m_ui.brightnessLuminanceSpinBox->setValue(data->m_brightness);
@@ -153,6 +156,9 @@ void ToolBarRenderSettings::onRenderBrightness(IGuiData* idata)
 void ToolBarRenderSettings::onRenderContrast(IGuiData* idata)
 {
 	GuiDataRenderContrast* data = static_cast<GuiDataRenderContrast*>(idata);
+	m_contrast = data->m_contrast;
+	if (!m_intensityActive)
+		return;
 	const QSignalBlocker spinBlocker(m_ui.contrastSaturationSpinBox);
 	const QSignalBlocker sliderBlocker(m_ui.contrastSaturationSlider);
 	m_ui.contrastSaturationSpinBox->setValue(data->m_contrast);
@@ -169,6 +175,9 @@ void ToolBarRenderSettings::onRenderColorMode(IGuiData* idata)
 void ToolBarRenderSettings::onRenderLuminance(IGuiData* idata)
 {
 	GuiDataRenderLuminance* data = static_cast<GuiDataRenderLuminance*>(idata);
+	m_lumiance = data->m_luminance;
+	if (m_intensityActive)
+		return;
 	const QSignalBlocker spinBlocker(m_ui.brightnessLuminanceSpinBox);
 	const QSignalBlocker sliderBlocker(m_ui.brightnessLuminanceSlider);
 	m_ui.brightnessLuminanceSpinBox->setValue(data->m_luminance);
@@ -208,6 +217,9 @@ void ToolBarRenderSettings::onRenderTexelThreshold(IGuiData* idata)
 void ToolBarRenderSettings::onRenderSaturation(IGuiData* idata) 
 {
 	GuiDataRenderSaturation* data = static_cast<GuiDataRenderSaturation*>(idata);
+	m_saturation = data->m_saturation;
+	if (m_intensityActive)
+		return;
 	const QSignalBlocker spinBlocker(m_ui.contrastSaturationSpinBox);
 	const QSignalBlocker sliderBlocker(m_ui.contrastSaturationSlider);
 	m_ui.contrastSaturationSpinBox->setValue(data->m_saturation);
