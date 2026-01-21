@@ -20,7 +20,7 @@
    <bool>true</bool>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0" colspan="2">
+   <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
       <string>TextLabel</string>
@@ -30,6 +30,13 @@
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Yes</set>
      </property>
     </widget>
    </item>

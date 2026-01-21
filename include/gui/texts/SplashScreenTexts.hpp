@@ -22,6 +22,7 @@
 
 #define TEXT_SPLASH_SCREEN_EXPORT QObject::tr("Export...")
 #define TEXT_SPLASH_SCREEN_IMPORT QObject::tr("Import...")
+#define TEXT_SPLASH_SCREEN_SMOOTHING_TITLE QObject::tr("Smooth points...")
 #define TEXT_SPLASH_SCREEN_IMPORT_EXTERNAL_DATA_TITLE_WITH_NAME QObject::tr("Import %1")
 #define TEXT_SPLASH_SCREEN_DONE QObject::tr("Processing done")
 #define TEXT_SPLASH_SCREEN_ABORT QObject::tr("Processing abort")

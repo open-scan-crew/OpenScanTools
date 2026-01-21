@@ -14,6 +14,7 @@ public:
 	~MessageSplashScreen();
 
 	void setShowMessage(const QString& message);
+	bool confirmMessage(const QString& message);
 
 private:
 	Ui::messageSplashScreen m_ui;

@@ -7,7 +7,10 @@
 #include "tls_impl.h"
 
 #include <chrono>
+#include <cmath>
 #include <future>
+#include <algorithm>
+#include <numeric>
 #include <set>
 #ifndef PORTABLE
 #include "io/exports/IScanFileWriter.h"
@@ -266,6 +269,223 @@ bool EmbeddedScan::clipAndWrite(const TransformationModule& src_transfo, const C
         merge_time_ += std::chrono::duration<float, std::ratio<1>>(tp_2 - tp_1).count();
     }
     return (resultOk);
+}
+
+bool EmbeddedScan::smoothAndWrite(const TransformationModule& src_transfo, const SmoothPointsParameters& params, IScanFileWriter* _writer, uint64_t& movedPoints)
+{
+    movedPoints = 0;
+    const glm::dmat4 toGlobal = src_transfo.getTransformation();
+    const glm::dmat4 toLocal = src_transfo.getInverseTransformation();
+    const double maxDistance = params.maxDistanceMm * 0.001; // UI is in mm, convert to meters (project units).
+    const double cosNormalLimit = std::cos(glm::radians(params.normalAngleDeg));
+    const double precisionValue = tls::getPrecisionValue(pt_precision_);
+    const double selfThreshold = std::max(precisionValue * 0.5, 1e-9);
+
+    ClippingAssembly emptyAssembly;
+
+    auto collectNeighbors = [&](const glm::dvec3& globalPoint,
+        std::vector<glm::dvec3>& neighbors,
+        std::vector<glm::dvec3>& kNearest,
+        double& meanDistance) -> bool
+    {
+        glm::dvec3 nearest;
+        if (!nearestNeighbor(globalPoint, nearest))
+            return false;
+
+        double radius = glm::length(nearest - globalPoint);
+        if (radius <= 0.0)
+            return false;
+
+        radius *= params.alpha;
+        const int targetCount = std::max(3, params.kNeighbors);
+        std::vector<glm::dvec3> candidates;
+        for (int attempt = 0; attempt < 5; ++attempt)
+        {
+            candidates.clear();
+            findNeighbors(globalPoint, radius, candidates, emptyAssembly);
+            candidates.erase(std::remove_if(candidates.begin(), candidates.end(),
+                [&](const glm::dvec3& candidate)
+                {
+                    return glm::length(candidate - globalPoint) <= selfThreshold;
+                }), candidates.end());
+            if ((int)candidates.size() >= targetCount)
+                break;
+            radius *= 1.5;
+        }
+
+        if (candidates.empty())
+            return false;
+
+        std::vector<std::pair<double, glm::dvec3>> distances;
+        distances.reserve(candidates.size());
+        for (const auto& candidate : candidates)
+        {
+            distances.emplace_back(glm::length(candidate - globalPoint), candidate);
+        }
+        std::sort(distances.begin(), distances.end(),
+            [](const auto& lhs, const auto& rhs)
+            {
+                return lhs.first < rhs.first;
+            });
+
+        const size_t kCount = std::min<size_t>(distances.size(), targetCount);
+        meanDistance = 0.0;
+        kNearest.clear();
+        kNearest.reserve(kCount);
+        for (size_t i = 0; i < kCount; ++i)
+        {
+            meanDistance += distances[i].first;
+            kNearest.push_back(distances[i].second);
+        }
+        meanDistance /= static_cast<double>(kCount);
+        if (meanDistance <= 0.0)
+            return false;
+
+        const double finalRadius = params.alpha * meanDistance;
+        neighbors.clear();
+        findNeighbors(globalPoint, finalRadius, neighbors, emptyAssembly);
+        neighbors.erase(std::remove_if(neighbors.begin(), neighbors.end(),
+            [&](const glm::dvec3& candidate)
+            {
+                return glm::length(candidate - globalPoint) <= selfThreshold;
+            }), neighbors.end());
+
+        return !neighbors.empty();
+    };
+
+    auto estimateNormal = [&](const glm::dvec3& globalPoint, glm::dvec3& normal) -> bool
+    {
+        std::vector<glm::dvec3> neighbors;
+        std::vector<glm::dvec3> kNearest;
+        double meanDistance = 0.0;
+        if (!collectNeighbors(globalPoint, neighbors, kNearest, meanDistance))
+            return false;
+
+        std::vector<double> plane;
+        if (!OctreeRayTracing::fitPlane(kNearest, plane))
+            return false;
+
+        normal = glm::normalize(glm::dvec3(plane[0], plane[1], plane[2]));
+        return true;
+    };
+
+    for (uint32_t cellId = 0; cellId < m_cellCount; ++cellId)
+    {
+        const uint64_t cellPointCount = tls_point_cloud_.getCellPointCount(cellId);
+        if (cellPointCount == 0)
+            continue;
+
+        std::vector<PointXYZIRGB> points;
+        points.resize(cellPointCount);
+        if (!tls_point_cloud_.getCellPoints(cellId, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+            continue;
+
+        std::vector<PointXYZIRGB> outPoints = points;
+
+        for (size_t i = 0; i < points.size(); ++i)
+        {
+            const glm::dvec3 localPoint(points[i].x, points[i].y, points[i].z);
+            const glm::dvec3 globalPoint = glm::dvec3(toGlobal * glm::dvec4(localPoint, 1.0));
+
+            std::vector<glm::dvec3> neighbors;
+            std::vector<glm::dvec3> kNearest;
+            double meanDistance = 0.0;
+            if (!collectNeighbors(globalPoint, neighbors, kNearest, meanDistance))
+                continue;
+
+            glm::dvec3 baseNormal(0.0);
+            std::vector<double> plane;
+            if (params.planeFilterEnabled || params.normalFilterEnabled)
+            {
+                if (OctreeRayTracing::fitPlane(kNearest, plane))
+                {
+                    baseNormal = glm::normalize(glm::dvec3(plane[0], plane[1], plane[2]));
+                }
+            }
+
+            if (params.planeFilterEnabled && !plane.empty())
+            {
+                const double planeLimit = params.planeDistanceFactor * meanDistance;
+                neighbors.erase(std::remove_if(neighbors.begin(), neighbors.end(),
+                    [&](const glm::dvec3& candidate)
+                    {
+                        return OctreeRayTracing::pointToPlaneDistance(candidate, plane) > planeLimit;
+                    }), neighbors.end());
+            }
+
+            if (params.normalFilterEnabled && glm::length(baseNormal) > 0.0)
+            {
+                neighbors.erase(std::remove_if(neighbors.begin(), neighbors.end(),
+                    [&](const glm::dvec3& candidate)
+                    {
+                        glm::dvec3 candidateNormal;
+                        if (!estimateNormal(candidate, candidateNormal))
+                            return true;
+                        return glm::dot(baseNormal, candidateNormal) < cosNormalLimit;
+                    }), neighbors.end());
+            }
+
+            if (neighbors.size() < 3)
+                continue;
+
+            std::vector<std::pair<double, glm::dvec3>> sortedNeighbors;
+            sortedNeighbors.reserve(neighbors.size());
+            for (const auto& candidate : neighbors)
+            {
+                sortedNeighbors.emplace_back(glm::length(candidate - globalPoint), candidate);
+            }
+            std::sort(sortedNeighbors.begin(), sortedNeighbors.end(),
+                [](const auto& lhs, const auto& rhs)
+                {
+                    return lhs.first < rhs.first;
+                });
+
+            const size_t keepCount = std::max<size_t>(3, sortedNeighbors.size() * params.keepBestPercent / 100);
+            double weightSum = 0.0;
+            glm::dvec3 weightedSum(0.0);
+            for (size_t n = 0; n < keepCount; ++n)
+            {
+                const double distance = std::max(sortedNeighbors[n].first, selfThreshold);
+                double weight = 1.0 / distance;
+                if (params.normalFilterEnabled && glm::length(baseNormal) > 0.0)
+                {
+                    glm::dvec3 candidateNormal;
+                    if (!estimateNormal(sortedNeighbors[n].second, candidateNormal))
+                        continue;
+                    weight *= std::max(0.0, glm::dot(baseNormal, candidateNormal));
+                }
+                weightedSum += sortedNeighbors[n].second * weight;
+                weightSum += weight;
+            }
+
+            if (weightSum <= 0.0)
+                continue;
+
+            const glm::dvec3 target = weightedSum / weightSum;
+            glm::dvec3 displacement = target - globalPoint;
+            const double displacementLength = glm::length(displacement);
+            if (displacementLength <= 0.0)
+                continue;
+
+            if (maxDistance > 0.0 && displacementLength > maxDistance)
+            {
+                displacement = (displacement / displacementLength) * maxDistance;
+            }
+
+            const glm::dvec3 smoothedGlobal = globalPoint + displacement;
+            const glm::dvec3 smoothedLocal = glm::dvec3(toLocal * glm::dvec4(smoothedGlobal, 1.0));
+
+            outPoints[i].x = smoothedLocal.x;
+            outPoints[i].y = smoothedLocal.y;
+            outPoints[i].z = smoothedLocal.z;
+            movedPoints++;
+        }
+
+        if (!_writer->mergePoints(outPoints.data(), outPoints.size(), src_transfo, pt_format_))
+            return false;
+    }
+
+    return true;
 }
 
 void EmbeddedScan::logClipAndWriteTimings()

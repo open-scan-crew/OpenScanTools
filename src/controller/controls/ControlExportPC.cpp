@@ -67,5 +67,36 @@ namespace control
         {
             return (ControlType::startDeletePoints);
         }
+
+        // ***************************
+        //     StartSmoothPoints
+        // ***************************
+
+        StartSmoothPoints::StartSmoothPoints(const SmoothPointsParameters& parameters)
+            : m_message(parameters)
+        {}
+
+        StartSmoothPoints::~StartSmoothPoints()
+        {}
+
+        void StartSmoothPoints::doFunction(Controller& controller)
+        {
+            controller.getFunctionManager().launchFunction(controller, ContextType::smoothPoints);
+            controller.getFunctionManager().feedMessage(controller, &m_message);
+        }
+
+        bool StartSmoothPoints::canUndo() const
+        {
+            return (false);
+        }
+
+        void StartSmoothPoints::undoFunction(Controller& controller)
+        {
+        }
+
+        ControlType StartSmoothPoints::getType() const
+        {
+            return (ControlType::startSmoothPoints);
+        }
     }
 }

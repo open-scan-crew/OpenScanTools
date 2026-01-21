@@ -1249,10 +1249,16 @@
     <ClCompile Include="..\..\src\controller\functionSystem\ContextDeletePoints.cpp">
       <Filter>src\controller\contexts</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextSmoothPoints.cpp">
+      <Filter>src\controller\contexts</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarPointEdition.cpp">
       <Filter>src\gui\toolBars</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\controller\messages\DeletePointsMessage.cpp">
+      <Filter>src\controller\messages</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\controller\messages\SmoothPointsMessage.cpp">
       <Filter>src\controller\messages</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\gui\Dialog\DialogDeletePoints.cpp">
@@ -3110,7 +3116,13 @@
     <ClInclude Include="..\..\include\controller\functionSystem\ContextDeletePoints.h">
       <Filter>include\controller\contexts</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextSmoothPoints.h">
+      <Filter>include\controller\contexts</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\include\controller\messages\DeletePointsMessage.h">
+      <Filter>include\controller\messages</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\controller\messages\SmoothPointsMessage.h">
       <Filter>include\controller\messages</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\models\data\Clipping\ClippingGeometry.h">
@@ -3129,6 +3141,9 @@
       <Filter>include\controller\contexts</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\pointCloudEngine\RenderingLimits.h">
+      <Filter>include\pointCloudEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pointCloudEngine\SmoothPointsParameters.h">
       <Filter>include\pointCloudEngine</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\controller\controls\AEditionControl.h">
