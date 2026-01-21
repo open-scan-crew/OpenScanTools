@@ -11,6 +11,7 @@
 #include <chrono>
 #include <future>
 #include <set>
+#include <unordered_map>
 #ifndef PORTABLE
 #include "io/exports/IScanFileWriter.h"
 #endif
@@ -296,30 +297,71 @@ namespace
         }
     };
 
-    bool computeMeanNeighborDistance(EmbeddedScan& scan, const glm::dvec3& globalPoint, const ClippingAssembly& clippingAssembly, size_t kNeighbors, double initialRadius, double maxRadius, double& meanDistance)
+    struct GridIndex
     {
-        if (kNeighbors == 0)
+        int x;
+        int y;
+        int z;
+    };
+
+    int64_t packGridIndex(const GridIndex& index)
+    {
+        return (static_cast<int64_t>(index.x) << 42) ^ (static_cast<int64_t>(index.y) << 21) ^ static_cast<int64_t>(index.z);
+    }
+
+    GridIndex computeGridIndex(const glm::dvec3& point, const glm::dvec3& origin, double voxelSize)
+    {
+        return GridIndex{
+            static_cast<int>(std::floor((point.x - origin.x) / voxelSize)),
+            static_cast<int>(std::floor((point.y - origin.y) / voxelSize)),
+            static_cast<int>(std::floor((point.z - origin.z) / voxelSize))
+        };
+    }
+
+    bool computeMeanNeighborDistanceGrid(const std::vector<glm::dvec3>& points, const std::unordered_map<int64_t, std::vector<size_t>>& grid, const glm::dvec3& origin, double voxelSize, size_t index, size_t kNeighbors, double maxRadius, double& meanDistance)
+    {
+        if (kNeighbors == 0 || points.empty())
             return false;
 
-        std::vector<glm::dvec3> neighbors;
-        double radius = initialRadius;
-        while (radius <= maxRadius)
+        const glm::dvec3& base = points[index];
+        GridIndex baseIndex = computeGridIndex(base, origin, voxelSize);
+        int ring = 0;
+        std::vector<size_t> candidateIndices;
+
+        while (ring * voxelSize <= maxRadius)
         {
-            neighbors.clear();
-            scan.findNeighbors(globalPoint, radius, neighbors, clippingAssembly);
-            if (neighbors.size() > 1 && neighbors.size() >= kNeighbors + 1)
+            candidateIndices.clear();
+            for (int dx = -ring; dx <= ring; ++dx)
+            {
+                for (int dy = -ring; dy <= ring; ++dy)
+                {
+                    for (int dz = -ring; dz <= ring; ++dz)
+                    {
+                        GridIndex query{ baseIndex.x + dx, baseIndex.y + dy, baseIndex.z + dz };
+                        int64_t key = packGridIndex(query);
+                        auto it = grid.find(key);
+                        if (it == grid.end())
+                            continue;
+                        candidateIndices.insert(candidateIndices.end(), it->second.begin(), it->second.end());
+                    }
+                }
+            }
+
+            if (candidateIndices.size() > kNeighbors)
                 break;
-            radius *= 2.0;
+            ring++;
         }
 
-        if (neighbors.empty())
+        if (candidateIndices.empty())
             return false;
 
         std::vector<double> distances;
-        distances.reserve(neighbors.size());
-        for (const glm::dvec3& neighbor : neighbors)
+        distances.reserve(candidateIndices.size());
+        for (size_t candidate : candidateIndices)
         {
-            double dist = glm::length(globalPoint - neighbor);
+            if (candidate == index)
+                continue;
+            double dist = glm::length(base - points[candidate]);
             if (dist > 0.0)
                 distances.push_back(dist);
         }
@@ -366,13 +408,29 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
             points.swap(pointsClipped);
         }
 
-        double initialRadius = m_vTreeCells[cell.first].m_size * 0.5;
-        double maxRadius = m_vTreeCells[cell.first].m_size * 8.0;
-        for (size_t i = 0; i < points.size(); ++i)
+        glm::dvec3 cellOrigin(m_vTreeCells[cell.first].m_position[0], m_vTreeCells[cell.first].m_position[1], m_vTreeCells[cell.first].m_position[2]);
+        double cellSize = m_vTreeCells[cell.first].m_size;
+        double avgSpacing = std::cbrt((cellSize * cellSize * cellSize) / std::max<size_t>(points.size(), 1));
+        double voxelSize = std::max(cellSize / 128.0, avgSpacing * 2.0);
+        double maxRadius = cellSize;
+
+        std::vector<glm::dvec3> localPoints;
+        localPoints.reserve(points.size());
+        for (const PointXYZIRGB& point : points)
+            localPoints.emplace_back(point.x, point.y, point.z);
+
+        std::unordered_map<int64_t, std::vector<size_t>> grid;
+        grid.reserve(localPoints.size());
+        for (size_t i = 0; i < localPoints.size(); ++i)
         {
-            const glm::dvec3 globalPoint = getGlobalCoord(glm::dvec3(points[i].x, points[i].y, points[i].z));
+            GridIndex index = computeGridIndex(localPoints[i], cellOrigin, voxelSize);
+            grid[packGridIndex(index)].push_back(i);
+        }
+
+        for (size_t i = 0; i < localPoints.size(); ++i)
+        {
             double meanDistance = 0.0;
-            if (computeMeanNeighborDistance(*this, globalPoint, localAssembly, neighborCount, initialRadius, maxRadius, meanDistance))
+            if (computeMeanNeighborDistanceGrid(localPoints, grid, cellOrigin, voxelSize, i, neighborCount, maxRadius, meanDistance))
                 running.add(meanDistance);
         }
     }
@@ -416,13 +474,29 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
         std::vector<PointXYZIRGB> filtered;
         filtered.reserve(points.size());
 
-        double initialRadius = m_vTreeCells[cell.first].m_size * 0.5;
-        double maxRadius = m_vTreeCells[cell.first].m_size * 8.0;
+        glm::dvec3 cellOrigin(m_vTreeCells[cell.first].m_position[0], m_vTreeCells[cell.first].m_position[1], m_vTreeCells[cell.first].m_position[2]);
+        double cellSize = m_vTreeCells[cell.first].m_size;
+        double avgSpacing = std::cbrt((cellSize * cellSize * cellSize) / std::max<size_t>(points.size(), 1));
+        double voxelSize = std::max(cellSize / 128.0, avgSpacing * 2.0);
+        double maxRadius = cellSize;
+
+        std::vector<glm::dvec3> localPoints;
+        localPoints.reserve(points.size());
+        for (const PointXYZIRGB& point : points)
+            localPoints.emplace_back(point.x, point.y, point.z);
+
+        std::unordered_map<int64_t, std::vector<size_t>> grid;
+        grid.reserve(localPoints.size());
+        for (size_t i = 0; i < localPoints.size(); ++i)
+        {
+            GridIndex index = computeGridIndex(localPoints[i], cellOrigin, voxelSize);
+            grid[packGridIndex(index)].push_back(i);
+        }
+
         for (size_t i = 0; i < points.size(); ++i)
         {
-            const glm::dvec3 globalPoint = getGlobalCoord(glm::dvec3(points[i].x, points[i].y, points[i].z));
             double meanDistance = 0.0;
-            if (!computeMeanNeighborDistance(*this, globalPoint, localAssembly, neighborCount, initialRadius, maxRadius, meanDistance))
+            if (!computeMeanNeighborDistanceGrid(localPoints, grid, cellOrigin, voxelSize, i, neighborCount, maxRadius, meanDistance))
             {
                 filtered.push_back(points[i]);
                 continue;
