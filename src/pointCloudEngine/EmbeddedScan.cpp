@@ -393,6 +393,7 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
 
     RunningStats running;
     const size_t neighborCount = std::max(1, kNeighbors);
+    const size_t sampleStep = 50;
 
     for (const std::pair<uint32_t, bool>& cell : cells)
     {
@@ -401,22 +402,34 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
         if (!tls_point_cloud_.getCellPoints(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
             continue;
 
+        std::vector<PointXYZIRGB> visiblePoints;
         if (cell.second)
         {
-            std::vector<PointXYZIRGB> pointsClipped;
-            clipIndividualPoints(points, pointsClipped, localAssembly);
-            points.swap(pointsClipped);
+            visiblePoints.reserve(points.size());
+            for (const PointXYZIRGB& point : points)
+            {
+                glm::dvec4 localPoint(point.x, point.y, point.z, 1.0);
+                if (localAssembly.testPoint(localPoint))
+                    visiblePoints.push_back(point);
+            }
         }
+        else
+        {
+            visiblePoints.swap(points);
+        }
+
+        if (visiblePoints.empty())
+            continue;
 
         glm::dvec3 cellOrigin(m_vTreeCells[cell.first].m_position[0], m_vTreeCells[cell.first].m_position[1], m_vTreeCells[cell.first].m_position[2]);
         double cellSize = m_vTreeCells[cell.first].m_size;
-        double avgSpacing = std::cbrt((cellSize * cellSize * cellSize) / std::max<size_t>(points.size(), 1));
+        double avgSpacing = std::cbrt((cellSize * cellSize * cellSize) / std::max<size_t>(visiblePoints.size(), 1));
         double voxelSize = std::max(cellSize / 128.0, avgSpacing * 2.0);
-        double maxRadius = cellSize;
+        double maxRadius = std::clamp(4.0 * avgSpacing, cellSize / 8.0, cellSize);
 
         std::vector<glm::dvec3> localPoints;
-        localPoints.reserve(points.size());
-        for (const PointXYZIRGB& point : points)
+        localPoints.reserve(visiblePoints.size());
+        for (const PointXYZIRGB& point : visiblePoints)
             localPoints.emplace_back(point.x, point.y, point.z);
 
         std::unordered_map<int64_t, std::vector<size_t>> grid;
@@ -427,7 +440,7 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
             grid[packGridIndex(index)].push_back(i);
         }
 
-        for (size_t i = 0; i < localPoints.size(); ++i)
+        for (size_t i = 0; i < localPoints.size(); i += sampleStep)
         {
             double meanDistance = 0.0;
             if (computeMeanNeighborDistanceGrid(localPoints, grid, cellOrigin, voxelSize, i, neighborCount, maxRadius, meanDistance))
@@ -464,25 +477,45 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
         if (!tls_point_cloud_.getCellPoints(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
             continue;
 
+        std::vector<PointXYZIRGB> visiblePoints;
+        std::vector<PointXYZIRGB> maskedPoints;
         if (cell.second)
         {
-            std::vector<PointXYZIRGB> pointsClipped;
-            clipIndividualPoints(points, pointsClipped, localAssembly);
-            points.swap(pointsClipped);
+            visiblePoints.reserve(points.size());
+            maskedPoints.reserve(points.size());
+            for (const PointXYZIRGB& point : points)
+            {
+                glm::dvec4 localPoint(point.x, point.y, point.z, 1.0);
+                if (localAssembly.testPoint(localPoint))
+                    visiblePoints.push_back(point);
+                else
+                    maskedPoints.push_back(point);
+            }
+        }
+        else
+        {
+            visiblePoints.swap(points);
         }
 
         std::vector<PointXYZIRGB> filtered;
-        filtered.reserve(points.size());
+        filtered.reserve(visiblePoints.size() + maskedPoints.size());
+
+        if (visiblePoints.empty())
+        {
+            filtered.insert(filtered.end(), maskedPoints.begin(), maskedPoints.end());
+            resultOk &= writer->mergePoints(filtered.data(), filtered.size(), src_transfo, pt_format_);
+            continue;
+        }
 
         glm::dvec3 cellOrigin(m_vTreeCells[cell.first].m_position[0], m_vTreeCells[cell.first].m_position[1], m_vTreeCells[cell.first].m_position[2]);
         double cellSize = m_vTreeCells[cell.first].m_size;
-        double avgSpacing = std::cbrt((cellSize * cellSize * cellSize) / std::max<size_t>(points.size(), 1));
+        double avgSpacing = std::cbrt((cellSize * cellSize * cellSize) / std::max<size_t>(visiblePoints.size(), 1));
         double voxelSize = std::max(cellSize / 128.0, avgSpacing * 2.0);
-        double maxRadius = cellSize;
+        double maxRadius = std::clamp(4.0 * avgSpacing, cellSize / 8.0, cellSize);
 
         std::vector<glm::dvec3> localPoints;
-        localPoints.reserve(points.size());
-        for (const PointXYZIRGB& point : points)
+        localPoints.reserve(visiblePoints.size());
+        for (const PointXYZIRGB& point : visiblePoints)
             localPoints.emplace_back(point.x, point.y, point.z);
 
         std::unordered_map<int64_t, std::vector<size_t>> grid;
@@ -493,20 +526,22 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
             grid[packGridIndex(index)].push_back(i);
         }
 
-        for (size_t i = 0; i < points.size(); ++i)
+        for (size_t i = 0; i < localPoints.size(); ++i)
         {
             double meanDistance = 0.0;
             if (!computeMeanNeighborDistanceGrid(localPoints, grid, cellOrigin, voxelSize, i, neighborCount, maxRadius, meanDistance))
             {
-                filtered.push_back(points[i]);
+                filtered.push_back(visiblePoints[i]);
                 continue;
             }
 
             if (meanDistance <= threshold || stats.count == 0)
-                filtered.push_back(points[i]);
+                filtered.push_back(visiblePoints[i]);
         }
 
-        removedPoints += points.size() - filtered.size();
+        size_t filteredVisibleCount = filtered.size();
+        filtered.insert(filtered.end(), maskedPoints.begin(), maskedPoints.end());
+        removedPoints += visiblePoints.size() - filteredVisibleCount;
         resultOk &= writer->mergePoints(filtered.data(), filtered.size(), src_transfo, pt_format_);
     }
 
