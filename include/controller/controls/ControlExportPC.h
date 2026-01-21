@@ -3,6 +3,7 @@
 
 #include "controller/controls/IControl.h"
 #include "controller/messages/ClippingExportParametersMessage.h"
+#include "controller/messages/SmoothPointsMessage.h"
 
 namespace control
 {
@@ -30,6 +31,19 @@ namespace control
             bool canUndo() const override;
             void undoFunction(Controller& controller) override;
             ControlType getType() const override;
+        };
+
+        class StartSmoothPoints : public AControl
+        {
+        public:
+            explicit StartSmoothPoints(const SmoothPointsParameters& parameters);
+            ~StartSmoothPoints();
+            void doFunction(Controller& controller) override;
+            bool canUndo() const override;
+            void undoFunction(Controller& controller) override;
+            ControlType getType() const override;
+        private:
+            SmoothPointsMessage m_message;
         };
     }
 }
