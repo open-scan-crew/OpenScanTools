@@ -63,6 +63,7 @@ enum class ContextType
 	exportPC,
 	exportSubProject,
 	deletePoints,
+	statisticalOutlierFilter,
 	multipleCylinders,
 	cylinder2ClickExtend,
 	testCylinder,
