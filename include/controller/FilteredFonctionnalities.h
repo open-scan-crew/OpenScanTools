@@ -110,6 +110,7 @@ static const std::unordered_map<ControlType, std::unordered_set<LicenceVersion>>
 	{ControlType::startSingleExport, {LicenceVersion::Standard}}, 
 	{ControlType::startGridExport, {LicenceVersion::Standard}},
 	{ControlType::startDeletePoints, {LicenceVersion::Standard}},
+	{ControlType::startSmoothPoints, {LicenceVersion::Standard}},
 
 	// control::function
 	{ControlType::functionAbort, {LicenceVersion::Free}}, 

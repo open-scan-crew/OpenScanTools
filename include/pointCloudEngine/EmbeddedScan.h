@@ -9,6 +9,7 @@
 #include "pointCloudEngine/SmartBuffer.h"
 #include "models/data/clipping/ClippingGeometry.h"
 #include "pointCloudEngine/OctreeRayTracing.h"
+#include "pointCloudEngine/SmoothPointsParameters.h"
 
 // lib_tls
 #include "tls_def.h"
@@ -110,6 +111,7 @@ public:
     // For File Clipping
     bool testPointsClippedOut(const TransformationModule& src_transfo, const ClippingAssembly& _clippingAssembly) const;
     bool clipAndWrite(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, IScanFileWriter* writer);
+    bool smoothAndWrite(const TransformationModule& modelMat, const SmoothPointsParameters& params, IScanFileWriter* writer, uint64_t& movedPoints);
     static void logClipAndWriteTimings();
 
     void decodePointCoord(uint32_t cellId, std::vector<glm::dvec3>& dstPoints, uint32_t layerDepth, bool transformToGlobal);
