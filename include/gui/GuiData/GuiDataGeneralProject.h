@@ -213,6 +213,14 @@ public:
     std::vector<SafePtr<AClippingNode>> m_clippings;
 };
 
+class GuiDataStatisticalOutlierFilterDialogDisplay : public IGuiData
+{
+public:
+    GuiDataStatisticalOutlierFilterDialogDisplay();
+    ~GuiDataStatisticalOutlierFilterDialogDisplay();
+    guiDType getType() override;
+};
+
 class GuiDataGlobalColorPickerValue : public IGuiData
 {
 public:
