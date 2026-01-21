@@ -21,6 +21,7 @@ private:
 
 public slots:
     void slotDeleteClippedPoints();
+    void slotSmoothPointCloud();
 
 private:
     IDataDispatcher &m_dataDispatcher;

@@ -103,10 +103,11 @@ enum class ControlType
 
     // control::exportPC
     startExport, //Free
-	startExportPCO, //Free
+    startExportPCO, //Free
 	startSingleExport, //Free
 	startGridExport,
     startDeletePoints,
+    startSmoothPointCloud,
 
 	// control::function
 	functionAbort, //Free

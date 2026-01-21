@@ -32,19 +32,6 @@
    <property name="verticalSpacing">
     <number>0</number>
    </property>
-   <item row="2" column="0">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
    <item row="0" column="0">
     <widget class="QToolButton" name="toolButton_deleteClippedPoints">
      <property name="enabled">
@@ -82,11 +69,141 @@ It is recommended to activate the desired clippings before starting the cleaning
      </property>
     </widget>
    </item>
+   <item row="0" column="1">
+    <widget class="QToolButton" name="toolButton_smoothPointCloud">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="toolTip">
+      <string>Smooth the selected scans by locally adjusting point positions.
+Warning: points will be permanently moved.</string>
+     </property>
+     <property name="text">
+      <string>Smooth point cloud</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../../openscantools.qrc">
+       <normaloff>:/icons/100x100/wave.png</normaloff>:/icons/100x100/wave.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>20</width>
+       <height>20</height>
+      </size>
+     </property>
+     <property name="toolButtonStyle">
+      <enum>Qt::ToolButtonTextBesideIcon</enum>
+     </property>
+     <property name="autoRaise">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <layout class="QHBoxLayout" name="horizontalLayout_smoothSettings">
+     <property name="spacing">
+      <number>4</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="label_smoothMaxDisplacement">
+       <property name="text">
+        <string>Max displacement (mm)</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDoubleSpinBox" name="doubleSpinBox_smoothMaxDisplacement">
+       <property name="minimum">
+        <double>0.100000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>3.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+       <property name="value">
+        <double>1.000000000000000</double>
+       </property>
+       <property name="decimals">
+        <number>1</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_smoothVoxelSize">
+       <property name="text">
+        <string>Voxel size (mm)</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboBox_smoothVoxelSize">
+       <property name="currentIndex">
+        <number>1</number>
+       </property>
+       <item>
+        <property name="text">
+         <string>1.0</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>2.0</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>4.0</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="2" column="1">
+    <layout class="QHBoxLayout" name="horizontalLayout_smoothOptions">
+     <property name="spacing">
+      <number>6</number>
+     </property>
+     <item>
+      <widget class="QCheckBox" name="checkBox_smoothAdaptiveVoxel">
+       <property name="text">
+        <string>Adaptive voxel size</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="checkBox_smoothPreserveEdges">
+       <property name="text">
+        <string>Preserve edges (local plane check)</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
   <tabstop>toolButton_deleteClippedPoints</tabstop>
+  <tabstop>toolButton_smoothPointCloud</tabstop>
+  <tabstop>doubleSpinBox_smoothMaxDisplacement</tabstop>
+  <tabstop>comboBox_smoothVoxelSize</tabstop>
+  <tabstop>checkBox_smoothAdaptiveVoxel</tabstop>
+  <tabstop>checkBox_smoothPreserveEdges</tabstop>
  </tabstops>
  <resources>
   <include location="../../../openscantools.qrc"/>

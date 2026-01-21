@@ -27,6 +27,7 @@
 #include "controller/functionSystem/ContextCylinderToCylinderMeasure.h"
 #include "controller/functionSystem/ContextExtendCylinderMeasure.h"
 #include "controller/functionSystem/ContextDeletePoints.h"
+#include "controller/functionSystem/ContextSmoothPointCloud.h"
 #include "controller/functionSystem/ContextMultipleCylindersMeasure.h"
 #include "controller/functionSystem/ContextPointCreation.h"
 #include "controller/functionSystem/Context4ClicsSphere.h"
@@ -188,6 +189,8 @@ AContext* ContextFactory::createContext(const ContextType& type, ContextId& id, 
 			return new ContextExtendCylinder(id);
 		case ContextType::deletePoints:
 			return new ContextDeletePoints(id);
+		case ContextType::smoothPointCloud:
+			return new ContextSmoothPointCloud(id);
 		case ContextType::pointCreation:
 			return new ContextPointCreation(id);
 		case ContextType::Sphere:
