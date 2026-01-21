@@ -3,6 +3,7 @@
 
 #include <QtWidgets/qwidget.h>
 #include "ui_toolbar_pointEdition.h"
+#include "gui/Dialog/MessageSplashScreen.h"
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
 
@@ -21,6 +22,9 @@ private:
 
 public slots:
     void slotDeleteClippedPoints();
+    void slotPlaneFilterToggled(bool checked);
+    void slotNormalFilterToggled(bool checked);
+    void slotApplySmoothPoints();
 
 private:
     IDataDispatcher &m_dataDispatcher;
@@ -29,6 +33,7 @@ private:
     std::unordered_map<guiDType, GuiDataFct> m_guiDataFunctions;
 
     Ui::toolbar_pointEdition m_ui;
+    MessageSplashScreen m_smoothWarning;
 };
 
 #endif
