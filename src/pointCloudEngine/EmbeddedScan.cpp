@@ -296,45 +296,46 @@ namespace
         }
     };
 
-    double computeMeanNeighborDistance(const std::vector<PointXYZIRGB>& points, size_t index, size_t kNeighbors)
+    bool computeMeanNeighborDistance(EmbeddedScan& scan, const glm::dvec3& globalPoint, const ClippingAssembly& clippingAssembly, size_t kNeighbors, double initialRadius, double maxRadius, double& meanDistance)
     {
-        if (points.size() <= 1)
-            return 0.0;
+        if (kNeighbors == 0)
+            return false;
 
-        size_t target = std::min(kNeighbors, points.size() - 1);
-        std::vector<double> nearest;
-        nearest.reserve(target);
-
-        const PointXYZIRGB& base = points[index];
-        for (size_t j = 0; j < points.size(); ++j)
+        std::vector<glm::dvec3> neighbors;
+        double radius = initialRadius;
+        while (radius <= maxRadius)
         {
-            if (j == index)
-                continue;
-
-            double dx = static_cast<double>(base.x - points[j].x);
-            double dy = static_cast<double>(base.y - points[j].y);
-            double dz = static_cast<double>(base.z - points[j].z);
-            double dist = sqrt(dx * dx + dy * dy + dz * dz);
-
-            if (nearest.size() < target)
-            {
-                nearest.push_back(dist);
-            }
-            else
-            {
-                auto maxIt = std::max_element(nearest.begin(), nearest.end());
-                if (dist < *maxIt)
-                    *maxIt = dist;
-            }
+            neighbors.clear();
+            scan.findNeighbors(globalPoint, radius, neighbors, clippingAssembly);
+            if (neighbors.size() > 1 && neighbors.size() >= kNeighbors + 1)
+                break;
+            radius *= 2.0;
         }
 
-        if (nearest.empty())
-            return 0.0;
+        if (neighbors.empty())
+            return false;
+
+        std::vector<double> distances;
+        distances.reserve(neighbors.size());
+        for (const glm::dvec3& neighbor : neighbors)
+        {
+            double dist = glm::length(globalPoint - neighbor);
+            if (dist > 0.0)
+                distances.push_back(dist);
+        }
+
+        if (distances.empty())
+            return false;
+
+        size_t target = std::min(kNeighbors, distances.size());
+        std::nth_element(distances.begin(), distances.begin() + static_cast<long>(target - 1), distances.end());
+        distances.resize(target);
 
         double sum = 0.0;
-        for (double value : nearest)
+        for (double value : distances)
             sum += value;
-        return sum / static_cast<double>(nearest.size());
+        meanDistance = sum / static_cast<double>(distances.size());
+        return true;
     }
 }
 
@@ -365,10 +366,14 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
             points.swap(pointsClipped);
         }
 
+        double initialRadius = m_vTreeCells[cell.first].m_size * 0.5;
+        double maxRadius = m_vTreeCells[cell.first].m_size * 8.0;
         for (size_t i = 0; i < points.size(); ++i)
         {
-            double meanDistance = computeMeanNeighborDistance(points, i, neighborCount);
-            running.add(meanDistance);
+            const glm::dvec3 globalPoint = getGlobalCoord(glm::dvec3(points[i].x, points[i].y, points[i].z));
+            double meanDistance = 0.0;
+            if (computeMeanNeighborDistance(*this, globalPoint, localAssembly, neighborCount, initialRadius, maxRadius, meanDistance))
+                running.add(meanDistance);
         }
     }
 
@@ -411,9 +416,18 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
         std::vector<PointXYZIRGB> filtered;
         filtered.reserve(points.size());
 
+        double initialRadius = m_vTreeCells[cell.first].m_size * 0.5;
+        double maxRadius = m_vTreeCells[cell.first].m_size * 8.0;
         for (size_t i = 0; i < points.size(); ++i)
         {
-            double meanDistance = computeMeanNeighborDistance(points, i, neighborCount);
+            const glm::dvec3 globalPoint = getGlobalCoord(glm::dvec3(points[i].x, points[i].y, points[i].z));
+            double meanDistance = 0.0;
+            if (!computeMeanNeighborDistance(*this, globalPoint, localAssembly, neighborCount, initialRadius, maxRadius, meanDistance))
+            {
+                filtered.push_back(points[i]);
+                continue;
+            }
+
             if (meanDistance <= threshold || stats.count == 0)
                 filtered.push_back(points[i]);
         }
