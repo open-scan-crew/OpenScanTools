@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>270</width>
+    <width>640</width>
     <height>127</height>
    </rect>
   </property>
@@ -32,6 +32,319 @@
    <property name="verticalSpacing">
     <number>0</number>
    </property>
+   <item row="0" column="0">
+    <widget class="QGroupBox" name="groupBox_pointEdition">
+     <property name="title">
+      <string>Point edition</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_pointEdition">
+      <item row="0" column="0">
+       <widget class="QToolButton" name="toolButton_deleteClippedPoints">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>This will use the clipping to clean the point cloud.
+Warning: the points will be deleted so that the result will be as shown on the screen.
+It is recommended to activate the desired clippings before starting the cleaning.</string>
+        </property>
+        <property name="text">
+         <string>Clean point cloud</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../openscantools.qrc">
+          <normaloff>:/icons/100x100/delete_points.png</normaloff>:/icons/100x100/delete_points.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonTextBesideIcon</enum>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QGroupBox" name="groupBox_pointSmoothing">
+     <property name="title">
+      <string>Point smoothing</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_pointSmoothing">
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_smoothColumn1">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_smoothMaxDistance">
+          <item>
+           <widget class="QLabel" name="label_smoothMaxDistance">
+            <property name="text">
+             <string>Max. distance (mm)</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QDoubleSpinBox" name="doubleSpinBox_smoothMaxDistance">
+            <property name="toolTip">
+             <string>Maximum allowed displacement per point (mm). Prevents excessive deformation.</string>
+            </property>
+            <property name="decimals">
+             <number>2</number>
+            </property>
+            <property name="minimum">
+             <double>0.00</double>
+            </property>
+            <property name="maximum">
+             <double>100.00</double>
+            </property>
+            <property name="singleStep">
+             <double>0.10</double>
+            </property>
+            <property name="value">
+             <double>0.50</double>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_smoothK">
+          <item>
+           <widget class="QLabel" name="label_smoothK">
+            <property name="text">
+             <string>k neighbors</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="comboBox_smoothK">
+            <property name="toolTip">
+             <string>Number of neighbors used to estimate local density.</string>
+            </property>
+            <item>
+             <property name="text">
+              <string>8</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>16</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>32</string>
+             </property>
+            </item>
+            <property name="currentIndex">
+             <number>1</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_smoothAlpha">
+          <item>
+           <widget class="QLabel" name="label_smoothAlpha">
+            <property name="text">
+             <string>Alpha (α)</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="comboBox_smoothAlpha">
+            <property name="toolTip">
+             <string>Adaptive radius = α × d̄ (d̄ = average distance to k neighbors).</string>
+            </property>
+            <item>
+             <property name="text">
+              <string>2.5</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>3.0</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>3.5</string>
+             </property>
+            </item>
+            <property name="currentIndex">
+             <number>1</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_smoothColumn2">
+        <item>
+         <widget class="QCheckBox" name="checkBox_smoothPlaneFilter">
+          <property name="toolTip">
+           <string>Rejects neighbors too far from the local plane (preserves edges).</string>
+          </property>
+          <property name="text">
+           <string>Enable local plane filter</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_smoothPlaneDistance">
+          <item>
+           <widget class="QLabel" name="label_smoothPlaneDistFactor">
+            <property name="text">
+             <string>Plane distance limit</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QDoubleSpinBox" name="doubleSpinBox_smoothPlaneDistFactor">
+            <property name="toolTip">
+             <string>Max distance to local plane, expressed as a factor of d̄ (e.g. 0.5 × d̄).</string>
+            </property>
+            <property name="decimals">
+             <number>2</number>
+            </property>
+            <property name="minimum">
+             <double>0.10</double>
+            </property>
+            <property name="maximum">
+             <double>2.00</double>
+            </property>
+            <property name="singleStep">
+             <double>0.10</double>
+            </property>
+            <property name="value">
+             <double>0.50</double>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_smoothColumn3">
+        <item>
+         <widget class="QCheckBox" name="checkBox_smoothNormalFilter">
+          <property name="toolTip">
+           <string>Computes a local normal and rejects neighbors with diverging orientation.</string>
+          </property>
+          <property name="text">
+           <string>Enable normal filter</string>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_smoothNormalAngle">
+          <item>
+           <widget class="QLabel" name="label_smoothNormalAngle">
+            <property name="text">
+             <string>Normal angle limit (°)</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="comboBox_smoothNormalAngle">
+            <property name="toolTip">
+             <string>Maximum angle between local normals. Lower values are more strict.</string>
+            </property>
+            <item>
+             <property name="text">
+              <string>10</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>15</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>20</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>25</string>
+             </property>
+            </item>
+            <property name="currentIndex">
+             <number>2</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_smoothKeepPercent">
+          <item>
+           <widget class="QLabel" name="label_smoothKeepPercent">
+            <property name="text">
+             <string>Keep best neighbors (%)</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="spinBox_smoothKeepPercent">
+            <property name="toolTip">
+             <string>Keeps only the most coherent neighbors (distance/angle).</string>
+            </property>
+            <property name="minimum">
+             <number>60</number>
+            </property>
+            <property name="maximum">
+             <number>100</number>
+            </property>
+            <property name="value">
+             <number>80</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_smoothColumn4">
+        <item>
+         <widget class="QPushButton" name="pushButton_applySmooth">
+          <property name="toolTip">
+           <string>Apply smoothing and permanently modify TLS files.</string>
+          </property>
+          <property name="text">
+           <string>Smooth points</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
    <item row="2" column="0">
     <spacer name="verticalSpacer">
      <property name="orientation">
@@ -45,48 +358,20 @@
      </property>
     </spacer>
    </item>
-   <item row="0" column="0">
-    <widget class="QToolButton" name="toolButton_deleteClippedPoints">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="toolTip">
-      <string>This will use the clipping to clean the point cloud.
-Warning: the points will be deleted so that the result will be as shown on the screen.
-It is recommended to activate the desired clippings before starting the cleaning.</string>
-     </property>
-     <property name="text">
-      <string>Clean point cloud</string>
-     </property>
-     <property name="icon">
-      <iconset resource="../../../openscantools.qrc">
-       <normaloff>:/icons/100x100/delete_points.png</normaloff>:/icons/100x100/delete_points.png</iconset>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>20</width>
-       <height>20</height>
-      </size>
-     </property>
-     <property name="toolButtonStyle">
-      <enum>Qt::ToolButtonTextBesideIcon</enum>
-     </property>
-     <property name="autoRaise">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
   <tabstop>toolButton_deleteClippedPoints</tabstop>
+  <tabstop>doubleSpinBox_smoothMaxDistance</tabstop>
+  <tabstop>comboBox_smoothK</tabstop>
+  <tabstop>comboBox_smoothAlpha</tabstop>
+  <tabstop>checkBox_smoothPlaneFilter</tabstop>
+  <tabstop>doubleSpinBox_smoothPlaneDistFactor</tabstop>
+  <tabstop>checkBox_smoothNormalFilter</tabstop>
+  <tabstop>comboBox_smoothNormalAngle</tabstop>
+  <tabstop>spinBox_smoothKeepPercent</tabstop>
+  <tabstop>pushButton_applySmooth</tabstop>
  </tabstops>
  <resources>
   <include location="../../../openscantools.qrc"/>

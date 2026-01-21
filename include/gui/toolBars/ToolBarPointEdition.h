@@ -21,6 +21,8 @@ private:
 
 public slots:
     void slotDeleteClippedPoints();
+    void slotPlaneFilterToggled(bool checked);
+    void slotNormalFilterToggled(bool checked);
 
 private:
     IDataDispatcher &m_dataDispatcher;

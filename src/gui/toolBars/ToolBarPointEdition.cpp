@@ -12,6 +12,12 @@ ToolBarPointEdition::ToolBarPointEdition(IDataDispatcher &dataDispatcher, QWidge
     m_ui.toolButton_deleteClippedPoints->setIconSize(QSize(20, 20) * guiScale);
 
     QObject::connect(m_ui.toolButton_deleteClippedPoints, &QToolButton::released, this, &ToolBarPointEdition::slotDeleteClippedPoints);
+    QObject::connect(m_ui.checkBox_smoothPlaneFilter, &QCheckBox::toggled, this, &ToolBarPointEdition::slotPlaneFilterToggled);
+    QObject::connect(m_ui.checkBox_smoothNormalFilter, &QCheckBox::toggled, this, &ToolBarPointEdition::slotNormalFilterToggled);
+
+    // Keep the parameter controls aligned with the active smoothing filters.
+    slotPlaneFilterToggled(m_ui.checkBox_smoothPlaneFilter->isChecked());
+    slotNormalFilterToggled(m_ui.checkBox_smoothNormalFilter->isChecked());
 
     m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);
     m_guiDataFunctions.insert({ guiDType::projectLoaded, &ToolBarPointEdition::onProjectLoad });
@@ -42,4 +48,14 @@ void ToolBarPointEdition::onProjectLoad(IGuiData * data)
 void ToolBarPointEdition::slotDeleteClippedPoints()
 {
     m_dataDispatcher.sendControl(new control::exportPC::StartDeletePoints());
+}
+
+void ToolBarPointEdition::slotPlaneFilterToggled(bool checked)
+{
+    m_ui.doubleSpinBox_smoothPlaneDistFactor->setEnabled(checked);
+}
+
+void ToolBarPointEdition::slotNormalFilterToggled(bool checked)
+{
+    m_ui.comboBox_smoothNormalAngle->setEnabled(checked);
 }
