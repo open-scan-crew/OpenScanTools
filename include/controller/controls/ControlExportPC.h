@@ -31,6 +31,22 @@ namespace control
             void undoFunction(Controller& controller) override;
             ControlType getType() const override;
         };
+
+        class StartSmoothPointCloud : public AControl
+        {
+        public:
+            StartSmoothPointCloud(double maxDisplacementMm, double voxelSizeMm, bool adaptiveVoxel, bool preserveEdges);
+            ~StartSmoothPointCloud();
+            void doFunction(Controller& controller) override;
+            bool canUndo() const override;
+            void undoFunction(Controller& controller) override;
+            ControlType getType() const override;
+        private:
+            double m_maxDisplacementMm;
+            double m_voxelSizeMm;
+            bool m_adaptiveVoxel;
+            bool m_preserveEdges;
+        };
     }
 }
 

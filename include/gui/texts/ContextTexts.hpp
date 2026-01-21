@@ -99,6 +99,10 @@
 #define TEXT_DELETE_POINTS_QUESTION QObject::tr("Warning: points will be permanently deleted. This action cannot be undone.\nDo you confirm?")
 #define TEXT_DELETE_SAVE_BEFORE_QUESTION QObject::tr("It is recommended to save the project before deleting points. Do you want to save now?")
 
+//ContextSmoothPointCloud
+#define TEXT_SMOOTH_POINTS_QUESTION QObject::tr("Warning: points will be permanently moved. This action cannot be undone.\nDo you confirm?")
+#define TEXT_SMOOTH_SAVE_BEFORE_QUESTION QObject::tr("It is recommended to save the project before smoothing points. Do you want to save now?")
+
 //ContextDeleteTags
 #define TEXT_DELETE_TAGS_QUESTION QObject::tr("Warning: some tags use this template. Deleting the template will also delete the related tags.\nDo you confirm?")
 

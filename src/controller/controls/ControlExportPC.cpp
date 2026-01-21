@@ -1,6 +1,7 @@
 #include "controller/controls/ControlExportPC.h"
 #include "controller/Controller.h"
 #include "controller/functionSystem/FunctionManager.h"
+#include "controller/messages/SmoothPointCloudMessage.h"
 
 
 namespace control
@@ -66,6 +67,41 @@ namespace control
         ControlType StartDeletePoints::getType() const
         {
             return (ControlType::startDeletePoints);
+        }
+
+        // ***************************
+        //     StartSmoothPointCloud    *
+        // ***************************
+
+        StartSmoothPointCloud::StartSmoothPointCloud(double maxDisplacementMm, double voxelSizeMm, bool adaptiveVoxel, bool preserveEdges)
+            : m_maxDisplacementMm(maxDisplacementMm)
+            , m_voxelSizeMm(voxelSizeMm)
+            , m_adaptiveVoxel(adaptiveVoxel)
+            , m_preserveEdges(preserveEdges)
+        {}
+
+        StartSmoothPointCloud::~StartSmoothPointCloud()
+        {}
+
+        void StartSmoothPointCloud::doFunction(Controller& controller)
+        {
+            controller.getFunctionManager().launchFunction(controller, ContextType::smoothPointCloud);
+            SmoothPointCloudMessage message(m_maxDisplacementMm, m_voxelSizeMm, m_adaptiveVoxel, m_preserveEdges);
+            controller.getFunctionManager().feedMessage(controller, &message);
+        }
+
+        bool StartSmoothPointCloud::canUndo() const
+        {
+            return (false);
+        }
+
+        void StartSmoothPointCloud::undoFunction(Controller& controller)
+        {
+        }
+
+        ControlType StartSmoothPointCloud::getType() const
+        {
+            return (ControlType::startSmoothPointCloud);
         }
     }
 }
