@@ -21,6 +21,7 @@ private:
 
 public slots:
     void slotDeleteClippedPoints();
+    void slotStatisticalOutlierFilter();
 
 private:
     IDataDispatcher &m_dataDispatcher;
