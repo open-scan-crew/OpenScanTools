@@ -43,7 +43,7 @@ public:
     float          m_transparency = 10.f; // [0.0, 100.0]
 
     // Post processing
-    PostRenderingNormals    m_postRenderingNormals = { true, false, true, 0.5f, 1.f };
+    PostRenderingNormals    m_postRenderingNormals = { true, false, true, 0.4f, 1.f };
     PostRenderingAmbientOcclusion m_postRenderingAmbientOcclusion = {};
     EdgeAwareBlur           m_edgeAwareBlur = {};
     DepthLining             m_depthLining = {};

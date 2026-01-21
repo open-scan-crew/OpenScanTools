@@ -81,9 +81,9 @@ struct PostRenderingNormals
 
 struct PostRenderingAmbientOcclusion
 {
-    bool enabled = false;
-    float radius = 16.0f;
-    float intensity = 0.5f;
+    bool enabled = true;
+    float radius = 9.6f;
+    float intensity = 0.4f;
 };
 
 struct EdgeAwareBlur
