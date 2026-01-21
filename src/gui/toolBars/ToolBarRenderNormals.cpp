@@ -38,6 +38,7 @@ ToolBarRenderNormals::ToolBarRenderNormals(IDataDispatcher& dataDispatcher, QWid
 	m_ui.slider_normalStrength->setEnabled(false);
 	m_ui.doubleSpinBox_sharpness->setEnabled(false);
 	m_ui.checkBox_blendColor->setEnabled(true);
+	m_ui.checkBox_ao->setChecked(true);
 	m_ui.aoSizeSlider->setRange(0, kAoSliderMax);
 	m_ui.aoIntensitySlider->setRange(0, kAoSliderMax);
 
@@ -57,10 +58,10 @@ ToolBarRenderNormals::ToolBarRenderNormals(IDataDispatcher& dataDispatcher, QWid
 	connect(m_ui.aoSizeSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ToolBarRenderNormals::slotAmbientOcclusionChanged);
 	connect(m_ui.aoIntensitySpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ToolBarRenderNormals::slotAmbientOcclusionChanged);
 
-	m_ui.spinBox_normalStrength->setValue(50);
+	m_ui.spinBox_normalStrength->setValue(40);
 	m_ui.doubleSpinBox_sharpness->setValue(1.0);
-	m_ui.aoSizeSpinBox->setValue(toNormalizedAoSize(16.0f));
-	m_ui.aoIntensitySpinBox->setValue(0.5);
+	m_ui.aoSizeSpinBox->setValue(toNormalizedAoSize(9.6f));
+	m_ui.aoIntensitySpinBox->setValue(0.4);
 	m_ui.aoSizeSlider->setValue(static_cast<int>(std::round(m_ui.aoSizeSpinBox->value() * kAoSliderMax)));
 	m_ui.aoIntensitySlider->setValue(static_cast<int>(std::round(m_ui.aoIntensitySpinBox->value() * kAoSliderMax)));
 	updateAmbientOcclusionUi(m_ui.checkBox_ao->isChecked());
