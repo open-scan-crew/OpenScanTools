@@ -597,6 +597,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\controller\functionSystem\ContextCylinderToCylinderMeasure.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextDataGeneration.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextDeletePoints.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextSmoothPoints.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextDeleteTag.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextCylinderToPlaneMeasure.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextCylinderToPlane3Measure.cpp" />
@@ -685,6 +686,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\controller\messages\ColorMessage.cpp" />
     <ClCompile Include="..\..\src\controller\messages\ConvertionMessage.cpp" />
     <ClCompile Include="..\..\src\controller\messages\DeletePointsMessage.cpp" />
+    <ClCompile Include="..\..\src\controller\messages\SmoothPointsMessage.cpp" />
     <ClCompile Include="..\..\src\controller\messages\FilesMessage.cpp" />
     <ClCompile Include="..\..\src\controller\messages\GeneralMessage.cpp" />
     <ClCompile Include="..\..\src\controller\messages\GridExportMessage.cpp" />
@@ -1272,6 +1274,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\controller\functionSystem\ContextCylinderToPlaneMeasure.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextDataGeneration.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextDeletePoints.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextSmoothPoints.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextDeleteTag.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextDuplicateTag.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextColumnTilt.h" />
@@ -1361,6 +1364,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\controller\messages\ColorMessage.h" />
     <ClInclude Include="..\..\include\controller\messages\DataIdListMessage.h" />
     <ClInclude Include="..\..\include\controller\messages\DeletePointsMessage.h" />
+    <ClInclude Include="..\..\include\controller\messages\SmoothPointsMessage.h" />
     <ClInclude Include="..\..\include\controller\messages\GeneralMessage.h" />
     <ClInclude Include="..\..\include\controller\messages\ImportMessage.h" />
     <ClInclude Include="..\..\include\controller\messages\ManipulateMessage.h" />
@@ -1765,6 +1769,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="..\..\include\pointCloudEngine\EmbeddedScan.h" />
+    <ClInclude Include="..\..\include\pointCloudEngine\SmoothPointsParameters.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\IRenderingEngine.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\NormalEstimation.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\RenderingEngine.h" />
