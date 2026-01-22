@@ -12,6 +12,7 @@ ToolBarPointEdition::ToolBarPointEdition(IDataDispatcher &dataDispatcher, QWidge
     m_ui.toolButton_deleteClippedPoints->setIconSize(QSize(20, 20) * guiScale);
 
     QObject::connect(m_ui.toolButton_deleteClippedPoints, &QToolButton::released, this, &ToolBarPointEdition::slotDeleteClippedPoints);
+    QObject::connect(m_ui.toolButton_statisticalOutlierFilter, &QToolButton::released, this, &ToolBarPointEdition::slotStatisticalOutlierFilter);
 
     m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);
     m_guiDataFunctions.insert({ guiDType::projectLoaded, &ToolBarPointEdition::onProjectLoad });
@@ -42,4 +43,9 @@ void ToolBarPointEdition::onProjectLoad(IGuiData * data)
 void ToolBarPointEdition::slotDeleteClippedPoints()
 {
     m_dataDispatcher.sendControl(new control::exportPC::StartDeletePoints());
+}
+
+void ToolBarPointEdition::slotStatisticalOutlierFilter()
+{
+    m_dataDispatcher.sendControl(new control::exportPC::StartStatisticalOutlierFilter());
 }
