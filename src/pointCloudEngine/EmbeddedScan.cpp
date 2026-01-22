@@ -405,13 +405,7 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
         std::vector<PointXYZIRGB> visiblePoints;
         if (cell.second)
         {
-            visiblePoints.reserve(points.size());
-            for (const PointXYZIRGB& point : points)
-            {
-                glm::dvec4 localPoint(point.x, point.y, point.z, 1.0);
-                if (localAssembly.testPoint(localPoint))
-                    visiblePoints.push_back(point);
-            }
+            clipIndividualPoints(points, visiblePoints, localAssembly);
         }
         else
         {
@@ -478,19 +472,9 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
             continue;
 
         std::vector<PointXYZIRGB> visiblePoints;
-        std::vector<PointXYZIRGB> maskedPoints;
         if (cell.second)
         {
-            visiblePoints.reserve(points.size());
-            maskedPoints.reserve(points.size());
-            for (const PointXYZIRGB& point : points)
-            {
-                glm::dvec4 localPoint(point.x, point.y, point.z, 1.0);
-                if (localAssembly.testPoint(localPoint))
-                    visiblePoints.push_back(point);
-                else
-                    maskedPoints.push_back(point);
-            }
+            clipIndividualPoints(points, visiblePoints, localAssembly);
         }
         else
         {
@@ -498,12 +482,10 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
         }
 
         std::vector<PointXYZIRGB> filtered;
-        filtered.reserve(visiblePoints.size() + maskedPoints.size());
+        filtered.reserve(visiblePoints.size());
 
         if (visiblePoints.empty())
         {
-            filtered.insert(filtered.end(), maskedPoints.begin(), maskedPoints.end());
-            resultOk &= writer->mergePoints(filtered.data(), filtered.size(), src_transfo, pt_format_);
             continue;
         }
 
@@ -539,9 +521,7 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
                 filtered.push_back(visiblePoints[i]);
         }
 
-        size_t filteredVisibleCount = filtered.size();
-        filtered.insert(filtered.end(), maskedPoints.begin(), maskedPoints.end());
-        removedPoints += visiblePoints.size() - filteredVisibleCount;
+        removedPoints += visiblePoints.size() - filtered.size();
         resultOk &= writer->mergePoints(filtered.data(), filtered.size(), src_transfo, pt_format_);
     }
 
