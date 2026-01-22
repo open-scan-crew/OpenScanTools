@@ -117,6 +117,16 @@
     </layout>
    </item>
    <item>
+    <widget class="QCheckBox" name="checkBox_openFolderAfterExport">
+     <property name="text">
+      <string>Open folder after export</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_buttons">
      <item>
       <spacer name="horizontalSpacer">

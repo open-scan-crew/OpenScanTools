@@ -6,6 +6,7 @@
 #include "controller/messages/ModalMessage.h"
 #include "controller/messages/StatisticalOutlierFilterMessage.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
+#include "gui/GuiData/GuiDataIO.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ContextTexts.hpp"
 #include "gui/texts/ExportTexts.hpp"
@@ -120,6 +121,7 @@ ContextState ContextStatisticalOutlierFilter::feedMessage(IMessage* message, Con
         m_nSigma = decodedMsg->nSigma;
         m_globalFiltering = decodedMsg->mode == OutlierFilterMode::Global;
         m_outputFolder = decodedMsg->outputFolder;
+        m_openFolderAfterExport = decodedMsg->openFolderAfterExport;
 
         m_warningModal = true;
         controller.updateInfo(new GuiDataModal(Yes | No, TEXT_STAT_OUTLIER_FILTER_QUESTION));
@@ -233,6 +235,9 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
 
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Total points deleted: %1").arg(total_deleted_points)));
     controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));
+
+    if (m_openFolderAfterExport)
+        controller.updateInfo(new GuiDataOpenInExplorer(m_outputFolder));
 
     m_state = ContextState::done;
     return (m_state);

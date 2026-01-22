@@ -17,9 +17,13 @@ DialogStatisticalOutlierFilter::DialogStatisticalOutlierFilter(IDataDispatcher& 
 
     connect(m_ui.toolButton_folder, &QToolButton::released, this, [this]()
     {
-        QString folderPath = QFileDialog::getExistingDirectory(this, tr("Open Directory"), m_openPath, QFileDialog::ShowDirsOnly);
+        QString initialPath = m_ui.lineEdit_folder->text().isEmpty() ? m_openPath : m_ui.lineEdit_folder->text();
+        QString folderPath = QFileDialog::getExistingDirectory(this, tr("Open Directory"), initialPath, QFileDialog::ShowDirsOnly);
         if (!folderPath.isEmpty())
+        {
             m_ui.lineEdit_folder->setText(folderPath);
+            m_openPath = folderPath;
+        }
     });
     connect(m_ui.pushButton_ok, &QPushButton::clicked, this, &DialogStatisticalOutlierFilter::startFiltering);
     connect(m_ui.pushButton_cancel, &QPushButton::clicked, this, &DialogStatisticalOutlierFilter::cancelFiltering);
@@ -37,6 +41,7 @@ DialogStatisticalOutlierFilter::DialogStatisticalOutlierFilter(IDataDispatcher& 
 
     m_openPath = QStandardPaths::locate(QStandardPaths::DocumentsLocation, QString(), QStandardPaths::LocateDirectory);
     m_dataDispatcher.registerObserverOnKey(this, guiDType::statisticalOutlierFilterDialogDisplay);
+    m_dataDispatcher.registerObserverOnKey(this, guiDType::projectPath);
     adjustSize();
 }
 
@@ -52,6 +57,12 @@ void DialogStatisticalOutlierFilter::informData(IGuiData* data)
     case guiDType::statisticalOutlierFilterDialogDisplay:
         refreshUI();
         break;
+    case guiDType::projectPath:
+    {
+        auto dataType = static_cast<GuiDataProjectPath*>(data);
+        m_openPath = QString::fromStdWString(dataType->m_path.wstring());
+    }
+    break;
     default:
         break;
     }
@@ -69,7 +80,8 @@ void DialogStatisticalOutlierFilter::startFiltering()
     int kNeighbors = m_ui.spinBox_kNeighbors->value();
     double nSigma = m_ui.doubleSpinBox_nSigma->value();
 
-    m_dataDispatcher.sendControl(new control::function::ForwardMessage(new StatisticalOutlierFilterMessage(kNeighbors, nSigma, m_mode, m_outputFolder)));
+    bool openFolder = m_ui.checkBox_openFolderAfterExport->isChecked();
+    m_dataDispatcher.sendControl(new control::function::ForwardMessage(new StatisticalOutlierFilterMessage(kNeighbors, nSigma, m_mode, m_outputFolder, openFolder)));
 
     hide();
 }

@@ -29,6 +29,7 @@ private:
     double m_nSigma = 1.0;
     xg::Guid m_panoramic;
     std::filesystem::path m_outputFolder;
+    bool m_openFolderAfterExport = true;
 };
 
 #endif
