@@ -67,5 +67,34 @@ namespace control
         {
             return (ControlType::startDeletePoints);
         }
+
+        // ***************************
+        // StartStatisticalOutlierFilter
+        // ***************************
+
+        StartStatisticalOutlierFilter::StartStatisticalOutlierFilter()
+        {}
+
+        StartStatisticalOutlierFilter::~StartStatisticalOutlierFilter()
+        {}
+
+        void StartStatisticalOutlierFilter::doFunction(Controller& controller)
+        {
+            controller.getFunctionManager().launchFunction(controller, ContextType::statisticalOutlierFilter);
+        }
+
+        bool StartStatisticalOutlierFilter::canUndo() const
+        {
+            return (false);
+        }
+
+        void StartStatisticalOutlierFilter::undoFunction(Controller& controller)
+        {
+        }
+
+        ControlType StartStatisticalOutlierFilter::getType() const
+        {
+            return (ControlType::startStatisticalOutlierFilter);
+        }
     }
 }
