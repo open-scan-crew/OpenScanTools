@@ -6,9 +6,12 @@
 
 #include "tls_impl.h"
 
+#include <algorithm>
+#include <cmath>
 #include <chrono>
 #include <future>
 #include <set>
+#include <unordered_map>
 #ifndef PORTABLE
 #include "io/exports/IScanFileWriter.h"
 #endif
@@ -266,6 +269,264 @@ bool EmbeddedScan::clipAndWrite(const TransformationModule& src_transfo, const C
         merge_time_ += std::chrono::duration<float, std::ratio<1>>(tp_2 - tp_1).count();
     }
     return (resultOk);
+}
+
+namespace
+{
+    struct RunningStats
+    {
+        uint64_t count = 0;
+        double mean = 0.0;
+        double m2 = 0.0;
+
+        void add(double value)
+        {
+            count++;
+            double delta = value - mean;
+            mean += delta / static_cast<double>(count);
+            double delta2 = value - mean;
+            m2 += delta * delta2;
+        }
+
+        double stddev() const
+        {
+            if (count < 2)
+                return 0.0;
+            double variance = m2 / static_cast<double>(count - 1);
+            return sqrt(variance);
+        }
+    };
+
+    struct GridIndex
+    {
+        int x;
+        int y;
+        int z;
+    };
+
+    int64_t packGridIndex(const GridIndex& index)
+    {
+        return (static_cast<int64_t>(index.x) << 42) ^ (static_cast<int64_t>(index.y) << 21) ^ static_cast<int64_t>(index.z);
+    }
+
+    GridIndex computeGridIndex(const glm::dvec3& point, const glm::dvec3& origin, double voxelSize)
+    {
+        return GridIndex{
+            static_cast<int>(std::floor((point.x - origin.x) / voxelSize)),
+            static_cast<int>(std::floor((point.y - origin.y) / voxelSize)),
+            static_cast<int>(std::floor((point.z - origin.z) / voxelSize))
+        };
+    }
+
+    bool computeMeanNeighborDistanceGrid(const std::vector<glm::dvec3>& points, const std::unordered_map<int64_t, std::vector<size_t>>& grid, const glm::dvec3& origin, double voxelSize, size_t index, size_t kNeighbors, double maxRadius, double& meanDistance)
+    {
+        if (kNeighbors == 0 || points.empty())
+            return false;
+
+        const glm::dvec3& base = points[index];
+        GridIndex baseIndex = computeGridIndex(base, origin, voxelSize);
+        int ring = 0;
+        std::vector<size_t> candidateIndices;
+
+        while (ring * voxelSize <= maxRadius)
+        {
+            candidateIndices.clear();
+            for (int dx = -ring; dx <= ring; ++dx)
+            {
+                for (int dy = -ring; dy <= ring; ++dy)
+                {
+                    for (int dz = -ring; dz <= ring; ++dz)
+                    {
+                        GridIndex query{ baseIndex.x + dx, baseIndex.y + dy, baseIndex.z + dz };
+                        int64_t key = packGridIndex(query);
+                        auto it = grid.find(key);
+                        if (it == grid.end())
+                            continue;
+                        candidateIndices.insert(candidateIndices.end(), it->second.begin(), it->second.end());
+                    }
+                }
+            }
+
+            if (candidateIndices.size() > kNeighbors)
+                break;
+            ring++;
+        }
+
+        if (candidateIndices.empty())
+            return false;
+
+        std::vector<double> distances;
+        distances.reserve(candidateIndices.size());
+        for (size_t candidate : candidateIndices)
+        {
+            if (candidate == index)
+                continue;
+            double dist = glm::length(base - points[candidate]);
+            if (dist > 0.0)
+                distances.push_back(dist);
+        }
+
+        if (distances.empty())
+            return false;
+
+        size_t target = std::min(kNeighbors, distances.size());
+        std::nth_element(distances.begin(), distances.begin() + static_cast<long>(target - 1), distances.end());
+        distances.resize(target);
+
+        double sum = 0.0;
+        for (double value : distances)
+            sum += value;
+        meanDistance = sum / static_cast<double>(distances.size());
+        return true;
+    }
+}
+
+bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, int samplingPercent, double beta, OutlierStats& stats)
+{
+    ClippingAssembly localAssembly = clippingAssembly;
+    localAssembly.clearMatrix();
+    glm::dmat4 src_transfo_mat = src_transfo.getTransformation();
+    localAssembly.addTransformation(src_transfo_mat);
+
+    std::vector<std::pair<uint32_t, bool>> cells;
+    getClippedCells_impl(m_uRootCell, localAssembly, cells);
+
+    RunningStats running;
+    const size_t neighborCount = std::max(1, kNeighbors);
+    const double samplingValue = std::clamp(static_cast<double>(samplingPercent), 1.0, 100.0);
+    const size_t sampleStep = std::max<size_t>(1, static_cast<size_t>(std::round(100.0 / samplingValue)));
+
+    for (const std::pair<uint32_t, bool>& cell : cells)
+    {
+        std::vector<PointXYZIRGB> points;
+        points.resize(tls_point_cloud_.getCellPointCount(cell.first));
+        if (!tls_point_cloud_.getCellPoints(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+            continue;
+
+        std::vector<PointXYZIRGB> visiblePoints;
+        if (cell.second)
+        {
+            clipIndividualPoints(points, visiblePoints, localAssembly);
+        }
+        else
+        {
+            visiblePoints.swap(points);
+        }
+
+        if (visiblePoints.empty())
+            continue;
+
+        glm::dvec3 cellOrigin(m_vTreeCells[cell.first].m_position[0], m_vTreeCells[cell.first].m_position[1], m_vTreeCells[cell.first].m_position[2]);
+        double cellSize = m_vTreeCells[cell.first].m_size;
+        double avgSpacing = std::cbrt((cellSize * cellSize * cellSize) / std::max<size_t>(visiblePoints.size(), 1));
+        double voxelSize = std::max(cellSize / 128.0, avgSpacing * 2.0);
+        double maxRadius = std::clamp(beta * avgSpacing, cellSize / 8.0, cellSize);
+
+        std::vector<glm::dvec3> localPoints;
+        localPoints.reserve(visiblePoints.size());
+        for (const PointXYZIRGB& point : visiblePoints)
+            localPoints.emplace_back(point.x, point.y, point.z);
+
+        std::unordered_map<int64_t, std::vector<size_t>> grid;
+        grid.reserve(localPoints.size());
+        for (size_t i = 0; i < localPoints.size(); ++i)
+        {
+            GridIndex index = computeGridIndex(localPoints[i], cellOrigin, voxelSize);
+            grid[packGridIndex(index)].push_back(i);
+        }
+
+        for (size_t i = 0; i < localPoints.size(); i += sampleStep)
+        {
+            double meanDistance = 0.0;
+            if (computeMeanNeighborDistanceGrid(localPoints, grid, cellOrigin, voxelSize, i, neighborCount, maxRadius, meanDistance))
+                running.add(meanDistance);
+        }
+    }
+
+    stats.count = running.count;
+    stats.mean = running.mean;
+    stats.stddev = running.stddev();
+
+    return true;
+}
+
+bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* writer, uint64_t& removedPoints)
+{
+    ClippingAssembly localAssembly = clippingAssembly;
+    localAssembly.clearMatrix();
+    glm::dmat4 src_transfo_mat = src_transfo.getTransformation();
+    localAssembly.addTransformation(src_transfo_mat);
+
+    std::vector<std::pair<uint32_t, bool>> cells;
+    getClippedCells_impl(m_uRootCell, localAssembly, cells);
+
+    const size_t neighborCount = std::max(1, kNeighbors);
+    double threshold = stats.mean + nSigma * stats.stddev;
+    bool resultOk = true;
+    removedPoints = 0;
+
+    for (const std::pair<uint32_t, bool>& cell : cells)
+    {
+        std::vector<PointXYZIRGB> points;
+        points.resize(tls_point_cloud_.getCellPointCount(cell.first));
+        if (!tls_point_cloud_.getCellPoints(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+            continue;
+
+        std::vector<PointXYZIRGB> visiblePoints;
+        if (cell.second)
+        {
+            clipIndividualPoints(points, visiblePoints, localAssembly);
+        }
+        else
+        {
+            visiblePoints.swap(points);
+        }
+
+        std::vector<PointXYZIRGB> filtered;
+        filtered.reserve(visiblePoints.size());
+
+        if (visiblePoints.empty())
+        {
+            continue;
+        }
+
+        glm::dvec3 cellOrigin(m_vTreeCells[cell.first].m_position[0], m_vTreeCells[cell.first].m_position[1], m_vTreeCells[cell.first].m_position[2]);
+        double cellSize = m_vTreeCells[cell.first].m_size;
+        double avgSpacing = std::cbrt((cellSize * cellSize * cellSize) / std::max<size_t>(visiblePoints.size(), 1));
+        double voxelSize = std::max(cellSize / 128.0, avgSpacing * 2.0);
+        double maxRadius = std::clamp(beta * avgSpacing, cellSize / 8.0, cellSize);
+
+        std::vector<glm::dvec3> localPoints;
+        localPoints.reserve(visiblePoints.size());
+        for (const PointXYZIRGB& point : visiblePoints)
+            localPoints.emplace_back(point.x, point.y, point.z);
+
+        std::unordered_map<int64_t, std::vector<size_t>> grid;
+        grid.reserve(localPoints.size());
+        for (size_t i = 0; i < localPoints.size(); ++i)
+        {
+            GridIndex index = computeGridIndex(localPoints[i], cellOrigin, voxelSize);
+            grid[packGridIndex(index)].push_back(i);
+        }
+
+        for (size_t i = 0; i < localPoints.size(); ++i)
+        {
+            double meanDistance = 0.0;
+            if (!computeMeanNeighborDistanceGrid(localPoints, grid, cellOrigin, voxelSize, i, neighborCount, maxRadius, meanDistance))
+            {
+                filtered.push_back(visiblePoints[i]);
+                continue;
+            }
+
+            if (meanDistance <= threshold || stats.count == 0)
+                filtered.push_back(visiblePoints[i]);
+        }
+
+        removedPoints += visiblePoints.size() - filtered.size();
+        resultOk &= writer->mergePoints(filtered.data(), filtered.size(), src_transfo, pt_format_);
+    }
+
+    return resultOk;
 }
 
 void EmbeddedScan::logClipAndWriteTimings()
