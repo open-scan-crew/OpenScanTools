@@ -25,6 +25,8 @@ private:
 
     Ui::DialogStatisticalOutlierFilter m_ui;
     OutlierFilterMode m_mode = OutlierFilterMode::Separate;
+    std::wstring m_outputFolder;
+    QString m_openPath;
 };
 
 #endif

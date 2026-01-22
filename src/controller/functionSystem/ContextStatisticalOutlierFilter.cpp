@@ -119,6 +119,7 @@ ContextState ContextStatisticalOutlierFilter::feedMessage(IMessage* message, Con
         m_kNeighbors = decodedMsg->kNeighbors;
         m_nSigma = decodedMsg->nSigma;
         m_globalFiltering = decodedMsg->mode == OutlierFilterMode::Global;
+        m_outputFolder = decodedMsg->outputFolder;
 
         m_warningModal = true;
         controller.updateInfo(new GuiDataModal(Yes | No, TEXT_STAT_OUTLIER_FILTER_QUESTION));
@@ -136,8 +137,11 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
 {
     GraphManager& graphManager = controller.getGraphManager();
 
-    std::filesystem::path temp_folder = controller.getContext().cgetProjectInternalInfo().getPointCloudFolderPath(false) / "temp";
-    prepareOutputDirectory(controller, temp_folder);
+    if (!prepareOutputDirectory(controller, m_outputFolder))
+    {
+        m_state = ContextState::abort;
+        return m_state;
+    }
 
     TlStreamLock streamLock;
 
@@ -193,16 +197,14 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         size_t initial_point_count = wScan->getNbPoint();
         uint64_t deleted_point_count = 0;
         std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
-        std::filesystem::path temp_path;
         tls::ScanGuid old_guid = wScan->getScanGuid();
-        tls::ScanGuid new_guid = old_guid;
 
         TlsFileWriter* tls_writer = nullptr;
         std::wstring log;
-        TlsFileWriter::getWriter(temp_folder, wScan->getName(), log, (IScanFileWriter**)&tls_writer);
+        std::wstring outputName = wScan->getName() + L"_SOF";
+        TlsFileWriter::getWriter(m_outputFolder, outputName, log, (IScanFileWriter**)&tls_writer);
         if (tls_writer == nullptr)
             continue;
-        temp_path = tls_writer->getFilePath();
         tls::ScanHeader header;
         TlScanOverseer::getInstance().getScanHeader(old_guid, header);
         header.guid = xg::newGuid();
@@ -217,32 +219,16 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         delete tls_writer;
 
         total_deleted_points += deleted_point_count;
-        res &= TlScanOverseer::getInstance().getScanGuid(temp_path, new_guid);
 
         scan_count++;
         float seconds = std::chrono::duration<float, std::ratio<1>>(std::chrono::steady_clock::now() - startTime).count();
         QString qScanName = QString::fromStdWString(wScan->getName());
         controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(scan_count).arg(scans.size()), scan_count));
 
-        if (new_guid != old_guid)
-        {
-            std::filesystem::path absolutePath = wScan->getTlsFilePath();
-            TlScanOverseer::getInstance().freeScan_async(old_guid, false);
-            wScan->setTlsFilePath(temp_path, false);
-            if (new_guid == xg::Guid())
-            {
-                controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Scan %1 totally deleted from project.").arg(qScanName)));
-            }
-            else
-            {
-                TlScanOverseer::getInstance().copyScanFile_async(new_guid, absolutePath, false, true, true);
-                controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("%1 points deleted in scan %2 in %3 seconds.").arg(deleted_point_count).arg(qScanName).arg(seconds)));
-            }
-        }
+        if (deleted_point_count > 0)
+            controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("%1 points deleted in scan %2 in %3 seconds.").arg(deleted_point_count).arg(qScanName).arg(seconds)));
         else
-        {
             controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Scan %1 not affected by outlier filter.").arg(qScanName)));
-        }
     }
 
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Total points deleted: %1").arg(total_deleted_points)));

@@ -1,9 +1,10 @@
 #include "controller/messages/StatisticalOutlierFilterMessage.h"
 
-StatisticalOutlierFilterMessage::StatisticalOutlierFilterMessage(int kNeighborsValue, double nSigmaValue, OutlierFilterMode modeValue)
+StatisticalOutlierFilterMessage::StatisticalOutlierFilterMessage(int kNeighborsValue, double nSigmaValue, OutlierFilterMode modeValue, const std::wstring& outputFolderValue)
     : kNeighbors(kNeighborsValue)
     , nSigma(nSigmaValue)
     , mode(modeValue)
+    , outputFolder(outputFolderValue)
 {}
 
 IMessage::MessageType StatisticalOutlierFilterMessage::getType() const
@@ -13,5 +14,5 @@ IMessage::MessageType StatisticalOutlierFilterMessage::getType() const
 
 IMessage* StatisticalOutlierFilterMessage::copy() const
 {
-    return new StatisticalOutlierFilterMessage(kNeighbors, nSigma, mode);
+    return new StatisticalOutlierFilterMessage(kNeighbors, nSigma, mode, outputFolder);
 }

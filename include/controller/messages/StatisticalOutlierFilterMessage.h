@@ -3,6 +3,8 @@
 
 #include "controller/messages/IMessage.h"
 
+#include <string>
+
 enum class OutlierFilterMode
 {
     Separate,
@@ -12,7 +14,7 @@ enum class OutlierFilterMode
 class StatisticalOutlierFilterMessage : public IMessage
 {
 public:
-    StatisticalOutlierFilterMessage(int kNeighbors, double nSigma, OutlierFilterMode mode);
+    StatisticalOutlierFilterMessage(int kNeighbors, double nSigma, OutlierFilterMode mode, const std::wstring& outputFolder);
     ~StatisticalOutlierFilterMessage() {}
 
     MessageType getType() const override;
@@ -21,6 +23,7 @@ public:
     int kNeighbors;
     double nSigma;
     OutlierFilterMode mode;
+    std::wstring outputFolder;
 };
 
 #endif

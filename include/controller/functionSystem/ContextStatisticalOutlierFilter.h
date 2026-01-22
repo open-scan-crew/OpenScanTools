@@ -28,6 +28,7 @@ private:
     int m_kNeighbors = 20;
     double m_nSigma = 1.0;
     xg::Guid m_panoramic;
+    std::filesystem::path m_outputFolder;
 };
 
 #endif

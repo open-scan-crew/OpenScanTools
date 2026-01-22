@@ -62,7 +62,7 @@
     </layout>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox_mode">
+   <widget class="QGroupBox" name="groupBox_mode">
      <property name="title">
       <string>Filtering mode</string>
      </property>
@@ -86,6 +86,35 @@
       </item>
      </layout>
     </widget>
+   </item>
+   <item>
+    <layout class="QGridLayout" name="gridLayout_folder">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_folder">
+       <property name="text">
+        <string>Folder</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="lineEdit_folder">
+       <property name="placeholderText">
+        <string>Enter output folder</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QToolButton" name="toolButton_folder">
+       <property name="text">
+        <string>Select Out Folder</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../openscantools.qrc">
+         <normaloff>:/icons/100x100/open_project.png</normaloff>:/icons/100x100/open_project.png</iconset>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_buttons">
@@ -120,6 +149,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../../openscantools.qrc"/>
+ </resources>
  <connections/>
 </ui>
