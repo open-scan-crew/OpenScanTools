@@ -283,6 +283,19 @@ guiDType GuiDataDeletePointsDialogDisplay::getType()
     return (guiDType::deletePointsDialogDisplay);
 }
 
+GuiDataStatisticalOutlierFilterDialogDisplay::GuiDataStatisticalOutlierFilterDialogDisplay()
+{
+}
+
+GuiDataStatisticalOutlierFilterDialogDisplay::~GuiDataStatisticalOutlierFilterDialogDisplay()
+{
+}
+
+guiDType GuiDataStatisticalOutlierFilterDialogDisplay::getType()
+{
+    return guiDType::statisticalOutlierFilterDialogDisplay;
+}
+
 //++++++ Global ColorPicker value +++++++
 
 GuiDataGlobalColorPickerValue::GuiDataGlobalColorPickerValue(const Color32& color, const bool& picked)

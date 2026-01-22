@@ -31,6 +31,17 @@ namespace control
             void undoFunction(Controller& controller) override;
             ControlType getType() const override;
         };
+
+        class StartStatisticalOutlierFilter : public AControl
+        {
+        public:
+            StartStatisticalOutlierFilter();
+            ~StartStatisticalOutlierFilter();
+            void doFunction(Controller& controller) override;
+            bool canUndo() const override;
+            void undoFunction(Controller& controller) override;
+            ControlType getType() const override;
+        };
     }
 }
 

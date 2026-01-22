@@ -151,10 +151,11 @@ enum class guiDType
 	showStateTree,
 	createAuthorTree,
 
-	conversionOptionsDisplay,
+    conversionOptionsDisplay,
 	conversionFilePaths,
     exportParametersDisplay,
     deletePointsDialogDisplay,
+    statisticalOutlierFilterDialogDisplay,
 	pcoCreationParametersDisplay,
 
 	processingSplashScreenStart,
