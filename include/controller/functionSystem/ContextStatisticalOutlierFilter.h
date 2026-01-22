@@ -27,6 +27,8 @@ private:
     bool m_globalFiltering = false;
     int m_kNeighbors = 20;
     double m_nSigma = 1.0;
+    int m_samplingPercent = 2;
+    double m_beta = 4.0;
     xg::Guid m_panoramic;
     std::filesystem::path m_outputFolder;
     bool m_openFolderAfterExport = true;

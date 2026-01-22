@@ -119,6 +119,8 @@ ContextState ContextStatisticalOutlierFilter::feedMessage(IMessage* message, Con
         auto decodedMsg = static_cast<StatisticalOutlierFilterMessage*>(message);
         m_kNeighbors = decodedMsg->kNeighbors;
         m_nSigma = decodedMsg->nSigma;
+        m_samplingPercent = decodedMsg->samplingPercent;
+        m_beta = decodedMsg->beta;
         m_globalFiltering = decodedMsg->mode == OutlierFilterMode::Global;
         m_outputFolder = decodedMsg->outputFolder;
         m_openFolderAfterExport = decodedMsg->openFolderAfterExport;
@@ -174,7 +176,7 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
             }
 
             OutlierStats stats;
-            TlScanOverseer::getInstance().computeOutlierStats(wScan->getScanGuid(), (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, stats);
+            TlScanOverseer::getInstance().computeOutlierStats(wScan->getScanGuid(), (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, m_samplingPercent, m_beta, stats);
             runningStats.addStats(stats);
         }
         globalStats = runningStats.toStats();
@@ -214,9 +216,9 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
 
         OutlierStats statsToUse = globalStats;
         if (!m_globalFiltering)
-            TlScanOverseer::getInstance().computeOutlierStats(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, statsToUse);
+            TlScanOverseer::getInstance().computeOutlierStats(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, m_samplingPercent, m_beta, statsToUse);
 
-        bool res = TlScanOverseer::getInstance().filterOutliersAndWrite(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, statsToUse, m_nSigma, tls_writer, deleted_point_count);
+        bool res = TlScanOverseer::getInstance().filterOutliersAndWrite(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, statsToUse, m_nSigma, m_beta, tls_writer, deleted_point_count);
         res &= tls_writer->finalizePointCloud();
         delete tls_writer;
 

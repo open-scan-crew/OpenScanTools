@@ -389,7 +389,7 @@ bool TlScanOverseer::clipScan(tls::ScanGuid _scanGuid, const TransformationModul
     return scan->clipAndWrite(_modelMat, _clippingAssembly, _outScan);
 }
 
-bool TlScanOverseer::computeOutlierStats(tls::ScanGuid _scanGuid, const TransformationModule& _modelMat, const ClippingAssembly& _clippingAssembly, int kNeighbors, OutlierStats& stats)
+bool TlScanOverseer::computeOutlierStats(tls::ScanGuid _scanGuid, const TransformationModule& _modelMat, const ClippingAssembly& _clippingAssembly, int kNeighbors, int samplingPercent, double beta, OutlierStats& stats)
 {
     EmbeddedScan* scan;
     {
@@ -407,10 +407,10 @@ bool TlScanOverseer::computeOutlierStats(tls::ScanGuid _scanGuid, const Transfor
         }
     }
 
-    return scan->computeOutlierStats(_modelMat, _clippingAssembly, kNeighbors, stats);
+    return scan->computeOutlierStats(_modelMat, _clippingAssembly, kNeighbors, samplingPercent, beta, stats);
 }
 
-bool TlScanOverseer::filterOutliersAndWrite(tls::ScanGuid _scanGuid, const TransformationModule& _modelMat, const ClippingAssembly& _clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, IScanFileWriter* _outScan, uint64_t& removedPoints)
+bool TlScanOverseer::filterOutliersAndWrite(tls::ScanGuid _scanGuid, const TransformationModule& _modelMat, const ClippingAssembly& _clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* _outScan, uint64_t& removedPoints)
 {
     EmbeddedScan* scan;
     {
@@ -428,7 +428,7 @@ bool TlScanOverseer::filterOutliersAndWrite(tls::ScanGuid _scanGuid, const Trans
         }
     }
 
-    return scan->filterOutliersAndWrite(_modelMat, _clippingAssembly, kNeighbors, stats, nSigma, _outScan, removedPoints);
+    return scan->filterOutliersAndWrite(_modelMat, _clippingAssembly, kNeighbors, stats, nSigma, beta, _outScan, removedPoints);
 }
 
 //tls::ScanGuid TlScanOverseer::clipNewScan(tls::ScanGuid _scanGuid, const glm::dmat4& _modelMat, const ClippingAssembly& _clippingAssembly, const std::filesystem::path& _outPath, uint64_t& pointsDeletedCount)

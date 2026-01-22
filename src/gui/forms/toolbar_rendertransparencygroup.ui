@@ -109,6 +109,9 @@
    </item>
    <item row="1" column="2">
     <widget class="QRadioButton" name="advEnhanceContrastRadioButton">
+     <property name="toolTip">
+      <string>The advanced mode allows you to remove the white flash.</string>
+     </property>
      <property name="text">
       <string>Advanced</string>
      </property>

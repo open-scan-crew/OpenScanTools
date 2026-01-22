@@ -381,7 +381,7 @@ namespace
     }
 }
 
-bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, OutlierStats& stats)
+bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, int samplingPercent, double beta, OutlierStats& stats)
 {
     ClippingAssembly localAssembly = clippingAssembly;
     localAssembly.clearMatrix();
@@ -393,7 +393,8 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
 
     RunningStats running;
     const size_t neighborCount = std::max(1, kNeighbors);
-    const size_t sampleStep = 50;
+    const double samplingValue = std::clamp(static_cast<double>(samplingPercent), 1.0, 100.0);
+    const size_t sampleStep = std::max<size_t>(1, static_cast<size_t>(std::round(100.0 / samplingValue)));
 
     for (const std::pair<uint32_t, bool>& cell : cells)
     {
@@ -419,7 +420,7 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
         double cellSize = m_vTreeCells[cell.first].m_size;
         double avgSpacing = std::cbrt((cellSize * cellSize * cellSize) / std::max<size_t>(visiblePoints.size(), 1));
         double voxelSize = std::max(cellSize / 128.0, avgSpacing * 2.0);
-        double maxRadius = std::clamp(4.0 * avgSpacing, cellSize / 8.0, cellSize);
+        double maxRadius = std::clamp(beta * avgSpacing, cellSize / 8.0, cellSize);
 
         std::vector<glm::dvec3> localPoints;
         localPoints.reserve(visiblePoints.size());
@@ -449,7 +450,7 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
     return true;
 }
 
-bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, IScanFileWriter* writer, uint64_t& removedPoints)
+bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* writer, uint64_t& removedPoints)
 {
     ClippingAssembly localAssembly = clippingAssembly;
     localAssembly.clearMatrix();
@@ -493,7 +494,7 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
         double cellSize = m_vTreeCells[cell.first].m_size;
         double avgSpacing = std::cbrt((cellSize * cellSize * cellSize) / std::max<size_t>(visiblePoints.size(), 1));
         double voxelSize = std::max(cellSize / 128.0, avgSpacing * 2.0);
-        double maxRadius = std::clamp(4.0 * avgSpacing, cellSize / 8.0, cellSize);
+        double maxRadius = std::clamp(beta * avgSpacing, cellSize / 8.0, cellSize);
 
         std::vector<glm::dvec3> localPoints;
         localPoints.reserve(visiblePoints.size());

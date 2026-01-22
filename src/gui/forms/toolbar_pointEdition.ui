@@ -43,10 +43,14 @@
        <height>0</height>
       </size>
      </property>
-   </spacer>
+    </spacer>
    </item>
    <item row="1" column="0">
     <widget class="QToolButton" name="toolButton_statisticalOutlierFilter">
+     <property name="toolTip">
+      <string>This statistical outlier filter allows you to remove invalid points. The result will be exported to the folder of your choice.
+You can apply the filter to clipped scans.</string>
+     </property>
      <property name="text">
       <string>Stat outlier filter</string>
      </property>
@@ -95,7 +99,7 @@ It is recommended to activate the desired clippings before starting the cleaning
      </property>
     </widget>
    </item>
- </layout>
+  </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>

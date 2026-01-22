@@ -14,7 +14,7 @@ enum class OutlierFilterMode
 class StatisticalOutlierFilterMessage : public IMessage
 {
 public:
-    StatisticalOutlierFilterMessage(int kNeighbors, double nSigma, OutlierFilterMode mode, const std::wstring& outputFolder, bool openFolderAfterExport);
+    StatisticalOutlierFilterMessage(int kNeighbors, double nSigma, int samplingPercent, double beta, OutlierFilterMode mode, const std::wstring& outputFolder, bool openFolderAfterExport);
     ~StatisticalOutlierFilterMessage() {}
 
     MessageType getType() const override;
@@ -22,6 +22,8 @@ public:
 
     int kNeighbors;
     double nSigma;
+    int samplingPercent;
+    double beta;
     OutlierFilterMode mode;
     std::wstring outputFolder;
     bool openFolderAfterExport;
