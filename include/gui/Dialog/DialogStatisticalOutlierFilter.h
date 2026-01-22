@@ -20,11 +20,25 @@ private slots:
     void cancelFiltering();
 
 private:
+    enum class OutlierPreset
+    {
+        Low,
+        Mid,
+        High
+    };
+
     void translateUI();
     void refreshUI();
+    void applyPreset(OutlierPreset preset);
+    void syncUiFromValues();
 
     Ui::DialogStatisticalOutlierFilter m_ui;
     OutlierFilterMode m_mode = OutlierFilterMode::Separate;
+    OutlierPreset m_preset = OutlierPreset::Mid;
+    int m_kNeighbors = 20;
+    double m_nSigma = 1.0;
+    int m_samplingPercent = 2;
+    double m_beta = 4.0;
     std::wstring m_outputFolder;
     QString m_openPath;
 };
