@@ -483,12 +483,13 @@ void Renderer::createPointPipelineLayout()
     // rampMin     | 28     | 4
     // rampMax     | 32     | 4
     // rampSteps   | 36     | 4
+    // roundPoint  | 40     | 4
     // ptColor     | 48     | 12
     //-------------+---------------------------------
     VkPushConstantRange pcr[] =
     {
         {
-            VK_SHADER_STAGE_VERTEX_BIT,
+            VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
             0,
             64
         },
@@ -922,6 +923,13 @@ void Renderer::setConstantPointSize(float ptSize, VkCommandBuffer _cmdBuffer)
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, 4, &ptSize);
 
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT, 0, 4, &ptSize);
+}
+
+void Renderer::setConstantRoundPoint(bool roundPoint, VkCommandBuffer _cmdBuffer)
+{
+    int roundPointValue = roundPoint ? 1 : 0;
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 40, 4, &roundPointValue);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_FRAGMENT_BIT, 40, 4, &roundPointValue);
 }
 
 void Renderer::setConstantContrastBrightness(float contrast, float brightness, VkCommandBuffer _cmdBuffer)

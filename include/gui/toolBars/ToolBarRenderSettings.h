@@ -38,6 +38,7 @@ private:
 	void onRenderLuminance(IGuiData* data);
 	void onRenderBlending(IGuiData* data);
 	void onRenderPointSize(IGuiData* data);
+	void onRenderRoundPoint(IGuiData* data);
 	void onRenderTexelThreshold(IGuiData* data);
 	void onRenderSaturation(IGuiData* data);
 	void onRenderAlphaObjects(IGuiData* data);
@@ -70,6 +71,7 @@ private slots:
 	void slotFakeColorValueChanged(int value);
 	void slotAlphaBoxesValueChanged(int value);
 	void slotSetPointSize(int pointSize);
+	void slotSetRoundPoint(int value);
 	void slotSetTexelThreshold(int index);
 	void slotSetRenderMode(int mode);
         void slotColorPicking();

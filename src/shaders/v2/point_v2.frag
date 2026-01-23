@@ -4,7 +4,18 @@ layout(location = 0) in vec4 fragColor;
 
 layout(location = 0) out vec4 outColor;
 
+layout(push_constant) uniform PC {
+	layout(offset = 40) int roundPoint;
+} pc;
+
 void main() {
+	if (pc.roundPoint != 0)
+	{
+		vec2 pixCentered = gl_PointCoord.st - vec2(0.5f);
+		float dist = length(pixCentered);
+		if (dist > 0.5f)
+			discard;
+	}
 	outColor = fragColor;
 }
 

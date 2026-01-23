@@ -393,6 +393,11 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
         retVal = false;
     }
 
+    if (json.find(Key_Round_Point) != json.end())
+    {
+        data.m_roundPoint = json.at(Key_Round_Point).get<bool>();
+    }
+
     if (json.find(Key_Texel_Threshold) != json.end())
     {
         data.m_texelThreshold = json.at(Key_Texel_Threshold).get<int>();

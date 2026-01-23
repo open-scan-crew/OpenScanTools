@@ -583,6 +583,12 @@ void PostRenderer::setConstantTexelThreshold(int texelThreshold, VkCommandBuffer
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_fillingPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 56, 4, &texelThreshold);
 }
 
+void PostRenderer::setConstantRoundPoint(bool roundPoint, VkCommandBuffer _cmdBuffer)
+{
+    int roundPointValue = roundPoint ? 1 : 0;
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_fillingPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 60, 4, &roundPointValue);
+}
+
 void PostRenderer::setConstantLighting(const PostRenderingNormals& lighting, VkCommandBuffer _cmdBuffer) const
 {
     int tone = lighting.inverseTone ? 1 : 0;

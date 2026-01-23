@@ -167,6 +167,17 @@ public:
     float m_pointSize;
 };
 
+class GuiDataRenderRoundPoint : public GuiDataActiveCamera
+{
+public:
+    GuiDataRenderRoundPoint(bool roundPoint, SafePtr<CameraNode> camera);
+    ~GuiDataRenderRoundPoint() {};
+    virtual guiDType getType() override;
+
+public:
+    bool m_roundPoint;
+};
+
 class GuiDataRenderTexelThreshold : public GuiDataActiveCamera
 {
 public:
