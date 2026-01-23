@@ -37,6 +37,7 @@ enum class guiDType
 	renderColorMode,
 	renderPointSize,
 	renderTexelThreshold,
+	renderGapFillingDepthLimit,
 	renderBrightness,
 	renderContrast,
 	renderLuminance,

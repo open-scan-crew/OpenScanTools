@@ -178,6 +178,17 @@ public:
     int m_texelThreshold;
 };
 
+class GuiDataRenderGapFillingDepthLimit : public GuiDataActiveCamera
+{
+public:
+    GuiDataRenderGapFillingDepthLimit(float gapFillingDepthLimit, SafePtr<CameraNode> camera);
+    ~GuiDataRenderGapFillingDepthLimit() {};
+    virtual guiDType getType() override;
+
+public:
+    float m_gapFillingDepthLimit;
+};
+
 class GuiDataRenderBrightness : public GuiDataActiveCamera
 {
 public:

@@ -9,6 +9,7 @@
 #include <qcolordialog.h>
 #include <QSignalBlocker>
 #include <QStringList>
+#include <QtGlobal>
 
 #include "models/graph/CameraNode.h"
 
@@ -47,12 +48,14 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 
 	m_ui.lineEdit_rampMax->setType(NumericType::DISTANCE);
 	m_ui.lineEdit_rampMin->setType(NumericType::DISTANCE);
+	m_ui.lineEdit_gapFillingDepthLimit->setType(NumericType::DISTANCE);
 
 	m_ui.comboBox_gapFillingStrength->addItem(tr("Off"), 9);
 	m_ui.comboBox_gapFillingStrength->addItem(tr("Low"), 4);
 	m_ui.comboBox_gapFillingStrength->addItem(tr("Mid"), 2);
 	m_ui.comboBox_gapFillingStrength->addItem(tr("High"), 1);
 	m_ui.comboBox_gapFillingStrength->setCurrentIndex(1);
+	m_ui.lineEdit_gapFillingDepthLimit->setValue(0.0);
 
     // Init render options UI
     m_ui.pushButton_color->setPalette(QPalette(m_selectedColor));
@@ -62,6 +65,7 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 
 	connect(m_ui.spinBox_pointSize, qOverload<int>(&QSpinBox::valueChanged), this, &ToolBarRenderSettings::slotSetPointSize);
 	connect(m_ui.comboBox_gapFillingStrength, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarRenderSettings::slotSetTexelThreshold);
+	connect(m_ui.lineEdit_gapFillingDepthLimit, &QLineEdit::editingFinished, this, &ToolBarRenderSettings::slotSetGapFillingDepthLimit);
 
 	connect(m_ui.pushButton_color, &QPushButton::clicked, this, &ToolBarRenderSettings::slotColorPicking);
 
@@ -107,6 +111,7 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 	registerGuiDataFunction(guiDType::renderBlending, &ToolBarRenderSettings::onRenderBlending);
 	registerGuiDataFunction(guiDType::renderPointSize, &ToolBarRenderSettings::onRenderPointSize);
 	registerGuiDataFunction(guiDType::renderTexelThreshold, &ToolBarRenderSettings::onRenderTexelThreshold);
+	registerGuiDataFunction(guiDType::renderGapFillingDepthLimit, &ToolBarRenderSettings::onRenderGapFillingDepthLimit);
         registerGuiDataFunction(guiDType::renderSaturation, &ToolBarRenderSettings::onRenderSaturation);
         
         registerGuiDataFunction(guiDType::renderValueDisplay, &ToolBarRenderSettings::onRenderUnitUsage);
@@ -214,6 +219,17 @@ void ToolBarRenderSettings::onRenderTexelThreshold(IGuiData* idata)
 		m_ui.comboBox_gapFillingStrength->blockSignals(false);
 	}
 }
+void ToolBarRenderSettings::onRenderGapFillingDepthLimit(IGuiData* idata)
+{
+	GuiDataRenderGapFillingDepthLimit* data = static_cast<GuiDataRenderGapFillingDepthLimit*>(idata);
+	double currentValue = m_ui.lineEdit_gapFillingDepthLimit->getValue();
+	if (!qFuzzyCompare(currentValue + 1.0, static_cast<double>(data->m_gapFillingDepthLimit) + 1.0))
+	{
+		m_ui.lineEdit_gapFillingDepthLimit->blockSignals(true);
+		m_ui.lineEdit_gapFillingDepthLimit->setValue(data->m_gapFillingDepthLimit);
+		m_ui.lineEdit_gapFillingDepthLimit->blockSignals(false);
+	}
+}
 void ToolBarRenderSettings::onRenderSaturation(IGuiData* idata) 
 {
 	GuiDataRenderSaturation* data = static_cast<GuiDataRenderSaturation*>(idata);
@@ -240,6 +256,7 @@ void ToolBarRenderSettings::onRenderUnitUsage(IGuiData * idata)
 
 	m_ui.lineEdit_rampMin->setUnit(castdata->m_valueParameters.distanceUnit);
 	m_ui.lineEdit_rampMax->setUnit(castdata->m_valueParameters.distanceUnit);
+	m_ui.lineEdit_gapFillingDepthLimit->setUnit(castdata->m_valueParameters.distanceUnit);
 }
 
 void ToolBarRenderSettings::onProjectLoad(IGuiData* idata)
@@ -306,6 +323,7 @@ void ToolBarRenderSettings::onActiveCamera(IGuiData* idata)
 	int texelIndex = m_ui.comboBox_gapFillingStrength->findData(displayParameters.m_texelThreshold);
 	if (texelIndex != -1)
 		m_ui.comboBox_gapFillingStrength->setCurrentIndex(texelIndex);
+	m_ui.lineEdit_gapFillingDepthLimit->setValue(displayParameters.m_gapFillingDepthLimit);
 
 	int value(100 - (int)(displayParameters.m_alphaObject * 100));
 	m_ui.alphaObjectsSpinBox->setValue(value);
@@ -361,6 +379,7 @@ void ToolBarRenderSettings::blockAllSignals(bool block)
 	m_ui.falseColorSlider->blockSignals(block);
 	m_ui.spinBox_pointSize->blockSignals(block);
 	m_ui.comboBox_gapFillingStrength->blockSignals(block);
+	m_ui.lineEdit_gapFillingDepthLimit->blockSignals(block);
 	m_ui.contrastSaturationSpinBox->blockSignals(block);
 	m_ui.contrastSaturationSlider->blockSignals(block);
 	m_ui.alphaObjectsSpinBox->blockSignals(block);
@@ -551,6 +570,12 @@ void ToolBarRenderSettings::slotSetTexelThreshold(int index)
 {
 	int texelThreshold = m_ui.comboBox_gapFillingStrength->itemData(index).toInt();
 	m_dataDispatcher.updateInformation(new GuiDataRenderTexelThreshold(texelThreshold, m_focusCamera), this);
+}
+
+void ToolBarRenderSettings::slotSetGapFillingDepthLimit()
+{
+	double depthLimit = m_ui.lineEdit_gapFillingDepthLimit->getValue();
+	m_dataDispatcher.updateInformation(new GuiDataRenderGapFillingDepthLimit(static_cast<float>(depthLimit), m_focusCamera), this);
 }
 
 void ToolBarRenderSettings::slotSetRenderMode(int mode)

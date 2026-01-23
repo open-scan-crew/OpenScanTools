@@ -402,6 +402,15 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
         data.m_texelThreshold = 4;
     }
 
+    if (json.find(Key_Gap_Filling_Depth_Limit) != json.end())
+    {
+        data.m_gapFillingDepthLimit = json.at(Key_Gap_Filling_Depth_Limit).get<float>();
+    }
+    else
+    {
+        data.m_gapFillingDepthLimit = 0.f;
+    }
+
     if (json.find(Key_Delta_Filling) != json.end())
     {
         data.m_deltaFilling = json.at(Key_Delta_Filling).get<float>();

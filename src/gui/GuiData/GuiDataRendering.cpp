@@ -174,6 +174,17 @@ guiDType GuiDataRenderTexelThreshold::getType()
 	return guiDType::renderTexelThreshold;
 }
 
+//*** Gap Filling Depth Limit ***//
+GuiDataRenderGapFillingDepthLimit::GuiDataRenderGapFillingDepthLimit(float gapFillingDepthLimit, SafePtr<CameraNode> camera)
+	: GuiDataActiveCamera(camera)
+	, m_gapFillingDepthLimit(gapFillingDepthLimit)
+{}
+
+guiDType GuiDataRenderGapFillingDepthLimit::getType()
+{
+	return guiDType::renderGapFillingDepthLimit;
+}
+
 //*** Brightness ***//
 GuiDataRenderBrightness::GuiDataRenderBrightness(int _brightness, SafePtr<CameraNode> camera)
 	: GuiDataActiveCamera(camera)

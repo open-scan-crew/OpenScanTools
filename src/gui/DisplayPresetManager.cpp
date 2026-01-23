@@ -35,6 +35,7 @@ namespace
 		json[Key_Background_Color] = { params.m_backgroundColor.Red(), params.m_backgroundColor.Green(), params.m_backgroundColor.Blue() };
 		json[Key_Point_Size] = params.m_pointSize;
 		json[Key_Texel_Threshold] = params.m_texelThreshold;
+		json[Key_Gap_Filling_Depth_Limit] = params.m_gapFillingDepthLimit;
 		json[Key_Delta_Filling] = params.m_deltaFilling;
 
 		json[Key_Contrast] = params.m_contrast;
@@ -115,6 +116,11 @@ namespace
 			data.m_texelThreshold = json.at(Key_Texel_Threshold).get<int>();
 		else
 			data.m_texelThreshold = 4;
+
+		if (json.find(Key_Gap_Filling_Depth_Limit) != json.end())
+			data.m_gapFillingDepthLimit = json.at(Key_Gap_Filling_Depth_Limit).get<float>();
+		else
+			data.m_gapFillingDepthLimit = 0.f;
 
 		if (json.find(Key_Delta_Filling) != json.end())
 			data.m_deltaFilling = json.at(Key_Delta_Filling).get<float>();
@@ -652,6 +658,7 @@ void DisplayPresetManager::applyPreset(const DisplayPreset& preset)
 	m_dataDispatcher.sendControl(new control::application::RenderModeUpdate(params.m_mode, m_focusCamera));
 	m_dataDispatcher.sendControl(new control::application::SetRenderPointSize(static_cast<int>(params.m_pointSize), m_focusCamera));
 	m_dataDispatcher.updateInformation(new GuiDataRenderTexelThreshold(params.m_texelThreshold, m_focusCamera), this);
+	m_dataDispatcher.updateInformation(new GuiDataRenderGapFillingDepthLimit(params.m_gapFillingDepthLimit, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderBrightness(static_cast<int>(params.m_brightness), m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderContrast(static_cast<int>(params.m_contrast), m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderLuminance(static_cast<int>(params.m_luminance), m_focusCamera), this);
