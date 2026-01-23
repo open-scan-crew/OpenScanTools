@@ -367,7 +367,7 @@ bool TlScanOverseer::testClippingEffect(tls::ScanGuid _scanGuid, const Transform
     return scan->testPointsClippedOut(_modelMat, _clippingAssembly);
 }
 
-bool TlScanOverseer::clipScan(tls::ScanGuid _scanGuid, const TransformationModule& _modelMat, const ClippingAssembly& _clippingAssembly, IScanFileWriter* _outScan)
+bool TlScanOverseer::clipScan(tls::ScanGuid _scanGuid, const TransformationModule& _modelMat, const ClippingAssembly& _clippingAssembly, IScanFileWriter* _outScan, const ProgressCallback& progress)
 {
     EmbeddedScan* scan;
     {
@@ -386,10 +386,10 @@ bool TlScanOverseer::clipScan(tls::ScanGuid _scanGuid, const TransformationModul
     }
 
     // Send the fileWriter to the TlScan and let it do the points/cells specific job.
-    return scan->clipAndWrite(_modelMat, _clippingAssembly, _outScan);
+    return scan->clipAndWrite(_modelMat, _clippingAssembly, _outScan, progress);
 }
 
-bool TlScanOverseer::computeOutlierStats(tls::ScanGuid _scanGuid, const TransformationModule& _modelMat, const ClippingAssembly& _clippingAssembly, int kNeighbors, int samplingPercent, double beta, OutlierStats& stats)
+bool TlScanOverseer::computeOutlierStats(tls::ScanGuid _scanGuid, const TransformationModule& _modelMat, const ClippingAssembly& _clippingAssembly, int kNeighbors, int samplingPercent, double beta, OutlierStats& stats, const ProgressCallback& progress)
 {
     EmbeddedScan* scan;
     {
@@ -407,10 +407,10 @@ bool TlScanOverseer::computeOutlierStats(tls::ScanGuid _scanGuid, const Transfor
         }
     }
 
-    return scan->computeOutlierStats(_modelMat, _clippingAssembly, kNeighbors, samplingPercent, beta, stats);
+    return scan->computeOutlierStats(_modelMat, _clippingAssembly, kNeighbors, samplingPercent, beta, stats, progress);
 }
 
-bool TlScanOverseer::filterOutliersAndWrite(tls::ScanGuid _scanGuid, const TransformationModule& _modelMat, const ClippingAssembly& _clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* _outScan, uint64_t& removedPoints)
+bool TlScanOverseer::filterOutliersAndWrite(tls::ScanGuid _scanGuid, const TransformationModule& _modelMat, const ClippingAssembly& _clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* _outScan, uint64_t& removedPoints, const ProgressCallback& progress)
 {
     EmbeddedScan* scan;
     {
@@ -428,7 +428,7 @@ bool TlScanOverseer::filterOutliersAndWrite(tls::ScanGuid _scanGuid, const Trans
         }
     }
 
-    return scan->filterOutliersAndWrite(_modelMat, _clippingAssembly, kNeighbors, stats, nSigma, beta, _outScan, removedPoints);
+    return scan->filterOutliersAndWrite(_modelMat, _clippingAssembly, kNeighbors, stats, nSigma, beta, _outScan, removedPoints, progress);
 }
 
 //tls::ScanGuid TlScanOverseer::clipNewScan(tls::ScanGuid _scanGuid, const glm::dmat4& _modelMat, const ClippingAssembly& _clippingAssembly, const std::filesystem::path& _outPath, uint64_t& pointsDeletedCount)

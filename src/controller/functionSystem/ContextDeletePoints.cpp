@@ -20,6 +20,8 @@
 
 #include "utils/Logger.h"
 
+#include <algorithm>
+
 // Note (Aurélien) QT::StandardButtons enum values in qmessagebox.h
 #define Yes 0x00004000
 #define No 0x00010000
@@ -151,7 +153,9 @@ ContextState ContextDeletePoints::launch(Controller& controller)
     std::unordered_set<SafePtr<PointCloudNode>> scans = graphManager.getVisibleScans(m_panoramic);
 
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString()));
-    controller.updateInfo(new GuiDataProcessingSplashScreenStart(scans.size(), TEXT_EXPORT_CLIPPING_TITLE_PROGESS, TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(0).arg(scans.size())));
+    const uint64_t totalScans = scans.size();
+    const uint64_t totalProgressSteps = totalScans * 100;
+    controller.updateInfo(new GuiDataProcessingSplashScreenStart(totalProgressSteps, TEXT_EXPORT_CLIPPING_TITLE_PROGESS, TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(0).arg(totalScans)));
 
     // On récupère les clippings à utiliser depuis le projet
     bool filterActive = (m_clippingFilter == ExportClippingFilter::ACTIVE);
@@ -160,6 +164,13 @@ ContextState ContextDeletePoints::launch(Controller& controller)
     graphManager.getClippingAssembly(clippingAssembly, filterActive, filterSelected);
 
     uint64_t scan_count = 0;
+    auto updateProgress = [&](uint64_t scansDone, int percent, uint64_t progressValue)
+    {
+        QString state = QString("%1 - %2%")
+                            .arg(TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(scansDone).arg(totalScans))
+                            .arg(percent);
+        controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(state, progressValue));
+    };
     for (const SafePtr<PointCloudNode>& scan : scans)
     {
         WritePtr<PointCloudNode> wScan = scan.get();
@@ -194,7 +205,16 @@ ContextState ContextDeletePoints::launch(Controller& controller)
             header.guid = xg::newGuid();
             tls_writer->appendPointCloud(header, wScan->getTransformation());
 
-            bool res = TlScanOverseer::getInstance().clipScan(old_guid, (TransformationModule)*&wScan, *clippingToUse, tls_writer);
+            auto progressCallback = [&](size_t processed, size_t total)
+            {
+                if (total == 0)
+                    return;
+                int percent = static_cast<int>((processed * 100) / total);
+                percent = std::clamp(percent, 0, 99);
+                uint64_t progressValue = scan_count * 100 + static_cast<uint64_t>(percent);
+                updateProgress(scan_count, percent, progressValue);
+            };
+            bool res = TlScanOverseer::getInstance().clipScan(old_guid, (TransformationModule)*&wScan, *clippingToUse, tls_writer, progressCallback);
 
             res &= tls_writer->finalizePointCloud();
 
@@ -209,7 +229,7 @@ ContextState ContextDeletePoints::launch(Controller& controller)
         scan_count++;
         float seconds = std::chrono::duration<float, std::ratio<1>>(std::chrono::steady_clock::now() - startTime).count();
         QString qScanName = QString::fromStdWString(wScan->getName());
-        controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(scan_count).arg(scans.size()), scan_count));
+        updateProgress(scan_count, 100, scan_count * 100);
 
         // Remplace le scan guid dans le model scan du projet.
         if (new_guid != old_guid)
