@@ -60,12 +60,12 @@ DialogExportPointCloud::DialogExportPointCloud(IDataDispatcher& dataDispatcher, 
 
     m_openPath = QStandardPaths::locate(QStandardPaths::DocumentsLocation, QString(), QStandardPaths::LocateDirectory);
 
-    connect(m_ui.toolButton_folder, &QToolButton::released, this, &DialogExportPointCloud::onSelectOutFolder);
-    connect(m_ui.toolButton_tempFolder, &QToolButton::released, this, &DialogExportPointCloud::onSelectTempFolder);
-    connect(m_ui.toolButton_outFile, &QToolButton::released, this, &DialogExportPointCloud::onSelectOutFile);
+    connect(m_ui.toolButton_folder, &QToolButton::clicked, this, &DialogExportPointCloud::onSelectOutFolder);
+    connect(m_ui.toolButton_tempFolder, &QToolButton::clicked, this, &DialogExportPointCloud::onSelectTempFolder);
+    connect(m_ui.toolButton_outFile, &QToolButton::clicked, this, &DialogExportPointCloud::onSelectOutFile);
 
-    connect(m_ui.pushButton_export, &QPushButton::released, this, &DialogExportPointCloud::startExport);
-    connect(m_ui.pushButton_cancel, &QPushButton::released, this, &DialogExportPointCloud::cancelExport);
+    connect(m_ui.pushButton_export, &QPushButton::clicked, this, &DialogExportPointCloud::startExport);
+    connect(m_ui.pushButton_cancel, &QPushButton::clicked, this, &DialogExportPointCloud::cancelExport);
 
     m_dataDispatcher.registerObserverOnKey(this, guiDType::exportParametersDisplay);
     m_dataDispatcher.registerObserverOnKey(this, guiDType::projectPath);

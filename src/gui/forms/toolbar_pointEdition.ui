@@ -54,8 +54,12 @@ You can apply the filter to clipped scans.</string>
      <property name="text">
       <string>Stat outlier filter</string>
      </property>
+     <property name="icon">
+      <iconset resource="../../../openscantools.qrc">
+       <normaloff>:/icons/100x100/so_filter.png</normaloff>:/icons/100x100/so_filter.png</iconset>
+     </property>
      <property name="toolButtonStyle">
-      <enum>Qt::ToolButtonTextOnly</enum>
+      <enum>Qt::ToolButtonTextBesideIcon</enum>
      </property>
      <property name="autoRaise">
       <bool>true</bool>

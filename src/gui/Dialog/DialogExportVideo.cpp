@@ -45,17 +45,17 @@ DialogExportVideo::DialogExportVideo(IDataDispatcher& dataDispatcher, QWidget *p
 
 	m_openPath = QStandardPaths::locate(QStandardPaths::DocumentsLocation, QString(), QStandardPaths::LocateDirectory);
 
-	connect(m_ui.betweenViewpointsRadioButton, &QPushButton::released, this, &DialogExportVideo::onAnimationModeSelection);
-	connect(m_ui.orbital360RadioButton, &QPushButton::released, this, &DialogExportVideo::onAnimationModeSelection);
+	connect(m_ui.betweenViewpointsRadioButton, &QPushButton::clicked, this, &DialogExportVideo::onAnimationModeSelection);
+	connect(m_ui.orbital360RadioButton, &QPushButton::clicked, this, &DialogExportVideo::onAnimationModeSelection);
 
-	connect(m_ui.pushButtonViewPoint1, &QPushButton::released, this, &DialogExportVideo::onViewpoint1Click);
-	connect(m_ui.pushButtonViewPoint2, &QPushButton::released, this, &DialogExportVideo::onViewpoint2Click);
+	connect(m_ui.pushButtonViewPoint1, &QPushButton::clicked, this, &DialogExportVideo::onViewpoint1Click);
+	connect(m_ui.pushButtonViewPoint2, &QPushButton::clicked, this, &DialogExportVideo::onViewpoint2Click);
 
-    connect(m_ui.folderToolButton, &QToolButton::released, this, &DialogExportVideo::onSelectOutFolder);
-	connect(m_ui.fileToolButton, &QToolButton::released, this, &DialogExportVideo::onSelectOutFile);
+    connect(m_ui.folderToolButton, &QToolButton::clicked, this, &DialogExportVideo::onSelectOutFolder);
+	connect(m_ui.fileToolButton, &QToolButton::clicked, this, &DialogExportVideo::onSelectOutFile);
 
-    connect(m_ui.generatePushButton, &QPushButton::released, this, &DialogExportVideo::startGeneration);
-    connect(m_ui.cancelPushButton, &QPushButton::released, this, &DialogExportVideo::cancelGeneration);
+    connect(m_ui.generatePushButton, &QPushButton::clicked, this, &DialogExportVideo::startGeneration);
+    connect(m_ui.cancelPushButton, &QPushButton::clicked, this, &DialogExportVideo::cancelGeneration);
 
     m_dataDispatcher.registerObserverOnKey(this, guiDType::projectPath);
     m_dataDispatcher.registerObserverOnKey(this, guiDType::objectSelected);

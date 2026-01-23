@@ -13,8 +13,8 @@ ToolBarSphereGroup::ToolBarSphereGroup(IDataDispatcher& dataDispatcher, QWidget*
 	m_ui.sphereToolButton->setIconSize(QSize(20, 20) * scale);
 	m_ui.robustToolButton->setIconSize(QSize(20, 20) * scale);
 
-	connect(m_ui.sphereToolButton, &QToolButton::released, this, &ToolBarSphereGroup::initSphereDetection);
-	connect(m_ui.robustToolButton, &QToolButton::released, this, &ToolBarSphereGroup::initLargeSphereDetection);
+	connect(m_ui.sphereToolButton, &QToolButton::clicked, this, &ToolBarSphereGroup::initSphereDetection);
+	connect(m_ui.robustToolButton, &QToolButton::clicked, this, &ToolBarSphereGroup::initLargeSphereDetection);
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::activatedFunctions);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::sendListsStandards);

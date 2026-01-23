@@ -222,7 +222,7 @@ bool EmbeddedScan::testPointsClippedOut(const TransformationModule& src_transfo,
     return false;
 }
 
-bool EmbeddedScan::clipAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& _clippingAssembly, IScanFileWriter* _writer)
+bool EmbeddedScan::clipAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& _clippingAssembly, IScanFileWriter* _writer, const ProgressCallback& progress)
 {
     ClippingAssembly localAssembly = _clippingAssembly;
     localAssembly.clearMatrix();
@@ -239,8 +239,12 @@ bool EmbeddedScan::clipAndWrite(const TransformationModule& src_transfo, const C
     getClippedCells_impl(m_uRootCell, localAssembly, cells);
 
     bool resultOk = true;
-    for (const std::pair<uint32_t, bool>& cell : cells)
+    const size_t totalCells = cells.size();
+    if (progress && totalCells > 0)
+        progress(0, totalCells);
+    for (size_t cellIndex = 0; cellIndex < cells.size(); ++cellIndex)
     {
+        const std::pair<uint32_t, bool>& cell = cells[cellIndex];
         // NOTE(robin) - A propos des référenciels :
         //   (*) Il est préférable de travailler dans l'espace local du scan en cours.
         //   (*) Les matrices de transformation des clippings peuvent être changées une fois pour tout les points.
@@ -250,7 +254,11 @@ bool EmbeddedScan::clipAndWrite(const TransformationModule& src_transfo, const C
         std::vector<PointXYZIRGB> points;
         points.resize(tls_point_cloud_.getCellPointCount(cell.first));
         if (!tls_point_cloud_.getCellPoints(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
-        continue;
+        {
+            if (progress)
+                progress(cellIndex + 1, totalCells);
+            continue;
+        }
         std::chrono::steady_clock::time_point tp_1 = std::chrono::steady_clock::now();
 
         // Do the micro-clipping if necessary
@@ -267,6 +275,9 @@ bool EmbeddedScan::clipAndWrite(const TransformationModule& src_transfo, const C
         std::chrono::steady_clock::time_point tp_2 = std::chrono::steady_clock::now();
         decode_time_ += std::chrono::duration<float, std::ratio<1>>(tp_1 - tp_0).count();
         merge_time_ += std::chrono::duration<float, std::ratio<1>>(tp_2 - tp_1).count();
+
+        if (progress)
+            progress(cellIndex + 1, totalCells);
     }
     return (resultOk);
 }
@@ -381,7 +392,7 @@ namespace
     }
 }
 
-bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, int samplingPercent, double beta, OutlierStats& stats)
+bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, int samplingPercent, double beta, OutlierStats& stats, const ProgressCallback& progress)
 {
     ClippingAssembly localAssembly = clippingAssembly;
     localAssembly.clearMatrix();
@@ -396,12 +407,20 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
     const double samplingValue = std::clamp(static_cast<double>(samplingPercent), 1.0, 100.0);
     const size_t sampleStep = std::max<size_t>(1, static_cast<size_t>(std::round(100.0 / samplingValue)));
 
-    for (const std::pair<uint32_t, bool>& cell : cells)
+    const size_t totalCells = cells.size();
+    if (progress && totalCells > 0)
+        progress(0, totalCells);
+    for (size_t cellIndex = 0; cellIndex < cells.size(); ++cellIndex)
     {
+        const std::pair<uint32_t, bool>& cell = cells[cellIndex];
         std::vector<PointXYZIRGB> points;
         points.resize(tls_point_cloud_.getCellPointCount(cell.first));
         if (!tls_point_cloud_.getCellPoints(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+        {
+            if (progress)
+                progress(cellIndex + 1, totalCells);
             continue;
+        }
 
         std::vector<PointXYZIRGB> visiblePoints;
         if (cell.second)
@@ -414,7 +433,11 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
         }
 
         if (visiblePoints.empty())
+        {
+            if (progress)
+                progress(cellIndex + 1, totalCells);
             continue;
+        }
 
         glm::dvec3 cellOrigin(m_vTreeCells[cell.first].m_position[0], m_vTreeCells[cell.first].m_position[1], m_vTreeCells[cell.first].m_position[2]);
         double cellSize = m_vTreeCells[cell.first].m_size;
@@ -441,6 +464,9 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
             if (computeMeanNeighborDistanceGrid(localPoints, grid, cellOrigin, voxelSize, i, neighborCount, maxRadius, meanDistance))
                 running.add(meanDistance);
         }
+
+        if (progress)
+            progress(cellIndex + 1, totalCells);
     }
 
     stats.count = running.count;
@@ -450,7 +476,7 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
     return true;
 }
 
-bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* writer, uint64_t& removedPoints)
+bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* writer, uint64_t& removedPoints, const ProgressCallback& progress)
 {
     ClippingAssembly localAssembly = clippingAssembly;
     localAssembly.clearMatrix();
@@ -465,12 +491,20 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
     bool resultOk = true;
     removedPoints = 0;
 
-    for (const std::pair<uint32_t, bool>& cell : cells)
+    const size_t totalCells = cells.size();
+    if (progress && totalCells > 0)
+        progress(0, totalCells);
+    for (size_t cellIndex = 0; cellIndex < cells.size(); ++cellIndex)
     {
+        const std::pair<uint32_t, bool>& cell = cells[cellIndex];
         std::vector<PointXYZIRGB> points;
         points.resize(tls_point_cloud_.getCellPointCount(cell.first));
         if (!tls_point_cloud_.getCellPoints(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+        {
+            if (progress)
+                progress(cellIndex + 1, totalCells);
             continue;
+        }
 
         std::vector<PointXYZIRGB> visiblePoints;
         if (cell.second)
@@ -487,6 +521,8 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
 
         if (visiblePoints.empty())
         {
+            if (progress)
+                progress(cellIndex + 1, totalCells);
             continue;
         }
 
@@ -524,6 +560,9 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
 
         removedPoints += visiblePoints.size() - filtered.size();
         resultOk &= writer->mergePoints(filtered.data(), filtered.size(), src_transfo, pt_format_);
+
+        if (progress)
+            progress(cellIndex + 1, totalCells);
     }
 
     return resultOk;

@@ -335,9 +335,12 @@ Gui::Gui(Controller& controller)
 	ribbonTabContent->addWidget(TEXT_ATTRIBUTE, new ToolBarAttributesGroup(controller, this, m_guiScale));
 	ribbonTabContent->addWidget(TEXT_BOX, new ToolBarClippingGroup(m_dataDispatcher, this, m_guiScale));
 	ribbonTabContent->addWidget(TEXT_CLIPPING_GROUP_NAME, new ToolBarClippingParameters(m_dataDispatcher, this, m_guiScale));
-    ribbonTabContent->addWidget(TEXT_POINT_EDITION, new ToolBarPointEdition(m_dataDispatcher, this, m_guiScale));
+    m_ribbon->addTab(TEXT_CLIPPING, ribbonTabContent);
 
-	m_ribbon->addTab(TEXT_CLIPPING, ribbonTabContent);
+	// Add groups to the Edition
+	ribbonTabContent = new RibbonTabContent();	
+	ribbonTabContent->addWidget(TEXT_POINT_EDITION, new ToolBarPointEdition(m_dataDispatcher, this, m_guiScale));
+	m_ribbon->addTab(TEXT_EDITION, ribbonTabContent);
 
 	// Add groups to the Import (previously Point Cloud Object) Tab 
 	ribbonTabContent = new RibbonTabContent();

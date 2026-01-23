@@ -27,12 +27,12 @@ PropertyUserOrientation::PropertyUserOrientation(IDataDispatcher& dataDispatcher
 	m_ui.customAxisFrame->hide();
 	m_ui.setTranslationGroupBox->hide();
 
-	QObject::connect(m_ui.p1Button, &QPushButton::released, this, &PropertyUserOrientation::onPoint1Click);
-	QObject::connect(m_ui.p2Button, &QPushButton::released, this, &PropertyUserOrientation::onPoint2Click);
+	QObject::connect(m_ui.p1Button, &QPushButton::clicked, this, &PropertyUserOrientation::onPoint1Click);
+	QObject::connect(m_ui.p2Button, &QPushButton::clicked, this, &PropertyUserOrientation::onPoint2Click);
 
-	QObject::connect(m_ui.setCoorPickPointXButton, &QPushButton::released, this, &PropertyUserOrientation::onPointXClick);
-	QObject::connect(m_ui.setCoorPickPointYButton, &QPushButton::released, this, &PropertyUserOrientation::onPointYClick);
-	QObject::connect(m_ui.setCoorPickPointZButton, &QPushButton::released, this, &PropertyUserOrientation::onPointZClick);
+	QObject::connect(m_ui.setCoorPickPointXButton, &QPushButton::clicked, this, &PropertyUserOrientation::onPointXClick);
+	QObject::connect(m_ui.setCoorPickPointYButton, &QPushButton::clicked, this, &PropertyUserOrientation::onPointYClick);
+	QObject::connect(m_ui.setCoorPickPointZButton, &QPushButton::clicked, this, &PropertyUserOrientation::onPointZClick);
 
 	QObject::connect(m_ui.XRadioButton, &QRadioButton::released, this, &PropertyUserOrientation::updateCustomAxisFrame);
 	QObject::connect(m_ui.YRadioButton, &QRadioButton::released, this, &PropertyUserOrientation::updateCustomAxisFrame);
@@ -47,10 +47,10 @@ PropertyUserOrientation::PropertyUserOrientation(IDataDispatcher& dataDispatcher
 	QObject::connect(m_ui.customAxisX2, &QLineEdit::editingFinished, this, &PropertyUserOrientation::onCustomAxisUpdate);
 	QObject::connect(m_ui.customAxisY2, &QLineEdit::editingFinished, this, &PropertyUserOrientation::onCustomAxisUpdate);
 
-	QObject::connect(m_ui.okButton, &QPushButton::released, this, &PropertyUserOrientation::onOkButton);
-	QObject::connect(m_ui.resetButton, &QPushButton::released, this, &PropertyUserOrientation::onResetButton);
-	QObject::connect(m_ui.deleteButton, &QPushButton::released, this, &PropertyUserOrientation::onDeleteButton);
-	QObject::connect(m_ui.cancelButton, &QPushButton::released, this, &PropertyUserOrientation::Close);
+	QObject::connect(m_ui.okButton, &QPushButton::clicked, this, &PropertyUserOrientation::onOkButton);
+	QObject::connect(m_ui.resetButton, &QPushButton::clicked, this, &PropertyUserOrientation::onResetButton);
+	QObject::connect(m_ui.deleteButton, &QPushButton::clicked, this, &PropertyUserOrientation::onDeleteButton);
+	QObject::connect(m_ui.cancelButton, &QPushButton::clicked, this, &PropertyUserOrientation::Close);
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::point);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::abortEvent);

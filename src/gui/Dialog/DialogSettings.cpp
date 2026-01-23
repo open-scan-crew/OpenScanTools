@@ -60,7 +60,7 @@ DialogSettings::DialogSettings(IDataDispatcher& dataDispatcher, QWidget* parent)
 	m_ui.examineMinimumDistanceLineEdit->setType(NumericType::DISTANCE);
 	m_ui.lineEdit_limitOrtho->setType(NumericType::DISTANCE);
 
-	connect(m_ui.okButton, &QPushButton::released, this, &DialogSettings::onOk);
+	connect(m_ui.okButton, &QPushButton::clicked, this, &DialogSettings::onOk);
 	connect(m_ui.langageComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &DialogSettings::onLanguageChanged);
 	connect(m_ui.spinBox_digits, QOverload<int>::of(&QSpinBox::valueChanged), this, &DialogSettings::onUnitUsageChanged);
 	connect(m_ui.distanceUnitBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &DialogSettings::onUnitUsageChanged);

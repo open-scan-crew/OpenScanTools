@@ -21,8 +21,8 @@ DialogRecentProjects::DialogRecentProjects(IDataDispatcher& dataDispatcher, QWid
 
 	this->setAttribute(Qt::WA_DeleteOnClose);
 
-	QObject::connect(m_ui.loadButton, &QPushButton::released, this, [this]() {projectSelect(m_ui.projectsList->currentIndex()); });
-	QObject::connect(m_ui.cancelButton, &QPushButton::released, this, &DialogRecentProjects::FinishDialog);
+	QObject::connect(m_ui.loadButton, &QPushButton::clicked, this, [this]() {projectSelect(m_ui.projectsList->currentIndex()); });
+	QObject::connect(m_ui.cancelButton, &QPushButton::clicked, this, &DialogRecentProjects::FinishDialog);
 }
 
 DialogRecentProjects::~DialogRecentProjects()

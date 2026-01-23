@@ -35,11 +35,11 @@ DialogExportPrimitives::DialogExportPrimitives(IDataDispatcher& dataDispatcher, 
 		m_ui.comboBox_filter->addItem(iterator.second, iterator.first);
 	m_ui.comboBox_filter->setCurrentIndex(0);
 
-    connect(m_ui.toolButton_folder, &QToolButton::released, this, &DialogExportPrimitives::onSelectOutFolder);
-	connect(m_ui.toolButton_file, &QToolButton::released, this, &DialogExportPrimitives::onSelectOutFile);
+    connect(m_ui.toolButton_folder, &QToolButton::clicked, this, &DialogExportPrimitives::onSelectOutFolder);
+	connect(m_ui.toolButton_file, &QToolButton::clicked, this, &DialogExportPrimitives::onSelectOutFile);
 
-    connect(m_ui.pushButton_export, &QPushButton::released, this, &DialogExportPrimitives::startExport);
-    connect(m_ui.pushButton_cancel, &QPushButton::released, this, &DialogExportPrimitives::cancelExport);
+    connect(m_ui.pushButton_export, &QPushButton::clicked, this, &DialogExportPrimitives::startExport);
+    connect(m_ui.pushButton_cancel, &QPushButton::clicked, this, &DialogExportPrimitives::cancelExport);
 
     m_dataDispatcher.registerObserverOnKey(this, guiDType::projectPath);
 	this->setMinimumWidth(344 * guiScale);

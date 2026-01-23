@@ -32,7 +32,7 @@ DialogStatisticalOutlierFilter::DialogStatisticalOutlierFilter(IDataDispatcher& 
     m_ui.setupUi(this);
     translateUI();
 
-    connect(m_ui.toolButton_folder, &QToolButton::released, this, [this]()
+    connect(m_ui.toolButton_folder, &QToolButton::clicked, this, [this]()
     {
         QString initialPath = m_ui.lineEdit_folder->text().isEmpty() ? m_openPath : m_ui.lineEdit_folder->text();
         QString folderPath = QFileDialog::getExistingDirectory(this, tr("Open Directory"), initialPath, QFileDialog::ShowDirsOnly);

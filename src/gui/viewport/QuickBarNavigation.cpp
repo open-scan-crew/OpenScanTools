@@ -55,14 +55,14 @@ QuickBarNavigation::QuickBarNavigation(QWidget* parent, IDataDispatcher& dataDis
     m_ui.comboBox_views->addItem(QIcon(":icons/100x100/rear_view.png"), TEXT_VIEW_BACK, QVariant((int)AlignView::Back));;
     m_ui.comboBox_views->addItem(QIcon(":icons/100x100/iso_view.png"), TEXT_VIEW_ISO, QVariant((int)AlignView::Iso));;
 
-    connect(m_ui.toolButton_examine, &QToolButton::released, [this]() { m_dataDispatcher.sendControl(new control::viewport::Examine(m_camera)); });
-    connect(m_ui.toolButton_hideBar, &QToolButton::released, this, &QWidget::hide);
+    connect(m_ui.toolButton_examine, &QToolButton::clicked, [this]() { m_dataDispatcher.sendControl(new control::viewport::Examine(m_camera)); });
+    connect(m_ui.toolButton_hideBar, &QToolButton::clicked, this, &QWidget::hide);
 
-    connect(m_ui.toolButton_translation, &QToolButton::released, this, [this]() { this->onManipulationMode(ManipulationMode::Translation); });
-    connect(m_ui.toolButton_extrusion, &QToolButton::released, this, [this]() { this->onManipulationMode(ManipulationMode::Extrusion); });
-    connect(m_ui.toolButton_rotation, &QToolButton::released, this, [this]() { this->onManipulationMode(ManipulationMode::Rotation); });
+    connect(m_ui.toolButton_translation, &QToolButton::clicked, this, [this]() { this->onManipulationMode(ManipulationMode::Translation); });
+    connect(m_ui.toolButton_extrusion, &QToolButton::clicked, this, [this]() { this->onManipulationMode(ManipulationMode::Extrusion); });
+    connect(m_ui.toolButton_rotation, &QToolButton::clicked, this, [this]() { this->onManipulationMode(ManipulationMode::Rotation); });
 
-    connect(m_ui.toolButton_moveManip, &QToolButton::released, this, &QuickBarNavigation::onMoveManip);
+    connect(m_ui.toolButton_moveManip, &QToolButton::clicked, this, &QuickBarNavigation::onMoveManip);
 
     registerGuiDataFunction(guiDType::projectLoaded, &QuickBarNavigation::onProjectLoaded);
     registerGuiDataFunction(guiDType::activatedFunctions, &QuickBarNavigation::onActivateFunction);
@@ -97,21 +97,21 @@ void QuickBarNavigation::connectCamera(SafePtr<CameraNode> camera)
     m_camera = camera;
     // TODO - connect the camera if needed
     //connect(viewport, &VulkanViewport::examineActive, this, &QuickBarNavigation::onActiveExamine);
-    connect(m_ui.toolButton_rotate90, &QToolButton::released, [this]() {
+    connect(m_ui.toolButton_rotate90, &QToolButton::clicked, [this]() {
         WritePtr<CameraNode> wCam = m_camera.get();
         if (!wCam)
             return;
         wCam->rotate90degrees();
     });
 
-    connect(m_ui.toolButton_explore, &QToolButton::released, [this]() {
+    connect(m_ui.toolButton_explore, &QToolButton::clicked, [this]() {
         WritePtr<CameraNode> wCam = m_camera.get();
         if (!wCam)
             return;
         wCam->resetExaminePoint();
     });
 
-    connect(m_ui.toolButton_perspective, &QToolButton::released,
+    connect(m_ui.toolButton_perspective, &QToolButton::clicked,
         [this]() {
         WritePtr<CameraNode> wCam = m_camera.get();
         if (!wCam)
@@ -119,7 +119,7 @@ void QuickBarNavigation::connectCamera(SafePtr<CameraNode> camera)
         wCam->setProjectionMode(ProjectionMode::Perspective);
         m_ui.toolButton_orthographic->setChecked(false);
     });
-    connect(m_ui.toolButton_orthographic, &QToolButton::released,
+    connect(m_ui.toolButton_orthographic, &QToolButton::clicked,
         [this]() {
         WritePtr<CameraNode> wCam = m_camera.get();
         if (!wCam)
@@ -128,7 +128,7 @@ void QuickBarNavigation::connectCamera(SafePtr<CameraNode> camera)
         m_ui.toolButton_perspective->setChecked(false);
     });
 
-    connect(m_ui.toolButton_zoomExtent, &QToolButton::released, [this]() { this->m_dataDispatcher.sendControl(new control::viewport::AdjustZoomToScene(m_camera)); });
+    connect(m_ui.toolButton_zoomExtent, &QToolButton::clicked, [this]() { this->m_dataDispatcher.sendControl(new control::viewport::AdjustZoomToScene(m_camera)); });
 
     connect(m_ui.comboBox_views, QOverload<int>::of(&QComboBox::activated), [this](int i) {
         AlignView align = (AlignView)m_ui.comboBox_views->currentData().toInt();
@@ -136,18 +136,18 @@ void QuickBarNavigation::connectCamera(SafePtr<CameraNode> camera)
         wCam->alignView(align);
     });
 
-    connect(m_ui.toolButton_align2Points, &QToolButton::released, [this]() {
+    connect(m_ui.toolButton_align2Points, &QToolButton::clicked, [this]() {
         m_dataDispatcher.sendControl(new control::viewport::AlignView2PointsFunction());
     });
-    connect(m_ui.toolButton_align3Points, &QToolButton::released, [this]() {
+    connect(m_ui.toolButton_align3Points, &QToolButton::clicked, [this]() {
         m_dataDispatcher.sendControl(new control::viewport::AlignView3PointsFunction());
     });
 
-    connect(m_ui.toolButton_alignBox, &QToolButton::released, [this]() {
+    connect(m_ui.toolButton_alignBox, &QToolButton::clicked, [this]() {
         m_dataDispatcher.sendControl(new control::viewport::AlignViewBoxFunction());
     });
 
-    connect(m_ui.toolButton_gizmo, &QToolButton::released, [this]() {
+    connect(m_ui.toolButton_gizmo, &QToolButton::clicked, [this]() {
         m_dataDispatcher.updateInformation(new GuiDataDisplayGuizmo(m_camera, m_ui.toolButton_gizmo->isChecked()), this); });
 
 }

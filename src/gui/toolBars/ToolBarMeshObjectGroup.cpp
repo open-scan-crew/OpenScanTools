@@ -19,9 +19,9 @@ ToolBarMeshObjectGroup::ToolBarMeshObjectGroup(IDataDispatcher& dataDispatcher, 
 	m_ui.copyBtn->setIconSize(QSize(20, 20) * guiScale);
 	m_ui.importFromFileBtn->setIconSize(QSize(20, 20) * guiScale);
 
-	QObject::connect(m_ui.creationSettingsBtn, &QToolButton::released, this, &ToolBarMeshObjectGroup::clickWavefrontProperties);
-	QObject::connect(m_ui.copyBtn, &QToolButton::released, this, &ToolBarMeshObjectGroup::clickCopy);
-	QObject::connect(m_ui.importFromFileBtn, &QToolButton::released, this, &ToolBarMeshObjectGroup::clickFromFile);
+	QObject::connect(m_ui.creationSettingsBtn, &QToolButton::clicked, this, &ToolBarMeshObjectGroup::clickWavefrontProperties);
+	QObject::connect(m_ui.copyBtn, &QToolButton::clicked, this, &ToolBarMeshObjectGroup::clickCopy);
+	QObject::connect(m_ui.importFromFileBtn, &QToolButton::clicked, this, &ToolBarMeshObjectGroup::clickFromFile);
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::activatedFunctions);

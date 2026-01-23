@@ -1,12 +1,13 @@
 #ifndef TL_SCAN_OVERSEER_H
 #define TL_SCAN_OVERSEER_H
 
-#include <unordered_map>
+#include <atomic>
 #include <filesystem>
+#include <functional>
 #include <list>
 #include <mutex>
-#include <atomic>
 #include <set>
+#include <unordered_map>
 
 #include "tls_def.h"
 #include "models/pointCloud/PointCloudInstance.h"
@@ -166,6 +167,7 @@ struct IndexedValue {
 class TlScanOverseer
 {
 public:
+    using ProgressCallback = std::function<void(size_t processed, size_t total)>;
     static TlScanOverseer& getInstance()
     {
         static TlScanOverseer instance;
@@ -216,9 +218,9 @@ public:
 
     // Compute
     bool testClippingEffect(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly);
-    bool clipScan(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, IScanFileWriter* outScan);
-    bool computeOutlierStats(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, int samplingPercent, double beta, OutlierStats& stats);
-    bool filterOutliersAndWrite(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* outScan, uint64_t& removedPoints);
+    bool clipScan(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, IScanFileWriter* outScan, const ProgressCallback& progress = {});
+    bool computeOutlierStats(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, int samplingPercent, double beta, OutlierStats& stats, const ProgressCallback& progress = {});
+    bool filterOutliersAndWrite(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* outScan, uint64_t& removedPoints, const ProgressCallback& progress = {});
     //tls::ScanGuid clipNewScan(tls::ScanGuid scanGuid, const glm::dmat4& modelMat, const ClippingAssembly& clippingAssembly, const std::filesystem::path& outPath, uint64_t& pointDeletedCount);
 
     // Lucas functions

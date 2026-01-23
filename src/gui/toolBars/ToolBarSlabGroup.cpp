@@ -11,8 +11,8 @@ ToolBarSlabGroup::ToolBarSlabGroup(IDataDispatcher& dataDispatcher, QWidget* par
 	m_ui.setupUi(this);
 	setEnabled(false);
 
-	connect(m_ui.oneClickToolButton, &QToolButton::released, this, &ToolBarSlabGroup::init1Click);
-	connect(m_ui.threeClickToolButton, &QToolButton::released, this, &ToolBarSlabGroup::init2Click);
+	connect(m_ui.oneClickToolButton, &QToolButton::clicked, this, &ToolBarSlabGroup::init1Click);
+	connect(m_ui.threeClickToolButton, &QToolButton::clicked, this, &ToolBarSlabGroup::init2Click);
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::activatedFunctions);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);

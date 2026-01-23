@@ -11,8 +11,8 @@ ToolBarLucasExperimentGroup::ToolBarLucasExperimentGroup(IDataDispatcher &dataDi
 	ui->setupUi(this);
 	//setEnabled(false);
 
-	QObject::connect(ui->localPlane, &QPushButton::released, this, &ToolBarLucasExperimentGroup::initLocalPlane);
-	QObject::connect(ui->planeConnexion, &QPushButton::released, this, &ToolBarLucasExperimentGroup::initPlaneConnexion);
+	QObject::connect(ui->localPlane, &QPushButton::clicked, this, &ToolBarLucasExperimentGroup::initLocalPlane);
+	QObject::connect(ui->planeConnexion, &QPushButton::clicked, this, &ToolBarLucasExperimentGroup::initPlaneConnexion);
 
 	QObject::connect(ui->horizontalPlane, &QPushButton::pressed, this, &ToolBarLucasExperimentGroup::initHorizontalPlane);
 	QObject::connect(ui->verticalPlane, &QPushButton::pressed, this, &ToolBarLucasExperimentGroup::initVerticalPlane);

@@ -19,8 +19,8 @@ RibbonTabContent::RibbonTabContent(QWidget *parent)
 	ui->leftButton->setAutoRepeat(true);
 	ui->rightButton->setAutoRepeat(true);
 
-	QObject::connect(ui->leftButton, &QToolButton::released, this, &RibbonTabContent::slotScrollLeft);
-	QObject::connect(ui->rightButton, &QToolButton::released, this, &RibbonTabContent::slotScrollRight);
+	QObject::connect(ui->leftButton, &QToolButton::clicked, this, &RibbonTabContent::slotScrollLeft);
+	QObject::connect(ui->rightButton, &QToolButton::clicked, this, &RibbonTabContent::slotScrollRight);
 }
 
 void RibbonTabContent::updateScrollButtons()

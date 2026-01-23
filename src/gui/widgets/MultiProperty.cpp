@@ -44,7 +44,7 @@ MultiProperty::MultiProperty(Controller& controller, QWidget* parent, float guiS
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::multiObjectProperties);
 
-	connect(m_ui.addLinkButton, &QPushButton::released, this, [this]() { m_hyperLinkDial->show(); });
+	connect(m_ui.addLinkButton, &QPushButton::clicked, this, [this]() { m_hyperLinkDial->show(); });
 	connect(m_hyperLinkDial, &HyperlinkAddDialog::onCreatedLink, this, &MultiProperty::addHyperlink);
 
 	connect(m_ui.colorPicker, &ColorPicker::pickedColor, this, [this](const Color32& color) { m_selectedColor = color; });
@@ -67,8 +67,8 @@ MultiProperty::MultiProperty(Controller& controller, QWidget* parent, float guiS
 	connect(m_ui.rampMaxToolButton, &QToolButton::clicked, this, [this]() {updateToolButton(m_ui.rampMaxToolButton); });
 	connect(m_ui.rampStepsToolButton, &QToolButton::clicked, this, [this]() {updateToolButton(m_ui.rampStepsToolButton); });
 
-	connect(m_ui.validateChangeButton, &QPushButton::released, this, &MultiProperty::onActivateChanges);
-	connect(m_ui.cancelButton, &QPushButton::released, this, [this]() { close(); });
+	connect(m_ui.validateChangeButton, &QPushButton::clicked, this, &MultiProperty::onActivateChanges);
+	connect(m_ui.cancelButton, &QPushButton::clicked, this, [this]() { close(); });
 
 	m_ui.LinksTableWidget->setColumnCount(1);
 	m_ui.LinksTableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);

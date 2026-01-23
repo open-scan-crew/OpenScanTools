@@ -249,7 +249,7 @@ ToolBarImageGroup::ToolBarImageGroup(IDataDispatcher& dataDispatcher, QWidget* p
 	m_ui.setupUi(this);
 	setEnabled(false);
 
-	QObject::connect(m_ui.toolButton_screenshot, &QPushButton::released, this, [this]() {quickScreenshot(""); });
+	QObject::connect(m_ui.toolButton_screenshot, &QPushButton::clicked, this, [this]() {quickScreenshot(""); });
 	QObject::connect(m_ui.checkBox_frame, &QCheckBox::toggled, this, &ToolBarImageGroup::slotShowFrame);
 	QObject::connect(m_ui.checkBox_hdImageGrid, &QCheckBox::toggled, this, &ToolBarImageGroup::slotShowFrame);
 
@@ -259,7 +259,7 @@ ToolBarImageGroup::ToolBarImageGroup(IDataDispatcher& dataDispatcher, QWidget* p
 	QObject::connect(m_ui.comboBox_ratioImage, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarImageGroup::slotRatioChanged);
 	QObject::connect(m_ui.comboBox_scale, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarImageGroup::slotScaleChanged);
 	QObject::connect(m_ui.comboBox_dpi, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarImageGroup::slotDPIChanged);
-	QObject::connect(m_ui.toolButton_createImage, &QToolButton::released, this, [this]() {slotCreateImage("", true); });
+	QObject::connect(m_ui.toolButton_createImage, &QToolButton::clicked, this, [this]() {slotCreateImage("", true); });
 	QObject::connect(m_ui.lineEdit_imageW, &QLineEdit::textChanged, this, &ToolBarImageGroup::refreshImageSize);
 	QObject::connect(m_ui.lineEdit_imageH, &QLineEdit::textChanged, this, &ToolBarImageGroup::slotHeightChanged);
 	// The two radio buttons (*_ratioImage and *_ratioPrint) are exclusive, only one connect is needed

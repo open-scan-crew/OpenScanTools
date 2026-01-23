@@ -18,8 +18,8 @@ ToolBarImportObjects::ToolBarImportObjects(IDataDispatcher &dataDispatcher, QWid
 
 	m_openPath = QStandardPaths::locate(QStandardPaths::DocumentsLocation, QString(), QStandardPaths::LocateDirectory);
 
-	connect(m_ui.importTagsButton, &QPushButton::released, this, &ToolBarImportObjects::slotImportObjects);
-	connect(m_ui.linkMissingFilesButton, &QPushButton::released, this, &ToolBarImportObjects::slotLinkObjects);
+	connect(m_ui.importTagsButton, &QPushButton::clicked, this, &ToolBarImportObjects::slotImportObjects);
+	connect(m_ui.linkMissingFilesButton, &QPushButton::clicked, this, &ToolBarImportObjects::slotLinkObjects);
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectPath);

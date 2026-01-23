@@ -64,14 +64,14 @@ ToolBarFilterGroup::ToolBarFilterGroup(IDataDispatcher& dataDispatcher, Controll
 	QObject::connect(m_ui.UserCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(onUserChange(int)));
 	QObject::connect(m_ui.PhaseCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(onPhaseChange(int)));
 	QObject::connect(m_iconSelectionDialog, &MarkerIconSelectionDialog::markerSelected, this, &ToolBarFilterGroup::changeMarkerIcon);
-	QObject::connect(m_ui.iconTagButton, &QToolButton::released, this, &ToolBarFilterGroup::clickIconTag);
+	QObject::connect(m_ui.iconTagButton, &QToolButton::clicked, this, &ToolBarFilterGroup::clickIconTag);
 	
 	QObject::connect(m_ui.AllCheckBox, SIGNAL(stateChanged(int)), this, SLOT(toggleAllFilter()));
 	QObject::connect(m_ui.SphereCheckBox, SIGNAL(stateChanged(int)), this, SLOT(toggleSphereFilter()));
 	QObject::connect(m_ui.MeshCheckBox, SIGNAL(stateChanged(int)), this, SLOT(toggleMeshFilter()));
 	QObject::connect(m_ui.PcoCheckBox, SIGNAL(stateChanged(int)), this, SLOT(togglePcoObjectFilter()));
 
-	QObject::connect(m_ui.searchButton, &QToolButton::released, this, &ToolBarFilterGroup::updateFilterResult);
+	QObject::connect(m_ui.searchButton, &QToolButton::clicked, this, &ToolBarFilterGroup::updateFilterResult);
 
 	
 }
