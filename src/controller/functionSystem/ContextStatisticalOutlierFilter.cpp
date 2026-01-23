@@ -18,6 +18,7 @@
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "utils/Logger.h"
 
+#include <algorithm>
 #include <cmath>
 #include <filesystem>
 
@@ -152,7 +153,9 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
     std::unordered_set<SafePtr<PointCloudNode>> scans = graphManager.getVisibleScans(m_panoramic);
 
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString()));
-    controller.updateInfo(new GuiDataProcessingSplashScreenStart(scans.size(), TEXT_EXPORT_STAT_OUTLIER_TITLE_PROGESS, TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(0).arg(scans.size())));
+    const uint64_t totalScans = scans.size();
+    const uint64_t totalProgressSteps = totalScans * 100;
+    controller.updateInfo(new GuiDataProcessingSplashScreenStart(totalProgressSteps, TEXT_EXPORT_STAT_OUTLIER_TITLE_PROGESS, TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(0).arg(totalScans)));
 
     ClippingAssembly clippingAssembly;
     graphManager.getClippingAssembly(clippingAssembly, true, false);
@@ -184,6 +187,27 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
 
     uint64_t scan_count = 0;
     uint64_t total_deleted_points = 0;
+    auto updateProgress = [&](uint64_t scansDone, int percent, uint64_t progressValue)
+    {
+        QString state = QString("%1 - %2%")
+                            .arg(TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(scansDone).arg(totalScans))
+                            .arg(percent);
+        controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(state, progressValue));
+    };
+    auto makeProgressCallback = [&](uint64_t scansDone, int basePercent, int spanPercent)
+    {
+        return [&](size_t processed, size_t total)
+        {
+            if (total == 0)
+                return;
+            int percent = basePercent + static_cast<int>((processed * spanPercent) / total);
+            percent = std::clamp(percent, basePercent, basePercent + spanPercent - 1);
+            if (percent >= 100)
+                percent = 99;
+            uint64_t progressValue = scansDone * 100 + static_cast<uint64_t>(percent);
+            updateProgress(scansDone, percent, progressValue);
+        };
+    };
     for (const SafePtr<PointCloudNode>& scan : scans)
     {
         WritePtr<PointCloudNode> wScan = scan.get();
@@ -216,9 +240,13 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
 
         OutlierStats statsToUse = globalStats;
         if (!m_globalFiltering)
-            TlScanOverseer::getInstance().computeOutlierStats(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, m_samplingPercent, m_beta, statsToUse);
+        {
+            auto statsProgress = makeProgressCallback(scan_count, 0, 50);
+            TlScanOverseer::getInstance().computeOutlierStats(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, m_samplingPercent, m_beta, statsToUse, statsProgress);
+        }
 
-        bool res = TlScanOverseer::getInstance().filterOutliersAndWrite(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, statsToUse, m_nSigma, m_beta, tls_writer, deleted_point_count);
+        auto filterProgress = makeProgressCallback(scan_count, m_globalFiltering ? 0 : 50, m_globalFiltering ? 100 : 50);
+        bool res = TlScanOverseer::getInstance().filterOutliersAndWrite(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, statsToUse, m_nSigma, m_beta, tls_writer, deleted_point_count, filterProgress);
         res &= tls_writer->finalizePointCloud();
         delete tls_writer;
 
@@ -227,7 +255,7 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         scan_count++;
         float seconds = std::chrono::duration<float, std::ratio<1>>(std::chrono::steady_clock::now() - startTime).count();
         QString qScanName = QString::fromStdWString(wScan->getName());
-        controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(scan_count).arg(scans.size()), scan_count));
+        updateProgress(scan_count, 100, scan_count * 100);
 
         if (deleted_point_count > 0)
             controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("%1 points deleted in scan %2 in %3 seconds.").arg(deleted_point_count).arg(qScanName).arg(seconds)));
