@@ -20,6 +20,7 @@ public:
     UiRenderMode   m_mode = UiRenderMode::RGB;
     Color32        m_backgroundColor = Color32(0, 0, 0, 0);
     float          m_pointSize = 1.f;
+    bool           m_roundPoint = false;
     int            m_texelThreshold = 2;
     float          m_deltaFilling = 0.f;	
     float          m_contrast = 0.f;

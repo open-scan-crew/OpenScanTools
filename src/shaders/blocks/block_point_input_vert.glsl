@@ -29,6 +29,7 @@ layout(push_constant) uniform PC {
     layout(offset = 32) float rampMax;
     layout(offset = 36) int rampSteps;
     layout(offset = 48) vec3 ptColor;
+    layout(offset = 60) int roundPoint;
 } pc;
 
 layout(set = 0, binding = 0) uniform uniformCamera {

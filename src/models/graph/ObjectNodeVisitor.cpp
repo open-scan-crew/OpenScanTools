@@ -1426,8 +1426,29 @@ void ObjectNodeVisitor::draw_baked_pointClouds(VkCommandBuffer cmdBuffer, Render
     m_totalNonClippedCells = 0;
     m_totalClippedCells = 0;
 
+    auto getRoundPointExpansionFactor = [](int texelThreshold) -> float
+    {
+        switch (texelThreshold)
+        {
+            case 1:
+                return 1.15f;
+            case 2:
+                return 1.10f;
+            case 4:
+                return 1.05f;
+            case 9:
+            default:
+                return 1.0f;
+        }
+    };
+
+    float effectivePointSize = m_displayParameters.m_pointSize;
+    if (m_displayParameters.m_roundPoint)
+        effectivePointSize *= getRoundPointExpansionFactor(m_displayParameters.m_texelThreshold);
+
     renderer.setViewportAndScissor(0, 0, m_fbExtent.width, m_fbExtent.height, cmdBuffer);
-    renderer.setConstantPointSize(m_displayParameters.m_pointSize, cmdBuffer);
+    renderer.setConstantRoundPoint(m_displayParameters.m_roundPoint, cmdBuffer);
+    renderer.setConstantPointSize(effectivePointSize, cmdBuffer);
     renderer.setConstantContrastBrightness((float)m_displayParameters.m_contrast, (float)m_displayParameters.m_brightness, cmdBuffer);
     renderer.setConstantSaturationLuminance((float)m_displayParameters.m_saturation, (float)m_displayParameters.m_luminance, cmdBuffer);
     renderer.setConstantBlending((float)m_displayParameters.m_hue, cmdBuffer);
@@ -1439,7 +1460,7 @@ void ObjectNodeVisitor::draw_baked_pointClouds(VkCommandBuffer cmdBuffer, Render
     // *** Traverse the scan using the frustum matrix as a clipping box ***
     // The projection info are common for all the scans
     // The Model matrix will be edited by each drawScan()
-    TlProjectionInfo projInfoNode{ glm::dmat4(), m_viewProjMatrix, m_fbExtent.width, m_fbExtent.height, m_displayParameters.m_pointSize, m_decimationRatio, m_displayParameters.m_deltaFilling };
+    TlProjectionInfo projInfoNode{ glm::dmat4(), m_viewProjMatrix, m_fbExtent.width, m_fbExtent.height, effectivePointSize, m_decimationRatio, m_displayParameters.m_deltaFilling };
 
     m_drawHasMissingScanPart = false;
     ClippingAssembly emptyAssembly;

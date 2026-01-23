@@ -163,6 +163,17 @@ guiDType GuiDataRenderPointSize::getType()
     return guiDType::renderPointSize;
 }
 
+//*** Round Point ***//
+GuiDataRenderRoundPoint::GuiDataRenderRoundPoint(bool isRoundPoint, SafePtr<CameraNode> camera)
+	: GuiDataActiveCamera(camera)
+	, m_roundPoint(isRoundPoint)
+{}
+
+guiDType GuiDataRenderRoundPoint::getType()
+{
+	return guiDType::renderRoundPoint;
+}
+
 //*** Texel Threshold ***//
 GuiDataRenderTexelThreshold::GuiDataRenderTexelThreshold(int texelThreshold, SafePtr<CameraNode> camera)
 	: GuiDataActiveCamera(camera)

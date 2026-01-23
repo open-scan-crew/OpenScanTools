@@ -351,10 +351,38 @@
     </spacer>
    </item>
    <item row="1" column="2">
-    <widget class="QLabel" name="label_gapFilling">
-     <property name="text">
-      <string>Gap filling</string>
-     </property>
+    <widget class="QWidget" name="roundPointContainer" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout_roundPoint">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <property name="spacing">
+       <number>6</number>
+      </property>
+      <item>
+       <widget class="QCheckBox" name="checkBox_roundPoint">
+        <property name="text">
+         <string>Round point</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_gapFilling">
+        <property name="text">
+         <string>Gap filling</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
    <item row="2" column="2">
@@ -560,6 +588,7 @@
  </customwidgets>
  <tabstops>
   <tabstop>spinBox_pointSize</tabstop>
+  <tabstop>checkBox_roundPoint</tabstop>
   <tabstop>comboBox_gapFillingStrength</tabstop>
   <tabstop>comboBox_displayPresets</tabstop>
   <tabstop>pushButton_editDisplayPresets</tabstop>

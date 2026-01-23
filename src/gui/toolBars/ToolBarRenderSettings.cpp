@@ -61,6 +61,7 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 	connect(m_ui.comboBox_renderMode,QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarRenderSettings::slotSetRenderMode);
 
 	connect(m_ui.spinBox_pointSize, qOverload<int>(&QSpinBox::valueChanged), this, &ToolBarRenderSettings::slotSetPointSize);
+	connect(m_ui.checkBox_roundPoint, &QCheckBox::stateChanged, this, &ToolBarRenderSettings::slotSetRoundPoint);
 	connect(m_ui.comboBox_gapFillingStrength, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarRenderSettings::slotSetTexelThreshold);
 
 	connect(m_ui.pushButton_color, &QPushButton::clicked, this, &ToolBarRenderSettings::slotColorPicking);
@@ -106,6 +107,7 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 	registerGuiDataFunction(guiDType::renderLuminance, &ToolBarRenderSettings::onRenderLuminance);
 	registerGuiDataFunction(guiDType::renderBlending, &ToolBarRenderSettings::onRenderBlending);
 	registerGuiDataFunction(guiDType::renderPointSize, &ToolBarRenderSettings::onRenderPointSize);
+	registerGuiDataFunction(guiDType::renderRoundPoint, &ToolBarRenderSettings::onRenderRoundPoint);
 	registerGuiDataFunction(guiDType::renderTexelThreshold, &ToolBarRenderSettings::onRenderTexelThreshold);
         registerGuiDataFunction(guiDType::renderSaturation, &ToolBarRenderSettings::onRenderSaturation);
         
@@ -201,6 +203,18 @@ void ToolBarRenderSettings::onRenderPointSize(IGuiData* idata)
 		m_ui.spinBox_pointSize->blockSignals(true);
 	    m_ui.spinBox_pointSize->setValue(data->m_pointSize);
 		m_ui.spinBox_pointSize->blockSignals(false);
+	}
+}
+
+void ToolBarRenderSettings::onRenderRoundPoint(IGuiData* idata)
+{
+	GuiDataRenderRoundPoint* data = static_cast<GuiDataRenderRoundPoint*>(idata);
+	const bool isChecked = m_ui.checkBox_roundPoint->isChecked();
+	if (data->m_roundPoint != isChecked)
+	{
+		m_ui.checkBox_roundPoint->blockSignals(true);
+		m_ui.checkBox_roundPoint->setChecked(data->m_roundPoint);
+		m_ui.checkBox_roundPoint->blockSignals(false);
 	}
 }
 void ToolBarRenderSettings::onRenderTexelThreshold(IGuiData* idata)
@@ -303,6 +317,8 @@ void ToolBarRenderSettings::onActiveCamera(IGuiData* idata)
 	if (displayParameters.m_pointSize != m_ui.spinBox_pointSize->value())
 		m_ui.spinBox_pointSize->setValue(displayParameters.m_pointSize);
 
+	m_ui.checkBox_roundPoint->setChecked(displayParameters.m_roundPoint);
+
 	int texelIndex = m_ui.comboBox_gapFillingStrength->findData(displayParameters.m_texelThreshold);
 	if (texelIndex != -1)
 		m_ui.comboBox_gapFillingStrength->setCurrentIndex(texelIndex);
@@ -360,6 +376,7 @@ void ToolBarRenderSettings::blockAllSignals(bool block)
 	m_ui.falseColorSpinBox->blockSignals(block);
 	m_ui.falseColorSlider->blockSignals(block);
 	m_ui.spinBox_pointSize->blockSignals(block);
+	m_ui.checkBox_roundPoint->blockSignals(block);
 	m_ui.comboBox_gapFillingStrength->blockSignals(block);
 	m_ui.contrastSaturationSpinBox->blockSignals(block);
 	m_ui.contrastSaturationSlider->blockSignals(block);
@@ -545,6 +562,11 @@ void ToolBarRenderSettings::slotTransparencyValueChanged(int value)
 void ToolBarRenderSettings::slotSetPointSize(int pointSize)
 {
     m_dataDispatcher.sendControl(new control::application::SetRenderPointSize(pointSize, m_focusCamera));
+}
+
+void ToolBarRenderSettings::slotSetRoundPoint(int value)
+{
+	m_dataDispatcher.updateInformation(new GuiDataRenderRoundPoint(value > 0, m_focusCamera), this);
 }
 
 void ToolBarRenderSettings::slotSetTexelThreshold(int index)
