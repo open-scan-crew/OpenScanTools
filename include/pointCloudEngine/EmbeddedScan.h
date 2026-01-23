@@ -18,6 +18,7 @@
 #include <vector>
 #include <atomic>
 #include <filesystem>
+#include <functional>
 #include <mutex>
 
 class IScanFileWriter;
@@ -97,6 +98,8 @@ public:
     EmbeddedScan(std::filesystem::path const& filepath);
     ~EmbeddedScan();
 
+    using ProgressCallback = std::function<void(size_t processed, size_t total)>;
+
     tls::ScanGuid getGuid() const;
     tls::FileGuid getFileGuid() const;
     void getInfo(tls::ScanHeader &info) const;
@@ -110,9 +113,9 @@ public:
 
     // For File Clipping
     bool testPointsClippedOut(const TransformationModule& src_transfo, const ClippingAssembly& _clippingAssembly) const;
-    bool clipAndWrite(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, IScanFileWriter* writer);
-    bool computeOutlierStats(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, int samplingPercent, double beta, OutlierStats& stats);
-    bool filterOutliersAndWrite(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* writer, uint64_t& removedPoints);
+    bool clipAndWrite(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, IScanFileWriter* writer, const ProgressCallback& progress = {});
+    bool computeOutlierStats(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, int samplingPercent, double beta, OutlierStats& stats, const ProgressCallback& progress = {});
+    bool filterOutliersAndWrite(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* writer, uint64_t& removedPoints, const ProgressCallback& progress = {});
     static void logClipAndWriteTimings();
 
     void decodePointCoord(uint32_t cellId, std::vector<glm::dvec3>& dstPoints, uint32_t layerDepth, bool transformToGlobal);
