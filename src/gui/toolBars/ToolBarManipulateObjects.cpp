@@ -12,11 +12,11 @@ ToolBarManipulateObjects::ToolBarManipulateObjects(IDataDispatcher &dataDispatch
 
 	setEnabled(false);
 
-	connect(m_ui.translate, &QPushButton::released, this, &ToolBarManipulateObjects::translate);
-	connect(m_ui.translateLockZ, &QPushButton::released, this, &ToolBarManipulateObjects::translateLockZ);
-	connect(m_ui.translateAlongZ, &QPushButton::released, this, &ToolBarManipulateObjects::translateAlongZ);
-	connect(m_ui.rotate2points, &QPushButton::released, this, &ToolBarManipulateObjects::rotate2points);
-	connect(m_ui.rotate3points, &QPushButton::released, this, &ToolBarManipulateObjects::rotate3points);
+	connect(m_ui.translate, &QPushButton::clicked, this, &ToolBarManipulateObjects::translate);
+	connect(m_ui.translateLockZ, &QPushButton::clicked, this, &ToolBarManipulateObjects::translateLockZ);
+	connect(m_ui.translateAlongZ, &QPushButton::clicked, this, &ToolBarManipulateObjects::translateAlongZ);
+	connect(m_ui.rotate2points, &QPushButton::clicked, this, &ToolBarManipulateObjects::rotate2points);
+	connect(m_ui.rotate3points, &QPushButton::clicked, this, &ToolBarManipulateObjects::rotate3points);
 	
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::activatedFunctions);

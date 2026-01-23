@@ -16,9 +16,9 @@ ToolBarTagGroup::ToolBarTagGroup(IDataDispatcher &dataDispatcher, QWidget *paren
     m_ui.createTagButton->setIconSize(QSize(20, 20) * guiScale);
     m_ui.moveTagButton->setIconSize(QSize(20, 20) * guiScale);
 
-	QObject::connect(m_ui.createTagButton, &QToolButton::released, this, &ToolBarTagGroup::clickCreatetag);
-	QObject::connect(m_ui.moveTagButton, &QToolButton::released, this, &ToolBarTagGroup::clickMoveTag);
-	QObject::connect(m_ui.copyTagButton, &QToolButton::released, this, &ToolBarTagGroup::clickDuplicateTag);
+	QObject::connect(m_ui.createTagButton, &QToolButton::clicked, this, &ToolBarTagGroup::clickCreatetag);
+	QObject::connect(m_ui.moveTagButton, &QToolButton::clicked, this, &ToolBarTagGroup::clickMoveTag);
+	QObject::connect(m_ui.copyTagButton, &QToolButton::clicked, this, &ToolBarTagGroup::clickDuplicateTag);
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::activatedFunctions);

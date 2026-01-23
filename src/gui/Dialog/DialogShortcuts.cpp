@@ -12,7 +12,7 @@ DialogShortcuts::DialogShortcuts(QWidget* parent)
     flags ^= Qt::WindowContextHelpButtonHint;
     setWindowFlags(flags);
 
-    connect(m_ui.okButton, &QPushButton::released, [this]() {this->hide(); });
+    connect(m_ui.okButton, &QPushButton::clicked, [this]() {this->hide(); });
 }
 
 DialogShortcuts::~DialogShortcuts()

@@ -24,8 +24,8 @@ ConvertionOptionsBox::ConvertionOptionsBox(IDataDispatcher& dataDispatcher, QWid
 	m_ui.setupUi(this);
 	setWindowTitle(TEXT_CONVERTION_TITLE);
 	
-	connect(m_ui.okButton, &QPushButton::released, this, &ConvertionOptionsBox::sendConvertionInfo);
-	connect(m_ui.cancelButton, &QPushButton::released, this, &ConvertionOptionsBox::cancelConvertion);
+	connect(m_ui.okButton, &QPushButton::clicked, this, &ConvertionOptionsBox::sendConvertionInfo);
+	connect(m_ui.cancelButton, &QPushButton::clicked, this, &ConvertionOptionsBox::cancelConvertion);
 	m_dataDispatcher.registerObserverOnKey(this, { guiDType::conversionOptionsDisplay });
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::conversionFilePaths);
 
@@ -41,7 +41,7 @@ ConvertionOptionsBox::ConvertionOptionsBox(IDataDispatcher& dataDispatcher, QWid
 	m_ui.precisionComboBox->setCurrentIndex(1);
 	m_ui.precisionGroupBox->hide();
 
-	connect(m_ui.browseButton, &QPushButton::released, this, &ConvertionOptionsBox::selectOutDir);
+	connect(m_ui.browseButton, &QPushButton::clicked, this, &ConvertionOptionsBox::selectOutDir);
 	m_ui.browseGroupBox->hide();
 
 	m_ui.list_fileNames->hide();

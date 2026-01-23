@@ -9,7 +9,7 @@ ToolBarFindScan::ToolBarFindScan(IDataDispatcher &dataDispatcher, QWidget *paren
     m_ui.setupUi(this);
     setEnabled(false);
 
-    QObject::connect(m_ui.pushButton_findScan, &QPushButton::released, this, &ToolBarFindScan::slotFindScan);
+    QObject::connect(m_ui.pushButton_findScan, &QPushButton::clicked, this, &ToolBarFindScan::slotFindScan);
 
     m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);
     m_guiDataFunctions.insert({ guiDType::projectLoaded, &ToolBarFindScan::onProjectLoad });

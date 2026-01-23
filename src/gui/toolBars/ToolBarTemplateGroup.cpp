@@ -21,7 +21,7 @@ ToolBarTemplateGroup::ToolBarTemplateGroup(IDataDispatcher &dataDispatcher, QWid
 
 	QObject::connect(m_ui.TemplateComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changeTemplateCombo(int)));
     QObject::connect(m_iconSelectionDialog, &MarkerIconSelectionDialog::markerSelected, this, &ToolBarTemplateGroup::changeMarkerIcon);
-    QObject::connect(m_ui.iconTagButton, &QToolButton::released, this, &ToolBarTemplateGroup::clickIconTag);
+    QObject::connect(m_ui.iconTagButton, &QToolButton::clicked, this, &ToolBarTemplateGroup::clickIconTag);
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::sendTemplateList);

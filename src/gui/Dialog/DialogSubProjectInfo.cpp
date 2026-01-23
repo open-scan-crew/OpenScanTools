@@ -14,7 +14,7 @@ DialogSubProjectInfo::DialogSubProjectInfo(IDataDispatcher& dataDispatcher, QWid
 	setWindowFlags(flags);
 	// ------------------------------------
 
-	connect(m_ui.okButton, &QPushButton::released, this, &DialogSubProjectInfo::onOkButton);
+	connect(m_ui.okButton, &QPushButton::clicked, this, &DialogSubProjectInfo::onOkButton);
 
 }
 

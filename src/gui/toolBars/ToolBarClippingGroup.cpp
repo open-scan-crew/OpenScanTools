@@ -20,12 +20,12 @@ ToolBarClippingGroup::ToolBarClippingGroup(IDataDispatcher& dataDispatcher, QWid
 	m_ui.AttachedBox2PointsBtn->setIconSize(QSize(20, 20) * guiScale);
 	m_ui.CreationSettingsBtn->setIconSize(QSize(20, 20) * guiScale);
 
-	QObject::connect(m_ui.LocalBoxBtn, &QToolButton::released, this, &ToolBarClippingGroup::clickLocalBox);
-	QObject::connect(m_ui.GlobalBoxBtn, &QToolButton::released, this, &ToolBarClippingGroup::clickGlobalBox);
-	QObject::connect(m_ui.CopyBoxBtn, &QToolButton::released, this, &ToolBarClippingGroup::clickCopyBox);
-	QObject::connect(m_ui.AttachedBoxBtn, &QToolButton::released, this, &ToolBarClippingGroup::clickAttachedBox);
-	QObject::connect(m_ui.AttachedBox2PointsBtn, &QToolButton::released, this, &ToolBarClippingGroup::clickAttachedBox2Points);
-	QObject::connect(m_ui.CreationSettingsBtn, &QToolButton::released, this, &ToolBarClippingGroup::clickClippingProperties);
+	QObject::connect(m_ui.LocalBoxBtn, &QToolButton::clicked, this, &ToolBarClippingGroup::clickLocalBox);
+	QObject::connect(m_ui.GlobalBoxBtn, &QToolButton::clicked, this, &ToolBarClippingGroup::clickGlobalBox);
+	QObject::connect(m_ui.CopyBoxBtn, &QToolButton::clicked, this, &ToolBarClippingGroup::clickCopyBox);
+	QObject::connect(m_ui.AttachedBoxBtn, &QToolButton::clicked, this, &ToolBarClippingGroup::clickAttachedBox);
+	QObject::connect(m_ui.AttachedBox2PointsBtn, &QToolButton::clicked, this, &ToolBarClippingGroup::clickAttachedBox2Points);
+	QObject::connect(m_ui.CreationSettingsBtn, &QToolButton::clicked, this, &ToolBarClippingGroup::clickClippingProperties);
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::activatedFunctions);

@@ -10,7 +10,7 @@ ToolBarConvertImage::ToolBarConvertImage(IDataDispatcher &dataDispatcher, QWidge
 	m_ui.setupUi(this);
 	setEnabled(false);
 
-	connect(m_ui.convertImageButton, &QPushButton::released, this, &ToolBarConvertImage::slotConvertImage);
+	connect(m_ui.convertImageButton, &QPushButton::clicked, this, &ToolBarConvertImage::slotConvertImage);
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);
 }

@@ -38,14 +38,14 @@ DialogImportAsciiPC::DialogImportAsciiPC(QWidget* parent)
 	setWindowFlags(flags);
 
 
-	QObject::connect(m_ui.applyButton, &QPushButton::released, this, [this]() { this->onOk(false); });
-	QObject::connect(m_ui.applyAllButton, &QPushButton::released, this, [this]() { this->onOk(true); });
-	QObject::connect(m_ui.cancelButton, &QPushButton::released, this, &DialogImportAsciiPC::onCancel);
+	QObject::connect(m_ui.applyButton, &QPushButton::clicked, this, [this]() { this->onOk(false); });
+	QObject::connect(m_ui.applyAllButton, &QPushButton::clicked, this, [this]() { this->onOk(true); });
+	QObject::connect(m_ui.cancelButton, &QPushButton::clicked, this, &DialogImportAsciiPC::onCancel);
 
 	QObject::connect(m_ui.separatorLineEdit, &QLineEdit::textChanged, this, &DialogImportAsciiPC::updateTable);
-	QObject::connect(m_ui.whitespacePushButton, &QPushButton::released, this, [this]() {this->changeSeparator(' '); });
-	QObject::connect(m_ui.semicolonPushButton, &QPushButton::released, this, [this]() {this->changeSeparator(';'); });
-	QObject::connect(m_ui.commaPushButton, &QPushButton::released, this, [this]() {this->changeSeparator(','); });
+	QObject::connect(m_ui.whitespacePushButton, &QPushButton::clicked, this, [this]() {this->changeSeparator(' '); });
+	QObject::connect(m_ui.semicolonPushButton, &QPushButton::clicked, this, [this]() {this->changeSeparator(';'); });
+	QObject::connect(m_ui.commaPushButton, &QPushButton::clicked, this, [this]() {this->changeSeparator(','); });
 
 	QObject::connect(m_ui.skipLineSpinBox, qOverload<int>(&QSpinBox::valueChanged), this, &DialogImportAsciiPC::updateTable);
 	

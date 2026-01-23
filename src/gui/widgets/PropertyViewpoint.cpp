@@ -25,7 +25,7 @@ PropertyViewpoint::PropertyViewpoint(Controller& controller, QWidget* parent, fl
 	connect(m_ui.XOrientInfield, &QLineEdit::editingFinished, this, &PropertyViewpoint::onOrientXEdit);
 	connect(m_ui.YOrientInfield, &QLineEdit::editingFinished, this, &PropertyViewpoint::onOrientYEdit);
 	connect(m_ui.ZOrientInfield, &QLineEdit::editingFinished, this, &PropertyViewpoint::onOrientZEdit);
-	connect(m_ui.updateToolButton, &QToolButton::released, this, &PropertyViewpoint::onUpdateToolButton);
+	connect(m_ui.updateToolButton, &QToolButton::clicked, this, &PropertyViewpoint::onUpdateToolButton);
 
 
 	m_ui.XCenterInfield->setType(NumericType::DISTANCE);

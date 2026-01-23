@@ -20,12 +20,12 @@ ToolBarMeasureGroup::ToolBarMeasureGroup(IDataDispatcher &dataDispatcher, QWidge
 
 	m_ui.pointMeshButton->hide();
 
-	connect(m_ui.pointPlaneButton, &QPushButton::released, this, &ToolBarMeasureGroup::initPointPlaneMeasure);
-	connect(m_ui.pipePipeButton, &QPushButton::released, this, &ToolBarMeasureGroup::initPipePipeMeasure);
-	connect(m_ui.pointPipeButton, &QPushButton::released, this, &ToolBarMeasureGroup::initPointPipeMeasure);
-	connect(m_ui.pipePlaneButton, &QPushButton::released, this, &ToolBarMeasureGroup::initPipePlaneMeasure);
+	connect(m_ui.pointPlaneButton, &QPushButton::clicked, this, &ToolBarMeasureGroup::initPointPlaneMeasure);
+	connect(m_ui.pipePipeButton, &QPushButton::clicked, this, &ToolBarMeasureGroup::initPipePipeMeasure);
+	connect(m_ui.pointPipeButton, &QPushButton::clicked, this, &ToolBarMeasureGroup::initPointPipeMeasure);
+	connect(m_ui.pipePlaneButton, &QPushButton::clicked, this, &ToolBarMeasureGroup::initPipePlaneMeasure);
 	connect(m_ui.threePointsPlaneCheckBox, &QCheckBox::stateChanged, this, &ToolBarMeasureGroup::switchTo3Plan);
-	connect(m_ui.pointMeshButton, &QPushButton::released, this, &ToolBarMeasureGroup::initPointMeshMeasure);
+	connect(m_ui.pointMeshButton, &QPushButton::clicked, this, &ToolBarMeasureGroup::initPointMeshMeasure);
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::activatedFunctions);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);

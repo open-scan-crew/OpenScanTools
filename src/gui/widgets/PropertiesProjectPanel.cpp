@@ -25,7 +25,7 @@ PropertiesProjectPanel::PropertiesProjectPanel(IDataDispatcher& dataDispatcher, 
 	QObject::connect(m_ui.LocationInfield, &QLineEdit::editingFinished, this, &PropertiesProjectPanel::slotEditLocation);
 	QObject::connect(new FocusWatcher(m_ui.DescInfield), &FocusWatcher::focusOut, this, &PropertiesProjectPanel::slotEditDescription);
 
-	connect(m_ui.pushButtonCustomScanFolder, &QPushButton::released, this, &PropertiesProjectPanel::launchFileBrowserCustomScanFolder);
+	connect(m_ui.pushButtonCustomScanFolder, &QPushButton::clicked, this, &PropertiesProjectPanel::launchFileBrowserCustomScanFolder);
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectDataProperties);
 

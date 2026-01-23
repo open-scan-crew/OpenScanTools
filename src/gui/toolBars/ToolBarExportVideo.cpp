@@ -9,7 +9,7 @@ ToolBarExportVideo::ToolBarExportVideo(IDataDispatcher &dataDispatcher, QWidget 
 	m_ui.setupUi(this);
 	setEnabled(false);
 
-	connect(m_ui.generateVideoPushButton, &QPushButton::released, this, &ToolBarExportVideo::generateVideo);
+	connect(m_ui.generateVideoPushButton, &QPushButton::clicked, this, &ToolBarExportVideo::generateVideo);
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);
 }
