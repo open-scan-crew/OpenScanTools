@@ -30,6 +30,7 @@
 #define TEXT_BEAM_DETECTION QObject::tr("Beam Detection")
 #define TEXT_VIEW QObject::tr("View")
 #define TEXT_CLIPPING QObject::tr("Clipping")
+#define TEXT_EDITION QObject::tr("Edition")
 #define TEXT_POINT_CLOUD_OBJECT QObject::tr("Point Cloud Object")
 #define TEXT_IMPORT QObject::tr("Import")
 #define TEXT_PROJECT QObject::tr("Project")
