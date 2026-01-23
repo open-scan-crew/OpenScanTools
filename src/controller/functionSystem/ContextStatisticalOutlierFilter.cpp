@@ -196,7 +196,7 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
     };
     auto makeProgressCallback = [&](uint64_t scansDone, int basePercent, int spanPercent)
     {
-        return [&](size_t processed, size_t total)
+        return [scansDone, basePercent, spanPercent, &updateProgress](size_t processed, size_t total)
         {
             if (total == 0)
                 return;

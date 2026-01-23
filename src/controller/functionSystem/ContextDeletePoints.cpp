@@ -194,6 +194,7 @@ ContextState ContextDeletePoints::launch(Controller& controller)
 
         if (TlScanOverseer::getInstance().testClippingEffect(old_guid, (TransformationModule)*&wScan, *clippingToUse))
         {
+            const uint64_t currentScanIndex = scan_count;
             TlsFileWriter* tls_writer = nullptr;
             std::wstring log;
             TlsFileWriter::getWriter(temp_folder, wScan->getName(), log, (IScanFileWriter**)&tls_writer);
@@ -205,14 +206,14 @@ ContextState ContextDeletePoints::launch(Controller& controller)
             header.guid = xg::newGuid();
             tls_writer->appendPointCloud(header, wScan->getTransformation());
 
-            auto progressCallback = [&](size_t processed, size_t total)
+            auto progressCallback = [currentScanIndex, &updateProgress](size_t processed, size_t total)
             {
                 if (total == 0)
                     return;
                 int percent = static_cast<int>((processed * 100) / total);
                 percent = std::clamp(percent, 0, 99);
-                uint64_t progressValue = scan_count * 100 + static_cast<uint64_t>(percent);
-                updateProgress(scan_count, percent, progressValue);
+                uint64_t progressValue = currentScanIndex * 100 + static_cast<uint64_t>(percent);
+                updateProgress(currentScanIndex, percent, progressValue);
             };
             bool res = TlScanOverseer::getInstance().clipScan(old_guid, (TransformationModule)*&wScan, *clippingToUse, tls_writer, progressCallback);
 
