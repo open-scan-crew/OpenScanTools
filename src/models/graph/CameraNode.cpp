@@ -46,6 +46,7 @@ CameraNode::CameraNode(const std::wstring& name, IDataDispatcher& dataDispatcher
     registerGuiDataFunction(guiDType::renderColorMode, &CameraNode::onRenderColorMode);
     registerGuiDataFunction(guiDType::renderPointSize, &CameraNode::onRenderPointSize);
     registerGuiDataFunction(guiDType::renderTexelThreshold, &CameraNode::onRenderTexelThreshold);
+    registerGuiDataFunction(guiDType::renderGapFillingDensityAuto, &CameraNode::onRenderGapFillingDensityAuto);
     registerGuiDataFunction(guiDType::renderBrightness, &CameraNode::onRenderBrightness);
     registerGuiDataFunction(guiDType::renderContrast, &CameraNode::onRenderContrast);
     registerGuiDataFunction(guiDType::renderLuminance, &CameraNode::onRenderLuminance);
@@ -1358,6 +1359,11 @@ void CameraNode::onRenderPointSize(IGuiData* data)
 void CameraNode::onRenderTexelThreshold(IGuiData* data)
 {
     m_texelThreshold = static_cast<GuiDataRenderTexelThreshold*>(data)->m_texelThreshold;
+}
+
+void CameraNode::onRenderGapFillingDensityAuto(IGuiData* data)
+{
+    m_gapFillingDensityAuto = static_cast<GuiDataRenderGapFillingDensityAuto*>(data)->m_enabled;
 }
 
 void CameraNode::onRenderBrightness(IGuiData* data)
