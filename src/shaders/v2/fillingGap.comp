@@ -26,6 +26,36 @@ layout(push_constant) uniform PC {
    layout(offset = 92) float gapFillingCurveBias;
 } pc;
 
+float computeGapFillingThreshold(float depthValue, int texelThreshold)
+{
+   if (pc.gapFillingExpert == 0)
+      return float(texelThreshold);
+
+   float depthClamped = clamp(depthValue, pc.gapFillingNearStart, pc.gapFillingFarEnd);
+   if (depthClamped <= pc.gapFillingNearEnd)
+      return float(pc.gapFillingNearThreshold);
+   if (depthClamped >= pc.gapFillingFarStart)
+      return float(pc.gapFillingFarThreshold);
+
+   float blendRange = max(pc.gapFillingFarStart - pc.gapFillingNearEnd, 0.0001);
+   float t = clamp((depthClamped - pc.gapFillingNearEnd) / blendRange, 0.0, 1.0);
+
+   if (pc.gapFillingCurveType == 1)
+   {
+      t = t * t * (3.0 - 2.0 * t);
+   }
+   else if (pc.gapFillingCurveType == 2)
+   {
+      t = pow(t, max(pc.gapFillingCurveBias, 0.0001));
+   }
+   else
+   {
+      t = pow(t, max(pc.gapFillingCurveBias, 0.0001));
+   }
+
+   return mix(float(pc.gapFillingNearThreshold), float(pc.gapFillingFarThreshold), t);
+}
+
 void fillIn(in vec4[9] color, in float[9] depth, in int texelThreshold, out vec4 newColor, out float newDepth)
 {
    // Methode A : AVEC boucle for
