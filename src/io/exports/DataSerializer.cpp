@@ -347,6 +347,15 @@ void ExportRenderingParameters(nlohmann::json& json, const RenderingParameters& 
 	json[Key_Point_Size] = params.m_pointSize;
 	json[Key_Texel_Threshold] = params.m_texelThreshold;
 	json[Key_Delta_Filling] = params.m_deltaFilling;
+	json[Key_GapFilling_Expert] = params.m_gapFillingExpert;
+	json[Key_GapFilling_Near_Threshold] = params.m_gapFillingNearThreshold;
+	json[Key_GapFilling_Far_Threshold] = params.m_gapFillingFarThreshold;
+	json[Key_GapFilling_Near_Start] = params.m_gapFillingNearStart;
+	json[Key_GapFilling_Near_End] = params.m_gapFillingNearEnd;
+	json[Key_GapFilling_Far_Start] = params.m_gapFillingFarStart;
+	json[Key_GapFilling_Far_End] = params.m_gapFillingFarEnd;
+	json[Key_GapFilling_Curve_Type] = params.m_gapFillingCurveType;
+	json[Key_GapFilling_Curve_Bias] = params.m_gapFillingCurveBias;
 	
 	json[Key_Contrast] = params.m_contrast;
 	json[Key_Brightness] = params.m_brightness;

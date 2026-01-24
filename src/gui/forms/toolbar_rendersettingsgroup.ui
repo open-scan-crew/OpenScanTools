@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1753</width>
-    <height>145</height>
+    <height>240</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -398,6 +398,155 @@
      </property>
     </widget>
    </item>
+   <item row="3" column="0" colspan="4">
+    <widget class="QGroupBox" name="groupBox_gapFillingExpert">
+     <property name="title">
+      <string>Gap Filling Expert</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_gapFillingExpert">
+      <item row="0" column="0" colspan="2">
+       <widget class="QCheckBox" name="checkBox_gapFillingExpert">
+        <property name="text">
+         <string>Enable expert mode</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_gapFillingNearStrength">
+        <property name="text">
+         <string>Near strength</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="comboBox_gapFillingNearStrength"/>
+      </item>
+      <item row="1" column="2">
+       <widget class="QLabel" name="label_gapFillingFarStrength">
+        <property name="text">
+         <string>Far strength</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QComboBox" name="comboBox_gapFillingFarStrength"/>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_gapFillingNearStart">
+        <property name="text">
+         <string>Near start (m)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QDoubleSpinBox" name="doubleSpinBox_gapFillingNearStart">
+        <property name="minimum">
+         <double>0.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>10000.000000000000000</double>
+        </property>
+        <property name="decimals">
+         <number>2</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QLabel" name="label_gapFillingNearEnd">
+        <property name="text">
+         <string>Near end (m)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3">
+       <widget class="QDoubleSpinBox" name="doubleSpinBox_gapFillingNearEnd">
+        <property name="minimum">
+         <double>0.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>10000.000000000000000</double>
+        </property>
+        <property name="decimals">
+         <number>2</number>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_gapFillingFarStart">
+        <property name="text">
+         <string>Far start (m)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QDoubleSpinBox" name="doubleSpinBox_gapFillingFarStart">
+        <property name="minimum">
+         <double>0.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>10000.000000000000000</double>
+        </property>
+        <property name="decimals">
+         <number>2</number>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QLabel" name="label_gapFillingFarEnd">
+        <property name="text">
+         <string>Far end (m)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="3">
+       <widget class="QDoubleSpinBox" name="doubleSpinBox_gapFillingFarEnd">
+        <property name="minimum">
+         <double>0.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>10000.000000000000000</double>
+        </property>
+        <property name="decimals">
+         <number>2</number>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_gapFillingCurveType">
+        <property name="text">
+         <string>Curve type</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QComboBox" name="comboBox_gapFillingCurveType"/>
+      </item>
+      <item row="4" column="2">
+       <widget class="QLabel" name="label_gapFillingCurveBias">
+        <property name="text">
+         <string>Curve bias</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="3">
+       <widget class="QDoubleSpinBox" name="doubleSpinBox_gapFillingCurveBias">
+        <property name="minimum">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>10.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="decimals">
+         <number>2</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
    <item row="2" column="10">
     <widget class="QCheckBox" name="transparencyCheckBox">
      <property name="enabled">
@@ -561,6 +710,15 @@
  <tabstops>
   <tabstop>spinBox_pointSize</tabstop>
   <tabstop>comboBox_gapFillingStrength</tabstop>
+  <tabstop>checkBox_gapFillingExpert</tabstop>
+  <tabstop>comboBox_gapFillingNearStrength</tabstop>
+  <tabstop>comboBox_gapFillingFarStrength</tabstop>
+  <tabstop>doubleSpinBox_gapFillingNearStart</tabstop>
+  <tabstop>doubleSpinBox_gapFillingNearEnd</tabstop>
+  <tabstop>doubleSpinBox_gapFillingFarStart</tabstop>
+  <tabstop>doubleSpinBox_gapFillingFarEnd</tabstop>
+  <tabstop>comboBox_gapFillingCurveType</tabstop>
+  <tabstop>doubleSpinBox_gapFillingCurveBias</tabstop>
   <tabstop>comboBox_displayPresets</tabstop>
   <tabstop>pushButton_editDisplayPresets</tabstop>
   <tabstop>pushButton_newDisplayPresets</tabstop>

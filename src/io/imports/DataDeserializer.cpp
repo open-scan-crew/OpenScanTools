@@ -412,6 +412,51 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
         retVal = false;
     }
 
+    if (json.find(Key_GapFilling_Expert) != json.end())
+    {
+        data.m_gapFillingExpert = json.at(Key_GapFilling_Expert).get<bool>();
+    }
+
+    if (json.find(Key_GapFilling_Near_Threshold) != json.end())
+    {
+        data.m_gapFillingNearThreshold = json.at(Key_GapFilling_Near_Threshold).get<int>();
+    }
+
+    if (json.find(Key_GapFilling_Far_Threshold) != json.end())
+    {
+        data.m_gapFillingFarThreshold = json.at(Key_GapFilling_Far_Threshold).get<int>();
+    }
+
+    if (json.find(Key_GapFilling_Near_Start) != json.end())
+    {
+        data.m_gapFillingNearStart = json.at(Key_GapFilling_Near_Start).get<float>();
+    }
+
+    if (json.find(Key_GapFilling_Near_End) != json.end())
+    {
+        data.m_gapFillingNearEnd = json.at(Key_GapFilling_Near_End).get<float>();
+    }
+
+    if (json.find(Key_GapFilling_Far_Start) != json.end())
+    {
+        data.m_gapFillingFarStart = json.at(Key_GapFilling_Far_Start).get<float>();
+    }
+
+    if (json.find(Key_GapFilling_Far_End) != json.end())
+    {
+        data.m_gapFillingFarEnd = json.at(Key_GapFilling_Far_End).get<float>();
+    }
+
+    if (json.find(Key_GapFilling_Curve_Type) != json.end())
+    {
+        data.m_gapFillingCurveType = json.at(Key_GapFilling_Curve_Type).get<int>();
+    }
+
+    if (json.find(Key_GapFilling_Curve_Bias) != json.end())
+    {
+        data.m_gapFillingCurveBias = json.at(Key_GapFilling_Curve_Bias).get<float>();
+    }
+
     
     if (json.find(Key_Alpha_Object) != json.end())
     {

@@ -46,6 +46,7 @@ CameraNode::CameraNode(const std::wstring& name, IDataDispatcher& dataDispatcher
     registerGuiDataFunction(guiDType::renderColorMode, &CameraNode::onRenderColorMode);
     registerGuiDataFunction(guiDType::renderPointSize, &CameraNode::onRenderPointSize);
     registerGuiDataFunction(guiDType::renderTexelThreshold, &CameraNode::onRenderTexelThreshold);
+    registerGuiDataFunction(guiDType::renderGapFillingSettings, &CameraNode::onRenderGapFillingSettings);
     registerGuiDataFunction(guiDType::renderBrightness, &CameraNode::onRenderBrightness);
     registerGuiDataFunction(guiDType::renderContrast, &CameraNode::onRenderContrast);
     registerGuiDataFunction(guiDType::renderLuminance, &CameraNode::onRenderLuminance);
@@ -1358,6 +1359,20 @@ void CameraNode::onRenderPointSize(IGuiData* data)
 void CameraNode::onRenderTexelThreshold(IGuiData* data)
 {
     m_texelThreshold = static_cast<GuiDataRenderTexelThreshold*>(data)->m_texelThreshold;
+}
+
+void CameraNode::onRenderGapFillingSettings(IGuiData* data)
+{
+    auto settings = static_cast<GuiDataRenderGapFillingSettings*>(data);
+    m_gapFillingExpert = settings->m_expertEnabled;
+    m_gapFillingNearThreshold = settings->m_nearThreshold;
+    m_gapFillingFarThreshold = settings->m_farThreshold;
+    m_gapFillingNearStart = settings->m_nearStart;
+    m_gapFillingNearEnd = settings->m_nearEnd;
+    m_gapFillingFarStart = settings->m_farStart;
+    m_gapFillingFarEnd = settings->m_farEnd;
+    m_gapFillingCurveType = settings->m_curveType;
+    m_gapFillingCurveBias = settings->m_curveBias;
 }
 
 void CameraNode::onRenderBrightness(IGuiData* data)

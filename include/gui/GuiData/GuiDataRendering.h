@@ -178,6 +178,26 @@ public:
     int m_texelThreshold;
 };
 
+class GuiDataRenderGapFillingSettings : public GuiDataActiveCamera
+{
+public:
+	GuiDataRenderGapFillingSettings(bool expertEnabled, int nearThreshold, int farThreshold, float nearStart, float nearEnd,
+		float farStart, float farEnd, int curveType, float curveBias, SafePtr<CameraNode> camera);
+	~GuiDataRenderGapFillingSettings() {};
+	virtual guiDType getType() override;
+
+public:
+	bool m_expertEnabled;
+	int m_nearThreshold;
+	int m_farThreshold;
+	float m_nearStart;
+	float m_nearEnd;
+	float m_farStart;
+	float m_farEnd;
+	int m_curveType;
+	float m_curveBias;
+};
+
 class GuiDataRenderBrightness : public GuiDataActiveCamera
 {
 public:
