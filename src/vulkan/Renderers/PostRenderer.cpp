@@ -15,6 +15,11 @@ static std::vector<uint32_t> filling_comp_spv =
 #include "fillingGap.comp.spv"
 };
 
+static std::vector<uint32_t> splat_resolve_comp_spv =
+{
+#include "splat_resolve.comp.spv"
+};
+
 static std::vector<uint32_t> normal_shading_comp_spv = 
 {
 #include "normal_shading.comp.spv"
@@ -76,6 +81,7 @@ inline void PostRenderer::loadShaderSPV(Shader& shader, const std::vector<uint32
 void PostRenderer::createShaders()
 {
     loadShaderSPV(m_fillingCompShader, filling_comp_spv);
+    loadShaderSPV(m_splatResolveCompShader, splat_resolve_comp_spv);
     loadShaderSPV(m_normalShadingCompShader, normal_shading_comp_spv);
     loadShaderSPV(m_normalColoredCompShader, normal_colored_comp_spv);
     loadShaderSPV(m_transparencyHDRCompShader, transparency_hdr_comp_spv);
@@ -160,6 +166,7 @@ void PostRenderer::createPipelines()
 
     // Create all the pipelines defined
     createFillingPipeline();
+    createSplatResolvePipeline();
     createNormalPipeline();
     createAmbientOcclusionPipeline();
     createEdgeAwarePipeline();
@@ -188,6 +195,12 @@ void PostRenderer::createPipelineLayouts()
     pipelineLayoutInfo.setLayoutCount = sizeof(setLayouts) / sizeof(VkDescriptorSetLayout);
     pipelineLayoutInfo.pSetLayouts = setLayouts;
     err = h_pfn->vkCreatePipelineLayout(h_device, &pipelineLayoutInfo, nullptr, &m_fillingPipelineLayout);
+    check_vk_result(err, "Create Pipeline Layout");
+
+    VkDescriptorSetLayout setLayoutsSplat[] = { VulkanManager::getDSLayout_splatResolve() };
+    pipelineLayoutInfo.setLayoutCount = sizeof(setLayoutsSplat) / sizeof(VkDescriptorSetLayout);
+    pipelineLayoutInfo.pSetLayouts = setLayoutsSplat;
+    err = h_pfn->vkCreatePipelineLayout(h_device, &pipelineLayoutInfo, nullptr, &m_splatResolvePipelineLayout);
     check_vk_result(err, "Create Pipeline Layout");
 
     VkDescriptorSetLayout DSLayout_normal[] = { VulkanManager::getDSLayout_fillingSamplers(), VulkanManager::getDSLayout_finalOutput(), m_descSetLayoutMatrixCompute };
@@ -260,6 +273,26 @@ void PostRenderer::createFillingPipeline()
     };
 
     VkResult err = h_pfn->vkCreateComputePipelines(h_device, m_pipelineCache, 1, &info, nullptr, &m_fillingPipeline);
+    check_vk_result(err, "Create Compute Pipeline");
+}
+
+void PostRenderer::createSplatResolvePipeline()
+{
+    VkPipelineShaderStageCreateInfo compStageInfo = {
+        VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+        nullptr,
+        0,
+        VK_SHADER_STAGE_COMPUTE_BIT,
+        m_splatResolveCompShader.module(),
+        "main",
+        nullptr
+    };
+
+    VkComputePipelineCreateInfo info = {};
+    info.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+    info.stage = compStageInfo;
+    info.layout = m_splatResolvePipelineLayout;
+    VkResult err = h_pfn->vkCreateComputePipelines(h_device, m_pipelineCache, 1, &info, nullptr, &m_splatResolvePipeline);
     check_vk_result(err, "Create Compute Pipeline");
 }
 
@@ -425,6 +458,13 @@ void PostRenderer::processPointFilling(VkCommandBuffer _cmdBuffer, VkDescriptorS
     VkDescriptorSet descSets[] = { descSetSamplers, descSetOutput };
     h_pfn->vkCmdBindDescriptorSets(_cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_fillingPipelineLayout, 0, 2, descSets, 0, nullptr);
 
+    h_pfn->vkCmdDispatch(_cmdBuffer, (_extent.width + 15) / 16, (_extent.height + 15) / 16, 1);
+}
+
+void PostRenderer::processSplatResolve(VkCommandBuffer _cmdBuffer, VkDescriptorSet descSetResolve, VkExtent2D _extent)
+{
+    h_pfn->vkCmdBindPipeline(_cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_splatResolvePipeline);
+    h_pfn->vkCmdBindDescriptorSets(_cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_splatResolvePipelineLayout, 0, 1, &descSetResolve, 0, nullptr);
     h_pfn->vkCmdDispatch(_cmdBuffer, (_extent.width + 15) / 16, (_extent.height + 15) / 16, 1);
 }
 
@@ -625,6 +665,10 @@ void PostRenderer::cleanup()
         h_pfn->vkDestroyPipelineLayout(h_device, m_fillingPipelineLayout, nullptr);
         m_fillingPipelineLayout = VK_NULL_HANDLE;
     }
+    if (m_splatResolvePipelineLayout) {
+        h_pfn->vkDestroyPipelineLayout(h_device, m_splatResolvePipelineLayout, nullptr);
+        m_splatResolvePipelineLayout = VK_NULL_HANDLE;
+    }
 
     if (m_normalPipelineLayout) {
         h_pfn->vkDestroyPipelineLayout(h_device, m_normalPipelineLayout, nullptr);
@@ -656,6 +700,11 @@ void PostRenderer::cleanup()
     {
         h_pfn->vkDestroyPipeline(h_device, m_fillingPipeline, nullptr);
         m_fillingPipeline = VK_NULL_HANDLE;
+    }
+    if (m_splatResolvePipeline)
+    {
+        h_pfn->vkDestroyPipeline(h_device, m_splatResolvePipeline, nullptr);
+        m_splatResolvePipeline = VK_NULL_HANDLE;
     }
 
     if (m_normalShadingPipeline)
