@@ -45,10 +45,12 @@ public:
 
     void setViewportAndScissor(int32_t _xPos, int32_t _yPos, uint32_t _width, uint32_t height, VkCommandBuffer _cmdBuffer);
 
-    void drawPoints(const TlScanDrawInfo &drawInfo, const VkUniformOffset& viewProjUni, RenderMode _renderMode, VkCommandBuffer _cmdBuffer, BlendMode blendMode, VkFormat renderFormat) const;
-    void drawPointsClipping(const TlScanDrawInfo &drawInfo, const VkUniformOffset& viewProjUni, const VkUniformOffset& clippingBoxUni, RenderMode _renderMode, VkCommandBuffer _cmdBuffer, BlendMode blendMode, VkFormat renderFormat) const;
+    void drawPoints(const TlScanDrawInfo &drawInfo, const VkUniformOffset& viewProjUni, RenderMode _renderMode, VkCommandBuffer _cmdBuffer, BlendMode blendMode, VkFormat renderFormat, PointShape pointShape) const;
+    void drawPointsClipping(const TlScanDrawInfo &drawInfo, const VkUniformOffset& viewProjUni, const VkUniformOffset& clippingBoxUni, RenderMode _renderMode, VkCommandBuffer _cmdBuffer, BlendMode blendMode, VkFormat renderFormat, PointShape pointShape) const;
 
     void setConstantPointSize(float ptSize, VkCommandBuffer _cmdBuffer);
+    void setConstantSplatRadius(float radiusPx, VkCommandBuffer _cmdBuffer);
+    void setConstantPointShape(PointShape shape, VkCommandBuffer _cmdBuffer);
     void setConstantContrastBrightness(float contrast, float brightness, VkCommandBuffer _cmdBuffer);
 	void setConstantSaturationLuminance(float saturation, float luminance, VkCommandBuffer _cmdBuffer);
     void setConstantBlending(float blending, VkCommandBuffer _cmdBuffer);
@@ -104,7 +106,7 @@ private:
     Shader m_shaderGeomColor;
 
     typedef size_t PipelineKey;
-    inline PipelineKey createPipeKey(BlendMode dm, RenderMode rm, ClippingMode cm, tls::PointFormat pf, VkFormat rdFormat) const
+    inline PipelineKey createPipeKey(BlendMode dm, RenderMode rm, ClippingMode cm, tls::PointFormat pf, VkFormat rdFormat, PointShape pointShape) const
     {
         // bit mask sizes
         constexpr size_t DRAW_MODE_BMS = 8;
@@ -112,6 +114,7 @@ private:
         constexpr size_t CLIP_MODE_BMS = 8;
         constexpr size_t POINT_FORMAT_BMS = 8;
         constexpr size_t RENDER_FORMAT_BMS = 16;
+        constexpr size_t POINT_SHAPE_BMS = 8;
 
         // bit mask offsets
         constexpr size_t DRAW_MODE_BMO = 0;
@@ -119,15 +122,17 @@ private:
         constexpr size_t CLIP_MODE_BMO = RENDER_MODE_BMO + RENDER_MODE_BMS;
         constexpr size_t POINT_FORMAT_BMO = CLIP_MODE_BMO + CLIP_MODE_BMS;
         constexpr size_t RENDER_FORMAT_BMO = POINT_FORMAT_BMO + POINT_FORMAT_BMS;
-        constexpr size_t ALL_BMO = RENDER_FORMAT_BMO + RENDER_FORMAT_BMS;
+        constexpr size_t POINT_SHAPE_BMO = RENDER_FORMAT_BMO + RENDER_FORMAT_BMS;
+        constexpr size_t ALL_BMO = POINT_SHAPE_BMO + POINT_SHAPE_BMS;
 
         assert((size_t)dm < (1 << DRAW_MODE_BMS) && "BlendMode too large for the key");
         assert((size_t)rm < (1 << RENDER_MODE_BMS) && "RenderMode too large for the key");
         assert((size_t)cm < (1 << CLIP_MODE_BMS) && "ClippingMode too large for the key");
         assert((size_t)pf < (1 << POINT_FORMAT_BMS) && "PointFormat too large for the key");
         assert((size_t)rdFormat < (1 << RENDER_FORMAT_BMS) && "VkFormat too large for the key");
+        assert((size_t)pointShape < (1 << POINT_SHAPE_BMS) && "PointShape too large for the key");
 
-        return ((size_t)dm + ((size_t)rm << RENDER_MODE_BMO) + ((size_t)cm << CLIP_MODE_BMO) + ((size_t)pf << POINT_FORMAT_BMO) + ((size_t)rdFormat << RENDER_FORMAT_BMO));
+        return ((size_t)dm + ((size_t)rm << RENDER_MODE_BMO) + ((size_t)cm << CLIP_MODE_BMO) + ((size_t)pf << POINT_FORMAT_BMO) + ((size_t)rdFormat << RENDER_FORMAT_BMO) + ((size_t)pointShape << POINT_SHAPE_BMO));
     };
 
     //std::unordered_map<BlendMode, std::unordered_map<RenderMode, std::unordered_map<ClippingMode, std::unordered_map<tls::PointFormat, VkPipeline>>>> m_pipelines;

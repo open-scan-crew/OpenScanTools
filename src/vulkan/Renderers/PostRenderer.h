@@ -24,6 +24,7 @@ public:
     void setViewportAndScissor(int32_t _xPos, int32_t _yPos, uint32_t _width, uint32_t height, VkCommandBuffer _cmdBuffer);
 
     void processPointFilling(VkCommandBuffer _cmdBuffer, VkDescriptorSet descSetSamplers, VkDescriptorSet descSetOutput, VkExtent2D extent);
+    void processSplatResolve(VkCommandBuffer _cmdBuffer, VkDescriptorSet descSetResolve, VkExtent2D extent);
     void processNormalShading(VkCommandBuffer _cmdBuffer, VkUniformOffset matrixUniOffset, VkDescriptorSet descSetColor, VkDescriptorSet descSetOutput, VkExtent2D extent);
     void processNormalColored(VkCommandBuffer _cmdBuffer, VkUniformOffset matrixUniOffset, VkDescriptorSet descSetColor, VkDescriptorSet descSetOutput, VkExtent2D extent);
     void processTransparencyHDR(VkCommandBuffer _cmdBuffer, VkDescriptorSet descSetColor, VkExtent2D extent);
@@ -52,6 +53,7 @@ private:
     void createPipelines();
     void createPipelineLayouts();
     void createFillingPipeline();
+    void createSplatResolvePipeline();
     void createNormalPipeline();
     void createAmbientOcclusionPipeline();
     void createEdgeAwarePipeline();
@@ -73,11 +75,13 @@ private:
     VkDescriptorSet m_descSetMatrixCompute;
 
     VkPipelineLayout m_fillingPipelineLayout = VK_NULL_HANDLE;
+    VkPipelineLayout m_splatResolvePipelineLayout = VK_NULL_HANDLE;
     VkPipelineLayout m_normalPipelineLayout = VK_NULL_HANDLE;
     VkPipelineLayout m_ambientOcclusionPipelineLayout = VK_NULL_HANDLE;
     VkPipelineLayout m_transparencyHDRPipelineLayout = VK_NULL_HANDLE;
 
     Shader m_fillingCompShader;
+    Shader m_splatResolveCompShader;
     Shader m_normalShadingCompShader;
     Shader m_normalColoredCompShader;
     Shader m_transparencyHDRCompShader;
@@ -86,6 +90,7 @@ private:
     Shader m_depthLiningCompShader;
 
     VkPipeline m_fillingPipeline;
+    VkPipeline m_splatResolvePipeline = VK_NULL_HANDLE;
     VkPipeline m_normalColoredPipeline;
     VkPipeline m_normalShadingPipeline;
     VkPipeline m_ambientOcclusionPipeline = VK_NULL_HANDLE;

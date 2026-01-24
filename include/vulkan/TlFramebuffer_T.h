@@ -58,6 +58,11 @@ struct TlFramebuffer_T
     VkImage pcColorImage = VK_NULL_HANDLE;
     VkImageView pcColorImageView = VK_NULL_HANDLE;
 
+    // Splat accumulation (weight + depth)
+    VkDeviceMemory pcWeightMemory = VK_NULL_HANDLE;
+    VkImage pcWeightImage = VK_NULL_HANDLE;
+    VkImageView pcWeightImageView = VK_NULL_HANDLE;
+
     // Depth Usage :
     // VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
     // VK_IMAGE_USAGE_TRANSFER_SRC_BIT
@@ -110,6 +115,7 @@ struct TlFramebuffer_T
     VkDescriptorSet descSetInputDepth = VK_NULL_HANDLE;
     VkDescriptorSet descSetSamplers = VK_NULL_HANDLE;
     VkDescriptorSet descSetCorrectedDepth = VK_NULL_HANDLE;
+    VkDescriptorSet descSetSplatResolve = VK_NULL_HANDLE;
     VkDescriptorSet descSetInputTransparentLayer = VK_NULL_HANDLE;
 
     std::vector<SimpleBuffer> drawMarkerBuffers; // size of 'imageCount'

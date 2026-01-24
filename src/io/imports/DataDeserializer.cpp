@@ -393,6 +393,17 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
         retVal = false;
     }
 
+    if (json.find(Key_Point_Shape) != json.end())
+    {
+        auto shape = magic_enum::enum_cast<PointShape>(json.at(Key_Point_Shape).get<std::string>());
+        data.m_pointShape = shape.has_value() ? shape.value() : PointShape::Square;
+    }
+
+    if (json.find(Key_Splat_Radius) != json.end())
+    {
+        data.m_splatRadiusPx = json.at(Key_Splat_Radius).get<float>();
+    }
+
     if (json.find(Key_Texel_Threshold) != json.end())
     {
         data.m_texelThreshold = json.at(Key_Texel_Threshold).get<int>();
