@@ -4513,6 +4513,9 @@
     <CustomBuild Include="..\..\src\shaders\compute\mesh_dist.comp">
       <Filter>shaders\compute</Filter>
     </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\compute\splat_resolve.comp">
+      <Filter>shaders\compute</Filter>
+    </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\marker.frag">
       <Filter>shaders\glsl_assembled</Filter>
     </CustomBuild>
