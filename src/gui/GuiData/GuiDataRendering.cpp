@@ -163,6 +163,28 @@ guiDType GuiDataRenderPointSize::getType()
     return guiDType::renderPointSize;
 }
 
+//*** Point Shape ***//
+GuiDataRenderPointShape::GuiDataRenderPointShape(PointShape shape, SafePtr<CameraNode> camera)
+	: GuiDataActiveCamera(camera)
+	, m_shape(shape)
+{}
+
+guiDType GuiDataRenderPointShape::getType()
+{
+	return guiDType::renderPointShape;
+}
+
+//*** Splat Radius ***//
+GuiDataRenderSplatRadius::GuiDataRenderSplatRadius(float radiusPx, SafePtr<CameraNode> camera)
+	: GuiDataActiveCamera(camera)
+	, m_radiusPx(radiusPx)
+{}
+
+guiDType GuiDataRenderSplatRadius::getType()
+{
+	return guiDType::renderSplatRadius;
+}
+
 //*** Texel Threshold ***//
 GuiDataRenderTexelThreshold::GuiDataRenderTexelThreshold(int texelThreshold, SafePtr<CameraNode> camera)
 	: GuiDataActiveCamera(camera)
