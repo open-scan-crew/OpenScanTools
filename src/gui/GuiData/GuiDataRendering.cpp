@@ -174,6 +174,17 @@ guiDType GuiDataRenderTexelThreshold::getType()
 	return guiDType::renderTexelThreshold;
 }
 
+//*** Gap Filling Density Auto ***//
+GuiDataRenderGapFillingDensityAuto::GuiDataRenderGapFillingDensityAuto(bool enabled, SafePtr<CameraNode> camera)
+	: GuiDataActiveCamera(camera)
+	, m_enabled(enabled)
+{}
+
+guiDType GuiDataRenderGapFillingDensityAuto::getType()
+{
+	return guiDType::renderGapFillingDensityAuto;
+}
+
 //*** Brightness ***//
 GuiDataRenderBrightness::GuiDataRenderBrightness(int _brightness, SafePtr<CameraNode> camera)
 	: GuiDataActiveCamera(camera)

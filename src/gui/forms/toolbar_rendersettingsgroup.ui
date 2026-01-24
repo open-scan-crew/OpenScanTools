@@ -357,6 +357,13 @@
      </property>
     </widget>
    </item>
+   <item row="3" column="2" colspan="2">
+    <widget class="QCheckBox" name="checkBox_gapFillingDensityAuto">
+     <property name="text">
+      <string>Auto (density)</string>
+     </property>
+    </widget>
+   </item>
    <item row="2" column="2">
     <widget class="QPushButton" name="pushButton_editDisplayPresets">
      <property name="text">
@@ -561,6 +568,7 @@
  <tabstops>
   <tabstop>spinBox_pointSize</tabstop>
   <tabstop>comboBox_gapFillingStrength</tabstop>
+  <tabstop>checkBox_gapFillingDensityAuto</tabstop>
   <tabstop>comboBox_displayPresets</tabstop>
   <tabstop>pushButton_editDisplayPresets</tabstop>
   <tabstop>pushButton_newDisplayPresets</tabstop>

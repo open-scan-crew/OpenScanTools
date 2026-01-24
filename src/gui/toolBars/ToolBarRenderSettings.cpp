@@ -53,6 +53,7 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 	m_ui.comboBox_gapFillingStrength->addItem(tr("Mid"), 2);
 	m_ui.comboBox_gapFillingStrength->addItem(tr("High"), 1);
 	m_ui.comboBox_gapFillingStrength->setCurrentIndex(1);
+	m_ui.checkBox_gapFillingDensityAuto->setChecked(false);
 
     // Init render options UI
     m_ui.pushButton_color->setPalette(QPalette(m_selectedColor));
@@ -62,6 +63,7 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 
 	connect(m_ui.spinBox_pointSize, qOverload<int>(&QSpinBox::valueChanged), this, &ToolBarRenderSettings::slotSetPointSize);
 	connect(m_ui.comboBox_gapFillingStrength, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarRenderSettings::slotSetTexelThreshold);
+	connect(m_ui.checkBox_gapFillingDensityAuto, &QCheckBox::stateChanged, this, &ToolBarRenderSettings::slotSetGapFillingDensityAuto);
 
 	connect(m_ui.pushButton_color, &QPushButton::clicked, this, &ToolBarRenderSettings::slotColorPicking);
 
@@ -107,6 +109,7 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 	registerGuiDataFunction(guiDType::renderBlending, &ToolBarRenderSettings::onRenderBlending);
 	registerGuiDataFunction(guiDType::renderPointSize, &ToolBarRenderSettings::onRenderPointSize);
 	registerGuiDataFunction(guiDType::renderTexelThreshold, &ToolBarRenderSettings::onRenderTexelThreshold);
+	registerGuiDataFunction(guiDType::renderGapFillingDensityAuto, &ToolBarRenderSettings::onRenderGapFillingDensityAuto);
         registerGuiDataFunction(guiDType::renderSaturation, &ToolBarRenderSettings::onRenderSaturation);
         
         registerGuiDataFunction(guiDType::renderValueDisplay, &ToolBarRenderSettings::onRenderUnitUsage);
@@ -214,6 +217,16 @@ void ToolBarRenderSettings::onRenderTexelThreshold(IGuiData* idata)
 		m_ui.comboBox_gapFillingStrength->blockSignals(false);
 	}
 }
+void ToolBarRenderSettings::onRenderGapFillingDensityAuto(IGuiData* idata)
+{
+	GuiDataRenderGapFillingDensityAuto* data = static_cast<GuiDataRenderGapFillingDensityAuto*>(idata);
+	if (data->m_enabled != m_ui.checkBox_gapFillingDensityAuto->isChecked())
+	{
+		m_ui.checkBox_gapFillingDensityAuto->blockSignals(true);
+		m_ui.checkBox_gapFillingDensityAuto->setChecked(data->m_enabled);
+		m_ui.checkBox_gapFillingDensityAuto->blockSignals(false);
+	}
+}
 void ToolBarRenderSettings::onRenderSaturation(IGuiData* idata) 
 {
 	GuiDataRenderSaturation* data = static_cast<GuiDataRenderSaturation*>(idata);
@@ -306,6 +319,7 @@ void ToolBarRenderSettings::onActiveCamera(IGuiData* idata)
 	int texelIndex = m_ui.comboBox_gapFillingStrength->findData(displayParameters.m_texelThreshold);
 	if (texelIndex != -1)
 		m_ui.comboBox_gapFillingStrength->setCurrentIndex(texelIndex);
+	m_ui.checkBox_gapFillingDensityAuto->setChecked(displayParameters.m_gapFillingDensityAuto);
 
 	int value(100 - (int)(displayParameters.m_alphaObject * 100));
 	m_ui.alphaObjectsSpinBox->setValue(value);
@@ -361,6 +375,7 @@ void ToolBarRenderSettings::blockAllSignals(bool block)
 	m_ui.falseColorSlider->blockSignals(block);
 	m_ui.spinBox_pointSize->blockSignals(block);
 	m_ui.comboBox_gapFillingStrength->blockSignals(block);
+	m_ui.checkBox_gapFillingDensityAuto->blockSignals(block);
 	m_ui.contrastSaturationSpinBox->blockSignals(block);
 	m_ui.contrastSaturationSlider->blockSignals(block);
 	m_ui.alphaObjectsSpinBox->blockSignals(block);
@@ -551,6 +566,12 @@ void ToolBarRenderSettings::slotSetTexelThreshold(int index)
 {
 	int texelThreshold = m_ui.comboBox_gapFillingStrength->itemData(index).toInt();
 	m_dataDispatcher.updateInformation(new GuiDataRenderTexelThreshold(texelThreshold, m_focusCamera), this);
+}
+
+void ToolBarRenderSettings::slotSetGapFillingDensityAuto(int state)
+{
+	bool enabled = state > 0;
+	m_dataDispatcher.updateInformation(new GuiDataRenderGapFillingDensityAuto(enabled, m_focusCamera), this);
 }
 
 void ToolBarRenderSettings::slotSetRenderMode(int mode)

@@ -15,6 +15,7 @@ layout(push_constant) uniform PC {
    layout(offset = 16) float pxSize;
    layout(offset = 20) int projMode;
    layout(offset = 56) int texelThreshold;
+   layout(offset = 60) int gapFillingDensityAuto;
 } pc;
 
 void fillIn(in vec4[9] color, in float[9] depth, in int texelThreshold, out vec4 newColor, out float newDepth)
@@ -24,13 +25,13 @@ void fillIn(in vec4[9] color, in float[9] depth, in int texelThreshold, out vec4
    //for (int i = 2; i < 9; ++i)
    //   nearest = min(nearest, depth[i]);
    
-   // Methode B : SANS boucle for
+   // Methode B : SANS boucle for
    float nearest = min(min(min(depth[1], depth[2]), min(depth[3], depth[4])),
                        min(min(depth[5], depth[6]), min(depth[7], depth[8])));
 
    // Conclusion en A et B :
    //   * RenderDoc donne des temps d'execution parfaitement similaires
-   //   * Le shader pèse 300 octets de plus avec B.
+   //   * Le shader pese 300 octets de plus avec B.
    //   * La methode B est plus souple pour l'organisation interne des pixels
 
    int validTexel = 0;
@@ -50,7 +51,18 @@ void fillIn(in vec4[9] color, in float[9] depth, in int texelThreshold, out vec4
       }
    }
 
-   if (validTexel >= texelThreshold)
+   int effectiveThreshold = texelThreshold;
+   if (pc.gapFillingDensityAuto != 0)
+   {
+      const int denseNeighborThreshold = 6;
+      const int denseTexelThreshold = 8;
+      if (validTexel >= denseNeighborThreshold)
+      {
+         effectiveThreshold = max(texelThreshold, denseTexelThreshold);
+      }
+   }
+
+   if (validTexel >= effectiveThreshold)
    {
       newColor = cumulColor / validTexel;
       newDepth = cumulDepth / validTexel;

@@ -39,6 +39,7 @@ public:
     void setConstantScreenOffset(glm::vec2 offset, VkCommandBuffer cmdBuffer);
     void setConstantProjMode(bool isPerspective, VkCommandBuffer _cmdBuffer);
     void setConstantTexelThreshold(int texelThreshold, VkCommandBuffer _cmdBuffer);
+    void setConstantGapFillingDensityAuto(bool enabled, VkCommandBuffer _cmdBuffer);
     void setConstantLighting(const PostRenderingNormals& lighting, VkCommandBuffer _cmdBuffer) const;
 
     void setConstantHDR(float transparency, bool substract, bool noFlash, bool flashAdvanced, float flashControl, VkExtent2D screenSize, Color32 background, VkCommandBuffer _cmdBuffer);

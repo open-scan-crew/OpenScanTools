@@ -178,6 +178,17 @@ public:
     int m_texelThreshold;
 };
 
+class GuiDataRenderGapFillingDensityAuto : public GuiDataActiveCamera
+{
+public:
+	GuiDataRenderGapFillingDensityAuto(bool enabled, SafePtr<CameraNode> camera);
+	~GuiDataRenderGapFillingDensityAuto() {};
+	virtual guiDType getType() override;
+
+public:
+	bool m_enabled;
+};
+
 class GuiDataRenderBrightness : public GuiDataActiveCamera
 {
 public:
