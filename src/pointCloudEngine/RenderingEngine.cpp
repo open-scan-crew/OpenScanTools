@@ -748,12 +748,19 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
         viewport.setMissingScanPart(visitor.isPointCloudMissingPart());
         vkm.endScanRenderPass(framebuffer);
 
+        if (display.m_pointShape == PointShape::Splat)
+        {
+            vkm.beginPostTreatmentSplatResolve(framebuffer);
+            m_postRenderer.processSplatResolve(cmdBuffer, framebuffer->descSetSplatResolve, framebuffer->extent);
+        }
+
         // First compute shader (Gap Filling / Depth correction)
         vkm.beginPostTreatmentFilling(framebuffer);
         m_postRenderer.setConstantZRange(wCamera->getNear(), wCamera->getFar(), cmdBuffer);
         m_postRenderer.setConstantScreenSize(framebuffer->extent, wCamera->getPixelSize1m(framebuffer->extent.width, framebuffer->extent.height), cmdBuffer);
         m_postRenderer.setConstantProjMode(wCamera->getProjectionMode() == ProjectionMode::Perspective, cmdBuffer);
-        m_postRenderer.setConstantTexelThreshold(display.m_texelThreshold, cmdBuffer);
+        int texelThreshold = (display.m_pointShape == PointShape::Splat) ? 9 : display.m_texelThreshold;
+        m_postRenderer.setConstantTexelThreshold(texelThreshold, cmdBuffer);
         m_postRenderer.processPointFilling(cmdBuffer, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
 
         // Second compute shader (Normals)
@@ -925,12 +932,19 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
 
     vkm.endScanRenderPass(framebuffer);
 
+    if (displayParam.m_pointShape == PointShape::Splat)
+    {
+        vkm.beginPostTreatmentSplatResolve(framebuffer);
+        m_postRenderer.processSplatResolve(cmdBuffer, framebuffer->descSetSplatResolve, framebuffer->extent);
+    }
+
     // First compute shader (Gap Filling / Depth correction)
     vkm.beginPostTreatmentFilling(framebuffer);
     m_postRenderer.setConstantZRange(camera.getNear(), camera.getFar(), cmdBuffer);
     m_postRenderer.setConstantScreenSize(framebuffer->extent, camera.getPixelSize1m(framebuffer->extent.width, framebuffer->extent.height), cmdBuffer);
     m_postRenderer.setConstantProjMode(camera.getProjectionMode() == ProjectionMode::Perspective, cmdBuffer);
-    m_postRenderer.setConstantTexelThreshold(displayParam.m_texelThreshold, cmdBuffer);
+    int texelThreshold = (displayParam.m_pointShape == PointShape::Splat) ? 9 : displayParam.m_texelThreshold;
+    m_postRenderer.setConstantTexelThreshold(texelThreshold, cmdBuffer);
     m_postRenderer.processPointFilling(cmdBuffer, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
 
     // Second compute shader (Normals)

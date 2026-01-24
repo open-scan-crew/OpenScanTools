@@ -40,6 +40,13 @@ enum class BlendMode {
     MaxEnum
 };
 
+enum class PointShape
+{
+    Square = 0,
+    Splat = 1,
+    MaxEnum
+};
+
 std::unordered_map<UiRenderMode, std::string> getTradUiRenderMode();
 
 const static std::unordered_map<UiRenderMode, RenderMode> correspUiRenderMode = {
