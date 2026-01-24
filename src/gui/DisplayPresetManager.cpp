@@ -36,6 +36,15 @@ namespace
 		json[Key_Point_Size] = params.m_pointSize;
 		json[Key_Texel_Threshold] = params.m_texelThreshold;
 		json[Key_Delta_Filling] = params.m_deltaFilling;
+		json[Key_GapFilling_Expert] = params.m_gapFillingExpert;
+		json[Key_GapFilling_Near_Threshold] = params.m_gapFillingNearThreshold;
+		json[Key_GapFilling_Far_Threshold] = params.m_gapFillingFarThreshold;
+		json[Key_GapFilling_Near_Start] = params.m_gapFillingNearStart;
+		json[Key_GapFilling_Near_End] = params.m_gapFillingNearEnd;
+		json[Key_GapFilling_Far_Start] = params.m_gapFillingFarStart;
+		json[Key_GapFilling_Far_End] = params.m_gapFillingFarEnd;
+		json[Key_GapFilling_Curve_Type] = params.m_gapFillingCurveType;
+		json[Key_GapFilling_Curve_Bias] = params.m_gapFillingCurveBias;
 
 		json[Key_Contrast] = params.m_contrast;
 		json[Key_Brightness] = params.m_brightness;
@@ -120,6 +129,33 @@ namespace
 			data.m_deltaFilling = json.at(Key_Delta_Filling).get<float>();
 		else
 			retVal = false;
+
+		if (json.find(Key_GapFilling_Expert) != json.end())
+			data.m_gapFillingExpert = json.at(Key_GapFilling_Expert).get<bool>();
+
+		if (json.find(Key_GapFilling_Near_Threshold) != json.end())
+			data.m_gapFillingNearThreshold = json.at(Key_GapFilling_Near_Threshold).get<int>();
+
+		if (json.find(Key_GapFilling_Far_Threshold) != json.end())
+			data.m_gapFillingFarThreshold = json.at(Key_GapFilling_Far_Threshold).get<int>();
+
+		if (json.find(Key_GapFilling_Near_Start) != json.end())
+			data.m_gapFillingNearStart = json.at(Key_GapFilling_Near_Start).get<float>();
+
+		if (json.find(Key_GapFilling_Near_End) != json.end())
+			data.m_gapFillingNearEnd = json.at(Key_GapFilling_Near_End).get<float>();
+
+		if (json.find(Key_GapFilling_Far_Start) != json.end())
+			data.m_gapFillingFarStart = json.at(Key_GapFilling_Far_Start).get<float>();
+
+		if (json.find(Key_GapFilling_Far_End) != json.end())
+			data.m_gapFillingFarEnd = json.at(Key_GapFilling_Far_End).get<float>();
+
+		if (json.find(Key_GapFilling_Curve_Type) != json.end())
+			data.m_gapFillingCurveType = json.at(Key_GapFilling_Curve_Type).get<int>();
+
+		if (json.find(Key_GapFilling_Curve_Bias) != json.end())
+			data.m_gapFillingCurveBias = json.at(Key_GapFilling_Curve_Bias).get<float>();
 
 		if (json.find(Key_Alpha_Object) != json.end())
 			data.m_alphaObject = json.at(Key_Alpha_Object).get<float>();
@@ -652,6 +688,9 @@ void DisplayPresetManager::applyPreset(const DisplayPreset& preset)
 	m_dataDispatcher.sendControl(new control::application::RenderModeUpdate(params.m_mode, m_focusCamera));
 	m_dataDispatcher.sendControl(new control::application::SetRenderPointSize(static_cast<int>(params.m_pointSize), m_focusCamera));
 	m_dataDispatcher.updateInformation(new GuiDataRenderTexelThreshold(params.m_texelThreshold, m_focusCamera), this);
+	m_dataDispatcher.updateInformation(new GuiDataRenderGapFillingSettings(params.m_gapFillingExpert, params.m_gapFillingNearThreshold, params.m_gapFillingFarThreshold,
+		params.m_gapFillingNearStart, params.m_gapFillingNearEnd, params.m_gapFillingFarStart, params.m_gapFillingFarEnd,
+		params.m_gapFillingCurveType, params.m_gapFillingCurveBias, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderBrightness(static_cast<int>(params.m_brightness), m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderContrast(static_cast<int>(params.m_contrast), m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderLuminance(static_cast<int>(params.m_luminance), m_focusCamera), this);

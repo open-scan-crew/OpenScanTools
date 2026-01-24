@@ -754,6 +754,9 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
         m_postRenderer.setConstantScreenSize(framebuffer->extent, wCamera->getPixelSize1m(framebuffer->extent.width, framebuffer->extent.height), cmdBuffer);
         m_postRenderer.setConstantProjMode(wCamera->getProjectionMode() == ProjectionMode::Perspective, cmdBuffer);
         m_postRenderer.setConstantTexelThreshold(display.m_texelThreshold, cmdBuffer);
+        m_postRenderer.setConstantGapFillingSettings(display.m_gapFillingExpert, display.m_gapFillingNearThreshold, display.m_gapFillingFarThreshold,
+            display.m_gapFillingNearStart, display.m_gapFillingNearEnd, display.m_gapFillingFarStart, display.m_gapFillingFarEnd,
+            display.m_gapFillingCurveType, display.m_gapFillingCurveBias, cmdBuffer);
         m_postRenderer.processPointFilling(cmdBuffer, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
 
         // Second compute shader (Normals)
@@ -931,6 +934,9 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
     m_postRenderer.setConstantScreenSize(framebuffer->extent, camera.getPixelSize1m(framebuffer->extent.width, framebuffer->extent.height), cmdBuffer);
     m_postRenderer.setConstantProjMode(camera.getProjectionMode() == ProjectionMode::Perspective, cmdBuffer);
     m_postRenderer.setConstantTexelThreshold(displayParam.m_texelThreshold, cmdBuffer);
+    m_postRenderer.setConstantGapFillingSettings(displayParam.m_gapFillingExpert, displayParam.m_gapFillingNearThreshold, displayParam.m_gapFillingFarThreshold,
+        displayParam.m_gapFillingNearStart, displayParam.m_gapFillingNearEnd, displayParam.m_gapFillingFarStart, displayParam.m_gapFillingFarEnd,
+        displayParam.m_gapFillingCurveType, displayParam.m_gapFillingCurveBias, cmdBuffer);
     m_postRenderer.processPointFilling(cmdBuffer, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
 
     // Second compute shader (Normals)

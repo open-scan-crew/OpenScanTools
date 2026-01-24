@@ -15,7 +15,46 @@ layout(push_constant) uniform PC {
    layout(offset = 16) float pxSize;
    layout(offset = 20) int projMode;
    layout(offset = 56) int texelThreshold;
+   layout(offset = 60) int gapFillingExpert;
+   layout(offset = 64) int gapFillingNearThreshold;
+   layout(offset = 68) int gapFillingFarThreshold;
+   layout(offset = 72) float gapFillingNearStart;
+   layout(offset = 76) float gapFillingNearEnd;
+   layout(offset = 80) float gapFillingFarStart;
+   layout(offset = 84) float gapFillingFarEnd;
+   layout(offset = 88) int gapFillingCurveType;
+   layout(offset = 92) float gapFillingCurveBias;
 } pc;
+
+float computeGapFillingThreshold(float depthValue, int texelThreshold)
+{
+   if (pc.gapFillingExpert == 0)
+      return float(texelThreshold);
+
+   float depthClamped = clamp(depthValue, pc.gapFillingNearStart, pc.gapFillingFarEnd);
+   if (depthClamped <= pc.gapFillingNearEnd)
+      return float(pc.gapFillingNearThreshold);
+   if (depthClamped >= pc.gapFillingFarStart)
+      return float(pc.gapFillingFarThreshold);
+
+   float blendRange = max(pc.gapFillingFarStart - pc.gapFillingNearEnd, 0.0001);
+   float t = clamp((depthClamped - pc.gapFillingNearEnd) / blendRange, 0.0, 1.0);
+
+   if (pc.gapFillingCurveType == 1)
+   {
+      t = t * t * (3.0 - 2.0 * t);
+   }
+   else if (pc.gapFillingCurveType == 2)
+   {
+      t = pow(t, max(pc.gapFillingCurveBias, 0.0001));
+   }
+   else
+   {
+      t = pow(t, max(pc.gapFillingCurveBias, 0.0001));
+   }
+
+   return mix(float(pc.gapFillingNearThreshold), float(pc.gapFillingFarThreshold), t);
+}
 
 void fillIn(in vec4[9] color, in float[9] depth, in int texelThreshold, out vec4 newColor, out float newDepth)
 {
@@ -24,13 +63,14 @@ void fillIn(in vec4[9] color, in float[9] depth, in int texelThreshold, out vec4
    //for (int i = 2; i < 9; ++i)
    //   nearest = min(nearest, depth[i]);
    
-   // Methode B : SANS boucle for
+   float threshold = computeGapFillingThreshold(depth[0], texelThreshold);
+   if (float(validTexel) >= threshold)
    float nearest = min(min(min(depth[1], depth[2]), min(depth[3], depth[4])),
                        min(min(depth[5], depth[6]), min(depth[7], depth[8])));
 
    // Conclusion en A et B :
    //   * RenderDoc donne des temps d'execution parfaitement similaires
-   //   * Le shader pèse 300 octets de plus avec B.
+   //   * Le shader pÃ¨se 300 octets de plus avec B.
    //   * La methode B est plus souple pour l'organisation interne des pixels
 
    int validTexel = 0;
