@@ -176,7 +176,7 @@ void PostRenderer::createPipelineLayouts()
         {
             VK_SHADER_STAGE_COMPUTE_BIT,
             0,
-            64
+            96
         }
     };
 
@@ -581,6 +581,21 @@ void PostRenderer::setConstantProjMode(bool isPerspective, VkCommandBuffer _cmdB
 void PostRenderer::setConstantTexelThreshold(int texelThreshold, VkCommandBuffer _cmdBuffer)
 {
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_fillingPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 56, 4, &texelThreshold);
+}
+
+void PostRenderer::setConstantGapFillingSettings(bool expertEnabled, int nearThreshold, int farThreshold, float nearStart,
+    float nearEnd, float farStart, float farEnd, int curveType, float curveBias, VkCommandBuffer _cmdBuffer)
+{
+    int expertMode = expertEnabled ? 1 : 0;
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_fillingPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 60, 4, &expertMode);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_fillingPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 64, 4, &nearThreshold);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_fillingPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 68, 4, &farThreshold);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_fillingPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 72, 4, &nearStart);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_fillingPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 76, 4, &nearEnd);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_fillingPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 80, 4, &farStart);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_fillingPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 84, 4, &farEnd);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_fillingPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 88, 4, &curveType);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_fillingPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 92, 4, &curveBias);
 }
 
 void PostRenderer::setConstantLighting(const PostRenderingNormals& lighting, VkCommandBuffer _cmdBuffer) const

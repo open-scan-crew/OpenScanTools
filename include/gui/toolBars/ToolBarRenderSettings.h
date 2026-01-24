@@ -39,6 +39,7 @@ private:
 	void onRenderBlending(IGuiData* data);
 	void onRenderPointSize(IGuiData* data);
 	void onRenderTexelThreshold(IGuiData* data);
+	void onRenderGapFillingSettings(IGuiData* data);
 	void onRenderSaturation(IGuiData* data);
 	void onRenderAlphaObjects(IGuiData* data);
 	void onRenderUnitUsage(IGuiData* data);
@@ -59,8 +60,10 @@ private:
     void showSaturationLuminance();
         void enableFalseColor(bool);
         bool rampValidValue(float& min, float& max, int& step);
-        void sendTransparency();
-        void changeEvent(QEvent* event) override;
+	void sendTransparency();
+	void sendGapFillingSettings();
+	void updateGapFillingExpertUi(bool enabled);
+	void changeEvent(QEvent* event) override;
 
 private slots:
 	void slotBrightnessLuminanceValueChanged(int value);
@@ -71,6 +74,8 @@ private slots:
 	void slotAlphaBoxesValueChanged(int value);
 	void slotSetPointSize(int pointSize);
 	void slotSetTexelThreshold(int index);
+	void slotGapFillingExpertToggled(int value);
+	void slotGapFillingSettingsChanged();
 	void slotSetRenderMode(int mode);
         void slotColorPicking();
         void slotRampValues();

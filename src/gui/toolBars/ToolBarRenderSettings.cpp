@@ -53,6 +53,26 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 	m_ui.comboBox_gapFillingStrength->addItem(tr("Mid"), 2);
 	m_ui.comboBox_gapFillingStrength->addItem(tr("High"), 1);
 	m_ui.comboBox_gapFillingStrength->setCurrentIndex(1);
+	m_ui.comboBox_gapFillingNearStrength->addItem(tr("Off"), 9);
+	m_ui.comboBox_gapFillingNearStrength->addItem(tr("Low"), 4);
+	m_ui.comboBox_gapFillingNearStrength->addItem(tr("Mid"), 2);
+	m_ui.comboBox_gapFillingNearStrength->addItem(tr("High"), 1);
+	m_ui.comboBox_gapFillingNearStrength->setCurrentIndex(2);
+	m_ui.comboBox_gapFillingFarStrength->addItem(tr("Off"), 9);
+	m_ui.comboBox_gapFillingFarStrength->addItem(tr("Low"), 4);
+	m_ui.comboBox_gapFillingFarStrength->addItem(tr("Mid"), 2);
+	m_ui.comboBox_gapFillingFarStrength->addItem(tr("High"), 1);
+	m_ui.comboBox_gapFillingFarStrength->setCurrentIndex(1);
+	m_ui.comboBox_gapFillingCurveType->addItem(tr("Linear"), 0);
+	m_ui.comboBox_gapFillingCurveType->addItem(tr("Smoothstep"), 1);
+	m_ui.comboBox_gapFillingCurveType->addItem(tr("Exponential"), 2);
+	m_ui.comboBox_gapFillingCurveType->setCurrentIndex(0);
+	m_ui.doubleSpinBox_gapFillingCurveBias->setValue(1.0);
+	m_ui.doubleSpinBox_gapFillingNearStart->setValue(0.0);
+	m_ui.doubleSpinBox_gapFillingNearEnd->setValue(5.0);
+	m_ui.doubleSpinBox_gapFillingFarStart->setValue(10.0);
+	m_ui.doubleSpinBox_gapFillingFarEnd->setValue(20.0);
+	updateGapFillingExpertUi(false);
 
     // Init render options UI
     m_ui.pushButton_color->setPalette(QPalette(m_selectedColor));
@@ -62,6 +82,15 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 
 	connect(m_ui.spinBox_pointSize, qOverload<int>(&QSpinBox::valueChanged), this, &ToolBarRenderSettings::slotSetPointSize);
 	connect(m_ui.comboBox_gapFillingStrength, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarRenderSettings::slotSetTexelThreshold);
+	connect(m_ui.checkBox_gapFillingExpert, &QCheckBox::stateChanged, this, &ToolBarRenderSettings::slotGapFillingExpertToggled);
+	connect(m_ui.comboBox_gapFillingNearStrength, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarRenderSettings::slotGapFillingSettingsChanged);
+	connect(m_ui.comboBox_gapFillingFarStrength, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarRenderSettings::slotGapFillingSettingsChanged);
+	connect(m_ui.doubleSpinBox_gapFillingNearStart, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ToolBarRenderSettings::slotGapFillingSettingsChanged);
+	connect(m_ui.doubleSpinBox_gapFillingNearEnd, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ToolBarRenderSettings::slotGapFillingSettingsChanged);
+	connect(m_ui.doubleSpinBox_gapFillingFarStart, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ToolBarRenderSettings::slotGapFillingSettingsChanged);
+	connect(m_ui.doubleSpinBox_gapFillingFarEnd, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ToolBarRenderSettings::slotGapFillingSettingsChanged);
+	connect(m_ui.comboBox_gapFillingCurveType, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarRenderSettings::slotGapFillingSettingsChanged);
+	connect(m_ui.doubleSpinBox_gapFillingCurveBias, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ToolBarRenderSettings::slotGapFillingSettingsChanged);
 
 	connect(m_ui.pushButton_color, &QPushButton::clicked, this, &ToolBarRenderSettings::slotColorPicking);
 
@@ -107,6 +136,7 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 	registerGuiDataFunction(guiDType::renderBlending, &ToolBarRenderSettings::onRenderBlending);
 	registerGuiDataFunction(guiDType::renderPointSize, &ToolBarRenderSettings::onRenderPointSize);
 	registerGuiDataFunction(guiDType::renderTexelThreshold, &ToolBarRenderSettings::onRenderTexelThreshold);
+	registerGuiDataFunction(guiDType::renderGapFillingSettings, &ToolBarRenderSettings::onRenderGapFillingSettings);
         registerGuiDataFunction(guiDType::renderSaturation, &ToolBarRenderSettings::onRenderSaturation);
         
         registerGuiDataFunction(guiDType::renderValueDisplay, &ToolBarRenderSettings::onRenderUnitUsage);
@@ -214,6 +244,39 @@ void ToolBarRenderSettings::onRenderTexelThreshold(IGuiData* idata)
 		m_ui.comboBox_gapFillingStrength->blockSignals(false);
 	}
 }
+void ToolBarRenderSettings::onRenderGapFillingSettings(IGuiData* idata)
+{
+	GuiDataRenderGapFillingSettings* data = static_cast<GuiDataRenderGapFillingSettings*>(idata);
+	const QSignalBlocker expertBlocker(m_ui.checkBox_gapFillingExpert);
+	const QSignalBlocker nearStrengthBlocker(m_ui.comboBox_gapFillingNearStrength);
+	const QSignalBlocker farStrengthBlocker(m_ui.comboBox_gapFillingFarStrength);
+	const QSignalBlocker nearStartBlocker(m_ui.doubleSpinBox_gapFillingNearStart);
+	const QSignalBlocker nearEndBlocker(m_ui.doubleSpinBox_gapFillingNearEnd);
+	const QSignalBlocker farStartBlocker(m_ui.doubleSpinBox_gapFillingFarStart);
+	const QSignalBlocker farEndBlocker(m_ui.doubleSpinBox_gapFillingFarEnd);
+	const QSignalBlocker curveTypeBlocker(m_ui.comboBox_gapFillingCurveType);
+	const QSignalBlocker curveBiasBlocker(m_ui.doubleSpinBox_gapFillingCurveBias);
+
+	m_ui.checkBox_gapFillingExpert->setChecked(data->m_expertEnabled);
+	updateGapFillingExpertUi(data->m_expertEnabled);
+
+	int nearIndex = m_ui.comboBox_gapFillingNearStrength->findData(data->m_nearThreshold);
+	if (nearIndex != -1)
+		m_ui.comboBox_gapFillingNearStrength->setCurrentIndex(nearIndex);
+	int farIndex = m_ui.comboBox_gapFillingFarStrength->findData(data->m_farThreshold);
+	if (farIndex != -1)
+		m_ui.comboBox_gapFillingFarStrength->setCurrentIndex(farIndex);
+
+	m_ui.doubleSpinBox_gapFillingNearStart->setValue(data->m_nearStart);
+	m_ui.doubleSpinBox_gapFillingNearEnd->setValue(data->m_nearEnd);
+	m_ui.doubleSpinBox_gapFillingFarStart->setValue(data->m_farStart);
+	m_ui.doubleSpinBox_gapFillingFarEnd->setValue(data->m_farEnd);
+
+	int curveIndex = m_ui.comboBox_gapFillingCurveType->findData(data->m_curveType);
+	if (curveIndex != -1)
+		m_ui.comboBox_gapFillingCurveType->setCurrentIndex(curveIndex);
+	m_ui.doubleSpinBox_gapFillingCurveBias->setValue(data->m_curveBias);
+}
 void ToolBarRenderSettings::onRenderSaturation(IGuiData* idata) 
 {
 	GuiDataRenderSaturation* data = static_cast<GuiDataRenderSaturation*>(idata);
@@ -307,6 +370,23 @@ void ToolBarRenderSettings::onActiveCamera(IGuiData* idata)
 	if (texelIndex != -1)
 		m_ui.comboBox_gapFillingStrength->setCurrentIndex(texelIndex);
 
+	m_ui.checkBox_gapFillingExpert->setChecked(displayParameters.m_gapFillingExpert);
+	updateGapFillingExpertUi(displayParameters.m_gapFillingExpert);
+	int nearIndex = m_ui.comboBox_gapFillingNearStrength->findData(displayParameters.m_gapFillingNearThreshold);
+	if (nearIndex != -1)
+		m_ui.comboBox_gapFillingNearStrength->setCurrentIndex(nearIndex);
+	int farIndex = m_ui.comboBox_gapFillingFarStrength->findData(displayParameters.m_gapFillingFarThreshold);
+	if (farIndex != -1)
+		m_ui.comboBox_gapFillingFarStrength->setCurrentIndex(farIndex);
+	m_ui.doubleSpinBox_gapFillingNearStart->setValue(displayParameters.m_gapFillingNearStart);
+	m_ui.doubleSpinBox_gapFillingNearEnd->setValue(displayParameters.m_gapFillingNearEnd);
+	m_ui.doubleSpinBox_gapFillingFarStart->setValue(displayParameters.m_gapFillingFarStart);
+	m_ui.doubleSpinBox_gapFillingFarEnd->setValue(displayParameters.m_gapFillingFarEnd);
+	int curveIndex = m_ui.comboBox_gapFillingCurveType->findData(displayParameters.m_gapFillingCurveType);
+	if (curveIndex != -1)
+		m_ui.comboBox_gapFillingCurveType->setCurrentIndex(curveIndex);
+	m_ui.doubleSpinBox_gapFillingCurveBias->setValue(displayParameters.m_gapFillingCurveBias);
+
 	int value(100 - (int)(displayParameters.m_alphaObject * 100));
 	m_ui.alphaObjectsSpinBox->setValue(value);
 	m_ui.alphaObjectsSlider->setValue(value);
@@ -361,6 +441,15 @@ void ToolBarRenderSettings::blockAllSignals(bool block)
 	m_ui.falseColorSlider->blockSignals(block);
 	m_ui.spinBox_pointSize->blockSignals(block);
 	m_ui.comboBox_gapFillingStrength->blockSignals(block);
+	m_ui.checkBox_gapFillingExpert->blockSignals(block);
+	m_ui.comboBox_gapFillingNearStrength->blockSignals(block);
+	m_ui.comboBox_gapFillingFarStrength->blockSignals(block);
+	m_ui.doubleSpinBox_gapFillingNearStart->blockSignals(block);
+	m_ui.doubleSpinBox_gapFillingNearEnd->blockSignals(block);
+	m_ui.doubleSpinBox_gapFillingFarStart->blockSignals(block);
+	m_ui.doubleSpinBox_gapFillingFarEnd->blockSignals(block);
+	m_ui.comboBox_gapFillingCurveType->blockSignals(block);
+	m_ui.doubleSpinBox_gapFillingCurveBias->blockSignals(block);
 	m_ui.contrastSaturationSpinBox->blockSignals(block);
 	m_ui.contrastSaturationSlider->blockSignals(block);
 	m_ui.alphaObjectsSpinBox->blockSignals(block);
@@ -553,6 +642,17 @@ void ToolBarRenderSettings::slotSetTexelThreshold(int index)
 	m_dataDispatcher.updateInformation(new GuiDataRenderTexelThreshold(texelThreshold, m_focusCamera), this);
 }
 
+void ToolBarRenderSettings::slotGapFillingExpertToggled(int value)
+{
+	updateGapFillingExpertUi(value > 0);
+	sendGapFillingSettings();
+}
+
+void ToolBarRenderSettings::slotGapFillingSettingsChanged()
+{
+	sendGapFillingSettings();
+}
+
 void ToolBarRenderSettings::slotSetRenderMode(int mode)
 {
 	switchRenderMode(m_ui.comboBox_renderMode->currentData().toInt());
@@ -636,4 +736,34 @@ void ToolBarRenderSettings::slotDisplayPresetNew()
 void ToolBarRenderSettings::slotDisplayPresetEdit()
 {
 	emit displayPresetEditRequested(m_ui.comboBox_displayPresets->currentText());
+}
+
+void ToolBarRenderSettings::sendGapFillingSettings()
+{
+	bool expertEnabled = m_ui.checkBox_gapFillingExpert->isChecked();
+	int nearThreshold = m_ui.comboBox_gapFillingNearStrength->currentData().toInt();
+	int farThreshold = m_ui.comboBox_gapFillingFarStrength->currentData().toInt();
+	float nearStart = static_cast<float>(m_ui.doubleSpinBox_gapFillingNearStart->value());
+	float nearEnd = static_cast<float>(m_ui.doubleSpinBox_gapFillingNearEnd->value());
+	float farStart = static_cast<float>(m_ui.doubleSpinBox_gapFillingFarStart->value());
+	float farEnd = static_cast<float>(m_ui.doubleSpinBox_gapFillingFarEnd->value());
+	int curveType = m_ui.comboBox_gapFillingCurveType->currentData().toInt();
+	float curveBias = static_cast<float>(m_ui.doubleSpinBox_gapFillingCurveBias->value());
+
+	m_dataDispatcher.updateInformation(new GuiDataRenderGapFillingSettings(expertEnabled, nearThreshold, farThreshold, nearStart, nearEnd,
+		farStart, farEnd, curveType, curveBias, m_focusCamera), this);
+}
+
+void ToolBarRenderSettings::updateGapFillingExpertUi(bool enabled)
+{
+	m_ui.groupBox_gapFillingExpert->setEnabled(true);
+	m_ui.comboBox_gapFillingStrength->setEnabled(!enabled);
+	m_ui.comboBox_gapFillingNearStrength->setEnabled(enabled);
+	m_ui.comboBox_gapFillingFarStrength->setEnabled(enabled);
+	m_ui.doubleSpinBox_gapFillingNearStart->setEnabled(enabled);
+	m_ui.doubleSpinBox_gapFillingNearEnd->setEnabled(enabled);
+	m_ui.doubleSpinBox_gapFillingFarStart->setEnabled(enabled);
+	m_ui.doubleSpinBox_gapFillingFarEnd->setEnabled(enabled);
+	m_ui.comboBox_gapFillingCurveType->setEnabled(enabled);
+	m_ui.doubleSpinBox_gapFillingCurveBias->setEnabled(enabled);
 }

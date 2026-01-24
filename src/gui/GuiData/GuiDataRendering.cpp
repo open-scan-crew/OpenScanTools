@@ -174,6 +174,26 @@ guiDType GuiDataRenderTexelThreshold::getType()
 	return guiDType::renderTexelThreshold;
 }
 
+//*** Gap Filling Settings ***//
+GuiDataRenderGapFillingSettings::GuiDataRenderGapFillingSettings(bool expertEnabled, int nearThreshold, int farThreshold,
+	float nearStart, float nearEnd, float farStart, float farEnd, int curveType, float curveBias, SafePtr<CameraNode> camera)
+	: GuiDataActiveCamera(camera)
+	, m_expertEnabled(expertEnabled)
+	, m_nearThreshold(nearThreshold)
+	, m_farThreshold(farThreshold)
+	, m_nearStart(nearStart)
+	, m_nearEnd(nearEnd)
+	, m_farStart(farStart)
+	, m_farEnd(farEnd)
+	, m_curveType(curveType)
+	, m_curveBias(curveBias)
+{}
+
+guiDType GuiDataRenderGapFillingSettings::getType()
+{
+	return guiDType::renderGapFillingSettings;
+}
+
 //*** Brightness ***//
 GuiDataRenderBrightness::GuiDataRenderBrightness(int _brightness, SafePtr<CameraNode> camera)
 	: GuiDataActiveCamera(camera)
