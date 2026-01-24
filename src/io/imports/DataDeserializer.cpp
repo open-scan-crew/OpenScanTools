@@ -412,6 +412,31 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
         retVal = false;
     }
 
+    if (json.find(Key_Gap_Filling_Gap_Only) != json.end())
+    {
+        data.m_gapFillingGapOnly = json.at(Key_Gap_Filling_Gap_Only).get<bool>();
+    }
+
+    if (json.find(Key_Gap_Filling_Depth_Threshold) != json.end())
+    {
+        data.m_gapFillingGapDepthThreshold = json.at(Key_Gap_Filling_Depth_Threshold).get<float>();
+    }
+
+    if (json.find(Key_Gap_Filling_Falloff_Strength) != json.end())
+    {
+        data.m_gapFillingFalloffStrength = json.at(Key_Gap_Filling_Falloff_Strength).get<float>();
+    }
+
+    if (json.find(Key_Gap_Filling_Falloff_Exponent) != json.end())
+    {
+        data.m_gapFillingFalloffExponent = json.at(Key_Gap_Filling_Falloff_Exponent).get<float>();
+    }
+
+    if (json.find(Key_Gap_Filling_Variance_Threshold) != json.end())
+    {
+        data.m_gapFillingDepthVarianceThreshold = json.at(Key_Gap_Filling_Variance_Threshold).get<float>();
+    }
+
     
     if (json.find(Key_Alpha_Object) != json.end())
     {

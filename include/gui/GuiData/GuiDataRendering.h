@@ -178,6 +178,50 @@ public:
     int m_texelThreshold;
 };
 
+class GuiDataRenderGapFillingGapOnly : public GuiDataActiveCamera
+{
+public:
+    GuiDataRenderGapFillingGapOnly(bool enabled, SafePtr<CameraNode> camera);
+    ~GuiDataRenderGapFillingGapOnly() {};
+    virtual guiDType getType() override;
+
+public:
+    bool m_enabled;
+};
+
+class GuiDataRenderGapFillingFalloffStrength : public GuiDataActiveCamera
+{
+public:
+    GuiDataRenderGapFillingFalloffStrength(float strength, SafePtr<CameraNode> camera);
+    ~GuiDataRenderGapFillingFalloffStrength() {};
+    virtual guiDType getType() override;
+
+public:
+    float m_strength;
+};
+
+class GuiDataRenderGapFillingFalloffExponent : public GuiDataActiveCamera
+{
+public:
+    GuiDataRenderGapFillingFalloffExponent(float exponent, SafePtr<CameraNode> camera);
+    ~GuiDataRenderGapFillingFalloffExponent() {};
+    virtual guiDType getType() override;
+
+public:
+    float m_exponent;
+};
+
+class GuiDataRenderGapFillingVarianceThreshold : public GuiDataActiveCamera
+{
+public:
+    GuiDataRenderGapFillingVarianceThreshold(float threshold, SafePtr<CameraNode> camera);
+    ~GuiDataRenderGapFillingVarianceThreshold() {};
+    virtual guiDType getType() override;
+
+public:
+    float m_threshold;
+};
+
 class GuiDataRenderBrightness : public GuiDataActiveCamera
 {
 public:

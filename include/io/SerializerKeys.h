@@ -205,6 +205,11 @@
 #define Key_Point_Size					"PointSize"
 #define Key_Texel_Threshold				"TexelThreshold"
 #define Key_Delta_Filling				"DeltaFilling"
+#define Key_Gap_Filling_Gap_Only		"GapFillingGapOnly"
+#define Key_Gap_Filling_Depth_Threshold	"GapFillingDepthThreshold"
+#define Key_Gap_Filling_Falloff_Strength "GapFillingFalloffStrength"
+#define Key_Gap_Filling_Falloff_Exponent "GapFillingFalloffExponent"
+#define Key_Gap_Filling_Variance_Threshold "GapFillingVarianceThreshold"
 
 #define Key_Contrast					"Contrast"
 #define Key_Brightness					"Brightness"
