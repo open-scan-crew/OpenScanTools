@@ -1427,7 +1427,13 @@ void ObjectNodeVisitor::draw_baked_pointClouds(VkCommandBuffer cmdBuffer, Render
     m_totalClippedCells = 0;
 
     renderer.setViewportAndScissor(0, 0, m_fbExtent.width, m_fbExtent.height, cmdBuffer);
-    renderer.setConstantPointSize(m_displayParameters.m_pointSize, cmdBuffer);
+    const float pointSizeForDecimation = m_displayParameters.m_pointSize;
+    float pointSizeForRender = pointSizeForDecimation;
+    if (m_displayParameters.m_pointShape == PointShape::Splat)
+    {
+        pointSizeForRender *= 2.0f;
+    }
+    renderer.setConstantPointSize(pointSizeForRender, cmdBuffer);
     renderer.setConstantSplatRadius(m_displayParameters.m_splatRadiusPx, cmdBuffer);
     renderer.setConstantPointShape(m_displayParameters.m_pointShape, cmdBuffer);
     renderer.setConstantContrastBrightness((float)m_displayParameters.m_contrast, (float)m_displayParameters.m_brightness, cmdBuffer);
@@ -1441,7 +1447,7 @@ void ObjectNodeVisitor::draw_baked_pointClouds(VkCommandBuffer cmdBuffer, Render
     // *** Traverse the scan using the frustum matrix as a clipping box ***
     // The projection info are common for all the scans
     // The Model matrix will be edited by each drawScan()
-    TlProjectionInfo projInfoNode{ glm::dmat4(), m_viewProjMatrix, m_fbExtent.width, m_fbExtent.height, m_displayParameters.m_pointSize, m_decimationRatio, m_displayParameters.m_deltaFilling };
+    TlProjectionInfo projInfoNode{ glm::dmat4(), m_viewProjMatrix, m_fbExtent.width, m_fbExtent.height, pointSizeForDecimation, m_decimationRatio, m_displayParameters.m_deltaFilling };
 
     m_drawHasMissingScanPart = false;
     ClippingAssembly emptyAssembly;
