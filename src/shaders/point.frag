@@ -7,7 +7,7 @@ layout(location = 1) out vec2 outWeightDepth;
 
 layout(push_constant) uniform PC {
     layout(offset = 0) float ptSize;
-    layout(offset = 40) float splatRadiusPx;
+    layout(offset = 40) float splatSoftness;
     layout(offset = 44) int pointShape;
 } pc;
 
@@ -15,21 +15,16 @@ void main() {
 	float weight = 1.0;
 	if (pc.pointShape == 1)
 	{
-		vec2 centeredUv = gl_PointCoord - vec2(0.5);
-		float dist2Uv = dot(centeredUv, centeredUv);
-		if (dist2Uv > 0.25)
-		{
-			discard;
-		}
-
-		vec2 centeredPx = centeredUv * pc.ptSize;
+		vec2 centeredPx = (gl_PointCoord - vec2(0.5)) * pc.ptSize;
 		float dist2 = dot(centeredPx, centeredPx);
-		float sigma = max(pc.splatRadiusPx, 0.001);
+		float radius = 0.5 * pc.ptSize;
+		float sigma = max(pc.splatSoftness * radius, 0.001);
 		weight = exp(-0.5 * dist2 / (sigma * sigma));
-		if (weight < 0.0005)
-		{
-			discard;
-		}
+
+		float dist = sqrt(dist2);
+		float edgeStart = max(radius - 1.0, 0.0);
+		float fade = 1.0 - smoothstep(edgeStart, radius, dist);
+		weight *= fade;
 	}
 
 	outColor = vec4(fragColor.rgb * weight, 1.0);

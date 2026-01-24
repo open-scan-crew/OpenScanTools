@@ -68,7 +68,7 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 
 	connect(m_ui.spinBox_pointSize, qOverload<int>(&QSpinBox::valueChanged), this, &ToolBarRenderSettings::slotSetPointSize);
 	connect(m_ui.comboBox_pointShape, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarRenderSettings::slotSetPointShape);
-	connect(m_ui.doubleSpinBox_splatRadius, qOverload<double>(&QDoubleSpinBox::valueChanged), this, &ToolBarRenderSettings::slotSetSplatRadius);
+	connect(m_ui.doubleSpinBox_splatRadius, qOverload<double>(&QDoubleSpinBox::valueChanged), this, &ToolBarRenderSettings::slotSetSplatSoftness);
 	connect(m_ui.comboBox_gapFillingStrength, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarRenderSettings::slotSetTexelThreshold);
 
 	connect(m_ui.pushButton_color, &QPushButton::clicked, this, &ToolBarRenderSettings::slotColorPicking);
@@ -115,7 +115,7 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 	registerGuiDataFunction(guiDType::renderBlending, &ToolBarRenderSettings::onRenderBlending);
 	registerGuiDataFunction(guiDType::renderPointSize, &ToolBarRenderSettings::onRenderPointSize);
 	registerGuiDataFunction(guiDType::renderPointShape, &ToolBarRenderSettings::onRenderPointShape);
-	registerGuiDataFunction(guiDType::renderSplatRadius, &ToolBarRenderSettings::onRenderSplatRadius);
+	registerGuiDataFunction(guiDType::renderSplatSoftness, &ToolBarRenderSettings::onRenderSplatSoftness);
 	registerGuiDataFunction(guiDType::renderTexelThreshold, &ToolBarRenderSettings::onRenderTexelThreshold);
         registerGuiDataFunction(guiDType::renderSaturation, &ToolBarRenderSettings::onRenderSaturation);
         
@@ -226,10 +226,10 @@ void ToolBarRenderSettings::onRenderPointShape(IGuiData* idata)
 		m_ui.comboBox_pointShape->blockSignals(false);
 	}
 
-	bool splatEnabled = (m_pointShape == PointShape::Splat);
-	m_ui.doubleSpinBox_splatRadius->setEnabled(splatEnabled);
-	m_ui.comboBox_gapFillingStrength->setEnabled(!splatEnabled);
-	m_ui.label_gapFilling->setEnabled(!splatEnabled);
+    bool splatEnabled = (m_pointShape == PointShape::Splat);
+    m_ui.doubleSpinBox_splatRadius->setEnabled(splatEnabled);
+    m_ui.comboBox_gapFillingStrength->setEnabled(!splatEnabled);
+    m_ui.label_gapFilling->setEnabled(!splatEnabled);
 	if (splatEnabled)
 	{
 		int offIndex = m_ui.comboBox_gapFillingStrength->findData(9);
@@ -242,13 +242,13 @@ void ToolBarRenderSettings::onRenderPointShape(IGuiData* idata)
 	}
 }
 
-void ToolBarRenderSettings::onRenderSplatRadius(IGuiData* idata)
+void ToolBarRenderSettings::onRenderSplatSoftness(IGuiData* idata)
 {
-	GuiDataRenderSplatRadius* data = static_cast<GuiDataRenderSplatRadius*>(idata);
-	if (!qFuzzyCompare(data->m_radiusPx + 1.0, m_ui.doubleSpinBox_splatRadius->value() + 1.0))
+	GuiDataRenderSplatSoftness* data = static_cast<GuiDataRenderSplatSoftness*>(idata);
+	if (!qFuzzyCompare(data->m_softness + 1.0, m_ui.doubleSpinBox_splatRadius->value() + 1.0))
 	{
 		m_ui.doubleSpinBox_splatRadius->blockSignals(true);
-		m_ui.doubleSpinBox_splatRadius->setValue(data->m_radiusPx);
+		m_ui.doubleSpinBox_splatRadius->setValue(data->m_softness);
 		m_ui.doubleSpinBox_splatRadius->blockSignals(false);
 	}
 }
@@ -355,7 +355,7 @@ void ToolBarRenderSettings::onActiveCamera(IGuiData* idata)
 	int shapeIndex = m_ui.comboBox_pointShape->findData(static_cast<int>(displayParameters.m_pointShape));
 	if (shapeIndex != -1)
 		m_ui.comboBox_pointShape->setCurrentIndex(shapeIndex);
-	m_ui.doubleSpinBox_splatRadius->setValue(displayParameters.m_splatRadiusPx);
+    m_ui.doubleSpinBox_splatRadius->setValue(displayParameters.m_splatSoftness);
 
 	int texelIndex = m_ui.comboBox_gapFillingStrength->findData(displayParameters.m_texelThreshold);
 	if (texelIndex != -1)
@@ -635,9 +635,9 @@ void ToolBarRenderSettings::slotSetPointShape(int index)
 	m_dataDispatcher.updateInformation(new GuiDataRenderPointShape(m_pointShape, m_focusCamera), this);
 }
 
-void ToolBarRenderSettings::slotSetSplatRadius(double radius)
+void ToolBarRenderSettings::slotSetSplatSoftness(double softness)
 {
-	m_dataDispatcher.updateInformation(new GuiDataRenderSplatRadius(static_cast<float>(radius), m_focusCamera), this);
+	m_dataDispatcher.updateInformation(new GuiDataRenderSplatSoftness(static_cast<float>(softness), m_focusCamera), this);
 }
 
 void ToolBarRenderSettings::slotSetTexelThreshold(int index)

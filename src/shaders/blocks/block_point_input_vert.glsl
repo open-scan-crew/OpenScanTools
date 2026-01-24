@@ -28,7 +28,7 @@ layout(push_constant) uniform PC {
     layout(offset = 28) float rampMin;
     layout(offset = 32) float rampMax;
     layout(offset = 36) int rampSteps;
-    layout(offset = 40) float splatRadiusPx;
+    layout(offset = 40) float splatSoftness;
     layout(offset = 44) int pointShape;
     layout(offset = 48) vec3 ptColor;
 } pc;

@@ -399,9 +399,13 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
         data.m_pointShape = shape.has_value() ? shape.value() : PointShape::Square;
     }
 
-    if (json.find(Key_Splat_Radius) != json.end())
+    if (json.find(Key_Splat_Softness) != json.end())
     {
-        data.m_splatRadiusPx = json.at(Key_Splat_Radius).get<float>();
+        data.m_splatSoftness = json.at(Key_Splat_Softness).get<float>();
+    }
+    else if (json.find(Key_Splat_Radius) != json.end())
+    {
+        data.m_splatSoftness = json.at(Key_Splat_Radius).get<float>();
     }
 
     if (json.find(Key_Texel_Threshold) != json.end())

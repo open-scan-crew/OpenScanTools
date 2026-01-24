@@ -212,7 +212,7 @@ private:
     void onRenderColorMode(IGuiData* data);
     void onRenderPointSize(IGuiData* data);
     void onRenderPointShape(IGuiData* data);
-    void onRenderSplatRadius(IGuiData* data);
+    void onRenderSplatSoftness(IGuiData* data);
     void onRenderTexelThreshold(IGuiData* data);
     void onRenderBrightness(IGuiData* data);
     void onRenderContrast(IGuiData* data);

@@ -257,28 +257,28 @@
           <height>0</height>
          </size>
         </property>
-        <property name="decimals">
-         <number>2</number>
+       <property name="decimals">
+        <number>2</number>
+       </property>
+       <property name="minimum">
+         <double>0.4</double>
+       </property>
+       <property name="maximum">
+         <double>0.9</double>
+       </property>
+       <property name="singleStep">
+         <double>0.01</double>
+       </property>
+       <property name="value">
+         <double>0.7</double>
+       </property>
+       <property name="toolTip">
+         <string>Splat softness</string>
+       </property>
+       <property name="suffix">
+         <string/>
         </property>
-        <property name="minimum">
-         <double>0.5</double>
-        </property>
-        <property name="maximum">
-         <double>12.0</double>
-        </property>
-        <property name="singleStep">
-         <double>0.25</double>
-        </property>
-        <property name="value">
-         <double>2.0</double>
-        </property>
-        <property name="toolTip">
-         <string>Splat radius (px)</string>
-        </property>
-        <property name="suffix">
-         <string> px</string>
-        </property>
-       </widget>
+      </widget>
       </item>
      </layout>
     </widget>

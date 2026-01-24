@@ -174,15 +174,15 @@ guiDType GuiDataRenderPointShape::getType()
 	return guiDType::renderPointShape;
 }
 
-//*** Splat Radius ***//
-GuiDataRenderSplatRadius::GuiDataRenderSplatRadius(float radiusPx, SafePtr<CameraNode> camera)
+//*** Splat Softness ***//
+GuiDataRenderSplatSoftness::GuiDataRenderSplatSoftness(float softness, SafePtr<CameraNode> camera)
 	: GuiDataActiveCamera(camera)
-	, m_radiusPx(radiusPx)
+	, m_softness(softness)
 {}
 
-guiDType GuiDataRenderSplatRadius::getType()
+guiDType GuiDataRenderSplatSoftness::getType()
 {
-	return guiDType::renderSplatRadius;
+	return guiDType::renderSplatSoftness;
 }
 
 //*** Texel Threshold ***//

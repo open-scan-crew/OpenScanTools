@@ -178,15 +178,15 @@ public:
     PointShape m_shape;
 };
 
-class GuiDataRenderSplatRadius : public GuiDataActiveCamera
+class GuiDataRenderSplatSoftness : public GuiDataActiveCamera
 {
 public:
-    GuiDataRenderSplatRadius(float radiusPx, SafePtr<CameraNode> camera);
-    ~GuiDataRenderSplatRadius() {};
+    GuiDataRenderSplatSoftness(float softness, SafePtr<CameraNode> camera);
+    ~GuiDataRenderSplatSoftness() {};
     virtual guiDType getType() override;
 
 public:
-    float m_radiusPx;
+    float m_softness;
 };
 
 class GuiDataRenderTexelThreshold : public GuiDataActiveCamera
