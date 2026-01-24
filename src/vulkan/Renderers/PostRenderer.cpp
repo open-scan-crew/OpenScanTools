@@ -583,6 +583,21 @@ void PostRenderer::setConstantTexelThreshold(int texelThreshold, VkCommandBuffer
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_fillingPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 56, 4, &texelThreshold);
 }
 
+void PostRenderer::setConstantGapFillingSettings(bool gapOnlyEnabled, float gapDepthThreshold, float falloffStrength, float falloffExponent, float varianceThreshold, VkCommandBuffer _cmdBuffer)
+{
+    float clampedStrength = std::clamp(falloffStrength, 0.0f, 1.0f);
+    float clampedExponent = std::max(0.01f, falloffExponent);
+    float clampedGapDepth = std::clamp(gapDepthThreshold, 0.0f, 1.0f);
+    float clampedVariance = std::max(0.0f, varianceThreshold);
+    int gapOnly = gapOnlyEnabled ? 1 : 0;
+
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_fillingPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 24, 4, &clampedStrength);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_fillingPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 28, 4, &clampedExponent);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_fillingPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 32, 4, &clampedVariance);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_fillingPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 36, 4, &clampedGapDepth);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_fillingPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 40, 4, &gapOnly);
+}
+
 void PostRenderer::setConstantLighting(const PostRenderingNormals& lighting, VkCommandBuffer _cmdBuffer) const
 {
     int tone = lighting.inverseTone ? 1 : 0;

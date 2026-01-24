@@ -14,23 +14,57 @@ layout(push_constant) uniform PC {
    layout(offset = 8) ivec2 screenSize;
    layout(offset = 16) float pxSize;
    layout(offset = 20) int projMode;
+   layout(offset = 24) float falloffStrength;
+   layout(offset = 28) float falloffExponent;
+   layout(offset = 32) float depthVarianceThreshold;
+   layout(offset = 36) float gapDepthThreshold;
+   layout(offset = 40) int gapOnlyEnabled;
    layout(offset = 56) int texelThreshold;
 } pc;
 
-void fillIn(in vec4[9] color, in float[9] depth, in int texelThreshold, out vec4 newColor, out float newDepth)
+void fillIn(in vec4[9] color, in float[9] depth, in float[9] rawDepth, in int texelThreshold, out vec4 newColor, out float newDepth)
 {
    // Methode A : AVEC boucle for
    //float nearest = depth[1];
    //for (int i = 2; i < 9; ++i)
    //   nearest = min(nearest, depth[i]);
    
-   // Methode B : SANS boucle for
-   float nearest = min(min(min(depth[1], depth[2]), min(depth[3], depth[4])),
+   float farthest = max(max(max(depth[1], depth[2]), max(depth[3], depth[4])),
+                        max(max(depth[5], depth[6]), max(depth[7], depth[8])));
+   if (pc.gapOnlyEnabled != 0 && rawDepth[0] < pc.gapDepthThreshold)
+   {
+      newColor = color[0];
+      newDepth = depth[0];
+      return;
+   }
+
+   if (pc.depthVarianceThreshold > 0.0)
+   {
+      float depthSpan = max(farthest - nearest, 0.0);
+      float varianceRatio = depthSpan / max(nearest, 0.000001);
+      if (varianceRatio > pc.depthVarianceThreshold)
+      {
+         newColor = color[0];
+         newDepth = depth[0];
+         return;
+      }
+   }
+
+   float depthNormalized = clamp((nearest - pc.nearFar.x) / max(pc.nearFar.y - pc.nearFar.x, 0.000001), 0.0, 1.0);
+   float falloff = pow(clamp(1.0 - depthNormalized, 0.0, 1.0), pc.falloffExponent);
+   float falloffMix = mix(1.0, falloff, clamp(pc.falloffStrength, 0.0, 1.0));
+   float thresholdF = mix(float(texelThreshold), 9.0, 1.0 - falloffMix);
+   int requiredTexel = int(ceil(thresholdF));
+
+   if (validTexel >= requiredTexel)
+   float rawDepth[9];
+         imageData.rawDepth[m] = rawDepth;
+   fillIn(imageData.color, imageData.depth, imageData.rawDepth, pc.texelThreshold, newC, newZ);
                        min(min(depth[5], depth[6]), min(depth[7], depth[8])));
 
    // Conclusion en A et B :
    //   * RenderDoc donne des temps d'execution parfaitement similaires
-   //   * Le shader pèse 300 octets de plus avec B.
+   //   * Le shader pÃ¨se 300 octets de plus avec B.
    //   * La methode B est plus souple pour l'organisation interne des pixels
 
    int validTexel = 0;

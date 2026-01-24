@@ -53,6 +53,10 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 	m_ui.comboBox_gapFillingStrength->addItem(tr("Mid"), 2);
 	m_ui.comboBox_gapFillingStrength->addItem(tr("High"), 1);
 	m_ui.comboBox_gapFillingStrength->setCurrentIndex(1);
+	m_ui.checkBox_gapFillingGapOnly->setChecked(true);
+	m_ui.doubleSpinBox_gapFillingFalloffStrength->setValue(0.8);
+	m_ui.doubleSpinBox_gapFillingFalloffExponent->setValue(2.0);
+	m_ui.doubleSpinBox_gapFillingVariance->setValue(0.03);
 
     // Init render options UI
     m_ui.pushButton_color->setPalette(QPalette(m_selectedColor));
@@ -62,6 +66,10 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 
 	connect(m_ui.spinBox_pointSize, qOverload<int>(&QSpinBox::valueChanged), this, &ToolBarRenderSettings::slotSetPointSize);
 	connect(m_ui.comboBox_gapFillingStrength, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarRenderSettings::slotSetTexelThreshold);
+	connect(m_ui.checkBox_gapFillingGapOnly, &QCheckBox::stateChanged, this, &ToolBarRenderSettings::slotGapFillingGapOnlyChanged);
+	connect(m_ui.doubleSpinBox_gapFillingFalloffStrength, qOverload<double>(&QDoubleSpinBox::valueChanged), this, &ToolBarRenderSettings::slotGapFillingFalloffStrengthChanged);
+	connect(m_ui.doubleSpinBox_gapFillingFalloffExponent, qOverload<double>(&QDoubleSpinBox::valueChanged), this, &ToolBarRenderSettings::slotGapFillingFalloffExponentChanged);
+	connect(m_ui.doubleSpinBox_gapFillingVariance, qOverload<double>(&QDoubleSpinBox::valueChanged), this, &ToolBarRenderSettings::slotGapFillingVarianceChanged);
 
 	connect(m_ui.pushButton_color, &QPushButton::clicked, this, &ToolBarRenderSettings::slotColorPicking);
 
@@ -107,6 +115,10 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 	registerGuiDataFunction(guiDType::renderBlending, &ToolBarRenderSettings::onRenderBlending);
 	registerGuiDataFunction(guiDType::renderPointSize, &ToolBarRenderSettings::onRenderPointSize);
 	registerGuiDataFunction(guiDType::renderTexelThreshold, &ToolBarRenderSettings::onRenderTexelThreshold);
+	registerGuiDataFunction(guiDType::renderGapFillingGapOnly, &ToolBarRenderSettings::onRenderGapFillingGapOnly);
+	registerGuiDataFunction(guiDType::renderGapFillingFalloffStrength, &ToolBarRenderSettings::onRenderGapFillingFalloffStrength);
+	registerGuiDataFunction(guiDType::renderGapFillingFalloffExponent, &ToolBarRenderSettings::onRenderGapFillingFalloffExponent);
+	registerGuiDataFunction(guiDType::renderGapFillingVarianceThreshold, &ToolBarRenderSettings::onRenderGapFillingVarianceThreshold);
         registerGuiDataFunction(guiDType::renderSaturation, &ToolBarRenderSettings::onRenderSaturation);
         
         registerGuiDataFunction(guiDType::renderValueDisplay, &ToolBarRenderSettings::onRenderUnitUsage);
@@ -214,6 +226,34 @@ void ToolBarRenderSettings::onRenderTexelThreshold(IGuiData* idata)
 		m_ui.comboBox_gapFillingStrength->blockSignals(false);
 	}
 }
+
+void ToolBarRenderSettings::onRenderGapFillingGapOnly(IGuiData* idata)
+{
+	GuiDataRenderGapFillingGapOnly* data = static_cast<GuiDataRenderGapFillingGapOnly*>(idata);
+	const QSignalBlocker blocker(m_ui.checkBox_gapFillingGapOnly);
+	m_ui.checkBox_gapFillingGapOnly->setChecked(data->m_enabled);
+}
+
+void ToolBarRenderSettings::onRenderGapFillingFalloffStrength(IGuiData* idata)
+{
+	GuiDataRenderGapFillingFalloffStrength* data = static_cast<GuiDataRenderGapFillingFalloffStrength*>(idata);
+	const QSignalBlocker blocker(m_ui.doubleSpinBox_gapFillingFalloffStrength);
+	m_ui.doubleSpinBox_gapFillingFalloffStrength->setValue(data->m_strength);
+}
+
+void ToolBarRenderSettings::onRenderGapFillingFalloffExponent(IGuiData* idata)
+{
+	GuiDataRenderGapFillingFalloffExponent* data = static_cast<GuiDataRenderGapFillingFalloffExponent*>(idata);
+	const QSignalBlocker blocker(m_ui.doubleSpinBox_gapFillingFalloffExponent);
+	m_ui.doubleSpinBox_gapFillingFalloffExponent->setValue(data->m_exponent);
+}
+
+void ToolBarRenderSettings::onRenderGapFillingVarianceThreshold(IGuiData* idata)
+{
+	GuiDataRenderGapFillingVarianceThreshold* data = static_cast<GuiDataRenderGapFillingVarianceThreshold*>(idata);
+	const QSignalBlocker blocker(m_ui.doubleSpinBox_gapFillingVariance);
+	m_ui.doubleSpinBox_gapFillingVariance->setValue(data->m_threshold);
+}
 void ToolBarRenderSettings::onRenderSaturation(IGuiData* idata) 
 {
 	GuiDataRenderSaturation* data = static_cast<GuiDataRenderSaturation*>(idata);
@@ -306,6 +346,10 @@ void ToolBarRenderSettings::onActiveCamera(IGuiData* idata)
 	int texelIndex = m_ui.comboBox_gapFillingStrength->findData(displayParameters.m_texelThreshold);
 	if (texelIndex != -1)
 		m_ui.comboBox_gapFillingStrength->setCurrentIndex(texelIndex);
+	m_ui.checkBox_gapFillingGapOnly->setChecked(displayParameters.m_gapFillingGapOnly);
+	m_ui.doubleSpinBox_gapFillingFalloffStrength->setValue(displayParameters.m_gapFillingFalloffStrength);
+	m_ui.doubleSpinBox_gapFillingFalloffExponent->setValue(displayParameters.m_gapFillingFalloffExponent);
+	m_ui.doubleSpinBox_gapFillingVariance->setValue(displayParameters.m_gapFillingDepthVarianceThreshold);
 
 	int value(100 - (int)(displayParameters.m_alphaObject * 100));
 	m_ui.alphaObjectsSpinBox->setValue(value);
@@ -361,6 +405,10 @@ void ToolBarRenderSettings::blockAllSignals(bool block)
 	m_ui.falseColorSlider->blockSignals(block);
 	m_ui.spinBox_pointSize->blockSignals(block);
 	m_ui.comboBox_gapFillingStrength->blockSignals(block);
+	m_ui.checkBox_gapFillingGapOnly->blockSignals(block);
+	m_ui.doubleSpinBox_gapFillingFalloffStrength->blockSignals(block);
+	m_ui.doubleSpinBox_gapFillingFalloffExponent->blockSignals(block);
+	m_ui.doubleSpinBox_gapFillingVariance->blockSignals(block);
 	m_ui.contrastSaturationSpinBox->blockSignals(block);
 	m_ui.contrastSaturationSlider->blockSignals(block);
 	m_ui.alphaObjectsSpinBox->blockSignals(block);
@@ -551,6 +599,26 @@ void ToolBarRenderSettings::slotSetTexelThreshold(int index)
 {
 	int texelThreshold = m_ui.comboBox_gapFillingStrength->itemData(index).toInt();
 	m_dataDispatcher.updateInformation(new GuiDataRenderTexelThreshold(texelThreshold, m_focusCamera), this);
+}
+
+void ToolBarRenderSettings::slotGapFillingGapOnlyChanged(int state)
+{
+	m_dataDispatcher.updateInformation(new GuiDataRenderGapFillingGapOnly(state != 0, m_focusCamera), this);
+}
+
+void ToolBarRenderSettings::slotGapFillingFalloffStrengthChanged(double value)
+{
+	m_dataDispatcher.updateInformation(new GuiDataRenderGapFillingFalloffStrength(static_cast<float>(value), m_focusCamera), this);
+}
+
+void ToolBarRenderSettings::slotGapFillingFalloffExponentChanged(double value)
+{
+	m_dataDispatcher.updateInformation(new GuiDataRenderGapFillingFalloffExponent(static_cast<float>(value), m_focusCamera), this);
+}
+
+void ToolBarRenderSettings::slotGapFillingVarianceChanged(double value)
+{
+	m_dataDispatcher.updateInformation(new GuiDataRenderGapFillingVarianceThreshold(static_cast<float>(value), m_focusCamera), this);
 }
 
 void ToolBarRenderSettings::slotSetRenderMode(int mode)

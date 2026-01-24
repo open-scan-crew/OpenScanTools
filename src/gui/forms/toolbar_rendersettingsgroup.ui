@@ -357,6 +357,100 @@
      </property>
     </widget>
    </item>
+   <item row="3" column="2" colspan="2">
+    <widget class="QWidget" name="gapFillingAdvancedWidget" native="true">
+     <layout class="QGridLayout" name="gridLayout_gapFillingAdvanced">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <property name="horizontalSpacing">
+       <number>6</number>
+      </property>
+      <property name="verticalSpacing">
+       <number>0</number>
+      </property>
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="checkBox_gapFillingGapOnly">
+        <property name="text">
+         <string>Gap only</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="label_gapFillingFalloffStrength">
+        <property name="text">
+         <string>Falloff</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QDoubleSpinBox" name="doubleSpinBox_gapFillingFalloffStrength">
+        <property name="decimals">
+         <number>2</number>
+        </property>
+        <property name="maximum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.050000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLabel" name="label_gapFillingFalloffExponent">
+        <property name="text">
+         <string>Falloff exp</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QDoubleSpinBox" name="doubleSpinBox_gapFillingFalloffExponent">
+        <property name="decimals">
+         <number>2</number>
+        </property>
+        <property name="minimum">
+         <double>0.500000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>4.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QLabel" name="label_gapFillingVariance">
+        <property name="text">
+         <string>Depth variance</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4">
+       <widget class="QDoubleSpinBox" name="doubleSpinBox_gapFillingVariance">
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="maximum">
+         <double>0.200000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.005000000000000</double>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
    <item row="2" column="2">
     <widget class="QPushButton" name="pushButton_editDisplayPresets">
      <property name="text">
@@ -559,9 +653,13 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>spinBox_pointSize</tabstop>
-  <tabstop>comboBox_gapFillingStrength</tabstop>
-  <tabstop>comboBox_displayPresets</tabstop>
+ <tabstop>spinBox_pointSize</tabstop>
+ <tabstop>comboBox_gapFillingStrength</tabstop>
+ <tabstop>checkBox_gapFillingGapOnly</tabstop>
+ <tabstop>doubleSpinBox_gapFillingFalloffStrength</tabstop>
+ <tabstop>doubleSpinBox_gapFillingFalloffExponent</tabstop>
+ <tabstop>doubleSpinBox_gapFillingVariance</tabstop>
+ <tabstop>comboBox_displayPresets</tabstop>
   <tabstop>pushButton_editDisplayPresets</tabstop>
   <tabstop>pushButton_newDisplayPresets</tabstop>
   <tabstop>brightnessLuminanceSlider</tabstop>

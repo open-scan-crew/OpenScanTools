@@ -34,8 +34,13 @@ namespace
 		json[Key_Rendering_Mode] = magic_enum::enum_name(params.m_mode);
 		json[Key_Background_Color] = { params.m_backgroundColor.Red(), params.m_backgroundColor.Green(), params.m_backgroundColor.Blue() };
 		json[Key_Point_Size] = params.m_pointSize;
-		json[Key_Texel_Threshold] = params.m_texelThreshold;
-		json[Key_Delta_Filling] = params.m_deltaFilling;
+	json[Key_Texel_Threshold] = params.m_texelThreshold;
+	json[Key_Delta_Filling] = params.m_deltaFilling;
+	json[Key_Gap_Filling_Gap_Only] = params.m_gapFillingGapOnly;
+	json[Key_Gap_Filling_Depth_Threshold] = params.m_gapFillingGapDepthThreshold;
+	json[Key_Gap_Filling_Falloff_Strength] = params.m_gapFillingFalloffStrength;
+	json[Key_Gap_Filling_Falloff_Exponent] = params.m_gapFillingFalloffExponent;
+	json[Key_Gap_Filling_Variance_Threshold] = params.m_gapFillingDepthVarianceThreshold;
 
 		json[Key_Contrast] = params.m_contrast;
 		json[Key_Brightness] = params.m_brightness;
@@ -118,6 +123,21 @@ namespace
 
 		if (json.find(Key_Delta_Filling) != json.end())
 			data.m_deltaFilling = json.at(Key_Delta_Filling).get<float>();
+
+		if (json.find(Key_Gap_Filling_Gap_Only) != json.end())
+			data.m_gapFillingGapOnly = json.at(Key_Gap_Filling_Gap_Only).get<bool>();
+
+		if (json.find(Key_Gap_Filling_Depth_Threshold) != json.end())
+			data.m_gapFillingGapDepthThreshold = json.at(Key_Gap_Filling_Depth_Threshold).get<float>();
+
+		if (json.find(Key_Gap_Filling_Falloff_Strength) != json.end())
+			data.m_gapFillingFalloffStrength = json.at(Key_Gap_Filling_Falloff_Strength).get<float>();
+
+		if (json.find(Key_Gap_Filling_Falloff_Exponent) != json.end())
+			data.m_gapFillingFalloffExponent = json.at(Key_Gap_Filling_Falloff_Exponent).get<float>();
+
+		if (json.find(Key_Gap_Filling_Variance_Threshold) != json.end())
+			data.m_gapFillingDepthVarianceThreshold = json.at(Key_Gap_Filling_Variance_Threshold).get<float>();
 		else
 			retVal = false;
 
@@ -652,6 +672,10 @@ void DisplayPresetManager::applyPreset(const DisplayPreset& preset)
 	m_dataDispatcher.sendControl(new control::application::RenderModeUpdate(params.m_mode, m_focusCamera));
 	m_dataDispatcher.sendControl(new control::application::SetRenderPointSize(static_cast<int>(params.m_pointSize), m_focusCamera));
 	m_dataDispatcher.updateInformation(new GuiDataRenderTexelThreshold(params.m_texelThreshold, m_focusCamera), this);
+	m_dataDispatcher.updateInformation(new GuiDataRenderGapFillingGapOnly(params.m_gapFillingGapOnly, m_focusCamera), this);
+	m_dataDispatcher.updateInformation(new GuiDataRenderGapFillingFalloffStrength(params.m_gapFillingFalloffStrength, m_focusCamera), this);
+	m_dataDispatcher.updateInformation(new GuiDataRenderGapFillingFalloffExponent(params.m_gapFillingFalloffExponent, m_focusCamera), this);
+	m_dataDispatcher.updateInformation(new GuiDataRenderGapFillingVarianceThreshold(params.m_gapFillingDepthVarianceThreshold, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderBrightness(static_cast<int>(params.m_brightness), m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderContrast(static_cast<int>(params.m_contrast), m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderLuminance(static_cast<int>(params.m_luminance), m_focusCamera), this);

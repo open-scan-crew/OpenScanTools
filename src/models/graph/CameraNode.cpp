@@ -46,6 +46,10 @@ CameraNode::CameraNode(const std::wstring& name, IDataDispatcher& dataDispatcher
     registerGuiDataFunction(guiDType::renderColorMode, &CameraNode::onRenderColorMode);
     registerGuiDataFunction(guiDType::renderPointSize, &CameraNode::onRenderPointSize);
     registerGuiDataFunction(guiDType::renderTexelThreshold, &CameraNode::onRenderTexelThreshold);
+    registerGuiDataFunction(guiDType::renderGapFillingGapOnly, &CameraNode::onRenderGapFillingGapOnly);
+    registerGuiDataFunction(guiDType::renderGapFillingFalloffStrength, &CameraNode::onRenderGapFillingFalloffStrength);
+    registerGuiDataFunction(guiDType::renderGapFillingFalloffExponent, &CameraNode::onRenderGapFillingFalloffExponent);
+    registerGuiDataFunction(guiDType::renderGapFillingVarianceThreshold, &CameraNode::onRenderGapFillingVarianceThreshold);
     registerGuiDataFunction(guiDType::renderBrightness, &CameraNode::onRenderBrightness);
     registerGuiDataFunction(guiDType::renderContrast, &CameraNode::onRenderContrast);
     registerGuiDataFunction(guiDType::renderLuminance, &CameraNode::onRenderLuminance);
@@ -1358,6 +1362,26 @@ void CameraNode::onRenderPointSize(IGuiData* data)
 void CameraNode::onRenderTexelThreshold(IGuiData* data)
 {
     m_texelThreshold = static_cast<GuiDataRenderTexelThreshold*>(data)->m_texelThreshold;
+}
+
+void CameraNode::onRenderGapFillingGapOnly(IGuiData* data)
+{
+    m_gapFillingGapOnly = static_cast<GuiDataRenderGapFillingGapOnly*>(data)->m_enabled;
+}
+
+void CameraNode::onRenderGapFillingFalloffStrength(IGuiData* data)
+{
+    m_gapFillingFalloffStrength = static_cast<GuiDataRenderGapFillingFalloffStrength*>(data)->m_strength;
+}
+
+void CameraNode::onRenderGapFillingFalloffExponent(IGuiData* data)
+{
+    m_gapFillingFalloffExponent = static_cast<GuiDataRenderGapFillingFalloffExponent*>(data)->m_exponent;
+}
+
+void CameraNode::onRenderGapFillingVarianceThreshold(IGuiData* data)
+{
+    m_gapFillingDepthVarianceThreshold = static_cast<GuiDataRenderGapFillingVarianceThreshold*>(data)->m_threshold;
 }
 
 void CameraNode::onRenderBrightness(IGuiData* data)

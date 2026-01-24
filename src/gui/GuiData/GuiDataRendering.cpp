@@ -174,6 +174,50 @@ guiDType GuiDataRenderTexelThreshold::getType()
 	return guiDType::renderTexelThreshold;
 }
 
+//*** Gap Filling Gap Only ***//
+GuiDataRenderGapFillingGapOnly::GuiDataRenderGapFillingGapOnly(bool enabled, SafePtr<CameraNode> camera)
+	: GuiDataActiveCamera(camera)
+	, m_enabled(enabled)
+{}
+
+guiDType GuiDataRenderGapFillingGapOnly::getType()
+{
+	return guiDType::renderGapFillingGapOnly;
+}
+
+//*** Gap Filling Falloff Strength ***//
+GuiDataRenderGapFillingFalloffStrength::GuiDataRenderGapFillingFalloffStrength(float strength, SafePtr<CameraNode> camera)
+	: GuiDataActiveCamera(camera)
+	, m_strength(strength)
+{}
+
+guiDType GuiDataRenderGapFillingFalloffStrength::getType()
+{
+	return guiDType::renderGapFillingFalloffStrength;
+}
+
+//*** Gap Filling Falloff Exponent ***//
+GuiDataRenderGapFillingFalloffExponent::GuiDataRenderGapFillingFalloffExponent(float exponent, SafePtr<CameraNode> camera)
+	: GuiDataActiveCamera(camera)
+	, m_exponent(exponent)
+{}
+
+guiDType GuiDataRenderGapFillingFalloffExponent::getType()
+{
+	return guiDType::renderGapFillingFalloffExponent;
+}
+
+//*** Gap Filling Variance Threshold ***//
+GuiDataRenderGapFillingVarianceThreshold::GuiDataRenderGapFillingVarianceThreshold(float threshold, SafePtr<CameraNode> camera)
+	: GuiDataActiveCamera(camera)
+	, m_threshold(threshold)
+{}
+
+guiDType GuiDataRenderGapFillingVarianceThreshold::getType()
+{
+	return guiDType::renderGapFillingVarianceThreshold;
+}
+
 //*** Brightness ***//
 GuiDataRenderBrightness::GuiDataRenderBrightness(int _brightness, SafePtr<CameraNode> camera)
 	: GuiDataActiveCamera(camera)
