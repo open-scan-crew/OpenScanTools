@@ -1447,13 +1447,21 @@ void ObjectNodeVisitor::draw_baked_pointClouds(VkCommandBuffer cmdBuffer, Render
     ClippingAssembly emptyAssembly;
 
     bool doDepthPrepass = (m_displayParameters.m_pointShape == PointShape::Splat);
+    if (doDepthPrepass)
+    {
+        for (const PointCloudDrawData& bakedPC : m_bakedPointCloud)
+        {
+            clipAndDrawPointCloud(cmdBuffer, renderer, bakedPC, projInfoNode, bakedPC.clippable ? m_clippingAssembly : emptyAssembly, true, false);
+        }
+    }
+
     for (const PointCloudDrawData& bakedPC : m_bakedPointCloud)
     {
-        clipAndDrawPointCloud(cmdBuffer, renderer, bakedPC, projInfoNode, bakedPC.clippable ? m_clippingAssembly : emptyAssembly, doDepthPrepass);
+        clipAndDrawPointCloud(cmdBuffer, renderer, bakedPC, projInfoNode, bakedPC.clippable ? m_clippingAssembly : emptyAssembly, false, true);
     }
 }
 
-void ObjectNodeVisitor::clipAndDrawPointCloud(VkCommandBuffer _cmdBuffer, Renderer& renderer, const PointCloudDrawData& bakedPC, TlProjectionInfo& projInfo, const ClippingAssembly& _clippingAssembly, bool doDepthPrepass)
+void ObjectNodeVisitor::clipAndDrawPointCloud(VkCommandBuffer _cmdBuffer, Renderer& renderer, const PointCloudDrawData& bakedPC, TlProjectionInfo& projInfo, const ClippingAssembly& _clippingAssembly, bool doDepthPrepass, bool doAccumulation)
 {
     TlScanOverseer& overseer = TlScanOverseer::getInstance();
     TlScanDrawInfo drawInfo = TlScanDrawInfo();
@@ -1500,6 +1508,9 @@ void ObjectNodeVisitor::clipAndDrawPointCloud(VkCommandBuffer _cmdBuffer, Render
             renderer.drawPointsClippingDepthOnly(drawInfo, m_viewProjUniform, m_clipUniform, correspUiRenderMode.at(m_displayParameters.m_mode), _cmdBuffer, m_displayParameters.m_blendMode, m_pointRenderFormat, m_displayParameters.m_pointShape);
         }
     }
+
+    if (!doAccumulation)
+        return;
 
     // Draw points that do not need a clipping test
     if (!drawInfo.cellDrawInfo.empty())

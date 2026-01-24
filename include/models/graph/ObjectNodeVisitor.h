@@ -120,7 +120,7 @@ private:
     void drawMeasureTexts();
     void drawImGuiMeasureText(const SegmentDrawData segment);
 
-    void clipAndDrawPointCloud(VkCommandBuffer _cmdBuffer, Renderer& renderer, const PointCloudDrawData& bakedPC, TlProjectionInfo& projInfo, const ClippingAssembly& clippingAssembly, bool doDepthPrepass);
+    void clipAndDrawPointCloud(VkCommandBuffer _cmdBuffer, Renderer& renderer, const PointCloudDrawData& bakedPC, TlProjectionInfo& projInfo, const ClippingAssembly& clippingAssembly, bool doDepthPrepass, bool doAccumulation);
 
     void sortMarkersByDepth(const std::vector<MarkerDrawData>& markers, std::vector<MarkerDrawData>& markersSorted, double maxDistance);
 
