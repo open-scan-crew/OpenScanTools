@@ -18,7 +18,7 @@ layout(push_constant) uniform PC {
    layout(offset = 60) int gapFillingDensityAuto;
 } pc;
 
-void fillIn(in vec4[9] color, in float[9] depth, in int texelThreshold, out vec4 newColor, out float newDepth)
+void fillIn(in vec4[9] color, in float[9] depth, in int texelThreshold, in float normalizedDepth, out vec4 newColor, out float newDepth)
 {
    // Methode A : AVEC boucle for
    //float nearest = depth[1];
@@ -54,12 +54,10 @@ void fillIn(in vec4[9] color, in float[9] depth, in int texelThreshold, out vec4
    int effectiveThreshold = texelThreshold;
    if (pc.gapFillingDensityAuto != 0)
    {
-      const int denseNeighborThreshold = 6;
-      const int denseTexelThreshold = 8;
-      if (validTexel >= denseNeighborThreshold)
-      {
-         effectiveThreshold = max(texelThreshold, denseTexelThreshold);
-      }
+      const int maxTexelThreshold = 8;
+      float depthFactor = clamp(normalizedDepth, 0.0, 1.0);
+      int depthThreshold = int(round(mix(float(texelThreshold), float(maxTexelThreshold), depthFactor)));
+      effectiveThreshold = max(texelThreshold, depthThreshold);
    }
 
    if (validTexel >= effectiveThreshold)
@@ -117,7 +115,8 @@ void main()
    // Calcule la couleur et la profondeur par extrapolation des pixels voisins
    vec4 newC;
    float newZ;
-   fillIn(imageData.color, imageData.depth, pc.texelThreshold, newC, newZ);
+   float normalizedDepth = clamp((imageData.depth[0] - pc.nearFar.x) / diffFarNear, 0.0, 1.0);
+   fillIn(imageData.color, imageData.depth, pc.texelThreshold, normalizedDepth, newC, newZ);
    float newD = pc.projMode == 0 ?
                 (pc.nearFar.y - mulFarNear / newZ) / diffFarNear :
                 (newZ - pc.nearFar.x) / diffFarNear;
