@@ -550,6 +550,9 @@ void Renderer::createGraphicPipelines()
     depthStencil[BlendMode::Transparent].depthTestEnable = VK_FALSE;
     depthStencil[BlendMode::Transparent].depthWriteEnable = VK_FALSE;
 
+    VkPipelineDepthStencilStateCreateInfo depthStencilSplat = depthStencil[BlendMode::Opaque];
+    depthStencilSplat.depthWriteEnable = VK_FALSE;
+
     // ----------------------------------------------------------------------
 
     VkVertexInputAttributeDescription vertexAttrDescRGB = { 3, 1, VK_FORMAT_R8G8B8A8_UINT, 0 };
@@ -583,6 +586,10 @@ void Renderer::createGraphicPipelines()
     cb_transparent[1] = cb_transparent[0];
     cb_transparent[1].colorWriteMask = 0x3;
 
+    VkPipelineColorBlendAttachmentState cb_depth_only[2] = {};
+    cb_depth_only[0].colorWriteMask = 0;
+    cb_depth_only[1].colorWriteMask = 0;
+
     std::unordered_map<BlendMode, VkPipelineColorBlendStateCreateInfo> colorBlend;
     colorBlend[BlendMode::Opaque].sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
     colorBlend[BlendMode::Opaque].attachmentCount = 2;
@@ -590,6 +597,11 @@ void Renderer::createGraphicPipelines()
     colorBlend[BlendMode::Transparent].sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
     colorBlend[BlendMode::Transparent].attachmentCount = 2;
     colorBlend[BlendMode::Transparent].pAttachments = cb_transparent;
+
+    VkPipelineColorBlendStateCreateInfo colorBlendDepthOnly = {};
+    colorBlendDepthOnly.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+    colorBlendDepthOnly.attachmentCount = 2;
+    colorBlendDepthOnly.pAttachments = cb_depth_only;
 
     VkDynamicState dynEnable[] = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
     VkPipelineDynamicStateCreateInfo dyn;
@@ -754,7 +766,7 @@ void Renderer::createGraphicPipelines()
                                 ? colorBlend[BlendMode::Transparent]
                                 : colorBlend[BlendMode(blendMode)];
                             VkPipelineDepthStencilStateCreateInfo* depthState = (PointShape(shape) == PointShape::Splat)
-                                ? &depthStencil[BlendMode::Opaque]
+                                ? &depthStencilSplat
                                 : &depthStencil[BlendMode(blendMode)];
 
                             VkGraphicsPipelineCreateInfo info = {
@@ -783,6 +795,17 @@ void Renderer::createGraphicPipelines()
                             VkResult err = h_pfn->vkCreateGraphicsPipelines(h_device, m_pipelineCache, 1, &info, nullptr, &pipe);
                             check_vk_result(err, "Create Graphic Pipeline (points)");
                             m_pipelines[createPipeKey(BlendMode(blendMode), RenderMode(renderMode), ClippingMode(clipMode), tls::PointFormat(format), renderPass.first, PointShape(shape))] = pipe;
+
+                            if (PointShape(shape) == PointShape::Splat)
+                            {
+                                VkGraphicsPipelineCreateInfo depthInfo = info;
+                                depthInfo.pColorBlendState = &colorBlendDepthOnly;
+                                depthInfo.pDepthStencilState = &depthStencil[BlendMode::Opaque];
+                                VkPipeline depthPipe = VK_NULL_HANDLE;
+                                err = h_pfn->vkCreateGraphicsPipelines(h_device, m_pipelineCache, 1, &depthInfo, nullptr, &depthPipe);
+                                check_vk_result(err, "Create Graphic Pipeline (points depth)");
+                                m_depthPipelines[createPipeKey(BlendMode(blendMode), RenderMode(renderMode), ClippingMode(clipMode), tls::PointFormat(format), renderPass.first, PointShape(shape))] = depthPipe;
+                            }
                         }
                     }
                 }
@@ -883,6 +906,29 @@ void Renderer::drawPoints(const TlScanDrawInfo &_drawInfo, const VkUniformOffset
     }
 }
 
+void Renderer::drawPointsDepthOnly(const TlScanDrawInfo& _drawInfo, const VkUniformOffset& viewProjUni, RenderMode _renderMode, VkCommandBuffer _cmdBuffer, BlendMode blendMode, VkFormat renderFormat, PointShape pointShape) const
+{
+    PipelineKey pipelineDef = createPipeKey(blendMode, _renderMode, ClippingMode::Deactivated, _drawInfo.format, renderFormat, pointShape);
+#ifdef _DEBUG_
+    if (m_depthPipelines.find(pipelineDef) == m_depthPipelines.end())
+        assert(0 && "Depth pipeline is not initialized");
+#endif
+
+    h_pfn->vkCmdBindPipeline(_cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_depthPipelines.at(pipelineDef));
+
+    VkDeviceSize offset = 0;
+    h_pfn->vkCmdBindVertexBuffers(_cmdBuffer, 2, 1, &_drawInfo.instanceBuffer, &offset);
+
+    uint32_t offsets[] = { viewProjUni, _drawInfo.modelUni, };
+    h_pfn->vkCmdBindDescriptorSets(_cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 1, &m_descSet, 2, offsets);
+
+    for (const TlCellDrawInfo& cellDrawInfo : _drawInfo.cellDrawInfo)
+    {
+        bindVertexBuffers(_cmdBuffer, _renderMode, _drawInfo.format, cellDrawInfo);
+        h_pfn->vkCmdDraw(_cmdBuffer, cellDrawInfo.vertexCount, 1, 0, cellDrawInfo.cellIndex);
+    }
+}
+
 void Renderer::drawPointsClipping(const TlScanDrawInfo &_drawInfo, const VkUniformOffset& viewProjUni, const VkUniformOffset& clippingUni, RenderMode _renderMode, VkCommandBuffer _cmdBuffer, BlendMode blendMode, VkFormat renderFormat, PointShape pointShape) const
 {
     // Bind the right pipeline
@@ -926,6 +972,51 @@ void Renderer::drawPointsClipping(const TlScanDrawInfo &_drawInfo, const VkUnifo
     }
 
     // To generate less log
+    if (showWarningMsg)
+    {
+        VKLOG << "WARNING: Too much clippings active on the same cell detected: " << maxConcurrentClipping << Logger::endl;
+    }
+}
+
+void Renderer::drawPointsClippingDepthOnly(const TlScanDrawInfo& _drawInfo, const VkUniformOffset& viewProjUni, const VkUniformOffset& clippingUni, RenderMode _renderMode, VkCommandBuffer _cmdBuffer, BlendMode blendMode, VkFormat renderFormat, PointShape pointShape) const
+{
+    PipelineKey pipelineDef = createPipeKey(blendMode, _renderMode, ClippingMode::Activated, _drawInfo.format, renderFormat, pointShape);
+#ifdef _DEBUG_
+    if (m_depthPipelines.find(pipelineDef) == m_depthPipelines.end())
+        assert(0 && "Depth pipeline is not initialized");
+#endif
+
+    h_pfn->vkCmdBindPipeline(_cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_depthPipelines.at(pipelineDef));
+
+    VkDeviceSize offset = 0;
+    h_pfn->vkCmdBindVertexBuffers(_cmdBuffer, 2, 1, &_drawInfo.instanceBuffer, &offset);
+
+    uint32_t offsets[] = { viewProjUni, _drawInfo.modelUni, viewProjUni, clippingUni };
+    h_pfn->vkCmdBindDescriptorSets(_cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout_cb, 0, 1, &m_descSet_cb, 4, offsets);
+
+    bool showWarningMsg = false;
+    uint32_t maxConcurrentClipping = 0;
+    for (const TlCellDrawInfo_multiCB& cellDraw : _drawInfo.cellDrawInfoCB)
+    {
+        TlCellDrawInfo castCellDraw{ cellDraw.buffer, cellDraw.cellIndex, cellDraw.vertexCount, cellDraw.m_iOffset, cellDraw.m_rgbOffset };
+        bindVertexBuffers(_cmdBuffer, _renderMode, _drawInfo.format, castCellDraw);
+
+        ClippingGpuId clippingIndexes[MAX_CLIPPING_PER_CELL + 1];
+        uint32_t cbCount = (uint32_t)cellDraw.clippingGpuIds.size();
+
+        if (cbCount > MAX_CLIPPING_PER_CELL)
+        {
+            showWarningMsg = true;
+            maxConcurrentClipping = std::max(cbCount, maxConcurrentClipping);
+            cbCount = MAX_CLIPPING_PER_CELL;
+        }
+        clippingIndexes[0] = (uint16_t)cbCount;
+        memcpy(clippingIndexes + 1, cellDraw.clippingGpuIds.data(), sizeof(ClippingGpuId) * cbCount);
+        setClippingIndexes(clippingIndexes, _cmdBuffer);
+
+        h_pfn->vkCmdDraw(_cmdBuffer, cellDraw.vertexCount, 1, 0, cellDraw.cellIndex);
+    }
+
     if (showWarningMsg)
     {
         VKLOG << "WARNING: Too much clippings active on the same cell detected: " << maxConcurrentClipping << Logger::endl;
@@ -1050,4 +1141,13 @@ void Renderer::cleanup()
         }
     }
     m_pipelines.clear();
+
+    for (auto& iterator : m_depthPipelines)
+    {
+        if (iterator.second) {
+            h_pfn->vkDestroyPipeline(h_device, iterator.second, nullptr);
+            iterator.second = VK_NULL_HANDLE;
+        }
+    }
+    m_depthPipelines.clear();
 }

@@ -1446,13 +1446,14 @@ void ObjectNodeVisitor::draw_baked_pointClouds(VkCommandBuffer cmdBuffer, Render
     m_drawHasMissingScanPart = false;
     ClippingAssembly emptyAssembly;
 
+    bool doDepthPrepass = (m_displayParameters.m_pointShape == PointShape::Splat);
     for (const PointCloudDrawData& bakedPC : m_bakedPointCloud)
     {
-        clipAndDrawPointCloud(cmdBuffer, renderer, bakedPC, projInfoNode, bakedPC.clippable ? m_clippingAssembly : emptyAssembly);
+        clipAndDrawPointCloud(cmdBuffer, renderer, bakedPC, projInfoNode, bakedPC.clippable ? m_clippingAssembly : emptyAssembly, doDepthPrepass);
     }
 }
 
-void ObjectNodeVisitor::clipAndDrawPointCloud(VkCommandBuffer _cmdBuffer, Renderer& renderer, const PointCloudDrawData& bakedPC, TlProjectionInfo& projInfo, const ClippingAssembly& _clippingAssembly)
+void ObjectNodeVisitor::clipAndDrawPointCloud(VkCommandBuffer _cmdBuffer, Renderer& renderer, const PointCloudDrawData& bakedPC, TlProjectionInfo& projInfo, const ClippingAssembly& _clippingAssembly, bool doDepthPrepass)
 {
     TlScanOverseer& overseer = TlScanOverseer::getInstance();
     TlScanDrawInfo drawInfo = TlScanDrawInfo();
@@ -1486,6 +1487,19 @@ void ObjectNodeVisitor::clipAndDrawPointCloud(VkCommandBuffer _cmdBuffer, Render
         return;
 
     m_drawHasMissingScanPart |= needStreaming;
+
+    if (doDepthPrepass && m_displayParameters.m_pointShape == PointShape::Splat)
+    {
+        if (!drawInfo.cellDrawInfo.empty())
+        {
+            renderer.drawPointsDepthOnly(drawInfo, m_viewProjUniform, correspUiRenderMode.at(m_displayParameters.m_mode), _cmdBuffer, m_displayParameters.m_blendMode, m_pointRenderFormat, m_displayParameters.m_pointShape);
+        }
+
+        if (!drawInfo.cellDrawInfoCB.empty())
+        {
+            renderer.drawPointsClippingDepthOnly(drawInfo, m_viewProjUniform, m_clipUniform, correspUiRenderMode.at(m_displayParameters.m_mode), _cmdBuffer, m_displayParameters.m_blendMode, m_pointRenderFormat, m_displayParameters.m_pointShape);
+        }
+    }
 
     // Draw points that do not need a clipping test
     if (!drawInfo.cellDrawInfo.empty())

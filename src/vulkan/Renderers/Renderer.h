@@ -47,6 +47,8 @@ public:
 
     void drawPoints(const TlScanDrawInfo &drawInfo, const VkUniformOffset& viewProjUni, RenderMode _renderMode, VkCommandBuffer _cmdBuffer, BlendMode blendMode, VkFormat renderFormat, PointShape pointShape) const;
     void drawPointsClipping(const TlScanDrawInfo &drawInfo, const VkUniformOffset& viewProjUni, const VkUniformOffset& clippingBoxUni, RenderMode _renderMode, VkCommandBuffer _cmdBuffer, BlendMode blendMode, VkFormat renderFormat, PointShape pointShape) const;
+    void drawPointsDepthOnly(const TlScanDrawInfo& drawInfo, const VkUniformOffset& viewProjUni, RenderMode _renderMode, VkCommandBuffer _cmdBuffer, BlendMode blendMode, VkFormat renderFormat, PointShape pointShape) const;
+    void drawPointsClippingDepthOnly(const TlScanDrawInfo& drawInfo, const VkUniformOffset& viewProjUni, const VkUniformOffset& clippingBoxUni, RenderMode _renderMode, VkCommandBuffer _cmdBuffer, BlendMode blendMode, VkFormat renderFormat, PointShape pointShape) const;
 
     void setConstantPointSize(float ptSize, VkCommandBuffer _cmdBuffer);
     void setConstantSplatRadius(float radiusPx, VkCommandBuffer _cmdBuffer);
@@ -137,6 +139,7 @@ private:
 
     //std::unordered_map<BlendMode, std::unordered_map<RenderMode, std::unordered_map<ClippingMode, std::unordered_map<tls::PointFormat, VkPipeline>>>> m_pipelines;
     std::unordered_map<PipelineKey, VkPipeline> m_pipelines;
+    std::unordered_map<PipelineKey, VkPipeline> m_depthPipelines;
 };
 
 // NOTE(robin)  - Solution if we want to use a std::hash for the pipeline map
