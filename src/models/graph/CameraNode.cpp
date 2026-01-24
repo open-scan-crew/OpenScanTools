@@ -45,6 +45,8 @@ CameraNode::CameraNode(const std::wstring& name, IDataDispatcher& dataDispatcher
 
     registerGuiDataFunction(guiDType::renderColorMode, &CameraNode::onRenderColorMode);
     registerGuiDataFunction(guiDType::renderPointSize, &CameraNode::onRenderPointSize);
+    registerGuiDataFunction(guiDType::renderPointShape, &CameraNode::onRenderPointShape);
+    registerGuiDataFunction(guiDType::renderSplatSoftness, &CameraNode::onRenderSplatSoftness);
     registerGuiDataFunction(guiDType::renderTexelThreshold, &CameraNode::onRenderTexelThreshold);
     registerGuiDataFunction(guiDType::renderBrightness, &CameraNode::onRenderBrightness);
     registerGuiDataFunction(guiDType::renderContrast, &CameraNode::onRenderContrast);
@@ -1353,6 +1355,18 @@ void CameraNode::onRenderColorMode(IGuiData* data)
 void CameraNode::onRenderPointSize(IGuiData* data)
 {
     m_pointSize = static_cast<GuiDataRenderPointSize*>(data)->m_pointSize;
+}
+
+void CameraNode::onRenderPointShape(IGuiData* data)
+{
+    m_pointShape = static_cast<GuiDataRenderPointShape*>(data)->m_shape;
+    if (m_pointShape == PointShape::Splat)
+        m_texelThreshold = 9;
+}
+
+void CameraNode::onRenderSplatSoftness(IGuiData* data)
+{
+    m_splatSoftness = static_cast<GuiDataRenderSplatSoftness*>(data)->m_softness;
 }
 
 void CameraNode::onRenderTexelThreshold(IGuiData* data)

@@ -206,16 +206,81 @@
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="QSpinBox" name="spinBox_pointSize">
-     <property name="minimum">
-      <number>1</number>
-     </property>
-     <property name="maximum">
-      <number>15</number>
-     </property>
-     <property name="value">
-      <number>1</number>
-     </property>
+    <widget class="QWidget" name="pointSize_options" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout_pointSize">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <property name="spacing">
+       <number>4</number>
+      </property>
+      <item>
+       <widget class="QSpinBox" name="spinBox_pointSize">
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>15</number>
+        </property>
+        <property name="value">
+         <number>1</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="comboBox_pointShape">
+        <property name="minimumSize">
+         <size>
+          <width>90</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Point shape</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QDoubleSpinBox" name="doubleSpinBox_splatRadius">
+        <property name="minimumSize">
+         <size>
+          <width>80</width>
+          <height>0</height>
+         </size>
+        </property>
+       <property name="decimals">
+        <number>2</number>
+       </property>
+       <property name="minimum">
+         <double>0.4</double>
+       </property>
+       <property name="maximum">
+         <double>0.9</double>
+       </property>
+       <property name="singleStep">
+         <double>0.01</double>
+       </property>
+       <property name="value">
+         <double>0.7</double>
+       </property>
+       <property name="toolTip">
+         <string>Splat softness</string>
+       </property>
+       <property name="suffix">
+         <string/>
+        </property>
+      </widget>
+      </item>
+     </layout>
     </widget>
    </item>
    <item row="0" column="9" rowspan="5">
@@ -558,9 +623,11 @@
    <header>qdoubleedit.h</header>
   </customwidget>
  </customwidgets>
- <tabstops>
-  <tabstop>spinBox_pointSize</tabstop>
-  <tabstop>comboBox_gapFillingStrength</tabstop>
+<tabstops>
+ <tabstop>spinBox_pointSize</tabstop>
+ <tabstop>comboBox_pointShape</tabstop>
+ <tabstop>doubleSpinBox_splatRadius</tabstop>
+ <tabstop>comboBox_gapFillingStrength</tabstop>
   <tabstop>comboBox_displayPresets</tabstop>
   <tabstop>pushButton_editDisplayPresets</tabstop>
   <tabstop>pushButton_newDisplayPresets</tabstop>

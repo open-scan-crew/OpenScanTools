@@ -203,6 +203,9 @@
 #define Key_Rendering_Mode				"RenderingMode"
 #define Key_Background_Color			"BackgroundColor"
 #define Key_Point_Size					"PointSize"
+#define Key_Point_Shape					"PointShape"
+#define Key_Splat_Radius				"SplatRadiusPx"
+#define Key_Splat_Softness				"SplatSoftness"
 #define Key_Texel_Threshold				"TexelThreshold"
 #define Key_Delta_Filling				"DeltaFilling"
 

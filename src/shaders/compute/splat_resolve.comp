@@ -1,0 +1,44 @@
+#version 450
+
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+
+layout(binding = 0, rgba16f) uniform image2D accumColor;
+layout(binding = 1) uniform sampler2D accumWeight;
+layout(binding = 2) uniform sampler2D depthSampler;
+
+layout(push_constant) uniform PC {
+    vec4 backgroundColor;
+    float coverageK;
+} pc;
+
+void main()
+{
+    ivec2 coord = ivec2(gl_GlobalInvocationID.xy);
+    ivec2 size = imageSize(accumColor);
+    if (coord.x >= size.x || coord.y >= size.y)
+        return;
+
+    vec4 color = imageLoad(accumColor, coord);
+    vec2 weightDepth = texelFetch(accumWeight, coord, 0).rg;
+    float weight = weightDepth.x;
+
+    if (weight <= 1e-5)
+    {
+        imageStore(accumColor, coord, vec4(pc.backgroundColor.rgb, 1.0));
+        return;
+    }
+
+    float avgDepth = weightDepth.y / weight;
+    float depthRef = texelFetch(depthSampler, coord, 0).r;
+
+    float depthDiff = abs(avgDepth - depthRef);
+    float depthSigma = 0.01;
+    float depthFactor = exp(-(depthDiff * depthDiff) / (2.0 * depthSigma * depthSigma));
+    float weightEffective = weight * depthFactor;
+    float alpha = 1.0 - exp(-pc.coverageK * weightEffective);
+
+    vec3 resolved = color.rgb / weight;
+    vec3 outRgb = mix(pc.backgroundColor.rgb, resolved, alpha);
+
+    imageStore(accumColor, coord, vec4(outRgb, 1.0));
+}

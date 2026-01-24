@@ -653,6 +653,11 @@ VkDescriptorSetLayout VulkanManager::getDSLayout_finalOutput()
     return getInstance().m_descSetLayout_finalOutput;
 }
 
+VkDescriptorSetLayout VulkanManager::getDSLayout_splatResolve()
+{
+    return getInstance().m_descSetLayout_splatResolve;
+}
+
 VkDescriptorSetLayout VulkanManager::getDSLayout_inputTransparentLayer()
 {
     return getInstance().m_descSetLayout_inputTransparentLayer;
@@ -838,10 +843,11 @@ void VulkanManager::beginScanRenderPass(TlFramebuffer _fb, VkClearColorValue _cl
     }
 
     // The render pass does not automatically clear the point cloud attachments.
-    const int clearCount = 2;
+    const int clearCount = 3;
     VkClearValue clearValues[clearCount];
     clearValues[0].color = _clearColor;
-    clearValues[1].depthStencil = { 1.f, 0u };
+    clearValues[1].color = { 0.f, 0.f, 0.f, 0.f };
+    clearValues[2].depthStencil = { 1.f, 0u };
 
     VkRenderPassBeginInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -910,6 +916,57 @@ void VulkanManager::beginPostTreatmentFilling(TlFramebuffer _fb)
         0,
         0, nullptr,
         sizeof(buffer_barrier) / sizeof(VkBufferMemoryBarrier), &buffer_barrier,
+        sizeof(barriers) / sizeof(VkImageMemoryBarrier), barriers);
+}
+
+void VulkanManager::beginPostTreatmentSplatResolve(TlFramebuffer _fb)
+{
+    VkImageMemoryBarrier barriers[] = {
+        {
+            VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            nullptr,
+            VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+            VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT,
+            VK_IMAGE_LAYOUT_GENERAL,
+            VK_IMAGE_LAYOUT_GENERAL,
+            VK_QUEUE_FAMILY_IGNORED,
+            VK_QUEUE_FAMILY_IGNORED,
+            _fb->pcColorImage,
+            { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 }
+        },
+        {
+            VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            nullptr,
+            VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+            VK_ACCESS_SHADER_READ_BIT,
+            VK_IMAGE_LAYOUT_GENERAL,
+            VK_IMAGE_LAYOUT_GENERAL,
+            VK_QUEUE_FAMILY_IGNORED,
+            VK_QUEUE_FAMILY_IGNORED,
+            _fb->pcWeightImage,
+            { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 }
+        },
+        {
+            VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            nullptr,
+            VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+            VK_ACCESS_SHADER_READ_BIT,
+            VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL,
+            VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL,
+            VK_QUEUE_FAMILY_IGNORED,
+            VK_QUEUE_FAMILY_IGNORED,
+            _fb->pcDepthImage,
+            { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 }
+        }
+    };
+
+    m_pfnDev->vkCmdPipelineBarrier(
+        _fb->graphicsCmdBuffers[_fb->currentFrame],
+        VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+        VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+        0,
+        0, nullptr,
+        0, nullptr,
         sizeof(barriers) / sizeof(VkImageMemoryBarrier), barriers);
 }
 
@@ -2493,6 +2550,18 @@ bool VulkanManager::createPCRenderPass(VkFormat imageFormat)
         VK_IMAGE_LAYOUT_GENERAL
     };
 
+    VkAttachmentDescription pcWeightAttachment = {
+        0,
+        VK_FORMAT_R16G16_SFLOAT,
+        VK_SAMPLE_COUNT_1_BIT,
+        VK_ATTACHMENT_LOAD_OP_CLEAR,
+        VK_ATTACHMENT_STORE_OP_STORE,
+        VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+        VK_ATTACHMENT_STORE_OP_DONT_CARE,
+        VK_IMAGE_LAYOUT_UNDEFINED,
+        VK_IMAGE_LAYOUT_GENERAL
+    };
+
     VkAttachmentDescription pcDepthAttachment = {
         0,
         m_depthFormat,
@@ -2505,13 +2574,19 @@ bool VulkanManager::createPCRenderPass(VkFormat imageFormat)
         VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL
     };
 
-    VkAttachmentReference pcColorAttachmentRef = {
-        0,                                         // attachment
-        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL   // layout
+    VkAttachmentReference pcColorAttachmentRefs[] = {
+        {
+            0,                                         // attachment
+            VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL   // layout
+        },
+        {
+            1,
+            VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+        }
     };
 
     VkAttachmentReference pcDepthAttachmentRef = {
-        1,
+        2,
         VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
     };
 
@@ -2521,8 +2596,8 @@ bool VulkanManager::createPCRenderPass(VkFormat imageFormat)
             VK_PIPELINE_BIND_POINT_GRAPHICS,  // pipelineBindPoint
             0,                                // inputAttachmentCount
             nullptr,                          // pInputAttachments
-            1,                                // colorAttachmentCount
-            &pcColorAttachmentRef,            // pColorAttachments
+            2,                                // colorAttachmentCount
+            pcColorAttachmentRefs,            // pColorAttachments
             nullptr,                          // pResolveAttachments
             &pcDepthAttachmentRef,            // pDepthStencilAtachment
             0,                                // preserveAttachmentCount
@@ -2542,10 +2617,10 @@ bool VulkanManager::createPCRenderPass(VkFormat imageFormat)
         }
     };
 
-    VkAttachmentDescription attachments[] = { pcColorAttachment, pcDepthAttachment };
+    VkAttachmentDescription attachments[] = { pcColorAttachment, pcWeightAttachment, pcDepthAttachment };
     VkRenderPassCreateInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    renderPassInfo.attachmentCount = 2;  // color + depth
+    renderPassInfo.attachmentCount = 3;  // color + weight + depth
     renderPassInfo.pAttachments = attachments;
     renderPassInfo.subpassCount = 1;
     renderPassInfo.pSubpasses = subpasses;
@@ -2939,6 +3014,35 @@ bool VulkanManager::createDescriptorSetLayouts()
     err = m_pfnDev->vkCreateDescriptorSetLayout(m_device, &descLayoutInfo, nullptr, &m_descSetLayout_finalOutput);
     check_vk_result(err, "Create Descriptor Set Layout");
 
+    VkDescriptorSetLayoutBinding layoutBindingsSplat[] = {
+        {
+            0,
+            VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+            1,
+            VK_SHADER_STAGE_COMPUTE_BIT,
+            nullptr
+        },
+        {
+            1,
+            VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+            1,
+            VK_SHADER_STAGE_COMPUTE_BIT,
+            nullptr
+        },
+        {
+            2,
+            VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+            1,
+            VK_SHADER_STAGE_COMPUTE_BIT,
+            nullptr
+        }
+    };
+
+    descLayoutInfo.bindingCount = sizeof(layoutBindingsSplat) / sizeof(VkDescriptorSetLayoutBinding);
+    descLayoutInfo.pBindings = layoutBindingsSplat;
+    err = m_pfnDev->vkCreateDescriptorSetLayout(m_device, &descLayoutInfo, nullptr, &m_descSetLayout_splatResolve);
+    check_vk_result(err, "Create Descriptor Set Layout");
+
     // ********* Layout for Input attachment of transparent rendering ***********
 
     VkDescriptorSetLayoutBinding layoutBindingsTransp[] =
@@ -3154,6 +3258,10 @@ void VulkanManager::createAttachments(TlFramebuffer _fb)
 
     _fb->pcColorImageView = createImageView(_fb->pcColorImage, _fb->pcFormat, VK_IMAGE_ASPECT_COLOR_BIT);
 
+    // splat weight/depth accumulation render target
+    createImage(_fb->extent, 1, VK_FORMAT_R16G16_SFLOAT, VK_IMAGE_TILING_OPTIMAL, VK_SAMPLE_COUNT_1_BIT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _fb->pcWeightImage, _fb->pcWeightMemory);
+    _fb->pcWeightImageView = createImageView(_fb->pcWeightImage, VK_FORMAT_R16G16_SFLOAT, VK_IMAGE_ASPECT_COLOR_BIT);
+
     // object id attachment
     createImage(_fb->extent, 1, VK_FORMAT_R32_UINT, VK_IMAGE_TILING_OPTIMAL, VK_SAMPLE_COUNT_1_BIT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _fb->idAttImage, _fb->idAttMemory);
 
@@ -3331,6 +3439,63 @@ void VulkanManager::allocateDescriptorSet(TlFramebuffer _fb)
     }
     //----------------------------------//
     {
+        VkDescriptorSetAllocateInfo descSetAllocInfo = {
+            VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+            nullptr,
+            m_descPool,
+            1,
+            &m_descSetLayout_splatResolve
+        };
+        VkResult err = m_pfnDev->vkAllocateDescriptorSets(m_device, &descSetAllocInfo, &_fb->descSetSplatResolve);
+        check_vk_result(err, "Allocate Descriptor Sets");
+
+        VkDescriptorImageInfo imageInfos[] = {
+            {
+                VK_NULL_HANDLE,
+                _fb->pcColorImageView,
+                VK_IMAGE_LAYOUT_GENERAL
+            },
+            {
+                _fb->rawSampler,
+                _fb->pcWeightImageView,
+                VK_IMAGE_LAYOUT_GENERAL
+            },
+            {
+                _fb->rawSampler,
+                _fb->pcDepthImageView,
+                VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL
+            }
+        };
+
+        constexpr uint32_t count = sizeof(imageInfos) / sizeof(VkDescriptorImageInfo);
+        VkWriteDescriptorSet writeDesc[count];
+        memset(writeDesc, 0, sizeof(writeDesc));
+
+        writeDesc[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        writeDesc[0].dstSet = _fb->descSetSplatResolve;
+        writeDesc[0].dstBinding = 0;
+        writeDesc[0].descriptorCount = 1;
+        writeDesc[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+        writeDesc[0].pImageInfo = &imageInfos[0];
+
+        writeDesc[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        writeDesc[1].dstSet = _fb->descSetSplatResolve;
+        writeDesc[1].dstBinding = 1;
+        writeDesc[1].descriptorCount = 1;
+        writeDesc[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        writeDesc[1].pImageInfo = &imageInfos[1];
+
+        writeDesc[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        writeDesc[2].dstSet = _fb->descSetSplatResolve;
+        writeDesc[2].dstBinding = 2;
+        writeDesc[2].descriptorCount = 1;
+        writeDesc[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        writeDesc[2].pImageInfo = &imageInfos[2];
+
+        m_pfnDev->vkUpdateDescriptorSets(m_device, count, writeDesc, 0, nullptr);
+    }
+    //----------------------------------//
+    {
         VkDescriptorSetAllocateInfo allocInfo = {
             VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
             nullptr,
@@ -3391,7 +3556,7 @@ void VulkanManager::createPcFramebuffer(TlFramebuffer _fb)
 {
     assert(m_renderPass_pc.find(_fb->pcFormat) != m_renderPass_pc.end());
 
-    VkImageView attachments[] = { _fb->pcColorImageView, _fb->pcDepthImageView };
+    VkImageView attachments[] = { _fb->pcColorImageView, _fb->pcWeightImageView, _fb->pcDepthImageView };
 
     VkFramebufferCreateInfo framebufferInfo = {};
     framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -4228,6 +4393,7 @@ void VulkanManager::cleanupAll()
         destroyDescriptorSetLayout(*m_pfnDev, m_device, m_descSetLayout_inputDepth);
         destroyDescriptorSetLayout(*m_pfnDev, m_device, m_descSetLayout_filling);
         destroyDescriptorSetLayout(*m_pfnDev, m_device, m_descSetLayout_finalOutput);
+        destroyDescriptorSetLayout(*m_pfnDev, m_device, m_descSetLayout_splatResolve);
         destroyDescriptorSetLayout(*m_pfnDev, m_device, m_descSetLayout_inputTransparentLayer);
 
         for (VkFence fence : m_renderFences)
@@ -4303,6 +4469,11 @@ void VulkanManager::cleanupSizeDependantResources(TlFramebuffer _fb)
         tls::vk::destroyImageView(*m_pfnDev, m_device, _fb->pcColorImageView);
         tls::vk::destroyImage(*m_pfnDev, m_device, _fb->pcColorImage);
         tls::vk::freeMemory(*m_pfnDev, m_device, _fb->pcColorMemory);
+
+        // pc weight
+        tls::vk::destroyImageView(*m_pfnDev, m_device, _fb->pcWeightImageView);
+        tls::vk::destroyImage(*m_pfnDev, m_device, _fb->pcWeightImage);
+        tls::vk::freeMemory(*m_pfnDev, m_device, _fb->pcWeightMemory);
 
         // pc depth
         tls::vk::destroyImageView(*m_pfnDev, m_device, _fb->pcDepthImageView);

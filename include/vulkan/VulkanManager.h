@@ -116,6 +116,7 @@ public:
     static VkDescriptorSetLayout getDSLayout_inputDepth();
     static VkDescriptorSetLayout getDSLayout_fillingSamplers();
     static VkDescriptorSetLayout getDSLayout_finalOutput();
+    static VkDescriptorSetLayout getDSLayout_splatResolve();
     static VkDescriptorSetLayout getDSLayout_inputTransparentLayer();
 
     VkBuffer getUniformBuffer() const;
@@ -140,6 +141,7 @@ public:
 
     // Point cloud post treatment
     void beginPostTreatmentFilling(TlFramebuffer framebuffer);
+    void beginPostTreatmentSplatResolve(TlFramebuffer framebuffer);
     void beginPostTreatmentNormal(TlFramebuffer framebuffer);
     void beginPostTreatmentAmbientOcclusion(TlFramebuffer framebuffer);
     void beginPostTreatmentEdgeAwareBlur(TlFramebuffer framebuffer);
@@ -368,6 +370,7 @@ private:
     VkDescriptorSetLayout m_descSetLayout_inputDepth = VK_NULL_HANDLE;
     VkDescriptorSetLayout m_descSetLayout_filling = VK_NULL_HANDLE;
     VkDescriptorSetLayout m_descSetLayout_finalOutput = VK_NULL_HANDLE;
+    VkDescriptorSetLayout m_descSetLayout_splatResolve = VK_NULL_HANDLE;
     VkDescriptorSetLayout m_descSetLayout_inputTransparentLayer = VK_NULL_HANDLE;
 
     // Commons Resources pools

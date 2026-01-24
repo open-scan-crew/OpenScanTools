@@ -167,6 +167,28 @@ public:
     float m_pointSize;
 };
 
+class GuiDataRenderPointShape : public GuiDataActiveCamera
+{
+public:
+    GuiDataRenderPointShape(PointShape shape, SafePtr<CameraNode> camera);
+    ~GuiDataRenderPointShape() {};
+    virtual guiDType getType() override;
+
+public:
+    PointShape m_shape;
+};
+
+class GuiDataRenderSplatSoftness : public GuiDataActiveCamera
+{
+public:
+    GuiDataRenderSplatSoftness(float softness, SafePtr<CameraNode> camera);
+    ~GuiDataRenderSplatSoftness() {};
+    virtual guiDType getType() override;
+
+public:
+    float m_softness;
+};
+
 class GuiDataRenderTexelThreshold : public GuiDataActiveCamera
 {
 public:
