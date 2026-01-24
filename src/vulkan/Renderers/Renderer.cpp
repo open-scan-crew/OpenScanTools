@@ -753,6 +753,9 @@ void Renderer::createGraphicPipelines()
                             VkPipelineColorBlendStateCreateInfo blendState = (PointShape(shape) == PointShape::Splat)
                                 ? colorBlend[BlendMode::Transparent]
                                 : colorBlend[BlendMode(blendMode)];
+                            VkPipelineDepthStencilStateCreateInfo* depthState = (PointShape(shape) == PointShape::Splat)
+                                ? &depthStencil[BlendMode::Opaque]
+                                : &depthStencil[BlendMode(blendMode)];
 
                             VkGraphicsPipelineCreateInfo info = {
                                 VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
@@ -766,7 +769,7 @@ void Renderer::createGraphicPipelines()
                                 &vp,								// pViewportState
                                 &rs,                                // pRasterizationState
                                 &ms,								// pMultisampleState
-                                &depthStencil[BlendMode(blendMode)], // pDepthStencilState
+                                depthState,                         // pDepthStencilState
                                 &blendState,						// pColorBlendState
                                 &dyn,								// pDynamicState
                                 layout,                             // layout

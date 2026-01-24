@@ -15,7 +15,14 @@ void main() {
 	float weight = 1.0;
 	if (pc.pointShape == 1)
 	{
-		vec2 centeredPx = (gl_PointCoord - vec2(0.5)) * pc.ptSize;
+		vec2 centeredUv = gl_PointCoord - vec2(0.5);
+		float dist2Uv = dot(centeredUv, centeredUv);
+		if (dist2Uv > 0.25)
+		{
+			discard;
+		}
+
+		vec2 centeredPx = centeredUv * pc.ptSize;
 		float dist2 = dot(centeredPx, centeredPx);
 		float sigma = max(pc.splatRadiusPx, 0.001);
 		weight = exp(-0.5 * dist2 / (sigma * sigma));
@@ -25,7 +32,7 @@ void main() {
 		}
 	}
 
-	outColor = vec4(fragColor.rgb * weight, weight);
+	outColor = vec4(fragColor.rgb * weight, 1.0);
 	outWeightDepth = vec2(weight, gl_FragCoord.z * weight);
 }
 
