@@ -483,12 +483,14 @@ void Renderer::createPointPipelineLayout()
     // rampMin     | 28     | 4
     // rampMax     | 32     | 4
     // rampSteps   | 36     | 4
+    // splatRadius | 40     | 4
+    // pointShape  | 44     | 4
     // ptColor     | 48     | 12
     //-------------+---------------------------------
     VkPushConstantRange pcr[] =
     {
         {
-            VK_SHADER_STAGE_VERTEX_BIT,
+            VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
             0,
             64
         },
@@ -563,11 +565,12 @@ void Renderer::createGraphicPipelines()
         nullptr
     };
 
-    VkPipelineColorBlendAttachmentState cb_opaque = {};
+    VkPipelineColorBlendAttachmentState cb_opaque[2] = {};
     // no blend, write out all of rgba
-    cb_opaque.colorWriteMask = 0xF;
+    cb_opaque[0].colorWriteMask = 0xF;
+    cb_opaque[1].colorWriteMask = 0x3;
 
-    VkPipelineColorBlendAttachmentState cb_transparent = {
+    VkPipelineColorBlendAttachmentState cb_transparent[2] = {
         VK_TRUE,                             // blendEnable
         VK_BLEND_FACTOR_ONE,           // srcColorBlendFactor
         VK_BLEND_FACTOR_ONE,                 // dstColorBlendFactor
@@ -577,14 +580,16 @@ void Renderer::createGraphicPipelines()
         VK_BLEND_OP_ADD,                     // alphaBlendOp
         0xF                                  // colorWriteMask
     };
+    cb_transparent[1] = cb_transparent[0];
+    cb_transparent[1].colorWriteMask = 0x3;
 
     std::unordered_map<BlendMode, VkPipelineColorBlendStateCreateInfo> colorBlend;
     colorBlend[BlendMode::Opaque].sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-    colorBlend[BlendMode::Opaque].attachmentCount = 1;
-    colorBlend[BlendMode::Opaque].pAttachments = &cb_opaque;
+    colorBlend[BlendMode::Opaque].attachmentCount = 2;
+    colorBlend[BlendMode::Opaque].pAttachments = cb_opaque;
     colorBlend[BlendMode::Transparent].sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-    colorBlend[BlendMode::Transparent].attachmentCount = 1;
-    colorBlend[BlendMode::Transparent].pAttachments = &cb_transparent;
+    colorBlend[BlendMode::Transparent].attachmentCount = 2;
+    colorBlend[BlendMode::Transparent].pAttachments = cb_transparent;
 
     VkDynamicState dynEnable[] = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
     VkPipelineDynamicStateCreateInfo dyn;
@@ -743,32 +748,39 @@ void Renderer::createGraphicPipelines()
                 {
                     for (auto renderPass : h_renderPasses)
                     {
-                        VkGraphicsPipelineCreateInfo info = {
-                            VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
-                            nullptr,							// pNext
-                            0,									// flags
-                            stageCount,							// stageCount
-                            stages[clipMode],					// pStages
-                            &vertexInputInfo,					// pVertexInputState
-                            &ia,                                // pInputAssembleState
-                            nullptr,							// pTesselationState
-                            &vp,								// pViewportState
-                            &rs,                                // pRasterizationState
-                            &ms,								// pMultisampleState
-                            &depthStencil[BlendMode(blendMode)], // pDepthStencilState
-                            &colorBlend[BlendMode(blendMode)],   // pColorBlendState
-                            &dyn,								// pDynamicState
-                            layout,                             // layout
-                            renderPass.second,					// renderPass
-                            0,									// subpass
-                            VK_NULL_HANDLE,						// basePipelineHandle
-                            0									// basePipelineIndex
-                        };
+                        for (int shape = 0; shape < (int)PointShape::MaxEnum; shape++)
+                        {
+                            VkPipelineColorBlendStateCreateInfo blendState = (PointShape(shape) == PointShape::Splat)
+                                ? colorBlend[BlendMode::Transparent]
+                                : colorBlend[BlendMode(blendMode)];
 
-                        VkPipeline pipe = VK_NULL_HANDLE;
-                        VkResult err = h_pfn->vkCreateGraphicsPipelines(h_device, m_pipelineCache, 1, &info, nullptr, &pipe);
-                        check_vk_result(err, "Create Graphic Pipeline (points)");
-                        m_pipelines[createPipeKey(BlendMode(blendMode), RenderMode(renderMode), ClippingMode(clipMode), tls::PointFormat(format), renderPass.first)] = pipe;
+                            VkGraphicsPipelineCreateInfo info = {
+                                VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
+                                nullptr,							// pNext
+                                0,									// flags
+                                stageCount,							// stageCount
+                                stages[clipMode],					// pStages
+                                &vertexInputInfo,					// pVertexInputState
+                                &ia,                                // pInputAssembleState
+                                nullptr,							// pTesselationState
+                                &vp,								// pViewportState
+                                &rs,                                // pRasterizationState
+                                &ms,								// pMultisampleState
+                                &depthStencil[BlendMode(blendMode)], // pDepthStencilState
+                                &blendState,						// pColorBlendState
+                                &dyn,								// pDynamicState
+                                layout,                             // layout
+                                renderPass.second,					// renderPass
+                                0,									// subpass
+                                VK_NULL_HANDLE,						// basePipelineHandle
+                                0									// basePipelineIndex
+                            };
+
+                            VkPipeline pipe = VK_NULL_HANDLE;
+                            VkResult err = h_pfn->vkCreateGraphicsPipelines(h_device, m_pipelineCache, 1, &info, nullptr, &pipe);
+                            check_vk_result(err, "Create Graphic Pipeline (points)");
+                            m_pipelines[createPipeKey(BlendMode(blendMode), RenderMode(renderMode), ClippingMode(clipMode), tls::PointFormat(format), renderPass.first, PointShape(shape))] = pipe;
+                        }
                     }
                 }
             }
@@ -839,10 +851,10 @@ void Renderer::setViewportAndScissor(int32_t _xPos, int32_t _yPos, uint32_t _wid
     h_pfn->vkCmdSetScissor(_cmdBuffer, 0, 1, &scissor);
 }
 
-void Renderer::drawPoints(const TlScanDrawInfo &_drawInfo, const VkUniformOffset& viewProjUni, RenderMode _renderMode, VkCommandBuffer _cmdBuffer, BlendMode blendMode, VkFormat renderFormat) const
+void Renderer::drawPoints(const TlScanDrawInfo &_drawInfo, const VkUniformOffset& viewProjUni, RenderMode _renderMode, VkCommandBuffer _cmdBuffer, BlendMode blendMode, VkFormat renderFormat, PointShape pointShape) const
 {
     // Bind the right pipeline
-    PipelineKey pipelineDef = createPipeKey(blendMode, _renderMode, ClippingMode::Deactivated, _drawInfo.format, renderFormat);
+    PipelineKey pipelineDef = createPipeKey(blendMode, _renderMode, ClippingMode::Deactivated, _drawInfo.format, renderFormat, pointShape);
 #ifdef _DEBUG_
     if (m_pipelines.find(pipelineDef) == m_pipelines.end())
         assert(0 && "Pipeline is not initialized");
@@ -868,10 +880,10 @@ void Renderer::drawPoints(const TlScanDrawInfo &_drawInfo, const VkUniformOffset
     }
 }
 
-void Renderer::drawPointsClipping(const TlScanDrawInfo &_drawInfo, const VkUniformOffset& viewProjUni, const VkUniformOffset& clippingUni, RenderMode _renderMode, VkCommandBuffer _cmdBuffer, BlendMode blendMode, VkFormat renderFormat) const
+void Renderer::drawPointsClipping(const TlScanDrawInfo &_drawInfo, const VkUniformOffset& viewProjUni, const VkUniformOffset& clippingUni, RenderMode _renderMode, VkCommandBuffer _cmdBuffer, BlendMode blendMode, VkFormat renderFormat, PointShape pointShape) const
 {
     // Bind the right pipeline
-    PipelineKey pipelineDef = createPipeKey(blendMode, _renderMode, ClippingMode::Activated, _drawInfo.format, renderFormat);
+    PipelineKey pipelineDef = createPipeKey(blendMode, _renderMode, ClippingMode::Activated, _drawInfo.format, renderFormat, pointShape);
 
     assert((m_pipelines.find(pipelineDef) != m_pipelines.end()) && "Pipeline is not initialized");
 
@@ -919,9 +931,22 @@ void Renderer::drawPointsClipping(const TlScanDrawInfo &_drawInfo, const VkUnifo
 
 void Renderer::setConstantPointSize(float ptSize, VkCommandBuffer _cmdBuffer)
 {
-    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, 4, &ptSize);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, 4, &ptSize);
 
-    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT, 0, 4, &ptSize);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, 4, &ptSize);
+}
+
+void Renderer::setConstantSplatRadius(float radiusPx, VkCommandBuffer _cmdBuffer)
+{
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 40, 4, &radiusPx);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_FRAGMENT_BIT, 40, 4, &radiusPx);
+}
+
+void Renderer::setConstantPointShape(PointShape shape, VkCommandBuffer _cmdBuffer)
+{
+    int shapeValue = static_cast<int>(shape);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 44, 4, &shapeValue);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_FRAGMENT_BIT, 44, 4, &shapeValue);
 }
 
 void Renderer::setConstantContrastBrightness(float contrast, float brightness, VkCommandBuffer _cmdBuffer)

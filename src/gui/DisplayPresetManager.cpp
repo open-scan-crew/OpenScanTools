@@ -34,6 +34,8 @@ namespace
 		json[Key_Rendering_Mode] = magic_enum::enum_name(params.m_mode);
 		json[Key_Background_Color] = { params.m_backgroundColor.Red(), params.m_backgroundColor.Green(), params.m_backgroundColor.Blue() };
 		json[Key_Point_Size] = params.m_pointSize;
+		json[Key_Point_Shape] = magic_enum::enum_name(params.m_pointShape);
+		json[Key_Splat_Radius] = params.m_splatRadiusPx;
 		json[Key_Texel_Threshold] = params.m_texelThreshold;
 		json[Key_Delta_Filling] = params.m_deltaFilling;
 
@@ -110,6 +112,15 @@ namespace
 			data.m_pointSize = json.at(Key_Point_Size).get<float>();
 		else
 			retVal = false;
+
+		if (json.find(Key_Point_Shape) != json.end())
+		{
+			auto shape = magic_enum::enum_cast<PointShape>(json.at(Key_Point_Shape).get<std::string>());
+			data.m_pointShape = shape.has_value() ? shape.value() : PointShape::Square;
+		}
+
+		if (json.find(Key_Splat_Radius) != json.end())
+			data.m_splatRadiusPx = json.at(Key_Splat_Radius).get<float>();
 
 		if (json.find(Key_Texel_Threshold) != json.end())
 			data.m_texelThreshold = json.at(Key_Texel_Threshold).get<int>();
@@ -651,6 +662,8 @@ void DisplayPresetManager::applyPreset(const DisplayPreset& preset)
 
 	m_dataDispatcher.sendControl(new control::application::RenderModeUpdate(params.m_mode, m_focusCamera));
 	m_dataDispatcher.sendControl(new control::application::SetRenderPointSize(static_cast<int>(params.m_pointSize), m_focusCamera));
+	m_dataDispatcher.updateInformation(new GuiDataRenderPointShape(params.m_pointShape, m_focusCamera), this);
+	m_dataDispatcher.updateInformation(new GuiDataRenderSplatRadius(params.m_splatRadiusPx, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderTexelThreshold(params.m_texelThreshold, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderBrightness(static_cast<int>(params.m_brightness), m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderContrast(static_cast<int>(params.m_contrast), m_focusCamera), this);

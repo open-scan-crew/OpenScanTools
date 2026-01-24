@@ -38,6 +38,8 @@ private:
 	void onRenderLuminance(IGuiData* data);
 	void onRenderBlending(IGuiData* data);
 	void onRenderPointSize(IGuiData* data);
+	void onRenderPointShape(IGuiData* data);
+	void onRenderSplatRadius(IGuiData* data);
 	void onRenderTexelThreshold(IGuiData* data);
 	void onRenderSaturation(IGuiData* data);
 	void onRenderAlphaObjects(IGuiData* data);
@@ -70,6 +72,8 @@ private slots:
 	void slotFakeColorValueChanged(int value);
 	void slotAlphaBoxesValueChanged(int value);
 	void slotSetPointSize(int pointSize);
+	void slotSetPointShape(int index);
+	void slotSetSplatRadius(double radius);
 	void slotSetTexelThreshold(int index);
 	void slotSetRenderMode(int mode);
         void slotColorPicking();
@@ -91,6 +95,8 @@ private:
 	int m_alphaBoxes;
     QColor m_selectedColor;
 	bool m_intensityActive;
+	PointShape m_pointShape = PointShape::Square;
+	int m_savedGapFillingIndex = 0;
 	SafePtr<CameraNode>	m_focusCamera;
 };
 
