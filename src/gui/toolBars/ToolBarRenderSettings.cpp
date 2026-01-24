@@ -53,6 +53,12 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 	m_ui.comboBox_gapFillingStrength->addItem(tr("Mid"), 2);
 	m_ui.comboBox_gapFillingStrength->addItem(tr("High"), 1);
 	m_ui.comboBox_gapFillingStrength->setCurrentIndex(1);
+	m_savedGapFillingIndex = m_ui.comboBox_gapFillingStrength->currentIndex();
+
+	m_ui.comboBox_pointShape->addItem(tr("Squares"), QVariant(static_cast<int>(PointShape::Square)));
+	m_ui.comboBox_pointShape->addItem(tr("Splats"), QVariant(static_cast<int>(PointShape::Splat)));
+	m_ui.comboBox_pointShape->setCurrentIndex(0);
+	m_ui.doubleSpinBox_splatRadius->setEnabled(false);
 
     // Init render options UI
     m_ui.pushButton_color->setPalette(QPalette(m_selectedColor));
@@ -61,6 +67,8 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 	connect(m_ui.comboBox_renderMode,QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarRenderSettings::slotSetRenderMode);
 
 	connect(m_ui.spinBox_pointSize, qOverload<int>(&QSpinBox::valueChanged), this, &ToolBarRenderSettings::slotSetPointSize);
+	connect(m_ui.comboBox_pointShape, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarRenderSettings::slotSetPointShape);
+	connect(m_ui.doubleSpinBox_splatRadius, qOverload<double>(&QDoubleSpinBox::valueChanged), this, &ToolBarRenderSettings::slotSetSplatSoftness);
 	connect(m_ui.comboBox_gapFillingStrength, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarRenderSettings::slotSetTexelThreshold);
 
 	connect(m_ui.pushButton_color, &QPushButton::clicked, this, &ToolBarRenderSettings::slotColorPicking);
@@ -106,6 +114,8 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 	registerGuiDataFunction(guiDType::renderLuminance, &ToolBarRenderSettings::onRenderLuminance);
 	registerGuiDataFunction(guiDType::renderBlending, &ToolBarRenderSettings::onRenderBlending);
 	registerGuiDataFunction(guiDType::renderPointSize, &ToolBarRenderSettings::onRenderPointSize);
+	registerGuiDataFunction(guiDType::renderPointShape, &ToolBarRenderSettings::onRenderPointShape);
+	registerGuiDataFunction(guiDType::renderSplatSoftness, &ToolBarRenderSettings::onRenderSplatSoftness);
 	registerGuiDataFunction(guiDType::renderTexelThreshold, &ToolBarRenderSettings::onRenderTexelThreshold);
         registerGuiDataFunction(guiDType::renderSaturation, &ToolBarRenderSettings::onRenderSaturation);
         
@@ -201,6 +211,45 @@ void ToolBarRenderSettings::onRenderPointSize(IGuiData* idata)
 		m_ui.spinBox_pointSize->blockSignals(true);
 	    m_ui.spinBox_pointSize->setValue(data->m_pointSize);
 		m_ui.spinBox_pointSize->blockSignals(false);
+	}
+}
+
+void ToolBarRenderSettings::onRenderPointShape(IGuiData* idata)
+{
+	GuiDataRenderPointShape* data = static_cast<GuiDataRenderPointShape*>(idata);
+	m_pointShape = data->m_shape;
+	int index = m_ui.comboBox_pointShape->findData(static_cast<int>(m_pointShape));
+	if (index != -1 && index != m_ui.comboBox_pointShape->currentIndex())
+	{
+		m_ui.comboBox_pointShape->blockSignals(true);
+		m_ui.comboBox_pointShape->setCurrentIndex(index);
+		m_ui.comboBox_pointShape->blockSignals(false);
+	}
+
+    bool splatEnabled = (m_pointShape == PointShape::Splat);
+    m_ui.doubleSpinBox_splatRadius->setEnabled(splatEnabled);
+    m_ui.comboBox_gapFillingStrength->setEnabled(!splatEnabled);
+    m_ui.label_gapFilling->setEnabled(!splatEnabled);
+	if (splatEnabled)
+	{
+		int offIndex = m_ui.comboBox_gapFillingStrength->findData(9);
+		if (offIndex != -1)
+		{
+			m_ui.comboBox_gapFillingStrength->blockSignals(true);
+			m_ui.comboBox_gapFillingStrength->setCurrentIndex(offIndex);
+			m_ui.comboBox_gapFillingStrength->blockSignals(false);
+		}
+	}
+}
+
+void ToolBarRenderSettings::onRenderSplatSoftness(IGuiData* idata)
+{
+	GuiDataRenderSplatSoftness* data = static_cast<GuiDataRenderSplatSoftness*>(idata);
+	if (!qFuzzyCompare(data->m_softness + 1.0, m_ui.doubleSpinBox_splatRadius->value() + 1.0))
+	{
+		m_ui.doubleSpinBox_splatRadius->blockSignals(true);
+		m_ui.doubleSpinBox_splatRadius->setValue(data->m_softness);
+		m_ui.doubleSpinBox_splatRadius->blockSignals(false);
 	}
 }
 void ToolBarRenderSettings::onRenderTexelThreshold(IGuiData* idata)
@@ -303,9 +352,20 @@ void ToolBarRenderSettings::onActiveCamera(IGuiData* idata)
 	if (displayParameters.m_pointSize != m_ui.spinBox_pointSize->value())
 		m_ui.spinBox_pointSize->setValue(displayParameters.m_pointSize);
 
+	int shapeIndex = m_ui.comboBox_pointShape->findData(static_cast<int>(displayParameters.m_pointShape));
+	if (shapeIndex != -1)
+		m_ui.comboBox_pointShape->setCurrentIndex(shapeIndex);
+    m_ui.doubleSpinBox_splatRadius->setValue(displayParameters.m_splatSoftness);
+
 	int texelIndex = m_ui.comboBox_gapFillingStrength->findData(displayParameters.m_texelThreshold);
 	if (texelIndex != -1)
 		m_ui.comboBox_gapFillingStrength->setCurrentIndex(texelIndex);
+	m_savedGapFillingIndex = m_ui.comboBox_gapFillingStrength->currentIndex();
+
+	const bool splatEnabled = (displayParameters.m_pointShape == PointShape::Splat);
+	m_ui.comboBox_gapFillingStrength->setEnabled(!splatEnabled);
+	m_ui.label_gapFilling->setEnabled(!splatEnabled);
+	m_ui.doubleSpinBox_splatRadius->setEnabled(splatEnabled);
 
 	int value(100 - (int)(displayParameters.m_alphaObject * 100));
 	m_ui.alphaObjectsSpinBox->setValue(value);
@@ -360,6 +420,8 @@ void ToolBarRenderSettings::blockAllSignals(bool block)
 	m_ui.falseColorSpinBox->blockSignals(block);
 	m_ui.falseColorSlider->blockSignals(block);
 	m_ui.spinBox_pointSize->blockSignals(block);
+	m_ui.comboBox_pointShape->blockSignals(block);
+	m_ui.doubleSpinBox_splatRadius->blockSignals(block);
 	m_ui.comboBox_gapFillingStrength->blockSignals(block);
 	m_ui.contrastSaturationSpinBox->blockSignals(block);
 	m_ui.contrastSaturationSlider->blockSignals(block);
@@ -545,6 +607,37 @@ void ToolBarRenderSettings::slotTransparencyValueChanged(int value)
 void ToolBarRenderSettings::slotSetPointSize(int pointSize)
 {
     m_dataDispatcher.sendControl(new control::application::SetRenderPointSize(pointSize, m_focusCamera));
+}
+
+void ToolBarRenderSettings::slotSetPointShape(int index)
+{
+	m_pointShape = static_cast<PointShape>(m_ui.comboBox_pointShape->itemData(index).toInt());
+	const bool splatEnabled = (m_pointShape == PointShape::Splat);
+
+	if (splatEnabled)
+	{
+		m_savedGapFillingIndex = m_ui.comboBox_gapFillingStrength->currentIndex();
+		int offIndex = m_ui.comboBox_gapFillingStrength->findData(9);
+		if (offIndex != -1 && offIndex != m_ui.comboBox_gapFillingStrength->currentIndex())
+		{
+			m_ui.comboBox_gapFillingStrength->setCurrentIndex(offIndex);
+		}
+	}
+	else
+	{
+		m_ui.comboBox_gapFillingStrength->setCurrentIndex(m_savedGapFillingIndex);
+	}
+
+	m_ui.comboBox_gapFillingStrength->setEnabled(!splatEnabled);
+	m_ui.label_gapFilling->setEnabled(!splatEnabled);
+	m_ui.doubleSpinBox_splatRadius->setEnabled(splatEnabled);
+
+	m_dataDispatcher.updateInformation(new GuiDataRenderPointShape(m_pointShape, m_focusCamera), this);
+}
+
+void ToolBarRenderSettings::slotSetSplatSoftness(double softness)
+{
+	m_dataDispatcher.updateInformation(new GuiDataRenderSplatSoftness(static_cast<float>(softness), m_focusCamera), this);
 }
 
 void ToolBarRenderSettings::slotSetTexelThreshold(int index)

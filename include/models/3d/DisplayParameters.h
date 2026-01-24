@@ -20,6 +20,8 @@ public:
     UiRenderMode   m_mode = UiRenderMode::RGB;
     Color32        m_backgroundColor = Color32(0, 0, 0, 0);
     float          m_pointSize = 1.f;
+    PointShape     m_pointShape = PointShape::Square;
+    float          m_splatSoftness = 0.7f;
     int            m_texelThreshold = 2;
     float          m_deltaFilling = 0.f;	
     float          m_contrast = 0.f;
