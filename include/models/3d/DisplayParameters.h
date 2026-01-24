@@ -21,7 +21,7 @@ public:
     Color32        m_backgroundColor = Color32(0, 0, 0, 0);
     float          m_pointSize = 1.f;
     PointShape     m_pointShape = PointShape::Square;
-    float          m_splatRadiusPx = 2.0f;
+    float          m_splatRadiusPx = 1.0f;
     int            m_texelThreshold = 2;
     float          m_deltaFilling = 0.f;	
     float          m_contrast = 0.f;

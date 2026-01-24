@@ -1428,7 +1428,10 @@ void ObjectNodeVisitor::draw_baked_pointClouds(VkCommandBuffer cmdBuffer, Render
 
     renderer.setViewportAndScissor(0, 0, m_fbExtent.width, m_fbExtent.height, cmdBuffer);
     renderer.setConstantPointSize(m_displayParameters.m_pointSize, cmdBuffer);
-    renderer.setConstantSplatRadius(m_displayParameters.m_splatRadiusPx, cmdBuffer);
+    float splatRadiusPx = m_displayParameters.m_splatRadiusPx;
+    if (m_displayParameters.m_pointShape == PointShape::Splat)
+        splatRadiusPx = m_displayParameters.m_pointSize * m_displayParameters.m_splatRadiusPx;
+    renderer.setConstantSplatRadius(splatRadiusPx, cmdBuffer);
     renderer.setConstantPointShape(m_displayParameters.m_pointShape, cmdBuffer);
     renderer.setConstantContrastBrightness((float)m_displayParameters.m_contrast, (float)m_displayParameters.m_brightness, cmdBuffer);
     renderer.setConstantSaturationLuminance((float)m_displayParameters.m_saturation, (float)m_displayParameters.m_luminance, cmdBuffer);

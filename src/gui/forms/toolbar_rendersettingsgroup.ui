@@ -270,13 +270,13 @@
          <double>0.25</double>
         </property>
         <property name="value">
-         <double>2.0</double>
+         <double>1.0</double>
         </property>
         <property name="toolTip">
-         <string>Splat radius (px)</string>
+         <string>Splat radius factor (× point size)</string>
         </property>
         <property name="suffix">
-         <string> px</string>
+         <string> x</string>
         </property>
        </widget>
       </item>
