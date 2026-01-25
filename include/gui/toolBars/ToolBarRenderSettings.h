@@ -39,6 +39,9 @@ private:
 	void onRenderBlending(IGuiData* data);
 	void onRenderPointSize(IGuiData* data);
 	void onRenderTexelThreshold(IGuiData* data);
+	void onRenderGapFillingDepthScale(IGuiData* data);
+	void onRenderGapFillingDepthMax(IGuiData* data);
+	void onRenderGapFillingOnlyEmpty(IGuiData* data);
 	void onRenderSaturation(IGuiData* data);
 	void onRenderAlphaObjects(IGuiData* data);
 	void onRenderUnitUsage(IGuiData* data);
@@ -71,6 +74,10 @@ private slots:
 	void slotAlphaBoxesValueChanged(int value);
 	void slotSetPointSize(int pointSize);
 	void slotSetTexelThreshold(int index);
+	void slotGapFillingTexelThresholdChanged(int value);
+	void slotGapFillingDepthScaleChanged(int value);
+	void slotGapFillingDepthMaxChanged(int value);
+	void slotGapFillingOnlyEmptyChanged(int value);
 	void slotSetRenderMode(int mode);
         void slotColorPicking();
         void slotRampValues();

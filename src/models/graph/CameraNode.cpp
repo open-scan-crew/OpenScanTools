@@ -46,6 +46,9 @@ CameraNode::CameraNode(const std::wstring& name, IDataDispatcher& dataDispatcher
     registerGuiDataFunction(guiDType::renderColorMode, &CameraNode::onRenderColorMode);
     registerGuiDataFunction(guiDType::renderPointSize, &CameraNode::onRenderPointSize);
     registerGuiDataFunction(guiDType::renderTexelThreshold, &CameraNode::onRenderTexelThreshold);
+    registerGuiDataFunction(guiDType::renderGapFillingDepthScale, &CameraNode::onRenderGapFillingDepthScale);
+    registerGuiDataFunction(guiDType::renderGapFillingDepthMax, &CameraNode::onRenderGapFillingDepthMax);
+    registerGuiDataFunction(guiDType::renderGapFillingOnlyEmpty, &CameraNode::onRenderGapFillingOnlyEmpty);
     registerGuiDataFunction(guiDType::renderBrightness, &CameraNode::onRenderBrightness);
     registerGuiDataFunction(guiDType::renderContrast, &CameraNode::onRenderContrast);
     registerGuiDataFunction(guiDType::renderLuminance, &CameraNode::onRenderLuminance);
@@ -1358,6 +1361,21 @@ void CameraNode::onRenderPointSize(IGuiData* data)
 void CameraNode::onRenderTexelThreshold(IGuiData* data)
 {
     m_texelThreshold = static_cast<GuiDataRenderTexelThreshold*>(data)->m_texelThreshold;
+}
+
+void CameraNode::onRenderGapFillingDepthScale(IGuiData* data)
+{
+    m_gapFillingDepthScale = static_cast<GuiDataRenderGapFillingDepthScale*>(data)->m_depthScale;
+}
+
+void CameraNode::onRenderGapFillingDepthMax(IGuiData* data)
+{
+    m_gapFillingDepthMax = static_cast<GuiDataRenderGapFillingDepthMax*>(data)->m_depthMax;
+}
+
+void CameraNode::onRenderGapFillingOnlyEmpty(IGuiData* data)
+{
+    m_gapFillingOnlyEmpty = static_cast<GuiDataRenderGapFillingOnlyEmpty*>(data)->m_onlyEmpty;
 }
 
 void CameraNode::onRenderBrightness(IGuiData* data)

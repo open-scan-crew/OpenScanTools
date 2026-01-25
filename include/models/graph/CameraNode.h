@@ -212,6 +212,9 @@ private:
     void onRenderColorMode(IGuiData* data);
     void onRenderPointSize(IGuiData* data);
     void onRenderTexelThreshold(IGuiData* data);
+    void onRenderGapFillingDepthScale(IGuiData* data);
+    void onRenderGapFillingDepthMax(IGuiData* data);
+    void onRenderGapFillingOnlyEmpty(IGuiData* data);
     void onRenderBrightness(IGuiData* data);
     void onRenderContrast(IGuiData* data);
     void onRenderLuminance(IGuiData* data);
