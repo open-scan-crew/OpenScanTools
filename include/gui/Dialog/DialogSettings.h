@@ -51,12 +51,14 @@ public slots:
     void onNavigationParametersChanged();
     void onRenderPerspDistanceChanged();
     void onRenderOrthoDistanceChanged();
+    void onGapFillingDepthChanged();
 
     void onUnlockScansManipulation();
 
 private:
     void showDecimationOptions();
     void sendDecimationOptions();
+    void updateGapFillingDepthControls(const GapFillingDepthRange& range);
 
 private:
     Ui::DialogSettings      m_ui;

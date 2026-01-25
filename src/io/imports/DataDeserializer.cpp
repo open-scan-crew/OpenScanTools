@@ -412,6 +412,16 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
         retVal = false;
     }
 
+    if (json.find(Key_Gap_Filling_Depth_Min) != json.end())
+    {
+        data.m_gapFillingDepthMin = json.at(Key_Gap_Filling_Depth_Min).get<float>();
+    }
+
+    if (json.find(Key_Gap_Filling_Depth_Max) != json.end())
+    {
+        data.m_gapFillingDepthMax = json.at(Key_Gap_Filling_Depth_Max).get<float>();
+    }
+
     
     if (json.find(Key_Alpha_Object) != json.end())
     {

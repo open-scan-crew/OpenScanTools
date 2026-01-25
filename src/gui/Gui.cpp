@@ -830,6 +830,7 @@ void Gui::initGeneralSettings()
 	m_dataDispatcher.sendControl(new control::application::SetNavigationParameters(Config::getNavigationParameters(), false));
 	m_dataDispatcher.sendControl(new control::application::SetPerspectiveZBounds(Config::getPerspectiveZBounds(), false));
 	m_dataDispatcher.sendControl(new control::application::SetOrthographicZBounds(Config::getOrthographicZBounds(), false));
+	m_dataDispatcher.sendControl(new control::application::SetGapFillingDepthRange(Config::getGapFillingDepthRange(), false));
 	m_dataDispatcher.sendControl(new control::application::UnlockScanManipulation(Config::isUnlockScanManipulation(), false));
 
     m_maximizedFrameless = Config::getMaximizedFrameless();

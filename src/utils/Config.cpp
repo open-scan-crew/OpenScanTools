@@ -48,6 +48,8 @@
 #define GDEVICE_JSON_KEY "graphic_device"
 #define RENDER_PERSPECTIVE_PLANS "render_perspective_plans"
 #define RENDER_ORTHOGRAPHIC_Z_BOUND "render_orthographic_z_bound"
+#define GAP_FILLING_DEPTH_MIN "gap_filling_depth_min"
+#define GAP_FILLING_DEPTH_MAX "gap_filling_depth_max"
 #define RENDER_NEAR_PLAN "near_plan"
 #define RENDER_NEAR_FAR_RANGE "near_far_range"
 #define NAVIGATION_PARAMETERS "navigation_parameters"
@@ -594,6 +596,29 @@ namespace Config
 	{
 		try {
 			jsonConfig[RENDER_ORTHOGRAPHIC_Z_BOUND] = orthoBounds;
+			return saveConfigFile(filePath);
+		}
+		catch (...)
+		{
+			return false;
+		}
+	}
+
+	GapFillingDepthRange getGapFillingDepthRange()
+	{
+		GapFillingDepthRange range;
+		if (jsonConfig.find(GAP_FILLING_DEPTH_MIN) != jsonConfig.end())
+			range.minDepth = jsonConfig.at(GAP_FILLING_DEPTH_MIN).get<float>();
+		if (jsonConfig.find(GAP_FILLING_DEPTH_MAX) != jsonConfig.end())
+			range.maxDepth = jsonConfig.at(GAP_FILLING_DEPTH_MAX).get<float>();
+		return range;
+	}
+
+	bool setGapFillingDepthRange(const GapFillingDepthRange& range)
+	{
+		try {
+			jsonConfig[GAP_FILLING_DEPTH_MIN] = range.minDepth;
+			jsonConfig[GAP_FILLING_DEPTH_MAX] = range.maxDepth;
 			return saveConfigFile(filePath);
 		}
 		catch (...)

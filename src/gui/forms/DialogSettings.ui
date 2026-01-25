@@ -795,6 +795,73 @@
          </layout>
         </widget>
        </item>
+       <item row="3" column="2" colspan="3">
+        <widget class="QGroupBox" name="groupBox_gapFillingDepth">
+         <property name="title">
+          <string>Gap filling depth control</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_gapFillingDepth">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_gapFillingDepth">
+            <property name="text">
+             <string>Gap filling depth control</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSlider" name="slider_gapFillingDepth">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimum">
+             <number>0</number>
+            </property>
+            <property name="maximum">
+             <number>100</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="tickPosition">
+             <enum>QSlider::TicksAbove</enum>
+            </property>
+            <property name="tickInterval">
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QDoubleEdit" name="lineEdit_minGapFillingDepth">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QDoubleEdit" name="lineEdit_maxGapFillingDepth">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
        <item row="4" column="2" colspan="3">
         <widget class="QPushButton" name="pushButton_color">
          <property name="sizePolicy">
@@ -977,6 +1044,7 @@
   <tabstop>spinBox_digits</tabstop>
   <tabstop>distanceUnitBox</tabstop>
   <tabstop>diameterUnitBox</tabstop>
+  <tabstop>slider_gapFillingDepth</tabstop>
   <tabstop>pushButton_color</tabstop>
   <tabstop>manipulatorSizeSlider</tabstop>
   <tabstop>manipulatorSizeSpinBox</tabstop>

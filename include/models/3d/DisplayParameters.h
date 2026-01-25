@@ -22,6 +22,8 @@ public:
     float          m_pointSize = 1.f;
     int            m_texelThreshold = 2;
     float          m_deltaFilling = 0.f;	
+    float          m_gapFillingDepthMin = 0.5f;
+    float          m_gapFillingDepthMax = 5.0f;
     float          m_contrast = 0.f;
     float          m_brightness = 0.f;
     float          m_saturation = 30.f;

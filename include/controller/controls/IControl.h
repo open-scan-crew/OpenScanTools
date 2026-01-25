@@ -47,6 +47,7 @@ enum class ControlType
 	setValueSettingsDisplay,
 	setNavigationParameters,
 	setPerspectiveZBounds,
+	setGapFillingDepthRange,
 	setOrthoGridParams,
 	unlockScanManipulation,
 	// setOrthoZBounds, // TODO
