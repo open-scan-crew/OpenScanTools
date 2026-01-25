@@ -178,6 +178,39 @@ public:
     int m_texelThreshold;
 };
 
+class GuiDataRenderGapFillingDepthScale : public GuiDataActiveCamera
+{
+public:
+	GuiDataRenderGapFillingDepthScale(float depthScale, SafePtr<CameraNode> camera);
+	~GuiDataRenderGapFillingDepthScale() {};
+	virtual guiDType getType() override;
+
+public:
+	float m_depthScale;
+};
+
+class GuiDataRenderGapFillingDepthMax : public GuiDataActiveCamera
+{
+public:
+	GuiDataRenderGapFillingDepthMax(float depthMax, SafePtr<CameraNode> camera);
+	~GuiDataRenderGapFillingDepthMax() {};
+	virtual guiDType getType() override;
+
+public:
+	float m_depthMax;
+};
+
+class GuiDataRenderGapFillingOnlyEmpty : public GuiDataActiveCamera
+{
+public:
+	GuiDataRenderGapFillingOnlyEmpty(bool onlyEmpty, SafePtr<CameraNode> camera);
+	~GuiDataRenderGapFillingOnlyEmpty() {};
+	virtual guiDType getType() override;
+
+public:
+	bool m_onlyEmpty;
+};
+
 class GuiDataRenderBrightness : public GuiDataActiveCamera
 {
 public:

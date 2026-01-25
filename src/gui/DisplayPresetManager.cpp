@@ -36,6 +36,9 @@ namespace
 		json[Key_Point_Size] = params.m_pointSize;
 		json[Key_Texel_Threshold] = params.m_texelThreshold;
 		json[Key_Delta_Filling] = params.m_deltaFilling;
+		json[Key_Gap_Filling_Depth_Scale] = params.m_gapFillingDepthScale;
+		json[Key_Gap_Filling_Depth_Max] = params.m_gapFillingDepthMax;
+		json[Key_Gap_Filling_Only_Empty] = params.m_gapFillingOnlyEmpty;
 
 		json[Key_Contrast] = params.m_contrast;
 		json[Key_Brightness] = params.m_brightness;
@@ -120,6 +123,15 @@ namespace
 			data.m_deltaFilling = json.at(Key_Delta_Filling).get<float>();
 		else
 			retVal = false;
+
+		if (json.find(Key_Gap_Filling_Depth_Scale) != json.end())
+			data.m_gapFillingDepthScale = json.at(Key_Gap_Filling_Depth_Scale).get<float>();
+
+		if (json.find(Key_Gap_Filling_Depth_Max) != json.end())
+			data.m_gapFillingDepthMax = json.at(Key_Gap_Filling_Depth_Max).get<float>();
+
+		if (json.find(Key_Gap_Filling_Only_Empty) != json.end())
+			data.m_gapFillingOnlyEmpty = json.at(Key_Gap_Filling_Only_Empty).get<bool>();
 
 		if (json.find(Key_Alpha_Object) != json.end())
 			data.m_alphaObject = json.at(Key_Alpha_Object).get<float>();
@@ -652,6 +664,9 @@ void DisplayPresetManager::applyPreset(const DisplayPreset& preset)
 	m_dataDispatcher.sendControl(new control::application::RenderModeUpdate(params.m_mode, m_focusCamera));
 	m_dataDispatcher.sendControl(new control::application::SetRenderPointSize(static_cast<int>(params.m_pointSize), m_focusCamera));
 	m_dataDispatcher.updateInformation(new GuiDataRenderTexelThreshold(params.m_texelThreshold, m_focusCamera), this);
+	m_dataDispatcher.updateInformation(new GuiDataRenderGapFillingDepthScale(params.m_gapFillingDepthScale, m_focusCamera), this);
+	m_dataDispatcher.updateInformation(new GuiDataRenderGapFillingDepthMax(params.m_gapFillingDepthMax, m_focusCamera), this);
+	m_dataDispatcher.updateInformation(new GuiDataRenderGapFillingOnlyEmpty(params.m_gapFillingOnlyEmpty, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderBrightness(static_cast<int>(params.m_brightness), m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderContrast(static_cast<int>(params.m_contrast), m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderLuminance(static_cast<int>(params.m_luminance), m_focusCamera), this);
