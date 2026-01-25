@@ -14,6 +14,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <algorithm>
 #include <string>
 
 #include <direct.h> // WIN32
@@ -360,19 +361,10 @@ namespace Config
 	OctreePrecision getOctreePrecision()
 	{
 		if (jsonConfig.find(OCTREE_PRECISION_JSON_KEY) == jsonConfig.end())
-			return OctreePrecision::Normal;
+			return kDefaultOctreePrecision;
 
-		int precision = jsonConfig.at(OCTREE_PRECISION_JSON_KEY);
-		switch (precision)
-		{
-		case static_cast<int>(OctreePrecision::Analysis):
-			return OctreePrecision::Analysis;
-		case static_cast<int>(OctreePrecision::Performances):
-			return OctreePrecision::Performances;
-		case static_cast<int>(OctreePrecision::Normal):
-		default:
-			return OctreePrecision::Normal;
-		}
+		float precision = jsonConfig.at(OCTREE_PRECISION_JSON_KEY).get<float>();
+		return std::clamp(precision, kMinOctreePrecision, kMaxOctreePrecision);
 	}
 
     bool setDecimationOptions(const DecimationOptions& options)
@@ -394,7 +386,7 @@ namespace Config
 	bool setOctreePrecision(const OctreePrecision precision)
 	{
 		try {
-			jsonConfig[OCTREE_PRECISION_JSON_KEY] = static_cast<int>(precision);
+			jsonConfig[OCTREE_PRECISION_JSON_KEY] = std::clamp(precision, kMinOctreePrecision, kMaxOctreePrecision);
 			return saveConfigFile(filePath);
 		}
 		catch (...)
