@@ -373,6 +373,20 @@ namespace control::application
         const bool m_save;
     };
 
+    class SetGapFillingDepthRange : public AControl
+    {
+    public:
+        SetGapFillingDepthRange(const GapFillingDepthRange& range, const bool& save = true);
+        ~SetGapFillingDepthRange();
+        void doFunction(Controller& controller) override;
+        bool canUndo() const override;
+        void undoFunction(Controller& controller) override;
+        ControlType getType() const override;
+    private:
+        const GapFillingDepthRange m_range;
+        const bool m_save;
+    };
+
     class SetOrthoGridParameters : public AControl
     {
     public:

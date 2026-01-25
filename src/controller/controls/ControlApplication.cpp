@@ -934,6 +934,42 @@ namespace control::application
     }
 
     /*
+    ** SetGapFillingDepthRange
+    */
+
+    SetGapFillingDepthRange::SetGapFillingDepthRange(const GapFillingDepthRange& range, const bool& save)
+        : m_range(range)
+        , m_save(save)
+    {
+    }
+
+    SetGapFillingDepthRange::~SetGapFillingDepthRange()
+    {
+    }
+
+    void SetGapFillingDepthRange::doFunction(Controller& controller)
+    {
+        if (m_save && !Config::setGapFillingDepthRange(m_range))
+            controller.updateInfo(new GuiDataWarning(TEXT_SETTINGS_FAILED_TO_SAVE));
+        controller.updateInfo(new GuiDataRenderGapFillingDepthRange(m_range, SafePtr<CameraNode>()));
+        CONTROLLOG << "control::application::SetGapFillingDepthRange" << LOGENDL;
+    }
+
+    bool SetGapFillingDepthRange::canUndo() const
+    {
+        return false;
+    }
+
+    void SetGapFillingDepthRange::undoFunction(Controller& controller)
+    {
+    }
+
+    ControlType SetGapFillingDepthRange::getType() const
+    {
+        return ControlType::setGapFillingDepthRange;
+    }
+
+    /*
     ** UnlockScanManipulation
     */
 

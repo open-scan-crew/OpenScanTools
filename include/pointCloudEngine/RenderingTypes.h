@@ -67,6 +67,12 @@ struct PerspectiveZBounds
     int near_far_ratio_log2;
 };
 
+struct GapFillingDepthRange
+{
+    float minDepth = 0.5f;
+    float maxDepth = 5.0f;
+};
+
 // les bornes en Z sont centrées sur zéro
 typedef int OrthographicZBounds;
 

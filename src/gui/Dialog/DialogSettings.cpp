@@ -19,8 +19,40 @@
 #include <QtWidgets/qfiledialog.h>
 #include <QtWidgets/qcolordialog.h>
 
+#include <algorithm>
+#include <cmath>
+
 static std::vector<UnitType> s_settingUnits = { UnitType::M, UnitType::CM, UnitType::MM, UnitType::YD, UnitType::FT, UnitType::INC };
 static std::vector<UnitType> s_settingVolumeUnits = { UnitType::M3, UnitType::LITRE};
+
+namespace
+{
+	constexpr float kGapFillingMinDepthMin = 0.5f;
+	constexpr float kGapFillingMinDepthMax = 50.0f;
+	constexpr float kGapFillingMaxDepthMin = 5.0f;
+	constexpr float kGapFillingMaxDepthMax = 500.0f;
+	constexpr int kGapFillingSliderMin = 0;
+	constexpr int kGapFillingSliderMax = 100;
+
+	GapFillingDepthRange gapFillingRangeFromSlider(int sliderValue)
+	{
+		float t = static_cast<float>(sliderValue - kGapFillingSliderMin) /
+		          static_cast<float>(kGapFillingSliderMax - kGapFillingSliderMin);
+		t = std::max(0.0f, std::min(1.0f, t));
+		GapFillingDepthRange range;
+		range.minDepth = kGapFillingMinDepthMin + (kGapFillingMinDepthMax - kGapFillingMinDepthMin) * t;
+		range.maxDepth = kGapFillingMaxDepthMin + (kGapFillingMaxDepthMax - kGapFillingMaxDepthMin) * t;
+		return range;
+	}
+
+	int gapFillingSliderFromRange(const GapFillingDepthRange& range)
+	{
+		float t = (range.minDepth - kGapFillingMinDepthMin) /
+		          (kGapFillingMinDepthMax - kGapFillingMinDepthMin);
+		t = std::max(0.0f, std::min(1.0f, t));
+		return static_cast<int>(std::lround(t * kGapFillingSliderMax));
+	}
+}
 
 DialogSettings::DialogSettings(IDataDispatcher& dataDispatcher, QWidget* parent)
 	: ADialog(dataDispatcher, parent)
@@ -59,6 +91,8 @@ DialogSettings::DialogSettings(IDataDispatcher& dataDispatcher, QWidget* parent)
 	m_ui.lineEdit_maxPersp->setType(NumericType::DISTANCE);
 	m_ui.examineMinimumDistanceLineEdit->setType(NumericType::DISTANCE);
 	m_ui.lineEdit_limitOrtho->setType(NumericType::DISTANCE);
+	m_ui.lineEdit_minGapFillingDepth->setType(NumericType::DISTANCE);
+	m_ui.lineEdit_maxGapFillingDepth->setType(NumericType::DISTANCE);
 
 	connect(m_ui.okButton, &QPushButton::clicked, this, &DialogSettings::onOk);
 	connect(m_ui.langageComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &DialogSettings::onLanguageChanged);
@@ -109,6 +143,7 @@ DialogSettings::DialogSettings(IDataDispatcher& dataDispatcher, QWidget* parent)
 
 	connect(m_ui.slider_perspDistances, &QSlider::valueChanged, this, &DialogSettings::onRenderPerspDistanceChanged);
 	connect(m_ui.slider_orthoDistances, &QSlider::valueChanged, this, &DialogSettings::onRenderOrthoDistanceChanged);
+	connect(m_ui.slider_gapFillingDepth, &QSlider::valueChanged, this, &DialogSettings::onGapFillingDepthChanged);
 
 	connect(m_ui.unlockScansCheckBox, &QCheckBox::stateChanged, this, &DialogSettings::onUnlockScansManipulation);
 
@@ -189,6 +224,8 @@ void DialogSettings::initConfigValues()
 	if (activeTime)
 		initComboBox(m_ui.autosaveTimingComboBox, activeTime);
 
+	updateGapFillingDepthControls(Config::getGapFillingDepthRange());
+
 	updateUnitValues();
 
 	blockSignal(false);
@@ -233,6 +270,7 @@ void DialogSettings::blockSignal(bool active)
 	m_ui.lineEdit_ffmpeg->blockSignals(active);
 	m_ui.manipulatorSizeSlider->blockSignals(active);
 	m_ui.manipulatorSizeSpinBox->blockSignals(active);
+	m_ui.slider_gapFillingDepth->blockSignals(active);
 	m_ui.pushButton_color->blockSignals(active);
 	m_ui.framelessCheckBox->blockSignals(active);
 	m_ui.comboBox_octreePrecision->blockSignals(active);
@@ -240,6 +278,15 @@ void DialogSettings::blockSignal(bool active)
 	m_ui.examineMinimumDistanceLineEdit->blockSignals(active);
 	m_ui.translationSpeedSlider->blockSignals(active);
 	m_ui.examineRotationSlider->blockSignals(active);
+}
+
+void DialogSettings::updateGapFillingDepthControls(const GapFillingDepthRange& range)
+{
+	m_ui.slider_gapFillingDepth->setMinimum(kGapFillingSliderMin);
+	m_ui.slider_gapFillingDepth->setMaximum(kGapFillingSliderMax);
+	m_ui.slider_gapFillingDepth->setValue(gapFillingSliderFromRange(range));
+	m_ui.lineEdit_minGapFillingDepth->setValue(range.minDepth);
+	m_ui.lineEdit_maxGapFillingDepth->setValue(range.maxDepth);
 }
 
 void DialogSettings::showEvent(QShowEvent* event)
@@ -479,6 +526,20 @@ void DialogSettings::onRenderOrthoDistanceChanged()
 	m_ui.lineEdit_limitOrtho->setValue(tls::getOrthographicZBoundsValue(orthoBound));
 
 	m_dataDispatcher.sendControl(new control::application::SetOrthographicZBounds(orthoBound, true));
+}
+
+void DialogSettings::onGapFillingDepthChanged()
+{
+	GapFillingDepthRange range = gapFillingRangeFromSlider(m_ui.slider_gapFillingDepth->value());
+	m_ui.lineEdit_minGapFillingDepth->setValue(range.minDepth);
+	m_ui.lineEdit_maxGapFillingDepth->setValue(range.maxDepth);
+
+	GapFillingDepthRange currentRange = Config::getGapFillingDepthRange();
+	if (std::abs(currentRange.minDepth - range.minDepth) > 0.001f ||
+	    std::abs(currentRange.maxDepth - range.maxDepth) > 0.001f)
+	{
+		m_dataDispatcher.sendControl(new control::application::SetGapFillingDepthRange(range, true));
+	}
 }
 
 void DialogSettings::onUnlockScansManipulation()

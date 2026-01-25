@@ -583,6 +583,12 @@ void PostRenderer::setConstantTexelThreshold(int texelThreshold, VkCommandBuffer
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_fillingPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 56, 4, &texelThreshold);
 }
 
+void PostRenderer::setConstantGapFillingDepthRange(float minDepth, float maxDepth, VkCommandBuffer _cmdBuffer)
+{
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_fillingPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 24, 4, &minDepth);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_fillingPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 28, 4, &maxDepth);
+}
+
 void PostRenderer::setConstantLighting(const PostRenderingNormals& lighting, VkCommandBuffer _cmdBuffer) const
 {
     int tone = lighting.inverseTone ? 1 : 0;
