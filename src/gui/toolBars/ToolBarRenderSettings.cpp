@@ -40,6 +40,9 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 	m_ui.brightnessLuminanceSlider->setMinimumWidth(100.f * guiScale);
 	m_ui.contrastSaturationSlider->setMinimumWidth(100.f * guiScale);
 	m_ui.transparencySlider->setMinimumWidth(100.f * guiScale);
+	m_ui.slider_gapFillingTexelThreshold->setMinimumWidth(100.f * guiScale);
+	m_ui.slider_gapFillingDepthScale->setMinimumWidth(100.f * guiScale);
+	m_ui.slider_gapFillingDepthMax->setMinimumWidth(100.f * guiScale);
     m_ui.transparencyCheckBox->setChecked(false);
     m_ui.transparencySpinBox->setEnabled(false);
     m_ui.transparencySlider->setEnabled(false);
@@ -62,6 +65,19 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 
 	connect(m_ui.spinBox_pointSize, qOverload<int>(&QSpinBox::valueChanged), this, &ToolBarRenderSettings::slotSetPointSize);
 	connect(m_ui.comboBox_gapFillingStrength, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarRenderSettings::slotSetTexelThreshold);
+	connect(m_ui.slider_gapFillingTexelThreshold, &QSlider::valueChanged, m_ui.spinBox_gapFillingTexelThreshold, &QSpinBox::setValue);
+	connect(m_ui.spinBox_gapFillingTexelThreshold, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), m_ui.slider_gapFillingTexelThreshold, &QSlider::setValue);
+	connect(m_ui.slider_gapFillingTexelThreshold, &QSlider::valueChanged, this, &ToolBarRenderSettings::slotGapFillingTexelThresholdChanged);
+
+	connect(m_ui.slider_gapFillingDepthScale, &QSlider::valueChanged, m_ui.spinBox_gapFillingDepthScale, &QSpinBox::setValue);
+	connect(m_ui.spinBox_gapFillingDepthScale, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), m_ui.slider_gapFillingDepthScale, &QSlider::setValue);
+	connect(m_ui.slider_gapFillingDepthScale, &QSlider::valueChanged, this, &ToolBarRenderSettings::slotGapFillingDepthScaleChanged);
+
+	connect(m_ui.slider_gapFillingDepthMax, &QSlider::valueChanged, m_ui.spinBox_gapFillingDepthMax, &QSpinBox::setValue);
+	connect(m_ui.spinBox_gapFillingDepthMax, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), m_ui.slider_gapFillingDepthMax, &QSlider::setValue);
+	connect(m_ui.slider_gapFillingDepthMax, &QSlider::valueChanged, this, &ToolBarRenderSettings::slotGapFillingDepthMaxChanged);
+
+	connect(m_ui.checkBox_gapFillingOnlyEmpty, &QCheckBox::stateChanged, this, &ToolBarRenderSettings::slotGapFillingOnlyEmptyChanged);
 
 	connect(m_ui.pushButton_color, &QPushButton::clicked, this, &ToolBarRenderSettings::slotColorPicking);
 
@@ -107,6 +123,9 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 	registerGuiDataFunction(guiDType::renderBlending, &ToolBarRenderSettings::onRenderBlending);
 	registerGuiDataFunction(guiDType::renderPointSize, &ToolBarRenderSettings::onRenderPointSize);
 	registerGuiDataFunction(guiDType::renderTexelThreshold, &ToolBarRenderSettings::onRenderTexelThreshold);
+	registerGuiDataFunction(guiDType::renderGapFillingDepthScale, &ToolBarRenderSettings::onRenderGapFillingDepthScale);
+	registerGuiDataFunction(guiDType::renderGapFillingDepthMax, &ToolBarRenderSettings::onRenderGapFillingDepthMax);
+	registerGuiDataFunction(guiDType::renderGapFillingOnlyEmpty, &ToolBarRenderSettings::onRenderGapFillingOnlyEmpty);
         registerGuiDataFunction(guiDType::renderSaturation, &ToolBarRenderSettings::onRenderSaturation);
         
         registerGuiDataFunction(guiDType::renderValueDisplay, &ToolBarRenderSettings::onRenderUnitUsage);
@@ -213,6 +232,38 @@ void ToolBarRenderSettings::onRenderTexelThreshold(IGuiData* idata)
 		m_ui.comboBox_gapFillingStrength->setCurrentIndex(index);
 		m_ui.comboBox_gapFillingStrength->blockSignals(false);
 	}
+
+	const QSignalBlocker sliderBlocker(m_ui.slider_gapFillingTexelThreshold);
+	const QSignalBlocker spinBlocker(m_ui.spinBox_gapFillingTexelThreshold);
+	m_ui.slider_gapFillingTexelThreshold->setValue(data->m_texelThreshold);
+	m_ui.spinBox_gapFillingTexelThreshold->setValue(data->m_texelThreshold);
+}
+
+void ToolBarRenderSettings::onRenderGapFillingDepthScale(IGuiData* idata)
+{
+	auto* data = static_cast<GuiDataRenderGapFillingDepthScale*>(idata);
+	const int percentValue = static_cast<int>(std::round(data->m_depthScale * 100.f));
+	const QSignalBlocker sliderBlocker(m_ui.slider_gapFillingDepthScale);
+	const QSignalBlocker spinBlocker(m_ui.spinBox_gapFillingDepthScale);
+	m_ui.slider_gapFillingDepthScale->setValue(percentValue);
+	m_ui.spinBox_gapFillingDepthScale->setValue(percentValue);
+}
+
+void ToolBarRenderSettings::onRenderGapFillingDepthMax(IGuiData* idata)
+{
+	auto* data = static_cast<GuiDataRenderGapFillingDepthMax*>(idata);
+	const int mmValue = static_cast<int>(std::round(data->m_depthMax * 1000.f));
+	const QSignalBlocker sliderBlocker(m_ui.slider_gapFillingDepthMax);
+	const QSignalBlocker spinBlocker(m_ui.spinBox_gapFillingDepthMax);
+	m_ui.slider_gapFillingDepthMax->setValue(mmValue);
+	m_ui.spinBox_gapFillingDepthMax->setValue(mmValue);
+}
+
+void ToolBarRenderSettings::onRenderGapFillingOnlyEmpty(IGuiData* idata)
+{
+	auto* data = static_cast<GuiDataRenderGapFillingOnlyEmpty*>(idata);
+	const QSignalBlocker blocker(m_ui.checkBox_gapFillingOnlyEmpty);
+	m_ui.checkBox_gapFillingOnlyEmpty->setChecked(data->m_onlyEmpty);
 }
 void ToolBarRenderSettings::onRenderSaturation(IGuiData* idata) 
 {
@@ -306,6 +357,17 @@ void ToolBarRenderSettings::onActiveCamera(IGuiData* idata)
 	int texelIndex = m_ui.comboBox_gapFillingStrength->findData(displayParameters.m_texelThreshold);
 	if (texelIndex != -1)
 		m_ui.comboBox_gapFillingStrength->setCurrentIndex(texelIndex);
+	m_ui.slider_gapFillingTexelThreshold->setValue(displayParameters.m_texelThreshold);
+	m_ui.spinBox_gapFillingTexelThreshold->setValue(displayParameters.m_texelThreshold);
+
+	const int depthScalePercent = static_cast<int>(std::round(displayParameters.m_gapFillingDepthScale * 100.f));
+	m_ui.slider_gapFillingDepthScale->setValue(depthScalePercent);
+	m_ui.spinBox_gapFillingDepthScale->setValue(depthScalePercent);
+
+	const int depthMaxMm = static_cast<int>(std::round(displayParameters.m_gapFillingDepthMax * 1000.f));
+	m_ui.slider_gapFillingDepthMax->setValue(depthMaxMm);
+	m_ui.spinBox_gapFillingDepthMax->setValue(depthMaxMm);
+	m_ui.checkBox_gapFillingOnlyEmpty->setChecked(displayParameters.m_gapFillingOnlyEmpty);
 
 	int value(100 - (int)(displayParameters.m_alphaObject * 100));
 	m_ui.alphaObjectsSpinBox->setValue(value);
@@ -361,6 +423,13 @@ void ToolBarRenderSettings::blockAllSignals(bool block)
 	m_ui.falseColorSlider->blockSignals(block);
 	m_ui.spinBox_pointSize->blockSignals(block);
 	m_ui.comboBox_gapFillingStrength->blockSignals(block);
+	m_ui.slider_gapFillingTexelThreshold->blockSignals(block);
+	m_ui.spinBox_gapFillingTexelThreshold->blockSignals(block);
+	m_ui.slider_gapFillingDepthScale->blockSignals(block);
+	m_ui.spinBox_gapFillingDepthScale->blockSignals(block);
+	m_ui.slider_gapFillingDepthMax->blockSignals(block);
+	m_ui.spinBox_gapFillingDepthMax->blockSignals(block);
+	m_ui.checkBox_gapFillingOnlyEmpty->blockSignals(block);
 	m_ui.contrastSaturationSpinBox->blockSignals(block);
 	m_ui.contrastSaturationSlider->blockSignals(block);
 	m_ui.alphaObjectsSpinBox->blockSignals(block);
@@ -551,6 +620,29 @@ void ToolBarRenderSettings::slotSetTexelThreshold(int index)
 {
 	int texelThreshold = m_ui.comboBox_gapFillingStrength->itemData(index).toInt();
 	m_dataDispatcher.updateInformation(new GuiDataRenderTexelThreshold(texelThreshold, m_focusCamera), this);
+}
+
+void ToolBarRenderSettings::slotGapFillingTexelThresholdChanged(int value)
+{
+	m_dataDispatcher.updateInformation(new GuiDataRenderTexelThreshold(value, m_focusCamera), this);
+}
+
+void ToolBarRenderSettings::slotGapFillingDepthScaleChanged(int value)
+{
+	const float scale = value / 100.f;
+	m_dataDispatcher.updateInformation(new GuiDataRenderGapFillingDepthScale(scale, m_focusCamera), this);
+}
+
+void ToolBarRenderSettings::slotGapFillingDepthMaxChanged(int value)
+{
+	const float depthMax = value / 1000.f;
+	m_dataDispatcher.updateInformation(new GuiDataRenderGapFillingDepthMax(depthMax, m_focusCamera), this);
+}
+
+void ToolBarRenderSettings::slotGapFillingOnlyEmptyChanged(int value)
+{
+	const bool onlyEmpty = (value == Qt::Checked);
+	m_dataDispatcher.updateInformation(new GuiDataRenderGapFillingOnlyEmpty(onlyEmpty, m_focusCamera), this);
 }
 
 void ToolBarRenderSettings::slotSetRenderMode(int mode)

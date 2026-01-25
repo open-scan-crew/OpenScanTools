@@ -107,6 +107,9 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
     hash += hash_fn_f(display.m_pointSize);
     hash += hash_fn_i(display.m_texelThreshold);
     hash += hash_fn_f(display.m_deltaFilling);
+    hash += hash_fn_f(display.m_gapFillingDepthScale);
+    hash += hash_fn_f(display.m_gapFillingDepthMax);
+    hash += hash_fn_b(display.m_gapFillingOnlyEmpty);
     hash += hash_fn_f(display.m_contrast);    
     hash += hash_fn_f(display.m_brightness);
     hash += hash_fn_f(display.m_saturation);
