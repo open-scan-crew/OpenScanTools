@@ -578,6 +578,12 @@ void PostRenderer::setConstantProjMode(bool isPerspective, VkCommandBuffer _cmdB
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_normalPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 32, 4, &mode);
 }
 
+void PostRenderer::setConstantGapFillingDepthRange(const GapFillingDepthRange& range, VkCommandBuffer _cmdBuffer)
+{
+    glm::vec2 distanceRange(range.minDistance, range.maxDistance);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_fillingPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 24, sizeof(distanceRange), &distanceRange);
+}
+
 void PostRenderer::setConstantTexelThreshold(int texelThreshold, VkCommandBuffer _cmdBuffer)
 {
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_fillingPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 56, 4, &texelThreshold);

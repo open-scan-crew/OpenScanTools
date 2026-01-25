@@ -93,6 +93,9 @@ namespace Config
 	OrthographicZBounds getOrthographicZBounds();
 	bool setOrthographicZBounds(const OrthographicZBounds& orthoBounds);
 
+	GapFillingDepthRange getGapFillingDepthRange();
+	bool setGapFillingDepthRange(const GapFillingDepthRange& range);
+
 	NavigationParameters getNavigationParameters();
 	bool setNavigationParameters(const NavigationParameters& navParams);
 

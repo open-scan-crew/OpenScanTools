@@ -50,6 +50,8 @@
 #define RENDER_ORTHOGRAPHIC_Z_BOUND "render_orthographic_z_bound"
 #define RENDER_NEAR_PLAN "near_plan"
 #define RENDER_NEAR_FAR_RANGE "near_far_range"
+#define GAP_FILLING_DEPTH_MIN "gap_filling_depth_min"
+#define GAP_FILLING_DEPTH_MAX "gap_filling_depth_max"
 #define NAVIGATION_PARAMETERS "navigation_parameters"
 #define NAV_PARAM_EXAMINE_MIN_RADIUS "examine_min_radius"
 #define NAV_PARAM_TRANSLATION_SPEED "translation_speed"
@@ -594,6 +596,40 @@ namespace Config
 	{
 		try {
 			jsonConfig[RENDER_ORTHOGRAPHIC_Z_BOUND] = orthoBounds;
+			return saveConfigFile(filePath);
+		}
+		catch (...)
+		{
+			return false;
+		}
+	}
+
+	GapFillingDepthRange getGapFillingDepthRange()
+	{
+		GapFillingDepthRange range;
+		if (jsonConfig.find(GAP_FILLING_DEPTH_MIN) != jsonConfig.end())
+			range.minDistance = jsonConfig.at(GAP_FILLING_DEPTH_MIN).get<float>();
+		if (jsonConfig.find(GAP_FILLING_DEPTH_MAX) != jsonConfig.end())
+			range.maxDistance = jsonConfig.at(GAP_FILLING_DEPTH_MAX).get<float>();
+
+		if (range.minDistance < 0.0f)
+			range.minDistance = 0.0f;
+		if (range.maxDistance < range.minDistance)
+			range.maxDistance = range.minDistance;
+
+		return range;
+	}
+
+	bool setGapFillingDepthRange(const GapFillingDepthRange& range)
+	{
+		try {
+			GapFillingDepthRange sanitized = range;
+			if (sanitized.minDistance < 0.0f)
+				sanitized.minDistance = 0.0f;
+			if (sanitized.maxDistance < sanitized.minDistance)
+				sanitized.maxDistance = sanitized.minDistance;
+			jsonConfig[GAP_FILLING_DEPTH_MIN] = sanitized.minDistance;
+			jsonConfig[GAP_FILLING_DEPTH_MAX] = sanitized.maxDistance;
 			return saveConfigFile(filePath);
 		}
 		catch (...)

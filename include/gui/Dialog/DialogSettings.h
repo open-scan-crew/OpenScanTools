@@ -51,6 +51,7 @@ public slots:
     void onNavigationParametersChanged();
     void onRenderPerspDistanceChanged();
     void onRenderOrthoDistanceChanged();
+    void onGapFillingDepthChanged();
 
     void onUnlockScansManipulation();
 
