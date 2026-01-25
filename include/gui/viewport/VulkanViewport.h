@@ -261,7 +261,7 @@ private:
 
     // Only used in the render loop --> synchronized
     DecimationOptions m_decimationOptions;
-	OctreePrecision m_octreePrecision = OctreePrecision::Normal;
+	OctreePrecision m_octreePrecision = kDefaultOctreePrecision;
     bool m_refreshViewport = false;
     bool m_updateScansFullRender = false;
     bool m_previousRenderDecimated = false; // NEW //
