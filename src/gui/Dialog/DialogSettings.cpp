@@ -13,14 +13,19 @@
 #include "gui/texts/SettingsTexts.hpp"
 #include "gui/texts/FileSystemTexts.hpp"
 
+#include <QtCore/QSignalBlocker>
 #include <QtWidgets/qcombobox.h>
 #include <QtWidgets/qcheckbox.h>
 #include <QtWidgets/qtoolbutton.h>
 #include <QtWidgets/qfiledialog.h>
 #include <QtWidgets/qcolordialog.h>
 
+#include <algorithm>
+#include <cmath>
+
 static std::vector<UnitType> s_settingUnits = { UnitType::M, UnitType::CM, UnitType::MM, UnitType::YD, UnitType::FT, UnitType::INC };
 static std::vector<UnitType> s_settingVolumeUnits = { UnitType::M3, UnitType::LITRE};
+static constexpr int kOctreePrecisionSliderFactor = 10;
 
 DialogSettings::DialogSettings(IDataDispatcher& dataDispatcher, QWidget* parent)
 	: ADialog(dataDispatcher, parent)
@@ -43,9 +48,13 @@ DialogSettings::DialogSettings(IDataDispatcher& dataDispatcher, QWidget* parent)
 		for(UnitType vUnit : s_settingVolumeUnits)
 			m_ui.volumeUnitBox->addItem(UnitConverter::getUnitText(vUnit), QVariant((uint32_t)vUnit));
 
-		m_ui.comboBox_octreePrecision->addItem(QString("Analysis"), QVariant(static_cast<int>(OctreePrecision::Analysis)));
-		m_ui.comboBox_octreePrecision->addItem(QString("Normal"), QVariant(static_cast<int>(OctreePrecision::Normal)));
-		m_ui.comboBox_octreePrecision->addItem(QString("Performances"), QVariant(static_cast<int>(OctreePrecision::Performances)));
+		m_ui.slider_octreePrecision->setMinimum(static_cast<int>(kMinOctreePrecision * kOctreePrecisionSliderFactor));
+		m_ui.slider_octreePrecision->setMaximum(static_cast<int>(kMaxOctreePrecision * kOctreePrecisionSliderFactor));
+		m_ui.slider_octreePrecision->setSingleStep(1);
+		m_ui.slider_octreePrecision->setPageStep(1);
+		m_ui.spinBox_octreePrecision->setDecimals(1);
+		m_ui.spinBox_octreePrecision->setRange(kMinOctreePrecision, kMaxOctreePrecision);
+		m_ui.spinBox_octreePrecision->setSingleStep(0.1);
 
 		m_ui.autosaveTimingComboBox->addItem(QString(""), QVariant(0));
 	for (const uint8_t& time : Config::Timing)
@@ -94,7 +103,18 @@ DialogSettings::DialogSettings(IDataDispatcher& dataDispatcher, QWidget* parent)
 	connect(m_ui.autosaveTimingComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &DialogSettings::onAutosaveComboxBoxChanged);
 	connect(m_ui.manipulatorSizeSlider, &QSlider::valueChanged, this, &DialogSettings::onManipulatorSizeChanged);
 	connect(m_ui.manipulatorSizeSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &DialogSettings::onManipulatorSizeChanged);
-	connect(m_ui.comboBox_octreePrecision, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &DialogSettings::onOctreePrecisionChanged);
+	connect(m_ui.slider_octreePrecision, &QSlider::valueChanged, this, [this](int value)
+		{
+			QSignalBlocker blocker(m_ui.spinBox_octreePrecision);
+			m_ui.spinBox_octreePrecision->setValue(value / static_cast<double>(kOctreePrecisionSliderFactor));
+			onOctreePrecisionChanged();
+		});
+	connect(m_ui.spinBox_octreePrecision, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value)
+		{
+			QSignalBlocker blocker(m_ui.slider_octreePrecision);
+			m_ui.slider_octreePrecision->setValue(static_cast<int>(std::lround(value * kOctreePrecisionSliderFactor)));
+			onOctreePrecisionChanged();
+		});
 	connect(m_ui.toolButtonGuizmo, &QToolButton::clicked, [this]()
 		{
 			m_guizmoParams.exec();
@@ -134,7 +154,7 @@ void DialogSettings::informData(IGuiData* idata)
         break;
 	case guiDType::renderOctreePrecision:
 		m_savedOctreePrecision = static_cast<GuiDataRenderOctreePrecision*>(idata)->m_precision;
-		initComboBox(m_ui.comboBox_octreePrecision, static_cast<int>(m_savedOctreePrecision));
+		setOctreePrecisionValue(m_savedOctreePrecision);
 		break;
     default:
         break;
@@ -175,7 +195,7 @@ void DialogSettings::initConfigValues()
 	m_ui.keepExamineOnPanBox->setChecked(Config::getKeepingExamineConfiguration());
     m_ui.examineDisplayCheckBox->setChecked(Config::getExamineDisplayMode());
 	m_savedOctreePrecision = Config::getOctreePrecision();
-	initComboBox(m_ui.comboBox_octreePrecision, static_cast<int>(m_savedOctreePrecision));
+	setOctreePrecisionValue(m_savedOctreePrecision);
 	m_ui.autosaveTimingComboBox->setEnabled(Config::getIsAutoSaveActive());
 	m_ui.autosaveActivateCheckBox->setChecked(Config::getIsAutoSaveActive());
 	m_ui.fillMissingRadioButton->setChecked(Config::getIndexationMethod() == IndexationMethod::FillMissingIndex);
@@ -235,7 +255,8 @@ void DialogSettings::blockSignal(bool active)
 	m_ui.manipulatorSizeSpinBox->blockSignals(active);
 	m_ui.pushButton_color->blockSignals(active);
 	m_ui.framelessCheckBox->blockSignals(active);
-	m_ui.comboBox_octreePrecision->blockSignals(active);
+	m_ui.slider_octreePrecision->blockSignals(active);
+	m_ui.spinBox_octreePrecision->blockSignals(active);
 
 	m_ui.examineMinimumDistanceLineEdit->blockSignals(active);
 	m_ui.translationSpeedSlider->blockSignals(active);
@@ -356,12 +377,21 @@ void DialogSettings::onDecimationChanged()
 
 void DialogSettings::onOctreePrecisionChanged()
 {
-	OctreePrecision precision = static_cast<OctreePrecision>(m_ui.comboBox_octreePrecision->currentData().toInt());
-	if (precision != m_savedOctreePrecision)
+	OctreePrecision precision = static_cast<OctreePrecision>(m_ui.spinBox_octreePrecision->value());
+	if (std::fabs(precision - m_savedOctreePrecision) > 0.0001f)
 	{
 		m_savedOctreePrecision = precision;
 		m_dataDispatcher.sendControl(new control::application::SetOctreePrecision(precision, true, true));
 	}
+}
+
+void DialogSettings::setOctreePrecisionValue(OctreePrecision precision)
+{
+	precision = std::clamp(precision, kMinOctreePrecision, kMaxOctreePrecision);
+	QSignalBlocker sliderBlocker(m_ui.slider_octreePrecision);
+	QSignalBlocker spinBlocker(m_ui.spinBox_octreePrecision);
+	m_ui.slider_octreePrecision->setValue(static_cast<int>(std::lround(precision * kOctreePrecisionSliderFactor)));
+	m_ui.spinBox_octreePrecision->setValue(precision);
 }
 
 void DialogSettings::onExamineOptions()

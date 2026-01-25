@@ -27,7 +27,7 @@
 double calcTranslationSpeedFactor(NavigationParameters navParam)
 {
     double slowestFactor = 0.01;
-    return (slowestFactor + std::pow(navParam.cameraTranslationSpeedFactor / 100., 3) * (1 - slowestFactor));
+    return (slowestFactor + std::pow(navParam.cameraTranslationSpeedFactor / 100., 4) * (1 - slowestFactor));
 }
 
 double calcRotationExamineSpeedFactor(NavigationParameters navParam)

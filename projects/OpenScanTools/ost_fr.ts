@@ -5073,12 +5073,12 @@ Confirmez-vous ?</translation>
     <message>
         <location filename="../../include/gui/Texts.hpp" line="278"/>
         <source>The image resolution is too high. It cannot exceed 8294400 pixels (4K). Please reduce it.</source>
-        <translation type="unfinished"></translation>
+        <translation>La résolution est trop élevée. Elle ne peut excéder 8294400 pixels (4K). Réduisez-la.</translation>
     </message>
     <message>
         <location filename="../../include/gui/Texts.hpp" line="279"/>
         <source>x265 encoder not found. Please install ffmpeg first, then add the folder that contains ffmpeg.exe in the general settings of OpenScanTools.</source>
-        <translation type="unfinished"></translation>
+        <translation>L&apos;encodeur x265 est absent. Installez ffmpeg, puis ajoutez le chemin d&apos;accès à ffmpeg.exe dans les paramètres généraux d&apos;OpenScanTools.</translation>
     </message>
     <message>
         <location filename="../../include/gui/texts/MarkerTexts.hpp" line="36"/>
@@ -7724,7 +7724,7 @@ Attention : vous ne pouvez pas annuler cette action.</translation>
     <message>
         <location filename="../../src/gui/toolBars/ToolBarImageGroup.cpp" line="300"/>
         <source>Off</source>
-        <translation type="unfinished">Off</translation>
+        <translation>Aucun</translation>
     </message>
     <message>
         <location filename="../../src/gui/toolBars/ToolBarImageGroup.cpp" line="301"/>
@@ -7782,7 +7782,7 @@ Attention : vous ne pouvez pas annuler cette action.</translation>
         <source>This feature reads the database file of Scantra and applies the transformations to the scans in OpenScanTools.
 The names of the scans must be the same between Scantra and OpenScanTools</source>
         <translation>Cette fonction lit le fichier de donnée de Scantra et applique les transformations aux scans d&apos;OpenScanTools.
-Le nom des scans doivent être le même entre Scantra et OpenScanTools.</translation>
+Le nom des scans doivent être le même entre Scantra et OpenScanTools</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_importScantra.ui" line="58"/>
