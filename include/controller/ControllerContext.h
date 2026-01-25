@@ -155,7 +155,7 @@ private:
 	bool m_isCurrentProjectSaved = true;
 	uint32_t m_currentBackgroundColor;
 	DecimationOptions m_decimationOptions;
-	OctreePrecision m_octreePrecision = OctreePrecision::Normal;
+	OctreePrecision m_octreePrecision = 1.0f;
 	float m_renderPointSize;
 	std::vector<Color32> m_backgroundColors;
 

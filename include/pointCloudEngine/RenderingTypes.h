@@ -129,25 +129,17 @@ enum class DecimationMode
     Adaptive
 };
 
-enum class OctreePrecision : int
-{
-    Analysis = 1,
-    Normal = 2,
-    Performances = 3
-};
+constexpr float kOctreePrecisionMin = 0.1f;
+constexpr float kOctreePrecisionMax = 10.0f;
+using OctreePrecision = float;
 
 inline float getOctreePrecisionMultiplier(OctreePrecision precision)
 {
-    switch (precision)
-    {
-    case OctreePrecision::Analysis:
-        return 10.0f;
-    case OctreePrecision::Performances:
-        return 0.5f;
-    case OctreePrecision::Normal:
-    default:
-        return 1.0f;
-    }
+    if (precision < kOctreePrecisionMin)
+        return kOctreePrecisionMin;
+    if (precision > kOctreePrecisionMax)
+        return kOctreePrecisionMax;
+    return precision;
 }
 
 struct DecimationOptions

@@ -57,11 +57,12 @@ public slots:
 private:
     void showDecimationOptions();
     void sendDecimationOptions();
+	void setOctreePrecisionValue(double precision);
 
 private:
     Ui::DialogSettings      m_ui;
     DecimationOptions       m_savedDecimationOptions;
-	OctreePrecision         m_savedOctreePrecision = OctreePrecision::Normal;
+	OctreePrecision         m_savedOctreePrecision = 1.0f;
     DialogGizmo            m_guizmoParams;
  };
 #endif

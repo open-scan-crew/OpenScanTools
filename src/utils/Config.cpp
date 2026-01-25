@@ -360,19 +360,29 @@ namespace Config
 	OctreePrecision getOctreePrecision()
 	{
 		if (jsonConfig.find(OCTREE_PRECISION_JSON_KEY) == jsonConfig.end())
-			return OctreePrecision::Normal;
+			return 1.0f;
 
-		int precision = jsonConfig.at(OCTREE_PRECISION_JSON_KEY);
-		switch (precision)
+		const nlohmann::json& precisionNode = jsonConfig.at(OCTREE_PRECISION_JSON_KEY);
+		if (precisionNode.is_number_integer())
 		{
-		case static_cast<int>(OctreePrecision::Analysis):
-			return OctreePrecision::Analysis;
-		case static_cast<int>(OctreePrecision::Performances):
-			return OctreePrecision::Performances;
-		case static_cast<int>(OctreePrecision::Normal):
-		default:
-			return OctreePrecision::Normal;
+			int precisionValue = precisionNode.get<int>();
+			switch (precisionValue)
+			{
+			case 1:
+				return 10.0f;
+			case 2:
+				return 1.0f;
+			case 3:
+				return 0.5f;
+			default:
+				return getOctreePrecisionMultiplier(static_cast<float>(precisionValue));
+			}
 		}
+
+		if (precisionNode.is_number_float())
+			return getOctreePrecisionMultiplier(precisionNode.get<float>());
+
+		return 1.0f;
 	}
 
     bool setDecimationOptions(const DecimationOptions& options)
@@ -394,7 +404,7 @@ namespace Config
 	bool setOctreePrecision(const OctreePrecision precision)
 	{
 		try {
-			jsonConfig[OCTREE_PRECISION_JSON_KEY] = static_cast<int>(precision);
+			jsonConfig[OCTREE_PRECISION_JSON_KEY] = getOctreePrecisionMultiplier(precision);
 			return saveConfigFile(filePath);
 		}
 		catch (...)
