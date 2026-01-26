@@ -32,7 +32,7 @@
    <property name="verticalSpacing">
     <number>0</number>
    </property>
-   <item row="3" column="0">
+   <item row="4" column="0">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -43,7 +43,27 @@
        <height>0</height>
       </size>
      </property>
-    </spacer>
+   </spacer>
+   </item>
+   <item row="2" column="0">
+    <widget class="QToolButton" name="toolButton_colorBalance">
+     <property name="toolTip">
+      <string>Apply a color balance to the point clouds to get a smoother rendering. This option will modify the scans files.</string>
+     </property>
+     <property name="text">
+      <string>Color balance</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../../openscantools.qrc">
+       <normaloff>:/icons/100x100/icons8-color-wheel-30.png</normaloff>:/icons/100x100/icons8-color-wheel-30.png</iconset>
+     </property>
+     <property name="toolButtonStyle">
+      <enum>Qt::ToolButtonTextBesideIcon</enum>
+     </property>
+     <property name="autoRaise">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item row="1" column="0">
     <widget class="QToolButton" name="toolButton_statisticalOutlierFilter">
@@ -109,6 +129,7 @@ It is recommended to activate the desired clippings before starting the cleaning
  <tabstops>
   <tabstop>toolButton_deleteClippedPoints</tabstop>
   <tabstop>toolButton_statisticalOutlierFilter</tabstop>
+  <tabstop>toolButton_colorBalance</tabstop>
  </tabstops>
  <resources>
   <include location="../../../openscantools.qrc"/>

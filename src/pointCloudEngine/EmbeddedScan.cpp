@@ -315,6 +315,13 @@ namespace
         int z;
     };
 
+    struct GridIndex64
+    {
+        int64_t x;
+        int64_t y;
+        int64_t z;
+    };
+
     int64_t packGridIndex(const GridIndex& index)
     {
         return (static_cast<int64_t>(index.x) << 42) ^ (static_cast<int64_t>(index.y) << 21) ^ static_cast<int64_t>(index.z);
@@ -326,6 +333,23 @@ namespace
             static_cast<int>(std::floor((point.x - origin.x) / voxelSize)),
             static_cast<int>(std::floor((point.y - origin.y) / voxelSize)),
             static_cast<int>(std::floor((point.z - origin.z) / voxelSize))
+        };
+    }
+
+    int64_t hashGridIndex64(const GridIndex64& index)
+    {
+        constexpr int64_t kPrime1 = 73856093;
+        constexpr int64_t kPrime2 = 19349663;
+        constexpr int64_t kPrime3 = 83492791;
+        return (index.x * kPrime1) ^ (index.y * kPrime2) ^ (index.z * kPrime3);
+    }
+
+    GridIndex64 computeGridIndex64(const glm::dvec3& point, const glm::dvec3& origin, double voxelSize)
+    {
+        return GridIndex64{
+            static_cast<int64_t>(std::floor((point.x - origin.x) / voxelSize)),
+            static_cast<int64_t>(std::floor((point.y - origin.y) / voxelSize)),
+            static_cast<int64_t>(std::floor((point.z - origin.z) / voxelSize))
         };
     }
 
@@ -389,6 +413,122 @@ namespace
             sum += value;
         meanDistance = sum / static_cast<double>(distances.size());
         return true;
+    }
+
+    bool gatherNeighborIndicesGrid(const std::vector<glm::dvec3>& points, const std::unordered_map<int64_t, std::vector<size_t>>& grid, const glm::dvec3& origin, double voxelSize, size_t index, double maxRadius, size_t maxNeighbors, std::vector<size_t>& neighbors)
+    {
+        if (points.empty() || maxRadius <= 0.0)
+            return false;
+
+        neighbors.clear();
+        const glm::dvec3& base = points[index];
+        GridIndex baseIndex = computeGridIndex(base, origin, voxelSize);
+        int ring = 0;
+        double maxRadiusSq = maxRadius * maxRadius;
+
+        while (ring * voxelSize <= maxRadius && neighbors.size() < maxNeighbors)
+        {
+            for (int dx = -ring; dx <= ring; ++dx)
+            {
+                for (int dy = -ring; dy <= ring; ++dy)
+                {
+                    for (int dz = -ring; dz <= ring; ++dz)
+                    {
+                        GridIndex query{ baseIndex.x + dx, baseIndex.y + dy, baseIndex.z + dz };
+                        int64_t key = packGridIndex(query);
+                        auto it = grid.find(key);
+                        if (it == grid.end())
+                            continue;
+
+                        for (size_t candidate : it->second)
+                        {
+                            if (candidate == index)
+                                continue;
+                            const glm::dvec3& other = points[candidate];
+                            glm::dvec3 diff = base - other;
+                            double distSq = glm::dot(diff, diff);
+                            if (distSq <= maxRadiusSq)
+                            {
+                                neighbors.push_back(candidate);
+                                if (neighbors.size() >= maxNeighbors)
+                                    return true;
+                            }
+                        }
+                    }
+                }
+            }
+            ring++;
+        }
+
+        return !neighbors.empty();
+    }
+
+    bool gatherNeighborSamplesGlobal(const ColorBalanceGlobalGrid& grid, const glm::dvec3& origin, double voxelSize, const glm::dvec3& base, double maxRadius, size_t maxNeighbors, std::vector<PointXYZIRGB>& neighbors)
+    {
+        if (maxRadius <= 0.0)
+            return false;
+
+        neighbors.clear();
+        GridIndex64 baseIndex = computeGridIndex64(base, origin, voxelSize);
+        int ring = 0;
+        double maxRadiusSq = maxRadius * maxRadius;
+
+        while (ring * voxelSize <= maxRadius && neighbors.size() < maxNeighbors)
+        {
+            for (int dx = -ring; dx <= ring; ++dx)
+            {
+                for (int dy = -ring; dy <= ring; ++dy)
+                {
+                    for (int dz = -ring; dz <= ring; ++dz)
+                    {
+                        GridIndex64 query{ baseIndex.x + dx, baseIndex.y + dy, baseIndex.z + dz };
+                        int64_t key = hashGridIndex64(query);
+                        auto it = grid.samples.find(key);
+                        if (it == grid.samples.end())
+                            continue;
+                        for (const PointXYZIRGB& sample : it->second)
+                        {
+                            glm::dvec3 samplePos(sample.x, sample.y, sample.z);
+                            glm::dvec3 diff = base - samplePos;
+                            double distSq = glm::dot(diff, diff);
+                            if (distSq <= maxRadiusSq)
+                            {
+                                neighbors.push_back(sample);
+                                if (neighbors.size() >= maxNeighbors)
+                                    return true;
+                            }
+                        }
+                    }
+                }
+            }
+            ring++;
+        }
+
+        return !neighbors.empty();
+    }
+
+    uint8_t computeTrimmedMean(std::vector<uint8_t>& values, double trimRatio)
+    {
+        if (values.empty())
+            return 0;
+
+        std::sort(values.begin(), values.end());
+        size_t count = values.size();
+        size_t trim = static_cast<size_t>(std::floor(count * trimRatio));
+        if (trim * 2 >= count)
+            trim = count > 2 ? (count - 2) / 2 : 0;
+
+        size_t start = trim;
+        size_t end = count - trim;
+        if (end <= start)
+            return values[count / 2];
+
+        uint64_t sum = 0;
+        for (size_t i = start; i < end; ++i)
+            sum += values[i];
+
+        double mean = static_cast<double>(sum) / static_cast<double>(end - start);
+        return static_cast<uint8_t>(std::clamp(std::lround(mean), 0l, 255l));
     }
 }
 
@@ -560,6 +700,249 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
 
         removedPoints += visiblePoints.size() - filtered.size();
         resultOk &= writer->mergePoints(filtered.data(), filtered.size(), src_transfo, pt_format_);
+
+        if (progress)
+            progress(cellIndex + 1, totalCells);
+    }
+
+    return resultOk;
+}
+
+bool EmbeddedScan::collectColorBalanceSamples(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, const glm::dvec3& origin, double voxelSize, size_t maxSamplesPerVoxel, std::unordered_map<int64_t, std::vector<PointXYZIRGB>>& samples, const ProgressCallback& progress)
+{
+    ClippingAssembly localAssembly = clippingAssembly;
+    localAssembly.clearMatrix();
+    glm::dmat4 src_transfo_mat = src_transfo.getTransformation();
+    localAssembly.addTransformation(src_transfo_mat);
+
+    std::vector<std::pair<uint32_t, bool>> cells;
+    getClippedCells_impl(m_uRootCell, localAssembly, cells);
+
+    const size_t totalCells = cells.size();
+    if (progress && totalCells > 0)
+        progress(0, totalCells);
+
+    for (size_t cellIndex = 0; cellIndex < cells.size(); ++cellIndex)
+    {
+        const std::pair<uint32_t, bool>& cell = cells[cellIndex];
+        std::vector<PointXYZIRGB> points;
+        points.resize(tls_point_cloud_.getCellPointCount(cell.first));
+        if (!tls_point_cloud_.getCellPoints(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+        {
+            if (progress)
+                progress(cellIndex + 1, totalCells);
+            continue;
+        }
+
+        std::vector<PointXYZIRGB> visiblePoints;
+        if (cell.second)
+        {
+            clipIndividualPoints(points, visiblePoints, localAssembly);
+        }
+        else
+        {
+            visiblePoints.swap(points);
+        }
+
+        for (const PointXYZIRGB& point : visiblePoints)
+        {
+            PointXYZIRGB globalPoint = convert_transfo(point, src_transfo_mat);
+            glm::dvec3 globalPos(globalPoint.x, globalPoint.y, globalPoint.z);
+            GridIndex64 index = computeGridIndex64(globalPos, origin, voxelSize);
+            int64_t key = hashGridIndex64(index);
+            auto& bucket = samples[key];
+            if (bucket.size() < maxSamplesPerVoxel)
+                bucket.push_back(globalPoint);
+        }
+
+        if (progress)
+            progress(cellIndex + 1, totalCells);
+    }
+
+    return true;
+}
+
+bool EmbeddedScan::balanceColorsAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, const ColorBalanceSettings& settings, IScanFileWriter* writer, const ColorBalanceGlobalGrid* globalGrid, double globalRadius, const ProgressCallback& progress)
+{
+    ClippingAssembly localAssembly = clippingAssembly;
+    localAssembly.clearMatrix();
+    glm::dmat4 src_transfo_mat = src_transfo.getTransformation();
+    localAssembly.addTransformation(src_transfo_mat);
+
+    std::vector<std::pair<uint32_t, bool>> cells;
+    getClippedCells_impl(m_uRootCell, localAssembly, cells);
+
+    const size_t neighborCount = std::max<size_t>(1, settings.neighborCount);
+    bool resultOk = true;
+
+    const size_t totalCells = cells.size();
+    if (progress && totalCells > 0)
+        progress(0, totalCells);
+    for (size_t cellIndex = 0; cellIndex < cells.size(); ++cellIndex)
+    {
+        const std::pair<uint32_t, bool>& cell = cells[cellIndex];
+        std::vector<PointXYZIRGB> points;
+        points.resize(tls_point_cloud_.getCellPointCount(cell.first));
+        if (!tls_point_cloud_.getCellPoints(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+        {
+            if (progress)
+                progress(cellIndex + 1, totalCells);
+            continue;
+        }
+
+        std::vector<PointXYZIRGB> visiblePoints;
+        if (cell.second)
+        {
+            clipIndividualPoints(points, visiblePoints, localAssembly);
+        }
+        else
+        {
+            visiblePoints.swap(points);
+        }
+
+        if (visiblePoints.empty())
+        {
+            if (progress)
+                progress(cellIndex + 1, totalCells);
+            continue;
+        }
+
+        std::vector<PointXYZIRGB> balanced;
+        balanced.reserve(visiblePoints.size());
+
+        if (globalGrid)
+        {
+            double maxRadius = globalRadius;
+            std::vector<PointXYZIRGB> neighborSamples;
+            neighborSamples.reserve(neighborCount);
+
+            for (const PointXYZIRGB& point : visiblePoints)
+            {
+                PointXYZIRGB balancedPoint = point;
+                PointXYZIRGB globalPoint = convert_transfo(point, src_transfo_mat);
+                glm::dvec3 globalPos(globalPoint.x, globalPoint.y, globalPoint.z);
+                gatherNeighborSamplesGlobal(*globalGrid, globalGrid->origin, globalGrid->voxelSize, globalPos, maxRadius, neighborCount, neighborSamples);
+
+                std::vector<uint8_t> intensities;
+                std::vector<uint8_t> reds;
+                std::vector<uint8_t> greens;
+                std::vector<uint8_t> blues;
+
+                if (settings.applyIntensity)
+                {
+                    intensities.reserve(neighborSamples.size() + 1);
+                    intensities.push_back(point.i);
+                }
+                if (settings.applyRGB)
+                {
+                    reds.reserve(neighborSamples.size() + 1);
+                    greens.reserve(neighborSamples.size() + 1);
+                    blues.reserve(neighborSamples.size() + 1);
+                    reds.push_back(point.r);
+                    greens.push_back(point.g);
+                    blues.push_back(point.b);
+                }
+
+                for (const PointXYZIRGB& sample : neighborSamples)
+                {
+                    if (settings.applyIntensity)
+                        intensities.push_back(sample.i);
+                    if (settings.applyRGB)
+                    {
+                        reds.push_back(sample.r);
+                        greens.push_back(sample.g);
+                        blues.push_back(sample.b);
+                    }
+                }
+
+                if (settings.applyIntensity && !intensities.empty())
+                    balancedPoint.i = computeTrimmedMean(intensities, settings.trimRatio);
+                if (settings.applyRGB && !reds.empty())
+                {
+                    balancedPoint.r = computeTrimmedMean(reds, settings.trimRatio);
+                    balancedPoint.g = computeTrimmedMean(greens, settings.trimRatio);
+                    balancedPoint.b = computeTrimmedMean(blues, settings.trimRatio);
+                }
+
+                balanced.push_back(balancedPoint);
+            }
+        }
+        else
+        {
+            glm::dvec3 cellOrigin(m_vTreeCells[cell.first].m_position[0], m_vTreeCells[cell.first].m_position[1], m_vTreeCells[cell.first].m_position[2]);
+            double cellSize = m_vTreeCells[cell.first].m_size;
+            double avgSpacing = std::cbrt((cellSize * cellSize * cellSize) / std::max<size_t>(visiblePoints.size(), 1));
+            double voxelSize = std::max(cellSize / 128.0, avgSpacing * 2.0);
+            double maxRadius = std::clamp(settings.beta * avgSpacing, cellSize / 8.0, cellSize);
+
+            std::vector<glm::dvec3> localPoints;
+            localPoints.reserve(visiblePoints.size());
+            for (const PointXYZIRGB& point : visiblePoints)
+                localPoints.emplace_back(point.x, point.y, point.z);
+
+            std::unordered_map<int64_t, std::vector<size_t>> grid;
+            grid.reserve(localPoints.size());
+            for (size_t i = 0; i < localPoints.size(); ++i)
+            {
+                GridIndex index = computeGridIndex(localPoints[i], cellOrigin, voxelSize);
+                grid[packGridIndex(index)].push_back(i);
+            }
+
+            std::vector<size_t> neighborIndices;
+            neighborIndices.reserve(neighborCount);
+
+            for (size_t i = 0; i < visiblePoints.size(); ++i)
+            {
+                PointXYZIRGB balancedPoint = visiblePoints[i];
+                gatherNeighborIndicesGrid(localPoints, grid, cellOrigin, voxelSize, i, maxRadius, neighborCount, neighborIndices);
+
+                std::vector<uint8_t> intensities;
+                std::vector<uint8_t> reds;
+                std::vector<uint8_t> greens;
+                std::vector<uint8_t> blues;
+
+                if (settings.applyIntensity)
+                {
+                    intensities.reserve(neighborIndices.size() + 1);
+                    intensities.push_back(visiblePoints[i].i);
+                }
+                if (settings.applyRGB)
+                {
+                    reds.reserve(neighborIndices.size() + 1);
+                    greens.reserve(neighborIndices.size() + 1);
+                    blues.reserve(neighborIndices.size() + 1);
+                    reds.push_back(visiblePoints[i].r);
+                    greens.push_back(visiblePoints[i].g);
+                    blues.push_back(visiblePoints[i].b);
+                }
+
+                for (size_t neighborIndex : neighborIndices)
+                {
+                    const PointXYZIRGB& neighborPoint = visiblePoints[neighborIndex];
+                    if (settings.applyIntensity)
+                        intensities.push_back(neighborPoint.i);
+                    if (settings.applyRGB)
+                    {
+                        reds.push_back(neighborPoint.r);
+                        greens.push_back(neighborPoint.g);
+                        blues.push_back(neighborPoint.b);
+                    }
+                }
+
+                if (settings.applyIntensity && !intensities.empty())
+                    balancedPoint.i = computeTrimmedMean(intensities, settings.trimRatio);
+                if (settings.applyRGB && !reds.empty())
+                {
+                    balancedPoint.r = computeTrimmedMean(reds, settings.trimRatio);
+                    balancedPoint.g = computeTrimmedMean(greens, settings.trimRatio);
+                    balancedPoint.b = computeTrimmedMean(blues, settings.trimRatio);
+                }
+
+                balanced.push_back(balancedPoint);
+            }
+        }
+
+        resultOk &= writer->mergePoints(balanced.data(), balanced.size(), src_transfo, pt_format_);
 
         if (progress)
             progress(cellIndex + 1, totalCells);

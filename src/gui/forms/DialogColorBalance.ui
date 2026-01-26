@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DialogColorBalance</class>
+ <widget class="QWidget" name="DialogColorBalance">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>360</width>
+    <height>360</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Color balance</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_strength">
+     <item>
+      <widget class="QLabel" name="label_strengthTitle">
+       <property name="text">
+        <string>Strength</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_strengthButtons">
+       <item>
+        <widget class="QRadioButton" name="radioButton_balanceLow">
+         <property name="toolTip">
+          <string>Subtle smoothing with the fastest calculation time.</string>
+         </property>
+         <property name="text">
+          <string>Low</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButton_balanceMid">
+         <property name="toolTip">
+          <string>Balanced smoothing.</string>
+         </property>
+         <property name="text">
+          <string>Mid</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButton_balanceHigh">
+         <property name="toolTip">
+          <string>Stronger smoothing with longer calculation time.</string>
+         </property>
+         <property name="text">
+          <string>High</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_mode">
+     <property name="title">
+      <string>Balance mode</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_mode">
+      <item>
+       <widget class="QRadioButton" name="radioButton_separate">
+        <property name="toolTip">
+         <string>The balance is applied to each scan separately, without taking other scans into account.</string>
+        </property>
+        <property name="text">
+         <string>Balance separately</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radioButton_global">
+        <property name="toolTip">
+         <string>The balance is applied using neighboring scans. The calculation time is longer.</string>
+        </property>
+        <property name="text">
+         <string>Global balance</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="checkBox_balanceIntensityRGB">
+     <property name="text">
+      <string>Apply on RGB and i</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QGridLayout" name="gridLayout_folder">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_folder">
+       <property name="text">
+        <string>Folder</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="lineEdit_folder">
+       <property name="placeholderText">
+        <string>Enter output folder</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QToolButton" name="toolButton_folder">
+       <property name="text">
+        <string>Select Out Folder</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../openscantools.qrc">
+         <normaloff>:/icons/100x100/open_project.png</normaloff>:/icons/100x100/open_project.png</iconset>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="checkBox_openFolderAfterExport">
+     <property name="text">
+      <string>Open folder after export</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_buttons">
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_ok">
+       <property name="text">
+        <string>Ok</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_cancel">
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../../../openscantools.qrc"/>
+ </resources>
+ <connections/>
+</ui>

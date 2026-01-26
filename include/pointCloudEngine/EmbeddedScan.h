@@ -10,6 +10,7 @@
 #include "models/data/clipping/ClippingGeometry.h"
 #include "pointCloudEngine/OctreeRayTracing.h"
 #include "pointCloudEngine/OutlierStats.h"
+#include "pointCloudEngine/ColorBalanceSettings.h"
 
 // lib_tls
 #include "tls_def.h"
@@ -20,6 +21,7 @@
 #include <filesystem>
 #include <functional>
 #include <mutex>
+#include <unordered_map>
 
 class IScanFileWriter;
 
@@ -116,6 +118,8 @@ public:
     bool clipAndWrite(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, IScanFileWriter* writer, const ProgressCallback& progress = {});
     bool computeOutlierStats(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, int samplingPercent, double beta, OutlierStats& stats, const ProgressCallback& progress = {});
     bool filterOutliersAndWrite(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* writer, uint64_t& removedPoints, const ProgressCallback& progress = {});
+    bool collectColorBalanceSamples(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, const glm::dvec3& origin, double voxelSize, size_t maxSamplesPerVoxel, std::unordered_map<int64_t, std::vector<PointXYZIRGB>>& samples, const ProgressCallback& progress = {});
+    bool balanceColorsAndWrite(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, const ColorBalanceSettings& settings, IScanFileWriter* writer, const ColorBalanceGlobalGrid* globalGrid, double globalRadius, const ProgressCallback& progress = {});
     static void logClipAndWriteTimings();
 
     void decodePointCoord(uint32_t cellId, std::vector<glm::dvec3>& dstPoints, uint32_t layerDepth, bool transformToGlobal);

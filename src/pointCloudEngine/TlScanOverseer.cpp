@@ -431,6 +431,48 @@ bool TlScanOverseer::filterOutliersAndWrite(tls::ScanGuid _scanGuid, const Trans
     return scan->filterOutliersAndWrite(_modelMat, _clippingAssembly, kNeighbors, stats, nSigma, beta, _outScan, removedPoints, progress);
 }
 
+bool TlScanOverseer::collectColorBalanceSamples(tls::ScanGuid _scanGuid, const TransformationModule& _modelMat, const ClippingAssembly& _clippingAssembly, const glm::dvec3& origin, double voxelSize, size_t maxSamplesPerVoxel, std::unordered_map<int64_t, std::vector<PointXYZIRGB>>& samples, const ProgressCallback& progress)
+{
+    EmbeddedScan* scan;
+    {
+        std::lock_guard<std::mutex> lock(m_activeMutex);
+
+        auto it_scan = m_activeScans.find(_scanGuid);
+        if (it_scan == m_activeScans.end())
+        {
+            Logger::log(VKLog) << "Error: try to view a Scan not present, UUID = " << _scanGuid << Logger::endl;
+            return false;
+        }
+        else
+        {
+            scan = it_scan->second;
+        }
+    }
+
+    return scan->collectColorBalanceSamples(_modelMat, _clippingAssembly, origin, voxelSize, maxSamplesPerVoxel, samples, progress);
+}
+
+bool TlScanOverseer::balanceColorsAndWrite(tls::ScanGuid _scanGuid, const TransformationModule& _modelMat, const ClippingAssembly& _clippingAssembly, const ColorBalanceSettings& settings, IScanFileWriter* _outScan, const ColorBalanceGlobalGrid* globalGrid, double globalRadius, const ProgressCallback& progress)
+{
+    EmbeddedScan* scan;
+    {
+        std::lock_guard<std::mutex> lock(m_activeMutex);
+
+        auto it_scan = m_activeScans.find(_scanGuid);
+        if (it_scan == m_activeScans.end())
+        {
+            Logger::log(VKLog) << "Error: try to view a Scan not present, UUID = " << _scanGuid << Logger::endl;
+            return false;
+        }
+        else
+        {
+            scan = it_scan->second;
+        }
+    }
+
+    return scan->balanceColorsAndWrite(_modelMat, _clippingAssembly, settings, _outScan, globalGrid, globalRadius, progress);
+}
+
 //tls::ScanGuid TlScanOverseer::clipNewScan(tls::ScanGuid _scanGuid, const glm::dmat4& _modelMat, const ClippingAssembly& _clippingAssembly, const std::filesystem::path& _outPath, uint64_t& pointsDeletedCount)
 //{
 //    EmbeddedScan* scan;
