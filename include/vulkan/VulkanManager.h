@@ -145,6 +145,8 @@ public:
     void beginPostTreatmentEdgeAwareBlur(TlFramebuffer framebuffer);
     void beginPostTreatmentDepthLining(TlFramebuffer framebuffer);
     void beginPostTreatmentTransparency(TlFramebuffer framebuffer);
+    void beginPostTreatmentTemporalAccumulation(TlFramebuffer framebuffer);
+    void copyColorToTemporalHistory(TlFramebuffer framebuffer, VkCommandBuffer cmdBuffer);
 
     // 3D Objects Render pass
     void beginObjectRenderPass(TlFramebuffer framebuffer);

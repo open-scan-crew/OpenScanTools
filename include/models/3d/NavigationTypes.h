@@ -20,6 +20,9 @@ struct NavigationParameters
 
     bool wheelInverted = false;
     bool mouseDragInverted = false;
+
+    bool reduceFlickeringEnabled = false;
+    double reduceFlickeringStrength = 0.15;
 };
 
 enum class NaviConstraint

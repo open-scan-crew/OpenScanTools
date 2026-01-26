@@ -4486,6 +4486,9 @@
     <CustomBuild Include="..\..\src\shaders\v2\edge_aware_blur.comp">
       <Filter>shaders\post rendering</Filter>
     </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\v2\temporal_accumulation.comp">
+      <Filter>shaders\post rendering</Filter>
+    </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\v2\depth_lining.comp">
       <Filter>shaders\post rendering</Filter>
     </CustomBuild>

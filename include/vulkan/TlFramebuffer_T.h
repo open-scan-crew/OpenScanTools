@@ -57,6 +57,9 @@ struct TlFramebuffer_T
     VkDeviceMemory pcColorMemory = VK_NULL_HANDLE;
     VkImage pcColorImage = VK_NULL_HANDLE;
     VkImageView pcColorImageView = VK_NULL_HANDLE;
+    VkDeviceMemory temporalHistoryMemory = VK_NULL_HANDLE;
+    VkImage temporalHistoryImage = VK_NULL_HANDLE;
+    VkImageView temporalHistoryImageView = VK_NULL_HANDLE;
 
     // Depth Usage :
     // VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
@@ -110,10 +113,14 @@ struct TlFramebuffer_T
     VkDescriptorSet descSetInputDepth = VK_NULL_HANDLE;
     VkDescriptorSet descSetSamplers = VK_NULL_HANDLE;
     VkDescriptorSet descSetCorrectedDepth = VK_NULL_HANDLE;
+    VkDescriptorSet descSetTemporalAccumulation = VK_NULL_HANDLE;
     VkDescriptorSet descSetInputTransparentLayer = VK_NULL_HANDLE;
 
     std::vector<SimpleBuffer> drawMarkerBuffers; // size of 'imageCount'
     std::vector<SimpleBuffer> drawMeasureBuffers; // size of 'imageCount'
+
+    bool temporalHistoryValid = false;
+    bool initTemporalHistoryLayout = true;
 };
 
 

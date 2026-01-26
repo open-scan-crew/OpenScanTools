@@ -88,6 +88,7 @@ void VulkanViewport::informData(IGuiData *data)
 void VulkanViewport::onRenderNavigationParameters(IGuiData* data)
 {
     auto castData = static_cast<GuiDataRenderNavigationParameters*>(data);
+    std::lock_guard<std::mutex> lock(m_renderParamMutex);
     m_navParams = castData->m_navParam;
 }
 
@@ -1150,6 +1151,10 @@ void VulkanViewport::updateRenderingNecessityState(WritePtr<CameraNode>& wCam, b
         isNavigationOngoing |= m_MI.wheel != 0;
         isNavigationOngoing |= m_MI.rightButtonPressed;
     }
+    {
+        std::lock_guard<std::mutex> lock(m_renderParamMutex);
+        m_isNavigationOngoing = isNavigationOngoing;
+    }
 
     // Keep the full render if some scan were missing
     m_updateScansFullRender = (m_previousRenderDecimated || m_updateMissingScanPart) && !isNavigationOngoing;
@@ -1163,6 +1168,18 @@ void VulkanViewport::updateRenderingNecessityState(WritePtr<CameraNode>& wCam, b
     // SPECIAL - Force Update
     refreshPCRender |= m_forceUpdate;
     m_updateScansFullRender |= m_forceUpdate;
+}
+
+bool VulkanViewport::isNavigationOngoing() const
+{
+    std::lock_guard<std::mutex> lock(m_renderParamMutex);
+    return m_isNavigationOngoing;
+}
+
+NavigationParameters VulkanViewport::getNavigationParameters() const
+{
+    std::lock_guard<std::mutex> lock(m_renderParamMutex);
+    return m_navParams;
 }
 
 bool VulkanViewport::compareFrameHash(uint64_t newFrameHash)

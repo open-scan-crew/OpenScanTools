@@ -1,0 +1,26 @@
+#version 450
+
+layout (local_size_x = 16, local_size_y = 16) in;
+
+layout(set = 0, binding = 0, rgba8) uniform image2D currentColorImage;
+layout(set = 0, binding = 1) uniform sampler2D historyColorSampler;
+
+layout(push_constant) uniform PC {
+   layout(offset = 0) ivec2 screenSize;
+   layout(offset = 8) float blendStrength;
+} pc;
+
+void main()
+{
+   ivec2 gid = ivec2(gl_GlobalInvocationID.xy);
+   if (gid.x >= pc.screenSize.x || gid.y >= pc.screenSize.y)
+      return;
+
+   vec4 currentColor = imageLoad(currentColorImage, gid);
+   vec2 uv = (vec2(gid) + vec2(0.5)) / vec2(pc.screenSize);
+   vec4 historyColor = texture(historyColorSampler, uv);
+
+   float strength = clamp(pc.blendStrength, 0.0, 1.0);
+   vec3 blended = mix(currentColor.rgb, historyColor.rgb, strength);
+   imageStore(currentColorImage, gid, vec4(blended, currentColor.a));
+}

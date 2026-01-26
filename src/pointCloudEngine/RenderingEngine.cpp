@@ -31,6 +31,7 @@
 #include "impl/imgui_impl_qt.h"
 
 
+#include <algorithm>
 #include <cmath>
 
 constexpr double HD_MARGIN = 0.05;
@@ -728,6 +729,9 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
 
     // The rendering necissities must be validated
     viewport.updateRenderingNecessityState(wCamera, refreshPCRender);
+    const NavigationParameters navParams = viewport.getNavigationParameters();
+    const bool useTemporalAccumulation = navParams.reduceFlickeringEnabled && viewport.isNavigationOngoing();
+    const float temporalBlendStrength = static_cast<float>(std::clamp(navParams.reduceFlickeringStrength, 0.0, 0.3));
     float decimationRatio = viewport.decimatePointSize(refreshPCRender);
     if (decimationRatio > 0.f)
         decimationRatio *= viewport.getOctreePrecisionMultiplier();
@@ -792,6 +796,26 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
             m_postRenderer.setConstantHDR(display.m_transparency, display.m_negativeEffect, display.m_reduceFlash, display.m_flashAdvanced, display.m_flashControl, framebuffer->extent, display.m_backgroundColor, cmdBuffer);
             m_postRenderer.processTransparencyHDR(cmdBuffer, framebuffer->descSetSamplers, framebuffer->extent);
         }
+
+        if (useTemporalAccumulation)
+        {
+            if (!framebuffer->temporalHistoryValid)
+            {
+                vkm.copyColorToTemporalHistory(framebuffer, cmdBuffer);
+                framebuffer->temporalHistoryValid = true;
+            }
+            else
+            {
+                vkm.beginPostTreatmentTemporalAccumulation(framebuffer);
+                m_postRenderer.processTemporalAccumulation(cmdBuffer, framebuffer->descSetTemporalAccumulation, framebuffer->extent, temporalBlendStrength);
+                vkm.copyColorToTemporalHistory(framebuffer, cmdBuffer);
+            }
+        }
+    }
+
+    if (!useTemporalAccumulation)
+    {
+        framebuffer->temporalHistoryValid = false;
     }
 
     std::chrono::steady_clock::time_point tp_objects = std::chrono::steady_clock::now();

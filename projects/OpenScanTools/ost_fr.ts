@@ -1507,6 +1507,11 @@ le point d&apos;examen</translation>
         <translation>Paramètres de vitesse de caméra</translation>
     </message>
     <message>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="598"/>
+        <source>Reduce Flickering</source>
+        <translation>Réduire le scintillement</translation>
+    </message>
+    <message>
         <location filename="../../src/gui/forms/DialogSettings.ui" line="553"/>
         <source>Slow</source>
         <translation>Lent</translation>

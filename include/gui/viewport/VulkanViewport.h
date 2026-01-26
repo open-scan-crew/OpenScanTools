@@ -145,6 +145,8 @@ public:
     void recordFrameStats(const FrameStats& stats);
     uint64_t getPreviousPointDrawnCount() const;
     void setPreviousRenderTime(float totalRenderTime);
+    bool isNavigationOngoing() const;
+    NavigationParameters getNavigationParameters() const;
 
     void mousePointAction(bool examineAction);
 
@@ -236,7 +238,7 @@ private:
 
     // Synchronization mutexes
     std::mutex m_inputMutex;
-    std::mutex m_renderParamMutex;
+    mutable std::mutex m_renderParamMutex;
     std::mutex m_dataMutex;
 
     // Navigation
@@ -267,6 +269,7 @@ private:
     bool m_previousRenderDecimated = false; // NEW //
     bool m_updateMissingScanPart = false;
     bool m_forceUpdate = false;
+    bool m_isNavigationOngoing = false;
     uint64_t m_frameHash = 0;
 
     SafePtr<CameraNode> m_cam;

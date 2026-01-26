@@ -58,6 +58,8 @@
 #define NAV_PARAM_MOUSE_INVERT "mouse_drag_camera_inverted"
 #define NAV_PARAM_WHEEL_INVERT_JSON_KEY "wheel"
 #define NAV_PARAM_IS_UNLOCK_SCAN_MANIPULATION_JSON_KEY "isUnlockScanManipulation"
+#define NAV_PARAM_REDUCE_FLICKERING "reduce_flickering"
+#define NAV_PARAM_REDUCE_FLICKERING_STRENGTH "reduce_flickering_strength"
 
 
 static const std::vector<std::pair<LoggerMode, bool>> defaultLog = {
@@ -622,6 +624,10 @@ namespace Config
 		if (optionsNode.find(NAV_PARAM_MOUSE_INVERT) != optionsNode.end())
 			navParams.mouseDragInverted = optionsNode[NAV_PARAM_MOUSE_INVERT].get<bool>();
 
+		if (optionsNode.find(NAV_PARAM_REDUCE_FLICKERING) != optionsNode.end())
+			navParams.reduceFlickeringEnabled = optionsNode[NAV_PARAM_REDUCE_FLICKERING].get<bool>();
+		if (optionsNode.find(NAV_PARAM_REDUCE_FLICKERING_STRENGTH) != optionsNode.end())
+			navParams.reduceFlickeringStrength = optionsNode[NAV_PARAM_REDUCE_FLICKERING_STRENGTH].get<double>();
 
 		
 		return navParams;
@@ -636,6 +642,8 @@ namespace Config
 			optionsNode[NAV_PARAM_ROTATION_EXAMINE_SPEED] = navParams.cameraRotationExamineFactor;
 			optionsNode[NAV_PARAM_WHEEL_INVERT_JSON_KEY] = navParams.wheelInverted;
 			optionsNode[NAV_PARAM_MOUSE_INVERT] = navParams.mouseDragInverted;
+			optionsNode[NAV_PARAM_REDUCE_FLICKERING] = navParams.reduceFlickeringEnabled;
+			optionsNode[NAV_PARAM_REDUCE_FLICKERING_STRENGTH] = navParams.reduceFlickeringStrength;
 			jsonConfig[NAVIGATION_PARAMETERS] = optionsNode;
 			return saveConfigFile(filePath);
 		}

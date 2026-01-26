@@ -126,6 +126,23 @@ DialogSettings::DialogSettings(IDataDispatcher& dataDispatcher, QWidget* parent)
 	connect(m_ui.translationSpeedSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) { m_ui.translationSpeedSlider->setValue(value * 100); onNavigationParametersChanged(); });
 	connect(m_ui.mouseCheckBox, &QCheckBox::stateChanged, this, &DialogSettings::onNavigationParametersChanged);
 	connect(m_ui.invertCameraRotationCheckBox, &QCheckBox::stateChanged, this, &DialogSettings::onNavigationParametersChanged);
+	connect(m_ui.checkBox_reduceFlickering, &QCheckBox::stateChanged, this, [this]()
+		{
+			bool enabled = m_ui.checkBox_reduceFlickering->isChecked();
+			m_ui.reduceFlickeringSlider->setEnabled(enabled);
+			m_ui.reduceFlickeringSpinBox->setEnabled(enabled);
+			onNavigationParametersChanged();
+		});
+	connect(m_ui.reduceFlickeringSlider, &QSlider::valueChanged, this, [this](double value)
+		{
+			m_ui.reduceFlickeringSpinBox->setValue(value / 100.);
+			onNavigationParametersChanged();
+		});
+	connect(m_ui.reduceFlickeringSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value)
+		{
+			m_ui.reduceFlickeringSlider->setValue(static_cast<int>(std::lround(value * 100.)));
+			onNavigationParametersChanged();
+		});
 
 	connect(m_ui.slider_perspDistances, &QSlider::valueChanged, this, &DialogSettings::onRenderPerspDistanceChanged);
 	connect(m_ui.slider_orthoDistances, &QSlider::valueChanged, this, &DialogSettings::onRenderOrthoDistanceChanged);
@@ -237,6 +254,11 @@ void DialogSettings::updateUnitValues()
 	m_ui.examineRotationSpinBox->setValue(navParams.cameraRotationExamineFactor / 100.);
 	m_ui.mouseCheckBox->setChecked(navParams.wheelInverted);
 	m_ui.invertCameraRotationCheckBox->setChecked(navParams.mouseDragInverted);
+	m_ui.checkBox_reduceFlickering->setChecked(navParams.reduceFlickeringEnabled);
+	m_ui.reduceFlickeringSlider->setValue(static_cast<int>(std::lround(navParams.reduceFlickeringStrength * 100.)));
+	m_ui.reduceFlickeringSpinBox->setValue(navParams.reduceFlickeringStrength);
+	m_ui.reduceFlickeringSlider->setEnabled(navParams.reduceFlickeringEnabled);
+	m_ui.reduceFlickeringSpinBox->setEnabled(navParams.reduceFlickeringEnabled);
 }
 
 void DialogSettings::blockSignal(bool active)
@@ -261,6 +283,9 @@ void DialogSettings::blockSignal(bool active)
 	m_ui.examineMinimumDistanceLineEdit->blockSignals(active);
 	m_ui.translationSpeedSlider->blockSignals(active);
 	m_ui.examineRotationSlider->blockSignals(active);
+	m_ui.checkBox_reduceFlickering->blockSignals(active);
+	m_ui.reduceFlickeringSlider->blockSignals(active);
+	m_ui.reduceFlickeringSpinBox->blockSignals(active);
 }
 
 void DialogSettings::showEvent(QShowEvent* event)
@@ -485,6 +510,8 @@ void DialogSettings::onNavigationParametersChanged()
 	navParams.examineMinimumRadius = m_ui.examineMinimumDistanceLineEdit->getValue();
 	navParams.mouseDragInverted = m_ui.invertCameraRotationCheckBox->isChecked();
 	navParams.wheelInverted = m_ui.mouseCheckBox->isChecked();
+	navParams.reduceFlickeringEnabled = m_ui.checkBox_reduceFlickering->isChecked();
+	navParams.reduceFlickeringStrength = m_ui.reduceFlickeringSpinBox->value();
 
 	m_dataDispatcher.sendControl(new control::application::SetNavigationParameters(navParams, true));
 }

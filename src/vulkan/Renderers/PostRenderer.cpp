@@ -45,6 +45,11 @@ static std::vector<uint32_t> ambient_occlusion_comp_spv =
 #include "ambient_occlusion.comp.spv"
 };
 
+static std::vector<uint32_t> temporal_accumulation_comp_spv =
+{
+#include "temporal_accumulation.comp.spv"
+};
+
 // ********************************************
 
 PostRenderer::PostRenderer()
@@ -82,6 +87,7 @@ void PostRenderer::createShaders()
     loadShaderSPV(m_edgeAwareBlurCompShader, edge_aware_blur_comp_spv);
     loadShaderSPV(m_depthLiningCompShader, depth_lining_comp_spv);
     loadShaderSPV(m_ambientOcclusionCompShader, ambient_occlusion_comp_spv);
+    loadShaderSPV(m_temporalAccumulationCompShader, temporal_accumulation_comp_spv);
 }
 
 void PostRenderer::createDescriptorSetLayout()
@@ -165,6 +171,7 @@ void PostRenderer::createPipelines()
     createEdgeAwarePipeline();
     createDepthLiningPipeline();
     createTransparencyHDRPipeline();
+    createTemporalAccumulationPipeline();
 }
 
 void PostRenderer::createPipelineLayouts()
@@ -232,6 +239,23 @@ void PostRenderer::createPipelineLayouts()
     pipelineLayoutInfo.setLayoutCount = sizeof(setLayouts_tHDR) / sizeof(VkDescriptorSetLayout);
     pipelineLayoutInfo.pSetLayouts = setLayouts_tHDR;
     err = h_pfn->vkCreatePipelineLayout(h_device, &pipelineLayoutInfo, nullptr, &m_transparencyHDRPipelineLayout);
+    check_vk_result(err, "Create Pipeline Layout");
+
+    VkPushConstantRange pcr_temporal[] =
+    {
+        {
+            VK_SHADER_STAGE_COMPUTE_BIT,
+            0,
+            16
+        }
+    };
+
+    VkDescriptorSetLayout setLayouts_temporal[] = { VulkanManager::getDSLayout_fillingSamplers() };
+    pipelineLayoutInfo.pushConstantRangeCount = sizeof(pcr_temporal) / sizeof(VkPushConstantRange);
+    pipelineLayoutInfo.pPushConstantRanges = pcr_temporal;
+    pipelineLayoutInfo.setLayoutCount = sizeof(setLayouts_temporal) / sizeof(VkDescriptorSetLayout);
+    pipelineLayoutInfo.pSetLayouts = setLayouts_temporal;
+    err = h_pfn->vkCreatePipelineLayout(h_device, &pipelineLayoutInfo, nullptr, &m_temporalAccumulationPipelineLayout);
     check_vk_result(err, "Create Pipeline Layout");
 }
 
@@ -400,6 +424,25 @@ void PostRenderer::createTransparencyHDRPipeline()
     check_vk_result(err, "Create Compute Pipeline");
 }
 
+void PostRenderer::createTemporalAccumulationPipeline()
+{
+    // Create the pipeline
+    VkComputePipelineCreateInfo computePipelineCreateInfo = {};
+    computePipelineCreateInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+    computePipelineCreateInfo.layout = m_temporalAccumulationPipelineLayout;
+
+    VkPipelineShaderStageCreateInfo stageInfo = {};
+    stageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    stageInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
+    stageInfo.module = m_temporalAccumulationCompShader.module();
+    stageInfo.pName = "main";
+
+    computePipelineCreateInfo.stage = stageInfo;
+
+    VkResult err = h_pfn->vkCreateComputePipelines(h_device, m_pipelineCache, 1, &computePipelineCreateInfo, nullptr, &m_temporalAccumulationPipeline);
+    check_vk_result(err, "Create Compute Pipeline");
+}
+
 // Must be called inside a renderpass
 void PostRenderer::setViewportAndScissor(int32_t _xPos, int32_t _yPos, uint32_t _width, uint32_t _height, VkCommandBuffer _cmdBuffer)
 {
@@ -534,6 +577,24 @@ void PostRenderer::processDepthLining(VkCommandBuffer _cmdBuffer, const DepthLin
     h_pfn->vkCmdDispatch(_cmdBuffer, (_extent.width + 15) / 16, (_extent.height + 15) / 16, 1);
 }
 
+void PostRenderer::processTemporalAccumulation(VkCommandBuffer _cmdBuffer, VkDescriptorSet descSetColorHistory, VkExtent2D _extent, float blendStrength)
+{
+    h_pfn->vkCmdBindPipeline(_cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_temporalAccumulationPipeline);
+
+    h_pfn->vkCmdBindDescriptorSets(_cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_temporalAccumulationPipelineLayout, 0, 1, &descSetColorHistory, 0, nullptr);
+
+    struct
+    {
+        glm::ivec2 screenSize;
+        float blendStrength;
+        float padding;
+    } pc = { glm::ivec2(_extent.width, _extent.height), std::clamp(blendStrength, 0.0f, 1.0f), 0.0f };
+
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_temporalAccumulationPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(pc), &pc);
+
+    h_pfn->vkCmdDispatch(_cmdBuffer, (_extent.width + 15) / 16, (_extent.height + 15) / 16, 1);
+}
+
 bool PostRenderer::initEdgeAwareBlur(VulkanManager& vkm, uint32_t /*swapChainImageCount*/)
 {
     (void)vkm;
@@ -651,6 +712,11 @@ void PostRenderer::cleanup()
         m_transparencyHDRPipelineLayout = VK_NULL_HANDLE;
     }
 
+    if (m_temporalAccumulationPipelineLayout) {
+        h_pfn->vkDestroyPipelineLayout(h_device, m_temporalAccumulationPipelineLayout, nullptr);
+        m_temporalAccumulationPipelineLayout = VK_NULL_HANDLE;
+    }
+
     //*** Pipelines ***
     if (m_fillingPipeline)
     {
@@ -691,5 +757,10 @@ void PostRenderer::cleanup()
     if (m_transparencyHDRPipeline) {
         h_pfn->vkDestroyPipeline(h_device, m_transparencyHDRPipeline, nullptr);
         m_transparencyHDRPipeline = VK_NULL_HANDLE;
+    }
+
+    if (m_temporalAccumulationPipeline) {
+        h_pfn->vkDestroyPipeline(h_device, m_temporalAccumulationPipeline, nullptr);
+        m_temporalAccumulationPipeline = VK_NULL_HANDLE;
     }
 }

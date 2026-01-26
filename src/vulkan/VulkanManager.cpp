@@ -997,6 +997,140 @@ void VulkanManager::beginPostTreatmentTransparency(TlFramebuffer _fb)
         sizeof(barriers) / sizeof(VkImageMemoryBarrier), barriers);
 }
 
+void VulkanManager::beginPostTreatmentTemporalAccumulation(TlFramebuffer _fb)
+{
+    VkImageMemoryBarrier barriers[] = {
+        {
+            VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            nullptr,
+            VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT,
+            VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT,
+            VK_IMAGE_LAYOUT_GENERAL,
+            VK_IMAGE_LAYOUT_GENERAL,
+            VK_QUEUE_FAMILY_IGNORED,
+            VK_QUEUE_FAMILY_IGNORED,
+            _fb->pcColorImage,
+            { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 }
+        },
+        {
+            VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            nullptr,
+            0,
+            VK_ACCESS_SHADER_READ_BIT,
+            _fb->initTemporalHistoryLayout ? VK_IMAGE_LAYOUT_UNDEFINED : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            VK_QUEUE_FAMILY_IGNORED,
+            VK_QUEUE_FAMILY_IGNORED,
+            _fb->temporalHistoryImage,
+            { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 }
+        }
+    };
+
+    _fb->initTemporalHistoryLayout = false;
+
+    m_pfnDev->vkCmdPipelineBarrier(
+        _fb->graphicsCmdBuffers[_fb->currentFrame],
+        VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+        VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+        0,
+        0, nullptr,
+        0, nullptr,
+        sizeof(barriers) / sizeof(VkImageMemoryBarrier), barriers);
+}
+
+void VulkanManager::copyColorToTemporalHistory(TlFramebuffer _fb, VkCommandBuffer _cmdBuffer)
+{
+    VkImageMemoryBarrier preCopyBarriers[] = {
+        {
+            VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            nullptr,
+            VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT,
+            VK_ACCESS_TRANSFER_READ_BIT,
+            VK_IMAGE_LAYOUT_GENERAL,
+            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            VK_QUEUE_FAMILY_IGNORED,
+            VK_QUEUE_FAMILY_IGNORED,
+            _fb->pcColorImage,
+            { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 }
+        },
+        {
+            VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            nullptr,
+            VK_ACCESS_SHADER_READ_BIT,
+            VK_ACCESS_TRANSFER_WRITE_BIT,
+            _fb->initTemporalHistoryLayout ? VK_IMAGE_LAYOUT_UNDEFINED : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            VK_QUEUE_FAMILY_IGNORED,
+            VK_QUEUE_FAMILY_IGNORED,
+            _fb->temporalHistoryImage,
+            { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 }
+        }
+    };
+
+    m_pfnDev->vkCmdPipelineBarrier(
+        _cmdBuffer,
+        VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+        VK_PIPELINE_STAGE_TRANSFER_BIT,
+        0,
+        0, nullptr,
+        0, nullptr,
+        sizeof(preCopyBarriers) / sizeof(VkImageMemoryBarrier), preCopyBarriers);
+
+    VkImageCopy imageCopyRegion{};
+    imageCopyRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    imageCopyRegion.srcSubresource.layerCount = 1;
+    imageCopyRegion.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    imageCopyRegion.dstSubresource.layerCount = 1;
+    imageCopyRegion.extent.width = _fb->extent.width;
+    imageCopyRegion.extent.height = _fb->extent.height;
+    imageCopyRegion.extent.depth = 1;
+
+    m_pfnDev->vkCmdCopyImage(
+        _cmdBuffer,
+        _fb->pcColorImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+        _fb->temporalHistoryImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+        1,
+        &imageCopyRegion);
+
+    VkImageMemoryBarrier postCopyBarriers[] = {
+        {
+            VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            nullptr,
+            VK_ACCESS_TRANSFER_READ_BIT,
+            VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT,
+            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            VK_IMAGE_LAYOUT_GENERAL,
+            VK_QUEUE_FAMILY_IGNORED,
+            VK_QUEUE_FAMILY_IGNORED,
+            _fb->pcColorImage,
+            { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 }
+        },
+        {
+            VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            nullptr,
+            VK_ACCESS_TRANSFER_WRITE_BIT,
+            VK_ACCESS_SHADER_READ_BIT,
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            VK_QUEUE_FAMILY_IGNORED,
+            VK_QUEUE_FAMILY_IGNORED,
+            _fb->temporalHistoryImage,
+            { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 }
+        }
+    };
+
+    _fb->initTemporalHistoryLayout = false;
+
+    m_pfnDev->vkCmdPipelineBarrier(
+        _cmdBuffer,
+        VK_PIPELINE_STAGE_TRANSFER_BIT,
+        VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+        0,
+        0, nullptr,
+        0, nullptr,
+        sizeof(postCopyBarriers) / sizeof(VkImageMemoryBarrier), postCopyBarriers);
+}
+
 void VulkanManager::beginObjectRenderPass(TlFramebuffer _fb)
 {
     VkCommandBuffer currentCmdBuffer = _fb->graphicsCmdBuffers[_fb->currentFrame];
@@ -2860,10 +2994,10 @@ bool VulkanManager::createDescriptorPool()
     // NOTE - Ne pas oublier dâ€™augmenter les pools lorsque lâ€™on voudra plus que 2 viewports
     VkDescriptorPoolSize poolSizes[] =
     {
-        { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 6 }, // for ImGui, how much ?
+        { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 8 }, // for ImGui, how much ?
         { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 24 },  // for PointCloud Engine
         { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 4},
-        { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 10 }, // 5 by viewport
+        { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 12 }, // 6 by viewport
         { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 8 }
     };
 
@@ -3154,6 +3288,12 @@ void VulkanManager::createAttachments(TlFramebuffer _fb)
 
     _fb->pcColorImageView = createImageView(_fb->pcColorImage, _fb->pcFormat, VK_IMAGE_ASPECT_COLOR_BIT);
 
+    // temporal accumulation history (point cloud color)
+    createImage(_fb->extent, 1, _fb->pcFormat, VK_IMAGE_TILING_OPTIMAL, VK_SAMPLE_COUNT_1_BIT, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _fb->temporalHistoryImage, _fb->temporalHistoryMemory);
+    _fb->temporalHistoryImageView = createImageView(_fb->temporalHistoryImage, _fb->pcFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+    _fb->temporalHistoryValid = false;
+    _fb->initTemporalHistoryLayout = true;
+
     // object id attachment
     createImage(_fb->extent, 1, VK_FORMAT_R32_UINT, VK_IMAGE_TILING_OPTIMAL, VK_SAMPLE_COUNT_1_BIT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _fb->idAttImage, _fb->idAttMemory);
 
@@ -3322,6 +3462,51 @@ void VulkanManager::allocateDescriptorSet(TlFramebuffer _fb)
 
         writeDesc[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         writeDesc[1].dstSet = _fb->descSetSamplers;
+        writeDesc[1].dstBinding = 1;
+        writeDesc[1].descriptorCount = 1;
+        writeDesc[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        writeDesc[1].pImageInfo = &imageInfos[1];
+
+        m_pfnDev->vkUpdateDescriptorSets(m_device, count, writeDesc, 0, nullptr);
+    }
+    //----------------------------------//
+    {
+        VkDescriptorSetAllocateInfo descSetAllocInfo = {
+            VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+            nullptr,
+            m_descPool,
+            1,
+            &m_descSetLayout_filling
+        };
+        VkResult err = m_pfnDev->vkAllocateDescriptorSets(m_device, &descSetAllocInfo, &_fb->descSetTemporalAccumulation);
+        check_vk_result(err, "Allocate Descriptor Sets");
+
+        VkDescriptorImageInfo imageInfos[] = {
+            {
+                VK_NULL_HANDLE,
+                _fb->pcColorImageView,
+                VK_IMAGE_LAYOUT_GENERAL
+            },
+            {
+                _fb->rawSampler,
+                _fb->temporalHistoryImageView,
+                VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+            }
+        };
+
+        constexpr uint32_t count = sizeof(imageInfos) / sizeof(VkDescriptorImageInfo);
+        VkWriteDescriptorSet writeDesc[count];
+        memset(writeDesc, 0, sizeof(writeDesc));
+
+        writeDesc[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        writeDesc[0].dstSet = _fb->descSetTemporalAccumulation;
+        writeDesc[0].dstBinding = 0;
+        writeDesc[0].descriptorCount = 1;
+        writeDesc[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+        writeDesc[0].pImageInfo = &imageInfos[0];
+
+        writeDesc[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        writeDesc[1].dstSet = _fb->descSetTemporalAccumulation;
         writeDesc[1].dstBinding = 1;
         writeDesc[1].descriptorCount = 1;
         writeDesc[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -4304,6 +4489,11 @@ void VulkanManager::cleanupSizeDependantResources(TlFramebuffer _fb)
         tls::vk::destroyImage(*m_pfnDev, m_device, _fb->pcColorImage);
         tls::vk::freeMemory(*m_pfnDev, m_device, _fb->pcColorMemory);
 
+        // temporal accumulation history
+        tls::vk::destroyImageView(*m_pfnDev, m_device, _fb->temporalHistoryImageView);
+        tls::vk::destroyImage(*m_pfnDev, m_device, _fb->temporalHistoryImage);
+        tls::vk::freeMemory(*m_pfnDev, m_device, _fb->temporalHistoryMemory);
+
         // pc depth
         tls::vk::destroyImageView(*m_pfnDev, m_device, _fb->pcDepthImageView);
         tls::vk::destroyImage(*m_pfnDev, m_device, _fb->pcDepthImage);
@@ -4348,6 +4538,7 @@ void VulkanManager::cleanupSizeDependantResources(TlFramebuffer _fb)
         tls::vk::freeDescriptorSet(*m_pfnDev, m_device, m_descPool, _fb->descSetInputDepth);
         tls::vk::freeDescriptorSet(*m_pfnDev, m_device, m_descPool, _fb->descSetSamplers);
         tls::vk::freeDescriptorSet(*m_pfnDev, m_device, m_descPool, _fb->descSetCorrectedDepth);
+        tls::vk::freeDescriptorSet(*m_pfnDev, m_device, m_descPool, _fb->descSetTemporalAccumulation);
         tls::vk::freeDescriptorSet(*m_pfnDev, m_device, m_descPool, _fb->descSetInputTransparentLayer);
 
         // Swap Chain

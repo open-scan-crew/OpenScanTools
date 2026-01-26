@@ -30,6 +30,7 @@ public:
     void processAmbientOcclusion(VkCommandBuffer _cmdBuffer, const PostRenderingAmbientOcclusion& aoSettings, float nearZ, float farZ, bool isPerspective, VkDescriptorSet descSetColor, VkDescriptorSet descSetDepth, VkExtent2D extent);
     void processEdgeAwareBlur(VkCommandBuffer _cmdBuffer, const EdgeAwareBlur& blurSettings, VkDescriptorSet descSetColor, VkDescriptorSet descSetDepth, VkExtent2D extent);
     void processDepthLining(VkCommandBuffer _cmdBuffer, const DepthLining& liningSettings, VkDescriptorSet descSetColor, VkDescriptorSet descSetDepth, VkExtent2D extent);
+    void processTemporalAccumulation(VkCommandBuffer _cmdBuffer, VkDescriptorSet descSetColorHistory, VkExtent2D extent, float blendStrength);
 
     // Compatibility helpers used by some build targets
     bool initEdgeAwareBlur(VulkanManager& vkm, uint32_t swapChainImageCount);
@@ -57,6 +58,7 @@ private:
     void createEdgeAwarePipeline();
     void createDepthLiningPipeline();
     void createTransparencyHDRPipeline();
+    void createTemporalAccumulationPipeline();
 
     void loadShaderSPV(Shader& shader, const std::vector<uint32_t>& code_spv);
 
@@ -84,6 +86,7 @@ private:
     Shader m_ambientOcclusionCompShader;
     Shader m_edgeAwareBlurCompShader;
     Shader m_depthLiningCompShader;
+    Shader m_temporalAccumulationCompShader;
 
     VkPipeline m_fillingPipeline;
     VkPipeline m_normalColoredPipeline;
@@ -93,9 +96,11 @@ private:
     VkPipeline m_hdrSubsPipeline;
     VkPipeline m_edgeAwarePipeline;
     VkPipeline m_depthLiningPipeline;
+    VkPipeline m_temporalAccumulationPipeline;
 
     VkPipelineLayout m_edgeAwarePipelineLayout = VK_NULL_HANDLE;
     VkPipelineLayout m_depthLiningPipelineLayout = VK_NULL_HANDLE;
+    VkPipelineLayout m_temporalAccumulationPipelineLayout = VK_NULL_HANDLE;
 };
 
 #endif
