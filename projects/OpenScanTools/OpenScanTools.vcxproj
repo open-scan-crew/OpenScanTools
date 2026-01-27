@@ -598,6 +598,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\controller\functionSystem\ContextDataGeneration.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextDeletePoints.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextStatisticalOutlierFilter.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextColorDenoiseFilter.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextDeleteTag.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextCylinderToPlaneMeasure.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextCylinderToPlane3Measure.cpp" />
@@ -687,6 +688,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\controller\messages\ConvertionMessage.cpp" />
     <ClCompile Include="..\..\src\controller\messages\DeletePointsMessage.cpp" />
     <ClCompile Include="..\..\src\controller\messages\StatisticalOutlierFilterMessage.cpp" />
+    <ClCompile Include="..\..\src\controller\messages\ColorDenoiseFilterMessage.cpp" />
     <ClCompile Include="..\..\src\controller\messages\FilesMessage.cpp" />
     <ClCompile Include="..\..\src\controller\messages\GeneralMessage.cpp" />
     <ClCompile Include="..\..\src\controller\messages\GridExportMessage.cpp" />
@@ -716,6 +718,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\gui\Dialog\CalendarDialog.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogDeletePoints.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogStatisticalOutlierFilter.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogColorDenoiseFilter.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogDeleteScanTypeSelect.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogAbout.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogDeviceSelection.cpp" />
@@ -1276,6 +1279,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\controller\functionSystem\ContextDataGeneration.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextDeletePoints.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextStatisticalOutlierFilter.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextColorDenoiseFilter.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextDeleteTag.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextDuplicateTag.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextColumnTilt.h" />
@@ -1366,6 +1370,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\controller\messages\DataIdListMessage.h" />
     <ClInclude Include="..\..\include\controller\messages\DeletePointsMessage.h" />
     <ClInclude Include="..\..\include\controller\messages\StatisticalOutlierFilterMessage.h" />
+    <ClInclude Include="..\..\include\controller\messages\ColorDenoiseFilterMessage.h" />
     <ClInclude Include="..\..\include\controller\messages\GeneralMessage.h" />
     <ClInclude Include="..\..\include\controller\messages\ImportMessage.h" />
     <ClInclude Include="..\..\include\controller\messages\ManipulateMessage.h" />
@@ -1579,6 +1584,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtMoc Include="..\..\include\gui\Dialog\DialogPointCloudObjectCreation.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogDeletePoints.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogStatisticalOutlierFilter.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogColorDenoiseFilter.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogRecentProjects.h" />
     <QtMoc Include="..\..\include\gui\Dialog\ProcessingSplashScreen.h" />
     <QtMoc Include="..\..\include\gui\Dialog\MessageSplashScreen.h" />
@@ -1926,6 +1932,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtUic Include="..\..\src\gui\forms\convertion_options.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogDeletePoints.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogStatisticalOutlierFilter.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogColorDenoiseFilter.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogDeleteScanTypeSelection.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogAbout.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogDeviceSelection.ui" />
