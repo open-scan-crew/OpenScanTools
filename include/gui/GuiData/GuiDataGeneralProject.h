@@ -221,6 +221,14 @@ public:
     guiDType getType() override;
 };
 
+class GuiDataColorDenoiseFilterDialogDisplay : public IGuiData
+{
+public:
+    GuiDataColorDenoiseFilterDialogDisplay();
+    ~GuiDataColorDenoiseFilterDialogDisplay();
+    guiDType getType() override;
+};
+
 class GuiDataGlobalColorPickerValue : public IGuiData
 {
 public:
