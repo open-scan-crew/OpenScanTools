@@ -111,13 +111,16 @@ float IMeshReader::getScale() const
 
 void IMeshReader::getCorrectedVertices(std::vector<float>& buffer, const glm::vec3& translation) const
 {
-	assert(buffer.size() % 3 == 0);
-	for (uint64_t iterator(0); iterator < buffer.size();)
+	const size_t vertex_count = buffer.size() / 3;
+	if (vertex_count == 0)
+		return;
+
+	const size_t vertex_limit = vertex_count * 3;
+	for (size_t iterator = 0; iterator + 2 < vertex_limit; iterator += 3)
 	{
 		buffer[iterator] -= translation.x;
 		buffer[iterator + 1] -= translation.y;
 		buffer[iterator + 2] -= translation.z;
-		iterator += 3;
 	}
 }
 
@@ -134,9 +137,16 @@ void IMeshReader::getBoundingBox(const std::vector<float>& vertices, glm::vec3& 
 	bound[0] = glm::vec3(std::numeric_limits<float>::max());
 	bound[1] = glm::vec3(std::numeric_limits<float>::lowest());
 
-	// FIXME(robin) - Pas top comme boucle for. Je comprends que le vector de float arrive avec une taille multiple de 3 mais ce n’est pas une garantie suffisante pour moi. Au minimum il faudrait `vertices.size() - 2` comme critère de fin.
-	assert((vertices.size() % 3) == 0);
-	for (uint64_t iterator(0); iterator < vertices.size() - 2; iterator += 3)
+	const size_t vertex_count = vertices.size() / 3;
+	if (vertex_count == 0)
+	{
+		dim = glm::vec3(0.f);
+		center = glm::vec3(0.f);
+		return;
+	}
+
+	const size_t vertex_limit = vertex_count * 3;
+	for (size_t iterator = 0; iterator + 2 < vertex_limit; iterator += 3)
 	{
 		glm::vec3 vertex(vertices[iterator],
 			vertices[iterator + 1],
@@ -187,6 +197,13 @@ ObjectAllocation::ReturnCode IMeshReader::allocateMesh(MeshBuffer* _mesh, const 
 	std::vector<IndexedDraw> polyligneDrawList;
 	std::vector<uint32_t> polylignes;
 	//uint32_t polyligneCumulatedSize = 0;
+	polyligneDrawList.reserve(geometrie.polyligneIndices.size());
+	{
+		size_t polyligne_count = 0;
+		for (const auto& polyligne : geometrie.polyligneIndices)
+			polyligne_count += polyligne.size();
+		polylignes.reserve(polyligne_count);
+	}
 	for (auto polyligne : geometrie.polyligneIndices)
 	{
 		polyligneDrawList.push_back({ 0, (uint32_t)geometrie.indices.size() + (uint32_t)geometrie.edgesIndices.size() + (uint32_t)polylignes.size(), (uint32_t)polyligne.size() });
@@ -194,6 +211,8 @@ ObjectAllocation::ReturnCode IMeshReader::allocateMesh(MeshBuffer* _mesh, const 
 	}
 
 	VkDeviceSize size = (geometrie.vertices.size() + geometrie.normals.size() + geometrie.texcoords.size()) * sizeof(float) + (geometrie.indices.size() + geometrie.edgesIndices.size() + polylignes.size()) * sizeof(uint32_t);
+	if (size == 0)
+		return ObjectAllocation::ReturnCode::Failed;
 
 	IOLOG << "Allocating simple buffer: " << size << LOGENDL;
 
