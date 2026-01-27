@@ -96,5 +96,34 @@ namespace control
         {
             return (ControlType::startStatisticalOutlierFilter);
         }
+
+        // ***************************
+        // StartColorDenoiseFilter
+        // ***************************
+
+        StartColorDenoiseFilter::StartColorDenoiseFilter()
+        {}
+
+        StartColorDenoiseFilter::~StartColorDenoiseFilter()
+        {}
+
+        void StartColorDenoiseFilter::doFunction(Controller& controller)
+        {
+            controller.getFunctionManager().launchFunction(controller, ContextType::colorDenoiseFilter);
+        }
+
+        bool StartColorDenoiseFilter::canUndo() const
+        {
+            return (false);
+        }
+
+        void StartColorDenoiseFilter::undoFunction(Controller& controller)
+        {
+        }
+
+        ControlType StartColorDenoiseFilter::getType() const
+        {
+            return (ControlType::startColorDenoiseFilter);
+        }
     }
 }
