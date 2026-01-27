@@ -52,7 +52,7 @@ ContextState ContextColorBalanceFilter::start(Controller& controller)
     bool rgbAndIntensityAvailable = false;
     for (const SafePtr<PointCloudNode>& scan : scans)
     {
-        ReadPtr<PointCloudNode> rScan = scan.get();
+        ReadPtr<PointCloudNode> rScan = scan.cget();
         if (!rScan)
             continue;
 

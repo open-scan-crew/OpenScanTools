@@ -1,7 +1,7 @@
 #ifndef DIALOG_COLOR_BALANCE_FILTER_H
 #define DIALOG_COLOR_BALANCE_FILTER_H
 
-#include "gui/ADialog.h"
+#include "gui/Dialog/ADialog.h"
 #include "ui_DialogColorBalanceFilter.h"
 #include "controller/messages/ColorBalanceFilterMessage.h"
 
