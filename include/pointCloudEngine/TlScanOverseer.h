@@ -18,6 +18,7 @@
 
 #include "pointCloudEngine/OctreeRayTracing.h"
 #include "pointCloudEngine/OutlierStats.h"
+#include "models/pointCloud/PointXYZIRGB.h"
 
 /*
 template<typename T>
@@ -221,6 +222,8 @@ public:
     bool clipScan(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, IScanFileWriter* outScan, const ProgressCallback& progress = {});
     bool computeOutlierStats(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, int samplingPercent, double beta, OutlierStats& stats, const ProgressCallback& progress = {});
     bool filterOutliersAndWrite(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* outScan, uint64_t& removedPoints, const ProgressCallback& progress = {});
+    bool balanceColorsAndWrite(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kMin, int kMax, double trimPercent, bool applyOnIntensity, bool applyOnRgb, const std::function<void(const GeometricBox&, std::vector<PointXYZIRGB>&)>& externalPointsProvider, IScanFileWriter* outScan, uint64_t& modifiedPoints, const ProgressCallback& progress = {});
+    void collectPointsInGeometricBox(const GeometricBox& box, const ClippingAssembly& clippingAssembly, const tls::ScanGuid& excludedGuid, std::vector<PointXYZIRGB>& result);
     //tls::ScanGuid clipNewScan(tls::ScanGuid scanGuid, const glm::dmat4& modelMat, const ClippingAssembly& clippingAssembly, const std::filesystem::path& outPath, uint64_t& pointDeletedCount);
 
     // Lucas functions
