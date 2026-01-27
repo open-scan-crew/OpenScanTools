@@ -20,13 +20,12 @@ namespace
         int strength;
         int luminanceStrength;
         double radiusFactor;
-        int iterations;
         bool preserveLuminance;
     };
 
-    constexpr DenoisePresetValues kPresetLow{24, 30, 20, 3.0, 1, true};
-    constexpr DenoisePresetValues kPresetMid{32, 60, 30, 4.0, 1, true};
-    constexpr DenoisePresetValues kPresetHigh{48, 85, 40, 5.0, 2, true};
+    constexpr DenoisePresetValues kPresetLow{6, 20, 40, 3.0, true};
+    constexpr DenoisePresetValues kPresetMid{12, 40, 50, 4.0, true};
+    constexpr DenoisePresetValues kPresetHigh{24, 80, 60, 5.0, true};
 }
 
 DialogColorDenoiseFilter::DialogColorDenoiseFilter(IDataDispatcher& dataDispatcher, QWidget* parent)
@@ -80,10 +79,6 @@ DialogColorDenoiseFilter::DialogColorDenoiseFilter(IDataDispatcher& dataDispatch
     {
         m_radiusFactor = value;
     });
-    connect(m_ui.spinBox_iterations, qOverload<int>(&QSpinBox::valueChanged), this, [this](int value)
-    {
-        m_iterations = value;
-    });
     connect(m_ui.checkBox_preserveLuminance, &QCheckBox::toggled, this, [this](bool checked)
     {
         m_preserveLuminance = checked;
@@ -132,11 +127,10 @@ void DialogColorDenoiseFilter::startFiltering()
     int strength = m_ui.spinBox_strength->value();
     int luminanceStrength = m_ui.spinBox_luminanceStrength->value();
     double radiusFactor = m_ui.doubleSpinBox_radiusFactor->value();
-    int iterations = m_ui.spinBox_iterations->value();
     bool preserveLuminance = m_ui.checkBox_preserveLuminance->isChecked();
 
     bool openFolder = m_ui.checkBox_openFolderAfterExport->isChecked();
-    m_dataDispatcher.sendControl(new control::function::ForwardMessage(new ColorDenoiseFilterMessage(kNeighbors, strength, luminanceStrength, radiusFactor, iterations, preserveLuminance, m_outputFolder, openFolder)));
+    m_dataDispatcher.sendControl(new control::function::ForwardMessage(new ColorDenoiseFilterMessage(kNeighbors, strength, luminanceStrength, radiusFactor, 1, preserveLuminance, m_outputFolder, openFolder)));
 
     hide();
 }
@@ -182,7 +176,6 @@ void DialogColorDenoiseFilter::applyPreset(DenoisePreset preset)
     m_strength = values.strength;
     m_luminanceStrength = values.luminanceStrength;
     m_radiusFactor = values.radiusFactor;
-    m_iterations = values.iterations;
     m_preserveLuminance = values.preserveLuminance;
 
     syncUiFromValues();
@@ -197,7 +190,6 @@ void DialogColorDenoiseFilter::syncUiFromValues()
     const QSignalBlocker blockStrength(m_ui.spinBox_strength);
     const QSignalBlocker blockLuminanceStrength(m_ui.spinBox_luminanceStrength);
     const QSignalBlocker blockRadius(m_ui.doubleSpinBox_radiusFactor);
-    const QSignalBlocker blockIterations(m_ui.spinBox_iterations);
     const QSignalBlocker blockPreserve(m_ui.checkBox_preserveLuminance);
 
     m_ui.radioButton_denoiseLow->setChecked(m_preset == DenoisePreset::Low);
@@ -208,6 +200,5 @@ void DialogColorDenoiseFilter::syncUiFromValues()
     m_ui.spinBox_strength->setValue(m_strength);
     m_ui.spinBox_luminanceStrength->setValue(m_luminanceStrength);
     m_ui.doubleSpinBox_radiusFactor->setValue(m_radiusFactor);
-    m_ui.spinBox_iterations->setValue(m_iterations);
     m_ui.checkBox_preserveLuminance->setChecked(m_preserveLuminance);
 }

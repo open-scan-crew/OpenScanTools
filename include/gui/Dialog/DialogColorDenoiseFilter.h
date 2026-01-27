@@ -37,11 +37,10 @@ private:
     std::wstring m_outputFolder;
     QString m_openPath;
 
-    int m_kNeighbors = 32;
-    int m_strength = 60;
-    int m_luminanceStrength = 30;
+    int m_kNeighbors = 12;
+    int m_strength = 40;
+    int m_luminanceStrength = 50;
     double m_radiusFactor = 4.0;
-    int m_iterations = 1;
     bool m_preserveLuminance = true;
 
     DenoisePreset m_preset = DenoisePreset::Mid;

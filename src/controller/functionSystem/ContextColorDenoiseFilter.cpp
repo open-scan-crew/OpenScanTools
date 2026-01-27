@@ -72,7 +72,7 @@ ContextState ContextColorDenoiseFilter::feedMessage(IMessage* message, Controlle
         m_strength = decodedMsg->strength;
         m_luminanceStrength = decodedMsg->luminanceStrength;
         m_radiusFactor = decodedMsg->radiusFactor;
-        m_iterations = decodedMsg->iterations;
+        m_iterations = 1;
         m_preserveLuminance = decodedMsg->preserveLuminance;
         m_outputFolder = decodedMsg->outputFolder;
         m_openFolderAfterExport = decodedMsg->openFolderAfterExport;
