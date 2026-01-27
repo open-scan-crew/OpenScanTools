@@ -964,9 +964,9 @@ bool EmbeddedScan::denoiseColorsAndWrite(const TransformationModule& src_transfo
                         outLab.x = sumL / sumW;
 
                     glm::dvec3 rgb = labToRgb(outLab);
-                    filtered[i].r = static_cast<uint8_t>(std::round(rgb.r * 255.0));
-                    filtered[i].g = static_cast<uint8_t>(std::round(rgb.g * 255.0));
-                    filtered[i].b = static_cast<uint8_t>(std::round(rgb.b * 255.0));
+                    filtered[i].r = static_cast<uint8_t>(std::round(rgb.x * 255.0));
+                    filtered[i].g = static_cast<uint8_t>(std::round(rgb.y * 255.0));
+                    filtered[i].b = static_cast<uint8_t>(std::round(rgb.z * 255.0));
                 }
                 else if (hasIntensity)
                 {
