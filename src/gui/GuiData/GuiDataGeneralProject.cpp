@@ -296,6 +296,19 @@ guiDType GuiDataStatisticalOutlierFilterDialogDisplay::getType()
     return guiDType::statisticalOutlierFilterDialogDisplay;
 }
 
+GuiDataColorDenoiseFilterDialogDisplay::GuiDataColorDenoiseFilterDialogDisplay()
+{
+}
+
+GuiDataColorDenoiseFilterDialogDisplay::~GuiDataColorDenoiseFilterDialogDisplay()
+{
+}
+
+guiDType GuiDataColorDenoiseFilterDialogDisplay::getType()
+{
+    return guiDType::colorDenoiseFilterDialogDisplay;
+}
+
 //++++++ Global ColorPicker value +++++++
 
 GuiDataGlobalColorPickerValue::GuiDataGlobalColorPickerValue(const Color32& color, const bool& picked)

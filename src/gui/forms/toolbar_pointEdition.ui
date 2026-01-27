@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>270</width>
-    <height>127</height>
+    <height>165</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -66,6 +66,27 @@ You can apply the filter to clipped scans.</string>
      </property>
     </widget>
    </item>
+   <item row="2" column="0">
+    <widget class="QToolButton" name="toolButton_colorDenoiseFilter">
+     <property name="toolTip">
+      <string>This filter smooths RGB (or intensity) noise without deleting points. The result will be exported to the folder of your choice.
+You can apply the filter to clipped scans.</string>
+     </property>
+     <property name="text">
+      <string>Color denoise</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../../openscantools.qrc">
+       <normaloff>:/icons/100x100/so_filter.png</normaloff>:/icons/100x100/so_filter.png</iconset>
+     </property>
+     <property name="toolButtonStyle">
+      <enum>Qt::ToolButtonTextBesideIcon</enum>
+     </property>
+     <property name="autoRaise">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="0">
     <widget class="QToolButton" name="toolButton_deleteClippedPoints">
      <property name="enabled">
@@ -109,6 +130,7 @@ It is recommended to activate the desired clippings before starting the cleaning
  <tabstops>
   <tabstop>toolButton_deleteClippedPoints</tabstop>
   <tabstop>toolButton_statisticalOutlierFilter</tabstop>
+  <tabstop>toolButton_colorDenoiseFilter</tabstop>
  </tabstops>
  <resources>
   <include location="../../../openscantools.qrc"/>
