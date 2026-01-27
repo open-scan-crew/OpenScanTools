@@ -713,7 +713,7 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
     return resultOk;
 }
 
-bool EmbeddedScan::denoiseColorsAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, int strength, double radiusFactor, int iterations, bool preserveLuminance, IScanFileWriter* writer, uint64_t& processedPoints, const ProgressCallback& progress)
+bool EmbeddedScan::denoiseColorsAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, int strength, int luminanceStrength, double radiusFactor, int iterations, bool preserveLuminance, IScanFileWriter* writer, uint64_t& processedPoints, const ProgressCallback& progress)
 {
     ClippingAssembly localAssembly = clippingAssembly;
     localAssembly.clearMatrix();
@@ -759,6 +759,7 @@ bool EmbeddedScan::denoiseColorsAndWrite(const TransformationModule& src_transfo
     const int safeIterations = std::clamp(iterations, 1, 3);
     const double sigmaColor = 3.0 + (std::clamp(strength, 0, 100) / 100.0) * 12.0;
     const double sigmaColorSq = sigmaColor * sigmaColor;
+    const double luminanceBlend = std::clamp(luminanceStrength, 0, 100) / 100.0;
     const bool hasRGB = (pt_format_ == tls::PointFormat::TL_POINT_XYZ_RGB || pt_format_ == tls::PointFormat::TL_POINT_XYZ_I_RGB);
     const bool hasIntensity = (pt_format_ == tls::PointFormat::TL_POINT_XYZ_I || pt_format_ == tls::PointFormat::TL_POINT_XYZ_I_RGB);
 
@@ -943,8 +944,7 @@ bool EmbeddedScan::denoiseColorsAndWrite(const TransformationModule& src_transfo
                         const glm::dvec3& lab = neighborPoints[neighborIndex].lab;
                         sumA += w * lab.y;
                         sumB += w * lab.z;
-                        if (!preserveLuminance)
-                            sumL += w * lab.x;
+                        sumL += w * lab.x;
                     }
                     else if (hasIntensity)
                     {
@@ -960,8 +960,15 @@ bool EmbeddedScan::denoiseColorsAndWrite(const TransformationModule& src_transfo
                     glm::dvec3 outLab = baseLab;
                     outLab.y = sumA / sumW;
                     outLab.z = sumB / sumW;
-                    if (!preserveLuminance)
+                    if (preserveLuminance)
+                    {
+                        double filteredL = sumL / sumW;
+                        outLab.x = baseLab.x + (filteredL - baseLab.x) * luminanceBlend;
+                    }
+                    else
+                    {
                         outLab.x = sumL / sumW;
+                    }
 
                     glm::dvec3 rgb = labToRgb(outLab);
                     filtered[i].r = static_cast<uint8_t>(std::round(rgb.x * 255.0));
@@ -970,8 +977,9 @@ bool EmbeddedScan::denoiseColorsAndWrite(const TransformationModule& src_transfo
                 }
                 else if (hasIntensity)
                 {
-                    double newI = sumI / sumW;
-                    filtered[i].i = static_cast<uint8_t>(std::round(std::clamp(newI, 0.0, 255.0)));
+                    double filteredI = sumI / sumW;
+                    double blendedI = preserveLuminance ? (baseI + (filteredI - baseI) * luminanceBlend) : filteredI;
+                    filtered[i].i = static_cast<uint8_t>(std::round(std::clamp(blendedI, 0.0, 255.0)));
                 }
             }
 

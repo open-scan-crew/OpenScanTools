@@ -8,7 +8,7 @@
 class ColorDenoiseFilterMessage : public IMessage
 {
 public:
-    ColorDenoiseFilterMessage(int kNeighborsValue, int strengthValue, double radiusFactorValue, int iterationsValue, bool preserveLuminanceValue, const std::wstring& outputFolderValue, bool openFolderAfterExportValue);
+    ColorDenoiseFilterMessage(int kNeighborsValue, int strengthValue, int luminanceStrengthValue, double radiusFactorValue, int iterationsValue, bool preserveLuminanceValue, const std::wstring& outputFolderValue, bool openFolderAfterExportValue);
     ~ColorDenoiseFilterMessage() {}
 
     MessageType getType() const override;
@@ -16,6 +16,7 @@ public:
 
     int kNeighbors;
     int strength;
+    int luminanceStrength;
     double radiusFactor;
     int iterations;
     bool preserveLuminance;

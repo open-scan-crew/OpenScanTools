@@ -31,6 +31,7 @@ private:
     bool m_warningModal = false;
     int m_kNeighbors = 32;
     int m_strength = 60;
+    int m_luminanceStrength = 30;
     double m_radiusFactor = 4.0;
     int m_iterations = 1;
     bool m_preserveLuminance = true;

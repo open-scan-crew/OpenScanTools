@@ -70,6 +70,7 @@ ContextState ContextColorDenoiseFilter::feedMessage(IMessage* message, Controlle
         auto decodedMsg = static_cast<ColorDenoiseFilterMessage*>(message);
         m_kNeighbors = decodedMsg->kNeighbors;
         m_strength = decodedMsg->strength;
+        m_luminanceStrength = decodedMsg->luminanceStrength;
         m_radiusFactor = decodedMsg->radiusFactor;
         m_iterations = decodedMsg->iterations;
         m_preserveLuminance = decodedMsg->preserveLuminance;
@@ -172,7 +173,7 @@ ContextState ContextColorDenoiseFilter::launch(Controller& controller)
 
         auto filterProgress = makeProgressCallback(scanCount, 0, 100);
         uint64_t processedPoints = 0;
-        bool res = TlScanOverseer::getInstance().denoiseColorsAndWrite(oldGuid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, m_strength, m_radiusFactor, m_iterations, m_preserveLuminance, tlsWriter, processedPoints, filterProgress);
+        bool res = TlScanOverseer::getInstance().denoiseColorsAndWrite(oldGuid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, m_strength, m_luminanceStrength, m_radiusFactor, m_iterations, m_preserveLuminance, tlsWriter, processedPoints, filterProgress);
         res &= tlsWriter->finalizePointCloud();
         delete tlsWriter;
 
