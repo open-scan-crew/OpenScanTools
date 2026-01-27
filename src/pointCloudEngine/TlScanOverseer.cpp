@@ -431,6 +431,40 @@ bool TlScanOverseer::filterOutliersAndWrite(tls::ScanGuid _scanGuid, const Trans
     return scan->filterOutliersAndWrite(_modelMat, _clippingAssembly, kNeighbors, stats, nSigma, beta, _outScan, removedPoints, progress);
 }
 
+bool TlScanOverseer::balanceColorsAndWrite(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kMin, int kMax, double trimPercent, bool applyOnIntensity, bool applyOnRgb, const std::function<void(const GeometricBox&, std::vector<PointXYZIRGB>&)>& externalPointsProvider, IScanFileWriter* outScan, uint64_t& modifiedPoints, const ProgressCallback& progress)
+{
+    EmbeddedScan* scan;
+    {
+        std::lock_guard<std::mutex> lock(m_activeMutex);
+
+        auto it_scan = m_activeScans.find(scanGuid);
+        if (it_scan == m_activeScans.end())
+        {
+            Logger::log(VKLog) << "Error: try to view a Scan not present, UUID = " << scanGuid << Logger::endl;
+            return false;
+        }
+        scan = it_scan->second;
+    }
+
+    return scan->balanceColorsAndWrite(modelMat, clippingAssembly, kMin, kMax, trimPercent, applyOnIntensity, applyOnRgb, externalPointsProvider, outScan, modifiedPoints, progress);
+}
+
+void TlScanOverseer::collectPointsInGeometricBox(const GeometricBox& box, const ClippingAssembly& clippingAssembly, const tls::ScanGuid& excludedGuid, std::vector<PointXYZIRGB>& result)
+{
+    for (const WorkingScanInfo& pair : s_workingScansTransfo)
+    {
+        if (pair.scan.getGuid() == excludedGuid)
+            continue;
+
+        ClippingAssembly localAssembly;
+        if (pair.isClippable)
+            localAssembly = clippingAssembly;
+
+        pair.scan.setComputeTransfo(pair.transfo.getCenter(), pair.transfo.getOrientation());
+        pair.scan.collectPointsInGeometricBox(box, pair.transfo, localAssembly, result);
+    }
+}
+
 //tls::ScanGuid TlScanOverseer::clipNewScan(tls::ScanGuid _scanGuid, const glm::dmat4& _modelMat, const ClippingAssembly& _clippingAssembly, const std::filesystem::path& _outPath, uint64_t& pointsDeletedCount)
 //{
 //    EmbeddedScan* scan;

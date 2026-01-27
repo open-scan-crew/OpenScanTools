@@ -296,6 +296,22 @@ guiDType GuiDataStatisticalOutlierFilterDialogDisplay::getType()
     return guiDType::statisticalOutlierFilterDialogDisplay;
 }
 
+GuiDataColorBalanceFilterDialogDisplay::GuiDataColorBalanceFilterDialogDisplay(bool rgbAvailable, bool intensityAvailable, bool rgbAndIntensityAvailable)
+    : m_rgbAvailable(rgbAvailable)
+    , m_intensityAvailable(intensityAvailable)
+    , m_rgbAndIntensityAvailable(rgbAndIntensityAvailable)
+{
+}
+
+GuiDataColorBalanceFilterDialogDisplay::~GuiDataColorBalanceFilterDialogDisplay()
+{
+}
+
+guiDType GuiDataColorBalanceFilterDialogDisplay::getType()
+{
+    return guiDType::colorBalanceFilterDialogDisplay;
+}
+
 //++++++ Global ColorPicker value +++++++
 
 GuiDataGlobalColorPickerValue::GuiDataGlobalColorPickerValue(const Color32& color, const bool& picked)
