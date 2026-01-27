@@ -479,9 +479,9 @@ namespace
 
     glm::dvec3 rgbToLab(const glm::dvec3& rgb)
     {
-        double r = srgbToLinear(std::clamp(rgb.r, 0.0, 1.0));
-        double g = srgbToLinear(std::clamp(rgb.g, 0.0, 1.0));
-        double b = srgbToLinear(std::clamp(rgb.b, 0.0, 1.0));
+        double r = srgbToLinear(std::clamp(rgb.x, 0.0, 1.0));
+        double g = srgbToLinear(std::clamp(rgb.y, 0.0, 1.0));
+        double b = srgbToLinear(std::clamp(rgb.z, 0.0, 1.0));
 
         double x = r * 0.4124 + g * 0.3576 + b * 0.1805;
         double y = r * 0.2126 + g * 0.7152 + b * 0.0722;

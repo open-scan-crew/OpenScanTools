@@ -3,6 +3,8 @@
 
 #include "controller/functionSystem/AContext.h"
 
+#include "crossguid/guid.hpp"
+
 #include <filesystem>
 
 class Controller;
@@ -26,6 +28,7 @@ private:
 
 private:
     xg::Guid m_panoramic;
+    bool m_warningModal = false;
     int m_kNeighbors = 32;
     int m_strength = 60;
     double m_radiusFactor = 4.0;
