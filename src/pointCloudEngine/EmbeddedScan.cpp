@@ -570,6 +570,20 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
 
 namespace
 {
+    double srgbToLinear(double channel)
+    {
+        if (channel <= 0.04045)
+            return channel / 12.92;
+        return std::pow((channel + 0.055) / 1.055, 2.4);
+    }
+
+    double linearToSrgb(double channel)
+    {
+        if (channel <= 0.0031308)
+            return channel * 12.92;
+        return 1.055 * std::pow(channel, 1.0 / 2.4) - 0.055;
+    }
+
     uint8_t clampToByte(double value)
     {
         if (value < 0.0)
@@ -579,11 +593,17 @@ namespace
         return static_cast<uint8_t>(std::lround(value));
     }
 
+    double computeLumaLinear(const PointXYZIRGB& point)
+    {
+        double r = srgbToLinear(static_cast<double>(point.r) / 255.0);
+        double g = srgbToLinear(static_cast<double>(point.g) / 255.0);
+        double b = srgbToLinear(static_cast<double>(point.b) / 255.0);
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    }
+
     double computeLuma(const PointXYZIRGB& point)
     {
-        return 0.2126 * static_cast<double>(point.r) +
-               0.7152 * static_cast<double>(point.g) +
-               0.0722 * static_cast<double>(point.b);
+        return computeLumaLinear(point) * 255.0;
     }
 }
 
@@ -737,12 +757,18 @@ bool EmbeddedScan::applyColorBalanceAndWrite(const TransformationModule& src_tra
             {
                 double gain = sumWeightL > 0.0 ? (sumGainL / sumWeightL) : 1.0;
                 double offset = sumWeightL > 0.0 ? (sumOffsetL / sumWeightL) : 0.0;
-                double luma = computeLuma(point);
-                double lumaCorrected = gain * luma + offset;
-                double scale = lumaCorrected / std::max(luma, 1e-6);
-                correctedPoint.r = clampToByte(static_cast<double>(point.r) * scale);
-                correctedPoint.g = clampToByte(static_cast<double>(point.g) * scale);
-                correctedPoint.b = clampToByte(static_cast<double>(point.b) * scale);
+                double rLinear = srgbToLinear(static_cast<double>(point.r) / 255.0);
+                double gLinear = srgbToLinear(static_cast<double>(point.g) / 255.0);
+                double bLinear = srgbToLinear(static_cast<double>(point.b) / 255.0);
+                double lumaLinear = 0.2126 * rLinear + 0.7152 * gLinear + 0.0722 * bLinear;
+                double lumaCorrectedLinear = std::clamp((gain * (lumaLinear * 255.0) + offset) / 255.0, 0.0, 1.0);
+                double scale = lumaCorrectedLinear / std::max(lumaLinear, 1e-6);
+                double r = rLinear * scale;
+                double g = gLinear * scale;
+                double b = bLinear * scale;
+                correctedPoint.r = clampToByte(linearToSrgb(std::clamp(r, 0.0, 1.0)) * 255.0);
+                correctedPoint.g = clampToByte(linearToSrgb(std::clamp(g, 0.0, 1.0)) * 255.0);
+                correctedPoint.b = clampToByte(linearToSrgb(std::clamp(b, 0.0, 1.0)) * 255.0);
             }
             if (applyIntensity && (pt_format_ == tls::PointFormat::TL_POINT_XYZ_I || pt_format_ == tls::PointFormat::TL_POINT_XYZ_I_RGB))
             {

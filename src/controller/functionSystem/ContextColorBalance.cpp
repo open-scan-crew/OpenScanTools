@@ -73,6 +73,26 @@ namespace
         bool useIntensity = false;
     };
 
+    struct RangeStats
+    {
+        bool hasValue = false;
+        double minValue = 0.0;
+        double maxValue = 0.0;
+
+        void update(double value)
+        {
+            if (!hasValue)
+            {
+                minValue = value;
+                maxValue = value;
+                hasValue = true;
+                return;
+            }
+            minValue = std::min(minValue, value);
+            maxValue = std::max(maxValue, value);
+        }
+    };
+
     double medianFromHistogram(const std::array<uint32_t, 256>& hist, uint64_t count)
     {
         if (count == 0)
@@ -308,13 +328,16 @@ ContextState ContextColorBalance::launch(Controller& controller)
 
     double rootSize = 0.0;
     std::vector<ScanChannelUsage> scanUsage;
+    std::vector<std::wstring> scanNames;
     scanUsage.reserve(scanList.size());
+    scanNames.reserve(scanList.size());
 
     for (const SafePtr<PointCloudNode>& scan : scanList)
     {
         WritePtr<PointCloudNode> wScan = scan.get();
         if (!wScan)
             continue;
+        scanNames.push_back(wScan->getName());
         tls::ScanHeader header;
         if (TlScanOverseer::getInstance().getScanHeader(wScan->getScanGuid(), header))
         {
@@ -394,6 +417,8 @@ ContextState ContextColorBalance::launch(Controller& controller)
         std::vector<std::unordered_map<ColorBalanceCellKey, CellStats, ColorBalanceCellKeyHasher>> statsByScan(scanList.size());
         std::unordered_map<ColorBalanceCellKey, ReferenceSamples, ColorBalanceCellKeyHasher> referenceSamples;
         std::unordered_map<ColorBalanceCellKey, int, ColorBalanceCellKeyHasher> overlapCount;
+        std::unordered_map<ColorBalanceCellKey, int, ColorBalanceCellKeyHasher> overlapCountAll;
+        std::unordered_map<ColorBalanceCellKey, int, ColorBalanceCellKeyHasher> validColorCount;
         constexpr double kLumaSaturationHigh = 245.0;
         constexpr double kLumaSigmaMin = 2.0;
 
@@ -415,6 +440,7 @@ ContextState ContextColorBalance::launch(Controller& controller)
                     cellStats.validColor = !(cellStats.color.mean > kLumaSaturationHigh && cellStats.color.sigma < kLumaSigmaMin);
 
                 statsByScan[s][entry.first] = cellStats;
+                overlapCountAll[entry.first] += 1;
 
                 double weightRef = cellStats.confidence * (cellStats.validColor ? 1.0 : 0.0);
                 if (weightRef > 0.0)
@@ -432,6 +458,8 @@ ContextState ContextColorBalance::launch(Controller& controller)
                     }
                     samples.contributingScans += 1;
                     overlapCount[entry.first] += 1;
+                    if (scanUsage[s].useColor)
+                        validColorCount[entry.first] += 1;
                 }
             }
         }
@@ -494,6 +522,67 @@ ContextState ContextColorBalance::launch(Controller& controller)
                 if (correction.hasColor || correction.hasIntensity)
                     correctionMap[entry.first] = correction;
             }
+        }
+
+        size_t overlapCells = 0;
+        size_t validCells = 0;
+        for (const auto& entry : overlapCountAll)
+        {
+            if (entry.second < 2)
+                continue;
+            overlapCells += 1;
+            auto validIt = validColorCount.find(entry.first);
+            if (validIt != validColorCount.end() && validIt->second >= 2)
+                validCells += 1;
+        }
+        double validRatio = overlapCells > 0 ? static_cast<double>(validCells) / static_cast<double>(overlapCells) : 0.0;
+        Logger::log(LoggerMode::FunctionLog)
+            << "Color balance diagnostics (level " << level << "): overlap cells=" << overlapCells
+            << ", valid cells=" << validCells << ", ratio=" << validRatio << Logger::endl;
+
+        for (size_t s = 0; s < scanList.size(); ++s)
+        {
+            RangeStats gainL;
+            RangeStats offsetL;
+            RangeStats gainI;
+            RangeStats offsetI;
+            for (const auto& entry : corrections[s][level])
+            {
+                const ColorBalanceCellCorrection& correction = entry.second;
+                if (correction.hasColor)
+                {
+                    gainL.update(correction.gainL);
+                    offsetL.update(correction.offsetL);
+                }
+                if (correction.hasIntensity)
+                {
+                    gainI.update(correction.gainI);
+                    offsetI.update(correction.offsetI);
+                }
+            }
+
+            SubLogger& logger = Logger::log(LoggerMode::FunctionLog);
+            logger << "Color balance diagnostics (level " << level << ") scan " << scanNames[s] << ": ";
+            if (gainL.hasValue)
+            {
+                logger << "color gain[" << gainL.minValue << "," << gainL.maxValue << "]"
+                       << " offset[" << offsetL.minValue << "," << offsetL.maxValue << "]";
+            }
+            else
+            {
+                logger << "color gain/offset N/A";
+            }
+            logger << "; ";
+            if (gainI.hasValue)
+            {
+                logger << "intensity gain[" << gainI.minValue << "," << gainI.maxValue << "]"
+                       << " offset[" << offsetI.minValue << "," << offsetI.maxValue << "]";
+            }
+            else
+            {
+                logger << "intensity gain/offset N/A";
+            }
+            logger << Logger::endl;
         }
     }
 
