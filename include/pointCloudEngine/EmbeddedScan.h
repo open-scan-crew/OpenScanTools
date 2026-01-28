@@ -22,6 +22,13 @@
 #include <mutex>
 
 class IScanFileWriter;
+class EmbeddedScan;
+
+struct PceNeighborScanInfo
+{
+    EmbeddedScan* scan;
+    glm::dmat4 toCurrent;
+};
 
 struct TestInside
 {
@@ -116,6 +123,7 @@ public:
     bool clipAndWrite(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, IScanFileWriter* writer, const ProgressCallback& progress = {});
     bool computeOutlierStats(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, int samplingPercent, double beta, OutlierStats& stats, const ProgressCallback& progress = {});
     bool filterOutliersAndWrite(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* writer, uint64_t& removedPoints, const ProgressCallback& progress = {});
+    bool denoiseColorsAndWrite(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, int strength, int luminanceStrength, double radiusFactor, int iterations, bool preserveLuminance, const std::vector<PceNeighborScanInfo>& neighborScans, IScanFileWriter* writer, uint64_t& processedPoints, const ProgressCallback& progress = {});
     static void logClipAndWriteTimings();
 
     void decodePointCoord(uint32_t cellId, std::vector<glm::dvec3>& dstPoints, uint32_t layerDepth, bool transformToGlobal);

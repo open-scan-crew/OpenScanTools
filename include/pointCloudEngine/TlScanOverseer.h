@@ -8,6 +8,7 @@
 #include <mutex>
 #include <set>
 #include <unordered_map>
+#include <vector>
 
 #include "tls_def.h"
 #include "models/pointCloud/PointCloudInstance.h"
@@ -18,6 +19,12 @@
 
 #include "pointCloudEngine/OctreeRayTracing.h"
 #include "pointCloudEngine/OutlierStats.h"
+
+struct NeighborScanRequest
+{
+    tls::ScanGuid guid;
+    glm::dmat4 toCurrent;
+};
 
 /*
 template<typename T>
@@ -221,6 +228,7 @@ public:
     bool clipScan(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, IScanFileWriter* outScan, const ProgressCallback& progress = {});
     bool computeOutlierStats(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, int samplingPercent, double beta, OutlierStats& stats, const ProgressCallback& progress = {});
     bool filterOutliersAndWrite(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* outScan, uint64_t& removedPoints, const ProgressCallback& progress = {});
+    bool denoiseColorsAndWrite(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, int strength, int luminanceStrength, double radiusFactor, int iterations, bool preserveLuminance, const std::vector<NeighborScanRequest>& neighborScans, IScanFileWriter* outScan, uint64_t& processedPoints, const ProgressCallback& progress = {});
     //tls::ScanGuid clipNewScan(tls::ScanGuid scanGuid, const glm::dmat4& modelMat, const ClippingAssembly& clippingAssembly, const std::filesystem::path& outPath, uint64_t& pointDeletedCount);
 
     // Lucas functions
