@@ -107,7 +107,8 @@ enum class ControlType
 	startSingleExport, //Free
 	startGridExport,
     startDeletePoints,
-    startStatisticalOutlierFilter,
+	startStatisticalOutlierFilter,
+	startColorBalance,
 
 	// control::function
 	functionAbort, //Free

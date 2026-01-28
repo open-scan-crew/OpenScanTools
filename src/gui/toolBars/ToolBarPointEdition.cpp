@@ -13,6 +13,7 @@ ToolBarPointEdition::ToolBarPointEdition(IDataDispatcher &dataDispatcher, QWidge
 
     QObject::connect(m_ui.toolButton_deleteClippedPoints, &QToolButton::clicked, this, &ToolBarPointEdition::slotDeleteClippedPoints);
     QObject::connect(m_ui.toolButton_statisticalOutlierFilter, &QToolButton::clicked, this, &ToolBarPointEdition::slotStatisticalOutlierFilter);
+    QObject::connect(m_ui.toolButton_colorBalance, &QToolButton::clicked, this, &ToolBarPointEdition::slotColorBalance);
 
     m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);
     m_guiDataFunctions.insert({ guiDType::projectLoaded, &ToolBarPointEdition::onProjectLoad });
@@ -48,4 +49,9 @@ void ToolBarPointEdition::slotDeleteClippedPoints()
 void ToolBarPointEdition::slotStatisticalOutlierFilter()
 {
     m_dataDispatcher.sendControl(new control::exportPC::StartStatisticalOutlierFilter());
+}
+
+void ToolBarPointEdition::slotColorBalance()
+{
+    m_dataDispatcher.sendControl(new control::exportPC::StartColorBalance());
 }
