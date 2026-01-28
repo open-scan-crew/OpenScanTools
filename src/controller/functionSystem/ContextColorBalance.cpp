@@ -14,6 +14,7 @@
 #include "models/graph/GraphManager.h"
 #include "models/graph/PointCloudNode.h"
 #include "pointCloudEngine/ColorBalanceTypes.h"
+#include "pointCloudEngine/PCE_stream.h"
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "utils/Logger.h"
 
