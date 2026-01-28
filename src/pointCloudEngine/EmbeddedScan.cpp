@@ -916,7 +916,7 @@ bool EmbeddedScan::denoiseColorsAndWrite(const TransformationModule& src_transfo
                 std::vector<PointXYZIRGB> neighborVisible;
                 if (neighborCell.second)
                 {
-                    neighborScan.scan->clipIndividualPoints(neighborPointsRaw, neighborVisible, neighborAssembly);
+                    clipIndividualPoints(neighborPointsRaw, neighborVisible, neighborAssembly);
                 }
                 else
                 {
