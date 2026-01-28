@@ -22,6 +22,13 @@
 #include <mutex>
 
 class IScanFileWriter;
+class EmbeddedScan;
+
+struct NeighborScanInfo
+{
+    EmbeddedScan* scan;
+    glm::dmat4 toCurrent;
+};
 
 struct NeighborScanInfo
 {
