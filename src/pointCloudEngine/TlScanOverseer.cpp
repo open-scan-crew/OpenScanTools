@@ -431,6 +431,37 @@ bool TlScanOverseer::filterOutliersAndWrite(tls::ScanGuid _scanGuid, const Trans
     return scan->filterOutliersAndWrite(_modelMat, _clippingAssembly, kNeighbors, stats, nSigma, beta, _outScan, removedPoints, progress);
 }
 
+bool TlScanOverseer::denoiseColorsAndWrite(tls::ScanGuid _scanGuid, const TransformationModule& _modelMat, const ClippingAssembly& _clippingAssembly, int kNeighbors, int strength, int luminanceStrength, double radiusFactor, int iterations, bool preserveLuminance, const std::vector<NeighborScanRequest>& neighborScans, IScanFileWriter* _outScan, uint64_t& processedPoints, const ProgressCallback& progress)
+{
+    EmbeddedScan* scan;
+    {
+        std::lock_guard<std::mutex> lock(m_activeMutex);
+
+        auto it_scan = m_activeScans.find(_scanGuid);
+        if (it_scan == m_activeScans.end())
+        {
+            Logger::log(VKLog) << "Error: try to view a Scan not present, UUID = " << _scanGuid << Logger::endl;
+            return false;
+        }
+        else
+        {
+            scan = it_scan->second;
+        }
+    }
+
+    std::vector<NeighborScanInfo> neighborInfos;
+    neighborInfos.reserve(neighborScans.size());
+    for (const NeighborScanRequest& request : neighborScans)
+    {
+        auto it_scan = m_activeScans.find(request.guid);
+        if (it_scan == m_activeScans.end())
+            continue;
+        neighborInfos.push_back({ it_scan->second, request.toCurrent });
+    }
+
+    return scan->denoiseColorsAndWrite(_modelMat, _clippingAssembly, kNeighbors, strength, luminanceStrength, radiusFactor, iterations, preserveLuminance, neighborInfos, _outScan, processedPoints, progress);
+}
+
 //tls::ScanGuid TlScanOverseer::clipNewScan(tls::ScanGuid _scanGuid, const glm::dmat4& _modelMat, const ClippingAssembly& _clippingAssembly, const std::filesystem::path& _outPath, uint64_t& pointsDeletedCount)
 //{
 //    EmbeddedScan* scan;
