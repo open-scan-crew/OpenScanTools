@@ -449,7 +449,7 @@ bool TlScanOverseer::denoiseColorsAndWrite(tls::ScanGuid _scanGuid, const Transf
         }
     }
 
-    std::vector<NeighborScanInfo> neighborInfos;
+    std::vector<PceNeighborScanInfo> neighborInfos;
     neighborInfos.reserve(neighborScans.size());
     for (const NeighborScanRequest& request : neighborScans)
     {

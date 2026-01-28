@@ -713,7 +713,7 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
     return resultOk;
 }
 
-bool EmbeddedScan::denoiseColorsAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, int strength, int luminanceStrength, double radiusFactor, int iterations, bool preserveLuminance, const std::vector<NeighborScanInfo>& neighborScans, IScanFileWriter* writer, uint64_t& processedPoints, const ProgressCallback& progress)
+bool EmbeddedScan::denoiseColorsAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, int strength, int luminanceStrength, double radiusFactor, int iterations, bool preserveLuminance, const std::vector<PceNeighborScanInfo>& neighborScans, IScanFileWriter* writer, uint64_t& processedPoints, const ProgressCallback& progress)
 {
     ClippingAssembly localAssembly = clippingAssembly;
     localAssembly.clearMatrix();
@@ -878,7 +878,7 @@ bool EmbeddedScan::denoiseColorsAndWrite(const TransformationModule& src_transfo
             }
         }
 
-        for (const NeighborScanInfo& neighborScan : neighborScans)
+        for (const PceNeighborScanInfo& neighborScan : neighborScans)
         {
             if (neighborScan.scan == nullptr)
                 continue;
