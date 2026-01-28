@@ -156,7 +156,8 @@ enum class guiDType
     exportParametersDisplay,
     deletePointsDialogDisplay,
     statisticalOutlierFilterDialogDisplay,
-	pcoCreationParametersDisplay,
+    colorBalanceDialogDisplay,
+    pcoCreationParametersDisplay,
 
 	processingSplashScreenStart,
 	processingSplashScreenProgressBarUpdate,

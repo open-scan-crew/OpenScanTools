@@ -568,6 +568,200 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
     return resultOk;
 }
 
+namespace
+{
+    uint8_t clampToByte(double value)
+    {
+        if (value < 0.0)
+            return 0;
+        if (value > 255.0)
+            return 255;
+        return static_cast<uint8_t>(std::lround(value));
+    }
+
+    double computeLuma(const PointXYZIRGB& point)
+    {
+        return 0.2126 * static_cast<double>(point.r) +
+               0.7152 * static_cast<double>(point.g) +
+               0.0722 * static_cast<double>(point.b);
+    }
+}
+
+bool EmbeddedScan::computeColorBalanceHistogram(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, double cellSize, bool useColor, bool useIntensity, ColorBalanceHistogramMap& histogram, const ProgressCallback& progress)
+{
+    if (!useColor && !useIntensity)
+        return false;
+
+    ClippingAssembly localAssembly = clippingAssembly;
+    localAssembly.clearMatrix();
+    glm::dmat4 src_transfo_mat = src_transfo.getTransformation();
+    localAssembly.addTransformation(src_transfo_mat);
+
+    std::vector<std::pair<uint32_t, bool>> cells;
+    getClippedCells_impl(m_uRootCell, localAssembly, cells);
+
+    const size_t totalCells = cells.size();
+    if (progress && totalCells > 0)
+        progress(0, totalCells);
+    for (size_t cellIndex = 0; cellIndex < cells.size(); ++cellIndex)
+    {
+        const std::pair<uint32_t, bool>& cell = cells[cellIndex];
+        std::vector<PointXYZIRGB> points;
+        points.resize(tls_point_cloud_.getCellPointCount(cell.first));
+        if (!tls_point_cloud_.getCellPoints(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+        {
+            if (progress)
+                progress(cellIndex + 1, totalCells);
+            continue;
+        }
+
+        std::vector<PointXYZIRGB> visiblePoints;
+        if (cell.second)
+        {
+            clipIndividualPoints(points, visiblePoints, localAssembly);
+        }
+        else
+        {
+            visiblePoints.swap(points);
+        }
+
+        for (const PointXYZIRGB& point : visiblePoints)
+        {
+            glm::dvec4 globalPos = src_transfo_mat * glm::dvec4(point.x, point.y, point.z, 1.0);
+            ColorBalanceCellKey key = colorBalanceCellKeyFromGlobal(glm::dvec3(globalPos), cellSize);
+            ColorBalanceCellHistogram& cellHist = histogram[key];
+            cellHist.count++;
+            if (useColor)
+            {
+                uint8_t luma = clampToByte(computeLuma(point));
+                cellHist.lumaHist[luma]++;
+            }
+            if (useIntensity)
+            {
+                cellHist.intensityHist[point.i]++;
+            }
+        }
+
+        if (progress)
+            progress(cellIndex + 1, totalCells);
+    }
+
+    return true;
+}
+
+bool EmbeddedScan::applyColorBalanceAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, const std::vector<ColorBalanceCorrectionMap>& correctionLevels, double baseCellSize, double beta, bool applyColor, bool applyIntensity, IScanFileWriter* writer, const ProgressCallback& progress)
+{
+    if (correctionLevels.empty())
+        return false;
+
+    ClippingAssembly localAssembly = clippingAssembly;
+    localAssembly.clearMatrix();
+    glm::dmat4 src_transfo_mat = src_transfo.getTransformation();
+    localAssembly.addTransformation(src_transfo_mat);
+
+    std::vector<std::pair<uint32_t, bool>> cells;
+    getClippedCells_impl(m_uRootCell, localAssembly, cells);
+
+    std::vector<double> levelWeights;
+    levelWeights.reserve(correctionLevels.size());
+    for (size_t i = 0; i < correctionLevels.size(); ++i)
+        levelWeights.push_back(std::pow(beta, static_cast<int>(i)));
+
+    bool resultOk = true;
+    const size_t totalCells = cells.size();
+    if (progress && totalCells > 0)
+        progress(0, totalCells);
+    for (size_t cellIndex = 0; cellIndex < cells.size(); ++cellIndex)
+    {
+        const std::pair<uint32_t, bool>& cell = cells[cellIndex];
+        std::vector<PointXYZIRGB> points;
+        points.resize(tls_point_cloud_.getCellPointCount(cell.first));
+        if (!tls_point_cloud_.getCellPoints(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+        {
+            if (progress)
+                progress(cellIndex + 1, totalCells);
+            continue;
+        }
+
+        std::vector<PointXYZIRGB> visiblePoints;
+        if (cell.second)
+        {
+            clipIndividualPoints(points, visiblePoints, localAssembly);
+        }
+        else
+        {
+            visiblePoints.swap(points);
+        }
+
+        std::vector<PointXYZIRGB> corrected;
+        corrected.reserve(visiblePoints.size());
+
+        for (const PointXYZIRGB& point : visiblePoints)
+        {
+            glm::dvec4 globalPos = src_transfo_mat * glm::dvec4(point.x, point.y, point.z, 1.0);
+            ColorBalanceCellKey baseKey = colorBalanceCellKeyFromGlobal(glm::dvec3(globalPos), baseCellSize);
+
+            double sumWeightL = 0.0;
+            double sumGainL = 0.0;
+            double sumOffsetL = 0.0;
+            double sumWeightI = 0.0;
+            double sumGainI = 0.0;
+            double sumOffsetI = 0.0;
+
+            for (size_t level = 0; level < correctionLevels.size(); ++level)
+            {
+                ColorBalanceCellKey levelKey = colorBalanceParentCellKey(baseKey, static_cast<int>(level));
+                auto it = correctionLevels[level].find(levelKey);
+                if (it == correctionLevels[level].end())
+                    continue;
+                const ColorBalanceCellCorrection& correction = it->second;
+                double weightBase = levelWeights[level];
+                if (applyColor && correction.hasColor && correction.confidenceL > 0.0f)
+                {
+                    double weight = static_cast<double>(correction.confidenceL) * weightBase;
+                    sumWeightL += weight;
+                    sumGainL += weight * correction.gainL;
+                    sumOffsetL += weight * correction.offsetL;
+                }
+                if (applyIntensity && correction.hasIntensity && correction.confidenceI > 0.0f)
+                {
+                    double weight = static_cast<double>(correction.confidenceI) * weightBase;
+                    sumWeightI += weight;
+                    sumGainI += weight * correction.gainI;
+                    sumOffsetI += weight * correction.offsetI;
+                }
+            }
+
+            PointXYZIRGB correctedPoint = point;
+            if (applyColor && (pt_format_ == tls::PointFormat::TL_POINT_XYZ_RGB || pt_format_ == tls::PointFormat::TL_POINT_XYZ_I_RGB))
+            {
+                double gain = sumWeightL > 0.0 ? (sumGainL / sumWeightL) : 1.0;
+                double offset = sumWeightL > 0.0 ? (sumOffsetL / sumWeightL) : 0.0;
+                double luma = computeLuma(point);
+                double lumaCorrected = gain * luma + offset;
+                double scale = lumaCorrected / std::max(luma, 1e-6);
+                correctedPoint.r = clampToByte(static_cast<double>(point.r) * scale);
+                correctedPoint.g = clampToByte(static_cast<double>(point.g) * scale);
+                correctedPoint.b = clampToByte(static_cast<double>(point.b) * scale);
+            }
+            if (applyIntensity && (pt_format_ == tls::PointFormat::TL_POINT_XYZ_I || pt_format_ == tls::PointFormat::TL_POINT_XYZ_I_RGB))
+            {
+                double gain = sumWeightI > 0.0 ? (sumGainI / sumWeightI) : 1.0;
+                double offset = sumWeightI > 0.0 ? (sumOffsetI / sumWeightI) : 0.0;
+                correctedPoint.i = clampToByte(gain * static_cast<double>(point.i) + offset);
+            }
+            corrected.push_back(correctedPoint);
+        }
+
+        resultOk &= writer->mergePoints(corrected.data(), corrected.size(), src_transfo, pt_format_);
+
+        if (progress)
+            progress(cellIndex + 1, totalCells);
+    }
+
+    return resultOk;
+}
+
 void EmbeddedScan::logClipAndWriteTimings()
 {
     SubLogger& logger = Logger::log(LoggerMode::DataLog);
