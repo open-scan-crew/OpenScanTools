@@ -3,6 +3,7 @@
 
 #include "controller/functionSystem/AContext.h"
 #include "models/graph/TransformationModule.h"
+#include "io/FileUtils.h"
 
 #include "crossguid/guid.hpp"
 
@@ -30,6 +31,7 @@ private:
     int m_samplingPercent = 2;
     double m_beta = 4.0;
     xg::Guid m_panoramic;
+    FileType m_outputFileType = FileType::TLS;
     std::filesystem::path m_outputFolder;
     bool m_openFolderAfterExport = true;
 };
