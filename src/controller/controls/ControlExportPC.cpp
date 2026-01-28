@@ -96,5 +96,34 @@ namespace control
         {
             return (ControlType::startStatisticalOutlierFilter);
         }
+
+        // ***************************
+        // StartColorBalance
+        // ***************************
+
+        StartColorBalance::StartColorBalance()
+        {}
+
+        StartColorBalance::~StartColorBalance()
+        {}
+
+        void StartColorBalance::doFunction(Controller& controller)
+        {
+            controller.getFunctionManager().launchFunction(controller, ContextType::colorBalance);
+        }
+
+        bool StartColorBalance::canUndo() const
+        {
+            return false;
+        }
+
+        void StartColorBalance::undoFunction(Controller& controller)
+        {
+        }
+
+        ControlType StartColorBalance::getType() const
+        {
+            return ControlType::startColorBalance;
+        }
     }
 }

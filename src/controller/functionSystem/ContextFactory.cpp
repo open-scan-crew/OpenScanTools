@@ -28,6 +28,7 @@
 #include "controller/functionSystem/ContextExtendCylinderMeasure.h"
 #include "controller/functionSystem/ContextDeletePoints.h"
 #include "controller/functionSystem/ContextStatisticalOutlierFilter.h"
+#include "controller/functionSystem/ContextColorBalance.h"
 #include "controller/functionSystem/ContextMultipleCylindersMeasure.h"
 #include "controller/functionSystem/ContextPointCreation.h"
 #include "controller/functionSystem/Context4ClicsSphere.h"
@@ -191,6 +192,8 @@ AContext* ContextFactory::createContext(const ContextType& type, ContextId& id, 
 			return new ContextDeletePoints(id);
 		case ContextType::statisticalOutlierFilter:
 			return new ContextStatisticalOutlierFilter(id);
+		case ContextType::colorBalance:
+			return new ContextColorBalance(id);
 		case ContextType::pointCreation:
 			return new ContextPointCreation(id);
 		case ContextType::Sphere:
