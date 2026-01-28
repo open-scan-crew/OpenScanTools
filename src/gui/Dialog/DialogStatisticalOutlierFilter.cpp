@@ -5,11 +5,14 @@
 #include "gui/GuiData/GuiDataIO.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ExportTexts.hpp"
+#include "gui/texts/FileTypeTexts.hpp"
 #include "gui/texts/FileSystemTexts.hpp"
 
 #include <QtCore/QSignalBlocker>
 #include <QtCore/qstandardpaths.h>
 #include <QtWidgets/qfiledialog.h>
+
+#include <vector>
 
 namespace
 {
@@ -24,6 +27,24 @@ namespace
     constexpr OutlierPresetValues kPresetLow{30, 1.8, 3, 5.0};
     constexpr OutlierPresetValues kPresetMid{20, 1.0, 2, 4.0};
     constexpr OutlierPresetValues kPresetHigh{10, 0.8, 1, 2.5};
+
+    const static std::vector<FileType> kOutlierExportFileTypes = {
+        FileType::TLS,
+        FileType::E57,
+        FileType::PTS
+    };
+
+    template<typename Enum_T>
+    void initComboBoxRestricted(QComboBox* comboBox, const std::vector<Enum_T>& valuesDisplayable, const std::unordered_map<Enum_T, QString>& labelDictionnary)
+    {
+        for (Enum_T value : valuesDisplayable)
+        {
+            if (labelDictionnary.find(value) != labelDictionnary.cend())
+                comboBox->addItem(labelDictionnary.at(value), QVariant(static_cast<int>(value)));
+            else
+                comboBox->addItem(TEXT_EXPORT_LABEL_MISSING, QVariant(static_cast<int>(value)));
+        }
+    }
 }
 
 DialogStatisticalOutlierFilter::DialogStatisticalOutlierFilter(IDataDispatcher& dataDispatcher, QWidget* parent)
@@ -31,6 +52,7 @@ DialogStatisticalOutlierFilter::DialogStatisticalOutlierFilter(IDataDispatcher& 
 {
     m_ui.setupUi(this);
     translateUI();
+    initComboBoxRestricted<FileType>(m_ui.comboBox_file_format, kOutlierExportFileTypes, s_OutputFormatTexts);
 
     connect(m_ui.toolButton_folder, &QToolButton::clicked, this, [this]()
     {
@@ -131,9 +153,10 @@ void DialogStatisticalOutlierFilter::startFiltering()
     double nSigma = m_ui.doubleSpinBox_nSigma->value();
     int samplingPercent = m_ui.spinBox_soSampling->value();
     double beta = m_ui.doubleSpinBox_soBeta->value();
+    m_outputFileType = static_cast<FileType>(m_ui.comboBox_file_format->currentData().toInt());
 
     bool openFolder = m_ui.checkBox_openFolderAfterExport->isChecked();
-    m_dataDispatcher.sendControl(new control::function::ForwardMessage(new StatisticalOutlierFilterMessage(kNeighbors, nSigma, samplingPercent, beta, m_mode, m_outputFolder, openFolder)));
+    m_dataDispatcher.sendControl(new control::function::ForwardMessage(new StatisticalOutlierFilterMessage(kNeighbors, nSigma, samplingPercent, beta, m_mode, m_outputFileType, m_outputFolder, openFolder)));
 
     hide();
 }
@@ -192,6 +215,7 @@ void DialogStatisticalOutlierFilter::syncUiFromValues()
     const QSignalBlocker blockSigma(m_ui.doubleSpinBox_nSigma);
     const QSignalBlocker blockSampling(m_ui.spinBox_soSampling);
     const QSignalBlocker blockBeta(m_ui.doubleSpinBox_soBeta);
+    const QSignalBlocker blockFormat(m_ui.comboBox_file_format);
 
     m_ui.radioButton_soLow->setChecked(m_preset == OutlierPreset::Low);
     m_ui.radioButton_soMid->setChecked(m_preset == OutlierPreset::Mid);
@@ -201,4 +225,7 @@ void DialogStatisticalOutlierFilter::syncUiFromValues()
     m_ui.doubleSpinBox_nSigma->setValue(m_nSigma);
     m_ui.spinBox_soSampling->setValue(m_samplingPercent);
     m_ui.doubleSpinBox_soBeta->setValue(m_beta);
+    int formatIndex = m_ui.comboBox_file_format->findData(QVariant(static_cast<int>(m_outputFileType)));
+    if (formatIndex >= 0)
+        m_ui.comboBox_file_format->setCurrentIndex(formatIndex);
 }

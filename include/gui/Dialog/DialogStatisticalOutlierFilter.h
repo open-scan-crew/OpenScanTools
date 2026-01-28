@@ -39,6 +39,7 @@ private:
     double m_nSigma = 1.0;
     int m_samplingPercent = 2;
     double m_beta = 4.0;
+    FileType m_outputFileType = FileType::TLS;
     std::wstring m_outputFolder;
     QString m_openPath;
 };

@@ -11,7 +11,7 @@
 #include "gui/texts/ContextTexts.hpp"
 #include "gui/texts/ExportTexts.hpp"
 #include "gui/texts/SplashScreenTexts.hpp"
-#include "io/exports/TlsFileWriter.h"
+#include "io/exports/IScanFileWriter.h"
 #include "models/graph/GraphManager.h"
 #include "models/graph/PointCloudNode.h"
 #include "pointCloudEngine/PCE_core.h"
@@ -123,6 +123,7 @@ ContextState ContextStatisticalOutlierFilter::feedMessage(IMessage* message, Con
         m_samplingPercent = decodedMsg->samplingPercent;
         m_beta = decodedMsg->beta;
         m_globalFiltering = decodedMsg->mode == OutlierFilterMode::Global;
+        m_outputFileType = decodedMsg->outputFileType;
         m_outputFolder = decodedMsg->outputFolder;
         m_openFolderAfterExport = decodedMsg->openFolderAfterExport;
 
@@ -227,16 +228,15 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
         tls::ScanGuid old_guid = wScan->getScanGuid();
 
-        TlsFileWriter* tls_writer = nullptr;
+        IScanFileWriter* scan_writer = nullptr;
         std::wstring log;
         std::wstring outputName = wScan->getName() + L"_SOF";
-        TlsFileWriter::getWriter(m_outputFolder, outputName, log, (IScanFileWriter**)&tls_writer);
-        if (tls_writer == nullptr)
+        if (!getScanFileWriter(m_outputFolder, outputName, m_outputFileType, log, &scan_writer) || scan_writer == nullptr)
             continue;
         tls::ScanHeader header;
         TlScanOverseer::getInstance().getScanHeader(old_guid, header);
         header.guid = xg::newGuid();
-        tls_writer->appendPointCloud(header, wScan->getTransformation());
+        scan_writer->appendPointCloud(header, wScan->getTransformation());
 
         OutlierStats statsToUse = globalStats;
         if (!m_globalFiltering)
@@ -246,9 +246,9 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         }
 
         auto filterProgress = makeProgressCallback(scan_count, m_globalFiltering ? 0 : 50, m_globalFiltering ? 100 : 50);
-        bool res = TlScanOverseer::getInstance().filterOutliersAndWrite(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, statsToUse, m_nSigma, m_beta, tls_writer, deleted_point_count, filterProgress);
-        res &= tls_writer->finalizePointCloud();
-        delete tls_writer;
+        bool res = TlScanOverseer::getInstance().filterOutliersAndWrite(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, statsToUse, m_nSigma, m_beta, scan_writer, deleted_point_count, filterProgress);
+        res &= scan_writer->finalizePointCloud();
+        delete scan_writer;
 
         total_deleted_points += deleted_point_count;
 
