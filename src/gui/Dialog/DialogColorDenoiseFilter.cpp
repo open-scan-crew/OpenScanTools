@@ -1,7 +1,6 @@
 #include "gui/Dialog/DialogColorDenoiseFilter.h"
 
 #include "controller/controls/ControlFunction.h"
-#include "controller/messages/ColorDenoiseFilterMessage.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataIO.h"
 #include "gui/GuiData/GuiDataMessages.h"
@@ -61,6 +60,17 @@ DialogColorDenoiseFilter::DialogColorDenoiseFilter(IDataDispatcher& dataDispatch
     {
         if (checked)
             applyPreset(DenoisePreset::High);
+    });
+
+    connect(m_ui.radioButton_separate, &QRadioButton::toggled, this, [this](bool checked)
+    {
+        if (checked)
+            m_mode = DenoiseFilterMode::Separate;
+    });
+    connect(m_ui.radioButton_global, &QRadioButton::toggled, this, [this](bool checked)
+    {
+        if (checked)
+            m_mode = DenoiseFilterMode::Global;
     });
 
     connect(m_ui.spinBox_kNeighbors, qOverload<int>(&QSpinBox::valueChanged), this, [this](int value)
@@ -130,7 +140,7 @@ void DialogColorDenoiseFilter::startFiltering()
     bool preserveLuminance = m_ui.checkBox_preserveLuminance->isChecked();
 
     bool openFolder = m_ui.checkBox_openFolderAfterExport->isChecked();
-    m_dataDispatcher.sendControl(new control::function::ForwardMessage(new ColorDenoiseFilterMessage(kNeighbors, strength, luminanceStrength, radiusFactor, 1, preserveLuminance, m_outputFolder, openFolder)));
+    m_dataDispatcher.sendControl(new control::function::ForwardMessage(new ColorDenoiseFilterMessage(kNeighbors, strength, luminanceStrength, radiusFactor, 1, preserveLuminance, m_mode, m_outputFolder, openFolder)));
 
     hide();
 }
@@ -191,6 +201,8 @@ void DialogColorDenoiseFilter::syncUiFromValues()
     const QSignalBlocker blockLuminanceStrength(m_ui.spinBox_luminanceStrength);
     const QSignalBlocker blockRadius(m_ui.doubleSpinBox_radiusFactor);
     const QSignalBlocker blockPreserve(m_ui.checkBox_preserveLuminance);
+    const QSignalBlocker blockModeSeparate(m_ui.radioButton_separate);
+    const QSignalBlocker blockModeGlobal(m_ui.radioButton_global);
 
     m_ui.radioButton_denoiseLow->setChecked(m_preset == DenoisePreset::Low);
     m_ui.radioButton_denoiseMid->setChecked(m_preset == DenoisePreset::Mid);
@@ -201,4 +213,6 @@ void DialogColorDenoiseFilter::syncUiFromValues()
     m_ui.spinBox_luminanceStrength->setValue(m_luminanceStrength);
     m_ui.doubleSpinBox_radiusFactor->setValue(m_radiusFactor);
     m_ui.checkBox_preserveLuminance->setChecked(m_preserveLuminance);
+    m_ui.radioButton_separate->setChecked(m_mode == DenoiseFilterMode::Separate);
+    m_ui.radioButton_global->setChecked(m_mode == DenoiseFilterMode::Global);
 }

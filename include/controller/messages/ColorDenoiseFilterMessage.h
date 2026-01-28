@@ -5,10 +5,16 @@
 
 #include <string>
 
+enum class DenoiseFilterMode
+{
+    Separate,
+    Global
+};
+
 class ColorDenoiseFilterMessage : public IMessage
 {
 public:
-    ColorDenoiseFilterMessage(int kNeighborsValue, int strengthValue, int luminanceStrengthValue, double radiusFactorValue, int iterationsValue, bool preserveLuminanceValue, const std::wstring& outputFolderValue, bool openFolderAfterExportValue);
+    ColorDenoiseFilterMessage(int kNeighborsValue, int strengthValue, int luminanceStrengthValue, double radiusFactorValue, int iterationsValue, bool preserveLuminanceValue, DenoiseFilterMode modeValue, const std::wstring& outputFolderValue, bool openFolderAfterExportValue);
     ~ColorDenoiseFilterMessage() {}
 
     MessageType getType() const override;
@@ -20,6 +26,7 @@ public:
     double radiusFactor;
     int iterations;
     bool preserveLuminance;
+    DenoiseFilterMode mode;
     std::wstring outputFolder;
     bool openFolderAfterExport;
 };

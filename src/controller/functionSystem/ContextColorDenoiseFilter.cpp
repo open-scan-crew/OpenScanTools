@@ -14,6 +14,7 @@
 #include "io/exports/TlsFileWriter.h"
 #include "models/graph/GraphManager.h"
 #include "models/graph/PointCloudNode.h"
+#include "models/3d/BoundingBox.h"
 #include "pointCloudEngine/PCE_core.h"
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "utils/Logger.h"
@@ -74,6 +75,7 @@ ContextState ContextColorDenoiseFilter::feedMessage(IMessage* message, Controlle
         m_radiusFactor = decodedMsg->radiusFactor;
         m_iterations = 1;
         m_preserveLuminance = decodedMsg->preserveLuminance;
+        m_globalDenoise = decodedMsg->mode == DenoiseFilterMode::Global;
         m_outputFolder = decodedMsg->outputFolder;
         m_openFolderAfterExport = decodedMsg->openFolderAfterExport;
 
@@ -102,6 +104,11 @@ ContextState ContextColorDenoiseFilter::launch(Controller& controller)
     TlStreamLock streamLock;
 
     std::unordered_set<SafePtr<PointCloudNode>> scans = graphManager.getVisibleScans(m_panoramic);
+    std::vector<tls::PointCloudInstance> scanInstances = graphManager.getVisiblePointCloudInstances(m_panoramic, true, false);
+    std::unordered_map<tls::ScanGuid, tls::PointCloudInstance> instanceByGuid;
+    instanceByGuid.reserve(scanInstances.size());
+    for (const tls::PointCloudInstance& inst : scanInstances)
+        instanceByGuid.emplace(inst.header.guid, inst);
 
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString()));
     const uint64_t totalScans = scans.size();
@@ -159,6 +166,42 @@ ContextState ContextColorDenoiseFilter::launch(Controller& controller)
 
         std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
         tls::ScanGuid oldGuid = wScan->getScanGuid();
+        std::vector<NeighborScanRequest> neighborScans;
+        if (m_globalDenoise)
+        {
+            auto instanceIt = instanceByGuid.find(oldGuid);
+            if (instanceIt != instanceByGuid.end())
+            {
+                const tls::PointCloudInstance& currentInstance = instanceIt->second;
+                const tls::Limits& currentLimits = currentInstance.header.limits;
+                BoundingBoxD currentBox{ currentLimits.xMin, currentLimits.xMax,
+                                         currentLimits.yMin, currentLimits.yMax,
+                                         currentLimits.zMin, currentLimits.zMax };
+                BoundingBoxD currentWorldBox = currentBox.transform(currentInstance.transfo.getTransformation());
+                const glm::dmat4 currentInv = currentInstance.transfo.getInverseTransformation();
+
+                auto intersects = [](const BoundingBoxD& a, const BoundingBoxD& b)
+                {
+                    return !(a.xMax < b.xMin || a.xMin > b.xMax ||
+                             a.yMax < b.yMin || a.yMin > b.yMax ||
+                             a.zMax < b.zMin || a.zMin > b.zMax);
+                };
+
+                for (const tls::PointCloudInstance& neighborInst : scanInstances)
+                {
+                    if (neighborInst.header.guid == oldGuid)
+                        continue;
+                    const tls::Limits& neighborLimits = neighborInst.header.limits;
+                    BoundingBoxD neighborBox{ neighborLimits.xMin, neighborLimits.xMax,
+                                              neighborLimits.yMin, neighborLimits.yMax,
+                                              neighborLimits.zMin, neighborLimits.zMax };
+                    BoundingBoxD neighborWorldBox = neighborBox.transform(neighborInst.transfo.getTransformation());
+                    if (!intersects(currentWorldBox, neighborWorldBox))
+                        continue;
+                    neighborScans.push_back({ neighborInst.header.guid, currentInv * neighborInst.transfo.getTransformation() });
+                }
+            }
+        }
 
         TlsFileWriter* tlsWriter = nullptr;
         std::wstring log;
@@ -173,7 +216,7 @@ ContextState ContextColorDenoiseFilter::launch(Controller& controller)
 
         auto filterProgress = makeProgressCallback(scanCount, 0, 100);
         uint64_t processedPoints = 0;
-        bool res = TlScanOverseer::getInstance().denoiseColorsAndWrite(oldGuid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, m_strength, m_luminanceStrength, m_radiusFactor, m_iterations, m_preserveLuminance, tlsWriter, processedPoints, filterProgress);
+        bool res = TlScanOverseer::getInstance().denoiseColorsAndWrite(oldGuid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, m_strength, m_luminanceStrength, m_radiusFactor, m_iterations, m_preserveLuminance, neighborScans, tlsWriter, processedPoints, filterProgress);
         res &= tlsWriter->finalizePointCloud();
         delete tlsWriter;
 

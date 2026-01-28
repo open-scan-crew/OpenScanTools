@@ -1,6 +1,7 @@
 #ifndef DIALOG_COLOR_DENOISE_FILTER_H
 #define DIALOG_COLOR_DENOISE_FILTER_H
 
+#include "controller/messages/ColorDenoiseFilterMessage.h"
 #include "gui/Dialog/ADialog.h"
 #include "ui_DialogColorDenoiseFilter.h"
 
@@ -42,6 +43,7 @@ private:
     int m_luminanceStrength = 50;
     double m_radiusFactor = 4.0;
     bool m_preserveLuminance = true;
+    DenoiseFilterMode m_mode = DenoiseFilterMode::Separate;
 
     DenoisePreset m_preset = DenoisePreset::Mid;
 };

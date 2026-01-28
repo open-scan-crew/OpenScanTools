@@ -6,6 +6,8 @@
 #include "crossguid/guid.hpp"
 
 #include <filesystem>
+#include <unordered_map>
+#include <vector>
 
 class Controller;
 class IMessage;
@@ -35,6 +37,7 @@ private:
     double m_radiusFactor = 4.0;
     int m_iterations = 1;
     bool m_preserveLuminance = true;
+    bool m_globalDenoise = false;
     std::filesystem::path m_outputFolder;
     bool m_openFolderAfterExport = false;
 };

@@ -713,7 +713,7 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
     return resultOk;
 }
 
-bool EmbeddedScan::denoiseColorsAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, int strength, int luminanceStrength, double radiusFactor, int iterations, bool preserveLuminance, IScanFileWriter* writer, uint64_t& processedPoints, const ProgressCallback& progress)
+bool EmbeddedScan::denoiseColorsAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, int strength, int luminanceStrength, double radiusFactor, int iterations, bool preserveLuminance, const std::vector<NeighborScanInfo>& neighborScans, IScanFileWriter* writer, uint64_t& processedPoints, const ProgressCallback& progress)
 {
     ClippingAssembly localAssembly = clippingAssembly;
     localAssembly.clearMatrix();
@@ -875,6 +875,67 @@ bool EmbeddedScan::denoiseColorsAndWrite(const TransformationModule& src_transfo
             {
                 glm::dvec3 lab = hasRGB ? rgbToLab(glm::dvec3(point.r / 255.0, point.g / 255.0, point.b / 255.0)) : glm::dvec3(0.0);
                 neighborPoints.push_back({ glm::dvec3(point.x, point.y, point.z), lab, point.i, -1 });
+            }
+        }
+
+        for (const NeighborScanInfo& neighborScan : neighborScans)
+        {
+            if (neighborScan.scan == nullptr)
+                continue;
+
+            const glm::dmat4 neighborToCurrent = neighborScan.toCurrent;
+            const glm::dmat4 neighborToWorld = src_transfo_mat * neighborToCurrent;
+
+            ClippingAssembly neighborAssembly = clippingAssembly;
+            neighborAssembly.clearMatrix();
+            neighborAssembly.addTransformation(neighborToWorld);
+
+            std::vector<std::pair<uint32_t, bool>> neighborCells;
+            neighborScan.scan->getClippedCells_impl(neighborScan.scan->m_uRootCell, neighborAssembly, neighborCells);
+
+            for (const auto& neighborCell : neighborCells)
+            {
+                const TreeCell& treeCell = neighborScan.scan->m_vTreeCells[neighborCell.first];
+                BoundingBoxD neighborBox{ treeCell.m_position[0], treeCell.m_position[0] + treeCell.m_size,
+                                          treeCell.m_position[1], treeCell.m_position[1] + treeCell.m_size,
+                                          treeCell.m_position[2], treeCell.m_position[2] + treeCell.m_size };
+                BoundingBoxD neighborBoxCurrent = neighborBox.transform(neighborToCurrent);
+
+                if (neighborBoxCurrent.xMax < expandedMin.x || neighborBoxCurrent.xMin > expandedMax.x ||
+                    neighborBoxCurrent.yMax < expandedMin.y || neighborBoxCurrent.yMin > expandedMax.y ||
+                    neighborBoxCurrent.zMax < expandedMin.z || neighborBoxCurrent.zMin > expandedMax.z)
+                {
+                    continue;
+                }
+
+                std::vector<PointXYZIRGB> neighborPointsRaw;
+                neighborPointsRaw.resize(neighborScan.scan->tls_point_cloud_.getCellPointCount(neighborCell.first));
+                if (!neighborScan.scan->tls_point_cloud_.getCellPoints(neighborCell.first, reinterpret_cast<tls::Point*>(neighborPointsRaw.data()), neighborPointsRaw.size()))
+                    continue;
+
+                std::vector<PointXYZIRGB> neighborVisible;
+                if (neighborCell.second)
+                {
+                    neighborScan.scan->clipIndividualPoints(neighborPointsRaw, neighborVisible, neighborAssembly);
+                }
+                else
+                {
+                    neighborVisible.swap(neighborPointsRaw);
+                }
+
+                for (const PointXYZIRGB& point : neighborVisible)
+                {
+                    glm::dvec4 transformed = neighborToCurrent * glm::dvec4(point.x, point.y, point.z, 1.0);
+                    if (transformed.x < expandedMin.x || transformed.x > expandedMax.x ||
+                        transformed.y < expandedMin.y || transformed.y > expandedMax.y ||
+                        transformed.z < expandedMin.z || transformed.z > expandedMax.z)
+                    {
+                        continue;
+                    }
+
+                    glm::dvec3 lab = hasRGB ? rgbToLab(glm::dvec3(point.r / 255.0, point.g / 255.0, point.b / 255.0)) : glm::dvec3(0.0);
+                    neighborPoints.push_back({ glm::dvec3(transformed.x, transformed.y, transformed.z), lab, point.i, -1 });
+                }
             }
         }
 
