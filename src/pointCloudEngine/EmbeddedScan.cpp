@@ -390,6 +390,151 @@ namespace
         meanDistance = sum / static_cast<double>(distances.size());
         return true;
     }
+
+    bool computeNeighborIndicesGrid(const std::vector<glm::dvec3>& points, const std::unordered_map<int64_t, std::vector<size_t>>& grid, const glm::dvec3& origin, double voxelSize, size_t index, size_t kNeighbors, double maxRadius, std::vector<size_t>& neighborIndices, std::vector<double>& neighborDistances, double& meanDistance)
+    {
+        if (kNeighbors == 0 || points.empty())
+            return false;
+
+        const glm::dvec3& base = points[index];
+        GridIndex baseIndex = computeGridIndex(base, origin, voxelSize);
+        int ring = 0;
+        std::vector<size_t> candidateIndices;
+
+        while (ring * voxelSize <= maxRadius)
+        {
+            candidateIndices.clear();
+            for (int dx = -ring; dx <= ring; ++dx)
+            {
+                for (int dy = -ring; dy <= ring; ++dy)
+                {
+                    for (int dz = -ring; dz <= ring; ++dz)
+                    {
+                        GridIndex query{ baseIndex.x + dx, baseIndex.y + dy, baseIndex.z + dz };
+                        int64_t key = packGridIndex(query);
+                        auto it = grid.find(key);
+                        if (it == grid.end())
+                            continue;
+                        candidateIndices.insert(candidateIndices.end(), it->second.begin(), it->second.end());
+                    }
+                }
+            }
+
+            if (candidateIndices.size() > kNeighbors)
+                break;
+            ring++;
+        }
+
+        if (candidateIndices.empty())
+            return false;
+
+        std::vector<std::pair<double, size_t>> distances;
+        distances.reserve(candidateIndices.size());
+        for (size_t candidate : candidateIndices)
+        {
+            if (candidate == index)
+                continue;
+            double dist = glm::length(base - points[candidate]);
+            if (dist > 0.0 && dist <= maxRadius)
+                distances.emplace_back(dist, candidate);
+        }
+
+        if (distances.empty())
+            return false;
+
+        size_t target = std::min(kNeighbors, distances.size());
+        std::nth_element(distances.begin(), distances.begin() + static_cast<long>(target - 1), distances.end(),
+            [](const auto& lhs, const auto& rhs) { return lhs.first < rhs.first; });
+        distances.resize(target);
+
+        neighborIndices.clear();
+        neighborDistances.clear();
+        neighborIndices.reserve(distances.size());
+        neighborDistances.reserve(distances.size());
+        meanDistance = 0.0;
+        for (const auto& item : distances)
+        {
+            neighborDistances.push_back(item.first);
+            neighborIndices.push_back(item.second);
+            meanDistance += item.first;
+        }
+        meanDistance /= static_cast<double>(distances.size());
+
+        return true;
+    }
+
+    double srgbToLinear(double c)
+    {
+        if (c <= 0.04045)
+            return c / 12.92;
+        return std::pow((c + 0.055) / 1.055, 2.4);
+    }
+
+    double linearToSrgb(double c)
+    {
+        if (c <= 0.0031308)
+            return c * 12.92;
+        return 1.055 * std::pow(c, 1.0 / 2.4) - 0.055;
+    }
+
+    glm::dvec3 rgbToLab(const glm::dvec3& rgb)
+    {
+        double r = srgbToLinear(std::clamp(rgb.x, 0.0, 1.0));
+        double g = srgbToLinear(std::clamp(rgb.y, 0.0, 1.0));
+        double b = srgbToLinear(std::clamp(rgb.z, 0.0, 1.0));
+
+        double x = r * 0.4124 + g * 0.3576 + b * 0.1805;
+        double y = r * 0.2126 + g * 0.7152 + b * 0.0722;
+        double z = r * 0.0193 + g * 0.1192 + b * 0.9505;
+
+        x /= 0.95047;
+        y /= 1.00000;
+        z /= 1.08883;
+
+        auto f = [](double t)
+        {
+            return t > 0.008856 ? std::cbrt(t) : (7.787 * t + 16.0 / 116.0);
+        };
+
+        double fx = f(x);
+        double fy = f(y);
+        double fz = f(z);
+
+        double L = 116.0 * fy - 16.0;
+        double a = 500.0 * (fx - fy);
+        double bVal = 200.0 * (fy - fz);
+
+        return { L, a, bVal };
+    }
+
+    glm::dvec3 labToRgb(const glm::dvec3& lab)
+    {
+        double fy = (lab.x + 16.0) / 116.0;
+        double fx = lab.y / 500.0 + fy;
+        double fz = fy - lab.z / 200.0;
+
+        auto fInv = [](double t)
+        {
+            double t3 = t * t * t;
+            if (t3 > 0.008856)
+                return t3;
+            return (t - 16.0 / 116.0) / 7.787;
+        };
+
+        double x = fInv(fx) * 0.95047;
+        double y = fInv(fy) * 1.00000;
+        double z = fInv(fz) * 1.08883;
+
+        double r = x * 3.2406 + y * -1.5372 + z * -0.4986;
+        double g = x * -0.9689 + y * 1.8758 + z * 0.0415;
+        double b = x * 0.0557 + y * -0.2040 + z * 1.0570;
+
+        r = linearToSrgb(r);
+        g = linearToSrgb(g);
+        b = linearToSrgb(b);
+
+        return { std::clamp(r, 0.0, 1.0), std::clamp(g, 0.0, 1.0), std::clamp(b, 0.0, 1.0) };
+    }
 }
 
 bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, int samplingPercent, double beta, OutlierStats& stats, const ProgressCallback& progress)
@@ -559,6 +704,360 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
         }
 
         removedPoints += visiblePoints.size() - filtered.size();
+        resultOk &= writer->mergePoints(filtered.data(), filtered.size(), src_transfo, pt_format_);
+
+        if (progress)
+            progress(cellIndex + 1, totalCells);
+    }
+
+    return resultOk;
+}
+
+bool EmbeddedScan::denoiseColorsAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, int strength, int luminanceStrength, double radiusFactor, int iterations, bool preserveLuminance, const std::vector<NeighborScanInfo>& neighborScans, IScanFileWriter* writer, uint64_t& processedPoints, const ProgressCallback& progress)
+{
+    ClippingAssembly localAssembly = clippingAssembly;
+    localAssembly.clearMatrix();
+    glm::dmat4 src_transfo_mat = src_transfo.getTransformation();
+    localAssembly.addTransformation(src_transfo_mat);
+
+    std::vector<std::pair<uint32_t, bool>> cells;
+    getClippedCells_impl(m_uRootCell, localAssembly, cells);
+
+    struct CellInfo
+    {
+        uint32_t id = 0;
+        bool partiallyClipped = false;
+        glm::dvec3 origin;
+        glm::dvec3 center;
+        double size = 0.0;
+    };
+
+    std::vector<CellInfo> cellInfos;
+    cellInfos.reserve(cells.size());
+    double maxCellSize = 0.0;
+    for (const auto& cell : cells)
+    {
+        const TreeCell& treeCell = m_vTreeCells[cell.first];
+        double cellSize = treeCell.m_size;
+        glm::dvec3 origin(treeCell.m_position[0], treeCell.m_position[1], treeCell.m_position[2]);
+        glm::dvec3 center = origin + glm::dvec3(cellSize * 0.5);
+        cellInfos.push_back({ cell.first, cell.second, origin, center, cellSize });
+        maxCellSize = std::max(maxCellSize, cellSize);
+    }
+
+    std::unordered_map<int64_t, std::vector<size_t>> cellGrid;
+    glm::dvec3 rootOrigin(m_rootPosition[0], m_rootPosition[1], m_rootPosition[2]);
+    double cellGridSize = std::max(maxCellSize, 1e-6);
+    cellGrid.reserve(cellInfos.size());
+    for (size_t idx = 0; idx < cellInfos.size(); ++idx)
+    {
+        GridIndex gridIndex = computeGridIndex(cellInfos[idx].center, rootOrigin, cellGridSize);
+        cellGrid[packGridIndex(gridIndex)].push_back(idx);
+    }
+
+    const size_t neighborCount = std::max(1, kNeighbors);
+    const int safeIterations = std::clamp(iterations, 1, 3);
+    const double sigmaColor = 3.0 + (std::clamp(strength, 0, 100) / 100.0) * 12.0;
+    const double sigmaColorSq = sigmaColor * sigmaColor;
+    const double luminanceBlend = std::clamp(luminanceStrength, 0, 100) / 100.0;
+    const bool hasRGB = (pt_format_ == tls::PointFormat::TL_POINT_XYZ_RGB || pt_format_ == tls::PointFormat::TL_POINT_XYZ_I_RGB);
+    const bool hasIntensity = (pt_format_ == tls::PointFormat::TL_POINT_XYZ_I || pt_format_ == tls::PointFormat::TL_POINT_XYZ_I_RGB);
+
+    bool resultOk = true;
+    processedPoints = 0;
+    const size_t totalCells = cellInfos.size();
+    if (progress && totalCells > 0)
+        progress(0, totalCells);
+
+    for (size_t cellIndex = 0; cellIndex < cellInfos.size(); ++cellIndex)
+    {
+        const CellInfo& cell = cellInfos[cellIndex];
+        std::vector<PointXYZIRGB> points;
+        points.resize(tls_point_cloud_.getCellPointCount(cell.id));
+        if (!tls_point_cloud_.getCellPoints(cell.id, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+        {
+            if (progress)
+                progress(cellIndex + 1, totalCells);
+            continue;
+        }
+
+        std::vector<PointXYZIRGB> visiblePoints;
+        if (cell.partiallyClipped)
+        {
+            clipIndividualPoints(points, visiblePoints, localAssembly);
+        }
+        else
+        {
+            visiblePoints.swap(points);
+        }
+
+        if (visiblePoints.empty())
+        {
+            if (progress)
+                progress(cellIndex + 1, totalCells);
+            continue;
+        }
+
+        double avgSpacing = std::cbrt((cell.size * cell.size * cell.size) / std::max<size_t>(visiblePoints.size(), 1));
+        double voxelSize = std::max(cell.size / 128.0, avgSpacing * 2.0);
+        double maxRadius = std::clamp(radiusFactor * avgSpacing, cell.size / 8.0, cell.size);
+
+        glm::dvec3 expandedMin = cell.origin - glm::dvec3(maxRadius);
+        glm::dvec3 expandedMax = cell.origin + glm::dvec3(cell.size + maxRadius);
+
+        GridIndex baseIndex = computeGridIndex(cell.center, rootOrigin, cellGridSize);
+        int ring = static_cast<int>(std::ceil((cell.size + 2.0 * maxRadius) / cellGridSize));
+        std::vector<size_t> neighborCellIndices;
+
+        for (int dx = -ring; dx <= ring; ++dx)
+        {
+            for (int dy = -ring; dy <= ring; ++dy)
+            {
+                for (int dz = -ring; dz <= ring; ++dz)
+                {
+                    GridIndex query{ baseIndex.x + dx, baseIndex.y + dy, baseIndex.z + dz };
+                    int64_t key = packGridIndex(query);
+                    auto it = cellGrid.find(key);
+                    if (it == cellGrid.end())
+                        continue;
+                    neighborCellIndices.insert(neighborCellIndices.end(), it->second.begin(), it->second.end());
+                }
+            }
+        }
+
+        struct NeighborPoint
+        {
+            glm::dvec3 pos;
+            glm::dvec3 lab;
+            uint8_t intensity;
+            int centerIndex;
+        };
+
+        std::vector<NeighborPoint> neighborPoints;
+        neighborPoints.reserve(visiblePoints.size());
+        for (size_t i = 0; i < visiblePoints.size(); ++i)
+        {
+            const PointXYZIRGB& point = visiblePoints[i];
+            glm::dvec3 lab = hasRGB ? rgbToLab(glm::dvec3(point.r / 255.0, point.g / 255.0, point.b / 255.0)) : glm::dvec3(0.0);
+            neighborPoints.push_back({ glm::dvec3(point.x, point.y, point.z), lab, point.i, static_cast<int>(i) });
+        }
+
+        for (size_t idx : neighborCellIndices)
+        {
+            if (idx == cellIndex)
+                continue;
+            const CellInfo& neighborCell = cellInfos[idx];
+
+            glm::dvec3 neighborMin = neighborCell.origin;
+            glm::dvec3 neighborMax = neighborCell.origin + glm::dvec3(neighborCell.size);
+            bool intersects = !(neighborMax.x < expandedMin.x || neighborMin.x > expandedMax.x ||
+                                neighborMax.y < expandedMin.y || neighborMin.y > expandedMax.y ||
+                                neighborMax.z < expandedMin.z || neighborMin.z > expandedMax.z);
+            if (!intersects)
+                continue;
+
+            std::vector<PointXYZIRGB> neighborPointsRaw;
+            neighborPointsRaw.resize(tls_point_cloud_.getCellPointCount(neighborCell.id));
+            if (!tls_point_cloud_.getCellPoints(neighborCell.id, reinterpret_cast<tls::Point*>(neighborPointsRaw.data()), neighborPointsRaw.size()))
+                continue;
+
+            std::vector<PointXYZIRGB> neighborVisible;
+            if (neighborCell.partiallyClipped)
+            {
+                clipIndividualPoints(neighborPointsRaw, neighborVisible, localAssembly);
+            }
+            else
+            {
+                neighborVisible.swap(neighborPointsRaw);
+            }
+
+            for (const PointXYZIRGB& point : neighborVisible)
+            {
+                glm::dvec3 lab = hasRGB ? rgbToLab(glm::dvec3(point.r / 255.0, point.g / 255.0, point.b / 255.0)) : glm::dvec3(0.0);
+                neighborPoints.push_back({ glm::dvec3(point.x, point.y, point.z), lab, point.i, -1 });
+            }
+        }
+
+        for (const NeighborScanInfo& neighborScan : neighborScans)
+        {
+            if (neighborScan.scan == nullptr)
+                continue;
+
+            const glm::dmat4 neighborToCurrent = neighborScan.toCurrent;
+            const glm::dmat4 neighborToWorld = src_transfo_mat * neighborToCurrent;
+
+            ClippingAssembly neighborAssembly = clippingAssembly;
+            neighborAssembly.clearMatrix();
+            neighborAssembly.addTransformation(neighborToWorld);
+
+            std::vector<std::pair<uint32_t, bool>> neighborCells;
+            neighborScan.scan->getClippedCells_impl(neighborScan.scan->m_uRootCell, neighborAssembly, neighborCells);
+
+            for (const auto& neighborCell : neighborCells)
+            {
+                const TreeCell& treeCell = neighborScan.scan->m_vTreeCells[neighborCell.first];
+                BoundingBoxD neighborBox{ treeCell.m_position[0], treeCell.m_position[0] + treeCell.m_size,
+                                          treeCell.m_position[1], treeCell.m_position[1] + treeCell.m_size,
+                                          treeCell.m_position[2], treeCell.m_position[2] + treeCell.m_size };
+                BoundingBoxD neighborBoxCurrent = neighborBox.transform(neighborToCurrent);
+
+                if (neighborBoxCurrent.xMax < expandedMin.x || neighborBoxCurrent.xMin > expandedMax.x ||
+                    neighborBoxCurrent.yMax < expandedMin.y || neighborBoxCurrent.yMin > expandedMax.y ||
+                    neighborBoxCurrent.zMax < expandedMin.z || neighborBoxCurrent.zMin > expandedMax.z)
+                {
+                    continue;
+                }
+
+                std::vector<PointXYZIRGB> neighborPointsRaw;
+                neighborPointsRaw.resize(neighborScan.scan->tls_point_cloud_.getCellPointCount(neighborCell.first));
+                if (!neighborScan.scan->tls_point_cloud_.getCellPoints(neighborCell.first, reinterpret_cast<tls::Point*>(neighborPointsRaw.data()), neighborPointsRaw.size()))
+                    continue;
+
+                std::vector<PointXYZIRGB> neighborVisible;
+                if (neighborCell.second)
+                {
+                    neighborScan.scan->clipIndividualPoints(neighborPointsRaw, neighborVisible, neighborAssembly);
+                }
+                else
+                {
+                    neighborVisible.swap(neighborPointsRaw);
+                }
+
+                for (const PointXYZIRGB& point : neighborVisible)
+                {
+                    glm::dvec4 transformed = neighborToCurrent * glm::dvec4(point.x, point.y, point.z, 1.0);
+                    if (transformed.x < expandedMin.x || transformed.x > expandedMax.x ||
+                        transformed.y < expandedMin.y || transformed.y > expandedMax.y ||
+                        transformed.z < expandedMin.z || transformed.z > expandedMax.z)
+                    {
+                        continue;
+                    }
+
+                    glm::dvec3 lab = hasRGB ? rgbToLab(glm::dvec3(point.r / 255.0, point.g / 255.0, point.b / 255.0)) : glm::dvec3(0.0);
+                    neighborPoints.push_back({ glm::dvec3(transformed.x, transformed.y, transformed.z), lab, point.i, -1 });
+                }
+            }
+        }
+
+        std::vector<glm::dvec3> localPoints;
+        localPoints.reserve(neighborPoints.size());
+        for (const auto& np : neighborPoints)
+            localPoints.push_back(np.pos);
+
+        std::unordered_map<int64_t, std::vector<size_t>> grid;
+        grid.reserve(localPoints.size());
+        for (size_t i = 0; i < localPoints.size(); ++i)
+        {
+            GridIndex index = computeGridIndex(localPoints[i], cell.origin, voxelSize);
+            grid[packGridIndex(index)].push_back(i);
+        }
+
+        std::vector<PointXYZIRGB> filtered = visiblePoints;
+        for (int iteration = 0; iteration < safeIterations; ++iteration)
+        {
+            for (size_t i = 0; i < filtered.size(); ++i)
+            {
+                double meanDistance = 0.0;
+                std::vector<size_t> neighbors;
+                std::vector<double> neighborDistances;
+                if (!computeNeighborIndicesGrid(localPoints, grid, cell.origin, voxelSize, i, neighborCount, maxRadius, neighbors, neighborDistances, meanDistance))
+                    continue;
+
+                double sigmaSpatial = std::max(1e-6, 1.5 * meanDistance);
+                double sigmaSpatialSq = sigmaSpatial * sigmaSpatial;
+                double sumW = 0.0;
+                double sumA = 0.0;
+                double sumB = 0.0;
+                double sumL = 0.0;
+                double sumI = 0.0;
+
+                const glm::dvec3 baseLab = neighborPoints[i].lab;
+                const double baseI = neighborPoints[i].intensity;
+
+                for (size_t n = 0; n < neighbors.size(); ++n)
+                {
+                    size_t neighborIndex = neighbors[n];
+                    double ds = neighborDistances[n];
+                    double wSpatial = std::exp(-(ds * ds) / (2.0 * sigmaSpatialSq));
+                    double wColor = 1.0;
+
+                    if (hasRGB)
+                    {
+                        const glm::dvec3& lab = neighborPoints[neighborIndex].lab;
+                        double da = lab.y - baseLab.y;
+                        double db = lab.z - baseLab.z;
+                        double dc = std::sqrt(da * da + db * db);
+                        wColor = std::exp(-(dc * dc) / (2.0 * sigmaColorSq));
+                    }
+                    else if (hasIntensity)
+                    {
+                        double di = static_cast<double>(neighborPoints[neighborIndex].intensity) - baseI;
+                        wColor = std::exp(-(di * di) / (2.0 * sigmaColorSq));
+                    }
+
+                    double w = wSpatial * wColor;
+                    if (w <= 0.0)
+                        continue;
+
+                    sumW += w;
+                    if (hasRGB)
+                    {
+                        const glm::dvec3& lab = neighborPoints[neighborIndex].lab;
+                        sumA += w * lab.y;
+                        sumB += w * lab.z;
+                        sumL += w * lab.x;
+                    }
+                    else if (hasIntensity)
+                    {
+                        sumI += w * static_cast<double>(neighborPoints[neighborIndex].intensity);
+                    }
+                }
+
+                if (sumW <= 0.0)
+                    continue;
+
+                if (hasRGB)
+                {
+                    glm::dvec3 outLab = baseLab;
+                    outLab.y = sumA / sumW;
+                    outLab.z = sumB / sumW;
+                    if (preserveLuminance)
+                    {
+                        double filteredL = sumL / sumW;
+                        outLab.x = baseLab.x + (filteredL - baseLab.x) * luminanceBlend;
+                    }
+                    else
+                    {
+                        outLab.x = sumL / sumW;
+                    }
+
+                    glm::dvec3 rgb = labToRgb(outLab);
+                    filtered[i].r = static_cast<uint8_t>(std::round(rgb.x * 255.0));
+                    filtered[i].g = static_cast<uint8_t>(std::round(rgb.y * 255.0));
+                    filtered[i].b = static_cast<uint8_t>(std::round(rgb.z * 255.0));
+                }
+                else if (hasIntensity)
+                {
+                    double filteredI = sumI / sumW;
+                    double blendedI = preserveLuminance ? (baseI + (filteredI - baseI) * luminanceBlend) : filteredI;
+                    filtered[i].i = static_cast<uint8_t>(std::round(std::clamp(blendedI, 0.0, 255.0)));
+                }
+            }
+
+            for (size_t i = 0; i < filtered.size(); ++i)
+            {
+                if (hasRGB)
+                {
+                    neighborPoints[i].lab = rgbToLab(glm::dvec3(filtered[i].r / 255.0, filtered[i].g / 255.0, filtered[i].b / 255.0));
+                }
+                if (hasIntensity)
+                {
+                    neighborPoints[i].intensity = filtered[i].i;
+                }
+            }
+        }
+
+        processedPoints += filtered.size();
         resultOk &= writer->mergePoints(filtered.data(), filtered.size(), src_transfo, pt_format_);
 
         if (progress)
