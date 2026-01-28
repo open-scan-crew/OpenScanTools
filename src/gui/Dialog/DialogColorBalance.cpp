@@ -22,9 +22,9 @@ namespace
         int smoothingLevels;
     };
 
-    constexpr ColorBalancePresetValues kPresetLow{6, 200, 1500, 0.6, 5};
-    constexpr ColorBalancePresetValues kPresetMid{7, 150, 1000, 0.5, 4};
-    constexpr ColorBalancePresetValues kPresetHigh{8, 100, 800, 0.45, 3};
+    constexpr ColorBalancePresetValues kPresetLow{6, 200, 1500, 0.7, 5};
+    constexpr ColorBalancePresetValues kPresetMid{7, 150, 1000, 0.65, 4};
+    constexpr ColorBalancePresetValues kPresetHigh{8, 100, 800, 0.6, 3};
 }
 
 DialogColorBalance::DialogColorBalance(IDataDispatcher& dataDispatcher, QWidget* parent)

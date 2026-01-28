@@ -23,6 +23,7 @@
 #include <cmath>
 #include <filesystem>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 // Note (Aurélien) QT::StandardButtons enum values in qmessagebox.h
@@ -43,14 +44,17 @@ namespace
         ChannelStats color;
         ChannelStats intensity;
         uint64_t count = 0;
+        bool validColor = true;
+        double confidence = 0.0;
     };
 
     struct ReferenceSamples
     {
-        std::vector<double> colorMeans;
-        std::vector<double> colorSigmas;
-        std::vector<double> intensityMeans;
-        std::vector<double> intensitySigmas;
+        std::vector<std::pair<double, double>> colorMeans;
+        std::vector<std::pair<double, double>> colorSigmas;
+        std::vector<std::pair<double, double>> intensityMeans;
+        std::vector<std::pair<double, double>> intensitySigmas;
+        int contributingScans = 0;
     };
 
     struct ReferenceValues
@@ -119,13 +123,34 @@ namespace
         return stats;
     }
 
-    double medianFromVector(std::vector<double> values)
+    double weightedMedianFromSamples(std::vector<std::pair<double, double>> samples)
     {
-        if (values.empty())
+        if (samples.empty())
             return 0.0;
-        size_t mid = (values.size() - 1) / 2;
-        std::nth_element(values.begin(), values.begin() + static_cast<long>(mid), values.end());
-        return values[mid];
+        samples.erase(std::remove_if(samples.begin(), samples.end(), [](const auto& sample)
+        {
+            return sample.second <= 0.0;
+        }), samples.end());
+        if (samples.empty())
+            return 0.0;
+        std::sort(samples.begin(), samples.end(), [](const auto& lhs, const auto& rhs)
+        {
+            return lhs.first < rhs.first;
+        });
+        double totalWeight = 0.0;
+        for (const auto& sample : samples)
+            totalWeight += sample.second;
+        if (totalWeight <= 0.0)
+            return 0.0;
+        double target = totalWeight * 0.5;
+        double cumulative = 0.0;
+        for (const auto& sample : samples)
+        {
+            cumulative += sample.second;
+            if (cumulative >= target)
+                return sample.first;
+        }
+        return samples.back().first;
     }
 
     double computeConfidence(uint64_t count, int nMin, int nGood)
@@ -368,6 +393,9 @@ ContextState ContextColorBalance::launch(Controller& controller)
     {
         std::vector<std::unordered_map<ColorBalanceCellKey, CellStats, ColorBalanceCellKeyHasher>> statsByScan(scanList.size());
         std::unordered_map<ColorBalanceCellKey, ReferenceSamples, ColorBalanceCellKeyHasher> referenceSamples;
+        std::unordered_map<ColorBalanceCellKey, int, ColorBalanceCellKeyHasher> overlapCount;
+        constexpr double kLumaSaturationHigh = 245.0;
+        constexpr double kLumaSigmaMin = 2.0;
 
         for (size_t s = 0; s < scanList.size(); ++s)
         {
@@ -382,21 +410,28 @@ ContextState ContextColorBalance::launch(Controller& controller)
                 if (scanUsage[s].useIntensity)
                     cellStats.intensity = computeChannelStats(entry.second.intensityHist, entry.second.count);
 
+                cellStats.confidence = computeConfidence(entry.second.count, nMin, nGood);
+                if (scanUsage[s].useColor)
+                    cellStats.validColor = !(cellStats.color.mean > kLumaSaturationHigh && cellStats.color.sigma < kLumaSigmaMin);
+
                 statsByScan[s][entry.first] = cellStats;
 
-                if (entry.second.count >= static_cast<uint64_t>(nMin))
+                double weightRef = cellStats.confidence * (cellStats.validColor ? 1.0 : 0.0);
+                if (weightRef > 0.0)
                 {
                     ReferenceSamples& samples = referenceSamples[entry.first];
                     if (scanUsage[s].useColor)
                     {
-                        samples.colorMeans.push_back(cellStats.color.mean);
-                        samples.colorSigmas.push_back(cellStats.color.sigma);
+                        samples.colorMeans.emplace_back(cellStats.color.mean, weightRef);
+                        samples.colorSigmas.emplace_back(cellStats.color.sigma, weightRef);
                     }
                     if (scanUsage[s].useIntensity)
                     {
-                        samples.intensityMeans.push_back(cellStats.intensity.mean);
-                        samples.intensitySigmas.push_back(cellStats.intensity.sigma);
+                        samples.intensityMeans.emplace_back(cellStats.intensity.mean, weightRef);
+                        samples.intensitySigmas.emplace_back(cellStats.intensity.sigma, weightRef);
                     }
+                    samples.contributingScans += 1;
+                    overlapCount[entry.first] += 1;
                 }
             }
         }
@@ -406,16 +441,16 @@ ContextState ContextColorBalance::launch(Controller& controller)
         for (auto& entry : referenceSamples)
         {
             ReferenceValues values;
-            if (!entry.second.colorMeans.empty())
+            if (!entry.second.colorMeans.empty() && entry.second.contributingScans >= 2)
             {
-                values.colorMean = medianFromVector(entry.second.colorMeans);
-                values.colorSigma = medianFromVector(entry.second.colorSigmas);
+                values.colorMean = weightedMedianFromSamples(entry.second.colorMeans);
+                values.colorSigma = weightedMedianFromSamples(entry.second.colorSigmas);
                 values.hasColor = true;
             }
-            if (!entry.second.intensityMeans.empty())
+            if (!entry.second.intensityMeans.empty() && entry.second.contributingScans >= 2)
             {
-                values.intensityMean = medianFromVector(entry.second.intensityMeans);
-                values.intensitySigma = medianFromVector(entry.second.intensitySigmas);
+                values.intensityMean = weightedMedianFromSamples(entry.second.intensityMeans);
+                values.intensitySigma = weightedMedianFromSamples(entry.second.intensitySigmas);
                 values.hasIntensity = true;
             }
             referenceValues[entry.first] = values;
@@ -432,7 +467,9 @@ ContextState ContextColorBalance::launch(Controller& controller)
                 if (refIt == referenceValues.end())
                     continue;
                 const ReferenceValues& ref = refIt->second;
-                double confidence = computeConfidence(stats.count, nMin, nGood);
+                if (overlapCount[entry.first] < 2)
+                    continue;
+                double confidence = stats.confidence * (stats.validColor ? 1.0 : 0.0);
                 if (confidence <= 0.0)
                     continue;
                 ColorBalanceCellCorrection correction;

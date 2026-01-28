@@ -739,10 +739,10 @@ bool EmbeddedScan::applyColorBalanceAndWrite(const TransformationModule& src_tra
                 double offset = sumWeightL > 0.0 ? (sumOffsetL / sumWeightL) : 0.0;
                 double luma = computeLuma(point);
                 double lumaCorrected = gain * luma + offset;
-                double delta = lumaCorrected - luma;
-                correctedPoint.r = clampToByte(static_cast<double>(point.r) + delta);
-                correctedPoint.g = clampToByte(static_cast<double>(point.g) + delta);
-                correctedPoint.b = clampToByte(static_cast<double>(point.b) + delta);
+                double scale = lumaCorrected / std::max(luma, 1e-6);
+                correctedPoint.r = clampToByte(static_cast<double>(point.r) * scale);
+                correctedPoint.g = clampToByte(static_cast<double>(point.g) * scale);
+                correctedPoint.b = clampToByte(static_cast<double>(point.b) * scale);
             }
             if (applyIntensity && (pt_format_ == tls::PointFormat::TL_POINT_XYZ_I || pt_format_ == tls::PointFormat::TL_POINT_XYZ_I_RGB))
             {
