@@ -221,6 +221,14 @@ public:
     guiDType getType() override;
 };
 
+class GuiDataColorBalanceDialogDisplay : public IGuiData
+{
+public:
+    GuiDataColorBalanceDialogDisplay();
+    ~GuiDataColorBalanceDialogDisplay();
+    guiDType getType() override;
+};
+
 class GuiDataGlobalColorPickerValue : public IGuiData
 {
 public:

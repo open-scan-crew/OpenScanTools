@@ -265,6 +265,7 @@ HEADERS += ../../ext/imgui/imconfig.h \
     ../../include/gui/Dialog/DialogPointCloudObjectCreation.h \
     ../../include/gui/Dialog/DialogDeletePoints.h \
     ../../include/gui/Dialog/DialogStatisticalOutlierFilter.h \
+    ../../include/gui/Dialog/DialogColorBalance.h \
     ../../include/gui/Dialog/DialogRecentProjects.h \
     ../../include/gui/Dialog/ProcessingSplashScreen.h \
     ../../include/gui/Dialog/MessageSplashScreen.h \
@@ -553,6 +554,7 @@ HEADERS += ../../ext/imgui/imconfig.h \
     ../../include/pointCloudEngine/Delaunay.h \
     ../../include/pointCloudEngine/EmbeddedScan.h \
     ../../include/pointCloudEngine/OutlierStats.h \
+    ../../include/pointCloudEngine/ColorBalanceTypes.h \
     ../../include/pointCloudEngine/IRenderingEngine.h \
     ../../include/pointCloudEngine/NormalEstimation.h \
     ../../include/pointCloudEngine/OctreeShredder.h \
@@ -657,6 +659,7 @@ HEADERS += ../../ext/imgui/imconfig.h \
     ../../include/controller/messages/DataIdListMessage.h \
     ../../include/controller/messages/DeletePointsMessage.h \
     ../../include/controller/messages/StatisticalOutlierFilterMessage.h \
+    ../../include/controller/messages/ColorBalanceMessage.h \
     ../../include/controller/messages/GuidMessage.h \
     ../../include/controller/messages/IDataListMessage.h \
     ../../include/controller/messages/ImportMeshObjectMessage.h \
@@ -702,6 +705,7 @@ HEADERS += ../../ext/imgui/imconfig.h \
     ../../include/controller/functionSystem/ContextCylinderToPlaneMeasure.h \
     ../../include/controller/functionSystem/ContextDeletePoints.h \
     ../../include/controller/functionSystem/ContextStatisticalOutlierFilter.h \
+    ../../include/controller/functionSystem/ContextColorBalance.h \
     ../../include/controller/functionSystem/ContextDeleteTag.h \
     ../../include/controller/functionSystem/ContextDuplicateTag.h \
     ../../include/controller/functionSystem/ContextColumnTilt.h \
@@ -827,6 +831,7 @@ SOURCES += ../../ext/imgui/imgui.cpp \
     ../../src/gui/Dialog/CalendarDialog.cpp \
     ../../src/gui/Dialog/DialogDeletePoints.cpp \
     ../../src/gui/Dialog/DialogStatisticalOutlierFilter.cpp \
+    ../../src/gui/Dialog/DialogColorBalance.cpp \
     ../../src/gui/Dialog/DialogDeleteScanTypeSelect.cpp \
     ../../src/gui/Dialog/DialogAbout.cpp \
     ../../src/gui/Dialog/DialogDeviceSelection.cpp \
@@ -1230,6 +1235,7 @@ SOURCES += ../../ext/imgui/imgui.cpp \
     ../../src/controller/messages/ConvertionMessage.cpp \
     ../../src/controller/messages/DeletePointsMessage.cpp \
     ../../src/controller/messages/StatisticalOutlierFilterMessage.cpp \
+    ../../src/controller/messages/ColorBalanceMessage.cpp \
     ../../src/controller/messages/FilesMessage.cpp \
     ../../src/controller/messages/GridExportMessage.cpp \
     ../../src/controller/messages/GuidMessage.cpp \
@@ -1272,6 +1278,7 @@ SOURCES += ../../ext/imgui/imgui.cpp \
     ../../src/controller/functionSystem/ContextCylinderToCylinderMeasure.cpp \
     ../../src/controller/functionSystem/ContextDeletePoints.cpp \
     ../../src/controller/functionSystem/ContextStatisticalOutlierFilter.cpp \
+    ../../src/controller/functionSystem/ContextColorBalance.cpp \
     ../../src/controller/functionSystem/ContextDeleteTag.cpp \
     ../../src/controller/functionSystem/ContextCylinderToPlaneMeasure.cpp \
     ../../src/controller/functionSystem/ContextCylinderToPlane3Measure.cpp \
@@ -1323,6 +1330,7 @@ FORMS += ../../src/gui/forms/AddHyperlinkDialog.ui \
     ../../src/gui/forms/convertion_options.ui \
     ../../src/gui/forms/DialogDeletePoints.ui \
     ../../src/gui/forms/DialogStatisticalOutlierFilter.ui \
+    ../../src/gui/forms/DialogColorBalance.ui \
     ../../src/gui/forms/DialogDeleteScanTypeSelection.ui \
     ../../src/gui/forms/DialogAbout.ui \
     ../../src/gui/forms/DialogDeviceSelection.ui \
