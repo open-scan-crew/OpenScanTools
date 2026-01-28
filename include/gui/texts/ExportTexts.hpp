@@ -19,6 +19,7 @@
 #define TEXT_EXPORT_TITLE_DELETE_POINTS QObject::tr("Delete Scan Points")
 #define TEXT_EXPORT_TITLE_STAT_OUTLIER QObject::tr("Statistical Outlier Filter")
 #define TEXT_EXPORT_TITLE_COLOR_BALANCE QObject::tr("Color balance")
+#define TEXT_EXPORT_COLOR_BALANCE_NEEDS_MULTIPLE_SCANS QObject::tr("Global color balance requires at least two visible scans.")
 #define TEXT_EXPORT_ERROR QObject::tr("Something wrong happened...")
 #define TEXT_EXPORT_ERROR_FILE  QObject::tr("Failed to create destination file: %1")
 #define TEXT_EXPORT_SUCCESS_TIME  QObject::tr("\n\nScan export done in: %1 seconds")

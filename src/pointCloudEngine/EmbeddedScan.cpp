@@ -7,6 +7,7 @@
 #include "tls_impl.h"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <chrono>
 #include <future>
@@ -463,24 +464,64 @@ namespace
         return true;
     }
 
-    uint8_t computeTrimmedMeanValue(std::vector<double>& values, double trimPercent)
+    uint8_t computeTrimmedMeanHistogram(const std::vector<BalancePoint>& points, const std::vector<size_t>& neighbors, size_t neighborCount, double trimPercent, uint8_t fallback, const std::function<uint8_t(const BalancePoint&)>& getter)
     {
-        if (values.empty())
-            return 0;
+        if (neighborCount == 0)
+            return fallback;
 
-        std::sort(values.begin(), values.end());
+        std::array<int, 256> counts{};
+        counts.fill(0);
+        for (size_t idx = 0; idx < neighborCount; ++idx)
+        {
+            uint8_t value = getter(points[neighbors[idx]]);
+            ++counts[value];
+        }
+
         double clampedTrim = std::clamp(trimPercent, 0.0, 40.0);
-        size_t trimCount = static_cast<size_t>(std::floor(values.size() * clampedTrim / 100.0));
-        if (trimCount * 2 >= values.size())
-            trimCount = (values.size() - 1) / 2;
+        size_t trimCount = static_cast<size_t>(std::floor(neighborCount * clampedTrim / 100.0));
+        if (trimCount * 2 >= neighborCount)
+            trimCount = (neighborCount - 1) / 2;
 
-        size_t start = trimCount;
-        size_t end = values.size() - trimCount;
+        size_t skipLow = trimCount;
+        size_t skipHigh = trimCount;
+        size_t remaining = neighborCount - trimCount * 2;
+        if (remaining == 0)
+            return fallback;
+
+        int low = 0;
+        while (low < 256 && skipLow > 0)
+        {
+            int delta = std::min<int>(counts[low], static_cast<int>(skipLow));
+            counts[low] -= delta;
+            skipLow -= static_cast<size_t>(delta);
+            if (counts[low] == 0)
+                ++low;
+        }
+
+        int high = 255;
+        while (high >= 0 && skipHigh > 0)
+        {
+            int delta = std::min<int>(counts[high], static_cast<int>(skipHigh));
+            counts[high] -= delta;
+            skipHigh -= static_cast<size_t>(delta);
+            if (counts[high] == 0)
+                --high;
+        }
+
         double sum = 0.0;
-        for (size_t i = start; i < end; ++i)
-            sum += values[i];
-        double mean = sum / static_cast<double>(end - start);
-        int rounded = static_cast<int>(std::round(mean));
+        size_t count = 0;
+        for (int value = 0; value < 256; ++value)
+        {
+            if (counts[value] == 0)
+                continue;
+            sum += static_cast<double>(value) * static_cast<double>(counts[value]);
+            count += static_cast<size_t>(counts[value]);
+        }
+
+        if (count == 0)
+            return fallback;
+
+        int rounded = static_cast<int>(std::round(sum / static_cast<double>(count)));
         rounded = std::clamp(rounded, 0, 255);
         return static_cast<uint8_t>(rounded);
     }
@@ -764,47 +805,58 @@ bool EmbeddedScan::balanceColorsAndWrite(const TransformationModule& src_transfo
         std::vector<PointXYZIRGB> filtered;
         filtered.reserve(visiblePoints.size());
 
+        const size_t minNeighborCount = static_cast<size_t>(std::max(kMin, 1));
+        const size_t maxNeighborCount = static_cast<size_t>(std::max(kMax, 1));
+        const size_t availableNeighbors = allPoints.size() > 0 ? allPoints.size() - 1 : 0;
+        const size_t effectiveKMax = std::min(maxNeighborCount, availableNeighbors);
+        const size_t effectiveKMin = std::min(minNeighborCount, effectiveKMax);
+
+        if (effectiveKMax == 0 || effectiveKMin == 0)
+        {
+            filtered = visiblePoints;
+            modifiedPoints += filtered.size();
+            resultOk &= writer->mergePoints(filtered.data(), filtered.size(), src_transfo, pt_format_);
+            if (progress)
+                progress(cellIndex + 1, totalCells);
+            continue;
+        }
+
         std::vector<size_t> neighbors;
-        std::vector<double> values;
         for (size_t i = 0; i < visiblePoints.size(); ++i)
         {
             PointXYZIRGB updated = visiblePoints[i];
-            if (!collectNeighborIndicesGrid(allPoints, grid, cellOriginGlobal, voxelSize, i, static_cast<size_t>(std::max(kMax, 1)), maxRadius, neighbors) || neighbors.size() < static_cast<size_t>(std::max(kMin, 1)))
+            if (!collectNeighborIndicesGrid(allPoints, grid, cellOriginGlobal, voxelSize, i, effectiveKMax, maxRadius, neighbors) || neighbors.size() < effectiveKMin)
             {
                 filtered.push_back(updated);
                 continue;
             }
 
-            size_t neighborCount = std::min<size_t>(neighbors.size(), static_cast<size_t>(std::max(kMax, 1)));
+            size_t neighborCount = std::min<size_t>(neighbors.size(), effectiveKMax);
 
             if (applyOnIntensity)
             {
-                values.clear();
-                values.reserve(neighborCount);
-                for (size_t idx = 0; idx < neighborCount; ++idx)
-                    values.push_back(static_cast<double>(allPoints[neighbors[idx]].intensity));
-                updated.i = computeTrimmedMeanValue(values, trimPercent);
+                updated.i = computeTrimmedMeanHistogram(allPoints, neighbors, neighborCount, trimPercent, updated.i, [](const BalancePoint& point)
+                {
+                    return point.intensity;
+                });
             }
 
             if (applyOnRgb)
             {
-                values.clear();
-                values.reserve(neighborCount);
-                for (size_t idx = 0; idx < neighborCount; ++idx)
-                    values.push_back(static_cast<double>(allPoints[neighbors[idx]].r));
-                updated.r = computeTrimmedMeanValue(values, trimPercent);
+                updated.r = computeTrimmedMeanHistogram(allPoints, neighbors, neighborCount, trimPercent, updated.r, [](const BalancePoint& point)
+                {
+                    return point.r;
+                });
 
-                values.clear();
-                values.reserve(neighborCount);
-                for (size_t idx = 0; idx < neighborCount; ++idx)
-                    values.push_back(static_cast<double>(allPoints[neighbors[idx]].g));
-                updated.g = computeTrimmedMeanValue(values, trimPercent);
+                updated.g = computeTrimmedMeanHistogram(allPoints, neighbors, neighborCount, trimPercent, updated.g, [](const BalancePoint& point)
+                {
+                    return point.g;
+                });
 
-                values.clear();
-                values.reserve(neighborCount);
-                for (size_t idx = 0; idx < neighborCount; ++idx)
-                    values.push_back(static_cast<double>(allPoints[neighbors[idx]].b));
-                updated.b = computeTrimmedMeanValue(values, trimPercent);
+                updated.b = computeTrimmedMeanHistogram(allPoints, neighbors, neighborCount, trimPercent, updated.b, [](const BalancePoint& point)
+                {
+                    return point.b;
+                });
             }
 
             filtered.push_back(updated);
