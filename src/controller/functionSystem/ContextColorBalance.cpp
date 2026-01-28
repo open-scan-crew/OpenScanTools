@@ -93,6 +93,87 @@ namespace
         }
     };
 
+    struct CorrectionTotals
+    {
+        double gainL = 0.0;
+        double offsetL = 0.0;
+        double weightL = 0.0;
+        double gainI = 0.0;
+        double offsetI = 0.0;
+        double weightI = 0.0;
+    };
+
+    double lerp(double a, double b, double t)
+    {
+        return a + (b - a) * t;
+    }
+
+    void smoothCorrectionsAcrossScans(std::vector<std::vector<ColorBalanceCorrectionMap>>& corrections, int level, double smoothingStrength)
+    {
+        if (smoothingStrength <= 0.0 || corrections.empty())
+            return;
+
+        std::unordered_map<ColorBalanceCellKey, std::vector<ColorBalanceCellCorrection*>, ColorBalanceCellKeyHasher> cellCorrections;
+        for (auto& scanLevels : corrections)
+        {
+            if (level < 0 || static_cast<size_t>(level) >= scanLevels.size())
+                continue;
+            for (auto& entry : scanLevels[level])
+                cellCorrections[entry.first].push_back(&entry.second);
+        }
+
+        std::unordered_map<ColorBalanceCellKey, CorrectionTotals, ColorBalanceCellKeyHasher> totals;
+        totals.reserve(cellCorrections.size());
+        for (const auto& entry : cellCorrections)
+        {
+            CorrectionTotals sums;
+            for (const ColorBalanceCellCorrection* correction : entry.second)
+            {
+                if (correction->hasColor && correction->confidenceL > 0.0f)
+                {
+                    double weight = static_cast<double>(correction->confidenceL);
+                    sums.weightL += weight;
+                    sums.gainL += correction->gainL * weight;
+                    sums.offsetL += correction->offsetL * weight;
+                }
+                if (correction->hasIntensity && correction->confidenceI > 0.0f)
+                {
+                    double weight = static_cast<double>(correction->confidenceI);
+                    sums.weightI += weight;
+                    sums.gainI += correction->gainI * weight;
+                    sums.offsetI += correction->offsetI * weight;
+                }
+            }
+            totals[entry.first] = sums;
+        }
+
+        for (auto& entry : cellCorrections)
+        {
+            const auto totalsIt = totals.find(entry.first);
+            if (totalsIt == totals.end())
+                continue;
+            const CorrectionTotals& sums = totalsIt->second;
+            double avgGainL = sums.weightL > 0.0 ? (sums.gainL / sums.weightL) : 1.0;
+            double avgOffsetL = sums.weightL > 0.0 ? (sums.offsetL / sums.weightL) : 0.0;
+            double avgGainI = sums.weightI > 0.0 ? (sums.gainI / sums.weightI) : 1.0;
+            double avgOffsetI = sums.weightI > 0.0 ? (sums.offsetI / sums.weightI) : 0.0;
+
+            for (ColorBalanceCellCorrection* correction : entry.second)
+            {
+                if (correction->hasColor && correction->confidenceL > 0.0f)
+                {
+                    correction->gainL = lerp(correction->gainL, avgGainL, smoothingStrength);
+                    correction->offsetL = lerp(correction->offsetL, avgOffsetL, smoothingStrength);
+                }
+                if (correction->hasIntensity && correction->confidenceI > 0.0f)
+                {
+                    correction->gainI = lerp(correction->gainI, avgGainI, smoothingStrength);
+                    correction->offsetI = lerp(correction->offsetI, avgOffsetI, smoothingStrength);
+                }
+            }
+        }
+    }
+
     double medianFromHistogram(const std::array<uint32_t, 256>& hist, uint64_t count)
     {
         if (count == 0)
@@ -536,6 +617,13 @@ ContextState ContextColorBalance::launch(Controller& controller)
                 validCells += 1;
         }
         double validRatio = overlapCells > 0 ? static_cast<double>(validCells) / static_cast<double>(overlapCells) : 0.0;
+        double smoothingStrength = std::clamp(1.0 - validRatio, 0.0, 0.75);
+        if (smoothingStrength > 0.0)
+        {
+            Logger::log(LoggerMode::FunctionLog)
+                << "Color balance graph smoothing (level " << level << "): strength=" << smoothingStrength << Logger::endl;
+            smoothCorrectionsAcrossScans(corrections, level, smoothingStrength);
+        }
         Logger::log(LoggerMode::FunctionLog)
             << "Color balance diagnostics (level " << level << "): overlap cells=" << overlapCells
             << ", valid cells=" << validCells << ", ratio=" << validRatio << Logger::endl;
