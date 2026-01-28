@@ -431,6 +431,48 @@ bool TlScanOverseer::filterOutliersAndWrite(tls::ScanGuid _scanGuid, const Trans
     return scan->filterOutliersAndWrite(_modelMat, _clippingAssembly, kNeighbors, stats, nSigma, beta, _outScan, removedPoints, progress);
 }
 
+bool TlScanOverseer::computeColorBalanceHistogram(tls::ScanGuid _scanGuid, const TransformationModule& _modelMat, const ClippingAssembly& _clippingAssembly, double cellSize, bool useColor, bool useIntensity, ColorBalanceHistogramMap& histogram, const ProgressCallback& progress)
+{
+    EmbeddedScan* scan;
+    {
+        std::lock_guard<std::mutex> lock(m_activeMutex);
+
+        auto it_scan = m_activeScans.find(_scanGuid);
+        if (it_scan == m_activeScans.end())
+        {
+            Logger::log(VKLog) << "Error: try to view a Scan not present, UUID = " << _scanGuid << Logger::endl;
+            return false;
+        }
+        else
+        {
+            scan = it_scan->second;
+        }
+    }
+
+    return scan->computeColorBalanceHistogram(_modelMat, _clippingAssembly, cellSize, useColor, useIntensity, histogram, progress);
+}
+
+bool TlScanOverseer::applyColorBalanceAndWrite(tls::ScanGuid _scanGuid, const TransformationModule& _modelMat, const ClippingAssembly& _clippingAssembly, const std::vector<ColorBalanceCorrectionMap>& correctionLevels, double baseCellSize, double beta, bool applyColor, bool applyIntensity, IScanFileWriter* _outScan, const ProgressCallback& progress)
+{
+    EmbeddedScan* scan;
+    {
+        std::lock_guard<std::mutex> lock(m_activeMutex);
+
+        auto it_scan = m_activeScans.find(_scanGuid);
+        if (it_scan == m_activeScans.end())
+        {
+            Logger::log(VKLog) << "Error: try to view a Scan not present, UUID = " << _scanGuid << Logger::endl;
+            return false;
+        }
+        else
+        {
+            scan = it_scan->second;
+        }
+    }
+
+    return scan->applyColorBalanceAndWrite(_modelMat, _clippingAssembly, correctionLevels, baseCellSize, beta, applyColor, applyIntensity, _outScan, progress);
+}
+
 //tls::ScanGuid TlScanOverseer::clipNewScan(tls::ScanGuid _scanGuid, const glm::dmat4& _modelMat, const ClippingAssembly& _clippingAssembly, const std::filesystem::path& _outPath, uint64_t& pointsDeletedCount)
 //{
 //    EmbeddedScan* scan;
