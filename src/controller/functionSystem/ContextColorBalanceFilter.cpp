@@ -134,7 +134,9 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
     controller.updateInfo(new GuiDataProcessingSplashScreenStart(totalProgressSteps, TEXT_EXPORT_COLOR_BALANCE_TITLE_PROGRESS, TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(0).arg(totalScans)));
 
     ClippingAssembly clippingAssembly;
-    graphManager.getClippingAssembly(clippingAssembly, true, false);
+    std::unordered_set<SafePtr<AClippingNode>> clippings = graphManager.getActivatedOrSelectedClippingObjects();
+    if (!clippings.empty())
+        graphManager.getClippingAssembly(clippingAssembly, clippings);
 
     uint64_t scanCount = 0;
     uint64_t totalModifiedPoints = 0;
@@ -167,7 +169,8 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
         if (!wScan)
             continue;
 
-        const ClippingAssembly* clippingToUse = &clippingAssembly;
+        ClippingAssembly emptyAssembly;
+        const ClippingAssembly* clippingToUse = clippingAssembly.empty() ? &emptyAssembly : &clippingAssembly;
         ClippingAssembly resolvedAssembly;
         if (clippingAssembly.hasPhaseClipping())
         {
@@ -199,6 +202,9 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
             applyOnIntensity = m_applyOnIntensityAndRgb;
         else if (hasIntensity)
             applyOnIntensity = true;
+
+        if (!clippingAssembly.empty() && !TlScanOverseer::getInstance().testClippingEffect(old_guid, (TransformationModule)*&wScan, *clippingToUse))
+            clippingToUse = &emptyAssembly;
 
         std::function<void(const GeometricBox&, std::vector<PointXYZIRGB>&)> externalProvider;
         if (m_globalBalancing)

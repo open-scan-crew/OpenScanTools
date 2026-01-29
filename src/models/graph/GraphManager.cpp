@@ -656,6 +656,11 @@ void GraphManager::replaceObjectsSelected(std::unordered_set<SafePtr<AGraphNode>
 void GraphManager::getClippingAssembly(ClippingAssembly& retAssembly, bool filterActive, bool filterSelected) const
 {
     std::unordered_set<SafePtr<AClippingNode>> clippings = getClippingObjects(filterActive, filterSelected);
+    getClippingAssembly(retAssembly, clippings);
+}
+
+void GraphManager::getClippingAssembly(ClippingAssembly& retAssembly, const std::unordered_set<SafePtr<AClippingNode>>& clippings) const
+{
     for (const SafePtr<AClippingNode>& clip : clippings)
     {
         ReadPtr<AClippingNode> rClip = clip.cget();
@@ -668,7 +673,6 @@ void GraphManager::getClippingAssembly(ClippingAssembly& retAssembly, bool filte
         //        crÃ©er les opÃ©rateurs adÃ©quats et rendre cela lisible pour l'utilisateur.
         rClip->pushClippingGeometries(retAssembly, TransformationModule(*&rClip));
     }
-    return;
 }
 
 BoundingBoxD GraphManager::getScanBoundingBox(ObjectStatusFilter status) const
