@@ -18,6 +18,7 @@
 
 #include "pointCloudEngine/OctreeRayTracing.h"
 #include "pointCloudEngine/OutlierStats.h"
+#include "pointCloudEngine/ColorBalanceSettings.h"
 
 /*
 template<typename T>
@@ -221,6 +222,7 @@ public:
     bool clipScan(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, IScanFileWriter* outScan, const ProgressCallback& progress = {});
     bool computeOutlierStats(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, int samplingPercent, double beta, OutlierStats& stats, const ProgressCallback& progress = {});
     bool filterOutliersAndWrite(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* outScan, uint64_t& removedPoints, const ProgressCallback& progress = {});
+    bool colorBalanceAndWrite(tls::ScanGuid scanGuid, const std::vector<tls::ScanGuid>& otherScanGuids, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, const ColorBalanceSettings& settings, IScanFileWriter* outScan, uint64_t& adjustedPoints, const ProgressCallback& progress = {});
     //tls::ScanGuid clipNewScan(tls::ScanGuid scanGuid, const glm::dmat4& modelMat, const ClippingAssembly& clippingAssembly, const std::filesystem::path& outPath, uint64_t& pointDeletedCount);
 
     // Lucas functions
