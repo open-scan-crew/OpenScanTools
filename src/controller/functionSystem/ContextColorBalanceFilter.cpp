@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <functional>
+#include <system_error>
 
 // Note (Aurélien) QT::StandardButtons enum values in qmessagebox.h
 #define Yes 0x00004000
@@ -137,6 +138,17 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
     std::unordered_set<SafePtr<AClippingNode>> clippings = graphManager.getActivatedOrSelectedClippingObjects();
     if (!clippings.empty())
         graphManager.getClippingAssembly(clippingAssembly, clippings);
+    const bool useTempClippedScans = m_globalBalancing && !clippingAssembly.empty();
+    std::filesystem::path tempFolder;
+    if (useTempClippedScans)
+    {
+        tempFolder = controller.getContext().cgetProjectInternalInfo().getPointCloudFolderPath(false) / "temp_color_balance";
+        if (!prepareOutputDirectory(controller, tempFolder))
+        {
+            m_state = ContextState::abort;
+            return m_state;
+        }
+    }
 
     uint64_t scanCount = 0;
     uint64_t totalModifiedPoints = 0;
@@ -206,19 +218,58 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
         if (!clippingAssembly.empty() && !TlScanOverseer::getInstance().testClippingEffect(old_guid, (TransformationModule)*&wScan, *clippingToUse))
             clippingToUse = &emptyAssembly;
 
+        const ClippingAssembly* clippingForExternal = clippingToUse;
+        tls::ScanGuid balanceGuid = old_guid;
+        const TransformationModule balanceTransform = (TransformationModule)*&wScan;
+        std::filesystem::path tempPath;
+        if (useTempClippedScans && clippingToUse != &emptyAssembly)
+        {
+            TlsFileWriter* clip_writer = nullptr;
+            std::wstring tempLog;
+            std::wstring tempName = wScan->getName() + L"_CB_temp";
+            TlsFileWriter::getWriter(tempFolder, tempName, tempLog, (IScanFileWriter**)&clip_writer);
+            if (clip_writer != nullptr)
+            {
+                tls::ScanHeader clipHeader;
+                TlScanOverseer::getInstance().getScanHeader(old_guid, clipHeader);
+                clipHeader.guid = xg::newGuid();
+                clip_writer->appendPointCloud(clipHeader, wScan->getTransformation());
+                bool clipRes = TlScanOverseer::getInstance().clipScan(old_guid, (TransformationModule)*&wScan, *clippingToUse, clip_writer);
+                clipRes &= clip_writer->finalizePointCloud();
+                tempPath = clip_writer->getFilePath();
+                delete clip_writer;
+
+                tls::ScanGuid tempGuid;
+                if (clipRes && TlScanOverseer::getInstance().getScanGuid(tempPath, tempGuid))
+                {
+                    balanceGuid = tempGuid;
+                    clippingToUse = &emptyAssembly;
+                }
+            }
+        }
+
         std::function<void(const GeometricBox&, std::vector<PointXYZIRGB>&)> externalProvider;
         if (m_globalBalancing)
         {
-            externalProvider = [clippingToUse, old_guid](const GeometricBox& box, std::vector<PointXYZIRGB>& points)
+            externalProvider = [clippingForExternal, old_guid](const GeometricBox& box, std::vector<PointXYZIRGB>& points)
             {
-                TlScanOverseer::getInstance().collectPointsInGeometricBox(box, *clippingToUse, old_guid, points);
+                TlScanOverseer::getInstance().collectPointsInGeometricBox(box, *clippingForExternal, old_guid, points);
             };
         }
 
         auto progressCallback = makeProgressCallback(scanCount, 0, 100);
-        bool res = TlScanOverseer::getInstance().balanceColorsAndWrite(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kMin, m_kMax, m_trimPercent, applyOnIntensity, applyOnRgb, externalProvider, tls_writer, modifiedPointCount, progressCallback);
+        bool res = TlScanOverseer::getInstance().balanceColorsAndWrite(balanceGuid, balanceTransform, *clippingToUse, m_kMin, m_kMax, m_trimPercent, applyOnIntensity, applyOnRgb, externalProvider, tls_writer, modifiedPointCount, progressCallback);
         res &= tls_writer->finalizePointCloud();
         delete tls_writer;
+        if (balanceGuid != old_guid)
+        {
+            TlScanOverseer::getInstance().freeScan_async(balanceGuid, false);
+            if (!tempPath.empty())
+            {
+                std::error_code ec;
+                std::filesystem::remove(tempPath, ec);
+            }
+        }
 
         totalModifiedPoints += modifiedPointCount;
 
