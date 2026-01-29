@@ -22,6 +22,49 @@
 #include <filesystem>
 #include <functional>
 #include <system_error>
+#include <thread>
+
+namespace
+{
+    void cleanupTempColorBalanceFiles(const std::filesystem::path& tempFolder)
+    {
+        if (!std::filesystem::is_directory(tempFolder))
+            return;
+
+        std::error_code ec;
+        const std::wstring suffix = L"_CB_temp";
+        for (const auto& entry : std::filesystem::directory_iterator(tempFolder, ec))
+        {
+            if (ec)
+                return;
+
+            if (!entry.is_regular_file())
+                continue;
+
+            const std::filesystem::path& path = entry.path();
+            const std::wstring stem = path.stem().wstring();
+            if (path.extension() == ".tls" && stem.size() >= suffix.size() && stem.compare(stem.size() - suffix.size(), suffix.size(), suffix) == 0)
+            {
+                std::filesystem::remove(path, ec);
+            }
+        }
+    }
+
+    void deleteTempColorBalanceFile(const std::filesystem::path& tempPath)
+    {
+        if (tempPath.empty())
+            return;
+
+        std::error_code ec;
+        for (int attempt = 0; attempt < 5; ++attempt)
+        {
+            std::filesystem::remove(tempPath, ec);
+            if (!ec || !std::filesystem::exists(tempPath, ec))
+                return;
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        }
+    }
+}
 
 // Note (Aurélien) QT::StandardButtons enum values in qmessagebox.h
 #define Yes 0x00004000
@@ -148,6 +191,7 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
             m_state = ContextState::abort;
             return m_state;
         }
+        cleanupTempColorBalanceFiles(tempFolder);
     }
 
     uint64_t scanCount = 0;
@@ -264,11 +308,7 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
         if (balanceGuid != old_guid)
         {
             TlScanOverseer::getInstance().freeScan_async(balanceGuid, false);
-            if (!tempPath.empty())
-            {
-                std::error_code ec;
-                std::filesystem::remove(tempPath, ec);
-            }
+            deleteTempColorBalanceFile(tempPath);
         }
 
         totalModifiedPoints += modifiedPointCount;
