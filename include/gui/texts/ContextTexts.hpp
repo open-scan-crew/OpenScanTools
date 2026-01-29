@@ -102,6 +102,10 @@
 //ContextStatisticalOutlierFilter
 #define TEXT_STAT_OUTLIER_FILTER_QUESTION QObject::tr("Warning: some points will be permanently deleted.\nDepending on the size of the scans and the filter settings, the calculation time may be significant. We recommend that you first perform a test on a small clipped portion.\nDo you confirm?")
 
+//ContextColorBalance
+#define TEXT_COLOR_BALANCE_QUESTION QObject::tr("Warning: some points will be permanently modified. Depending on the size of the scans, the calculation time may be significant. We recommend that you first perform a test on a small clipped portion.\nDo you confirm?")
+#define TEXT_COLOR_BALANCE_MIN_SCANS QObject::tr("A minimum of 2 scans are required to launch the color balance.")
+
 //ContextDeleteTags
 #define TEXT_DELETE_TAGS_QUESTION QObject::tr("Warning: some tags use this template. Deleting the template will also delete the related tags.\nDo you confirm?")
 

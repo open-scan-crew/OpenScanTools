@@ -216,9 +216,20 @@ public:
 class GuiDataStatisticalOutlierFilterDialogDisplay : public IGuiData
 {
 public:
-    GuiDataStatisticalOutlierFilterDialogDisplay();
-    ~GuiDataStatisticalOutlierFilterDialogDisplay();
+	GuiDataStatisticalOutlierFilterDialogDisplay();
+	~GuiDataStatisticalOutlierFilterDialogDisplay();
+	guiDType getType() override;
+};
+
+class GuiDataColorBalanceDialogDisplay : public IGuiData
+{
+public:
+    GuiDataColorBalanceDialogDisplay(bool enableRgbIntensity);
+    ~GuiDataColorBalanceDialogDisplay();
     guiDType getType() override;
+
+public:
+    bool m_enableRgbIntensity;
 };
 
 class GuiDataGlobalColorPickerValue : public IGuiData
