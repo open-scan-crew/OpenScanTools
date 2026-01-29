@@ -6,6 +6,7 @@
 #include "models/3d/Measures.h"
 #include "utils/Logger.h"
 #include <queue>
+#include <unordered_map>
 #include <glm/gtx/quaternion.hpp>
 using namespace std::chrono;
 
@@ -459,6 +460,29 @@ bool TlScanOverseer::colorBalanceAndWrite(tls::ScanGuid scanGuid, const std::vec
             otherScans.push_back(it_other->second);
         }
     }
+
+    std::unordered_map<tls::ScanGuid, const WorkingScanInfo*> workingInfos;
+    workingInfos.reserve(s_workingScansTransfo.size());
+    for (const WorkingScanInfo& info : s_workingScansTransfo)
+        workingInfos.emplace(info.scan.getGuid(), &info);
+
+    auto applyWorkingTransfo = [&](EmbeddedScan* target)
+    {
+        if (!target)
+            return;
+        auto it_info = workingInfos.find(target->getGuid());
+        if (it_info == workingInfos.end())
+        {
+            Logger::log(LoggerMode::FunctionLog) << "Color balance: missing working transform for scan " << target->getGuid() << Logger::endl;
+            return;
+        }
+        const WorkingScanInfo* info = it_info->second;
+        target->setComputeTransfo(info->transfo.getCenter(), info->transfo.getOrientation());
+    };
+
+    applyWorkingTransfo(scan);
+    for (EmbeddedScan* otherScan : otherScans)
+        applyWorkingTransfo(otherScan);
 
     Logger::log(LoggerMode::FunctionLog) << "Color balance: active scans=" << activeScanCount
                                          << " otherScans=" << otherScans.size() << Logger::endl;
