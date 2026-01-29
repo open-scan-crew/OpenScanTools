@@ -42,6 +42,17 @@ namespace control
             void undoFunction(Controller& controller) override;
             ControlType getType() const override;
         };
+
+        class StartColorBalance : public AControl
+        {
+        public:
+            StartColorBalance();
+            ~StartColorBalance();
+            void doFunction(Controller& controller) override;
+            bool canUndo() const override;
+            void undoFunction(Controller& controller) override;
+            ControlType getType() const override;
+        };
     }
 }
 
