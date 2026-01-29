@@ -94,6 +94,7 @@ public:
 	void replaceObjectsSelected(std::unordered_set<SafePtr<AGraphNode>> toSelectDatas);
 
 	void getClippingAssembly(ClippingAssembly& retAssembly, bool filterActive, bool filterSelected) const;
+	void getClippingAssembly(ClippingAssembly& retAssembly, const std::unordered_set<SafePtr<AClippingNode>>& clippings) const;
 
 	BoundingBoxD getScanBoundingBox(ObjectStatusFilter status) const;
 	std::unordered_set<SafePtr<PointCloudNode>> getVisibleScans(const tls::ScanGuid& pano) const;

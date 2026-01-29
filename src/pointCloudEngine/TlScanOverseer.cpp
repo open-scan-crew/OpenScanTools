@@ -460,7 +460,6 @@ void TlScanOverseer::collectPointsInGeometricBox(const GeometricBox& box, const 
         if (pair.isClippable)
             localAssembly = clippingAssembly;
 
-        pair.scan.setComputeTransfo(pair.transfo.getCenter(), pair.transfo.getOrientation());
         pair.scan.collectPointsInGeometricBox(box, pair.transfo, localAssembly, result);
     }
 }
