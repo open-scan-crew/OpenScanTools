@@ -110,6 +110,7 @@ ContextState ContextColorBalance::launch(Controller& controller)
 
     TlStreamLock streamLock;
     std::unordered_set<SafePtr<PointCloudNode>> scans = graphManager.getVisibleScans(m_panoramic);
+    TlScanOverseer::setWorkingScansTransfo(graphManager.getVisiblePointCloudInstances(m_panoramic, true, false));
 
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString()));
     const uint64_t totalScans = scans.size();
