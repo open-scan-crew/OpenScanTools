@@ -7,9 +7,11 @@
 #include "tls_impl.h"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <chrono>
 #include <future>
+#include <numeric>
 #include <set>
 #include <unordered_map>
 #ifndef PORTABLE
@@ -114,6 +116,11 @@ tls::FileGuid EmbeddedScan::getFileGuid() const
 void EmbeddedScan::getInfo(tls::ScanHeader &info) const
 {
     info = tls_img_file_.getPointCloudHeader(0);
+}
+
+tls::PointFormat EmbeddedScan::getPointFormat() const
+{
+    return pt_format_;
 }
 
 std::filesystem::path EmbeddedScan::getPath() const
@@ -390,6 +397,109 @@ namespace
         meanDistance = sum / static_cast<double>(distances.size());
         return true;
     }
+
+    double computeTrimmedMean(const std::vector<uint8_t>& values, double trimPercent)
+    {
+        if (values.empty())
+            return 0.0;
+
+        std::array<size_t, 256> histogram{};
+        histogram.fill(0);
+        for (uint8_t value : values)
+            histogram[value]++;
+
+        size_t count = values.size();
+        if (count == 0)
+            return 0.0;
+
+        size_t trimCount = static_cast<size_t>(std::floor(count * trimPercent / 100.0));
+        size_t trimEachSide = trimCount / 2;
+        if (trimEachSide * 2 >= count)
+            trimEachSide = 0;
+
+        size_t skipLow = trimEachSide;
+        size_t skipHigh = trimEachSide;
+
+        int lowIndex = 0;
+        while (lowIndex < 256 && skipLow >= histogram[lowIndex])
+        {
+            skipLow -= histogram[lowIndex];
+            lowIndex++;
+        }
+
+        int highIndex = 255;
+        while (highIndex >= 0 && skipHigh >= histogram[highIndex])
+        {
+            skipHigh -= histogram[highIndex];
+            highIndex--;
+        }
+
+        if (lowIndex > highIndex)
+            return 0.0;
+
+        size_t kept = 0;
+        double sum = 0.0;
+        for (int i = lowIndex; i <= highIndex; ++i)
+        {
+            size_t countAt = histogram[static_cast<size_t>(i)];
+            if (i == lowIndex)
+                countAt = (countAt > skipLow) ? countAt - skipLow : 0;
+            if (i == highIndex)
+                countAt = (countAt > skipHigh) ? countAt - skipHigh : 0;
+            sum += static_cast<double>(i) * static_cast<double>(countAt);
+            kept += countAt;
+        }
+
+        if (kept == 0)
+            return 0.0;
+        return sum / static_cast<double>(kept);
+    }
+
+    std::vector<double> computeWeightsFromCounts(const std::vector<size_t>& counts)
+    {
+        std::vector<double> weights;
+        if (counts.empty())
+            return weights;
+
+        double total = 0.0;
+        for (size_t count : counts)
+            total += static_cast<double>(count);
+
+        if (total <= 0.0)
+            return weights;
+
+        weights.reserve(counts.size());
+        for (size_t count : counts)
+            weights.push_back(static_cast<double>(count) / total);
+
+        if (counts.size() == 1)
+            return weights;
+
+        double minWeight = std::min(0.3, 1.0 / static_cast<double>(counts.size()));
+        double maxWeight = std::max(0.7, 1.0 / static_cast<double>(counts.size()));
+        for (double& weight : weights)
+            weight = std::clamp(weight, minWeight, maxWeight);
+
+        double weightSum = std::accumulate(weights.begin(), weights.end(), 0.0);
+        if (weightSum > 0.0)
+        {
+            for (double& weight : weights)
+                weight /= weightSum;
+        }
+        return weights;
+    }
+
+    double computePreserveFactor(double contrast, double lowThreshold, double highThreshold)
+    {
+        if (contrast <= lowThreshold)
+            return 0.0;
+        if (contrast >= highThreshold)
+            return 1.0;
+        double range = highThreshold - lowThreshold;
+        if (range <= 0.0)
+            return 0.0;
+        return (contrast - lowThreshold) / range;
+    }
 }
 
 bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, int samplingPercent, double beta, OutlierStats& stats, const ProgressCallback& progress)
@@ -559,6 +669,363 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
         }
 
         removedPoints += visiblePoints.size() - filtered.size();
+        resultOk &= writer->mergePoints(filtered.data(), filtered.size(), src_transfo, pt_format_);
+
+        if (progress)
+            progress(cellIndex + 1, totalCells);
+    }
+
+    return resultOk;
+}
+
+bool EmbeddedScan::colorBalanceAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, const std::vector<EmbeddedScan*>& otherScans, const ColorBalanceSettings& settings, IScanFileWriter* writer, uint64_t& adjustedPoints, const ProgressCallback& progress)
+{
+    ClippingAssembly localAssembly = clippingAssembly;
+    localAssembly.clearMatrix();
+    glm::dmat4 src_transfo_mat = src_transfo.getTransformation();
+    localAssembly.addTransformation(src_transfo_mat);
+
+    std::vector<std::pair<uint32_t, bool>> cells;
+    getClippedCells_impl(m_uRootCell, localAssembly, cells);
+
+    adjustedPoints = 0;
+    bool resultOk = true;
+
+    const size_t totalCells = cells.size();
+    if (progress && totalCells > 0)
+        progress(0, totalCells);
+
+    auto collectNeighborPoints = [](EmbeddedScan* scan, const glm::dvec3& globalSeedPoint, double radius, const ClippingAssembly& globalClippingAssembly, std::vector<PointXYZIRGB>& neighborList, std::vector<double>& distances)
+    {
+        neighborList.clear();
+        distances.clear();
+        if (!scan || radius <= 0.0)
+            return;
+
+        glm::dvec3 localSeedPoint = scan->getLocalCoord(globalSeedPoint);
+        ClippingAssembly localAssembly = globalClippingAssembly;
+        localAssembly.clearMatrix();
+        localAssembly.addTransformation(scan->m_matrixToGlobal);
+
+        std::vector<uint32_t> cellList;
+        cellList.push_back(scan->m_uRootCell);
+        std::vector<uint32_t> leafList;
+        int i = 0;
+        while (i < static_cast<int>(cellList.size()))
+        {
+            for (int j = 0; j < 8; j++)
+            {
+                uint32_t currCell = scan->m_vTreeCells[cellList[i]].m_children[j];
+                if (currCell == NO_CHILD)
+                    continue;
+                if (scan->distancePointFromCell(localSeedPoint, currCell) < radius)
+                {
+                    if (scan->m_vTreeCells[currCell].m_isLeaf)
+                        leafList.push_back(currCell);
+                    else
+                        cellList.push_back(currCell);
+                }
+            }
+            i++;
+        }
+
+        int maxNumberOfLeaves = 500;
+        if (leafList.size() > static_cast<size_t>(maxNumberOfLeaves))
+        {
+            uint32_t seedCellId;
+            if (scan->pointToCell(localSeedPoint, seedCellId))
+            {
+                std::vector<uint32_t> newLeafList;
+                newLeafList.push_back(seedCellId);
+                double p = static_cast<double>(maxNumberOfLeaves) / static_cast<double>(leafList.size());
+                for (size_t leafIndex = 0; leafIndex < leafList.size(); ++leafIndex)
+                {
+                    int v3 = rand() % maxNumberOfLeaves;
+                    if ((v3 / static_cast<double>(maxNumberOfLeaves)) < p)
+                        newLeafList.push_back(leafList[leafIndex]);
+                }
+                leafList = newLeafList;
+            }
+        }
+
+        for (uint32_t leafId : leafList)
+        {
+            std::vector<PointXYZIRGB> points;
+            points.resize(scan->tls_point_cloud_.getCellPointCount(leafId));
+            if (!scan->tls_point_cloud_.getCellPoints(leafId, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+                continue;
+
+            for (const PointXYZIRGB& point : points)
+            {
+                glm::dvec3 localPoint(point.x, point.y, point.z);
+                glm::dvec4 point4(localPoint, 1.0);
+                if (!localAssembly.testPoint(point4))
+                    continue;
+
+                double distance = glm::length(localPoint - localSeedPoint);
+                if (distance >= radius)
+                    continue;
+
+                glm::dvec4 globalPoint = scan->m_matrixToGlobal * glm::dvec4(localPoint, 1.0);
+                neighborList.push_back({ static_cast<float>(globalPoint.x), static_cast<float>(globalPoint.y), static_cast<float>(globalPoint.z), point.i, point.r, point.g, point.b });
+                distances.push_back(distance);
+            }
+        }
+    };
+
+    for (size_t cellIndex = 0; cellIndex < cells.size(); ++cellIndex)
+    {
+        const std::pair<uint32_t, bool>& cell = cells[cellIndex];
+        std::vector<PointXYZIRGB> points;
+        points.resize(tls_point_cloud_.getCellPointCount(cell.first));
+        if (!tls_point_cloud_.getCellPoints(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+        {
+            if (progress)
+                progress(cellIndex + 1, totalCells);
+            continue;
+        }
+
+        std::vector<PointXYZIRGB> visiblePoints;
+        if (cell.second)
+            clipIndividualPoints(points, visiblePoints, localAssembly);
+        else
+            visiblePoints.swap(points);
+
+        if (visiblePoints.empty())
+        {
+            if (progress)
+                progress(cellIndex + 1, totalCells);
+            continue;
+        }
+
+        glm::dvec3 cellOrigin(m_vTreeCells[cell.first].m_position[0], m_vTreeCells[cell.first].m_position[1], m_vTreeCells[cell.first].m_position[2]);
+        double cellSize = m_vTreeCells[cell.first].m_size;
+        double avgSpacing = std::cbrt((cellSize * cellSize * cellSize) / std::max<size_t>(visiblePoints.size(), 1));
+        double baseRadius = std::max(avgSpacing * 3.0, cellSize / 128.0);
+        double maxRadius = std::max(baseRadius, std::min(cellSize, avgSpacing * 8.0));
+
+        std::vector<PointXYZIRGB> filtered;
+        filtered.reserve(visiblePoints.size());
+
+        for (const PointXYZIRGB& point : visiblePoints)
+        {
+            glm::dvec4 globalPoint4 = src_transfo_mat * glm::dvec4(point.x, point.y, point.z, 1.0);
+            glm::dvec3 globalPoint(globalPoint4.x, globalPoint4.y, globalPoint4.z);
+
+            bool applyRgb = settings.applyOnRgb && (pt_format_ == tls::PointFormat::TL_POINT_XYZ_RGB || pt_format_ == tls::PointFormat::TL_POINT_XYZ_I_RGB);
+            bool applyIntensity = settings.applyOnIntensity && (pt_format_ == tls::PointFormat::TL_POINT_XYZ_I || pt_format_ == tls::PointFormat::TL_POINT_XYZ_I_RGB);
+            if (!applyRgb && !applyIntensity)
+            {
+                filtered.push_back(point);
+                continue;
+            }
+
+            struct ScanCandidates
+            {
+                EmbeddedScan* scan = nullptr;
+                tls::PointFormat format = tls::PointFormat::TL_POINT_FORMAT_UNDEFINED;
+                std::vector<PointXYZIRGB> points;
+                std::vector<double> distances;
+            };
+
+            std::vector<ScanCandidates> candidates;
+            candidates.reserve(otherScans.size());
+
+            double radius = baseRadius;
+            size_t totalNeighbors = 0;
+            for (int attempt = 0; attempt < 3 && totalNeighbors < static_cast<size_t>(settings.kMin); ++attempt)
+            {
+                candidates.clear();
+                totalNeighbors = 0;
+                for (EmbeddedScan* otherScan : otherScans)
+                {
+                    if (!otherScan)
+                        continue;
+                    ScanCandidates entry;
+                    entry.scan = otherScan;
+                    entry.format = otherScan->getPointFormat();
+                    collectNeighborPoints(otherScan, globalPoint, radius, clippingAssembly, entry.points, entry.distances);
+                    if (!entry.points.empty())
+                    {
+                        totalNeighbors += entry.points.size();
+                        candidates.push_back(std::move(entry));
+                    }
+                }
+                radius = std::min(radius * 1.5, maxRadius);
+            }
+
+            if (totalNeighbors < static_cast<size_t>(settings.kMin) || candidates.empty())
+            {
+                filtered.push_back(point);
+                continue;
+            }
+
+            auto gatherValues = [&](const std::vector<PointXYZIRGB>& pts, const std::vector<double>& distances, size_t kMax, std::vector<uint8_t>& values, char channel)
+            {
+                values.clear();
+                if (pts.empty())
+                    return;
+                size_t count = pts.size();
+                std::vector<size_t> indices(count);
+                std::iota(indices.begin(), indices.end(), 0);
+                if (count > kMax)
+                {
+                    std::nth_element(indices.begin(), indices.begin() + static_cast<long>(kMax), indices.end(), [&](size_t a, size_t b)
+                    {
+                        return distances[a] < distances[b];
+                    });
+                    indices.resize(kMax);
+                }
+                values.reserve(indices.size());
+                for (size_t idx : indices)
+                {
+                    const PointXYZIRGB& pt = pts[idx];
+                    switch (channel)
+                    {
+                    case 'r':
+                        values.push_back(pt.r);
+                        break;
+                    case 'g':
+                        values.push_back(pt.g);
+                        break;
+                    case 'b':
+                        values.push_back(pt.b);
+                        break;
+                    default:
+                        values.push_back(pt.i);
+                        break;
+                    }
+                }
+            };
+
+            auto computeTrimmedMeanForChannel = [&](const std::vector<PointXYZIRGB>& pts, const std::vector<double>& distances, char channel)
+            {
+                std::vector<uint8_t> values;
+                gatherValues(pts, distances, static_cast<size_t>(settings.kMax), values, channel);
+                return computeTrimmedMean(values, settings.trimPercent);
+            };
+
+            std::vector<double> rgbMeansR;
+            std::vector<double> rgbMeansG;
+            std::vector<double> rgbMeansB;
+            std::vector<size_t> rgbCounts;
+
+            std::vector<double> iMeans;
+            std::vector<size_t> iCounts;
+
+            for (const ScanCandidates& entry : candidates)
+            {
+                bool hasRgb = entry.format == tls::PointFormat::TL_POINT_XYZ_RGB || entry.format == tls::PointFormat::TL_POINT_XYZ_I_RGB;
+                bool hasIntensity = entry.format == tls::PointFormat::TL_POINT_XYZ_I || entry.format == tls::PointFormat::TL_POINT_XYZ_I_RGB;
+                if (applyRgb && hasRgb)
+                {
+                    rgbMeansR.push_back(computeTrimmedMeanForChannel(entry.points, entry.distances, 'r'));
+                    rgbMeansG.push_back(computeTrimmedMeanForChannel(entry.points, entry.distances, 'g'));
+                    rgbMeansB.push_back(computeTrimmedMeanForChannel(entry.points, entry.distances, 'b'));
+                    rgbCounts.push_back(entry.points.size());
+                }
+                if (applyIntensity && hasIntensity)
+                {
+                    iMeans.push_back(computeTrimmedMeanForChannel(entry.points, entry.distances, 'i'));
+                    iCounts.push_back(entry.points.size());
+                }
+            }
+
+            size_t rgbTotal = 0;
+            for (size_t count : rgbCounts)
+                rgbTotal += count;
+            size_t intensityTotal = 0;
+            for (size_t count : iCounts)
+                intensityTotal += count;
+
+            if (applyRgb && rgbTotal < static_cast<size_t>(settings.kMin))
+                applyRgb = false;
+            if (applyIntensity && intensityTotal < static_cast<size_t>(settings.kMin))
+                applyIntensity = false;
+
+            if (!applyRgb && !applyIntensity)
+            {
+                filtered.push_back(point);
+                continue;
+            }
+
+            PointXYZIRGB adjusted = point;
+
+            if (applyRgb && !rgbCounts.empty())
+            {
+                std::vector<double> rgbWeights = computeWeightsFromCounts(rgbCounts);
+                double r = 0.0;
+                double g = 0.0;
+                double b = 0.0;
+                for (size_t idx = 0; idx < rgbWeights.size(); ++idx)
+                {
+                    r += rgbWeights[idx] * rgbMeansR[idx];
+                    g += rgbWeights[idx] * rgbMeansG[idx];
+                    b += rgbWeights[idx] * rgbMeansB[idx];
+                }
+                adjusted.r = static_cast<uint8_t>(std::clamp(std::round(r), 0.0, 255.0));
+                adjusted.g = static_cast<uint8_t>(std::clamp(std::round(g), 0.0, 255.0));
+                adjusted.b = static_cast<uint8_t>(std::clamp(std::round(b), 0.0, 255.0));
+            }
+
+            if (applyIntensity && !iCounts.empty())
+            {
+                std::vector<double> iWeights = computeWeightsFromCounts(iCounts);
+                double intensity = 0.0;
+                for (size_t idx = 0; idx < iWeights.size(); ++idx)
+                    intensity += iWeights[idx] * iMeans[idx];
+                adjusted.i = static_cast<uint8_t>(std::clamp(std::round(intensity), 0.0, 255.0));
+            }
+
+            if (settings.preserveDetails)
+            {
+                std::vector<PointXYZIRGB> localNeighbors;
+                std::vector<double> localDistances;
+                collectNeighborPoints(this, globalPoint, baseRadius, clippingAssembly, localNeighbors, localDistances);
+
+                if (!localNeighbors.empty())
+                {
+                    if (applyRgb)
+                    {
+                        uint8_t minR = 255, maxR = 0;
+                        uint8_t minG = 255, maxG = 0;
+                        uint8_t minB = 255, maxB = 0;
+                        for (const PointXYZIRGB& n : localNeighbors)
+                        {
+                            minR = std::min(minR, n.r);
+                            maxR = std::max(maxR, n.r);
+                            minG = std::min(minG, n.g);
+                            maxG = std::max(maxG, n.g);
+                            minB = std::min(minB, n.b);
+                            maxB = std::max(maxB, n.b);
+                        }
+                        double contrast = std::max({ maxR - minR, maxG - minG, maxB - minB });
+                        double preserve = computePreserveFactor(contrast, 8.0, 25.0);
+                        adjusted.r = static_cast<uint8_t>(std::clamp(std::round((1.0 - preserve) * adjusted.r + preserve * point.r), 0.0, 255.0));
+                        adjusted.g = static_cast<uint8_t>(std::clamp(std::round((1.0 - preserve) * adjusted.g + preserve * point.g), 0.0, 255.0));
+                        adjusted.b = static_cast<uint8_t>(std::clamp(std::round((1.0 - preserve) * adjusted.b + preserve * point.b), 0.0, 255.0));
+                    }
+                    if (applyIntensity)
+                    {
+                        uint8_t minI = 255, maxI = 0;
+                        for (const PointXYZIRGB& n : localNeighbors)
+                        {
+                            minI = std::min(minI, n.i);
+                            maxI = std::max(maxI, n.i);
+                        }
+                        double contrast = static_cast<double>(maxI - minI);
+                        double preserve = computePreserveFactor(contrast, 6.0, 20.0);
+                        adjusted.i = static_cast<uint8_t>(std::clamp(std::round((1.0 - preserve) * adjusted.i + preserve * point.i), 0.0, 255.0));
+                    }
+                }
+            }
+
+            if (adjusted.r != point.r || adjusted.g != point.g || adjusted.b != point.b || adjusted.i != point.i)
+                adjustedPoints++;
+
+            filtered.push_back(adjusted);
+        }
+
         resultOk &= writer->mergePoints(filtered.data(), filtered.size(), src_transfo, pt_format_);
 
         if (progress)
