@@ -815,7 +815,7 @@ bool EmbeddedScan::balanceColorsAndWrite(const TransformationModule& src_transfo
         {
             filtered = visiblePoints;
             modifiedPoints += filtered.size();
-            resultOk &= writer->mergePoints(filtered.data(), filtered.size(), src_transfo, pt_format_);
+            resultOk &= writer->addPoints(filtered.data(), filtered.size());
             if (progress)
                 progress(cellIndex + 1, totalCells);
             continue;
@@ -863,7 +863,7 @@ bool EmbeddedScan::balanceColorsAndWrite(const TransformationModule& src_transfo
         }
 
         modifiedPoints += filtered.size();
-        resultOk &= writer->mergePoints(filtered.data(), filtered.size(), src_transfo, pt_format_);
+        resultOk &= writer->addPoints(filtered.data(), filtered.size());
 
         if (progress)
             progress(cellIndex + 1, totalCells);
