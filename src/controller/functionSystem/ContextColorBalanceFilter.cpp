@@ -50,16 +50,16 @@ namespace
         }
     }
 
-    void deleteTempColorBalanceFile(const std::filesystem::path& tempPath)
+    void deleteFileWithRetry(const std::filesystem::path& filePath)
     {
-        if (tempPath.empty())
+        if (filePath.empty())
             return;
 
         std::error_code ec;
         for (int attempt = 0; attempt < 5; ++attempt)
         {
-            std::filesystem::remove(tempPath, ec);
-            if (!ec || !std::filesystem::exists(tempPath, ec))
+            std::filesystem::remove(filePath, ec);
+            if (!ec || !std::filesystem::exists(filePath, ec))
                 return;
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
@@ -241,6 +241,10 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
         TlsFileWriter* tls_writer = nullptr;
         std::wstring log;
         std::wstring outputName = wScan->getName() + L"_CB";
+        std::filesystem::path outputPath = m_outputFolder / outputName;
+        outputPath += ".tls";
+        if (std::filesystem::exists(outputPath))
+            deleteFileWithRetry(outputPath);
         TlsFileWriter::getWriter(m_outputFolder, outputName, log, (IScanFileWriter**)&tls_writer);
         if (tls_writer == nullptr)
             continue;
@@ -308,7 +312,7 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
         if (balanceGuid != old_guid)
         {
             TlScanOverseer::getInstance().freeScan_async(balanceGuid, false);
-            deleteTempColorBalanceFile(tempPath);
+            deleteFileWithRetry(tempPath);
         }
 
         totalModifiedPoints += modifiedPointCount;
