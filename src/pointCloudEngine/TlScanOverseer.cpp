@@ -435,9 +435,11 @@ bool TlScanOverseer::colorBalanceAndWrite(tls::ScanGuid scanGuid, const std::vec
 {
     EmbeddedScan* scan;
     std::vector<EmbeddedScan*> otherScans;
+    size_t activeScanCount = 0;
     {
         std::lock_guard<std::mutex> lock(m_activeMutex);
 
+        activeScanCount = m_activeScans.size();
         auto it_scan = m_activeScans.find(scanGuid);
         if (it_scan == m_activeScans.end())
         {
@@ -457,6 +459,9 @@ bool TlScanOverseer::colorBalanceAndWrite(tls::ScanGuid scanGuid, const std::vec
             otherScans.push_back(it_other->second);
         }
     }
+
+    Logger::log(LoggerMode::FunctionLog) << "Color balance: active scans=" << activeScanCount
+                                         << " otherScans=" << otherScans.size() << Logger::endl;
 
     return scan->colorBalanceAndWrite(modelMat, clippingAssembly, otherScans, settings, outScan, adjustedPoints, progress);
 }

@@ -690,6 +690,8 @@ bool EmbeddedScan::colorBalanceAndWrite(const TransformationModule& src_transfo,
 
     adjustedPoints = 0;
     bool resultOk = true;
+    size_t pointsWithNeighbors = 0;
+    size_t pointsWithoutNeighbors = 0;
 
     const size_t totalCells = cells.size();
     if (progress && totalCells > 0)
@@ -856,6 +858,7 @@ bool EmbeddedScan::colorBalanceAndWrite(const TransformationModule& src_transfo,
 
             if (totalNeighbors < static_cast<size_t>(settings.kMin) || candidates.empty())
             {
+                pointsWithoutNeighbors++;
                 filtered.push_back(point);
                 continue;
             }
@@ -945,10 +948,12 @@ bool EmbeddedScan::colorBalanceAndWrite(const TransformationModule& src_transfo,
 
             if (!applyRgb && !applyIntensity)
             {
+                pointsWithoutNeighbors++;
                 filtered.push_back(point);
                 continue;
             }
 
+            pointsWithNeighbors++;
             PointXYZIRGB adjusted = point;
 
             if (applyRgb && !rgbCounts.empty())
@@ -1032,6 +1037,9 @@ bool EmbeddedScan::colorBalanceAndWrite(const TransformationModule& src_transfo,
             progress(cellIndex + 1, totalCells);
     }
 
+    Logger::log(LoggerMode::FunctionLog) << "Color balance: neighbors used=" << pointsWithNeighbors
+                                         << " skipped=" << pointsWithoutNeighbors
+                                         << " adjusted=" << adjustedPoints << Logger::endl;
     return resultOk;
 }
 

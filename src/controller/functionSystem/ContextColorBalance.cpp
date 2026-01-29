@@ -39,6 +39,7 @@ ContextState ContextColorBalance::start(Controller& controller)
 {
     GraphManager& graphManager = controller.getGraphManager();
     std::unordered_set<SafePtr<PointCloudNode>> scans = graphManager.getVisibleScans(m_panoramic);
+    Logger::log(LoggerMode::FunctionLog) << "Color balance: visible scans = " << scans.size() << Logger::endl;
 
     if (scans.size() < 2)
     {
@@ -206,6 +207,8 @@ ContextState ContextColorBalance::launch(Controller& controller)
             if (guid != old_guid)
                 otherGuids.push_back(guid);
         }
+        Logger::log(LoggerMode::FunctionLog) << "Color balance: scan '" << wScan->getName()
+                                             << "' otherGuids=" << otherGuids.size() << Logger::endl;
 
         auto progressCallback = makeProgressCallback(scan_count, 0, 100);
         bool res = TlScanOverseer::getInstance().colorBalanceAndWrite(old_guid, otherGuids, (TransformationModule)*&wScan, *clippingToUse, scanSettings, scan_writer, adjusted_points, progressCallback);
