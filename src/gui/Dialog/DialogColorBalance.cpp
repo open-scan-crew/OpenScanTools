@@ -3,6 +3,7 @@
 #include "controller/controls/ControlFunction.h"
 #include "controller/messages/ColorBalanceMessage.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
+#include "gui/GuiData/GuiDataIO.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ExportTexts.hpp"
 #include "gui/texts/FileTypeTexts.hpp"

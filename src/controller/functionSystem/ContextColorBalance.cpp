@@ -14,6 +14,7 @@
 #include "io/exports/IScanFileWriter.h"
 #include "models/graph/GraphManager.h"
 #include "models/graph/PointCloudNode.h"
+#include "pointCloudEngine/PCE_core.h"
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "utils/Logger.h"
 
