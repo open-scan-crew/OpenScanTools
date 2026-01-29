@@ -296,6 +296,20 @@ guiDType GuiDataStatisticalOutlierFilterDialogDisplay::getType()
     return guiDType::statisticalOutlierFilterDialogDisplay;
 }
 
+GuiDataColorBalanceDialogDisplay::GuiDataColorBalanceDialogDisplay(bool enableRgbIntensity)
+    : m_enableRgbIntensity(enableRgbIntensity)
+{
+}
+
+GuiDataColorBalanceDialogDisplay::~GuiDataColorBalanceDialogDisplay()
+{
+}
+
+guiDType GuiDataColorBalanceDialogDisplay::getType()
+{
+    return guiDType::colorBalanceDialogDisplay;
+}
+
 //++++++ Global ColorPicker value +++++++
 
 GuiDataGlobalColorPickerValue::GuiDataGlobalColorPickerValue(const Color32& color, const bool& picked)

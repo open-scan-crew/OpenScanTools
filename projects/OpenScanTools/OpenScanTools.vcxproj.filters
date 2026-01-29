@@ -1252,6 +1252,9 @@
     <ClCompile Include="..\..\src\controller\functionSystem\ContextStatisticalOutlierFilter.cpp">
       <Filter>src\controller\contexts</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextColorBalance.cpp">
+      <Filter>src\controller\contexts</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarPointEdition.cpp">
       <Filter>src\gui\toolBars</Filter>
     </ClCompile>
@@ -1261,10 +1264,16 @@
     <ClCompile Include="..\..\src\controller\messages\StatisticalOutlierFilterMessage.cpp">
       <Filter>src\controller\messages</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\controller\messages\ColorBalanceMessage.cpp">
+      <Filter>src\controller\messages</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\gui\Dialog\DialogDeletePoints.cpp">
       <Filter>src\gui\Dialog</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\gui\Dialog\DialogStatisticalOutlierFilter.cpp">
+      <Filter>src\gui\Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\Dialog\DialogColorBalance.cpp">
       <Filter>src\gui\Dialog</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\models\data\Clipping\ClippingGeometry.cpp">
@@ -2247,6 +2256,9 @@
     <QtMoc Include="..\..\include\gui\Dialog\DialogStatisticalOutlierFilter.h">
       <Filter>include\gui\Dialog</Filter>
     </QtMoc>
+    <QtMoc Include="..\..\include\gui\Dialog\DialogColorBalance.h">
+      <Filter>include\gui\Dialog</Filter>
+    </QtMoc>
     <QtMoc Include="..\..\include\gui\Dialog\DialogRecentProjects.h">
       <Filter>include\gui\Dialog</Filter>
     </QtMoc>
@@ -3128,11 +3140,20 @@
     <ClInclude Include="..\..\include\controller\functionSystem\ContextStatisticalOutlierFilter.h">
       <Filter>include\controller\contexts</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextColorBalance.h">
+      <Filter>include\controller\contexts</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\include\controller\messages\DeletePointsMessage.h">
       <Filter>include\controller\messages</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\controller\messages\StatisticalOutlierFilterMessage.h">
       <Filter>include\controller\messages</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\controller\messages\ColorBalanceMessage.h">
+      <Filter>include\controller\messages</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pointCloudEngine\ColorBalanceSettings.h">
+      <Filter>include\pointCloudEngine</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\models\data\Clipping\ClippingGeometry.h">
       <Filter>include\models\data\Clipping</Filter>
@@ -4168,6 +4189,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\DialogStatisticalOutlierFilter.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="..\..\src\gui\forms\DialogColorBalance.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\Property_Scan.ui">
