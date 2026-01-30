@@ -1,6 +1,10 @@
 #include "controller/controls/ControlExportPC.h"
 #include "controller/Controller.h"
 #include "controller/functionSystem/FunctionManager.h"
+#include "gui/GuiData/GuiDataMessages.h"
+#include "gui/texts/ExportTexts.hpp"
+#include "models/graph/GraphManager.h"
+#include "models/graph/PointCloudNode.h"
 
 
 namespace control
@@ -109,6 +113,13 @@ namespace control
 
         void StartColorBalanceFilter::doFunction(Controller& controller)
         {
+            GraphManager& graphManager = controller.getGraphManager();
+            std::unordered_set<SafePtr<PointCloudNode>> scans = graphManager.getVisibleScans(tls::ScanGuid());
+            if (scans.size() < 2)
+            {
+                controller.updateInfo(new GuiDataWarning(TEXT_EXPORT_COLOR_BALANCE_NEEDS_MULTIPLE_SCANS));
+                return;
+            }
             controller.getFunctionManager().launchFunction(controller, ContextType::colorBalanceFilter);
         }
 

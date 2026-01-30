@@ -160,13 +160,6 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
     TlStreamLock streamLock;
     std::unordered_set<SafePtr<PointCloudNode>> scans = graphManager.getVisibleScans(m_panoramic);
 
-    if (m_globalBalancing && scans.size() < 2)
-    {
-        controller.updateInfo(new GuiDataWarning(TEXT_EXPORT_COLOR_BALANCE_NEEDS_MULTIPLE_SCANS));
-        m_state = ContextState::abort;
-        return m_state;
-    }
-
     if (m_globalBalancing)
     {
         TlScanOverseer::setWorkingScansTransfo(graphManager.getVisiblePointCloudInstances(m_panoramic, true, true));
