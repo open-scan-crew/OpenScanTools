@@ -14,7 +14,7 @@ enum class ColorBalanceMode
 class ColorBalanceFilterMessage : public IMessage
 {
 public:
-    ColorBalanceFilterMessage(int kMinValue, int kMaxValue, double trimPercentValue, ColorBalanceMode modeValue, bool applyOnIntensityAndRgbValue, const std::wstring& outputFolderValue, bool openFolderAfterExportValue);
+    ColorBalanceFilterMessage(int kMinValue, int kMaxValue, double trimPercentValue, double sharpnessBlendValue, ColorBalanceMode modeValue, bool applyOnIntensityAndRgbValue, const std::wstring& outputFolderValue, bool openFolderAfterExportValue);
     ~ColorBalanceFilterMessage() {}
 
     MessageType getType() const override;
@@ -23,6 +23,7 @@ public:
     int kMin;
     int kMax;
     double trimPercent;
+    double sharpnessBlend;
     ColorBalanceMode mode;
     bool applyOnIntensityAndRgb;
     std::wstring outputFolder;

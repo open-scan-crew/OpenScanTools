@@ -703,12 +703,15 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
     return resultOk;
 }
 
-bool EmbeddedScan::balanceColorsAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kMin, int kMax, double trimPercent, bool applyOnIntensity, bool applyOnRgb, const ExternalPointsProvider& externalPointsProvider, IScanFileWriter* writer, uint64_t& modifiedPoints, const ProgressCallback& progress)
+bool EmbeddedScan::balanceColorsAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kMin, int kMax, double trimPercent, double sharpnessBlend, bool applyOnIntensity, bool applyOnRgb, const ExternalPointsProvider& externalPointsProvider, IScanFileWriter* writer, uint64_t& modifiedPoints, const ProgressCallback& progress)
 {
     ClippingAssembly localAssembly = clippingAssembly;
     localAssembly.clearMatrix();
     glm::dmat4 src_transfo_mat = src_transfo.getTransformation();
     localAssembly.addTransformation(src_transfo_mat);
+
+    const double sharpness = std::clamp(sharpnessBlend, 0.0, 1.0);
+    const bool useSharpness = sharpness > 0.0;
 
     std::vector<std::pair<uint32_t, bool>> cells;
     getClippedCells_impl(m_uRootCell, localAssembly, cells);
@@ -869,6 +872,26 @@ bool EmbeddedScan::balanceColorsAndWrite(const TransformationModule& src_transfo
                 {
                     return point.b;
                 });
+            }
+
+            if (useSharpness)
+            {
+                const PointXYZIRGB& original = visiblePoints[i];
+                auto blendChannel = [sharpness](uint8_t balanced, uint8_t base)
+                {
+                    double blended = (1.0 - sharpness) * static_cast<double>(balanced) + sharpness * static_cast<double>(base);
+                    int rounded = static_cast<int>(std::lround(blended));
+                    return static_cast<uint8_t>(std::clamp(rounded, 0, 255));
+                };
+
+                if (applyOnIntensity)
+                    updated.i = blendChannel(updated.i, original.i);
+                if (applyOnRgb)
+                {
+                    updated.r = blendChannel(updated.r, original.r);
+                    updated.g = blendChannel(updated.g, original.g);
+                    updated.b = blendChannel(updated.b, original.b);
+                }
             }
 
             filtered.push_back(updated);

@@ -1,9 +1,10 @@
 #include "controller/messages/ColorBalanceFilterMessage.h"
 
-ColorBalanceFilterMessage::ColorBalanceFilterMessage(int kMinValue, int kMaxValue, double trimPercentValue, ColorBalanceMode modeValue, bool applyOnIntensityAndRgbValue, const std::wstring& outputFolderValue, bool openFolderAfterExportValue)
+ColorBalanceFilterMessage::ColorBalanceFilterMessage(int kMinValue, int kMaxValue, double trimPercentValue, double sharpnessBlendValue, ColorBalanceMode modeValue, bool applyOnIntensityAndRgbValue, const std::wstring& outputFolderValue, bool openFolderAfterExportValue)
     : kMin(kMinValue)
     , kMax(kMaxValue)
     , trimPercent(trimPercentValue)
+    , sharpnessBlend(sharpnessBlendValue)
     , mode(modeValue)
     , applyOnIntensityAndRgb(applyOnIntensityAndRgbValue)
     , outputFolder(outputFolderValue)
@@ -17,5 +18,5 @@ IMessage::MessageType ColorBalanceFilterMessage::getType() const
 
 IMessage* ColorBalanceFilterMessage::copy() const
 {
-    return new ColorBalanceFilterMessage(kMin, kMax, trimPercent, mode, applyOnIntensityAndRgb, outputFolder, openFolderAfterExport);
+    return new ColorBalanceFilterMessage(kMin, kMax, trimPercent, sharpnessBlend, mode, applyOnIntensityAndRgb, outputFolder, openFolderAfterExport);
 }

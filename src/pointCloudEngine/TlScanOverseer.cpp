@@ -431,7 +431,7 @@ bool TlScanOverseer::filterOutliersAndWrite(tls::ScanGuid _scanGuid, const Trans
     return scan->filterOutliersAndWrite(_modelMat, _clippingAssembly, kNeighbors, stats, nSigma, beta, _outScan, removedPoints, progress);
 }
 
-bool TlScanOverseer::balanceColorsAndWrite(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kMin, int kMax, double trimPercent, bool applyOnIntensity, bool applyOnRgb, const std::function<void(const GeometricBox&, std::vector<PointXYZIRGB>&)>& externalPointsProvider, IScanFileWriter* outScan, uint64_t& modifiedPoints, const ProgressCallback& progress)
+bool TlScanOverseer::balanceColorsAndWrite(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kMin, int kMax, double trimPercent, double sharpnessBlend, bool applyOnIntensity, bool applyOnRgb, const std::function<void(const GeometricBox&, std::vector<PointXYZIRGB>&)>& externalPointsProvider, IScanFileWriter* outScan, uint64_t& modifiedPoints, const ProgressCallback& progress)
 {
     EmbeddedScan* scan;
     {
@@ -446,7 +446,7 @@ bool TlScanOverseer::balanceColorsAndWrite(tls::ScanGuid scanGuid, const Transfo
         scan = it_scan->second;
     }
 
-    return scan->balanceColorsAndWrite(modelMat, clippingAssembly, kMin, kMax, trimPercent, applyOnIntensity, applyOnRgb, externalPointsProvider, outScan, modifiedPoints, progress);
+    return scan->balanceColorsAndWrite(modelMat, clippingAssembly, kMin, kMax, trimPercent, sharpnessBlend, applyOnIntensity, applyOnRgb, externalPointsProvider, outScan, modifiedPoints, progress);
 }
 
 void TlScanOverseer::collectPointsInGeometricBox(const GeometricBox& box, const ClippingAssembly& clippingAssembly, const tls::ScanGuid& excludedGuid, std::vector<PointXYZIRGB>& result)
