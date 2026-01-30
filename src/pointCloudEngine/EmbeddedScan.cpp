@@ -783,14 +783,26 @@ bool EmbeddedScan::balanceColorsAndWrite(const TransformationModule& src_transfo
             corners.push_back(glm::dvec3((src_transfo_mat * glm::dvec4(base + size * glm::dvec3(1.0, 1.0, 1.0), 1.0))));
 
             GeometricBox cellBox(corners);
-            cellBox.setRadius(cellBox.getRadius() + maxRadius);
+            GeometricBox haloBox = cellBox;
+            haloBox.setRadius(haloBox.getRadius() + maxRadius);
 
             std::vector<PointXYZIRGB> externalPoints;
-            externalPointsProvider(cellBox, externalPoints);
+            externalPointsProvider(haloBox, externalPoints);
             allPoints.reserve(allPoints.size() + externalPoints.size());
             for (const PointXYZIRGB& point : externalPoints)
             {
                 allPoints.push_back({ glm::dvec3(point.x, point.y, point.z), point.i, point.r, point.g, point.b, false });
+            }
+
+            std::vector<PointXYZIRGB> internalHaloPoints;
+            collectPointsInGeometricBox(haloBox, src_transfo, clippingAssembly, internalHaloPoints);
+            allPoints.reserve(allPoints.size() + internalHaloPoints.size());
+            for (const PointXYZIRGB& point : internalHaloPoints)
+            {
+                glm::dvec3 position(point.x, point.y, point.z);
+                if (cellBox.isInside(position))
+                    continue;
+                allPoints.push_back({ position, point.i, point.r, point.g, point.b, false });
             }
         }
 
