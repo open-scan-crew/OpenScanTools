@@ -99,6 +99,7 @@ public:
     ~EmbeddedScan();
 
     using ProgressCallback = std::function<void(size_t processed, size_t total)>;
+    using ExternalPointsProvider = std::function<void(const GeometricBox& box, std::vector<PointXYZIRGB>& points)>;
 
     tls::ScanGuid getGuid() const;
     tls::FileGuid getFileGuid() const;
@@ -116,6 +117,8 @@ public:
     bool clipAndWrite(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, IScanFileWriter* writer, const ProgressCallback& progress = {});
     bool computeOutlierStats(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, int samplingPercent, double beta, OutlierStats& stats, const ProgressCallback& progress = {});
     bool filterOutliersAndWrite(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* writer, uint64_t& removedPoints, const ProgressCallback& progress = {});
+    bool balanceColorsAndWrite(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kMin, int kMax, double trimPercent, double sharpnessBlend, bool applyOnIntensity, bool applyOnRgb, const ExternalPointsProvider& externalPointsProvider, IScanFileWriter* writer, uint64_t& modifiedPoints, const ProgressCallback& progress = {});
+    void collectPointsInGeometricBox(const GeometricBox& box, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, std::vector<PointXYZIRGB>& points) const;
     static void logClipAndWriteTimings();
 
     void decodePointCoord(uint32_t cellId, std::vector<glm::dvec3>& dstPoints, uint32_t layerDepth, bool transformToGlobal);

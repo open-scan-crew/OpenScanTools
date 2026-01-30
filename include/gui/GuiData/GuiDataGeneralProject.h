@@ -221,6 +221,19 @@ public:
     guiDType getType() override;
 };
 
+class GuiDataColorBalanceFilterDialogDisplay : public IGuiData
+{
+public:
+    GuiDataColorBalanceFilterDialogDisplay(bool rgbAvailable, bool intensityAvailable, bool rgbAndIntensityAvailable);
+    ~GuiDataColorBalanceFilterDialogDisplay();
+    guiDType getType() override;
+
+public:
+    bool m_rgbAvailable;
+    bool m_intensityAvailable;
+    bool m_rgbAndIntensityAvailable;
+};
+
 class GuiDataGlobalColorPickerValue : public IGuiData
 {
 public:

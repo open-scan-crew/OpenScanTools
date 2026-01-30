@@ -7,6 +7,7 @@
 #include "tls_impl.h"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <chrono>
 #include <future>
@@ -390,6 +391,140 @@ namespace
         meanDistance = sum / static_cast<double>(distances.size());
         return true;
     }
+
+    struct BalancePoint
+    {
+        glm::dvec3 position;
+        uint8_t intensity;
+        uint8_t r;
+        uint8_t g;
+        uint8_t b;
+        bool isLocal;
+    };
+
+    bool collectNeighborIndicesGrid(const std::vector<BalancePoint>& points, const std::unordered_map<int64_t, std::vector<size_t>>& grid, const glm::dvec3& origin, double voxelSize, size_t index, size_t kMax, double maxRadius, std::vector<size_t>& neighbors)
+    {
+        if (points.empty() || kMax == 0)
+            return false;
+
+        const glm::dvec3& base = points[index].position;
+        GridIndex baseIndex = computeGridIndex(base, origin, voxelSize);
+        int ring = 0;
+        std::vector<size_t> candidateIndices;
+
+        while (ring * voxelSize <= maxRadius)
+        {
+            candidateIndices.clear();
+            for (int dx = -ring; dx <= ring; ++dx)
+            {
+                for (int dy = -ring; dy <= ring; ++dy)
+                {
+                    for (int dz = -ring; dz <= ring; ++dz)
+                    {
+                        GridIndex query{ baseIndex.x + dx, baseIndex.y + dy, baseIndex.z + dz };
+                        int64_t key = packGridIndex(query);
+                        auto it = grid.find(key);
+                        if (it == grid.end())
+                            continue;
+                        candidateIndices.insert(candidateIndices.end(), it->second.begin(), it->second.end());
+                    }
+                }
+            }
+
+            if (candidateIndices.size() >= kMax)
+                break;
+            ring++;
+        }
+
+        if (candidateIndices.empty())
+            return false;
+
+        std::vector<std::pair<double, size_t>> distances;
+        distances.reserve(candidateIndices.size());
+        for (size_t candidate : candidateIndices)
+        {
+            if (candidate == index)
+                continue;
+            double dist = glm::length(base - points[candidate].position);
+            if (dist > 0.0 && dist <= maxRadius)
+                distances.emplace_back(dist, candidate);
+        }
+
+        if (distances.empty())
+            return false;
+
+        size_t target = std::min(kMax, distances.size());
+        std::nth_element(distances.begin(), distances.begin() + static_cast<long>(target - 1), distances.end(),
+                         [](const auto& lhs, const auto& rhs) { return lhs.first < rhs.first; });
+        distances.resize(target);
+        neighbors.clear();
+        neighbors.reserve(distances.size());
+        for (const auto& entry : distances)
+            neighbors.push_back(entry.second);
+        return true;
+    }
+
+    uint8_t computeTrimmedMeanHistogram(const std::vector<BalancePoint>& points, const std::vector<size_t>& neighbors, size_t neighborCount, double trimPercent, uint8_t fallback, const std::function<uint8_t(const BalancePoint&)>& getter)
+    {
+        if (neighborCount == 0)
+            return fallback;
+
+        std::array<int, 256> counts{};
+        counts.fill(0);
+        for (size_t idx = 0; idx < neighborCount; ++idx)
+        {
+            uint8_t value = getter(points[neighbors[idx]]);
+            ++counts[value];
+        }
+
+        double clampedTrim = std::clamp(trimPercent, 0.0, 40.0);
+        size_t trimCount = static_cast<size_t>(std::floor(neighborCount * clampedTrim / 100.0));
+        if (trimCount * 2 >= neighborCount)
+            trimCount = (neighborCount - 1) / 2;
+
+        size_t skipLow = trimCount;
+        size_t skipHigh = trimCount;
+        size_t remaining = neighborCount - trimCount * 2;
+        if (remaining == 0)
+            return fallback;
+
+        int low = 0;
+        while (low < 256 && skipLow > 0)
+        {
+            int delta = std::min<int>(counts[low], static_cast<int>(skipLow));
+            counts[low] -= delta;
+            skipLow -= static_cast<size_t>(delta);
+            if (counts[low] == 0)
+                ++low;
+        }
+
+        int high = 255;
+        while (high >= 0 && skipHigh > 0)
+        {
+            int delta = std::min<int>(counts[high], static_cast<int>(skipHigh));
+            counts[high] -= delta;
+            skipHigh -= static_cast<size_t>(delta);
+            if (counts[high] == 0)
+                --high;
+        }
+
+        double sum = 0.0;
+        size_t count = 0;
+        for (int value = 0; value < 256; ++value)
+        {
+            if (counts[value] == 0)
+                continue;
+            sum += static_cast<double>(value) * static_cast<double>(counts[value]);
+            count += static_cast<size_t>(counts[value]);
+        }
+
+        if (count == 0)
+            return fallback;
+
+        int rounded = static_cast<int>(std::round(sum / static_cast<double>(count)));
+        rounded = std::clamp(rounded, 0, 255);
+        return static_cast<uint8_t>(rounded);
+    }
 }
 
 bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, int samplingPercent, double beta, OutlierStats& stats, const ProgressCallback& progress)
@@ -566,6 +701,261 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
     }
 
     return resultOk;
+}
+
+bool EmbeddedScan::balanceColorsAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kMin, int kMax, double trimPercent, double sharpnessBlend, bool applyOnIntensity, bool applyOnRgb, const ExternalPointsProvider& externalPointsProvider, IScanFileWriter* writer, uint64_t& modifiedPoints, const ProgressCallback& progress)
+{
+    ClippingAssembly localAssembly = clippingAssembly;
+    localAssembly.clearMatrix();
+    glm::dmat4 src_transfo_mat = src_transfo.getTransformation();
+    localAssembly.addTransformation(src_transfo_mat);
+
+    const double sharpness = std::clamp(sharpnessBlend, 0.0, 1.0);
+    const bool useSharpness = sharpness > 0.0;
+
+    std::vector<std::pair<uint32_t, bool>> cells;
+    getClippedCells_impl(m_uRootCell, localAssembly, cells);
+
+    bool resultOk = true;
+    modifiedPoints = 0;
+
+    const size_t totalCells = cells.size();
+    if (progress && totalCells > 0)
+        progress(0, totalCells);
+
+    for (size_t cellIndex = 0; cellIndex < cells.size(); ++cellIndex)
+    {
+        const std::pair<uint32_t, bool>& cell = cells[cellIndex];
+        std::vector<PointXYZIRGB> points;
+        points.resize(tls_point_cloud_.getCellPointCount(cell.first));
+        if (!tls_point_cloud_.getCellPoints(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+        {
+            if (progress)
+                progress(cellIndex + 1, totalCells);
+            continue;
+        }
+
+        std::vector<PointXYZIRGB> visiblePoints;
+        if (cell.second)
+        {
+            clipIndividualPoints(points, visiblePoints, localAssembly);
+        }
+        else
+        {
+            visiblePoints.swap(points);
+        }
+
+        if (visiblePoints.empty())
+        {
+            if (progress)
+                progress(cellIndex + 1, totalCells);
+            continue;
+        }
+
+        const TreeCell& treeCell = m_vTreeCells[cell.first];
+        glm::dvec3 cellOriginLocal(treeCell.m_position[0], treeCell.m_position[1], treeCell.m_position[2]);
+        glm::dvec4 cellOriginGlobal4 = src_transfo_mat * glm::dvec4(cellOriginLocal, 1.0);
+        glm::dvec3 cellOriginGlobal(cellOriginGlobal4.x, cellOriginGlobal4.y, cellOriginGlobal4.z);
+
+        double cellSize = treeCell.m_size;
+        double avgSpacing = std::cbrt((cellSize * cellSize * cellSize) / std::max<size_t>(visiblePoints.size(), 1));
+        double voxelSize = std::max(cellSize / 128.0, avgSpacing * 2.0);
+        double maxRadius = std::clamp(avgSpacing * 8.0, cellSize / 16.0, cellSize);
+
+        std::vector<BalancePoint> allPoints;
+        allPoints.reserve(visiblePoints.size());
+        for (const PointXYZIRGB& point : visiblePoints)
+        {
+            glm::dvec4 globalPoint = src_transfo_mat * glm::dvec4(point.x, point.y, point.z, 1.0);
+            allPoints.push_back({ glm::dvec3(globalPoint.x, globalPoint.y, globalPoint.z), point.i, point.r, point.g, point.b, true });
+        }
+
+        if (externalPointsProvider)
+        {
+            std::vector<glm::dvec3> corners;
+            corners.reserve(8);
+            glm::dvec3 base = cellOriginLocal;
+            double size = cellSize;
+            corners.push_back(glm::dvec3((src_transfo_mat * glm::dvec4(base + size * glm::dvec3(0.0, 0.0, 0.0), 1.0))));
+            corners.push_back(glm::dvec3((src_transfo_mat * glm::dvec4(base + size * glm::dvec3(1.0, 0.0, 0.0), 1.0))));
+            corners.push_back(glm::dvec3((src_transfo_mat * glm::dvec4(base + size * glm::dvec3(0.0, 1.0, 0.0), 1.0))));
+            corners.push_back(glm::dvec3((src_transfo_mat * glm::dvec4(base + size * glm::dvec3(0.0, 0.0, 1.0), 1.0))));
+            corners.push_back(glm::dvec3((src_transfo_mat * glm::dvec4(base + size * glm::dvec3(1.0, 1.0, 0.0), 1.0))));
+            corners.push_back(glm::dvec3((src_transfo_mat * glm::dvec4(base + size * glm::dvec3(1.0, 0.0, 1.0), 1.0))));
+            corners.push_back(glm::dvec3((src_transfo_mat * glm::dvec4(base + size * glm::dvec3(0.0, 1.0, 1.0), 1.0))));
+            corners.push_back(glm::dvec3((src_transfo_mat * glm::dvec4(base + size * glm::dvec3(1.0, 1.0, 1.0), 1.0))));
+
+            GeometricBox cellBox(corners);
+            GeometricBox haloBox = cellBox;
+            haloBox.setRadius(haloBox.getRadius() + maxRadius);
+
+            std::vector<PointXYZIRGB> externalPoints;
+            externalPointsProvider(haloBox, externalPoints);
+            allPoints.reserve(allPoints.size() + externalPoints.size());
+            for (const PointXYZIRGB& point : externalPoints)
+            {
+                allPoints.push_back({ glm::dvec3(point.x, point.y, point.z), point.i, point.r, point.g, point.b, false });
+            }
+
+            std::vector<PointXYZIRGB> internalHaloPoints;
+            collectPointsInGeometricBox(haloBox, src_transfo, clippingAssembly, internalHaloPoints);
+            allPoints.reserve(allPoints.size() + internalHaloPoints.size());
+            for (const PointXYZIRGB& point : internalHaloPoints)
+            {
+                glm::dvec3 position(point.x, point.y, point.z);
+                if (cellBox.isInside(position))
+                    continue;
+                allPoints.push_back({ position, point.i, point.r, point.g, point.b, false });
+            }
+        }
+
+        std::unordered_map<int64_t, std::vector<size_t>> grid;
+        grid.reserve(allPoints.size());
+        for (size_t i = 0; i < allPoints.size(); ++i)
+        {
+            GridIndex index = computeGridIndex(allPoints[i].position, cellOriginGlobal, voxelSize);
+            grid[packGridIndex(index)].push_back(i);
+        }
+
+        std::vector<PointXYZIRGB> filtered;
+        filtered.reserve(visiblePoints.size());
+
+        const size_t minNeighborCount = static_cast<size_t>(std::max(kMin, 1));
+        const size_t maxNeighborCount = static_cast<size_t>(std::max(kMax, 1));
+        const size_t availableNeighbors = allPoints.size() > 0 ? allPoints.size() - 1 : 0;
+        const size_t effectiveKMax = std::min(maxNeighborCount, availableNeighbors);
+        const size_t effectiveKMin = std::min(minNeighborCount, effectiveKMax);
+
+        if (effectiveKMax == 0 || effectiveKMin == 0)
+        {
+            filtered = visiblePoints;
+            modifiedPoints += filtered.size();
+            resultOk &= writer->addPoints(filtered.data(), filtered.size());
+            if (progress)
+                progress(cellIndex + 1, totalCells);
+            continue;
+        }
+
+        std::vector<size_t> neighbors;
+        for (size_t i = 0; i < visiblePoints.size(); ++i)
+        {
+            PointXYZIRGB updated = visiblePoints[i];
+            if (!collectNeighborIndicesGrid(allPoints, grid, cellOriginGlobal, voxelSize, i, effectiveKMax, maxRadius, neighbors) || neighbors.size() < effectiveKMin)
+            {
+                filtered.push_back(updated);
+                continue;
+            }
+
+            size_t neighborCount = std::min<size_t>(neighbors.size(), effectiveKMax);
+
+            if (applyOnIntensity)
+            {
+                updated.i = computeTrimmedMeanHistogram(allPoints, neighbors, neighborCount, trimPercent, updated.i, [](const BalancePoint& point)
+                {
+                    return point.intensity;
+                });
+            }
+
+            if (applyOnRgb)
+            {
+                updated.r = computeTrimmedMeanHistogram(allPoints, neighbors, neighborCount, trimPercent, updated.r, [](const BalancePoint& point)
+                {
+                    return point.r;
+                });
+
+                updated.g = computeTrimmedMeanHistogram(allPoints, neighbors, neighborCount, trimPercent, updated.g, [](const BalancePoint& point)
+                {
+                    return point.g;
+                });
+
+                updated.b = computeTrimmedMeanHistogram(allPoints, neighbors, neighborCount, trimPercent, updated.b, [](const BalancePoint& point)
+                {
+                    return point.b;
+                });
+            }
+
+            if (useSharpness)
+            {
+                const PointXYZIRGB& original = visiblePoints[i];
+                auto blendChannel = [sharpness](uint8_t balanced, uint8_t base)
+                {
+                    double blended = (1.0 - sharpness) * static_cast<double>(balanced) + sharpness * static_cast<double>(base);
+                    int rounded = static_cast<int>(std::lround(blended));
+                    return static_cast<uint8_t>(std::clamp(rounded, 0, 255));
+                };
+
+                if (applyOnIntensity)
+                    updated.i = blendChannel(updated.i, original.i);
+                if (applyOnRgb)
+                {
+                    updated.r = blendChannel(updated.r, original.r);
+                    updated.g = blendChannel(updated.g, original.g);
+                    updated.b = blendChannel(updated.b, original.b);
+                }
+            }
+
+            filtered.push_back(updated);
+        }
+
+        modifiedPoints += filtered.size();
+        resultOk &= writer->addPoints(filtered.data(), filtered.size());
+
+        if (progress)
+            progress(cellIndex + 1, totalCells);
+    }
+
+    return resultOk;
+}
+
+void EmbeddedScan::collectPointsInGeometricBox(const GeometricBox& box, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, std::vector<PointXYZIRGB>& points) const
+{
+    ClippingAssembly localAssembly = clippingAssembly;
+    localAssembly.clearMatrix();
+    glm::dmat4 src_transfo_mat = modelMat.getTransformation();
+    localAssembly.addTransformation(src_transfo_mat);
+
+    std::vector<std::pair<uint32_t, bool>> cells;
+    getClippedCells_impl(m_uRootCell, localAssembly, cells);
+
+    for (const auto& cell : cells)
+    {
+        const TreeCell& treeCell = m_vTreeCells[cell.first];
+        glm::dvec3 base(treeCell.m_position[0], treeCell.m_position[1], treeCell.m_position[2]);
+        double size = treeCell.m_size;
+        std::vector<glm::dvec3> corners;
+        corners.reserve(8);
+        corners.push_back(glm::dvec3(src_transfo_mat * glm::dvec4(base + size * glm::dvec3(0.0, 0.0, 0.0), 1.0)));
+        corners.push_back(glm::dvec3(src_transfo_mat * glm::dvec4(base + size * glm::dvec3(1.0, 0.0, 0.0), 1.0)));
+        corners.push_back(glm::dvec3(src_transfo_mat * glm::dvec4(base + size * glm::dvec3(0.0, 1.0, 0.0), 1.0)));
+        corners.push_back(glm::dvec3(src_transfo_mat * glm::dvec4(base + size * glm::dvec3(0.0, 0.0, 1.0), 1.0)));
+        corners.push_back(glm::dvec3(src_transfo_mat * glm::dvec4(base + size * glm::dvec3(1.0, 1.0, 0.0), 1.0)));
+        corners.push_back(glm::dvec3(src_transfo_mat * glm::dvec4(base + size * glm::dvec3(1.0, 0.0, 1.0), 1.0)));
+        corners.push_back(glm::dvec3(src_transfo_mat * glm::dvec4(base + size * glm::dvec3(0.0, 1.0, 1.0), 1.0)));
+        corners.push_back(glm::dvec3(src_transfo_mat * glm::dvec4(base + size * glm::dvec3(1.0, 1.0, 1.0), 1.0)));
+
+        GeometricBox leafBox(corners);
+        if (OctreeRayTracing::relateBoxToOtherBox(box, leafBox) == 3)
+            continue;
+
+        std::vector<PointXYZIRGB> cellPoints;
+        cellPoints.resize(tls_point_cloud_.getCellPointCount(cell.first));
+        if (!tls_point_cloud_.getCellPoints(cell.first, reinterpret_cast<tls::Point*>(cellPoints.data()), cellPoints.size()))
+            continue;
+
+        std::vector<PointXYZIRGB> visiblePoints;
+        if (cell.second)
+            clipIndividualPoints(cellPoints, visiblePoints, localAssembly);
+        else
+            visiblePoints.swap(cellPoints);
+
+        for (const PointXYZIRGB& point : visiblePoints)
+        {
+            glm::dvec3 globalPoint = glm::dvec3(src_transfo_mat * glm::dvec4(point.x, point.y, point.z, 1.0));
+            if (!box.isInside(globalPoint))
+                continue;
+            points.push_back({ static_cast<float>(globalPoint.x), static_cast<float>(globalPoint.y), static_cast<float>(globalPoint.z), point.i, point.r, point.g, point.b });
+        }
+    }
 }
 
 void EmbeddedScan::logClipAndWriteTimings()
