@@ -11,6 +11,7 @@
 #include "gui/texts/ContextTexts.hpp"
 #include "gui/texts/ExportTexts.hpp"
 #include "gui/texts/SplashScreenTexts.hpp"
+#include "io/exports/IScanFileWriter.h"
 #include "io/exports/TlsFileWriter.h"
 #include "models/graph/GraphManager.h"
 #include "models/graph/PointCloudNode.h"
@@ -134,6 +135,7 @@ ContextState ContextColorBalanceFilter::feedMessage(IMessage* message, Controlle
         m_sharpnessBlend = decodedMsg->sharpnessBlend;
         m_globalBalancing = decodedMsg->mode == ColorBalanceMode::Global;
         m_applyOnIntensityAndRgb = decodedMsg->applyOnIntensityAndRgb;
+        m_outputFileType = decodedMsg->outputFileType;
         m_outputFolder = decodedMsg->outputFolder;
         m_openFolderAfterExport = decodedMsg->openFolderAfterExport;
 
@@ -239,21 +241,16 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
         std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
         tls::ScanGuid old_guid = wScan->getScanGuid();
 
-        TlsFileWriter* tls_writer = nullptr;
+        IScanFileWriter* scan_writer = nullptr;
         std::wstring log;
         std::wstring outputName = wScan->getName() + L"_CB";
-        std::filesystem::path outputPath = m_outputFolder / outputName;
-        outputPath += ".tls";
-        if (std::filesystem::exists(outputPath))
-            deleteFileWithRetry(outputPath);
-        TlsFileWriter::getWriter(m_outputFolder, outputName, log, (IScanFileWriter**)&tls_writer);
-        if (tls_writer == nullptr)
+        if (!getScanFileWriter(m_outputFolder, outputName, m_outputFileType, log, &scan_writer) || scan_writer == nullptr)
             continue;
 
         tls::ScanHeader header;
         TlScanOverseer::getInstance().getScanHeader(old_guid, header);
         header.guid = xg::newGuid();
-        tls_writer->appendPointCloud(header, wScan->getTransformation());
+        scan_writer->appendPointCloud(header, wScan->getTransformation());
 
         bool hasRgb = wScan->getRGBAvailable();
         bool hasIntensity = wScan->getIntensityAvailable();
@@ -307,9 +304,9 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
         }
 
         auto progressCallback = makeProgressCallback(scanCount, 0, 100);
-        bool res = TlScanOverseer::getInstance().balanceColorsAndWrite(balanceGuid, balanceTransform, *clippingToUse, m_kMin, m_kMax, m_trimPercent, m_sharpnessBlend, applyOnIntensity, applyOnRgb, externalProvider, tls_writer, modifiedPointCount, progressCallback);
-        res &= tls_writer->finalizePointCloud();
-        delete tls_writer;
+        bool res = TlScanOverseer::getInstance().balanceColorsAndWrite(balanceGuid, balanceTransform, *clippingToUse, m_kMin, m_kMax, m_trimPercent, m_sharpnessBlend, applyOnIntensity, applyOnRgb, externalProvider, scan_writer, modifiedPointCount, progressCallback);
+        res &= scan_writer->finalizePointCloud();
+        delete scan_writer;
         if (balanceGuid != old_guid)
         {
             TlScanOverseer::getInstance().freeScan_async(balanceGuid, false);

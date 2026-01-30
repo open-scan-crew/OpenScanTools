@@ -4,6 +4,7 @@
 #include "gui/Dialog/ADialog.h"
 #include "ui_DialogColorBalanceFilter.h"
 #include "controller/messages/ColorBalanceFilterMessage.h"
+#include "io/FileUtils.h"
 
 #include <QtCore/QString>
 
@@ -46,6 +47,7 @@ private:
     bool m_rgbAvailable = false;
     bool m_intensityAvailable = false;
     bool m_rgbAndIntensityAvailable = false;
+    FileType m_outputFileType = FileType::TLS;
 
     QString m_openPath;
     std::wstring m_outputFolder;
