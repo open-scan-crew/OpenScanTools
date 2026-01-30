@@ -36,7 +36,8 @@ private:
     Ui::DialogColorBalanceFilter m_ui;
 
     BalancePreset m_preset = BalancePreset::Medium;
-    ColorBalanceMode m_mode = ColorBalanceMode::Separate;
+    // Separate color balance mode currently deactivated in UI. The code is retained in case it is needed later.
+    ColorBalanceMode m_mode = ColorBalanceMode::Global;
 
     int m_kMin = 24;
     int m_kMax = 40;
