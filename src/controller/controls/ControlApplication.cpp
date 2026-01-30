@@ -12,10 +12,13 @@
 #include "gui/GuiData/GuiData3dObjects.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/SettingsTexts.hpp"
-
+#include "gui/texts/TemperatureScaleTexts.hpp"
 
 #include "utils/Config.h"
 #include "utils/Logger.h"
+#include "utils/System.h"
+#include "utils/TemperatureScaleParser.h"
+#include "utils/Utils.h"
 
 namespace control::application
 {
@@ -440,6 +443,69 @@ namespace control::application
     ControlType SetRenderPointSize::getType() const
     {
         return  (ControlType::setRenderPointSize);
+    }
+
+    /*
+    ** ImportTemperatureScaleFile
+    */
+
+    ImportTemperatureScaleFile::ImportTemperatureScaleFile(const std::filesystem::path& path, SafePtr<CameraNode> camera)
+        : m_path(path)
+        , m_camera(camera)
+    {
+    }
+
+    ImportTemperatureScaleFile::~ImportTemperatureScaleFile()
+    {
+    }
+
+    void ImportTemperatureScaleFile::doFunction(Controller& controller)
+    {
+        temperature_scale::TemperatureScaleData data;
+        std::string error;
+        if (!temperature_scale::loadTemperatureScaleFile(m_path, data, &error))
+        {
+            controller.updateInfo(new GuiDataWarning(TEXT_TEMPERATURE_SCALE_INVALID_FILE));
+            return;
+        }
+
+        const ProjectInternalInfo& internalInfo = controller.getContext().cgetProjectInternalInfo();
+        std::filesystem::path templatesPath = internalInfo.getTemplatesFolderPath();
+        Utils::System::createDirectoryIfNotExist(templatesPath);
+
+        std::filesystem::path destination = templatesPath / m_path.filename();
+        std::error_code canonicalError;
+        std::filesystem::path normalizedSource = std::filesystem::weakly_canonical(m_path, canonicalError);
+        std::filesystem::path normalizedDestination = std::filesystem::weakly_canonical(destination, canonicalError);
+
+        std::error_code copyError;
+        if (normalizedSource.empty() || normalizedDestination.empty() || normalizedSource != normalizedDestination)
+            std::filesystem::copy_file(m_path, destination, std::filesystem::copy_options::overwrite_existing, copyError);
+
+        if (copyError)
+        {
+            CONTROLLOG << "Unable to copy temperature scale file: " << copyError.message() << LOGENDL;
+            return;
+        }
+
+        ReadPtr<CameraNode> rCam = m_camera.cget();
+        RampScale rampScale = rCam ? rCam->getDisplayParameters().m_rampScale : RampScale{ true, false, 20, false, {} };
+        rampScale.temperatureScaleFile = destination;
+        controller.updateInfo(new GuiDataRampScale(rampScale, m_camera));
+    }
+
+    bool ImportTemperatureScaleFile::canUndo() const
+    {
+        return false;
+    }
+
+    void ImportTemperatureScaleFile::undoFunction(Controller& controller)
+    {
+    }
+
+    ControlType ImportTemperatureScaleFile::getType() const
+    {
+        return ControlType::importTemperatureScaleFile;
     }
 
 

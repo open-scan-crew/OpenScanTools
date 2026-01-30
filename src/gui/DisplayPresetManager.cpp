@@ -11,11 +11,13 @@
 #include "io/SerializerKeys.h"
 #include "utils/JsonWriter.h"
 #include "utils/System.h"
+#include "utils/Utils.h"
 #include "models/graph/CameraNode.h"
 
 #include "magic_enum/magic_enum.hpp"
 
 #include <algorithm>
+#include <filesystem>
 #include <fstream>
 
 namespace
@@ -60,7 +62,11 @@ namespace
 		json[Key_Depth_Lining] = { params.m_depthLining.enabled, params.m_depthLining.strength, params.m_depthLining.threshold, params.m_depthLining.sensitivity, params.m_depthLining.strongMode };
 
 		json[Key_Display_Guizmo] = params.m_displayGizmo;
-		json[Key_Ramp_Scale_Options] = { params.m_rampScale.showScale, params.m_rampScale.graduationCount, params.m_rampScale.centerBoxScale };
+		json[Key_Ramp_Scale_Options] = { params.m_rampScale.showScale,
+			params.m_rampScale.graduationCount,
+			params.m_rampScale.centerBoxScale,
+			params.m_rampScale.showTemperatureScale,
+			Utils::to_utf8(params.m_rampScale.temperatureScaleFile.wstring()) };
 
 		json[Key_Alpha_Object] = params.m_alphaObject;
 		json[Key_Distance_Unit] = magic_enum::enum_name(params.m_unitUsage.distanceUnit);
@@ -216,7 +222,13 @@ namespace
 		if (json.find(Key_Ramp_Scale_Options) != json.end())
 		{
 			nlohmann::json options = json.at(Key_Ramp_Scale_Options);
-			data.m_rampScale = { options[0].get<bool>(), options[2].get<bool>(), options[1].get<int>() };
+			bool showTemperatureScale = false;
+			std::filesystem::path temperatureScaleFile;
+			if (options.size() > 3 && !options[3].is_null())
+				showTemperatureScale = options[3].get<bool>();
+			if (options.size() > 4 && !options[4].is_null())
+				temperatureScaleFile = Utils::from_utf8(options[4].get<std::string>());
+			data.m_rampScale = { options[0].get<bool>(), options[2].get<bool>(), options[1].get<int>(), showTemperatureScale, temperatureScaleFile };
 		}
 
 		if (json.find(Key_Distance_Unit) != json.end())

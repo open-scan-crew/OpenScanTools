@@ -178,6 +178,20 @@ namespace control::application
         SafePtr<CameraNode> m_camera;
     };
 
+    class ImportTemperatureScaleFile : public AControl
+    {
+    public:
+        ImportTemperatureScaleFile(const std::filesystem::path& path, SafePtr<CameraNode> camera);
+        ~ImportTemperatureScaleFile();
+        void doFunction(Controller& controller) override;
+        bool canUndo() const override;
+        void undoFunction(Controller& controller) override;
+        ControlType getType() const override;
+    private:
+        const std::filesystem::path m_path;
+        SafePtr<CameraNode> m_camera;
+    };
+
     class SetExamineOptions : public AControl
     {
     public:

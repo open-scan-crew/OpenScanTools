@@ -634,6 +634,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\controller\functionSystem\ContextExportVideoHD.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextExtendCylinderMeasure.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextFindScan.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextPickTemperature.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextFitTorus.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextImportOSTObjects.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextManipulateObjects.cpp" />
@@ -1316,6 +1317,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\controller\functionSystem\ContextExportVideoHD.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextExtendCylinderMeasure.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextFindScan.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextPickTemperature.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextFitCylinder.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextFitTorus.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextImportOSTObjects.h" />
@@ -1403,6 +1405,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\gui\texts\MainGuiTexts.hpp" />
     <ClInclude Include="..\..\include\gui\texts\MarkerTexts.hpp" />
     <ClInclude Include="..\..\include\gui\texts\RenderingTexts.hpp" />
+    <ClInclude Include="..\..\include\gui\texts\TemperatureScaleTexts.hpp" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarShareGroup.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarMeasureSimple.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarRenderRampGroup.h" />
@@ -1890,6 +1893,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\utils\math\glm_extended.h" />
     <ClInclude Include="..\..\include\utils\math\trigo.h" />
     <ClInclude Include="..\..\include\utils\Utils.h" />
+    <ClInclude Include="..\..\include\utils\TemperatureScaleParser.h" />
     <ClInclude Include="..\..\include\vulkan\RenderingSwitchConfiguration.h" />
     <ClInclude Include="..\..\include\vulkan\TlFramebuffer_T.h" />
     <ClInclude Include="..\..\include\vulkan\VulkanFunctions.h" />

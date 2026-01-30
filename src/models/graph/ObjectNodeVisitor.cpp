@@ -37,6 +37,7 @@
 
 #include "utils/Utils.h"
 #include "utils/Logger.h"
+#include "utils/TemperatureScaleParser.h"
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include "imgui/imgui.h"
@@ -45,6 +46,7 @@
 #include "impl/imgui_impl_qt.h"
 #include "utils/ImGuiUtils.h"
 
+#include <cmath>
 #include <fmt/format.h>
 
 #include <qwindow.h>
@@ -523,6 +525,108 @@ void ObjectNodeVisitor::drawRampOverlay()
     // TODO - Afficher l'echelle pour le mode distance
     //m_displayParameters.m_mode != UiRenderMode::Distance_Ramp &&
     //m_displayParameters.m_mode != UiRenderMode::Flat_Distance_Ramp &&
+    if (m_displayParameters.m_rampScale.showTemperatureScale)
+    {
+        if (m_displayParameters.m_rampScale.temperatureScaleFile.empty())
+            return;
+
+        temperature_scale::TemperatureScaleData tempScale;
+        std::string error;
+        if (!temperature_scale::getTemperatureScaleData(m_displayParameters.m_rampScale.temperatureScaleFile, tempScale, &error))
+            return;
+
+        if (tempScale.entries.empty())
+            return;
+
+        // Constants
+        ImVec2 margin(10.f, 10.f);
+        ImVec2 internMargin(10.f, 10.f);
+        constexpr float blank = 5.f;  // let a gap between the text and the dash
+        ImVec2 smallDashSize(6.f, 1.f);
+        ImVec2 bigDashSize(10.f, 2.f);
+        constexpr float scale_width = 25.f;
+        int graduation = m_displayParameters.m_rampScale.graduationCount;
+        if (graduation <= 0)
+            return;
+
+        const float fontSize = m_displayParameters.m_textOptions.m_textFontSize;
+
+        double vmin = tempScale.entries.front().temperature;
+        double vmax = tempScale.entries.back().temperature;
+
+        ImVec2 textSizeVMin = ImGui::CalcTextSize(formatTemperature(vmin).c_str());
+        ImVec2 textSizeVMax = ImGui::CalcTextSize(formatTemperature(vmax).c_str());
+        ImVec2 textSize(std::max(textSizeVMin.x, textSizeVMax.x), std::max(textSizeVMin.y, textSizeVMax.y));
+        float defaultFontSize = ImGui::CalcTextSize("").y;
+        textSize.x *= fontSize / defaultFontSize;
+        textSize.y *= fontSize / defaultFontSize;
+
+        ImVec2 wndSize(internMargin.x * 2 + textSize.x + blank + bigDashSize.x + scale_width, (float)m_fbExtent.height - margin.y * 2);
+        float internSizeY = wndSize.y - internMargin.y * 2;
+        if (wndSize.x > m_fbExtent.width || internSizeY < 10.f)
+            return;
+
+        ImVec2 wndPos((float)m_fbExtent.width - wndSize.x - margin.x, margin.y);
+        float text_x = wndPos.x + internMargin.x;
+        float big_dash_x = text_x + textSize.x + blank;
+        float small_dash_x = big_dash_x + (bigDashSize.x - smallDashSize.x);
+        float scale_x = big_dash_x + bigDashSize.x;
+
+        ImGuiWindowFlags windowFlags = 0;
+        windowFlags |= ImGuiWindowFlags_NoMove;
+        windowFlags |= ImGuiWindowFlags_NoResize;
+        windowFlags |= ImGuiWindowFlags_NoCollapse;
+        windowFlags |= ImGuiWindowFlags_NoTitleBar;
+        windowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
+        windowFlags |= ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
+        ImGui::SetNextWindowPos(wndPos, ImGuiCond_Always);
+        ImGui::SetNextWindowSize(wndSize, ImGuiCond_Always);
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(48, 48, 48, 192));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 5.0f);
+
+        ImGui::Begin("Temperature ramp overlay", NULL, windowFlags);
+        ImDrawList* dl = ImGui::GetWindowDrawList();
+
+        float dyGrad = (internSizeY - textSize.y) / graduation;
+        float lastTextY = -std::numeric_limits<float>::infinity();
+        for (int i = 0; i < graduation + 1; ++i)
+        {
+            float text_y = wndPos.y + internMargin.y + dyGrad * i;
+            float dash_y = text_y + textSize.y / 2.f;
+            if (text_y < lastTextY + textSize.y * 1.5f)
+            {
+                ImVec2 dashPos = ImVec2(small_dash_x, dash_y - smallDashSize.y / 2.f);
+                dl->AddRectFilled(dashPos, dashPos + smallDashSize, IM_COL32_WHITE);
+            }
+            else
+            {
+                size_t idx = static_cast<size_t>(std::round(static_cast<double>(i) / graduation * (tempScale.entries.size() - 1)));
+                idx = std::min(idx, tempScale.entries.size() - 1);
+                double v = tempScale.entries[idx].temperature;
+                std::string text = formatTemperature(v);
+                dl->AddText(NULL, fontSize, ImVec2(text_x, text_y), IM_COL32_WHITE, text.c_str());
+                lastTextY = text_y;
+                ImVec2 dashPos = ImVec2(big_dash_x, dash_y - bigDashSize.y / 2.f);
+                dl->AddRectFilled(dashPos, dashPos + bigDashSize, IM_COL32_WHITE);
+            }
+        }
+
+        const size_t steps = tempScale.entries.size();
+        float dY = (internSizeY - textSize.y) / static_cast<float>(steps);
+        for (size_t i = 0; i < steps; ++i)
+        {
+            const auto& entry = tempScale.entries[i];
+            ImU32 color = IM_COL32(entry.r, entry.g, entry.b, 255);
+            ImVec2 rect = ImVec2(scale_x, wndPos.y + internMargin.y + textSize.y / 2.f + dY * static_cast<float>(i));
+            dl->AddRectFilled(rect, rect + ImVec2(scale_width, dY), color);
+        }
+
+        ImGui::End();
+        ImGui::PopStyleVar();
+        ImGui::PopStyleColor();
+        return;
+    }
+
     if (!m_displayParameters.m_rampScale.showScale)
         return;
 
@@ -787,6 +891,12 @@ std::string ObjectNodeVisitor::formatNumber(double num)
 {
     double d = UnitConverter::meterToX(num, m_displayParameters.m_unitUsage.distanceUnit);
     return fmt::format(fmt::runtime(m_length_format), d);
+}
+
+std::string ObjectNodeVisitor::formatTemperature(double num)
+{
+    uint32_t digits = m_displayParameters.m_unitUsage.displayedDigits;
+    return fmt::format("{:.{}f} °C", num, digits);
 }
 
 void ObjectNodeVisitor::setLastMousePosition(const glm::ivec2& mousePos)

@@ -293,6 +293,7 @@ HEADERS += ../../ext/imgui/imconfig.h \
     ../../include/gui/texts/SystemTexts.hpp \
     ../../include/gui/texts/TlsTexts.hpp \
     ../../include/gui/texts/UnitTexts.hpp \
+    ../../include/gui/texts/TemperatureScaleTexts.hpp \
     ../../include/gui/Texts.hpp \
     ../../include/gui/texts/AboutTexts.hpp \
     ../../include/gui/texts/ContextDuplicateTag_txt.hpp \
@@ -581,6 +582,7 @@ HEADERS += ../../ext/imgui/imconfig.h \
     ../../include/utils/System.h \
     ../../include/utils/time.h \
     ../../include/utils/Utils.h \
+    ../../include/utils/TemperatureScaleParser.h \
     ../../include/utils/IdGiver.hpp \
     ../../include/utils/QtLogStream.hpp \
     ../../include/utils/ClockLock.hpp \
@@ -747,6 +749,7 @@ HEADERS += ../../ext/imgui/imconfig.h \
     ../../include/controller/functionSystem/FunctionManager.h \
     ../../include/controller/functionSystem/AContext.h \
     ../../include/controller/functionSystem/PipeDetectionOptions.h \
+    ../../include/controller/functionSystem/ContextPickTemperature.h \
     ../../include/core/SignalHandler.h \
     ../../include/services/MarkerDefinitions.hpp
 SOURCES += ../../ext/imgui/imgui.cpp \
@@ -775,6 +778,7 @@ SOURCES += ../../ext/imgui/imgui.cpp \
     ../../src/gui/GuiData/GuiDataList.cpp \
     ../../src/gui/GuiData/GuiDataMeasure.cpp \
     ../../src/gui/GuiData/GuiDataMessages.cpp \
+    ../../src/controller/functionSystem/ContextPickTemperature.cpp \
     ../../src/gui/GuiData/GuiDataRendering.cpp \
     ../../src/gui/GuiData/GuiDataTag.cpp \
     ../../src/gui/GuiData/GuiDataTemplate.cpp \

@@ -1756,6 +1756,9 @@
     <ClCompile Include="..\..\src\controller\functionSystem\ContextFindScan.cpp">
       <Filter>src\controller\contexts</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextPickTemperature.cpp">
+      <Filter>src\controller\contexts</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\utils\JsonWriter.cpp">
       <Filter>src\utils</Filter>
     </ClCompile>
@@ -1763,6 +1766,9 @@
       <Filter>src\controller\contexts</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\controller\functionSystem\ContextFindScan.cpp">
+      <Filter>src\controller\contexts</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextPickTemperature.cpp">
       <Filter>src\controller\contexts</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\controller\functionSystem\ContextPlaneDetection.cpp">
@@ -2619,6 +2625,9 @@
       <Filter>include\vulkan</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\utils\Utils.h">
+      <Filter>include\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\utils\TemperatureScaleParser.h">
       <Filter>include\utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\controller\controls\ControlSignals.h">
@@ -3590,6 +3599,9 @@
     <ClInclude Include="..\..\include\gui\texts\RenderingTexts.hpp">
       <Filter>include\gui\texts</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\gui\texts\TemperatureScaleTexts.hpp">
+      <Filter>include\gui\texts</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\include\models\LicenceTypes.h">
       <Filter>include\models</Filter>
     </ClInclude>
@@ -3713,6 +3725,9 @@
     <ClInclude Include="..\..\include\controller\functionSystem\ContextFindScan.h">
       <Filter>include\controller\contexts</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextPickTemperature.h">
+      <Filter>include\controller\contexts</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\include\models\3d\MarkerDrawData.h">
       <Filter>include\models\3d</Filter>
     </ClInclude>
@@ -3729,6 +3744,9 @@
       <Filter>include\controller\contexts</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\controller\functionSystem\ContextFindScan.h">
+      <Filter>include\controller\contexts</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextPickTemperature.h">
       <Filter>include\controller\contexts</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\controller\functionSystem\ContextPlaneDetection.h">

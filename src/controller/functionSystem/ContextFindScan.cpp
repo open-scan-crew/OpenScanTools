@@ -2,8 +2,6 @@
 #include "controller/Controller.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ContextTexts.hpp"
-
-
 ContextFindScan::ContextFindScan(const ContextId& id)
 	: ARayTracingContext(id)
 {
