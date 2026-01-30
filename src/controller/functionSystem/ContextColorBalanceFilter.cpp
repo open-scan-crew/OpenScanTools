@@ -131,6 +131,7 @@ ContextState ContextColorBalanceFilter::feedMessage(IMessage* message, Controlle
         m_kMin = decodedMsg->kMin;
         m_kMax = decodedMsg->kMax;
         m_trimPercent = decodedMsg->trimPercent;
+        m_sharpnessBlend = decodedMsg->sharpnessBlend;
         m_globalBalancing = decodedMsg->mode == ColorBalanceMode::Global;
         m_applyOnIntensityAndRgb = decodedMsg->applyOnIntensityAndRgb;
         m_outputFolder = decodedMsg->outputFolder;
@@ -306,7 +307,7 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
         }
 
         auto progressCallback = makeProgressCallback(scanCount, 0, 100);
-        bool res = TlScanOverseer::getInstance().balanceColorsAndWrite(balanceGuid, balanceTransform, *clippingToUse, m_kMin, m_kMax, m_trimPercent, applyOnIntensity, applyOnRgb, externalProvider, tls_writer, modifiedPointCount, progressCallback);
+        bool res = TlScanOverseer::getInstance().balanceColorsAndWrite(balanceGuid, balanceTransform, *clippingToUse, m_kMin, m_kMax, m_trimPercent, m_sharpnessBlend, applyOnIntensity, applyOnRgb, externalProvider, tls_writer, modifiedPointCount, progressCallback);
         res &= tls_writer->finalizePointCloud();
         delete tls_writer;
         if (balanceGuid != old_guid)

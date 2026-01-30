@@ -41,6 +41,7 @@ private:
     int m_kMin = 24;
     int m_kMax = 40;
     double m_trimPercent = 18.0;
+    int m_sharpnessPercent = 20;
     bool m_applyOnIntensityAndRgb = true;
     bool m_rgbAvailable = false;
     bool m_intensityAvailable = false;

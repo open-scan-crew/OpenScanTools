@@ -119,6 +119,18 @@ DialogColorBalanceFilter::DialogColorBalanceFilter(IDataDispatcher& dataDispatch
     {
         m_trimPercent = value;
     });
+    connect(m_ui.horizontalSlider_sharpness, &QSlider::valueChanged, this, [this](int value)
+    {
+        m_sharpnessPercent = value;
+        const QSignalBlocker block(m_ui.spinBox_sharpness);
+        m_ui.spinBox_sharpness->setValue(value);
+    });
+    connect(m_ui.spinBox_sharpness, qOverload<int>(&QSpinBox::valueChanged), this, [this](int value)
+    {
+        m_sharpnessPercent = value;
+        const QSignalBlocker block(m_ui.horizontalSlider_sharpness);
+        m_ui.horizontalSlider_sharpness->setValue(value);
+    });
     connect(m_ui.checkBox_balanceIntensityRGB, &QCheckBox::toggled, this, [this](bool checked)
     {
         m_applyOnIntensityAndRgb = checked;
@@ -172,10 +184,11 @@ void DialogColorBalanceFilter::startBalancing()
     int kMin = m_ui.spinBox_kMin->value();
     int kMax = std::max(kMin, m_ui.spinBox_kMax->value());
     double trimPercent = m_ui.doubleSpinBox_trim->value();
+    double sharpnessBlend = static_cast<double>(m_ui.spinBox_sharpness->value()) / 100.0;
     bool openFolder = m_ui.checkBox_openFolderAfterExport->isChecked();
     bool applyOnIntensityAndRgb = m_ui.checkBox_balanceIntensityRGB->isChecked();
 
-    m_dataDispatcher.sendControl(new control::function::ForwardMessage(new ColorBalanceFilterMessage(kMin, kMax, trimPercent, m_mode, applyOnIntensityAndRgb, m_outputFolder, openFolder)));
+    m_dataDispatcher.sendControl(new control::function::ForwardMessage(new ColorBalanceFilterMessage(kMin, kMax, trimPercent, sharpnessBlend, m_mode, applyOnIntensityAndRgb, m_outputFolder, openFolder)));
 
     hide();
 }
@@ -220,6 +233,8 @@ void DialogColorBalanceFilter::syncUiFromValues()
     const QSignalBlocker blockModeSeparate(m_ui.radioButton_separate);
     const QSignalBlocker blockModeGlobal(m_ui.radioButton_global);
     const QSignalBlocker blockIntensityRgb(m_ui.checkBox_balanceIntensityRGB);
+    const QSignalBlocker blockSharpnessSlider(m_ui.horizontalSlider_sharpness);
+    const QSignalBlocker blockSharpnessSpin(m_ui.spinBox_sharpness);
 
     m_ui.radioButton_balanceLight->setChecked(m_preset == BalancePreset::Light);
     m_ui.radioButton_balanceMedium->setChecked(m_preset == BalancePreset::Medium);
@@ -231,6 +246,8 @@ void DialogColorBalanceFilter::syncUiFromValues()
     m_ui.spinBox_kMin->setValue(m_kMin);
     m_ui.spinBox_kMax->setValue(m_kMax);
     m_ui.doubleSpinBox_trim->setValue(m_trimPercent);
+    m_ui.horizontalSlider_sharpness->setValue(m_sharpnessPercent);
+    m_ui.spinBox_sharpness->setValue(m_sharpnessPercent);
     m_ui.checkBox_balanceIntensityRGB->setChecked(m_applyOnIntensityAndRgb);
 
     m_ui.checkBox_balanceIntensityRGB->setEnabled(m_rgbAndIntensityAvailable);

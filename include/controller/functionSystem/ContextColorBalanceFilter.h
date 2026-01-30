@@ -28,6 +28,7 @@ private:
     int m_kMin = 24;
     int m_kMax = 40;
     double m_trimPercent = 18.0;
+    double m_sharpnessBlend = 0.2;
     bool m_globalBalancing = false;
     bool m_applyOnIntensityAndRgb = true;
     std::filesystem::path m_outputFolder;
