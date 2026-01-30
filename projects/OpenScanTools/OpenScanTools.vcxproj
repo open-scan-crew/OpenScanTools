@@ -1403,6 +1403,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\gui\texts\MainGuiTexts.hpp" />
     <ClInclude Include="..\..\include\gui\texts\MarkerTexts.hpp" />
     <ClInclude Include="..\..\include\gui\texts\RenderingTexts.hpp" />
+    <ClInclude Include="..\..\include\gui\texts\TemperatureScaleTexts.hpp" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarShareGroup.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarMeasureSimple.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarRenderRampGroup.h" />
@@ -1890,6 +1891,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\utils\math\glm_extended.h" />
     <ClInclude Include="..\..\include\utils\math\trigo.h" />
     <ClInclude Include="..\..\include\utils\Utils.h" />
+    <ClInclude Include="..\..\include\utils\TemperatureScaleParser.h" />
     <ClInclude Include="..\..\include\vulkan\RenderingSwitchConfiguration.h" />
     <ClInclude Include="..\..\include\vulkan\TlFramebuffer_T.h" />
     <ClInclude Include="..\..\include\vulkan\VulkanFunctions.h" />

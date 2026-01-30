@@ -232,6 +232,8 @@ AContext* ContextFactory::createContext(const ContextType& type, ContextId& id, 
 			return new ContextPeopleRemover(id);
 		case ContextType::findScan:
 			return new ContextFindScan(id);
+		case ContextType::pickTemperature:
+			return new ContextPickTemperature(id);
 		case ContextType::setOfPoints:
 			return new ContextSetOfPoints(id);
 		case ContextType::planeDetection:

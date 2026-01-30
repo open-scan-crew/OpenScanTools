@@ -49,7 +49,7 @@ public:
     DepthLining             m_depthLining = {};
 
     // GUI
-    RampScale      m_rampScale = { true, false, 20 }; // GUI
+    RampScale      m_rampScale = { true, false, 20, false, {} }; // GUI
     bool           m_displayGizmo = true;
     bool           m_showExamineTarget = true;
 

@@ -293,6 +293,7 @@ HEADERS += ../../ext/imgui/imconfig.h \
     ../../include/gui/texts/SystemTexts.hpp \
     ../../include/gui/texts/TlsTexts.hpp \
     ../../include/gui/texts/UnitTexts.hpp \
+    ../../include/gui/texts/TemperatureScaleTexts.hpp \
     ../../include/gui/Texts.hpp \
     ../../include/gui/texts/AboutTexts.hpp \
     ../../include/gui/texts/ContextDuplicateTag_txt.hpp \
@@ -581,6 +582,7 @@ HEADERS += ../../ext/imgui/imconfig.h \
     ../../include/utils/System.h \
     ../../include/utils/time.h \
     ../../include/utils/Utils.h \
+    ../../include/utils/TemperatureScaleParser.h \
     ../../include/utils/IdGiver.hpp \
     ../../include/utils/QtLogStream.hpp \
     ../../include/utils/ClockLock.hpp \
