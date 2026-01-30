@@ -3,6 +3,7 @@
 
 #include "controller/functionSystem/AContext.h"
 #include "controller/messages/ColorBalanceFilterMessage.h"
+#include "io/FileUtils.h"
 #include "tls_def.h"
 
 #include <filesystem>
@@ -31,6 +32,7 @@ private:
     double m_sharpnessBlend = 0.2;
     bool m_globalBalancing = false;
     bool m_applyOnIntensityAndRgb = true;
+    FileType m_outputFileType = FileType::TLS;
     std::filesystem::path m_outputFolder;
     bool m_openFolderAfterExport = false;
     bool m_warningModal = false;

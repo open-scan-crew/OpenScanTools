@@ -5,11 +5,15 @@
 #include "gui/GuiData/GuiDataIO.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ExportTexts.hpp"
+#include "gui/texts/FileTypeTexts.hpp"
 #include "gui/texts/FileSystemTexts.hpp"
 
 #include <QtCore/QSignalBlocker>
 #include <QtCore/QStandardPaths>
 #include <QtWidgets/QFileDialog>
+
+#include <unordered_map>
+#include <vector>
 
 namespace
 {
@@ -55,6 +59,24 @@ namespace
             return kSeparateMedium;
         }
     }
+
+    const static std::vector<FileType> kColorBalanceExportFileTypes = {
+        FileType::TLS,
+        FileType::E57,
+        FileType::PTS
+    };
+
+    template<typename Enum_T>
+    void initComboBoxRestricted(QComboBox* comboBox, const std::vector<Enum_T>& valuesDisplayable, const std::unordered_map<Enum_T, QString>& labelDictionnary)
+    {
+        for (Enum_T value : valuesDisplayable)
+        {
+            if (labelDictionnary.find(value) != labelDictionnary.cend())
+                comboBox->addItem(labelDictionnary.at(value), QVariant(static_cast<int>(value)));
+            else
+                comboBox->addItem(TEXT_EXPORT_LABEL_MISSING, QVariant(static_cast<int>(value)));
+        }
+    }
 }
 
 DialogColorBalanceFilter::DialogColorBalanceFilter(IDataDispatcher& dataDispatcher, QWidget* parent)
@@ -62,6 +84,7 @@ DialogColorBalanceFilter::DialogColorBalanceFilter(IDataDispatcher& dataDispatch
 {
     m_ui.setupUi(this);
     translateUI();
+    initComboBoxRestricted<FileType>(m_ui.comboBox_file_format, kColorBalanceExportFileTypes, s_OutputFormatTexts);
 
     connect(m_ui.toolButton_folder, &QToolButton::clicked, this, [this]()
     {
@@ -185,10 +208,11 @@ void DialogColorBalanceFilter::startBalancing()
     int kMax = std::max(kMin, m_ui.spinBox_kMax->value());
     double trimPercent = m_ui.doubleSpinBox_trim->value();
     double sharpnessBlend = static_cast<double>(m_ui.spinBox_sharpness->value()) / 100.0;
+    m_outputFileType = static_cast<FileType>(m_ui.comboBox_file_format->currentData().toInt());
     bool openFolder = m_ui.checkBox_openFolderAfterExport->isChecked();
     bool applyOnIntensityAndRgb = m_ui.checkBox_balanceIntensityRGB->isChecked();
 
-    m_dataDispatcher.sendControl(new control::function::ForwardMessage(new ColorBalanceFilterMessage(kMin, kMax, trimPercent, sharpnessBlend, m_mode, applyOnIntensityAndRgb, m_outputFolder, openFolder)));
+    m_dataDispatcher.sendControl(new control::function::ForwardMessage(new ColorBalanceFilterMessage(kMin, kMax, trimPercent, sharpnessBlend, m_mode, applyOnIntensityAndRgb, m_outputFileType, m_outputFolder, openFolder)));
 
     hide();
 }
@@ -235,6 +259,7 @@ void DialogColorBalanceFilter::syncUiFromValues()
     const QSignalBlocker blockIntensityRgb(m_ui.checkBox_balanceIntensityRGB);
     const QSignalBlocker blockSharpnessSlider(m_ui.horizontalSlider_sharpness);
     const QSignalBlocker blockSharpnessSpin(m_ui.spinBox_sharpness);
+    const QSignalBlocker blockFormat(m_ui.comboBox_file_format);
 
     m_ui.radioButton_balanceLight->setChecked(m_preset == BalancePreset::Light);
     m_ui.radioButton_balanceMedium->setChecked(m_preset == BalancePreset::Medium);
@@ -249,6 +274,9 @@ void DialogColorBalanceFilter::syncUiFromValues()
     m_ui.horizontalSlider_sharpness->setValue(m_sharpnessPercent);
     m_ui.spinBox_sharpness->setValue(m_sharpnessPercent);
     m_ui.checkBox_balanceIntensityRGB->setChecked(m_applyOnIntensityAndRgb);
+    int formatIndex = m_ui.comboBox_file_format->findData(QVariant(static_cast<int>(m_outputFileType)));
+    if (formatIndex >= 0)
+        m_ui.comboBox_file_format->setCurrentIndex(formatIndex);
 
     m_ui.checkBox_balanceIntensityRGB->setEnabled(m_rgbAndIntensityAvailable);
 }
