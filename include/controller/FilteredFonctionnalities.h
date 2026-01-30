@@ -53,6 +53,7 @@ static const std::unordered_map<ControlType, std::unordered_set<LicenceVersion>>
 	{ControlType::setNavigationParameters, {LicenceVersion::Free}},
 	{ControlType::setPerspectiveZBounds, {LicenceVersion::Free}},
 	{ControlType::setOrthoGridParams, {LicenceVersion::Free}},
+	{ControlType::importTemperatureScaleFile, {LicenceVersion::Standard}},
 	{ControlType::unlockScanManipulation, {LicenceVersion::Standard}},
 
 	// control::project
@@ -236,6 +237,7 @@ static const std::unordered_map<ControlType, std::unordered_set<LicenceVersion>>
 	// control::picking
 	{ControlType::clickPicking, {LicenceVersion::Free} },
 	{ControlType::findScanFromPicking, {LicenceVersion::Standard} },
+	{ControlType::pickTemperatureFromPicking, {LicenceVersion::Standard} },
 
 	// control::viewport
 	{ControlType::multiSelect, {LicenceVersion::Free} },

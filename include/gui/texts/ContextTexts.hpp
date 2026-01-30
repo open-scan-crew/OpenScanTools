@@ -138,6 +138,7 @@
 //ContextFindScan
 #define TEXT_CONTEXT_FIND_SCAN_MODAL QObject::tr("Point is from scan : %1")
 #define TEXT_CONTEXT_NO_SCAN_FOUND QObject::tr("No scan found")
+#define TEXT_CONTEXT_TEMPERATURE_PICK_START QObject::tr("Select a point.")
 
 //ContextExportVideoHD
 #define TEXT_CONTEXT_EXPORT_VIDEO QObject::tr("Generate video.")

@@ -48,6 +48,7 @@ enum class ControlType
 	setNavigationParameters,
 	setPerspectiveZBounds,
 	setOrthoGridParams,
+	importTemperatureScaleFile,
 	unlockScanManipulation,
 	// setOrthoZBounds, // TODO
 
@@ -235,6 +236,7 @@ enum class ControlType
 	// control::picking
 	clickPicking,
 	findScanFromPicking,
+	pickTemperatureFromPicking,
 
 	// control::viewport
 	multiSelect,

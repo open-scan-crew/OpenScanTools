@@ -2621,6 +2621,9 @@
     <ClInclude Include="..\..\include\utils\Utils.h">
       <Filter>include\utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\utils\TemperatureScaleParser.h">
+      <Filter>include\utils</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\include\controller\controls\ControlSignals.h">
       <Filter>include\controller\controls</Filter>
     </ClInclude>
@@ -3588,6 +3591,9 @@
       <Filter>include\gui\texts</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\gui\texts\RenderingTexts.hpp">
+      <Filter>include\gui\texts</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\gui\texts\TemperatureScaleTexts.hpp">
       <Filter>include\gui\texts</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\models\LicenceTypes.h">

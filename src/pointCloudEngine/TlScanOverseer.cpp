@@ -465,6 +465,26 @@ void TlScanOverseer::collectPointsInGeometricBox(const GeometricBox& box, const 
     }
 }
 
+bool TlScanOverseer::collectPointsInGeometricBoxForScan(const tls::ScanGuid& scanGuid, const GeometricBox& box, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, std::vector<PointXYZIRGB>& result)
+{
+    EmbeddedScan* scan;
+    {
+        std::lock_guard<std::mutex> lock(m_activeMutex);
+
+        auto it_scan = m_activeScans.find(scanGuid);
+        if (it_scan == m_activeScans.end())
+        {
+            Logger::log(VKLog) << "Error: try to view a Scan not present, UUID = " << scanGuid << Logger::endl;
+            return false;
+        }
+        scan = it_scan->second;
+    }
+
+    scan->setComputeTransfo(modelMat.getCenter(), modelMat.getOrientation());
+    scan->collectPointsInGeometricBox(box, modelMat, clippingAssembly, result);
+    return true;
+}
+
 //tls::ScanGuid TlScanOverseer::clipNewScan(tls::ScanGuid _scanGuid, const glm::dmat4& _modelMat, const ClippingAssembly& _clippingAssembly, const std::filesystem::path& _outPath, uint64_t& pointsDeletedCount)
 //{
 //    EmbeddedScan* scan;

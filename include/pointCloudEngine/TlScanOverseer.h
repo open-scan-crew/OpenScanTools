@@ -224,6 +224,7 @@ public:
     bool filterOutliersAndWrite(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* outScan, uint64_t& removedPoints, const ProgressCallback& progress = {});
     bool balanceColorsAndWrite(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kMin, int kMax, double trimPercent, double sharpnessBlend, bool applyOnIntensity, bool applyOnRgb, const std::function<void(const GeometricBox&, std::vector<PointXYZIRGB>&)>& externalPointsProvider, IScanFileWriter* outScan, uint64_t& modifiedPoints, const ProgressCallback& progress = {});
     void collectPointsInGeometricBox(const GeometricBox& box, const ClippingAssembly& clippingAssembly, const tls::ScanGuid& excludedGuid, std::vector<PointXYZIRGB>& result);
+    bool collectPointsInGeometricBoxForScan(const tls::ScanGuid& scanGuid, const GeometricBox& box, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, std::vector<PointXYZIRGB>& result);
     //tls::ScanGuid clipNewScan(tls::ScanGuid scanGuid, const glm::dmat4& modelMat, const ClippingAssembly& clippingAssembly, const std::filesystem::path& outPath, uint64_t& pointDeletedCount);
 
     // Lucas functions
