@@ -135,6 +135,9 @@ void ObjectNodeVisitor::getObjectMarkerText(const SafePtr<AGraphNode>& object, s
             case ElementType::Tag:
                 objectAvailableParametersDisplay |= TEXT_SHOW_COORD_BIT;
                 break;
+            case ElementType::Target:
+                objectAvailableParametersDisplay = 0;
+                break;
             case ElementType::SimpleMeasure:
             case ElementType::PolylineMeasure:
             case ElementType::PipeToPipeMeasure:
