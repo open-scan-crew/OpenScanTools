@@ -77,20 +77,8 @@ DialogColorBalanceFilter::DialogColorBalanceFilter(IDataDispatcher& dataDispatch
     connect(m_ui.pushButton_ok, &QPushButton::clicked, this, &DialogColorBalanceFilter::startBalancing);
     connect(m_ui.pushButton_cancel, &QPushButton::clicked, this, &DialogColorBalanceFilter::cancelBalancing);
 
-    connect(m_ui.radioButton_separate, &QRadioButton::toggled, this, [this](bool checked)
-    {
-        if (!checked)
-            return;
-        m_mode = ColorBalanceMode::Separate;
-        applyPreset(m_preset);
-    });
-    connect(m_ui.radioButton_global, &QRadioButton::toggled, this, [this](bool checked)
-    {
-        if (!checked)
-            return;
-        m_mode = ColorBalanceMode::Global;
-        applyPreset(m_preset);
-    });
+    m_ui.groupBox_mode->setVisible(false);
+    m_mode = ColorBalanceMode::Global;
     connect(m_ui.radioButton_balanceLight, &QRadioButton::toggled, this, [this](bool checked)
     {
         if (checked)
