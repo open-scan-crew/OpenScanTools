@@ -111,6 +111,11 @@ void GraphManager::refreshScene()
 
 void GraphManager::cleanProjectObjects()
 {
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        m_temperatureScaleData = TemperatureScaleData{};
+    }
+
     AGraphNode::cleanLinks(m_manipulatorNode);
     m_manipulatorNode.destroy();
 
@@ -136,6 +141,18 @@ void GraphManager::cleanProjectObjects()
     VulkanManager::getInstance().waitIdle();
     m_meshManager->cleanMemory(true);
     //m_meshManager->cleanSimpleGeometryMemory();
+}
+
+void GraphManager::setTemperatureScaleData(const TemperatureScaleData& data)
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+    m_temperatureScaleData = data;
+}
+
+TemperatureScaleData GraphManager::getTemperatureScaleData() const
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+    return m_temperatureScaleData;
 }
 
 void GraphManager::deleteClickTargets()

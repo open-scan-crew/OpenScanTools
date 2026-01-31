@@ -577,7 +577,10 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
     if (json.find(Key_Ramp_Scale_Options) != json.end())
     {
         nlohmann::json options = json.at(Key_Ramp_Scale_Options);
-        data.m_rampScale = { options[0].get<bool>(), options[2].get<bool>(), options[1].get<int>() };
+        bool showTemperatureScale = false;
+        if (options.size() >= 4)
+            showTemperatureScale = options[3].get<bool>();
+        data.m_rampScale = { options[0].get<bool>(), options[2].get<bool>(), options[1].get<int>(), showTemperatureScale };
     }
     else
     {
@@ -2708,6 +2711,9 @@ bool DataDeserializer::DeserializeProjectInfos(const nlohmann::json& json, const
         data.m_customScanFolderPath = (Utils::from_utf8(json.at(Key_CustomScanFolderPath).get<std::string>()));
     else
         IOLOG << "ProjectInfos CustomScanFolderPath not found" << LOGENDL;
+
+    if (json.find(Key_TemperatureScaleFilePath) != json.end())
+        data.m_temperatureScaleFilePath = (Utils::from_utf8(json.at(Key_TemperatureScaleFilePath).get<std::string>()));
 
     return retVal;
 }

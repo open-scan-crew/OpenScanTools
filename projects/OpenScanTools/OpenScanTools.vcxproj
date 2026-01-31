@@ -572,6 +572,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\controller\controls\ControlViewport.cpp" />
     <ClCompile Include="..\..\src\controller\controls\ControlMeasure.cpp" />
     <ClCompile Include="..\..\src\controller\controls\ControlMeshObject.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlTemperatureScale.cpp" />
     <ClCompile Include="..\..\src\controller\FilterSystem.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\AContext.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\AContextAlignView.cpp" />
@@ -634,6 +635,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\controller\functionSystem\ContextExportVideoHD.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextExtendCylinderMeasure.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextFindScan.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextPickTemperature.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextFitTorus.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextImportOSTObjects.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextManipulateObjects.cpp" />
@@ -1131,6 +1133,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\utils\ColorConversion.cpp" />
     <ClCompile Include="..\..\src\utils\ImGuiUtils.cpp" />
     <ClCompile Include="..\..\src\utils\JsonWriter.cpp" />
+    <ClCompile Include="..\..\src\utils\TemperatureScaleUtils.cpp" />
     <ClCompile Include="..\..\src\utils\math\glm_extended.cpp" />
     <ClCompile Include="..\..\src\utils\math\geometry.cpp" />
     <ClCompile Include="..\..\src\utils\QtUtils.cpp" />
