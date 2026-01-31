@@ -897,7 +897,7 @@ std::string ObjectNodeVisitor::formatNumber(double num)
 
 std::string ObjectNodeVisitor::formatTemperature(double value) const
 {
-    return fmt::format(fmt::runtime(m_simple_format), value, " Celsius");
+    return fmt::format(fmt::runtime(m_simple_format), value, u8" °C");
 }
 
 void ObjectNodeVisitor::setLastMousePosition(const glm::ivec2& mousePos)
