@@ -118,7 +118,7 @@ ContextState ContextPickTemperature::launch(Controller& controller)
         if (it != temperatureScale.rgbToTemperature.end())
         {
             int digits = controller.cgetContext().m_unitUsage.displayedDigits;
-            temperatureText = QStringLiteral("%1 Celsius").arg(QString::number(it->second, 'f', digits));
+            temperatureText = QStringLiteral("%1 °C").arg(QString::number(it->second, 'f', digits));
         }
     }
 
