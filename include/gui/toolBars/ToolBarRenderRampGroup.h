@@ -9,6 +9,8 @@
 
 #include "utils/safe_ptr.h"
 
+#include <filesystem>
+
 class CameraNode;
 
 class ToolBarRenderRampGroup : public QWidget, public IPanel
@@ -26,6 +28,7 @@ private:
 	void onFocusViewport(IGuiData* data);
 
 	void updateRamp(const RampScale& normalsParams);
+	void updateTemperatureScaleStatus(IGuiData* data);
 	void blockAllSignals(bool block);
 
 	void sendGuiData();
@@ -43,6 +46,9 @@ private:
 	Ui::toolbar_render_ramp_group m_ui;
 	IDataDispatcher& m_dataDispatcher;
 	SafePtr<CameraNode> m_focusCamera;
+	std::filesystem::path m_temperatureScalePath;
+	bool m_temperatureScaleValid = false;
+	bool m_temperatureScaleFileFound = false;
 
 };
 

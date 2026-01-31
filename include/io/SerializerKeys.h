@@ -187,6 +187,7 @@
 #define Key_ImportScanTranslation "ImportScanTranslation"
 #define Key_Project_Id "ProjectId"
 #define Key_CustomScanFolderPath "CustomScanFolderPath"
+#define Key_TemperatureScaleFilePath "TemperatureScaleFilePath"
 
 //Template
 #define Key_OriginTemplate "OriginTemplate"

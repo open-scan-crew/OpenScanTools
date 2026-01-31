@@ -371,7 +371,7 @@ void ExportRenderingParameters(nlohmann::json& json, const RenderingParameters& 
     json[Key_Depth_Lining] = { params.m_depthLining.enabled, params.m_depthLining.strength, params.m_depthLining.threshold, params.m_depthLining.sensitivity, params.m_depthLining.strongMode };
 
     json[Key_Display_Guizmo] = params.m_displayGizmo;
-	json[Key_Ramp_Scale_Options] = { params.m_rampScale.showScale, params.m_rampScale.graduationCount, params.m_rampScale.centerBoxScale };
+	json[Key_Ramp_Scale_Options] = { params.m_rampScale.showScale, params.m_rampScale.graduationCount, params.m_rampScale.centerBoxScale, params.m_rampScale.showTemperatureScale };
 
 	json[Key_Alpha_Object] = params.m_alphaObject;
 	json[Key_Distance_Unit] = magic_enum::enum_name(params.m_unitUsage.distanceUnit);
@@ -765,6 +765,7 @@ nlohmann::json DataSerializer::Serialize(const ProjectInfos& data)
 	json[Key_ImportScanTranslation] = { data.m_importScanTranslation.x, data.m_importScanTranslation.y, data.m_importScanTranslation.z };
 	json[Key_Project_Id] = data.m_id;
 	json[Key_CustomScanFolderPath] = Utils::to_utf8(data.m_customScanFolderPath.wstring());
+	json[Key_TemperatureScaleFilePath] = Utils::to_utf8(data.m_temperatureScaleFilePath.wstring());
 	return json;
 }
 
