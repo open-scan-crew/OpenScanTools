@@ -60,7 +60,7 @@ namespace
 		json[Key_Depth_Lining] = { params.m_depthLining.enabled, params.m_depthLining.strength, params.m_depthLining.threshold, params.m_depthLining.sensitivity, params.m_depthLining.strongMode };
 
 		json[Key_Display_Guizmo] = params.m_displayGizmo;
-		json[Key_Ramp_Scale_Options] = { params.m_rampScale.showScale, params.m_rampScale.graduationCount, params.m_rampScale.centerBoxScale };
+		json[Key_Ramp_Scale_Options] = { params.m_rampScale.showScale, params.m_rampScale.graduationCount, params.m_rampScale.centerBoxScale, params.m_rampScale.showTemperatureScale };
 
 		json[Key_Alpha_Object] = params.m_alphaObject;
 		json[Key_Distance_Unit] = magic_enum::enum_name(params.m_unitUsage.distanceUnit);
@@ -216,7 +216,10 @@ namespace
 		if (json.find(Key_Ramp_Scale_Options) != json.end())
 		{
 			nlohmann::json options = json.at(Key_Ramp_Scale_Options);
-			data.m_rampScale = { options[0].get<bool>(), options[2].get<bool>(), options[1].get<int>() };
+			bool showTemperatureScale = false;
+			if (options.size() >= 4)
+				showTemperatureScale = options[3].get<bool>();
+			data.m_rampScale = { options[0].get<bool>(), options[2].get<bool>(), options[1].get<int>(), showTemperatureScale };
 		}
 
 		if (json.find(Key_Distance_Unit) != json.end())

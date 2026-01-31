@@ -64,6 +64,22 @@ guiDType GuiDataProjectLoaded::getType()
 	return (guiDType::projectLoaded);
 }
 
+// **** GuiDataTemperatureScaleInfo ****
+
+GuiDataTemperatureScaleInfo::GuiDataTemperatureScaleInfo(const std::filesystem::path& filePath, bool isValid, bool fileFound)
+	: m_filePath(filePath)
+	, m_isValid(isValid)
+	, m_fileFound(fileFound)
+{ }
+
+GuiDataTemperatureScaleInfo::~GuiDataTemperatureScaleInfo()
+{ }
+
+guiDType GuiDataTemperatureScaleInfo::getType()
+{
+	return (guiDType::temperatureScaleInfo);
+}
+
 // **** GuiDataProjectTemplateList***
 
 GuiDataProjectTemplateList::GuiDataProjectTemplateList(const std::vector<std::filesystem::path>& templates)

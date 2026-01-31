@@ -99,4 +99,31 @@ namespace control::picking
         return ControlType::findScanFromPicking;
     }
 
+    PickTemperatureFromPick::PickTemperatureFromPick()
+    {
+    }
+
+    PickTemperatureFromPick::~PickTemperatureFromPick()
+    {
+    }
+
+    void PickTemperatureFromPick::doFunction(Controller& controller)
+    {
+        controller.getFunctionManager().launchFunction(controller, ContextType::pickTemperature);
+    }
+
+    bool PickTemperatureFromPick::canUndo() const
+    {
+        return false;
+    }
+
+    void PickTemperatureFromPick::undoFunction(Controller& controller)
+    {
+    }
+
+    ControlType PickTemperatureFromPick::getType() const
+    {
+        return ControlType::pickTemperatureFromPicking;
+    }
+
 }

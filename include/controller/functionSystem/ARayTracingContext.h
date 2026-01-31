@@ -62,6 +62,7 @@ protected:
     glm::dvec3 m_lastCameraPos;
     bool m_repeatInput;
 	bool m_isDisplayingClickTarget;
+    ClickInfo m_lastClickInfo;
 
     struct ClickUsage {
         bool getObjectCenter;

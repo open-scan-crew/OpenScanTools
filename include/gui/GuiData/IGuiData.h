@@ -5,6 +5,7 @@ enum class guiDType
 {
 	cameraData = 0,
 	projectLoaded,
+	temperatureScaleInfo,
 	projectTemplateList,
 	authorSelection,
 	nameSelection,
