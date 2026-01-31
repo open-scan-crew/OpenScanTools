@@ -1,6 +1,7 @@
 #include "controller/functionSystem/ContextPickTemperature.h"
 
 #include "controller/Controller.h"
+#include "controller/ControllerContext.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "models/graph/GraphManager.h"
 #include "models/pointCloud/PointXYZIRGB.h"
@@ -19,8 +20,8 @@ namespace
 
     double computePickRadius(const Controller& controller, const ClickInfo& clickInfo, const glm::dvec3& point)
     {
-        double height = std::max(1.0, clickInfo.height);
-        double pointSize = controller.getContext().getRenderPointSize() + 2.0;
+        double height = std::max(1.0, static_cast<double>(clickInfo.height));
+        double pointSize = controller.cgetContext().getRenderPointSize() + 2.0;
         double distance = glm::length(point - clickInfo.rayOrigin);
         double pixelWorldSize = clickInfo.heightAt1m * pointSize / height;
         return std::max(kMinPickRadius, distance * pixelWorldSize);
@@ -47,9 +48,9 @@ namespace
     {
         double radius = computePickRadius(controller, clickInfo, point);
         ClippingAssembly clipAssembly;
-        controller.getGraphManager().getClippingAssembly(clipAssembly, true, false);
+        controller.cgetGraphManager().getClippingAssembly(clipAssembly, true, false);
 
-        TlScanOverseer::setWorkingScansTransfo(controller.getGraphManager().getVisiblePointCloudInstances(clickInfo.panoramic, true, true));
+        TlScanOverseer::setWorkingScansTransfo(controller.cgetGraphManager().getVisiblePointCloudInstances(clickInfo.panoramic, true, true));
 
         for (int attempt = 0; attempt < 3; ++attempt)
         {
@@ -109,14 +110,14 @@ ContextState ContextPickTemperature::launch(Controller& controller)
     bool hasRgb = tryFindNearestColor(controller, m_lastClickInfo, clickResult.position, pickedPoint);
 
     QString temperatureText = QStringLiteral("NA");
-    TemperatureScaleData temperatureScale = controller.getGraphManager().getTemperatureScaleData();
+    TemperatureScaleData temperatureScale = controller.cgetGraphManager().getTemperatureScaleData();
     if (hasRgb && temperatureScale.isValid)
     {
         uint32_t key = makeTemperatureScaleKey(pickedPoint.r, pickedPoint.g, pickedPoint.b);
         auto it = temperatureScale.rgbToTemperature.find(key);
         if (it != temperatureScale.rgbToTemperature.end())
         {
-            int digits = controller.getContext().m_unitUsage.displayedDigits;
+            int digits = controller.cgetContext().m_unitUsage.displayedDigits;
             temperatureText = QStringLiteral("%1 Celsius").arg(QString::number(it->second, 'f', digits));
         }
     }

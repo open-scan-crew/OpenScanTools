@@ -1,8 +1,10 @@
 #include "controller/controls/ControlTemperatureScale.h"
 
 #include "controller/Controller.h"
+#include "controller/ControllerContext.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataMessages.h"
+#include "models/graph/GraphManager.h"
 #include "models/project/ProjectInfos.h"
 #include "utils/TemperatureScaleUtils.h"
 #include "utils/System.h"
