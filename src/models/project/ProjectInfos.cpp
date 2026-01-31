@@ -36,6 +36,7 @@ ProjectInfos::ProjectInfos(const ProjectInfos& p)
 	this->m_importScanTranslation = p.m_importScanTranslation;
 	this->m_id = p.m_id;
 	this->m_customScanFolderPath = p.m_customScanFolderPath;
+	this->m_temperatureScaleFilePath = p.m_temperatureScaleFilePath;
 }
 
 ProjectInfos::ProjectInfos(const xg::Guid id, const std::wstring & projectName, const  SafePtr<Author>& author, const std::wstring & company, const std::wstring & location, const std::wstring & description)

@@ -70,6 +70,7 @@ enum class ControlType
 	applyProjectTransformation, //Free
 	deleteScanProject,
 	showPropertiesProject, //Free
+	importTemperatureScale,
 
 	// control::projectTemplate
 	createProjectTemplate, //Free
@@ -235,6 +236,7 @@ enum class ControlType
 	// control::picking
 	clickPicking,
 	findScanFromPicking,
+	pickTemperatureFromPicking,
 
 	// control::viewport
 	multiSelect,

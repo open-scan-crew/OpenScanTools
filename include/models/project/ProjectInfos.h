@@ -24,6 +24,7 @@ public:
 public:
 	xg::Guid m_id;
 	std::filesystem::path m_customScanFolderPath;
+	std::filesystem::path m_temperatureScaleFilePath;
 	
 	std::filesystem::path m_projectName;
 	SafePtr<Author>	m_author;

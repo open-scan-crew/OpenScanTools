@@ -108,6 +108,7 @@ bool ARayTracingContext::getNextPosition(Controller& controller)
             return false;
         }
     }
+    m_lastClickInfo = clickInfo;
 
     ElementType objectType;
     bool skipRayTracing = false;

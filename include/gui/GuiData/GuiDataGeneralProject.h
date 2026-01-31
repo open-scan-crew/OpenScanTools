@@ -61,6 +61,19 @@ public:
     std::wstring m_projectName;
 };
 
+class GuiDataTemperatureScaleInfo : public IGuiData
+{
+public:
+	GuiDataTemperatureScaleInfo(const std::filesystem::path& filePath, bool isValid, bool fileFound);
+	~GuiDataTemperatureScaleInfo();
+	guiDType getType() override;
+
+public:
+	std::filesystem::path m_filePath;
+	bool m_isValid;
+	bool m_fileFound;
+};
+
 class GuiDataProjectTemplateList : public IGuiData
 {
 public:

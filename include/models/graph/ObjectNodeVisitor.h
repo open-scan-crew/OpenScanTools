@@ -125,6 +125,7 @@ private:
     void sortMarkersByDepth(const std::vector<MarkerDrawData>& markers, std::vector<MarkerDrawData>& markersSorted, double maxDistance);
 
     std::string formatNumber(double num);
+    std::string formatTemperature(double value) const;
 
 private:
     // Scene geometric parameters

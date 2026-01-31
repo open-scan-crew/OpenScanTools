@@ -538,6 +538,9 @@
     <ClCompile Include="..\..\src\controller\controls\ControlScanEdition.cpp">
       <Filter>src\controller\controls</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\controller\controls\ControlTemperatureScale.cpp">
+      <Filter>src\controller\controls</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\controller\controls\ControlSpecial.cpp">
       <Filter>src\controller\controls</Filter>
     </ClCompile>
@@ -625,6 +628,9 @@
     <ClCompile Include="..\..\src\controller\functionSystem\ContextMoveTag.cpp">
       <Filter>src\controller\contexts</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextPickTemperature.cpp">
+      <Filter>src\controller\contexts</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\controller\ControllerContext.cpp">
       <Filter>src\controller</Filter>
     </ClCompile>
@@ -644,6 +650,9 @@
       <Filter>src\controller\controls</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\utils\time.cpp">
+      <Filter>src\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\TemperatureScaleUtils.cpp">
       <Filter>src\utils</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\controller\messages\ClickMessage.cpp">
