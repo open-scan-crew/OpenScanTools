@@ -52,6 +52,7 @@
 #include "controller/functionSystem/ContextDataGeneration.h"
 #include "controller/functionSystem/ContextPeopleRemover.h"
 #include "controller/functionSystem/ContextFindScan.h"
+#include "controller/functionSystem/ContextPickTemperature.h"
 #include "controller/functionSystem/ContextSetOfPoints.h"
 #include "controller/functionSystem/ContextPlaneDetection.h"
 #include "controller/functionSystem/ContextFitTorus.h"
@@ -232,6 +233,8 @@ AContext* ContextFactory::createContext(const ContextType& type, ContextId& id, 
 			return new ContextPeopleRemover(id);
 		case ContextType::findScan:
 			return new ContextFindScan(id);
+		case ContextType::pickTemperature:
+			return new ContextPickTemperature(id);
 		case ContextType::setOfPoints:
 			return new ContextSetOfPoints(id);
 		case ContextType::planeDetection:

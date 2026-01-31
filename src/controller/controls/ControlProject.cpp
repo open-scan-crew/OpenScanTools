@@ -30,6 +30,7 @@
 #include "utils/Config.h"
 #include "utils/Logger.h"
 #include "utils/system.h"
+#include "utils/TemperatureScaleUtils.h"
 
 #include <iostream>
 #include <filesystem>
@@ -42,6 +43,37 @@
 
 namespace control::project
 {
+    namespace
+    {
+        const QString kTemperatureScaleInvalidMessage = QStringLiteral(
+            "The file structure is incorrect. It must be in the form of columns R G B T.\n"
+            "RGB are integers (0-255) and the temperature T is in \xC2\xB0C, with decimals accepted (dot as a separator).\n"
+            "Separator between columns: tab, space, or ; .\n"
+            "File encoding must be either UTF-8 or ANSI");
+
+        void loadTemperatureScale(Controller& controller)
+        {
+            const ControllerContext& context = controller.getContext();
+            const std::filesystem::path& filePath = context.cgetProjectInfo().m_temperatureScaleFilePath;
+
+            TemperatureScaleData data;
+            data.filePath = filePath;
+            bool fileFound = !filePath.empty() && std::filesystem::exists(filePath);
+
+            if (fileFound)
+            {
+                std::string errorMessage;
+                data = TemperatureScaleUtils::loadTemperatureScaleFile(filePath, errorMessage);
+                data.filePath = filePath;
+                if (!data.isValid)
+                    controller.updateInfo(new GuiDataWarning(kTemperatureScaleInvalidMessage));
+            }
+
+            controller.getGraphManager().setTemperatureScaleData(data);
+            controller.updateInfo(new GuiDataTemperatureScaleInfo(filePath, data.isValid && fileFound, fileFound));
+        }
+    }
+
     /*
     ** Create
     */
@@ -219,6 +251,7 @@ namespace control::project
         const ProjectInfos& info(controller.getContext().cgetProjectInfo());
         controller.updateInfo(new GuiDataDefaultClipParams(info.m_defaultMinClipDistance, info.m_defaultMaxClipDistance, info.m_defaultClipMode));
         controller.updateInfo(new GuiDataDefaultRampParams(info.m_defaultMinRampDistance, info.m_defaultMaxRampDistance, info.m_defaultRampSteps));
+        loadTemperatureScale(controller);
 
         std::vector<std::pair<std::filesystem::path, time_t>> toSaveRecentProjects = controller.getContext().getRecentProjects();
 
