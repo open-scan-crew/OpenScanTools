@@ -2,6 +2,7 @@
 
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
+#include "gui/UnitConverter.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "models/graph/GraphManager.h"
 #include "models/pointCloud/PointXYZIRGB.h"
@@ -118,7 +119,8 @@ ContextState ContextPickTemperature::launch(Controller& controller)
         if (it != temperatureScale.rgbToTemperature.end())
         {
             int digits = controller.cgetContext().m_unitUsage.displayedDigits;
-            temperatureText = QStringLiteral("%1 Celsius").arg(QString::number(it->second, 'f', digits));
+            temperatureText = QStringLiteral("%1%2")
+                                  .arg(QString::number(it->second, 'f', digits), UnitConverter::getTemperatureUnitText());
         }
     }
 
