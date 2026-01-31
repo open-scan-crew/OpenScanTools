@@ -545,11 +545,14 @@ void ObjectNodeVisitor::drawRampOverlay()
 
         const float fontSize = m_displayParameters.m_textOptions.m_textFontSize;
 
-        const double vmin = temperatureScale.entries.front().temperature;
-        const double vmax = temperatureScale.entries.back().temperature;
+        const double entryFirst = temperatureScale.entries.front().temperature;
+        const double entryLast = temperatureScale.entries.back().temperature;
+        const double vmin = std::min(entryFirst, entryLast);
+        const double vmax = std::max(entryFirst, entryLast);
         const int steps = static_cast<int>(temperatureScale.entries.size());
         if (steps == 0)
             return;
+        const bool isAscending = entryFirst <= entryLast;
 
         ImVec2 textSizeVMin = ImGui::CalcTextSize(formatTemperature(vmin).c_str());
         ImVec2 textSizeVMax = ImGui::CalcTextSize(formatTemperature(vmax).c_str());
@@ -600,6 +603,8 @@ void ObjectNodeVisitor::drawRampOverlay()
             {
                 int entryIndex = static_cast<int>(std::round(static_cast<double>(i) * (steps - 1) / graduation));
                 entryIndex = std::clamp(entryIndex, 0, steps - 1);
+                if (isAscending)
+                    entryIndex = steps - 1 - entryIndex;
                 const double v = temperatureScale.entries[entryIndex].temperature;
                 std::string text = formatTemperature(v);
                 dl->AddText(NULL, fontSize, ImVec2(text_x, text_y), IM_COL32_WHITE, text.c_str());
@@ -612,7 +617,8 @@ void ObjectNodeVisitor::drawRampOverlay()
         float dY = (internSizeY - textSize.y) / steps;
         for (int i = 0; i < steps; ++i)
         {
-            const TemperatureScaleEntry& entry = temperatureScale.entries[i];
+            int entryIndex = isAscending ? (steps - 1 - i) : i;
+            const TemperatureScaleEntry& entry = temperatureScale.entries[entryIndex];
             ImVec2 rect = ImVec2(scale_x, wndPos.y + internMargin.y + textSize.y / 2.f + dY * i);
             dl->AddRectFilled(rect, rect + ImVec2(scale_width, dY), IM_COL32(entry.r, entry.g, entry.b, 255));
         }
