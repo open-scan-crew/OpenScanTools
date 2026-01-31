@@ -3,6 +3,7 @@
 #include <QtCore/qobject.h>
 
 #include <unordered_map>
+#include <string>
 
 static const std::unordered_map<UnitType, QString> unitTexts = {
         {UnitType::NO_UNIT, QString()},
@@ -15,10 +16,21 @@ static const std::unordered_map<UnitType, QString> unitTexts = {
         {UnitType::FT, QObject::tr(" ft")},
         {UnitType::INC, QObject::tr(" in")},
 
-        {UnitType::DEG, QString::fromStdWString(L" °")},
+QString UnitConverter::getTemperatureUnitText()
+{
+    return QString::fromUtf8(u8" \u00b0C");
+}
+
+std::string UnitConverter::getTemperatureUnitTextStd()
+{
+    return getTemperatureUnitText().toUtf8().toStdString();
+}
+
+
+        {UnitType::DEG, QString::fromStdWString(L" Â°")},
         {UnitType::PX, QString::fromStdWString(L" px")},
 
-        {UnitType::M3, QString::fromStdWString(L" m³")},
+        {UnitType::M3, QString::fromStdWString(L" mÂ³")},
         {UnitType::LITRE, QString::fromStdWString(L" L")}
 
         /*{UnitType::YD_US, TEXT_UNIT_YD_US},
