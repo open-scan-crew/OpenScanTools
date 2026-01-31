@@ -1,7 +1,7 @@
 #ifndef CONTROL_TEMPERATURE_SCALE_H
 #define CONTROL_TEMPERATURE_SCALE_H
 
-#include "controller/controls/AControl.h"
+#include "controller/controls/IControl.h"
 
 #include <filesystem>
 

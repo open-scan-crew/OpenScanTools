@@ -11,7 +11,7 @@ namespace
 {
     const QString kTemperatureScaleInvalidMessage = QStringLiteral(
         "The file structure is incorrect. It must be in the form of columns R G B T.\n"
-        "RGB are integers (0-255) and the temperature T is in \xC2\xB0C, with decimals accepted (dot as a separator).\n"
+        "RGB are integers (0-255) and the temperature T is in Celsius, with decimals accepted (dot as a separator).\n"
         "Separator between columns: tab, space, or ; .\n"
         "File encoding must be either UTF-8 or ANSI");
     const QString kTemperatureScaleCopyErrorMessage = QStringLiteral("Unable to copy the temperature scale file to Templates.");
