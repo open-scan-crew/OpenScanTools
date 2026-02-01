@@ -358,6 +358,7 @@ private:
     QueueID m_transferQID;
     QueueID m_computeQID;
     QueueID m_streamingQID;
+    bool m_singleQueueFallback = false;
 
     VkFormat m_imageFormat = VK_FORMAT_UNDEFINED;
     VkFormat m_depthFormat = VK_FORMAT_UNDEFINED;

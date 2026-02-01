@@ -3915,6 +3915,17 @@ bool VulkanManager::checkQueueFamilies(VkPhysicalDevice device, bool choose, boo
         (transferQID.family != UINT32_MAX) &&
         (computeQID.family != UINT32_MAX) &&
         (streamingQID.family != UINT32_MAX);
+    bool singleQueueFallback = false;
+
+    if (!validQueues && graphicsQID.family != UINT32_MAX)
+    {
+        computeQID = graphicsQID;
+        transferQID = graphicsQID;
+        streamingQID = graphicsQID;
+        validQueues = true;
+        singleQueueFallback = true;
+        VKM_INFO << "Only one queue available. Using a shared queue for graphics/compute/transfer/streaming." << Logger::endl;
+    }
 
     // Show the queue family available on this device and their properties
     if (printInfo)
@@ -3946,6 +3957,7 @@ bool VulkanManager::checkQueueFamilies(VkPhysicalDevice device, bool choose, boo
         m_computeQID = computeQID;
         m_transferQID = transferQID;
         m_streamingQID = streamingQID;
+        m_singleQueueFallback = singleQueueFallback;
     }
     else
     {
