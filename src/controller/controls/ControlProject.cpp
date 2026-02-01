@@ -32,12 +32,23 @@
 #include "utils/system.h"
 #include "utils/TemperatureScaleUtils.h"
 
+#include <cstdlib>
+#include <cstring>
 #include <iostream>
 #include <filesystem>
 
 // control::project::
 #define Yes 0x00004000
 #define No 0x00010000
+
+namespace
+{
+    bool projectTraceEnabled()
+    {
+        const char* value = std::getenv("OST_PROJECT_TRACE");
+        return value && (strcmp(value, "1") == 0 || strcmp(value, "true") == 0 || strcmp(value, "TRUE") == 0);
+    }
+}
 #define Cancel 0x00400000
 #define MAX_RECENT_PROJECTS_SIZE 10
 
@@ -167,6 +178,8 @@ namespace control::project
     void DropLoad::doFunction(Controller& controller)
     {
         CONTROLLOG << "control::project::DropLoad" << LOGENDL;
+        if (projectTraceEnabled())
+            CONTROLLOG << "control::project::DropLoad path=" << m_loadPath << LOGENDL;
         controller.getFunctionManager().launchFunction(controller, ContextType::saveCloseLoadProject);
         FilesMessage message({ m_loadPath });
         controller.getFunctionManager().feedMessage(controller, &message);
@@ -203,10 +216,16 @@ namespace control::project
     void Load::doFunction(Controller& controller)
     {
         CONTROLLOG << "control::project::Load[begin]" << LOGENDL;
+        if (projectTraceEnabled())
+            CONTROLLOG << "control::project::Load path=" << m_loadPath << LOGENDL;
         // Load the new project
         std::string errorMsg;
 
+        if (projectTraceEnabled())
+            CONTROLLOG << "control::project::Load importJsonProject[begin]" << LOGENDL;
         SaveLoadSystem::importJsonProject(m_loadPath, controller, errorMsg);
+        if (projectTraceEnabled())
+            CONTROLLOG << "control::project::Load importJsonProject[end] loaded=" << controller.getContext().isProjectLoaded() << LOGENDL;
 
         ControllerContext& context = controller.getContext();
         if (!context.isProjectLoaded())
@@ -381,6 +400,8 @@ namespace control::project
     void Close::doFunction(Controller& controller)
     {
         CONTROLLOG << "control::project::Close[begin]" << LOGENDL;
+        if (projectTraceEnabled())
+            CONTROLLOG << "control::project::Close isLoaded=" << controller.getContext().isProjectLoaded() << LOGENDL;
 
         ControllerContext& context = controller.getContext();
 
@@ -404,6 +425,8 @@ namespace control::project
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             counter++;
         }
+        if (projectTraceEnabled())
+            CONTROLLOG << "control::project::Close scanFreeCounter=" << static_cast<int>(counter) << LOGENDL;
         controller.updateInfo(new GuiDataSplashScreenEnd(GuiDataSplashScreenEnd::SplashScreenType::Display));
 
         CONTROLLOG << "control::project::Close[end]" << LOGENDL;
