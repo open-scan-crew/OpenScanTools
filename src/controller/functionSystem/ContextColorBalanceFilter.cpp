@@ -244,7 +244,7 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
         IScanFileWriter* scan_writer = nullptr;
         std::wstring log;
         std::wstring outputName = wScan->getName() + L"_CB";
-        if (!getScanFileWriter(m_outputFolder, outputName, m_outputFileType, log, &scan_writer) || scan_writer == nullptr)
+        if (!getScanFileWriter(m_outputFolder, outputName, m_outputFileType, log, &scan_writer, true) || scan_writer == nullptr)
             continue;
 
         tls::ScanHeader header;

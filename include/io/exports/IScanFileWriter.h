@@ -52,6 +52,6 @@ protected:
     glm::dvec3 post_translation_;
 };
 
-bool getScanFileWriter(const std::filesystem::path& dirPath, const std::wstring& fileName, FileType type, std::wstring& log, IScanFileWriter**);
+bool getScanFileWriter(const std::filesystem::path& dirPath, const std::wstring& fileName, FileType type, std::wstring& log, IScanFileWriter**, bool overwriteExisting = false);
 
 #endif
