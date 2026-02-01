@@ -9065,6 +9065,11 @@ Exemple: incliner un objet selon une pente.</translation>
         <translation>Annuler</translation>
     </message>
     <message>
+        <location filename="../../src/gui/forms/MultiProperty.ui" line="743"/>
+        <source>Clippable</source>
+        <translation>Affecté par les clippings</translation>
+    </message>
+    <message>
         <location filename="../../src/gui/forms/MultiProperty.ui" line="387"/>
         <source>Validate</source>
         <translation>Valider</translation>

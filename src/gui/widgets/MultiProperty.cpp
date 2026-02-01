@@ -4,11 +4,13 @@
 #include "controller/ControllerContext.h"
 #include "controller/controls/ControlDataEdition.h"
 #include "controller/controls/ControlClippingEdition.h"
+#include "controller/controls/ControlScanEdition.h"
 #include "controller/controls/ControlMetaControl.h"
 #include "gui/Texts.hpp"
 
 #include "models/graph/AGraphNode.h"
 #include "models/graph/AClippingNode.h"
+#include "models/graph/PointCloudNode.h"
 #include "models/application/Ids.hpp"
 #include "models/FilteredTypes.h"
 
@@ -32,6 +34,25 @@ std::unordered_set<SafePtr<AClippingNode>> getClippingsNodes(const std::unordere
 			clipNodes.insert(static_pointer_cast<AClippingNode>(node));
 	}
 	return clipNodes;
+}
+
+std::unordered_set<SafePtr<PointCloudNode>> getPointCloudNodes(const std::unordered_set<SafePtr<AGraphNode>>& nodes)
+{
+	std::unordered_set<SafePtr<PointCloudNode>> pointCloudNodes;
+	for (const SafePtr<AGraphNode>& node : nodes)
+	{
+		ElementType type;
+		{
+			ReadPtr<AGraphNode> rNode = node.cget();
+			if (!rNode)
+				continue;
+			type = rNode->getType();
+		}
+
+		if (type == ElementType::Scan || type == ElementType::PCO)
+			pointCloudNodes.insert(static_pointer_cast<PointCloudNode>(node));
+	}
+	return pointCloudNodes;
 }
 
 MultiProperty::MultiProperty(Controller& controller, QWidget* parent, float guiScale)
@@ -61,6 +82,8 @@ MultiProperty::MultiProperty(Controller& controller, QWidget* parent, float guiS
 	connect(m_ui.clipMethodToolButton, &QToolButton::clicked, this, [this]() {updateToolButton(m_ui.clipMethodToolButton); });
 	connect(m_ui.clipMaxToolButton, &QToolButton::clicked, this, [this]() {updateToolButton(m_ui.clipMaxToolButton); });
 	connect(m_ui.clipMinToolButton, &QToolButton::clicked, this, [this]() {updateToolButton(m_ui.clipMinToolButton); });
+
+	connect(m_ui.clippableToolButton, &QToolButton::clicked, this, [this]() {updateToolButton(m_ui.clippableToolButton); });
 
 	connect(m_ui.activeRampToolButton, &QToolButton::clicked, this, [this]() {updateToolButton(m_ui.activeRampToolButton); });
 	connect(m_ui.rampMinToolButton, &QToolButton::clicked, this, [this]() {updateToolButton(m_ui.rampMinToolButton); });
@@ -93,6 +116,9 @@ MultiProperty::MultiProperty(Controller& controller, QWidget* parent, float guiS
 	m_toolbuttonWidgets[m_ui.clipMethodToolButton] = { m_ui.interiorClipRadioButton, m_ui.exteriorClipRadioButton, m_ui.phaseClipRadioButton, m_ui.clipMethodLabel };
 	m_toolbuttonWidgets[m_ui.clipMaxToolButton] = { m_ui.clipMaxLineEdit, m_ui.clipMaxLabel };
 	m_toolbuttonWidgets[m_ui.clipMinToolButton] = { m_ui.clipMinLineEdit, m_ui.clipMinLabel };
+
+	//Point cloud
+	m_toolbuttonWidgets[m_ui.clippableToolButton] = { m_ui.clippableCheckBox, m_ui.clippableLabel };
 
 	//Ramp
 	m_toolbuttonWidgets[m_ui.activeRampToolButton] = { m_ui.activeRampCheckBox };
@@ -171,6 +197,7 @@ void MultiProperty::clearFields()
 {
 	bool containScan = false;
 	bool containClip = false;
+	bool containPointCloud = false;
 
 	for (SafePtr<AGraphNode> object : m_objects)
 	{
@@ -181,16 +208,20 @@ void MultiProperty::clearFields()
 		if (rObj->getType() == ElementType::Scan)
 			containScan = true;
 
+		if (rObj->getType() == ElementType::Scan || rObj->getType() == ElementType::PCO)
+			containPointCloud = true;
+
 		if (s_clippingTypes.find(rObj->getType()) != s_clippingTypes.end())
 			containClip = true;
 
-		if (containScan && containClip)
+		if (containScan && containClip && containPointCloud)
 			break;
 	}
 
 	m_ui.nameWidget->setVisible(!containScan);
 	m_ui.identifierWidget->setVisible(!containScan);
 	m_ui.colorWidget->setVisible(!containScan);
+	m_ui.clippableWidget->setVisible(containPointCloud);
 
 	m_ui.clipWidget->setVisible(containClip);
 	m_ui.rampWidget->setVisible(containClip);
@@ -208,6 +239,7 @@ void MultiProperty::clearFields()
 	m_ui.phaseClipRadioButton->setChecked(false);
 
 	m_ui.clipActiveCheckBox->setChecked(false);
+	m_ui.clippableCheckBox->setChecked(false);
 
 	m_ui.clipMaxLineEdit->setValue(0.);
 	m_ui.clipMinLineEdit->setValue(0.);
@@ -333,6 +365,13 @@ void MultiProperty::onActivateChanges()
 		m_dataDispatcher.sendControl(new control::clippingEdition::SetMinRamp(clipNodes, m_ui.lineEdit_rampMin->getValue()));
 	if (m_ui.rampStepsToolButton->isChecked())
 		m_dataDispatcher.sendControl(new control::clippingEdition::SetRampSteps(clipNodes, m_ui.spinBox_rampSteps->value()));
+
+	std::unordered_set<SafePtr<PointCloudNode>> pointCloudNodes = getPointCloudNodes(m_objects);
+	if (m_ui.clippableToolButton->isChecked())
+	{
+		for (const SafePtr<PointCloudNode>& pointCloud : pointCloudNodes)
+			m_dataDispatcher.sendControl(new control::scanEdition::SetClippable(pointCloud, m_ui.clippableCheckBox->isChecked()));
+	}
 
 	m_dataDispatcher.sendControl(new control::meta::ControlStopMetaControl());
 }
