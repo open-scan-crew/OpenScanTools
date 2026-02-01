@@ -278,6 +278,7 @@ private:
     bool loadInSimpleBuffer_host(SimpleBuffer& smpBuf, VkDeviceSize dataSize, const void* pData, VkDeviceSize& bufOffset, VkDeviceSize byteAlign);
     bool loadTextureArray_async(const void* imageData, uint32_t width, uint32_t height, VkImage& image, uint32_t layer, uint32_t layerCount);
     bool downloadSimpleBuffer_async(const SimpleBuffer& smpBuf, void* pData, VkDeviceSize dataSize);
+    bool submitTransferAndWait(VkCommandBuffer cmdBuffer);
 
     bool checkSwapchain(TlFramebuffer _fb);
 
