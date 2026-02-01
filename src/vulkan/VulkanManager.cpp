@@ -17,6 +17,7 @@
 #include <thread>
 #include <map>
 #include <set>
+#include <string>
 
 #include <glm/gtc/packing.hpp>
 
@@ -32,6 +33,29 @@
         else\
             log << " ";\
         log << blank;
+
+namespace
+{
+    bool readEnvFlag(const char* name)
+    {
+        const char* value = std::getenv(name);
+        if (!value)
+            return false;
+        return strcmp(value, "1") == 0 || strcmp(value, "true") == 0 || strcmp(value, "TRUE") == 0;
+    }
+
+    double readEnvDouble(const char* name, double fallback)
+    {
+        const char* value = std::getenv(name);
+        if (!value || *value == '\0')
+            return fallback;
+        char* end = nullptr;
+        double parsed = std::strtod(value, &end);
+        if (end == value)
+            return fallback;
+        return parsed;
+    }
+}
 
 void deleteCharPP(uint32_t _count, char* const* _cstringList)
 {
@@ -198,6 +222,17 @@ void VulkanManager::stopAllRendering()
 
 void VulkanManager::initStreaming()
 {
+    bool disableStreaming = readEnvFlag("OST_DISABLE_STREAMING");
+    if (m_singleQueueFallback && readEnvFlag("OST_DISABLE_STREAMING_SINGLE_QUEUE"))
+        disableStreaming = true;
+
+    if (disableStreaming)
+    {
+        VKM_WARNING << "Streaming disabled by environment override." << Logger::endl;
+        startTransferThread();
+        return;
+    }
+
     if (m_streamer == nullptr)
         m_streamer = new TlStreamer(m_device, m_pfnDev, getQueue(m_streamingQID), m_streamingQID.family, 32 * 1024 * 1024);
     else
@@ -2464,13 +2499,27 @@ bool VulkanManager::initVma()
     VkDeviceSize memSizeDevice = memProp.memoryHeaps[m_deviceHeapIndex].size;
     VkDeviceSize memSizeHost = memProp.memoryHeaps[m_hostHeapIndex].size;
     VkDeviceSize blockSize = 256ull * 1024 * 1024;
-    size_t blockCountDevice = (memSizeDevice / 100 * 90) / blockSize; // 90% of device memory
-    size_t blockCountHost = (memSizeHost / 100 * 90) / blockSize;     // 90% of host memory
+    double defaultFraction = 0.90;
+    double deviceFraction = readEnvDouble("OST_VMA_DEVICE_POOL_FRACTION", defaultFraction);
+    double hostFraction = readEnvDouble("OST_VMA_HOST_POOL_FRACTION", defaultFraction);
+    double poolFraction = readEnvDouble("OST_VMA_POOL_FRACTION", -1.0);
+    if (poolFraction > 0.0)
+    {
+        deviceFraction = poolFraction;
+        hostFraction = poolFraction;
+    }
+    deviceFraction = std::min(std::max(deviceFraction, 0.01), 0.95);
+    hostFraction = std::min(std::max(hostFraction, 0.01), 0.95);
+
+    size_t blockCountDevice = static_cast<size_t>((memSizeDevice * deviceFraction) / blockSize);
+    size_t blockCountHost = static_cast<size_t>((memSizeHost * hostFraction) / blockSize);
+    blockCountDevice = std::max<size_t>(1, blockCountDevice);
+    blockCountHost = std::max<size_t>(1, blockCountHost);
 
     VKM_INFO << "Local Memory Selection: type index " << m_memTypeIndex_local << " with " << memSizeDevice << " bytes available." << Logger::endl;
     VKM_INFO << "Host Memory Selection: type index " << m_memTypeIndex_host << " with " << memSizeHost << " bytes available." << Logger::endl;
-    VKM_INFO << "Maximum Device memory used (< 90%): " << blockCountDevice * blockSize << Logger::endl;
-    VKM_INFO << "Maximum Host memory used (< 90%): " << blockCountHost * blockSize << Logger::endl;
+    VKM_INFO << "Maximum Device memory used (< " << deviceFraction * 100.0 << "%): " << blockCountDevice * blockSize << Logger::endl;
+    VKM_INFO << "Maximum Host memory used (< " << hostFraction * 100.0 << "%): " << blockCountHost * blockSize << Logger::endl;
 
     VmaPoolCreateInfo poolCI = {};
     poolCI.memoryTypeIndex = m_memTypeIndex_local;
