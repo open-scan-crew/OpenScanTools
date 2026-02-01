@@ -1352,8 +1352,15 @@ bool VulkanManager::loadInSimpleBuffer(SimpleBuffer& smpBuf, VkDeviceSize dataSi
     if (smpBuf.isLocalMem)
     {
         try {
+            auto start = std::chrono::steady_clock::now();
             std::future<bool> rb = enqueueTransfer(&VulkanManager::loadInSimpleBuffer_local, this, smpBuf, dataSize, pData, bufOffset, byteAlign);
-            return rb.get();
+            bool result = rb.get();
+            if (m_singleQueueFallback)
+            {
+                auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start);
+                VKM_INFO << "Transfer loadInSimpleBuffer waited " << duration.count() << " ms (single-queue)." << Logger::endl;
+            }
+            return result;
         }
         catch (std::exception e)
         {
@@ -1368,8 +1375,15 @@ bool VulkanManager::loadInSimpleBuffer(SimpleBuffer& smpBuf, VkDeviceSize dataSi
 bool VulkanManager::downloadSimpleBuffer(const SimpleBuffer& smpBuf, void* pData, VkDeviceSize dataSize)
 {
     try {
+        auto start = std::chrono::steady_clock::now();
         std::future<bool> rb = enqueueTransfer(&VulkanManager::downloadSimpleBuffer_async, this, smpBuf, pData, dataSize);
-        return rb.get();
+        bool result = rb.get();
+        if (m_singleQueueFallback)
+        {
+            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start);
+            VKM_INFO << "Transfer downloadSimpleBuffer waited " << duration.count() << " ms (single-queue)." << Logger::endl;
+        }
+        return result;
     }
     catch (std::exception e)
     {
@@ -1428,14 +1442,13 @@ bool VulkanManager::loadInSimpleBuffer_local(SimpleBuffer& smpBuf, VkDeviceSize 
         //------------+++++++++++++
         m_pfnDev->vkEndCommandBuffer(m_transferCmdBuf);
 
-        VkSubmitInfo submitInfo = {};
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &m_transferCmdBuf;
-
-        m_pfnDev->vkQueueSubmit(getQueue(m_transferQID), 1, &submitInfo, VK_NULL_HANDLE);
-        m_pfnDev->vkQueueWaitIdle(getQueue(m_transferQID));
+        submitTransferAndWait(m_transferCmdBuf);
         //++++++++++++++++++++++++++++
+
+        if (m_singleQueueFallback)
+        {
+            std::this_thread::yield();
+        }
     }
     return (true);
 }
@@ -1598,13 +1611,7 @@ bool VulkanManager::downloadSimpleBuffer_async(const SimpleBuffer& smpBuf, void*
             //------------+++++++++++++
             m_pfnDev->vkEndCommandBuffer(m_transferCmdBuf);
 
-            VkSubmitInfo submitInfo = {};
-            submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-            submitInfo.commandBufferCount = 1;
-            submitInfo.pCommandBuffers = &m_transferCmdBuf;
-
-            m_pfnDev->vkQueueSubmit(getQueue(m_transferQID), 1, &submitInfo, VK_NULL_HANDLE);
-            m_pfnDev->vkQueueWaitIdle(getQueue(m_transferQID));
+            submitTransferAndWait(m_transferCmdBuf);
             //++++++++++++++++++++++++++++
 
             VkMappedMemoryRange range = {};
@@ -1614,6 +1621,11 @@ bool VulkanManager::downloadSimpleBuffer_async(const SimpleBuffer& smpBuf, void*
             range.size = VK_WHOLE_SIZE;
             m_pfnDev->vkFlushMappedMemoryRanges(m_device, 1, &range);
             memcpy((char*)pData + subOffset, (char*)m_pStaging, rSize);
+
+            if (m_singleQueueFallback)
+            {
+                std::this_thread::yield();
+            }
         }
     }
     else
@@ -1647,6 +1659,44 @@ void* VulkanManager::getMappedPointer(SmartBuffer& sbuf)
 #endif
 
     return (allocInfo.pMappedData);
+}
+
+bool VulkanManager::submitTransferAndWait(VkCommandBuffer cmdBuffer)
+{
+    VkFence fence = VK_NULL_HANDLE;
+    if (m_singleQueueFallback)
+    {
+        VkFenceCreateInfo fenceInfo = {};
+        fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        VkResult err = m_pfnDev->vkCreateFence(m_device, &fenceInfo, nullptr, &fence);
+        if (err != VK_SUCCESS)
+            return false;
+    }
+
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &cmdBuffer;
+
+    VkResult err = m_pfnDev->vkQueueSubmit(getQueue(m_transferQID), 1, &submitInfo, fence);
+    if (err != VK_SUCCESS)
+    {
+        if (fence != VK_NULL_HANDLE)
+            m_pfnDev->vkDestroyFence(m_device, fence, nullptr);
+        return false;
+    }
+
+    if (m_singleQueueFallback)
+    {
+        m_pfnDev->vkWaitForFences(m_device, 1, &fence, VK_TRUE, UINT64_MAX);
+        m_pfnDev->vkDestroyFence(m_device, fence, nullptr);
+    }
+    else
+    {
+        m_pfnDev->vkQueueWaitIdle(getQueue(m_transferQID));
+    }
+
+    return true;
 }
 
 bool VulkanManager::allocUniform(uint32_t dataSize, uint32_t imageCount, VkMultiUniform& uniform)
@@ -3670,14 +3720,7 @@ void VulkanManager::endTransferCommand(VkCommandBuffer _cmdBuffer)
     assert(m_transferThread.get_id() == std::this_thread::get_id());
 
     m_pfnDev->vkEndCommandBuffer(_cmdBuffer);
-
-    VkSubmitInfo submitInfo = {};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &_cmdBuffer;
-
-    m_pfnDev->vkQueueSubmit(getQueue(m_transferQID), 1, &submitInfo, VK_NULL_HANDLE);
-    m_pfnDev->vkQueueWaitIdle(getQueue(m_transferQID));
+    submitTransferAndWait(_cmdBuffer);
 
     m_pfnDev->vkFreeCommandBuffers(m_device, m_transferCmdPool, 1, &_cmdBuffer);
 }
@@ -3915,6 +3958,17 @@ bool VulkanManager::checkQueueFamilies(VkPhysicalDevice device, bool choose, boo
         (transferQID.family != UINT32_MAX) &&
         (computeQID.family != UINT32_MAX) &&
         (streamingQID.family != UINT32_MAX);
+    bool singleQueueFallback = false;
+
+    if (!validQueues && graphicsQID.family != UINT32_MAX)
+    {
+        computeQID = graphicsQID;
+        transferQID = graphicsQID;
+        streamingQID = graphicsQID;
+        validQueues = true;
+        singleQueueFallback = true;
+        VKM_INFO << "Only one queue available. Using a shared queue for graphics/compute/transfer/streaming." << Logger::endl;
+    }
 
     // Show the queue family available on this device and their properties
     if (printInfo)
@@ -3946,6 +4000,7 @@ bool VulkanManager::checkQueueFamilies(VkPhysicalDevice device, bool choose, boo
         m_computeQID = computeQID;
         m_transferQID = transferQID;
         m_streamingQID = streamingQID;
+        m_singleQueueFallback = singleQueueFallback;
     }
     else
     {
