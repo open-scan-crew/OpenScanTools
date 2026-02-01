@@ -47,6 +47,8 @@
 #define MANIPULATOR_SIZE "manipulator_size"
 #define INDEXATION_METHOD "indexation_method"
 #define GDEVICE_JSON_KEY "graphic_device"
+#define MULTITHREADING_ENABLED_JSON_KEY "multithreading_enabled"
+#define MULTITHREADING_THREADS_JSON_KEY "multithreading_threads"
 #define RENDER_PERSPECTIVE_PLANS "render_perspective_plans"
 #define RENDER_ORTHOGRAPHIC_Z_BOUND "render_orthographic_z_bound"
 #define RENDER_NEAR_PLAN "near_plan"
@@ -418,6 +420,32 @@ namespace Config
 	bool setExamineDisplayMode(bool value)
 	{
 		jsonConfig[EXAMINE_DISPLAY_JSON_KEY] = value;
+		return saveConfigFile(filePath);
+	}
+
+	bool getMultithreadingEnabled()
+	{
+		if (jsonConfig.find(MULTITHREADING_ENABLED_JSON_KEY) == jsonConfig.end())
+			return false;
+		return jsonConfig.at(MULTITHREADING_ENABLED_JSON_KEY);
+	}
+
+	bool setMultithreadingEnabled(bool enabled)
+	{
+		jsonConfig[MULTITHREADING_ENABLED_JSON_KEY] = enabled;
+		return saveConfigFile(filePath);
+	}
+
+	int getMultithreadingThreads()
+	{
+		if (jsonConfig.find(MULTITHREADING_THREADS_JSON_KEY) == jsonConfig.end())
+			return 1;
+		return jsonConfig.at(MULTITHREADING_THREADS_JSON_KEY).get<int>();
+	}
+
+	bool setMultithreadingThreads(int threads)
+	{
+		jsonConfig[MULTITHREADING_THREADS_JSON_KEY] = threads;
 		return saveConfigFile(filePath);
 	}
 

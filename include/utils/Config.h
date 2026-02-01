@@ -66,6 +66,12 @@ namespace Config
 	bool getExamineDisplayMode();
 	bool setExamineDisplayMode(bool value);
 
+	bool getMultithreadingEnabled();
+	bool setMultithreadingEnabled(bool enabled);
+
+	int getMultithreadingThreads();
+	bool setMultithreadingThreads(int threads);
+
 	std::vector<std::pair<std::filesystem::path, time_t>> getRecentProjects();
 	bool setRecentProjects(std::vector<std::pair<std::filesystem::path, time_t>> projects);
 

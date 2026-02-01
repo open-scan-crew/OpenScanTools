@@ -751,6 +751,48 @@ namespace control::application
         return ControlType::setIndexationMethod;
     }
 
+	/*
+	**	SetMultithreadingOptions
+	*/
+
+	SetMultithreadingOptions::SetMultithreadingOptions(bool enabled, int threads, bool save)
+		: m_enabled(enabled)
+		, m_threads(threads)
+		, m_save(save)
+	{
+	}
+
+	SetMultithreadingOptions::~SetMultithreadingOptions()
+	{
+	}
+
+	void SetMultithreadingOptions::doFunction(Controller& controller)
+	{
+		if (m_save)
+		{
+			bool savedEnabled = Config::setMultithreadingEnabled(m_enabled);
+			bool savedThreads = Config::setMultithreadingThreads(m_threads);
+			if (!savedEnabled || !savedThreads)
+				controller.updateInfo(new GuiDataWarning(TEXT_SETTINGS_FAILED_TO_SAVE));
+		}
+		CONTROLLOG << "control::application::SetMultithreadingOptions enabled=" << m_enabled
+				   << " threads=" << m_threads << LOGENDL;
+	}
+
+	bool SetMultithreadingOptions::canUndo() const
+	{
+		return false;
+	}
+
+	void SetMultithreadingOptions::undoFunction(Controller& controller)
+	{
+	}
+
+	ControlType SetMultithreadingOptions::getType() const
+	{
+		return ControlType::setMultithreadingOptions;
+	}
+
     /*
     **	SetGizmoParameters
     */

@@ -207,6 +207,21 @@ namespace control::application
         const bool m_save;
     };
 
+	class SetMultithreadingOptions : public AControl
+	{
+	public:
+		SetMultithreadingOptions(bool enabled, int threads, bool save = true);
+		~SetMultithreadingOptions();
+		void doFunction(Controller& controller) override;
+		bool canUndo() const override;
+		void undoFunction(Controller& controller) override;
+		ControlType getType() const override;
+	private:
+		const bool m_enabled;
+		const int m_threads;
+		const bool m_save;
+	};
+
     class SetFramelessMode : public AControl
     {
     public:

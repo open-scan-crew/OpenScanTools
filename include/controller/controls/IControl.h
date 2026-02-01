@@ -44,6 +44,7 @@ enum class ControlType
 	sendRecentProjects, //Free
 	setAutosaveParameters, //Free
 	setIndexationMethod, //Free
+	setMultithreadingOptions, //Free
 	setValueSettingsDisplay,
 	setNavigationParameters,
 	setPerspectiveZBounds,

@@ -45,6 +45,8 @@ public slots:
     void onAutosaveCheckboxChanged();
     void onAutosaveComboxBoxChanged();
     void onIndexationMethodChoice();
+    void onMultithreadingStateChanged();
+    void onMultithreadingThreadsChanged(int value);
     void onManipulatorSizeChanged(int manipulatorSize);
 	void onOctreePrecisionChanged();
 
