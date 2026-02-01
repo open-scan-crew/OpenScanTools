@@ -14,6 +14,7 @@
 #include "gui/texts/FileSystemTexts.hpp"
 
 #include <QtCore/QSignalBlocker>
+#include <QtCore/QThread>
 #include <QtWidgets/qcombobox.h>
 #include <QtWidgets/qcheckbox.h>
 #include <QtWidgets/qtoolbutton.h>
@@ -53,12 +54,17 @@ DialogSettings::DialogSettings(IDataDispatcher& dataDispatcher, QWidget* parent)
 		m_ui.slider_octreePrecision->setSingleStep(1);
 		m_ui.slider_octreePrecision->setPageStep(1);
 		m_ui.spinBox_octreePrecision->setDecimals(1);
-		m_ui.spinBox_octreePrecision->setRange(kMinOctreePrecision, kMaxOctreePrecision);
-		m_ui.spinBox_octreePrecision->setSingleStep(0.1);
+	m_ui.spinBox_octreePrecision->setRange(kMinOctreePrecision, kMaxOctreePrecision);
+	m_ui.spinBox_octreePrecision->setSingleStep(0.1);
 
-		m_ui.autosaveTimingComboBox->addItem(QString(""), QVariant(0));
+	m_ui.autosaveTimingComboBox->addItem(QString(""), QVariant(0));
 	for (const uint8_t& time : Config::Timing)
 		m_ui.autosaveTimingComboBox->addItem(TEXT_SETTINGS_MINUTES.arg(time), QVariant(time));
+
+	int idealThreads = QThread::idealThreadCount();
+	if (idealThreads < 1)
+		idealThreads = 1;
+	m_ui.multithreadingCoresSpinBox->setMaximum(idealThreads);
 
 	m_ui.lineEdit_temporary->setVisible(false);
 	m_ui.tempLabel->setVisible(false);
@@ -103,6 +109,8 @@ DialogSettings::DialogSettings(IDataDispatcher& dataDispatcher, QWidget* parent)
 	connect(m_ui.autosaveTimingComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &DialogSettings::onAutosaveComboxBoxChanged);
 	connect(m_ui.manipulatorSizeSlider, &QSlider::valueChanged, this, &DialogSettings::onManipulatorSizeChanged);
 	connect(m_ui.manipulatorSizeSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &DialogSettings::onManipulatorSizeChanged);
+	connect(m_ui.multithreadingCheckBox, &QCheckBox::stateChanged, this, &DialogSettings::onMultithreadingStateChanged);
+	connect(m_ui.multithreadingCoresSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &DialogSettings::onMultithreadingThreadsChanged);
 	connect(m_ui.slider_octreePrecision, &QSlider::valueChanged, this, [this](int value)
 		{
 			QSignalBlocker blocker(m_ui.spinBox_octreePrecision);
@@ -200,6 +208,9 @@ void DialogSettings::initConfigValues()
 	m_ui.autosaveActivateCheckBox->setChecked(Config::getIsAutoSaveActive());
 	m_ui.fillMissingRadioButton->setChecked(Config::getIndexationMethod() == IndexationMethod::FillMissingIndex);
 	m_ui.unlockScansCheckBox->setChecked(Config::isUnlockScanManipulation());
+	m_ui.multithreadingCheckBox->setChecked(Config::getMultithreadingEnabled());
+	m_ui.multithreadingCoresSpinBox->setValue(Config::getMultithreadingThreads());
+	m_ui.multithreadingCoresSpinBox->setEnabled(Config::getMultithreadingEnabled());
 
 	int manipulatorSize = (int)Config::getManipulatorSize();
 	m_ui.manipulatorSizeSlider->setValue(manipulatorSize);
@@ -253,6 +264,8 @@ void DialogSettings::blockSignal(bool active)
 	m_ui.lineEdit_ffmpeg->blockSignals(active);
 	m_ui.manipulatorSizeSlider->blockSignals(active);
 	m_ui.manipulatorSizeSpinBox->blockSignals(active);
+	m_ui.multithreadingCheckBox->blockSignals(active);
+	m_ui.multithreadingCoresSpinBox->blockSignals(active);
 	m_ui.pushButton_color->blockSignals(active);
 	m_ui.framelessCheckBox->blockSignals(active);
 	m_ui.slider_octreePrecision->blockSignals(active);
@@ -467,6 +480,18 @@ void DialogSettings::onAutosaveComboxBoxChanged()
 void DialogSettings::onIndexationMethodChoice()
 {
 	m_dataDispatcher.sendControl(new control::application::SetIndexationMethod(m_ui.fillMissingRadioButton->isChecked() ? IndexationMethod::FillMissingIndex : IndexationMethod::HighestIndex, true));
+}
+
+void DialogSettings::onMultithreadingStateChanged()
+{
+	bool enabled = m_ui.multithreadingCheckBox->isChecked();
+	m_ui.multithreadingCoresSpinBox->setEnabled(enabled);
+	m_dataDispatcher.sendControl(new control::application::SetMultithreadingOptions(enabled, m_ui.multithreadingCoresSpinBox->value(), true));
+}
+
+void DialogSettings::onMultithreadingThreadsChanged(int value)
+{
+	m_dataDispatcher.sendControl(new control::application::SetMultithreadingOptions(m_ui.multithreadingCheckBox->isChecked(), value, true));
 }
 
 void DialogSettings::onManipulatorSizeChanged(int manipulatorSize)

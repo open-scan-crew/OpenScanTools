@@ -49,6 +49,7 @@ static const std::unordered_map<ControlType, std::unordered_set<LicenceVersion>>
 	{ControlType::sendRecentProjects, {LicenceVersion::Free}},
 	{ControlType::setAutosaveParameters, {LicenceVersion::Free}},
 	{ControlType::setIndexationMethod, {LicenceVersion::Free}},
+	{ControlType::setMultithreadingOptions, {LicenceVersion::Free}},
 	{ControlType::setValueSettingsDisplay, {LicenceVersion::Free}},
 	{ControlType::setNavigationParameters, {LicenceVersion::Free}},
 	{ControlType::setPerspectiveZBounds, {LicenceVersion::Free}},

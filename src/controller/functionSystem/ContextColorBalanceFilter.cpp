@@ -3,6 +3,7 @@
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
 #include "controller/functionSystem/FunctionManager.h"
+#include "controller/functionSystem/MultithreadingSettings.h"
 #include "controller/messages/ModalMessage.h"
 #include "controller/messages/ColorBalanceFilterMessage.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
@@ -18,6 +19,7 @@
 #include "pointCloudEngine/PCE_core.h"
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "utils/Logger.h"
+#include "utils/ThreadPool.h"
 
 #include <algorithm>
 #include <filesystem>
@@ -65,6 +67,14 @@ namespace
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
     }
+
+    struct ColorBalanceScanResult
+    {
+        bool processed = false;
+        uint64_t modifiedPoints = 0;
+        float seconds = 0.0f;
+        std::wstring scanName;
+    };
 }
 
 // Note (Aurélien) QT::StandardButtons enum values in qmessagebox.h
@@ -221,109 +231,238 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
             updateProgress(scansDone, percent, progressValue);
         };
     };
-
-    for (const SafePtr<PointCloudNode>& scan : scans)
+    std::vector<SafePtr<PointCloudNode>> scanList(scans.begin(), scans.end());
+    MultithreadingSettings multithreadingSettings = getMultithreadingSettings();
+    const int threadCount = multithreadingSettings.resolveThreadCount(scanList.size());
+    if (threadCount > 1)
     {
-        WritePtr<PointCloudNode> wScan = scan.get();
-        if (!wScan)
-            continue;
+        ThreadPool pool(threadCount);
+        std::vector<std::future<ColorBalanceScanResult>> futures;
+        futures.reserve(scanList.size());
 
-        ClippingAssembly emptyAssembly;
-        const ClippingAssembly* clippingToUse = clippingAssembly.empty() ? &emptyAssembly : &clippingAssembly;
-        ClippingAssembly resolvedAssembly;
-        if (clippingAssembly.hasPhaseClipping())
+        for (const SafePtr<PointCloudNode>& scan : scanList)
         {
-            resolvedAssembly = clippingAssembly.resolveByPhase(wScan->getPhase());
-            clippingToUse = &resolvedAssembly;
+            futures.push_back(pool.enqueue([&, scan]() -> ColorBalanceScanResult
+                {
+                    ColorBalanceScanResult result;
+                    WritePtr<PointCloudNode> wScan = scan.get();
+                    if (!wScan)
+                        return result;
+
+                    ClippingAssembly emptyAssembly;
+                    const ClippingAssembly* clippingToUse = clippingAssembly.empty() ? &emptyAssembly : &clippingAssembly;
+                    ClippingAssembly resolvedAssembly;
+                    if (clippingAssembly.hasPhaseClipping())
+                    {
+                        resolvedAssembly = clippingAssembly.resolveByPhase(wScan->getPhase());
+                        clippingToUse = &resolvedAssembly;
+                    }
+
+                    uint64_t modifiedPointCount = 0;
+                    std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
+                    tls::ScanGuid old_guid = wScan->getScanGuid();
+
+                    IScanFileWriter* scan_writer = nullptr;
+                    std::wstring log;
+                    std::wstring outputName = wScan->getName() + L"_CB";
+                    if (!getScanFileWriter(m_outputFolder, outputName, m_outputFileType, log, &scan_writer) || scan_writer == nullptr)
+                        return result;
+
+                    tls::ScanHeader header;
+                    TlScanOverseer::getInstance().getScanHeader(old_guid, header);
+                    header.guid = xg::newGuid();
+                    scan_writer->appendPointCloud(header, wScan->getTransformation());
+
+                    bool hasRgb = wScan->getRGBAvailable();
+                    bool hasIntensity = wScan->getIntensityAvailable();
+                    bool applyOnRgb = hasRgb;
+                    bool applyOnIntensity = false;
+                    if (hasIntensity && hasRgb)
+                        applyOnIntensity = m_applyOnIntensityAndRgb;
+                    else if (hasIntensity)
+                        applyOnIntensity = true;
+
+                    if (!clippingAssembly.empty() && !TlScanOverseer::getInstance().testClippingEffect(old_guid, (TransformationModule)*&wScan, *clippingToUse))
+                        clippingToUse = &emptyAssembly;
+
+                    const ClippingAssembly* clippingForExternal = clippingToUse;
+                    tls::ScanGuid balanceGuid = old_guid;
+                    const TransformationModule balanceTransform = (TransformationModule)*&wScan;
+                    std::filesystem::path tempPath;
+                    if (useTempClippedScans && clippingToUse != &emptyAssembly)
+                    {
+                        TlsFileWriter* clip_writer = nullptr;
+                        std::wstring tempLog;
+                        std::wstring tempName = wScan->getName() + L"_CB_temp";
+                        TlsFileWriter::getWriter(tempFolder, tempName, tempLog, (IScanFileWriter**)&clip_writer);
+                        if (clip_writer != nullptr)
+                        {
+                            tls::ScanHeader clipHeader;
+                            TlScanOverseer::getInstance().getScanHeader(old_guid, clipHeader);
+                            clipHeader.guid = xg::newGuid();
+                            clip_writer->appendPointCloud(clipHeader, wScan->getTransformation());
+                            bool clipRes = TlScanOverseer::getInstance().clipScan(old_guid, (TransformationModule)*&wScan, *clippingToUse, clip_writer);
+                            clipRes &= clip_writer->finalizePointCloud();
+                            tempPath = clip_writer->getFilePath();
+                            delete clip_writer;
+
+                            tls::ScanGuid tempGuid;
+                            if (clipRes && TlScanOverseer::getInstance().getScanGuid(tempPath, tempGuid))
+                            {
+                                balanceGuid = tempGuid;
+                                clippingToUse = &emptyAssembly;
+                            }
+                        }
+                    }
+
+                    std::function<void(const GeometricBox&, std::vector<PointXYZIRGB>&)> externalProvider;
+                    if (m_globalBalancing)
+                    {
+                        externalProvider = [clippingForExternal, old_guid](const GeometricBox& box, std::vector<PointXYZIRGB>& points)
+                        {
+                            TlScanOverseer::getInstance().collectPointsInGeometricBox(box, *clippingForExternal, old_guid, points);
+                        };
+                    }
+
+                    bool res = TlScanOverseer::getInstance().balanceColorsAndWrite(balanceGuid, balanceTransform, *clippingToUse, m_kMin, m_kMax, m_trimPercent, m_sharpnessBlend, applyOnIntensity, applyOnRgb, externalProvider, scan_writer, modifiedPointCount);
+                    res &= scan_writer->finalizePointCloud();
+                    delete scan_writer;
+                    if (balanceGuid != old_guid)
+                    {
+                        TlScanOverseer::getInstance().freeScan_async(balanceGuid, false);
+                        deleteFileWithRetry(tempPath);
+                    }
+
+                    result.processed = res;
+                    result.modifiedPoints = modifiedPointCount;
+                    result.seconds = std::chrono::duration<float, std::ratio<1>>(std::chrono::steady_clock::now() - startTime).count();
+                    result.scanName = wScan->getName();
+                    return result;
+                }));
         }
 
-        uint64_t modifiedPointCount = 0;
-        std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
-        tls::ScanGuid old_guid = wScan->getScanGuid();
-
-        IScanFileWriter* scan_writer = nullptr;
-        std::wstring log;
-        std::wstring outputName = wScan->getName() + L"_CB";
-        if (!getScanFileWriter(m_outputFolder, outputName, m_outputFileType, log, &scan_writer) || scan_writer == nullptr)
-            continue;
-
-        tls::ScanHeader header;
-        TlScanOverseer::getInstance().getScanHeader(old_guid, header);
-        header.guid = xg::newGuid();
-        scan_writer->appendPointCloud(header, wScan->getTransformation());
-
-        bool hasRgb = wScan->getRGBAvailable();
-        bool hasIntensity = wScan->getIntensityAvailable();
-        bool applyOnRgb = hasRgb;
-        bool applyOnIntensity = false;
-        if (hasIntensity && hasRgb)
-            applyOnIntensity = m_applyOnIntensityAndRgb;
-        else if (hasIntensity)
-            applyOnIntensity = true;
-
-        if (!clippingAssembly.empty() && !TlScanOverseer::getInstance().testClippingEffect(old_guid, (TransformationModule)*&wScan, *clippingToUse))
-            clippingToUse = &emptyAssembly;
-
-        const ClippingAssembly* clippingForExternal = clippingToUse;
-        tls::ScanGuid balanceGuid = old_guid;
-        const TransformationModule balanceTransform = (TransformationModule)*&wScan;
-        std::filesystem::path tempPath;
-        if (useTempClippedScans && clippingToUse != &emptyAssembly)
+        for (auto& future : futures)
         {
-            TlsFileWriter* clip_writer = nullptr;
-            std::wstring tempLog;
-            std::wstring tempName = wScan->getName() + L"_CB_temp";
-            TlsFileWriter::getWriter(tempFolder, tempName, tempLog, (IScanFileWriter**)&clip_writer);
-            if (clip_writer != nullptr)
-            {
-                tls::ScanHeader clipHeader;
-                TlScanOverseer::getInstance().getScanHeader(old_guid, clipHeader);
-                clipHeader.guid = xg::newGuid();
-                clip_writer->appendPointCloud(clipHeader, wScan->getTransformation());
-                bool clipRes = TlScanOverseer::getInstance().clipScan(old_guid, (TransformationModule)*&wScan, *clippingToUse, clip_writer);
-                clipRes &= clip_writer->finalizePointCloud();
-                tempPath = clip_writer->getFilePath();
-                delete clip_writer;
+            ColorBalanceScanResult result = future.get();
+            if (!result.processed)
+                continue;
 
-                tls::ScanGuid tempGuid;
-                if (clipRes && TlScanOverseer::getInstance().getScanGuid(tempPath, tempGuid))
+            totalModifiedPoints += result.modifiedPoints;
+            scanCount++;
+            QString qScanName = QString::fromStdWString(result.scanName);
+            updateProgress(scanCount, 100, scanCount * 100);
+
+            if (result.modifiedPoints > 0)
+                controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("%1 points updated in scan %2 in %3 seconds.").arg(result.modifiedPoints).arg(qScanName).arg(result.seconds)));
+            else
+                controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Scan %1 not affected by color balance.").arg(qScanName)));
+        }
+    }
+    else
+    {
+        for (const SafePtr<PointCloudNode>& scan : scanList)
+        {
+            WritePtr<PointCloudNode> wScan = scan.get();
+            if (!wScan)
+                continue;
+
+            ClippingAssembly emptyAssembly;
+            const ClippingAssembly* clippingToUse = clippingAssembly.empty() ? &emptyAssembly : &clippingAssembly;
+            ClippingAssembly resolvedAssembly;
+            if (clippingAssembly.hasPhaseClipping())
+            {
+                resolvedAssembly = clippingAssembly.resolveByPhase(wScan->getPhase());
+                clippingToUse = &resolvedAssembly;
+            }
+
+            uint64_t modifiedPointCount = 0;
+            std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
+            tls::ScanGuid old_guid = wScan->getScanGuid();
+
+            IScanFileWriter* scan_writer = nullptr;
+            std::wstring log;
+            std::wstring outputName = wScan->getName() + L"_CB";
+            if (!getScanFileWriter(m_outputFolder, outputName, m_outputFileType, log, &scan_writer) || scan_writer == nullptr)
+                continue;
+
+            tls::ScanHeader header;
+            TlScanOverseer::getInstance().getScanHeader(old_guid, header);
+            header.guid = xg::newGuid();
+            scan_writer->appendPointCloud(header, wScan->getTransformation());
+
+            bool hasRgb = wScan->getRGBAvailable();
+            bool hasIntensity = wScan->getIntensityAvailable();
+            bool applyOnRgb = hasRgb;
+            bool applyOnIntensity = false;
+            if (hasIntensity && hasRgb)
+                applyOnIntensity = m_applyOnIntensityAndRgb;
+            else if (hasIntensity)
+                applyOnIntensity = true;
+
+            if (!clippingAssembly.empty() && !TlScanOverseer::getInstance().testClippingEffect(old_guid, (TransformationModule)*&wScan, *clippingToUse))
+                clippingToUse = &emptyAssembly;
+
+            const ClippingAssembly* clippingForExternal = clippingToUse;
+            tls::ScanGuid balanceGuid = old_guid;
+            const TransformationModule balanceTransform = (TransformationModule)*&wScan;
+            std::filesystem::path tempPath;
+            if (useTempClippedScans && clippingToUse != &emptyAssembly)
+            {
+                TlsFileWriter* clip_writer = nullptr;
+                std::wstring tempLog;
+                std::wstring tempName = wScan->getName() + L"_CB_temp";
+                TlsFileWriter::getWriter(tempFolder, tempName, tempLog, (IScanFileWriter**)&clip_writer);
+                if (clip_writer != nullptr)
                 {
-                    balanceGuid = tempGuid;
-                    clippingToUse = &emptyAssembly;
+                    tls::ScanHeader clipHeader;
+                    TlScanOverseer::getInstance().getScanHeader(old_guid, clipHeader);
+                    clipHeader.guid = xg::newGuid();
+                    clip_writer->appendPointCloud(clipHeader, wScan->getTransformation());
+                    bool clipRes = TlScanOverseer::getInstance().clipScan(old_guid, (TransformationModule)*&wScan, *clippingToUse, clip_writer);
+                    clipRes &= clip_writer->finalizePointCloud();
+                    tempPath = clip_writer->getFilePath();
+                    delete clip_writer;
+
+                    tls::ScanGuid tempGuid;
+                    if (clipRes && TlScanOverseer::getInstance().getScanGuid(tempPath, tempGuid))
+                    {
+                        balanceGuid = tempGuid;
+                        clippingToUse = &emptyAssembly;
+                    }
                 }
             }
-        }
 
-        std::function<void(const GeometricBox&, std::vector<PointXYZIRGB>&)> externalProvider;
-        if (m_globalBalancing)
-        {
-            externalProvider = [clippingForExternal, old_guid](const GeometricBox& box, std::vector<PointXYZIRGB>& points)
+            std::function<void(const GeometricBox&, std::vector<PointXYZIRGB>&)> externalProvider;
+            if (m_globalBalancing)
             {
-                TlScanOverseer::getInstance().collectPointsInGeometricBox(box, *clippingForExternal, old_guid, points);
-            };
+                externalProvider = [clippingForExternal, old_guid](const GeometricBox& box, std::vector<PointXYZIRGB>& points)
+                {
+                    TlScanOverseer::getInstance().collectPointsInGeometricBox(box, *clippingForExternal, old_guid, points);
+                };
+            }
+
+            auto progressCallback = makeProgressCallback(scanCount, 0, 100);
+            bool res = TlScanOverseer::getInstance().balanceColorsAndWrite(balanceGuid, balanceTransform, *clippingToUse, m_kMin, m_kMax, m_trimPercent, m_sharpnessBlend, applyOnIntensity, applyOnRgb, externalProvider, scan_writer, modifiedPointCount, progressCallback);
+            res &= scan_writer->finalizePointCloud();
+            delete scan_writer;
+            if (balanceGuid != old_guid)
+            {
+                TlScanOverseer::getInstance().freeScan_async(balanceGuid, false);
+                deleteFileWithRetry(tempPath);
+            }
+
+            totalModifiedPoints += modifiedPointCount;
+
+            scanCount++;
+            float seconds = std::chrono::duration<float, std::ratio<1>>(std::chrono::steady_clock::now() - startTime).count();
+            QString qScanName = QString::fromStdWString(wScan->getName());
+            updateProgress(scanCount, 100, scanCount * 100);
+
+            if (modifiedPointCount > 0)
+                controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("%1 points updated in scan %2 in %3 seconds.").arg(modifiedPointCount).arg(qScanName).arg(seconds)));
+            else
+                controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Scan %1 not affected by color balance.").arg(qScanName)));
         }
-
-        auto progressCallback = makeProgressCallback(scanCount, 0, 100);
-        bool res = TlScanOverseer::getInstance().balanceColorsAndWrite(balanceGuid, balanceTransform, *clippingToUse, m_kMin, m_kMax, m_trimPercent, m_sharpnessBlend, applyOnIntensity, applyOnRgb, externalProvider, scan_writer, modifiedPointCount, progressCallback);
-        res &= scan_writer->finalizePointCloud();
-        delete scan_writer;
-        if (balanceGuid != old_guid)
-        {
-            TlScanOverseer::getInstance().freeScan_async(balanceGuid, false);
-            deleteFileWithRetry(tempPath);
-        }
-
-        totalModifiedPoints += modifiedPointCount;
-
-        scanCount++;
-        float seconds = std::chrono::duration<float, std::ratio<1>>(std::chrono::steady_clock::now() - startTime).count();
-        QString qScanName = QString::fromStdWString(wScan->getName());
-        updateProgress(scanCount, 100, scanCount * 100);
-
-        if (modifiedPointCount > 0)
-            controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("%1 points updated in scan %2 in %3 seconds.").arg(modifiedPointCount).arg(qScanName).arg(seconds)));
-        else
-            controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Scan %1 not affected by color balance.").arg(qScanName)));
     }
 
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Total points updated: %1").arg(totalModifiedPoints)));

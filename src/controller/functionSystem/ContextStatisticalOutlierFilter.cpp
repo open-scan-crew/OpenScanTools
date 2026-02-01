@@ -3,6 +3,7 @@
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
 #include "controller/functionSystem/FunctionManager.h"
+#include "controller/functionSystem/MultithreadingSettings.h"
 #include "controller/messages/ModalMessage.h"
 #include "controller/messages/StatisticalOutlierFilterMessage.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
@@ -17,6 +18,7 @@
 #include "pointCloudEngine/PCE_core.h"
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "utils/Logger.h"
+#include "utils/ThreadPool.h"
 
 #include <algorithm>
 #include <cmath>
@@ -73,6 +75,14 @@ namespace
             }
             return stats;
         }
+    };
+
+    struct OutlierScanResult
+    {
+        bool processed = false;
+        uint64_t deletedPoints = 0;
+        float seconds = 0.0f;
+        std::wstring scanName;
     };
 }
 
@@ -209,58 +219,137 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
             updateProgress(scansDone, percent, progressValue);
         };
     };
-    for (const SafePtr<PointCloudNode>& scan : scans)
+    std::vector<SafePtr<PointCloudNode>> scanList(scans.begin(), scans.end());
+    MultithreadingSettings multithreadingSettings = getMultithreadingSettings();
+    const int threadCount = multithreadingSettings.resolveThreadCount(scanList.size());
+    if (threadCount > 1)
     {
-        WritePtr<PointCloudNode> wScan = scan.get();
-        if (!wScan)
-            continue;
-
-        const ClippingAssembly* clippingToUse = &clippingAssembly;
-        ClippingAssembly resolvedAssembly;
-        if (clippingAssembly.hasPhaseClipping())
+        ThreadPool pool(threadCount);
+        std::vector<std::future<OutlierScanResult>> futures;
+        futures.reserve(scanList.size());
+        for (const SafePtr<PointCloudNode>& scan : scanList)
         {
-            resolvedAssembly = clippingAssembly.resolveByPhase(wScan->getPhase());
-            clippingToUse = &resolvedAssembly;
+            futures.push_back(pool.enqueue([&, scan]() -> OutlierScanResult
+                {
+                    OutlierScanResult result;
+                    WritePtr<PointCloudNode> wScan = scan.get();
+                    if (!wScan)
+                        return result;
+
+                    const ClippingAssembly* clippingToUse = &clippingAssembly;
+                    ClippingAssembly resolvedAssembly;
+                    if (clippingAssembly.hasPhaseClipping())
+                    {
+                        resolvedAssembly = clippingAssembly.resolveByPhase(wScan->getPhase());
+                        clippingToUse = &resolvedAssembly;
+                    }
+
+                    uint64_t deleted_point_count = 0;
+                    std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
+                    tls::ScanGuid old_guid = wScan->getScanGuid();
+
+                    IScanFileWriter* scan_writer = nullptr;
+                    std::wstring log;
+                    std::wstring outputName = wScan->getName() + L"_SOF";
+                    if (!getScanFileWriter(m_outputFolder, outputName, m_outputFileType, log, &scan_writer) || scan_writer == nullptr)
+                        return result;
+
+                    tls::ScanHeader header;
+                    TlScanOverseer::getInstance().getScanHeader(old_guid, header);
+                    header.guid = xg::newGuid();
+                    scan_writer->appendPointCloud(header, wScan->getTransformation());
+
+                    OutlierStats statsToUse = globalStats;
+                    if (!m_globalFiltering)
+                    {
+                        TlScanOverseer::getInstance().computeOutlierStats(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, m_samplingPercent, m_beta, statsToUse);
+                    }
+
+                    bool res = TlScanOverseer::getInstance().filterOutliersAndWrite(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, statsToUse, m_nSigma, m_beta, scan_writer, deleted_point_count);
+                    res &= scan_writer->finalizePointCloud();
+                    delete scan_writer;
+
+                    result.processed = res;
+                    result.deletedPoints = deleted_point_count;
+                    result.seconds = std::chrono::duration<float, std::ratio<1>>(std::chrono::steady_clock::now() - startTime).count();
+                    result.scanName = wScan->getName();
+                    return result;
+                }));
         }
 
-        size_t initial_point_count = wScan->getNbPoint();
-        uint64_t deleted_point_count = 0;
-        std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
-        tls::ScanGuid old_guid = wScan->getScanGuid();
-
-        IScanFileWriter* scan_writer = nullptr;
-        std::wstring log;
-        std::wstring outputName = wScan->getName() + L"_SOF";
-        if (!getScanFileWriter(m_outputFolder, outputName, m_outputFileType, log, &scan_writer) || scan_writer == nullptr)
-            continue;
-        tls::ScanHeader header;
-        TlScanOverseer::getInstance().getScanHeader(old_guid, header);
-        header.guid = xg::newGuid();
-        scan_writer->appendPointCloud(header, wScan->getTransformation());
-
-        OutlierStats statsToUse = globalStats;
-        if (!m_globalFiltering)
+        for (auto& future : futures)
         {
-            auto statsProgress = makeProgressCallback(scan_count, 0, 50);
-            TlScanOverseer::getInstance().computeOutlierStats(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, m_samplingPercent, m_beta, statsToUse, statsProgress);
+            OutlierScanResult result = future.get();
+            if (!result.processed)
+                continue;
+
+            total_deleted_points += result.deletedPoints;
+            scan_count++;
+
+            QString qScanName = QString::fromStdWString(result.scanName);
+            updateProgress(scan_count, 100, scan_count * 100);
+
+            if (result.deletedPoints > 0)
+                controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("%1 points deleted in scan %2 in %3 seconds.").arg(result.deletedPoints).arg(qScanName).arg(result.seconds)));
+            else
+                controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Scan %1 not affected by outlier filter.").arg(qScanName)));
         }
+    }
+    else
+    {
+        for (const SafePtr<PointCloudNode>& scan : scanList)
+        {
+            WritePtr<PointCloudNode> wScan = scan.get();
+            if (!wScan)
+                continue;
 
-        auto filterProgress = makeProgressCallback(scan_count, m_globalFiltering ? 0 : 50, m_globalFiltering ? 100 : 50);
-        bool res = TlScanOverseer::getInstance().filterOutliersAndWrite(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, statsToUse, m_nSigma, m_beta, scan_writer, deleted_point_count, filterProgress);
-        res &= scan_writer->finalizePointCloud();
-        delete scan_writer;
+            const ClippingAssembly* clippingToUse = &clippingAssembly;
+            ClippingAssembly resolvedAssembly;
+            if (clippingAssembly.hasPhaseClipping())
+            {
+                resolvedAssembly = clippingAssembly.resolveByPhase(wScan->getPhase());
+                clippingToUse = &resolvedAssembly;
+            }
 
-        total_deleted_points += deleted_point_count;
+            uint64_t deleted_point_count = 0;
+            std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
+            tls::ScanGuid old_guid = wScan->getScanGuid();
 
-        scan_count++;
-        float seconds = std::chrono::duration<float, std::ratio<1>>(std::chrono::steady_clock::now() - startTime).count();
-        QString qScanName = QString::fromStdWString(wScan->getName());
-        updateProgress(scan_count, 100, scan_count * 100);
+            IScanFileWriter* scan_writer = nullptr;
+            std::wstring log;
+            std::wstring outputName = wScan->getName() + L"_SOF";
+            if (!getScanFileWriter(m_outputFolder, outputName, m_outputFileType, log, &scan_writer) || scan_writer == nullptr)
+                continue;
 
-        if (deleted_point_count > 0)
-            controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("%1 points deleted in scan %2 in %3 seconds.").arg(deleted_point_count).arg(qScanName).arg(seconds)));
-        else
-            controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Scan %1 not affected by outlier filter.").arg(qScanName)));
+            tls::ScanHeader header;
+            TlScanOverseer::getInstance().getScanHeader(old_guid, header);
+            header.guid = xg::newGuid();
+            scan_writer->appendPointCloud(header, wScan->getTransformation());
+
+            OutlierStats statsToUse = globalStats;
+            if (!m_globalFiltering)
+            {
+                auto statsProgress = makeProgressCallback(scan_count, 0, 50);
+                TlScanOverseer::getInstance().computeOutlierStats(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, m_samplingPercent, m_beta, statsToUse, statsProgress);
+            }
+
+            auto filterProgress = makeProgressCallback(scan_count, m_globalFiltering ? 0 : 50, m_globalFiltering ? 100 : 50);
+            bool res = TlScanOverseer::getInstance().filterOutliersAndWrite(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, statsToUse, m_nSigma, m_beta, scan_writer, deleted_point_count, filterProgress);
+            res &= scan_writer->finalizePointCloud();
+            delete scan_writer;
+
+            total_deleted_points += deleted_point_count;
+
+            scan_count++;
+            float seconds = std::chrono::duration<float, std::ratio<1>>(std::chrono::steady_clock::now() - startTime).count();
+            QString qScanName = QString::fromStdWString(wScan->getName());
+            updateProgress(scan_count, 100, scan_count * 100);
+
+            if (deleted_point_count > 0)
+                controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("%1 points deleted in scan %2 in %3 seconds.").arg(deleted_point_count).arg(qScanName).arg(seconds)));
+            else
+                controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Scan %1 not affected by outlier filter.").arg(qScanName)));
+        }
     }
 
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Total points deleted: %1").arg(total_deleted_points)));

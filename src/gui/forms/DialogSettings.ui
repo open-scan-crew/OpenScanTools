@@ -986,7 +986,34 @@ Default value 1.0</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="1">
+       <item row="2" column="0">
+        <widget class="QCheckBox" name="multithreadingCheckBox">
+         <property name="text">
+          <string>Multithreading calculation</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="multithreadingCoresLabel">
+         <property name="text">
+          <string>Processor cores</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QSpinBox" name="multithreadingCoresSpinBox">
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>128</number>
+         </property>
+         <property name="value">
+          <number>1</number>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
         <spacer name="verticalSpacer_4">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
