@@ -49,6 +49,7 @@ enum class ControlType
 	setPerspectiveZBounds,
 	setOrthoGridParams,
 	unlockScanManipulation,
+	setMultithreadedCalculation,
 	// setOrthoZBounds, // TODO
 
 	// control::project
