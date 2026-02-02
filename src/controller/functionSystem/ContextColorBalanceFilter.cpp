@@ -171,9 +171,11 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
         return m_state;
     }
 
+    std::vector<tls::PointCloudInstance> workingInstances;
     if (m_globalBalancing)
     {
-        TlScanOverseer::setWorkingScansTransfo(graphManager.getVisiblePointCloudInstances(m_panoramic, true, true));
+        workingInstances = graphManager.getVisiblePointCloudInstances(m_panoramic, true, true);
+        TlScanOverseer::setWorkingScansTransfo(workingInstances);
     }
 
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString()));
@@ -300,8 +302,14 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
         std::function<void(const GeometricBox&, std::vector<PointXYZIRGB>&)> externalProvider;
         if (m_globalBalancing)
         {
-            externalProvider = [clippingForExternal, old_guid](const GeometricBox& box, std::vector<PointXYZIRGB>& points)
+            externalProvider = [clippingForExternal, old_guid, workingInstances](const GeometricBox& box, std::vector<PointXYZIRGB>& points)
             {
+                thread_local bool workingScansInitialized = false;
+                if (!workingScansInitialized)
+                {
+                    TlScanOverseer::setWorkingScansTransfo(workingInstances);
+                    workingScansInitialized = true;
+                }
                 TlScanOverseer::getInstance().collectPointsInGeometricBox(box, *clippingForExternal, old_guid, points);
             };
         }
