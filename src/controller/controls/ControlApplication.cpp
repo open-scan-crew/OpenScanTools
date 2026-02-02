@@ -970,6 +970,32 @@ namespace control::application
     }
 
     /*
+    ** SetMultithreadedCalculation
+    */
+
+    SetMultithreadedCalculation::SetMultithreadedCalculation(bool enabled, bool save)
+        : m_enabled(enabled)
+        , m_save(save)
+    {
+    }
+
+    SetMultithreadedCalculation::~SetMultithreadedCalculation()
+    {
+    }
+
+    void SetMultithreadedCalculation::doFunction(Controller& controller)
+    {
+        if (m_save && !Config::setMultithreadedCalculation(m_enabled))
+            controller.updateInfo(new GuiDataWarning(TEXT_SETTINGS_FAILED_TO_SAVE));
+        CONTROLLOG << "control::application::SetMultithreadedCalculation(" << m_enabled << ")" << LOGENDL;
+    }
+
+    ControlType SetMultithreadedCalculation::getType() const
+    {
+        return ControlType::setMultithreadedCalculation;
+    }
+
+    /*
     ** SetOrthoGridParameters
     */
 

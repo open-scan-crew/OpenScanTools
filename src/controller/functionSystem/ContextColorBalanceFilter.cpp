@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <functional>
+#include <string>
 #include <system_error>
 #include <thread>
 
@@ -33,7 +34,7 @@ namespace
             return;
 
         std::error_code ec;
-        const std::wstring suffix = L"_CB_temp";
+        const std::wstring marker = L"_CB_temp";
         for (const auto& entry : std::filesystem::directory_iterator(tempFolder, ec))
         {
             if (ec)
@@ -44,7 +45,7 @@ namespace
 
             const std::filesystem::path& path = entry.path();
             const std::wstring stem = path.stem().wstring();
-            if (path.extension() == ".tls" && stem.size() >= suffix.size() && stem.compare(stem.size() - suffix.size(), suffix.size(), suffix) == 0)
+            if (path.extension() == ".tls" && stem.find(marker) != std::wstring::npos)
             {
                 std::filesystem::remove(path, ec);
             }
@@ -272,7 +273,9 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
         {
             TlsFileWriter* clip_writer = nullptr;
             std::wstring tempLog;
-            std::wstring tempName = wScan->getName() + L"_CB_temp";
+            std::string guidString = xg::newGuid().str();
+            std::wstring guidSuffix(guidString.begin(), guidString.end());
+            std::wstring tempName = wScan->getName() + L"_CB_temp_" + guidSuffix;
             TlsFileWriter::getWriter(tempFolder, tempName, tempLog, (IScanFileWriter**)&clip_writer);
             if (clip_writer != nullptr)
             {
