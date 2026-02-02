@@ -53,6 +53,7 @@ public slots:
     void onRenderOrthoDistanceChanged();
 
     void onUnlockScansManipulation();
+    void onMultithreadedCalculationChanged();
 
 private:
     void showDecimationOptions();

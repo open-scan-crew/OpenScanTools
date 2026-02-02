@@ -399,6 +399,18 @@ namespace control::application
         bool m_save;
     };
 
+    class SetMultithreadedCalculation : public AControl
+    {
+    public:
+        SetMultithreadedCalculation(bool multithreaded, bool save = true);
+        ~SetMultithreadedCalculation();
+        void doFunction(Controller& controller) override;
+        ControlType getType() const override;
+    private:
+        bool m_multithreaded;
+        bool m_save;
+    };
+
     class SwitchScantraConnexion : public AControl
     {
     public:

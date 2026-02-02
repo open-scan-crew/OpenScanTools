@@ -16,11 +16,14 @@
 #include "models/graph/PointCloudNode.h"
 #include "pointCloudEngine/PCE_core.h"
 #include "pointCloudEngine/TlScanOverseer.h"
+#include "utils/Config.h"
 #include "utils/Logger.h"
+#include "utils/ScanJobRunner.h"
 
 #include <algorithm>
 #include <cmath>
 #include <filesystem>
+#include <mutex>
 
 // Note (Aurélien) QT::StandardButtons enum values in qmessagebox.h
 #define Yes 0x00004000
@@ -152,9 +155,10 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
     TlStreamLock streamLock;
 
     std::unordered_set<SafePtr<PointCloudNode>> scans = graphManager.getVisibleScans(m_panoramic);
+    std::vector<SafePtr<PointCloudNode>> scanList(scans.begin(), scans.end());
 
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString()));
-    const uint64_t totalScans = scans.size();
+    const uint64_t totalScans = scanList.size();
     const uint64_t totalProgressSteps = totalScans * 100;
     controller.updateInfo(new GuiDataProcessingSplashScreenStart(totalProgressSteps, TEXT_EXPORT_STAT_OUTLIER_TITLE_PROGESS, TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(0).arg(totalScans)));
 
@@ -165,7 +169,7 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
     if (m_globalFiltering)
     {
         RunningStats runningStats;
-        for (const SafePtr<PointCloudNode>& scan : scans)
+        for (const SafePtr<PointCloudNode>& scan : scanList)
         {
             WritePtr<PointCloudNode> wScan = scan.get();
             if (!wScan)
@@ -186,34 +190,68 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         globalStats = runningStats.toStats();
     }
 
-    uint64_t scan_count = 0;
-    uint64_t total_deleted_points = 0;
-    auto updateProgress = [&](uint64_t scansDone, int percent, uint64_t progressValue)
+    std::mutex infoMutex;
+    auto safeUpdateInfo = [&](IGuiData* data)
     {
+        std::lock_guard<std::mutex> lock(infoMutex);
+        controller.updateInfo(data);
+    };
+
+    std::vector<std::atomic<int>> scanPercents(totalScans);
+    for (auto& percent : scanPercents)
+        percent.store(0);
+    std::atomic<uint64_t> completedScans{0};
+    std::atomic<uint64_t> progressSteps{0};
+    std::atomic<uint64_t> totalDeletedPoints{0};
+
+    auto updateProgress = [&](int percent, uint64_t progressValue)
+    {
+        uint64_t scansDone = completedScans.load();
         QString state = QString("%1 - %2%")
                             .arg(TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(scansDone).arg(totalScans))
                             .arg(percent);
-        controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(state, progressValue));
+        safeUpdateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(state, progressValue));
     };
-    auto makeProgressCallback = [&](uint64_t scansDone, int basePercent, int spanPercent)
+
+    auto updateProgressForScan = [&](size_t scanIndex, int percent)
     {
-        return [scansDone, basePercent, spanPercent, &updateProgress](size_t processed, size_t total)
+        percent = std::clamp(percent, 0, 100);
+        int prev = scanPercents[scanIndex].load();
+        while (percent > prev && !scanPercents[scanIndex].compare_exchange_weak(prev, percent))
+        {
+        }
+        int delta = percent - prev;
+        if (delta <= 0)
+            return;
+        uint64_t newSteps = progressSteps.fetch_add(static_cast<uint64_t>(delta)) + static_cast<uint64_t>(delta);
+        uint64_t totalStepsMax = totalProgressSteps;
+        bool done = newSteps >= totalStepsMax;
+        int displayPercent = done ? 100 : std::min(99, static_cast<int>((newSteps * 100) / totalStepsMax));
+        uint64_t progressValue = done ? totalStepsMax : std::min(newSteps, totalStepsMax - 1);
+        updateProgress(displayPercent, progressValue);
+    };
+
+    auto makeProgressCallback = [&](size_t scanIndex, int basePercent, int spanPercent)
+    {
+        return [scanIndex, basePercent, spanPercent, &updateProgressForScan](size_t processed, size_t total)
         {
             if (total == 0)
                 return;
             int percent = basePercent + static_cast<int>((processed * spanPercent) / total);
-            percent = std::clamp(percent, basePercent, basePercent + spanPercent - 1);
+            percent = std::clamp(percent, basePercent, basePercent + spanPercent);
             if (percent >= 100)
                 percent = 99;
-            uint64_t progressValue = scansDone * 100 + static_cast<uint64_t>(percent);
-            updateProgress(scansDone, percent, progressValue);
+            updateProgressForScan(scanIndex, percent);
         };
     };
-    for (const SafePtr<PointCloudNode>& scan : scans)
+
+    ScanJobRunner::Options options;
+    options.multithreaded = Config::isMultithreadedCalculation();
+    ScanJobRunner::run(scanList, options, [&](size_t scanIndex, const SafePtr<PointCloudNode>& scan)
     {
         WritePtr<PointCloudNode> wScan = scan.get();
         if (!wScan)
-            continue;
+            return;
 
         const ClippingAssembly* clippingToUse = &clippingAssembly;
         ClippingAssembly resolvedAssembly;
@@ -241,29 +279,29 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         OutlierStats statsToUse = globalStats;
         if (!m_globalFiltering)
         {
-            auto statsProgress = makeProgressCallback(scan_count, 0, 50);
+            auto statsProgress = makeProgressCallback(scanIndex, 0, 50);
             TlScanOverseer::getInstance().computeOutlierStats(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, m_samplingPercent, m_beta, statsToUse, statsProgress);
         }
 
-        auto filterProgress = makeProgressCallback(scan_count, m_globalFiltering ? 0 : 50, m_globalFiltering ? 100 : 50);
+        auto filterProgress = makeProgressCallback(scanIndex, m_globalFiltering ? 0 : 50, m_globalFiltering ? 100 : 50);
         bool res = TlScanOverseer::getInstance().filterOutliersAndWrite(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, statsToUse, m_nSigma, m_beta, scan_writer, deleted_point_count, filterProgress);
         res &= scan_writer->finalizePointCloud();
         delete scan_writer;
 
-        total_deleted_points += deleted_point_count;
-
-        scan_count++;
+        totalDeletedPoints.fetch_add(deleted_point_count);
+        completedScans.fetch_add(1);
+        updateProgressForScan(scanIndex, 100);
         float seconds = std::chrono::duration<float, std::ratio<1>>(std::chrono::steady_clock::now() - startTime).count();
         QString qScanName = QString::fromStdWString(wScan->getName());
-        updateProgress(scan_count, 100, scan_count * 100);
 
         if (deleted_point_count > 0)
-            controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("%1 points deleted in scan %2 in %3 seconds.").arg(deleted_point_count).arg(qScanName).arg(seconds)));
+            safeUpdateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("%1 points deleted in scan %2 in %3 seconds.").arg(deleted_point_count).arg(qScanName).arg(seconds)));
         else
-            controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Scan %1 not affected by outlier filter.").arg(qScanName)));
-    }
+            safeUpdateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Scan %1 not affected by outlier filter.").arg(qScanName)));
+    });
 
-    controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Total points deleted: %1").arg(total_deleted_points)));
+    updateProgress(100, totalProgressSteps);
+    controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Total points deleted: %1").arg(totalDeletedPoints.load())));
     controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));
 
     if (m_openFolderAfterExport)
