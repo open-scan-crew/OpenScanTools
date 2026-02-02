@@ -17,11 +17,15 @@
 #include "models/graph/PointCloudNode.h"
 #include "pointCloudEngine/PCE_core.h"
 #include "pointCloudEngine/TlScanOverseer.h"
+#include "utils/Config.h"
 #include "utils/Logger.h"
+#include "utils/ScanJobRunner.h"
+#include "utils/Utils.h"
 
 #include <algorithm>
 #include <filesystem>
 #include <functional>
+#include <mutex>
 #include <system_error>
 #include <thread>
 
@@ -162,6 +166,7 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
 
     TlStreamLock streamLock;
     std::unordered_set<SafePtr<PointCloudNode>> scans = graphManager.getVisibleScans(m_panoramic);
+    std::vector<SafePtr<PointCloudNode>> scanList(scans.begin(), scans.end());
 
     if (m_globalBalancing && scans.size() < 2)
     {
@@ -176,7 +181,7 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
     }
 
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString()));
-    const uint64_t totalScans = scans.size();
+    const uint64_t totalScans = scanList.size();
     const uint64_t totalProgressSteps = totalScans * 100;
     controller.updateInfo(new GuiDataProcessingSplashScreenStart(totalProgressSteps, TEXT_EXPORT_COLOR_BALANCE_TITLE_PROGRESS, TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(0).arg(totalScans)));
 
@@ -197,36 +202,77 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
         cleanupTempColorBalanceFiles(tempFolder);
     }
 
-    uint64_t scanCount = 0;
-    uint64_t totalModifiedPoints = 0;
-
-    auto updateProgress = [&](uint64_t scansDone, int percent, uint64_t progressValue)
+    std::mutex infoMutex;
+    auto safeUpdateInfo = [&](IGuiData* data)
     {
+        std::lock_guard<std::mutex> lock(infoMutex);
+        controller.updateInfo(data);
+    };
+
+    std::vector<std::atomic<int>> scanPercents(totalScans);
+    for (auto& percent : scanPercents)
+        percent.store(0);
+    std::atomic<uint64_t> completedScans{0};
+    std::atomic<uint64_t> progressSteps{0};
+    std::atomic<uint64_t> totalModifiedPoints{0};
+
+    auto updateProgress = [&](int percent, uint64_t progressValue)
+    {
+        uint64_t scansDone = completedScans.load();
         QString state = QString("%1 - %2%")
                             .arg(TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(scansDone).arg(totalScans))
                             .arg(percent);
-        controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(state, progressValue));
+        safeUpdateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(state, progressValue));
     };
-    auto makeProgressCallback = [&](uint64_t scansDone, int basePercent, int spanPercent)
+
+    auto updateProgressForScan = [&](size_t scanIndex, int percent)
     {
-        return [scansDone, basePercent, spanPercent, &updateProgress](size_t processed, size_t total)
+        percent = std::clamp(percent, 0, 100);
+        int prev = scanPercents[scanIndex].load();
+        while (percent > prev && !scanPercents[scanIndex].compare_exchange_weak(prev, percent))
+        {
+        }
+        int delta = percent - prev;
+        if (delta <= 0)
+            return;
+        uint64_t newSteps = progressSteps.fetch_add(static_cast<uint64_t>(delta)) + static_cast<uint64_t>(delta);
+        uint64_t totalStepsMax = totalProgressSteps;
+        bool done = newSteps >= totalStepsMax;
+        int displayPercent = done ? 100 : std::min(99, static_cast<int>((newSteps * 100) / totalStepsMax));
+        uint64_t progressValue = done ? totalStepsMax : std::min(newSteps, totalStepsMax - 1);
+        updateProgress(displayPercent, progressValue);
+    };
+
+    auto makeProgressCallback = [&](size_t scanIndex, int basePercent, int spanPercent)
+    {
+        return [scanIndex, basePercent, spanPercent, &updateProgressForScan](size_t processed, size_t total)
         {
             if (total == 0)
                 return;
             int percent = basePercent + static_cast<int>((processed * spanPercent) / total);
-            percent = std::clamp(percent, basePercent, basePercent + spanPercent - 1);
+            percent = std::clamp(percent, basePercent, basePercent + spanPercent);
             if (percent >= 100)
                 percent = 99;
-            uint64_t progressValue = scansDone * 100 + static_cast<uint64_t>(percent);
-            updateProgress(scansDone, percent, progressValue);
+            updateProgressForScan(scanIndex, percent);
         };
     };
 
-    for (const SafePtr<PointCloudNode>& scan : scans)
+    ScanJobRunner::Options options;
+    options.multithreaded = Config::isMultithreadedCalculation();
+    if (m_globalBalancing)
+    {
+        auto workingScans = graphManager.getVisiblePointCloudInstances(m_panoramic, true, true);
+        options.threadInit = [workingScans]()
+        {
+            TlScanOverseer::setWorkingScansTransfo(workingScans);
+        };
+    }
+
+    ScanJobRunner::run(scanList, options, [&](size_t scanIndex, const SafePtr<PointCloudNode>& scan)
     {
         WritePtr<PointCloudNode> wScan = scan.get();
         if (!wScan)
-            continue;
+            return;
 
         ClippingAssembly emptyAssembly;
         const ClippingAssembly* clippingToUse = clippingAssembly.empty() ? &emptyAssembly : &clippingAssembly;
@@ -245,7 +291,7 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
         std::wstring log;
         std::wstring outputName = wScan->getName() + L"_CB";
         if (!getScanFileWriter(m_outputFolder, outputName, m_outputFileType, log, &scan_writer, true) || scan_writer == nullptr)
-            continue;
+            return;
 
         tls::ScanHeader header;
         TlScanOverseer::getInstance().getScanHeader(old_guid, header);
@@ -272,7 +318,8 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
         {
             TlsFileWriter* clip_writer = nullptr;
             std::wstring tempLog;
-            std::wstring tempName = wScan->getName() + L"_CB_temp";
+            std::wstring guidSuffix = Utils::from_utf8(xg::newGuid().str());
+            std::wstring tempName = wScan->getName() + L"_CB_temp_" + guidSuffix;
             TlsFileWriter::getWriter(tempFolder, tempName, tempLog, (IScanFileWriter**)&clip_writer);
             if (clip_writer != nullptr)
             {
@@ -303,7 +350,7 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
             };
         }
 
-        auto progressCallback = makeProgressCallback(scanCount, 0, 100);
+        auto progressCallback = makeProgressCallback(scanIndex, 0, 100);
         bool res = TlScanOverseer::getInstance().balanceColorsAndWrite(balanceGuid, balanceTransform, *clippingToUse, m_kMin, m_kMax, m_trimPercent, m_sharpnessBlend, applyOnIntensity, applyOnRgb, externalProvider, scan_writer, modifiedPointCount, progressCallback);
         res &= scan_writer->finalizePointCloud();
         delete scan_writer;
@@ -313,20 +360,20 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
             deleteFileWithRetry(tempPath);
         }
 
-        totalModifiedPoints += modifiedPointCount;
-
-        scanCount++;
+        totalModifiedPoints.fetch_add(modifiedPointCount);
+        completedScans.fetch_add(1);
+        updateProgressForScan(scanIndex, 100);
         float seconds = std::chrono::duration<float, std::ratio<1>>(std::chrono::steady_clock::now() - startTime).count();
         QString qScanName = QString::fromStdWString(wScan->getName());
-        updateProgress(scanCount, 100, scanCount * 100);
 
         if (modifiedPointCount > 0)
-            controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("%1 points updated in scan %2 in %3 seconds.").arg(modifiedPointCount).arg(qScanName).arg(seconds)));
+            safeUpdateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("%1 points updated in scan %2 in %3 seconds.").arg(modifiedPointCount).arg(qScanName).arg(seconds)));
         else
-            controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Scan %1 not affected by color balance.").arg(qScanName)));
-    }
+            safeUpdateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Scan %1 not affected by color balance.").arg(qScanName)));
+    });
 
-    controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Total points updated: %1").arg(totalModifiedPoints)));
+    updateProgress(100, totalProgressSteps);
+    controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Total points updated: %1").arg(totalModifiedPoints.load())));
     controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));
 
     if (m_openFolderAfterExport)

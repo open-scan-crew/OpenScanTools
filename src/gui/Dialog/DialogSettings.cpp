@@ -131,6 +131,7 @@ DialogSettings::DialogSettings(IDataDispatcher& dataDispatcher, QWidget* parent)
 	connect(m_ui.slider_orthoDistances, &QSlider::valueChanged, this, &DialogSettings::onRenderOrthoDistanceChanged);
 
 	connect(m_ui.unlockScansCheckBox, &QCheckBox::stateChanged, this, &DialogSettings::onUnlockScansManipulation);
+	connect(m_ui.checkBox_multithreadedCalc, &QCheckBox::stateChanged, this, &DialogSettings::onMultithreadedCalculationChanged);
 
 	m_ui.okButton->setFocus();
 
@@ -200,6 +201,7 @@ void DialogSettings::initConfigValues()
 	m_ui.autosaveActivateCheckBox->setChecked(Config::getIsAutoSaveActive());
 	m_ui.fillMissingRadioButton->setChecked(Config::getIndexationMethod() == IndexationMethod::FillMissingIndex);
 	m_ui.unlockScansCheckBox->setChecked(Config::isUnlockScanManipulation());
+	m_ui.checkBox_multithreadedCalc->setChecked(Config::isMultithreadedCalculation());
 
 	int manipulatorSize = (int)Config::getManipulatorSize();
 	m_ui.manipulatorSizeSlider->setValue(manipulatorSize);
@@ -257,6 +259,7 @@ void DialogSettings::blockSignal(bool active)
 	m_ui.framelessCheckBox->blockSignals(active);
 	m_ui.slider_octreePrecision->blockSignals(active);
 	m_ui.spinBox_octreePrecision->blockSignals(active);
+	m_ui.checkBox_multithreadedCalc->blockSignals(active);
 
 	m_ui.examineMinimumDistanceLineEdit->blockSignals(active);
 	m_ui.translationSpeedSlider->blockSignals(active);
@@ -514,6 +517,11 @@ void DialogSettings::onRenderOrthoDistanceChanged()
 void DialogSettings::onUnlockScansManipulation()
 {
 	m_dataDispatcher.sendControl(new control::application::UnlockScanManipulation(m_ui.unlockScansCheckBox->isChecked()));
+}
+
+void DialogSettings::onMultithreadedCalculationChanged()
+{
+	m_dataDispatcher.sendControl(new control::application::SetMultithreadedCalculation(m_ui.checkBox_multithreadedCalc->isChecked()));
 }
 
 void DialogSettings::onAutosaveCheckboxChanged()
