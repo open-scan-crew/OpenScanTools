@@ -224,12 +224,15 @@ protected:
     glm::dvec3 getGlobalCoord(const glm::dvec3& localCoord) const;
     // TODO - Return a reference
     glm::dmat4 getMatrixToLocal() const;
+    bool getCellPointsThreadSafe(uint32_t cellId, tls::Point* dst, size_t count) const;
 
 protected:
     tls::ImageFile tls_img_file_;
     tls::ImagePointCloud tls_point_cloud_;
     tls::PointFormat pt_format_;
     tls::PrecisionType pt_precision_;
+
+    mutable std::mutex m_tlsReadMutex;
 
     bool m_deleteFileWhenDestroyed;
 
