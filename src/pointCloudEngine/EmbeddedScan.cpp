@@ -218,7 +218,7 @@ bool EmbeddedScan::testPointsClippedOut(const TransformationModule& src_transfo,
     {
         std::vector<PointXYZIRGB> points;
         points.resize(tls_point_cloud_.getCellPointCount(cell));
-        if (!tls_point_cloud_.getCellPoints(cell, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+        if (!getCellPointsThreadSafe(cell, reinterpret_cast<tls::Point*>(points.data()), points.size()))
             continue;
         std::vector<PointXYZIRGB> points_clipped_in;
         clipIndividualPoints(points, points_clipped_in, localAssembly);
@@ -259,7 +259,7 @@ bool EmbeddedScan::clipAndWrite(const TransformationModule& src_transfo, const C
         std::chrono::steady_clock::time_point tp_0 = std::chrono::steady_clock::now();
         std::vector<PointXYZIRGB> points;
         points.resize(tls_point_cloud_.getCellPointCount(cell.first));
-        if (!tls_point_cloud_.getCellPoints(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+        if (!getCellPointsThreadSafe(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
         {
             if (progress)
                 progress(cellIndex + 1, totalCells);
@@ -637,7 +637,7 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
             const std::pair<uint32_t, bool>& cell = cells[cellIndex];
             std::vector<PointXYZIRGB> points;
             points.resize(tls_point_cloud_.getCellPointCount(cell.first));
-            if (!tls_point_cloud_.getCellPoints(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+            if (!getCellPointsThreadSafe(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
             {
                 if (progress)
                     progress(cellIndex + 1, totalCells);
@@ -713,7 +713,7 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
             const std::pair<uint32_t, bool>& cell = cells[cellIndex];
             std::vector<PointXYZIRGB> points;
             points.resize(tls_point_cloud_.getCellPointCount(cell.first));
-            if (!tls_point_cloud_.getCellPoints(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+            if (!getCellPointsThreadSafe(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
             {
                 if (progress)
                 {
@@ -817,7 +817,7 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
             const std::pair<uint32_t, bool>& cell = cells[cellIndex];
             std::vector<PointXYZIRGB> points;
             points.resize(tls_point_cloud_.getCellPointCount(cell.first));
-            if (!tls_point_cloud_.getCellPoints(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+            if (!getCellPointsThreadSafe(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
             {
                 if (progress)
                     progress(cellIndex + 1, totalCells);
@@ -900,7 +900,7 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
             const std::pair<uint32_t, bool>& cell = cells[cellIndex];
             std::vector<PointXYZIRGB> points;
             points.resize(tls_point_cloud_.getCellPointCount(cell.first));
-            if (!tls_point_cloud_.getCellPoints(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+            if (!getCellPointsThreadSafe(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
             {
                 {
                     std::unique_lock<std::mutex> lock(writeMutex);
@@ -1035,7 +1035,7 @@ bool EmbeddedScan::balanceColorsAndWrite(const TransformationModule& src_transfo
             const std::pair<uint32_t, bool>& cell = cells[cellIndex];
             std::vector<PointXYZIRGB> points;
             points.resize(tls_point_cloud_.getCellPointCount(cell.first));
-            if (!tls_point_cloud_.getCellPoints(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+            if (!getCellPointsThreadSafe(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
             {
                 if (progress)
                     progress(cellIndex + 1, totalCells);
@@ -1233,7 +1233,7 @@ bool EmbeddedScan::balanceColorsAndWrite(const TransformationModule& src_transfo
             const std::pair<uint32_t, bool>& cell = cells[cellIndex];
             std::vector<PointXYZIRGB> points;
             points.resize(tls_point_cloud_.getCellPointCount(cell.first));
-            if (!tls_point_cloud_.getCellPoints(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+            if (!getCellPointsThreadSafe(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
             {
                 if (progress)
                 {
@@ -1473,7 +1473,7 @@ void EmbeddedScan::collectPointsInGeometricBox(const GeometricBox& box, const Tr
 
         std::vector<PointXYZIRGB> cellPoints;
         cellPoints.resize(tls_point_cloud_.getCellPointCount(cell.first));
-        if (!tls_point_cloud_.getCellPoints(cell.first, reinterpret_cast<tls::Point*>(cellPoints.data()), cellPoints.size()))
+        if (!getCellPointsThreadSafe(cell.first, reinterpret_cast<tls::Point*>(cellPoints.data()), cellPoints.size()))
             continue;
 
         std::vector<PointXYZIRGB> visiblePoints;
@@ -1515,7 +1515,7 @@ void EmbeddedScan::decodePointCoord(uint32_t cellId, std::vector<glm::dvec3>& ds
     uint64_t cell_point_count = tls_point_cloud_.getCellPointCount(cellId);
     std::vector<tls::Point> tmp_pts;
     tmp_pts.resize(cell_point_count);
-    tls_point_cloud_.getCellPoints(cellId, tmp_pts.data(), tmp_pts.size());
+    getCellPointsThreadSafe(cellId, tmp_pts.data(), tmp_pts.size());
 
     uint64_t layer_point_count(m_vTreeCells[cellId].m_layerIndexes[layerDepth]);
     dstPoints.reserve(dstPoints.size() + layer_point_count);
@@ -3617,6 +3617,12 @@ glm::dvec3 EmbeddedScan::getLocalCoord(const glm::dvec3& globalCoord) const
 glm::dvec3 EmbeddedScan::getGlobalCoord(const glm::dvec3& localCoord) const
 {
     return (m_rotationToGlobal * localCoord + m_translationToGlobal);
+}
+
+bool EmbeddedScan::getCellPointsThreadSafe(uint32_t cellId, tls::Point* dst, size_t count) const
+{
+    std::lock_guard<std::mutex> lock(m_tlsReadMutex);
+    return tls_point_cloud_.getCellPoints(cellId, dst, count);
 }
 
 
