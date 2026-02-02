@@ -715,12 +715,6 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
             points.resize(tls_point_cloud_.getCellPointCount(cell.first));
             if (!tls_point_cloud_.getCellPoints(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
             {
-                {
-                    std::unique_lock<std::mutex> lock(writeMutex);
-                    writeCv.wait(lock, [&]() { return cellIndex == nextWriteIndex; });
-                    ++nextWriteIndex;
-                }
-                writeCv.notify_all();
                 if (progress)
                 {
                     size_t done = completed.fetch_add(1) + 1;
