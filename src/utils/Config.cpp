@@ -58,6 +58,7 @@
 #define NAV_PARAM_MOUSE_INVERT "mouse_drag_camera_inverted"
 #define NAV_PARAM_WHEEL_INVERT_JSON_KEY "wheel"
 #define NAV_PARAM_IS_UNLOCK_SCAN_MANIPULATION_JSON_KEY "isUnlockScanManipulation"
+#define MULTITHREADED_CALC_JSON_KEY "multithreaded_calculation"
 
 
 static const std::vector<std::pair<LoggerMode, bool>> defaultLog = {
@@ -658,6 +659,25 @@ namespace Config
 	{
 		try {
 			jsonConfig[NAV_PARAM_IS_UNLOCK_SCAN_MANIPULATION_JSON_KEY] = unlock;
+			return saveConfigFile(filePath);
+		}
+		catch (...)
+		{
+			return false;
+		}
+	}
+
+	bool getMultithreadedCalculation()
+	{
+		if (jsonConfig.find(MULTITHREADED_CALC_JSON_KEY) == jsonConfig.end())
+			return false;
+		return jsonConfig.at(MULTITHREADED_CALC_JSON_KEY).get<bool>();
+	}
+
+	bool setMultithreadedCalculation(bool value)
+	{
+		try {
+			jsonConfig[MULTITHREADED_CALC_JSON_KEY] = value;
 			return saveConfigFile(filePath);
 		}
 		catch (...)
