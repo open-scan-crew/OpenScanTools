@@ -784,7 +784,10 @@ std::vector<tls::PointCloudInstance> GraphManager::getPointCloudInstances(const 
             continue;
 
         header.name = rPc->getComposedName();
-        result.push_back(tls::PointCloudInstance{ header, rPc->getTransformationModule(), rPc->getClippable(), rPc->getPhase() });
+        TransformationModule transfo = rPc->getTransformationModule();
+        if (rPc->getType() == ElementType::PCO)
+            transfo = rPc->getCumulTransformationModule();
+        result.push_back(tls::PointCloudInstance{ header, transfo, rPc->getClippable(), rPc->getPhase() });
     }
 
     return (result);
