@@ -162,11 +162,18 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
     graphManager.getClippingAssembly(clippingAssembly, true, false);
 
     OutlierStats globalStats;
+    bool wasAborted = false;
     if (m_globalFiltering)
     {
         RunningStats runningStats;
         for (const SafePtr<PointCloudNode>& scan : scans)
         {
+            if (m_state != ContextState::running)
+            {
+                wasAborted = true;
+                break;
+            }
+
             WritePtr<PointCloudNode> wScan = scan.get();
             if (!wScan)
                 continue;
@@ -211,6 +218,12 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
     };
     for (const SafePtr<PointCloudNode>& scan : scans)
     {
+        if (m_state != ContextState::running)
+        {
+            wasAborted = true;
+            break;
+        }
+
         WritePtr<PointCloudNode> wScan = scan.get();
         if (!wScan)
             continue;
@@ -261,15 +274,21 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
             controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("%1 points deleted in scan %2 in %3 seconds.").arg(deleted_point_count).arg(qScanName).arg(seconds)));
         else
             controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Scan %1 not affected by outlier filter.").arg(qScanName)));
+
+        if (m_state != ContextState::running)
+        {
+            wasAborted = true;
+            break;
+        }
     }
 
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Total points deleted: %1").arg(total_deleted_points)));
     controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));
 
-    if (m_openFolderAfterExport)
+    if (m_openFolderAfterExport && !wasAborted)
         controller.updateInfo(new GuiDataOpenInExplorer(m_outputFolder));
 
-    m_state = ContextState::done;
+    m_state = wasAborted ? ContextState::abort : ContextState::done;
     return (m_state);
 }
 
