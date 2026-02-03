@@ -202,6 +202,7 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
 
     uint64_t scanCount = 0;
     uint64_t totalModifiedPoints = 0;
+    bool wasAborted = false;
 
     auto updateProgress = [&](uint64_t scansDone, int percent, uint64_t progressValue)
     {
@@ -227,6 +228,12 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
 
     for (const SafePtr<PointCloudNode>& scan : scans)
     {
+        if (m_state != ContextState::running)
+        {
+            wasAborted = true;
+            break;
+        }
+
         WritePtr<PointCloudNode> wScan = scan.get();
         if (!wScan)
             continue;
@@ -335,6 +342,12 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
             controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("%1 points updated in scan %2 in %3 seconds.").arg(modifiedPointCount).arg(qScanName).arg(seconds)));
         else
             controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Scan %1 not affected by color balance.").arg(qScanName)));
+
+        if (m_state != ContextState::running)
+        {
+            wasAborted = true;
+            break;
+        }
     }
 
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Total points updated: %1").arg(totalModifiedPoints)));
@@ -343,7 +356,7 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
     if (m_openFolderAfterExport)
         controller.updateInfo(new GuiDataOpenInExplorer(m_outputFolder));
 
-    m_state = ContextState::done;
+    m_state = wasAborted ? ContextState::abort : ContextState::done;
     return (m_state);
 }
 
