@@ -101,7 +101,7 @@ ContextState ContextExportPC::feedMessage(IMessage* message, Controller& control
 
         if (init_msg->use_grids_)
         {
-            bool hasGrid = false;
+            bool hasSelectedGrid = false;
             for (const SafePtr<AClippingNode>& clip : clippings)
             {
                 ElementType type = ElementType::None;
@@ -113,11 +113,12 @@ ContextState ContextExportPC::feedMessage(IMessage* message, Controller& control
                 if (type == ElementType::Box)
                 {
                     ReadPtr<BoxNode> rBox = static_read_cast<BoxNode>(clip);
-                    hasGrid |= !rBox->isSimpleBox();
+                    if (rBox && rBox->isSelected())
+                        hasSelectedGrid |= !rBox->isSimpleBox();
                 }
             }
             // Check that at least one clipping box is selected.
-            if (!hasGrid)
+            if (!hasSelectedGrid)
             {
                 FUNCLOG << "No Grid boxes selected" << LOGENDL;
                 controller.updateInfo(new GuiDataWarning(TEXT_EXPORT_GRID_SELECT_FIRST));
