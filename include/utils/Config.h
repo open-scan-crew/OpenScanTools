@@ -98,6 +98,9 @@ namespace Config
 
 	bool isUnlockScanManipulation();
 	bool setUnlockScanManipulation(bool unlock);
+
+    bool getMultithreadedCalculation();
+    bool setMultithreadedCalculation(bool value);
 }
 
 #endif
