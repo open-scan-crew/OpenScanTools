@@ -21,15 +21,21 @@
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QPushButton" name="okButton">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Ok</string>
-       </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="autoDefault">
+         <bool>true</bool>
+        </property>
+        <property name="default">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>Ok</string>
+        </property>
       </widget>
      </item>
      <item>
@@ -808,17 +814,20 @@
         </widget>
        </item>
        <item row="4" column="2" colspan="3">
-        <widget class="QPushButton" name="pushButton_color">
+       <widget class="QPushButton" name="pushButton_color">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="autoDefault">
+          <bool>false</bool>
+         </property>
          <property name="text">
           <string>Selected Background Color</string>
          </property>
-        </widget>
+       </widget>
        </item>
        <item row="5" column="2">
         <widget class="QLabel" name="label_3">
