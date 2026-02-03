@@ -98,6 +98,7 @@
 //ContextDeletePoints
 #define TEXT_DELETE_POINTS_QUESTION QObject::tr("Warning: points will be permanently deleted. This action cannot be undone.\nDo you confirm?")
 #define TEXT_DELETE_SAVE_BEFORE_QUESTION QObject::tr("It is recommended to save the project before deleting points. Do you want to save now?")
+#define TEXT_DELETE_POINTS_NO_ACTIVE_CLIPPING QObject::tr("You must activate some clippings to run this feature")
 
 //ContextStatisticalOutlierFilter
 #define TEXT_STAT_OUTLIER_FILTER_QUESTION QObject::tr("Warning: some points will be permanently deleted.\nDepending on the size of the scans and the filter settings, the calculation time may be significant. We recommend that you first perform a test on a small clipped portion.\nDo you confirm?")
