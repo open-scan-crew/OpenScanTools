@@ -3,10 +3,8 @@
 #include "controller/ControllerContext.h"
 #include "controller/IControlListener.h"
 #include "controller/functionSystem/FunctionManager.h"
-#include "controller/messages/DeletePointsMessage.h"
 #include "controller/messages/ModalMessage.h"
 #include "gui/GuiData/GuiDataMessages.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
 #include "io/exports/TlsFileWriter.h"
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "pointCloudEngine/PCE_core.h"
@@ -33,6 +31,7 @@ ContextDeletePoints::ContextDeletePoints(const ContextId& id)
 {
     m_state = ContextState::waiting_for_input;
     m_warningModal = false;
+    m_pendingDeleteConfirmation = false;
 }
 
 ContextDeletePoints::~ContextDeletePoints()
@@ -40,33 +39,18 @@ ContextDeletePoints::~ContextDeletePoints()
 
 ContextState ContextDeletePoints::start(Controller& controller)
 {
+    m_warningModal = false;
+    m_clippingFilter = ExportClippingFilter::ACTIVE;
+
     if (controller.getContext().getIsCurrentProjectSaved() == false)
+    {
         controller.updateInfo(new GuiDataModal(Yes | No, TEXT_DELETE_SAVE_BEFORE_QUESTION));
-
-    GraphManager& graphManager = controller.getGraphManager();
-
-    std::vector<SafePtr<AClippingNode>> vClips;
-    std::unordered_set<SafePtr<AClippingNode>> clips = graphManager.getActivatedOrSelectedClippingObjects();
-
-    // Check that at least one clipping object is selected or active.
-    if (clips.empty())
-    {
-        FUNCLOG << "No Clipping boxes selected" << LOGENDL;
-        controller.updateInfo(new GuiDataWarning(TEXT_EXPORT_NO_USABLE_CLIPPING_OBJECTS));
-        return (m_state = ContextState::abort);
+        m_pendingDeleteConfirmation = true;
+        return (m_state = ContextState::waiting_for_input);
     }
 
-    for (const SafePtr<AClippingNode>& clip : clips)
-        vClips.push_back(clip);
-
-    if (graphManager.getVisibleScans(m_panoramic).empty())
-    {
-        FUNCLOG << "No Scans visibles to clean" << LOGENDL;
-        controller.updateInfo(new GuiDataWarning(TEXT_EXPORT_NO_SCAN_SELECTED));
+    if (!beginDeleteConfirmation(controller))
         return (m_state = ContextState::abort);
-    }
-
-    controller.updateInfo(new GuiDataDeletePointsDialogDisplay(vClips));
 
     return (m_state = ContextState::waiting_for_input);
 }
@@ -82,6 +66,13 @@ ContextState ContextDeletePoints::feedMessage(IMessage* message, Controller& con
             ModalMessage* modal = static_cast<ModalMessage*>(message);
             if (modal->m_returnedValue == Yes)
                 m_saveContext = controller.getFunctionManager().launchBackgroundFunction(controller, ContextType::saveProject, m_id);
+
+            if (m_pendingDeleteConfirmation)
+            {
+                m_pendingDeleteConfirmation = false;
+                if (!beginDeleteConfirmation(controller))
+                    m_state = ContextState::abort;
+            }
         }
         else
         {
@@ -93,18 +84,6 @@ ContextState ContextDeletePoints::feedMessage(IMessage* message, Controller& con
         }
     }
     break;
-    case IMessage::MessageType::DELETE_POINTS_PARAMETERS:
-    {
-        auto decodedMsg = static_cast<DeletePointsMessage*>(message);
-
-        m_clippingFilter = decodedMsg->clippingFilter;
-
-        m_warningModal = true;
-        controller.updateInfo(new GuiDataModal(Yes | Cancel, TEXT_DELETE_POINTS_QUESTION));
-
-        break;
-    }
-    break;
     default:
     {
         FUNCLOG << "Context delete points: wrong message type" << LOGENDL;
@@ -113,6 +92,30 @@ ContextState ContextDeletePoints::feedMessage(IMessage* message, Controller& con
     }
 
     return (m_state);
+}
+
+bool ContextDeletePoints::beginDeleteConfirmation(Controller& controller)
+{
+    GraphManager& graphManager = controller.getGraphManager();
+
+    std::unordered_set<SafePtr<AClippingNode>> clips = graphManager.getClippingObjects(true, false);
+    if (clips.empty())
+    {
+        FUNCLOG << "No active clipping boxes" << LOGENDL;
+        controller.updateInfo(new GuiDataWarning(TEXT_DELETE_POINTS_NO_ACTIVE_CLIPPING));
+        return false;
+    }
+
+    if (graphManager.getVisibleScans(m_panoramic).empty())
+    {
+        FUNCLOG << "No Scans visibles to clean" << LOGENDL;
+        controller.updateInfo(new GuiDataWarning(TEXT_EXPORT_NO_SCAN_SELECTED));
+        return false;
+    }
+
+    m_warningModal = true;
+    controller.updateInfo(new GuiDataModal(Yes | Cancel, TEXT_DELETE_POINTS_QUESTION));
+    return true;
 }
 
 
