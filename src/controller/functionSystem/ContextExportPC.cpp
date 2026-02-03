@@ -101,7 +101,7 @@ ContextState ContextExportPC::feedMessage(IMessage* message, Controller& control
 
         if (init_msg->use_grids_)
         {
-            bool noGrid = true;
+            bool hasGrid = false;
             for (const SafePtr<AClippingNode>& clip : clippings)
             {
                 ElementType type = ElementType::None;
@@ -113,11 +113,11 @@ ContextState ContextExportPC::feedMessage(IMessage* message, Controller& control
                 if (type == ElementType::Box)
                 {
                     ReadPtr<BoxNode> rBox = static_read_cast<BoxNode>(clip);
-                    noGrid |= !rBox->isSimpleBox();
+                    hasGrid |= !rBox->isSimpleBox();
                 }
             }
             // Check that at least one clipping box is selected.
-            if (noGrid)
+            if (!hasGrid)
             {
                 FUNCLOG << "No Grid boxes selected" << LOGENDL;
                 controller.updateInfo(new GuiDataWarning(TEXT_EXPORT_GRID_SELECT_FIRST));
@@ -330,10 +330,14 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
     tls::PointFormat common_format = getCommonFormat(pcInfos);
 
     ClippingAssembly clipping_assembly;
-    graph.getClippingAssembly(clipping_assembly,
-        m_parameters.clippingFilter == ExportClippingFilter::ACTIVE,
-        m_parameters.clippingFilter == ExportClippingFilter::SELECTED
-    );
+    if (m_parameters.clippingFilter == ExportClippingFilter::ACTIVE ||
+        m_parameters.clippingFilter == ExportClippingFilter::SELECTED)
+    {
+        graph.getClippingAssembly(clipping_assembly,
+            m_parameters.clippingFilter == ExportClippingFilter::ACTIVE,
+            m_parameters.clippingFilter == ExportClippingFilter::SELECTED
+        );
+    }
     bool is_rcp = (m_parameters.outFileType == FileType::RCP);
 
     // The output files are based on the grid
