@@ -2,8 +2,10 @@
 #include "gui/UnitConverter.h"
 #include "utils/Logger.h"
 #include "utils/Utils.h"
+#include "utils/ColorConversion.h"
 #include "vulkan/VulkanManager.h"
 
+#include <algorithm>
 #include <cmath>
 #include <fstream>
 #include <limits>
@@ -12,6 +14,48 @@
 #include <QtGui/qimage.h>
 #include <QtGui/qfontmetrics.h>
 #include <QtGui/qpainter.h>
+
+#include <fmt/format.h>
+
+namespace
+{
+std::string formatDistance(double value, const UnitUsage& unitUsage)
+{
+    const std::string dist_unit = UnitConverter::getUnitText(unitUsage.distanceUnit).toStdString();
+    const uint32_t digits = unitUsage.displayedDigits;
+    const std::string format = fmt::format("{{:.{0}f}}{1}", digits, dist_unit);
+    const double converted = UnitConverter::meterToX(value, unitUsage.distanceUnit);
+    return fmt::format(fmt::runtime(format), converted);
+}
+
+std::string formatTemperature(double value, const UnitUsage& unitUsage)
+{
+    const uint32_t digits = unitUsage.displayedDigits;
+    const std::string format = fmt::format("{{:.{0}f}}{{}}", digits);
+    return fmt::format(fmt::runtime(format), value, UnitConverter::getTemperatureUnitText().toStdString());
+}
+
+std::vector<QColor> buildRampColors(int steps)
+{
+    std::vector<QColor> colors;
+    if (steps <= 0)
+        return colors;
+
+    colors.reserve(static_cast<size_t>(steps));
+    const int denom = std::max(1, steps - 1);
+    for (int s = 0; s < steps; ++s)
+    {
+        const float q = static_cast<float>(s) / static_cast<float>(denom);
+        const float hue = (q * 2.f) / 3.f;
+        const glm::vec3 rgb = utils::color::hsl2rgb(glm::vec3(hue, 1.f, 0.5f));
+        colors.emplace_back(static_cast<int>(rgb.x * 255.f),
+                            static_cast<int>(rgb.y * 255.f),
+                            static_cast<int>(rgb.z * 255.f),
+                            255);
+    }
+    return colors;
+}
+} // namespace
 
 ImageWriter::ImageWriter()
 {}
@@ -134,6 +178,140 @@ void ImageWriter::applyOrthoGridOverlay(const ImageHDMetadata& metadata, const O
     const int margin = 4;
     const QRect textRect(margin, static_cast<int>(height_) - textHeight - margin, textWidth, textHeight);
     painter.drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, label);
+}
+
+void ImageWriter::applyRampScaleOverlay(const RampScaleOverlay& overlay)
+{
+    if (!overlay.active)
+        return;
+    if (width_ == 0 || height_ == 0)
+        return;
+    if (overlay.steps <= 0 || overlay.graduation < 0)
+        return;
+
+    QImage qImage;
+    if (format_ == ImageFormat::PNG16)
+        qImage = QImage(reinterpret_cast<uchar*>(image_buffer_), width_, height_, QImage::Format::Format_RGBA64);
+    else
+        qImage = QImage(reinterpret_cast<uchar*>(image_buffer_), width_, height_, QImage::Format::Format_ARGB32);
+    if (qImage.isNull())
+        return;
+
+    const float marginY = static_cast<float>(height_) * 0.05f;
+    const float marginRight = static_cast<float>(width_) * 0.02f;
+    const float scaleHeight = static_cast<float>(height_) - marginY * 2.f;
+    if (scaleHeight <= 0.f)
+        return;
+
+    const float internMarginX = std::max(4.f, static_cast<float>(width_) * 0.01f);
+    const float internMarginY = std::max(4.f, static_cast<float>(height_) * 0.01f);
+    const float scaleWidth = std::max(12.f, static_cast<float>(width_) * 0.03f);
+    const float blank = std::max(2.f, static_cast<float>(width_) * 0.005f);
+    const float bigDashWidth = scaleWidth * 0.4f;
+    const float smallDashWidth = scaleWidth * 0.24f;
+    const float bigDashHeight = std::max(2.f, static_cast<float>(height_) * 0.002f);
+    const float smallDashHeight = std::max(1.f, static_cast<float>(height_) * 0.001f);
+    const int graduation = std::max(1, overlay.graduation);
+
+    QPainter painter(&qImage);
+    painter.setRenderHint(QPainter::Antialiasing, false);
+
+    QFont font = painter.font();
+    const float fontSize = std::max(10.f, static_cast<float>(height_) * 0.02f);
+    font.setPixelSize(static_cast<int>(std::round(fontSize)));
+    painter.setFont(font);
+    const QFontMetrics metrics(font);
+
+    const std::string minText = overlay.isTemperature
+        ? formatTemperature(overlay.vmin, overlay.unitUsage)
+        : formatDistance(overlay.vmin, overlay.unitUsage);
+    const std::string maxText = overlay.isTemperature
+        ? formatTemperature(overlay.vmax, overlay.unitUsage)
+        : formatDistance(overlay.vmax, overlay.unitUsage);
+    const int textWidth = std::max(metrics.horizontalAdvance(QString::fromStdString(minText)),
+                                   metrics.horizontalAdvance(QString::fromStdString(maxText)));
+    const float textHeight = static_cast<float>(metrics.height());
+
+    const float totalWidth = internMarginX * 2.f + static_cast<float>(textWidth) + blank + bigDashWidth + scaleWidth;
+    if (totalWidth + marginRight > static_cast<float>(width_))
+        return;
+
+    const float x = static_cast<float>(width_) - marginRight - totalWidth;
+    const float y = marginY;
+    const float internHeight = scaleHeight - internMarginY * 2.f;
+    if (internHeight <= textHeight)
+        return;
+
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(QColor(48, 48, 48, 192));
+    painter.drawRoundedRect(QRectF(x, y, totalWidth, scaleHeight), 5.f, 5.f);
+
+    painter.setPen(QColor(255, 255, 255));
+
+    const float textX = x + internMarginX;
+    const float bigDashX = textX + static_cast<float>(textWidth) + blank;
+    const float smallDashX = bigDashX + (bigDashWidth - smallDashWidth);
+    const float scaleX = bigDashX + bigDashWidth;
+
+    const float dyGrad = (internHeight - textHeight) / static_cast<float>(graduation);
+    float lastTextY = -std::numeric_limits<float>::infinity();
+    for (int i = 0; i < graduation + 1; ++i)
+    {
+        const float textY = y + internMarginY + dyGrad * static_cast<float>(i);
+        const float dashY = textY + textHeight / 2.f;
+        if (textY < lastTextY + textHeight * 1.5f)
+        {
+            painter.fillRect(QRectF(smallDashX, dashY - smallDashHeight / 2.f, smallDashWidth, smallDashHeight),
+                             QColor(255, 255, 255));
+            continue;
+        }
+
+        std::string text;
+        if (overlay.isTemperature)
+        {
+            int entryIndex = static_cast<int>(std::round(static_cast<double>(i) * (overlay.steps - 1) / graduation));
+            entryIndex = std::clamp(entryIndex, 0, overlay.steps - 1);
+            if (overlay.temperatureAscending)
+                entryIndex = overlay.steps - 1 - entryIndex;
+            const double value = overlay.temperatureEntries[static_cast<size_t>(entryIndex)].temperature;
+            text = formatTemperature(value, overlay.unitUsage);
+        }
+        else
+        {
+            const double value = overlay.vmax + (overlay.vmin - overlay.vmax) * static_cast<double>(i) / graduation;
+            text = formatDistance(value, overlay.unitUsage);
+        }
+
+        painter.drawText(QPointF(textX, textY + textHeight), QString::fromStdString(text));
+        lastTextY = textY;
+        painter.fillRect(QRectF(bigDashX, dashY - bigDashHeight / 2.f, bigDashWidth, bigDashHeight),
+                         QColor(255, 255, 255));
+    }
+
+    const float dY = (internHeight - textHeight) / static_cast<float>(overlay.steps);
+    if (dY <= 0.f)
+        return;
+
+    if (overlay.isTemperature)
+    {
+        for (int i = 0; i < overlay.steps; ++i)
+        {
+            const int entryIndex = overlay.temperatureAscending ? (overlay.steps - 1 - i) : i;
+            const TemperatureScaleEntry& entry = overlay.temperatureEntries[static_cast<size_t>(entryIndex)];
+            const QColor color(entry.r, entry.g, entry.b, 255);
+            const float barY = y + internMarginY + textHeight / 2.f + dY * static_cast<float>(i);
+            painter.fillRect(QRectF(scaleX, barY, scaleWidth, dY), color);
+        }
+    }
+    else
+    {
+        const std::vector<QColor> colors = buildRampColors(overlay.steps);
+        for (int i = 0; i < overlay.steps; ++i)
+        {
+            const float barY = y + internMarginY + textHeight / 2.f + dY * static_cast<float>(i);
+            painter.fillRect(QRectF(scaleX, barY, scaleWidth, dY), colors[static_cast<size_t>(i)]);
+        }
+    }
 }
 
 bool ImageWriter::save(const std::filesystem::path& file_path, ImageHDMetadata metadata)
