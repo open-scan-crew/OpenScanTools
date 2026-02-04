@@ -35,6 +35,8 @@
 
 #include "tls_impl.h"
 
+#include <unordered_map>
+
 // Note (Aurélien) QT::StandardButtons enum values in qmessagebox.h
 #define Yes 0x00004000
 #define No 0x00010000
@@ -252,7 +254,7 @@ void ContextExportPC::copyTls(Controller& controller, CopyTask task)
         return;
     }
 
-    tls::ImageFile_p img_file(task.dst_path, tls::usage::read);
+    tls::ImageFile_p img_file(task.dst_path, tls::usage::update);
     if (!img_file.is_valid_file())
     {
         controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString(TEXT_EXPORT_ERROR_FILE).arg(QString::fromStdWString(task.dst_path))));
@@ -329,6 +331,18 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
     // We can separate the list of PCOs and scans here.
     //std::vector<tls::PointCloudInstance> pcoInfos = graph.getPointCloudInstances(xg::Guid(), false, m_parameters.exportPCOs, m_parameters.pointCloudFilter);
     tls::PointFormat common_format = getCommonFormat(pcInfos);
+    std::unordered_map<tls::ScanGuid, TransformationModule> pco_cumul_transfos;
+    if (export_pcos_)
+    {
+        std::unordered_set<SafePtr<AGraphNode>> pcos = graph.getNodesByTypes({ ElementType::PCO }, m_parameters.pointCloudStatusFilter);
+        for (const SafePtr<AGraphNode>& node : pcos)
+        {
+            ReadPtr<PointCloudNode> rPco = static_pointer_cast<PointCloudNode>(node).cget();
+            if (!rPco)
+                continue;
+            pco_cumul_transfos[rPco->getScanGuid()] = rPco->getCumulTransformationModule();
+        }
+    }
 
     ClippingAssembly clipping_assembly;
     if (m_parameters.clippingFilter == ExportClippingFilter::ACTIVE ||
@@ -454,8 +468,12 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
 
                     task.dst_path = m_parameters.outFolder / (pcInfo.header.name + L".tls");
 
-                    glm::dvec3 pos = pcInfo.transfo.getCenter() + m_scanTranslationToAdd;
-                    glm::dquat rot = pcInfo.transfo.getOrientation();
+                    TransformationModule export_transfo = pcInfo.transfo;
+                    auto pco_transfo_it = pco_cumul_transfos.find(pcInfo.header.guid);
+                    if (pco_transfo_it != pco_cumul_transfos.end())
+                        export_transfo = pco_transfo_it->second;
+                    glm::dvec3 pos = export_transfo.getCenter() + m_scanTranslationToAdd;
+                    glm::dquat rot = export_transfo.getOrientation();
                     task.dst_transfo = { { rot.x, rot.y, rot.z, rot.w }, { pos.x, pos.y, pos.z } };
 
                     copy_tasks.push_back(task);
