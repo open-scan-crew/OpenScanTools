@@ -35,6 +35,8 @@
 
 #include "tls_impl.h"
 
+#include <unordered_map>
+
 // Note (Aurélien) QT::StandardButtons enum values in qmessagebox.h
 #define Yes 0x00004000
 #define No 0x00010000
