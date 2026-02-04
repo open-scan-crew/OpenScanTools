@@ -29,6 +29,7 @@ public:
     void transferImageTile(ImageTransferEvent transfer, uint32_t dstOffsetW, uint32_t dstOffsetH, uint32_t border);
     void writeTile(const void* tileBuffer, uint32_t tileW, uint32_t tileH, uint32_t dstOffsetW, uint32_t dstOffsetH);
     void applyOrthoGridOverlay(const ImageHDMetadata& metadata, const OrthoGridOverlay& overlay);
+    void applyRampScaleOverlay(const RampScaleOverlay& overlay);
     bool save(const std::filesystem::path& file_path, ImageHDMetadata metadata);
 
 private:

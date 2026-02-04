@@ -1,6 +1,9 @@
 #ifndef IMAGE_TYPES_H
 #define IMAGE_TYPES_H
 
+#include "gui/UnitUsage.h"
+#include "models/3d/TemperatureScaleData.h"
+
 #include <map>
 #include <glm/glm.hpp>
 #include <string>
@@ -74,6 +77,26 @@ struct ImageHDMetadata
 	glm::dvec2 imageTopRight = glm::dvec2(0.0);
 	glm::dvec3 importScanTranslation = glm::dvec3(0.0);
 
+};
+
+enum class RampScaleOverlayType
+{
+    None,
+    Temperature,
+    Ramp
+};
+
+struct RampScaleOverlay
+{
+    RampScaleOverlayType type = RampScaleOverlayType::None;
+    int graduationCount = 0;
+    float fontSize = 12.f;
+    uint32_t displayedDigits = 0;
+    UnitType distanceUnit = UnitType::M;
+    std::vector<TemperatureScaleEntry> temperatureEntries;
+    double rampMin = 0.0;
+    double rampMax = 0.0;
+    int rampSteps = 0;
 };
 
 #endif

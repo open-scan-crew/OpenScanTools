@@ -7,6 +7,7 @@
 #include "models/3d/SegmentDrawData.h"
 #include "pointCloudEngine/RenderingTypes.h"
 #include "models/3d/DisplayParameters.h"
+#include "io/ImageTypes.h"
 #include "models/data/clipping/ClippingGeometry.h"
 #include "models/graph/TransformationModule.h"
 
@@ -90,7 +91,8 @@ private:
 public:
     // ***** Draw commands for each object type ***** //
     void drawImGuiBegin(SafePtr<AGraphNode> startNode, VkCommandBuffer cmdBuffer);
-    void drawRampOverlay();
+    bool drawRampOverlay();
+    RampScaleOverlay buildRampScaleOverlay() const;
     void drawImGuiStats(VulkanViewport& viewport);
     void drawImGuiEnd(VkCommandBuffer cmdBuffer);
 

@@ -151,6 +151,7 @@ private:
     bool m_showProgressBar;
     uint32_t m_hdtilesize;
     bool m_hdFullResolutionTraversal = false;
+    bool m_rampOverlayVisible = false;
 
     // *** Compute *** //
     std::atomic<bool> m_computeRender = false;

@@ -356,7 +356,7 @@ public:
 public:
 	float m_min;
 	float m_max;
-	float m_steps;
+	int m_steps;
 };
 
 class GuiDataRenderDisplayObjectTexts : public GuiDataActiveCamera
