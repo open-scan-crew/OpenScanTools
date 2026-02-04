@@ -9,6 +9,7 @@
 #include "models/3d/DisplayParameters.h"
 #include "models/data/clipping/ClippingGeometry.h"
 #include "models/graph/TransformationModule.h"
+#include "imgui/imgui.h"
 
 #include <cstdint>
 
@@ -148,6 +149,17 @@ private:
     std::string formatTemperature(double value) const;
 
 private:
+    struct RampOverlayLayout
+    {
+        ImVec2 margin;
+        ImVec2 internMargin;
+        float blank;
+        ImVec2 smallDashSize;
+        ImVec2 bigDashSize;
+        float scaleWidth;
+        float windowRounding;
+        ImU32 backgroundColor;
+    };
     // Scene geometric parameters
     glm::dmat4 m_viewMatrix;
     glm::dvec3 m_cameraPosition;
