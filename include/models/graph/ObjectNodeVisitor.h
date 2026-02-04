@@ -9,6 +9,7 @@
 #include "models/3d/DisplayParameters.h"
 #include "models/data/clipping/ClippingGeometry.h"
 #include "models/graph/TransformationModule.h"
+#include "imgui/imgui.h"
 
 #include "utils/safe_ptr.h"
 
@@ -91,6 +92,7 @@ public:
     // ***** Draw commands for each object type ***** //
     void drawImGuiBegin(SafePtr<AGraphNode> startNode, VkCommandBuffer cmdBuffer);
     void drawRampOverlay();
+    void drawRampOverlayHD();
     void drawImGuiStats(VulkanViewport& viewport);
     void drawImGuiEnd(VkCommandBuffer cmdBuffer);
 
@@ -119,6 +121,7 @@ private:
     void drawBakedText(const BakedText& text);
     void drawMeasureTexts();
     void drawImGuiMeasureText(const SegmentDrawData segment);
+    void drawRampOverlayWithLayout(const RampOverlayLayout& layout);
 
     void clipAndDrawPointCloud(VkCommandBuffer _cmdBuffer, Renderer& renderer, const PointCloudDrawData& bakedPC, TlProjectionInfo& projInfo, const ClippingAssembly& clippingAssembly);
 
@@ -128,6 +131,17 @@ private:
     std::string formatTemperature(double value) const;
 
 private:
+    struct RampOverlayLayout
+    {
+        ImVec2 margin;
+        ImVec2 internMargin;
+        float blank;
+        ImVec2 smallDashSize;
+        ImVec2 bigDashSize;
+        float scaleWidth;
+        float windowRounding;
+        ImU32 backgroundColor;
+    };
     // Scene geometric parameters
     glm::dmat4 m_viewMatrix;
     glm::dvec3 m_cameraPosition;
