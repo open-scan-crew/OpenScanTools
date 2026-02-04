@@ -6,6 +6,8 @@
 
 #include "models/graph/ObjectNodeVisitor.h"
 #include "models/graph/CameraNode.h"
+#include "models/graph/AClippingNode.h"
+#include "models/graph/TransformationModule.h"
 
 #include "controller/controls/ControlFunction.h"
 #include "controller/controls/ControlSpecial.h"
@@ -25,6 +27,8 @@
 #include "utils/Utils.h"
 #include "utils/Logger.h"
 #include "utils/ImGuiUtils.h"
+#include "models/data/Clipping/ClippingGeometry.h"
+#include "models/3d/TemperatureScaleData.h"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_vulkan.h"
@@ -464,6 +468,7 @@ void RenderingEngine::updateHD()
 
     ImageWriter imgWriter;
     OrthoGridOverlay orthoGridOverlay;
+    RampScaleOverlay rampScaleOverlay;
     if (imgWriter.startCapture(m_hdFormat, m_hdExtent.x, m_hdExtent.y, m_imageMetadata.includeAlpha) == false)
         return;
 
@@ -642,6 +647,99 @@ void RenderingEngine::updateHD()
 
     if (orthoGridOverlay.active)
         imgWriter.applyOrthoGridOverlay(m_imageMetadata, orthoGridOverlay);
+
+    {
+        rampScaleOverlay.unitUsage = hdDisplayParams.m_unitUsage;
+        rampScaleOverlay.graduation = hdDisplayParams.m_rampScale.graduationCount;
+
+        if (hdDisplayParams.m_rampScale.showTemperatureScale)
+        {
+            TemperatureScaleData temperatureScale = m_graph.getTemperatureScaleData();
+            if (temperatureScale.isValid && !temperatureScale.entries.empty())
+            {
+                const double entryFirst = temperatureScale.entries.front().temperature;
+                const double entryLast = temperatureScale.entries.back().temperature;
+                rampScaleOverlay.active = true;
+                rampScaleOverlay.isTemperature = true;
+                rampScaleOverlay.vmin = std::min(entryFirst, entryLast);
+                rampScaleOverlay.vmax = std::max(entryFirst, entryLast);
+                rampScaleOverlay.temperatureAscending = entryFirst <= entryLast;
+                rampScaleOverlay.temperatureEntries = temperatureScale.entries;
+                rampScaleOverlay.steps = static_cast<int>(temperatureScale.entries.size());
+            }
+        }
+        else if (hdDisplayParams.m_rampScale.showScale)
+        {
+            ClippingAssembly rampAssembly;
+            std::unordered_set<SafePtr<AClippingNode>> ramps = m_graph.getRampObjects(true, false);
+            for (const SafePtr<AClippingNode>& ramp : ramps)
+            {
+                ReadPtr<AClippingNode> rRamp = ramp.cget();
+                if (!rRamp)
+                    continue;
+                rRamp->pushRampGeometries(rampAssembly.rampActives, TransformationModule(*&rRamp));
+            }
+
+            bool rampSelected = false;
+            std::shared_ptr<IClippingGeometry> rampToOverlay;
+            for (const std::shared_ptr<IClippingGeometry>& ramp : rampAssembly.rampActives)
+            {
+                if (!ramp->isSelected)
+                    continue;
+
+                if (!rampSelected)
+                {
+                    rampSelected = true;
+                    rampToOverlay = ramp;
+                }
+                else
+                {
+                    rampToOverlay = nullptr;
+                    break;
+                }
+            }
+
+            if (rampToOverlay && rampToOverlay->rampSteps > 0)
+            {
+                float vmin = 0.f;
+                float vmax = 0.f;
+                const glm::vec4 params = rampToOverlay->params;
+                switch (rampToOverlay->getShape())
+                {
+                case ClippingShape::box:
+                    if (hdDisplayParams.m_rampScale.centerBoxScale)
+                    {
+                        vmin = -params[2];
+                        vmax = params[2];
+                    }
+                    else
+                    {
+                        vmin = 0.f;
+                        vmax = params[2] * 2.f;
+                    }
+                    break;
+                case ClippingShape::cylinder:
+                case ClippingShape::sphere:
+                    vmin = params[0] - params[3];
+                    vmax = params[1] - params[3];
+                    break;
+                case ClippingShape::torus:
+                    vmin = params[2];
+                    vmax = params[3];
+                    break;
+                }
+
+                rampScaleOverlay.active = true;
+                rampScaleOverlay.isTemperature = false;
+                rampScaleOverlay.vmin = vmin;
+                rampScaleOverlay.vmax = vmax;
+                rampScaleOverlay.steps = rampToOverlay->rampSteps;
+            }
+        }
+    }
+
+    if (rampScaleOverlay.active)
+        imgWriter.applyRampScaleOverlay(rampScaleOverlay);
 
     if (imgWriter.save(m_hdImageFilepath, m_imageMetadata))
     {
