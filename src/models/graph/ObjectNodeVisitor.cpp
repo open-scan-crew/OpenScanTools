@@ -780,6 +780,89 @@ bool ObjectNodeVisitor::drawRampOverlay()
     return true;
 }
 
+RampScaleOverlay ObjectNodeVisitor::buildRampScaleOverlay() const
+{
+    RampScaleOverlay overlay;
+    overlay.graduationCount = m_displayParameters.m_rampScale.graduationCount;
+    overlay.fontSize = m_displayParameters.m_textOptions.m_textFontSize;
+    overlay.displayedDigits = m_displayParameters.m_unitUsage.displayedDigits;
+    overlay.distanceUnit = m_displayParameters.m_unitUsage.distanceUnit;
+
+    if (m_displayParameters.m_rampScale.showTemperatureScale)
+    {
+        TemperatureScaleData temperatureScale = m_graph.getTemperatureScaleData();
+        if (!temperatureScale.isValid || temperatureScale.entries.empty())
+            return overlay;
+
+        overlay.type = RampScaleOverlayType::Temperature;
+        overlay.temperatureEntries = temperatureScale.entries;
+        return overlay;
+    }
+
+    if (!m_displayParameters.m_rampScale.showScale)
+        return overlay;
+
+    bool rampSelected = false;
+    std::shared_ptr<IClippingGeometry> rampToOverlay;
+    for (const std::shared_ptr<IClippingGeometry>& ramp : m_clippingAssembly.rampActives)
+    {
+        if (!ramp->isSelected)
+            continue;
+
+        if (!rampSelected)
+        {
+            rampSelected = true;
+            rampToOverlay = ramp;
+        }
+        else
+        {
+            rampToOverlay = nullptr;
+            break;
+        }
+    }
+
+    if (rampToOverlay == nullptr)
+        return overlay;
+
+    const int steps = rampToOverlay->rampSteps;
+    if (steps == 0)
+        return overlay;
+
+    float vmin = 0.f;
+    float vmax = 0.f;
+    glm::vec4 params = rampToOverlay->params;
+    switch (rampToOverlay->getShape())
+    {
+    case ClippingShape::box:
+        if (m_displayParameters.m_rampScale.centerBoxScale)
+        {
+            vmin = -params[2];
+            vmax = params[2];
+        }
+        else
+        {
+            vmin = 0.f;
+            vmax = params[2] * 2;
+        }
+        break;
+    case ClippingShape::cylinder:
+    case ClippingShape::sphere:
+        vmin = params[0] - params[3];
+        vmax = params[1] - params[3];
+        break;
+    case ClippingShape::torus:
+        vmin = params[2];
+        vmax = params[3];
+        break;
+    }
+
+    overlay.type = RampScaleOverlayType::Ramp;
+    overlay.rampMin = vmin;
+    overlay.rampMax = vmax;
+    overlay.rampSteps = steps;
+    return overlay;
+}
+
 float getCumulValue(void const* data, int i, int j) {
     float value = 0.0f;
     switch (j)
