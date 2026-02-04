@@ -331,19 +331,6 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
     // We can separate the list of PCOs and scans here.
     //std::vector<tls::PointCloudInstance> pcoInfos = graph.getPointCloudInstances(xg::Guid(), false, m_parameters.exportPCOs, m_parameters.pointCloudFilter);
     tls::PointFormat common_format = getCommonFormat(pcInfos);
-    std::unordered_map<tls::ScanGuid, TransformationModule> pco_cumul_transfos;
-    if (export_pcos_)
-    {
-        std::unordered_set<SafePtr<AGraphNode>> pcos = graph.getNodesByTypes({ ElementType::PCO }, m_parameters.pointCloudStatusFilter);
-        for (const SafePtr<AGraphNode>& node : pcos)
-        {
-            ReadPtr<PointCloudNode> rPco = static_pointer_cast<PointCloudNode>(node).cget();
-            if (!rPco)
-                continue;
-            pco_cumul_transfos[rPco->getScanGuid()] = rPco->getCumulTransformationModule();
-        }
-    }
-
     ClippingAssembly clipping_assembly;
     if (m_parameters.clippingFilter == ExportClippingFilter::ACTIVE ||
         m_parameters.clippingFilter == ExportClippingFilter::SELECTED)
