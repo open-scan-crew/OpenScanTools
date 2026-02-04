@@ -526,11 +526,15 @@ void ObjectNodeVisitor::drawImGuiMeasureText(const SegmentDrawData segment)
 void ObjectNodeVisitor::drawRampOverlay()
 {
     ObjectNodeVisitor::RampOverlayLayout layout{
-        ImVec2(10.f, 10.f),
-        ImVec2(10.f, 10.f),
+        10.f,
+        10.f,
+        10.f,
+        10.f,
         5.f,
-        ImVec2(6.f, 1.f),
-        ImVec2(10.f, 2.f),
+        6.f,
+        1.f,
+        10.f,
+        2.f,
         25.f,
         5.0f,
         IM_COL32(48, 48, 48, 192)
@@ -543,11 +547,15 @@ void ObjectNodeVisitor::drawRampOverlayHD()
     const float height = static_cast<float>(m_fbExtent.height);
     const float width = static_cast<float>(m_fbExtent.width);
     ObjectNodeVisitor::RampOverlayLayout layout{
-        ImVec2(width * 0.02f, height * 0.05f),
-        ImVec2(height * 0.01f, height * 0.01f),
+        width * 0.02f,
+        height * 0.05f,
+        height * 0.01f,
+        height * 0.01f,
         height * 0.005f,
-        ImVec2(height * 0.006f, height * 0.001f),
-        ImVec2(height * 0.01f, height * 0.002f),
+        height * 0.006f,
+        height * 0.001f,
+        height * 0.01f,
+        height * 0.002f,
         height * 0.025f,
         5.0f,
         IM_COL32(48, 48, 48, 192)
@@ -585,17 +593,17 @@ void ObjectNodeVisitor::drawRampOverlayWithLayout(const ObjectNodeVisitor::RampO
         textSize.x *= fontSize / defaultFontSize;
         textSize.y *= fontSize / defaultFontSize;
 
-        ImVec2 wndSize(layout.internMargin.x * 2 + textSize.x + layout.blank + layout.bigDashSize.x + layout.scaleWidth, (float)m_fbExtent.height - layout.margin.y * 2);
-        float internSizeY = wndSize.y - layout.internMargin.y * 2;
+        ImVec2 wndSize(layout.internMarginX * 2 + textSize.x + layout.blank + layout.bigDashWidth + layout.scaleWidth, (float)m_fbExtent.height - layout.marginY * 2);
+        float internSizeY = wndSize.y - layout.internMarginY * 2;
 
         if (wndSize.x > m_fbExtent.width || internSizeY < 10.f)
             return;
 
-        ImVec2 wndPos((float)m_fbExtent.width - wndSize.x - layout.margin.x, layout.margin.y);
-        float text_x = wndPos.x + layout.internMargin.x;
+        ImVec2 wndPos((float)m_fbExtent.width - wndSize.x - layout.marginX, layout.marginY);
+        float text_x = wndPos.x + layout.internMarginX;
         float big_dash_x = text_x + textSize.x + layout.blank;
-        float small_dash_x = big_dash_x + (layout.bigDashSize.x - layout.smallDashSize.x);
-        float scale_x = big_dash_x + layout.bigDashSize.x;
+        float small_dash_x = big_dash_x + (layout.bigDashWidth - layout.smallDashWidth);
+        float scale_x = big_dash_x + layout.bigDashWidth;
 
         ImGuiWindowFlags windowFlags = 0;
         windowFlags |= ImGuiWindowFlags_NoMove;
@@ -616,12 +624,12 @@ void ObjectNodeVisitor::drawRampOverlayWithLayout(const ObjectNodeVisitor::RampO
         float lastTextY = -std::numeric_limits<float>::infinity();
         for (int i = 0; i < graduation + 1; ++i)
         {
-            float text_y = wndPos.y + layout.internMargin.y + dyGrad * i;
+            float text_y = wndPos.y + layout.internMarginY + dyGrad * i;
             float dash_y = text_y + textSize.y / 2.f;
             if (text_y < lastTextY + textSize.y * 1.5f)
             {
-                ImVec2 dashPos = ImVec2(small_dash_x, dash_y - layout.smallDashSize.y / 2.f);
-                dl->AddRectFilled(dashPos, dashPos + layout.smallDashSize, IM_COL32_WHITE);
+                ImVec2 dashPos = ImVec2(small_dash_x, dash_y - layout.smallDashHeight / 2.f);
+                dl->AddRectFilled(dashPos, dashPos + ImVec2(layout.smallDashWidth, layout.smallDashHeight), IM_COL32_WHITE);
             }
             else
             {
@@ -633,8 +641,8 @@ void ObjectNodeVisitor::drawRampOverlayWithLayout(const ObjectNodeVisitor::RampO
                 std::string text = formatTemperature(v);
                 dl->AddText(NULL, fontSize, ImVec2(text_x, text_y), IM_COL32_WHITE, text.c_str());
                 lastTextY = text_y;
-                ImVec2 dashPos = ImVec2(big_dash_x, dash_y - layout.bigDashSize.y / 2.f);
-                dl->AddRectFilled(dashPos, dashPos + layout.bigDashSize, IM_COL32_WHITE);
+                ImVec2 dashPos = ImVec2(big_dash_x, dash_y - layout.bigDashHeight / 2.f);
+                dl->AddRectFilled(dashPos, dashPos + ImVec2(layout.bigDashWidth, layout.bigDashHeight), IM_COL32_WHITE);
             }
         }
 
@@ -643,7 +651,7 @@ void ObjectNodeVisitor::drawRampOverlayWithLayout(const ObjectNodeVisitor::RampO
         {
             int entryIndex = isAscending ? (steps - 1 - i) : i;
             const TemperatureScaleEntry& entry = temperatureScale.entries[entryIndex];
-            ImVec2 rect = ImVec2(scale_x, wndPos.y + layout.internMargin.y + textSize.y / 2.f + dY * i);
+            ImVec2 rect = ImVec2(scale_x, wndPos.y + layout.internMarginY + textSize.y / 2.f + dY * i);
             dl->AddRectFilled(rect, rect + ImVec2(layout.scaleWidth, dY), IM_COL32(entry.r, entry.g, entry.b, 255));
         }
 
@@ -720,17 +728,17 @@ void ObjectNodeVisitor::drawRampOverlayWithLayout(const ObjectNodeVisitor::RampO
     textSize.x *= fontSize / defaultFontSize;
     textSize.y *= fontSize / defaultFontSize;
 
-    ImVec2 wndSize(layout.internMargin.x * 2 + textSize.x + layout.blank + layout.bigDashSize.x + layout.scaleWidth, (float)m_fbExtent.height - layout.margin.y * 2);
-    float internSizeY = wndSize.y - layout.internMargin.y * 2;
+    ImVec2 wndSize(layout.internMarginX * 2 + textSize.x + layout.blank + layout.bigDashWidth + layout.scaleWidth, (float)m_fbExtent.height - layout.marginY * 2);
+    float internSizeY = wndSize.y - layout.internMarginY * 2;
 
     if (wndSize.x > m_fbExtent.width || internSizeY < 10.f)
         return;
 
-    ImVec2 wndPos((float)m_fbExtent.width - wndSize.x - layout.margin.x, layout.margin.y);
-    float text_x = wndPos.x + layout.internMargin.x;
+    ImVec2 wndPos((float)m_fbExtent.width - wndSize.x - layout.marginX, layout.marginY);
+    float text_x = wndPos.x + layout.internMarginX;
     float big_dash_x = text_x + textSize.x + layout.blank;
-    float small_dash_x = big_dash_x + (layout.bigDashSize.x - layout.smallDashSize.x);
-    float scale_x = big_dash_x + layout.bigDashSize.x;
+    float small_dash_x = big_dash_x + (layout.bigDashWidth - layout.smallDashWidth);
+    float scale_x = big_dash_x + layout.bigDashWidth;
 
     ImGuiWindowFlags windowFlags = 0;
     windowFlags |= ImGuiWindowFlags_NoMove;
@@ -751,12 +759,12 @@ void ObjectNodeVisitor::drawRampOverlayWithLayout(const ObjectNodeVisitor::RampO
     float lastTextY = -std::numeric_limits<float>::infinity();
     for (int i = 0; i < graduation + 1; ++i)
     {
-        float text_y = wndPos.y + layout.internMargin.y + dyGrad * i;
+        float text_y = wndPos.y + layout.internMarginY + dyGrad * i;
         float dash_y = text_y + textSize.y / 2.f;
         if (text_y < lastTextY + textSize.y * 1.5f)
         {
-            ImVec2 dashPos = ImVec2(small_dash_x, dash_y - layout.smallDashSize.y / 2.f);
-            dl->AddRectFilled(dashPos, dashPos + layout.smallDashSize, IM_COL32_WHITE);
+            ImVec2 dashPos = ImVec2(small_dash_x, dash_y - layout.smallDashHeight / 2.f);
+            dl->AddRectFilled(dashPos, dashPos + ImVec2(layout.smallDashWidth, layout.smallDashHeight), IM_COL32_WHITE);
         }
         else
         {
@@ -764,8 +772,8 @@ void ObjectNodeVisitor::drawRampOverlayWithLayout(const ObjectNodeVisitor::RampO
             std::string text = formatNumber(v);
             dl->AddText(NULL, fontSize, ImVec2(text_x, text_y), IM_COL32_WHITE, text.c_str());
             lastTextY = text_y;
-            ImVec2 dashPos = ImVec2(big_dash_x, dash_y - layout.bigDashSize.y / 2.f);
-            dl->AddRectFilled(dashPos, dashPos + layout.bigDashSize, IM_COL32_WHITE);
+            ImVec2 dashPos = ImVec2(big_dash_x, dash_y - layout.bigDashHeight / 2.f);
+            dl->AddRectFilled(dashPos, dashPos + ImVec2(layout.bigDashWidth, layout.bigDashHeight), IM_COL32_WHITE);
         }
     }
 
@@ -774,7 +782,7 @@ void ObjectNodeVisitor::drawRampOverlayWithLayout(const ObjectNodeVisitor::RampO
     float dY = (internSizeY - textSize.y) / steps;
     for (int i = 0; i < steps; ++i)
     {
-        ImVec2 rect = ImVec2(scale_x, wndPos.y + layout.internMargin.y + textSize.y / 2.f + dY * i);
+        ImVec2 rect = ImVec2(scale_x, wndPos.y + layout.internMarginY + textSize.y / 2.f + dY * i);
         dl->AddRectFilled(rect, rect + ImVec2(layout.scaleWidth, dY), rampScale[i]);
     }
 

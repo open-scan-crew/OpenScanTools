@@ -11,6 +11,8 @@
 #include "models/graph/TransformationModule.h"
 #include "imgui/imgui.h"
 
+#include <cstdint>
+
 #include "utils/safe_ptr.h"
 
 #include "vulkan/VkUniform.h"
@@ -111,6 +113,22 @@ public:
     void getDrawCount(uint64_t& pointsDrawn, uint64_t& cellsDrawn);
 
 private:
+    struct RampOverlayLayout
+    {
+        float marginX;
+        float marginY;
+        float internMarginX;
+        float internMarginY;
+        float blank;
+        float smallDashWidth;
+        float smallDashHeight;
+        float bigDashWidth;
+        float bigDashHeight;
+        float scaleWidth;
+        float windowRounding;
+        std::uint32_t backgroundColor;
+    };
+
     void initTextsFormat();
     bool drawCameraText();
     void drawManipulator(VkCommandBuffer cmdBuffer, ManipulatorRenderer& renderer, const TransformationModule& transfo, const SafePtr<ManipulatorNode>& manip, double manipSize);
