@@ -5,8 +5,10 @@
 #include "io/ImageTypes.h"
 #include "gui/UnitUsage.h"
 #include "utils/Color32.hpp"
+#include "models/3d/TemperatureScaleData.h"
 
 #include <filesystem>
+#include <vector>
 
 struct OrthoGridOverlay
 {
@@ -15,6 +17,19 @@ struct OrthoGridOverlay
     uint32_t lineWidth = 1;
     Color32 color = Color32(128, 128, 128);
     UnitType distanceUnit = UnitType::M;
+};
+
+struct RampScaleOverlay
+{
+    bool active = false;
+    bool isTemperature = false;
+    int graduation = 0;
+    int steps = 0;
+    double vmin = 0.0;
+    double vmax = 0.0;
+    bool temperatureAscending = true;
+    UnitUsage unitUsage = unit_usage::by_default;
+    std::vector<TemperatureScaleEntry> temperatureEntries;
 };
 
 class ImageWriter
@@ -29,6 +44,7 @@ public:
     void transferImageTile(ImageTransferEvent transfer, uint32_t dstOffsetW, uint32_t dstOffsetH, uint32_t border);
     void writeTile(const void* tileBuffer, uint32_t tileW, uint32_t tileH, uint32_t dstOffsetW, uint32_t dstOffsetH);
     void applyOrthoGridOverlay(const ImageHDMetadata& metadata, const OrthoGridOverlay& overlay);
+    void applyRampScaleOverlay(const RampScaleOverlay& overlay);
     bool save(const std::filesystem::path& file_path, ImageHDMetadata metadata);
 
 private:
