@@ -35,6 +35,8 @@
 
 #include "tls_impl.h"
 
+#include <unordered_map>
+
 // Note (Aurélien) QT::StandardButtons enum values in qmessagebox.h
 #define Yes 0x00004000
 #define No 0x00010000
@@ -101,7 +103,7 @@ ContextState ContextExportPC::feedMessage(IMessage* message, Controller& control
 
         if (init_msg->use_grids_)
         {
-            bool noGrid = true;
+            bool hasSelectedGrid = false;
             for (const SafePtr<AClippingNode>& clip : clippings)
             {
                 ElementType type = ElementType::None;
@@ -113,11 +115,12 @@ ContextState ContextExportPC::feedMessage(IMessage* message, Controller& control
                 if (type == ElementType::Box)
                 {
                     ReadPtr<BoxNode> rBox = static_read_cast<BoxNode>(clip);
-                    noGrid |= !rBox->isSimpleBox();
+                    if (rBox && rBox->isSelected())
+                        hasSelectedGrid |= !rBox->isSimpleBox();
                 }
             }
             // Check that at least one clipping box is selected.
-            if (noGrid)
+            if (!hasSelectedGrid)
             {
                 FUNCLOG << "No Grid boxes selected" << LOGENDL;
                 controller.updateInfo(new GuiDataWarning(TEXT_EXPORT_GRID_SELECT_FIRST));
@@ -251,7 +254,7 @@ void ContextExportPC::copyTls(Controller& controller, CopyTask task)
         return;
     }
 
-    tls::ImageFile_p img_file(task.dst_path, tls::usage::read);
+    tls::ImageFile_p img_file(task.dst_path, tls::usage::update);
     if (!img_file.is_valid_file())
     {
         controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString(TEXT_EXPORT_ERROR_FILE).arg(QString::fromStdWString(task.dst_path))));
@@ -328,12 +331,15 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
     // We can separate the list of PCOs and scans here.
     //std::vector<tls::PointCloudInstance> pcoInfos = graph.getPointCloudInstances(xg::Guid(), false, m_parameters.exportPCOs, m_parameters.pointCloudFilter);
     tls::PointFormat common_format = getCommonFormat(pcInfos);
-
     ClippingAssembly clipping_assembly;
-    graph.getClippingAssembly(clipping_assembly,
-        m_parameters.clippingFilter == ExportClippingFilter::ACTIVE,
-        m_parameters.clippingFilter == ExportClippingFilter::SELECTED
-    );
+    if (m_parameters.clippingFilter == ExportClippingFilter::ACTIVE ||
+        m_parameters.clippingFilter == ExportClippingFilter::SELECTED)
+    {
+        graph.getClippingAssembly(clipping_assembly,
+            m_parameters.clippingFilter == ExportClippingFilter::ACTIVE,
+            m_parameters.clippingFilter == ExportClippingFilter::SELECTED
+        );
+    }
     bool is_rcp = (m_parameters.outFileType == FileType::RCP);
 
     // The output files are based on the grid
@@ -449,8 +455,9 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
 
                     task.dst_path = m_parameters.outFolder / (pcInfo.header.name + L".tls");
 
-                    glm::dvec3 pos = pcInfo.transfo.getCenter() + m_scanTranslationToAdd;
-                    glm::dquat rot = pcInfo.transfo.getOrientation();
+                    const TransformationModule& export_transfo = pcInfo.transfo;
+                    glm::dvec3 pos = export_transfo.getCenter() + m_scanTranslationToAdd;
+                    glm::dquat rot = export_transfo.getOrientation();
                     task.dst_transfo = { { rot.x, rot.y, rot.z, rot.w }, { pos.x, pos.y, pos.z } };
 
                     copy_tasks.push_back(task);
