@@ -90,7 +90,7 @@ private:
 public:
     // ***** Draw commands for each object type ***** //
     void drawImGuiBegin(SafePtr<AGraphNode> startNode, VkCommandBuffer cmdBuffer);
-    void drawRampOverlay();
+    bool drawRampOverlay();
     void drawImGuiStats(VulkanViewport& viewport);
     void drawImGuiEnd(VkCommandBuffer cmdBuffer);
 
