@@ -252,7 +252,7 @@ void ContextExportPC::copyTls(Controller& controller, CopyTask task)
         return;
     }
 
-    tls::ImageFile_p img_file(task.dst_path, tls::usage::read);
+    tls::ImageFile_p img_file(task.dst_path, tls::usage::update);
     if (!img_file.is_valid_file())
     {
         controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString(TEXT_EXPORT_ERROR_FILE).arg(QString::fromStdWString(task.dst_path))));
@@ -329,7 +329,6 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
     // We can separate the list of PCOs and scans here.
     //std::vector<tls::PointCloudInstance> pcoInfos = graph.getPointCloudInstances(xg::Guid(), false, m_parameters.exportPCOs, m_parameters.pointCloudFilter);
     tls::PointFormat common_format = getCommonFormat(pcInfos);
-
     ClippingAssembly clipping_assembly;
     if (m_parameters.clippingFilter == ExportClippingFilter::ACTIVE ||
         m_parameters.clippingFilter == ExportClippingFilter::SELECTED)
