@@ -157,6 +157,11 @@ std::string importJsonTree(Controller& controller, const nlohmann::json& json, c
         case ElementType::Scan:
         {
             SafePtr<PointCloudNode> pc = make_safe<PointCloudNode>(false);
+            {
+                WritePtr<PointCloudNode> wpc = pc.get();
+                if (wpc)
+                    wpc->setManipulable(Config::isUnlockScanManipulation());
+            }
             DataDeserializer::DeserializePointCloudNode(pc, json, controller);
             // TODO - check tls file path
             WritePtr<PointCloudNode> wpc = pc.get();
@@ -541,6 +546,12 @@ void LoadObjFile(Controller& controller, std::unordered_map<SafePtr<AGraphNode>,
         case ElementType::PCO:
         {
             SafePtr<PointCloudNode> node = make_safe<PointCloudNode>(type == ElementType::PCO);
+            if (type == ElementType::Scan)
+            {
+                WritePtr<PointCloudNode> wNode = node.get();
+                if (wNode)
+                    wNode->setManipulable(Config::isUnlockScanManipulation());
+            }
             DataDeserializer::DeserializePointCloudNode(node, iterator, controller);
             //checkPointCloudPath(node);
             loadedObject = node;
@@ -1260,6 +1271,8 @@ SafePtr<PointCloudNode> SaveLoadSystem::ImportNewTlsFile(const std::filesystem::
         }
 
         wpc->setDefaultData(controller);
+        if (!is_object)
+            wpc->setManipulable(Config::isUnlockScanManipulation());
         wpc->setTlsFilePath(dst_path, true, scanGuid);
         if (!is_object)
             wpc->setColor(Color32(rand() % 255, rand() % 255, rand() % 255, 255));
