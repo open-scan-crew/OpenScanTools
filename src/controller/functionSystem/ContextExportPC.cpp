@@ -281,9 +281,13 @@ bool ContextExportPC::processExport(Controller& controller, CSVWriter* csv_write
         if (m_state != ContextState::running || !success)
             break;
 
+        std::wstring writer_name = m_parameters.outFileType == FileType::RCP
+            ? task.project_name
+            : task.file_name;
+
         // Prepare the file writer
-        // Reuse the FileWriter if the 'file_name' is the same
-        if (ensureFileWriter(controller, scanFileWriter, task.file_name, csv_writer) == false)
+        // Reuse the FileWriter if the output name is the same
+        if (ensureFileWriter(controller, scanFileWriter, writer_name, csv_writer) == false)
             return false;
 
         scanFileWriter->appendPointCloud(task.header, task.transfo);
@@ -368,14 +372,17 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
 
                 if (is_rcp)
                 {
-                    task.file_name += m_parameters.fileName.wstring();
+                    task.project_name += m_parameters.fileName.wstring();
                     if (m_parameters.maxScanPerProject > 0)
-                        task.file_name += L"_" + std::to_wstring(box_per_sub_project++ / m_parameters.maxScanPerProject);
+                        task.project_name += L"_" + std::to_wstring(box_per_sub_project++ / m_parameters.maxScanPerProject);
+                    task.scan_name = box_xyz_name;
                 }
                 else
+                {
                     task.file_name += box_xyz_name;
+                }
 
-                task.header.name = box_xyz_name;
+                task.header.name = is_rcp ? task.scan_name : box_xyz_name;
                 task.header.precision = m_parameters.encodingPrecision;
                 task.header.format = common_format;
 
@@ -406,9 +413,17 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
                 continue;
 
             ExportTask task;
-            task.file_name = r_clipping->getComposedName();
+            if (is_rcp)
+            {
+                task.project_name = m_parameters.fileName.wstring();
+                task.scan_name = r_clipping->getComposedName();
+            }
+            else
+            {
+                task.file_name = r_clipping->getComposedName();
+            }
 
-            task.header.name = r_clipping->getComposedName();
+            task.header.name = is_rcp ? task.scan_name : r_clipping->getComposedName();
             task.header.precision = m_parameters.encodingPrecision;
             task.header.format = common_format;
 
@@ -425,9 +440,17 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
     else if (m_parameters.method == ExportPointCloudMerging::CLIPPING_AND_SCAN_MERGED)
     {
         ExportTask task;
-        task.file_name = m_parameters.fileName.wstring();
+        if (is_rcp)
+        {
+            task.project_name = m_parameters.fileName.wstring();
+            task.scan_name = m_parameters.fileName.wstring();
+        }
+        else
+        {
+            task.file_name = m_parameters.fileName.wstring();
+        }
 
-        task.header.name = m_parameters.fileName.wstring();
+        task.header.name = is_rcp ? task.scan_name : m_parameters.fileName.wstring();
         task.header.precision = m_parameters.encodingPrecision;
         task.header.format = common_format;
 
@@ -466,10 +489,18 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
             else
             {
                 ExportTask task;
-                task.file_name = is_rcp ? m_parameters.fileName.wstring() : pcInfo.header.name;
+                if (is_rcp)
+                {
+                    task.project_name = m_parameters.fileName.wstring();
+                    task.scan_name = pcInfo.header.name;
+                }
+                else
+                {
+                    task.file_name = pcInfo.header.name;
+                }
 
                 task.header = pcInfo.header;
-                task.header.name = task.file_name;
+                task.header.name = is_rcp ? task.scan_name : task.file_name;
                 task.header.precision = m_parameters.encodingPrecision;
                 task.header.format = pcInfo.header.format;
 
@@ -480,8 +511,16 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
 
                 if (!clipping_assembly.empty() && !m_forSubProject)
                 {
-                    task.file_name += is_rcp ? L"" : L"_clipped";
-                    task.header.name += L"_clipped";
+                    if (is_rcp)
+                    {
+                        task.scan_name += L"_clipped";
+                        task.header.name = task.scan_name;
+                    }
+                    else
+                    {
+                        task.file_name += L"_clipped";
+                        task.header.name += L"_clipped";
+                    }
                 }
 
                 export_tasks.push_back(task);

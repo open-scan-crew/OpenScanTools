@@ -40,6 +40,8 @@ protected:
     };
     struct ExportTask {
         std::wstring file_name;
+        std::wstring project_name;
+        std::wstring scan_name;
         tls::ScanHeader header;
         TransformationModule transfo;
         std::vector<tls::PointCloudInstance> input_pcs; // if empty, take all the point clouds
