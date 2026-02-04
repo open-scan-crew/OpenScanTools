@@ -35,6 +35,8 @@
 
 #include "tls_impl.h"
 
+#include <unordered_map>
+
 // Note (Aurélien) QT::StandardButtons enum values in qmessagebox.h
 #define Yes 0x00004000
 #define No 0x00010000
@@ -453,8 +455,12 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
 
                     task.dst_path = m_parameters.outFolder / (pcInfo.header.name + L".tls");
 
-                    glm::dvec3 pos = pcInfo.transfo.getCenter() + m_scanTranslationToAdd;
-                    glm::dquat rot = pcInfo.transfo.getOrientation();
+                    TransformationModule export_transfo = pcInfo.transfo;
+                    auto pco_transfo_it = pco_cumul_transfos.find(pcInfo.header.guid);
+                    if (pco_transfo_it != pco_cumul_transfos.end())
+                        export_transfo = pco_transfo_it->second;
+                    glm::dvec3 pos = export_transfo.getCenter() + m_scanTranslationToAdd;
+                    glm::dquat rot = export_transfo.getOrientation();
                     task.dst_transfo = { { rot.x, rot.y, rot.z, rot.w }, { pos.x, pos.y, pos.z } };
 
                     copy_tasks.push_back(task);
