@@ -523,7 +523,7 @@ void ObjectNodeVisitor::drawImGuiMeasureText(const SegmentDrawData segment)
 //   * Ramp steps count
 //   * Unit system
 //   * font size (implicit with ImGui)
-void ObjectNodeVisitor::drawRampOverlay()
+bool ObjectNodeVisitor::drawRampOverlay()
 {
     // TODO - Afficher l'echelle pour le mode distance
     //m_displayParameters.m_mode != UiRenderMode::Distance_Ramp &&
@@ -532,7 +532,7 @@ void ObjectNodeVisitor::drawRampOverlay()
     {
         TemperatureScaleData temperatureScale = m_graph.getTemperatureScaleData();
         if (!temperatureScale.isValid || temperatureScale.entries.empty())
-            return;
+            return false;
 
         // Constants
         ImVec2 margin(10.f, 10.f);
@@ -551,7 +551,7 @@ void ObjectNodeVisitor::drawRampOverlay()
         const double vmax = std::max(entryFirst, entryLast);
         const int steps = static_cast<int>(temperatureScale.entries.size());
         if (steps == 0)
-            return;
+            return false;
         const bool isAscending = entryFirst <= entryLast;
 
         ImVec2 textSizeVMin = ImGui::CalcTextSize(formatTemperature(vmin).c_str());
@@ -565,7 +565,7 @@ void ObjectNodeVisitor::drawRampOverlay()
         float internSizeY = wndSize.y - internMargin.y * 2;
 
         if (wndSize.x > m_fbExtent.width || internSizeY < 10.f)
-            return;
+            return false;
 
         ImVec2 wndPos((float)m_fbExtent.width - wndSize.x - margin.x, margin.y);
         float text_x = wndPos.x + internMargin.x;
@@ -626,11 +626,11 @@ void ObjectNodeVisitor::drawRampOverlay()
         ImGui::End();
         ImGui::PopStyleVar();
         ImGui::PopStyleColor();
-        return;
+        return true;
     }
 
     if (!m_displayParameters.m_rampScale.showScale)
-        return;
+        return false;
 
     bool rampSelected = false;
     std::shared_ptr<IClippingGeometry> rampToOverlay;
@@ -652,7 +652,7 @@ void ObjectNodeVisitor::drawRampOverlay()
     }
 
     if (rampToOverlay == nullptr)
-        return;
+        return false;
 
     // Constants
     ImVec2 margin(10.f, 10.f);
@@ -697,7 +697,7 @@ void ObjectNodeVisitor::drawRampOverlay()
 
     const int steps = rampToOverlay->rampSteps;
     if (steps == 0)
-        return;
+        return false;
 
     ImVec2 textSizeVMin = ImGui::CalcTextSize(formatNumber(vmin).c_str());
     ImVec2 textSizeVMax = ImGui::CalcTextSize(formatNumber(vmax).c_str());
@@ -712,7 +712,7 @@ void ObjectNodeVisitor::drawRampOverlay()
 
     // Exit if not enough space to draw
     if (wndSize.x > m_fbExtent.width || internSizeY < 10.f)
-        return;
+        return false;
 
     ImVec2 wndPos((float)m_fbExtent.width - wndSize.x - margin.x, margin.y);
     float text_x = wndPos.x + internMargin.x;
@@ -777,6 +777,7 @@ void ObjectNodeVisitor::drawRampOverlay()
     ImGui::PopStyleVar();
     ImGui::PopStyleColor();
     //ImGui::PopStyleColor();
+    return true;
 }
 
 float getCumulValue(void const* data, int i, int j) {

@@ -823,7 +823,7 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
     drawSelectionRect(cmdBuffer, viewport);
     drawOverlay(cmdBuffer, *&wCamera, framebuffer->extent);
 
-    visitor.drawRampOverlay();
+    m_rampOverlayVisible = visitor.drawRampOverlay();
     visitor.drawImGuiStats(viewport);
     visitor.drawImGuiEnd(cmdBuffer);
 
@@ -996,6 +996,8 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
     // TODO - Draw the selection rectangle with ImGui
     // Draw 2D Overlay (selection rectangle, ui, etc)
     //drawOverlayHD(cmdBuffer, camera, framebuffer->extent, screenOffset);
+    if (m_rampOverlayVisible)
+        visitor.drawRampOverlay();
     visitor.drawImGuiEnd(cmdBuffer);
 
     // (subpass 5) - draw gizmos
