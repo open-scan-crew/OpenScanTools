@@ -203,10 +203,10 @@ void ImageWriter::applyRampScaleOverlay(const RampScaleOverlay& overlay)
     if (scaleHeight <= 0.f)
         return;
 
-    const float internMarginX = std::max(4.f, static_cast<float>(width_) * 0.01f);
+    const float internMarginX = std::max(4.f, static_cast<float>(width_) * 0.005f);
     const float internMarginY = std::max(4.f, static_cast<float>(height_) * 0.01f);
-    const float scaleWidth = std::max(12.f, static_cast<float>(width_) * 0.03f);
-    const float blank = std::max(2.f, static_cast<float>(width_) * 0.005f);
+    const float scaleWidth = std::max(6.f, static_cast<float>(width_) * 0.015f);
+    const float blank = std::max(2.f, static_cast<float>(width_) * 0.0025f);
     const float bigDashWidth = scaleWidth * 0.4f;
     const float smallDashWidth = scaleWidth * 0.24f;
     const float bigDashHeight = std::max(2.f, static_cast<float>(height_) * 0.002f);
@@ -217,7 +217,7 @@ void ImageWriter::applyRampScaleOverlay(const RampScaleOverlay& overlay)
     painter.setRenderHint(QPainter::Antialiasing, false);
 
     QFont font = painter.font();
-    const float fontSize = std::max(10.f, static_cast<float>(height_) * 0.02f);
+    const float fontSize = std::max(5.f, static_cast<float>(height_) * 0.01f);
     font.setPixelSize(static_cast<int>(std::round(fontSize)));
     painter.setFont(font);
     const QFontMetrics metrics(font);
