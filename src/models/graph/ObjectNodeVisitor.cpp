@@ -1,3 +1,5 @@
+#define IMGUI_DEFINE_MATH_OPERATORS
+
 #include "models/graph/ObjectNodeVisitor.h"
 
 #include "models/graph/ClusterNode.h"
@@ -43,11 +45,26 @@
 #include <algorithm>
 #include <cmath>
 
-#define IMGUI_DEFINE_MATH_OPERATORS
 #include "imgui/imgui.h"
 #include "imgui/imgui_internal.h"
 #include "imgui/imgui_impl_vulkan.h"
 #include "impl/imgui_impl_qt.h"
+
+struct ObjectNodeVisitor::RampOverlayLayout
+{
+    float marginX;
+    float marginY;
+    float internMarginX;
+    float internMarginY;
+    float blank;
+    float smallDashWidth;
+    float smallDashHeight;
+    float bigDashWidth;
+    float bigDashHeight;
+    float scaleWidth;
+    float windowRounding;
+    ImU32 backgroundColor;
+};
 #include "utils/ImGuiUtils.h"
 
 #include <fmt/format.h>
@@ -525,6 +542,46 @@ void ObjectNodeVisitor::drawImGuiMeasureText(const SegmentDrawData segment)
 //   * font size (implicit with ImGui)
 void ObjectNodeVisitor::drawRampOverlay()
 {
+    ObjectNodeVisitor::RampOverlayLayout layout{
+        10.f,
+        10.f,
+        10.f,
+        10.f,
+        5.f,
+        6.f,
+        1.f,
+        10.f,
+        2.f,
+        25.f,
+        5.0f,
+        IM_COL32(48, 48, 48, 192)
+    };
+    drawRampOverlayWithLayout(layout);
+}
+
+void ObjectNodeVisitor::drawRampOverlayHD()
+{
+    const float height = static_cast<float>(m_fbExtent.height);
+    const float width = static_cast<float>(m_fbExtent.width);
+    ObjectNodeVisitor::RampOverlayLayout layout{
+        width * 0.02f,
+        height * 0.05f,
+        height * 0.01f,
+        height * 0.01f,
+        height * 0.005f,
+        height * 0.006f,
+        height * 0.001f,
+        height * 0.01f,
+        height * 0.002f,
+        height * 0.025f,
+        5.0f,
+        IM_COL32(48, 48, 48, 192)
+    };
+    drawRampOverlayWithLayout(layout);
+}
+
+void ObjectNodeVisitor::drawRampOverlayWithLayout(const ObjectNodeVisitor::RampOverlayLayout& layout)
+{
     // TODO - Afficher l'echelle pour le mode distance
     //m_displayParameters.m_mode != UiRenderMode::Distance_Ramp &&
     //m_displayParameters.m_mode != UiRenderMode::Flat_Distance_Ramp &&
@@ -534,15 +591,7 @@ void ObjectNodeVisitor::drawRampOverlay()
         if (!temperatureScale.isValid || temperatureScale.entries.empty())
             return;
 
-        // Constants
-        ImVec2 margin(10.f, 10.f);
-        ImVec2 internMargin(10.f, 10.f);
-        constexpr float blank = 5.f;
-        ImVec2 smallDashSize(6.f, 1.f);
-        ImVec2 bigDashSize(10.f, 2.f);
-        constexpr float scale_width = 25.f;
         int graduation = m_displayParameters.m_rampScale.graduationCount;
-
         const float fontSize = m_displayParameters.m_textOptions.m_textFontSize;
 
         const double entryFirst = temperatureScale.entries.front().temperature;
@@ -561,17 +610,17 @@ void ObjectNodeVisitor::drawRampOverlay()
         textSize.x *= fontSize / defaultFontSize;
         textSize.y *= fontSize / defaultFontSize;
 
-        ImVec2 wndSize(internMargin.x * 2 + textSize.x + blank + bigDashSize.x + scale_width, (float)m_fbExtent.height - margin.y * 2);
-        float internSizeY = wndSize.y - internMargin.y * 2;
+        ImVec2 wndSize(layout.internMarginX * 2 + textSize.x + layout.blank + layout.bigDashWidth + layout.scaleWidth, (float)m_fbExtent.height - layout.marginY * 2);
+        float internSizeY = wndSize.y - layout.internMarginY * 2;
 
         if (wndSize.x > m_fbExtent.width || internSizeY < 10.f)
             return;
 
-        ImVec2 wndPos((float)m_fbExtent.width - wndSize.x - margin.x, margin.y);
-        float text_x = wndPos.x + internMargin.x;
-        float big_dash_x = text_x + textSize.x + blank;
-        float small_dash_x = big_dash_x + (bigDashSize.x - smallDashSize.x);
-        float scale_x = big_dash_x + bigDashSize.x;
+        ImVec2 wndPos((float)m_fbExtent.width - wndSize.x - layout.marginX, layout.marginY);
+        float text_x = wndPos.x + layout.internMarginX;
+        float big_dash_x = text_x + textSize.x + layout.blank;
+        float small_dash_x = big_dash_x + (layout.bigDashWidth - layout.smallDashWidth);
+        float scale_x = big_dash_x + layout.bigDashWidth;
 
         ImGuiWindowFlags windowFlags = 0;
         windowFlags |= ImGuiWindowFlags_NoMove;
@@ -582,8 +631,8 @@ void ObjectNodeVisitor::drawRampOverlay()
         windowFlags |= ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
         ImGui::SetNextWindowPos(wndPos, ImGuiCond_Always);
         ImGui::SetNextWindowSize(wndSize, ImGuiCond_Always);
-        ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(48, 48, 48, 192));
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 5.0f);
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, layout.backgroundColor);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, layout.windowRounding);
 
         ImGui::Begin("Temperature scale overlay", NULL, windowFlags);
         ImDrawList* dl = ImGui::GetWindowDrawList();
@@ -592,12 +641,12 @@ void ObjectNodeVisitor::drawRampOverlay()
         float lastTextY = -std::numeric_limits<float>::infinity();
         for (int i = 0; i < graduation + 1; ++i)
         {
-            float text_y = wndPos.y + internMargin.y + dyGrad * i;
+            float text_y = wndPos.y + layout.internMarginY + dyGrad * i;
             float dash_y = text_y + textSize.y / 2.f;
             if (text_y < lastTextY + textSize.y * 1.5f)
             {
-                ImVec2 dashPos = ImVec2(small_dash_x, dash_y - smallDashSize.y / 2.f);
-                dl->AddRectFilled(dashPos, dashPos + smallDashSize, IM_COL32_WHITE);
+                ImVec2 dashPos = ImVec2(small_dash_x, dash_y - layout.smallDashHeight / 2.f);
+                dl->AddRectFilled(dashPos, dashPos + ImVec2(layout.smallDashWidth, layout.smallDashHeight), IM_COL32_WHITE);
             }
             else
             {
@@ -609,8 +658,8 @@ void ObjectNodeVisitor::drawRampOverlay()
                 std::string text = formatTemperature(v);
                 dl->AddText(NULL, fontSize, ImVec2(text_x, text_y), IM_COL32_WHITE, text.c_str());
                 lastTextY = text_y;
-                ImVec2 dashPos = ImVec2(big_dash_x, dash_y - bigDashSize.y / 2.f);
-                dl->AddRectFilled(dashPos, dashPos + bigDashSize, IM_COL32_WHITE);
+                ImVec2 dashPos = ImVec2(big_dash_x, dash_y - layout.bigDashHeight / 2.f);
+                dl->AddRectFilled(dashPos, dashPos + ImVec2(layout.bigDashWidth, layout.bigDashHeight), IM_COL32_WHITE);
             }
         }
 
@@ -619,8 +668,8 @@ void ObjectNodeVisitor::drawRampOverlay()
         {
             int entryIndex = isAscending ? (steps - 1 - i) : i;
             const TemperatureScaleEntry& entry = temperatureScale.entries[entryIndex];
-            ImVec2 rect = ImVec2(scale_x, wndPos.y + internMargin.y + textSize.y / 2.f + dY * i);
-            dl->AddRectFilled(rect, rect + ImVec2(scale_width, dY), IM_COL32(entry.r, entry.g, entry.b, 255));
+            ImVec2 rect = ImVec2(scale_x, wndPos.y + layout.internMarginY + textSize.y / 2.f + dY * i);
+            dl->AddRectFilled(rect, rect + ImVec2(layout.scaleWidth, dY), IM_COL32(entry.r, entry.g, entry.b, 255));
         }
 
         ImGui::End();
@@ -639,7 +688,7 @@ void ObjectNodeVisitor::drawRampOverlay()
         if (!ramp->isSelected)
             continue;
 
-        if(!rampSelected)
+        if (!rampSelected)
         {
             rampSelected = true;
             rampToOverlay = ramp;
@@ -654,19 +703,9 @@ void ObjectNodeVisitor::drawRampOverlay()
     if (rampToOverlay == nullptr)
         return;
 
-    // Constants
-    ImVec2 margin(10.f, 10.f);
-    ImVec2 internMargin(10.f, 10.f);
-    constexpr float blank = 5.f;  // let a gap between the text and the dash
-    ImVec2 smallDashSize(6.f, 1.f);
-    ImVec2 bigDashSize(10.f, 2.f);
-    constexpr float scale_width = 25.f;
     int graduation = m_displayParameters.m_rampScale.graduationCount;
-
-    // Adjuts to the text font and content
     const float fontSize = m_displayParameters.m_textOptions.m_textFontSize;
 
-    // TODO - get this parameters with a virtual method
     float vmin = 0.f;
     float vmax = 0.f;
     glm::vec4 params = rampToOverlay->params;
@@ -702,23 +741,21 @@ void ObjectNodeVisitor::drawRampOverlay()
     ImVec2 textSizeVMin = ImGui::CalcTextSize(formatNumber(vmin).c_str());
     ImVec2 textSizeVMax = ImGui::CalcTextSize(formatNumber(vmax).c_str());
     ImVec2 textSize(std::max(textSizeVMin.x, textSizeVMax.x), std::max(textSizeVMin.y, textSizeVMax.y));
-    // Compute the text size with the font size
     float defaultFontSize = ImGui::CalcTextSize("").y;
     textSize.x *= fontSize / defaultFontSize;
     textSize.y *= fontSize / defaultFontSize;
 
-    ImVec2 wndSize(internMargin.x * 2 + textSize.x + blank + bigDashSize.x + scale_width, (float)m_fbExtent.height - margin.y * 2);
-    float internSizeY = wndSize.y - internMargin.y * 2;
+    ImVec2 wndSize(layout.internMarginX * 2 + textSize.x + layout.blank + layout.bigDashWidth + layout.scaleWidth, (float)m_fbExtent.height - layout.marginY * 2);
+    float internSizeY = wndSize.y - layout.internMarginY * 2;
 
-    // Exit if not enough space to draw
     if (wndSize.x > m_fbExtent.width || internSizeY < 10.f)
         return;
 
-    ImVec2 wndPos((float)m_fbExtent.width - wndSize.x - margin.x, margin.y);
-    float text_x = wndPos.x + internMargin.x;
-    float big_dash_x = text_x + textSize.x + blank;
-    float small_dash_x = big_dash_x + (bigDashSize.x - smallDashSize.x);
-    float scale_x = big_dash_x + bigDashSize.x;
+    ImVec2 wndPos((float)m_fbExtent.width - wndSize.x - layout.marginX, layout.marginY);
+    float text_x = wndPos.x + layout.internMarginX;
+    float big_dash_x = text_x + textSize.x + layout.blank;
+    float small_dash_x = big_dash_x + (layout.bigDashWidth - layout.smallDashWidth);
+    float scale_x = big_dash_x + layout.bigDashWidth;
 
     ImGuiWindowFlags windowFlags = 0;
     windowFlags |= ImGuiWindowFlags_NoMove;
@@ -729,9 +766,8 @@ void ObjectNodeVisitor::drawRampOverlay()
     windowFlags |= ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
     ImGui::SetNextWindowPos(wndPos, ImGuiCond_Always);
     ImGui::SetNextWindowSize(wndSize, ImGuiCond_Always);
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(48, 48, 48, 192));
-    //ImGui::PushStyleColor(ImGuiCol_Border, 0);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 5.0f);
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, layout.backgroundColor);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, layout.windowRounding);
 
     ImGui::Begin("Ramp overlay", NULL, windowFlags);
     ImDrawList* dl = ImGui::GetWindowDrawList();
@@ -740,43 +776,36 @@ void ObjectNodeVisitor::drawRampOverlay()
     float lastTextY = -std::numeric_limits<float>::infinity();
     for (int i = 0; i < graduation + 1; ++i)
     {
-        float text_y = wndPos.y + internMargin.y + dyGrad * i;
+        float text_y = wndPos.y + layout.internMarginY + dyGrad * i;
         float dash_y = text_y + textSize.y / 2.f;
         if (text_y < lastTextY + textSize.y * 1.5f)
         {
-            // no text, small graduation
-            ImVec2 dashPos = ImVec2(small_dash_x, dash_y - smallDashSize.y / 2.f);
-            dl->AddRectFilled(dashPos, dashPos + smallDashSize, IM_COL32_WHITE);
+            ImVec2 dashPos = ImVec2(small_dash_x, dash_y - layout.smallDashHeight / 2.f);
+            dl->AddRectFilled(dashPos, dashPos + ImVec2(layout.smallDashWidth, layout.smallDashHeight), IM_COL32_WHITE);
         }
         else
         {
-            // text, big graduation
             float v = vmax + (vmin - vmax) * i / graduation;
             std::string text = formatNumber(v);
-            // text
             dl->AddText(NULL, fontSize, ImVec2(text_x, text_y), IM_COL32_WHITE, text.c_str());
             lastTextY = text_y;
-            // dash
-            ImVec2 dashPos = ImVec2(big_dash_x, dash_y - bigDashSize.y / 2.f);
-            dl->AddRectFilled(dashPos, dashPos + bigDashSize, IM_COL32_WHITE);
+            ImVec2 dashPos = ImVec2(big_dash_x, dash_y - layout.bigDashHeight / 2.f);
+            dl->AddRectFilled(dashPos, dashPos + ImVec2(layout.bigDashWidth, layout.bigDashHeight), IM_COL32_WHITE);
         }
-
     }
 
-    // Color Scale
     std::vector<ImU32> rampScale;
     ImGuiUtils::computeRampScale(steps, rampScale);
     float dY = (internSizeY - textSize.y) / steps;
     for (int i = 0; i < steps; ++i)
     {
-        ImVec2 rect = ImVec2(scale_x, wndPos.y + internMargin.y + textSize.y / 2.f + dY * i);
-        dl->AddRectFilled(rect, rect + ImVec2(scale_width, dY), rampScale[i]);
+        ImVec2 rect = ImVec2(scale_x, wndPos.y + layout.internMarginY + textSize.y / 2.f + dY * i);
+        dl->AddRectFilled(rect, rect + ImVec2(layout.scaleWidth, dY), rampScale[i]);
     }
 
     ImGui::End();
     ImGui::PopStyleVar();
     ImGui::PopStyleColor();
-    //ImGui::PopStyleColor();
 }
 
 float getCumulValue(void const* data, int i, int j) {

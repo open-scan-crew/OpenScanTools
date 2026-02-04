@@ -996,6 +996,7 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
     // TODO - Draw the selection rectangle with ImGui
     // Draw 2D Overlay (selection rectangle, ui, etc)
     //drawOverlayHD(cmdBuffer, camera, framebuffer->extent, screenOffset);
+    visitor.drawRampOverlayHD();
     visitor.drawImGuiEnd(cmdBuffer);
 
     // (subpass 5) - draw gizmos
