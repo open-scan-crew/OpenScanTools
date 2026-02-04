@@ -254,7 +254,7 @@ void ContextExportPC::copyTls(Controller& controller, CopyTask task)
         return;
     }
 
-    tls::ImageFile_p img_file(task.dst_path, tls::usage::read);
+    tls::ImageFile_p img_file(task.dst_path, tls::usage::update);
     if (!img_file.is_valid_file())
     {
         controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString(TEXT_EXPORT_ERROR_FILE).arg(QString::fromStdWString(task.dst_path))));
