@@ -642,6 +642,18 @@ void RenderingEngine::updateHD()
 
     if (orthoGridOverlay.active)
         imgWriter.applyOrthoGridOverlay(m_imageMetadata, orthoGridOverlay);
+    if (m_rampOverlayVisible)
+    {
+        ReadPtr<CameraNode> rCam = m_activeCamera.cget();
+        if (rCam)
+        {
+            VkExtent2D overlayExtent{ static_cast<uint32_t>(m_hdExtent.x), static_cast<uint32_t>(m_hdExtent.y) };
+            ObjectNodeVisitor overlayVisitor(m_graph, overlayExtent, m_guiScale, *rCam);
+            overlayVisitor.bakeGraph(m_graph.getRoot());
+            RampScaleOverlay overlay = overlayVisitor.buildRampScaleOverlay();
+            imgWriter.applyRampScaleOverlay(overlay);
+        }
+    }
 
     if (imgWriter.save(m_hdImageFilepath, m_imageMetadata))
     {
@@ -823,7 +835,7 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
     drawSelectionRect(cmdBuffer, viewport);
     drawOverlay(cmdBuffer, *&wCamera, framebuffer->extent);
 
-    visitor.drawRampOverlay();
+    m_rampOverlayVisible = visitor.drawRampOverlay();
     visitor.drawImGuiStats(viewport);
     visitor.drawImGuiEnd(cmdBuffer);
 
