@@ -35,6 +35,7 @@
 
 #include "tls_impl.h"
 
+#include <algorithm>
 #include <unordered_map>
 
 // Note (Aurélien) QT::StandardButtons enum values in qmessagebox.h
@@ -272,8 +273,49 @@ bool ContextExportPC::processExport(Controller& controller, CSVWriter* csv_write
     std::vector<CopyTask> copy_tasks;
     prepareTasks(controller, export_tasks, copy_tasks);
 
-    logStart(controller, export_tasks.size());
+    const size_t total_units = export_tasks.size() + copy_tasks.size();
+    const size_t total_progress_steps = total_units > 0 ? total_units * 100 : 1;
+    logStart(controller, total_progress_steps, total_units);
 
+    auto updateProgress = [&](size_t unitsDone, int percent)
+    {
+        QString state_text;
+        switch (m_parameters.clippingFilter)
+        {
+        case ExportClippingFilter::SELECTED:
+        case ExportClippingFilter::ACTIVE:
+            state_text = m_parameters.method == ExportPointCloudMerging::CLIPPING_SEPARATED ? TEXT_SPLASH_SCREEN_CLIPPING_PROCESSING : TEXT_SPLASH_SCREEN_SCAN_PROCESSING;
+            break;
+        case ExportClippingFilter::GRIDS:
+            state_text = TEXT_SPLASH_SCREEN_BOX_PROCESSING;
+            break;
+        case ExportClippingFilter::NONE:
+            state_text = TEXT_SPLASH_SCREEN_SCAN_PROCESSING;
+            break;
+        }
+        QString state = QString("%1 - %2%")
+                            .arg(state_text.arg(unitsDone).arg(total_units_))
+                            .arg(percent);
+        uint64_t progressValue = static_cast<uint64_t>(unitsDone) * 100;
+        if (percent < 100)
+            progressValue += static_cast<uint64_t>(percent);
+        controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(state, progressValue));
+    };
+    auto makeProgressCallback = [&](size_t unitsDone, int basePercent, int spanPercent)
+    {
+        return [unitsDone, basePercent, spanPercent, &updateProgress](size_t processed, size_t total)
+        {
+            if (total == 0)
+                return;
+            int percent = basePercent + static_cast<int>((processed * spanPercent) / total);
+            percent = std::clamp(percent, basePercent, basePercent + spanPercent - 1);
+            if (percent >= 100)
+                percent = 99;
+            updateProgress(unitsDone, percent);
+        };
+    };
+
+    size_t units_done = 0;
     // For each new output file
     for (const ExportTask& task : export_tasks)
     {
@@ -294,11 +336,12 @@ bool ContextExportPC::processExport(Controller& controller, CSVWriter* csv_write
         scanFileWriter->setPostTranslation(m_scanTranslationToAdd); // !!
 
         // Process each input PC
-        for (const tls::PointCloudInstance& pc : task.input_pcs)
+        for (size_t pc_index = 0; pc_index < task.input_pcs.size(); ++pc_index)
         {
             if (m_state != ContextState::running || !success)
                 break;
 
+            const tls::PointCloudInstance& pc = task.input_pcs[pc_index];
             const ClippingAssembly* clippingsToUse = &task.clippings;
             ClippingAssembly resolvedAssembly;
             if (task.clippings.hasPhaseClipping())
@@ -307,7 +350,12 @@ bool ContextExportPC::processExport(Controller& controller, CSVWriter* csv_write
                 clippingsToUse = &resolvedAssembly;
             }
 
-            success &= TlScanOverseer::getInstance().clipScan(pc.header.guid, pc.transfo, *clippingsToUse, scanFileWriter.get());
+            size_t pc_count = task.input_pcs.size();
+            int base_percent = static_cast<int>((pc_index * 100) / pc_count);
+            int next_percent = static_cast<int>(((pc_index + 1) * 100) / pc_count);
+            int span_percent = std::max(1, next_percent - base_percent);
+            auto progressCallback = makeProgressCallback(units_done, base_percent, span_percent);
+            success &= TlScanOverseer::getInstance().clipScan(pc.header.guid, pc.transfo, *clippingsToUse, scanFileWriter.get(), progressCallback);
         }
 
         // TODO - FileType::RCP & m_parameters.pointDensity
@@ -315,12 +363,21 @@ bool ContextExportPC::processExport(Controller& controller, CSVWriter* csv_write
 
         writeHeaderInCSV(csv_writer, scanFileWriter->getLastScanHeader());
 
-        logProgress(controller);
+        units_done++;
+        updateProgress(units_done, 100);
+    }
+
+    if (m_parameters.outFileType == FileType::RCP && scanFileWriter != nullptr)
+    {
+        static_cast<RcpFileWriter*>(scanFileWriter.get())->finalizeProject();
+        scanFileWriter.reset();
     }
 
     for (const CopyTask& task : copy_tasks)
     {
         copyTls(controller, task);
+        units_done++;
+        updateProgress(units_done, 100);
     }
 
     logEnd(controller, success);
@@ -529,11 +586,12 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
     }
 }
 
-void ContextExportPC::logStart(Controller& controller, size_t total_steps)
+void ContextExportPC::logStart(Controller& controller, size_t total_steps, size_t total_units)
 {
     process_time_ = std::chrono::steady_clock::now();
     total_steps_ = total_steps;
     current_step_ = 0;
+    total_units_ = total_units;
 
     QString title_text;
     QString state_text;
@@ -554,29 +612,7 @@ void ContextExportPC::logStart(Controller& controller, size_t total_steps)
         break;
     }
 
-    controller.updateInfo(new GuiDataProcessingSplashScreenStart(total_steps_, title_text, state_text.arg(0).arg(total_steps_)));
-}
-
-void ContextExportPC::logProgress(Controller& controller)
-{
-    current_step_++;
-
-    QString state_text;
-    switch (m_parameters.clippingFilter)
-    {
-    case ExportClippingFilter::SELECTED:
-    case ExportClippingFilter::ACTIVE:
-        state_text = m_parameters.method == ExportPointCloudMerging::CLIPPING_SEPARATED ? TEXT_SPLASH_SCREEN_CLIPPING_PROCESSING : TEXT_SPLASH_SCREEN_SCAN_PROCESSING;
-        break;
-    case ExportClippingFilter::GRIDS:
-        state_text = TEXT_SPLASH_SCREEN_BOX_PROCESSING;
-        break;
-    case ExportClippingFilter::NONE:
-        state_text = TEXT_SPLASH_SCREEN_SCAN_PROCESSING;
-        break;
-    }
-
-    controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(state_text.arg(current_step_).arg(total_steps_), current_step_));
+    controller.updateInfo(new GuiDataProcessingSplashScreenStart(total_steps_, title_text, state_text.arg(0).arg(total_units_)));
 }
 
 void ContextExportPC::logEnd(Controller& controller, bool success)

@@ -51,8 +51,7 @@ protected:
     void copyTls(Controller& controller, CopyTask task);
     void prepareTasks(Controller& controller, std::vector<ExportTask>& export_tasks, std::vector<CopyTask>& copy_tasks);
 
-    void logStart(Controller& controller, size_t total_steps);
-    void logProgress(Controller& controller);
+    void logStart(Controller& controller, size_t total_steps, size_t total_units);
     void logEnd(Controller& controller, bool success);
 
     // helper functions
@@ -79,6 +78,7 @@ private:
     std::chrono::steady_clock::time_point process_time_;
     size_t total_steps_;
     size_t current_step_;
+    size_t total_units_ = 0;
 };
 
 class ContextExportSubProject : public ContextExportPC
