@@ -8,6 +8,7 @@
 
 #include <string>
 #include <filesystem>
+#include <functional>
 #include <unordered_set>
 
 class CameraNode;
@@ -20,6 +21,7 @@ namespace SaveLoadSystem
 {
     enum ErrorCode { Success = 0, Failed_Write_Permission, Failed_To_Open, Failed_To_Load };
     enum class ObjectsFileType { Tlo, Tld, Tlv, Tlo_Backup, Tld_Backup, Tlv_Backup };
+    using ProgressCallback = std::function<void(size_t processed, size_t total)>;
 
     template<typename ListType>
     ListType ImportNewList(const std::filesystem::path& filePath);
@@ -35,7 +37,7 @@ namespace SaveLoadSystem
 
     bool readProjectTypes(const Controller& controller, const std::filesystem::path& filePath);
     void importJsonProject(const std::filesystem::path& filePath, Controller& controller, std::string& errorMsg);
-    SafePtr<PointCloudNode> ImportNewTlsFile(const std::filesystem::path& filePath, bool is_object, Controller& controller, ErrorCode& errorCode);
+    SafePtr<PointCloudNode> ImportNewTlsFile(const std::filesystem::path& filePath, bool is_object, Controller& controller, ErrorCode& errorCode, ProgressCallback progress = {});
 
     void importAuthorObjects(const std::vector<std::filesystem::path>& importFiles, std::unordered_set<SafePtr<AGraphNode>>& succesfulImport, std::unordered_set<SafePtr<AGraphNode>>& fileNotFoundObjectImport, Controller& controller);
 

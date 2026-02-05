@@ -22,6 +22,11 @@ void tlCopyScanFile(const tls::ScanGuid& scanGuid, const std::filesystem::path& 
     TlScanOverseer::getInstance().copyScanFile_async(scanGuid, destPath, savePath, overrideDestination, removeSource);
 }
 
+void tlCopyScanFile(const tls::ScanGuid& scanGuid, const std::filesystem::path& destPath, bool savePath, bool overrideDestination, bool removeSource, const TlCopyProgressCallback& progress)
+{
+    TlScanOverseer::getInstance().copyScanFile_async(scanGuid, destPath, savePath, overrideDestination, removeSource, progress);
+}
+
 bool tlGetScanHeader(tls::ScanGuid scanGuid, tls::ScanHeader &scanHeader)
 {
     return TlScanOverseer::getInstance().getScanHeader(scanGuid, scanHeader);

@@ -3,6 +3,7 @@
 #include "controller/controls/ControlProject.h"
 #include "controller/Controller.h"
 #include "controller/IControlListener.h"
+#include "controller/functionSystem/ProgressTracker.h"
 #include "io/SaveLoadSystem.h"
 
 #include "models/graph/PointCloudNode.h"
@@ -18,7 +19,6 @@
 
 ContextImportScan::ContextImportScan(const ContextId& id)
 	: ARayTracingContext(id)
-	, m_currentStep(0)
 {}
 
 ContextImportScan::~ContextImportScan()
@@ -62,9 +62,20 @@ ContextState ContextImportScan::launch(Controller& controller)
 	}
 	// -!- Ray Tracing -!-
 
-	controller.updateInfo(new GuiDataProcessingSplashScreenStart(m_scanInfo.paths.size(), TEXT_IMPORTING_SCAN, QString()));
+	const size_t total_units = m_scanInfo.paths.size();
+	const size_t total_steps = total_units > 0 ? total_units * 100 : 1;
+	controller.updateInfo(new GuiDataProcessingSplashScreenStart(total_steps, TEXT_IMPORTING_SCAN, TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(0).arg(total_units)));
 	GraphManager& graphManager = controller.getGraphManager();
 
+	ProgressTracker progressTracker(controller, total_units,
+		[](size_t unitsDone, size_t totalUnits, int percent)
+		{
+			return QString("%1 - %2%")
+				.arg(TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(unitsDone).arg(totalUnits))
+				.arg(percent);
+		});
+
+	size_t units_done = 0;
 
 	for (const std::filesystem::path& inputFile : m_scanInfo.paths)
 	{
@@ -73,7 +84,8 @@ ContextState ContextImportScan::launch(Controller& controller)
 		controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString::fromStdWString(inputFile.wstring())));
 		SaveLoadSystem::ErrorCode error;
 
-		SafePtr<PointCloudNode> pcObj = SaveLoadSystem::ImportNewTlsFile(inputFile, m_scanInfo.asObject, controller, error);
+		auto copyProgress = progressTracker.makeCallback(units_done, 0, 100);
+		SafePtr<PointCloudNode> pcObj = SaveLoadSystem::ImportNewTlsFile(inputFile, m_scanInfo.asObject, controller, error, copyProgress);
 
 		if (error != SaveLoadSystem::ErrorCode::Success)
 		{
@@ -100,7 +112,8 @@ ContextState ContextImportScan::launch(Controller& controller)
 			}
 		}
 
-		updateStep(controller, QString(TEXT_SCAN_IMPORT_DONE_TEXT).arg(QString::fromStdWString(inputFile.stem().wstring())), 1);
+		units_done++;
+		progressTracker.update(units_done, 100);
 	}
 
 	controller.getControlListener()->notifyUIControl(new control::project::StartSave());
@@ -118,10 +131,4 @@ bool ContextImportScan::canAutoRelaunch() const
 ContextType ContextImportScan::getType() const
 {
 	return ContextType::scanImport;
-}
-
-void ContextImportScan::updateStep(Controller& controller, const QString& state, const uint64_t& step)
-{
-	m_currentStep += step;
-	controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(state, m_currentStep));
 }

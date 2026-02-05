@@ -30,6 +30,7 @@ public:
     bool addPoints(PointXYZIRGB const* src_buf, uint64_t src_size) override;
     bool mergePoints(PointXYZIRGB const* src_buf, uint64_t src_size, const TransformationModule& src_transfo, tls::PointFormat src_format) override;
     bool finalizePointCloud() override;
+    void finalizeProject();
 
     void setExportDensity(double density);
 
@@ -42,6 +43,7 @@ private:
     bool m_hasColor;
     bool m_hasIntensity;
     double m_exportDensity;
+    bool m_sessionFinalized = false;
 
     // current write
     tls::ScanHeader m_scanHeader;

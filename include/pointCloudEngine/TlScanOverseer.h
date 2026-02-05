@@ -191,7 +191,7 @@ public:
     bool getScanPath(tls::ScanGuid scanGuid, std::filesystem::path& scanPath);
 
     bool isScanLeftTofree();
-    void copyScanFile_async(const tls::ScanGuid& scanGuid, const std::filesystem::path& destPath, bool savePath, bool overrideDestination, bool removeSource);
+    void copyScanFile_async(const tls::ScanGuid& scanGuid, const std::filesystem::path& destPath, bool savePath, bool overrideDestination, bool removeSource, const ProgressCallback& progress = {});
     void freeScan_async(tls::ScanGuid scanGuid, bool deletePhysicalFile);
     void resourceManagement_sync();
 
@@ -203,6 +203,7 @@ private:
         bool savePath;
         bool overrideDestination;
         bool removeSource;
+        ProgressCallback progress;
     };
     void syncFileCopy();
     bool doFileCopy(scanCopyInfo& copyInfo);

@@ -1227,7 +1227,7 @@ void SaveLoadSystem::importJsonProject(const std::filesystem::path& importPath, 
     return;
 }
 
-SafePtr<PointCloudNode> SaveLoadSystem::ImportNewTlsFile(const std::filesystem::path& filePath, bool is_object, Controller& controller, ErrorCode& errorCode)
+SafePtr<PointCloudNode> SaveLoadSystem::ImportNewTlsFile(const std::filesystem::path& filePath, bool is_object, Controller& controller, ErrorCode& errorCode, ProgressCallback progress)
 {
     GraphManager& graphManager = controller.getGraphManager();
     ControllerContext& context = controller.getContext();
@@ -1255,7 +1255,7 @@ SafePtr<PointCloudNode> SaveLoadSystem::ImportNewTlsFile(const std::filesystem::
     // Asynchronous copy
     // The availability of the name in the filesystem is checked by the PCE
     if (!std::filesystem::exists(dst_path))
-        tlCopyScanFile(scanGuid, dst_path, true, false, false);
+        tlCopyScanFile(scanGuid, dst_path, true, false, false, progress);
     else
         IOLOG << "INFO: " << filePath << " already exist." << LOGENDL;
 

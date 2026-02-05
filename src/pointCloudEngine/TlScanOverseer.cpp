@@ -1,4 +1,5 @@
 #include "pointCloudEngine/TlScanOverseer.h"
+#include <fstream>
 #include "pointCloudEngine/EmbeddedScan.h"
 #include "pointCloudEngine/OctreeRayTracing.h"
 #include "pointCloudEngine/MeasureClass.h"
@@ -135,11 +136,11 @@ bool  TlScanOverseer::isScanLeftTofree()
     return !m_scansToFree.empty();
 }
 
-void TlScanOverseer::copyScanFile_async(const tls::ScanGuid& scanGuid, const std::filesystem::path& destPath, bool savePath, bool overrideDestination, bool removeSource)
+void TlScanOverseer::copyScanFile_async(const tls::ScanGuid& scanGuid, const std::filesystem::path& destPath, bool savePath, bool overrideDestination, bool removeSource, const ProgressCallback& progress)
 {
     std::lock_guard<std::mutex> lock(m_copyMutex);
 
-    m_waitingCopies.push_back({ scanGuid, destPath, savePath, overrideDestination, removeSource });
+    m_waitingCopies.push_back({ scanGuid, destPath, savePath, overrideDestination, removeSource, progress });
 }
 
 void TlScanOverseer::freeScan_async(tls::ScanGuid scanGuid, bool deletePhysicalFile)
@@ -241,11 +242,42 @@ bool TlScanOverseer::doFileCopy(scanCopyInfo& copyInfo)
         }
         else
         {
-            std::filesystem::copy_options options = std::filesystem::copy_options::none;
-            options |= copyInfo.overrideDestination ? std::filesystem::copy_options::overwrite_existing : std::filesystem::copy_options::skip_existing;
             std::filesystem::path old_path = oldScan->getPath();
+            if (copyInfo.progress)
+            {
+                std::error_code error;
+                const auto total_size = std::filesystem::file_size(old_path, error);
+                std::ifstream src(old_path, std::ios::binary);
+                std::ofstream dst(copyInfo.path, std::ios::binary | std::ios::trunc);
+                if (!src || !dst || error)
+                {
+                    Logger::log(IOLog) << "ERROR - failed to open copy streams for " << old_path << Logger::endl;
+                    return false;
+                }
+                const size_t buffer_size = 4 * 1024 * 1024;
+                std::vector<char> buffer(buffer_size);
+                size_t copied = 0;
+                copyInfo.progress(0, static_cast<size_t>(total_size));
+                while (src)
+                {
+                    src.read(buffer.data(), buffer.size());
+                    std::streamsize read_size = src.gcount();
+                    if (read_size <= 0)
+                        break;
+                    dst.write(buffer.data(), read_size);
+                    copied += static_cast<size_t>(read_size);
+                    copyInfo.progress(copied, static_cast<size_t>(total_size));
+                }
+                if (total_size == 0)
+                    copyInfo.progress(1, 1);
+            }
+            else
+            {
+                std::filesystem::copy_options options = std::filesystem::copy_options::none;
+                options |= copyInfo.overrideDestination ? std::filesystem::copy_options::overwrite_existing : std::filesystem::copy_options::skip_existing;
 
-            std::filesystem::copy(old_path, copyInfo.path, options);
+                std::filesystem::copy(old_path, copyInfo.path, options);
+            }
 
             if (copyInfo.savePath || copyInfo.removeSource)
                 oldScan->setPath(copyInfo.path);

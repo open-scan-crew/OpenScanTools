@@ -21,11 +21,7 @@ public:
 	ContextType getType() const override;
 
 private:
-	void updateStep(Controller& controller, const QString& state, const uint64_t& step);
-
-private:
 	Import::ScanInfo						m_scanInfo;
-	uint64_t								m_currentStep;
 };
 
 #endif // !CONTEXT_IMPORT_SCAN_H_

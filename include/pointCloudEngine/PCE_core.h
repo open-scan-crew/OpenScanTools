@@ -14,6 +14,7 @@
 
 //#include "stdint.h"
 #include <filesystem>
+#include <functional>
 
 //******* Notes on how to use a TlScan***********
 // Use a smart pointer as a TlScanref. If there is no more instance of the smart pointer, the Scanis freed
@@ -40,6 +41,8 @@ void tlFreeScan(tls::ScanGuid scanGuid);
 void tlHardDeleteScanFile(tls::ScanGuid fileGuid);
 
 void tlCopyScanFile(const tls::ScanGuid& scanGuid, const std::filesystem::path& destPath, bool savePath, bool overrideDestination, bool removeSource);
+using TlCopyProgressCallback = std::function<void(size_t processed, size_t total)>;
+void tlCopyScanFile(const tls::ScanGuid& scanGuid, const std::filesystem::path& destPath, bool savePath, bool overrideDestination, bool removeSource, const TlCopyProgressCallback& progress);
 
 bool tlGetScanHeader(tls::ScanGuid scanGuid, tls::ScanHeader &scanHeader);
 
