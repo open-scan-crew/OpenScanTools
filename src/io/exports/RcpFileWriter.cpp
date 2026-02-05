@@ -18,11 +18,7 @@ RcpFileWriter::RcpFileWriter(const std::filesystem::path& file_path, RCSharedPtr
 
 RcpFileWriter::~RcpFileWriter()
 {
-    // No more scans to be imported
-    m_projectImportSession->endSession();
-
-    // synchronize the importing process
-    m_projectImportSession->waitTillFinished();
+    finalizeProject();
 }
 
 void projectProgressCallback(const RCIOStatus& status)
@@ -216,6 +212,19 @@ bool RcpFileWriter::finalizePointCloud()
         m_projectImportSession->processScan(scanProgressCallback, scanCompletionCallback);
     }
     return true;
+}
+
+void RcpFileWriter::finalizeProject()
+{
+    if (m_sessionFinalized || !m_projectImportSession)
+        return;
+
+    // No more scans to be imported
+    m_projectImportSession->endSession();
+
+    // synchronize the importing process
+    m_projectImportSession->waitTillFinished();
+    m_sessionFinalized = true;
 }
 
 void RcpFileWriter::setExportDensity(double density)
