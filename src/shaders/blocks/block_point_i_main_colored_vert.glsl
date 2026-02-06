@@ -9,4 +9,6 @@ void main() {
 
     //fragColor = vec4(pc.ptColor * fi, pc.transparency);
     fragColor = vec4(pc.ptColor * fi, 1.0);
+    vec3 filterColor = vec3(float(intensity));
+    filterReject = colorimetricReject(filterColor);
 }

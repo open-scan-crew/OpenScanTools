@@ -23,6 +23,7 @@ enum class guiDType
 	tagDefaultColor,
 
 	globalColorPickerValue,
+	colorimetricFilterPickValue,
 
 	currentScanData,
 	tmpMsgData,
@@ -75,6 +76,7 @@ enum class guiDType
         renderEdgeAwareBlur,
         renderDepthLining,
         renderRampScale,
+        renderColorimetricFilter,
         renderDisplayParameters,
         renderUpdate,
         renderGuizmo,

@@ -18,6 +18,7 @@ out gl_PerVertex {
 };
 
 layout(location = 0) out vec4 fragColor;
+layout(location = 1) out flat int filterReject;
 
 layout(push_constant) uniform PC {
     layout(offset = 0) float ptSize;
@@ -48,4 +49,5 @@ void main() {
     hsl.z *= pc.luminance;
     hsl.y *= pc.saturation;
     fragColor = vec4(hsl2rgb(hsl) / 255.0, pc.transparency);
+    filterReject = 0;
 }

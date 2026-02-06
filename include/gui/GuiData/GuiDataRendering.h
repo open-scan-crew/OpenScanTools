@@ -613,4 +613,27 @@ public:
 	RampScale m_rampScale;
 };
 
+class GuiDataColorimetricFilterSettings : public GuiDataActiveCamera
+{
+public:
+	GuiDataColorimetricFilterSettings(const ColorimetricFilterSettings& settings, const SafePtr<CameraNode>& camera);
+	~GuiDataColorimetricFilterSettings() {};
+	virtual guiDType getType() override;
+
+public:
+	ColorimetricFilterSettings m_settings;
+};
+
+class GuiDataColorimetricFilterPickValue : public IGuiData
+{
+public:
+	GuiDataColorimetricFilterPickValue(const Color32& color, uint8_t intensity);
+	~GuiDataColorimetricFilterPickValue() {};
+	virtual guiDType getType() override;
+
+public:
+	Color32 m_color;
+	uint8_t m_intensity;
+};
+
 #endif
