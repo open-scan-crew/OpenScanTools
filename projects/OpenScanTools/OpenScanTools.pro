@@ -748,7 +748,12 @@ HEADERS += ../../ext/imgui/imconfig.h \
     ../../include/controller/functionSystem/AContext.h \
     ../../include/controller/functionSystem/PipeDetectionOptions.h \
     ../../include/core/SignalHandler.h \
-    ../../include/services/MarkerDefinitions.hpp
+    ../../include/services/MarkerDefinitions.hpp \
+    ../../include/gui/toolBars/ToolBarColorimetricFilter.h \
+    ../../include/gui/widgets/ColorimetricFilterPreview.h \
+    ../../include/models/3d/ColorimetricFilterUniform.h \
+    ../../include/utils/ColorimetricFilterUtils.h \
+    ../../include/controller/functionSystem/ContextPickColorimetric.h
 SOURCES += ../../ext/imgui/imgui.cpp \
     ../../ext/imgui/imgui_demo.cpp \
     ../../ext/imgui/imgui_draw.cpp \
@@ -1321,6 +1326,10 @@ SOURCES += ../../ext/imgui/imgui.cpp \
     ../../src/controller/functionSystem/FunctionManager.cpp \
     ../../src/controller/functionSystem/ABackgroundContext.cpp \
     ../../src/controller/functionSystem/mesh/ContextMeshDistance.cpp \
+    ../../src/controller/functionSystem/ContextPickColorimetric.cpp \
+    ../../src/gui/toolBars/ToolBarColorimetricFilter.cpp \
+    ../../src/gui/widgets/ColorimetricFilterPreview.cpp \
+    ../../src/utils/ColorimetricFilterUtils.cpp \
     ../../src/core/SignalHandler.cpp
 FORMS += ../../src/gui/forms/AddHyperlinkDialog.ui \
     ../../src/gui/forms/AuthorCreateDialog.ui \
@@ -1414,6 +1423,7 @@ FORMS += ../../src/gui/forms/AddHyperlinkDialog.ui \
     ../../src/gui/forms/toolbar_rendernormalsgroup.ui \
     ../../src/gui/forms/toolbar_rendertransparencygroup.ui \
     ../../src/gui/forms/toolbar_renderenhancegroup.ui \
+    ../../src/gui/forms/toolbar_colorimetricFilter.ui \
     ../../src/gui/forms/toolbar_showhidegroup.ui \
     ../../src/gui/forms/toolbar_slabgroup.ui \
     ../../src/gui/forms/toolbar_spheregroup.ui \

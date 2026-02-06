@@ -16,6 +16,7 @@ out gl_PerVertex {
 };
 
 layout(location = 0) out vec4 fragColor;
+layout(location = 1) out flat int filterReject;
 
 layout(push_constant) uniform PC {
     layout(offset = 0) float ptSize;
@@ -44,4 +45,5 @@ void main() {
     gl_Position = uCam.projView * uScan.model * vec4(vec3(posXY, posZ) * coordPrec + origin, 1.0);
     float fi = pc.contrast * (intensity / 255.0 + pc.brightness) + 0.5;
     fragColor = vec4(fi, fi, fi, pc.transparency);
+    filterReject = 0;
 }

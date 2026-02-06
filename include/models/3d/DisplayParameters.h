@@ -50,6 +50,7 @@ public:
 
     // GUI
     RampScale      m_rampScale = { true, false, 20, false }; // GUI
+    ColorimetricFilterSettings m_colorimetricFilter = {};
     bool           m_displayGizmo = true;
     bool           m_showExamineTarget = true;
 

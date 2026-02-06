@@ -635,3 +635,23 @@ guiDType GuiDataRampScale::getType()
 {
 	return  guiDType::renderRampScale;
 }
+
+GuiDataColorimetricFilterSettings::GuiDataColorimetricFilterSettings(const ColorimetricFilterSettings& settings, const SafePtr<CameraNode>& camera)
+	: GuiDataActiveCamera(camera)
+	, m_settings(settings)
+{}
+
+guiDType GuiDataColorimetricFilterSettings::getType()
+{
+	return guiDType::renderColorimetricFilter;
+}
+
+GuiDataColorimetricFilterPickValue::GuiDataColorimetricFilterPickValue(const Color32& color, uint8_t intensity)
+	: m_color(color)
+	, m_intensity(intensity)
+{}
+
+guiDType GuiDataColorimetricFilterPickValue::getType()
+{
+	return guiDType::colorimetricFilterPickValue;
+}
