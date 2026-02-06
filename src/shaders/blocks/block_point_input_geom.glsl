@@ -11,7 +11,7 @@ in gl_PerVertex {
 layout(location = 0) in vec4 colorIn[];
 layout(location = 0) out vec4 colorOut;
 
-layout(set = 0, binding = 2) uniform uniformCamera {
+layout(set = 0, binding = 3) uniform uniformCamera {
     mat4 view;
     mat4 proj;
     mat4 projView;
@@ -25,7 +25,7 @@ struct ClippingData
     int steps;
 };
 
-layout(set = 0, binding = 3) uniform uniformClipping {
+layout(set = 0, binding = 4) uniform uniformClipping {
     ClippingData data[MAX_CLIPPING];
 } uClip;
 

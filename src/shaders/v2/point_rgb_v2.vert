@@ -18,6 +18,7 @@ out gl_PerVertex {
 };
 
 layout(location = 0) out vec4 fragColor;
+layout(location = 1) out float filterMask;
 
 layout(push_constant) uniform PC {
     layout(offset = 0) float ptSize;
@@ -41,6 +42,8 @@ layout(set = 0, binding = 1) uniform uniformModelScan{
     mat4 model;
 } uScan;
 
+#include "../blocks/block_point_colorimetric_filter.glsl"
+
 void main() {
     gl_PointSize = pc.ptSize;
     gl_Position = uCam.projView * uScan.model * vec4(vec3(posXY, posZ) * coordPrec + origin, 1.0);
@@ -48,4 +51,5 @@ void main() {
     hsl.z *= pc.luminance;
     hsl.y *= pc.saturation;
     fragColor = vec4(hsl2rgb(hsl) / 255.0, pc.transparency);
+    filterMask = colorFilterPass(vec3(color.rgb), fragColor.rgb * 255.0, 0.0) ? 1.0 : 0.0;
 }

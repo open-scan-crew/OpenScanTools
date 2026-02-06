@@ -7,4 +7,5 @@ void main() {
 #endif
 
     fragColor = vec4(hsl2rgb(vec3(pc.blending + (intensity / 255.0), (pc.saturation + 1.0) / 4.0, pc.luminance / 2.0 )), 1.0);
+    filterMask = colorFilterPass(vec3(0.0), fragColor.rgb * 255.0, float(intensity)) ? 1.0 : 0.0;
 }

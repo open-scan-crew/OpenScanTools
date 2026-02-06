@@ -99,8 +99,10 @@ struct TlFramebuffer_T
     VkDeviceSize copyMemSize;
     VkBuffer copyBufDepth = VK_NULL_HANDLE;
     VkBuffer copyBufIndex = VK_NULL_HANDLE;
+    VkBuffer copyBufColor = VK_NULL_HANDLE;
     void* pMappedCopyDepth = nullptr;
     void* pMappedCopyIndex = nullptr;
+    void* pMappedCopyColor = nullptr;
 
     VkFramebuffer pcFramebuffer = VK_NULL_HANDLE;
     VkFramebuffer* finalFramebuffers = nullptr;
