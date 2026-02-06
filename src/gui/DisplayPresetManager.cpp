@@ -73,6 +73,18 @@ namespace
 		json[Key_Text_Display_Options] = { params.m_textOptions.m_filter, params.m_textOptions.m_textTheme, params.m_textOptions.m_textFontSize };
 		json[Key_Display_All_Marker_Texts] = params.m_displayAllMarkersTexts;
 		json[Key_Display_All_Measures] = params.m_displayAllMeasures;
+		json[Key_Colorimetric_Filter_Enabled] = params.m_colorimetricFilter.enabled;
+		json[Key_Colorimetric_Filter_Source] = magic_enum::enum_name(params.m_colorimetricFilter.source);
+		json[Key_Colorimetric_Filter_Space] = magic_enum::enum_name(params.m_colorimetricFilter.space);
+		json[Key_Colorimetric_Filter_Action] = magic_enum::enum_name(params.m_colorimetricFilter.action);
+		json[Key_Colorimetric_Filter_Tolerance] = params.m_colorimetricFilter.tolerance;
+		json[Key_Colorimetric_Filter_Count] = params.m_colorimetricFilter.colorCount;
+		json[Key_Colorimetric_Filter_Colors] = {
+			{ params.m_colorimetricFilter.colors[0].x, params.m_colorimetricFilter.colors[0].y, params.m_colorimetricFilter.colors[0].z },
+			{ params.m_colorimetricFilter.colors[1].x, params.m_colorimetricFilter.colors[1].y, params.m_colorimetricFilter.colors[1].z },
+			{ params.m_colorimetricFilter.colors[2].x, params.m_colorimetricFilter.colors[2].y, params.m_colorimetricFilter.colors[2].z },
+			{ params.m_colorimetricFilter.colors[3].x, params.m_colorimetricFilter.colors[3].y, params.m_colorimetricFilter.colors[3].z }
+		};
 
 		json[Key_Ortho_Grid_Active] = params.m_orthoGridActive;
 		json[Key_Ortho_Grid_Color] = { params.m_orthoGridColor.r, params.m_orthoGridColor.g, params.m_orthoGridColor.b, params.m_orthoGridColor.a };
@@ -275,6 +287,42 @@ namespace
 			data.m_displayAllMeasures = json.at(Key_Display_All_Measures).get<bool>();
 		else
 			retVal = false;
+
+		if (json.find(Key_Colorimetric_Filter_Enabled) != json.end())
+			data.m_colorimetricFilter.enabled = json.at(Key_Colorimetric_Filter_Enabled).get<bool>();
+
+		if (json.find(Key_Colorimetric_Filter_Source) != json.end())
+		{
+			auto source = magic_enum::enum_cast<ColorimetricFilterSource>(json.at(Key_Colorimetric_Filter_Source).get<std::string>());
+			data.m_colorimetricFilter.source = source.has_value() ? source.value() : ColorimetricFilterSource::PointRgb;
+		}
+
+		if (json.find(Key_Colorimetric_Filter_Space) != json.end())
+		{
+			auto space = magic_enum::enum_cast<ColorimetricFilterSpace>(json.at(Key_Colorimetric_Filter_Space).get<std::string>());
+			data.m_colorimetricFilter.space = space.has_value() ? space.value() : ColorimetricFilterSpace::RGB;
+		}
+
+		if (json.find(Key_Colorimetric_Filter_Action) != json.end())
+		{
+			auto action = magic_enum::enum_cast<ColorimetricFilterAction>(json.at(Key_Colorimetric_Filter_Action).get<std::string>());
+			data.m_colorimetricFilter.action = action.has_value() ? action.value() : ColorimetricFilterAction::Show;
+		}
+
+		if (json.find(Key_Colorimetric_Filter_Tolerance) != json.end())
+			data.m_colorimetricFilter.tolerance = json.at(Key_Colorimetric_Filter_Tolerance).get<float>();
+
+		if (json.find(Key_Colorimetric_Filter_Count) != json.end())
+			data.m_colorimetricFilter.colorCount = json.at(Key_Colorimetric_Filter_Count).get<int>();
+
+		if (json.find(Key_Colorimetric_Filter_Colors) != json.end())
+		{
+			nlohmann::json colors = json.at(Key_Colorimetric_Filter_Colors);
+			for (size_t i = 0; i < data.m_colorimetricFilter.colors.size() && i < colors.size(); ++i)
+			{
+				data.m_colorimetricFilter.colors[i] = glm::vec3(colors[i][0], colors[i][1], colors[i][2]);
+			}
+		}
 
 		if (json.find(Key_Marker_Rendering_Parameters) != json.end())
 		{
@@ -668,6 +716,7 @@ void DisplayPresetManager::applyPreset(const DisplayPreset& preset)
 	m_dataDispatcher.updateInformation(new GuiDataRenderAmbientOcclusion(params.m_postRenderingAmbientOcclusion, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataEdgeAwareBlur(params.m_edgeAwareBlur, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataDepthLining(params.m_depthLining, m_focusCamera), this);
+	m_dataDispatcher.updateInformation(new GuiDataRenderColorimetricFilter(params.m_colorimetricFilter, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataMarkerDisplayOptions(params.m_markerOptions, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderTextFilter(params.m_textOptions.m_filter, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderTextTheme(params.m_textOptions.m_textTheme, m_focusCamera), this);

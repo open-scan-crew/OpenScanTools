@@ -238,6 +238,7 @@ static const std::unordered_map<ControlType, std::unordered_set<LicenceVersion>>
 	{ControlType::clickPicking, {LicenceVersion::Free} },
 	{ControlType::findScanFromPicking, {LicenceVersion::Standard} },
 	{ControlType::pickTemperatureFromPicking, {LicenceVersion::Standard} },
+	{ControlType::pickColorFromPicking, {LicenceVersion::Standard} },
 
 	// control::viewport
 	{ControlType::multiSelect, {LicenceVersion::Free} },

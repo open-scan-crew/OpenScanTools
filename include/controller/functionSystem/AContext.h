@@ -91,6 +91,7 @@ enum class ContextType
 	peopleRemover,
 	findScan,
 	pickTemperature,
+	pickColor,
 	fitTorus,
 	exportVideoHD,
 	trajectory,

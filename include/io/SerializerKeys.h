@@ -255,6 +255,15 @@
 #define Key_Ortho_Grid_Step				"OrthoGridStep"
 #define Key_Ortho_Grid_Linewidth		"OrthoGridLinewidth"
 
+#define Key_Colorimetric_Filter			"ColorimetricFilter"
+#define Key_Colorimetric_Filter_Enabled	"ColorimetricFilterEnabled"
+#define Key_Colorimetric_Filter_Source		"ColorimetricFilterSource"
+#define Key_Colorimetric_Filter_Space		"ColorimetricFilterSpace"
+#define Key_Colorimetric_Filter_Action		"ColorimetricFilterAction"
+#define Key_Colorimetric_Filter_Tolerance	"ColorimetricFilterTolerance"
+#define Key_Colorimetric_Filter_Count		"ColorimetricFilterCount"
+#define Key_Colorimetric_Filter_Colors		"ColorimetricFilterColors"
+
 /*** EXTRA KEY ***/
 
 //ExportLists

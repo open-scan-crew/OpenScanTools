@@ -635,6 +635,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\controller\functionSystem\ContextExportVideoHD.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextExtendCylinderMeasure.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextFindScan.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextPickColor.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextPickTemperature.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextFitTorus.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextImportOSTObjects.cpp" />
@@ -807,6 +808,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarClippingParameters.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarConnectPipeGroup.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarConvertImage.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarColorimetricFilter.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarExportGroup.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarExportPointCloud.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarExportVideo.cpp" />
@@ -1319,6 +1321,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\controller\functionSystem\ContextExportVideoHD.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextExtendCylinderMeasure.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextFindScan.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextPickColor.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextFitCylinder.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextFitTorus.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextImportOSTObjects.h" />
@@ -1743,6 +1746,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\models\3d\ProjectionData.h" />
     <ClInclude Include="..\..\include\models\3d\ClickInfo.h" />
     <ClInclude Include="..\..\include\models\3d\DisplayParameters.h" />
+    <ClInclude Include="..\..\include\models\3d\UniformColorFilter.h" />
     <ClInclude Include="..\..\include\models\3d\DuplicationTypes.h" />
     <ClInclude Include="..\..\include\models\3d\GeometryGenerator.h" />
     <ClInclude Include="..\..\include\models\3d\GridBox.h" />
@@ -1827,6 +1831,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\gui\IDataDispatcher.h" />
     <ClInclude Include="..\..\include\gui\IPanel.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarProjectGroup.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarColorimetricFilter.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarTagGroup.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarFilterGroup.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarExportGroup.h" />
@@ -2029,6 +2034,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtUic Include="..\..\src\gui\forms\TemplateManagerDialog.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_exportgroup.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_filtergroup.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_colorimetricFilter.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_imagegroup.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_listGroup.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_measuregroup.ui" />
@@ -2433,6 +2439,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     </CustomBuild>
     <None Include="..\..\src\shaders\blocks\block_point_input_geom.glsl" />
     <None Include="..\..\src\shaders\blocks\block_point_input_vert.glsl" />
+    <None Include="..\..\src\shaders\blocks\block_point_colorimetric_filter.glsl" />
     <None Include="..\..\src\shaders\blocks\block_point_i_main_colored_vert.glsl" />
     <None Include="..\..\src\shaders\blocks\block_point_i_main_standard_vert.glsl" />
     <None Include="..\..\src\shaders\blocks\block_point_main_flat_vert.glsl" />
