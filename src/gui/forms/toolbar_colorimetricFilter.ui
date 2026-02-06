@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>toolbar_colorimetricFilter</class>
+ <widget class="QWidget" name="toolbar_colorimetricFilter">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>640</width>
+    <height>140</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="topMargin">
+    <number>6</number>
+   </property>
+   <property name="bottomMargin">
+    <number>6</number>
+   </property>
+   <property name="verticalSpacing">
+    <number>4</number>
+   </property>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label_sourceColor">
+     <property name="text">
+      <string>Source color</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QComboBox" name="combo_sourceColor"/>
+   </item>
+   <item row="0" column="2">
+    <widget class="QLabel" name="label_colorSpace">
+     <property name="text">
+      <string>Color space</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="3">
+    <widget class="QComboBox" name="combo_colorSpace"/>
+   </item>
+   <item row="0" column="4">
+    <widget class="QLabel" name="label_tolerance">
+     <property name="text">
+      <string>Tolerance</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="5">
+    <widget class="QDoubleSpinBox" name="spin_tolerance">
+     <property name="suffix">
+      <string>%</string>
+     </property>
+     <property name="maximum">
+      <double>100.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>1.000000000000000</double>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="6">
+    <widget class="QRadioButton" name="radio_show">
+     <property name="text">
+      <string>Show colors</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="7">
+    <widget class="QRadioButton" name="radio_hide">
+     <property name="text">
+      <string>Hide colors</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="8">
+    <widget class="QPushButton" name="button_apply">
+     <property name="text">
+      <string>Apply</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_color1">
+     <property name="text">
+      <string>Color 1</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="lineEdit_color1"/>
+   </item>
+   <item row="1" column="2">
+    <widget class="QToolButton" name="button_pickColor1">
+     <property name="icon">
+      <iconset resource="../../../openscantools.qrc">
+       <normaloff>:/icons/100x100/icons8-color-wheel-30.png</normaloff>:/icons/100x100/icons8-color-wheel-30.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3">
+    <widget class="QLabel" name="label_color2">
+     <property name="text">
+      <string>Color 2</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="4">
+    <widget class="QLineEdit" name="lineEdit_color2"/>
+   </item>
+   <item row="1" column="5">
+    <widget class="QToolButton" name="button_pickColor2">
+     <property name="icon">
+      <iconset resource="../../../openscantools.qrc">
+       <normaloff>:/icons/100x100/icons8-color-wheel-30.png</normaloff>:/icons/100x100/icons8-color-wheel-30.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="6" colspan="3">
+    <widget class="QLabel" name="label_preview">
+     <property name="minimumSize">
+      <size>
+       <width>120</width>
+       <height>12</height>
+      </size>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_color3">
+     <property name="text">
+      <string>Color 3</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLineEdit" name="lineEdit_color3"/>
+   </item>
+   <item row="2" column="2">
+    <widget class="QToolButton" name="button_pickColor3">
+     <property name="icon">
+      <iconset resource="../../../openscantools.qrc">
+       <normaloff>:/icons/100x100/icons8-color-wheel-30.png</normaloff>:/icons/100x100/icons8-color-wheel-30.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="3">
+    <widget class="QLabel" name="label_color4">
+     <property name="text">
+      <string>Color 4</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="4">
+    <widget class="QLineEdit" name="lineEdit_color4"/>
+   </item>
+   <item row="2" column="5">
+    <widget class="QToolButton" name="button_pickColor4">
+     <property name="icon">
+      <iconset resource="../../../openscantools.qrc">
+       <normaloff>:/icons/100x100/icons8-color-wheel-30.png</normaloff>:/icons/100x100/icons8-color-wheel-30.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="8">
+    <widget class="QPushButton" name="button_reset">
+     <property name="text">
+      <string>Reset</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../../../openscantools.qrc"/>
+ </resources>
+ <connections/>
+</ui>

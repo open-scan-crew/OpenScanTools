@@ -49,6 +49,7 @@ enum class guiDType
 	renderViewPointAnimation,
 	renderFlatColor,
 	renderDistanceRampValues,
+	renderColorimetricFilter,
 	renderDisplayAllMarkersTexts,
 	renderStartAnimation,
 	renderStopAnimation,
@@ -82,6 +83,8 @@ enum class guiDType
 	renderNavigationParameters,
 	renderPerspectiveZ,
 	renderOrthographicZ,
+
+	colorimetricFilterPickedColor,
 
     hdPrepare,
 	hdGenerate,

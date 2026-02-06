@@ -706,6 +706,32 @@ uint32_t VulkanManager::sampleIndex(TlFramebuffer _fb, uint32_t posX, uint32_t p
     return ((uint32_t*)_fb->pMappedCopyIndex)[posY * _fb->extent.width + posX];
 }
 
+Color32 VulkanManager::sampleColor(TlFramebuffer _fb, uint32_t posX, uint32_t posY)
+{
+    if (_fb == TL_NULL_HANDLE || !_fb->pMappedCopyColor)
+        return Color32(0, 0, 0, 0);
+    if (posX >= _fb->extent.width || posY >= _fb->extent.height)
+        return Color32(0, 0, 0, 0);
+
+    if (_fb->pcFormat == VK_FORMAT_R16G16B16A16_SFLOAT)
+    {
+        const uint16_t* data = static_cast<const uint16_t*>(_fb->pMappedCopyColor);
+        uint32_t packedRG = static_cast<uint32_t>(data[0]) | (static_cast<uint32_t>(data[1]) << 16);
+        uint32_t packedBA = static_cast<uint32_t>(data[2]) | (static_cast<uint32_t>(data[3]) << 16);
+        glm::vec2 rg = glm::unpackHalf2x16(packedRG);
+        glm::vec2 ba = glm::unpackHalf2x16(packedBA);
+        auto toByte = [](float v) { return static_cast<uint8_t>(glm::clamp(v, 0.0f, 1.0f) * 255.0f); };
+        return Color32(toByte(rg.x), toByte(rg.y), toByte(ba.x), toByte(ba.y));
+    }
+
+    uint32_t packed = *static_cast<const uint32_t*>(_fb->pMappedCopyColor);
+    uint8_t b = packed & 0xFFu;
+    uint8_t g = (packed >> 8) & 0xFFu;
+    uint8_t r = (packed >> 16) & 0xFFu;
+    uint8_t a = (packed >> 24) & 0xFFu;
+    return Color32(r, g, b, a);
+}
+
 //From https://stackoverflow.com/questions/5056645/sorting-stdmap-using-value
 template<typename A, typename B>
 static std::pair<B, A> flip_pair(const std::pair<A, B>& p)
@@ -1231,6 +1257,15 @@ void VulkanManager::applyPicking(TlFramebuffer _fb, glm::ivec2 _pickingPos, VkCo
         m_pfnDev->vkCmdCopyImageToBuffer(*singleCommandBuffer, _fb->objectDepthImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, _fb->copyBufDepth, 1, &copyRegion);
     else
     m_pfnDev->vkCmdCopyImageToBuffer(_fb->graphicsCmdBuffers[_fb->currentFrame], _fb->objectDepthImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, _fb->copyBufDepth, 1, &copyRegion);
+
+    if (_fb->copyBufColor != VK_NULL_HANDLE)
+    {
+        copyRegion.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+        if (singleCommandBuffer)
+            m_pfnDev->vkCmdCopyImageToBuffer(*singleCommandBuffer, _fb->pcColorImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, _fb->copyBufColor, 1, &copyRegion);
+        else
+            m_pfnDev->vkCmdCopyImageToBuffer(_fb->graphicsCmdBuffers[_fb->currentFrame], _fb->pcColorImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, _fb->copyBufColor, 1, &copyRegion);
+    }
 }
 
 void VulkanManager::submitMultipleFramebuffer(std::vector<TlFramebuffer> fbs)
@@ -3220,6 +3255,7 @@ void VulkanManager::createCopyBuffers(TlFramebuffer _fb)
     //        that are both on 4 bytes
     uint32_t dataSizeDepth = _fb->extent.width * _fb->extent.height * 4;
     uint32_t dataSizeIndex = _fb->extent.width * _fb->extent.height * 4;
+    uint32_t dataSizeColor = (_fb->pcFormat == VK_FORMAT_R16G16B16A16_SFLOAT) ? 8u : 4u;
 
     // Buffer to copy the depth in.
     VkResult err = createBuffer(_fb->copyBufDepth, VK_BUFFER_USAGE_TRANSFER_DST_BIT, dataSizeDepth);
@@ -3227,12 +3263,18 @@ void VulkanManager::createCopyBuffers(TlFramebuffer _fb)
     // Buffer to copy the index image in
     err = createBuffer(_fb->copyBufIndex, VK_BUFFER_USAGE_TRANSFER_DST_BIT, dataSizeIndex);
     check_vk_result(err, "Buffer creation for index copy");
+    // Buffer to copy the color pixel in
+    err = createBuffer(_fb->copyBufColor, VK_BUFFER_USAGE_TRANSFER_DST_BIT, dataSizeColor);
+    check_vk_result(err, "Buffer creation for color copy");
 
     // One memory block for the two buffers
-    VkMemoryRequirements memReq1, memReq2;
+    VkMemoryRequirements memReq1, memReq2, memReq3;
     m_pfnDev->vkGetBufferMemoryRequirements(m_device, _fb->copyBufDepth, &memReq1);
     m_pfnDev->vkGetBufferMemoryRequirements(m_device, _fb->copyBufIndex, &memReq2);
-    _fb->copyMemSize = aligned(memReq1.size, memReq2.alignment) + memReq2.size;
+    m_pfnDev->vkGetBufferMemoryRequirements(m_device, _fb->copyBufColor, &memReq3);
+    VkDeviceSize offsetIndex = aligned(memReq1.size, memReq2.alignment);
+    VkDeviceSize offsetColor = aligned(offsetIndex + memReq2.size, memReq3.alignment);
+    _fb->copyMemSize = offsetColor + memReq3.size;
 
     VkMemoryRequirements memReqTotal = memReq1;
     memReqTotal.size = _fb->copyMemSize;
@@ -3246,12 +3288,16 @@ void VulkanManager::createCopyBuffers(TlFramebuffer _fb)
     err = m_pfnDev->vkBindBufferMemory(m_device, _fb->copyBufDepth, _fb->copyMemory, 0);
     check_vk_result(err, "Bind Buffer Memory (Copy Depth)");
 
-    err = m_pfnDev->vkBindBufferMemory(m_device, _fb->copyBufIndex, _fb->copyMemory, aligned(memReq1.size, memReq2.alignment));
+    err = m_pfnDev->vkBindBufferMemory(m_device, _fb->copyBufIndex, _fb->copyMemory, offsetIndex);
     check_vk_result(err, "Bind Buffer Memory (Copy Index)");
+
+    err = m_pfnDev->vkBindBufferMemory(m_device, _fb->copyBufColor, _fb->copyMemory, offsetColor);
+    check_vk_result(err, "Bind Buffer Memory (Copy Color)");
 
     err = m_pfnDev->vkMapMemory(m_device, _fb->copyMemory, 0, _fb->copyMemSize, 0, &_fb->pMappedCopyDepth);
     check_vk_result(err, "Map Memory (copy depth)");
-    _fb->pMappedCopyIndex = (char*)_fb->pMappedCopyDepth + aligned(memReq1.size, memReq2.alignment);
+    _fb->pMappedCopyIndex = (char*)_fb->pMappedCopyDepth + offsetIndex;
+    _fb->pMappedCopyColor = (char*)_fb->pMappedCopyDepth + offsetColor;
 }
 
 void VulkanManager::allocateDescriptorSet(TlFramebuffer _fb)
@@ -4336,6 +4382,7 @@ void VulkanManager::cleanupSizeDependantResources(TlFramebuffer _fb)
         // Copy Depth
         tls::vk::destroyBuffer(*m_pfnDev, m_device, _fb->copyBufDepth);
         tls::vk::destroyBuffer(*m_pfnDev, m_device, _fb->copyBufIndex);
+        tls::vk::destroyBuffer(*m_pfnDev, m_device, _fb->copyBufColor);
 
         if (_fb->pMappedCopyDepth) {
             m_pfnDev->vkUnmapMemory(m_device, _fb->copyMemory);

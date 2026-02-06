@@ -8,6 +8,7 @@
 #include "pointCloudEngine/ShowTypes.h"
 #include "io/ImageTypes.h"
 #include "models/3d/BoundingBox.h"
+#include "models/3d/DisplayParameters.h"
 #include "utils/Color32.hpp"
 #include "utils/safe_ptr.h"
 #include "models/3d/NavigationTypes.h"
@@ -357,6 +358,29 @@ public:
 	float m_min;
 	float m_max;
 	float m_steps;
+};
+
+class GuiDataRenderColorimetricFilter : public GuiDataActiveCamera
+{
+public:
+	GuiDataRenderColorimetricFilter(const ColorimetricFilterParameters& filter, SafePtr<CameraNode> camera);
+	~GuiDataRenderColorimetricFilter() {};
+	virtual guiDType getType() override;
+
+public:
+	ColorimetricFilterParameters m_filter;
+};
+
+class GuiDataColorimetricFilterPickedColor : public IGuiData
+{
+public:
+	GuiDataColorimetricFilterPickedColor(const Color32& color, const bool& picked = true);
+	~GuiDataColorimetricFilterPickedColor() {};
+	virtual guiDType getType() override;
+
+public:
+	Color32 m_color;
+	bool m_picked = true;
 };
 
 class GuiDataRenderDisplayObjectTexts : public GuiDataActiveCamera

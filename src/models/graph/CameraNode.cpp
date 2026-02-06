@@ -11,6 +11,7 @@
 #include "models/graph/ViewPointNode.h"
 #include "models/graph/TargetNode.h"
 #include "models/3d/UniformClippingData.h"
+#include "models/3d/UniformColorFilter.h"
 
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataRendering.h"
@@ -28,6 +29,8 @@
 #include "utils/Logger.h"
 #include "utils/math/trigo.h"
 #include "utils/math/glm_extended.h"
+
+#include <cstring>
 
 CameraNode::CameraNode(const std::wstring& name, IDataDispatcher& dataDispatcher)
     : AGraphNode()
@@ -51,6 +54,7 @@ CameraNode::CameraNode(const std::wstring& name, IDataDispatcher& dataDispatcher
     registerGuiDataFunction(guiDType::renderLuminance, &CameraNode::onRenderLuminance);
     registerGuiDataFunction(guiDType::renderSaturation, &CameraNode::onRenderSaturation);
     registerGuiDataFunction(guiDType::renderBlending, &CameraNode::onRenderBlending);
+    registerGuiDataFunction(guiDType::renderColorimetricFilter, &CameraNode::onRenderColorimetricFilter);
     registerGuiDataFunction(guiDType::renderTransparency, &CameraNode::onRenderTransparency);
     registerGuiDataFunction(guiDType::renderTransparencyOptions, &CameraNode::onRenderTransparencyOptions);
     registerGuiDataFunction(guiDType::renderFlatColor, &CameraNode::onRenderFlatColor);
@@ -152,6 +156,31 @@ void CameraNode::prepareUniforms(uint32_t swapIndex)
     vkM.loadUniformData(sizeof(glm::mat4), &projView, 2 * sizeof(glm::mat4), swapIndex, m_uniProjView);
     vkM.loadUniformData(sizeof(glm::mat4), &view, 0, swapIndex, m_uniView);
     vkM.loadUniformData(sizeof(glm::mat4), &inversedView, 0, swapIndex, m_uniInversedView);
+
+    UniformColorFilter filterUniform{};
+    const ColorimetricFilterParameters& filter = m_colorimetricFilter;
+    const bool useIntensity = (m_mode == UiRenderMode::Intensity || m_mode == UiRenderMode::Fake_Color);
+    const bool enabled = filter.enabled && filter.colorCount > 0;
+    uint32_t packed = 0u;
+    packed |= (enabled ? 1u : 0u);
+    packed |= (static_cast<uint32_t>(filter.action) & 0x1u) << 1;
+    packed |= (static_cast<uint32_t>(filter.space) & 0x1u) << 2;
+    packed |= (static_cast<uint32_t>(filter.source) & 0x1u) << 3;
+    packed |= (static_cast<uint32_t>(filter.colorCount) & 0x7u) << 4;
+    packed |= (useIntensity ? 1u : 0u) << 7;
+
+    float packedFloat = 0.f;
+    std::memcpy(&packedFloat, &packed, sizeof(float));
+    filterUniform.params = glm::vec4(packedFloat, filter.tolerance, 0.f, 0.f);
+    const glm::vec3& c1 = filter.colors[0];
+    const glm::vec3& c2 = filter.colors[1];
+    const glm::vec3& c3 = filter.colors[2];
+    const glm::vec3& c4 = filter.colors[3];
+    filterUniform.colorA = glm::vec4(c1, c2.x);
+    filterUniform.colorB = glm::vec4(c2.y, c2.z, c3.x, c3.y);
+    filterUniform.colorC = glm::vec4(c3.z, c4.x, c4.y, c4.z);
+
+    vkM.loadUniformData(sizeof(UniformColorFilter), &filterUniform, 0, swapIndex, m_uniColorFilter);
 }
 
 void CameraNode::uploadClippingUniform(const std::vector<UniformClippingData>& uniformData, uint32_t swapIndex) const
@@ -180,6 +209,11 @@ VkUniformOffset CameraNode::getInversedViewUniform(uint32_t swapIndex) const
 VkUniformOffset CameraNode::getClippingUniform(uint32_t swapIndex) const
 {
     return m_uniClipping[swapIndex];
+}
+
+VkUniformOffset CameraNode::getColorFilterUniform(uint32_t swapIndex) const
+{
+    return m_uniColorFilter[swapIndex];
 }
 
 // *************************************
@@ -1055,6 +1089,7 @@ void CameraNode::allocAllUniforms()
     vkM.allocUniform(sizeof(glm::mat4), 2, m_uniView);
     vkM.allocUniform(sizeof(glm::mat4), 2, m_uniInversedView);
     vkM.allocUniform(sizeof(UniformClippingData) * MAX_ACTIVE_CLIPPING, 2, m_uniClipping);
+    vkM.allocUniform(sizeof(UniformColorFilter), 2, m_uniColorFilter);
 }
 
 void CameraNode::freeAllUniforms()
@@ -1064,6 +1099,7 @@ void CameraNode::freeAllUniforms()
     vkM.freeUniform(m_uniView);
     vkM.freeUniform(m_uniInversedView);
     vkM.freeUniform(m_uniClipping);
+    vkM.freeUniform(m_uniColorFilter);
 }
 
 void CameraNode::startPlayTrajectory(const uint64_t& animationStep)
@@ -1383,6 +1419,12 @@ void CameraNode::onRenderSaturation(IGuiData* data)
 void CameraNode::onRenderBlending(IGuiData* data)
 {
     m_hue = static_cast<GuiDataRenderBlending*>(data)->m_hue;
+}
+
+void CameraNode::onRenderColorimetricFilter(IGuiData* data)
+{
+    m_colorimetricFilter = static_cast<GuiDataRenderColorimetricFilter*>(data)->m_filter;
+    sendNewUIViewPoint();
 }
 
 void CameraNode::onRenderTransparency(IGuiData* data)
