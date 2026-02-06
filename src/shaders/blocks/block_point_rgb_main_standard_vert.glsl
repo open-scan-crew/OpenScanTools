@@ -10,4 +10,6 @@ void main() {
     hsl.y *= pc.saturation;
     //fragColor = vec4(hsl2rgb(hsl) / 255.0, pc.transparency);
     fragColor = vec4(hsl2rgb(hsl), 1.0);
+    vec3 filterColor = vec3(color.rgb);
+    filterReject = colorimetricReject(filterColor);
 }

@@ -28,6 +28,9 @@
 #include "utils/Logger.h"
 #include "utils/math/trigo.h"
 #include "utils/math/glm_extended.h"
+#include "utils/ColorimetricFilterUtils.h"
+
+#include <algorithm>
 
 CameraNode::CameraNode(const std::wstring& name, IDataDispatcher& dataDispatcher)
     : AGraphNode()
@@ -67,6 +70,7 @@ CameraNode::CameraNode(const std::wstring& name, IDataDispatcher& dataDispatcher
     registerGuiDataFunction(guiDType::renderEdgeAwareBlur, &CameraNode::onRenderEdgeAwareBlur);
     registerGuiDataFunction(guiDType::renderDepthLining, &CameraNode::onRenderDepthLining);
     registerGuiDataFunction(guiDType::renderRampScale, &CameraNode::onRenderRampScale);
+    registerGuiDataFunction(guiDType::renderColorimetricFilter, &CameraNode::onRenderColorimetricFilter);
     registerGuiDataFunction(guiDType::renderFovValueChanged, &CameraNode::onRenderFov);
     registerGuiDataFunction(guiDType::renderExamine, &CameraNode::onRenderExamine);
     registerGuiDataFunction(guiDType::examineOptions, &CameraNode::onExamineOptions);
@@ -152,6 +156,8 @@ void CameraNode::prepareUniforms(uint32_t swapIndex)
     vkM.loadUniformData(sizeof(glm::mat4), &projView, 2 * sizeof(glm::mat4), swapIndex, m_uniProjView);
     vkM.loadUniformData(sizeof(glm::mat4), &view, 0, swapIndex, m_uniView);
     vkM.loadUniformData(sizeof(glm::mat4), &inversedView, 0, swapIndex, m_uniInversedView);
+    ColorimetricFilterUniform filterUniform = buildColorimetricFilterUniform();
+    vkM.loadUniformData(sizeof(ColorimetricFilterUniform), &filterUniform, 0, swapIndex, m_uniColorimetricFilter);
 }
 
 void CameraNode::uploadClippingUniform(const std::vector<UniformClippingData>& uniformData, uint32_t swapIndex) const
@@ -180,6 +186,53 @@ VkUniformOffset CameraNode::getInversedViewUniform(uint32_t swapIndex) const
 VkUniformOffset CameraNode::getClippingUniform(uint32_t swapIndex) const
 {
     return m_uniClipping[swapIndex];
+}
+
+VkUniformOffset CameraNode::getColorimetricFilterUniform(uint32_t swapIndex) const
+{
+    return m_uniColorimetricFilter[swapIndex];
+}
+
+ColorimetricFilterUniform CameraNode::buildColorimetricFilterUniform() const
+{
+    ColorimetricFilterUniform uniform{};
+    const bool supportedMode = (m_mode == UiRenderMode::RGB ||
+        m_mode == UiRenderMode::Intensity ||
+        m_mode == UiRenderMode::Fake_Color);
+
+    if (!supportedMode || !m_colorimetricFilter.enabled)
+        return uniform;
+
+    ColorimetricFilterUtils::OrderedColorSet ordered = ColorimetricFilterUtils::buildOrderedColorSet(m_colorimetricFilter);
+    if (m_mode != UiRenderMode::RGB)
+    {
+        if (!m_colorimetricFilter.colorsEnabled[0])
+            return uniform;
+    }
+    else if (ordered.count <= 0)
+    {
+        return uniform;
+    }
+
+    int colorCount = (m_mode != UiRenderMode::RGB) ? 1 : ordered.count;
+
+    float tolerance = std::clamp(m_colorimetricFilter.tolerance, 0.0f, 100.0f) * 2.55f;
+    uniform.settings = glm::vec4(1.0f, m_colorimetricFilter.showColors ? 1.0f : 0.0f, static_cast<float>(colorCount), tolerance);
+
+    if (m_mode != UiRenderMode::RGB)
+    {
+        uint8_t intensity = m_colorimetricFilter.colors[0].r;
+        uniform.colors[0] = glm::vec4(intensity, intensity, intensity, 1.0f);
+        return uniform;
+    }
+
+    for (int i = 0; i < std::min(ordered.count, 4); ++i)
+    {
+        Color32 color = ordered.colors[i];
+        uniform.colors[i] = glm::vec4(color.r, color.g, color.b, 1.0f);
+    }
+
+    return uniform;
 }
 
 // *************************************
@@ -1055,6 +1108,7 @@ void CameraNode::allocAllUniforms()
     vkM.allocUniform(sizeof(glm::mat4), 2, m_uniView);
     vkM.allocUniform(sizeof(glm::mat4), 2, m_uniInversedView);
     vkM.allocUniform(sizeof(UniformClippingData) * MAX_ACTIVE_CLIPPING, 2, m_uniClipping);
+    vkM.allocUniform(sizeof(ColorimetricFilterUniform), 2, m_uniColorimetricFilter);
 }
 
 void CameraNode::freeAllUniforms()
@@ -1064,6 +1118,7 @@ void CameraNode::freeAllUniforms()
     vkM.freeUniform(m_uniView);
     vkM.freeUniform(m_uniInversedView);
     vkM.freeUniform(m_uniClipping);
+    vkM.freeUniform(m_uniColorimetricFilter);
 }
 
 void CameraNode::startPlayTrajectory(const uint64_t& animationStep)
@@ -1501,6 +1556,14 @@ void CameraNode::onRenderRampScale(IGuiData* data)
     GuiDataRampScale* cast_data = static_cast<GuiDataRampScale*>(data);
 
     m_rampScale = cast_data->m_rampScale;
+
+    sendNewUIViewPoint();
+}
+
+void CameraNode::onRenderColorimetricFilter(IGuiData* data)
+{
+    GuiDataColorimetricFilterSettings* cast_data = static_cast<GuiDataColorimetricFilterSettings*>(data);
+    m_colorimetricFilter = cast_data->m_settings;
 
     sendNewUIViewPoint();
 }

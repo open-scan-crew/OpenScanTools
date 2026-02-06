@@ -61,6 +61,23 @@ namespace
 
 		json[Key_Display_Guizmo] = params.m_displayGizmo;
 		json[Key_Ramp_Scale_Options] = { params.m_rampScale.showScale, params.m_rampScale.graduationCount, params.m_rampScale.centerBoxScale, params.m_rampScale.showTemperatureScale };
+		nlohmann::json filterJson;
+		filterJson[Key_Colorimetric_Filter_Enabled] = params.m_colorimetricFilter.enabled;
+		filterJson[Key_Colorimetric_Filter_Show] = params.m_colorimetricFilter.showColors;
+		filterJson[Key_Colorimetric_Filter_Tolerance] = params.m_colorimetricFilter.tolerance;
+		filterJson[Key_Colorimetric_Filter_Colors] = {
+			{ params.m_colorimetricFilter.colors[0].r, params.m_colorimetricFilter.colors[0].g, params.m_colorimetricFilter.colors[0].b },
+			{ params.m_colorimetricFilter.colors[1].r, params.m_colorimetricFilter.colors[1].g, params.m_colorimetricFilter.colors[1].b },
+			{ params.m_colorimetricFilter.colors[2].r, params.m_colorimetricFilter.colors[2].g, params.m_colorimetricFilter.colors[2].b },
+			{ params.m_colorimetricFilter.colors[3].r, params.m_colorimetricFilter.colors[3].g, params.m_colorimetricFilter.colors[3].b }
+		};
+		filterJson[Key_Colorimetric_Filter_Colors_Enabled] = {
+			params.m_colorimetricFilter.colorsEnabled[0],
+			params.m_colorimetricFilter.colorsEnabled[1],
+			params.m_colorimetricFilter.colorsEnabled[2],
+			params.m_colorimetricFilter.colorsEnabled[3]
+		};
+		json[Key_Colorimetric_Filter] = filterJson;
 
 		json[Key_Alpha_Object] = params.m_alphaObject;
 		json[Key_Distance_Unit] = magic_enum::enum_name(params.m_unitUsage.distanceUnit);
@@ -220,6 +237,32 @@ namespace
 			if (options.size() >= 4)
 				showTemperatureScale = options[3].get<bool>();
 			data.m_rampScale = { options[0].get<bool>(), options[2].get<bool>(), options[1].get<int>(), showTemperatureScale };
+		}
+
+		if (json.find(Key_Colorimetric_Filter) != json.end())
+		{
+			nlohmann::json filterJson = json.at(Key_Colorimetric_Filter);
+			if (filterJson.find(Key_Colorimetric_Filter_Enabled) != filterJson.end())
+				data.m_colorimetricFilter.enabled = filterJson.at(Key_Colorimetric_Filter_Enabled).get<bool>();
+			if (filterJson.find(Key_Colorimetric_Filter_Show) != filterJson.end())
+				data.m_colorimetricFilter.showColors = filterJson.at(Key_Colorimetric_Filter_Show).get<bool>();
+			if (filterJson.find(Key_Colorimetric_Filter_Tolerance) != filterJson.end())
+				data.m_colorimetricFilter.tolerance = filterJson.at(Key_Colorimetric_Filter_Tolerance).get<float>();
+			if (filterJson.find(Key_Colorimetric_Filter_Colors) != filterJson.end())
+			{
+				nlohmann::json colors = filterJson.at(Key_Colorimetric_Filter_Colors);
+				if (colors.size() >= 4)
+				{
+					for (size_t i = 0; i < 4; ++i)
+						data.m_colorimetricFilter.colors[i] = Color32(colors[i][0], colors[i][1], colors[i][2]);
+				}
+			}
+			if (filterJson.find(Key_Colorimetric_Filter_Colors_Enabled) != filterJson.end())
+			{
+				nlohmann::json enabled = filterJson.at(Key_Colorimetric_Filter_Colors_Enabled);
+				for (size_t i = 0; i < std::min<size_t>(4, enabled.size()); ++i)
+					data.m_colorimetricFilter.colorsEnabled[i] = enabled[i].get<bool>();
+			}
 		}
 
 		if (json.find(Key_Distance_Unit) != json.end())

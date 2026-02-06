@@ -1602,13 +1602,15 @@ void ObjectNodeVisitor::clipAndDrawPointCloud(VkCommandBuffer _cmdBuffer, Render
     // Draw points that do not need a clipping test
     if (!drawInfo.cellDrawInfo.empty())
     {
-        renderer.drawPoints(drawInfo, m_viewProjUniform, correspUiRenderMode.at(m_displayParameters.m_mode), _cmdBuffer, m_displayParameters.m_blendMode, m_pointRenderFormat);
+        VkUniformOffset filterUniform = m_camera.getColorimetricFilterUniform(m_uniformSwapIndex);
+        renderer.drawPoints(drawInfo, m_viewProjUniform, filterUniform, correspUiRenderMode.at(m_displayParameters.m_mode), _cmdBuffer, m_displayParameters.m_blendMode, m_pointRenderFormat);
     }
 
     // Draw points with a clipping restriction
     if (!drawInfo.cellDrawInfoCB.empty())
     {
-        renderer.drawPointsClipping(drawInfo, m_viewProjUniform, m_clipUniform, correspUiRenderMode.at(m_displayParameters.m_mode), _cmdBuffer, m_displayParameters.m_blendMode, m_pointRenderFormat);
+        VkUniformOffset filterUniform = m_camera.getColorimetricFilterUniform(m_uniformSwapIndex);
+        renderer.drawPointsClipping(drawInfo, m_viewProjUniform, filterUniform, m_clipUniform, correspUiRenderMode.at(m_displayParameters.m_mode), _cmdBuffer, m_displayParameters.m_blendMode, m_pointRenderFormat);
     }
 
     // Stats

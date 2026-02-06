@@ -142,6 +142,14 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
     hash += hash_fn_f(display.m_depthLining.threshold);
     hash += hash_fn_f(display.m_depthLining.sensitivity);
     hash += hash_fn_b(display.m_depthLining.strongMode);
+    hash += hash_fn_b(display.m_colorimetricFilter.enabled);
+    hash += hash_fn_b(display.m_colorimetricFilter.showColors);
+    hash += hash_fn_f(display.m_colorimetricFilter.tolerance);
+    for (int i = 0; i < 4; ++i)
+    {
+        hash += hash_fn_32(display.m_colorimetricFilter.colors[i].RGBA());
+        hash += hash_fn_b(display.m_colorimetricFilter.colorsEnabled[i]);
+    }
 
     //hash += hash_fn_f(display.m_alphaObject);             // Do not affect the point cloud
 

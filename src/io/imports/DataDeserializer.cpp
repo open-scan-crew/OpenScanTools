@@ -39,6 +39,7 @@
 
 #include "magic_enum/magic_enum.hpp"
 
+#include <algorithm>
 #define IOLOG Logger::log(LoggerMode::IOLog)
 
 bool ImportData(const nlohmann::json& json, Data& data)
@@ -585,6 +586,32 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
     else
     {
         IOLOG << "ViewPoint RampScale read error" << LOGENDL;
+    }
+
+    if (json.find(Key_Colorimetric_Filter) != json.end())
+    {
+        nlohmann::json filterJson = json.at(Key_Colorimetric_Filter);
+        if (filterJson.find(Key_Colorimetric_Filter_Enabled) != filterJson.end())
+            data.m_colorimetricFilter.enabled = filterJson.at(Key_Colorimetric_Filter_Enabled).get<bool>();
+        if (filterJson.find(Key_Colorimetric_Filter_Show) != filterJson.end())
+            data.m_colorimetricFilter.showColors = filterJson.at(Key_Colorimetric_Filter_Show).get<bool>();
+        if (filterJson.find(Key_Colorimetric_Filter_Tolerance) != filterJson.end())
+            data.m_colorimetricFilter.tolerance = filterJson.at(Key_Colorimetric_Filter_Tolerance).get<float>();
+        if (filterJson.find(Key_Colorimetric_Filter_Colors) != filterJson.end())
+        {
+            nlohmann::json colors = filterJson.at(Key_Colorimetric_Filter_Colors);
+            if (colors.size() >= 4)
+            {
+                for (size_t i = 0; i < 4; ++i)
+                    data.m_colorimetricFilter.colors[i] = Color32(colors[i][0], colors[i][1], colors[i][2]);
+            }
+        }
+        if (filterJson.find(Key_Colorimetric_Filter_Colors_Enabled) != filterJson.end())
+        {
+            nlohmann::json enabled = filterJson.at(Key_Colorimetric_Filter_Colors_Enabled);
+            for (size_t i = 0; i < std::min<size_t>(4, enabled.size()); ++i)
+                data.m_colorimetricFilter.colorsEnabled[i] = enabled[i].get<bool>();
+        }
     }
 
     {
