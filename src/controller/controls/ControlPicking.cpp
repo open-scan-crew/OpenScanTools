@@ -126,4 +126,31 @@ namespace control::picking
         return ControlType::pickTemperatureFromPicking;
     }
 
+    PickColorFromPick::PickColorFromPick()
+    {
+    }
+
+    PickColorFromPick::~PickColorFromPick()
+    {
+    }
+
+    void PickColorFromPick::doFunction(Controller& controller)
+    {
+        controller.getFunctionManager().launchFunction(controller, ContextType::pickColor);
+    }
+
+    bool PickColorFromPick::canUndo() const
+    {
+        return false;
+    }
+
+    void PickColorFromPick::undoFunction(Controller& controller)
+    {
+    }
+
+    ControlType PickColorFromPick::getType() const
+    {
+        return ControlType::pickColorFromPicking;
+    }
+
 }

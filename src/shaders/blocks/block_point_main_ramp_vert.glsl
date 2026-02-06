@@ -39,4 +39,12 @@ void main()
     }
 
     fragColor = vec4(outColor, 1.0);
+#ifdef ATTRIB_RGB
+    vec3 rawRgb = vec3(color.rgb);
+    float intensityValue = 0.0;
+#else
+    vec3 rawRgb = vec3(0.0);
+    float intensityValue = float(intensity);
+#endif
+    filterMask = colorFilterPass(rawRgb, fragColor.rgb * 255.0, intensityValue) ? 1.0 : 0.0;
 }

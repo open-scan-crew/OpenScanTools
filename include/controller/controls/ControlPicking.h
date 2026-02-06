@@ -41,6 +41,17 @@ namespace control::picking
         ControlType getType() const override;
     };
 
+    class PickColorFromPick : public AControl
+    {
+    public:
+        PickColorFromPick();
+        ~PickColorFromPick();
+        void doFunction(Controller& controller) override;
+        bool canUndo() const override;
+        void undoFunction(Controller& controller) override;
+        ControlType getType() const override;
+    };
+
 }
 
 #endif // !CONTROL_PICKING_H_

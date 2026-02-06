@@ -17,6 +17,7 @@ out gl_PerVertex {
 };
 
 layout(location = 0) out vec4 fragColor;
+layout(location = 1) out float filterMask;
 
 layout(push_constant) uniform PC {
     layout(offset = 0) float ptSize;
@@ -40,3 +41,5 @@ layout(set = 0, binding = 0) uniform uniformCamera {
 layout(set = 0, binding = 1) uniform uniformScan{
     mat4 model;
 } uScan;
+
+#include "block_point_colorimetric_filter.glsl"

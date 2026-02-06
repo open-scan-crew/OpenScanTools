@@ -8,6 +8,36 @@
 #include "utils/Color32.hpp"
 
 #include <glm/glm.hpp>
+#include <array>
+
+enum class ColorimetricFilterSource
+{
+    PointRgb = 0,
+    PixelRgb = 1
+};
+
+enum class ColorimetricFilterSpace
+{
+    RGB = 0,
+    LAB = 1
+};
+
+enum class ColorimetricFilterAction
+{
+    Show = 0,
+    Hide = 1
+};
+
+struct ColorimetricFilterParameters
+{
+    bool enabled = false;
+    ColorimetricFilterSource source = ColorimetricFilterSource::PointRgb;
+    ColorimetricFilterSpace space = ColorimetricFilterSpace::RGB;
+    ColorimetricFilterAction action = ColorimetricFilterAction::Show;
+    float tolerance = 0.f;
+    int colorCount = 0;
+    std::array<glm::vec3, 4> colors = { glm::vec3(0.f), glm::vec3(0.f), glm::vec3(0.f), glm::vec3(0.f) };
+};
 
 class DisplayParameters
 {
@@ -62,6 +92,8 @@ public:
     TextDisplayOptions      m_textOptions = { TEXT_SHOW_INIT_BIT, 0, 13.f };
     bool                    m_displayAllMarkersTexts = true;
     bool                    m_displayAllMeasures = true;
+
+    ColorimetricFilterParameters m_colorimetricFilter = {};
 
     //Ortho
     bool            m_orthoGridActive = false;

@@ -682,6 +682,42 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
         retVal = false;
     }
 
+    if (json.find(Key_Colorimetric_Filter_Enabled) != json.end())
+        data.m_colorimetricFilter.enabled = json.at(Key_Colorimetric_Filter_Enabled).get<bool>();
+
+    if (json.find(Key_Colorimetric_Filter_Source) != json.end())
+    {
+        auto source = magic_enum::enum_cast<ColorimetricFilterSource>(json.at(Key_Colorimetric_Filter_Source).get<std::string>());
+        data.m_colorimetricFilter.source = source.has_value() ? source.value() : ColorimetricFilterSource::PointRgb;
+    }
+
+    if (json.find(Key_Colorimetric_Filter_Space) != json.end())
+    {
+        auto space = magic_enum::enum_cast<ColorimetricFilterSpace>(json.at(Key_Colorimetric_Filter_Space).get<std::string>());
+        data.m_colorimetricFilter.space = space.has_value() ? space.value() : ColorimetricFilterSpace::RGB;
+    }
+
+    if (json.find(Key_Colorimetric_Filter_Action) != json.end())
+    {
+        auto action = magic_enum::enum_cast<ColorimetricFilterAction>(json.at(Key_Colorimetric_Filter_Action).get<std::string>());
+        data.m_colorimetricFilter.action = action.has_value() ? action.value() : ColorimetricFilterAction::Show;
+    }
+
+    if (json.find(Key_Colorimetric_Filter_Tolerance) != json.end())
+        data.m_colorimetricFilter.tolerance = json.at(Key_Colorimetric_Filter_Tolerance).get<float>();
+
+    if (json.find(Key_Colorimetric_Filter_Count) != json.end())
+        data.m_colorimetricFilter.colorCount = json.at(Key_Colorimetric_Filter_Count).get<int>();
+
+    if (json.find(Key_Colorimetric_Filter_Colors) != json.end())
+    {
+        nlohmann::json colors = json.at(Key_Colorimetric_Filter_Colors);
+        for (size_t i = 0; i < data.m_colorimetricFilter.colors.size() && i < colors.size(); ++i)
+        {
+            data.m_colorimetricFilter.colors[i] = glm::vec3(colors[i][0], colors[i][1], colors[i][2]);
+        }
+    }
+
     if (json.find(Key_Marker_Rendering_Parameters) != json.end())
     {
         nlohmann::json options = json.at(Key_Marker_Rendering_Parameters);

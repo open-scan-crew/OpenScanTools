@@ -628,6 +628,9 @@
     <ClCompile Include="..\..\src\controller\functionSystem\ContextMoveTag.cpp">
       <Filter>src\controller\contexts</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextPickColor.cpp">
+      <Filter>src\controller\contexts</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\controller\functionSystem\ContextPickTemperature.cpp">
       <Filter>src\controller\contexts</Filter>
     </ClCompile>
@@ -1873,6 +1876,9 @@
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarConvertImage.cpp">
       <Filter>src\gui\toolBars</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarColorimetricFilter.cpp">
+      <Filter>src\gui\toolBars</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\gui\Dialog\DialogImportImage.cpp">
       <Filter>src\gui\Dialog</Filter>
     </ClCompile>
@@ -2029,6 +2035,9 @@
       <Filter>include\gui\toolBars</Filter>
     </QtMoc>
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarProjectGroup.h">
+      <Filter>include\gui\toolBars</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarColorimetricFilter.h">
       <Filter>include\gui\toolBars</Filter>
     </QtMoc>
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarFilterGroup.h">
@@ -3455,6 +3464,9 @@
     <ClInclude Include="..\..\include\models\3d\DisplayParameters.h">
       <Filter>include\models\3d</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\models\3d\UniformColorFilter.h">
+      <Filter>include\models\3d</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\include\controller\controls\ControlViewPoint.h">
       <Filter>include\controller\controls</Filter>
     </ClInclude>
@@ -3720,6 +3732,9 @@
       <Filter>include\controller\contexts</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\controller\functionSystem\ContextFindScan.h">
+      <Filter>include\controller\contexts</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextPickColor.h">
       <Filter>include\controller\contexts</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\models\3d\MarkerDrawData.h">
@@ -3988,6 +4003,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\toolbar_filtergroup.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="..\..\src\gui\forms\toolbar_colorimetricFilter.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\toolbar_exportgroup.ui">
@@ -4359,6 +4377,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\shaders\blocks\block_point_input_vert.glsl">
+      <Filter>shaders\glsl_blocks</Filter>
+    </None>
+    <None Include="..\..\src\shaders\blocks\block_point_colorimetric_filter.glsl">
       <Filter>shaders\glsl_blocks</Filter>
     </None>
     <None Include="..\..\src\shaders\blocks\block_point_i_main_standard_vert.glsl">
