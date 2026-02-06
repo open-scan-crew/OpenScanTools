@@ -59,6 +59,7 @@ public:
     VkUniformOffset getViewUniform(uint32_t swapIndex) const;
     VkUniformOffset getInversedViewUniform(uint32_t swapIndex) const;
     VkUniformOffset getClippingUniform(uint32_t swapIndex) const;
+    VkUniformOffset getColorFilterUniform(uint32_t swapIndex) const;
 
     //LockHorizontal animation
     void checkAndHorizontalAnimation();
@@ -217,6 +218,7 @@ private:
     void onRenderLuminance(IGuiData* data);
     void onRenderSaturation(IGuiData* data);
     void onRenderBlending(IGuiData* data);
+    void onRenderColorimetricFilter(IGuiData* data);
     void onRenderTransparency(IGuiData* data);
     void onRenderTransparencyOptions(IGuiData* data);
     void onRenderFlatColor(IGuiData* data);
@@ -286,6 +288,8 @@ private:
     VkMultiUniform m_uniInversedView;
     // Uniform for the clipping and ramp matrices, extra ramp parameters
     VkMultiUniform m_uniClipping;
+    // Uniform for colorimetric filter parameters
+    VkMultiUniform m_uniColorFilter;
 
     // ++++++++++++++++++ View ++++++++++++++++++++
     glm::dvec3 m_forward = glm::dvec3();

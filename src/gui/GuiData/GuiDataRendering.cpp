@@ -367,6 +367,28 @@ guiDType GuiDataRenderDistanceRampValues::getType()
 	return  guiDType::renderDistanceRampValues;
 }
 
+/*** Colorimetric Filter ***/
+
+GuiDataRenderColorimetricFilter::GuiDataRenderColorimetricFilter(const ColorimetricFilterParameters& filter, SafePtr<CameraNode> camera)
+	: GuiDataActiveCamera(camera)
+	, m_filter(filter)
+{}
+
+guiDType GuiDataRenderColorimetricFilter::getType()
+{
+	return guiDType::renderColorimetricFilter;
+}
+
+GuiDataColorimetricFilterPickedColor::GuiDataColorimetricFilterPickedColor(const Color32& color, const bool& picked)
+	: m_color(color)
+	, m_picked(picked)
+{}
+
+guiDType GuiDataColorimetricFilterPickedColor::getType()
+{
+	return guiDType::colorimetricFilterPickedColor;
+}
+
 /*** Diplay All markers texts ***/
 
 GuiDataRenderDisplayObjectTexts::GuiDataRenderDisplayObjectTexts(const bool& display, SafePtr<CameraNode> camera)

@@ -25,6 +25,7 @@
 #include "pointCloudEngine/SmartBuffer.h"
 
 #include "utils/Logger.h"
+#include "utils/Color32.hpp"
 
 #define VK_LOG LoggerMode::VKLog
 
@@ -126,6 +127,7 @@ public:
 
     float sampleDepth(TlFramebuffer framebuffer);
     uint32_t sampleIndex(TlFramebuffer framebuhher, uint32_t posX, uint32_t posY);
+    Color32 sampleColor(TlFramebuffer framebuffer, uint32_t posX, uint32_t posY);
     std::vector<uint32_t> sampleIndexList(TlFramebuffer _fb, uint32_t posX, uint32_t posY, uint32_t range);
 
     // Frame drawing functions

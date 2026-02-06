@@ -15,4 +15,5 @@ void main() {
     hsl.y *= pc.saturation;
     //fragColor = vec4(hsl2rgb(hsl), pc.transparency);
     fragColor = vec4(hsl2rgb(hsl), 1.0);
+    filterMask = colorFilterPass(vec3(color.rgb), fragColor.rgb * 255.0, float(intensity)) ? 1.0 : 0.0;
 }

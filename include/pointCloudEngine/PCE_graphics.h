@@ -37,6 +37,7 @@ struct TlScanDrawInfo
 {
     VkBuffer instanceBuffer;
     VkUniformOffset modelUni;
+    VkUniformOffset colorFilterUni;
     tls::PointFormat format;
     std::vector<TlCellDrawInfo> cellDrawInfo;
     std::vector<TlCellDrawInfo_multiCB> cellDrawInfoCB;

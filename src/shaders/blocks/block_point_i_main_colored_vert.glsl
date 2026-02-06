@@ -9,4 +9,5 @@ void main() {
 
     //fragColor = vec4(pc.ptColor * fi, pc.transparency);
     fragColor = vec4(pc.ptColor * fi, 1.0);
+    filterMask = colorFilterPass(vec3(0.0), fragColor.rgb * 255.0, float(intensity)) ? 1.0 : 0.0;
 }

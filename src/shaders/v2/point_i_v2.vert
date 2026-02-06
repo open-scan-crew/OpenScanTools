@@ -1,5 +1,6 @@
 // Vertex Shader for points version 2.0
 #version 450
+#extension GL_GOOGLE_include_directive : enable
 
 // Vertex attributes
 layout(location = 0) in uvec2 posXY;
@@ -16,6 +17,7 @@ out gl_PerVertex {
 };
 
 layout(location = 0) out vec4 fragColor;
+layout(location = 1) out float filterMask;
 
 layout(push_constant) uniform PC {
     layout(offset = 0) float ptSize;
@@ -39,9 +41,12 @@ layout(set = 0, binding = 1) uniform uniformModelScan{
     mat4 model;
 } uScan;
 
+#include "../blocks/block_point_colorimetric_filter.glsl"
+
 void main() {
     gl_PointSize = pc.ptSize;
     gl_Position = uCam.projView * uScan.model * vec4(vec3(posXY, posZ) * coordPrec + origin, 1.0);
     float fi = pc.contrast * (intensity / 255.0 + pc.brightness) + 0.5;
     fragColor = vec4(fi, fi, fi, pc.transparency);
+    filterMask = colorFilterPass(vec3(0.0), fragColor.rgb * 255.0, float(intensity)) ? 1.0 : 0.0;
 }

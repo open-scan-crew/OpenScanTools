@@ -916,6 +916,7 @@ void ObjectNodeVisitor::setComplementaryRenderParameters(uint32_t swapIndex, VkF
     m_uniformSwapIndex = swapIndex;
     m_viewProjUniform = m_camera.getViewProjUniform(m_uniformSwapIndex);
     m_clipUniform = m_camera.getClippingUniform(m_uniformSwapIndex);
+    m_colorFilterUniform = m_camera.getColorFilterUniform(m_uniformSwapIndex);
     m_pointRenderFormat = pointRenderFormat;
 }
 
@@ -1572,6 +1573,7 @@ void ObjectNodeVisitor::clipAndDrawPointCloud(VkCommandBuffer _cmdBuffer, Render
     projInfo.modelMat = bakedPC.transfo;
 
     drawInfo.modelUni = bakedPC.uniform;
+    drawInfo.colorFilterUni = m_colorFilterUniform;
     drawInfo.color = bakedPC.color.toVector();
 
     const ClippingAssembly* assemblyToUse = &_clippingAssembly;
