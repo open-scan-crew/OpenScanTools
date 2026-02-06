@@ -39,4 +39,10 @@ void main()
     }
 
     fragColor = vec4(outColor, 1.0);
+#ifdef ATTRIB_RGB
+    vec3 filterColor = vec3(color.rgb);
+#else
+    vec3 filterColor = vec3(float(intensity));
+#endif
+    filterReject = colorimetricReject(filterColor);
 }

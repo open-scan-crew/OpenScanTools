@@ -230,6 +230,12 @@
 #define Key_Depth_Lining			"DepthLining"
 #define Key_Display_Guizmo				"DisplayGuizmo"
 #define Key_Ramp_Scale_Options			"RampScaleOptions"
+#define Key_Colorimetric_Filter         "ColorimetricFilter"
+#define Key_Colorimetric_Filter_Enabled "ColorimetricFilterEnabled"
+#define Key_Colorimetric_Filter_Show    "ColorimetricFilterShow"
+#define Key_Colorimetric_Filter_Tolerance "ColorimetricFilterTolerance"
+#define Key_Colorimetric_Filter_Colors  "ColorimetricFilterColors"
+#define Key_Colorimetric_Filter_Colors_Enabled "ColorimetricFilterColorsEnabled"
 
 #define Key_Alpha_Object				"AlphaObject"
 #define Key_Distance_Unit				"DistanceUnit"

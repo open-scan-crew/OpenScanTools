@@ -636,6 +636,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\controller\functionSystem\ContextExtendCylinderMeasure.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextFindScan.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextPickTemperature.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextPickColorimetric.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextFitTorus.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextImportOSTObjects.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextManipulateObjects.cpp" />
@@ -832,6 +833,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarRampDefaultValues.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderNormals.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderRampGroup.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarColorimetricFilter.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderTransparency.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderEnhance.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarShareGroup.cpp" />
@@ -873,6 +875,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\gui\widgets\CustomWidgets\GlobalColorPicker.cpp" />
     <ClCompile Include="..\..\src\gui\widgets\CustomWidgets\GenericPropertiesHead.cpp" />
     <ClCompile Include="..\..\src\gui\widgets\CustomWidgets\SubPropertyClipping.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\ColorimetricFilterPreview.cpp" />
     <ClCompile Include="..\..\src\gui\widgets\E57TreeWidget.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable|x64'">true</ExcludedFromBuild>
@@ -1131,6 +1134,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     </ClCompile>
     <ClCompile Include="..\..\src\utils\ArgParser.cpp" />
     <ClCompile Include="..\..\src\utils\ColorConversion.cpp" />
+    <ClCompile Include="..\..\src\utils\ColorimetricFilterUtils.cpp" />
     <ClCompile Include="..\..\src\utils\ImGuiUtils.cpp" />
     <ClCompile Include="..\..\src\utils\JsonWriter.cpp" />
     <ClCompile Include="..\..\src\utils\TemperatureScaleUtils.cpp" />
@@ -1319,6 +1323,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\controller\functionSystem\ContextExportVideoHD.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextExtendCylinderMeasure.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextFindScan.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextPickColorimetric.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextFitCylinder.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextFitTorus.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextImportOSTObjects.h" />
@@ -1409,6 +1414,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarShareGroup.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarMeasureSimple.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarRenderRampGroup.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarColorimetricFilter.h" />
     <ClInclude Include="..\..\include\gui\texts\SettingsTexts.hpp" />
     <ClInclude Include="..\..\include\gui\texts\TreePanelTexts.hpp" />
     <QtMoc Include="..\..\include\gui\UrlHandler.h" />
@@ -1530,6 +1536,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\services\MarkerSystem.h" />
     <ClInclude Include="..\..\include\utils\ArgParser.h" />
     <ClInclude Include="..\..\include\utils\ColorConversion.h" />
+    <ClInclude Include="..\..\include\utils\ColorimetricFilterUtils.h" />
     <ClInclude Include="..\..\include\utils\ImGuiUtils.h" />
     <ClInclude Include="..\..\include\utils\JsonWriter.h" />
     <ClInclude Include="..\..\include\utils\math\basic_define.h" />
@@ -1609,6 +1616,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtMoc Include="..\..\include\gui\widgets\CustomWidgets\ACustomLineEdit.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarExportPointCloud.h" />
     <QtMoc Include="..\..\include\gui\widgets\CustomWidgets\ColorPicker.h" />
+    <QtMoc Include="..\..\include\gui\widgets\ColorimetricFilterPreview.h" />
     <ClInclude Include="..\..\include\gui\texts\AboutTexts.hpp" />
     <ClInclude Include="..\..\include\gui\texts\ContextTexts.hpp" />
     <ClInclude Include="..\..\include\gui\texts\DefaultUserLists.hpp" />
@@ -1646,6 +1654,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\gui\widgets\CustomWidgets\GenericPropertiesFeet.h" />
     <ClInclude Include="..\..\include\gui\widgets\CustomWidgets\GenericPropertiesHead.h" />
     <ClInclude Include="..\..\include\gui\widgets\CustomWidgets\GlobalColorPicker.h" />
+    <ClInclude Include="..\..\include\gui\widgets\ColorimetricFilterPreview.h" />
     <ClInclude Include="..\..\include\gui\widgets\CustomWidgets\regexpedit.h" />
     <ClInclude Include="..\..\include\gui\widgets\CustomWidgets\qdoubleedit.h" />
     <ClInclude Include="..\..\include\gui\widgets\CustomWidgets\qintegeredit.h" />
@@ -1743,6 +1752,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\models\3d\ProjectionData.h" />
     <ClInclude Include="..\..\include\models\3d\ClickInfo.h" />
     <ClInclude Include="..\..\include\models\3d\DisplayParameters.h" />
+    <ClInclude Include="..\..\include\models\3d\ColorimetricFilterUniform.h" />
     <ClInclude Include="..\..\include\models\3d\DuplicationTypes.h" />
     <ClInclude Include="..\..\include\models\3d\GeometryGenerator.h" />
     <ClInclude Include="..\..\include\models\3d\GridBox.h" />
@@ -2037,6 +2047,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtUic Include="..\..\src\gui\forms\toolbar_rendertransparencygroup.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_renderenhancegroup.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_render_ramp_group.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_colorimetricFilter.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_importScantra.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_sharegroup.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_showhidegroup.ui" />

@@ -370,8 +370,25 @@ void ExportRenderingParameters(nlohmann::json& json, const RenderingParameters& 
     json[Key_Edge_Aware_Blur] = { params.m_edgeAwareBlur.enabled, params.m_edgeAwareBlur.radius, params.m_edgeAwareBlur.depthThreshold, params.m_edgeAwareBlur.blendStrength, params.m_edgeAwareBlur.resolutionScale };
     json[Key_Depth_Lining] = { params.m_depthLining.enabled, params.m_depthLining.strength, params.m_depthLining.threshold, params.m_depthLining.sensitivity, params.m_depthLining.strongMode };
 
-    json[Key_Display_Guizmo] = params.m_displayGizmo;
+	json[Key_Display_Guizmo] = params.m_displayGizmo;
 	json[Key_Ramp_Scale_Options] = { params.m_rampScale.showScale, params.m_rampScale.graduationCount, params.m_rampScale.centerBoxScale, params.m_rampScale.showTemperatureScale };
+	nlohmann::json filterJson;
+	filterJson[Key_Colorimetric_Filter_Enabled] = params.m_colorimetricFilter.enabled;
+	filterJson[Key_Colorimetric_Filter_Show] = params.m_colorimetricFilter.showColors;
+	filterJson[Key_Colorimetric_Filter_Tolerance] = params.m_colorimetricFilter.tolerance;
+	filterJson[Key_Colorimetric_Filter_Colors] = {
+		{ params.m_colorimetricFilter.colors[0].r, params.m_colorimetricFilter.colors[0].g, params.m_colorimetricFilter.colors[0].b },
+		{ params.m_colorimetricFilter.colors[1].r, params.m_colorimetricFilter.colors[1].g, params.m_colorimetricFilter.colors[1].b },
+		{ params.m_colorimetricFilter.colors[2].r, params.m_colorimetricFilter.colors[2].g, params.m_colorimetricFilter.colors[2].b },
+		{ params.m_colorimetricFilter.colors[3].r, params.m_colorimetricFilter.colors[3].g, params.m_colorimetricFilter.colors[3].b }
+	};
+	filterJson[Key_Colorimetric_Filter_Colors_Enabled] = {
+		params.m_colorimetricFilter.colorsEnabled[0],
+		params.m_colorimetricFilter.colorsEnabled[1],
+		params.m_colorimetricFilter.colorsEnabled[2],
+		params.m_colorimetricFilter.colorsEnabled[3]
+	};
+	json[Key_Colorimetric_Filter] = filterJson;
 
 	json[Key_Alpha_Object] = params.m_alphaObject;
 	json[Key_Distance_Unit] = magic_enum::enum_name(params.m_unitUsage.distanceUnit);
