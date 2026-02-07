@@ -81,15 +81,15 @@ ToolBarColorimetricFilter::ToolBarColorimetricFilter(IDataDispatcher& dataDispat
     connectColorEdit(m_ui.lineEditColor3);
     connectColorEdit(m_ui.lineEditColor4);
 
-    auto connectPick = [this](QToolButton* button)
+    auto connectPick = [this](QToolButton* button, int index)
     {
-        connect(button, &QToolButton::clicked, [this]() { startPick(); });
+        connect(button, &QToolButton::clicked, [this, index]() { startPick(index); });
     };
 
-    connectPick(m_ui.toolButtonPick1);
-    connectPick(m_ui.toolButtonPick2);
-    connectPick(m_ui.toolButtonPick3);
-    connectPick(m_ui.toolButtonPick4);
+    connectPick(m_ui.toolButtonPick1, 0);
+    connectPick(m_ui.toolButtonPick2, 1);
+    connectPick(m_ui.toolButtonPick3, 2);
+    connectPick(m_ui.toolButtonPick4, 3);
 
     registerGuiDataFunction(guiDType::projectLoaded, &ToolBarColorimetricFilter::onProjectLoad);
     registerGuiDataFunction(guiDType::renderActiveCamera, &ToolBarColorimetricFilter::onActiveCamera);
@@ -124,7 +124,7 @@ void ToolBarColorimetricFilter::onFocusViewport(IGuiData* data)
 void ToolBarColorimetricFilter::onActiveCamera(IGuiData* data)
 {
     auto infos = static_cast<GuiDataCameraInfo*>(data);
-    if (infos->m_camera && m_focusCamera != infos->m_camera)
+    if (infos->m_camera && !(m_focusCamera == infos->m_camera))
         return;
 
     ReadPtr<CameraNode> rCam = m_focusCamera.cget();
@@ -162,20 +162,25 @@ void ToolBarColorimetricFilter::onColorPickValue(IGuiData* data)
     else
     {
         ColorimetricFilterSettings settings = readSettingsFromUi(m_settings.enabled);
-        int targetIndex = -1;
-        for (int i = 0; i < 4; ++i)
+        int targetIndex = m_pendingPickIndex;
+        if (targetIndex < 0 || targetIndex >= 4)
         {
-            if (!settings.colorsEnabled[i])
+            targetIndex = -1;
+            for (int i = 0; i < 4; ++i)
             {
-                targetIndex = i;
-                break;
+                if (!settings.colorsEnabled[i])
+                {
+                    targetIndex = i;
+                    break;
+                }
             }
+            if (targetIndex == -1)
+                targetIndex = 0;
         }
-        if (targetIndex == -1)
-            targetIndex = 0;
         updateColorField(targetIndex, color, true);
     }
 
+    m_pendingPickIndex = -1;
     updatePreview();
     if (m_settings.enabled)
         applySettings(true);
@@ -352,7 +357,8 @@ void ToolBarColorimetricFilter::setFieldPlaceholder(bool intensityMode)
         m_ui.lineEditColor1->setPlaceholderText(tr("R, G, B"));
 }
 
-void ToolBarColorimetricFilter::startPick()
+void ToolBarColorimetricFilter::startPick(int index)
 {
+    m_pendingPickIndex = index;
     m_dataDispatcher.sendControl(new control::picking::PickColorimetricFromPick());
 }
