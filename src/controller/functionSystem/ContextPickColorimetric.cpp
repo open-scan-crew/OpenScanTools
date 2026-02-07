@@ -10,6 +10,7 @@
 
 #include <QObject>
 #include <algorithm>
+#include <cmath>
 #include <limits>
 
 namespace
@@ -76,6 +77,23 @@ namespace
 
         return false;
     }
+
+    bool tryFindRayTracedPoint(const Controller& controller, const ClickInfo& clickInfo, PointXYZIRGB& outPoint)
+    {
+        double height = std::max(1.0, static_cast<double>(clickInfo.height));
+        double pointSize = controller.cgetContext().getRenderPointSize() + 2.0;
+        bool isOrtho = (std::abs(clickInfo.fov) <= std::numeric_limits<double>::epsilon());
+        double cosAngleThreshold = atan(clickInfo.heightAt1m * pointSize / (1.0 * height));
+        cosAngleThreshold = isOrtho ? clickInfo.heightAt1m * pointSize / (1.0 * height) : cos(cosAngleThreshold);
+
+        ClippingAssembly clipAssembly;
+        controller.cgetGraphManager().getClippingAssembly(clipAssembly, true, false);
+
+        TlScanOverseer::setWorkingScansTransfo(controller.cgetGraphManager().getVisiblePointCloudInstances(clickInfo.panoramic, true, true));
+        glm::dvec3 bestPoint;
+        std::string scanName;
+        return TlScanOverseer::getInstance().rayTracingWithPoint(clickInfo.ray, clickInfo.rayOrigin, bestPoint, outPoint, cosAngleThreshold, clipAssembly, isOrtho, scanName);
+    }
 }
 
 ContextPickColorimetric::ContextPickColorimetric(const ContextId& id)
@@ -105,7 +123,9 @@ ContextState ContextPickColorimetric::launch(Controller& controller)
 
     const ClickResult& clickResult = m_clickResults[0];
     PointXYZIRGB pickedPoint{};
-    bool found = tryFindNearestPoint(controller, m_lastClickInfo, clickResult.position, pickedPoint);
+    bool found = tryFindRayTracedPoint(controller, m_lastClickInfo, pickedPoint);
+    if (!found)
+        found = tryFindNearestPoint(controller, m_lastClickInfo, clickResult.position, pickedPoint);
 
     if (found)
     {
