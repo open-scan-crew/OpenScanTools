@@ -41,7 +41,7 @@ private:
 	ColorimetricFilterSettings readSettingsFromUi(bool keepEnabled) const;
 	void setFieldPlaceholder(bool intensityMode);
 
-	void startPick();
+	void startPick(int index);
 
 	typedef void (ToolBarColorimetricFilter::* GuiDataFunction)(IGuiData*);
 	inline void registerGuiDataFunction(guiDType type, GuiDataFunction fct)
@@ -57,6 +57,7 @@ private:
 	SafePtr<CameraNode> m_focusCamera;
 	UiRenderMode m_currentRenderMode = UiRenderMode::RGB;
 	ColorimetricFilterSettings m_settings;
+	int m_pendingPickIndex = -1;
 };
 
 #endif // TOOLBAR_COLORIMETRIC_FILTER_H
