@@ -182,8 +182,7 @@ void ToolBarColorimetricFilter::onColorPickValue(IGuiData* data)
 
     m_pendingPickIndex = -1;
     updatePreview();
-    if (m_settings.enabled)
-        applySettings(true);
+    applySettings(m_settings.enabled);
 }
 
 void ToolBarColorimetricFilter::applySettings(bool enable)
