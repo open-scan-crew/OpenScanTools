@@ -114,7 +114,7 @@ ContextState ContextPickColorimetric::launch(Controller& controller)
     }
 
     m_clickResults.clear();
-    return ContextState::done;
+    return ARayTracingContext::validate(controller);
 }
 
 bool ContextPickColorimetric::canAutoRelaunch() const
