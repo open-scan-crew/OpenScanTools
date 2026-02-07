@@ -124,7 +124,7 @@ void ToolBarColorimetricFilter::onFocusViewport(IGuiData* data)
 void ToolBarColorimetricFilter::onActiveCamera(IGuiData* data)
 {
     auto infos = static_cast<GuiDataCameraInfo*>(data);
-    if (infos->m_camera && m_focusCamera != infos->m_camera)
+    if (infos->m_camera && !(m_focusCamera == infos->m_camera))
         return;
 
     ReadPtr<CameraNode> rCam = m_focusCamera.cget();
