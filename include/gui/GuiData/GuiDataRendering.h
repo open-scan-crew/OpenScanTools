@@ -8,11 +8,13 @@
 #include "pointCloudEngine/ShowTypes.h"
 #include "io/ImageTypes.h"
 #include "models/3d/BoundingBox.h"
+#include "models/3d/DisplayParameters.h"
 #include "utils/Color32.hpp"
 #include "utils/safe_ptr.h"
 #include "models/3d/NavigationTypes.h"
 
 #include <filesystem>
+#include <cstdint>
 
 class IPanel;
 
@@ -611,6 +613,27 @@ public:
 	virtual guiDType getType() override;
 public:
 	RampScale m_rampScale;
+};
+
+class GuiDataRenderColorimetricFilter : public GuiDataActiveCamera
+{
+public:
+	GuiDataRenderColorimetricFilter(const ColorimetricFilterSettings& settings, const SafePtr<CameraNode>& camera);
+	~GuiDataRenderColorimetricFilter() {};
+	virtual guiDType getType() override;
+public:
+	ColorimetricFilterSettings m_settings;
+};
+
+class GuiDataColorimetricFilterPickValue : public IGuiData
+{
+public:
+	GuiDataColorimetricFilterPickValue(const Color32& color, uint8_t intensity);
+	~GuiDataColorimetricFilterPickValue() {};
+	virtual guiDType getType() override;
+public:
+	Color32 m_color;
+	uint8_t m_intensity;
 };
 
 #endif

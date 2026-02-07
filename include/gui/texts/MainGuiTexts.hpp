@@ -17,6 +17,7 @@
 #define TEXT_MEASURE_DISPLAY QObject::tr("Display")
 #define TEXT_ANALYSIS QObject::tr("Analysis")
 #define TEXT_RAMPS QObject::tr("Ramps")
+#define TEXT_COLORIMETRIC_FILTER QObject::tr("Colorimetric filter")
 #define TEXT_MODEL QObject::tr("Model")
 #define TEXT_STRUCTURE_ANALYSIS QObject::tr("Structural Analysis")
 #define TEXT_AUTO_SOWING QObject::tr("Experimental - Auto Sowing")

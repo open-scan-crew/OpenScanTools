@@ -9,4 +9,5 @@ void main() {
 
     //fragColor = vec4(pc.ptColor * fi, pc.transparency);
     fragColor = vec4(pc.ptColor * fi, 1.0);
+    filterReject = evaluateColorimetricFilter(getRgbNorm(), getIntensityNorm());
 }

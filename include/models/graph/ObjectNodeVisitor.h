@@ -139,6 +139,7 @@ private:
     // Corresponding Uniform from the Camera
     VkUniformOffset m_viewProjUniform;
     VkUniformOffset m_clipUniform;
+    VkUniformOffset m_colorimetricFilterUniform;
 
     // baked resources
     std::vector<BakedText>          m_bakedTexts;

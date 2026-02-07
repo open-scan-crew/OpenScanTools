@@ -39,4 +39,5 @@ void main()
     }
 
     fragColor = vec4(outColor, 1.0);
+    filterReject = evaluateColorimetricFilter(getRgbNorm(), getIntensityNorm());
 }
