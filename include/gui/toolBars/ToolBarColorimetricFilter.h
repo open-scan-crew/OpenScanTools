@@ -6,6 +6,7 @@
 #include "gui/IDataDispatcher.h"
 #include "models/3d/DisplayParameters.h"
 #include "pointCloudEngine/RenderingTypes.h"
+#include "utils/safe_ptr.h"
 #include "utils/Color32.hpp"
 
 #include <array>
