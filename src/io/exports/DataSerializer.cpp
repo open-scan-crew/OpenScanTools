@@ -384,6 +384,23 @@ void ExportRenderingParameters(nlohmann::json& json, const RenderingParameters& 
 	json[Key_Text_Display_Options] = { params.m_textOptions.m_filter, params.m_textOptions.m_textTheme, params.m_textOptions.m_textFontSize };
 	json[Key_Display_All_Marker_Texts] = params.m_displayAllMarkersTexts;
 	json[Key_Display_All_Measures] = params.m_displayAllMeasures;
+	json[Key_Colorimetric_Filter] = {
+		{ Key_Colorimetric_Filter_Enabled, params.m_colorimetricFilter.enabled },
+		{ Key_Colorimetric_Filter_Show, params.m_colorimetricFilter.showColors },
+		{ Key_Colorimetric_Filter_Tolerance, params.m_colorimetricFilter.tolerance },
+		{ Key_Colorimetric_Filter_Colors, {
+			{ params.m_colorimetricFilter.colors[0].Red(), params.m_colorimetricFilter.colors[0].Green(), params.m_colorimetricFilter.colors[0].Blue(), params.m_colorimetricFilter.colors[0].Alpha() },
+			{ params.m_colorimetricFilter.colors[1].Red(), params.m_colorimetricFilter.colors[1].Green(), params.m_colorimetricFilter.colors[1].Blue(), params.m_colorimetricFilter.colors[1].Alpha() },
+			{ params.m_colorimetricFilter.colors[2].Red(), params.m_colorimetricFilter.colors[2].Green(), params.m_colorimetricFilter.colors[2].Blue(), params.m_colorimetricFilter.colors[2].Alpha() },
+			{ params.m_colorimetricFilter.colors[3].Red(), params.m_colorimetricFilter.colors[3].Green(), params.m_colorimetricFilter.colors[3].Blue(), params.m_colorimetricFilter.colors[3].Alpha() }
+		} },
+		{ Key_Colorimetric_Filter_Colors_Enabled, {
+			params.m_colorimetricFilter.colorsEnabled[0],
+			params.m_colorimetricFilter.colorsEnabled[1],
+			params.m_colorimetricFilter.colorsEnabled[2],
+			params.m_colorimetricFilter.colorsEnabled[3]
+		} }
+	};
 
 	json[Key_Ortho_Grid_Active] = params.m_orthoGridActive;
 	json[Key_Ortho_Grid_Color] = { params.m_orthoGridColor.r, params.m_orthoGridColor.g, params.m_orthoGridColor.b, params.m_orthoGridColor.a };

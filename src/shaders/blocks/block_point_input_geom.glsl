@@ -9,7 +9,9 @@ in gl_PerVertex {
 } gl_in[];
 
 layout(location = 0) in vec4 colorIn[];
+layout(location = 1) in float filterRejectIn[];
 layout(location = 0) out vec4 colorOut;
+layout(location = 1) out float filterRejectOut;
 
 layout(set = 0, binding = 2) uniform uniformCamera {
     mat4 view;

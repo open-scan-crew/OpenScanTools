@@ -9,4 +9,5 @@ void main() {
     float intensity = pc.contrast * (hsv.z / 255.0 + pc.brightness) + 0.5;
     //fragColor = vec4(pc.ptColor * intensity, pc.transparency);
     fragColor = vec4(pc.ptColor * intensity, 1.0);
+    filterReject = evaluateColorimetricFilter(getRgbNorm(), getIntensityNorm());
 }

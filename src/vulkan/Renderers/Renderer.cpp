@@ -312,6 +312,13 @@ void Renderer::createDescriptorSetLayout()
             1,
             VK_SHADER_STAGE_VERTEX_BIT,
             nullptr
+        },
+        { // colorimetric filter
+            4,
+            VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+            1,
+            VK_SHADER_STAGE_VERTEX_BIT,
+            nullptr
         }
     };
 
@@ -355,6 +362,13 @@ void Renderer::createDescriptorSetLayout()
             VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
             1,
             VK_SHADER_STAGE_GEOMETRY_BIT,
+            nullptr
+        },
+        { // colorimetric filter
+            4,
+            VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+            1,
+            VK_SHADER_STAGE_VERTEX_BIT,
             nullptr
         }
     };
@@ -407,7 +421,7 @@ void Renderer::createDescriptorSets()
         Logger::log(VK_LOG) << "Warning: the uniform range is too large for the device." << Logger::endl;
 
     // Write descriptors for the uniform buffers in the vertex and fragment shaders.
-    VkDescriptorBufferInfo bufferInfo[4] = {
+    VkDescriptorBufferInfo bufferInfo[5] = {
         {
             uniBuf, // buffer
             0, // offset
@@ -424,28 +438,43 @@ void Renderer::createDescriptorSets()
             uniBuf,
             0,
             MAX_ACTIVE_CLIPPING * (sizeof(UniformClippingData))
+        }, {
+            uniBuf,
+            0,
+            vkManager.getUniformSizeAligned(sizeof(ColorimetricFilterUniform))
         }
     };
 
-    VkWriteDescriptorSet descWrite[4];
+    VkWriteDescriptorSet descWrite[5];
     memset(descWrite, 0, sizeof(descWrite));
     for (uint32_t i = 0; i < sizeof(descWrite) / sizeof(descWrite[0]); ++i)
     {
         descWrite[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descWrite[i].dstSet = m_descSet;
-        descWrite[i].dstBinding = i;
         descWrite[i].descriptorCount = 1;
         descWrite[i].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
         descWrite[i].pBufferInfo = (bufferInfo + i);
     }
-    h_pfn->vkUpdateDescriptorSets(h_device, 2, descWrite, 0, nullptr);
 
-    for (uint32_t i = 0; i < sizeof(descWrite) / sizeof(descWrite[0]); ++i)
-    {
-        descWrite[i].dstSet = m_descSet_cb;
-    }
-    // Change the range for the clipping boxes matrices uniform array
-    h_pfn->vkUpdateDescriptorSets(h_device, 4, descWrite, 0, nullptr);
+    descWrite[0].dstSet = m_descSet;
+    descWrite[0].dstBinding = 0;
+    descWrite[1].dstSet = m_descSet;
+    descWrite[1].dstBinding = 1;
+    descWrite[4].dstSet = m_descSet;
+    descWrite[4].dstBinding = 4;
+    VkWriteDescriptorSet descWriteMain[] = { descWrite[0], descWrite[1], descWrite[4] };
+    h_pfn->vkUpdateDescriptorSets(h_device, 3, descWriteMain, 0, nullptr);
+
+    descWrite[0].dstSet = m_descSet_cb;
+    descWrite[0].dstBinding = 0;
+    descWrite[1].dstSet = m_descSet_cb;
+    descWrite[1].dstBinding = 1;
+    descWrite[2].dstSet = m_descSet_cb;
+    descWrite[2].dstBinding = 2;
+    descWrite[3].dstSet = m_descSet_cb;
+    descWrite[3].dstBinding = 3;
+    descWrite[4].dstSet = m_descSet_cb;
+    descWrite[4].dstBinding = 4;
+    h_pfn->vkUpdateDescriptorSets(h_device, 5, descWrite, 0, nullptr);
 }
 
 void Renderer::createPipelines()
@@ -839,7 +868,7 @@ void Renderer::setViewportAndScissor(int32_t _xPos, int32_t _yPos, uint32_t _wid
     h_pfn->vkCmdSetScissor(_cmdBuffer, 0, 1, &scissor);
 }
 
-void Renderer::drawPoints(const TlScanDrawInfo &_drawInfo, const VkUniformOffset& viewProjUni, RenderMode _renderMode, VkCommandBuffer _cmdBuffer, BlendMode blendMode, VkFormat renderFormat) const
+void Renderer::drawPoints(const TlScanDrawInfo &_drawInfo, const VkUniformOffset& viewProjUni, const VkUniformOffset& colorimetricUni, RenderMode _renderMode, VkCommandBuffer _cmdBuffer, BlendMode blendMode, VkFormat renderFormat) const
 {
     // Bind the right pipeline
     PipelineKey pipelineDef = createPipeKey(blendMode, _renderMode, ClippingMode::Deactivated, _drawInfo.format, renderFormat);
@@ -856,8 +885,8 @@ void Renderer::drawPoints(const TlScanDrawInfo &_drawInfo, const VkUniformOffset
 
     // Bind the descriptor set for the scan
     //Note (AurÃ©lien) Quick fix for getting ramp working
-    uint32_t offsets[] = { viewProjUni, _drawInfo.modelUni, };
-    h_pfn->vkCmdBindDescriptorSets(_cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 1, &m_descSet, 2, offsets);
+    uint32_t offsets[] = { viewProjUni, _drawInfo.modelUni, colorimetricUni };
+    h_pfn->vkCmdBindDescriptorSets(_cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 1, &m_descSet, 3, offsets);
 
     for (const TlCellDrawInfo& cellDrawInfo : _drawInfo.cellDrawInfo)
     {
@@ -868,7 +897,7 @@ void Renderer::drawPoints(const TlScanDrawInfo &_drawInfo, const VkUniformOffset
     }
 }
 
-void Renderer::drawPointsClipping(const TlScanDrawInfo &_drawInfo, const VkUniformOffset& viewProjUni, const VkUniformOffset& clippingUni, RenderMode _renderMode, VkCommandBuffer _cmdBuffer, BlendMode blendMode, VkFormat renderFormat) const
+void Renderer::drawPointsClipping(const TlScanDrawInfo &_drawInfo, const VkUniformOffset& viewProjUni, const VkUniformOffset& clippingUni, const VkUniformOffset& colorimetricUni, RenderMode _renderMode, VkCommandBuffer _cmdBuffer, BlendMode blendMode, VkFormat renderFormat) const
 {
     // Bind the right pipeline
     PipelineKey pipelineDef = createPipeKey(blendMode, _renderMode, ClippingMode::Activated, _drawInfo.format, renderFormat);
@@ -882,8 +911,8 @@ void Renderer::drawPointsClipping(const TlScanDrawInfo &_drawInfo, const VkUnifo
     h_pfn->vkCmdBindVertexBuffers(_cmdBuffer, 2, 1, &_drawInfo.instanceBuffer, &offset);
 
     // Bind the descriptor set for the scan
-    uint32_t offsets[] = { viewProjUni, _drawInfo.modelUni, viewProjUni, clippingUni };
-    h_pfn->vkCmdBindDescriptorSets(_cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout_cb, 0, 1, &m_descSet_cb, 4, offsets);
+    uint32_t offsets[] = { viewProjUni, _drawInfo.modelUni, viewProjUni, clippingUni, colorimetricUni };
+    h_pfn->vkCmdBindDescriptorSets(_cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout_cb, 0, 1, &m_descSet_cb, 5, offsets);
 
     bool showWarningMsg = false;
     uint32_t maxConcurrentClipping = 0;

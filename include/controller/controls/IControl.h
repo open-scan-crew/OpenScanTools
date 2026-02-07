@@ -238,6 +238,7 @@ enum class ControlType
 	clickPicking,
 	findScanFromPicking,
 	pickTemperatureFromPicking,
+	pickColorimetricFromPicking,
 
 	// control::viewport
 	multiSelect,

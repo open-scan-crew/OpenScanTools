@@ -74,8 +74,12 @@ bool validPoint(in uint size, in uint mode)
 
 void main()
 {
-    // QUESTION(robin) - ¿ quoi sert le bit de poids fort (0x80000000) dans le premier index ?
-    //                 - Est-ce toujours utilisÈ ?
+    if (filterRejectIn[0] > 0.5)
+        return;
+
+        filterRejectOut = filterRejectIn[0];
+    // QUESTION(robin) - √Ä quoi sert le bit de poids fort (0x80000000) dans le premier index ?
+    //                 - Est-ce toujours utilis√© ?
     uint size = pc.clippingIndex[0] & 0x7FFFFFFF;
     if( (size == 0) || validPoint(size, pc.clippingIndex[0] & 0x80000000) )
     {

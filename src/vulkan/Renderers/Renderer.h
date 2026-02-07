@@ -45,8 +45,8 @@ public:
 
     void setViewportAndScissor(int32_t _xPos, int32_t _yPos, uint32_t _width, uint32_t height, VkCommandBuffer _cmdBuffer);
 
-    void drawPoints(const TlScanDrawInfo &drawInfo, const VkUniformOffset& viewProjUni, RenderMode _renderMode, VkCommandBuffer _cmdBuffer, BlendMode blendMode, VkFormat renderFormat) const;
-    void drawPointsClipping(const TlScanDrawInfo &drawInfo, const VkUniformOffset& viewProjUni, const VkUniformOffset& clippingBoxUni, RenderMode _renderMode, VkCommandBuffer _cmdBuffer, BlendMode blendMode, VkFormat renderFormat) const;
+    void drawPoints(const TlScanDrawInfo &drawInfo, const VkUniformOffset& viewProjUni, const VkUniformOffset& colorimetricUni, RenderMode _renderMode, VkCommandBuffer _cmdBuffer, BlendMode blendMode, VkFormat renderFormat) const;
+    void drawPointsClipping(const TlScanDrawInfo &drawInfo, const VkUniformOffset& viewProjUni, const VkUniformOffset& clippingBoxUni, const VkUniformOffset& colorimetricUni, RenderMode _renderMode, VkCommandBuffer _cmdBuffer, BlendMode blendMode, VkFormat renderFormat) const;
 
     void setConstantPointSize(float ptSize, VkCommandBuffer _cmdBuffer);
     void setConstantContrastBrightness(float contrast, float brightness, VkCommandBuffer _cmdBuffer);
