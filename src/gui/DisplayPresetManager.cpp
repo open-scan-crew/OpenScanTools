@@ -21,12 +21,17 @@
 namespace
 {
 	const QString kInitialPresetName = QStringLiteral("Initial");
+	const QString kRawPresetName = QStringLiteral("Raw rendering");
 	const char kDisplayPresetFileName[] = "Display_presets.tlt";
 	const char kDefaultPresetKey[] = "DefaultPreset";
 	const char kPresetsKey[] = "Presets";
 	const char kPresetNameKey[] = "Name";
 	const char kPresetDisplayParametersKey[] = "DisplayParameters";
 	const char kPresetShowHideKey[] = "ShowHideOptions";
+	bool isReservedPresetName(const QString& name)
+	{
+		return name == kInitialPresetName || name == kRawPresetName;
+	}
 
 	nlohmann::json serializeDisplayParameters(const DisplayParameters& params)
 	{
@@ -505,7 +510,7 @@ void DisplayPresetManager::handlePresetNewRequested()
 
 void DisplayPresetManager::handlePresetEditRequested(const QString& name)
 {
-	if (name == kInitialPresetName)
+	if (isReservedPresetName(name))
 		return;
 	openDialog(name, true);
 }
@@ -670,6 +675,7 @@ void DisplayPresetManager::refreshRenderSettingsUi(const QString& selectedName)
 {
 	QStringList names;
 	names << kInitialPresetName;
+	names << kRawPresetName;
 	for (const DisplayPreset& preset : m_presets)
 		names << preset.name;
 
@@ -685,6 +691,11 @@ void DisplayPresetManager::applyPresetByName(const QString& name)
 	if (name == kInitialPresetName)
 	{
 		applyPreset(getInitialPreset());
+		return;
+	}
+	if (name == kRawPresetName)
+	{
+		applyPreset(getRawPreset());
 		return;
 	}
 
@@ -798,6 +809,21 @@ DisplayPresetManager::DisplayPreset DisplayPresetManager::getInitialPreset() con
 	return preset;
 }
 
+DisplayPresetManager::DisplayPreset DisplayPresetManager::getRawPreset() const
+{
+	DisplayPreset preset;
+	preset.name = kRawPresetName;
+	DisplayParameters parameters = DisplayParameters{};
+	parameters.m_saturation = 0.f;
+	parameters.m_postRenderingNormals.show = false;
+	parameters.m_postRenderingAmbientOcclusion.enabled = false;
+	parameters.m_edgeAwareBlur.enabled = false;
+	parameters.m_depthLining.enabled = false;
+	preset.displayParameters = parameters;
+	preset.showHideState = getDefaultShowHideState();
+	return preset;
+}
+
 bool DisplayPresetManager::presetExists(const QString& name) const
 {
 	return findPreset(name) != nullptr;
@@ -849,7 +875,7 @@ void DisplayPresetManager::loadPresets()
 
 		DisplayPreset preset;
 		preset.name = QString::fromUtf8(entry.at(kPresetNameKey).get<std::string>().c_str());
-		if (preset.name.isEmpty() || preset.name == kInitialPresetName)
+		if (preset.name.isEmpty() || isReservedPresetName(preset.name))
 			continue;
 
 		if (entry.find(kPresetDisplayParametersKey) != entry.end())
@@ -921,6 +947,11 @@ bool DisplayPresetManager::validatePresetName(const QString& name, const QString
 	if (name == kInitialPresetName)
 	{
 		showErrorMessage(tr("Initial cannot be used to name the preset. Please enter another name"));
+		return false;
+	}
+	if (name == kRawPresetName)
+	{
+		showErrorMessage(tr("Raw rendering cannot be used to name the preset. Please enter another name"));
 		return false;
 	}
 

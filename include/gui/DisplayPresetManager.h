@@ -84,6 +84,7 @@ private:
 	ShowHideState getCurrentShowHideState() const;
 	ShowHideState getDefaultShowHideState() const;
 	DisplayPreset getInitialPreset() const;
+	DisplayPreset getRawPreset() const;
 
 	bool presetExists(const QString& name) const;
 	DisplayPreset* findPreset(const QString& name);
