@@ -59,6 +59,11 @@
    </item>
    <item row="1" column="1">
     <widget class="QPushButton" name="importTempScaleButton">
+     <property name="toolTip">
+      <string>Import a text file that contains 4 columns: R,G,B, temperature in Celsius degrees.
+Values: 0-255 for RGB. For temperature, the decimal point must be a dot.
+Separator for columns: tab, space, or ;</string>
+     </property>
      <property name="text">
       <string>Import Temperature scale</string>
      </property>

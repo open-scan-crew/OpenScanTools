@@ -1502,305 +1502,310 @@ du modèle comme les scans</translation>
         <translation>Paramètres généraux</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="393"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="399"/>
         <source>Dynamic decimation</source>
         <translation>Décimation dynamique</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="409"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="415"/>
         <source>Constant</source>
         <translation>Constante</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="460"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="466"/>
         <source>10</source>
         <translation>10</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="402"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="408"/>
         <source>Adaptative</source>
         <translation>Adaptative</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="480"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="486"/>
         <source>minimum %</source>
         <translation>minimum %</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="467"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="473"/>
         <source>No decimation</source>
         <translation>Aucune décimation</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="76"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="82"/>
         <source>General</source>
         <translation>Général</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="284"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="290"/>
         <source>Navigation</source>
         <translation>Navigation</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="419"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="425"/>
         <source>50%</source>
         <translation>50%</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="316"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="322"/>
         <source>Exam settings</source>
         <translation>Paramètres d&apos;examen</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="222"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="228"/>
         <source>ffmpeg encoder folder</source>
         <translation>Dossier accès ffmpeg</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="229"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="235"/>
         <source>Enter ffmpeg folder</source>
         <translation>Entrer le chemin d&apos;accès à ffmpeg</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="309"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="315"/>
         <source>Invert camera perspective rotation</source>
         <translation>Inverser la rotation caméra en perspective</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="338"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="344"/>
         <source>Center view on examine target</source>
         <translation>Centrer la vue sur 
 le point d&apos;examen</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="376"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="382"/>
         <source>Display examine target</source>
         <translation>Afficher le point d&apos;examen</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="615"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="621"/>
         <source>Display</source>
         <translation>Affichage</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="673"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="679"/>
         <source>Volume unit</source>
         <translation>Unité des volumes</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="826"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="835"/>
         <source>Manipulator Size</source>
         <translation>Taille des manipulateurs</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="846"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="855"/>
         <source>Low value: better performances (fps). High value: greater precision, better for analysis (flatness with colour ramp).
 Default value 1.0</source>
         <translation>Valeur faible : meilleures performances (fps). Valeur élevée : plus grande précision, meilleure pour l&apos;analyse (planéité avec rampe de couleurs).
 Valeur par défaut 1,0</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="850"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="859"/>
         <source>Octree precision</source>
         <translation>Précision octree</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="972"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="981"/>
         <source>Advanced</source>
         <translation>Avancé</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="978"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="987"/>
         <source>Warning: this will allow you to move the scans. Use carefully.</source>
         <translation>Attention : cela vous permettra de déplacer les scans. À utiliser avec précaution.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="985"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="994"/>
         <source>Unlock scans</source>
         <translation>Déverrouiller les scans</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="98"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="1001"/>
+        <source>Multithreaded calculation</source>
+        <translation>Calcul multi-coeurs</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="104"/>
         <source>Autosave</source>
         <translation>Sauvegarde auto</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="161"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="167"/>
         <source> Indexation method</source>
         <translation> Méthode d&apos;indexation des objets</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="167"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="173"/>
         <source>Based on the highest index</source>
         <translation>Basé sur l&apos;index le plus élevé</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="177"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="183"/>
         <source>Fill missing index</source>
         <translation>Remplir les index manquants</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="839"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="848"/>
         <source>Gizmo Configuration</source>
         <translation>Configuration du Gizmo</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="686"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="692"/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="130"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="136"/>
         <source>Timing</source>
         <translation>Fréquence</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="123"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="129"/>
         <source>Activate</source>
         <translation>Activer</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="276"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="282"/>
         <source>Language</source>
         <translation>Langue</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="31"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="37"/>
         <source>Ok</source>
         <translation>Ok</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="299"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="305"/>
         <source>Invert mouse wheel</source>
         <translation>Inverser molette souris</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="199"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="205"/>
         <source>Manage project templates</source>
         <translation>Gérer les modèles de projets</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="140"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="146"/>
         <source>Default projects folder</source>
         <translation>Dossier par défaut des projets</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="322"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="328"/>
         <source>Examine minimum distance</source>
         <translation>Distance minimale d&apos;examen</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="383"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="389"/>
         <source>0.250</source>
         <translation>0.250</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="490"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="496"/>
         <source>Camera speed settings</source>
         <translation>Paramètres de vitesse de caméra</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="565"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="571"/>
         <source>Slow</source>
         <translation>Lent</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="532"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="538"/>
         <source>Translation</source>
         <translation>Translation</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="539"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="545"/>
         <source>Medium</source>
         <translation>Modéré</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="509"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="515"/>
         <source>Examine rotation</source>
         <translation>Rotation (examen)</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="499"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="505"/>
         <source>Fast</source>
         <translation>Rapide</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="697"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="703"/>
         <source>Point Cloud display limits</source>
         <translation>Distance d&apos;affichage des nuages de points</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="703"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="709"/>
         <source>Orthographic Limits</source>
         <translation>Limite en mode
 Orthographique</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="710"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="716"/>
         <source>Perpective Limits</source>
         <translation>Limite en mode
 Perspective</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="627"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="633"/>
         <source>Value display settings</source>
         <translation>Paramètres d&apos;affichage des valeurs</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="639"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="645"/>
         <source>Distances, length unit</source>
         <translation>Unité des distances et longueurs</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="656"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="662"/>
         <source>Diameter, structure unit</source>
         <translation>Unité des diamètres et structures</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="236"/>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="254"/>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="265"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="242"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="260"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="271"/>
         <source>Select Out Folder</source>
         <translation>Sélectionner dossier de sortie</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="964"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="973"/>
         <source>Show maximized frameless</source>
         <translation>Affichage maximisé</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="147"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="153"/>
         <source>Temporary projects folder</source>
         <translation>Dossier temporaire des projets</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="360"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="366"/>
         <source>Keep examine on pan</source>
         <translation>Rester en mode examen
  lors d&apos;un mouvement PAN</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="649"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="655"/>
         <source>Digits to display</source>
         <translation>Décimales à afficher</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="819"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="828"/>
         <source>Selected Background Color</source>
         <translation>Couleur de fond d&apos;écran</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="154"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="160"/>
         <source>Enter Temporary Folder</source>
         <translation>Choisir le dossier temporaire</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="247"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="253"/>
         <source>Enter Default Folder</source>
         <translation>Choisir le dossier par défaut</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogSettings.ui" line="196"/>
+        <location filename="../../src/gui/forms/DialogSettings.ui" line="202"/>
         <source>Open white project</source>
         <translation>Ouvrir le projet blanc</translation>
     </message>
@@ -2421,17 +2426,22 @@ Perspective</translation>
 <context>
     <name>DisplayPresetManager</name>
     <message>
-        <location filename="../../src/gui/DisplayPresetManager.cpp" line="868"/>
+        <location filename="../../src/gui/DisplayPresetManager.cpp" line="943"/>
         <source>Please enter a name for the preset.</source>
         <translation>Veuillez saisir un nom pour le préréglage.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/DisplayPresetManager.cpp" line="874"/>
+        <location filename="../../src/gui/DisplayPresetManager.cpp" line="949"/>
         <source>Initial cannot be used to name the preset. Please enter another name</source>
         <translation>Initial ne peut pas être utilisé. Veuillez saisir un autre nom</translation>
     </message>
     <message>
-        <location filename="../../src/gui/DisplayPresetManager.cpp" line="880"/>
+        <location filename="../../src/gui/DisplayPresetManager.cpp" line="954"/>
+        <source>Raw rendering cannot be used to name the preset. Please enter another name</source>
+        <translation>Raw rendering ne peut pas être utilisé. Veuillez saisir un autre nom</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/DisplayPresetManager.cpp" line="960"/>
         <source>This name is already used and cannot be used to name the preset. Please enter another name</source>
         <translation>Ce nom est déjà utilisé. Veuillez entrer un autre nom</translation>
     </message>
@@ -3820,7 +3830,7 @@ Veuillez spécifier le dossier parent de ces fichiers. (Ces fichiers vont être 
         <translation>Coudes</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="53"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="54"/>
         <location filename="../../include/gui/texts/TreePanelTexts.hpp" line="32"/>
         <source>Piping</source>
         <translation>Tuyauterie</translation>
@@ -3896,28 +3906,28 @@ Veuillez spécifier le dossier parent de ces fichiers. (Ces fichiers vont être 
         <translation>Affichage</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="24"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="25"/>
         <location filename="../../include/gui/texts/TreePanelTexts.hpp" line="35"/>
         <source>Spheres</source>
         <translation>Sphères</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="39"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="40"/>
         <source>Attribute</source>
         <translation>Attributs</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="40"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="41"/>
         <source>Search</source>
         <translation>Rechercher</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="47"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="48"/>
         <source>Orientation</source>
         <translation>Orientation</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="51"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="52"/>
         <source>Show / Hide</source>
         <translation>Afficher / Masquer</translation>
     </message>
@@ -3927,12 +3937,12 @@ Veuillez spécifier le dossier parent de ces fichiers. (Ces fichiers vont être 
         <translation>Grille</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="54"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="55"/>
         <source>Point Edition</source>
         <translation>Edition de point</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="60"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="61"/>
         <source>Marker Display Options</source>
         <translation>Options d&apos;affichage des marqueurs</translation>
     </message>
@@ -4245,26 +4255,26 @@ Veuillez spécifier le dossier parent de ces fichiers. (Ces fichiers vont être 
         <translation>Identifiant</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="126"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="127"/>
         <source>
  Would you like to continue the conversion?</source>
         <translation>
  Voulez-vous continuer la conversion?</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="127"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="128"/>
         <source>
  Would you like to force the conversion?</source>
         <translation>
  Voulez-vous forcer la conversion?</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="128"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="129"/>
         <source>Conversion done!</source>
         <translation>Conversion effectuée!</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="129"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="130"/>
         <source>File: %1 is not a valid point cloud file.
 Conversion stopped.
 </source>
@@ -4273,7 +4283,7 @@ La conversion est interrompue.
 </translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="130"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="131"/>
         <source>File: %1 failed to write.
 Conversion stopped.
 </source>
@@ -4282,22 +4292,22 @@ La conversion est interrompue.
 </translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="132"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="133"/>
         <source>Conversion done in: %1 seconds.</source>
         <translation>Conversion effectuée en: %1 secondes.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="134"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="135"/>
         <source>%1 imported in %2 seconds.</source>
         <translation>%1 importé en %2 secondes.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="135"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="136"/>
         <source>Scan import %1 failed.</source>
         <translation>L&apos;import du scan %1 a échoué.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="116"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="117"/>
         <source>Failed to copy file: %1
 It will be skipped.</source>
         <translation>Le fichier %1 n&apos;a pas pu être copié. Il sera ignoré.</translation>
@@ -4450,34 +4460,34 @@ Do you want to save it before closing?</source>
         <translation>Paramètres généraux</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="25"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="26"/>
         <source>Connection</source>
         <translation>Connexion</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="26"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="27"/>
         <source>Auto-extended box</source>
         <translation>Box auto-étendue</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="30"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="31"/>
         <source>Beam Detection</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="35"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="36"/>
         <source>Import</source>
         <translation>Importer</translation>
     </message>
     <message>
         <location filename="../../include/gui/texts/DefaultNameTexts.hpp" line="25"/>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="37"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="38"/>
         <source>Viewpoint</source>
         <translation>Point de vue</translation>
     </message>
     <message>
         <location filename="../../include/gui/texts/DefaultNameTexts.hpp" line="8"/>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="52"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="53"/>
         <location filename="../../include/gui/texts/TreePanelTexts.hpp" line="39"/>
         <source>Box</source>
         <translation>Box</translation>
@@ -4493,27 +4503,27 @@ Do you want to save it before closing?</source>
         <translation>Attention !</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="57"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="58"/>
         <source>All users</source>
         <translation>Tous les utilisateurs</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="58"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="59"/>
         <source>All templates</source>
         <translation>Tous les modèles</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="59"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="60"/>
         <source>Text Display</source>
         <translation>Affichage du texte</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="62"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="63"/>
         <source>Normals</source>
         <translation>Normales</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="64"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="65"/>
         <source>Transparency</source>
         <translation>Transparence</translation>
     </message>
@@ -4677,17 +4687,17 @@ Le fichier .tld : [%1] n&apos;a pas d&apos;auteur.</translation>
         <translation>Erreur: création de projet impossible.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="122"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="123"/>
         <source>The format of the scan is not supported.</source>
         <translation>Format de scan non supporté.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="123"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="124"/>
         <source>%1 could not be converted.</source>
         <translation>%1 n&apos;a pas pu être converti.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="124"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="125"/>
         <source>Conversion in progress</source>
         <translation>Conversion en cours</translation>
     </message>
@@ -5093,7 +5103,12 @@ Les modifications ne peuvent pas être sauvegardé avec le visualiseur gratuit.<
         <translation>Déport trouvé, prêt pour le suivant (en utilisant la même direction).</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="103"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="101"/>
+        <source>You must activate some clippings to run this feature</source>
+        <translation>Vous devez activer le clipping pour utiliser cette fonction</translation>
+    </message>
+    <message>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="104"/>
         <source>Warning: some points will be permanently deleted.
 Depending on the size of the scans and the filter settings, the calculation time may be significant. We recommend that you first perform a test on a small clipped portion.
 Do you confirm?</source>
@@ -5102,7 +5117,7 @@ En fonction de la taille des scans et des paramètres du filtre, le temps de cal
 Confirmez-vous ?</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="106"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="107"/>
         <source>Warning: some points will be permanently modified.
 Depending on the size of the scans, the calculation time may be significant. We recommend that you first perform a test on a small clipped portion.
 Do you confirm?</source>
@@ -5111,72 +5126,72 @@ En fonction de la taille des scans, le temps de calcul peut être important. Nou
 Confirmez-vous ?</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="139"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="140"/>
         <source>Point is from scan : %1</source>
         <translation>Le point provient du scan : %1</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="140"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="141"/>
         <source>No scan found</source>
         <translation>Pas de scan trouvé</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="143"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="144"/>
         <source>Generate video.</source>
         <translation>Générer vidéo.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="144"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="145"/>
         <source>Frames : %1 / %2</source>
         <translation>Images : %1 / %2</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="146"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="147"/>
         <source>Fail</source>
         <translation>Échec</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="147"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="148"/>
         <source>Sequence generated in %1 seconds</source>
         <translation>Séquence généreé en %1 secondes</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="150"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="151"/>
         <source>Select a temporary position for the manipulator.</source>
         <translation>Sélectionnez une position temporaire pour le manipulateur.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="153"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="154"/>
         <source>Select the first base position.</source>
         <translation>Sélectionnez la première position de base.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="154"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="155"/>
         <source>Select the second base position.</source>
         <translation>Sélectionnez la deuxième position de base.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="155"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="156"/>
         <source>Select the third base position.</source>
         <translation>Sélectionnez la troisième position de base.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="156"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="157"/>
         <source>Select the first target position.</source>
         <translation>Sélectionnez la première position cible.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="157"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="158"/>
         <source>Select the second target position.</source>
         <translation>Sélectionnez la deuxième position cible.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="158"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="159"/>
         <source>Select the third target position.</source>
         <translation>Sélectionnez la troisième position cible.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="160"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="161"/>
         <source>Please select objects</source>
         <translation>Veuillez sélectionner des objets</translation>
     </message>
@@ -5201,14 +5216,14 @@ Confirmez-vous ?</translation>
         <translation>Fichiers Filmbox (*.fbx)</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="120"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="121"/>
         <source>The detected coordinates are too large, which may deteriorate the navigation.
 We advise you to truncate them. Suggested values:</source>
         <translation>Les coordonnées détectées sont trop grandes, ce qui peut dégrader la navigation.
 Nous vous conseillons de les tronquer. Valeurs proposées:</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="121"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="122"/>
         <source>You can either translate the coordinates to work on a local system, or keep them</source>
         <translation>Vous pouvez translater les coordonnées pour travailler dans un repère local, ou les laisser inchangées</translation>
     </message>
@@ -5339,7 +5354,7 @@ Attention: vous ne pouvez pas annuler cette action.</translation>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="61"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="62"/>
         <source>Objects clipping</source>
         <translation></translation>
     </message>
@@ -5841,14 +5856,14 @@ Vous confirmez ?</translation>
         <translation>Entrer valeur</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="109"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="110"/>
         <source>Warning: some tags use this template. Deleting the template will also delete the related tags.
 Do you confirm?</source>
         <translation>Attention: certains tags utilisent ce modèle. Supprimer le modèle supprimera aussi les tags associés.
 Vous confirmez?</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="112"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="113"/>
         <source>Warning: all the tags that use this template will be modified accordingly.
 Do you confirm?</source>
         <translation>Attention: tous les tags utilisant ce modèle seront modifiés en conséquence.
@@ -6114,7 +6129,7 @@ Vous confirmez?</translation>
         <translation>Echec de création de l&apos;objet nuage de points.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="115"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="116"/>
         <source>Failed to create directory: %1</source>
         <translation>Echec de création du dossier: %1</translation>
     </message>
@@ -6331,7 +6346,7 @@ Vous confirmez?</translation>
         <translation>Erreur : Les points de vue en orthographique ne sont pas autorisé</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="125"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="126"/>
         <source>Some files already exist in the project folder:
  %1 
 You can overwrite them by setting the overwrite option.</source>
@@ -6340,7 +6355,7 @@ You can overwrite them by setting the overwrite option.</source>
 Vous pouvez les remplacer en activant l&apos;option.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="131"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="132"/>
         <source>File: %1 already exists.
 Skipping conversion.
 </source>
@@ -6684,42 +6699,42 @@ Conversion ignorée.
         <translation>Expérimentations</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="20"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="21"/>
         <source>Model</source>
         <translation>Modèles</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="21"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="22"/>
         <source>Structural Analysis</source>
         <translation>Analyse structurelle</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="22"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="23"/>
         <source>Experimental - Auto Sowing</source>
         <translation>Expérimental - Semis de points</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="27"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="28"/>
         <source>Other</source>
         <translation>Autre</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="32"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="33"/>
         <source>Clipping</source>
         <translation>Clipping</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="34"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="35"/>
         <source>Point Cloud Object</source>
         <translation>Objet nuage de points</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="36"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="37"/>
         <source>Project</source>
         <translation>Projet</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="31"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="32"/>
         <source>View</source>
         <translation>Visualisation</translation>
     </message>
@@ -6736,7 +6751,7 @@ Conversion ignorée.
     <message>
         <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="14"/>
         <source>General</source>
-        <translation type="unfinished">Général</translation>
+        <translation>Général</translation>
     </message>
     <message>
         <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="18"/>
@@ -6749,73 +6764,78 @@ Conversion ignorée.
         <translation>Rampes</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="28"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="20"/>
+        <source>Colorimetric filter</source>
+        <translation>Filtre colorimétrique</translation>
+    </message>
+    <message>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="29"/>
         <location filename="../../include/gui/texts/TreePanelTexts.hpp" line="37"/>
         <source>External Model</source>
         <translation>Modèle externe</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="29"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="30"/>
         <source>Scantra registration</source>
         <translation>Recalage Scantra</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="33"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="34"/>
         <source>Edition</source>
         <translation>Edition</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="38"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="39"/>
         <source>Manage</source>
         <translation>Gérer</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="41"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="42"/>
         <source>Find Scan</source>
         <translation>Trouver scan</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="42"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="43"/>
         <source>Lists</source>
         <translation>Listes</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="43"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="44"/>
         <source>Image</source>
         <translation>Image</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="44"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="45"/>
         <source>Video</source>
         <translation>Vidéo</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="45"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="46"/>
         <source>Animation</source>
         <translation>Animation</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="46"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="47"/>
         <source>Viewing mode</source>
         <translation>Mode de visualisation</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="48"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="49"/>
         <source>Manipulate</source>
         <translation>Manipuler</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="49"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="50"/>
         <source>Align view</source>
         <translation>Aligner vue</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="50"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="51"/>
         <source>Navigate</source>
         <translation>Naviguer</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="65"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="66"/>
         <source>Enhance</source>
         <translation>Améliorer</translation>
     </message>
@@ -6825,17 +6845,17 @@ Conversion ignorée.
         <translation>Question</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="55"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="56"/>
         <source>Open Project</source>
         <translation>Ouvrir un projet</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="56"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="57"/>
         <source>Import Scans</source>
         <translation>Importer des scans</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="63"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="64"/>
         <source>Ortho Grid</source>
         <translation>Grille orthographique</translation>
     </message>
@@ -7095,7 +7115,7 @@ Fichier non trouvé :
         <translation>Points</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="23"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="24"/>
         <source>Pipes</source>
         <translation>Tubes</translation>
     </message>
@@ -7184,7 +7204,7 @@ Fichier non trouvé :
         <translation>Discipline</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="133"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="134"/>
         <source>%1 imported</source>
         <translation>%1 importé</translation>
     </message>
@@ -7234,12 +7254,12 @@ Fichier non trouvé :
         <translation>Sans objet</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="145"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="146"/>
         <source>Done</source>
         <translation>Terminé</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="119"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="120"/>
         <source>Importing</source>
         <translation>Importation</translation>
     </message>
@@ -7490,8 +7510,8 @@ Attention : vous ne pouvez pas annuler cette action.</translation>
         <translation>axe vertical</translation>
     </message>
     <message>
-        <location filename="../../src/io/exports/ImageWriter.cpp" line="124"/>
-        <location filename="../../src/pointCloudEngine/RenderingEngine.cpp" line="38"/>
+        <location filename="../../src/io/exports/ImageWriter.cpp" line="168"/>
+        <location filename="../../src/pointCloudEngine/RenderingEngine.cpp" line="42"/>
         <source>Grid cell size : %1 %2</source>
         <translation>Taille des cellulles : %1 %2</translation>
     </message>
@@ -7506,9 +7526,14 @@ Attention : vous ne pouvez pas annuler cette action.</translation>
         <translation>Erreur : The projet n’a pas pu être sauvegardé.</translation>
     </message>
     <message>
-        <location filename="../../src/controller/functionSystem/ContextPickTemperature.cpp" line="87"/>
+        <location filename="../../src/controller/functionSystem/ContextPickTemperature.cpp" line="105"/>
         <source>Pick a point to read temperature</source>
         <translation>Cliquez sur un point pour lire sa température</translation>
+    </message>
+    <message>
+        <location filename="../../src/controller/functionSystem/ContextPickColorimetric.cpp" line="102"/>
+        <source>Pick a point to extract its color</source>
+        <translation>Prélevez un point pour extraire sa couleur</translation>
     </message>
 </context>
 <context>
@@ -7795,6 +7820,19 @@ Attention : vous ne pouvez pas annuler cette action.</translation>
         <location filename="../../src/gui/forms/TemplateManagerDialog.ui" line="83"/>
         <source>Ok</source>
         <translation>Ok</translation>
+    </message>
+</context>
+<context>
+    <name>ToolBarColorimetricFilter</name>
+    <message>
+        <location filename="../../src/gui/toolBars/ToolBarColorimetricFilter.cpp" line="354"/>
+        <source>Intensity (0-255)</source>
+        <translation>Intensité (0-255)</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/toolBars/ToolBarColorimetricFilter.cpp" line="356"/>
+        <source>R, G, B</source>
+        <translation>R, G, B</translation>
     </message>
 </context>
 <context>
@@ -10216,6 +10254,80 @@ Exemple: incliner un objet selon une pente.</translation>
     </message>
 </context>
 <context>
+    <name>toolbar_colorimetric_filter</name>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="14"/>
+        <source>Form</source>
+        <translation type="unfinished">Tableau</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="38"/>
+        <source>Tolerance (%)</source>
+        <translation>Tolérance (%)</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="61"/>
+        <source>Show colors</source>
+        <translation>Montrer couleurs</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="71"/>
+        <source>Hide colors</source>
+        <translation>Masquer couleurs</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="78"/>
+        <source>Color 1</source>
+        <translation>Couleur 1</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="85"/>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="106"/>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="127"/>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="148"/>
+        <source>R, G, B</source>
+        <translation>R,G,B</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="92"/>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="113"/>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="134"/>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="155"/>
+        <source>Pick</source>
+        <translation>Prélever</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="99"/>
+        <source>Color 2</source>
+        <translation>Couleur 2</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="120"/>
+        <source>Color 3</source>
+        <translation>Couleur 3</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="141"/>
+        <source>Color 4</source>
+        <translation>Couleur 4</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="170"/>
+        <source>Apply</source>
+        <translation>Appliquer</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="177"/>
+        <source>Deactivate</source>
+        <translation>Désactiver</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="184"/>
+        <source>Reset</source>
+        <translation>Réinitialiser</translation>
+    </message>
+</context>
+<context>
     <name>toolbar_connectpipegroup</name>
     <message>
         <location filename="../../src/gui/forms/toolbar_connectpipegroup.ui" line="14"/>
@@ -10817,16 +10929,25 @@ Il est recommandé d&apos;activer les clippings désirés avant de démarrer le 
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_render_ramp_group.ui" line="63"/>
+        <source>Import a text file that contains 4 columns: R,G,B, temperature in Celsius degrees.
+Values: 0-255 for RGB. For temperature, the decimal point must be a dot.
+Separator for columns: tab, space, or ;</source>
+        <translation>Importe un fichier texte contenant 4 colonnes: R,G,B, température en degrés Celsius.
+Valeurs de 0 à 255 pour RGB. Pour la température, le séparateur de décimales doit être un point.
+Séparateur de colonnes: tabulation, espace, ou ;</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_render_ramp_group.ui" line="68"/>
         <source>Import Temperature scale</source>
         <translation>Importer échelle température</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_render_ramp_group.ui" line="87"/>
+        <location filename="../../src/gui/forms/toolbar_render_ramp_group.ui" line="92"/>
         <source>Pick temperature</source>
         <translation>Prélever température</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_render_ramp_group.ui" line="94"/>
+        <location filename="../../src/gui/forms/toolbar_render_ramp_group.ui" line="99"/>
         <source>Center 0 for boxes</source>
         <translation>Centrer sur 0 pour les Box</translation>
     </message>
