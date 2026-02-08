@@ -14,6 +14,9 @@ int checkExterior(in int iterator)
 }
 
 void main() {
+    if (filterRejectIn[0] > 0.5)
+        return;
+
     int check = 0;
     for(int iterator = 1; iterator <= pc.clippingIndex[0]; iterator++)
     {
@@ -28,5 +31,6 @@ void main() {
     gl_Position = uCam.projView * gl_in[0].gl_Position;
     gl_PointSize = gl_in[0].gl_PointSize;
     colorOut = colorIn[0];
+    filterRejectOut = filterRejectIn[0];
     EmitVertex();
 }

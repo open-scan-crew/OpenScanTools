@@ -1,15 +1,12 @@
-#include "controller/functionSystem/ContextPickTemperature.h"
+#include "controller/functionSystem/ContextPickColorimetric.h"
 
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
-#include "gui/UnitConverter.h"
-#include "gui/GuiData/GuiDataMessages.h"
+#include "gui/GuiData/GuiDataRendering.h"
 #include "models/graph/GraphManager.h"
 #include "models/pointCloud/PointXYZIRGB.h"
-#include "pointCloudEngine/OctreeRayTracing.h"
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "tls_def.h"
-#include "utils/TemperatureScaleUtils.h"
 
 #include <QObject>
 #include <algorithm>
@@ -46,7 +43,7 @@ namespace
         return box;
     }
 
-    bool tryFindNearestColor(const Controller& controller, const ClickInfo& clickInfo, const glm::dvec3& point, PointXYZIRGB& outPoint)
+    bool tryFindNearestPoint(const Controller& controller, const ClickInfo& clickInfo, const glm::dvec3& point, PointXYZIRGB& outPoint)
     {
         double radius = computePickRadius(controller, clickInfo, point);
         ClippingAssembly clipAssembly;
@@ -99,26 +96,26 @@ namespace
     }
 }
 
-ContextPickTemperature::ContextPickTemperature(const ContextId& id)
+ContextPickColorimetric::ContextPickColorimetric(const ContextId& id)
     : ARayTracingContext(id)
 {
-    m_usages.push_back({ true, {ElementType::Point, ElementType::Tag}, QObject::tr("Pick a point to read temperature") });
+    m_usages.push_back({ true, {ElementType::Point, ElementType::Tag}, QObject::tr("Pick a point to extract its color") });
 }
 
-ContextPickTemperature::~ContextPickTemperature() = default;
+ContextPickColorimetric::~ContextPickColorimetric() = default;
 
-ContextState ContextPickTemperature::start(Controller& controller)
+ContextState ContextPickColorimetric::start(Controller& controller)
 {
     return ARayTracingContext::start(controller);
 }
 
-ContextState ContextPickTemperature::feedMessage(IMessage* message, Controller& controller)
+ContextState ContextPickColorimetric::feedMessage(IMessage* message, Controller& controller)
 {
     ARayTracingContext::feedMessage(message, controller);
     return m_state;
 }
 
-ContextState ContextPickTemperature::launch(Controller& controller)
+ContextState ContextPickColorimetric::launch(Controller& controller)
 {
     ARayTracingContext::getNextPosition(controller);
     if (pointMissing())
@@ -126,41 +123,26 @@ ContextState ContextPickTemperature::launch(Controller& controller)
 
     const ClickResult& clickResult = m_clickResults[0];
     PointXYZIRGB pickedPoint{};
-    bool hasRgb = tryFindRayTracedPoint(controller, m_lastClickInfo, pickedPoint);
-    if (!hasRgb)
-        hasRgb = tryFindNearestColor(controller, m_lastClickInfo, clickResult.position, pickedPoint);
+    bool found = tryFindRayTracedPoint(controller, m_lastClickInfo, pickedPoint);
+    if (!found)
+        found = tryFindNearestPoint(controller, m_lastClickInfo, clickResult.position, pickedPoint);
 
-    QString temperatureText = QStringLiteral("NA");
-    TemperatureScaleData temperatureScale = controller.cgetGraphManager().getTemperatureScaleData();
-    if (hasRgb && temperatureScale.isValid)
+    if (found)
     {
-        uint32_t key = makeTemperatureScaleKey(pickedPoint.r, pickedPoint.g, pickedPoint.b);
-        auto it = temperatureScale.rgbToTemperature.find(key);
-        if (it != temperatureScale.rgbToTemperature.end())
-        {
-            int digits = controller.cgetContext().m_unitUsage.displayedDigits;
-            temperatureText = QStringLiteral("%1%2")
-                                  .arg(QString::number(it->second, 'f', digits), UnitConverter::getTemperatureUnitText());
-        }
+        Color32 color(pickedPoint.r, pickedPoint.g, pickedPoint.b);
+        controller.updateInfo(new GuiDataColorimetricFilterPickValue(color, pickedPoint.i));
     }
 
-    QString rgbText = hasRgb
-        ? QStringLiteral("%1,%2,%3").arg(pickedPoint.r).arg(pickedPoint.g).arg(pickedPoint.b)
-        : QStringLiteral("NA");
-
-    QString message = QStringLiteral("Point temperature: %1\nRGB: %2").arg(temperatureText, rgbText);
-    controller.updateInfo(new GuiDataInfo(message, false));
-
     m_clickResults.clear();
-    return waitForNextPoint(controller);
+    return ARayTracingContext::validate(controller);
 }
 
-bool ContextPickTemperature::canAutoRelaunch() const
+bool ContextPickColorimetric::canAutoRelaunch() const
 {
-    return true;
+    return false;
 }
 
-ContextType ContextPickTemperature::getType() const
+ContextType ContextPickColorimetric::getType() const
 {
-    return ContextType::pickTemperature;
+    return ContextType::pickColorimetric;
 }

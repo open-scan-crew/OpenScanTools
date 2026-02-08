@@ -631,6 +631,9 @@
     <ClCompile Include="..\..\src\controller\functionSystem\ContextPickTemperature.cpp">
       <Filter>src\controller\contexts</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextPickColorimetric.cpp">
+      <Filter>src\controller\contexts</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\controller\ControllerContext.cpp">
       <Filter>src\controller</Filter>
     </ClCompile>
@@ -653,6 +656,9 @@
       <Filter>src\utils</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\utils\TemperatureScaleUtils.cpp">
+      <Filter>src\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\ColorimetricFilterUtils.cpp">
       <Filter>src\utils</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\controller\messages\ClickMessage.cpp">
@@ -998,6 +1004,9 @@
       <Filter>src\controller\controls</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\gui\widgets\CustomWidgets\ColorPicker.cpp">
+      <Filter>src\gui\widgets\CustomWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\widgets\CustomWidgets\ColorimetricFilterPreview.cpp">
       <Filter>src\gui\widgets\CustomWidgets</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\gui\widgets\CustomWidgets\GlobalColorPicker.cpp">
@@ -1735,6 +1744,9 @@
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderRampGroup.cpp">
       <Filter>src\gui\toolBars</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarColorimetricFilter.cpp">
+      <Filter>src\gui\toolBars</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\controller\controls\ControlTest.cpp">
       <Filter>src\controller\controls</Filter>
     </ClCompile>
@@ -2394,6 +2406,12 @@
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarRenderRampGroup.h">
       <Filter>include\gui\toolBars</Filter>
     </QtMoc>
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarColorimetricFilter.h">
+      <Filter>include\gui\toolBars</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\include\gui\widgets\CustomWidgets\ColorimetricFilterPreview.h">
+      <Filter>include\gui\widgets\CustomWidgets</Filter>
+    </QtMoc>
     <QtMoc Include="..\..\include\gui\widgets\MultiProperty.h">
       <Filter>include\gui\widgets</Filter>
     </QtMoc>
@@ -2505,6 +2523,9 @@
       <Filter>include\utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\utils\Color32.hpp">
+      <Filter>include\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\utils\ColorimetricFilterUtils.h">
       <Filter>include\utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\utils\Config.h">
@@ -3722,6 +3743,9 @@
     <ClInclude Include="..\..\include\controller\functionSystem\ContextFindScan.h">
       <Filter>include\controller\contexts</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextPickColorimetric.h">
+      <Filter>include\controller\contexts</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\include\models\3d\MarkerDrawData.h">
       <Filter>include\models\3d</Filter>
     </ClInclude>
@@ -4306,6 +4330,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\toolbar_render_ramp_group.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="..\..\src\gui\forms\toolbar_colorimetric_filter.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\MultiProperty.ui">

@@ -2464,6 +2464,83 @@ bool EmbeddedScan::beginRayTracing(const glm::dvec3& globalRay, const glm::dvec3
     return success;
 }
 
+bool EmbeddedScan::beginRayTracingWithPoint(const glm::dvec3& globalRay, const glm::dvec3& globalRayOrigin, glm::dvec3& bestPoint, PointXYZIRGB& bestPointData, const double& cosAngleThreshold, const ClippingAssembly& clippingAssembly, const bool& isOrtho)
+{
+    TreeCell root = m_vTreeCells[m_uRootCell];
+    double rootSize = root.m_size;
+    glm::dvec3 localRay = glm::inverse(m_rotationToGlobal) * glm::dvec3(globalRay.x, globalRay.y, globalRay.z);
+    glm::dvec3 localRayOrigin = getLocalCoord(globalRayOrigin);
+
+    // Rayon local non altérée pour la détection
+    glm::dvec3 trueLocalRay = localRay / glm::length(localRay);
+    glm::dvec3 trueLocalRayOrigin = localRayOrigin;
+    ClippingAssembly localAssembly = clippingAssembly;
+    localAssembly.clearMatrix();
+    localAssembly.addTransformation(m_matrixToGlobal);
+
+    int rayModifier = updateRay(localRay, localRayOrigin, rootSize);
+
+    double tx0, ty0, tz0, tx1, ty1, tz1;
+    tx0 = (root.m_position[0] - localRayOrigin.x) / localRay.x;
+    ty0 = (root.m_position[1] - localRayOrigin.y) / localRay.y;
+    tz0 = (root.m_position[2] - localRayOrigin.z) / localRay.z;
+    tx1 = (root.m_position[0] + rootSize - localRayOrigin.x) / localRay.x;
+    ty1 = (root.m_position[1] + rootSize - localRayOrigin.y) / localRay.y;
+    tz1 = (root.m_position[2] + rootSize - localRayOrigin.z) / localRay.z;
+    //if a coordinate of local ray is 0, we want still want this times to be definite
+    if (std::fabs(abs(localRay.x)) <= std::numeric_limits<double>::epsilon())
+    {
+        if (root.m_position[0] > localRayOrigin.x)
+            tx0 = DBL_MAX;
+        else tx0 = -DBL_MAX;
+        if (root.m_position[0] + rootSize - localRayOrigin.x > 0)
+            tx1 = DBL_MAX;
+        else tx1 = -DBL_MAX;
+    }
+    if (std::fabs(abs(localRay.y)) <= std::numeric_limits<double>::epsilon())
+    {
+        if (root.m_position[1] > localRayOrigin.y)
+            ty0 = DBL_MAX;
+        else ty0 = -DBL_MAX;
+        if (root.m_position[1] + rootSize - localRayOrigin.y > 0)
+            ty1 = DBL_MAX;
+        else ty1 = -DBL_MAX;
+    }
+    if (std::fabs(abs(localRay.z)) <= std::numeric_limits<double>::epsilon())
+    {
+        if (root.m_position[2] > localRayOrigin.z)
+            tz0 = DBL_MAX;
+        else tz0 = -DBL_MAX;
+        if (root.m_position[2] + rootSize - localRayOrigin.z > 0)
+            tz1 = DBL_MAX;
+        else tz1 = -DBL_MAX;
+    }
+
+    double max0, min1;
+    max0 = tx0;
+    if (ty0 > max0) { max0 = ty0; }
+    if (tz0 > max0) { max0 = tz0; }
+    min1 = tx1;
+    if (ty1 < min1) { min1 = ty1; }
+    if (tz1 < min1) { min1 = tz1; }
+
+    std::vector<uint32_t> leafList;
+    if (max0 < min1) { traceRay(tx0, ty0, tz0, tx1, ty1, tz1, m_uRootCell, rayModifier, leafList, localAssembly, localRayOrigin); }
+
+    double rayRadius = 0.0015;
+    bool success = false;
+    tls::Point localPoint{};
+    glm::dvec3 targetGlobal = findBestPointIterativeWithPoint(leafList, trueLocalRay, trueLocalRayOrigin, cosAngleThreshold, rayRadius, localAssembly, isOrtho, localPoint, success);
+
+    bestPoint = targetGlobal;
+    if (success)
+    {
+        bestPointData = { static_cast<float>(targetGlobal.x), static_cast<float>(targetGlobal.y), static_cast<float>(targetGlobal.z), localPoint.i, localPoint.r, localPoint.g, localPoint.b };
+    }
+
+    return success;
+}
+
 glm::dvec3 EmbeddedScan::findBestPointIterative(const std::vector<uint32_t>& leafList, const glm::dvec3& rayDirection, const glm::dvec3& rayOrigin, const double& cosAngleThreshold, const double& rayRadius, const ClippingAssembly& localClippingAssembly, const bool& isOrtho, bool& success)
 {
 	double dMin(DBL_MAX), bestCosAngle(-1), currCosAngle(0), currDistance(0), distanceThreshold(0.01);
@@ -2618,6 +2695,163 @@ glm::dvec3 EmbeddedScan::findBestPointIterative(const std::vector<uint32_t>& lea
 		}
 	}
 	return getGlobalCoord(result);
+}
+
+glm::dvec3 EmbeddedScan::findBestPointIterativeWithPoint(const std::vector<uint32_t>& leafList, const glm::dvec3& rayDirection, const glm::dvec3& rayOrigin, const double& cosAngleThreshold, const double& rayRadius, const ClippingAssembly& localClippingAssembly, const bool& isOrtho, tls::Point& outPoint, bool& success)
+{
+    double dMin(DBL_MAX), bestCosAngle(-1), currCosAngle(0), currDistance(0), distanceThreshold(0.01);
+    success = false;
+    if (isOrtho)
+        bestCosAngle = cosAngleThreshold + 1;
+    bool hasGoodAngle(false), oneMoreLeaf(true);
+    glm::dvec3 bestAnglePointPos(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN());
+    tls::Point bestAnglePointRaw{};
+    std::vector<tls::Point> goodAnglePoints;
+
+    glm::dvec3 result(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN());
+
+    for (int leafStep = 0; leafStep < (int)leafList.size(); leafStep++)
+    {
+        std::vector<tls::Point> cellPoints;
+        cellPoints.resize(tls_point_cloud_.getCellPointCount(leafList[leafStep]));
+        if (!getCellPointsThreadSafe(leafList[leafStep], cellPoints.data(), cellPoints.size()))
+            continue;
+
+        for (const tls::Point& pointData : cellPoints)
+        {
+            glm::dvec3 point(pointData.x, pointData.y, pointData.z);
+            if (!localClippingAssembly.testPoint(glm::dvec4(point, 1.0)))
+            {
+                continue;
+            }
+
+            glm::dvec3 pointRay(point - rayOrigin);
+            currDistance = glm::length(pointRay);
+            if (glm::dot(pointRay, rayDirection) < 0)
+            {
+                continue;
+            }
+            success = true;
+
+            glm::dvec3 proj = glm::dot(pointRay, rayDirection) * rayDirection - pointRay;
+            currCosAngle = isOrtho ?
+                glm::length(glm::cross(rayDirection, pointRay)) / glm::length(rayDirection) :
+                glm::dot(rayDirection, pointRay / currDistance);
+
+            double projLength = glm::length(proj);
+            proj = proj / projLength;
+
+
+            if (!isOrtho)
+            {
+                if ((rayRadius / projLength) >= 1.0) {
+                    hasGoodAngle = true;
+                    currCosAngle = rayRadius / projLength;
+                    if (currDistance < (dMin * 1.05))
+                        goodAnglePoints.push_back(pointData);
+                    if (currDistance < dMin)
+                    {
+                        dMin = currDistance;
+                    }
+                }
+                else {
+                    pointRay = pointRay + proj * rayRadius;
+                    pointRay = pointRay / glm::length(pointRay);
+                    currCosAngle = glm::dot(rayDirection, pointRay);
+
+                    if (currCosAngle > cosAngleThreshold)
+                    {
+                        hasGoodAngle = true;
+                        if (currDistance < (dMin * 1.05))
+                            goodAnglePoints.push_back(pointData);
+                        if (currDistance < dMin)
+                        {
+                            dMin = currDistance;
+                        }
+                    }
+                }
+                if ((currCosAngle > bestCosAngle) && (!isOrtho))
+                {
+                    bestCosAngle = currCosAngle;
+                    bestAnglePointPos = point;
+                    bestAnglePointRaw = pointData;
+                }
+            }
+
+            //same thing is orthographic mode
+
+            if ((currCosAngle < cosAngleThreshold) && (isOrtho))
+            {
+                hasGoodAngle = true;
+                if (currDistance < (dMin + distanceThreshold))
+                    goodAnglePoints.push_back(pointData);
+                if (currDistance < dMin)
+                {
+                    dMin = currDistance;
+                }
+            }
+            if ((currCosAngle < bestCosAngle) && (isOrtho))
+            {
+                bestCosAngle = currCosAngle;
+                bestAnglePointPos = point;
+                bestAnglePointRaw = pointData;
+            }
+        }
+        if (!oneMoreLeaf)
+            break;
+        else if (hasGoodAngle)
+            oneMoreLeaf = false;
+    }
+
+    if (!hasGoodAngle)
+    {
+        result = bestAnglePointPos;
+        outPoint = bestAnglePointRaw;
+    }
+    else
+    {
+        result = bestAnglePointPos;
+        outPoint = bestAnglePointRaw;
+        bestCosAngle = -1;
+        double currScore, bestScore;
+        if (isOrtho)
+            bestCosAngle = cosAngleThreshold + 1;
+        for (int i = 0; i < (int)goodAnglePoints.size(); i++)
+        {
+            const tls::Point& pointData = goodAnglePoints[i];
+            glm::dvec3 point(pointData.x, pointData.y, pointData.z);
+            glm::dvec3 pointRay(point - rayOrigin);
+            currDistance = glm::length(pointRay);
+            glm::dvec3 proj = glm::dot(pointRay, rayDirection) * rayDirection - pointRay;
+            currCosAngle = glm::dot(rayDirection, pointRay / currDistance);
+            if (isOrtho)
+                currCosAngle = glm::length(glm::cross(rayDirection, pointRay)) / glm::length(rayDirection);
+            if (((rayRadius / glm::length(proj)) >= 1) && (!isOrtho)) {
+                currCosAngle = rayRadius / glm::length(proj);
+            }
+            currScore = 1.7 * glm::length(proj) + currDistance;
+            if (i == 0)
+            {
+                bestScore = currScore;
+                result = point;
+                outPoint = pointData;
+            }
+            if ((currScore < bestScore) && (!isOrtho))
+            {
+                bestScore = currScore;
+                result = point;
+                outPoint = pointData;
+            }
+
+            if ((currDistance < (dMin + distanceThreshold)) && (currCosAngle < bestCosAngle) && (isOrtho))
+            {
+                result = point;
+                outPoint = pointData;
+                bestCosAngle = currCosAngle;
+            }
+        }
+    }
+    return getGlobalCoord(result);
 }
 
 int EmbeddedScan::updateRay(glm::dvec3& localRay, glm::dvec3& localRayOrigin, const double& rootSize)

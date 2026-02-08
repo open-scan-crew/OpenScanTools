@@ -174,6 +174,7 @@ protected:
 public:
     // Lucas functions
     bool beginRayTracing(const glm::dvec3& globalRay, const glm::dvec3& globalRayOrigin, glm::dvec3& bestPoint, const double& cosAngleThreshold, const ClippingAssembly& clippingAssembly, const bool& isOrtho);
+    bool beginRayTracingWithPoint(const glm::dvec3& globalRay, const glm::dvec3& globalRayOrigin, glm::dvec3& bestPoint, PointXYZIRGB& bestPointData, const double& cosAngleThreshold, const ClippingAssembly& clippingAssembly, const bool& isOrtho);
 	bool findNeighborsBucketsDirected(const glm::dvec3& globalSeedPoint, const glm::dvec3& directedPoint, const double& radius, std::vector<std::vector<glm::dvec3>>& neighborList, const int& numberOfBuckets, const ClippingAssembly& globalClippingAssembly);
 	bool findNeighborsBuckets(const glm::dvec3& globalSeedPoint, const double& radius, std::vector<std::vector<glm::dvec3>>& neighborList, const int& numberOfBuckets, const ClippingAssembly& globalClippingAssembly);
     bool findNeighbors(const glm::dvec3& globalSeedPoint, const double& radius, std::vector<glm::dvec3>& neighborList, const ClippingAssembly& clippingAssembly);
@@ -218,6 +219,7 @@ protected:
     int updateRay(glm::dvec3& localRay, glm::dvec3& localRayOrigin, const double& rootSize); //returns a=4x+2y+z, where s=0 iff ray.s>0 and 1 otherwise
 	void traceRay(const double& tx0, const double& ty0, const double& tz0, const double& tx1, const double& ty1, const double& tz1, const uint32_t& cellId, const int& rayModifier, std::vector<uint32_t>& leafList, const ClippingAssembly& clippingAssembly, const glm::dvec3& localRayOrigin);	
 	glm::dvec3 findBestPointIterative(const std::vector<uint32_t>& leafList, const glm::dvec3& rayDirection, const glm::dvec3& rayOrigin, const double& cosAngleThreshold, const double& rayRadius, const ClippingAssembly& localClippingAssembly, const bool& isOrtho, bool& success);
+    glm::dvec3 findBestPointIterativeWithPoint(const std::vector<uint32_t>& leafList, const glm::dvec3& rayDirection, const glm::dvec3& rayOrigin, const double& cosAngleThreshold, const double& rayRadius, const ClippingAssembly& localClippingAssembly, const bool& isOrtho, tls::Point& outPoint, bool& success);
 
     glm::dvec3 pointInNeighborCell(const glm::dvec3& point);
 

@@ -10,6 +10,7 @@
 #include "vulkan/VkUniform.h"
 
 #include "models/3d/RenderingParameters.h"
+#include "pointCloudEngine/RenderingTypes.h"
 
 #include <deque>
 
@@ -59,6 +60,7 @@ public:
     VkUniformOffset getViewUniform(uint32_t swapIndex) const;
     VkUniformOffset getInversedViewUniform(uint32_t swapIndex) const;
     VkUniformOffset getClippingUniform(uint32_t swapIndex) const;
+    VkUniformOffset getColorimetricFilterUniform(uint32_t swapIndex) const;
 
     //LockHorizontal animation
     void checkAndHorizontalAnimation();
@@ -165,6 +167,7 @@ private:
     // Vulkan resources
     void allocAllUniforms();
     void freeAllUniforms();
+    ColorimetricFilterUniform buildColorimetricFilterUniform() const;
 
     void startPlayTrajectory(const uint64_t& animationStep);
     bool animateSimpleTrajectory();
@@ -233,6 +236,7 @@ private:
     void onRenderEdgeAwareBlur(IGuiData* data);
     void onRenderDepthLining(IGuiData* data);
     void onRenderRampScale(IGuiData* data);
+    void onRenderColorimetricFilter(IGuiData* data);
     void onBackgroundColor(IGuiData* data);
     void onAdjustZoomToScene(IGuiData* data);
     void onRenderCameraMoveTo(IGuiData* data);
@@ -286,6 +290,7 @@ private:
     VkMultiUniform m_uniInversedView;
     // Uniform for the clipping and ramp matrices, extra ramp parameters
     VkMultiUniform m_uniClipping;
+    VkMultiUniform m_uniColorimetricFilter;
 
     // ++++++++++++++++++ View ++++++++++++++++++++
     glm::dvec3 m_forward = glm::dvec3();

@@ -21,12 +21,17 @@
 namespace
 {
 	const QString kInitialPresetName = QStringLiteral("Initial");
+	const QString kRawPresetName = QStringLiteral("Raw rendering");
 	const char kDisplayPresetFileName[] = "Display_presets.tlt";
 	const char kDefaultPresetKey[] = "DefaultPreset";
 	const char kPresetsKey[] = "Presets";
 	const char kPresetNameKey[] = "Name";
 	const char kPresetDisplayParametersKey[] = "DisplayParameters";
 	const char kPresetShowHideKey[] = "ShowHideOptions";
+	bool isReservedPresetName(const QString& name)
+	{
+		return name == kInitialPresetName || name == kRawPresetName;
+	}
 
 	nlohmann::json serializeDisplayParameters(const DisplayParameters& params)
 	{
@@ -73,6 +78,23 @@ namespace
 		json[Key_Text_Display_Options] = { params.m_textOptions.m_filter, params.m_textOptions.m_textTheme, params.m_textOptions.m_textFontSize };
 		json[Key_Display_All_Marker_Texts] = params.m_displayAllMarkersTexts;
 		json[Key_Display_All_Measures] = params.m_displayAllMeasures;
+		json[Key_Colorimetric_Filter] = {
+			{ Key_Colorimetric_Filter_Enabled, params.m_colorimetricFilter.enabled },
+			{ Key_Colorimetric_Filter_Show, params.m_colorimetricFilter.showColors },
+			{ Key_Colorimetric_Filter_Tolerance, params.m_colorimetricFilter.tolerance },
+			{ Key_Colorimetric_Filter_Colors, {
+				{ params.m_colorimetricFilter.colors[0].Red(), params.m_colorimetricFilter.colors[0].Green(), params.m_colorimetricFilter.colors[0].Blue(), params.m_colorimetricFilter.colors[0].Alpha() },
+				{ params.m_colorimetricFilter.colors[1].Red(), params.m_colorimetricFilter.colors[1].Green(), params.m_colorimetricFilter.colors[1].Blue(), params.m_colorimetricFilter.colors[1].Alpha() },
+				{ params.m_colorimetricFilter.colors[2].Red(), params.m_colorimetricFilter.colors[2].Green(), params.m_colorimetricFilter.colors[2].Blue(), params.m_colorimetricFilter.colors[2].Alpha() },
+				{ params.m_colorimetricFilter.colors[3].Red(), params.m_colorimetricFilter.colors[3].Green(), params.m_colorimetricFilter.colors[3].Blue(), params.m_colorimetricFilter.colors[3].Alpha() }
+			} },
+			{ Key_Colorimetric_Filter_Colors_Enabled, {
+				params.m_colorimetricFilter.colorsEnabled[0],
+				params.m_colorimetricFilter.colorsEnabled[1],
+				params.m_colorimetricFilter.colorsEnabled[2],
+				params.m_colorimetricFilter.colorsEnabled[3]
+			} }
+		};
 
 		json[Key_Ortho_Grid_Active] = params.m_orthoGridActive;
 		json[Key_Ortho_Grid_Color] = { params.m_orthoGridColor.r, params.m_orthoGridColor.g, params.m_orthoGridColor.b, params.m_orthoGridColor.a };
@@ -276,6 +298,37 @@ namespace
 		else
 			retVal = false;
 
+		if (json.find(Key_Colorimetric_Filter) != json.end())
+		{
+			const auto& filterJson = json.at(Key_Colorimetric_Filter);
+			if (filterJson.find(Key_Colorimetric_Filter_Enabled) != filterJson.end())
+				data.m_colorimetricFilter.enabled = filterJson.at(Key_Colorimetric_Filter_Enabled).get<bool>();
+			if (filterJson.find(Key_Colorimetric_Filter_Show) != filterJson.end())
+				data.m_colorimetricFilter.showColors = filterJson.at(Key_Colorimetric_Filter_Show).get<bool>();
+			if (filterJson.find(Key_Colorimetric_Filter_Tolerance) != filterJson.end())
+				data.m_colorimetricFilter.tolerance = filterJson.at(Key_Colorimetric_Filter_Tolerance).get<float>();
+
+			if (filterJson.find(Key_Colorimetric_Filter_Colors) != filterJson.end())
+			{
+				const auto& colors = filterJson.at(Key_Colorimetric_Filter_Colors);
+				for (size_t i = 0; i < data.m_colorimetricFilter.colors.size() && i < colors.size(); ++i)
+				{
+					const auto& c = colors.at(i);
+					if (c.size() >= 3)
+					{
+						data.m_colorimetricFilter.colors[i] = Color32(c.at(0), c.at(1), c.at(2), c.size() > 3 ? c.at(3).get<uint8_t>() : 255);
+					}
+				}
+			}
+
+			if (filterJson.find(Key_Colorimetric_Filter_Colors_Enabled) != filterJson.end())
+			{
+				const auto& enabled = filterJson.at(Key_Colorimetric_Filter_Colors_Enabled);
+				for (size_t i = 0; i < data.m_colorimetricFilter.colorsEnabled.size() && i < enabled.size(); ++i)
+					data.m_colorimetricFilter.colorsEnabled[i] = enabled.at(i).get<bool>();
+			}
+		}
+
 		if (json.find(Key_Marker_Rendering_Parameters) != json.end())
 		{
 			nlohmann::json options = json.at(Key_Marker_Rendering_Parameters);
@@ -457,7 +510,7 @@ void DisplayPresetManager::handlePresetNewRequested()
 
 void DisplayPresetManager::handlePresetEditRequested(const QString& name)
 {
-	if (name == kInitialPresetName)
+	if (isReservedPresetName(name))
 		return;
 	openDialog(name, true);
 }
@@ -622,6 +675,7 @@ void DisplayPresetManager::refreshRenderSettingsUi(const QString& selectedName)
 {
 	QStringList names;
 	names << kInitialPresetName;
+	names << kRawPresetName;
 	for (const DisplayPreset& preset : m_presets)
 		names << preset.name;
 
@@ -637,6 +691,11 @@ void DisplayPresetManager::applyPresetByName(const QString& name)
 	if (name == kInitialPresetName)
 	{
 		applyPreset(getInitialPreset());
+		return;
+	}
+	if (name == kRawPresetName)
+	{
+		applyPreset(getRawPreset());
 		return;
 	}
 
@@ -668,6 +727,7 @@ void DisplayPresetManager::applyPreset(const DisplayPreset& preset)
 	m_dataDispatcher.updateInformation(new GuiDataRenderAmbientOcclusion(params.m_postRenderingAmbientOcclusion, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataEdgeAwareBlur(params.m_edgeAwareBlur, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataDepthLining(params.m_depthLining, m_focusCamera), this);
+	m_dataDispatcher.updateInformation(new GuiDataRenderColorimetricFilter(params.m_colorimetricFilter, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataMarkerDisplayOptions(params.m_markerOptions, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderTextFilter(params.m_textOptions.m_filter, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderTextTheme(params.m_textOptions.m_textTheme, m_focusCamera), this);
@@ -749,6 +809,21 @@ DisplayPresetManager::DisplayPreset DisplayPresetManager::getInitialPreset() con
 	return preset;
 }
 
+DisplayPresetManager::DisplayPreset DisplayPresetManager::getRawPreset() const
+{
+	DisplayPreset preset;
+	preset.name = kRawPresetName;
+	DisplayParameters parameters = DisplayParameters{};
+	parameters.m_saturation = 0.f;
+	parameters.m_postRenderingNormals.show = false;
+	parameters.m_postRenderingAmbientOcclusion.enabled = false;
+	parameters.m_edgeAwareBlur.enabled = false;
+	parameters.m_depthLining.enabled = false;
+	preset.displayParameters = parameters;
+	preset.showHideState = getDefaultShowHideState();
+	return preset;
+}
+
 bool DisplayPresetManager::presetExists(const QString& name) const
 {
 	return findPreset(name) != nullptr;
@@ -800,7 +875,7 @@ void DisplayPresetManager::loadPresets()
 
 		DisplayPreset preset;
 		preset.name = QString::fromUtf8(entry.at(kPresetNameKey).get<std::string>().c_str());
-		if (preset.name.isEmpty() || preset.name == kInitialPresetName)
+		if (preset.name.isEmpty() || isReservedPresetName(preset.name))
 			continue;
 
 		if (entry.find(kPresetDisplayParametersKey) != entry.end())
@@ -872,6 +947,11 @@ bool DisplayPresetManager::validatePresetName(const QString& name, const QString
 	if (name == kInitialPresetName)
 	{
 		showErrorMessage(tr("Initial cannot be used to name the preset. Please enter another name"));
+		return false;
+	}
+	if (name == kRawPresetName)
+	{
+		showErrorMessage(tr("Raw rendering cannot be used to name the preset. Please enter another name"));
 		return false;
 	}
 

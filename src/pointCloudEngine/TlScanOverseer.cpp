@@ -572,6 +572,56 @@ bool TlScanOverseer::rayTracing(const glm::dvec3& ray, const glm::dvec3& rayOrig
 
     return false;
 }
+
+bool TlScanOverseer::rayTracingWithPoint(const glm::dvec3& ray, const glm::dvec3& rayOrigin, glm::dvec3& bestPoint, PointXYZIRGB& bestPointData, const double& cosAngleThreshold, const ClippingAssembly& clippingAssembly, const bool& isOrtho, std::string& scanName)
+{
+    double rayRadius(0.0015);
+    std::vector<glm::dvec3> pointList;
+    std::vector<PointXYZIRGB> pointDataList;
+    std::vector<std::string> scanNames;
+    for (const WorkingScanInfo& _pair : s_workingScansTransfo)
+    {
+        glm::dvec3 currentBest;
+        PointXYZIRGB currentPoint{};
+        _pair.scan.setComputeTransfo(_pair.transfo.getCenter(), _pair.transfo.getOrientation());
+        ClippingAssembly localAssembly;
+        if (_pair.isClippable)
+        {
+            localAssembly = clippingAssembly;
+        }
+        bool test = _pair.scan.beginRayTracingWithPoint(ray, rayOrigin, currentBest, currentPoint, cosAngleThreshold, localAssembly, isOrtho);
+        if ((test) && (!std::isnan(currentBest.x)))
+        {
+            pointList.push_back(currentBest);
+            pointDataList.push_back(currentPoint);
+            tls::ScanHeader info;
+            _pair.scan.getInfo(info);
+            scanNames.push_back(Utils::to_utf8(info.name));
+        }
+    }
+
+    if (pointList.size() > 0)
+    {
+        std::vector<std::vector<glm::dvec3>> pointListFormated;
+        pointListFormated.push_back(pointList);
+        ClippingAssembly localAssembly;
+        bestPoint = OctreeRayTracing::findBestPoint(pointListFormated, ray / glm::length(ray), rayOrigin, cosAngleThreshold, rayRadius, localAssembly, isOrtho);
+
+        double bestLength(DBL_MAX);
+        for (int i = 0; i < pointList.size(); i++)
+        {
+            if (glm::length(bestPoint - pointList[i]) < bestLength)
+            {
+                bestLength = glm::length(bestPoint - pointList[i]);
+                scanName = scanNames[i];
+                bestPointData = pointDataList[i];
+            }
+        }
+        return true;
+    }
+
+    return false;
+}
 bool TlScanOverseer::findNeighborsBucketsDirected(const glm::dvec3& globalSeedPoint, const glm::dvec3& directedPoint, const double& radius, std::vector<std::vector<glm::dvec3>>& neighborList, int numberOfBuckets, const ClippingAssembly& clippingAssembly)
 {
     bool result = false;

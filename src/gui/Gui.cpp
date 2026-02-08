@@ -57,6 +57,7 @@
 #include "gui/toolBars/ToolBarRenderSettings.h"
 #include "gui/toolBars/ToolBarRenderNormals.h"
 #include "gui/toolBars/ToolBarRenderRampGroup.h"
+#include "gui/toolBars/ToolBarColorimetricFilter.h"
 #include "gui/toolBars/ToolBarRenderTransparency.h"
 #include "gui/toolBars/ToolBarRenderEnhance.h"
 #include "gui/toolBars/ToolBarClippingGroup.h"
@@ -317,6 +318,7 @@ Gui::Gui(Controller& controller)
 	ribbonTabContent = new RibbonTabContent();
 	ribbonTabContent->addWidget(TEXT_RAMPS, new ToolBarRampDefaultValues(m_dataDispatcher, this, m_guiScale));
 	ribbonTabContent->addWidget(TEXT_RAMPS, new ToolBarRenderRampGroup(m_dataDispatcher, this, m_guiScale));
+	ribbonTabContent->addWidget(TEXT_COLORIMETRIC_FILTER, new ToolBarColorimetricFilter(m_dataDispatcher, this, m_guiScale));
 	ribbonTabContent->addWidget(TEXT_STRUCTURE_ANALYSIS, new ToolBarStructureAnalysis(m_dataDispatcher, this, m_guiScale));
 	ribbonTabContent->addWidget(TEXT_AUTO_SOWING, new ToolBarAutoSeeding(m_dataDispatcher, this, m_guiScale));
 	m_ribbon->addTab(TEXT_ANALYSIS, ribbonTabContent);

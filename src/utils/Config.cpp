@@ -670,7 +670,7 @@ namespace Config
 	bool getMultithreadedCalculation()
 	{
 		if (jsonConfig.find(MULTITHREADED_CALC_JSON_KEY) == jsonConfig.end())
-			return false;
+			return true;
 		return jsonConfig.at(MULTITHREADED_CALC_JSON_KEY).get<bool>();
 	}
 

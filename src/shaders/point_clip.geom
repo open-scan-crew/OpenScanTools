@@ -120,6 +120,9 @@ void main()
 {
     uint size = pc.clippingIndex[0] & 0x0000FFFF;
 
+    if (filterRejectIn[0] > 0.5)
+        return;
+
     if (size > 0 && validPoint(size))
     {
         gl_Position = uCam.projView * gl_in[0].gl_Position;
@@ -137,6 +140,7 @@ void main()
         }
         else
             colorOut = colorIn[0];
+        filterRejectOut = filterRejectIn[0];
         EmitVertex();
     }
 }

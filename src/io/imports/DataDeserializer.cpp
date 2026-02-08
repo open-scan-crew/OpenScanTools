@@ -682,6 +682,37 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
         retVal = false;
     }
 
+    if (json.find(Key_Colorimetric_Filter) != json.end())
+    {
+        const auto& filterJson = json.at(Key_Colorimetric_Filter);
+        if (filterJson.find(Key_Colorimetric_Filter_Enabled) != filterJson.end())
+            data.m_colorimetricFilter.enabled = filterJson.at(Key_Colorimetric_Filter_Enabled).get<bool>();
+        if (filterJson.find(Key_Colorimetric_Filter_Show) != filterJson.end())
+            data.m_colorimetricFilter.showColors = filterJson.at(Key_Colorimetric_Filter_Show).get<bool>();
+        if (filterJson.find(Key_Colorimetric_Filter_Tolerance) != filterJson.end())
+            data.m_colorimetricFilter.tolerance = filterJson.at(Key_Colorimetric_Filter_Tolerance).get<float>();
+
+        if (filterJson.find(Key_Colorimetric_Filter_Colors) != filterJson.end())
+        {
+            const auto& colors = filterJson.at(Key_Colorimetric_Filter_Colors);
+            for (size_t i = 0; i < data.m_colorimetricFilter.colors.size() && i < colors.size(); ++i)
+            {
+                const auto& c = colors.at(i);
+                if (c.size() >= 3)
+                {
+                    data.m_colorimetricFilter.colors[i] = Color32(c.at(0), c.at(1), c.at(2), c.size() > 3 ? c.at(3).get<uint8_t>() : 255);
+                }
+            }
+        }
+
+        if (filterJson.find(Key_Colorimetric_Filter_Colors_Enabled) != filterJson.end())
+        {
+            const auto& enabled = filterJson.at(Key_Colorimetric_Filter_Colors_Enabled);
+            for (size_t i = 0; i < data.m_colorimetricFilter.colorsEnabled.size() && i < enabled.size(); ++i)
+                data.m_colorimetricFilter.colorsEnabled[i] = enabled.at(i).get<bool>();
+        }
+    }
+
     if (json.find(Key_Marker_Rendering_Parameters) != json.end())
     {
         nlohmann::json options = json.at(Key_Marker_Rendering_Parameters);

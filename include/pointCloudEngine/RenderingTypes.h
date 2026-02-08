@@ -3,6 +3,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <glm/glm.hpp>
 
 // RenderColorInput
 enum class UiRenderMode
@@ -102,6 +103,12 @@ struct DepthLining
     float threshold = 0.006f;
     float sensitivity = 3.0f;
     bool strongMode = false;
+};
+
+struct ColorimetricFilterUniform
+{
+    glm::vec4 colors[4] = {};
+    glm::vec4 settings = {}; // x: enabled, y: showColors, z: tolerance(0-1), w: intensityMode
 };
 
 enum class ProjectionMode
