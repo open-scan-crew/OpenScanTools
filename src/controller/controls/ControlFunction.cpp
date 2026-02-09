@@ -1,5 +1,6 @@
 #include "controller/controls/ControlFunction.h"
 #include "controller/Controller.h"
+#include "controller/functionSystem/AContext.h"
 #include "controller/functionSystem/FunctionManager.h"
 #include "controller/messages/IMessage.h"
 
@@ -85,6 +86,14 @@ namespace control
 		*/
 
 		Validate::Validate()
+			: m_checkContext(false)
+			, m_onlyWhen(ContextType::none)
+		{
+		}
+
+		Validate::Validate(ContextType onlyWhen)
+			: m_checkContext(true)
+			, m_onlyWhen(onlyWhen)
 		{
 		}
 
@@ -94,6 +103,8 @@ namespace control
 
 		void Validate::doFunction(Controller& controller)
 		{
+			if (m_checkContext && controller.getFunctionManager().isActiveContext() != m_onlyWhen)
+				return;
 			controller.getFunctionManager().validate(controller);
 			CONTROLLOG << "control::function::Cancel" << LOGENDL;
 		}

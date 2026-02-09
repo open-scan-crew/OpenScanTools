@@ -109,6 +109,7 @@ public:
         None,
         DoubleClick,
         Click,
+        RightClick,
         Examine,
         BeginManipulation,
         EndManipulation
