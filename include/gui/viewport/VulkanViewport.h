@@ -30,6 +30,7 @@ struct MouseInput
     bool leftButtonPressed = false;
     bool rightButtonPressed = false;
     bool middleButtonPressed = false;
+    bool ignoreNextLeftRelease = false;
 
     void resetDeltas()
     {
@@ -44,6 +45,7 @@ struct MouseInput
         leftButtonPressed = false;
         rightButtonPressed = false;
         middleButtonPressed = false;
+        ignoreNextLeftRelease = false;
     }
 };
 
@@ -109,6 +111,7 @@ public:
         None,
         DoubleClick,
         Click,
+        RightClick,
         Examine,
         BeginManipulation,
         EndManipulation
