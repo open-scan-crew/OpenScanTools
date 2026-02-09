@@ -51,6 +51,7 @@ VulkanViewport::VulkanViewport(IDataDispatcher& dataDispatcher, float guiScale)
     , m_lastPicking(NAN, NAN, NAN)
     , m_3dMouseUpdate(false)
     , m_actionToPull(Action::None)
+    , m_ignoreNextLeftRelease(false)
 {
     setSurfaceType(QSurface::VulkanSurface);
 

@@ -221,8 +221,14 @@ public:
     // ******* Statistics ******* //
     bool m_displayRenderStats = false;
     uint32_t m_frameStackIndex = 0;
+
+private:
+    bool m_ignoreNextLeftRelease = false;
     std::array<FrameStats, 120> m_frameStack;
     float m_lastAdaptiveDecimation = 1.f;
+
+private:
+    bool m_ignoreNextLeftRelease = false;
 
 private:
     IDataDispatcher& m_dataDispatcher;
