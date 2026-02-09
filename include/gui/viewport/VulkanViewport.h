@@ -109,6 +109,7 @@ public:
         None,
         DoubleClick,
         Click,
+        RightClick,
         Examine,
         BeginManipulation,
         EndManipulation
@@ -220,6 +221,9 @@ public:
     uint32_t m_frameStackIndex = 0;
     std::array<FrameStats, 120> m_frameStack;
     float m_lastAdaptiveDecimation = 1.f;
+
+private:
+    bool m_ignoreNextLeftRelease = false;
 
 private:
     IDataDispatcher& m_dataDispatcher;

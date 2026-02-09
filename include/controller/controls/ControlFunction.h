@@ -41,11 +41,15 @@ namespace control
 		{
 		public:
 			Validate();
+			explicit Validate(ContextType onlyWhen);
 			~Validate();
 			void doFunction(Controller& controller) override;
 			bool canUndo() const override;
 			void undoFunction(Controller& controller) override;
 			ControlType getType() const override;
+		private:
+			bool m_checkContext = false;
+			ContextType m_onlyWhen;
 		};
 
 		class ForwardMessage : public AControl

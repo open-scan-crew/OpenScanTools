@@ -1,4 +1,6 @@
 #include "gui/viewport/VulkanViewport.h"
+#include "controller/controls/ControlFunction.h"
+#include "controller/functionSystem/AContext.h"
 #include "controller/controls/ControlPicking.h"
 #include "controller/controls/ControlViewport.h"
 
@@ -49,6 +51,7 @@ VulkanViewport::VulkanViewport(IDataDispatcher& dataDispatcher, float guiScale)
     , m_lastPicking(NAN, NAN, NAN)
     , m_3dMouseUpdate(false)
     , m_actionToPull(Action::None)
+    , m_ignoreNextLeftRelease(false)
 {
     setSurfaceType(QSurface::VulkanSurface);
 
@@ -279,10 +282,14 @@ Pos3D VulkanViewport::getPickingPos(const CameraNode& rCam)
         glm::dvec4 eyeCoord = rCam.getEyeCoord((double)(m_MI.lastX), (double)(m_MI.lastY),
             (double)depth, (double)width(), (double)height());
         glm::dvec4 pickPos = rCam.getModelMatrix() * eyeCoord;
+        m_lastPicking = { pickPos.x, pickPos.y, pickPos.z };
         emit pickingPosition(pickPos.x, pickPos.y, pickPos.z, this);
         return { pickPos.x, pickPos.y, pickPos.z };
     }
     else {
+        m_lastPicking = { std::numeric_limits<double>::quiet_NaN(),
+        std::numeric_limits<double>::quiet_NaN(),
+        std::numeric_limits<double>::quiet_NaN() };
         return { std::numeric_limits<double>::quiet_NaN(),
         std::numeric_limits<double>::quiet_NaN(),
         std::numeric_limits<double>::quiet_NaN() };
@@ -380,6 +387,9 @@ void VulkanViewport::doAction(const WritePtr<CameraNode>& wCam, SafePtr<Manipula
             break;
         case VulkanViewport::Action::Click:
             m_dataDispatcher.sendControl(new control::picking::Click(click));
+            break;
+        case VulkanViewport::Action::RightClick:
+            m_dataDispatcher.sendControl(new control::function::Validate(ContextType::pointsMeasure));
             break;
         case VulkanViewport::Action::Examine:
         {
@@ -541,6 +551,11 @@ void VulkanViewport::mouseReleaseEvent(QMouseEvent *_event)
     case Qt::LeftButton:
     {
         m_MI.leftButtonPressed = false;
+        if (m_ignoreNextLeftRelease)
+        {
+            m_ignoreNextLeftRelease = false;
+            break;
+        }
         if (m_mouseInputEffect == MouseInputEffect::None)
         {
             m_actionToPull = Action::Click;
@@ -549,6 +564,10 @@ void VulkanViewport::mouseReleaseEvent(QMouseEvent *_event)
     }
     case Qt::RightButton:
         m_MI.rightButtonPressed = false;
+        if (m_mouseInputEffect == MouseInputEffect::None)
+        {
+            m_actionToPull = Action::RightClick;
+        }
         break;
     case Qt::MiddleButton:
         m_MI.middleButtonPressed = false;
@@ -580,6 +599,7 @@ void VulkanViewport::mouseDoubleClickEvent(QMouseEvent* _event)
     {
         m_forceObjectCenterOnExamine = true;
         m_actionToPull = Action::Examine;
+        m_ignoreNextLeftRelease = true;
     }
     else
         m_actionToPull = Action::DoubleClick;
