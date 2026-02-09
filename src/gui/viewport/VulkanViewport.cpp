@@ -51,6 +51,7 @@ VulkanViewport::VulkanViewport(IDataDispatcher& dataDispatcher, float guiScale)
     , m_lastPicking(NAN, NAN, NAN)
     , m_3dMouseUpdate(false)
     , m_actionToPull(Action::None)
+    , m_ignoreNextLeftRelease(false)
 {
     setSurfaceType(QSurface::VulkanSurface);
 
@@ -550,6 +551,11 @@ void VulkanViewport::mouseReleaseEvent(QMouseEvent *_event)
     case Qt::LeftButton:
     {
         m_MI.leftButtonPressed = false;
+        if (m_ignoreNextLeftRelease)
+        {
+            m_ignoreNextLeftRelease = false;
+            break;
+        }
         if (m_mouseInputEffect == MouseInputEffect::None)
         {
             m_actionToPull = Action::Click;
@@ -593,6 +599,7 @@ void VulkanViewport::mouseDoubleClickEvent(QMouseEvent* _event)
     {
         m_forceObjectCenterOnExamine = true;
         m_actionToPull = Action::Examine;
+        m_ignoreNextLeftRelease = true;
     }
     else
         m_actionToPull = Action::DoubleClick;
