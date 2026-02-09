@@ -2,6 +2,7 @@
 #include "controller/Controller.h"
 #include "controller/functionSystem/FunctionManager.h"
 #include "controller/messages/UndoRedoMessages.h"
+#include "gui/GuiData/GuiDataGeneralProject.h"
 
 #include "models/graph/PolylineMeasureNode.h"
 
@@ -40,6 +41,8 @@ namespace control::function::measure
 			controller.getFunctionManager().feedMessageToSpecificContext(controller, &message, m_contextId);
 		}
 
+		controller.updateInfo(new GuiDataObjectSelected(m_polyline));
+
 		CONTROLLOG << "ccontrol::function::measure::AddMeasureToPolylineMeasure do elemid " << writePoly->getId() << LOGENDL;
 	}
 
@@ -62,7 +65,8 @@ namespace control::function::measure
 		UndoMessage message;
 		controller.getFunctionManager().feedMessageToSpecificContext(controller, &message, m_contextId);
 
-		//controller.actualizeOnId(m_polyline, true);
+		controller.updateInfo(new GuiDataObjectSelected(m_polyline));
+
 		CONTROLLOG << "ccontrol::function::measure::AddMeasureToPolylineMeasure undo elemid " << writePoly->getId() << LOGENDL;
 	}
 
