@@ -226,6 +226,9 @@ private:
     float m_lastAdaptiveDecimation = 1.f;
 
 private:
+    bool m_ignoreNextLeftRelease = false;
+
+private:
     IDataDispatcher& m_dataDispatcher;
     std::unordered_map<guiDType, GuiDataFunction> m_functions;
 
