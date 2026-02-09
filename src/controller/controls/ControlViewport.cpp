@@ -7,6 +7,8 @@
 
 #include "models/graph/GraphManager.h"
 
+#include <cmath>
+
 namespace control::viewport
 {
     //
@@ -25,8 +27,16 @@ namespace control::viewport
 
     void Examine::doFunction(Controller& controller)
     {
+        if (controller.getFunctionManager().isActiveContext() == ContextType::pointsMeasure)
+        {
+            if (std::isnan(m_clickInfo.picking.x))
+                controller.updateInfo(new GuiDataRenderExamine(m_clickInfo.viewport, true));
+            else
+                controller.updateInfo(new GuiDataRenderExamine(m_clickInfo.viewport, m_clickInfo.picking));
+            return;
+        }
         controller.getFunctionManager().launchFunction(controller, ContextType::examine);
-        if (!isnan(m_clickInfo.fov))
+        if (!std::isnan(m_clickInfo.fov))
         {
             FullClickMessage message(m_clickInfo);
             controller.getFunctionManager().feedMessage(controller, &message);

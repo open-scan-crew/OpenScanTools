@@ -33,6 +33,7 @@ namespace control::function::measure
 			return;
 		}
 		writePoly->addMeasure(m_measure);
+		controller.actualizeTreeView(m_polyline);
 
 		if (m_isRedo)
 		{
@@ -58,6 +59,7 @@ namespace control::function::measure
 		}
 		writePoly->removeMeasureBack();
 		m_isRedo = true;
+		controller.actualizeTreeView(m_polyline);
 
 		UndoMessage message;
 		controller.getFunctionManager().feedMessageToSpecificContext(controller, &message, m_contextId);
