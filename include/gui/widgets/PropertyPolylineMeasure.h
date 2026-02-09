@@ -23,6 +23,7 @@ private:
 	void informData(IGuiData* keyValue);
 
 	void onRenderUnitUsage(IGuiData* data);
+	void onPolylineMeasureUpdated(IGuiData* data);
 
 	bool updateMeasure();
 	void updateUI();

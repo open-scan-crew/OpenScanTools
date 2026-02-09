@@ -112,6 +112,7 @@ enum class guiDType
 
 	objectSelected,
 	multiObjectProperties,
+	polylineMeasureUpdated,
 
 	projectDataProperties,
 	projectDataPropertiesNoOpen,

@@ -1,4 +1,5 @@
 #include "gui/widgets/PropertyPolylineMeasure.h"
+#include "gui/GuiData/GuiDataMeasure.h"
 #include "gui/GuiData/GuiDataRendering.h"
 #include "controller/Controller.h"
 #include "gui/Texts.hpp"
@@ -18,8 +19,10 @@ PropertyPolylineMeasure::PropertyPolylineMeasure(Controller& controller, QWidget
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::renderValueDisplay);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::sendAuthorsList);
+	m_dataDispatcher.registerObserverOnKey(this, guiDType::polylineMeasureUpdated);
 
 	m_polylineMethods.insert({ guiDType::renderValueDisplay, &PropertyPolylineMeasure::onRenderUnitUsage });
+	m_polylineMethods.insert({ guiDType::polylineMeasureUpdated, &PropertyPolylineMeasure::onPolylineMeasureUpdated });
 
 	m_ui.TotalInfield->setType(NumericType::DISTANCE);
 	m_ui.TotalHorizontalInfield->setType(NumericType::DISTANCE);
@@ -60,6 +63,15 @@ void PropertyPolylineMeasure::onRenderUnitUsage(IGuiData* data)
 {
 	m_unitUsage = static_cast<GuiDataRenderUnitUsage*>(data)->m_valueParameters;
 	updateUI();
+}
+
+void PropertyPolylineMeasure::onPolylineMeasureUpdated(IGuiData* data)
+{
+	auto* updateData = static_cast<GuiDataPolylineMeasureUpdated*>(data);
+	if (!updateData)
+		return;
+	if (updateData->m_polyline == m_measure)
+		updateMeasure();
 }
 
 bool PropertyPolylineMeasure::updateMeasure()
@@ -192,4 +204,3 @@ void PropertyPolylineMeasure::resizeEvent(QResizeEvent* event)
 	m_ui.areaTableWidget->setColumnWidth(1, m_ui.areaTableWidget->width() / 3);
 	m_ui.areaTableWidget->setColumnWidth(2, m_ui.areaTableWidget->width() / 3);
 }
-
