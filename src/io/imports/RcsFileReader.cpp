@@ -11,8 +11,47 @@
 #include <foundation/RCQuaternion.h>
 #include <foundation/RCBuffer.h>
 
+#include <algorithm>
+#include <cctype>
+#include <cstdlib>
+#include <string>
+
 using namespace Autodesk::RealityComputing::Foundation;
 using namespace Autodesk::RealityComputing::Data;
+
+namespace
+{
+RcsFileReader::ImportTransformMode getImportTransformModeFromEnv()
+{
+    const char* mode = std::getenv("OPENSCANTOOLS_RCS_IMPORT_MODE");
+    if (mode == nullptr)
+        return RcsFileReader::ImportTransformMode::Auto;
+
+    std::string lower(mode);
+    std::transform(lower.begin(), lower.end(), lower.begin(), [](unsigned char c) { return (char)std::tolower(c); });
+
+    if (lower == "global")
+        return RcsFileReader::ImportTransformMode::PointsAreGlobal;
+    if (lower == "local")
+        return RcsFileReader::ImportTransformMode::PointsAreLocal;
+
+    return RcsFileReader::ImportTransformMode::Auto;
+}
+
+const char* toString(RcsFileReader::ImportTransformMode mode)
+{
+    switch (mode)
+    {
+    case RcsFileReader::ImportTransformMode::PointsAreGlobal:
+        return "global";
+    case RcsFileReader::ImportTransformMode::PointsAreLocal:
+        return "local";
+    case RcsFileReader::ImportTransformMode::Auto:
+    default:
+        return "auto";
+    }
+}
+}
 
 bool RcsFileReader::getReader(const std::filesystem::path& filepath, std::wstring log, IScanFileReader** reader)
 {
@@ -38,6 +77,7 @@ RcsFileReader::RcsFileReader(RCSharedPtr<RCScan> rcScan)
     , m_userEdits(true)
     , m_currentPointIndex(0)
 {
+    m_importTransformMode = getImportTransformModeFromEnv();
     initHeaders();
 }
 
@@ -48,6 +88,7 @@ RcsFileReader::RcsFileReader(const std::filesystem::path& filepath, bool visible
     , m_userEdits(userEdits)
     , m_currentPointIndex(0)
 {
+    m_importTransformMode = getImportTransformModeFromEnv();
     RCString path(filepath);
     auto rcUserEdits = m_userEdits ? RCProjectUserEdits::All : RCProjectUserEdits::None;
     RCCode errorCode;
@@ -80,14 +121,22 @@ void RcsFileReader::initHeaders()
     m_scanHeader.name = m_rcScan->getName();
     m_scanHeader.sensorModel = m_rcScan->getScanProvider();
     m_scanHeader.sensorSerialNumber = L"Not provided";
+    m_scanHeader.transfo = tls::Transformation{ { 0.0, 0.0, 0.0, 1.0 }, { 0.0, 0.0, 0.0 } };
 
     RCTransform rcTransfo;
     bool result = m_rcScan->getFullTransform(rcTransfo);
     if (result)
     {
         auto rcQuat = rcTransfo.getRotation().toQuaternion();
+        m_scanHeader.transfo.quaternion[0] = rcQuat.values.x;
+        m_scanHeader.transfo.quaternion[1] = rcQuat.values.y;
+        m_scanHeader.transfo.quaternion[2] = rcQuat.values.z;
+        m_scanHeader.transfo.quaternion[3] = rcQuat.values.w;
         transfo_.setRotation(glm::dquat(rcQuat.values.w, rcQuat.values.x, rcQuat.values.y, rcQuat.values.z));
         const auto& tr = rcTransfo.getTranslation();
+        m_scanHeader.transfo.translation[0] = tr.x;
+        m_scanHeader.transfo.translation[1] = tr.y;
+        m_scanHeader.transfo.translation[2] = tr.z;
         transfo_.setPosition(glm::dvec3(tr.x, tr.y, tr.z));
     }
 
@@ -98,6 +147,7 @@ void RcsFileReader::initHeaders()
         (float)bboxMin.y, (float)bboxMax.y,
         (float)bboxMin.z, (float)bboxMax.z };
     m_scanHeader.pointCount = m_rcScan->getNumberOfPoints();
+    m_pointCount = m_scanHeader.pointCount;
     m_scanHeader.precision = tls::PrecisionType::TL_OCTREE_10UM;
     if (m_rcScan->hasIntensities())
     {
@@ -146,17 +196,69 @@ tls::ScanHeader RcsFileReader::getTlsScanHeader(uint32_t scanNumber) const
 
 bool RcsFileReader::startReadingScan(uint32_t _scanNumber)
 {
+    if (_scanNumber > 0)
+        return false;
+
     m_currentPointIndex = 0;
-    RCTransform rcTransform;
-    bool result = m_rcScan->setFullTransform(rcTransform);
-    return result;
+
+    m_applyInverseTransform = true;
+
+    if (m_importTransformMode == ImportTransformMode::PointsAreGlobal)
+    {
+        m_applyInverseTransform = true;
+    }
+    else if (m_importTransformMode == ImportTransformMode::PointsAreLocal)
+    {
+        m_applyInverseTransform = false;
+    }
+    else
+    {
+        // Compatibility mode: detect if points look already local or global.
+        // If the point cloud is already local, applying inverse transform would misplace scans.
+        Autodesk::RealityComputing::Data::RCPointIteratorSettings settings;
+        settings.setDensity(-1.0);
+        settings.setIsVisiblePointsOnly(m_visiblePointsOnly);
+
+        auto itPt = m_rcScan->createPointIterator(settings);
+        bool validPt = itPt->moveToPoint(0);
+        if (!validPt)
+            return false;
+
+        const glm::dvec3 tr(m_scanHeader.transfo.translation[0], m_scanHeader.transfo.translation[1], m_scanHeader.transfo.translation[2]);
+        constexpr uint32_t sampleCount = 128;
+        uint32_t sampled = 0;
+        double distToOrigin = 0.0;
+        double distToTranslation = 0.0;
+
+        while (validPt && sampled < sampleCount)
+        {
+            const auto& pos = itPt->getPoint().getPosition();
+            glm::dvec3 p(pos.x, pos.y, pos.z);
+            distToOrigin += glm::length(p);
+            distToTranslation += glm::length(p - tr);
+            ++sampled;
+            validPt = itPt->moveToNextPoint();
+        }
+
+        if (sampled > 0)
+        {
+            // If points are closer to the scan translation than to the origin,
+            // they are probably already in global coordinates.
+            m_applyInverseTransform = distToTranslation <= distToOrigin;
+        }
+    }
+
+    Logger::log(LoggerMode::IOLog) << "RCS import mode=" << toString(m_importTransformMode)
+        << ", apply inverse transform=" << (m_applyInverseTransform ? "true" : "false") << Logger::endl;
+
+    return true;
 }
 
 bool RcsFileReader::readPoints(PointXYZIRGB* dstBuf, uint64_t bufSize, uint64_t& readCount)
 {
     Autodesk::RealityComputing::Data::RCPointIteratorSettings settings;
     settings.setDensity(-1.0); // highest density
-    settings.setIsVisiblePointsOnly(true);
+    settings.setIsVisiblePointsOnly(m_visiblePointsOnly);
 
     glm::dmat4 inv_transfo = transfo_.getInverseTransformation();
 
@@ -175,7 +277,9 @@ bool RcsFileReader::readPoints(PointXYZIRGB* dstBuf, uint64_t bufSize, uint64_t&
             auto& pt = itPt->getPoint();
             auto& pos = pt.getPosition();
 
-            glm::dvec4 glPos = inv_transfo * glm::dvec4(pos.x, pos.y, pos.z, 1.0);
+            glm::dvec4 glPos(pos.x, pos.y, pos.z, 1.0);
+            if (m_applyInverseTransform)
+                glPos = inv_transfo * glPos;
 
             dstBuf[localIndex].x = (float)(glPos.x);
             dstBuf[localIndex].y = (float)(glPos.y);
