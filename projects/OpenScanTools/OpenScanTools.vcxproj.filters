@@ -4579,6 +4579,7 @@
     <CustomBuild Include="..\..\src\shaders\marker.geom">
       <Filter>shaders\glsl_assembled</Filter>
     </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\v2\ambient_occlusion.comp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="OpenScanTools.rc">

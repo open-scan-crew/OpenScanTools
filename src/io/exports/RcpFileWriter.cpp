@@ -2,7 +2,7 @@
 #include "models/pointCloud/PointXYZIRGB.h"
 #include "utils/Logger.h"
 
-//#include <foundation/RCQuaternion.h>
+#include <foundation/RCQuaternion.h>
 
 using namespace Autodesk::RealityComputing::Foundation;
 using namespace Autodesk::RealityComputing::Data;
@@ -11,6 +11,7 @@ using namespace Autodesk::RealityComputing::ImportExport;
 RcpFileWriter::RcpFileWriter(const std::filesystem::path& file_path, RCSharedPtr<RCProjectImportSession> projectImportSession) noexcept
     : IScanFileWriter(file_path)
     , m_projectImportSession(projectImportSession)
+    , total_point_count_(0)
     , m_hasColor(false)
     , m_hasIntensity(false)
     , m_exportDensity(-1.0)
@@ -103,6 +104,18 @@ bool RcpFileWriter::appendPointCloud(const tls::ScanHeader& info, const Transfor
 {
     m_scanHeader = info;
     m_scanHeader.pointCount = 0;
+    scan_transfo = transfo;
+
+    const glm::dquat q = scan_transfo.getOrientation();
+    const glm::dvec3 t = scan_transfo.getCenter();
+    m_scanHeader.transfo.quaternion[0] = q.x;
+    m_scanHeader.transfo.quaternion[1] = q.y;
+    m_scanHeader.transfo.quaternion[2] = q.z;
+    m_scanHeader.transfo.quaternion[3] = q.w;
+    m_scanHeader.transfo.translation[0] = t.x;
+    m_scanHeader.transfo.translation[1] = t.y;
+    m_scanHeader.transfo.translation[2] = t.z;
+
     // NOTE(robin) - The scan is really appended when we call finalizePointCloud() because we want to know if there is more than 0 points in the scan.
     // - The Recap API does not permit to cancel a scan with 0 points.
 
@@ -122,13 +135,14 @@ bool RcpFileWriter::addPoints(PointXYZIRGB const* src_buf, uint64_t src_size)
 
 bool RcpFileWriter::mergePoints(PointXYZIRGB const* src_buf, uint64_t src_size, const TransformationModule& src_transfo, tls::PointFormat src_format)
 {
+    if (src_format == tls::PointFormat::TL_POINT_FORMAT_UNDEFINED)
+        return false;
+
     m_scanHeader.pointCount += src_size;
 
-    // Si on garde le choix de passer les points en coordonnées globales on ne peut pas changer leurs coordonnées après l’import.
-    // Il faut soit indiquer la translation supplémentaire avant l’import, soit repasser en coordonnées local (et changer la translation du scan).
-    glm::dmat4 post_translation_mat = glm::dmat4(1.0);
-    post_translation_mat[3] = glm::dvec4(post_translation_, 1.0);
-    glm::dmat4 transfo_mat = post_translation_mat * src_transfo.getTransformation();
+    // The destination scan transform is stored in metadata. Points should therefore be encoded
+    // in destination local coordinates.
+    glm::dmat4 transfo_mat = scan_transfo.getInverseTransformation() * src_transfo.getTransformation();
 
     auto rcBuffer = std::make_shared<RCPointBuffer>();
     rcBuffer->setCoordinateType(RCCoordinateType::Cartesian);
@@ -176,13 +190,23 @@ bool RcpFileWriter::finalizePointCloud()
         scanMetadata.estimatedPointCount = m_scanHeader.pointCount;
         total_point_count_ += m_scanHeader.pointCount;
 
+        TransformationModule scan_transfo_with_offset(scan_transfo);
+        scan_transfo_with_offset.addGlobalTranslation(post_translation_);
+        const glm::dquat q = scan_transfo_with_offset.getOrientation();
+        const glm::dvec3 t = scan_transfo_with_offset.getCenter();
+
+        m_scanHeader.transfo.quaternion[0] = q.x;
+        m_scanHeader.transfo.quaternion[1] = q.y;
+        m_scanHeader.transfo.quaternion[2] = q.z;
+        m_scanHeader.transfo.quaternion[3] = q.w;
+        m_scanHeader.transfo.translation[0] = t.x;
+        m_scanHeader.transfo.translation[1] = t.y;
+        m_scanHeader.transfo.translation[2] = t.z;
 
         RCTransform transform;
-        //RCVector3d translation(m_scanHeader.transfo.translation[0], m_scanHeader.transfo.translation[1], m_scanHeader.transfo.translation[2]);
-        //transform.setTranslation(translation);
-        //RCRotationMatrix rotation = RCQuaternion(m_scanHeader.transfo.quaternion[3], RCVector3d(m_scanHeader.transfo.quaternion[0], m_scanHeader.transfo.quaternion[1], m_scanHeader.transfo.quaternion[2])).toMatrix();
-
-        //transform.setRotation(rotation);
+        transform.setTranslation(RCVector3d(t.x, t.y, t.z));
+        const RCRotationMatrix rotation = RCQuaternion(q.w, RCVector3d(q.x, q.y, q.z)).toMatrix();
+        transform.setRotation(rotation);
         transform.toRowMajor(scanMetadata.globalTransformation);
 
         std::wstring wname = m_scanHeader.name;

@@ -13,8 +13,14 @@ using Autodesk::RealityComputing::Data::RCScan;
 
 class RcsFileReader : public IScanFileReader
 {
-
 public:
+    enum class ImportTransformMode
+    {
+        Auto,
+        PointsAreGlobal,
+        PointsAreLocal,
+    };
+
     static bool getReader(const std::filesystem::path& filepath, std::wstring log, IScanFileReader** reader);
     RcsFileReader(RCSharedPtr<RCScan> rcScan);
     ~RcsFileReader();
@@ -44,6 +50,9 @@ private:
     tls::FileHeader m_fileHeader;
     tls::ScanHeader m_scanHeader;
     TransformationModule transfo_;
+
+    ImportTransformMode m_importTransformMode = ImportTransformMode::Auto;
+    bool m_applyInverseTransform = true;
 };
 
 #endif
