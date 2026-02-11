@@ -125,5 +125,34 @@ namespace control
         {
             return (ControlType::startColorBalanceFilter);
         }
+
+        // ***************************
+        // StartColorimetricFilterExport
+        // ***************************
+
+        StartColorimetricFilterExport::StartColorimetricFilterExport()
+        {}
+
+        StartColorimetricFilterExport::~StartColorimetricFilterExport()
+        {}
+
+        void StartColorimetricFilterExport::doFunction(Controller& controller)
+        {
+            controller.getFunctionManager().launchFunction(controller, ContextType::colorimetricFilterExport);
+        }
+
+        bool StartColorimetricFilterExport::canUndo() const
+        {
+            return (false);
+        }
+
+        void StartColorimetricFilterExport::undoFunction(Controller& controller)
+        {
+        }
+
+        ControlType StartColorimetricFilterExport::getType() const
+        {
+            return (ControlType::startColorimetricFilterExport);
+        }
     }
 }
