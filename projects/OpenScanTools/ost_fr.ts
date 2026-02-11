@@ -4313,7 +4313,7 @@ It will be skipped.</source>
         <translation>Le fichier %1 n&apos;a pas pu être copié. Il sera ignoré.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="45"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="48"/>
         <source>Export %1 file(s)</source>
         <translation>Exporter en fichier(s) %1</translation>
     </message>
@@ -4403,32 +4403,32 @@ est vide.</translation>
         <translation>Export d&apos;objets nuage de points</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="23"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="25"/>
         <source>Something wrong happened...</source>
         <translation>Un événement imprévu s&apos;est produit...</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="24"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="26"/>
         <source>Failed to create destination file: %1</source>
         <translation>Echec de création du fichier:%1</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="29"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="31"/>
         <source>You must activate or select some clippings first</source>
         <translation>Vous devez d&apos;abord activer ou sélectionner au moins une clipping</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="32"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="34"/>
         <source>No visible scan to export</source>
         <translation>Pas de scan visible à exporter</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="36"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="39"/>
         <source>Export Point Cloud in gridded boxes</source>
         <translation>Exporter les nuages de points en grilles</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="37"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="40"/>
         <source>Dialog export point cloud</source>
         <translation></translation>
     </message>
@@ -4728,23 +4728,34 @@ Le fichier .tld : [%1] n&apos;a pas d&apos;auteur.</translation>
     </message>
     <message>
         <location filename="../../include/gui/texts/ExportTexts.hpp" line="20"/>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="34"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="36"/>
         <source>Statistical Outlier Filter</source>
         <translation>Filtre Statistical Outlier</translation>
     </message>
     <message>
         <location filename="../../include/gui/texts/ExportTexts.hpp" line="21"/>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="35"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="37"/>
         <source>Color balance</source>
         <translation>Balance de couleurs</translation>
     </message>
     <message>
         <location filename="../../include/gui/texts/ExportTexts.hpp" line="22"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="38"/>
+        <source>Colorimetric Filter Export</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="23"/>
         <source>Global color balance requires at least two visible scans.</source>
         <translation>La balance des couleurs globale nécessite au moins deux scans visibles.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="25"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="24"/>
+        <source>Please activate a colorimetric filter first.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="27"/>
         <source>
 
 Scan export done in: %1 seconds</source>
@@ -4753,7 +4764,7 @@ Scan export done in: %1 seconds</source>
 Export de scan effectué en: %1 secondes</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="26"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="28"/>
         <source>
 
 Clipping export done in: %1 seconds</source>
@@ -4762,7 +4773,7 @@ Clipping export done in: %1 seconds</source>
 Export de clipping effectué en: %1 secondes</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="27"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="29"/>
         <source>
 
 Scan export failed in: %1 seconds</source>
@@ -4771,7 +4782,7 @@ Scan export failed in: %1 seconds</source>
 Echec de l&apos;export de scan en: %1 secondes</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="28"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="30"/>
         <source>
 
 Clipping export failed in: %1 seconds</source>
@@ -4780,7 +4791,7 @@ Clipping export failed in: %1 seconds</source>
 Echec d&apos;export de clipping en: %1 secondes</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="33"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="35"/>
         <source>Export Point Cloud in clippings</source>
         <translation>Exporter les points des clippings</translation>
     </message>
@@ -5359,7 +5370,7 @@ Attention: vous ne pouvez pas annuler cette action.</translation>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="42"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="45"/>
         <source>Displayed</source>
         <translation>Affiché</translation>
     </message>
@@ -5616,12 +5627,12 @@ Les modifications ne peuvent pas être sauvegardé avec le visualiseur gratuit.<
         <translation>Vous êtes en train d&apos;ouvrir un projet central !</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="46"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="49"/>
         <source>Export shared files</source>
         <translation>Export en fichiers de partage</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="43"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="46"/>
         <source>None</source>
         <translation>Aucun</translation>
     </message>
@@ -6155,17 +6166,17 @@ Vous confirmez?</translation>
     </message>
     <message>
         <location filename="../../include/gui/texts/ExportTexts.hpp" line="18"/>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="30"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="32"/>
         <source>Grids Export</source>
         <translation>Export de grilles</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="31"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="33"/>
         <source>Select grid(s) first</source>
         <translation>Sélectionnez des grilles d&apos;abord</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="38"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="41"/>
         <source>The selected directory is not valid for exports (invalid path OR no write permission)</source>
         <translation>Le dossier sélectionné n&apos;est pas valable pour les exports (chemin invalide OU pas de droits en écriture)</translation>
     </message>
@@ -6315,7 +6326,7 @@ Vous confirmez?</translation>
         <translation>Quitter</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="40"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="43"/>
         <location filename="../../include/gui/texts/DefaultUserLists.hpp" line="6"/>
         <source>All</source>
         <translation>Tous</translation>
@@ -6365,7 +6376,7 @@ Conversion ignorée.
     </message>
     <message>
         <location filename="../../include/gui/texts/ExportTexts.hpp" line="12"/>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="41"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="44"/>
         <source>Selected</source>
         <translation>Sélection</translation>
     </message>
@@ -10405,43 +10416,55 @@ des tubes</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="47"/>
-        <source>Use it on a clipping box splitted into a grid.</source>
-        <translation>Exporte une boite découpée ne grille.</translation>
+        <source>Use it on a clipping box splitted into a grid.
+The gridded box must be selected before starting this function.</source>
+        <translation>A utiliser sur une box divisée en grille. La grille doit être sélectionnée avant d&apos;utiliser cette fonction.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="73"/>
+        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="74"/>
         <source>Export PCO</source>
         <translation>Exporter des objets nuages de points</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="76"/>
+        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="77"/>
         <source>Point Cloud Objects</source>
         <translation>Objets nuage de points</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="108"/>
-        <source>Export scanning positions.</source>
-        <translation>Exporter des stations de scan.</translation>
+        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="109"/>
+        <source>Export full scans.</source>
+        <translation>Exporte les scans complets.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="111"/>
+        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="112"/>
         <source>Scans</source>
         <translation>Scans</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="146"/>
+        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="135"/>
+        <source>Export points using active colorimetric filter.</source>
+        <translation>Exporte les points issus du filtre colorimétrique.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="138"/>
+        <source>Colorimetric Filter</source>
+        <translation>Filtre colorimétrique</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="170"/>
+        <source>Export single or multiple clipping boxes.You must select or activate the boxes before using this function.</source>
+        <translation>Exporte un nuage de points segmenté par une ou plusieurs clipping(s).
+Vous devez sélectionner ou activer des clipping pour utiliser cette fonction.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="173"/>
         <source>Clipping</source>
         <translation>Clipping</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="50"/>
+        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="51"/>
         <source>Gridded Box</source>
         <translation>Box en grille</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="143"/>
-        <source>Export single or multiple clipping boxes.</source>
-        <translation>Exporter une ou des clipping boxes.</translation>
     </message>
 </context>
 <context>

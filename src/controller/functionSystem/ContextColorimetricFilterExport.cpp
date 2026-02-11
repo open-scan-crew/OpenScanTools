@@ -14,7 +14,7 @@
 #include "gui/texts/ExportTexts.hpp"
 #include "gui/texts/SplashScreenTexts.hpp"
 
-#include "io/exports/CSVWriter.h"
+#include "io/exports/CSVWriter.hxx"
 #include "io/exports/IScanFileWriter.h"
 #include "models/graph/AClippingNode.h"
 #include "models/graph/CameraNode.h"
