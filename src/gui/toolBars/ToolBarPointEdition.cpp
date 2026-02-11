@@ -10,8 +10,11 @@ ToolBarPointEdition::ToolBarPointEdition(IDataDispatcher &dataDispatcher, QWidge
     setEnabled(false);
 
     m_ui.toolButton_deleteClippedPoints->setIconSize(QSize(20, 20) * guiScale);
+    m_ui.toolbutton_colorbalance->setIconSize(QSize(20, 20) * guiScale);
 
-    QObject::connect(m_ui.toolButton_deleteClippedPoints, &QToolButton::released, this, &ToolBarPointEdition::slotDeleteClippedPoints);
+    QObject::connect(m_ui.toolButton_deleteClippedPoints, &QToolButton::clicked, this, &ToolBarPointEdition::slotDeleteClippedPoints);
+    QObject::connect(m_ui.toolButton_statisticalOutlierFilter, &QToolButton::clicked, this, &ToolBarPointEdition::slotStatisticalOutlierFilter);
+    QObject::connect(m_ui.toolbutton_colorbalance, &QToolButton::clicked, this, &ToolBarPointEdition::slotColorBalance);
 
     m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);
     m_guiDataFunctions.insert({ guiDType::projectLoaded, &ToolBarPointEdition::onProjectLoad });
@@ -42,4 +45,14 @@ void ToolBarPointEdition::onProjectLoad(IGuiData * data)
 void ToolBarPointEdition::slotDeleteClippedPoints()
 {
     m_dataDispatcher.sendControl(new control::exportPC::StartDeletePoints());
+}
+
+void ToolBarPointEdition::slotStatisticalOutlierFilter()
+{
+    m_dataDispatcher.sendControl(new control::exportPC::StartStatisticalOutlierFilter());
+}
+
+void ToolBarPointEdition::slotColorBalance()
+{
+    m_dataDispatcher.sendControl(new control::exportPC::StartColorBalanceFilter());
 }

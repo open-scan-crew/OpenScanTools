@@ -14,9 +14,9 @@ ToolBarStructureAnalysis::ToolBarStructureAnalysis(IDataDispatcher& dataDispatch
 	m_ui.beamBendingButton->setIconSize(QSize(20, 20) * guiScale);
 	m_ui.columnTiltButton->setIconSize(QSize(20, 20) * guiScale);
 
-	QObject::connect(m_ui.columnTiltButton, &QPushButton::released, this, &ToolBarStructureAnalysis::initColumnTiltMeasure);
+	QObject::connect(m_ui.columnTiltButton, &QPushButton::clicked, this, &ToolBarStructureAnalysis::initColumnTiltMeasure);
 	QObject::connect(m_ui.tiltLineEdit, &QLineEdit::editingFinished, this, &ToolBarStructureAnalysis::setTiltTolerance);
-	QObject::connect(m_ui.beamBendingButton, &QPushButton::released, this, &ToolBarStructureAnalysis::initBeamBendingMeasure);
+	QObject::connect(m_ui.beamBendingButton, &QPushButton::clicked, this, &ToolBarStructureAnalysis::initBeamBendingMeasure);
 	QObject::connect(m_ui.bendingLineEdit, &QLineEdit::editingFinished, this, &ToolBarStructureAnalysis::setBendingTolerance);
 
 	m_ui.tiltLineEdit->setRules(ANumericLineEdit::LineEditRules::PositiveStrict);

@@ -2,13 +2,22 @@
 #include "pointCloudEngine/OctreeRayTracing.h"
 #include "vulkan/VulkanManager.h"
 #include "utils/Logger.h"
+#include "utils/Config.h"
 #include "models/graph/TransformationModule.h"
 
 #include "tls_impl.h"
 
+#include <algorithm>
+#include <array>
+#include <atomic>
+#include <cmath>
 #include <chrono>
+#include <condition_variable>
 #include <future>
+#include <mutex>
 #include <set>
+#include <thread>
+#include <unordered_map>
 #ifndef PORTABLE
 #include "io/exports/IScanFileWriter.h"
 #endif
@@ -209,7 +218,7 @@ bool EmbeddedScan::testPointsClippedOut(const TransformationModule& src_transfo,
     {
         std::vector<PointXYZIRGB> points;
         points.resize(tls_point_cloud_.getCellPointCount(cell));
-        if (!tls_point_cloud_.getCellPoints(cell, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+        if (!getCellPointsThreadSafe(cell, reinterpret_cast<tls::Point*>(points.data()), points.size()))
             continue;
         std::vector<PointXYZIRGB> points_clipped_in;
         clipIndividualPoints(points, points_clipped_in, localAssembly);
@@ -219,7 +228,7 @@ bool EmbeddedScan::testPointsClippedOut(const TransformationModule& src_transfo,
     return false;
 }
 
-bool EmbeddedScan::clipAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& _clippingAssembly, IScanFileWriter* _writer)
+bool EmbeddedScan::clipAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& _clippingAssembly, IScanFileWriter* _writer, const ProgressCallback& progress)
 {
     ClippingAssembly localAssembly = _clippingAssembly;
     localAssembly.clearMatrix();
@@ -236,8 +245,12 @@ bool EmbeddedScan::clipAndWrite(const TransformationModule& src_transfo, const C
     getClippedCells_impl(m_uRootCell, localAssembly, cells);
 
     bool resultOk = true;
-    for (const std::pair<uint32_t, bool>& cell : cells)
+    const size_t totalCells = cells.size();
+    if (progress && totalCells > 0)
+        progress(0, totalCells);
+    for (size_t cellIndex = 0; cellIndex < cells.size(); ++cellIndex)
     {
+        const std::pair<uint32_t, bool>& cell = cells[cellIndex];
         // NOTE(robin) - A propos des référenciels :
         //   (*) Il est préférable de travailler dans l'espace local du scan en cours.
         //   (*) Les matrices de transformation des clippings peuvent être changées une fois pour tout les points.
@@ -246,8 +259,12 @@ bool EmbeddedScan::clipAndWrite(const TransformationModule& src_transfo, const C
         std::chrono::steady_clock::time_point tp_0 = std::chrono::steady_clock::now();
         std::vector<PointXYZIRGB> points;
         points.resize(tls_point_cloud_.getCellPointCount(cell.first));
-        if (!tls_point_cloud_.getCellPoints(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
-        continue;
+        if (!getCellPointsThreadSafe(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+        {
+            if (progress)
+                progress(cellIndex + 1, totalCells);
+            continue;
+        }
         std::chrono::steady_clock::time_point tp_1 = std::chrono::steady_clock::now();
 
         // Do the micro-clipping if necessary
@@ -264,8 +281,1215 @@ bool EmbeddedScan::clipAndWrite(const TransformationModule& src_transfo, const C
         std::chrono::steady_clock::time_point tp_2 = std::chrono::steady_clock::now();
         decode_time_ += std::chrono::duration<float, std::ratio<1>>(tp_1 - tp_0).count();
         merge_time_ += std::chrono::duration<float, std::ratio<1>>(tp_2 - tp_1).count();
+
+        if (progress)
+            progress(cellIndex + 1, totalCells);
     }
     return (resultOk);
+}
+
+namespace
+{
+    struct RunningStats
+    {
+        uint64_t count = 0;
+        double mean = 0.0;
+        double m2 = 0.0;
+
+        void add(double value)
+        {
+            count++;
+            double delta = value - mean;
+            mean += delta / static_cast<double>(count);
+            double delta2 = value - mean;
+            m2 += delta * delta2;
+        }
+
+        double stddev() const
+        {
+            if (count < 2)
+                return 0.0;
+            double variance = m2 / static_cast<double>(count - 1);
+            return sqrt(variance);
+        }
+
+        void merge(const RunningStats& other)
+        {
+            if (other.count == 0)
+                return;
+            if (count == 0)
+            {
+                count = other.count;
+                mean = other.mean;
+                m2 = other.m2;
+                return;
+            }
+
+            double delta = other.mean - mean;
+            uint64_t total = count + other.count;
+            mean = (mean * static_cast<double>(count) + other.mean * static_cast<double>(other.count)) / static_cast<double>(total);
+            m2 += other.m2 + delta * delta * (static_cast<double>(count) * static_cast<double>(other.count)) / static_cast<double>(total);
+            count = total;
+        }
+    };
+
+    std::shared_ptr<IClippingGeometry> cloneClippingGeometry(const std::shared_ptr<IClippingGeometry>& geometry)
+    {
+        if (!geometry)
+            return nullptr;
+
+        std::shared_ptr<IClippingGeometry> clone;
+        switch (geometry->getShape())
+        {
+        case ClippingShape::box:
+            clone = std::make_shared<BoxClippingGeometry>(geometry->mode, geometry->matRT_inv_store, geometry->params, geometry->rampSteps);
+            break;
+        case ClippingShape::cylinder:
+            clone = std::make_shared<CylinderClippingGeometry>(geometry->mode, geometry->matRT_inv_store, geometry->params, geometry->rampSteps);
+            break;
+        case ClippingShape::sphere:
+            clone = std::make_shared<SphereClippingGeometry>(geometry->mode, geometry->matRT_inv_store, geometry->params, geometry->rampSteps);
+            break;
+        case ClippingShape::torus:
+            clone = std::make_shared<TorusClippingGeometry>(geometry->mode, geometry->matRT_inv_store, geometry->params, geometry->rampSteps);
+            break;
+        default:
+            return nullptr;
+        }
+
+        clone->matRT_inv = geometry->matRT_inv;
+        clone->params = geometry->params;
+        clone->color = geometry->color;
+        clone->rampSteps = geometry->rampSteps;
+        clone->gpuDrawId = geometry->gpuDrawId;
+        clone->clipperPhase = geometry->clipperPhase;
+        clone->isSelected = geometry->isSelected;
+        return clone;
+    }
+
+    ClippingAssembly deepCopyClippingAssembly(const ClippingAssembly& assembly)
+    {
+        ClippingAssembly copy;
+        copy.clippingUnion.reserve(assembly.clippingUnion.size());
+        copy.clippingIntersection.reserve(assembly.clippingIntersection.size());
+        copy.rampActives.reserve(assembly.rampActives.size());
+
+        for (const auto& geom : assembly.clippingUnion)
+            copy.clippingUnion.push_back(cloneClippingGeometry(geom));
+        for (const auto& geom : assembly.clippingIntersection)
+            copy.clippingIntersection.push_back(cloneClippingGeometry(geom));
+        for (const auto& geom : assembly.rampActives)
+            copy.rampActives.push_back(cloneClippingGeometry(geom));
+
+        return copy;
+    }
+
+    size_t resolveThreadCount(size_t cellCount)
+    {
+        if (!Config::getMultithreadedCalculation())
+            return 1;
+        unsigned int hwThreads = std::thread::hardware_concurrency();
+        size_t maxThreads = hwThreads == 0 ? 1u : static_cast<size_t>(hwThreads);
+        return std::max<size_t>(1, std::min(maxThreads, cellCount));
+    }
+
+    struct GridIndex
+    {
+        int x;
+        int y;
+        int z;
+    };
+
+    int64_t packGridIndex(const GridIndex& index)
+    {
+        return (static_cast<int64_t>(index.x) << 42) ^ (static_cast<int64_t>(index.y) << 21) ^ static_cast<int64_t>(index.z);
+    }
+
+    GridIndex computeGridIndex(const glm::dvec3& point, const glm::dvec3& origin, double voxelSize)
+    {
+        return GridIndex{
+            static_cast<int>(std::floor((point.x - origin.x) / voxelSize)),
+            static_cast<int>(std::floor((point.y - origin.y) / voxelSize)),
+            static_cast<int>(std::floor((point.z - origin.z) / voxelSize))
+        };
+    }
+
+    bool computeMeanNeighborDistanceGrid(const std::vector<glm::dvec3>& points, const std::unordered_map<int64_t, std::vector<size_t>>& grid, const glm::dvec3& origin, double voxelSize, size_t index, size_t kNeighbors, double maxRadius, double& meanDistance)
+    {
+        if (kNeighbors == 0 || points.empty())
+            return false;
+
+        const glm::dvec3& base = points[index];
+        GridIndex baseIndex = computeGridIndex(base, origin, voxelSize);
+        int ring = 0;
+        std::vector<size_t> candidateIndices;
+
+        while (ring * voxelSize <= maxRadius)
+        {
+            candidateIndices.clear();
+            for (int dx = -ring; dx <= ring; ++dx)
+            {
+                for (int dy = -ring; dy <= ring; ++dy)
+                {
+                    for (int dz = -ring; dz <= ring; ++dz)
+                    {
+                        GridIndex query{ baseIndex.x + dx, baseIndex.y + dy, baseIndex.z + dz };
+                        int64_t key = packGridIndex(query);
+                        auto it = grid.find(key);
+                        if (it == grid.end())
+                            continue;
+                        candidateIndices.insert(candidateIndices.end(), it->second.begin(), it->second.end());
+                    }
+                }
+            }
+
+            if (candidateIndices.size() > kNeighbors)
+                break;
+            ring++;
+        }
+
+        if (candidateIndices.empty())
+            return false;
+
+        std::vector<double> distances;
+        distances.reserve(candidateIndices.size());
+        for (size_t candidate : candidateIndices)
+        {
+            if (candidate == index)
+                continue;
+            double dist = glm::length(base - points[candidate]);
+            if (dist > 0.0)
+                distances.push_back(dist);
+        }
+
+        if (distances.empty())
+            return false;
+
+        size_t target = std::min(kNeighbors, distances.size());
+        std::nth_element(distances.begin(), distances.begin() + static_cast<long>(target - 1), distances.end());
+        distances.resize(target);
+
+        double sum = 0.0;
+        for (double value : distances)
+            sum += value;
+        meanDistance = sum / static_cast<double>(distances.size());
+        return true;
+    }
+
+    struct BalancePoint
+    {
+        glm::dvec3 position;
+        uint8_t intensity;
+        uint8_t r;
+        uint8_t g;
+        uint8_t b;
+        bool isLocal;
+    };
+
+    bool collectNeighborIndicesGrid(const std::vector<BalancePoint>& points, const std::unordered_map<int64_t, std::vector<size_t>>& grid, const glm::dvec3& origin, double voxelSize, size_t index, size_t kMax, double maxRadius, std::vector<size_t>& neighbors)
+    {
+        if (points.empty() || kMax == 0)
+            return false;
+
+        const glm::dvec3& base = points[index].position;
+        GridIndex baseIndex = computeGridIndex(base, origin, voxelSize);
+        int ring = 0;
+        std::vector<size_t> candidateIndices;
+
+        while (ring * voxelSize <= maxRadius)
+        {
+            candidateIndices.clear();
+            for (int dx = -ring; dx <= ring; ++dx)
+            {
+                for (int dy = -ring; dy <= ring; ++dy)
+                {
+                    for (int dz = -ring; dz <= ring; ++dz)
+                    {
+                        GridIndex query{ baseIndex.x + dx, baseIndex.y + dy, baseIndex.z + dz };
+                        int64_t key = packGridIndex(query);
+                        auto it = grid.find(key);
+                        if (it == grid.end())
+                            continue;
+                        candidateIndices.insert(candidateIndices.end(), it->second.begin(), it->second.end());
+                    }
+                }
+            }
+
+            if (candidateIndices.size() >= kMax)
+                break;
+            ring++;
+        }
+
+        if (candidateIndices.empty())
+            return false;
+
+        std::vector<std::pair<double, size_t>> distances;
+        distances.reserve(candidateIndices.size());
+        for (size_t candidate : candidateIndices)
+        {
+            if (candidate == index)
+                continue;
+            double dist = glm::length(base - points[candidate].position);
+            if (dist > 0.0 && dist <= maxRadius)
+                distances.emplace_back(dist, candidate);
+        }
+
+        if (distances.empty())
+            return false;
+
+        size_t target = std::min(kMax, distances.size());
+        std::nth_element(distances.begin(), distances.begin() + static_cast<long>(target - 1), distances.end(),
+                         [](const auto& lhs, const auto& rhs) { return lhs.first < rhs.first; });
+        distances.resize(target);
+        neighbors.clear();
+        neighbors.reserve(distances.size());
+        for (const auto& entry : distances)
+            neighbors.push_back(entry.second);
+        return true;
+    }
+
+    uint8_t computeTrimmedMeanHistogram(const std::vector<BalancePoint>& points, const std::vector<size_t>& neighbors, size_t neighborCount, double trimPercent, uint8_t fallback, const std::function<uint8_t(const BalancePoint&)>& getter)
+    {
+        if (neighborCount == 0)
+            return fallback;
+
+        std::array<int, 256> counts{};
+        counts.fill(0);
+        for (size_t idx = 0; idx < neighborCount; ++idx)
+        {
+            uint8_t value = getter(points[neighbors[idx]]);
+            ++counts[value];
+        }
+
+        double clampedTrim = std::clamp(trimPercent, 0.0, 40.0);
+        size_t trimCount = static_cast<size_t>(std::floor(neighborCount * clampedTrim / 100.0));
+        if (trimCount * 2 >= neighborCount)
+            trimCount = (neighborCount - 1) / 2;
+
+        size_t skipLow = trimCount;
+        size_t skipHigh = trimCount;
+        size_t remaining = neighborCount - trimCount * 2;
+        if (remaining == 0)
+            return fallback;
+
+        int low = 0;
+        while (low < 256 && skipLow > 0)
+        {
+            int delta = std::min<int>(counts[low], static_cast<int>(skipLow));
+            counts[low] -= delta;
+            skipLow -= static_cast<size_t>(delta);
+            if (counts[low] == 0)
+                ++low;
+        }
+
+        int high = 255;
+        while (high >= 0 && skipHigh > 0)
+        {
+            int delta = std::min<int>(counts[high], static_cast<int>(skipHigh));
+            counts[high] -= delta;
+            skipHigh -= static_cast<size_t>(delta);
+            if (counts[high] == 0)
+                --high;
+        }
+
+        double sum = 0.0;
+        size_t count = 0;
+        for (int value = 0; value < 256; ++value)
+        {
+            if (counts[value] == 0)
+                continue;
+            sum += static_cast<double>(value) * static_cast<double>(counts[value]);
+            count += static_cast<size_t>(counts[value]);
+        }
+
+        if (count == 0)
+            return fallback;
+
+        int rounded = static_cast<int>(std::round(sum / static_cast<double>(count)));
+        rounded = std::clamp(rounded, 0, 255);
+        return static_cast<uint8_t>(rounded);
+    }
+}
+
+bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, int samplingPercent, double beta, OutlierStats& stats, const ProgressCallback& progress)
+{
+    ClippingAssembly localAssembly = deepCopyClippingAssembly(clippingAssembly);
+    localAssembly.clearMatrix();
+    glm::dmat4 src_transfo_mat = src_transfo.getTransformation();
+    localAssembly.addTransformation(src_transfo_mat);
+
+    std::vector<std::pair<uint32_t, bool>> cells;
+    getClippedCells_impl(m_uRootCell, localAssembly, cells);
+
+    const size_t neighborCount = std::max(1, kNeighbors);
+    const double samplingValue = std::clamp(static_cast<double>(samplingPercent), 1.0, 100.0);
+    const size_t sampleStep = std::max<size_t>(1, static_cast<size_t>(std::round(100.0 / samplingValue)));
+
+    const size_t totalCells = cells.size();
+    if (progress && totalCells > 0)
+        progress(0, totalCells);
+    const size_t threadCount = resolveThreadCount(totalCells);
+    if (threadCount <= 1)
+    {
+        RunningStats running;
+        for (size_t cellIndex = 0; cellIndex < cells.size(); ++cellIndex)
+        {
+            const std::pair<uint32_t, bool>& cell = cells[cellIndex];
+            std::vector<PointXYZIRGB> points;
+            points.resize(tls_point_cloud_.getCellPointCount(cell.first));
+            if (!getCellPointsThreadSafe(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+            {
+                if (progress)
+                    progress(cellIndex + 1, totalCells);
+                continue;
+            }
+
+            std::vector<PointXYZIRGB> visiblePoints;
+            if (cell.second)
+                clipIndividualPoints(points, visiblePoints, localAssembly);
+            else
+                visiblePoints.swap(points);
+
+            if (visiblePoints.empty())
+            {
+                if (progress)
+                    progress(cellIndex + 1, totalCells);
+                continue;
+            }
+
+            glm::dvec3 cellOrigin(m_vTreeCells[cell.first].m_position[0], m_vTreeCells[cell.first].m_position[1], m_vTreeCells[cell.first].m_position[2]);
+            double cellSize = m_vTreeCells[cell.first].m_size;
+            double avgSpacing = std::cbrt((cellSize * cellSize * cellSize) / std::max<size_t>(visiblePoints.size(), 1));
+            double voxelSize = std::max(cellSize / 128.0, avgSpacing * 2.0);
+            double maxRadius = std::clamp(beta * avgSpacing, cellSize / 8.0, cellSize);
+
+            std::vector<glm::dvec3> localPoints;
+            localPoints.reserve(visiblePoints.size());
+            for (const PointXYZIRGB& point : visiblePoints)
+                localPoints.emplace_back(point.x, point.y, point.z);
+
+            std::unordered_map<int64_t, std::vector<size_t>> grid;
+            grid.reserve(localPoints.size());
+            for (size_t i = 0; i < localPoints.size(); ++i)
+            {
+                GridIndex index = computeGridIndex(localPoints[i], cellOrigin, voxelSize);
+                grid[packGridIndex(index)].push_back(i);
+            }
+
+            for (size_t i = 0; i < localPoints.size(); i += sampleStep)
+            {
+                double meanDistance = 0.0;
+                if (computeMeanNeighborDistanceGrid(localPoints, grid, cellOrigin, voxelSize, i, neighborCount, maxRadius, meanDistance))
+                    running.add(meanDistance);
+            }
+
+            if (progress)
+                progress(cellIndex + 1, totalCells);
+        }
+
+        stats.count = running.count;
+        stats.mean = running.mean;
+        stats.stddev = running.stddev();
+        return true;
+    }
+
+    std::vector<RunningStats> cellStats(totalCells);
+    std::atomic<size_t> nextIndex{ 0 };
+    std::atomic<size_t> completed{ 0 };
+    std::mutex progressMutex;
+
+    auto worker = [&]()
+    {
+        ClippingAssembly threadAssembly = deepCopyClippingAssembly(clippingAssembly);
+        threadAssembly.clearMatrix();
+        threadAssembly.addTransformation(src_transfo_mat);
+
+        for (;;)
+        {
+            size_t cellIndex = nextIndex.fetch_add(1);
+            if (cellIndex >= totalCells)
+                break;
+
+            const std::pair<uint32_t, bool>& cell = cells[cellIndex];
+            std::vector<PointXYZIRGB> points;
+            points.resize(tls_point_cloud_.getCellPointCount(cell.first));
+            if (!getCellPointsThreadSafe(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+            {
+                if (progress)
+                {
+                    size_t done = completed.fetch_add(1) + 1;
+                    std::lock_guard<std::mutex> guard(progressMutex);
+                    progress(done, totalCells);
+                }
+                continue;
+            }
+
+            std::vector<PointXYZIRGB> visiblePoints;
+            if (cell.second)
+                clipIndividualPoints(points, visiblePoints, threadAssembly);
+            else
+                visiblePoints.swap(points);
+
+            RunningStats running;
+            if (!visiblePoints.empty())
+            {
+                glm::dvec3 cellOrigin(m_vTreeCells[cell.first].m_position[0], m_vTreeCells[cell.first].m_position[1], m_vTreeCells[cell.first].m_position[2]);
+                double cellSize = m_vTreeCells[cell.first].m_size;
+                double avgSpacing = std::cbrt((cellSize * cellSize * cellSize) / std::max<size_t>(visiblePoints.size(), 1));
+                double voxelSize = std::max(cellSize / 128.0, avgSpacing * 2.0);
+                double maxRadius = std::clamp(beta * avgSpacing, cellSize / 8.0, cellSize);
+
+                std::vector<glm::dvec3> localPoints;
+                localPoints.reserve(visiblePoints.size());
+                for (const PointXYZIRGB& point : visiblePoints)
+                    localPoints.emplace_back(point.x, point.y, point.z);
+
+                std::unordered_map<int64_t, std::vector<size_t>> grid;
+                grid.reserve(localPoints.size());
+                for (size_t i = 0; i < localPoints.size(); ++i)
+                {
+                    GridIndex index = computeGridIndex(localPoints[i], cellOrigin, voxelSize);
+                    grid[packGridIndex(index)].push_back(i);
+                }
+
+                for (size_t i = 0; i < localPoints.size(); i += sampleStep)
+                {
+                    double meanDistance = 0.0;
+                    if (computeMeanNeighborDistanceGrid(localPoints, grid, cellOrigin, voxelSize, i, neighborCount, maxRadius, meanDistance))
+                        running.add(meanDistance);
+                }
+            }
+
+            cellStats[cellIndex] = running;
+
+            if (progress)
+            {
+                size_t done = completed.fetch_add(1) + 1;
+                std::lock_guard<std::mutex> guard(progressMutex);
+                progress(done, totalCells);
+            }
+        }
+    };
+
+    std::vector<std::thread> threads;
+    threads.reserve(threadCount);
+    for (size_t i = 1; i < threadCount; ++i)
+        threads.emplace_back(worker);
+    worker();
+    for (auto& thread : threads)
+        thread.join();
+
+    RunningStats running;
+    for (const auto& cellStat : cellStats)
+        running.merge(cellStat);
+
+    stats.count = running.count;
+    stats.mean = running.mean;
+    stats.stddev = running.stddev();
+
+    return true;
+}
+
+bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* writer, uint64_t& removedPoints, const ProgressCallback& progress)
+{
+    ClippingAssembly localAssembly = deepCopyClippingAssembly(clippingAssembly);
+    localAssembly.clearMatrix();
+    glm::dmat4 src_transfo_mat = src_transfo.getTransformation();
+    localAssembly.addTransformation(src_transfo_mat);
+
+    std::vector<std::pair<uint32_t, bool>> cells;
+    getClippedCells_impl(m_uRootCell, localAssembly, cells);
+
+    const size_t neighborCount = std::max(1, kNeighbors);
+    double threshold = stats.mean + nSigma * stats.stddev;
+    const size_t totalCells = cells.size();
+    if (progress && totalCells > 0)
+        progress(0, totalCells);
+    const size_t threadCount = resolveThreadCount(totalCells);
+    std::atomic<uint64_t> removedPointsAtomic{ 0 };
+    std::atomic<bool> resultOk{ true };
+
+    if (threadCount <= 1)
+    {
+        bool sequentialOk = true;
+        for (size_t cellIndex = 0; cellIndex < cells.size(); ++cellIndex)
+        {
+            const std::pair<uint32_t, bool>& cell = cells[cellIndex];
+            std::vector<PointXYZIRGB> points;
+            points.resize(tls_point_cloud_.getCellPointCount(cell.first));
+            if (!getCellPointsThreadSafe(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+            {
+                if (progress)
+                    progress(cellIndex + 1, totalCells);
+                continue;
+            }
+
+            std::vector<PointXYZIRGB> visiblePoints;
+            if (cell.second)
+                clipIndividualPoints(points, visiblePoints, localAssembly);
+            else
+                visiblePoints.swap(points);
+
+            std::vector<PointXYZIRGB> filtered;
+            filtered.reserve(visiblePoints.size());
+
+            if (!visiblePoints.empty())
+            {
+                glm::dvec3 cellOrigin(m_vTreeCells[cell.first].m_position[0], m_vTreeCells[cell.first].m_position[1], m_vTreeCells[cell.first].m_position[2]);
+                double cellSize = m_vTreeCells[cell.first].m_size;
+                double avgSpacing = std::cbrt((cellSize * cellSize * cellSize) / std::max<size_t>(visiblePoints.size(), 1));
+                double voxelSize = std::max(cellSize / 128.0, avgSpacing * 2.0);
+                double maxRadius = std::clamp(beta * avgSpacing, cellSize / 8.0, cellSize);
+
+                std::vector<glm::dvec3> localPoints;
+                localPoints.reserve(visiblePoints.size());
+                for (const PointXYZIRGB& point : visiblePoints)
+                    localPoints.emplace_back(point.x, point.y, point.z);
+
+                std::unordered_map<int64_t, std::vector<size_t>> grid;
+                grid.reserve(localPoints.size());
+                for (size_t i = 0; i < localPoints.size(); ++i)
+                {
+                    GridIndex index = computeGridIndex(localPoints[i], cellOrigin, voxelSize);
+                    grid[packGridIndex(index)].push_back(i);
+                }
+
+                for (size_t i = 0; i < localPoints.size(); ++i)
+                {
+                    double meanDistance = 0.0;
+                    if (!computeMeanNeighborDistanceGrid(localPoints, grid, cellOrigin, voxelSize, i, neighborCount, maxRadius, meanDistance))
+                    {
+                        filtered.push_back(visiblePoints[i]);
+                        continue;
+                    }
+
+                    if (meanDistance <= threshold || stats.count == 0)
+                        filtered.push_back(visiblePoints[i]);
+                }
+            }
+
+            removedPointsAtomic.fetch_add(visiblePoints.size() - filtered.size());
+            sequentialOk &= writer->mergePoints(filtered.data(), filtered.size(), src_transfo, pt_format_);
+
+            if (progress)
+                progress(cellIndex + 1, totalCells);
+        }
+        removedPoints = removedPointsAtomic.load();
+        return sequentialOk;
+    }
+
+    std::atomic<size_t> nextIndex{ 0 };
+    std::atomic<size_t> completed{ 0 };
+    std::mutex progressMutex;
+    std::mutex writeMutex;
+    std::condition_variable writeCv;
+    size_t nextWriteIndex = 0;
+
+    auto worker = [&]()
+    {
+        ClippingAssembly threadAssembly = deepCopyClippingAssembly(clippingAssembly);
+        threadAssembly.clearMatrix();
+        threadAssembly.addTransformation(src_transfo_mat);
+
+        for (;;)
+        {
+            size_t cellIndex = nextIndex.fetch_add(1);
+            if (cellIndex >= totalCells)
+                break;
+
+            const std::pair<uint32_t, bool>& cell = cells[cellIndex];
+            std::vector<PointXYZIRGB> points;
+            points.resize(tls_point_cloud_.getCellPointCount(cell.first));
+            if (!getCellPointsThreadSafe(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+            {
+                {
+                    std::unique_lock<std::mutex> lock(writeMutex);
+                    writeCv.wait(lock, [&]() { return cellIndex == nextWriteIndex; });
+                    ++nextWriteIndex;
+                }
+                writeCv.notify_all();
+                if (progress)
+                {
+                    size_t done = completed.fetch_add(1) + 1;
+                    std::lock_guard<std::mutex> guard(progressMutex);
+                    progress(done, totalCells);
+                }
+                continue;
+            }
+
+            std::vector<PointXYZIRGB> visiblePoints;
+            if (cell.second)
+                clipIndividualPoints(points, visiblePoints, threadAssembly);
+            else
+                visiblePoints.swap(points);
+
+            if (visiblePoints.empty())
+            {
+                {
+                    std::unique_lock<std::mutex> lock(writeMutex);
+                    writeCv.wait(lock, [&]() { return cellIndex == nextWriteIndex; });
+                    ++nextWriteIndex;
+                }
+                writeCv.notify_all();
+                if (progress)
+                {
+                    size_t done = completed.fetch_add(1) + 1;
+                    std::lock_guard<std::mutex> guard(progressMutex);
+                    progress(done, totalCells);
+                }
+                continue;
+            }
+
+            std::vector<PointXYZIRGB> filtered;
+            filtered.reserve(visiblePoints.size());
+
+            glm::dvec3 cellOrigin(m_vTreeCells[cell.first].m_position[0], m_vTreeCells[cell.first].m_position[1], m_vTreeCells[cell.first].m_position[2]);
+            double cellSize = m_vTreeCells[cell.first].m_size;
+            double avgSpacing = std::cbrt((cellSize * cellSize * cellSize) / std::max<size_t>(visiblePoints.size(), 1));
+            double voxelSize = std::max(cellSize / 128.0, avgSpacing * 2.0);
+            double maxRadius = std::clamp(beta * avgSpacing, cellSize / 8.0, cellSize);
+
+            std::vector<glm::dvec3> localPoints;
+            localPoints.reserve(visiblePoints.size());
+            for (const PointXYZIRGB& point : visiblePoints)
+                localPoints.emplace_back(point.x, point.y, point.z);
+
+            std::unordered_map<int64_t, std::vector<size_t>> grid;
+            grid.reserve(localPoints.size());
+            for (size_t i = 0; i < localPoints.size(); ++i)
+            {
+                GridIndex index = computeGridIndex(localPoints[i], cellOrigin, voxelSize);
+                grid[packGridIndex(index)].push_back(i);
+            }
+
+            for (size_t i = 0; i < localPoints.size(); ++i)
+            {
+                double meanDistance = 0.0;
+                if (!computeMeanNeighborDistanceGrid(localPoints, grid, cellOrigin, voxelSize, i, neighborCount, maxRadius, meanDistance))
+                {
+                    filtered.push_back(visiblePoints[i]);
+                    continue;
+                }
+
+                if (meanDistance <= threshold || stats.count == 0)
+                    filtered.push_back(visiblePoints[i]);
+            }
+
+            {
+                std::unique_lock<std::mutex> lock(writeMutex);
+                writeCv.wait(lock, [&]() { return cellIndex == nextWriteIndex; });
+                bool ok = writer->mergePoints(filtered.data(), filtered.size(), src_transfo, pt_format_);
+                if (!ok)
+                    resultOk.store(false);
+                removedPointsAtomic.fetch_add(visiblePoints.size() - filtered.size());
+                ++nextWriteIndex;
+            }
+            writeCv.notify_all();
+
+            if (progress)
+            {
+                size_t done = completed.fetch_add(1) + 1;
+                std::lock_guard<std::mutex> guard(progressMutex);
+                progress(done, totalCells);
+            }
+        }
+    };
+
+    std::vector<std::thread> threads;
+    threads.reserve(threadCount);
+    for (size_t i = 1; i < threadCount; ++i)
+        threads.emplace_back(worker);
+    worker();
+    for (auto& thread : threads)
+        thread.join();
+
+    removedPoints = removedPointsAtomic.load();
+    return resultOk.load();
+}
+
+bool EmbeddedScan::balanceColorsAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kMin, int kMax, double trimPercent, double sharpnessBlend, bool applyOnIntensity, bool applyOnRgb, const ExternalPointsProvider& externalPointsProvider, IScanFileWriter* writer, uint64_t& modifiedPoints, const ProgressCallback& progress)
+{
+    ClippingAssembly localAssembly = deepCopyClippingAssembly(clippingAssembly);
+    localAssembly.clearMatrix();
+    glm::dmat4 src_transfo_mat = src_transfo.getTransformation();
+    localAssembly.addTransformation(src_transfo_mat);
+
+    const double sharpness = std::clamp(sharpnessBlend, 0.0, 1.0);
+    const bool useSharpness = sharpness > 0.0;
+
+    std::vector<std::pair<uint32_t, bool>> cells;
+    getClippedCells_impl(m_uRootCell, localAssembly, cells);
+
+    const size_t totalCells = cells.size();
+    if (progress && totalCells > 0)
+        progress(0, totalCells);
+    const size_t threadCount = resolveThreadCount(totalCells);
+    std::atomic<uint64_t> modifiedPointsAtomic{ 0 };
+    std::atomic<bool> resultOk{ true };
+
+    if (threadCount <= 1)
+    {
+        bool sequentialOk = true;
+        for (size_t cellIndex = 0; cellIndex < cells.size(); ++cellIndex)
+        {
+            const std::pair<uint32_t, bool>& cell = cells[cellIndex];
+            std::vector<PointXYZIRGB> points;
+            points.resize(tls_point_cloud_.getCellPointCount(cell.first));
+            if (!getCellPointsThreadSafe(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+            {
+                if (progress)
+                    progress(cellIndex + 1, totalCells);
+                continue;
+            }
+
+            std::vector<PointXYZIRGB> visiblePoints;
+            if (cell.second)
+                clipIndividualPoints(points, visiblePoints, localAssembly);
+            else
+                visiblePoints.swap(points);
+
+            if (visiblePoints.empty())
+            {
+                if (progress)
+                    progress(cellIndex + 1, totalCells);
+                continue;
+            }
+
+            const TreeCell& treeCell = m_vTreeCells[cell.first];
+            glm::dvec3 cellOriginLocal(treeCell.m_position[0], treeCell.m_position[1], treeCell.m_position[2]);
+            glm::dvec4 cellOriginGlobal4 = src_transfo_mat * glm::dvec4(cellOriginLocal, 1.0);
+            glm::dvec3 cellOriginGlobal(cellOriginGlobal4.x, cellOriginGlobal4.y, cellOriginGlobal4.z);
+
+            double cellSize = treeCell.m_size;
+            double avgSpacing = std::cbrt((cellSize * cellSize * cellSize) / std::max<size_t>(visiblePoints.size(), 1));
+            double voxelSize = std::max(cellSize / 128.0, avgSpacing * 2.0);
+            double maxRadius = std::clamp(avgSpacing * 8.0, cellSize / 16.0, cellSize);
+
+            std::vector<BalancePoint> allPoints;
+            allPoints.reserve(visiblePoints.size());
+            for (const PointXYZIRGB& point : visiblePoints)
+            {
+                glm::dvec4 globalPoint = src_transfo_mat * glm::dvec4(point.x, point.y, point.z, 1.0);
+                allPoints.push_back({ glm::dvec3(globalPoint.x, globalPoint.y, globalPoint.z), point.i, point.r, point.g, point.b, true });
+            }
+
+            if (externalPointsProvider)
+            {
+                std::vector<glm::dvec3> corners;
+                corners.reserve(8);
+                glm::dvec3 base = cellOriginLocal;
+                double size = cellSize;
+                corners.push_back(glm::dvec3((src_transfo_mat * glm::dvec4(base + size * glm::dvec3(0.0, 0.0, 0.0), 1.0))));
+                corners.push_back(glm::dvec3((src_transfo_mat * glm::dvec4(base + size * glm::dvec3(1.0, 0.0, 0.0), 1.0))));
+                corners.push_back(glm::dvec3((src_transfo_mat * glm::dvec4(base + size * glm::dvec3(0.0, 1.0, 0.0), 1.0))));
+                corners.push_back(glm::dvec3((src_transfo_mat * glm::dvec4(base + size * glm::dvec3(0.0, 0.0, 1.0), 1.0))));
+                corners.push_back(glm::dvec3((src_transfo_mat * glm::dvec4(base + size * glm::dvec3(1.0, 1.0, 0.0), 1.0))));
+                corners.push_back(glm::dvec3((src_transfo_mat * glm::dvec4(base + size * glm::dvec3(1.0, 0.0, 1.0), 1.0))));
+                corners.push_back(glm::dvec3((src_transfo_mat * glm::dvec4(base + size * glm::dvec3(0.0, 1.0, 1.0), 1.0))));
+                corners.push_back(glm::dvec3((src_transfo_mat * glm::dvec4(base + size * glm::dvec3(1.0, 1.0, 1.0), 1.0))));
+
+                GeometricBox cellBox(corners);
+                GeometricBox haloBox = cellBox;
+                haloBox.setRadius(haloBox.getRadius() + maxRadius);
+
+                std::vector<PointXYZIRGB> externalPoints;
+                externalPointsProvider(haloBox, externalPoints);
+                allPoints.reserve(allPoints.size() + externalPoints.size());
+                for (const PointXYZIRGB& point : externalPoints)
+                {
+                    allPoints.push_back({ glm::dvec3(point.x, point.y, point.z), point.i, point.r, point.g, point.b, false });
+                }
+
+                std::vector<PointXYZIRGB> internalHaloPoints;
+                collectPointsInGeometricBox(haloBox, src_transfo, clippingAssembly, internalHaloPoints);
+                allPoints.reserve(allPoints.size() + internalHaloPoints.size());
+                for (const PointXYZIRGB& point : internalHaloPoints)
+                {
+                    glm::dvec3 position(point.x, point.y, point.z);
+                    if (cellBox.isInside(position))
+                        continue;
+                    allPoints.push_back({ position, point.i, point.r, point.g, point.b, false });
+                }
+            }
+
+            std::unordered_map<int64_t, std::vector<size_t>> grid;
+            grid.reserve(allPoints.size());
+            for (size_t i = 0; i < allPoints.size(); ++i)
+            {
+                GridIndex index = computeGridIndex(allPoints[i].position, cellOriginGlobal, voxelSize);
+                grid[packGridIndex(index)].push_back(i);
+            }
+
+            std::vector<PointXYZIRGB> filtered;
+            filtered.reserve(visiblePoints.size());
+
+            const size_t minNeighborCount = static_cast<size_t>(std::max(kMin, 1));
+            const size_t maxNeighborCount = static_cast<size_t>(std::max(kMax, 1));
+            const size_t availableNeighbors = allPoints.size() > 0 ? allPoints.size() - 1 : 0;
+            const size_t effectiveKMax = std::min(maxNeighborCount, availableNeighbors);
+            const size_t effectiveKMin = std::min(minNeighborCount, effectiveKMax);
+
+            if (effectiveKMax == 0 || effectiveKMin == 0)
+            {
+                filtered = visiblePoints;
+                modifiedPointsAtomic.fetch_add(filtered.size());
+                sequentialOk &= writer->addPoints(filtered.data(), filtered.size());
+                if (progress)
+                    progress(cellIndex + 1, totalCells);
+                continue;
+            }
+
+            std::vector<size_t> neighbors;
+            for (size_t i = 0; i < visiblePoints.size(); ++i)
+            {
+                PointXYZIRGB updated = visiblePoints[i];
+                if (!collectNeighborIndicesGrid(allPoints, grid, cellOriginGlobal, voxelSize, i, effectiveKMax, maxRadius, neighbors) || neighbors.size() < effectiveKMin)
+                {
+                    filtered.push_back(updated);
+                    continue;
+                }
+
+                size_t neighborCount = std::min<size_t>(neighbors.size(), effectiveKMax);
+
+                if (applyOnIntensity)
+                {
+                    updated.i = computeTrimmedMeanHistogram(allPoints, neighbors, neighborCount, trimPercent, updated.i, [](const BalancePoint& point)
+                    {
+                        return point.intensity;
+                    });
+                }
+
+                if (applyOnRgb)
+                {
+                    updated.r = computeTrimmedMeanHistogram(allPoints, neighbors, neighborCount, trimPercent, updated.r, [](const BalancePoint& point)
+                    {
+                        return point.r;
+                    });
+
+                    updated.g = computeTrimmedMeanHistogram(allPoints, neighbors, neighborCount, trimPercent, updated.g, [](const BalancePoint& point)
+                    {
+                        return point.g;
+                    });
+
+                    updated.b = computeTrimmedMeanHistogram(allPoints, neighbors, neighborCount, trimPercent, updated.b, [](const BalancePoint& point)
+                    {
+                        return point.b;
+                    });
+                }
+
+                if (useSharpness)
+                {
+                    const PointXYZIRGB& original = visiblePoints[i];
+                    auto blendChannel = [sharpness](uint8_t balanced, uint8_t base)
+                    {
+                        double blended = (1.0 - sharpness) * static_cast<double>(balanced) + sharpness * static_cast<double>(base);
+                        int rounded = static_cast<int>(std::lround(blended));
+                        return static_cast<uint8_t>(std::clamp(rounded, 0, 255));
+                    };
+
+                    if (applyOnIntensity)
+                        updated.i = blendChannel(updated.i, original.i);
+                    if (applyOnRgb)
+                    {
+                        updated.r = blendChannel(updated.r, original.r);
+                        updated.g = blendChannel(updated.g, original.g);
+                        updated.b = blendChannel(updated.b, original.b);
+                    }
+                }
+
+                filtered.push_back(updated);
+            }
+
+            modifiedPointsAtomic.fetch_add(filtered.size());
+            sequentialOk &= writer->addPoints(filtered.data(), filtered.size());
+
+            if (progress)
+                progress(cellIndex + 1, totalCells);
+        }
+
+        modifiedPoints = modifiedPointsAtomic.load();
+        return sequentialOk;
+    }
+
+    std::atomic<size_t> nextIndex{ 0 };
+    std::atomic<size_t> completed{ 0 };
+    std::mutex progressMutex;
+    std::mutex writeMutex;
+    std::condition_variable writeCv;
+    size_t nextWriteIndex = 0;
+
+    auto worker = [&]()
+    {
+        ClippingAssembly threadAssembly = deepCopyClippingAssembly(clippingAssembly);
+        threadAssembly.clearMatrix();
+        threadAssembly.addTransformation(src_transfo_mat);
+
+        for (;;)
+        {
+            size_t cellIndex = nextIndex.fetch_add(1);
+            if (cellIndex >= totalCells)
+                break;
+
+            const std::pair<uint32_t, bool>& cell = cells[cellIndex];
+            std::vector<PointXYZIRGB> points;
+            points.resize(tls_point_cloud_.getCellPointCount(cell.first));
+            if (!getCellPointsThreadSafe(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+            {
+                if (progress)
+                {
+                    size_t done = completed.fetch_add(1) + 1;
+                    std::lock_guard<std::mutex> guard(progressMutex);
+                    progress(done, totalCells);
+                }
+                continue;
+            }
+
+            std::vector<PointXYZIRGB> visiblePoints;
+            if (cell.second)
+                clipIndividualPoints(points, visiblePoints, threadAssembly);
+            else
+                visiblePoints.swap(points);
+
+            if (visiblePoints.empty())
+            {
+                {
+                    std::unique_lock<std::mutex> lock(writeMutex);
+                    writeCv.wait(lock, [&]() { return cellIndex == nextWriteIndex; });
+                    ++nextWriteIndex;
+                }
+                writeCv.notify_all();
+                if (progress)
+                {
+                    size_t done = completed.fetch_add(1) + 1;
+                    std::lock_guard<std::mutex> guard(progressMutex);
+                    progress(done, totalCells);
+                }
+                continue;
+            }
+
+            const TreeCell& treeCell = m_vTreeCells[cell.first];
+            glm::dvec3 cellOriginLocal(treeCell.m_position[0], treeCell.m_position[1], treeCell.m_position[2]);
+            glm::dvec4 cellOriginGlobal4 = src_transfo_mat * glm::dvec4(cellOriginLocal, 1.0);
+            glm::dvec3 cellOriginGlobal(cellOriginGlobal4.x, cellOriginGlobal4.y, cellOriginGlobal4.z);
+
+            double cellSize = treeCell.m_size;
+            double avgSpacing = std::cbrt((cellSize * cellSize * cellSize) / std::max<size_t>(visiblePoints.size(), 1));
+            double voxelSize = std::max(cellSize / 128.0, avgSpacing * 2.0);
+            double maxRadius = std::clamp(avgSpacing * 8.0, cellSize / 16.0, cellSize);
+
+            std::vector<BalancePoint> allPoints;
+            allPoints.reserve(visiblePoints.size());
+            for (const PointXYZIRGB& point : visiblePoints)
+            {
+                glm::dvec4 globalPoint = src_transfo_mat * glm::dvec4(point.x, point.y, point.z, 1.0);
+                allPoints.push_back({ glm::dvec3(globalPoint.x, globalPoint.y, globalPoint.z), point.i, point.r, point.g, point.b, true });
+            }
+
+            if (externalPointsProvider)
+            {
+                std::vector<glm::dvec3> corners;
+                corners.reserve(8);
+                glm::dvec3 base = cellOriginLocal;
+                double size = cellSize;
+                corners.push_back(glm::dvec3((src_transfo_mat * glm::dvec4(base + size * glm::dvec3(0.0, 0.0, 0.0), 1.0))));
+                corners.push_back(glm::dvec3((src_transfo_mat * glm::dvec4(base + size * glm::dvec3(1.0, 0.0, 0.0), 1.0))));
+                corners.push_back(glm::dvec3((src_transfo_mat * glm::dvec4(base + size * glm::dvec3(0.0, 1.0, 0.0), 1.0))));
+                corners.push_back(glm::dvec3((src_transfo_mat * glm::dvec4(base + size * glm::dvec3(0.0, 0.0, 1.0), 1.0))));
+                corners.push_back(glm::dvec3((src_transfo_mat * glm::dvec4(base + size * glm::dvec3(1.0, 1.0, 0.0), 1.0))));
+                corners.push_back(glm::dvec3((src_transfo_mat * glm::dvec4(base + size * glm::dvec3(1.0, 0.0, 1.0), 1.0))));
+                corners.push_back(glm::dvec3((src_transfo_mat * glm::dvec4(base + size * glm::dvec3(0.0, 1.0, 1.0), 1.0))));
+                corners.push_back(glm::dvec3((src_transfo_mat * glm::dvec4(base + size * glm::dvec3(1.0, 1.0, 1.0), 1.0))));
+
+                GeometricBox cellBox(corners);
+                GeometricBox haloBox = cellBox;
+                haloBox.setRadius(haloBox.getRadius() + maxRadius);
+
+                std::vector<PointXYZIRGB> externalPoints;
+                externalPointsProvider(haloBox, externalPoints);
+                allPoints.reserve(allPoints.size() + externalPoints.size());
+                for (const PointXYZIRGB& point : externalPoints)
+                {
+                    allPoints.push_back({ glm::dvec3(point.x, point.y, point.z), point.i, point.r, point.g, point.b, false });
+                }
+
+                std::vector<PointXYZIRGB> internalHaloPoints;
+                collectPointsInGeometricBox(haloBox, src_transfo, clippingAssembly, internalHaloPoints);
+                allPoints.reserve(allPoints.size() + internalHaloPoints.size());
+                for (const PointXYZIRGB& point : internalHaloPoints)
+                {
+                    glm::dvec3 position(point.x, point.y, point.z);
+                    if (cellBox.isInside(position))
+                        continue;
+                    allPoints.push_back({ position, point.i, point.r, point.g, point.b, false });
+                }
+            }
+
+            std::unordered_map<int64_t, std::vector<size_t>> grid;
+            grid.reserve(allPoints.size());
+            for (size_t i = 0; i < allPoints.size(); ++i)
+            {
+                GridIndex index = computeGridIndex(allPoints[i].position, cellOriginGlobal, voxelSize);
+                grid[packGridIndex(index)].push_back(i);
+            }
+
+            std::vector<PointXYZIRGB> filtered;
+            filtered.reserve(visiblePoints.size());
+
+            const size_t minNeighborCount = static_cast<size_t>(std::max(kMin, 1));
+            const size_t maxNeighborCount = static_cast<size_t>(std::max(kMax, 1));
+            const size_t availableNeighbors = allPoints.size() > 0 ? allPoints.size() - 1 : 0;
+            const size_t effectiveKMax = std::min(maxNeighborCount, availableNeighbors);
+            const size_t effectiveKMin = std::min(minNeighborCount, effectiveKMax);
+
+            if (effectiveKMax == 0 || effectiveKMin == 0)
+            {
+                filtered = visiblePoints;
+            }
+            else
+            {
+                std::vector<size_t> neighbors;
+                for (size_t i = 0; i < visiblePoints.size(); ++i)
+                {
+                    PointXYZIRGB updated = visiblePoints[i];
+                    if (!collectNeighborIndicesGrid(allPoints, grid, cellOriginGlobal, voxelSize, i, effectiveKMax, maxRadius, neighbors) || neighbors.size() < effectiveKMin)
+                    {
+                        filtered.push_back(updated);
+                        continue;
+                    }
+
+                    size_t neighborCount = std::min<size_t>(neighbors.size(), effectiveKMax);
+
+                    if (applyOnIntensity)
+                    {
+                        updated.i = computeTrimmedMeanHistogram(allPoints, neighbors, neighborCount, trimPercent, updated.i, [](const BalancePoint& point)
+                        {
+                            return point.intensity;
+                        });
+                    }
+
+                    if (applyOnRgb)
+                    {
+                        updated.r = computeTrimmedMeanHistogram(allPoints, neighbors, neighborCount, trimPercent, updated.r, [](const BalancePoint& point)
+                        {
+                            return point.r;
+                        });
+
+                        updated.g = computeTrimmedMeanHistogram(allPoints, neighbors, neighborCount, trimPercent, updated.g, [](const BalancePoint& point)
+                        {
+                            return point.g;
+                        });
+
+                        updated.b = computeTrimmedMeanHistogram(allPoints, neighbors, neighborCount, trimPercent, updated.b, [](const BalancePoint& point)
+                        {
+                            return point.b;
+                        });
+                    }
+
+                    if (useSharpness)
+                    {
+                        const PointXYZIRGB& original = visiblePoints[i];
+                        auto blendChannel = [sharpness](uint8_t balanced, uint8_t base)
+                        {
+                            double blended = (1.0 - sharpness) * static_cast<double>(balanced) + sharpness * static_cast<double>(base);
+                            int rounded = static_cast<int>(std::lround(blended));
+                            return static_cast<uint8_t>(std::clamp(rounded, 0, 255));
+                        };
+
+                        if (applyOnIntensity)
+                            updated.i = blendChannel(updated.i, original.i);
+                        if (applyOnRgb)
+                        {
+                            updated.r = blendChannel(updated.r, original.r);
+                            updated.g = blendChannel(updated.g, original.g);
+                            updated.b = blendChannel(updated.b, original.b);
+                        }
+                    }
+
+                    filtered.push_back(updated);
+                }
+            }
+
+            {
+                std::unique_lock<std::mutex> lock(writeMutex);
+                writeCv.wait(lock, [&]() { return cellIndex == nextWriteIndex; });
+                bool ok = writer->addPoints(filtered.data(), filtered.size());
+                if (!ok)
+                    resultOk.store(false);
+                modifiedPointsAtomic.fetch_add(filtered.size());
+                ++nextWriteIndex;
+            }
+            writeCv.notify_all();
+
+            if (progress)
+            {
+                size_t done = completed.fetch_add(1) + 1;
+                std::lock_guard<std::mutex> guard(progressMutex);
+                progress(done, totalCells);
+            }
+        }
+    };
+
+    std::vector<std::thread> threads;
+    threads.reserve(threadCount);
+    for (size_t i = 1; i < threadCount; ++i)
+        threads.emplace_back(worker);
+    worker();
+    for (auto& thread : threads)
+        thread.join();
+
+    modifiedPoints = modifiedPointsAtomic.load();
+    return resultOk.load();
+}
+
+void EmbeddedScan::collectPointsInGeometricBox(const GeometricBox& box, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, std::vector<PointXYZIRGB>& points) const
+{
+    ClippingAssembly localAssembly = deepCopyClippingAssembly(clippingAssembly);
+    localAssembly.clearMatrix();
+    glm::dmat4 src_transfo_mat = modelMat.getTransformation();
+    localAssembly.addTransformation(src_transfo_mat);
+
+    std::vector<std::pair<uint32_t, bool>> cells;
+    getClippedCells_impl(m_uRootCell, localAssembly, cells);
+
+    for (const auto& cell : cells)
+    {
+        const TreeCell& treeCell = m_vTreeCells[cell.first];
+        glm::dvec3 base(treeCell.m_position[0], treeCell.m_position[1], treeCell.m_position[2]);
+        double size = treeCell.m_size;
+        std::vector<glm::dvec3> corners;
+        corners.reserve(8);
+        corners.push_back(glm::dvec3(src_transfo_mat * glm::dvec4(base + size * glm::dvec3(0.0, 0.0, 0.0), 1.0)));
+        corners.push_back(glm::dvec3(src_transfo_mat * glm::dvec4(base + size * glm::dvec3(1.0, 0.0, 0.0), 1.0)));
+        corners.push_back(glm::dvec3(src_transfo_mat * glm::dvec4(base + size * glm::dvec3(0.0, 1.0, 0.0), 1.0)));
+        corners.push_back(glm::dvec3(src_transfo_mat * glm::dvec4(base + size * glm::dvec3(0.0, 0.0, 1.0), 1.0)));
+        corners.push_back(glm::dvec3(src_transfo_mat * glm::dvec4(base + size * glm::dvec3(1.0, 1.0, 0.0), 1.0)));
+        corners.push_back(glm::dvec3(src_transfo_mat * glm::dvec4(base + size * glm::dvec3(1.0, 0.0, 1.0), 1.0)));
+        corners.push_back(glm::dvec3(src_transfo_mat * glm::dvec4(base + size * glm::dvec3(0.0, 1.0, 1.0), 1.0)));
+        corners.push_back(glm::dvec3(src_transfo_mat * glm::dvec4(base + size * glm::dvec3(1.0, 1.0, 1.0), 1.0)));
+
+        GeometricBox leafBox(corners);
+        if (OctreeRayTracing::relateBoxToOtherBox(box, leafBox) == 3)
+            continue;
+
+        std::vector<PointXYZIRGB> cellPoints;
+        cellPoints.resize(tls_point_cloud_.getCellPointCount(cell.first));
+        if (!getCellPointsThreadSafe(cell.first, reinterpret_cast<tls::Point*>(cellPoints.data()), cellPoints.size()))
+            continue;
+
+        std::vector<PointXYZIRGB> visiblePoints;
+        if (cell.second)
+            clipIndividualPoints(cellPoints, visiblePoints, localAssembly);
+        else
+            visiblePoints.swap(cellPoints);
+
+        for (const PointXYZIRGB& point : visiblePoints)
+        {
+            glm::dvec3 globalPoint = glm::dvec3(src_transfo_mat * glm::dvec4(point.x, point.y, point.z, 1.0));
+            if (!box.isInside(globalPoint))
+                continue;
+            points.push_back({ static_cast<float>(globalPoint.x), static_cast<float>(globalPoint.y), static_cast<float>(globalPoint.z), point.i, point.r, point.g, point.b });
+        }
+    }
 }
 
 void EmbeddedScan::logClipAndWriteTimings()
@@ -291,7 +1515,7 @@ void EmbeddedScan::decodePointCoord(uint32_t cellId, std::vector<glm::dvec3>& ds
     uint64_t cell_point_count = tls_point_cloud_.getCellPointCount(cellId);
     std::vector<tls::Point> tmp_pts;
     tmp_pts.resize(cell_point_count);
-    tls_point_cloud_.getCellPoints(cellId, tmp_pts.data(), tmp_pts.size());
+    getCellPointsThreadSafe(cellId, tmp_pts.data(), tmp_pts.size());
 
     uint64_t layer_point_count(m_vTreeCells[cellId].m_layerIndexes[layerDepth]);
     dstPoints.reserve(dstPoints.size() + layer_point_count);
@@ -1240,6 +2464,83 @@ bool EmbeddedScan::beginRayTracing(const glm::dvec3& globalRay, const glm::dvec3
     return success;
 }
 
+bool EmbeddedScan::beginRayTracingWithPoint(const glm::dvec3& globalRay, const glm::dvec3& globalRayOrigin, glm::dvec3& bestPoint, PointXYZIRGB& bestPointData, const double& cosAngleThreshold, const ClippingAssembly& clippingAssembly, const bool& isOrtho)
+{
+    TreeCell root = m_vTreeCells[m_uRootCell];
+    double rootSize = root.m_size;
+    glm::dvec3 localRay = glm::inverse(m_rotationToGlobal) * glm::dvec3(globalRay.x, globalRay.y, globalRay.z);
+    glm::dvec3 localRayOrigin = getLocalCoord(globalRayOrigin);
+
+    // Rayon local non altérée pour la détection
+    glm::dvec3 trueLocalRay = localRay / glm::length(localRay);
+    glm::dvec3 trueLocalRayOrigin = localRayOrigin;
+    ClippingAssembly localAssembly = clippingAssembly;
+    localAssembly.clearMatrix();
+    localAssembly.addTransformation(m_matrixToGlobal);
+
+    int rayModifier = updateRay(localRay, localRayOrigin, rootSize);
+
+    double tx0, ty0, tz0, tx1, ty1, tz1;
+    tx0 = (root.m_position[0] - localRayOrigin.x) / localRay.x;
+    ty0 = (root.m_position[1] - localRayOrigin.y) / localRay.y;
+    tz0 = (root.m_position[2] - localRayOrigin.z) / localRay.z;
+    tx1 = (root.m_position[0] + rootSize - localRayOrigin.x) / localRay.x;
+    ty1 = (root.m_position[1] + rootSize - localRayOrigin.y) / localRay.y;
+    tz1 = (root.m_position[2] + rootSize - localRayOrigin.z) / localRay.z;
+    //if a coordinate of local ray is 0, we want still want this times to be definite
+    if (std::fabs(abs(localRay.x)) <= std::numeric_limits<double>::epsilon())
+    {
+        if (root.m_position[0] > localRayOrigin.x)
+            tx0 = DBL_MAX;
+        else tx0 = -DBL_MAX;
+        if (root.m_position[0] + rootSize - localRayOrigin.x > 0)
+            tx1 = DBL_MAX;
+        else tx1 = -DBL_MAX;
+    }
+    if (std::fabs(abs(localRay.y)) <= std::numeric_limits<double>::epsilon())
+    {
+        if (root.m_position[1] > localRayOrigin.y)
+            ty0 = DBL_MAX;
+        else ty0 = -DBL_MAX;
+        if (root.m_position[1] + rootSize - localRayOrigin.y > 0)
+            ty1 = DBL_MAX;
+        else ty1 = -DBL_MAX;
+    }
+    if (std::fabs(abs(localRay.z)) <= std::numeric_limits<double>::epsilon())
+    {
+        if (root.m_position[2] > localRayOrigin.z)
+            tz0 = DBL_MAX;
+        else tz0 = -DBL_MAX;
+        if (root.m_position[2] + rootSize - localRayOrigin.z > 0)
+            tz1 = DBL_MAX;
+        else tz1 = -DBL_MAX;
+    }
+
+    double max0, min1;
+    max0 = tx0;
+    if (ty0 > max0) { max0 = ty0; }
+    if (tz0 > max0) { max0 = tz0; }
+    min1 = tx1;
+    if (ty1 < min1) { min1 = ty1; }
+    if (tz1 < min1) { min1 = tz1; }
+
+    std::vector<uint32_t> leafList;
+    if (max0 < min1) { traceRay(tx0, ty0, tz0, tx1, ty1, tz1, m_uRootCell, rayModifier, leafList, localAssembly, localRayOrigin); }
+
+    double rayRadius = 0.0015;
+    bool success = false;
+    tls::Point localPoint{};
+    glm::dvec3 targetGlobal = findBestPointIterativeWithPoint(leafList, trueLocalRay, trueLocalRayOrigin, cosAngleThreshold, rayRadius, localAssembly, isOrtho, localPoint, success);
+
+    bestPoint = targetGlobal;
+    if (success)
+    {
+        bestPointData = { static_cast<float>(targetGlobal.x), static_cast<float>(targetGlobal.y), static_cast<float>(targetGlobal.z), localPoint.i, localPoint.r, localPoint.g, localPoint.b };
+    }
+
+    return success;
+}
+
 glm::dvec3 EmbeddedScan::findBestPointIterative(const std::vector<uint32_t>& leafList, const glm::dvec3& rayDirection, const glm::dvec3& rayOrigin, const double& cosAngleThreshold, const double& rayRadius, const ClippingAssembly& localClippingAssembly, const bool& isOrtho, bool& success)
 {
 	double dMin(DBL_MAX), bestCosAngle(-1), currCosAngle(0), currDistance(0), distanceThreshold(0.01);
@@ -1394,6 +2695,163 @@ glm::dvec3 EmbeddedScan::findBestPointIterative(const std::vector<uint32_t>& lea
 		}
 	}
 	return getGlobalCoord(result);
+}
+
+glm::dvec3 EmbeddedScan::findBestPointIterativeWithPoint(const std::vector<uint32_t>& leafList, const glm::dvec3& rayDirection, const glm::dvec3& rayOrigin, const double& cosAngleThreshold, const double& rayRadius, const ClippingAssembly& localClippingAssembly, const bool& isOrtho, tls::Point& outPoint, bool& success)
+{
+    double dMin(DBL_MAX), bestCosAngle(-1), currCosAngle(0), currDistance(0), distanceThreshold(0.01);
+    success = false;
+    if (isOrtho)
+        bestCosAngle = cosAngleThreshold + 1;
+    bool hasGoodAngle(false), oneMoreLeaf(true);
+    glm::dvec3 bestAnglePointPos(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN());
+    tls::Point bestAnglePointRaw{};
+    std::vector<tls::Point> goodAnglePoints;
+
+    glm::dvec3 result(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN());
+
+    for (int leafStep = 0; leafStep < (int)leafList.size(); leafStep++)
+    {
+        std::vector<tls::Point> cellPoints;
+        cellPoints.resize(tls_point_cloud_.getCellPointCount(leafList[leafStep]));
+        if (!getCellPointsThreadSafe(leafList[leafStep], cellPoints.data(), cellPoints.size()))
+            continue;
+
+        for (const tls::Point& pointData : cellPoints)
+        {
+            glm::dvec3 point(pointData.x, pointData.y, pointData.z);
+            if (!localClippingAssembly.testPoint(glm::dvec4(point, 1.0)))
+            {
+                continue;
+            }
+
+            glm::dvec3 pointRay(point - rayOrigin);
+            currDistance = glm::length(pointRay);
+            if (glm::dot(pointRay, rayDirection) < 0)
+            {
+                continue;
+            }
+            success = true;
+
+            glm::dvec3 proj = glm::dot(pointRay, rayDirection) * rayDirection - pointRay;
+            currCosAngle = isOrtho ?
+                glm::length(glm::cross(rayDirection, pointRay)) / glm::length(rayDirection) :
+                glm::dot(rayDirection, pointRay / currDistance);
+
+            double projLength = glm::length(proj);
+            proj = proj / projLength;
+
+
+            if (!isOrtho)
+            {
+                if ((rayRadius / projLength) >= 1.0) {
+                    hasGoodAngle = true;
+                    currCosAngle = rayRadius / projLength;
+                    if (currDistance < (dMin * 1.05))
+                        goodAnglePoints.push_back(pointData);
+                    if (currDistance < dMin)
+                    {
+                        dMin = currDistance;
+                    }
+                }
+                else {
+                    pointRay = pointRay + proj * rayRadius;
+                    pointRay = pointRay / glm::length(pointRay);
+                    currCosAngle = glm::dot(rayDirection, pointRay);
+
+                    if (currCosAngle > cosAngleThreshold)
+                    {
+                        hasGoodAngle = true;
+                        if (currDistance < (dMin * 1.05))
+                            goodAnglePoints.push_back(pointData);
+                        if (currDistance < dMin)
+                        {
+                            dMin = currDistance;
+                        }
+                    }
+                }
+                if ((currCosAngle > bestCosAngle) && (!isOrtho))
+                {
+                    bestCosAngle = currCosAngle;
+                    bestAnglePointPos = point;
+                    bestAnglePointRaw = pointData;
+                }
+            }
+
+            //same thing is orthographic mode
+
+            if ((currCosAngle < cosAngleThreshold) && (isOrtho))
+            {
+                hasGoodAngle = true;
+                if (currDistance < (dMin + distanceThreshold))
+                    goodAnglePoints.push_back(pointData);
+                if (currDistance < dMin)
+                {
+                    dMin = currDistance;
+                }
+            }
+            if ((currCosAngle < bestCosAngle) && (isOrtho))
+            {
+                bestCosAngle = currCosAngle;
+                bestAnglePointPos = point;
+                bestAnglePointRaw = pointData;
+            }
+        }
+        if (!oneMoreLeaf)
+            break;
+        else if (hasGoodAngle)
+            oneMoreLeaf = false;
+    }
+
+    if (!hasGoodAngle)
+    {
+        result = bestAnglePointPos;
+        outPoint = bestAnglePointRaw;
+    }
+    else
+    {
+        result = bestAnglePointPos;
+        outPoint = bestAnglePointRaw;
+        bestCosAngle = -1;
+        double currScore, bestScore;
+        if (isOrtho)
+            bestCosAngle = cosAngleThreshold + 1;
+        for (int i = 0; i < (int)goodAnglePoints.size(); i++)
+        {
+            const tls::Point& pointData = goodAnglePoints[i];
+            glm::dvec3 point(pointData.x, pointData.y, pointData.z);
+            glm::dvec3 pointRay(point - rayOrigin);
+            currDistance = glm::length(pointRay);
+            glm::dvec3 proj = glm::dot(pointRay, rayDirection) * rayDirection - pointRay;
+            currCosAngle = glm::dot(rayDirection, pointRay / currDistance);
+            if (isOrtho)
+                currCosAngle = glm::length(glm::cross(rayDirection, pointRay)) / glm::length(rayDirection);
+            if (((rayRadius / glm::length(proj)) >= 1) && (!isOrtho)) {
+                currCosAngle = rayRadius / glm::length(proj);
+            }
+            currScore = 1.7 * glm::length(proj) + currDistance;
+            if (i == 0)
+            {
+                bestScore = currScore;
+                result = point;
+                outPoint = pointData;
+            }
+            if ((currScore < bestScore) && (!isOrtho))
+            {
+                bestScore = currScore;
+                result = point;
+                outPoint = pointData;
+            }
+
+            if ((currDistance < (dMin + distanceThreshold)) && (currCosAngle < bestCosAngle) && (isOrtho))
+            {
+                result = point;
+                outPoint = pointData;
+                bestCosAngle = currCosAngle;
+            }
+        }
+    }
+    return getGlobalCoord(result);
 }
 
 int EmbeddedScan::updateRay(glm::dvec3& localRay, glm::dvec3& localRayOrigin, const double& rootSize)
@@ -2393,6 +3851,12 @@ glm::dvec3 EmbeddedScan::getLocalCoord(const glm::dvec3& globalCoord) const
 glm::dvec3 EmbeddedScan::getGlobalCoord(const glm::dvec3& localCoord) const
 {
     return (m_rotationToGlobal * localCoord + m_translationToGlobal);
+}
+
+bool EmbeddedScan::getCellPointsThreadSafe(uint32_t cellId, tls::Point* dst, size_t count) const
+{
+    std::lock_guard<std::mutex> lock(m_tlsReadMutex);
+    return tls_point_cloud_.getCellPoints(cellId, dst, count);
 }
 
 

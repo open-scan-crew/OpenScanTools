@@ -32,11 +32,11 @@ DialogExportSubProject::DialogExportSubProject(IDataDispatcher& dataDispatcher, 
         m_ui.objectsFilterComboBox->addItem(iterator.second, iterator.first);
     m_ui.objectsFilterComboBox->setCurrentIndex(0);
 
-    connect(m_ui.toolButton_folder, &QToolButton::released, this, &DialogExportSubProject::onSelectOutFolder);
-    connect(m_ui.subProjectInfoButton, &QToolButton::released, this, &DialogExportSubProject::onSubProjectInfo);
+    connect(m_ui.toolButton_folder, &QToolButton::clicked, this, &DialogExportSubProject::onSelectOutFolder);
+    connect(m_ui.subProjectInfoButton, &QToolButton::clicked, this, &DialogExportSubProject::onSubProjectInfo);
 
-    connect(m_ui.pushButton_export, &QPushButton::released, this, &DialogExportSubProject::startExport);
-    connect(m_ui.pushButton_cancel, &QPushButton::released, this, &DialogExportSubProject::cancelExport);
+    connect(m_ui.pushButton_export, &QPushButton::clicked, this, &DialogExportSubProject::startExport);
+    connect(m_ui.pushButton_cancel, &QPushButton::clicked, this, &DialogExportSubProject::cancelExport);
 
     m_dataDispatcher.registerObserverOnKey(this, guiDType::projectPath);
     m_dataDispatcher.registerObserverOnKey(this, guiDType::projectDataProperties);

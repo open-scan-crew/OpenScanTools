@@ -538,6 +538,9 @@
     <ClCompile Include="..\..\src\controller\controls\ControlScanEdition.cpp">
       <Filter>src\controller\controls</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\controller\controls\ControlTemperatureScale.cpp">
+      <Filter>src\controller\controls</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\controller\controls\ControlSpecial.cpp">
       <Filter>src\controller\controls</Filter>
     </ClCompile>
@@ -625,6 +628,12 @@
     <ClCompile Include="..\..\src\controller\functionSystem\ContextMoveTag.cpp">
       <Filter>src\controller\contexts</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextPickTemperature.cpp">
+      <Filter>src\controller\contexts</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextPickColorimetric.cpp">
+      <Filter>src\controller\contexts</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\controller\ControllerContext.cpp">
       <Filter>src\controller</Filter>
     </ClCompile>
@@ -644,6 +653,12 @@
       <Filter>src\controller\controls</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\utils\time.cpp">
+      <Filter>src\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\TemperatureScaleUtils.cpp">
+      <Filter>src\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\ColorimetricFilterUtils.cpp">
       <Filter>src\utils</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\controller\messages\ClickMessage.cpp">
@@ -991,6 +1006,9 @@
     <ClCompile Include="..\..\src\gui\widgets\CustomWidgets\ColorPicker.cpp">
       <Filter>src\gui\widgets\CustomWidgets</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\gui\widgets\CustomWidgets\ColorimetricFilterPreview.cpp">
+      <Filter>src\gui\widgets\CustomWidgets</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\gui\widgets\CustomWidgets\GlobalColorPicker.cpp">
       <Filter>src\gui\widgets\CustomWidgets</Filter>
     </ClCompile>
@@ -1249,13 +1267,31 @@
     <ClCompile Include="..\..\src\controller\functionSystem\ContextDeletePoints.cpp">
       <Filter>src\controller\contexts</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextStatisticalOutlierFilter.cpp">
+      <Filter>src\controller\contexts</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextColorBalanceFilter.cpp">
+      <Filter>src\controller\contexts</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarPointEdition.cpp">
       <Filter>src\gui\toolBars</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\controller\messages\DeletePointsMessage.cpp">
       <Filter>src\controller\messages</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\controller\messages\StatisticalOutlierFilterMessage.cpp">
+      <Filter>src\controller\messages</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\controller\messages\ColorBalanceFilterMessage.cpp">
+      <Filter>src\controller\messages</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\gui\Dialog\DialogDeletePoints.cpp">
+      <Filter>src\gui\Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\Dialog\DialogStatisticalOutlierFilter.cpp">
+      <Filter>src\gui\Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\Dialog\DialogColorBalanceFilter.cpp">
       <Filter>src\gui\Dialog</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\models\data\Clipping\ClippingGeometry.cpp">
@@ -1706,6 +1742,9 @@
       <Filter>src\models\3d</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderRampGroup.cpp">
+      <Filter>src\gui\toolBars</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarColorimetricFilter.cpp">
       <Filter>src\gui\toolBars</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\controller\controls\ControlTest.cpp">
@@ -2235,6 +2274,12 @@
     <QtMoc Include="..\..\include\gui\Dialog\DialogDeletePoints.h">
       <Filter>include\gui\Dialog</Filter>
     </QtMoc>
+    <QtMoc Include="..\..\include\gui\Dialog\DialogStatisticalOutlierFilter.h">
+      <Filter>include\gui\Dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\include\gui\Dialog\DialogColorBalanceFilter.h">
+      <Filter>include\gui\Dialog</Filter>
+    </QtMoc>
     <QtMoc Include="..\..\include\gui\Dialog\DialogRecentProjects.h">
       <Filter>include\gui\Dialog</Filter>
     </QtMoc>
@@ -2361,6 +2406,12 @@
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarRenderRampGroup.h">
       <Filter>include\gui\toolBars</Filter>
     </QtMoc>
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarColorimetricFilter.h">
+      <Filter>include\gui\toolBars</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\include\gui\widgets\CustomWidgets\ColorimetricFilterPreview.h">
+      <Filter>include\gui\widgets\CustomWidgets</Filter>
+    </QtMoc>
     <QtMoc Include="..\..\include\gui\widgets\MultiProperty.h">
       <Filter>include\gui\widgets</Filter>
     </QtMoc>
@@ -2472,6 +2523,9 @@
       <Filter>include\utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\utils\Color32.hpp">
+      <Filter>include\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\utils\ColorimetricFilterUtils.h">
       <Filter>include\utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\utils\Config.h">
@@ -2900,6 +2954,9 @@
     <ClInclude Include="..\..\include\pointCloudEngine\EmbeddedScan.h">
       <Filter>include\pointCloudEngine</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\pointCloudEngine\OutlierStats.h">
+      <Filter>include\pointCloudEngine</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\include\pointCloudEngine\SmartBuffer.h">
       <Filter>include\pointCloudEngine</Filter>
     </ClInclude>
@@ -3110,7 +3167,19 @@
     <ClInclude Include="..\..\include\controller\functionSystem\ContextDeletePoints.h">
       <Filter>include\controller\contexts</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextStatisticalOutlierFilter.h">
+      <Filter>include\controller\contexts</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextColorBalanceFilter.h">
+      <Filter>include\controller\contexts</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\include\controller\messages\DeletePointsMessage.h">
+      <Filter>include\controller\messages</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\controller\messages\StatisticalOutlierFilterMessage.h">
+      <Filter>include\controller\messages</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\controller\messages\ColorBalanceFilterMessage.h">
       <Filter>include\controller\messages</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\models\data\Clipping\ClippingGeometry.h">
@@ -3674,6 +3743,9 @@
     <ClInclude Include="..\..\include\controller\functionSystem\ContextFindScan.h">
       <Filter>include\controller\contexts</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextPickColorimetric.h">
+      <Filter>include\controller\contexts</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\include\models\3d\MarkerDrawData.h">
       <Filter>include\models\3d</Filter>
     </ClInclude>
@@ -4146,6 +4218,12 @@
     <QtUic Include="..\..\src\gui\forms\DialogDeletePoints.ui">
       <Filter>Form Files</Filter>
     </QtUic>
+    <QtUic Include="..\..\src\gui\forms\DialogStatisticalOutlierFilter.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="..\..\src\gui\forms\DialogColorBalanceFilter.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
     <QtUic Include="..\..\src\gui\forms\Property_Scan.ui">
       <Filter>Form Files</Filter>
     </QtUic>
@@ -4252,6 +4330,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\toolbar_render_ramp_group.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="..\..\src\gui\forms\toolbar_colorimetric_filter.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\MultiProperty.ui">
@@ -4498,6 +4579,7 @@
     <CustomBuild Include="..\..\src\shaders\marker.geom">
       <Filter>shaders\glsl_assembled</Filter>
     </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\v2\ambient_occlusion.comp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="OpenScanTools.rc">

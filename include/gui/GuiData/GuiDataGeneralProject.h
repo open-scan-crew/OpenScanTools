@@ -61,6 +61,19 @@ public:
     std::wstring m_projectName;
 };
 
+class GuiDataTemperatureScaleInfo : public IGuiData
+{
+public:
+	GuiDataTemperatureScaleInfo(const std::filesystem::path& filePath, bool isValid, bool fileFound);
+	~GuiDataTemperatureScaleInfo();
+	guiDType getType() override;
+
+public:
+	std::filesystem::path m_filePath;
+	bool m_isValid;
+	bool m_fileFound;
+};
+
 class GuiDataProjectTemplateList : public IGuiData
 {
 public:
@@ -211,6 +224,27 @@ public:
 
 public:
     std::vector<SafePtr<AClippingNode>> m_clippings;
+};
+
+class GuiDataStatisticalOutlierFilterDialogDisplay : public IGuiData
+{
+public:
+    GuiDataStatisticalOutlierFilterDialogDisplay();
+    ~GuiDataStatisticalOutlierFilterDialogDisplay();
+    guiDType getType() override;
+};
+
+class GuiDataColorBalanceFilterDialogDisplay : public IGuiData
+{
+public:
+    GuiDataColorBalanceFilterDialogDisplay(bool rgbAvailable, bool intensityAvailable, bool rgbAndIntensityAvailable);
+    ~GuiDataColorBalanceFilterDialogDisplay();
+    guiDType getType() override;
+
+public:
+    bool m_rgbAvailable;
+    bool m_intensityAvailable;
+    bool m_rgbAndIntensityAvailable;
 };
 
 class GuiDataGlobalColorPickerValue : public IGuiData

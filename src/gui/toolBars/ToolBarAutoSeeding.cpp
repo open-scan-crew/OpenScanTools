@@ -9,17 +9,17 @@ ToolBarAutoSeeding::ToolBarAutoSeeding(IDataDispatcher &dataDispatcher, QWidget 
 	setEnabled(false);
 	m_ui.setupUi(this);
 
-	QObject::connect(m_ui.pushButton1top, &QPushButton::released, this, &ToolBarAutoSeeding::init1FromTop);
-	QObject::connect(m_ui.pushButton1bottom, &QPushButton::released, this, &ToolBarAutoSeeding::init1FromBot);
-	QObject::connect(m_ui.pushButton2top, &QPushButton::released, this, &ToolBarAutoSeeding::init2FromTop);
-	QObject::connect(m_ui.pushButton2bottom, &QPushButton::released, this, &ToolBarAutoSeeding::init2FromBot);
-	QObject::connect(m_ui.pushButton3plane, &QPushButton::released, this, &ToolBarAutoSeeding::init3Plane);
-	QObject::connect(m_ui.pushButton4horizontal, &QPushButton::released, this, &ToolBarAutoSeeding::init4Horiz);
-	QObject::connect(m_ui.pushButton5slope, &QPushButton::released, this, &ToolBarAutoSeeding::init5Slope);
-	QObject::connect(m_ui.pushButton6vertical, &QPushButton::released, this, &ToolBarAutoSeeding::init6Vert);
-	QObject::connect(m_ui.pushButton7slope, &QPushButton::released, this, &ToolBarAutoSeeding::init7Slope);
-	QObject::connect(m_ui.pushButton8horizontal, &QPushButton::released, this, &ToolBarAutoSeeding::init8Horiz);
-	QObject::connect(m_ui.pushButton8plane, &QPushButton::released, this, &ToolBarAutoSeeding::init8Plane);
+	QObject::connect(m_ui.pushButton1top, &QPushButton::clicked, this, &ToolBarAutoSeeding::init1FromTop);
+	QObject::connect(m_ui.pushButton1bottom, &QPushButton::clicked, this, &ToolBarAutoSeeding::init1FromBot);
+	QObject::connect(m_ui.pushButton2top, &QPushButton::clicked, this, &ToolBarAutoSeeding::init2FromTop);
+	QObject::connect(m_ui.pushButton2bottom, &QPushButton::clicked, this, &ToolBarAutoSeeding::init2FromBot);
+	QObject::connect(m_ui.pushButton3plane, &QPushButton::clicked, this, &ToolBarAutoSeeding::init3Plane);
+	QObject::connect(m_ui.pushButton4horizontal, &QPushButton::clicked, this, &ToolBarAutoSeeding::init4Horiz);
+	QObject::connect(m_ui.pushButton5slope, &QPushButton::clicked, this, &ToolBarAutoSeeding::init5Slope);
+	QObject::connect(m_ui.pushButton6vertical, &QPushButton::clicked, this, &ToolBarAutoSeeding::init6Vert);
+	QObject::connect(m_ui.pushButton7slope, &QPushButton::clicked, this, &ToolBarAutoSeeding::init7Slope);
+	QObject::connect(m_ui.pushButton8horizontal, &QPushButton::clicked, this, &ToolBarAutoSeeding::init8Horiz);
+	QObject::connect(m_ui.pushButton8plane, &QPushButton::clicked, this, &ToolBarAutoSeeding::init8Plane);
 
 	m_ui.spacingLineEdit->setRules(ANumericLineEdit::LineEditRules::PositiveStrict);
 	m_ui.thresholdLineEdit->setRules(ANumericLineEdit::LineEditRules::PositiveStrict);

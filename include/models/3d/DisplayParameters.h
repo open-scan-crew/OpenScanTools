@@ -8,6 +8,16 @@
 #include "utils/Color32.hpp"
 
 #include <glm/glm.hpp>
+#include <array>
+
+struct ColorimetricFilterSettings
+{
+    bool enabled = false;
+    bool showColors = true;
+    float tolerance = 5.0f;
+    std::array<Color32, 4> colors = { Color32(0, 0, 0), Color32(0, 0, 0), Color32(0, 0, 0), Color32(0, 0, 0) };
+    std::array<bool, 4> colorsEnabled = { false, false, false, false };
+};
 
 class DisplayParameters
 {
@@ -49,7 +59,7 @@ public:
     DepthLining             m_depthLining = {};
 
     // GUI
-    RampScale      m_rampScale = { true, false, 20 }; // GUI
+    RampScale      m_rampScale = { true, false, 20, false }; // GUI
     bool           m_displayGizmo = true;
     bool           m_showExamineTarget = true;
 
@@ -62,6 +72,7 @@ public:
     TextDisplayOptions      m_textOptions = { TEXT_SHOW_INIT_BIT, 0, 13.f };
     bool                    m_displayAllMarkersTexts = true;
     bool                    m_displayAllMeasures = true;
+    ColorimetricFilterSettings m_colorimetricFilter = {};
 
     //Ortho
     bool            m_orthoGridActive = false;

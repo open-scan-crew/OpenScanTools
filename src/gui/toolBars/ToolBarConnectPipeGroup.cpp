@@ -11,7 +11,7 @@ ToolBarConnectPipeGroup::ToolBarConnectPipeGroup(IDataDispatcher& dataDispatcher
 	m_ui.setupUi(this);
 	setEnabled(false);
 
-	connect(m_ui.connectPipeButton, &QToolButton::released, this, &ToolBarConnectPipeGroup::initConnectPipe);
+	connect(m_ui.connectPipeButton, &QToolButton::clicked, this, &ToolBarConnectPipeGroup::initConnectPipe);
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::activatedFunctions);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);

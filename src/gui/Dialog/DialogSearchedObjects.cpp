@@ -21,10 +21,10 @@ DialogSearchedObjects::DialogSearchedObjects(IDataDispatcher& dataDispatcher, QW
 	m_ui.hideSelectedButton->hide();
 	m_ui.hideUnselectedButton->hide();
 
-	QObject::connect(m_ui.okButton, &QPushButton::released, this, &DialogSearchedObjects::hide);
+	QObject::connect(m_ui.okButton, &QPushButton::clicked, this, &DialogSearchedObjects::hide);
 	QObject::connect(m_ui.searchedObjectListView, &QListView::doubleClicked, this, &DialogSearchedObjects::moveToObject);
-	QObject::connect(m_ui.hideSelectedButton, &QPushButton::released, this, &DialogSearchedObjects::hideSelectedObjects);
-	QObject::connect(m_ui.hideUnselectedButton, &QPushButton::released, this, &DialogSearchedObjects::hideUnselectedObjects);
+	QObject::connect(m_ui.hideSelectedButton, &QPushButton::clicked, this, &DialogSearchedObjects::hideSelectedObjects);
+	QObject::connect(m_ui.hideUnselectedButton, &QPushButton::clicked, this, &DialogSearchedObjects::hideUnselectedObjects);
 }
 
 DialogSearchedObjects::~DialogSearchedObjects()

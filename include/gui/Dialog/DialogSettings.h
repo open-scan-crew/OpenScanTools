@@ -53,15 +53,17 @@ public slots:
     void onRenderOrthoDistanceChanged();
 
     void onUnlockScansManipulation();
+    void onMultithreadedCalcChanged();
 
 private:
     void showDecimationOptions();
     void sendDecimationOptions();
+    void setOctreePrecisionValue(OctreePrecision precision);
 
 private:
     Ui::DialogSettings      m_ui;
     DecimationOptions       m_savedDecimationOptions;
-	OctreePrecision         m_savedOctreePrecision = OctreePrecision::Normal;
+	OctreePrecision         m_savedOctreePrecision = kDefaultOctreePrecision;
     DialogGizmo            m_guizmoParams;
  };
 #endif

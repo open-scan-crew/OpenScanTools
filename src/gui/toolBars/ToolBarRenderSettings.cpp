@@ -455,7 +455,8 @@ void ToolBarRenderSettings::setDisplayPresetSelection(const QString& name)
 	const int index = m_ui.comboBox_displayPresets->findText(name);
 	if (index >= 0)
 		m_ui.comboBox_displayPresets->setCurrentIndex(index);
-	m_ui.pushButton_editDisplayPresets->setEnabled(m_ui.comboBox_displayPresets->currentText() != "Initial");
+	const QString selected = m_ui.comboBox_displayPresets->currentText();
+	m_ui.pushButton_editDisplayPresets->setEnabled(selected != "Initial" && selected != "Raw rendering");
 }
 
 QString ToolBarRenderSettings::currentDisplayPresetName() const
@@ -624,7 +625,7 @@ void ToolBarRenderSettings::slotDisplayPresetSelectionChanged(int index)
 {
 	Q_UNUSED(index)
 	const QString selected = m_ui.comboBox_displayPresets->currentText();
-	m_ui.pushButton_editDisplayPresets->setEnabled(selected != "Initial");
+	m_ui.pushButton_editDisplayPresets->setEnabled(selected != "Initial" && selected != "Raw rendering");
 	emit displayPresetSelectionChanged(selected);
 }
 

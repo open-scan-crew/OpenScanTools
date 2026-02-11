@@ -66,10 +66,10 @@ void main()
         maxLinear = max(maxLinear, diffDepth(gid, center, ivec2(-1, 1)));
 
         // Softer far sampling to avoid overly thick strokes
-        maxLinear = max(maxLinear, diffDepth(gid, center, ivec2(2, 0)) * 0.5);
-        maxLinear = max(maxLinear, diffDepth(gid, center, ivec2(-2, 0)) * 0.5);
-        maxLinear = max(maxLinear, diffDepth(gid, center, ivec2(0, 2)) * 0.5);
-        maxLinear = max(maxLinear, diffDepth(gid, center, ivec2(0, -2)) * 0.5);
+        maxLinear = max(maxLinear, diffDepth(gid, center, ivec2(2, 0)) * 0.1);
+        maxLinear = max(maxLinear, diffDepth(gid, center, ivec2(-2, 0)) * 0.1);
+        maxLinear = max(maxLinear, diffDepth(gid, center, ivec2(0, 2)) * 0.1);
+        maxLinear = max(maxLinear, diffDepth(gid, center, ivec2(0, -2)) * 0.1);
 
         float centerLogDepth = log2(max(centerDepth, 1e-6) + 1.0);
         float logGradient = 0.0;

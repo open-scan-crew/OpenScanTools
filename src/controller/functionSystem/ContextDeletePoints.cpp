@@ -3,10 +3,8 @@
 #include "controller/ControllerContext.h"
 #include "controller/IControlListener.h"
 #include "controller/functionSystem/FunctionManager.h"
-#include "controller/messages/DeletePointsMessage.h"
 #include "controller/messages/ModalMessage.h"
 #include "gui/GuiData/GuiDataMessages.h"
-#include "gui/GuiData/GuiDataGeneralProject.h"
 #include "io/exports/TlsFileWriter.h"
 #include "pointCloudEngine/TlScanOverseer.h"
 #include "pointCloudEngine/PCE_core.h"
@@ -20,6 +18,8 @@
 
 #include "utils/Logger.h"
 
+#include <algorithm>
+
 // Note (Aurélien) QT::StandardButtons enum values in qmessagebox.h
 #define Yes 0x00004000
 #define No 0x00010000
@@ -31,6 +31,7 @@ ContextDeletePoints::ContextDeletePoints(const ContextId& id)
 {
     m_state = ContextState::waiting_for_input;
     m_warningModal = false;
+    m_pendingDeleteConfirmation = false;
 }
 
 ContextDeletePoints::~ContextDeletePoints()
@@ -38,33 +39,18 @@ ContextDeletePoints::~ContextDeletePoints()
 
 ContextState ContextDeletePoints::start(Controller& controller)
 {
+    m_warningModal = false;
+    m_clippingFilter = ExportClippingFilter::ACTIVE;
+
     if (controller.getContext().getIsCurrentProjectSaved() == false)
+    {
         controller.updateInfo(new GuiDataModal(Yes | No, TEXT_DELETE_SAVE_BEFORE_QUESTION));
-
-    GraphManager& graphManager = controller.getGraphManager();
-
-    std::vector<SafePtr<AClippingNode>> vClips;
-    std::unordered_set<SafePtr<AClippingNode>> clips = graphManager.getActivatedOrSelectedClippingObjects();
-
-    // Check that at least one clipping object is selected or active.
-    if (clips.empty())
-    {
-        FUNCLOG << "No Clipping boxes selected" << LOGENDL;
-        controller.updateInfo(new GuiDataWarning(TEXT_EXPORT_NO_USABLE_CLIPPING_OBJECTS));
-        return (m_state = ContextState::abort);
+        m_pendingDeleteConfirmation = true;
+        return (m_state = ContextState::waiting_for_input);
     }
 
-    for (const SafePtr<AClippingNode>& clip : clips)
-        vClips.push_back(clip);
-
-    if (graphManager.getVisibleScans(m_panoramic).empty())
-    {
-        FUNCLOG << "No Scans visibles to clean" << LOGENDL;
-        controller.updateInfo(new GuiDataWarning(TEXT_EXPORT_NO_SCAN_SELECTED));
+    if (!beginDeleteConfirmation(controller))
         return (m_state = ContextState::abort);
-    }
-
-    controller.updateInfo(new GuiDataDeletePointsDialogDisplay(vClips));
 
     return (m_state = ContextState::waiting_for_input);
 }
@@ -80,6 +66,13 @@ ContextState ContextDeletePoints::feedMessage(IMessage* message, Controller& con
             ModalMessage* modal = static_cast<ModalMessage*>(message);
             if (modal->m_returnedValue == Yes)
                 m_saveContext = controller.getFunctionManager().launchBackgroundFunction(controller, ContextType::saveProject, m_id);
+
+            if (m_pendingDeleteConfirmation)
+            {
+                m_pendingDeleteConfirmation = false;
+                if (!beginDeleteConfirmation(controller))
+                    m_state = ContextState::abort;
+            }
         }
         else
         {
@@ -91,18 +84,6 @@ ContextState ContextDeletePoints::feedMessage(IMessage* message, Controller& con
         }
     }
     break;
-    case IMessage::MessageType::DELETE_POINTS_PARAMETERS:
-    {
-        auto decodedMsg = static_cast<DeletePointsMessage*>(message);
-
-        m_clippingFilter = decodedMsg->clippingFilter;
-
-        m_warningModal = true;
-        controller.updateInfo(new GuiDataModal(Yes | Cancel, TEXT_DELETE_POINTS_QUESTION));
-
-        break;
-    }
-    break;
     default:
     {
         FUNCLOG << "Context delete points: wrong message type" << LOGENDL;
@@ -111,6 +92,30 @@ ContextState ContextDeletePoints::feedMessage(IMessage* message, Controller& con
     }
 
     return (m_state);
+}
+
+bool ContextDeletePoints::beginDeleteConfirmation(Controller& controller)
+{
+    GraphManager& graphManager = controller.getGraphManager();
+
+    std::unordered_set<SafePtr<AClippingNode>> clips = graphManager.getClippingObjects(true, false);
+    if (clips.empty())
+    {
+        FUNCLOG << "No active clipping boxes" << LOGENDL;
+        controller.updateInfo(new GuiDataWarning(TEXT_DELETE_POINTS_NO_ACTIVE_CLIPPING));
+        return false;
+    }
+
+    if (graphManager.getVisibleScans(m_panoramic).empty())
+    {
+        FUNCLOG << "No Scans visibles to clean" << LOGENDL;
+        controller.updateInfo(new GuiDataWarning(TEXT_EXPORT_NO_SCAN_SELECTED));
+        return false;
+    }
+
+    m_warningModal = true;
+    controller.updateInfo(new GuiDataModal(Yes | Cancel, TEXT_DELETE_POINTS_QUESTION));
+    return true;
 }
 
 
@@ -151,7 +156,9 @@ ContextState ContextDeletePoints::launch(Controller& controller)
     std::unordered_set<SafePtr<PointCloudNode>> scans = graphManager.getVisibleScans(m_panoramic);
 
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString()));
-    controller.updateInfo(new GuiDataProcessingSplashScreenStart(scans.size(), TEXT_EXPORT_CLIPPING_TITLE_PROGESS, TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(0).arg(scans.size())));
+    const uint64_t totalScans = scans.size();
+    const uint64_t totalProgressSteps = totalScans * 100;
+    controller.updateInfo(new GuiDataProcessingSplashScreenStart(totalProgressSteps, TEXT_EXPORT_CLIPPING_TITLE_PROGESS, TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(0).arg(totalScans)));
 
     // On récupère les clippings à utiliser depuis le projet
     bool filterActive = (m_clippingFilter == ExportClippingFilter::ACTIVE);
@@ -160,6 +167,13 @@ ContextState ContextDeletePoints::launch(Controller& controller)
     graphManager.getClippingAssembly(clippingAssembly, filterActive, filterSelected);
 
     uint64_t scan_count = 0;
+    auto updateProgress = [&](uint64_t scansDone, int percent, uint64_t progressValue)
+    {
+        QString state = QString("%1 - %2%")
+                            .arg(TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(scansDone).arg(totalScans))
+                            .arg(percent);
+        controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(state, progressValue));
+    };
     for (const SafePtr<PointCloudNode>& scan : scans)
     {
         WritePtr<PointCloudNode> wScan = scan.get();
@@ -183,6 +197,7 @@ ContextState ContextDeletePoints::launch(Controller& controller)
 
         if (TlScanOverseer::getInstance().testClippingEffect(old_guid, (TransformationModule)*&wScan, *clippingToUse))
         {
+            const uint64_t currentScanIndex = scan_count;
             TlsFileWriter* tls_writer = nullptr;
             std::wstring log;
             TlsFileWriter::getWriter(temp_folder, wScan->getName(), log, (IScanFileWriter**)&tls_writer);
@@ -194,7 +209,16 @@ ContextState ContextDeletePoints::launch(Controller& controller)
             header.guid = xg::newGuid();
             tls_writer->appendPointCloud(header, wScan->getTransformation());
 
-            bool res = TlScanOverseer::getInstance().clipScan(old_guid, (TransformationModule)*&wScan, *clippingToUse, tls_writer);
+            auto progressCallback = [currentScanIndex, &updateProgress](size_t processed, size_t total)
+            {
+                if (total == 0)
+                    return;
+                int percent = static_cast<int>((processed * 100) / total);
+                percent = std::clamp(percent, 0, 99);
+                uint64_t progressValue = currentScanIndex * 100 + static_cast<uint64_t>(percent);
+                updateProgress(currentScanIndex, percent, progressValue);
+            };
+            bool res = TlScanOverseer::getInstance().clipScan(old_guid, (TransformationModule)*&wScan, *clippingToUse, tls_writer, progressCallback);
 
             res &= tls_writer->finalizePointCloud();
 
@@ -209,7 +233,7 @@ ContextState ContextDeletePoints::launch(Controller& controller)
         scan_count++;
         float seconds = std::chrono::duration<float, std::ratio<1>>(std::chrono::steady_clock::now() - startTime).count();
         QString qScanName = QString::fromStdWString(wScan->getName());
-        controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(scan_count).arg(scans.size()), scan_count));
+        updateProgress(scan_count, 100, scan_count * 100);
 
         // Remplace le scan guid dans le model scan du projet.
         if (new_guid != old_guid)

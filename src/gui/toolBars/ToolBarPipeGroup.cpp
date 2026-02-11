@@ -21,9 +21,9 @@ ToolBarPipeGroup::ToolBarPipeGroup(IDataDispatcher& dataDispatcher, QWidget* par
 	m_ui.insulatedLineEdit->setEnabled(m_ui.insulatedCheckBox->isChecked());
 	m_ui.insulatedLineEdit->setType(NumericType::DIAMETER);
 
-	connect(m_ui.pipeToolButton, &QToolButton::released, this, &ToolBarPipeGroup::initPipeDetection);
-	connect(m_ui.robustToolButton, &QToolButton::released, this, &ToolBarPipeGroup::initLargePipeDetection);
-	connect(m_ui.managePushButton, &QToolButton::released, this, &ToolBarPipeGroup::initPipeStandardManagement);
+	connect(m_ui.pipeToolButton, &QToolButton::clicked, this, &ToolBarPipeGroup::initPipeDetection);
+	connect(m_ui.robustToolButton, &QToolButton::clicked, this, &ToolBarPipeGroup::initLargePipeDetection);
+	connect(m_ui.managePushButton, &QToolButton::clicked, this, &ToolBarPipeGroup::initPipeStandardManagement);
 	connect(m_ui.manualExtendCheckBox, &QCheckBox::stateChanged, [this](const int& state) {this->extensionStateChanged(state, m_ui.manualExtendCheckBox); });
 	connect(m_ui.extendCheckBox, &QCheckBox::stateChanged, [this](const int& state) {this->extensionStateChanged(state, m_ui.extendCheckBox); });
 	connect(m_ui.noExtendCheckBox, &QCheckBox::stateChanged, [this](const int& state) {this->extensionStateChanged(state, m_ui.noExtendCheckBox); });

@@ -15,10 +15,10 @@ static const std::unordered_map<UnitType, QString> unitTexts = {
         {UnitType::FT, QObject::tr(" ft")},
         {UnitType::INC, QObject::tr(" in")},
 
-        {UnitType::DEG, QString::fromStdWString(L" °")},
+        {UnitType::DEG, QString::fromStdWString(L" Â°")},
         {UnitType::PX, QString::fromStdWString(L" px")},
 
-        {UnitType::M3, QString::fromStdWString(L" m³")},
+        {UnitType::M3, QString::fromStdWString(L" mÂ³")},
         {UnitType::LITRE, QString::fromStdWString(L" L")}
 
         /*{UnitType::YD_US, TEXT_UNIT_YD_US},
@@ -48,6 +48,12 @@ QString UnitConverter::getUnitText(UnitType type)
         //assert(!"Unit text not found");
         return QString("notfound");
     }
+}
+
+
+QString UnitConverter::getTemperatureUnitText()
+{
+    return QString::fromStdWString(L" \u00B0C");
 }
 
 double UnitConverter::meterToX(double value, UnitType X)

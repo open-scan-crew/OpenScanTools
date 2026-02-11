@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>toolbar_colorimetric_filter</class>
+ <widget class="QWidget" name="toolbar_colorimetric_filter">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>640</width>
+    <height>150</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="leftMargin">
+    <number>6</number>
+   </property>
+   <property name="topMargin">
+    <number>6</number>
+   </property>
+   <property name="rightMargin">
+    <number>6</number>
+   </property>
+   <property name="bottomMargin">
+    <number>6</number>
+   </property>
+   <property name="horizontalSpacing">
+    <number>6</number>
+   </property>
+   <property name="verticalSpacing">
+    <number>3</number>
+   </property>
+   <item row="0" column="0">
+    <widget class="QLabel" name="labelTolerance">
+     <property name="text">
+      <string>Tolerance (%)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QDoubleSpinBox" name="doubleSpinBoxTolerance">
+     <property name="minimum">
+      <double>0.000000000000000</double>
+     </property>
+     <property name="maximum">
+      <double>100.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>0.500000000000000</double>
+     </property>
+     <property name="value">
+      <double>5.000000000000000</double>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <widget class="QRadioButton" name="radioShowColors">
+     <property name="text">
+      <string>Show colors</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="3">
+    <widget class="QRadioButton" name="radioHideColors">
+     <property name="text">
+      <string>Hide colors</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="labelColor1">
+     <property name="text">
+      <string>Color 1</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="lineEditColor1">
+     <property name="placeholderText">
+      <string>R, G, B</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QToolButton" name="toolButtonPick1">
+     <property name="text">
+      <string>Pick</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3">
+    <widget class="QLabel" name="labelColor2">
+     <property name="text">
+      <string>Color 2</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="4">
+    <widget class="QLineEdit" name="lineEditColor2">
+     <property name="placeholderText">
+      <string>R, G, B</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="5">
+    <widget class="QToolButton" name="toolButtonPick2">
+     <property name="text">
+      <string>Pick</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="labelColor3">
+     <property name="text">
+      <string>Color 3</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLineEdit" name="lineEditColor3">
+     <property name="placeholderText">
+      <string>R, G, B</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <widget class="QToolButton" name="toolButtonPick3">
+     <property name="text">
+      <string>Pick</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="3">
+    <widget class="QLabel" name="labelColor4">
+     <property name="text">
+      <string>Color 4</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="4">
+    <widget class="QLineEdit" name="lineEditColor4">
+     <property name="placeholderText">
+      <string>R, G, B</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="5">
+    <widget class="QToolButton" name="toolButtonPick4">
+     <property name="text">
+      <string>Pick</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="6" rowspan="3">
+    <widget class="ColorimetricFilterPreview" name="previewWidget" native="true"/>
+   </item>
+   <item row="0" column="7" rowspan="3">
+    <layout class="QVBoxLayout" name="verticalLayoutButtons">
+     <property name="spacing">
+      <number>3</number>
+     </property>
+     <item>
+      <widget class="QPushButton" name="pushButtonApply">
+       <property name="text">
+        <string>Apply</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButtonDeactivate">
+       <property name="text">
+        <string>Deactivate</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButtonReset">
+       <property name="text">
+        <string>Reset</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ColorimetricFilterPreview</class>
+   <extends>QWidget</extends>
+   <header>gui/widgets/CustomWidgets/ColorimetricFilterPreview.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

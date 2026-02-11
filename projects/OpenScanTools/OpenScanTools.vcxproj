@@ -333,7 +333,7 @@ xcopy /y /q "$(SolutionDir)ext\ReCapSDK\bin\*.dll" "$(SolutionDir)build\$(Config
 windeployqt $(SolutionDir)build\$(Configuration)\OpenScanTools.exe
 xcopy /y "$(SolutionDir)translations\" "$(SolutionDir)build\$(Configuration)\translations"
 
-signtool sign /sha1 "F8E2618D741F443D4DB24A8FCDEAB4CAD55E11E4" /tr "http://time.certum.pl" /td sha256 /fd sha256 /v "$(SolutionDir)build\$(Configuration)\OpenScanTools.exe"</Command>
+signtool sign /sha1 "568db416eb4d9a1c65adcbdc03feb830b50e6846" /tr "http://time.certum.pl" /td sha256 /fd sha256 /v "$(SolutionDir)build\$(Configuration)\OpenScanTools.exe"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copying Resources to $(SolutionDir)build\$(Configuration)</Message>
@@ -572,6 +572,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\controller\controls\ControlViewport.cpp" />
     <ClCompile Include="..\..\src\controller\controls\ControlMeasure.cpp" />
     <ClCompile Include="..\..\src\controller\controls\ControlMeshObject.cpp" />
+    <ClCompile Include="..\..\src\controller\controls\ControlTemperatureScale.cpp" />
     <ClCompile Include="..\..\src\controller\FilterSystem.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\AContext.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\AContextAlignView.cpp" />
@@ -597,6 +598,8 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\controller\functionSystem\ContextCylinderToCylinderMeasure.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextDataGeneration.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextDeletePoints.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextStatisticalOutlierFilter.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextColorBalanceFilter.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextDeleteTag.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextCylinderToPlaneMeasure.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextCylinderToPlane3Measure.cpp" />
@@ -632,6 +635,8 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\controller\functionSystem\ContextExportVideoHD.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextExtendCylinderMeasure.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextFindScan.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextPickTemperature.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextPickColorimetric.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextFitTorus.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextImportOSTObjects.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextManipulateObjects.cpp" />
@@ -685,6 +690,8 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\controller\messages\ColorMessage.cpp" />
     <ClCompile Include="..\..\src\controller\messages\ConvertionMessage.cpp" />
     <ClCompile Include="..\..\src\controller\messages\DeletePointsMessage.cpp" />
+    <ClCompile Include="..\..\src\controller\messages\StatisticalOutlierFilterMessage.cpp" />
+    <ClCompile Include="..\..\src\controller\messages\ColorBalanceFilterMessage.cpp" />
     <ClCompile Include="..\..\src\controller\messages\FilesMessage.cpp" />
     <ClCompile Include="..\..\src\controller\messages\GeneralMessage.cpp" />
     <ClCompile Include="..\..\src\controller\messages\GridExportMessage.cpp" />
@@ -713,6 +720,8 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\gui\Dialog\AuthorListDialog.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\CalendarDialog.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogDeletePoints.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogStatisticalOutlierFilter.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogColorBalanceFilter.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogDeleteScanTypeSelect.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogAbout.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogDeviceSelection.cpp" />
@@ -824,6 +833,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarRampDefaultValues.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderNormals.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderRampGroup.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarColorimetricFilter.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderTransparency.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarRenderEnhance.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarShareGroup.cpp" />
@@ -858,6 +868,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\gui\widgets\CustomWidgets\ACustomLineEdit.cpp" />
     <ClCompile Include="..\..\src\gui\widgets\CustomWidgets\ANumericLineEdit.cpp" />
     <ClCompile Include="..\..\src\gui\widgets\CustomWidgets\ColorPicker.cpp" />
+    <ClCompile Include="..\..\src\gui\widgets\CustomWidgets\ColorimetricFilterPreview.cpp" />
     <ClCompile Include="..\..\src\gui\widgets\CustomWidgets\GenericPropertiesFeet.cpp" />
     <ClCompile Include="..\..\src\gui\widgets\CustomWidgets\regexpedit.cpp" />
     <ClCompile Include="..\..\src\gui\widgets\CustomWidgets\qdoubleedit.cpp" />
@@ -1125,6 +1136,8 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\utils\ColorConversion.cpp" />
     <ClCompile Include="..\..\src\utils\ImGuiUtils.cpp" />
     <ClCompile Include="..\..\src\utils\JsonWriter.cpp" />
+    <ClCompile Include="..\..\src\utils\TemperatureScaleUtils.cpp" />
+    <ClCompile Include="..\..\src\utils\ColorimetricFilterUtils.cpp" />
     <ClCompile Include="..\..\src\utils\math\glm_extended.cpp" />
     <ClCompile Include="..\..\src\utils\math\geometry.cpp" />
     <ClCompile Include="..\..\src\utils\QtUtils.cpp" />
@@ -1272,6 +1285,8 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\controller\functionSystem\ContextCylinderToPlaneMeasure.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextDataGeneration.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextDeletePoints.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextStatisticalOutlierFilter.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextColorBalanceFilter.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextDeleteTag.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextDuplicateTag.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextColumnTilt.h" />
@@ -1308,6 +1323,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\controller\functionSystem\ContextExportVideoHD.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextExtendCylinderMeasure.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextFindScan.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextPickColorimetric.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextFitCylinder.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextFitTorus.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextImportOSTObjects.h" />
@@ -1361,6 +1377,8 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\controller\messages\ColorMessage.h" />
     <ClInclude Include="..\..\include\controller\messages\DataIdListMessage.h" />
     <ClInclude Include="..\..\include\controller\messages\DeletePointsMessage.h" />
+    <ClInclude Include="..\..\include\controller\messages\StatisticalOutlierFilterMessage.h" />
+    <ClInclude Include="..\..\include\controller\messages\ColorBalanceFilterMessage.h" />
     <ClInclude Include="..\..\include\controller\messages\GeneralMessage.h" />
     <ClInclude Include="..\..\include\controller\messages\ImportMessage.h" />
     <ClInclude Include="..\..\include\controller\messages\ManipulateMessage.h" />
@@ -1396,6 +1414,8 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarShareGroup.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarMeasureSimple.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarRenderRampGroup.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarColorimetricFilter.h" />
+    <QtMoc Include="..\..\include\gui\widgets\CustomWidgets\ColorimetricFilterPreview.h" />
     <ClInclude Include="..\..\include\gui\texts\SettingsTexts.hpp" />
     <ClInclude Include="..\..\include\gui\texts\TreePanelTexts.hpp" />
     <QtMoc Include="..\..\include\gui\UrlHandler.h" />
@@ -1573,6 +1593,8 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtMoc Include="..\..\include\gui\Dialog\DialogProjectCreation.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogPointCloudObjectCreation.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogDeletePoints.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogStatisticalOutlierFilter.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogColorBalanceFilter.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogRecentProjects.h" />
     <QtMoc Include="..\..\include\gui\Dialog\ProcessingSplashScreen.h" />
     <QtMoc Include="..\..\include\gui\Dialog\MessageSplashScreen.h" />
@@ -1765,6 +1787,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="..\..\include\pointCloudEngine\EmbeddedScan.h" />
+    <ClInclude Include="..\..\include\pointCloudEngine\OutlierStats.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\IRenderingEngine.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\NormalEstimation.h" />
     <ClInclude Include="..\..\include\pointCloudEngine\RenderingEngine.h" />
@@ -1904,6 +1927,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\io\SaveLoadSystem.h" />
     <ClInclude Include="..\..\include\utils\ClockLock.hpp" />
     <ClInclude Include="..\..\include\utils\Color32.hpp" />
+    <ClInclude Include="..\..\include\utils\ColorimetricFilterUtils.h" />
     <ClInclude Include="..\..\include\utils\Config.h" />
     <ClInclude Include="..\..\include\utils\Logger.h" />
     <ClInclude Include="..\..\include\utils\ProjectColor.hpp" />
@@ -1918,6 +1942,8 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtUic Include="..\..\src\gui\forms\Calendar_Dialog.ui" />
     <QtUic Include="..\..\src\gui\forms\convertion_options.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogDeletePoints.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogStatisticalOutlierFilter.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogColorBalanceFilter.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogDeleteScanTypeSelection.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogAbout.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogDeviceSelection.ui" />
@@ -2019,6 +2045,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtUic Include="..\..\src\gui\forms\toolbar_rendertransparencygroup.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_renderenhancegroup.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_render_ramp_group.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_colorimetric_filter.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_importScantra.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_sharegroup.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_showhidegroup.ui" />

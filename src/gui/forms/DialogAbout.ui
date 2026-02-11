@@ -64,6 +64,19 @@
      </property>
     </widget>
    </item>
+   <item row="0" column="3">
+    <widget class="QPushButton" name="donateButton">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Donate</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <tabstops>

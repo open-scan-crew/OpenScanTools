@@ -18,8 +18,8 @@ ToolBarMeasureSimple::ToolBarMeasureSimple(IDataDispatcher &dataDispatcher, QWid
 	m_ui.polylineButton->setIconSize(QSize(20, 20) * guiScale);
 
 	//m_ui.threePointsPlaneCheckBox->setChecked(false);
-	connect(m_ui.simpleButton,&QPushButton::released, this, &ToolBarMeasureSimple::initSimpleMeasure);
-	connect(m_ui.polylineButton, &QPushButton::released, this, &ToolBarMeasureSimple::initPolylineMeasure);
+	connect(m_ui.simpleButton,&QPushButton::clicked, this, &ToolBarMeasureSimple::initSimpleMeasure);
+	connect(m_ui.polylineButton, &QPushButton::clicked, this, &ToolBarMeasureSimple::initPolylineMeasure);
 
 	connect(m_ui.applyPolylineConstraintCheckBox, &QCheckBox::released, this, &ToolBarMeasureSimple::activeOptions);
 	connect(m_ui.lockZRadioButton, &QRadioButton::released, this, &ToolBarMeasureSimple::activeOptions);

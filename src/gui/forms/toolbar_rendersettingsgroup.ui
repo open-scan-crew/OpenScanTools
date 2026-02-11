@@ -351,7 +351,7 @@
     </spacer>
    </item>
    <item row="1" column="2">
-   <widget class="QLabel" name="label_gapFilling">
+    <widget class="QLabel" name="label_gapFilling">
      <property name="text">
       <string>Gap filling</string>
      </property>
@@ -374,7 +374,7 @@
    <item row="2" column="0">
     <widget class="QLabel" name="label_displayPreset">
      <property name="toolTip">
-      <string>Use this section to save renderings and visibility parameters</string>
+      <string>Use this section to save renderings and visibility parameters. The initial preset is provided as standard and cannot be deleted.</string>
      </property>
      <property name="text">
       <string>Presets</string>

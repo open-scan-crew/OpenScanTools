@@ -24,9 +24,9 @@ ToolBarOthersModelsGroup::ToolBarOthersModelsGroup(IDataDispatcher& dataDispatch
 	m_ui.sphereButton->setHidden(true);
 #endif
 
-	QObject::connect(m_ui.sphereButton, &QPushButton::released, this, &ToolBarOthersModelsGroup::onSphere);
-	QObject::connect(m_ui.pointButton, &QPushButton::released, this, &ToolBarOthersModelsGroup::onPoint);
-	//QObject::connect(m_ui.beamButton, &QPushButton::released, this, &ToolBarOthersModelsGroup::onBeam);
+	QObject::connect(m_ui.sphereButton, &QPushButton::clicked, this, &ToolBarOthersModelsGroup::onSphere);
+	QObject::connect(m_ui.pointButton, &QPushButton::clicked, this, &ToolBarOthersModelsGroup::onPoint);
+	//QObject::connect(m_ui.beamButton, &QPushButton::clicked, this, &ToolBarOthersModelsGroup::onBeam);
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::activatedFunctions);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);

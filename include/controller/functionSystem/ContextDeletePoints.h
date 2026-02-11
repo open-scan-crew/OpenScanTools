@@ -18,6 +18,7 @@ public:
 
 private:
     bool prepareOutputDirectory(Controller& controller, const std::filesystem::path& folderPath);
+    bool beginDeleteConfirmation(Controller& controller);
 
 private:
     ExportClippingFilter m_clippingFilter;
@@ -26,6 +27,7 @@ private:
     xg::Guid m_viewportId;
 
     bool m_warningModal;
+    bool m_pendingDeleteConfirmation;
 };
 
 #endif

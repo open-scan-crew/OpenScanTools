@@ -35,6 +35,9 @@
 
 #include "tls_impl.h"
 
+#include <algorithm>
+#include <unordered_map>
+
 // Note (Aurélien) QT::StandardButtons enum values in qmessagebox.h
 #define Yes 0x00004000
 #define No 0x00010000
@@ -101,7 +104,7 @@ ContextState ContextExportPC::feedMessage(IMessage* message, Controller& control
 
         if (init_msg->use_grids_)
         {
-            bool noGrid = true;
+            bool hasSelectedGrid = false;
             for (const SafePtr<AClippingNode>& clip : clippings)
             {
                 ElementType type = ElementType::None;
@@ -113,11 +116,12 @@ ContextState ContextExportPC::feedMessage(IMessage* message, Controller& control
                 if (type == ElementType::Box)
                 {
                     ReadPtr<BoxNode> rBox = static_read_cast<BoxNode>(clip);
-                    noGrid |= !rBox->isSimpleBox();
+                    if (rBox && rBox->isSelected())
+                        hasSelectedGrid |= !rBox->isSimpleBox();
                 }
             }
             // Check that at least one clipping box is selected.
-            if (noGrid)
+            if (!hasSelectedGrid)
             {
                 FUNCLOG << "No Grid boxes selected" << LOGENDL;
                 controller.updateInfo(new GuiDataWarning(TEXT_EXPORT_GRID_SELECT_FIRST));
@@ -251,7 +255,7 @@ void ContextExportPC::copyTls(Controller& controller, CopyTask task)
         return;
     }
 
-    tls::ImageFile_p img_file(task.dst_path, tls::usage::read);
+    tls::ImageFile_p img_file(task.dst_path, tls::usage::update);
     if (!img_file.is_valid_file())
     {
         controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString(TEXT_EXPORT_ERROR_FILE).arg(QString::fromStdWString(task.dst_path))));
@@ -269,8 +273,49 @@ bool ContextExportPC::processExport(Controller& controller, CSVWriter* csv_write
     std::vector<CopyTask> copy_tasks;
     prepareTasks(controller, export_tasks, copy_tasks);
 
-    logStart(controller, export_tasks.size());
+    const size_t total_units = export_tasks.size() + copy_tasks.size();
+    const size_t total_progress_steps = total_units > 0 ? total_units * 100 : 1;
+    logStart(controller, total_progress_steps, total_units);
 
+    auto updateProgress = [&](size_t unitsDone, int percent)
+    {
+        QString state_text;
+        switch (m_parameters.clippingFilter)
+        {
+        case ExportClippingFilter::SELECTED:
+        case ExportClippingFilter::ACTIVE:
+            state_text = m_parameters.method == ExportPointCloudMerging::CLIPPING_SEPARATED ? TEXT_SPLASH_SCREEN_CLIPPING_PROCESSING : TEXT_SPLASH_SCREEN_SCAN_PROCESSING;
+            break;
+        case ExportClippingFilter::GRIDS:
+            state_text = TEXT_SPLASH_SCREEN_BOX_PROCESSING;
+            break;
+        case ExportClippingFilter::NONE:
+            state_text = TEXT_SPLASH_SCREEN_SCAN_PROCESSING;
+            break;
+        }
+        QString state = QString("%1 - %2%")
+                            .arg(state_text.arg(unitsDone).arg(total_units_))
+                            .arg(percent);
+        uint64_t progressValue = static_cast<uint64_t>(unitsDone) * 100;
+        if (percent < 100)
+            progressValue += static_cast<uint64_t>(percent);
+        controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(state, progressValue));
+    };
+    auto makeProgressCallback = [&](size_t unitsDone, int basePercent, int spanPercent)
+    {
+        return [unitsDone, basePercent, spanPercent, &updateProgress](size_t processed, size_t total)
+        {
+            if (total == 0)
+                return;
+            int percent = basePercent + static_cast<int>((processed * spanPercent) / total);
+            percent = std::clamp(percent, basePercent, basePercent + spanPercent - 1);
+            if (percent >= 100)
+                percent = 99;
+            updateProgress(unitsDone, percent);
+        };
+    };
+
+    size_t units_done = 0;
     // For each new output file
     for (const ExportTask& task : export_tasks)
     {
@@ -278,20 +323,25 @@ bool ContextExportPC::processExport(Controller& controller, CSVWriter* csv_write
         if (m_state != ContextState::running || !success)
             break;
 
+        std::wstring writer_name = m_parameters.outFileType == FileType::RCP
+            ? task.project_name
+            : task.file_name;
+
         // Prepare the file writer
-        // Reuse the FileWriter if the 'file_name' is the same
-        if (ensureFileWriter(controller, scanFileWriter, task.file_name, csv_writer) == false)
+        // Reuse the FileWriter if the output name is the same
+        if (ensureFileWriter(controller, scanFileWriter, writer_name, csv_writer) == false)
             return false;
 
         scanFileWriter->appendPointCloud(task.header, task.transfo);
         scanFileWriter->setPostTranslation(m_scanTranslationToAdd); // !!
 
         // Process each input PC
-        for (const tls::PointCloudInstance& pc : task.input_pcs)
+        for (size_t pc_index = 0; pc_index < task.input_pcs.size(); ++pc_index)
         {
             if (m_state != ContextState::running || !success)
                 break;
 
+            const tls::PointCloudInstance& pc = task.input_pcs[pc_index];
             const ClippingAssembly* clippingsToUse = &task.clippings;
             ClippingAssembly resolvedAssembly;
             if (task.clippings.hasPhaseClipping())
@@ -300,7 +350,12 @@ bool ContextExportPC::processExport(Controller& controller, CSVWriter* csv_write
                 clippingsToUse = &resolvedAssembly;
             }
 
-            success &= TlScanOverseer::getInstance().clipScan(pc.header.guid, pc.transfo, *clippingsToUse, scanFileWriter.get());
+            size_t pc_count = task.input_pcs.size();
+            int base_percent = static_cast<int>((pc_index * 100) / pc_count);
+            int next_percent = static_cast<int>(((pc_index + 1) * 100) / pc_count);
+            int span_percent = std::max(1, next_percent - base_percent);
+            auto progressCallback = makeProgressCallback(units_done, base_percent, span_percent);
+            success &= TlScanOverseer::getInstance().clipScan(pc.header.guid, pc.transfo, *clippingsToUse, scanFileWriter.get(), progressCallback);
         }
 
         // TODO - FileType::RCP & m_parameters.pointDensity
@@ -308,12 +363,21 @@ bool ContextExportPC::processExport(Controller& controller, CSVWriter* csv_write
 
         writeHeaderInCSV(csv_writer, scanFileWriter->getLastScanHeader());
 
-        logProgress(controller);
+        units_done++;
+        updateProgress(units_done, 100);
+    }
+
+    if (m_parameters.outFileType == FileType::RCP && scanFileWriter != nullptr)
+    {
+        static_cast<RcpFileWriter*>(scanFileWriter.get())->finalizeProject();
+        scanFileWriter.reset();
     }
 
     for (const CopyTask& task : copy_tasks)
     {
         copyTls(controller, task);
+        units_done++;
+        updateProgress(units_done, 100);
     }
 
     logEnd(controller, success);
@@ -328,12 +392,15 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
     // We can separate the list of PCOs and scans here.
     //std::vector<tls::PointCloudInstance> pcoInfos = graph.getPointCloudInstances(xg::Guid(), false, m_parameters.exportPCOs, m_parameters.pointCloudFilter);
     tls::PointFormat common_format = getCommonFormat(pcInfos);
-
     ClippingAssembly clipping_assembly;
-    graph.getClippingAssembly(clipping_assembly,
-        m_parameters.clippingFilter == ExportClippingFilter::ACTIVE,
-        m_parameters.clippingFilter == ExportClippingFilter::SELECTED
-    );
+    if (m_parameters.clippingFilter == ExportClippingFilter::ACTIVE ||
+        m_parameters.clippingFilter == ExportClippingFilter::SELECTED)
+    {
+        graph.getClippingAssembly(clipping_assembly,
+            m_parameters.clippingFilter == ExportClippingFilter::ACTIVE,
+            m_parameters.clippingFilter == ExportClippingFilter::SELECTED
+        );
+    }
     bool is_rcp = (m_parameters.outFileType == FileType::RCP);
 
     // The output files are based on the grid
@@ -362,14 +429,17 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
 
                 if (is_rcp)
                 {
-                    task.file_name += m_parameters.fileName.wstring();
+                    task.project_name += m_parameters.fileName.wstring();
                     if (m_parameters.maxScanPerProject > 0)
-                        task.file_name += L"_" + std::to_wstring(box_per_sub_project++ / m_parameters.maxScanPerProject);
+                        task.project_name += L"_" + std::to_wstring(box_per_sub_project++ / m_parameters.maxScanPerProject);
+                    task.scan_name = box_xyz_name;
                 }
                 else
+                {
                     task.file_name += box_xyz_name;
+                }
 
-                task.header.name = box_xyz_name;
+                task.header.name = is_rcp ? task.scan_name : box_xyz_name;
                 task.header.precision = m_parameters.encodingPrecision;
                 task.header.format = common_format;
 
@@ -400,9 +470,17 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
                 continue;
 
             ExportTask task;
-            task.file_name = r_clipping->getComposedName();
+            if (is_rcp)
+            {
+                task.project_name = m_parameters.fileName.wstring();
+                task.scan_name = r_clipping->getComposedName();
+            }
+            else
+            {
+                task.file_name = r_clipping->getComposedName();
+            }
 
-            task.header.name = r_clipping->getComposedName();
+            task.header.name = is_rcp ? task.scan_name : r_clipping->getComposedName();
             task.header.precision = m_parameters.encodingPrecision;
             task.header.format = common_format;
 
@@ -419,9 +497,17 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
     else if (m_parameters.method == ExportPointCloudMerging::CLIPPING_AND_SCAN_MERGED)
     {
         ExportTask task;
-        task.file_name = m_parameters.fileName.wstring();
+        if (is_rcp)
+        {
+            task.project_name = m_parameters.fileName.wstring();
+            task.scan_name = m_parameters.fileName.wstring();
+        }
+        else
+        {
+            task.file_name = m_parameters.fileName.wstring();
+        }
 
-        task.header.name = m_parameters.fileName.wstring();
+        task.header.name = is_rcp ? task.scan_name : m_parameters.fileName.wstring();
         task.header.precision = m_parameters.encodingPrecision;
         task.header.format = common_format;
 
@@ -449,8 +535,9 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
 
                     task.dst_path = m_parameters.outFolder / (pcInfo.header.name + L".tls");
 
-                    glm::dvec3 pos = pcInfo.transfo.getCenter() + m_scanTranslationToAdd;
-                    glm::dquat rot = pcInfo.transfo.getOrientation();
+                    const TransformationModule& export_transfo = pcInfo.transfo;
+                    glm::dvec3 pos = export_transfo.getCenter() + m_scanTranslationToAdd;
+                    glm::dquat rot = export_transfo.getOrientation();
                     task.dst_transfo = { { rot.x, rot.y, rot.z, rot.w }, { pos.x, pos.y, pos.z } };
 
                     copy_tasks.push_back(task);
@@ -459,10 +546,18 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
             else
             {
                 ExportTask task;
-                task.file_name = is_rcp ? m_parameters.fileName.wstring() : pcInfo.header.name;
+                if (is_rcp)
+                {
+                    task.project_name = m_parameters.fileName.wstring();
+                    task.scan_name = pcInfo.header.name;
+                }
+                else
+                {
+                    task.file_name = pcInfo.header.name;
+                }
 
                 task.header = pcInfo.header;
-                task.header.name = task.file_name;
+                task.header.name = is_rcp ? task.scan_name : task.file_name;
                 task.header.precision = m_parameters.encodingPrecision;
                 task.header.format = pcInfo.header.format;
 
@@ -473,8 +568,16 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
 
                 if (!clipping_assembly.empty() && !m_forSubProject)
                 {
-                    task.file_name += is_rcp ? L"" : L"_clipped";
-                    task.header.name += L"_clipped";
+                    if (is_rcp)
+                    {
+                        task.scan_name += L"_clipped";
+                        task.header.name = task.scan_name;
+                    }
+                    else
+                    {
+                        task.file_name += L"_clipped";
+                        task.header.name += L"_clipped";
+                    }
                 }
 
                 export_tasks.push_back(task);
@@ -483,11 +586,12 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
     }
 }
 
-void ContextExportPC::logStart(Controller& controller, size_t total_steps)
+void ContextExportPC::logStart(Controller& controller, size_t total_steps, size_t total_units)
 {
     process_time_ = std::chrono::steady_clock::now();
     total_steps_ = total_steps;
     current_step_ = 0;
+    total_units_ = total_units;
 
     QString title_text;
     QString state_text;
@@ -508,29 +612,7 @@ void ContextExportPC::logStart(Controller& controller, size_t total_steps)
         break;
     }
 
-    controller.updateInfo(new GuiDataProcessingSplashScreenStart(total_steps_, title_text, state_text.arg(0).arg(total_steps_)));
-}
-
-void ContextExportPC::logProgress(Controller& controller)
-{
-    current_step_++;
-
-    QString state_text;
-    switch (m_parameters.clippingFilter)
-    {
-    case ExportClippingFilter::SELECTED:
-    case ExportClippingFilter::ACTIVE:
-        state_text = m_parameters.method == ExportPointCloudMerging::CLIPPING_SEPARATED ? TEXT_SPLASH_SCREEN_CLIPPING_PROCESSING : TEXT_SPLASH_SCREEN_SCAN_PROCESSING;
-        break;
-    case ExportClippingFilter::GRIDS:
-        state_text = TEXT_SPLASH_SCREEN_BOX_PROCESSING;
-        break;
-    case ExportClippingFilter::NONE:
-        state_text = TEXT_SPLASH_SCREEN_SCAN_PROCESSING;
-        break;
-    }
-
-    controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(state_text.arg(current_step_).arg(total_steps_), current_step_));
+    controller.updateInfo(new GuiDataProcessingSplashScreenStart(total_steps_, title_text, state_text.arg(0).arg(total_units_)));
 }
 
 void ContextExportPC::logEnd(Controller& controller, bool success)

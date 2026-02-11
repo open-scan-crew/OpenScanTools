@@ -12,8 +12,8 @@ ToolBarBeamDetection::ToolBarBeamDetection(IDataDispatcher& dataDispatcher, QWid
 
 	setEnabled(false);
 
-	QObject::connect(m_ui.detectSimpleButton, &QToolButton::released, this, &ToolBarBeamDetection::onSimpleDetection);
-	QObject::connect(m_ui.manualExtensionButton, &QToolButton::released, this, &ToolBarBeamDetection::onManualExtension);
+	QObject::connect(m_ui.detectSimpleButton, &QToolButton::clicked, this, &ToolBarBeamDetection::onSimpleDetection);
+	QObject::connect(m_ui.manualExtensionButton, &QToolButton::clicked, this, &ToolBarBeamDetection::onManualExtension);
 	QObject::connect(m_ui.applyStandardCheckBox, &QCheckBox::stateChanged, this, &ToolBarBeamDetection::onApplyStandard);
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::activatedFunctions);

@@ -6,6 +6,7 @@ struct RampScale
     bool showScale;
     bool centerBoxScale;
     int graduationCount;
+    bool showTemperatureScale;
     // enum colorScheme ??
 };
 

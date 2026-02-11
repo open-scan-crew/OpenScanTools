@@ -187,6 +187,7 @@
 #define Key_ImportScanTranslation "ImportScanTranslation"
 #define Key_Project_Id "ProjectId"
 #define Key_CustomScanFolderPath "CustomScanFolderPath"
+#define Key_TemperatureScaleFilePath "TemperatureScaleFilePath"
 
 //Template
 #define Key_OriginTemplate "OriginTemplate"
@@ -241,6 +242,12 @@
 #define Key_Text_Display_Options		"MarkerTextDisplayParameters" // The struct name changed
 #define Key_Display_All_Marker_Texts	"DisplayAllMarkerTexts"
 #define Key_Display_All_Measures		"DisplayAllMeasures"
+#define Key_Colorimetric_Filter			"ColorimetricFilter"
+#define Key_Colorimetric_Filter_Enabled	"ColorimetricFilterEnabled"
+#define Key_Colorimetric_Filter_Show		"ColorimetricFilterShowColors"
+#define Key_Colorimetric_Filter_Tolerance	"ColorimetricFilterTolerance"
+#define Key_Colorimetric_Filter_Colors		"ColorimetricFilterColors"
+#define Key_Colorimetric_Filter_Colors_Enabled "ColorimetricFilterColorsEnabled"
 
 #define Key_Active_Scans				"ActiveScans"
 #define Key_Active_Clippings			"ActiveClippings"

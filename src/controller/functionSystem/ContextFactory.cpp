@@ -27,6 +27,8 @@
 #include "controller/functionSystem/ContextCylinderToCylinderMeasure.h"
 #include "controller/functionSystem/ContextExtendCylinderMeasure.h"
 #include "controller/functionSystem/ContextDeletePoints.h"
+#include "controller/functionSystem/ContextStatisticalOutlierFilter.h"
+#include "controller/functionSystem/ContextColorBalanceFilter.h"
 #include "controller/functionSystem/ContextMultipleCylindersMeasure.h"
 #include "controller/functionSystem/ContextPointCreation.h"
 #include "controller/functionSystem/Context4ClicsSphere.h"
@@ -50,6 +52,8 @@
 #include "controller/functionSystem/ContextDataGeneration.h"
 #include "controller/functionSystem/ContextPeopleRemover.h"
 #include "controller/functionSystem/ContextFindScan.h"
+#include "controller/functionSystem/ContextPickTemperature.h"
+#include "controller/functionSystem/ContextPickColorimetric.h"
 #include "controller/functionSystem/ContextSetOfPoints.h"
 #include "controller/functionSystem/ContextPlaneDetection.h"
 #include "controller/functionSystem/ContextFitTorus.h"
@@ -188,6 +192,10 @@ AContext* ContextFactory::createContext(const ContextType& type, ContextId& id, 
 			return new ContextExtendCylinder(id);
 		case ContextType::deletePoints:
 			return new ContextDeletePoints(id);
+		case ContextType::statisticalOutlierFilter:
+			return new ContextStatisticalOutlierFilter(id);
+		case ContextType::colorBalanceFilter:
+			return new ContextColorBalanceFilter(id);
 		case ContextType::pointCreation:
 			return new ContextPointCreation(id);
 		case ContextType::Sphere:
@@ -226,6 +234,10 @@ AContext* ContextFactory::createContext(const ContextType& type, ContextId& id, 
 			return new ContextPeopleRemover(id);
 		case ContextType::findScan:
 			return new ContextFindScan(id);
+		case ContextType::pickTemperature:
+			return new ContextPickTemperature(id);
+		case ContextType::pickColorimetric:
+			return new ContextPickColorimetric(id);
 		case ContextType::setOfPoints:
 			return new ContextSetOfPoints(id);
 		case ContextType::planeDetection:

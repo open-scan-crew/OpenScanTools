@@ -49,6 +49,7 @@ enum class ControlType
 	setPerspectiveZBounds,
 	setOrthoGridParams,
 	unlockScanManipulation,
+	setMultithreadedCalculation,
 	// setOrthoZBounds, // TODO
 
 	// control::project
@@ -70,6 +71,7 @@ enum class ControlType
 	applyProjectTransformation, //Free
 	deleteScanProject,
 	showPropertiesProject, //Free
+	importTemperatureScale,
 
 	// control::projectTemplate
 	createProjectTemplate, //Free
@@ -105,8 +107,10 @@ enum class ControlType
     startExport, //Free
 	startExportPCO, //Free
 	startSingleExport, //Free
-	startGridExport,
+    startGridExport,
     startDeletePoints,
+    startStatisticalOutlierFilter,
+    startColorBalanceFilter,
 
 	// control::function
 	functionAbort, //Free
@@ -233,6 +237,8 @@ enum class ControlType
 	// control::picking
 	clickPicking,
 	findScanFromPicking,
+	pickTemperatureFromPicking,
+	pickColorimetricFromPicking,
 
 	// control::viewport
 	multiSelect,

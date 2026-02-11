@@ -3,6 +3,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <glm/glm.hpp>
 
 // RenderColorInput
 enum class UiRenderMode
@@ -104,6 +105,12 @@ struct DepthLining
     bool strongMode = false;
 };
 
+struct ColorimetricFilterUniform
+{
+    glm::vec4 colors[4] = {};
+    glm::vec4 settings = {}; // x: enabled, y: showColors, z: tolerance(0-1), w: intensityMode
+};
+
 enum class ProjectionMode
 {
     Perspective = 0,
@@ -129,25 +136,15 @@ enum class DecimationMode
     Adaptive
 };
 
-enum class OctreePrecision : int
-{
-    Analysis = 1,
-    Normal = 2,
-    Performances = 3
-};
+using OctreePrecision = float;
+
+constexpr float kMinOctreePrecision = 0.1f;
+constexpr float kMaxOctreePrecision = 10.0f;
+constexpr float kDefaultOctreePrecision = 1.0f;
 
 inline float getOctreePrecisionMultiplier(OctreePrecision precision)
 {
-    switch (precision)
-    {
-    case OctreePrecision::Analysis:
-        return 10.0f;
-    case OctreePrecision::Performances:
-        return 0.5f;
-    case OctreePrecision::Normal:
-    default:
-        return 1.0f;
-    }
+    return precision;
 }
 
 struct DecimationOptions

@@ -11,7 +11,7 @@ ToolBarViewPoint::ToolBarViewPoint(IDataDispatcher& dataDispatcher, QWidget* par
 	setEnabled(false);
 	m_ui.createToolButton->setIconSize(QSize(20, 20) * scale);
 
-	connect(m_ui.createToolButton, &QToolButton::released, this, &ToolBarViewPoint::initViewPointCreation);
+	connect(m_ui.createToolButton, &QToolButton::clicked, this, &ToolBarViewPoint::initViewPointCreation);
 	
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::activatedFunctions);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::sendListsStandards);

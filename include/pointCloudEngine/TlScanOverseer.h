@@ -1,12 +1,13 @@
 #ifndef TL_SCAN_OVERSEER_H
 #define TL_SCAN_OVERSEER_H
 
-#include <unordered_map>
+#include <atomic>
 #include <filesystem>
+#include <functional>
 #include <list>
 #include <mutex>
-#include <atomic>
 #include <set>
+#include <unordered_map>
 
 #include "tls_def.h"
 #include "models/pointCloud/PointCloudInstance.h"
@@ -16,6 +17,8 @@
 #include "models/3d/Measures.h"
 
 #include "pointCloudEngine/OctreeRayTracing.h"
+#include "pointCloudEngine/OutlierStats.h"
+#include "models/pointCloud/PointXYZIRGB.h"
 
 /*
 template<typename T>
@@ -165,6 +168,7 @@ struct IndexedValue {
 class TlScanOverseer
 {
 public:
+    using ProgressCallback = std::function<void(size_t processed, size_t total)>;
     static TlScanOverseer& getInstance()
     {
         static TlScanOverseer instance;
@@ -215,11 +219,16 @@ public:
 
     // Compute
     bool testClippingEffect(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly);
-    bool clipScan(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, IScanFileWriter* outScan);
+    bool clipScan(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, IScanFileWriter* outScan, const ProgressCallback& progress = {});
+    bool computeOutlierStats(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, int samplingPercent, double beta, OutlierStats& stats, const ProgressCallback& progress = {});
+    bool filterOutliersAndWrite(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* outScan, uint64_t& removedPoints, const ProgressCallback& progress = {});
+    bool balanceColorsAndWrite(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kMin, int kMax, double trimPercent, double sharpnessBlend, bool applyOnIntensity, bool applyOnRgb, const std::function<void(const GeometricBox&, std::vector<PointXYZIRGB>&)>& externalPointsProvider, IScanFileWriter* outScan, uint64_t& modifiedPoints, const ProgressCallback& progress = {});
+    void collectPointsInGeometricBox(const GeometricBox& box, const ClippingAssembly& clippingAssembly, const tls::ScanGuid& excludedGuid, std::vector<PointXYZIRGB>& result);
     //tls::ScanGuid clipNewScan(tls::ScanGuid scanGuid, const glm::dmat4& modelMat, const ClippingAssembly& clippingAssembly, const std::filesystem::path& outPath, uint64_t& pointDeletedCount);
 
     // Lucas functions
     bool rayTracing(const glm::dvec3& ray, const glm::dvec3& rayOrigin, glm::dvec3& bestPoint, const double& cosAngleThreshold, const ClippingAssembly& clippingAssembly, const bool& isOrtho, std::string& scanName);
+    bool rayTracingWithPoint(const glm::dvec3& ray, const glm::dvec3& rayOrigin, glm::dvec3& bestPoint, PointXYZIRGB& bestPointData, const double& cosAngleThreshold, const ClippingAssembly& clippingAssembly, const bool& isOrtho, std::string& scanName);
     bool findNeighborsBucketsDirected(const glm::dvec3& globalSeedPoint, const glm::dvec3& directedPoint, const double& radius, std::vector<std::vector<glm::dvec3>>& neighborList, int numberOfBuckets, const ClippingAssembly& clippingAssembly);
     bool findNeighborsBuckets(const glm::dvec3& globalSeedPoint, const double& radius, std::vector<std::vector<glm::dvec3>>& neighborList, int numberOfBuckets, const ClippingAssembly& clippingAssembly);
     bool findNeighborsBucketsTest(const glm::dvec3& globalSeedPoint, const double& radius, std::vector<std::vector<glm::dvec3>>& neighborList, int numberOfBuckets, const ClippingAssembly& clippingAssembly, std::vector<glm::dquat>& rotations, std::vector<glm::dvec3>& positions, std::vector<double>& scales);

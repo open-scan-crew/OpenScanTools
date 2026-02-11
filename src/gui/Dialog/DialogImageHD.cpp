@@ -7,8 +7,8 @@ DialogImageHD::DialogImageHD(IDataDispatcher& dataDispatcher, QWidget* parent)
     m_ui.setupUi(this);
     translateUI();
 
-    connect(m_ui.okButton, &QPushButton::released, this, &DialogImageHD::generateImage);
-    connect(m_ui.cancelButton, &QPushButton::released, this, &DialogImageHD::cancel);
+    connect(m_ui.okButton, &QPushButton::clicked, this, &DialogImageHD::generateImage);
+    connect(m_ui.cancelButton, &QPushButton::clicked, this, &DialogImageHD::cancel);
 
     m_dataDispatcher.registerObserverOnKey(this, guiDType::deletePointsDialogDisplay);
     adjustSize();

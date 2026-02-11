@@ -57,6 +57,7 @@
 #include "gui/toolBars/ToolBarRenderSettings.h"
 #include "gui/toolBars/ToolBarRenderNormals.h"
 #include "gui/toolBars/ToolBarRenderRampGroup.h"
+#include "gui/toolBars/ToolBarColorimetricFilter.h"
 #include "gui/toolBars/ToolBarRenderTransparency.h"
 #include "gui/toolBars/ToolBarRenderEnhance.h"
 #include "gui/toolBars/ToolBarClippingGroup.h"
@@ -90,6 +91,8 @@
 #include "gui/Dialog/DialogExportFileObject.h"
 #include "gui/dialog/DialogExportPointCloud.h"
 #include "gui/dialog/DialogDeletePoints.h"
+#include "gui/dialog/DialogStatisticalOutlierFilter.h"
+#include "gui/dialog/DialogColorBalanceFilter.h"
 #include "gui/dialog/DialogPointCloudObjectCreation.h"
 #include "gui/Dialog/ProcessingSplashScreen.h"
 
@@ -212,6 +215,8 @@ Gui::Gui(Controller& controller)
 #endif
 	m_dialogs.insert(new DialogExportPointCloud(m_dataDispatcher, this) );
 	m_dialogs.insert(new DialogDeletePoints(m_dataDispatcher, this) );
+	m_dialogs.insert(new DialogStatisticalOutlierFilter(m_dataDispatcher, this) );
+	m_dialogs.insert(new DialogColorBalanceFilter(m_dataDispatcher, this) );
 	m_dialogs.insert(new DialogPointCloudObjectCreation(m_dataDispatcher, this) );
 
 	m_properties.insert({ guiDType::projectDataProperties, new PropertiesProjectPanel(m_dataDispatcher, this) });
@@ -313,6 +318,7 @@ Gui::Gui(Controller& controller)
 	ribbonTabContent = new RibbonTabContent();
 	ribbonTabContent->addWidget(TEXT_RAMPS, new ToolBarRampDefaultValues(m_dataDispatcher, this, m_guiScale));
 	ribbonTabContent->addWidget(TEXT_RAMPS, new ToolBarRenderRampGroup(m_dataDispatcher, this, m_guiScale));
+	ribbonTabContent->addWidget(TEXT_COLORIMETRIC_FILTER, new ToolBarColorimetricFilter(m_dataDispatcher, this, m_guiScale));
 	ribbonTabContent->addWidget(TEXT_STRUCTURE_ANALYSIS, new ToolBarStructureAnalysis(m_dataDispatcher, this, m_guiScale));
 	ribbonTabContent->addWidget(TEXT_AUTO_SOWING, new ToolBarAutoSeeding(m_dataDispatcher, this, m_guiScale));
 	m_ribbon->addTab(TEXT_ANALYSIS, ribbonTabContent);
@@ -333,9 +339,12 @@ Gui::Gui(Controller& controller)
 	ribbonTabContent->addWidget(TEXT_ATTRIBUTE, new ToolBarAttributesGroup(controller, this, m_guiScale));
 	ribbonTabContent->addWidget(TEXT_BOX, new ToolBarClippingGroup(m_dataDispatcher, this, m_guiScale));
 	ribbonTabContent->addWidget(TEXT_CLIPPING_GROUP_NAME, new ToolBarClippingParameters(m_dataDispatcher, this, m_guiScale));
-    ribbonTabContent->addWidget(TEXT_POINT_EDITION, new ToolBarPointEdition(m_dataDispatcher, this, m_guiScale));
+    m_ribbon->addTab(TEXT_CLIPPING, ribbonTabContent);
 
-	m_ribbon->addTab(TEXT_CLIPPING, ribbonTabContent);
+	// Add groups to the Edition
+	ribbonTabContent = new RibbonTabContent();	
+	ribbonTabContent->addWidget(TEXT_POINT_EDITION, new ToolBarPointEdition(m_dataDispatcher, this, m_guiScale));
+	m_ribbon->addTab(TEXT_EDITION, ribbonTabContent);
 
 	// Add groups to the Import (previously Point Cloud Object) Tab 
 	ribbonTabContent = new RibbonTabContent();

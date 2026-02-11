@@ -75,6 +75,7 @@ static const std::unordered_map<ControlType, std::unordered_set<LicenceVersion>>
 	{ControlType::applyUserTransformation, {LicenceVersion::Free}},
 	{ControlType::deleteScanProject, {LicenceVersion::Standard}},
 	{ControlType::showPropertiesProject, {LicenceVersion::Free}},
+	{ControlType::importTemperatureScale, {LicenceVersion::Free}},
 
 	// control::projectTemplate
 	{ControlType::createProjectTemplate, {LicenceVersion::Standard}},
@@ -110,6 +111,7 @@ static const std::unordered_map<ControlType, std::unordered_set<LicenceVersion>>
 	{ControlType::startSingleExport, {LicenceVersion::Standard}}, 
 	{ControlType::startGridExport, {LicenceVersion::Standard}},
 	{ControlType::startDeletePoints, {LicenceVersion::Standard}},
+	{ControlType::startStatisticalOutlierFilter, {LicenceVersion::Standard}},
 
 	// control::function
 	{ControlType::functionAbort, {LicenceVersion::Free}}, 
@@ -235,6 +237,7 @@ static const std::unordered_map<ControlType, std::unordered_set<LicenceVersion>>
 	// control::picking
 	{ControlType::clickPicking, {LicenceVersion::Free} },
 	{ControlType::findScanFromPicking, {LicenceVersion::Standard} },
+	{ControlType::pickTemperatureFromPicking, {LicenceVersion::Standard} },
 
 	// control::viewport
 	{ControlType::multiSelect, {LicenceVersion::Free} },

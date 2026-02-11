@@ -5,6 +5,7 @@
 #include "models/graph/ManipulatorNode.h"
 #include "models/3d/CLickInfo.h"
 #include "models/3d/BoundingBox.h"
+#include "models/3d/TemperatureScaleData.h"
 #include "models/pointCloud/PointCloudInstance.h"
 #include "models/application/TagTemplate.h"
 #include "models/OpenScanToolsModelEssentials.h"
@@ -94,12 +95,16 @@ public:
 	void replaceObjectsSelected(std::unordered_set<SafePtr<AGraphNode>> toSelectDatas);
 
 	void getClippingAssembly(ClippingAssembly& retAssembly, bool filterActive, bool filterSelected) const;
+	void getClippingAssembly(ClippingAssembly& retAssembly, const std::unordered_set<SafePtr<AClippingNode>>& clippings) const;
 
 	BoundingBoxD getScanBoundingBox(ObjectStatusFilter status) const;
 	std::unordered_set<SafePtr<PointCloudNode>> getVisibleScans(const tls::ScanGuid& pano) const;
 	std::vector<tls::PointCloudInstance> getVisiblePointCloudInstances(const tls::ScanGuid& pano, bool scans, bool pcos) const;
 	std::vector<tls::PointCloudInstance> getPointCloudInstances(const tls::ScanGuid& pano, bool scans, bool pcos, ObjectStatusFilter status) const;
 	uint64_t getProjectPointsCount() const;
+
+	void setTemperatureScaleData(const TemperatureScaleData& data);
+	TemperatureScaleData getTemperatureScaleData() const;
 
 	template<typename T>
 	std::unordered_set<SafePtr<T>> getNodesOnFilter(
@@ -122,7 +127,7 @@ private:
 
 private:
 	SafePtr<AGraphNode> m_root;
-    std::mutex m_mutex;
+    mutable std::mutex m_mutex;
     std::deque<IGuiData*> m_waitingDataToProceed;
 
 	SafePtr<ManipulatorNode>								m_manipulatorNode;
@@ -138,6 +143,7 @@ private:
 
 	//From Project
 	std::unordered_set<xg::Guid>							m_projectAuthorsId;
+	TemperatureScaleData									m_temperatureScaleData;
 };
 
 #endif //! GRAPH_MANAGER_H

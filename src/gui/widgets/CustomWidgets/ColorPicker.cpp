@@ -48,14 +48,14 @@ ColorPicker::ColorPicker(QWidget *parent, float pixelRatio)
         button->setStyleSheet(styleSheetText);
     }
 
-    QObject::connect(m_ui.button1, &QPushButton::released, this, [this]() { selectColor(m_ui.button1); });
-    QObject::connect(m_ui.button2, &QPushButton::released, this, [this]() { selectColor(m_ui.button2); });
-    QObject::connect(m_ui.button3, &QPushButton::released, this, [this]() { selectColor(m_ui.button3); });
-    QObject::connect(m_ui.button4, &QPushButton::released, this, [this]() { selectColor(m_ui.button4); });
-    QObject::connect(m_ui.button5, &QPushButton::released, this, [this]() { selectColor(m_ui.button5); });
-    QObject::connect(m_ui.button6, &QPushButton::released, this, [this]() { selectColor(m_ui.button6); });
-    QObject::connect(m_ui.button7, &QPushButton::released, this, [this]() { selectColor(m_ui.button7); });
-    QObject::connect(m_ui.button8, &QPushButton::released, this, [this]() { selectColor(m_ui.button8); });
+    QObject::connect(m_ui.button1, &QPushButton::clicked, this, [this]() { selectColor(m_ui.button1); });
+    QObject::connect(m_ui.button2, &QPushButton::clicked, this, [this]() { selectColor(m_ui.button2); });
+    QObject::connect(m_ui.button3, &QPushButton::clicked, this, [this]() { selectColor(m_ui.button3); });
+    QObject::connect(m_ui.button4, &QPushButton::clicked, this, [this]() { selectColor(m_ui.button4); });
+    QObject::connect(m_ui.button5, &QPushButton::clicked, this, [this]() { selectColor(m_ui.button5); });
+    QObject::connect(m_ui.button6, &QPushButton::clicked, this, [this]() { selectColor(m_ui.button6); });
+    QObject::connect(m_ui.button7, &QPushButton::clicked, this, [this]() { selectColor(m_ui.button7); });
+    QObject::connect(m_ui.button8, &QPushButton::clicked, this, [this]() { selectColor(m_ui.button8); });
 }
 
 

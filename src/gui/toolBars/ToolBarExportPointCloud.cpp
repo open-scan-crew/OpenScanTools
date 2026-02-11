@@ -14,10 +14,10 @@ ToolBarExportPointCloud::ToolBarExportPointCloud(IDataDispatcher &dataDispatcher
 	m_ui.toolButton_scans->setIconSize(QSize(20, 20) * guiScale);
 	m_ui.toolButton_pco->setIconSize(QSize(20, 20) * guiScale);
 
-	QObject::connect(m_ui.toolButton_grid, &QToolButton::released, this, &ToolBarExportPointCloud::slotExportGrid);
-	QObject::connect(m_ui.toolButton_clipping, &QToolButton::released, this, &ToolBarExportPointCloud::slotExportClipping);
-	QObject::connect(m_ui.toolButton_scans, &QToolButton::released, this, &ToolBarExportPointCloud::slotExportScans);
-	QObject::connect(m_ui.toolButton_pco, &QToolButton::released, this, &ToolBarExportPointCloud::slotExportPCOs);
+	QObject::connect(m_ui.toolButton_grid, &QToolButton::clicked, this, &ToolBarExportPointCloud::slotExportGrid);
+	QObject::connect(m_ui.toolButton_clipping, &QToolButton::clicked, this, &ToolBarExportPointCloud::slotExportClipping);
+	QObject::connect(m_ui.toolButton_scans, &QToolButton::clicked, this, &ToolBarExportPointCloud::slotExportScans);
+	QObject::connect(m_ui.toolButton_pco, &QToolButton::clicked, this, &ToolBarExportPointCloud::slotExportPCOs);
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);
 	m_methods.insert({ guiDType::projectLoaded, &ToolBarExportPointCloud::onProjectLoad });

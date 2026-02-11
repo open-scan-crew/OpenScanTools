@@ -12,11 +12,11 @@ ToolBarExportGroup::ToolBarExportGroup(IDataDispatcher &dataDispatcher, QWidget 
 	m_ui.setupUi(this);
 	setEnabled(false);
 		
-	QObject::connect(m_ui.exportToCsvButton, &QToolButton::released, this, &ToolBarExportGroup::slotExportCsv);
-	QObject::connect(m_ui.exportToDxfButton, &QToolButton::released, this, &ToolBarExportGroup::slotExportDxf);
-	QObject::connect(m_ui.exportToStepButton, &QToolButton::released, this, &ToolBarExportGroup::slotExportStep);
-	QObject::connect(m_ui.exportToObjButton, &QToolButton::released, this, &ToolBarExportGroup::slotExportObj);
-	QObject::connect(m_ui.exportToFbxButton, &QToolButton::released, this, &ToolBarExportGroup::slotExportFbx);
+	QObject::connect(m_ui.exportToCsvButton, &QToolButton::clicked, this, &ToolBarExportGroup::slotExportCsv);
+	QObject::connect(m_ui.exportToDxfButton, &QToolButton::clicked, this, &ToolBarExportGroup::slotExportDxf);
+	QObject::connect(m_ui.exportToStepButton, &QToolButton::clicked, this, &ToolBarExportGroup::slotExportStep);
+	QObject::connect(m_ui.exportToObjButton, &QToolButton::clicked, this, &ToolBarExportGroup::slotExportObj);
+	QObject::connect(m_ui.exportToFbxButton, &QToolButton::clicked, this, &ToolBarExportGroup::slotExportFbx);
 	
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);
 

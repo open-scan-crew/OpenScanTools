@@ -1,6 +1,8 @@
 #include "io/exports/IScanFileWriter.h"
 #include "io/exports/TlsFileWriter.h"
 
+#include <system_error>
+
 #ifndef PORTABLE
 #include "io/exports/E57FileWriter.h"
 #include "io/exports/RcpFileWriter.h"
@@ -28,9 +30,51 @@ void IScanFileWriter::setPostTranslation(const glm::dvec3& translation)
     post_translation_ = translation;
 }
 
-// TODO - Change with 'dirPath' + 'fileName' without the extension
-bool getScanFileWriter(const std::filesystem::path& dirPath, const std::wstring& fileName, FileType type, std::wstring& log, IScanFileWriter** scanFileWriter)
+namespace
 {
+    std::filesystem::path buildOutputPath(const std::filesystem::path& dirPath, const std::wstring& fileName, FileType type)
+    {
+        std::filesystem::path filepath = dirPath / fileName;
+        switch (type)
+        {
+#ifndef PORTABLE
+        case FileType::E57:
+            filepath += ".e57";
+            return filepath;
+        case FileType::PTS:
+            filepath += ".pts";
+            return filepath;
+#endif
+        case FileType::TLS:
+            filepath += ".tls";
+            return filepath;
+        default:
+            return {};
+        }
+    }
+}
+
+// TODO - Change with 'dirPath' + 'fileName' without the extension
+bool getScanFileWriter(const std::filesystem::path& dirPath, const std::wstring& fileName, FileType type, std::wstring& log, IScanFileWriter** scanFileWriter, bool overwriteExisting)
+{
+    if (overwriteExisting)
+    {
+        std::filesystem::path filepath = buildOutputPath(dirPath, fileName, type);
+        if (!filepath.empty())
+        {
+            std::error_code ec;
+            if (std::filesystem::exists(filepath, ec))
+            {
+                std::filesystem::remove(filepath, ec);
+                if (ec)
+                {
+                    log += L"Error: Failed to overwrite existing scan file.";
+                    return false;
+                }
+            }
+        }
+    }
+
     switch (type)
     {
 #ifndef PORTABLE

@@ -34,8 +34,8 @@ ProcessingSplashScreen::ProcessingSplashScreen(IDataDispatcher& dataDispatcher, 
 	connect(this, &ProcessingSplashScreen::onOkButtonHide, ui->cancelButton, &QPushButton::show);
 	connect(this, &ProcessingSplashScreen::onLogBrowserClear, ui->logBrowser, &QTextBrowser::clear);
 	connect(this, &ProcessingSplashScreen::onLogBrowserAppend, ui->logBrowser, &QTextBrowser::append);
-	connect(ui->okButton, &QPushButton::released, this, &ProcessingSplashScreen::hide);
-	connect(ui->cancelButton, &QPushButton::released, this, &ProcessingSplashScreen::onCancel);
+	connect(ui->okButton, &QPushButton::clicked, this, &ProcessingSplashScreen::hide);
+	connect(ui->cancelButton, &QPushButton::clicked, this, &ProcessingSplashScreen::onCancel);
 
 
 	m_dataDispatcher.registerObserverOnKey(this, { guiDType::processingSplashScreenStart });

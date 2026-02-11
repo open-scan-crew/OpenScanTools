@@ -17,8 +17,9 @@ DialogAbout::DialogAbout(IDataDispatcher& dataDispatcher, QWidget* parent)
     flags ^= Qt::WindowContextHelpButtonHint;
     setWindowFlags(flags);
 
-    connect(m_ui.contactButton, &QPushButton::released, []() {QDesktopServices::openUrl(QUrl(OPENSCANTOOLS_CONTACT_URL)); });
-    connect(m_ui.okButton, &QPushButton::released, [this]() {this->hide(); });
+    connect(m_ui.contactButton, &QPushButton::clicked, []() {QDesktopServices::openUrl(QUrl(OPENSCANTOOLS_CONTACT_URL)); });
+    connect(m_ui.donateButton, &QPushButton::clicked, []() {QDesktopServices::openUrl(QUrl(DONATE_URL)); });
+    connect(m_ui.okButton, &QPushButton::clicked, [this]() {this->hide(); });
     
     adjustSize();
 }

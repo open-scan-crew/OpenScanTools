@@ -14,6 +14,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <algorithm>
 #include <string>
 
 #include <direct.h> // WIN32
@@ -57,6 +58,7 @@
 #define NAV_PARAM_MOUSE_INVERT "mouse_drag_camera_inverted"
 #define NAV_PARAM_WHEEL_INVERT_JSON_KEY "wheel"
 #define NAV_PARAM_IS_UNLOCK_SCAN_MANIPULATION_JSON_KEY "isUnlockScanManipulation"
+#define MULTITHREADED_CALC_JSON_KEY "multithreaded_calculation"
 
 
 static const std::vector<std::pair<LoggerMode, bool>> defaultLog = {
@@ -360,19 +362,10 @@ namespace Config
 	OctreePrecision getOctreePrecision()
 	{
 		if (jsonConfig.find(OCTREE_PRECISION_JSON_KEY) == jsonConfig.end())
-			return OctreePrecision::Normal;
+			return kDefaultOctreePrecision;
 
-		int precision = jsonConfig.at(OCTREE_PRECISION_JSON_KEY);
-		switch (precision)
-		{
-		case static_cast<int>(OctreePrecision::Analysis):
-			return OctreePrecision::Analysis;
-		case static_cast<int>(OctreePrecision::Performances):
-			return OctreePrecision::Performances;
-		case static_cast<int>(OctreePrecision::Normal):
-		default:
-			return OctreePrecision::Normal;
-		}
+		float precision = jsonConfig.at(OCTREE_PRECISION_JSON_KEY).get<float>();
+		return std::clamp(precision, kMinOctreePrecision, kMaxOctreePrecision);
 	}
 
     bool setDecimationOptions(const DecimationOptions& options)
@@ -394,7 +387,7 @@ namespace Config
 	bool setOctreePrecision(const OctreePrecision precision)
 	{
 		try {
-			jsonConfig[OCTREE_PRECISION_JSON_KEY] = static_cast<int>(precision);
+			jsonConfig[OCTREE_PRECISION_JSON_KEY] = std::clamp(precision, kMinOctreePrecision, kMaxOctreePrecision);
 			return saveConfigFile(filePath);
 		}
 		catch (...)
@@ -666,6 +659,25 @@ namespace Config
 	{
 		try {
 			jsonConfig[NAV_PARAM_IS_UNLOCK_SCAN_MANIPULATION_JSON_KEY] = unlock;
+			return saveConfigFile(filePath);
+		}
+		catch (...)
+		{
+			return false;
+		}
+	}
+
+	bool getMultithreadedCalculation()
+	{
+		if (jsonConfig.find(MULTITHREADED_CALC_JSON_KEY) == jsonConfig.end())
+			return true;
+		return jsonConfig.at(MULTITHREADED_CALC_JSON_KEY).get<bool>();
+	}
+
+	bool setMultithreadedCalculation(bool value)
+	{
+		try {
+			jsonConfig[MULTITHREADED_CALC_JSON_KEY] = value;
 			return saveConfigFile(filePath);
 		}
 		catch (...)

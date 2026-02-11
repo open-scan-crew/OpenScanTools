@@ -64,6 +64,22 @@ guiDType GuiDataProjectLoaded::getType()
 	return (guiDType::projectLoaded);
 }
 
+// **** GuiDataTemperatureScaleInfo ****
+
+GuiDataTemperatureScaleInfo::GuiDataTemperatureScaleInfo(const std::filesystem::path& filePath, bool isValid, bool fileFound)
+	: m_filePath(filePath)
+	, m_isValid(isValid)
+	, m_fileFound(fileFound)
+{ }
+
+GuiDataTemperatureScaleInfo::~GuiDataTemperatureScaleInfo()
+{ }
+
+guiDType GuiDataTemperatureScaleInfo::getType()
+{
+	return (guiDType::temperatureScaleInfo);
+}
+
 // **** GuiDataProjectTemplateList***
 
 GuiDataProjectTemplateList::GuiDataProjectTemplateList(const std::vector<std::filesystem::path>& templates)
@@ -281,6 +297,35 @@ GuiDataDeletePointsDialogDisplay::~GuiDataDeletePointsDialogDisplay()
 guiDType GuiDataDeletePointsDialogDisplay::getType()
 {
     return (guiDType::deletePointsDialogDisplay);
+}
+
+GuiDataStatisticalOutlierFilterDialogDisplay::GuiDataStatisticalOutlierFilterDialogDisplay()
+{
+}
+
+GuiDataStatisticalOutlierFilterDialogDisplay::~GuiDataStatisticalOutlierFilterDialogDisplay()
+{
+}
+
+guiDType GuiDataStatisticalOutlierFilterDialogDisplay::getType()
+{
+    return guiDType::statisticalOutlierFilterDialogDisplay;
+}
+
+GuiDataColorBalanceFilterDialogDisplay::GuiDataColorBalanceFilterDialogDisplay(bool rgbAvailable, bool intensityAvailable, bool rgbAndIntensityAvailable)
+    : m_rgbAvailable(rgbAvailable)
+    , m_intensityAvailable(intensityAvailable)
+    , m_rgbAndIntensityAvailable(rgbAndIntensityAvailable)
+{
+}
+
+GuiDataColorBalanceFilterDialogDisplay::~GuiDataColorBalanceFilterDialogDisplay()
+{
+}
+
+guiDType GuiDataColorBalanceFilterDialogDisplay::getType()
+{
+    return guiDType::colorBalanceFilterDialogDisplay;
 }
 
 //++++++ Global ColorPicker value +++++++

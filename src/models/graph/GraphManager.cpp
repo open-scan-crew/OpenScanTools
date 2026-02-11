@@ -111,6 +111,11 @@ void GraphManager::refreshScene()
 
 void GraphManager::cleanProjectObjects()
 {
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        m_temperatureScaleData = TemperatureScaleData{};
+    }
+
     AGraphNode::cleanLinks(m_manipulatorNode);
     m_manipulatorNode.destroy();
 
@@ -136,6 +141,18 @@ void GraphManager::cleanProjectObjects()
     VulkanManager::getInstance().waitIdle();
     m_meshManager->cleanMemory(true);
     //m_meshManager->cleanSimpleGeometryMemory();
+}
+
+void GraphManager::setTemperatureScaleData(const TemperatureScaleData& data)
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+    m_temperatureScaleData = data;
+}
+
+TemperatureScaleData GraphManager::getTemperatureScaleData() const
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+    return m_temperatureScaleData;
 }
 
 void GraphManager::deleteClickTargets()
@@ -549,7 +566,7 @@ std::unordered_set<SafePtr<BoxNode>> GraphManager::getGrids() const
         {
             if (node->getType() != ElementType::Box)
                 return false;
-            return ((const BoxNode*)(&node))->isSimpleBox();
+            return !((const BoxNode*)(&node))->isSimpleBox();
         });
 }
 
@@ -656,6 +673,11 @@ void GraphManager::replaceObjectsSelected(std::unordered_set<SafePtr<AGraphNode>
 void GraphManager::getClippingAssembly(ClippingAssembly& retAssembly, bool filterActive, bool filterSelected) const
 {
     std::unordered_set<SafePtr<AClippingNode>> clippings = getClippingObjects(filterActive, filterSelected);
+    getClippingAssembly(retAssembly, clippings);
+}
+
+void GraphManager::getClippingAssembly(ClippingAssembly& retAssembly, const std::unordered_set<SafePtr<AClippingNode>>& clippings) const
+{
     for (const SafePtr<AClippingNode>& clip : clippings)
     {
         ReadPtr<AClippingNode> rClip = clip.cget();
@@ -668,7 +690,6 @@ void GraphManager::getClippingAssembly(ClippingAssembly& retAssembly, bool filte
         //        crÃ©er les opÃ©rateurs adÃ©quats et rendre cela lisible pour l'utilisateur.
         rClip->pushClippingGeometries(retAssembly, TransformationModule(*&rClip));
     }
-    return;
 }
 
 BoundingBoxD GraphManager::getScanBoundingBox(ObjectStatusFilter status) const
@@ -763,7 +784,10 @@ std::vector<tls::PointCloudInstance> GraphManager::getPointCloudInstances(const 
             continue;
 
         header.name = rPc->getComposedName();
-        result.push_back(tls::PointCloudInstance{ header, rPc->getTransformationModule(), rPc->getClippable(), rPc->getPhase() });
+        TransformationModule transfo = rPc->getTransformationModule();
+        if (rPc->getType() == ElementType::PCO)
+            transfo = rPc->getCumulTransformationModule();
+        result.push_back(tls::PointCloudInstance{ header, transfo, rPc->getClippable(), rPc->getPhase() });
     }
 
     return (result);

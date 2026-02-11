@@ -367,7 +367,7 @@ bool TlScanOverseer::testClippingEffect(tls::ScanGuid _scanGuid, const Transform
     return scan->testPointsClippedOut(_modelMat, _clippingAssembly);
 }
 
-bool TlScanOverseer::clipScan(tls::ScanGuid _scanGuid, const TransformationModule& _modelMat, const ClippingAssembly& _clippingAssembly, IScanFileWriter* _outScan)
+bool TlScanOverseer::clipScan(tls::ScanGuid _scanGuid, const TransformationModule& _modelMat, const ClippingAssembly& _clippingAssembly, IScanFileWriter* _outScan, const ProgressCallback& progress)
 {
     EmbeddedScan* scan;
     {
@@ -386,7 +386,83 @@ bool TlScanOverseer::clipScan(tls::ScanGuid _scanGuid, const TransformationModul
     }
 
     // Send the fileWriter to the TlScan and let it do the points/cells specific job.
-    return scan->clipAndWrite(_modelMat, _clippingAssembly, _outScan);
+    return scan->clipAndWrite(_modelMat, _clippingAssembly, _outScan, progress);
+}
+
+bool TlScanOverseer::computeOutlierStats(tls::ScanGuid _scanGuid, const TransformationModule& _modelMat, const ClippingAssembly& _clippingAssembly, int kNeighbors, int samplingPercent, double beta, OutlierStats& stats, const ProgressCallback& progress)
+{
+    EmbeddedScan* scan;
+    {
+        std::lock_guard<std::mutex> lock(m_activeMutex);
+
+        auto it_scan = m_activeScans.find(_scanGuid);
+        if (it_scan == m_activeScans.end())
+        {
+            Logger::log(VKLog) << "Error: try to view a Scan not present, UUID = " << _scanGuid << Logger::endl;
+            return false;
+        }
+        else
+        {
+            scan = it_scan->second;
+        }
+    }
+
+    return scan->computeOutlierStats(_modelMat, _clippingAssembly, kNeighbors, samplingPercent, beta, stats, progress);
+}
+
+bool TlScanOverseer::filterOutliersAndWrite(tls::ScanGuid _scanGuid, const TransformationModule& _modelMat, const ClippingAssembly& _clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* _outScan, uint64_t& removedPoints, const ProgressCallback& progress)
+{
+    EmbeddedScan* scan;
+    {
+        std::lock_guard<std::mutex> lock(m_activeMutex);
+
+        auto it_scan = m_activeScans.find(_scanGuid);
+        if (it_scan == m_activeScans.end())
+        {
+            Logger::log(VKLog) << "Error: try to view a Scan not present, UUID = " << _scanGuid << Logger::endl;
+            return false;
+        }
+        else
+        {
+            scan = it_scan->second;
+        }
+    }
+
+    return scan->filterOutliersAndWrite(_modelMat, _clippingAssembly, kNeighbors, stats, nSigma, beta, _outScan, removedPoints, progress);
+}
+
+bool TlScanOverseer::balanceColorsAndWrite(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kMin, int kMax, double trimPercent, double sharpnessBlend, bool applyOnIntensity, bool applyOnRgb, const std::function<void(const GeometricBox&, std::vector<PointXYZIRGB>&)>& externalPointsProvider, IScanFileWriter* outScan, uint64_t& modifiedPoints, const ProgressCallback& progress)
+{
+    EmbeddedScan* scan;
+    {
+        std::lock_guard<std::mutex> lock(m_activeMutex);
+
+        auto it_scan = m_activeScans.find(scanGuid);
+        if (it_scan == m_activeScans.end())
+        {
+            Logger::log(VKLog) << "Error: try to view a Scan not present, UUID = " << scanGuid << Logger::endl;
+            return false;
+        }
+        scan = it_scan->second;
+    }
+
+    return scan->balanceColorsAndWrite(modelMat, clippingAssembly, kMin, kMax, trimPercent, sharpnessBlend, applyOnIntensity, applyOnRgb, externalPointsProvider, outScan, modifiedPoints, progress);
+}
+
+void TlScanOverseer::collectPointsInGeometricBox(const GeometricBox& box, const ClippingAssembly& clippingAssembly, const tls::ScanGuid& excludedGuid, std::vector<PointXYZIRGB>& result)
+{
+    for (const WorkingScanInfo& pair : s_workingScansTransfo)
+    {
+        if (pair.scan.getGuid() == excludedGuid)
+            continue;
+
+        ClippingAssembly localAssembly;
+        if (pair.isClippable)
+            localAssembly = clippingAssembly;
+
+        pair.scan.setComputeTransfo(pair.transfo.getCenter(), pair.transfo.getOrientation());
+        pair.scan.collectPointsInGeometricBox(box, pair.transfo, localAssembly, result);
+    }
 }
 
 //tls::ScanGuid TlScanOverseer::clipNewScan(tls::ScanGuid _scanGuid, const glm::dmat4& _modelMat, const ClippingAssembly& _clippingAssembly, const std::filesystem::path& _outPath, uint64_t& pointsDeletedCount)
@@ -489,6 +565,56 @@ bool TlScanOverseer::rayTracing(const glm::dvec3& ray, const glm::dvec3& rayOrig
             {
                 bestLength = glm::length(bestPoint - pointList[i]);
                 scanName = scanNames[i];
+            }
+        }
+        return true;
+    }
+
+    return false;
+}
+
+bool TlScanOverseer::rayTracingWithPoint(const glm::dvec3& ray, const glm::dvec3& rayOrigin, glm::dvec3& bestPoint, PointXYZIRGB& bestPointData, const double& cosAngleThreshold, const ClippingAssembly& clippingAssembly, const bool& isOrtho, std::string& scanName)
+{
+    double rayRadius(0.0015);
+    std::vector<glm::dvec3> pointList;
+    std::vector<PointXYZIRGB> pointDataList;
+    std::vector<std::string> scanNames;
+    for (const WorkingScanInfo& _pair : s_workingScansTransfo)
+    {
+        glm::dvec3 currentBest;
+        PointXYZIRGB currentPoint{};
+        _pair.scan.setComputeTransfo(_pair.transfo.getCenter(), _pair.transfo.getOrientation());
+        ClippingAssembly localAssembly;
+        if (_pair.isClippable)
+        {
+            localAssembly = clippingAssembly;
+        }
+        bool test = _pair.scan.beginRayTracingWithPoint(ray, rayOrigin, currentBest, currentPoint, cosAngleThreshold, localAssembly, isOrtho);
+        if ((test) && (!std::isnan(currentBest.x)))
+        {
+            pointList.push_back(currentBest);
+            pointDataList.push_back(currentPoint);
+            tls::ScanHeader info;
+            _pair.scan.getInfo(info);
+            scanNames.push_back(Utils::to_utf8(info.name));
+        }
+    }
+
+    if (pointList.size() > 0)
+    {
+        std::vector<std::vector<glm::dvec3>> pointListFormated;
+        pointListFormated.push_back(pointList);
+        ClippingAssembly localAssembly;
+        bestPoint = OctreeRayTracing::findBestPoint(pointListFormated, ray / glm::length(ray), rayOrigin, cosAngleThreshold, rayRadius, localAssembly, isOrtho);
+
+        double bestLength(DBL_MAX);
+        for (int i = 0; i < pointList.size(); i++)
+        {
+            if (glm::length(bestPoint - pointList[i]) < bestLength)
+            {
+                bestLength = glm::length(bestPoint - pointList[i]);
+                scanName = scanNames[i];
+                bestPointData = pointDataList[i];
             }
         }
         return true;
@@ -7193,4 +7319,3 @@ double TlScanOverseer::findMedian(const std::vector<double>& values) {
         return sortedValues[middle];
     }
 }
-

@@ -5,6 +5,7 @@ enum class guiDType
 {
 	cameraData = 0,
 	projectLoaded,
+	temperatureScaleInfo,
 	projectTemplateList,
 	authorSelection,
 	nameSelection,
@@ -74,6 +75,7 @@ enum class guiDType
         renderEdgeAwareBlur,
         renderDepthLining,
         renderRampScale,
+        renderColorimetricFilter,
         renderDisplayParameters,
         renderUpdate,
         renderGuizmo,
@@ -114,9 +116,10 @@ enum class guiDType
 	projectDataProperties,
 	projectDataPropertiesNoOpen,
 	clippingSettingsProperties,
-    hidePropertyPanels,
+	hidePropertyPanels,
 	quitEvent,
 	abortEvent,
+    colorimetricFilterPickValue,
 
     newProject,
     openProject,
@@ -155,6 +158,8 @@ enum class guiDType
 	conversionFilePaths,
     exportParametersDisplay,
     deletePointsDialogDisplay,
+    statisticalOutlierFilterDialogDisplay,
+    colorBalanceFilterDialogDisplay,
 	pcoCreationParametersDisplay,
 
 	processingSplashScreenStart,

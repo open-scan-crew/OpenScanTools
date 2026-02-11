@@ -22,7 +22,7 @@ void QPDateField::buildQPField(const sma::tField& field)
 	m_layout->addWidget(m_nameLabel);
 	m_layout->addWidget(m_dateBtn);
 	setLayout(m_layout);
-	QObject::connect(m_dateBtn, &QPushButton::released, this, &QPDateField::launchCalendar);
+	QObject::connect(m_dateBtn, &QPushButton::clicked, this, &QPDateField::launchCalendar);
 }
 
 QPushButton * QPDateField::getButton() const

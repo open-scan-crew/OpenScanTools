@@ -9,6 +9,7 @@
 #include "pointCloudEngine/SmartBuffer.h"
 #include "models/data/clipping/ClippingGeometry.h"
 #include "pointCloudEngine/OctreeRayTracing.h"
+#include "pointCloudEngine/OutlierStats.h"
 
 // lib_tls
 #include "tls_def.h"
@@ -17,6 +18,7 @@
 #include <vector>
 #include <atomic>
 #include <filesystem>
+#include <functional>
 #include <mutex>
 
 class IScanFileWriter;
@@ -96,6 +98,9 @@ public:
     EmbeddedScan(std::filesystem::path const& filepath);
     ~EmbeddedScan();
 
+    using ProgressCallback = std::function<void(size_t processed, size_t total)>;
+    using ExternalPointsProvider = std::function<void(const GeometricBox& box, std::vector<PointXYZIRGB>& points)>;
+
     tls::ScanGuid getGuid() const;
     tls::FileGuid getFileGuid() const;
     void getInfo(tls::ScanHeader &info) const;
@@ -109,7 +114,11 @@ public:
 
     // For File Clipping
     bool testPointsClippedOut(const TransformationModule& src_transfo, const ClippingAssembly& _clippingAssembly) const;
-    bool clipAndWrite(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, IScanFileWriter* writer);
+    bool clipAndWrite(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, IScanFileWriter* writer, const ProgressCallback& progress = {});
+    bool computeOutlierStats(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, int samplingPercent, double beta, OutlierStats& stats, const ProgressCallback& progress = {});
+    bool filterOutliersAndWrite(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* writer, uint64_t& removedPoints, const ProgressCallback& progress = {});
+    bool balanceColorsAndWrite(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kMin, int kMax, double trimPercent, double sharpnessBlend, bool applyOnIntensity, bool applyOnRgb, const ExternalPointsProvider& externalPointsProvider, IScanFileWriter* writer, uint64_t& modifiedPoints, const ProgressCallback& progress = {});
+    void collectPointsInGeometricBox(const GeometricBox& box, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, std::vector<PointXYZIRGB>& points) const;
     static void logClipAndWriteTimings();
 
     void decodePointCoord(uint32_t cellId, std::vector<glm::dvec3>& dstPoints, uint32_t layerDepth, bool transformToGlobal);
@@ -165,6 +174,7 @@ protected:
 public:
     // Lucas functions
     bool beginRayTracing(const glm::dvec3& globalRay, const glm::dvec3& globalRayOrigin, glm::dvec3& bestPoint, const double& cosAngleThreshold, const ClippingAssembly& clippingAssembly, const bool& isOrtho);
+    bool beginRayTracingWithPoint(const glm::dvec3& globalRay, const glm::dvec3& globalRayOrigin, glm::dvec3& bestPoint, PointXYZIRGB& bestPointData, const double& cosAngleThreshold, const ClippingAssembly& clippingAssembly, const bool& isOrtho);
 	bool findNeighborsBucketsDirected(const glm::dvec3& globalSeedPoint, const glm::dvec3& directedPoint, const double& radius, std::vector<std::vector<glm::dvec3>>& neighborList, const int& numberOfBuckets, const ClippingAssembly& globalClippingAssembly);
 	bool findNeighborsBuckets(const glm::dvec3& globalSeedPoint, const double& radius, std::vector<std::vector<glm::dvec3>>& neighborList, const int& numberOfBuckets, const ClippingAssembly& globalClippingAssembly);
     bool findNeighbors(const glm::dvec3& globalSeedPoint, const double& radius, std::vector<glm::dvec3>& neighborList, const ClippingAssembly& clippingAssembly);
@@ -209,18 +219,22 @@ protected:
     int updateRay(glm::dvec3& localRay, glm::dvec3& localRayOrigin, const double& rootSize); //returns a=4x+2y+z, where s=0 iff ray.s>0 and 1 otherwise
 	void traceRay(const double& tx0, const double& ty0, const double& tz0, const double& tx1, const double& ty1, const double& tz1, const uint32_t& cellId, const int& rayModifier, std::vector<uint32_t>& leafList, const ClippingAssembly& clippingAssembly, const glm::dvec3& localRayOrigin);	
 	glm::dvec3 findBestPointIterative(const std::vector<uint32_t>& leafList, const glm::dvec3& rayDirection, const glm::dvec3& rayOrigin, const double& cosAngleThreshold, const double& rayRadius, const ClippingAssembly& localClippingAssembly, const bool& isOrtho, bool& success);
+    glm::dvec3 findBestPointIterativeWithPoint(const std::vector<uint32_t>& leafList, const glm::dvec3& rayDirection, const glm::dvec3& rayOrigin, const double& cosAngleThreshold, const double& rayRadius, const ClippingAssembly& localClippingAssembly, const bool& isOrtho, tls::Point& outPoint, bool& success);
 
     glm::dvec3 pointInNeighborCell(const glm::dvec3& point);
 
     glm::dvec3 getGlobalCoord(const glm::dvec3& localCoord) const;
     // TODO - Return a reference
     glm::dmat4 getMatrixToLocal() const;
+    bool getCellPointsThreadSafe(uint32_t cellId, tls::Point* dst, size_t count) const;
 
 protected:
     tls::ImageFile tls_img_file_;
     tls::ImagePointCloud tls_point_cloud_;
     tls::PointFormat pt_format_;
     tls::PrecisionType pt_precision_;
+
+    mutable std::mutex m_tlsReadMutex;
 
     bool m_deleteFileWhenDestroyed;
 

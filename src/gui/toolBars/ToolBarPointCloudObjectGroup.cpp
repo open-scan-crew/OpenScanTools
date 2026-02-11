@@ -27,10 +27,10 @@ ToolBarPointCloudObjectGroup::ToolBarPointCloudObjectGroup(IDataDispatcher& data
 	//m_ui.importFromFileBtn->setEnabled(false);
 	//m_ui.copyPCOBtn->setEnabled(false);
 
-	QObject::connect(m_ui.importFromBoxBtn, &QToolButton::released, this, &ToolBarPointCloudObjectGroup::clickFromBox);
-	QObject::connect(m_ui.creationSettingsBtn, &QToolButton::released, this, &ToolBarPointCloudObjectGroup::clickPointCloudObjectProperties);
-	QObject::connect(m_ui.copyPCOBtn, &QToolButton::released, this, &ToolBarPointCloudObjectGroup::clickCopy);
-	QObject::connect(m_ui.importFromFileBtn, &QToolButton::released, this, &ToolBarPointCloudObjectGroup::clickFromFile);
+	QObject::connect(m_ui.importFromBoxBtn, &QToolButton::clicked, this, &ToolBarPointCloudObjectGroup::clickFromBox);
+	QObject::connect(m_ui.creationSettingsBtn, &QToolButton::clicked, this, &ToolBarPointCloudObjectGroup::clickPointCloudObjectProperties);
+	QObject::connect(m_ui.copyPCOBtn, &QToolButton::clicked, this, &ToolBarPointCloudObjectGroup::clickCopy);
+	QObject::connect(m_ui.importFromFileBtn, &QToolButton::clicked, this, &ToolBarPointCloudObjectGroup::clickFromFile);
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::activatedFunctions);

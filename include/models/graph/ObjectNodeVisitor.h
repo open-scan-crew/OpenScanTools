@@ -125,6 +125,7 @@ private:
     void sortMarkersByDepth(const std::vector<MarkerDrawData>& markers, std::vector<MarkerDrawData>& markersSorted, double maxDistance);
 
     std::string formatNumber(double num);
+    std::string formatTemperature(double value) const;
 
 private:
     // Scene geometric parameters
@@ -138,6 +139,7 @@ private:
     // Corresponding Uniform from the Camera
     VkUniformOffset m_viewProjUniform;
     VkUniformOffset m_clipUniform;
+    VkUniformOffset m_colorimetricFilterUniform;
 
     // baked resources
     std::vector<BakedText>          m_bakedTexts;

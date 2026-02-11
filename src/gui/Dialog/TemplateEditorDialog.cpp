@@ -172,7 +172,7 @@ void TemplateEditorDialog::receiveTagTemplate(IGuiData * data)
 
 		QObject::connect(nameInfield, &QLineEdit::editingFinished, this, [this, i]() { modifyName(i); });
 		QObject::connect(nameInfield, &QLineEdit::textChanged, this, [this, i]() { verifNameModif(i); });
-		QObject::connect(deletebtn, &QPushButton::released, this, [this, i]() { deleteField(i); });
+		QObject::connect(deletebtn, &QPushButton::clicked, this, [this, i]() { deleteField(i); });
 		QObject::connect(comboType, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this, i]() { modifyType(i); });
 		QObject::connect(comboRef, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this, i]() { modifyRef(i); });
 
