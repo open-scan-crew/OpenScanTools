@@ -3,6 +3,7 @@
 #include "vulkan/VulkanManager.h"
 #include "utils/Logger.h"
 #include "utils/Config.h"
+#include "utils/ColorimetricFilterUtils.h"
 #include "models/graph/TransformationModule.h"
 
 #include "tls_impl.h"
@@ -1004,6 +1005,200 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
         thread.join();
 
     removedPoints = removedPointsAtomic.load();
+    return resultOk.load();
+}
+
+bool EmbeddedScan::filterColorimetricAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, const ColorimetricFilterSettings& settings, UiRenderMode mode, IScanFileWriter* writer, uint64_t& keptPoints, const ProgressCallback& progress)
+{
+    ClippingAssembly localAssembly = deepCopyClippingAssembly(clippingAssembly);
+    localAssembly.clearMatrix();
+    glm::dmat4 src_transfo_mat = src_transfo.getTransformation();
+    localAssembly.addTransformation(src_transfo_mat);
+
+    std::vector<std::pair<uint32_t, bool>> cells;
+    getClippedCells_impl(m_uRootCell, localAssembly, cells);
+
+    auto ordered = ColorimetricFilterUtils::normalizeSettings(settings, mode);
+    bool hasActiveColors = false;
+    for (const auto& entry : ordered)
+    {
+        if (entry.enabled)
+        {
+            hasActiveColors = true;
+            break;
+        }
+    }
+
+    const bool intensityMode = (mode == UiRenderMode::Intensity || mode == UiRenderMode::Fake_Color);
+    const float tolerance = ColorimetricFilterUtils::clampTolerancePercent(settings.tolerance) / 100.0f;
+    const float rgbThreshold = tolerance * 1.7320508f;
+
+    auto shouldKeepPoint = [&](const PointXYZIRGB& pt)
+    {
+        if (!settings.enabled || !hasActiveColors)
+            return true;
+
+        const float intensityNorm = static_cast<float>(pt.i) / 255.0f;
+        const glm::vec3 rgb(static_cast<float>(pt.r) / 255.0f,
+                            static_cast<float>(pt.g) / 255.0f,
+                            static_cast<float>(pt.b) / 255.0f);
+
+        bool match = false;
+        if (intensityMode)
+        {
+            if (ordered[0].enabled)
+            {
+                const float refIntensity = static_cast<float>(ordered[0].color.Red()) / 255.0f;
+                match = std::abs(intensityNorm - refIntensity) <= tolerance;
+            }
+        }
+        else
+        {
+            for (const auto& entry : ordered)
+            {
+                if (!entry.enabled)
+                    continue;
+
+                glm::vec3 ref = ColorimetricFilterUtils::normalizeRgb(entry.color);
+                if (glm::distance(rgb, ref) <= rgbThreshold)
+                {
+                    match = true;
+                    break;
+                }
+            }
+        }
+
+        bool reject = settings.showColors ? !match : match;
+        return !reject;
+    };
+
+    const size_t totalCells = cells.size();
+    if (progress && totalCells > 0)
+        progress(0, totalCells);
+
+    const size_t threadCount = resolveThreadCount(totalCells);
+    std::atomic<uint64_t> keptPointsAtomic{ 0 };
+    std::atomic<bool> resultOk{ true };
+
+    if (threadCount <= 1)
+    {
+        bool sequentialOk = true;
+        for (size_t cellIndex = 0; cellIndex < cells.size(); ++cellIndex)
+        {
+            const std::pair<uint32_t, bool>& cell = cells[cellIndex];
+            std::vector<PointXYZIRGB> points;
+            points.resize(tls_point_cloud_.getCellPointCount(cell.first));
+            if (!getCellPointsThreadSafe(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+            {
+                if (progress)
+                    progress(cellIndex + 1, totalCells);
+                continue;
+            }
+
+            std::vector<PointXYZIRGB> visiblePoints;
+            if (cell.second)
+                clipIndividualPoints(points, visiblePoints, localAssembly);
+            else
+                visiblePoints = std::move(points);
+
+            std::vector<PointXYZIRGB> filtered;
+            filtered.reserve(visiblePoints.size());
+            for (const PointXYZIRGB& pt : visiblePoints)
+            {
+                if (shouldKeepPoint(pt))
+                    filtered.push_back(pt);
+            }
+
+            keptPointsAtomic.fetch_add(filtered.size());
+            sequentialOk &= writer->mergePoints(filtered.data(), filtered.size(), src_transfo, pt_format_);
+
+            if (progress)
+                progress(cellIndex + 1, totalCells);
+        }
+
+        keptPoints = keptPointsAtomic.load();
+        return sequentialOk;
+    }
+
+    std::atomic<size_t> nextCell{ 0 };
+    std::atomic<size_t> completed{ 0 };
+    std::mutex writeMutex;
+    std::condition_variable writeCv;
+    size_t nextWriteIndex = 0;
+    std::mutex progressMutex;
+
+    auto worker = [&]()
+    {
+        while (true)
+        {
+            size_t cellIndex = nextCell.fetch_add(1);
+            if (cellIndex >= cells.size())
+                break;
+
+            const std::pair<uint32_t, bool>& cell = cells[cellIndex];
+            std::vector<PointXYZIRGB> points;
+            points.resize(tls_point_cloud_.getCellPointCount(cell.first));
+            if (!getCellPointsThreadSafe(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+            {
+                {
+                    std::unique_lock<std::mutex> lock(writeMutex);
+                    writeCv.wait(lock, [&]() { return cellIndex == nextWriteIndex; });
+                    ++nextWriteIndex;
+                }
+                writeCv.notify_all();
+
+                if (progress)
+                {
+                    size_t done = completed.fetch_add(1) + 1;
+                    std::lock_guard<std::mutex> guard(progressMutex);
+                    progress(done, totalCells);
+                }
+                continue;
+            }
+
+            std::vector<PointXYZIRGB> visiblePoints;
+            if (cell.second)
+                clipIndividualPoints(points, visiblePoints, localAssembly);
+            else
+                visiblePoints = std::move(points);
+
+            std::vector<PointXYZIRGB> filtered;
+            filtered.reserve(visiblePoints.size());
+            for (const PointXYZIRGB& pt : visiblePoints)
+            {
+                if (shouldKeepPoint(pt))
+                    filtered.push_back(pt);
+            }
+
+            {
+                std::unique_lock<std::mutex> lock(writeMutex);
+                writeCv.wait(lock, [&]() { return cellIndex == nextWriteIndex; });
+                bool ok = writer->mergePoints(filtered.data(), filtered.size(), src_transfo, pt_format_);
+                if (!ok)
+                    resultOk.store(false);
+                keptPointsAtomic.fetch_add(filtered.size());
+                ++nextWriteIndex;
+            }
+            writeCv.notify_all();
+
+            if (progress)
+            {
+                size_t done = completed.fetch_add(1) + 1;
+                std::lock_guard<std::mutex> guard(progressMutex);
+                progress(done, totalCells);
+            }
+        }
+    };
+
+    std::vector<std::thread> threads;
+    threads.reserve(threadCount);
+    for (size_t i = 1; i < threadCount; ++i)
+        threads.emplace_back(worker);
+    worker();
+    for (auto& thread : threads)
+        thread.join();
+
+    keptPoints = keptPointsAtomic.load();
     return resultOk.load();
 }
 

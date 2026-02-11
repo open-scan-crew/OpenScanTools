@@ -111,6 +111,7 @@ enum class ControlType
     startDeletePoints,
     startStatisticalOutlierFilter,
     startColorBalanceFilter,
+    startColorimetricFilterExport,
 
 	// control::function
 	functionAbort, //Free
