@@ -66,7 +66,7 @@ ContextState ContextColorimetricFilterExport::feedMessage(IMessage* message, Con
     case IMessage::MessageType::CAMERA:
     {
         CameraMessage* cameraMsg = static_cast<CameraMessage*>(message);
-        ReadPtr<CameraNode> rCamera = cameraMsg->m_camera.cget();
+        ReadPtr<CameraNode> rCamera = cameraMsg->m_cameraNode.cget();
         if (!rCamera)
         {
             controller.updateInfo(new GuiDataWarning(TEXT_COLORIMETRIC_FILTER_ACTIVATE_FIRST));
