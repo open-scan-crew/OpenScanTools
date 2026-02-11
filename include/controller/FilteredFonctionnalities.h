@@ -112,6 +112,8 @@ static const std::unordered_map<ControlType, std::unordered_set<LicenceVersion>>
 	{ControlType::startGridExport, {LicenceVersion::Standard}},
 	{ControlType::startDeletePoints, {LicenceVersion::Standard}},
 	{ControlType::startStatisticalOutlierFilter, {LicenceVersion::Standard}},
+	{ControlType::startColorBalanceFilter, {LicenceVersion::Standard}},
+	{ControlType::startColorimetricFilterExport, {LicenceVersion::Standard}},
 
 	// control::function
 	{ControlType::functionAbort, {LicenceVersion::Free}}, 
