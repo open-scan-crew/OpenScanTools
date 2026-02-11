@@ -53,6 +53,17 @@ namespace control
             void undoFunction(Controller& controller) override;
             ControlType getType() const override;
         };
+
+        class StartColorimetricFilterExport : public AControl
+        {
+        public:
+            StartColorimetricFilterExport();
+            ~StartColorimetricFilterExport();
+            void doFunction(Controller& controller) override;
+            bool canUndo() const override;
+            void undoFunction(Controller& controller) override;
+            ControlType getType() const override;
+        };
     }
 }
 

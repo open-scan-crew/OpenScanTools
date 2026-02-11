@@ -28,6 +28,7 @@ public slots:
 	void slotExportClipping();
 	void slotExportScans();
 	void slotExportPCOs();
+	void slotExportColorimetricFilter();
 
 private:
 	std::unordered_map<guiDType, ExportPCGroupMethod> m_methods;
@@ -36,4 +37,3 @@ private:
 };
 
 #endif // TOOLBAR_EXPORT_POINT_CLOUD_H
-
