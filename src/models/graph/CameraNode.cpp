@@ -69,6 +69,7 @@ CameraNode::CameraNode(const std::wstring& name, IDataDispatcher& dataDispatcher
     registerGuiDataFunction(guiDType::renderDepthLining, &CameraNode::onRenderDepthLining);
     registerGuiDataFunction(guiDType::renderRampScale, &CameraNode::onRenderRampScale);
     registerGuiDataFunction(guiDType::renderColorimetricFilter, &CameraNode::onRenderColorimetricFilter);
+    registerGuiDataFunction(guiDType::renderPolygonalSelector, &CameraNode::onRenderPolygonalSelector);
     registerGuiDataFunction(guiDType::renderFovValueChanged, &CameraNode::onRenderFov);
     registerGuiDataFunction(guiDType::renderExamine, &CameraNode::onRenderExamine);
     registerGuiDataFunction(guiDType::examineOptions, &CameraNode::onExamineOptions);
@@ -1552,6 +1553,13 @@ void CameraNode::onRenderColorimetricFilter(IGuiData* data)
 {
     auto castData = static_cast<GuiDataRenderColorimetricFilter*>(data);
     m_colorimetricFilter = castData->m_settings;
+    sendNewUIViewPoint();
+}
+
+void CameraNode::onRenderPolygonalSelector(IGuiData* data)
+{
+    auto castData = static_cast<GuiDataRenderPolygonalSelector*>(data);
+    m_polygonalSelector = castData->m_settings;
     sendNewUIViewPoint();
 }
 
