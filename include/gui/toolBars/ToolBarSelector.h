@@ -9,6 +9,8 @@
 
 #include <unordered_map>
 
+class CameraNode;
+
 class ToolBarSelector : public QWidget, public IPanel
 {
     Q_OBJECT
