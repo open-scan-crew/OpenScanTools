@@ -248,6 +248,10 @@
 #define Key_Colorimetric_Filter_Tolerance	"ColorimetricFilterTolerance"
 #define Key_Colorimetric_Filter_Colors		"ColorimetricFilterColors"
 #define Key_Colorimetric_Filter_Colors_Enabled "ColorimetricFilterColorsEnabled"
+#define Key_Polygonal_Selector "PolygonalSelector"
+#define Key_Polygonal_Selector_Enabled "PolygonalSelectorEnabled"
+#define Key_Polygonal_Selector_Show_Inside "PolygonalSelectorShowInside"
+#define Key_Polygonal_Selector_Polygons "PolygonalSelectorPolygons"
 
 #define Key_Active_Scans				"ActiveScans"
 #define Key_Active_Clippings			"ActiveClippings"
