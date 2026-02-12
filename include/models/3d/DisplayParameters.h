@@ -9,6 +9,7 @@
 
 #include <glm/glm.hpp>
 #include <array>
+#include <vector>
 
 struct ColorimetricFilterSettings
 {
@@ -17,6 +18,13 @@ struct ColorimetricFilterSettings
     float tolerance = 5.0f;
     std::array<Color32, 4> colors = { Color32(0, 0, 0), Color32(0, 0, 0), Color32(0, 0, 0), Color32(0, 0, 0) };
     std::array<bool, 4> colorsEnabled = { false, false, false, false };
+};
+
+struct PolygonalSelectorSettings
+{
+    bool enabled = false;
+    bool showInside = true;
+    std::vector<std::vector<glm::vec2>> polygons = {};
 };
 
 class DisplayParameters
@@ -73,6 +81,7 @@ public:
     bool                    m_displayAllMarkersTexts = true;
     bool                    m_displayAllMeasures = true;
     ColorimetricFilterSettings m_colorimetricFilter = {};
+    PolygonalSelectorSettings m_polygonalSelector = {};
 
     //Ortho
     bool            m_orthoGridActive = false;

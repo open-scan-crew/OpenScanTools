@@ -1750,6 +1750,9 @@
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarColorimetricFilter.cpp">
       <Filter>src\gui\toolBars</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarSelector.cpp">
+      <Filter>src\gui\toolBars</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\controller\controls\ControlTest.cpp">
       <Filter>src\controller\controls</Filter>
     </ClCompile>
@@ -2128,6 +2131,9 @@
       <Filter>include\gui\widgets</Filter>
     </QtMoc>
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarClippingGroup.h">
+      <Filter>include\gui\toolBars</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarSelector.h">
       <Filter>include\gui\toolBars</Filter>
     </QtMoc>
     <QtMoc Include="..\..\include\gui\widgets\CustomWidgets\ACustomLineEdit.h">
@@ -4339,6 +4345,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\toolbar_colorimetric_filter.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="..\..\src\gui\forms\toolbar_selector.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\MultiProperty.ui">
