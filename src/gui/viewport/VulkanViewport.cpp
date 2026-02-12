@@ -1,5 +1,6 @@
 #include "gui/viewport/VulkanViewport.h"
 #include "controller/controls/ControlPicking.h"
+#include "controller/controls/ControlFunction.h"
 #include "controller/controls/ControlViewport.h"
 
 #include "gui/GuiData/GuiDataRendering.h"
@@ -448,6 +449,9 @@ void VulkanViewport::doAction(const WritePtr<CameraNode>& wCam, SafePtr<Manipula
         case VulkanViewport::Action::Click:
             m_dataDispatcher.sendControl(new control::picking::Click(click));
             break;
+        case VulkanViewport::Action::Validate:
+            m_dataDispatcher.sendControl(new control::function::Validate());
+            break;
         case VulkanViewport::Action::Examine:
         {
             ElementType hoverType = ElementType::None;
@@ -608,6 +612,11 @@ void VulkanViewport::mouseReleaseEvent(QMouseEvent *_event)
     case Qt::LeftButton:
     {
         m_MI.leftButtonPressed = false;
+        if (m_ignoreNextLeftReleaseClick)
+        {
+            m_ignoreNextLeftReleaseClick = false;
+            break;
+        }
         if (m_mouseInputEffect == MouseInputEffect::None)
         {
             m_actionToPull = Action::Click;
@@ -649,6 +658,11 @@ void VulkanViewport::mouseDoubleClickEvent(QMouseEvent* _event)
         {
             m_forceObjectCenterOnExamine = true;
             m_actionToPull = Action::Examine;
+        }
+        else
+        {
+            m_ignoreNextLeftReleaseClick = true;
+            m_actionToPull = Action::Validate;
         }
     }
     else

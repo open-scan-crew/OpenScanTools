@@ -109,6 +109,7 @@ public:
         None,
         DoubleClick,
         Click,
+        Validate,
         Examine,
         BeginManipulation,
         EndManipulation
@@ -231,6 +232,7 @@ private:
     Action m_actionToPull;
     bool m_forceObjectCenterOnExamine = false;
     bool m_isDoubleClickExamineBlocked = false;
+    bool m_ignoreNextLeftReleaseClick = false;
 
     // Window state
     bool m_initialized;
