@@ -600,6 +600,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\controller\functionSystem\ContextDeletePoints.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextStatisticalOutlierFilter.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextColorBalanceFilter.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextColorimetricFilterExport.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextDeleteTag.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextCylinderToPlaneMeasure.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextCylinderToPlane3Measure.cpp" />
@@ -1287,6 +1288,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\controller\functionSystem\ContextDeletePoints.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextStatisticalOutlierFilter.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextColorBalanceFilter.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextColorimetricFilterExport.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextDeleteTag.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextDuplicateTag.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextColumnTilt.h" />
