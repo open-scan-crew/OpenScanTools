@@ -237,6 +237,7 @@ private:
     void onRenderDepthLining(IGuiData* data);
     void onRenderRampScale(IGuiData* data);
     void onRenderColorimetricFilter(IGuiData* data);
+    void onRenderPolygonalSelector(IGuiData* data);
     void onBackgroundColor(IGuiData* data);
     void onAdjustZoomToScene(IGuiData* data);
     void onRenderCameraMoveTo(IGuiData* data);
