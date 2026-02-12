@@ -23,6 +23,66 @@
 #include <QtGui/qevent.h>
 #include <QApplication.h>
 
+namespace
+{
+    bool blockExamineOnDoubleClick(ContextType contextType)
+    {
+        switch (contextType)
+        {
+        case ContextType::tagCreation:
+        case ContextType::tagDuplication:
+        case ContextType::tagMove:
+        case ContextType::tagDeletion:
+        case ContextType::beamBending:
+        case ContextType::columnTilt:
+        case ContextType::fitCylinder:
+        case ContextType::simpleMeasure:
+        case ContextType::pointsMeasure:
+        case ContextType::pointMeasure:
+        case ContextType::pointCreation:
+        case ContextType::Sphere:
+        case ContextType::Slab2Click:
+        case ContextType::Slab1Click:
+        case ContextType::ClicsSphere4:
+        case ContextType::pointToCylinder:
+        case ContextType::clippingBoxCreation:
+        case ContextType::clippingBoxAttached3Points:
+        case ContextType::clippingBoxAttached2Points:
+        case ContextType::boxDuplication:
+        case ContextType::pointCloudObjectCreation:
+        case ContextType::pointCloudObjectDuplication:
+        case ContextType::meshObjectCreation:
+        case ContextType::meshObjectDuplication:
+        case ContextType::meshDistance:
+        case ContextType::bigCylinderFit:
+        case ContextType::pointToPlane:
+        case ContextType::pointToPlane3:
+        case ContextType::cylinderToPlane:
+        case ContextType::cylinderToPlane3:
+        case ContextType::cylinderToCylinder:
+        case ContextType::experiment:
+        case ContextType::deletePoints:
+        case ContextType::multipleCylinders:
+        case ContextType::cylinder2ClickExtend:
+        case ContextType::testCylinder:
+        case ContextType::pipeDetectionConnexion:
+        case ContextType::pipePostConnexion:
+        case ContextType::beamDetection:
+        case ContextType::viewpointCreation:
+        case ContextType::viewpointUpdate:
+        case ContextType::planeConnexion:
+        case ContextType::planeDetection:
+        case ContextType::setOfPoints:
+        case ContextType::peopleRemover:
+        case ContextType::fitTorus:
+        case ContextType::trajectory:
+            return true;
+        default:
+            return false;
+        }
+    }
+}
+
 
 double calcTranslationSpeedFactor(NavigationParameters navParam)
 {
@@ -64,6 +124,7 @@ VulkanViewport::VulkanViewport(IDataDispatcher& dataDispatcher, float guiScale)
     registerGuiDataFunction(guiDType::quitEvent, &VulkanViewport::onQuitEvent);
     registerGuiDataFunction(guiDType::renderDecimationOptions, &VulkanViewport::onRenderDecimationOptions);
 	registerGuiDataFunction(guiDType::renderOctreePrecision, &VulkanViewport::onRenderOctreePrecision);
+    registerGuiDataFunction(guiDType::activatedFunctions, &VulkanViewport::onActivatedFunctions);
 }
 
 VulkanViewport::~VulkanViewport()
@@ -169,6 +230,12 @@ void VulkanViewport::onRenderOctreePrecision(IGuiData* data)
 {
 	m_octreePrecision = static_cast<GuiDataRenderOctreePrecision*>(data)->m_precision;
 	m_refreshViewport = true;
+}
+
+void VulkanViewport::onActivatedFunctions(IGuiData* data)
+{
+    auto* functionData = static_cast<GuiDataActivatedFunctions*>(data);
+    m_isDoubleClickExamineBlocked = blockExamineOnDoubleClick(functionData->type);
 }
 
 void VulkanViewport::initSurface()
@@ -578,8 +645,11 @@ void VulkanViewport::mouseDoubleClickEvent(QMouseEvent* _event)
 
     if (_event->button() == Qt::LeftButton)
     {
-        m_forceObjectCenterOnExamine = true;
-        m_actionToPull = Action::Examine;
+        if (!m_isDoubleClickExamineBlocked)
+        {
+            m_forceObjectCenterOnExamine = true;
+            m_actionToPull = Action::Examine;
+        }
     }
     else
         m_actionToPull = Action::DoubleClick;
