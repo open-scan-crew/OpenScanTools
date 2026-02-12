@@ -113,7 +113,7 @@ ContextState ContextColorimetricFilterExport::feedMessage(IMessage* message, Con
         if (!prepareOutputDirectory(controller, m_parameters.outFolder))
             return (m_state = ContextState::abort);
 
-        if (m_parameters.outFileType != FileType::E57 && m_parameters.outFileType != FileType::PTS && m_parameters.outFileType != FileType::RCP)
+        if (m_parameters.outFileType != FileType::E57 && m_parameters.outFileType != FileType::PTS && m_parameters.outFileType != FileType::RCP && m_parameters.outFileType != FileType::TLS)
         {
             controller.updateInfo(new GuiDataWarning(TEXT_EXPORT_ERROR));
             return (m_state = ContextState::abort);
