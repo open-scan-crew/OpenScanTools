@@ -182,6 +182,7 @@ protected:
     void onQuitEvent(IGuiData* data);
     void onRenderDecimationOptions(IGuiData* data);
 	void onRenderOctreePrecision(IGuiData* data);
+    void onActivatedFunctions(IGuiData* data);
 
 private:
     void initSurface();
@@ -229,6 +230,7 @@ private:
     PickingManager m_pickingManager;
     Action m_actionToPull;
     bool m_forceObjectCenterOnExamine = false;
+    bool m_isDoubleClickExamineBlocked = false;
 
     // Window state
     bool m_initialized;
