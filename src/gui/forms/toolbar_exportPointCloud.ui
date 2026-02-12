@@ -44,7 +44,8 @@
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>Use it on a clipping box splitted into a grid.</string>
+      <string>Use it on a clipping box splitted into a grid.
+The gridded box must be selected before starting this function.</string>
      </property>
      <property name="text">
       <string>Gridded Box</string>
@@ -105,7 +106,7 @@
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>Export scanning positions.</string>
+      <string>Export full scans.</string>
      </property>
      <property name="text">
       <string>Scans</string>
@@ -113,6 +114,32 @@
      <property name="icon">
       <iconset resource="../../../openscantools.qrc">
        <normaloff>:/icons/100x100/export_pointcloud.png</normaloff>:/icons/100x100/export_pointcloud.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>20</width>
+       <height>20</height>
+      </size>
+     </property>
+     <property name="toolButtonStyle">
+      <enum>Qt::ToolButtonTextBesideIcon</enum>
+     </property>
+     <property name="autoRaise">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QToolButton" name="toolButton_ColorimetricFilter">
+     <property name="toolTip">
+      <string>Export points using active colorimetric filter.</string>
+     </property>
+     <property name="text">
+      <string>Colorimetric Filter</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../../openscantools.qrc">
+       <normaloff>:/icons/100x100/icons8-color-wheel-30.png</normaloff>:/icons/100x100/icons8-color-wheel-30.png</iconset>
      </property>
      <property name="iconSize">
       <size>
@@ -140,7 +167,7 @@
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>Export single or multiple clipping boxes.</string>
+      <string>Export single or multiple clipping boxes.You must select or activate the boxes before using this function.</string>
      </property>
      <property name="text">
       <string>Clipping</string>
@@ -196,6 +223,7 @@
   <tabstop>toolButton_grid</tabstop>
   <tabstop>toolButton_clipping</tabstop>
   <tabstop>toolButton_scans</tabstop>
+  <tabstop>toolButton_ColorimetricFilter</tabstop>
   <tabstop>toolButton_pco</tabstop>
  </tabstops>
  <resources>
