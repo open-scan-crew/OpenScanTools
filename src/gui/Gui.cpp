@@ -61,6 +61,7 @@
 #include "gui/toolBars/ToolBarRenderTransparency.h"
 #include "gui/toolBars/ToolBarRenderEnhance.h"
 #include "gui/toolBars/ToolBarClippingGroup.h"
+#include "gui/toolBars/ToolBarSelector.h"
 #include "gui/toolBars/ToolBarMeasureShowOptions.h"
 #include "gui/toolBars/ToolBarStructureAnalysis.h"
 #include "gui/toolBars/ToolBarOthersModelsGroup.h"
@@ -338,6 +339,7 @@ Gui::Gui(Controller& controller)
 	ribbonTabContent = new RibbonTabContent();
 	ribbonTabContent->addWidget(TEXT_ATTRIBUTE, new ToolBarAttributesGroup(controller, this, m_guiScale));
 	ribbonTabContent->addWidget(TEXT_BOX, new ToolBarClippingGroup(m_dataDispatcher, this, m_guiScale));
+	ribbonTabContent->addWidget(tr("Selector"), new ToolBarSelector(m_dataDispatcher, this, m_guiScale));
 	ribbonTabContent->addWidget(TEXT_CLIPPING_GROUP_NAME, new ToolBarClippingParameters(m_dataDispatcher, this, m_guiScale));
     m_ribbon->addTab(TEXT_CLIPPING, ribbonTabContent);
 

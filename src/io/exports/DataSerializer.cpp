@@ -402,6 +402,19 @@ void ExportRenderingParameters(nlohmann::json& json, const RenderingParameters& 
 		} }
 	};
 
+	json[Key_Polygonal_Selector] = {
+		{ Key_Polygonal_Selector_Enabled, params.m_polygonalSelector.enabled },
+		{ Key_Polygonal_Selector_Show_Inside, params.m_polygonalSelector.showInside },
+		{ Key_Polygonal_Selector_Polygons, nlohmann::json::array() }
+	};
+	for (const auto& polygon : params.m_polygonalSelector.polygons)
+	{
+		nlohmann::json polygonJson = nlohmann::json::array();
+		for (const auto& pt : polygon)
+			polygonJson.push_back({ pt.x, pt.y });
+		json[Key_Polygonal_Selector][Key_Polygonal_Selector_Polygons].push_back(polygonJson);
+	}
+
 	json[Key_Ortho_Grid_Active] = params.m_orthoGridActive;
 	json[Key_Ortho_Grid_Color] = { params.m_orthoGridColor.r, params.m_orthoGridColor.g, params.m_orthoGridColor.b, params.m_orthoGridColor.a };
 	json[Key_Ortho_Grid_Step] = params.m_orthoGridStep;

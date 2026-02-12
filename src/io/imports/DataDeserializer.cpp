@@ -713,6 +713,31 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
         }
     }
 
+    if (json.find(Key_Polygonal_Selector) != json.end())
+    {
+        const auto& selectorJson = json.at(Key_Polygonal_Selector);
+        if (selectorJson.find(Key_Polygonal_Selector_Enabled) != selectorJson.end())
+            data.m_polygonalSelector.enabled = selectorJson.at(Key_Polygonal_Selector_Enabled).get<bool>();
+        if (selectorJson.find(Key_Polygonal_Selector_Show_Inside) != selectorJson.end())
+            data.m_polygonalSelector.showInside = selectorJson.at(Key_Polygonal_Selector_Show_Inside).get<bool>();
+        if (selectorJson.find(Key_Polygonal_Selector_Polygons) != selectorJson.end())
+        {
+            data.m_polygonalSelector.polygons.clear();
+            const auto& polygons = selectorJson.at(Key_Polygonal_Selector_Polygons);
+            for (const auto& polygon : polygons)
+            {
+                std::vector<glm::vec2> pts;
+                for (const auto& point : polygon)
+                {
+                    if (point.size() >= 2)
+                        pts.emplace_back(point.at(0).get<float>(), point.at(1).get<float>());
+                }
+                if (!pts.empty())
+                    data.m_polygonalSelector.polygons.push_back(std::move(pts));
+            }
+        }
+    }
+
     if (json.find(Key_Marker_Rendering_Parameters) != json.end())
     {
         nlohmann::json options = json.at(Key_Marker_Rendering_Parameters);
