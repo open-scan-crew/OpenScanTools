@@ -44,7 +44,8 @@
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>Use it on a clipping box splitted into a grid.</string>
+      <string>Use it on a clipping box splitted into a grid.
+The gridded box must be selected before starting this function.</string>
      </property>
      <property name="text">
       <string>Gridded Box</string>
@@ -105,7 +106,7 @@
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>Export scanning positions.</string>
+      <string>Export full scans.</string>
      </property>
      <property name="text">
       <string>Scans</string>
@@ -166,7 +167,7 @@
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>Export single or multiple clipping boxes.</string>
+      <string>Export single or multiple clipping boxes.You must select or activate the boxes before using this function.</string>
      </property>
      <property name="text">
       <string>Clipping</string>
