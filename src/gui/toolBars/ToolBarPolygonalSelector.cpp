@@ -82,15 +82,29 @@ void ToolBarPolygonalSelector::activateSelector()
 
 void ToolBarPolygonalSelector::applySettings(bool enabled)
 {
-    m_settings.enabled = enabled;
-    m_settings.active = enabled;
     m_settings.showSelected = m_ui.radioButtonShowSelected->isChecked();
+
+    if (enabled)
+    {
+        m_settings.enabled = true;
+        m_settings.active = true;
+        m_settings.pendingApply = false;
+        m_settings.appliedPolygonCount = static_cast<uint32_t>(m_settings.polygons.size());
+    }
+    else
+    {
+        m_settings.enabled = true;
+        m_settings.active = false;
+    }
+
     m_dataDispatcher.updateInformation(new GuiDataRenderPolygonalSelector(m_settings, SafePtr<CameraNode>()), this);
 }
 
 void ToolBarPolygonalSelector::resetSettings()
 {
     m_settings = PolygonalSelectorSettings{};
+    m_settings.appliedPolygonCount = 0;
+    m_settings.pendingApply = false;
     m_ui.radioButtonShowSelected->setChecked(true);
     m_dataDispatcher.updateInformation(new GuiDataRenderPolygonalSelector(m_settings, SafePtr<CameraNode>()), this);
 }

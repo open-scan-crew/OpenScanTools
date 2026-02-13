@@ -39,6 +39,8 @@
 
 #include "magic_enum/magic_enum.hpp"
 
+#include <algorithm>
+
 #define IOLOG Logger::log(LoggerMode::IOLog)
 
 bool ImportData(const nlohmann::json& json, Data& data)
@@ -722,6 +724,10 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
             data.m_polygonalSelector.showSelected = selectorJson.at(Key_Polygonal_Selector_Show).get<bool>();
         if (selectorJson.find(Key_Polygonal_Selector_Active) != selectorJson.end())
             data.m_polygonalSelector.active = selectorJson.at(Key_Polygonal_Selector_Active).get<bool>();
+        if (selectorJson.find(Key_Polygonal_Selector_PendingApply) != selectorJson.end())
+            data.m_polygonalSelector.pendingApply = selectorJson.at(Key_Polygonal_Selector_PendingApply).get<bool>();
+        if (selectorJson.find(Key_Polygonal_Selector_AppliedCount) != selectorJson.end())
+            data.m_polygonalSelector.appliedPolygonCount = selectorJson.at(Key_Polygonal_Selector_AppliedCount).get<uint32_t>();
 
         if (selectorJson.find(Key_Polygonal_Selector_Polygons) != selectorJson.end())
         {
@@ -773,6 +779,10 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
 
                 data.m_polygonalSelector.polygons.push_back(std::move(polygon));
             }
+
+            data.m_polygonalSelector.appliedPolygonCount = std::min<uint32_t>(
+                data.m_polygonalSelector.appliedPolygonCount,
+                static_cast<uint32_t>(data.m_polygonalSelector.polygons.size()));
         }
     }
 

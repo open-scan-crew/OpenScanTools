@@ -155,6 +155,8 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
     hash += hash_fn_b(display.m_polygonalSelector.enabled);
     hash += hash_fn_b(display.m_polygonalSelector.showSelected);
     hash += hash_fn_b(display.m_polygonalSelector.active);
+    hash += hash_fn_b(display.m_polygonalSelector.pendingApply);
+    hash += hash_fn_32(display.m_polygonalSelector.appliedPolygonCount);
     hash += hash_fn_64(static_cast<uint64_t>(display.m_polygonalSelector.polygons.size()));
     for (const PolygonalSelectorPolygon& polygon : display.m_polygonalSelector.polygons)
     {

@@ -31,6 +31,8 @@ struct PolygonalSelectorSettings
     bool enabled = false;
     bool showSelected = true;
     bool active = false;
+    bool pendingApply = false;
+    uint32_t appliedPolygonCount = 0;
     std::vector<PolygonalSelectorPolygon> polygons;
 };
 

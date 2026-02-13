@@ -102,7 +102,7 @@ ContextState ContextPolygonalSelector::validate(Controller& controller)
 
         m_settings.polygons.push_back(polygon);
         m_settings.enabled = true;
-        m_settings.active = true;
+        m_settings.pendingApply = true;
         s_polygonalSelectorRuntimeSettings = m_settings;
     }
 
