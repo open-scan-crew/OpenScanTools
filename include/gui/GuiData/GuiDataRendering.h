@@ -625,6 +625,16 @@ public:
 	ColorimetricFilterSettings m_settings;
 };
 
+class GuiDataRenderPolygonalSelector : public GuiDataActiveCamera
+{
+public:
+	GuiDataRenderPolygonalSelector(const PolygonalSelectorSettings& settings, const SafePtr<CameraNode>& camera);
+	~GuiDataRenderPolygonalSelector() {};
+	virtual guiDType getType() override;
+public:
+	PolygonalSelectorSettings m_settings;
+};
+
 class GuiDataColorimetricFilterPickValue : public IGuiData
 {
 public:

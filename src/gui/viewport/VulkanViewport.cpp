@@ -49,6 +49,7 @@ namespace
         case ContextType::clippingBoxCreation:
         case ContextType::clippingBoxAttached3Points:
         case ContextType::clippingBoxAttached2Points:
+        case ContextType::polygonalSelector:
         case ContextType::boxDuplication:
         case ContextType::pointCloudObjectCreation:
         case ContextType::pointCloudObjectDuplication:
@@ -237,6 +238,7 @@ void VulkanViewport::onActivatedFunctions(IGuiData* data)
 {
     auto* functionData = static_cast<GuiDataActivatedFunctions*>(data);
     m_isDoubleClickExamineBlocked = blockExamineOnDoubleClick(functionData->type);
+    m_lockNavigationForCurrentContext = (functionData->type == ContextType::polygonalSelector);
 }
 
 void VulkanViewport::initSurface()
@@ -588,9 +590,13 @@ void VulkanViewport::mousePressEvent(QMouseEvent *_event)
         m_MI.leftButtonPressed = true;
         break;
     case Qt::RightButton:
+        if (m_lockNavigationForCurrentContext)
+            break;
         m_MI.rightButtonPressed = true;
         break;
     case Qt::MiddleButton:
+        if (m_lockNavigationForCurrentContext)
+            break;
         m_MI.middleButtonPressed = true;
         break;
     default:
@@ -816,12 +822,24 @@ void VulkanViewport::keyReleaseEvent(QKeyEvent* _event)
 
 void VulkanViewport::wheelEvent(QWheelEvent* _event)
 {
+    if (m_lockNavigationForCurrentContext)
+        return;
+
     m_MI.wheel += m_navParams.wheelInverted ? _event->angleDelta().y() : -_event->angleDelta().y();
 }
 
 void VulkanViewport::updateMouseInputEffect(WritePtr<CameraNode>& wCam, SafePtr<ManipulatorNode>& manipNode)
 {
     std::lock_guard<std::mutex> lock(m_inputMutex);
+
+    if (m_lockNavigationForCurrentContext)
+    {
+        m_mouseInputEffect = MouseInputEffect::None;
+        m_MI.deltaX = 0;
+        m_MI.deltaY = 0;
+        m_MI.wheel = 0;
+        return;
+    }
 
     bool hasMoved = (m_MI.deltaX != 0) || (m_MI.deltaY != 0);
 
@@ -1062,6 +1080,17 @@ void VulkanViewport::applyMouseInput(WritePtr<CameraNode>& wCam, SafePtr<Manipul
 void VulkanViewport::applyKeyboardInput(WritePtr<CameraNode>& wCam)
 {
     std::lock_guard<std::mutex> lock(m_inputMutex);
+
+    if (m_lockNavigationForCurrentContext)
+    {
+        if (wCam)
+        {
+            wCam->setSpeedRight(0.0);
+            wCam->setSpeedForward(0.0);
+            wCam->setSpeedUp(0.0);
+        }
+        return;
+    }
 
     double leftRightSum(0.);
     double upDownSum(0.);

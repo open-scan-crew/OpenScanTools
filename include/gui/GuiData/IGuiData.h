@@ -76,6 +76,7 @@ enum class guiDType
         renderDepthLining,
         renderRampScale,
         renderColorimetricFilter,
+        renderPolygonalSelector,
         renderDisplayParameters,
         renderUpdate,
         renderGuizmo,

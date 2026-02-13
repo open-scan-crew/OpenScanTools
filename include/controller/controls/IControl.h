@@ -211,6 +211,7 @@ enum class ControlType
 	setDefaultOffsetFunctionClipping,
 	activateDuplicateFunctionClipping,
 	setClippingAlignementValue,
+	activatePolygonalSelector,
 
 	// control::duplication
 	setDefaultDuplicationModeFunction,
