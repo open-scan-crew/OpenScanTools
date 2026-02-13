@@ -39,6 +39,8 @@
 
 #include "magic_enum/magic_enum.hpp"
 
+#include <algorithm>
+
 #define IOLOG Logger::log(LoggerMode::IOLog)
 
 bool ImportData(const nlohmann::json& json, Data& data)
@@ -710,6 +712,77 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
             const auto& enabled = filterJson.at(Key_Colorimetric_Filter_Colors_Enabled);
             for (size_t i = 0; i < data.m_colorimetricFilter.colorsEnabled.size() && i < enabled.size(); ++i)
                 data.m_colorimetricFilter.colorsEnabled[i] = enabled.at(i).get<bool>();
+        }
+    }
+
+    if (json.find(Key_Polygonal_Selector) != json.end())
+    {
+        const auto& selectorJson = json.at(Key_Polygonal_Selector);
+        if (selectorJson.find(Key_Polygonal_Selector_Enabled) != selectorJson.end())
+            data.m_polygonalSelector.enabled = selectorJson.at(Key_Polygonal_Selector_Enabled).get<bool>();
+        if (selectorJson.find(Key_Polygonal_Selector_Show) != selectorJson.end())
+            data.m_polygonalSelector.showSelected = selectorJson.at(Key_Polygonal_Selector_Show).get<bool>();
+        if (selectorJson.find(Key_Polygonal_Selector_Active) != selectorJson.end())
+            data.m_polygonalSelector.active = selectorJson.at(Key_Polygonal_Selector_Active).get<bool>();
+        if (selectorJson.find(Key_Polygonal_Selector_PendingApply) != selectorJson.end())
+            data.m_polygonalSelector.pendingApply = selectorJson.at(Key_Polygonal_Selector_PendingApply).get<bool>();
+        if (selectorJson.find(Key_Polygonal_Selector_AppliedCount) != selectorJson.end())
+            data.m_polygonalSelector.appliedPolygonCount = selectorJson.at(Key_Polygonal_Selector_AppliedCount).get<uint32_t>();
+
+        if (selectorJson.find(Key_Polygonal_Selector_Polygons) != selectorJson.end())
+        {
+            data.m_polygonalSelector.polygons.clear();
+            const auto& polygons = selectorJson.at(Key_Polygonal_Selector_Polygons);
+            for (const auto& polygonJson : polygons)
+            {
+                PolygonalSelectorPolygon polygon;
+
+                if (polygonJson.find(Key_Polygonal_Selector_Vertices) != polygonJson.end())
+                {
+                    const auto& vertices = polygonJson.at(Key_Polygonal_Selector_Vertices);
+                    for (const auto& vertexJson : vertices)
+                    {
+                        if (vertexJson.size() >= 2)
+                            polygon.normalizedVertices.emplace_back(vertexJson.at(0).get<float>(), vertexJson.at(1).get<float>());
+                    }
+                }
+
+                if (polygonJson.find(Key_Polygonal_Selector_Camera) != polygonJson.end())
+                {
+                    const auto& cameraJson = polygonJson.at(Key_Polygonal_Selector_Camera);
+
+                    auto readMat4 = [](const nlohmann::json& arr, glm::dmat4& out)
+                    {
+                        if (!arr.is_array() || arr.size() != 16)
+                            return;
+                        for (int c = 0; c < 4; ++c)
+                            for (int r = 0; r < 4; ++r)
+                                out[c][r] = arr.at(c * 4 + r).get<double>();
+                    };
+
+                    if (cameraJson.find(Key_Polygonal_Selector_Cam_View) != cameraJson.end())
+                        readMat4(cameraJson.at(Key_Polygonal_Selector_Cam_View), polygon.camera.view);
+                    if (cameraJson.find(Key_Polygonal_Selector_Cam_Proj) != cameraJson.end())
+                        readMat4(cameraJson.at(Key_Polygonal_Selector_Cam_Proj), polygon.camera.proj);
+                    if (cameraJson.find(Key_Polygonal_Selector_Cam_Viewport) != cameraJson.end())
+                    {
+                        const auto& viewport = cameraJson.at(Key_Polygonal_Selector_Cam_Viewport);
+                        if (viewport.size() >= 2)
+                        {
+                            polygon.camera.viewportWidth = viewport.at(0).get<uint32_t>();
+                            polygon.camera.viewportHeight = viewport.at(1).get<uint32_t>();
+                        }
+                    }
+                    if (cameraJson.find(Key_Polygonal_Selector_Cam_Perspective) != cameraJson.end())
+                        polygon.camera.perspective = cameraJson.at(Key_Polygonal_Selector_Cam_Perspective).get<bool>();
+                }
+
+                data.m_polygonalSelector.polygons.push_back(std::move(polygon));
+            }
+
+            data.m_polygonalSelector.appliedPolygonCount = std::min<uint32_t>(
+                data.m_polygonalSelector.appliedPolygonCount,
+                static_cast<uint32_t>(data.m_polygonalSelector.polygons.size()));
         }
     }
 

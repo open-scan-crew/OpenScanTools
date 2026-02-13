@@ -30,6 +30,8 @@
 #include "utils/math/glm_extended.h"
 #include "utils/ColorimetricFilterUtils.h"
 
+#include <algorithm>
+
 CameraNode::CameraNode(const std::wstring& name, IDataDispatcher& dataDispatcher)
     : AGraphNode()
     , m_dataDispatcher(dataDispatcher)
@@ -69,6 +71,7 @@ CameraNode::CameraNode(const std::wstring& name, IDataDispatcher& dataDispatcher
     registerGuiDataFunction(guiDType::renderDepthLining, &CameraNode::onRenderDepthLining);
     registerGuiDataFunction(guiDType::renderRampScale, &CameraNode::onRenderRampScale);
     registerGuiDataFunction(guiDType::renderColorimetricFilter, &CameraNode::onRenderColorimetricFilter);
+    registerGuiDataFunction(guiDType::renderPolygonalSelector, &CameraNode::onRenderPolygonalSelector);
     registerGuiDataFunction(guiDType::renderFovValueChanged, &CameraNode::onRenderFov);
     registerGuiDataFunction(guiDType::renderExamine, &CameraNode::onRenderExamine);
     registerGuiDataFunction(guiDType::examineOptions, &CameraNode::onExamineOptions);
@@ -218,6 +221,32 @@ ColorimetricFilterUniform CameraNode::buildColorimetricFilterUniform() const
         uniform.colors[0].x = ColorimetricFilterUtils::normalizeIntensity(ordered[0].color);
         uniform.colors[0].y = uniform.colors[0].x;
         uniform.colors[0].z = uniform.colors[0].x;
+    }
+
+    constexpr uint32_t kMaxPolygonalSelectorPolygons = 8;
+    constexpr uint32_t kMaxPolygonalSelectorVertices = 32;
+
+    const PolygonalSelectorSettings& selector = m_polygonalSelector;
+    uint32_t polygonCount = std::min<uint32_t>(static_cast<uint32_t>(selector.polygons.size()), kMaxPolygonalSelectorPolygons);
+    uniform.polygonSettings = glm::vec4(selector.enabled ? 1.0f : 0.0f,
+                                        selector.showSelected ? 1.0f : 0.0f,
+                                        selector.active ? 1.0f : 0.0f,
+                                        static_cast<float>(std::min<uint32_t>(selector.appliedPolygonCount, polygonCount)));
+    uniform.polygonCounts = glm::vec4(static_cast<float>(polygonCount), 0.0f, 0.0f, 0.0f);
+
+    for (uint32_t pIndex = 0; pIndex < polygonCount; ++pIndex)
+    {
+        const PolygonalSelectorPolygon& polygon = selector.polygons[pIndex];
+        uniform.polygonViewProj[pIndex] = glm::mat4(polygon.camera.proj * polygon.camera.view);
+
+        uint32_t vertexCount = std::min<uint32_t>(static_cast<uint32_t>(polygon.normalizedVertices.size()), kMaxPolygonalSelectorVertices);
+        uniform.polygonMeta[pIndex] = glm::vec4(static_cast<float>(vertexCount), 0.0f, 0.0f, 0.0f);
+
+        for (uint32_t v = 0; v < vertexCount; ++v)
+        {
+            const glm::vec2& uv = polygon.normalizedVertices[v];
+            uniform.polygonVertices[pIndex * kMaxPolygonalSelectorVertices + v] = glm::vec4(uv.x, uv.y, 0.0f, 0.0f);
+        }
     }
 
     return uniform;
@@ -1552,6 +1581,13 @@ void CameraNode::onRenderColorimetricFilter(IGuiData* data)
 {
     auto castData = static_cast<GuiDataRenderColorimetricFilter*>(data);
     m_colorimetricFilter = castData->m_settings;
+    sendNewUIViewPoint();
+}
+
+void CameraNode::onRenderPolygonalSelector(IGuiData* data)
+{
+    auto castData = static_cast<GuiDataRenderPolygonalSelector*>(data);
+    m_polygonalSelector = castData->m_settings;
     sendNewUIViewPoint();
 }
 
