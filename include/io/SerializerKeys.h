@@ -249,6 +249,18 @@
 #define Key_Colorimetric_Filter_Colors		"ColorimetricFilterColors"
 #define Key_Colorimetric_Filter_Colors_Enabled "ColorimetricFilterColorsEnabled"
 
+#define Key_Polygonal_Selector			"PolygonalSelector"
+#define Key_Polygonal_Selector_Enabled	"PolygonalSelectorEnabled"
+#define Key_Polygonal_Selector_Show		"PolygonalSelectorShowSelected"
+#define Key_Polygonal_Selector_Active	"PolygonalSelectorActive"
+#define Key_Polygonal_Selector_Polygons	"PolygonalSelectorPolygons"
+#define Key_Polygonal_Selector_Vertices	"PolygonalSelectorVertices"
+#define Key_Polygonal_Selector_Camera		"PolygonalSelectorCamera"
+#define Key_Polygonal_Selector_Cam_View	"PolygonalSelectorCameraView"
+#define Key_Polygonal_Selector_Cam_Proj	"PolygonalSelectorCameraProj"
+#define Key_Polygonal_Selector_Cam_Viewport "PolygonalSelectorCameraViewport"
+#define Key_Polygonal_Selector_Cam_Perspective "PolygonalSelectorCameraPerspective"
+
 #define Key_Active_Scans				"ActiveScans"
 #define Key_Active_Clippings			"ActiveClippings"
 #define Key_Interior_Clippings			"InteriorClippings"
