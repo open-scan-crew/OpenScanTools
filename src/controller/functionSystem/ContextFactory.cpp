@@ -62,6 +62,7 @@
 #include "controller/functionSystem/ContextTrajectory.h"
 #include "controller/functionSystem/ContextMoveManip.h"
 #include "controller/functionSystem/ContextManipulateObjects.h"
+#include "controller/functionSystem/ContextPolygonalSelector.h"
 
 
 #ifndef PORTABLE
@@ -167,6 +168,8 @@ AContext* ContextFactory::createContext(const ContextType& type, ContextId& id, 
 			return new ContextCreateBoxAttached2Points(id);
 		case ContextType::clippingBoxAttached3Points:
 			return new ContextCreateBoxAttached3Points(id);
+		case ContextType::polygonalSelector:
+			return new ContextPolygonalSelector(id);
 		case ContextType::boxDuplication:
 			return new ContextBoxDuplication(id);
 		case ContextType::pointCloudObjectDuplication:

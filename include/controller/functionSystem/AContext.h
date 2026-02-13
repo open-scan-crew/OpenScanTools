@@ -46,6 +46,7 @@ enum class ContextType
 	clippingBoxCreation,
 	clippingBoxAttached3Points,
 	clippingBoxAttached2Points,
+	polygonalSelector,
 	boxDuplication,
 	pointCloudObjectCreation,
 	pointCloudObjectDuplication,
