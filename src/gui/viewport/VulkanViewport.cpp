@@ -49,6 +49,7 @@ namespace
         case ContextType::clippingBoxCreation:
         case ContextType::clippingBoxAttached3Points:
         case ContextType::clippingBoxAttached2Points:
+        case ContextType::polygonalSelector:
         case ContextType::boxDuplication:
         case ContextType::pointCloudObjectCreation:
         case ContextType::pointCloudObjectDuplication:
