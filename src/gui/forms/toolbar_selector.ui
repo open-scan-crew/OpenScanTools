@@ -16,8 +16,15 @@
      <property name="text">
       <string>Selector</string>
      </property>
+     <property name="icon">
+      <iconset resource="../../../openscantools.qrc">
+       <normaloff>:/icons/100x100/polygon_selector.png</normaloff>:/icons/100x100/polygon_selector.png</iconset>
+     </property>
      <property name="checkable">
       <bool>true</bool>
+     </property>
+     <property name="toolButtonStyle">
+      <enum>Qt::ToolButtonTextBesideIcon</enum>
      </property>
      <property name="autoRaise">
       <bool>true</bool>
@@ -64,6 +71,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../../openscantools.qrc"/>
+ </resources>
  <connections/>
 </ui>
