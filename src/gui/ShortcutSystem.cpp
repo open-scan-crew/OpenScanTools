@@ -34,8 +34,6 @@ ShortcutSystem::ShortcutSystem(IDataDispatcher& dataDispacher, QWidget* parent)
 						{ Qt::Key_F12, &ShortcutSystem::slotCreateHdImage},
 						{ Qt::Key_H, &ShortcutSystem::slotHideSelectedObjects},
 						{ Qt::Key_Escape, &ShortcutSystem::slotAbort },
-						{ Qt::Key_Return, &ShortcutSystem::slotValidateCurrentContext },
-						{ Qt::Key_Enter, &ShortcutSystem::slotValidateCurrentContext }
 		})
 {
 
@@ -121,8 +119,7 @@ void ShortcutSystem::slotAbort()
 
 void ShortcutSystem::slotValidateCurrentContext()
 {
-	if (!m_notInContext || m_activeContext == ContextType::polygonalSelector)
-		m_dataDispatcher.sendControl(new control::function::Validate());
+	m_dataDispatcher.sendControl(new control::function::Validate());
 }
 
 void ShortcutSystem::slotEdition(const bool& isEditing)
