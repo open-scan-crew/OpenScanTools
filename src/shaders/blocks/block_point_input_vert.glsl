@@ -118,10 +118,16 @@ void evaluatePolygonSelector(vec3 worldPos, out bool insideApplied, out bool ins
     for (int p = 0; p < totalPolygons; ++p)
     {
         vec4 clip = uColorFilter.polygonViewProj[p] * vec4(worldPos, 1.0);
-        if (abs(clip.w) < 1e-7)
+        if (clip.w <= 1e-7)
             continue;
 
-        vec2 uv = (clip.xy / clip.w) * 0.5 + vec2(0.5, 0.5);
+        vec3 ndc = clip.xyz / clip.w;
+        if (ndc.z < -1.0 || ndc.z > 1.0)
+            continue;
+        if (ndc.x < -1.0 || ndc.x > 1.0 || ndc.y < -1.0 || ndc.y > 1.0)
+            continue;
+
+        vec2 uv = ndc.xy * 0.5 + vec2(0.5, 0.5);
         if (!pointInPolygon(uv, p))
             continue;
 

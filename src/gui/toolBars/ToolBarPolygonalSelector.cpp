@@ -20,8 +20,7 @@ ToolBarPolygonalSelector::ToolBarPolygonalSelector(IDataDispatcher& dataDispatch
 
     connect(m_ui.radioButtonShowSelected, &QRadioButton::toggled, [this](bool) {
         m_settings.showSelected = m_ui.radioButtonShowSelected->isChecked();
-        if (m_settings.enabled)
-            applySettings(true);
+        m_dataDispatcher.updateInformation(new GuiDataRenderPolygonalSelector(m_settings, SafePtr<CameraNode>()), this);
     });
 
     m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);
