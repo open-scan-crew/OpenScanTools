@@ -9,6 +9,8 @@
 
 #include <glm/glm.hpp>
 #include <array>
+#include <cstdint>
+#include <string>
 #include <vector>
 
 struct PolygonalSelectorCameraSnapshot
@@ -22,6 +24,7 @@ struct PolygonalSelectorCameraSnapshot
 
 struct PolygonalSelectorPolygon
 {
+    std::string name;
     std::vector<glm::vec2> normalizedVertices;
     PolygonalSelectorCameraSnapshot camera;
 };
@@ -33,6 +36,8 @@ struct PolygonalSelectorSettings
     bool active = false;
     bool pendingApply = false;
     uint32_t appliedPolygonCount = 0;
+    int32_t highlightedPolygonIndex = -1;
+    bool manageMode = false;
     std::vector<PolygonalSelectorPolygon> polygons;
 };
 

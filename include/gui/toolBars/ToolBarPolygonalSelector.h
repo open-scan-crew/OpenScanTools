@@ -5,8 +5,11 @@
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
 #include "models/3d/DisplayParameters.h"
+#include "utils/safe_ptr.h"
 
 #include <unordered_map>
+
+class CameraNode;
 
 class ToolBarPolygonalSelector : public QWidget, public IPanel
 {
@@ -19,12 +22,21 @@ public:
 private:
     void informData(IGuiData* data) override;
     void onProjectLoad(IGuiData* data);
+    void onActiveCamera(IGuiData* data);
+    void onFocusViewport(IGuiData* data);
     void onActivatedFunctions(IGuiData* data);
     void onRenderSettings(IGuiData* data);
 
     void activateSelector();
     void applySettings(bool enabled);
     void resetSettings();
+    void setManageMode(bool enabled);
+    void onPolygonSelectionChanged(int index);
+    void deleteSelectedPolygon();
+    void refreshPolygonList();
+    void sendSettingsUpdate();
+    void clearManageSelection();
+    bool syncFromFocusedCamera();
 
 private:
     typedef void (ToolBarPolygonalSelector::*GuiDataMethod)(IGuiData*);
@@ -32,7 +44,9 @@ private:
 
     Ui::toolbar_selector m_ui;
     IDataDispatcher& m_dataDispatcher;
+    SafePtr<CameraNode> m_focusCamera;
     PolygonalSelectorSettings m_settings;
+    bool m_isProjectLoaded = false;
 };
 
 #endif
