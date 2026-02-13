@@ -23,6 +23,7 @@
 
 #include <QtGui/qevent.h>
 #include <QApplication.h>
+#include <algorithm>
 
 namespace
 {
@@ -49,6 +50,7 @@ namespace
         case ContextType::clippingBoxCreation:
         case ContextType::clippingBoxAttached3Points:
         case ContextType::clippingBoxAttached2Points:
+        case ContextType::polygonalSelector:
         case ContextType::boxDuplication:
         case ContextType::pointCloudObjectCreation:
         case ContextType::pointCloudObjectDuplication:
@@ -126,6 +128,7 @@ VulkanViewport::VulkanViewport(IDataDispatcher& dataDispatcher, float guiScale)
     registerGuiDataFunction(guiDType::renderDecimationOptions, &VulkanViewport::onRenderDecimationOptions);
 	registerGuiDataFunction(guiDType::renderOctreePrecision, &VulkanViewport::onRenderOctreePrecision);
     registerGuiDataFunction(guiDType::activatedFunctions, &VulkanViewport::onActivatedFunctions);
+    registerGuiDataFunction(guiDType::renderPolygonalSelector, &VulkanViewport::onRenderPolygonalSelectorPreview);
 }
 
 VulkanViewport::~VulkanViewport()
@@ -237,6 +240,24 @@ void VulkanViewport::onActivatedFunctions(IGuiData* data)
 {
     auto* functionData = static_cast<GuiDataActivatedFunctions*>(data);
     m_isDoubleClickExamineBlocked = blockExamineOnDoubleClick(functionData->type);
+    m_lockNavigationForCurrentContext = (functionData->type == ContextType::polygonalSelector);
+    if (!m_lockNavigationForCurrentContext)
+    {
+        m_polygonalSelectorPreview.clear();
+        m_polygonalSelectorPreviewClosed = false;
+    }
+}
+
+
+void VulkanViewport::onRenderPolygonalSelectorPreview(IGuiData* data)
+{
+    auto* selectorData = static_cast<GuiDataRenderPolygonalSelector*>(data);
+    m_polygonalSelectorPreview = selectorData->m_previewVertices;
+    m_polygonalSelectorPreviewClosed = selectorData->m_previewClosed;
+
+    m_polygonalSelectorEnabled = selectorData->m_settings.enabled;
+    m_polygonalSelectorShowSelected = selectorData->m_settings.showSelected;
+    m_refreshViewport = true;
 }
 
 void VulkanViewport::initSurface()
@@ -400,6 +421,28 @@ Rect2D VulkanViewport::getSelectionRect() const
 Rect2D VulkanViewport::getHoverRect() const
 {
     return m_hoverRect;
+}
+
+
+const std::vector<glm::vec2>& VulkanViewport::getPolygonalSelectorPreview() const
+{
+    return m_polygonalSelectorPreview;
+}
+
+bool VulkanViewport::isPolygonalSelectorPreviewClosed() const
+{
+    return m_polygonalSelectorPreviewClosed;
+}
+
+
+bool VulkanViewport::isPolygonalSelectorEnabled() const
+{
+    return m_polygonalSelectorEnabled;
+}
+
+bool VulkanViewport::isPolygonalSelectorShowSelected() const
+{
+    return m_polygonalSelectorShowSelected;
 }
 
 glm::ivec2 VulkanViewport::getMousePos() const
@@ -588,9 +631,13 @@ void VulkanViewport::mousePressEvent(QMouseEvent *_event)
         m_MI.leftButtonPressed = true;
         break;
     case Qt::RightButton:
+        if (m_lockNavigationForCurrentContext)
+            break;
         m_MI.rightButtonPressed = true;
         break;
     case Qt::MiddleButton:
+        if (m_lockNavigationForCurrentContext)
+            break;
         m_MI.middleButtonPressed = true;
         break;
     default:
@@ -816,12 +863,24 @@ void VulkanViewport::keyReleaseEvent(QKeyEvent* _event)
 
 void VulkanViewport::wheelEvent(QWheelEvent* _event)
 {
+    if (m_lockNavigationForCurrentContext)
+        return;
+
     m_MI.wheel += m_navParams.wheelInverted ? _event->angleDelta().y() : -_event->angleDelta().y();
 }
 
 void VulkanViewport::updateMouseInputEffect(WritePtr<CameraNode>& wCam, SafePtr<ManipulatorNode>& manipNode)
 {
     std::lock_guard<std::mutex> lock(m_inputMutex);
+
+    if (m_lockNavigationForCurrentContext)
+    {
+        m_mouseInputEffect = MouseInputEffect::None;
+        m_MI.deltaX = 0;
+        m_MI.deltaY = 0;
+        m_MI.wheel = 0;
+        return;
+    }
 
     bool hasMoved = (m_MI.deltaX != 0) || (m_MI.deltaY != 0);
 
@@ -1062,6 +1121,17 @@ void VulkanViewport::applyMouseInput(WritePtr<CameraNode>& wCam, SafePtr<Manipul
 void VulkanViewport::applyKeyboardInput(WritePtr<CameraNode>& wCam)
 {
     std::lock_guard<std::mutex> lock(m_inputMutex);
+
+    if (m_lockNavigationForCurrentContext)
+    {
+        if (wCam)
+        {
+            wCam->setSpeedRight(0.0);
+            wCam->setSpeedForward(0.0);
+            wCam->setSpeedUp(0.0);
+        }
+        return;
+    }
 
     double leftRightSum(0.);
     double upDownSum(0.);
