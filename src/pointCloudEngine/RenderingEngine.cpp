@@ -1179,14 +1179,6 @@ void RenderingEngine::drawSelectionRect(VkCommandBuffer, const VulkanViewport& v
         {
             const std::vector<std::vector<glm::vec2>>& polygons = viewport.getPolygonalSelectorPolygons();
             const uint32_t appliedCount = viewport.getPolygonalSelectorAppliedPolygonCount();
-            const bool selectorEnabled = viewport.isPolygonalSelectorEnabled();
-            const bool showSelected = viewport.isPolygonalSelectorShowSelected();
-
-            if (selectorEnabled && appliedCount > 0)
-            {
-                if (showSelected)
-                    dl->AddRectFilled(ImVec2(0.f, 0.f), ImVec2(static_cast<float>(extent.width), static_cast<float>(extent.height)), IM_COL32(0, 0, 0, 90));
-            }
 
             for (size_t i = 0; i < polygons.size(); ++i)
             {
@@ -1200,21 +1192,7 @@ void RenderingEngine::drawSelectionRect(VkCommandBuffer, const VulkanViewport& v
                     pts.emplace_back(p.x * extent.width, p.y * extent.height);
 
                 const bool applied = i < appliedCount;
-                ImU32 fillColor = applied ? IM_COL32(242, 214, 0, 45) : IM_COL32(242, 214, 0, 24);
-                if (selectorEnabled && applied)
-                {
-                    if (showSelected)
-                        fillColor = IM_COL32(242, 214, 0, 90);
-                    else
-                        fillColor = IM_COL32(0, 0, 0, 150);
-                }
-
-                ImU32 outlineColor = applied ? IM_COL32(242, 214, 0, 220) : IM_COL32(242, 214, 0, 130);
-
-                // Triangulation fan (simple visual mask). Full point-cloud classification is handled in a later step.
-                for (size_t k = 1; k + 1 < pts.size(); ++k)
-                    dl->AddTriangleFilled(pts[0], pts[k], pts[k + 1], fillColor);
-
+                ImU32 outlineColor = applied ? IM_COL32(242, 214, 0, 230) : IM_COL32(242, 214, 0, 140);
                 for (size_t k = 0; k < pts.size(); ++k)
                     dl->AddLine(pts[k], pts[(k + 1) % pts.size()], outlineColor, 1.5f);
             }
