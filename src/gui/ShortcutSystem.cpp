@@ -34,8 +34,6 @@ ShortcutSystem::ShortcutSystem(IDataDispatcher& dataDispacher, QWidget* parent)
 						{ Qt::Key_F12, &ShortcutSystem::slotCreateHdImage},
 						{ Qt::Key_H, &ShortcutSystem::slotHideSelectedObjects},
 						{ Qt::Key_Escape, &ShortcutSystem::slotAbort },
-						{ Qt::Key_Return, &ShortcutSystem::slotValidateCurrentContext },
-						{ Qt::Key_Enter, &ShortcutSystem::slotValidateCurrentContext }
 		})
 {
 
