@@ -172,19 +172,21 @@ float evaluateColorimetricFilter(vec3 rgb, float intensityNorm, vec3 worldPos)
     bool insidePending = false;
     evaluatePolygonSelector(worldPos, insideApplied, insidePending);
 
-    gPolygonHighlight = insidePending ? 1.0 : 0.0;
-
-    bool rejectByPolygon = false;
     bool selectorEnabled = uColorFilter.polygonSettings.x > 0.5;
     bool selectorShowSelected = uColorFilter.polygonSettings.y > 0.5;
     bool selectorActive = uColorFilter.polygonSettings.z > 0.5;
+    int appliedCount = int(uColorFilter.polygonSettings.w);
 
-    if (selectorEnabled && selectorActive)
+    // Pending polygons: preview only (point tint), they must not affect Show/Hide filtering before Apply.
+    gPolygonHighlight = (selectorEnabled && selectorActive && insidePending) ? 1.0 : 0.0;
+
+    bool rejectByPolygon = false;
+    if (selectorEnabled && selectorActive && appliedCount > 0)
     {
         if (selectorShowSelected)
-            rejectByPolygon = !insideApplied && !insidePending;
+            rejectByPolygon = !insideApplied;
         else
-            rejectByPolygon = insideApplied && !insidePending;
+            rejectByPolygon = insideApplied;
     }
 
     return (rejectByColorimetric || rejectByPolygon) ? 1.0 : 0.0;

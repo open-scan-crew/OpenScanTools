@@ -1173,7 +1173,7 @@ void RenderingEngine::drawSelectionRect(VkCommandBuffer, const VulkanViewport& v
         }
     }
 
-    // Polygonal selector persisted polygons (visual feedback before full point filtering pipeline)
+    // Polygonal selector persisted polygons (outline-only visual feedback)
     {
         if (viewport.isPolygonalSelectorActive())
         {
