@@ -13,6 +13,7 @@
 
 #include <mutex>
 #include <unordered_map>
+#include <vector>
 
 #include <QtGui/QWindow.h>
 
@@ -129,6 +130,10 @@ public:
     void refreshHoveredId(uint32_t textId);
     Rect2D getSelectionRect() const;
     Rect2D getHoverRect() const;
+    const std::vector<glm::vec2>& getPolygonalSelectorPreview() const;
+    bool isPolygonalSelectorPreviewClosed() const;
+    bool isPolygonalSelectorEnabled() const;
+    bool isPolygonalSelectorShowSelected() const;
     glm::ivec2 getMousePos() const;
     glm::vec2 getMousePosNormalized() const;
     void setMissingScanPart(bool isMissingScanPart);
@@ -184,6 +189,7 @@ protected:
     void onRenderDecimationOptions(IGuiData* data);
 	void onRenderOctreePrecision(IGuiData* data);
     void onActivatedFunctions(IGuiData* data);
+    void onRenderPolygonalSelectorPreview(IGuiData* data);
 
 private:
     void initSurface();
@@ -233,6 +239,11 @@ private:
     bool m_forceObjectCenterOnExamine = false;
     bool m_isDoubleClickExamineBlocked = false;
     bool m_ignoreNextLeftReleaseClick = false;
+    bool m_lockNavigationForCurrentContext = false;
+    std::vector<glm::vec2> m_polygonalSelectorPreview;
+    bool m_polygonalSelectorPreviewClosed = false;
+    bool m_polygonalSelectorEnabled = false;
+    bool m_polygonalSelectorShowSelected = true;
 
     // Window state
     bool m_initialized;

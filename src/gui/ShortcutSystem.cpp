@@ -18,6 +18,7 @@ ShortcutSystem::ShortcutSystem(IDataDispatcher& dataDispacher, QWidget* parent)
 	, QObject(parent)
 	, m_isEditing(false)
 	, m_notInContext(true)
+	, m_activeContext(ContextType::none)
 	, m_shortcutDefs({ { Qt::Key_Delete, &ShortcutSystem::slotDelete},
 						{ Qt::Key_A, &ShortcutSystem::slotAlignView2PointsFunction},
 						{ Qt::Key_B, &ShortcutSystem::slotBackground},
@@ -32,7 +33,9 @@ ShortcutSystem::ShortcutSystem(IDataDispatcher& dataDispacher, QWidget* parent)
 						{ Qt::Key_ScreenSaver, &ShortcutSystem::slotQuickScreenshot},
 						{ Qt::Key_F12, &ShortcutSystem::slotCreateHdImage},
 						{ Qt::Key_H, &ShortcutSystem::slotHideSelectedObjects},
-						{ Qt::Key_Escape, &ShortcutSystem::slotAbort }
+						{ Qt::Key_Escape, &ShortcutSystem::slotAbort },
+						{ Qt::Key_Return, &ShortcutSystem::slotValidateCurrentContext },
+						{ Qt::Key_Enter, &ShortcutSystem::slotValidateCurrentContext }
 		})
 {
 
@@ -91,6 +94,7 @@ void ShortcutSystem::onProjectLoad(IGuiData * data)
 void ShortcutSystem::onActivatedFunctions(IGuiData* data)
 {
 	GuiDataActivatedFunctions* function = static_cast<GuiDataActivatedFunctions*>(data);
+	m_activeContext = function->type;
 	m_notInContext = function->type == ContextType::none;
 }
 
@@ -103,10 +107,21 @@ void ShortcutSystem::slotDelete()
 void ShortcutSystem::slotAbort()
 {
 	GUI_LOG << "shortcut abort" << LOGENDL;
+	if (m_activeContext == ContextType::polygonalSelector)
+	{
+		m_dataDispatcher.sendControl(new control::function::Validate());
+		return;
+	}
+
 	if (m_notInContext)
 		m_dataDispatcher.updateInformation(new GuiDataDisableFullScreen());
 	m_dataDispatcher.sendControl(new control::function::Abort());
 	m_dataDispatcher.sendControl(new control::function::AbortSelection());
+}
+
+void ShortcutSystem::slotValidateCurrentContext()
+{
+	m_dataDispatcher.sendControl(new control::function::Validate());
 }
 
 void ShortcutSystem::slotEdition(const bool& isEditing)
