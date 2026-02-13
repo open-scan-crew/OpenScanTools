@@ -9,6 +9,9 @@
 #include <algorithm>
 #include <string>
 
+#include <algorithm>
+#include <string>
+
 ToolBarPolygonalSelector::ToolBarPolygonalSelector(IDataDispatcher& dataDispatcher, QWidget* parent, float guiScale)
     : QWidget(parent)
     , m_dataDispatcher(dataDispatcher)
@@ -332,4 +335,10 @@ bool ToolBarPolygonalSelector::syncFromFocusedCamera()
 
     refreshPolygonList();
     return true;
+}
+
+void ToolBarPolygonalSelector::clearManageSelection()
+{
+    m_settings.highlightedPolygonIndex = -1;
+    m_ui.deletePolygonButton->setEnabled(false);
 }
