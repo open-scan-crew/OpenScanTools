@@ -648,6 +648,16 @@ guiDType GuiDataRenderColorimetricFilter::getType()
 	return guiDType::renderColorimetricFilter;
 }
 
+GuiDataRenderPolygonalSelector::GuiDataRenderPolygonalSelector(const PolygonalSelectorSettings& settings, const SafePtr<CameraNode>& camera)
+	: GuiDataActiveCamera(camera)
+	, m_settings(settings)
+{}
+
+guiDType GuiDataRenderPolygonalSelector::getType()
+{
+	return guiDType::renderPolygonalSelector;
+}
+
 GuiDataColorimetricFilterPickValue::GuiDataColorimetricFilterPickValue(const Color32& color, uint8_t intensity)
 	: m_color(color)
 	, m_intensity(intensity)
