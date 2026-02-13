@@ -4,6 +4,10 @@
 #include "controller/controls/ControlFunctionClipping.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataRendering.h"
+#include "models/graph/CameraNode.h"
+
+#include <algorithm>
+#include <string>
 
 #include <algorithm>
 #include <string>
@@ -32,10 +36,14 @@ ToolBarPolygonalSelector::ToolBarPolygonalSelector(IDataDispatcher& dataDispatch
     });
 
     m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);
+    m_dataDispatcher.registerObserverOnKey(this, guiDType::renderActiveCamera);
+    m_dataDispatcher.registerObserverOnKey(this, guiDType::focusViewport);
     m_dataDispatcher.registerObserverOnKey(this, guiDType::activatedFunctions);
     m_dataDispatcher.registerObserverOnKey(this, guiDType::renderPolygonalSelector);
 
     m_methods.insert({ guiDType::projectLoaded, &ToolBarPolygonalSelector::onProjectLoad });
+    m_methods.insert({ guiDType::renderActiveCamera, &ToolBarPolygonalSelector::onActiveCamera });
+    m_methods.insert({ guiDType::focusViewport, &ToolBarPolygonalSelector::onFocusViewport });
     m_methods.insert({ guiDType::activatedFunctions, &ToolBarPolygonalSelector::onActivatedFunctions });
     m_methods.insert({ guiDType::renderPolygonalSelector, &ToolBarPolygonalSelector::onRenderSettings });
 }
@@ -54,7 +62,54 @@ void ToolBarPolygonalSelector::informData(IGuiData* data)
 
 void ToolBarPolygonalSelector::onProjectLoad(IGuiData* data)
 {
-    setEnabled(static_cast<GuiDataProjectLoaded*>(data)->m_isProjectLoad);
+    m_isProjectLoaded = static_cast<GuiDataProjectLoaded*>(data)->m_isProjectLoad;
+    setEnabled(m_isProjectLoaded);
+
+    if (!m_isProjectLoaded)
+    {
+        m_focusCamera = SafePtr<CameraNode>();
+        m_settings = PolygonalSelectorSettings{};
+        m_ui.radioButtonShowSelected->setChecked(true);
+        m_ui.checkBox_managePolygon->blockSignals(true);
+        m_ui.checkBox_managePolygon->setChecked(false);
+        m_ui.checkBox_managePolygon->blockSignals(false);
+        clearManageSelection();
+        refreshPolygonList();
+        return;
+    }
+
+    m_settings = PolygonalSelectorSettings{};
+    m_ui.radioButtonShowSelected->setChecked(true);
+    m_ui.checkBox_managePolygon->blockSignals(true);
+    m_ui.checkBox_managePolygon->setChecked(false);
+    m_ui.checkBox_managePolygon->blockSignals(false);
+    clearManageSelection();
+    refreshPolygonList();
+
+    syncFromFocusedCamera();
+}
+
+void ToolBarPolygonalSelector::onActiveCamera(IGuiData* data)
+{
+    auto infos = static_cast<GuiDataCameraInfo*>(data);
+    if (infos->m_camera && m_focusCamera && m_focusCamera != infos->m_camera)
+        return;
+
+    if (infos->m_camera)
+        m_focusCamera = infos->m_camera;
+
+    if (m_isProjectLoaded)
+        syncFromFocusedCamera();
+}
+
+void ToolBarPolygonalSelector::onFocusViewport(IGuiData* data)
+{
+    auto* castData = static_cast<GuiDataFocusViewport*>(data);
+    if (castData->m_forceFocus && castData->m_camera)
+        m_focusCamera = castData->m_camera;
+
+    if (m_isProjectLoaded)
+        syncFromFocusedCamera();
 }
 
 void ToolBarPolygonalSelector::onActivatedFunctions(IGuiData* data)
@@ -69,11 +124,20 @@ void ToolBarPolygonalSelector::onActivatedFunctions(IGuiData* data)
 void ToolBarPolygonalSelector::onRenderSettings(IGuiData* data)
 {
     auto* castData = static_cast<GuiDataRenderPolygonalSelector*>(data);
+    if (castData->m_camera)
+        m_focusCamera = castData->m_camera;
+
     m_settings = castData->m_settings;
     for (size_t i = 0; i < m_settings.polygons.size(); ++i)
     {
         if (m_settings.polygons[i].name.empty())
             m_settings.polygons[i].name = std::string("polygon_") + std::to_string(i + 1);
+    }
+
+    if (m_settings.polygons.empty())
+    {
+        m_settings.manageMode = false;
+        m_settings.highlightedPolygonIndex = -1;
     }
 
     m_ui.radioButtonShowSelected->blockSignals(true);
@@ -101,6 +165,9 @@ void ToolBarPolygonalSelector::activateSelector()
 
 void ToolBarPolygonalSelector::applySettings(bool enabled)
 {
+    if (!syncFromFocusedCamera())
+        return;
+
     m_settings.showSelected = m_ui.radioButtonShowSelected->isChecked();
 
     if (enabled)
@@ -131,6 +198,9 @@ void ToolBarPolygonalSelector::resetSettings()
 
 void ToolBarPolygonalSelector::setManageMode(bool enabled)
 {
+    if (enabled && !syncFromFocusedCamera())
+        return;
+
     m_settings.manageMode = enabled;
 
     if (enabled)
@@ -170,6 +240,9 @@ void ToolBarPolygonalSelector::onPolygonSelectionChanged(int index)
 
 void ToolBarPolygonalSelector::deleteSelectedPolygon()
 {
+    if (!syncFromFocusedCamera())
+        return;
+
     if (!m_settings.manageMode)
         return;
 
@@ -220,7 +293,48 @@ void ToolBarPolygonalSelector::refreshPolygonList()
 
 void ToolBarPolygonalSelector::sendSettingsUpdate()
 {
-    m_dataDispatcher.updateInformation(new GuiDataRenderPolygonalSelector(m_settings, SafePtr<CameraNode>()), this);
+    m_dataDispatcher.updateInformation(new GuiDataRenderPolygonalSelector(m_settings, m_focusCamera), this);
+}
+
+void ToolBarPolygonalSelector::clearManageSelection()
+{
+    m_settings.highlightedPolygonIndex = -1;
+    m_ui.deletePolygonButton->setEnabled(false);
+}
+
+bool ToolBarPolygonalSelector::syncFromFocusedCamera()
+{
+    ReadPtr<CameraNode> rCam = m_focusCamera.cget();
+    if (!rCam)
+        return false;
+
+    m_settings = rCam->getDisplayParameters().m_polygonalSelector;
+    for (size_t i = 0; i < m_settings.polygons.size(); ++i)
+    {
+        if (m_settings.polygons[i].name.empty())
+            m_settings.polygons[i].name = std::string("polygon_") + std::to_string(i + 1);
+    }
+
+    if (m_settings.polygons.empty())
+    {
+        m_settings.manageMode = false;
+        m_settings.highlightedPolygonIndex = -1;
+    }
+
+    m_ui.radioButtonShowSelected->blockSignals(true);
+    m_ui.radioButtonHideSelected->blockSignals(true);
+    m_ui.checkBox_managePolygon->blockSignals(true);
+
+    m_ui.radioButtonShowSelected->setChecked(m_settings.showSelected);
+    m_ui.radioButtonHideSelected->setChecked(!m_settings.showSelected);
+    m_ui.checkBox_managePolygon->setChecked(m_settings.manageMode);
+
+    m_ui.radioButtonShowSelected->blockSignals(false);
+    m_ui.radioButtonHideSelected->blockSignals(false);
+    m_ui.checkBox_managePolygon->blockSignals(false);
+
+    refreshPolygonList();
+    return true;
 }
 
 void ToolBarPolygonalSelector::clearManageSelection()
