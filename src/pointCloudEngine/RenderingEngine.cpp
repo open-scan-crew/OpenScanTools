@@ -1144,6 +1144,83 @@ void RenderingEngine::drawSelectionRect(VkCommandBuffer, const VulkanViewport& v
         }
     }
 
+    // Polygonal selector preview
+    {
+        const std::vector<glm::vec2>& preview = viewport.getPolygonalSelectorPreview();
+        if (!preview.empty())
+        {
+            ImU32 selectorColor = IM_COL32(242, 214, 0, 255);
+            const float thickness = 2.0f;
+
+            for (size_t i = 1; i < preview.size(); ++i)
+            {
+                ImVec2 p0(preview[i - 1].x * extent.width, preview[i - 1].y * extent.height);
+                ImVec2 p1(preview[i].x * extent.width, preview[i].y * extent.height);
+                dl->AddLine(p0, p1, selectorColor, thickness);
+            }
+
+            for (const glm::vec2& p : preview)
+            {
+                dl->AddCircleFilled(ImVec2(p.x * extent.width, p.y * extent.height), 3.0f, selectorColor);
+            }
+
+            if (viewport.isPolygonalSelectorPreviewClosed() && preview.size() > 2)
+            {
+                ImVec2 first(preview.front().x * extent.width, preview.front().y * extent.height);
+                ImVec2 last(preview.back().x * extent.width, preview.back().y * extent.height);
+                dl->AddLine(last, first, selectorColor, thickness);
+            }
+        }
+    }
+
+    // Polygonal selector persisted polygons (visual feedback before full point filtering pipeline)
+    {
+        if (viewport.isPolygonalSelectorActive())
+        {
+            const std::vector<std::vector<glm::vec2>>& polygons = viewport.getPolygonalSelectorPolygons();
+            const uint32_t appliedCount = viewport.getPolygonalSelectorAppliedPolygonCount();
+            const bool selectorEnabled = viewport.isPolygonalSelectorEnabled();
+            const bool showSelected = viewport.isPolygonalSelectorShowSelected();
+
+            if (selectorEnabled && appliedCount > 0)
+            {
+                if (showSelected)
+                    dl->AddRectFilled(ImVec2(0.f, 0.f), ImVec2(static_cast<float>(extent.width), static_cast<float>(extent.height)), IM_COL32(0, 0, 0, 90));
+            }
+
+            for (size_t i = 0; i < polygons.size(); ++i)
+            {
+                const std::vector<glm::vec2>& polygon = polygons[i];
+                if (polygon.size() < 3)
+                    continue;
+
+                std::vector<ImVec2> pts;
+                pts.reserve(polygon.size());
+                for (const glm::vec2& p : polygon)
+                    pts.emplace_back(p.x * extent.width, p.y * extent.height);
+
+                const bool applied = i < appliedCount;
+                ImU32 fillColor = applied ? IM_COL32(242, 214, 0, 45) : IM_COL32(242, 214, 0, 24);
+                if (selectorEnabled && applied)
+                {
+                    if (showSelected)
+                        fillColor = IM_COL32(242, 214, 0, 90);
+                    else
+                        fillColor = IM_COL32(0, 0, 0, 150);
+                }
+
+                ImU32 outlineColor = applied ? IM_COL32(242, 214, 0, 220) : IM_COL32(242, 214, 0, 130);
+
+                // Triangulation fan (simple visual mask). Full point-cloud classification is handled in a later step.
+                for (size_t k = 1; k + 1 < pts.size(); ++k)
+                    dl->AddTriangleFilled(pts[0], pts[k], pts[k + 1], fillColor);
+
+                for (size_t k = 0; k < pts.size(); ++k)
+                    dl->AddLine(pts[k], pts[(k + 1) % pts.size()], outlineColor, 1.5f);
+            }
+        }
+    }
+
     ImGui::End();
     ImGui::PopStyleVar();
     ImGui::PopStyleColor(2);

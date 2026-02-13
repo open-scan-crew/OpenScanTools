@@ -889,6 +889,9 @@
     <ClCompile Include="..\..\src\controller\functionSystem\ContextClippingBoxCreation.cpp">
       <Filter>src\controller\contexts</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextPolygonalSelector.cpp">
+      <Filter>src\controller\contexts</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\controller\messages\ColorMessage.cpp">
       <Filter>src\controller\messages</Filter>
     </ClCompile>
@@ -917,6 +920,9 @@
       <Filter>src\gui\widgets\CustomWidgets</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarClippingGroup.cpp">
+      <Filter>src\gui\toolBars</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarPolygonalSelector.cpp">
       <Filter>src\gui\toolBars</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\gui\widgets\CustomWidgets\ACustomLineEdit.cpp">
@@ -2130,6 +2136,9 @@
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarClippingGroup.h">
       <Filter>include\gui\toolBars</Filter>
     </QtMoc>
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarPolygonalSelector.h">
+      <Filter>include\gui\toolBars</Filter>
+    </QtMoc>
     <QtMoc Include="..\..\include\gui\widgets\CustomWidgets\ACustomLineEdit.h">
       <Filter>include\gui\widgets\CustomWidgets</Filter>
     </QtMoc>
@@ -2880,6 +2889,9 @@
       <Filter>ext\imgui</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\controller\functionSystem\ContextClippingBoxCreation.h">
+      <Filter>include\controller\contexts</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextPolygonalSelector.h">
       <Filter>include\controller\contexts</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\controller\messages\ColorMessage.h">
@@ -4339,6 +4351,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\toolbar_colorimetric_filter.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="..\..\src\gui\forms\toolbar_selector.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\MultiProperty.ui">
