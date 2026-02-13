@@ -40,6 +40,15 @@
 #include "magic_enum/magic_enum.hpp"
 
 #include <algorithm>
+#include <string>
+
+namespace
+{
+std::string makePolygonNameFromIndex(size_t index)
+{
+    return std::string("polygon_") + std::to_string(index + 1);
+}
+}
 
 #define IOLOG Logger::log(LoggerMode::IOLog)
 
@@ -737,6 +746,9 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
             {
                 PolygonalSelectorPolygon polygon;
 
+                if (polygonJson.find(Key_Polygonal_Selector_Name) != polygonJson.end())
+                    polygon.name = polygonJson.at(Key_Polygonal_Selector_Name).get<std::string>();
+
                 if (polygonJson.find(Key_Polygonal_Selector_Vertices) != polygonJson.end())
                 {
                     const auto& vertices = polygonJson.at(Key_Polygonal_Selector_Vertices);
@@ -778,6 +790,12 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
                 }
 
                 data.m_polygonalSelector.polygons.push_back(std::move(polygon));
+            }
+
+            for (size_t i = 0; i < data.m_polygonalSelector.polygons.size(); ++i)
+            {
+                if (data.m_polygonalSelector.polygons[i].name.empty())
+                    data.m_polygonalSelector.polygons[i].name = makePolygonNameFromIndex(i);
             }
 
             data.m_polygonalSelector.appliedPolygonCount = std::min<uint32_t>(
