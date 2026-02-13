@@ -46,7 +46,7 @@ layout(set = 0, binding = 4) uniform uniformColorimetricFilter {
     vec4 colors[4];
     vec4 settings; // x: enabled, y: showColors, z: tolerance(0-1), w: intensityMode
     vec4 polygonSettings; // x: enabled, y: showSelected, z: active, w: appliedPolygonCount
-    vec4 polygonCounts;   // x: totalPolygonCount
+    vec4 polygonCounts;   // x: totalPolygonCount, y: pendingApply(0/1)
     mat4 polygonViewProj[8];
     vec4 polygonVertices[8 * 32];
     vec4 polygonMeta[8];
@@ -176,9 +176,11 @@ float evaluateColorimetricFilter(vec3 rgb, float intensityNorm, vec3 worldPos)
     bool selectorShowSelected = uColorFilter.polygonSettings.y > 0.5;
     bool selectorActive = uColorFilter.polygonSettings.z > 0.5;
     int appliedCount = int(uColorFilter.polygonSettings.w);
+    bool pendingApply = uColorFilter.polygonCounts.y > 0.5;
 
     // Pending polygons: preview only (point tint), they must not affect Show/Hide filtering before Apply.
-    gPolygonHighlight = (selectorEnabled && selectorActive && insidePending) ? 1.0 : 0.0;
+    // Keep Lot 1 behavior: highlight as soon as polygons are created, even if selector.active is false.
+    gPolygonHighlight = (selectorEnabled && pendingApply && insidePending) ? 1.0 : 0.0;
 
     bool rejectByPolygon = false;
     if (selectorEnabled && selectorActive && appliedCount > 0)

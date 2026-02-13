@@ -1173,32 +1173,6 @@ void RenderingEngine::drawSelectionRect(VkCommandBuffer, const VulkanViewport& v
         }
     }
 
-    // Polygonal selector persisted polygons (outline-only visual feedback)
-    {
-        if (viewport.isPolygonalSelectorActive())
-        {
-            const std::vector<std::vector<glm::vec2>>& polygons = viewport.getPolygonalSelectorPolygons();
-            const uint32_t appliedCount = viewport.getPolygonalSelectorAppliedPolygonCount();
-
-            for (size_t i = 0; i < polygons.size(); ++i)
-            {
-                const std::vector<glm::vec2>& polygon = polygons[i];
-                if (polygon.size() < 3)
-                    continue;
-
-                std::vector<ImVec2> pts;
-                pts.reserve(polygon.size());
-                for (const glm::vec2& p : polygon)
-                    pts.emplace_back(p.x * extent.width, p.y * extent.height);
-
-                const bool applied = i < appliedCount;
-                ImU32 outlineColor = applied ? IM_COL32(242, 214, 0, 230) : IM_COL32(242, 214, 0, 140);
-                for (size_t k = 0; k < pts.size(); ++k)
-                    dl->AddLine(pts[k], pts[(k + 1) % pts.size()], outlineColor, 1.5f);
-            }
-        }
-    }
-
     ImGui::End();
     ImGui::PopStyleVar();
     ImGui::PopStyleColor(2);
