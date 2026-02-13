@@ -35,7 +35,7 @@ private:
     void deleteSelectedPolygon();
     void refreshPolygonList();
     void sendSettingsUpdate();
-    void clearManageSelection();
+    void resetManageSelection();
     bool syncFromFocusedCamera();
 
 private:

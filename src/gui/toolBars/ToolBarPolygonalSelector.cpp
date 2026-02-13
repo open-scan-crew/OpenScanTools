@@ -9,9 +9,6 @@
 #include <algorithm>
 #include <string>
 
-#include <algorithm>
-#include <string>
-
 ToolBarPolygonalSelector::ToolBarPolygonalSelector(IDataDispatcher& dataDispatcher, QWidget* parent, float guiScale)
     : QWidget(parent)
     , m_dataDispatcher(dataDispatcher)
@@ -73,7 +70,7 @@ void ToolBarPolygonalSelector::onProjectLoad(IGuiData* data)
         m_ui.checkBox_managePolygon->blockSignals(true);
         m_ui.checkBox_managePolygon->setChecked(false);
         m_ui.checkBox_managePolygon->blockSignals(false);
-        clearManageSelection();
+        resetManageSelection();
         refreshPolygonList();
         return;
     }
@@ -83,7 +80,7 @@ void ToolBarPolygonalSelector::onProjectLoad(IGuiData* data)
     m_ui.checkBox_managePolygon->blockSignals(true);
     m_ui.checkBox_managePolygon->setChecked(false);
     m_ui.checkBox_managePolygon->blockSignals(false);
-    clearManageSelection();
+    resetManageSelection();
     refreshPolygonList();
 
     syncFromFocusedCamera();
@@ -213,7 +210,7 @@ void ToolBarPolygonalSelector::setManageMode(bool enabled)
     m_ui.comboBox_polygonList->setEnabled(enabled && m_ui.comboBox_polygonList->count() > 0);
 
     if (!enabled)
-        clearManageSelection();
+        resetManageSelection();
     else
         onPolygonSelectionChanged(m_ui.comboBox_polygonList->currentIndex());
 
@@ -225,7 +222,7 @@ void ToolBarPolygonalSelector::onPolygonSelectionChanged(int index)
 {
     if (!m_settings.manageMode)
     {
-        clearManageSelection();
+        resetManageSelection();
         return;
     }
 
@@ -261,7 +258,7 @@ void ToolBarPolygonalSelector::deleteSelectedPolygon()
         m_settings.active = false;
     }
 
-    clearManageSelection();
+    resetManageSelection();
     refreshPolygonList();
 
     if (m_settings.manageMode && m_ui.comboBox_polygonList->count() > 0)
@@ -296,7 +293,7 @@ void ToolBarPolygonalSelector::sendSettingsUpdate()
     m_dataDispatcher.updateInformation(new GuiDataRenderPolygonalSelector(m_settings, m_focusCamera), this);
 }
 
-void ToolBarPolygonalSelector::clearManageSelection()
+void ToolBarPolygonalSelector::resetManageSelection()
 {
     m_settings.highlightedPolygonIndex = -1;
     m_ui.deletePolygonButton->setEnabled(false);
@@ -335,10 +332,4 @@ bool ToolBarPolygonalSelector::syncFromFocusedCamera()
 
     refreshPolygonList();
     return true;
-}
-
-void ToolBarPolygonalSelector::clearManageSelection()
-{
-    m_settings.highlightedPolygonIndex = -1;
-    m_ui.deletePolygonButton->setEnabled(false);
 }
