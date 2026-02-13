@@ -255,18 +255,8 @@ void VulkanViewport::onRenderPolygonalSelectorPreview(IGuiData* data)
     m_polygonalSelectorPreview = selectorData->m_previewVertices;
     m_polygonalSelectorPreviewClosed = selectorData->m_previewClosed;
 
-    m_polygonalSelectorPolygons.clear();
-    m_polygonalSelectorPolygons.reserve(selectorData->m_settings.polygons.size());
-    for (const PolygonalSelectorPolygon& polygon : selectorData->m_settings.polygons)
-        m_polygonalSelectorPolygons.push_back(polygon.normalizedVertices);
-
     m_polygonalSelectorEnabled = selectorData->m_settings.enabled;
     m_polygonalSelectorShowSelected = selectorData->m_settings.showSelected;
-    m_polygonalSelectorActive = selectorData->m_settings.enabled && (selectorData->m_settings.active || selectorData->m_settings.pendingApply);
-    m_polygonalSelectorAppliedPolygonCount = std::min<uint32_t>(
-        selectorData->m_settings.appliedPolygonCount,
-        static_cast<uint32_t>(m_polygonalSelectorPolygons.size()));
-
     m_refreshViewport = true;
 }
 
@@ -444,20 +434,6 @@ bool VulkanViewport::isPolygonalSelectorPreviewClosed() const
     return m_polygonalSelectorPreviewClosed;
 }
 
-const std::vector<std::vector<glm::vec2>>& VulkanViewport::getPolygonalSelectorPolygons() const
-{
-    return m_polygonalSelectorPolygons;
-}
-
-bool VulkanViewport::isPolygonalSelectorActive() const
-{
-    return m_polygonalSelectorActive;
-}
-
-uint32_t VulkanViewport::getPolygonalSelectorAppliedPolygonCount() const
-{
-    return m_polygonalSelectorAppliedPolygonCount;
-}
 
 bool VulkanViewport::isPolygonalSelectorEnabled() const
 {

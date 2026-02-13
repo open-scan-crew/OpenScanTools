@@ -132,9 +132,6 @@ public:
     Rect2D getHoverRect() const;
     const std::vector<glm::vec2>& getPolygonalSelectorPreview() const;
     bool isPolygonalSelectorPreviewClosed() const;
-    const std::vector<std::vector<glm::vec2>>& getPolygonalSelectorPolygons() const;
-    bool isPolygonalSelectorActive() const;
-    uint32_t getPolygonalSelectorAppliedPolygonCount() const;
     bool isPolygonalSelectorEnabled() const;
     bool isPolygonalSelectorShowSelected() const;
     glm::ivec2 getMousePos() const;
@@ -245,9 +242,6 @@ private:
     bool m_lockNavigationForCurrentContext = false;
     std::vector<glm::vec2> m_polygonalSelectorPreview;
     bool m_polygonalSelectorPreviewClosed = false;
-    std::vector<std::vector<glm::vec2>> m_polygonalSelectorPolygons;
-    bool m_polygonalSelectorActive = false;
-    uint32_t m_polygonalSelectorAppliedPolygonCount = 0;
     bool m_polygonalSelectorEnabled = false;
     bool m_polygonalSelectorShowSelected = true;
 
