@@ -112,6 +112,18 @@ namespace
 			for (const glm::vec2& vertex : polygon.normalizedVertices)
 				polygonJson[Key_Polygonal_Selector_Vertices].push_back({ vertex.x, vertex.y });
 			polygonJson[Key_Polygonal_Selector_Camera] = {
+				{ Key_Polygonal_Selector_Cam_View, {
+					polygon.camera.view[0][0], polygon.camera.view[0][1], polygon.camera.view[0][2], polygon.camera.view[0][3],
+					polygon.camera.view[1][0], polygon.camera.view[1][1], polygon.camera.view[1][2], polygon.camera.view[1][3],
+					polygon.camera.view[2][0], polygon.camera.view[2][1], polygon.camera.view[2][2], polygon.camera.view[2][3],
+					polygon.camera.view[3][0], polygon.camera.view[3][1], polygon.camera.view[3][2], polygon.camera.view[3][3]
+				} },
+				{ Key_Polygonal_Selector_Cam_Proj, {
+					polygon.camera.proj[0][0], polygon.camera.proj[0][1], polygon.camera.proj[0][2], polygon.camera.proj[0][3],
+					polygon.camera.proj[1][0], polygon.camera.proj[1][1], polygon.camera.proj[1][2], polygon.camera.proj[1][3],
+					polygon.camera.proj[2][0], polygon.camera.proj[2][1], polygon.camera.proj[2][2], polygon.camera.proj[2][3],
+					polygon.camera.proj[3][0], polygon.camera.proj[3][1], polygon.camera.proj[3][2], polygon.camera.proj[3][3]
+				} },
 				{ Key_Polygonal_Selector_Cam_Viewport, { polygon.camera.viewportWidth, polygon.camera.viewportHeight } },
 				{ Key_Polygonal_Selector_Cam_Perspective, polygon.camera.perspective }
 			};
@@ -383,6 +395,20 @@ namespace
 					if (polygonJson.find(Key_Polygonal_Selector_Camera) != polygonJson.end())
 					{
 						const auto& cameraJson = polygonJson.at(Key_Polygonal_Selector_Camera);
+
+						auto readMat4 = [](const nlohmann::json& arr, glm::dmat4& out)
+						{
+							if (!arr.is_array() || arr.size() != 16)
+								return;
+							for (int c = 0; c < 4; ++c)
+								for (int r = 0; r < 4; ++r)
+									out[c][r] = arr.at(c * 4 + r).get<double>();
+						};
+
+						if (cameraJson.find(Key_Polygonal_Selector_Cam_View) != cameraJson.end())
+							readMat4(cameraJson.at(Key_Polygonal_Selector_Cam_View), polygon.camera.view);
+						if (cameraJson.find(Key_Polygonal_Selector_Cam_Proj) != cameraJson.end())
+							readMat4(cameraJson.at(Key_Polygonal_Selector_Cam_Proj), polygon.camera.proj);
 						if (cameraJson.find(Key_Polygonal_Selector_Cam_Viewport) != cameraJson.end())
 						{
 							const auto& viewport = cameraJson.at(Key_Polygonal_Selector_Cam_Viewport);
