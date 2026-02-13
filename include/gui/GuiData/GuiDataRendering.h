@@ -15,6 +15,7 @@
 
 #include <filesystem>
 #include <cstdint>
+#include <vector>
 
 class IPanel;
 
@@ -623,6 +624,18 @@ public:
 	virtual guiDType getType() override;
 public:
 	ColorimetricFilterSettings m_settings;
+};
+
+class GuiDataRenderPolygonalSelector : public GuiDataActiveCamera
+{
+public:
+	GuiDataRenderPolygonalSelector(const PolygonalSelectorSettings& settings, const SafePtr<CameraNode>& camera, const std::vector<glm::vec2>& previewVertices = {}, bool previewClosed = false);
+	~GuiDataRenderPolygonalSelector() {};
+	virtual guiDType getType() override;
+public:
+	PolygonalSelectorSettings m_settings;
+	std::vector<glm::vec2> m_previewVertices;
+	bool m_previewClosed = false;
 };
 
 class GuiDataColorimetricFilterPickValue : public IGuiData
