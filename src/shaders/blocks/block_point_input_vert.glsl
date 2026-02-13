@@ -45,6 +45,11 @@ layout(set = 0, binding = 1) uniform uniformScan{
 layout(set = 0, binding = 4) uniform uniformColorimetricFilter {
     vec4 colors[4];
     vec4 settings; // x: enabled, y: showColors, z: tolerance(0-1), w: intensityMode
+    vec4 polygonSettings; // x: enabled, y: showSelected, z: active, w: appliedPolygonCount
+    vec4 polygonCounts;   // x: totalPolygonCount
+    mat4 polygonViewProj[8];
+    vec4 polygonVertices[8 * 32];
+    vec4 polygonMeta[8];
 } uColorFilter;
 
 const float COLORIMETRIC_MAX_DISTANCE = 1.7320508;
@@ -73,38 +78,116 @@ vec3 getRgbNorm()
 }
 #endif
 
-float evaluateColorimetricFilter(vec3 rgb, float intensityNorm)
-{
-    if (uColorFilter.settings.x < 0.5)
-        return 0.0;
+float gPolygonHighlight = 0.0;
 
-    bool match = false;
-    if (uColorFilter.settings.w > 0.5)
+bool pointInPolygon(vec2 p, int polygonIndex)
+{
+    int vertexCount = int(uColorFilter.polygonMeta[polygonIndex].x);
+    if (vertexCount < 3)
+        return false;
+
+    bool inside = false;
+    vec2 prev = uColorFilter.polygonVertices[polygonIndex * 32 + (vertexCount - 1)].xy;
+    for (int i = 0; i < vertexCount; ++i)
     {
-        if (uColorFilter.colors[0].w > 0.5)
+        vec2 curr = uColorFilter.polygonVertices[polygonIndex * 32 + i].xy;
+        bool condY = (curr.y > p.y) != (prev.y > p.y);
+        if (condY)
         {
-            float diff = abs(intensityNorm - uColorFilter.colors[0].x);
-            match = diff <= uColorFilter.settings.z;
-        }
-    }
-    else
-    {
-        float threshold = uColorFilter.settings.z * COLORIMETRIC_MAX_DISTANCE;
-        for (int i = 0; i < 4; ++i)
-        {
-            if (uColorFilter.colors[i].w > 0.5)
+            float denom = (prev.y - curr.y);
+            if (abs(denom) > 1e-7)
             {
-                float dist = distance(rgb, uColorFilter.colors[i].xyz);
-                if (dist <= threshold)
+                float xCross = (prev.x - curr.x) * (p.y - curr.y) / denom + curr.x;
+                if (p.x < xCross)
+                    inside = !inside;
+            }
+        }
+        prev = curr;
+    }
+    return inside;
+}
+
+void evaluatePolygonSelector(vec3 worldPos, out bool insideApplied, out bool insidePending)
+{
+    insideApplied = false;
+    insidePending = false;
+
+    int totalPolygons = int(uColorFilter.polygonCounts.x);
+    int appliedCount = int(uColorFilter.polygonSettings.w);
+
+    for (int p = 0; p < totalPolygons; ++p)
+    {
+        vec4 clip = uColorFilter.polygonViewProj[p] * vec4(worldPos, 1.0);
+        if (abs(clip.w) < 1e-7)
+            continue;
+
+        vec2 uv = (clip.xy / clip.w) * 0.5 + vec2(0.5, 0.5);
+        if (!pointInPolygon(uv, p))
+            continue;
+
+        if (p < appliedCount)
+            insideApplied = true;
+        else
+            insidePending = true;
+    }
+}
+
+float evaluateColorimetricFilter(vec3 rgb, float intensityNorm, vec3 worldPos)
+{
+    bool rejectByColorimetric = false;
+
+    if (uColorFilter.settings.x > 0.5)
+    {
+        bool match = false;
+        if (uColorFilter.settings.w > 0.5)
+        {
+            if (uColorFilter.colors[0].w > 0.5)
+            {
+                float diff = abs(intensityNorm - uColorFilter.colors[0].x);
+                match = diff <= uColorFilter.settings.z;
+            }
+        }
+        else
+        {
+            float threshold = uColorFilter.settings.z * COLORIMETRIC_MAX_DISTANCE;
+            for (int i = 0; i < 4; ++i)
+            {
+                if (uColorFilter.colors[i].w > 0.5)
                 {
-                    match = true;
-                    break;
+                    float dist = distance(rgb, uColorFilter.colors[i].xyz);
+                    if (dist <= threshold)
+                    {
+                        match = true;
+                        break;
+                    }
                 }
             }
         }
+
+        bool showColors = (uColorFilter.settings.y > 0.5);
+        rejectByColorimetric = showColors ? !match : match;
     }
 
-    bool showColors = (uColorFilter.settings.y > 0.5);
-    bool reject = showColors ? !match : match;
-    return reject ? 1.0 : 0.0;
+    bool insideApplied = false;
+    bool insidePending = false;
+    evaluatePolygonSelector(worldPos, insideApplied, insidePending);
+
+    bool selectorEnabled = uColorFilter.polygonSettings.x > 0.5;
+    bool selectorShowSelected = uColorFilter.polygonSettings.y > 0.5;
+    bool selectorActive = uColorFilter.polygonSettings.z > 0.5;
+    int appliedCount = int(uColorFilter.polygonSettings.w);
+
+    // Pending polygons: preview only (point tint), they must not affect Show/Hide filtering before Apply.
+    gPolygonHighlight = (selectorEnabled && selectorActive && insidePending) ? 1.0 : 0.0;
+
+    bool rejectByPolygon = false;
+    if (selectorEnabled && selectorActive && appliedCount > 0)
+    {
+        if (selectorShowSelected)
+            rejectByPolygon = !insideApplied;
+        else
+            rejectByPolygon = insideApplied;
+    }
+
+    return (rejectByColorimetric || rejectByPolygon) ? 1.0 : 0.0;
 }

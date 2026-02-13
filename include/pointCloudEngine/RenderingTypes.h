@@ -109,6 +109,12 @@ struct ColorimetricFilterUniform
 {
     glm::vec4 colors[4] = {};
     glm::vec4 settings = {}; // x: enabled, y: showColors, z: tolerance(0-1), w: intensityMode
+
+    glm::vec4 polygonSettings = {}; // x: enabled, y: showSelected, z: active, w: appliedPolygonCount
+    glm::vec4 polygonCounts = {};   // x: totalPolygonCount, y: reserved
+    glm::mat4 polygonViewProj[8] = {};
+    glm::vec4 polygonVertices[8 * 32] = {}; // xy: normalized screen coords
+    glm::vec4 polygonMeta[8] = {}; // x: vertexCount
 };
 
 enum class ProjectionMode
