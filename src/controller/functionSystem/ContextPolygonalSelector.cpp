@@ -29,6 +29,8 @@ ContextPolygonalSelector::~ContextPolygonalSelector()
 ContextState ContextPolygonalSelector::start(Controller& controller)
 {
     m_settings = s_polygonalSelectorRuntimeSettings;
+    m_currentVertices.clear();
+    controller.updateInfo(new GuiDataRenderPolygonalSelector(m_settings, SafePtr<CameraNode>(), m_currentVertices, false));
     controller.updateInfo(new GuiDataTmpMessage(TEXT_POINT_MEASURE_START));
     return (m_state = ContextState::waiting_for_input);
 }
@@ -68,6 +70,7 @@ ContextState ContextPolygonalSelector::feedMessage(IMessage* message, Controller
             s_lastSnapshot.perspective = (rCam->getProjectionMode() == ProjectionMode::Perspective);
         }
 
+        controller.updateInfo(new GuiDataRenderPolygonalSelector(m_settings, SafePtr<CameraNode>(), m_currentVertices, false));
         controller.updateInfo(new GuiDataTmpMessage(QString("Polygonal selector: %1 vertex/vertices").arg(m_currentVertices.size())));
     }
 
@@ -83,6 +86,7 @@ ContextState ContextPolygonalSelector::launch(Controller& controller)
 ContextState ContextPolygonalSelector::abort(Controller& controller)
 {
     m_currentVertices.clear();
+    controller.updateInfo(new GuiDataRenderPolygonalSelector(m_settings, SafePtr<CameraNode>(), m_currentVertices, false));
     return AContext::abort(controller);
 }
 
@@ -94,15 +98,16 @@ ContextState ContextPolygonalSelector::validate(Controller& controller)
         polygon.normalizedVertices = m_currentVertices;
         polygon.camera = s_lastSnapshot;
 
+        controller.updateInfo(new GuiDataRenderPolygonalSelector(m_settings, SafePtr<CameraNode>(), m_currentVertices, true));
+
         m_settings.polygons.push_back(polygon);
         m_settings.enabled = true;
         m_settings.active = true;
         s_polygonalSelectorRuntimeSettings = m_settings;
-
-        controller.updateInfo(new GuiDataRenderPolygonalSelector(m_settings, SafePtr<CameraNode>()));
     }
 
     m_currentVertices.clear();
+    controller.updateInfo(new GuiDataRenderPolygonalSelector(m_settings, SafePtr<CameraNode>(), m_currentVertices, false));
     return AContext::validate(controller);
 }
 

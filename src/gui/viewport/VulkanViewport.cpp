@@ -127,6 +127,7 @@ VulkanViewport::VulkanViewport(IDataDispatcher& dataDispatcher, float guiScale)
     registerGuiDataFunction(guiDType::renderDecimationOptions, &VulkanViewport::onRenderDecimationOptions);
 	registerGuiDataFunction(guiDType::renderOctreePrecision, &VulkanViewport::onRenderOctreePrecision);
     registerGuiDataFunction(guiDType::activatedFunctions, &VulkanViewport::onActivatedFunctions);
+    registerGuiDataFunction(guiDType::renderPolygonalSelector, &VulkanViewport::onRenderPolygonalSelectorPreview);
 }
 
 VulkanViewport::~VulkanViewport()
@@ -239,6 +240,20 @@ void VulkanViewport::onActivatedFunctions(IGuiData* data)
     auto* functionData = static_cast<GuiDataActivatedFunctions*>(data);
     m_isDoubleClickExamineBlocked = blockExamineOnDoubleClick(functionData->type);
     m_lockNavigationForCurrentContext = (functionData->type == ContextType::polygonalSelector);
+    if (!m_lockNavigationForCurrentContext)
+    {
+        m_polygonalSelectorPreview.clear();
+        m_polygonalSelectorPreviewClosed = false;
+    }
+}
+
+
+void VulkanViewport::onRenderPolygonalSelectorPreview(IGuiData* data)
+{
+    auto* selectorData = static_cast<GuiDataRenderPolygonalSelector*>(data);
+    m_polygonalSelectorPreview = selectorData->m_previewVertices;
+    m_polygonalSelectorPreviewClosed = selectorData->m_previewClosed;
+    m_refreshViewport = true;
 }
 
 void VulkanViewport::initSurface()
@@ -402,6 +417,17 @@ Rect2D VulkanViewport::getSelectionRect() const
 Rect2D VulkanViewport::getHoverRect() const
 {
     return m_hoverRect;
+}
+
+
+const std::vector<glm::vec2>& VulkanViewport::getPolygonalSelectorPreview() const
+{
+    return m_polygonalSelectorPreview;
+}
+
+bool VulkanViewport::isPolygonalSelectorPreviewClosed() const
+{
+    return m_polygonalSelectorPreviewClosed;
 }
 
 glm::ivec2 VulkanViewport::getMousePos() const
