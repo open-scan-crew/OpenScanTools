@@ -234,8 +234,8 @@ ColorimetricFilterUniform CameraNode::buildColorimetricFilterUniform() const
                                         static_cast<float>(std::min<uint32_t>(selector.appliedPolygonCount, polygonCount)));
     uniform.polygonCounts = glm::vec4(static_cast<float>(polygonCount),
                                      selector.pendingApply ? 1.0f : 0.0f,
-                                     0.0f,
-                                     0.0f);
+                                     static_cast<float>(selector.highlightedPolygonIndex),
+                                     selector.manageMode ? 1.0f : 0.0f);
 
     for (uint32_t pIndex = 0; pIndex < polygonCount; ++pIndex)
     {

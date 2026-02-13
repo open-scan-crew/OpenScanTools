@@ -414,6 +414,7 @@ void ExportRenderingParameters(nlohmann::json& json, const RenderingParameters& 
 	for (const PolygonalSelectorPolygon& polygon : params.m_polygonalSelector.polygons)
 	{
 		nlohmann::json polygonJson;
+		polygonJson[Key_Polygonal_Selector_Name] = polygon.name;
 		polygonJson[Key_Polygonal_Selector_Vertices] = nlohmann::json::array();
 		for (const glm::vec2& vertex : polygon.normalizedVertices)
 			polygonJson[Key_Polygonal_Selector_Vertices].push_back({ vertex.x, vertex.y });

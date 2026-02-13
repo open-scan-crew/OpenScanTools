@@ -25,6 +25,12 @@ private:
     void activateSelector();
     void applySettings(bool enabled);
     void resetSettings();
+    void setManageMode(bool enabled);
+    void onPolygonSelectionChanged(int index);
+    void deleteSelectedPolygon();
+    void refreshPolygonList();
+    void sendSettingsUpdate();
+    void clearManageSelection();
 
 private:
     typedef void (ToolBarPolygonalSelector::*GuiDataMethod)(IGuiData*);
