@@ -1144,6 +1144,35 @@ void RenderingEngine::drawSelectionRect(VkCommandBuffer, const VulkanViewport& v
         }
     }
 
+    // Polygonal selector preview
+    {
+        const std::vector<glm::vec2>& preview = viewport.getPolygonalSelectorPreview();
+        if (!preview.empty())
+        {
+            ImU32 selectorColor = IM_COL32(242, 214, 0, 255);
+            const float thickness = 2.0f;
+
+            for (size_t i = 1; i < preview.size(); ++i)
+            {
+                ImVec2 p0(preview[i - 1].x * extent.width, preview[i - 1].y * extent.height);
+                ImVec2 p1(preview[i].x * extent.width, preview[i].y * extent.height);
+                dl->AddLine(p0, p1, selectorColor, thickness);
+            }
+
+            for (const glm::vec2& p : preview)
+            {
+                dl->AddCircleFilled(ImVec2(p.x * extent.width, p.y * extent.height), 3.0f, selectorColor);
+            }
+
+            if (viewport.isPolygonalSelectorPreviewClosed() && preview.size() > 2)
+            {
+                ImVec2 first(preview.front().x * extent.width, preview.front().y * extent.height);
+                ImVec2 last(preview.back().x * extent.width, preview.back().y * extent.height);
+                dl->AddLine(last, first, selectorColor, thickness);
+            }
+        }
+    }
+
     ImGui::End();
     ImGui::PopStyleVar();
     ImGui::PopStyleColor(2);
