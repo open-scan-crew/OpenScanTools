@@ -135,6 +135,8 @@ public:
     const std::vector<std::vector<glm::vec2>>& getPolygonalSelectorPolygons() const;
     bool isPolygonalSelectorActive() const;
     uint32_t getPolygonalSelectorAppliedPolygonCount() const;
+    bool isPolygonalSelectorEnabled() const;
+    bool isPolygonalSelectorShowSelected() const;
     glm::ivec2 getMousePos() const;
     glm::vec2 getMousePosNormalized() const;
     void setMissingScanPart(bool isMissingScanPart);
@@ -246,6 +248,8 @@ private:
     std::vector<std::vector<glm::vec2>> m_polygonalSelectorPolygons;
     bool m_polygonalSelectorActive = false;
     uint32_t m_polygonalSelectorAppliedPolygonCount = 0;
+    bool m_polygonalSelectorEnabled = false;
+    bool m_polygonalSelectorShowSelected = true;
 
     // Window state
     bool m_initialized;

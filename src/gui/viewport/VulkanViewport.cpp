@@ -260,6 +260,8 @@ void VulkanViewport::onRenderPolygonalSelectorPreview(IGuiData* data)
     for (const PolygonalSelectorPolygon& polygon : selectorData->m_settings.polygons)
         m_polygonalSelectorPolygons.push_back(polygon.normalizedVertices);
 
+    m_polygonalSelectorEnabled = selectorData->m_settings.enabled;
+    m_polygonalSelectorShowSelected = selectorData->m_settings.showSelected;
     m_polygonalSelectorActive = selectorData->m_settings.active || selectorData->m_settings.pendingApply;
     m_polygonalSelectorAppliedPolygonCount = std::min<uint32_t>(
         selectorData->m_settings.appliedPolygonCount,
@@ -455,6 +457,16 @@ bool VulkanViewport::isPolygonalSelectorActive() const
 uint32_t VulkanViewport::getPolygonalSelectorAppliedPolygonCount() const
 {
     return m_polygonalSelectorAppliedPolygonCount;
+}
+
+bool VulkanViewport::isPolygonalSelectorEnabled() const
+{
+    return m_polygonalSelectorEnabled;
+}
+
+bool VulkanViewport::isPolygonalSelectorShowSelected() const
+{
+    return m_polygonalSelectorShowSelected;
 }
 
 glm::ivec2 VulkanViewport::getMousePos() const
