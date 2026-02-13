@@ -262,7 +262,7 @@ void VulkanViewport::onRenderPolygonalSelectorPreview(IGuiData* data)
 
     m_polygonalSelectorEnabled = selectorData->m_settings.enabled;
     m_polygonalSelectorShowSelected = selectorData->m_settings.showSelected;
-    m_polygonalSelectorActive = selectorData->m_settings.active || selectorData->m_settings.pendingApply;
+    m_polygonalSelectorActive = selectorData->m_settings.enabled && (selectorData->m_settings.active || selectorData->m_settings.pendingApply);
     m_polygonalSelectorAppliedPolygonCount = std::min<uint32_t>(
         selectorData->m_settings.appliedPolygonCount,
         static_cast<uint32_t>(m_polygonalSelectorPolygons.size()));

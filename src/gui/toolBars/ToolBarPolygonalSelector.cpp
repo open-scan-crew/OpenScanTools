@@ -93,7 +93,7 @@ void ToolBarPolygonalSelector::applySettings(bool enabled)
     }
     else
     {
-        m_settings.enabled = true;
+        m_settings.enabled = false;
         m_settings.active = false;
     }
 

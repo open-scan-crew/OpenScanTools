@@ -8,16 +8,11 @@
 #include "gui/GuiData/GuiDataRendering.h"
 #include "gui/texts/ContextTexts.hpp"
 #include "models/graph/CameraNode.h"
+#include "models/graph/GraphManager.h"
 
 #include <glm/gtx/norm.hpp>
 #include <algorithm>
 #include <cmath>
-
-namespace
-{
-    PolygonalSelectorSettings s_polygonalSelectorRuntimeSettings;
-    PolygonalSelectorCameraSnapshot s_lastSnapshot;
-}
 
 ContextPolygonalSelector::ContextPolygonalSelector(const ContextId& id)
     : AContext(id)
@@ -28,8 +23,22 @@ ContextPolygonalSelector::~ContextPolygonalSelector()
 
 ContextState ContextPolygonalSelector::start(Controller& controller)
 {
-    m_settings = s_polygonalSelectorRuntimeSettings;
     m_currentVertices.clear();
+
+    SafePtr<CameraNode> cam = controller.getGraphManager().getCameraNode();
+    ReadPtr<CameraNode> rCam = cam.cget();
+    if (rCam)
+    {
+        m_settings = rCam->getDisplayParameters().m_polygonalSelector;
+        m_settings.appliedPolygonCount = std::min<uint32_t>(m_settings.appliedPolygonCount, static_cast<uint32_t>(m_settings.polygons.size()));
+        if (m_settings.appliedPolygonCount == m_settings.polygons.size())
+            m_settings.pendingApply = false;
+    }
+    else
+    {
+        m_settings = PolygonalSelectorSettings{};
+    }
+
     controller.updateInfo(new GuiDataRenderPolygonalSelector(m_settings, SafePtr<CameraNode>(), m_currentVertices, false));
     controller.updateInfo(new GuiDataTmpMessage(TEXT_POINT_MEASURE_START));
     return (m_state = ContextState::waiting_for_input);
@@ -63,11 +72,11 @@ ContextState ContextPolygonalSelector::feedMessage(IMessage* message, Controller
 
         if (rCam)
         {
-            s_lastSnapshot.view = rCam->getViewMatrix();
-            s_lastSnapshot.proj = rCam->getProjMatrix();
-            s_lastSnapshot.viewportWidth = click.width;
-            s_lastSnapshot.viewportHeight = click.height;
-            s_lastSnapshot.perspective = (rCam->getProjectionMode() == ProjectionMode::Perspective);
+            m_lastSnapshot.view = rCam->getViewMatrix();
+            m_lastSnapshot.proj = rCam->getProjMatrix();
+            m_lastSnapshot.viewportWidth = click.width;
+            m_lastSnapshot.viewportHeight = click.height;
+            m_lastSnapshot.perspective = (rCam->getProjectionMode() == ProjectionMode::Perspective);
         }
 
         controller.updateInfo(new GuiDataRenderPolygonalSelector(m_settings, SafePtr<CameraNode>(), m_currentVertices, false));
@@ -96,14 +105,13 @@ ContextState ContextPolygonalSelector::validate(Controller& controller)
     {
         PolygonalSelectorPolygon polygon;
         polygon.normalizedVertices = m_currentVertices;
-        polygon.camera = s_lastSnapshot;
+        polygon.camera = m_lastSnapshot;
 
         controller.updateInfo(new GuiDataRenderPolygonalSelector(m_settings, SafePtr<CameraNode>(), m_currentVertices, true));
 
         m_settings.polygons.push_back(polygon);
         m_settings.enabled = true;
         m_settings.pendingApply = true;
-        s_polygonalSelectorRuntimeSettings = m_settings;
     }
 
     m_currentVertices.clear();

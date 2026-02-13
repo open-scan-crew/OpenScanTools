@@ -22,6 +22,7 @@ public:
 private:
     std::vector<glm::vec2> m_currentVertices;
     PolygonalSelectorSettings m_settings;
+    PolygonalSelectorCameraSnapshot m_lastSnapshot;
 };
 
 #endif
