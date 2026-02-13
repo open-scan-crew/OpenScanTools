@@ -588,6 +588,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\controller\functionSystem\ContextBoxAttachedCreation.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextBoxDuplication.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextClippingBoxCreation.cpp" />
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextPolygonalSelector.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextBigCylinderFit.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextColumnTilt.cpp" />
     <ClCompile Include="..\..\src\controller\functionSystem\ContextConvertionScan.cpp">
@@ -806,6 +807,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarAutoSeeding.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarBeamDetection.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarClippingGroup.cpp" />
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarPolygonalSelector.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarClippingParameters.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarConnectPipeGroup.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarConvertImage.cpp" />
@@ -1275,6 +1277,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\controller\functionSystem\ContextBoxAttachedCreation.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextBoxDuplication.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextClippingBoxCreation.h" />
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextPolygonalSelector.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextBigCylinderFit.h" />
     <ClInclude Include="..\..\include\controller\functionSystem\ContextConvertionScan.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Portable_Prod|x64'">true</ExcludedFromBuild>
@@ -1612,6 +1615,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\gui\Texts.hpp" />
     <QtMoc Include="..\..\include\gui\widgets\PropertySimpleMeasure.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarClippingGroup.h" />
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarPolygonalSelector.h" />
     <QtMoc Include="..\..\include\gui\widgets\PropertyClippingSettings.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarLucasExperimentGroup.h" />
     <QtMoc Include="..\..\include\gui\widgets\PropertyBox.h" />
@@ -2048,6 +2052,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtUic Include="..\..\src\gui\forms\toolbar_renderenhancegroup.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_render_ramp_group.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_colorimetric_filter.ui" />
+    <QtUic Include="..\..\src\gui\forms\toolbar_selector.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_importScantra.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_sharegroup.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_showhidegroup.ui" />

@@ -55,6 +55,7 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
     std::hash<uint64_t> hash_fn_64;
     std::hash<bool> hash_fn_b;
     std::hash<float> hash_fn_f;
+    std::hash<double> hash_fn_d;
     std::hash<int> hash_fn_i;
     std::hash<std::wstring> hash_fn_w;
 
@@ -149,6 +150,30 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
     {
         hash += hash_fn_32(*reinterpret_cast<uint32_t const*>(&display.m_colorimetricFilter.colors[i]));
         hash += hash_fn_b(display.m_colorimetricFilter.colorsEnabled[i]);
+    }
+
+    hash += hash_fn_b(display.m_polygonalSelector.enabled);
+    hash += hash_fn_b(display.m_polygonalSelector.showSelected);
+    hash += hash_fn_b(display.m_polygonalSelector.active);
+    hash += hash_fn_64(static_cast<uint64_t>(display.m_polygonalSelector.polygons.size()));
+    for (const PolygonalSelectorPolygon& polygon : display.m_polygonalSelector.polygons)
+    {
+        hash += hash_fn_64(static_cast<uint64_t>(polygon.normalizedVertices.size()));
+        for (const glm::vec2& vertex : polygon.normalizedVertices)
+        {
+            hash += hash_fn_f(vertex.x);
+            hash += hash_fn_f(vertex.y);
+        }
+
+        for (int c = 0; c < 4; ++c)
+            for (int r = 0; r < 4; ++r)
+            {
+                hash += hash_fn_d(polygon.camera.view[c][r]);
+                hash += hash_fn_d(polygon.camera.proj[c][r]);
+            }
+        hash += hash_fn_32(polygon.camera.viewportWidth);
+        hash += hash_fn_32(polygon.camera.viewportHeight);
+        hash += hash_fn_b(polygon.camera.perspective);
     }
 
     //hash += hash_fn_f(display.m_alphaObject);             // Do not affect the point cloud
