@@ -96,6 +96,26 @@ namespace
 			} }
 		};
 
+		json[Key_Polygonal_Selector] = {
+			{ Key_Polygonal_Selector_Enabled, params.m_polygonalSelector.enabled },
+			{ Key_Polygonal_Selector_Show, params.m_polygonalSelector.showSelected },
+			{ Key_Polygonal_Selector_Active, params.m_polygonalSelector.active },
+			{ Key_Polygonal_Selector_Polygons, nlohmann::json::array() }
+		};
+
+		for (const PolygonalSelectorPolygon& polygon : params.m_polygonalSelector.polygons)
+		{
+			nlohmann::json polygonJson;
+			polygonJson[Key_Polygonal_Selector_Vertices] = nlohmann::json::array();
+			for (const glm::vec2& vertex : polygon.normalizedVertices)
+				polygonJson[Key_Polygonal_Selector_Vertices].push_back({ vertex.x, vertex.y });
+			polygonJson[Key_Polygonal_Selector_Camera] = {
+				{ Key_Polygonal_Selector_Cam_Viewport, { polygon.camera.viewportWidth, polygon.camera.viewportHeight } },
+				{ Key_Polygonal_Selector_Cam_Perspective, polygon.camera.perspective }
+			};
+			json[Key_Polygonal_Selector][Key_Polygonal_Selector_Polygons].push_back(polygonJson);
+		}
+
 		json[Key_Ortho_Grid_Active] = params.m_orthoGridActive;
 		json[Key_Ortho_Grid_Color] = { params.m_orthoGridColor.r, params.m_orthoGridColor.g, params.m_orthoGridColor.b, params.m_orthoGridColor.a };
 		json[Key_Ortho_Grid_Step] = params.m_orthoGridStep;
@@ -326,6 +346,51 @@ namespace
 				const auto& enabled = filterJson.at(Key_Colorimetric_Filter_Colors_Enabled);
 				for (size_t i = 0; i < data.m_colorimetricFilter.colorsEnabled.size() && i < enabled.size(); ++i)
 					data.m_colorimetricFilter.colorsEnabled[i] = enabled.at(i).get<bool>();
+			}
+		}
+
+		if (json.find(Key_Polygonal_Selector) != json.end())
+		{
+			const auto& selectorJson = json.at(Key_Polygonal_Selector);
+			if (selectorJson.find(Key_Polygonal_Selector_Enabled) != selectorJson.end())
+				data.m_polygonalSelector.enabled = selectorJson.at(Key_Polygonal_Selector_Enabled).get<bool>();
+			if (selectorJson.find(Key_Polygonal_Selector_Show) != selectorJson.end())
+				data.m_polygonalSelector.showSelected = selectorJson.at(Key_Polygonal_Selector_Show).get<bool>();
+			if (selectorJson.find(Key_Polygonal_Selector_Active) != selectorJson.end())
+				data.m_polygonalSelector.active = selectorJson.at(Key_Polygonal_Selector_Active).get<bool>();
+
+			if (selectorJson.find(Key_Polygonal_Selector_Polygons) != selectorJson.end())
+			{
+				data.m_polygonalSelector.polygons.clear();
+				const auto& polygons = selectorJson.at(Key_Polygonal_Selector_Polygons);
+				for (const auto& polygonJson : polygons)
+				{
+					PolygonalSelectorPolygon polygon;
+					if (polygonJson.find(Key_Polygonal_Selector_Vertices) != polygonJson.end())
+					{
+						for (const auto& vertexJson : polygonJson.at(Key_Polygonal_Selector_Vertices))
+						{
+							if (vertexJson.size() >= 2)
+								polygon.normalizedVertices.emplace_back(vertexJson.at(0).get<float>(), vertexJson.at(1).get<float>());
+						}
+					}
+					if (polygonJson.find(Key_Polygonal_Selector_Camera) != polygonJson.end())
+					{
+						const auto& cameraJson = polygonJson.at(Key_Polygonal_Selector_Camera);
+						if (cameraJson.find(Key_Polygonal_Selector_Cam_Viewport) != cameraJson.end())
+						{
+							const auto& viewport = cameraJson.at(Key_Polygonal_Selector_Cam_Viewport);
+							if (viewport.size() >= 2)
+							{
+								polygon.camera.viewportWidth = viewport.at(0).get<uint32_t>();
+								polygon.camera.viewportHeight = viewport.at(1).get<uint32_t>();
+							}
+						}
+						if (cameraJson.find(Key_Polygonal_Selector_Cam_Perspective) != cameraJson.end())
+							polygon.camera.perspective = cameraJson.at(Key_Polygonal_Selector_Cam_Perspective).get<bool>();
+					}
+					data.m_polygonalSelector.polygons.push_back(std::move(polygon));
+				}
 			}
 		}
 
@@ -728,6 +793,7 @@ void DisplayPresetManager::applyPreset(const DisplayPreset& preset)
 	m_dataDispatcher.updateInformation(new GuiDataEdgeAwareBlur(params.m_edgeAwareBlur, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataDepthLining(params.m_depthLining, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderColorimetricFilter(params.m_colorimetricFilter, m_focusCamera), this);
+	m_dataDispatcher.updateInformation(new GuiDataRenderPolygonalSelector(params.m_polygonalSelector, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataMarkerDisplayOptions(params.m_markerOptions, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderTextFilter(params.m_textOptions.m_filter, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderTextTheme(params.m_textOptions.m_textTheme, m_focusCamera), this);

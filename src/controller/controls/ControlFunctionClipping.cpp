@@ -243,4 +243,23 @@ namespace control::function::clipping
         return (ControlType::activateDuplicateFunctionClipping);
     }
 
+    ActivatePolygonalSelector::ActivatePolygonalSelector()
+    {
+    }
+
+    ActivatePolygonalSelector::~ActivatePolygonalSelector()
+    {
+    }
+
+    void ActivatePolygonalSelector::doFunction(Controller& controller)
+    {
+        controller.getFunctionManager().launchFunction(controller, ContextType::polygonalSelector);
+        CONTROLLOG << "control::function::clipping::ActivatePolygonalSelector" << LOGENDL;
+    }
+
+    ControlType ActivatePolygonalSelector::getType() const
+    {
+        return ControlType::activatePolygonalSelector;
+    }
+
 }
