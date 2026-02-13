@@ -121,8 +121,7 @@ void ShortcutSystem::slotAbort()
 
 void ShortcutSystem::slotValidateCurrentContext()
 {
-	if (!m_notInContext || m_activeContext == ContextType::polygonalSelector)
-		m_dataDispatcher.sendControl(new control::function::Validate());
+	m_dataDispatcher.sendControl(new control::function::Validate());
 }
 
 void ShortcutSystem::slotEdition(const bool& isEditing)
