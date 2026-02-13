@@ -55,6 +55,7 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
     std::hash<uint64_t> hash_fn_64;
     std::hash<bool> hash_fn_b;
     std::hash<float> hash_fn_f;
+    std::hash<double> hash_fn_d;
     std::hash<int> hash_fn_i;
     std::hash<std::wstring> hash_fn_w;
 
