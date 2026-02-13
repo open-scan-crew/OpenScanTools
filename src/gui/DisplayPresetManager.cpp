@@ -17,9 +17,15 @@
 
 #include <algorithm>
 #include <fstream>
+#include <string>
 
 namespace
 {
+	std::string makePolygonNameFromIndex(size_t index)
+	{
+		return std::string("polygon_") + std::to_string(index + 1);
+	}
+
 	const QString kInitialPresetName = QStringLiteral("Initial");
 	const QString kRawPresetName = QStringLiteral("Raw rendering");
 	const char kDisplayPresetFileName[] = "Display_presets.tlt";
@@ -108,6 +114,7 @@ namespace
 		for (const PolygonalSelectorPolygon& polygon : params.m_polygonalSelector.polygons)
 		{
 			nlohmann::json polygonJson;
+			polygonJson[Key_Polygonal_Selector_Name] = polygon.name;
 			polygonJson[Key_Polygonal_Selector_Vertices] = nlohmann::json::array();
 			for (const glm::vec2& vertex : polygon.normalizedVertices)
 				polygonJson[Key_Polygonal_Selector_Vertices].push_back({ vertex.x, vertex.y });
@@ -384,6 +391,9 @@ namespace
 				for (const auto& polygonJson : polygons)
 				{
 					PolygonalSelectorPolygon polygon;
+					if (polygonJson.find(Key_Polygonal_Selector_Name) != polygonJson.end())
+						polygon.name = polygonJson.at(Key_Polygonal_Selector_Name).get<std::string>();
+
 					if (polygonJson.find(Key_Polygonal_Selector_Vertices) != polygonJson.end())
 					{
 						for (const auto& vertexJson : polygonJson.at(Key_Polygonal_Selector_Vertices))
@@ -422,6 +432,12 @@ namespace
 							polygon.camera.perspective = cameraJson.at(Key_Polygonal_Selector_Cam_Perspective).get<bool>();
 					}
 					data.m_polygonalSelector.polygons.push_back(std::move(polygon));
+				}
+
+				for (size_t i = 0; i < data.m_polygonalSelector.polygons.size(); ++i)
+				{
+					if (data.m_polygonalSelector.polygons[i].name.empty())
+						data.m_polygonalSelector.polygons[i].name = makePolygonNameFromIndex(i);
 				}
 
 				data.m_polygonalSelector.appliedPolygonCount = std::min<uint32_t>(

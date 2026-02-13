@@ -14,6 +14,35 @@
 #include <algorithm>
 #include <cmath>
 
+namespace
+{
+constexpr uint32_t kMaxPolygonalSelectorPolygons = 8;
+
+QString makePolygonName(const std::vector<PolygonalSelectorPolygon>& polygons)
+{
+    std::vector<bool> used(polygons.size() + 2, false);
+    for (const PolygonalSelectorPolygon& polygon : polygons)
+    {
+        if (polygon.name.rfind("polygon_", 0) != 0)
+            continue;
+        bool ok = false;
+        int index = QString::fromStdString(polygon.name.substr(8)).toInt(&ok);
+        if (ok && index > 0)
+        {
+            if (static_cast<size_t>(index) >= used.size())
+                used.resize(index + 1, false);
+            used[index] = true;
+        }
+    }
+
+    int freeIndex = 1;
+    while (freeIndex < static_cast<int>(used.size()) && used[freeIndex])
+        ++freeIndex;
+
+    return QString("polygon_%1").arg(freeIndex);
+}
+}
+
 ContextPolygonalSelector::ContextPolygonalSelector(const ContextId& id)
     : AContext(id)
 {}
@@ -103,15 +132,23 @@ ContextState ContextPolygonalSelector::validate(Controller& controller)
 {
     if (m_currentVertices.size() >= 3)
     {
-        PolygonalSelectorPolygon polygon;
-        polygon.normalizedVertices = m_currentVertices;
-        polygon.camera = m_lastSnapshot;
+        if (m_settings.polygons.size() >= kMaxPolygonalSelectorPolygons)
+        {
+            controller.updateInfo(new GuiDataWarning(QString("The creation of polygons is limited to %1 items per filter.").arg(kMaxPolygonalSelectorPolygons)));
+        }
+        else
+        {
+            PolygonalSelectorPolygon polygon;
+            polygon.name = makePolygonName(m_settings.polygons).toStdString();
+            polygon.normalizedVertices = m_currentVertices;
+            polygon.camera = m_lastSnapshot;
 
-        controller.updateInfo(new GuiDataRenderPolygonalSelector(m_settings, SafePtr<CameraNode>(), m_currentVertices, true));
+            controller.updateInfo(new GuiDataRenderPolygonalSelector(m_settings, SafePtr<CameraNode>(), m_currentVertices, true));
 
-        m_settings.polygons.push_back(polygon);
-        m_settings.enabled = true;
-        m_settings.pendingApply = true;
+            m_settings.polygons.push_back(polygon);
+            m_settings.enabled = true;
+            m_settings.pendingApply = true;
+        }
     }
 
     m_currentVertices.clear();
