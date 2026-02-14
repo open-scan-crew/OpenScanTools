@@ -107,13 +107,15 @@ bool pointInPolygon(vec2 p, int polygonIndex)
     return inside;
 }
 
-void evaluatePolygonSelector(vec3 worldPos, out bool insideApplied, out bool insidePending)
+void evaluatePolygonSelector(vec3 worldPos, out bool insideApplied, out bool insidePending, out bool insideHighlighted)
 {
     insideApplied = false;
     insidePending = false;
+    insideHighlighted = false;
 
     int totalPolygons = int(uColorFilter.polygonCounts.x);
     int appliedCount = int(uColorFilter.polygonSettings.w);
+    int highlightedPolygonIndex = int(uColorFilter.polygonCounts.z);
 
     for (int p = 0; p < totalPolygons; ++p)
     {
@@ -135,6 +137,9 @@ void evaluatePolygonSelector(vec3 worldPos, out bool insideApplied, out bool ins
             insideApplied = true;
         else
             insidePending = true;
+
+        if (p == highlightedPolygonIndex)
+            insideHighlighted = true;
     }
 }
 
@@ -176,17 +181,21 @@ float evaluateColorimetricFilter(vec3 rgb, float intensityNorm, vec3 worldPos)
 
     bool insideApplied = false;
     bool insidePending = false;
-    evaluatePolygonSelector(worldPos, insideApplied, insidePending);
+    bool insideHighlighted = false;
+    evaluatePolygonSelector(worldPos, insideApplied, insidePending, insideHighlighted);
 
     bool selectorEnabled = uColorFilter.polygonSettings.x > 0.5;
     bool selectorShowSelected = uColorFilter.polygonSettings.y > 0.5;
     bool selectorActive = uColorFilter.polygonSettings.z > 0.5;
     int appliedCount = int(uColorFilter.polygonSettings.w);
     bool pendingApply = uColorFilter.polygonCounts.y > 0.5;
+    bool manageMode = uColorFilter.polygonCounts.w > 0.5;
 
     // Pending polygons: preview only (point tint), they must not affect Show/Hide filtering before Apply.
     // Keep Lot 1 behavior: highlight as soon as polygons are created, even if selector.active is false.
-    gPolygonHighlight = (selectorEnabled && pendingApply && insidePending) ? 1.0 : 0.0;
+    float pendingHighlight = (selectorEnabled && pendingApply && insidePending) ? 1.0 : 0.0;
+    float manageHighlight = (selectorEnabled && manageMode && insideHighlighted) ? 1.0 : 0.0;
+    gPolygonHighlight = max(pendingHighlight, manageHighlight);
 
     bool rejectByPolygon = false;
     if (selectorEnabled && selectorActive && appliedCount > 0)

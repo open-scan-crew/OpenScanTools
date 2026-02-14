@@ -5,6 +5,8 @@
 #include "models/graph/TransformationModule.h"
 #include "models/data/ViewPoint/ViewPointData.h"
 
+#include <string>
+
 class CameraNode;
 class ViewPointNode;
 
@@ -55,15 +57,27 @@ namespace control::viewpoint
         bool m_canUndo = false;
     };
 
-    class UpdateStatesFromViewpoint : public AControl
-    {
-        public:
-            UpdateStatesFromViewpoint(SafePtr<ViewPointNode> viewpoint);
+	class UpdateStatesFromViewpoint : public AControl
+	{
+		public:
+			UpdateStatesFromViewpoint(SafePtr<ViewPointNode> viewpoint);
             ~UpdateStatesFromViewpoint();
             void doFunction(Controller& controller) override;
             ControlType getType() const override;
-        private:
-            SafePtr<ViewPointNode> m_viewPoint;
-    };
+		private:
+			SafePtr<ViewPointNode> m_viewPoint;
+	};
+
+	class DeletePolygonFromProject : public AControl
+	{
+	public:
+		DeletePolygonFromProject(const std::string& polygonName);
+		~DeletePolygonFromProject() {};
+		void doFunction(Controller& controller) override;
+		ControlType getType() const override;
+
+	private:
+		std::string m_polygonName;
+	};
 }
 #endif //! CONTROL_VIEWPOINT_H_

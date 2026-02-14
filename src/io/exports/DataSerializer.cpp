@@ -408,12 +408,14 @@ void ExportRenderingParameters(nlohmann::json& json, const RenderingParameters& 
 		{ Key_Polygonal_Selector_Active, params.m_polygonalSelector.active },
 		{ Key_Polygonal_Selector_PendingApply, params.m_polygonalSelector.pendingApply },
 		{ Key_Polygonal_Selector_AppliedCount, params.m_polygonalSelector.appliedPolygonCount },
+		{ Key_Polygonal_Selector_NextId, params.m_polygonalSelector.nextPolygonId },
 		{ Key_Polygonal_Selector_Polygons, nlohmann::json::array() }
 	};
 
 	for (const PolygonalSelectorPolygon& polygon : params.m_polygonalSelector.polygons)
 	{
 		nlohmann::json polygonJson;
+		polygonJson[Key_Polygonal_Selector_Name] = polygon.name;
 		polygonJson[Key_Polygonal_Selector_Vertices] = nlohmann::json::array();
 		for (const glm::vec2& vertex : polygon.normalizedVertices)
 			polygonJson[Key_Polygonal_Selector_Vertices].push_back({ vertex.x, vertex.y });

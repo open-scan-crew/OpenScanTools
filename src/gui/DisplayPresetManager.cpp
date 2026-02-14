@@ -17,9 +17,25 @@
 
 #include <algorithm>
 #include <fstream>
+#include <string>
 
 namespace
 {
+	std::string makePolygonNameFromIndex(size_t index)
+	{
+		return std::string("polygon_") + std::to_string(index + 1);
+	}
+
+	uint32_t getPolygonSuffix(const std::string& name)
+	{
+		if (name.rfind("polygon_", 0) != 0)
+			return 0;
+
+		bool ok = false;
+		int suffix = QString::fromStdString(name.substr(8)).toInt(&ok);
+		return (ok && suffix > 0) ? static_cast<uint32_t>(suffix) : 0;
+	}
+
 	const QString kInitialPresetName = QStringLiteral("Initial");
 	const QString kRawPresetName = QStringLiteral("Raw rendering");
 	const char kDisplayPresetFileName[] = "Display_presets.tlt";
@@ -102,12 +118,14 @@ namespace
 			{ Key_Polygonal_Selector_Active, params.m_polygonalSelector.active },
 			{ Key_Polygonal_Selector_PendingApply, params.m_polygonalSelector.pendingApply },
 			{ Key_Polygonal_Selector_AppliedCount, params.m_polygonalSelector.appliedPolygonCount },
+			{ Key_Polygonal_Selector_NextId, params.m_polygonalSelector.nextPolygonId },
 			{ Key_Polygonal_Selector_Polygons, nlohmann::json::array() }
 		};
 
 		for (const PolygonalSelectorPolygon& polygon : params.m_polygonalSelector.polygons)
 		{
 			nlohmann::json polygonJson;
+			polygonJson[Key_Polygonal_Selector_Name] = polygon.name;
 			polygonJson[Key_Polygonal_Selector_Vertices] = nlohmann::json::array();
 			for (const glm::vec2& vertex : polygon.normalizedVertices)
 				polygonJson[Key_Polygonal_Selector_Vertices].push_back({ vertex.x, vertex.y });
@@ -376,6 +394,8 @@ namespace
 				data.m_polygonalSelector.pendingApply = selectorJson.at(Key_Polygonal_Selector_PendingApply).get<bool>();
 			if (selectorJson.find(Key_Polygonal_Selector_AppliedCount) != selectorJson.end())
 				data.m_polygonalSelector.appliedPolygonCount = selectorJson.at(Key_Polygonal_Selector_AppliedCount).get<uint32_t>();
+			if (selectorJson.find(Key_Polygonal_Selector_NextId) != selectorJson.end())
+				data.m_polygonalSelector.nextPolygonId = selectorJson.at(Key_Polygonal_Selector_NextId).get<uint32_t>();
 
 			if (selectorJson.find(Key_Polygonal_Selector_Polygons) != selectorJson.end())
 			{
@@ -384,6 +404,9 @@ namespace
 				for (const auto& polygonJson : polygons)
 				{
 					PolygonalSelectorPolygon polygon;
+					if (polygonJson.find(Key_Polygonal_Selector_Name) != polygonJson.end())
+						polygon.name = polygonJson.at(Key_Polygonal_Selector_Name).get<std::string>();
+
 					if (polygonJson.find(Key_Polygonal_Selector_Vertices) != polygonJson.end())
 					{
 						for (const auto& vertexJson : polygonJson.at(Key_Polygonal_Selector_Vertices))
@@ -423,6 +446,18 @@ namespace
 					}
 					data.m_polygonalSelector.polygons.push_back(std::move(polygon));
 				}
+
+				for (size_t i = 0; i < data.m_polygonalSelector.polygons.size(); ++i)
+				{
+					if (data.m_polygonalSelector.polygons[i].name.empty())
+						data.m_polygonalSelector.polygons[i].name = makePolygonNameFromIndex(i);
+				}
+
+				uint32_t maxSuffix = 0;
+				for (const PolygonalSelectorPolygon& polygon : data.m_polygonalSelector.polygons)
+					maxSuffix = std::max<uint32_t>(maxSuffix, getPolygonSuffix(polygon.name));
+				data.m_polygonalSelector.nextPolygonId = std::max<uint32_t>(data.m_polygonalSelector.nextPolygonId, maxSuffix + 1);
+				data.m_polygonalSelector.nextPolygonId = std::max<uint32_t>(data.m_polygonalSelector.nextPolygonId, 1u);
 
 				data.m_polygonalSelector.appliedPolygonCount = std::min<uint32_t>(
 					data.m_polygonalSelector.appliedPolygonCount,

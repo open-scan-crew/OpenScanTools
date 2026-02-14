@@ -14,6 +14,30 @@
 #include <algorithm>
 #include <cmath>
 
+namespace
+{
+constexpr uint32_t kMaxPolygonalSelectorPolygons = 8;
+
+uint32_t getPolygonSuffix(const std::string& name)
+{
+    if (name.rfind("polygon_", 0) != 0)
+        return 0;
+
+    bool ok = false;
+    int suffix = QString::fromStdString(name.substr(8)).toInt(&ok);
+    return (ok && suffix > 0) ? static_cast<uint32_t>(suffix) : 0;
+}
+
+uint32_t computeNextPolygonId(const PolygonalSelectorSettings& settings)
+{
+    uint32_t maxSuffix = 0;
+    for (const PolygonalSelectorPolygon& polygon : settings.polygons)
+        maxSuffix = std::max<uint32_t>(maxSuffix, getPolygonSuffix(polygon.name));
+
+    return std::max<uint32_t>(std::max<uint32_t>(settings.nextPolygonId, maxSuffix + 1), 1u);
+}
+}
+
 ContextPolygonalSelector::ContextPolygonalSelector(const ContextId& id)
     : AContext(id)
 {}
@@ -31,6 +55,7 @@ ContextState ContextPolygonalSelector::start(Controller& controller)
     {
         m_settings = rCam->getDisplayParameters().m_polygonalSelector;
         m_settings.appliedPolygonCount = std::min<uint32_t>(m_settings.appliedPolygonCount, static_cast<uint32_t>(m_settings.polygons.size()));
+        m_settings.nextPolygonId = computeNextPolygonId(m_settings);
         if (m_settings.appliedPolygonCount == m_settings.polygons.size())
             m_settings.pendingApply = false;
     }
@@ -103,15 +128,25 @@ ContextState ContextPolygonalSelector::validate(Controller& controller)
 {
     if (m_currentVertices.size() >= 3)
     {
-        PolygonalSelectorPolygon polygon;
-        polygon.normalizedVertices = m_currentVertices;
-        polygon.camera = m_lastSnapshot;
+        if (m_settings.polygons.size() >= kMaxPolygonalSelectorPolygons)
+        {
+            controller.updateInfo(new GuiDataWarning(QString("The creation of polygons is limited to %1 items per filter.").arg(kMaxPolygonalSelectorPolygons)));
+        }
+        else
+        {
+            PolygonalSelectorPolygon polygon;
+            m_settings.nextPolygonId = computeNextPolygonId(m_settings);
+            polygon.name = QString("polygon_%1").arg(m_settings.nextPolygonId).toStdString();
+            polygon.normalizedVertices = m_currentVertices;
+            polygon.camera = m_lastSnapshot;
 
-        controller.updateInfo(new GuiDataRenderPolygonalSelector(m_settings, SafePtr<CameraNode>(), m_currentVertices, true));
+            controller.updateInfo(new GuiDataRenderPolygonalSelector(m_settings, SafePtr<CameraNode>(), m_currentVertices, true));
 
-        m_settings.polygons.push_back(polygon);
-        m_settings.enabled = true;
-        m_settings.pendingApply = true;
+            m_settings.polygons.push_back(polygon);
+            ++m_settings.nextPolygonId;
+            m_settings.enabled = true;
+            m_settings.pendingApply = true;
+        }
     }
 
     m_currentVertices.clear();
