@@ -253,11 +253,8 @@ ColorimetricFilterUniform CameraNode::buildColorimetricFilterUniform() const
         uniform.colors[0].z = uniform.colors[0].x;
     }
 
-    constexpr uint32_t kMaxPolygonalSelectorPolygons = 8;
-    constexpr uint32_t kMaxPolygonalSelectorVertices = 32;
-
     const PolygonalSelectorSettings& selector = m_polygonalSelector;
-    uint32_t polygonCount = std::min<uint32_t>(static_cast<uint32_t>(selector.polygons.size()), kMaxPolygonalSelectorPolygons);
+    uint32_t polygonCount = std::min<uint32_t>(static_cast<uint32_t>(selector.polygons.size()), MAX_POLYGONAL_SELECTOR_POLYGONS);
     uniform.polygonSettings = glm::vec4(selector.enabled ? 1.0f : 0.0f,
                                         selector.showSelected ? 1.0f : 0.0f,
                                         selector.active ? 1.0f : 0.0f,
@@ -272,13 +269,13 @@ ColorimetricFilterUniform CameraNode::buildColorimetricFilterUniform() const
         const PolygonalSelectorPolygon& polygon = selector.polygons[pIndex];
         uniform.polygonViewProj[pIndex] = glm::mat4(polygon.camera.proj * polygon.camera.view);
 
-        uint32_t vertexCount = std::min<uint32_t>(static_cast<uint32_t>(polygon.normalizedVertices.size()), kMaxPolygonalSelectorVertices);
+        uint32_t vertexCount = std::min<uint32_t>(static_cast<uint32_t>(polygon.normalizedVertices.size()), MAX_POLYGONAL_SELECTOR_VERTICES);
         uniform.polygonMeta[pIndex] = glm::vec4(static_cast<float>(vertexCount), 0.0f, 0.0f, 0.0f);
 
         for (uint32_t v = 0; v < vertexCount; ++v)
         {
             const glm::vec2& uv = polygon.normalizedVertices[v];
-            uniform.polygonVertices[pIndex * kMaxPolygonalSelectorVertices + v] = glm::vec4(uv.x, uv.y, 0.0f, 0.0f);
+            uniform.polygonVertices[pIndex * MAX_POLYGONAL_SELECTOR_VERTICES + v] = glm::vec4(uv.x, uv.y, 0.0f, 0.0f);
         }
     }
 

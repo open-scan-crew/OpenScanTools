@@ -4,6 +4,7 @@
 #include <string>
 #include <unordered_map>
 #include <glm/glm.hpp>
+#include "pointCloudEngine/RenderingLimits.h"
 
 // RenderColorInput
 enum class UiRenderMode
@@ -112,9 +113,9 @@ struct ColorimetricFilterUniform
 
     glm::vec4 polygonSettings = {}; // x: enabled, y: showSelected, z: active, w: appliedPolygonCount
     glm::vec4 polygonCounts = {};   // x: totalPolygonCount, y: pendingApply(0/1), z: highlightedPolygonIndex, w: manageMode(0/1)
-    glm::mat4 polygonViewProj[8] = {};
-    glm::vec4 polygonVertices[8 * 32] = {}; // xy: normalized screen coords
-    glm::vec4 polygonMeta[8] = {}; // x: vertexCount
+    glm::mat4 polygonViewProj[MAX_POLYGONAL_SELECTOR_POLYGONS] = {};
+    glm::vec4 polygonVertices[MAX_POLYGONAL_SELECTOR_POLYGONS * MAX_POLYGONAL_SELECTOR_VERTICES] = {}; // xy: normalized screen coords
+    glm::vec4 polygonMeta[MAX_POLYGONAL_SELECTOR_POLYGONS] = {}; // x: vertexCount
 };
 
 enum class ProjectionMode
