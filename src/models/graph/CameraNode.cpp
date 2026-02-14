@@ -31,6 +31,36 @@
 #include "utils/ColorimetricFilterUtils.h"
 
 #include <algorithm>
+#include <charconv>
+
+namespace
+{
+uint32_t getPolygonSuffix(const std::string& name)
+{
+    constexpr const char* prefix = "polygon_";
+    constexpr size_t prefixLen = 8;
+    if (name.rfind(prefix, 0) != 0 || name.size() <= prefixLen)
+        return 0;
+
+    uint32_t value = 0;
+    const char* begin = name.data() + prefixLen;
+    const char* end = name.data() + name.size();
+    auto result = std::from_chars(begin, end, value);
+    if (result.ec != std::errc() || result.ptr != end || value == 0)
+        return 0;
+
+    return value;
+}
+
+uint32_t computeNextPolygonId(const PolygonalSelectorSettings& settings)
+{
+    uint32_t maxSuffix = 0;
+    for (const PolygonalSelectorPolygon& polygon : settings.polygons)
+        maxSuffix = std::max<uint32_t>(maxSuffix, getPolygonSuffix(polygon.name));
+
+    return std::max<uint32_t>(std::max<uint32_t>(settings.nextPolygonId, maxSuffix + 1), 1u);
+}
+}
 
 CameraNode::CameraNode(const std::wstring& name, IDataDispatcher& dataDispatcher)
     : AGraphNode()
@@ -1591,6 +1621,7 @@ void CameraNode::onRenderPolygonalSelector(IGuiData* data)
 {
     auto castData = static_cast<GuiDataRenderPolygonalSelector*>(data);
     m_polygonalSelector = castData->m_settings;
+    m_polygonalSelector.nextPolygonId = std::max<uint32_t>(m_polygonalSelector.nextPolygonId, computeNextPolygonId(m_polygonalSelector));
     sendNewUIViewPoint();
 }
 

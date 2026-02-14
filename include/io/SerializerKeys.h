@@ -255,6 +255,7 @@
 #define Key_Polygonal_Selector_Active	"PolygonalSelectorActive"
 #define Key_Polygonal_Selector_PendingApply "PolygonalSelectorPendingApply"
 #define Key_Polygonal_Selector_AppliedCount "PolygonalSelectorAppliedPolygonCount"
+#define Key_Polygonal_Selector_NextId "PolygonalSelectorNextPolygonId"
 #define Key_Polygonal_Selector_Polygons	"PolygonalSelectorPolygons"
 #define Key_Polygonal_Selector_Name	"PolygonalSelectorName"
 #define Key_Polygonal_Selector_Vertices	"PolygonalSelectorVertices"

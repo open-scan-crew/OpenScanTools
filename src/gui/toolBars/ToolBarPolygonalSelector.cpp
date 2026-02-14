@@ -9,6 +9,28 @@
 #include <algorithm>
 #include <string>
 
+namespace
+{
+uint32_t getPolygonSuffix(const std::string& name)
+{
+    if (name.rfind("polygon_", 0) != 0)
+        return 0;
+
+    bool ok = false;
+    int suffix = QString::fromStdString(name.substr(8)).toInt(&ok);
+    return (ok && suffix > 0) ? static_cast<uint32_t>(suffix) : 0;
+}
+
+uint32_t computeNextPolygonId(const PolygonalSelectorSettings& settings)
+{
+    uint32_t maxSuffix = 0;
+    for (const PolygonalSelectorPolygon& polygon : settings.polygons)
+        maxSuffix = std::max<uint32_t>(maxSuffix, getPolygonSuffix(polygon.name));
+
+    return std::max<uint32_t>(std::max<uint32_t>(settings.nextPolygonId, maxSuffix + 1), 1u);
+}
+}
+
 ToolBarPolygonalSelector::ToolBarPolygonalSelector(IDataDispatcher& dataDispatcher, QWidget* parent, float guiScale)
     : QWidget(parent)
     , m_dataDispatcher(dataDispatcher)
@@ -130,6 +152,7 @@ void ToolBarPolygonalSelector::onRenderSettings(IGuiData* data)
         if (m_settings.polygons[i].name.empty())
             m_settings.polygons[i].name = std::string("polygon_") + std::to_string(i + 1);
     }
+    m_settings.nextPolygonId = computeNextPolygonId(m_settings);
 
     if (m_settings.polygons.empty())
     {
@@ -185,7 +208,12 @@ void ToolBarPolygonalSelector::applySettings(bool enabled)
 
 void ToolBarPolygonalSelector::resetSettings()
 {
+    if (!syncFromFocusedCamera())
+        return;
+
+    const uint32_t nextPolygonId = m_settings.nextPolygonId;
     m_settings = PolygonalSelectorSettings{};
+    m_settings.nextPolygonId = std::max<uint32_t>(nextPolygonId, 1u);
     m_settings.appliedPolygonCount = 0;
     m_settings.pendingApply = false;
     m_ui.radioButtonShowSelected->setChecked(true);
@@ -311,6 +339,7 @@ bool ToolBarPolygonalSelector::syncFromFocusedCamera()
         if (m_settings.polygons[i].name.empty())
             m_settings.polygons[i].name = std::string("polygon_") + std::to_string(i + 1);
     }
+    m_settings.nextPolygonId = computeNextPolygonId(m_settings);
 
     if (m_settings.polygons.empty())
     {

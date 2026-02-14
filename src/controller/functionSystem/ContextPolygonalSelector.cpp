@@ -18,28 +18,23 @@ namespace
 {
 constexpr uint32_t kMaxPolygonalSelectorPolygons = 8;
 
-QString makePolygonName(const std::vector<PolygonalSelectorPolygon>& polygons)
+uint32_t getPolygonSuffix(const std::string& name)
 {
-    std::vector<bool> used(polygons.size() + 2, false);
-    for (const PolygonalSelectorPolygon& polygon : polygons)
-    {
-        if (polygon.name.rfind("polygon_", 0) != 0)
-            continue;
-        bool ok = false;
-        int index = QString::fromStdString(polygon.name.substr(8)).toInt(&ok);
-        if (ok && index > 0)
-        {
-            if (static_cast<size_t>(index) >= used.size())
-                used.resize(index + 1, false);
-            used[index] = true;
-        }
-    }
+    if (name.rfind("polygon_", 0) != 0)
+        return 0;
 
-    int freeIndex = 1;
-    while (freeIndex < static_cast<int>(used.size()) && used[freeIndex])
-        ++freeIndex;
+    bool ok = false;
+    int suffix = QString::fromStdString(name.substr(8)).toInt(&ok);
+    return (ok && suffix > 0) ? static_cast<uint32_t>(suffix) : 0;
+}
 
-    return QString("polygon_%1").arg(freeIndex);
+uint32_t computeNextPolygonId(const PolygonalSelectorSettings& settings)
+{
+    uint32_t maxSuffix = 0;
+    for (const PolygonalSelectorPolygon& polygon : settings.polygons)
+        maxSuffix = std::max<uint32_t>(maxSuffix, getPolygonSuffix(polygon.name));
+
+    return std::max<uint32_t>(std::max<uint32_t>(settings.nextPolygonId, maxSuffix + 1), 1u);
 }
 }
 
@@ -60,6 +55,7 @@ ContextState ContextPolygonalSelector::start(Controller& controller)
     {
         m_settings = rCam->getDisplayParameters().m_polygonalSelector;
         m_settings.appliedPolygonCount = std::min<uint32_t>(m_settings.appliedPolygonCount, static_cast<uint32_t>(m_settings.polygons.size()));
+        m_settings.nextPolygonId = computeNextPolygonId(m_settings);
         if (m_settings.appliedPolygonCount == m_settings.polygons.size())
             m_settings.pendingApply = false;
     }
@@ -139,13 +135,15 @@ ContextState ContextPolygonalSelector::validate(Controller& controller)
         else
         {
             PolygonalSelectorPolygon polygon;
-            polygon.name = makePolygonName(m_settings.polygons).toStdString();
+            m_settings.nextPolygonId = computeNextPolygonId(m_settings);
+            polygon.name = QString("polygon_%1").arg(m_settings.nextPolygonId).toStdString();
             polygon.normalizedVertices = m_currentVertices;
             polygon.camera = m_lastSnapshot;
 
             controller.updateInfo(new GuiDataRenderPolygonalSelector(m_settings, SafePtr<CameraNode>(), m_currentVertices, true));
 
             m_settings.polygons.push_back(polygon);
+            ++m_settings.nextPolygonId;
             m_settings.enabled = true;
             m_settings.pendingApply = true;
         }

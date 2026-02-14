@@ -408,6 +408,7 @@ void ExportRenderingParameters(nlohmann::json& json, const RenderingParameters& 
 		{ Key_Polygonal_Selector_Active, params.m_polygonalSelector.active },
 		{ Key_Polygonal_Selector_PendingApply, params.m_polygonalSelector.pendingApply },
 		{ Key_Polygonal_Selector_AppliedCount, params.m_polygonalSelector.appliedPolygonCount },
+		{ Key_Polygonal_Selector_NextId, params.m_polygonalSelector.nextPolygonId },
 		{ Key_Polygonal_Selector_Polygons, nlohmann::json::array() }
 	};
 

@@ -38,6 +38,7 @@ struct PolygonalSelectorSettings
     uint32_t appliedPolygonCount = 0;
     int32_t highlightedPolygonIndex = -1;
     bool manageMode = false;
+    uint32_t nextPolygonId = 1;
     std::vector<PolygonalSelectorPolygon> polygons;
 };
 
