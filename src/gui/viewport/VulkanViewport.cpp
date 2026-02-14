@@ -1,5 +1,6 @@
 #include "gui/viewport/VulkanViewport.h"
 #include "controller/controls/ControlPicking.h"
+#include "controller/controls/ControlFunction.h"
 #include "controller/controls/ControlViewport.h"
 
 #include "gui/GuiData/GuiDataRendering.h"
@@ -22,6 +23,68 @@
 
 #include <QtGui/qevent.h>
 #include <QApplication.h>
+#include <algorithm>
+
+namespace
+{
+    bool blockExamineOnDoubleClick(ContextType contextType)
+    {
+        switch (contextType)
+        {
+        case ContextType::tagCreation:
+        case ContextType::tagDuplication:
+        case ContextType::tagMove:
+        case ContextType::tagDeletion:
+        case ContextType::beamBending:
+        case ContextType::columnTilt:
+        case ContextType::fitCylinder:
+        case ContextType::simpleMeasure:
+        case ContextType::pointsMeasure:
+        case ContextType::pointMeasure:
+        case ContextType::pointCreation:
+        case ContextType::Sphere:
+        case ContextType::Slab2Click:
+        case ContextType::Slab1Click:
+        case ContextType::ClicsSphere4:
+        case ContextType::pointToCylinder:
+        case ContextType::clippingBoxCreation:
+        case ContextType::clippingBoxAttached3Points:
+        case ContextType::clippingBoxAttached2Points:
+        case ContextType::polygonalSelector:
+        case ContextType::boxDuplication:
+        case ContextType::pointCloudObjectCreation:
+        case ContextType::pointCloudObjectDuplication:
+        case ContextType::meshObjectCreation:
+        case ContextType::meshObjectDuplication:
+        case ContextType::meshDistance:
+        case ContextType::bigCylinderFit:
+        case ContextType::pointToPlane:
+        case ContextType::pointToPlane3:
+        case ContextType::cylinderToPlane:
+        case ContextType::cylinderToPlane3:
+        case ContextType::cylinderToCylinder:
+        case ContextType::experiment:
+        case ContextType::deletePoints:
+        case ContextType::multipleCylinders:
+        case ContextType::cylinder2ClickExtend:
+        case ContextType::testCylinder:
+        case ContextType::pipeDetectionConnexion:
+        case ContextType::pipePostConnexion:
+        case ContextType::beamDetection:
+        case ContextType::viewpointCreation:
+        case ContextType::viewpointUpdate:
+        case ContextType::planeConnexion:
+        case ContextType::planeDetection:
+        case ContextType::setOfPoints:
+        case ContextType::peopleRemover:
+        case ContextType::fitTorus:
+        case ContextType::trajectory:
+            return true;
+        default:
+            return false;
+        }
+    }
+}
 
 
 double calcTranslationSpeedFactor(NavigationParameters navParam)
@@ -64,6 +127,8 @@ VulkanViewport::VulkanViewport(IDataDispatcher& dataDispatcher, float guiScale)
     registerGuiDataFunction(guiDType::quitEvent, &VulkanViewport::onQuitEvent);
     registerGuiDataFunction(guiDType::renderDecimationOptions, &VulkanViewport::onRenderDecimationOptions);
 	registerGuiDataFunction(guiDType::renderOctreePrecision, &VulkanViewport::onRenderOctreePrecision);
+    registerGuiDataFunction(guiDType::activatedFunctions, &VulkanViewport::onActivatedFunctions);
+    registerGuiDataFunction(guiDType::renderPolygonalSelector, &VulkanViewport::onRenderPolygonalSelectorPreview);
 }
 
 VulkanViewport::~VulkanViewport()
@@ -169,6 +234,30 @@ void VulkanViewport::onRenderOctreePrecision(IGuiData* data)
 {
 	m_octreePrecision = static_cast<GuiDataRenderOctreePrecision*>(data)->m_precision;
 	m_refreshViewport = true;
+}
+
+void VulkanViewport::onActivatedFunctions(IGuiData* data)
+{
+    auto* functionData = static_cast<GuiDataActivatedFunctions*>(data);
+    m_isDoubleClickExamineBlocked = blockExamineOnDoubleClick(functionData->type);
+    m_lockNavigationForCurrentContext = (functionData->type == ContextType::polygonalSelector);
+    if (!m_lockNavigationForCurrentContext)
+    {
+        m_polygonalSelectorPreview.clear();
+        m_polygonalSelectorPreviewClosed = false;
+    }
+}
+
+
+void VulkanViewport::onRenderPolygonalSelectorPreview(IGuiData* data)
+{
+    auto* selectorData = static_cast<GuiDataRenderPolygonalSelector*>(data);
+    m_polygonalSelectorPreview = selectorData->m_previewVertices;
+    m_polygonalSelectorPreviewClosed = selectorData->m_previewClosed;
+
+    m_polygonalSelectorEnabled = selectorData->m_settings.enabled;
+    m_polygonalSelectorShowSelected = selectorData->m_settings.showSelected;
+    m_refreshViewport = true;
 }
 
 void VulkanViewport::initSurface()
@@ -334,6 +423,28 @@ Rect2D VulkanViewport::getHoverRect() const
     return m_hoverRect;
 }
 
+
+const std::vector<glm::vec2>& VulkanViewport::getPolygonalSelectorPreview() const
+{
+    return m_polygonalSelectorPreview;
+}
+
+bool VulkanViewport::isPolygonalSelectorPreviewClosed() const
+{
+    return m_polygonalSelectorPreviewClosed;
+}
+
+
+bool VulkanViewport::isPolygonalSelectorEnabled() const
+{
+    return m_polygonalSelectorEnabled;
+}
+
+bool VulkanViewport::isPolygonalSelectorShowSelected() const
+{
+    return m_polygonalSelectorShowSelected;
+}
+
 glm::ivec2 VulkanViewport::getMousePos() const
 {
     return glm::ivec2(m_MI.lastX, m_MI.lastY);
@@ -380,6 +491,9 @@ void VulkanViewport::doAction(const WritePtr<CameraNode>& wCam, SafePtr<Manipula
             break;
         case VulkanViewport::Action::Click:
             m_dataDispatcher.sendControl(new control::picking::Click(click));
+            break;
+        case VulkanViewport::Action::Validate:
+            m_dataDispatcher.sendControl(new control::function::Validate());
             break;
         case VulkanViewport::Action::Examine:
         {
@@ -517,9 +631,13 @@ void VulkanViewport::mousePressEvent(QMouseEvent *_event)
         m_MI.leftButtonPressed = true;
         break;
     case Qt::RightButton:
+        if (m_lockNavigationForCurrentContext)
+            break;
         m_MI.rightButtonPressed = true;
         break;
     case Qt::MiddleButton:
+        if (m_lockNavigationForCurrentContext)
+            break;
         m_MI.middleButtonPressed = true;
         break;
     default:
@@ -541,6 +659,11 @@ void VulkanViewport::mouseReleaseEvent(QMouseEvent *_event)
     case Qt::LeftButton:
     {
         m_MI.leftButtonPressed = false;
+        if (m_ignoreNextLeftReleaseClick)
+        {
+            m_ignoreNextLeftReleaseClick = false;
+            break;
+        }
         if (m_mouseInputEffect == MouseInputEffect::None)
         {
             m_actionToPull = Action::Click;
@@ -578,8 +701,16 @@ void VulkanViewport::mouseDoubleClickEvent(QMouseEvent* _event)
 
     if (_event->button() == Qt::LeftButton)
     {
-        m_forceObjectCenterOnExamine = true;
-        m_actionToPull = Action::Examine;
+        if (!m_isDoubleClickExamineBlocked)
+        {
+            m_forceObjectCenterOnExamine = true;
+            m_actionToPull = Action::Examine;
+        }
+        else
+        {
+            m_ignoreNextLeftReleaseClick = true;
+            m_actionToPull = Action::Validate;
+        }
     }
     else
         m_actionToPull = Action::DoubleClick;
@@ -732,12 +863,24 @@ void VulkanViewport::keyReleaseEvent(QKeyEvent* _event)
 
 void VulkanViewport::wheelEvent(QWheelEvent* _event)
 {
+    if (m_lockNavigationForCurrentContext)
+        return;
+
     m_MI.wheel += m_navParams.wheelInverted ? _event->angleDelta().y() : -_event->angleDelta().y();
 }
 
 void VulkanViewport::updateMouseInputEffect(WritePtr<CameraNode>& wCam, SafePtr<ManipulatorNode>& manipNode)
 {
     std::lock_guard<std::mutex> lock(m_inputMutex);
+
+    if (m_lockNavigationForCurrentContext)
+    {
+        m_mouseInputEffect = MouseInputEffect::None;
+        m_MI.deltaX = 0;
+        m_MI.deltaY = 0;
+        m_MI.wheel = 0;
+        return;
+    }
 
     bool hasMoved = (m_MI.deltaX != 0) || (m_MI.deltaY != 0);
 
@@ -978,6 +1121,17 @@ void VulkanViewport::applyMouseInput(WritePtr<CameraNode>& wCam, SafePtr<Manipul
 void VulkanViewport::applyKeyboardInput(WritePtr<CameraNode>& wCam)
 {
     std::lock_guard<std::mutex> lock(m_inputMutex);
+
+    if (m_lockNavigationForCurrentContext)
+    {
+        if (wCam)
+        {
+            wCam->setSpeedRight(0.0);
+            wCam->setSpeedForward(0.0);
+            wCam->setSpeedUp(0.0);
+        }
+        return;
+    }
 
     double leftRightSum(0.);
     double upDownSum(0.);

@@ -10,6 +10,38 @@
 
 #include "utils/Logger.h"
 
+#include <algorithm>
+#include <charconv>
+
+namespace
+{
+uint32_t getPolygonSuffix(const std::string& name)
+{
+    constexpr const char* prefix = "polygon_";
+    constexpr size_t prefixLen = 8;
+    if (name.rfind(prefix, 0) != 0 || name.size() <= prefixLen)
+        return 0;
+
+    uint32_t value = 0;
+    const char* begin = name.data() + prefixLen;
+    const char* end = name.data() + name.size();
+    auto result = std::from_chars(begin, end, value);
+    if (result.ec != std::errc() || result.ptr != end || value == 0)
+        return 0;
+
+    return value;
+}
+
+uint32_t computeNextPolygonId(const PolygonalSelectorSettings& settings)
+{
+    uint32_t maxSuffix = 0;
+    for (const PolygonalSelectorPolygon& polygon : settings.polygons)
+        maxSuffix = std::max<uint32_t>(maxSuffix, getPolygonSuffix(polygon.name));
+
+    return std::max<uint32_t>(std::max<uint32_t>(settings.nextPolygonId, maxSuffix + 1), 1u);
+}
+}
+
 namespace control::viewpoint
 {
     /*
@@ -257,5 +289,52 @@ namespace control::viewpoint
     ControlType UpdateStatesFromViewpoint::getType() const
     {
         return ControlType::updateStateFromViewPoint;
+    }
+
+    DeletePolygonFromProject::DeletePolygonFromProject(const std::string& polygonName)
+        : m_polygonName(polygonName)
+    {}
+
+    void DeletePolygonFromProject::doFunction(Controller& controller)
+    {
+        if (m_polygonName.empty())
+            return;
+
+        GraphManager& graphManager = controller.getGraphManager();
+        std::unordered_set<SafePtr<AGraphNode>> viewpoints = graphManager.getNodesByTypes({ ElementType::ViewPoint }, ObjectStatusFilter::ALL);
+
+        for (const SafePtr<AGraphNode>& vpNode : viewpoints)
+        {
+            SafePtr<ViewPointNode> viewpoint = static_pointer_cast<ViewPointNode>(vpNode);
+            WritePtr<ViewPointNode> wViewPoint = viewpoint.get();
+            if (!wViewPoint)
+                continue;
+
+            PolygonalSelectorSettings& selector = wViewPoint->m_polygonalSelector;
+            auto removeIt = std::remove_if(selector.polygons.begin(), selector.polygons.end(),
+                [this](const PolygonalSelectorPolygon& polygon) { return polygon.name == m_polygonName; });
+            if (removeIt == selector.polygons.end())
+                continue;
+
+            selector.polygons.erase(removeIt, selector.polygons.end());
+            selector.appliedPolygonCount = std::min<uint32_t>(selector.appliedPolygonCount, static_cast<uint32_t>(selector.polygons.size()));
+            selector.pendingApply = selector.appliedPolygonCount < selector.polygons.size();
+            selector.nextPolygonId = computeNextPolygonId(selector);
+            if (selector.polygons.empty())
+            {
+                selector.enabled = false;
+                selector.active = false;
+                selector.pendingApply = false;
+                selector.highlightedPolygonIndex = -1;
+                selector.manageMode = false;
+            }
+        }
+
+        CONTROLLOG << "control::viewpoint::DeletePolygonFromProject do " << m_polygonName << LOGENDL;
+    }
+
+    ControlType DeletePolygonFromProject::getType() const
+    {
+        return ControlType::deletePolygonFromProject;
     }
 }

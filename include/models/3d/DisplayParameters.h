@@ -9,6 +9,38 @@
 
 #include <glm/glm.hpp>
 #include <array>
+#include <cstdint>
+#include <string>
+#include <vector>
+
+struct PolygonalSelectorCameraSnapshot
+{
+    glm::dmat4 view = glm::dmat4(1.0);
+    glm::dmat4 proj = glm::dmat4(1.0);
+    uint32_t viewportWidth = 0;
+    uint32_t viewportHeight = 0;
+    bool perspective = true;
+};
+
+struct PolygonalSelectorPolygon
+{
+    std::string name;
+    std::vector<glm::vec2> normalizedVertices;
+    PolygonalSelectorCameraSnapshot camera;
+};
+
+struct PolygonalSelectorSettings
+{
+    bool enabled = false;
+    bool showSelected = true;
+    bool active = false;
+    bool pendingApply = false;
+    uint32_t appliedPolygonCount = 0;
+    int32_t highlightedPolygonIndex = -1;
+    bool manageMode = false;
+    uint32_t nextPolygonId = 1;
+    std::vector<PolygonalSelectorPolygon> polygons;
+};
 
 struct ColorimetricFilterSettings
 {
@@ -73,6 +105,7 @@ public:
     bool                    m_displayAllMarkersTexts = true;
     bool                    m_displayAllMeasures = true;
     ColorimetricFilterSettings m_colorimetricFilter = {};
+    PolygonalSelectorSettings m_polygonalSelector = {};
 
     //Ortho
     bool            m_orthoGridActive = false;

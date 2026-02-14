@@ -402,6 +402,44 @@ void ExportRenderingParameters(nlohmann::json& json, const RenderingParameters& 
 		} }
 	};
 
+	json[Key_Polygonal_Selector] = {
+		{ Key_Polygonal_Selector_Enabled, params.m_polygonalSelector.enabled },
+		{ Key_Polygonal_Selector_Show, params.m_polygonalSelector.showSelected },
+		{ Key_Polygonal_Selector_Active, params.m_polygonalSelector.active },
+		{ Key_Polygonal_Selector_PendingApply, params.m_polygonalSelector.pendingApply },
+		{ Key_Polygonal_Selector_AppliedCount, params.m_polygonalSelector.appliedPolygonCount },
+		{ Key_Polygonal_Selector_NextId, params.m_polygonalSelector.nextPolygonId },
+		{ Key_Polygonal_Selector_Polygons, nlohmann::json::array() }
+	};
+
+	for (const PolygonalSelectorPolygon& polygon : params.m_polygonalSelector.polygons)
+	{
+		nlohmann::json polygonJson;
+		polygonJson[Key_Polygonal_Selector_Name] = polygon.name;
+		polygonJson[Key_Polygonal_Selector_Vertices] = nlohmann::json::array();
+		for (const glm::vec2& vertex : polygon.normalizedVertices)
+			polygonJson[Key_Polygonal_Selector_Vertices].push_back({ vertex.x, vertex.y });
+
+		polygonJson[Key_Polygonal_Selector_Camera] = {
+			{ Key_Polygonal_Selector_Cam_View, {
+				polygon.camera.view[0][0], polygon.camera.view[0][1], polygon.camera.view[0][2], polygon.camera.view[0][3],
+				polygon.camera.view[1][0], polygon.camera.view[1][1], polygon.camera.view[1][2], polygon.camera.view[1][3],
+				polygon.camera.view[2][0], polygon.camera.view[2][1], polygon.camera.view[2][2], polygon.camera.view[2][3],
+				polygon.camera.view[3][0], polygon.camera.view[3][1], polygon.camera.view[3][2], polygon.camera.view[3][3]
+			} },
+			{ Key_Polygonal_Selector_Cam_Proj, {
+				polygon.camera.proj[0][0], polygon.camera.proj[0][1], polygon.camera.proj[0][2], polygon.camera.proj[0][3],
+				polygon.camera.proj[1][0], polygon.camera.proj[1][1], polygon.camera.proj[1][2], polygon.camera.proj[1][3],
+				polygon.camera.proj[2][0], polygon.camera.proj[2][1], polygon.camera.proj[2][2], polygon.camera.proj[2][3],
+				polygon.camera.proj[3][0], polygon.camera.proj[3][1], polygon.camera.proj[3][2], polygon.camera.proj[3][3]
+			} },
+			{ Key_Polygonal_Selector_Cam_Viewport, { polygon.camera.viewportWidth, polygon.camera.viewportHeight } },
+			{ Key_Polygonal_Selector_Cam_Perspective, polygon.camera.perspective }
+		};
+
+		json[Key_Polygonal_Selector][Key_Polygonal_Selector_Polygons].push_back(polygonJson);
+	}
+
 	json[Key_Ortho_Grid_Active] = params.m_orthoGridActive;
 	json[Key_Ortho_Grid_Color] = { params.m_orthoGridColor.r, params.m_orthoGridColor.g, params.m_orthoGridColor.b, params.m_orthoGridColor.a };
 	json[Key_Ortho_Grid_Step] = params.m_orthoGridStep;
