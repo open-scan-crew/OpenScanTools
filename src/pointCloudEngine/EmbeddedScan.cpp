@@ -29,6 +29,167 @@ float EmbeddedScan::merge_time_ = 0.f;
 
 using namespace std::chrono;
 
+namespace
+{
+    constexpr float kColorimetricMaxDistance = 1.7320508f;
+
+    struct PreparedRayTracingDisplayFilter
+    {
+        bool anyFilterEnabled = false;
+        bool colorimetricFilterEnabled = false;
+        bool colorimetricIntensityMode = false;
+        float colorimetricTolerance = 0.0f;
+        float colorimetricRgbThreshold = 0.0f;
+        bool colorimetricShowColors = true;
+        std::array<ColorimetricFilterUtils::OrderedColorEntry, 4> orderedColorEntries = {};
+        bool polygonFilterEnabled = false;
+        bool polygonShowSelected = true;
+        uint32_t polygonAppliedCount = 0;
+        const std::vector<PolygonalSelectorPolygon>* polygons = nullptr;
+    };
+
+    bool pointInPolygon(const glm::vec2& point, const std::vector<glm::vec2>& polygonVertices)
+    {
+        if (polygonVertices.size() < 3)
+            return false;
+
+        bool inside = false;
+        glm::vec2 previous = polygonVertices.back();
+        for (const glm::vec2& current : polygonVertices)
+        {
+            bool condY = (current.y > point.y) != (previous.y > point.y);
+            if (condY)
+            {
+                float denominator = previous.y - current.y;
+                if (std::abs(denominator) > 1e-7f)
+                {
+                    float xCross = (previous.x - current.x) * (point.y - current.y) / denominator + current.x;
+                    if (point.x < xCross)
+                        inside = !inside;
+                }
+            }
+            previous = current;
+        }
+
+        return inside;
+    }
+
+    bool isPointInsidePolygonSelection(const glm::dvec3& worldPoint, const PolygonalSelectorPolygon& polygon)
+    {
+        if (polygon.normalizedVertices.size() < 3)
+            return false;
+
+        glm::dvec4 clip = polygon.camera.proj * polygon.camera.view * glm::dvec4(worldPoint, 1.0);
+        if (clip.w <= 1e-7)
+            return false;
+
+        glm::dvec3 ndc = glm::dvec3(clip) / clip.w;
+        if (ndc.z < -1.0 || ndc.z > 1.0)
+            return false;
+        if (ndc.x < -1.0 || ndc.x > 1.0 || ndc.y < -1.0 || ndc.y > 1.0)
+            return false;
+
+        glm::vec2 uv = glm::vec2(ndc.x, ndc.y) * 0.5f + glm::vec2(0.5f, 0.5f);
+        return pointInPolygon(uv, polygon.normalizedVertices);
+    }
+
+    PreparedRayTracingDisplayFilter prepareRayTracingDisplayFilter(const RayTracingDisplayFilterSettings* settings)
+    {
+        PreparedRayTracingDisplayFilter prepared;
+        if (!settings || !settings->enabled)
+            return prepared;
+
+        const ColorimetricFilterSettings& colorFilter = settings->colorimetricFilter;
+        if (colorFilter.enabled)
+        {
+            prepared.orderedColorEntries = ColorimetricFilterUtils::normalizeSettings(colorFilter, settings->renderMode);
+            for (const auto& entry : prepared.orderedColorEntries)
+            {
+                if (entry.enabled)
+                {
+                    prepared.colorimetricFilterEnabled = true;
+                    break;
+                }
+            }
+
+            prepared.colorimetricIntensityMode = (settings->renderMode == UiRenderMode::Intensity || settings->renderMode == UiRenderMode::Fake_Color);
+            prepared.colorimetricTolerance = ColorimetricFilterUtils::clampTolerancePercent(colorFilter.tolerance) / 100.0f;
+            prepared.colorimetricRgbThreshold = prepared.colorimetricTolerance * kColorimetricMaxDistance;
+            prepared.colorimetricShowColors = colorFilter.showColors;
+        }
+
+        const PolygonalSelectorSettings& polygonSelector = settings->polygonalSelector;
+        if (polygonSelector.enabled && polygonSelector.active && polygonSelector.appliedPolygonCount > 0 && !polygonSelector.polygons.empty())
+        {
+            prepared.polygonFilterEnabled = true;
+            prepared.polygonShowSelected = polygonSelector.showSelected;
+            prepared.polygonAppliedCount = std::min<uint32_t>(polygonSelector.appliedPolygonCount, static_cast<uint32_t>(polygonSelector.polygons.size()));
+            prepared.polygons = &polygonSelector.polygons;
+        }
+
+        prepared.anyFilterEnabled = prepared.colorimetricFilterEnabled || prepared.polygonFilterEnabled;
+        return prepared;
+    }
+
+    bool isPointRejectedByDisplayFilters(const PreparedRayTracingDisplayFilter& preparedFilter, const tls::Point& pointData, const glm::dvec3& worldPoint)
+    {
+        if (!preparedFilter.anyFilterEnabled)
+            return false;
+
+        bool rejectByColorimetric = false;
+        if (preparedFilter.colorimetricFilterEnabled)
+        {
+            bool match = false;
+            float intensityNorm = static_cast<float>(pointData.i) / 255.0f;
+            glm::vec3 rgb = glm::vec3(pointData.r, pointData.g, pointData.b) / 255.0f;
+
+            if (preparedFilter.colorimetricIntensityMode)
+            {
+                if (preparedFilter.orderedColorEntries[0].enabled)
+                {
+                    float refIntensity = ColorimetricFilterUtils::normalizeIntensity(preparedFilter.orderedColorEntries[0].color);
+                    match = std::abs(intensityNorm - refIntensity) <= preparedFilter.colorimetricTolerance;
+                }
+            }
+            else
+            {
+                for (const auto& entry : preparedFilter.orderedColorEntries)
+                {
+                    if (!entry.enabled)
+                        continue;
+
+                    glm::vec3 referenceRgb = ColorimetricFilterUtils::normalizeRgb(entry.color);
+                    if (glm::distance(rgb, referenceRgb) <= preparedFilter.colorimetricRgbThreshold)
+                    {
+                        match = true;
+                        break;
+                    }
+                }
+            }
+
+            rejectByColorimetric = preparedFilter.colorimetricShowColors ? !match : match;
+        }
+
+        bool rejectByPolygon = false;
+        if (preparedFilter.polygonFilterEnabled && preparedFilter.polygons)
+        {
+            bool insideAppliedPolygon = false;
+            for (uint32_t polygonIndex = 0; polygonIndex < preparedFilter.polygonAppliedCount; ++polygonIndex)
+            {
+                if (isPointInsidePolygonSelection(worldPoint, preparedFilter.polygons->at(polygonIndex)))
+                {
+                    insideAppliedPolygon = true;
+                    break;
+                }
+            }
+
+            rejectByPolygon = preparedFilter.polygonShowSelected ? !insideAppliedPolygon : insideAppliedPolygon;
+        }
+
+        return rejectByColorimetric || rejectByPolygon;
+    }
+}
+
 EmbeddedScan::EmbeddedScan(std::filesystem::path const& filepath)
     : pt_format_(tls::PointFormat::TL_POINT_FORMAT_UNDEFINED)
     , pt_precision_(tls::PrecisionType::TL_PRECISION_UNDEFINED)
@@ -2580,7 +2741,7 @@ void EmbeddedScan::samplePointsByQuota(size_t quotaMax, const std::vector<uint32
 
 
 // NOTE(robin) - Here we can make the treatment faster by selecting the best in local coordinates, then return it in global coordinates.
-bool EmbeddedScan::beginRayTracing(const glm::dvec3& globalRay, const glm::dvec3& globalRayOrigin, glm::dvec3& bestPoint, const double& cosAngleThreshold, const ClippingAssembly& clippingAssembly, const bool& isOrtho)
+bool EmbeddedScan::beginRayTracing(const glm::dvec3& globalRay, const glm::dvec3& globalRayOrigin, glm::dvec3& bestPoint, const double& cosAngleThreshold, const ClippingAssembly& clippingAssembly, const bool& isOrtho, const RayTracingDisplayFilterSettings* displayFilterSettings)
 {
     TreeCell root = m_vTreeCells[m_uRootCell];
     double rootSize = root.m_size;
@@ -2652,14 +2813,14 @@ bool EmbeddedScan::beginRayTracing(const glm::dvec3& globalRay, const glm::dvec3
 	//glm::dvec3 targetGlobal = findBestPointIterative(leafList, globalRay / glm::length(globalRay), globalRayOrigin, cosAngleThreshold, rayRadius, clippingAssembly, isOrtho, success);
 
     // NOTE(robin) - On utilise les rayons et les clippingAssembly dans l'espace local du scan
-	glm::dvec3 targetGlobal = findBestPointIterative(leafList, trueLocalRay, trueLocalRayOrigin, cosAngleThreshold, rayRadius, localAssembly, isOrtho, success);
+	glm::dvec3 targetGlobal = findBestPointIterative(leafList, trueLocalRay, trueLocalRayOrigin, cosAngleThreshold, rayRadius, localAssembly, isOrtho, displayFilterSettings, success);
 
     bestPoint = targetGlobal;
 
     return success;
 }
 
-bool EmbeddedScan::beginRayTracingWithPoint(const glm::dvec3& globalRay, const glm::dvec3& globalRayOrigin, glm::dvec3& bestPoint, PointXYZIRGB& bestPointData, const double& cosAngleThreshold, const ClippingAssembly& clippingAssembly, const bool& isOrtho)
+bool EmbeddedScan::beginRayTracingWithPoint(const glm::dvec3& globalRay, const glm::dvec3& globalRayOrigin, glm::dvec3& bestPoint, PointXYZIRGB& bestPointData, const double& cosAngleThreshold, const ClippingAssembly& clippingAssembly, const bool& isOrtho, const RayTracingDisplayFilterSettings* displayFilterSettings)
 {
     TreeCell root = m_vTreeCells[m_uRootCell];
     double rootSize = root.m_size;
@@ -2725,7 +2886,7 @@ bool EmbeddedScan::beginRayTracingWithPoint(const glm::dvec3& globalRay, const g
     double rayRadius = 0.0015;
     bool success = false;
     tls::Point localPoint{};
-    glm::dvec3 targetGlobal = findBestPointIterativeWithPoint(leafList, trueLocalRay, trueLocalRayOrigin, cosAngleThreshold, rayRadius, localAssembly, isOrtho, localPoint, success);
+    glm::dvec3 targetGlobal = findBestPointIterativeWithPoint(leafList, trueLocalRay, trueLocalRayOrigin, cosAngleThreshold, rayRadius, localAssembly, isOrtho, displayFilterSettings, localPoint, success);
 
     bestPoint = targetGlobal;
     if (success)
@@ -2736,7 +2897,7 @@ bool EmbeddedScan::beginRayTracingWithPoint(const glm::dvec3& globalRay, const g
     return success;
 }
 
-glm::dvec3 EmbeddedScan::findBestPointIterative(const std::vector<uint32_t>& leafList, const glm::dvec3& rayDirection, const glm::dvec3& rayOrigin, const double& cosAngleThreshold, const double& rayRadius, const ClippingAssembly& localClippingAssembly, const bool& isOrtho, bool& success)
+glm::dvec3 EmbeddedScan::findBestPointIterative(const std::vector<uint32_t>& leafList, const glm::dvec3& rayDirection, const glm::dvec3& rayOrigin, const double& cosAngleThreshold, const double& rayRadius, const ClippingAssembly& localClippingAssembly, const bool& isOrtho, const RayTracingDisplayFilterSettings* displayFilterSettings, bool& success)
 {
 	double dMin(DBL_MAX), bestCosAngle(-1), currCosAngle(0), currDistance(0), distanceThreshold(0.01);
 	success = false;
@@ -2748,15 +2909,23 @@ glm::dvec3 EmbeddedScan::findBestPointIterative(const std::vector<uint32_t>& lea
 	std::vector<glm::dvec3> goodAnglePoints;
 
 	glm::dvec3 result(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN());
+    const PreparedRayTracingDisplayFilter preparedFilter = prepareRayTracingDisplayFilter(displayFilterSettings);
 
 	for (int leafStep = 0; leafStep < (int)leafList.size(); leafStep++)
 	{
-        std::vector<glm::dvec3> decodedPoints;
-        getDecodedPoints({ leafList[leafStep] }, decodedPoints, false);
+        std::vector<tls::Point> cellPoints;
+        cellPoints.resize(tls_point_cloud_.getCellPointCount(leafList[leafStep]));
+        if (!getCellPointsThreadSafe(leafList[leafStep], cellPoints.data(), cellPoints.size()))
+            continue;
 
-        for (const glm::dvec3& point : decodedPoints)
+        for (const tls::Point& pointData : cellPoints)
         {
+            glm::dvec3 point(pointData.x, pointData.y, pointData.z);
             if (!localClippingAssembly.testPoint(glm::dvec4(point, 1.0)))
+            {
+                continue;
+            }
+            if (preparedFilter.anyFilterEnabled && isPointRejectedByDisplayFilters(preparedFilter, pointData, getGlobalCoord(point)))
             {
                 continue;
             }
@@ -2892,7 +3061,7 @@ glm::dvec3 EmbeddedScan::findBestPointIterative(const std::vector<uint32_t>& lea
 	return getGlobalCoord(result);
 }
 
-glm::dvec3 EmbeddedScan::findBestPointIterativeWithPoint(const std::vector<uint32_t>& leafList, const glm::dvec3& rayDirection, const glm::dvec3& rayOrigin, const double& cosAngleThreshold, const double& rayRadius, const ClippingAssembly& localClippingAssembly, const bool& isOrtho, tls::Point& outPoint, bool& success)
+glm::dvec3 EmbeddedScan::findBestPointIterativeWithPoint(const std::vector<uint32_t>& leafList, const glm::dvec3& rayDirection, const glm::dvec3& rayOrigin, const double& cosAngleThreshold, const double& rayRadius, const ClippingAssembly& localClippingAssembly, const bool& isOrtho, const RayTracingDisplayFilterSettings* displayFilterSettings, tls::Point& outPoint, bool& success)
 {
     double dMin(DBL_MAX), bestCosAngle(-1), currCosAngle(0), currDistance(0), distanceThreshold(0.01);
     success = false;
@@ -2904,6 +3073,7 @@ glm::dvec3 EmbeddedScan::findBestPointIterativeWithPoint(const std::vector<uint3
     std::vector<tls::Point> goodAnglePoints;
 
     glm::dvec3 result(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN());
+    const PreparedRayTracingDisplayFilter preparedFilter = prepareRayTracingDisplayFilter(displayFilterSettings);
 
     for (int leafStep = 0; leafStep < (int)leafList.size(); leafStep++)
     {
@@ -2916,6 +3086,10 @@ glm::dvec3 EmbeddedScan::findBestPointIterativeWithPoint(const std::vector<uint3
         {
             glm::dvec3 point(pointData.x, pointData.y, pointData.z);
             if (!localClippingAssembly.testPoint(glm::dvec4(point, 1.0)))
+            {
+                continue;
+            }
+            if (preparedFilter.anyFilterEnabled && isPointRejectedByDisplayFilters(preparedFilter, pointData, getGlobalCoord(point)))
             {
                 continue;
             }

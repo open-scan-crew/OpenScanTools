@@ -543,7 +543,7 @@ void TlScanOverseer::collectPointsInGeometricBox(const GeometricBox& box, const 
 //    return newScan->getGuid();
 //}
 
-bool TlScanOverseer::rayTracing(const glm::dvec3& ray, const glm::dvec3& rayOrigin, glm::dvec3& bestPoint, const double& cosAngleThreshold, const ClippingAssembly& clippingAssembly, const bool& isOrtho, std::string& scanName)
+bool TlScanOverseer::rayTracing(const glm::dvec3& ray, const glm::dvec3& rayOrigin, glm::dvec3& bestPoint, const double& cosAngleThreshold, const ClippingAssembly& clippingAssembly, const bool& isOrtho, std::string& scanName, const RayTracingDisplayFilterSettings* displayFilterSettings)
 {
     double rayRadius(0.0015);
     std::vector<glm::dvec3> pointList;
@@ -558,7 +558,7 @@ bool TlScanOverseer::rayTracing(const glm::dvec3& ray, const glm::dvec3& rayOrig
         {
             localAssembly = clippingAssembly;
         }
-        bool test = _pair.scan.beginRayTracing(ray, rayOrigin, currentBest, cosAngleThreshold, localAssembly, isOrtho);
+        bool test = _pair.scan.beginRayTracing(ray, rayOrigin, currentBest, cosAngleThreshold, localAssembly, isOrtho, displayFilterSettings);
         if ((test) && (!std::isnan(currentBest.x)))
         {
             pointList.push_back(currentBest);
@@ -591,7 +591,7 @@ bool TlScanOverseer::rayTracing(const glm::dvec3& ray, const glm::dvec3& rayOrig
     return false;
 }
 
-bool TlScanOverseer::rayTracingWithPoint(const glm::dvec3& ray, const glm::dvec3& rayOrigin, glm::dvec3& bestPoint, PointXYZIRGB& bestPointData, const double& cosAngleThreshold, const ClippingAssembly& clippingAssembly, const bool& isOrtho, std::string& scanName)
+bool TlScanOverseer::rayTracingWithPoint(const glm::dvec3& ray, const glm::dvec3& rayOrigin, glm::dvec3& bestPoint, PointXYZIRGB& bestPointData, const double& cosAngleThreshold, const ClippingAssembly& clippingAssembly, const bool& isOrtho, std::string& scanName, const RayTracingDisplayFilterSettings* displayFilterSettings)
 {
     double rayRadius(0.0015);
     std::vector<glm::dvec3> pointList;
@@ -607,7 +607,7 @@ bool TlScanOverseer::rayTracingWithPoint(const glm::dvec3& ray, const glm::dvec3
         {
             localAssembly = clippingAssembly;
         }
-        bool test = _pair.scan.beginRayTracingWithPoint(ray, rayOrigin, currentBest, currentPoint, cosAngleThreshold, localAssembly, isOrtho);
+        bool test = _pair.scan.beginRayTracingWithPoint(ray, rayOrigin, currentBest, currentPoint, cosAngleThreshold, localAssembly, isOrtho, displayFilterSettings);
         if ((test) && (!std::isnan(currentBest.x)))
         {
             pointList.push_back(currentBest);

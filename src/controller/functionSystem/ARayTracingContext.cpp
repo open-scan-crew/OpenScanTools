@@ -11,8 +11,10 @@
 #include "controller/IControlListener.h"
 #include "controller/controls/ControlMetaControl.h"
 #include "models/graph/GraphManager.h"
+#include "models/graph/CameraNode.h"
 #include "controller/messages/FullClickMessage.h"
 #include "pointCloudEngine/TlScanOverseer.h"
+#include "pointCloudEngine/RayTracingDisplayFilter.h"
 #include "pointCloudEngine/PCE_core.h"
 #include "vulkan/VulkanManager.h"
 
@@ -20,6 +22,25 @@
 
 #include "utils/Logger.h"
 #include "utils/math/glm_extended.h"
+
+
+namespace
+{
+RayTracingDisplayFilterSettings buildRayTracingDisplayFilterSettings(const ClickInfo& clickInfo)
+{
+    RayTracingDisplayFilterSettings settings;
+    ReadPtr<CameraNode> rCamera = clickInfo.viewport.cget();
+    if (!rCamera)
+        return settings;
+
+    const DisplayParameters& display = rCamera->getDisplayParameters();
+    settings.enabled = true;
+    settings.renderMode = display.m_mode;
+    settings.colorimetricFilter = display.m_colorimetricFilter;
+    settings.polygonalSelector = display.m_polygonalSelector;
+    return settings;
+}
+}
 
 ARayTracingContext::ARayTracingContext(const ContextId& id)
 	: AContext(id)
@@ -552,8 +573,10 @@ glm::dvec3 ARayTracingContext::rayTracePointClouds(Controller& controller, Click
     //if orthographic view, cosAngleThreshold represents the distance between the edges of a point, in a plane orthogonal to the view
     cosAngleThreshold = isOrtho ? clickInfo.heightAt1m * pointSize / (1.0 * clickInfo.height) : cos(cosAngleThreshold);
 
+    RayTracingDisplayFilterSettings displayFilterSettings = buildRayTracingDisplayFilterSettings(clickInfo);
+
     TlStreamLock streamLock;
-    if (TlScanOverseer::getInstance().rayTracing(clickInfo.ray, clickInfo.rayOrigin, result, cosAngleThreshold, clipAssembly, isOrtho,scanName) == false)
+    if (TlScanOverseer::getInstance().rayTracing(clickInfo.ray, clickInfo.rayOrigin, result, cosAngleThreshold, clipAssembly, isOrtho, scanName, &displayFilterSettings) == false)
     {
         controller.updateInfo(new GuiDataTmpMessage(TEXT_RAYTRACING_FAILED));
         FUNCLOG << "picking nan detected" << LOGENDL;
