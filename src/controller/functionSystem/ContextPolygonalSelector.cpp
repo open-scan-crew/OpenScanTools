@@ -9,6 +9,7 @@
 #include "gui/texts/ContextTexts.hpp"
 #include "models/graph/CameraNode.h"
 #include "models/graph/GraphManager.h"
+#include "pointCloudEngine/RenderingLimits.h"
 
 #include <glm/gtx/norm.hpp>
 #include <algorithm>
@@ -16,8 +17,6 @@
 
 namespace
 {
-constexpr uint32_t kMaxPolygonalSelectorPolygons = 8;
-
 uint32_t getPolygonSuffix(const std::string& name)
 {
     if (name.rfind("polygon_", 0) != 0)
@@ -93,6 +92,12 @@ ContextState ContextPolygonalSelector::feedMessage(IMessage* message, Controller
         if (!std::isfinite(normalized.x) || !std::isfinite(normalized.y))
             return (m_state = ContextState::waiting_for_input);
 
+        if (m_currentVertices.size() >= MAX_POLYGONAL_SELECTOR_VERTICES)
+        {
+            controller.updateInfo(new GuiDataWarning(QString("The creation of vertices is limited to %1 vertices per polygon.").arg(MAX_POLYGONAL_SELECTOR_VERTICES)));
+            return (m_state = ContextState::waiting_for_input);
+        }
+
         m_currentVertices.emplace_back(normalized);
 
         if (rCam)
@@ -128,9 +133,9 @@ ContextState ContextPolygonalSelector::validate(Controller& controller)
 {
     if (m_currentVertices.size() >= 3)
     {
-        if (m_settings.polygons.size() >= kMaxPolygonalSelectorPolygons)
+        if (m_settings.polygons.size() >= MAX_POLYGONAL_SELECTOR_POLYGONS)
         {
-            controller.updateInfo(new GuiDataWarning(QString("The creation of polygons is limited to %1 items per filter.").arg(kMaxPolygonalSelectorPolygons)));
+            controller.updateInfo(new GuiDataWarning(QString("The creation of polygons is limited to %1 polygons per filter.").arg(MAX_POLYGONAL_SELECTOR_POLYGONS)));
         }
         else
         {

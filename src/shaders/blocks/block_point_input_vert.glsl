@@ -19,6 +19,9 @@ out gl_PerVertex {
 layout(location = 0) out vec4 fragColor;
 layout(location = 1) out float filterReject;
 
+#define MAX_POLYGONAL_SELECTOR_POLYGONS 16
+#define MAX_POLYGONAL_SELECTOR_VERTICES 32
+
 layout(push_constant) uniform PC {
     layout(offset = 0) float ptSize;
     layout(offset = 8) float contrast;
@@ -47,9 +50,9 @@ layout(set = 0, binding = 4) uniform uniformColorimetricFilter {
     vec4 settings; // x: enabled, y: showColors, z: tolerance(0-1), w: intensityMode
     vec4 polygonSettings; // x: enabled, y: showSelected, z: active, w: appliedPolygonCount
     vec4 polygonCounts;   // x: totalPolygonCount, y: pendingApply(0/1)
-    mat4 polygonViewProj[8];
-    vec4 polygonVertices[8 * 32];
-    vec4 polygonMeta[8];
+    mat4 polygonViewProj[MAX_POLYGONAL_SELECTOR_POLYGONS];
+    vec4 polygonVertices[MAX_POLYGONAL_SELECTOR_POLYGONS * MAX_POLYGONAL_SELECTOR_VERTICES];
+    vec4 polygonMeta[MAX_POLYGONAL_SELECTOR_POLYGONS];
 } uColorFilter;
 
 const float COLORIMETRIC_MAX_DISTANCE = 1.7320508;
@@ -87,10 +90,10 @@ bool pointInPolygon(vec2 p, int polygonIndex)
         return false;
 
     bool inside = false;
-    vec2 prev = uColorFilter.polygonVertices[polygonIndex * 32 + (vertexCount - 1)].xy;
+    vec2 prev = uColorFilter.polygonVertices[polygonIndex * MAX_POLYGONAL_SELECTOR_VERTICES + (vertexCount - 1)].xy;
     for (int i = 0; i < vertexCount; ++i)
     {
-        vec2 curr = uColorFilter.polygonVertices[polygonIndex * 32 + i].xy;
+        vec2 curr = uColorFilter.polygonVertices[polygonIndex * MAX_POLYGONAL_SELECTOR_VERTICES + i].xy;
         bool condY = (curr.y > p.y) != (prev.y > p.y);
         if (condY)
         {
