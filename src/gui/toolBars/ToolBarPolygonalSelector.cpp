@@ -2,6 +2,7 @@
 
 #include "controller/controls/ControlFunction.h"
 #include "controller/controls/ControlFunctionClipping.h"
+#include "controller/controls/ControlViewPoint.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataRendering.h"
 #include "models/graph/CameraNode.h"
@@ -274,6 +275,9 @@ void ToolBarPolygonalSelector::deleteSelectedPolygon()
     const int selectedIndex = m_ui.comboBox_polygonList->currentIndex();
     if (selectedIndex < 0 || selectedIndex >= static_cast<int>(m_settings.polygons.size()))
         return;
+
+    const std::string deletedPolygonName = m_settings.polygons[selectedIndex].name;
+    m_dataDispatcher.sendControl(new control::viewpoint::DeletePolygonFromProject(deletedPolygonName));
 
     m_settings.polygons.erase(m_settings.polygons.begin() + selectedIndex);
 
