@@ -5,9 +5,11 @@
 #include "gui/UnitConverter.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "models/graph/GraphManager.h"
+#include "models/graph/CameraNode.h"
 #include "models/pointCloud/PointXYZIRGB.h"
 #include "pointCloudEngine/OctreeRayTracing.h"
 #include "pointCloudEngine/TlScanOverseer.h"
+#include "pointCloudEngine/RayTracingDisplayFilter.h"
 #include "tls_def.h"
 #include "utils/TemperatureScaleUtils.h"
 
@@ -44,6 +46,22 @@ namespace
         GeometricBox box(corners);
         box.setRadius(radius);
         return box;
+    }
+
+
+    RayTracingDisplayFilterSettings buildRayTracingDisplayFilterSettings(const ClickInfo& clickInfo)
+    {
+        RayTracingDisplayFilterSettings settings;
+        ReadPtr<CameraNode> rCamera = clickInfo.viewport.cget();
+        if (!rCamera)
+            return settings;
+
+        const DisplayParameters& display = rCamera->getDisplayParameters();
+        settings.enabled = true;
+        settings.renderMode = display.m_mode;
+        settings.colorimetricFilter = display.m_colorimetricFilter;
+        settings.polygonalSelector = display.m_polygonalSelector;
+        return settings;
     }
 
     bool tryFindNearestColor(const Controller& controller, const ClickInfo& clickInfo, const glm::dvec3& point, PointXYZIRGB& outPoint)
@@ -95,7 +113,8 @@ namespace
         TlScanOverseer::setWorkingScansTransfo(controller.cgetGraphManager().getVisiblePointCloudInstances(clickInfo.panoramic, true, true));
         glm::dvec3 bestPoint;
         std::string scanName;
-        return TlScanOverseer::getInstance().rayTracingWithPoint(clickInfo.ray, clickInfo.rayOrigin, bestPoint, outPoint, cosAngleThreshold, clipAssembly, isOrtho, scanName);
+        RayTracingDisplayFilterSettings displayFilterSettings = buildRayTracingDisplayFilterSettings(clickInfo);
+        return TlScanOverseer::getInstance().rayTracingWithPoint(clickInfo.ray, clickInfo.rayOrigin, bestPoint, outPoint, cosAngleThreshold, clipAssembly, isOrtho, scanName, &displayFilterSettings);
     }
 }
 
