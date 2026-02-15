@@ -1169,7 +1169,14 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
     return resultOk.load();
 }
 
-bool EmbeddedScan::filterColorimetricAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, const ColorimetricFilterSettings& settings, UiRenderMode mode, IScanFileWriter* writer, uint64_t& keptPoints, const ProgressCallback& progress)
+bool EmbeddedScan::filterAndWrite(const TransformationModule& src_transfo,
+                                  const ClippingAssembly& clippingAssembly,
+                                  const ColorimetricFilterSettings& colorimetricSettings,
+                                  const PolygonalSelectorSettings& polygonalSelectorSettings,
+                                  UiRenderMode mode,
+                                  IScanFileWriter* writer,
+                                  uint64_t& keptPoints,
+                                  const ProgressCallback& progress)
 {
     ClippingAssembly localAssembly = deepCopyClippingAssembly(clippingAssembly);
     localAssembly.clearMatrix();
@@ -1179,7 +1186,7 @@ bool EmbeddedScan::filterColorimetricAndWrite(const TransformationModule& src_tr
     std::vector<std::pair<uint32_t, bool>> cells;
     getClippedCells_impl(m_uRootCell, localAssembly, cells);
 
-    auto ordered = ColorimetricFilterUtils::normalizeSettings(settings, mode);
+    auto ordered = ColorimetricFilterUtils::normalizeSettings(colorimetricSettings, mode);
     bool hasActiveColors = false;
     for (const auto& entry : ordered)
     {
@@ -1191,46 +1198,73 @@ bool EmbeddedScan::filterColorimetricAndWrite(const TransformationModule& src_tr
     }
 
     const bool intensityMode = (mode == UiRenderMode::Intensity || mode == UiRenderMode::Fake_Color);
-    const float tolerance = ColorimetricFilterUtils::clampTolerancePercent(settings.tolerance) / 100.0f;
+    const float tolerance = ColorimetricFilterUtils::clampTolerancePercent(colorimetricSettings.tolerance) / 100.0f;
     const float rgbThreshold = tolerance * 1.7320508f;
+
+    const uint32_t appliedPolygonCount = std::min<uint32_t>(polygonalSelectorSettings.appliedPolygonCount, static_cast<uint32_t>(polygonalSelectorSettings.polygons.size()));
+    const bool hasActivePolygonalFilter = polygonalSelectorSettings.enabled
+        && polygonalSelectorSettings.active
+        && appliedPolygonCount > 0
+        && !polygonalSelectorSettings.polygons.empty();
 
     auto shouldKeepPoint = [&](const PointXYZIRGB& pt)
     {
-        if (!settings.enabled || !hasActiveColors)
-            return true;
-
-        const float intensityNorm = static_cast<float>(pt.i) / 255.0f;
-        const glm::vec3 rgb(static_cast<float>(pt.r) / 255.0f,
-                            static_cast<float>(pt.g) / 255.0f,
-                            static_cast<float>(pt.b) / 255.0f);
-
-        bool match = false;
-        if (intensityMode)
+        bool rejectByColorimetric = false;
+        if (colorimetricSettings.enabled && hasActiveColors)
         {
-            if (ordered[0].enabled)
-            {
-                const float refIntensity = static_cast<float>(ordered[0].color.Red()) / 255.0f;
-                match = std::abs(intensityNorm - refIntensity) <= tolerance;
-            }
-        }
-        else
-        {
-            for (const auto& entry : ordered)
-            {
-                if (!entry.enabled)
-                    continue;
+            const float intensityNorm = static_cast<float>(pt.i) / 255.0f;
+            const glm::vec3 rgb(static_cast<float>(pt.r) / 255.0f,
+                                static_cast<float>(pt.g) / 255.0f,
+                                static_cast<float>(pt.b) / 255.0f);
 
-                glm::vec3 ref = ColorimetricFilterUtils::normalizeRgb(entry.color);
-                if (glm::distance(rgb, ref) <= rgbThreshold)
+            bool match = false;
+            if (intensityMode)
+            {
+                if (ordered[0].enabled)
                 {
-                    match = true;
+                    const float refIntensity = static_cast<float>(ordered[0].color.Red()) / 255.0f;
+                    match = std::abs(intensityNorm - refIntensity) <= tolerance;
+                }
+            }
+            else
+            {
+                for (const auto& entry : ordered)
+                {
+                    if (!entry.enabled)
+                        continue;
+
+                    glm::vec3 ref = ColorimetricFilterUtils::normalizeRgb(entry.color);
+                    if (glm::distance(rgb, ref) <= rgbThreshold)
+                    {
+                        match = true;
+                        break;
+                    }
+                }
+            }
+
+            rejectByColorimetric = colorimetricSettings.showColors ? !match : match;
+        }
+
+        bool rejectByPolygon = false;
+        if (hasActivePolygonalFilter)
+        {
+            glm::dvec4 worldPoint4 = src_transfo_mat * glm::dvec4(pt.x, pt.y, pt.z, 1.0);
+            glm::dvec3 worldPoint(worldPoint4.x, worldPoint4.y, worldPoint4.z);
+
+            bool insideAppliedPolygon = false;
+            for (uint32_t polygonIndex = 0; polygonIndex < appliedPolygonCount; ++polygonIndex)
+            {
+                if (isPointInsidePolygonSelection(worldPoint, polygonalSelectorSettings.polygons[polygonIndex]))
+                {
+                    insideAppliedPolygon = true;
                     break;
                 }
             }
+
+            rejectByPolygon = polygonalSelectorSettings.showSelected ? !insideAppliedPolygon : insideAppliedPolygon;
         }
 
-        bool reject = settings.showColors ? !match : match;
-        return !reject;
+        return !(rejectByColorimetric || rejectByPolygon);
     };
 
     const size_t totalCells = cells.size();
