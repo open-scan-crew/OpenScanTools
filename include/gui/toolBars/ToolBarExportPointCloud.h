@@ -28,7 +28,7 @@ public slots:
 	void slotExportClipping();
 	void slotExportScans();
 	void slotExportPCOs();
-	void slotExportColorimetricFilter();
+	void slotExportFilteredScans();
 
 private:
 	std::unordered_map<guiDType, ExportPCGroupMethod> m_methods;
