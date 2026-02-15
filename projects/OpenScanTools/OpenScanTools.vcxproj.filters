@@ -1279,7 +1279,7 @@
     <ClCompile Include="..\..\src\controller\functionSystem\ContextColorBalanceFilter.cpp">
       <Filter>src\controller\contexts</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\controller\functionSystem\ContextColorimetricFilterExport.cpp">
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextFilteredScansExport.cpp">
       <Filter>src\controller\contexts</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarPointEdition.cpp">
@@ -3188,7 +3188,7 @@
     <ClInclude Include="..\..\include\controller\functionSystem\ContextColorBalanceFilter.h">
       <Filter>include\controller\contexts</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\controller\functionSystem\ContextColorimetricFilterExport.h">
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextFilteredScansExport.h">
       <Filter>include\controller\contexts</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\controller\messages\DeletePointsMessage.h">
