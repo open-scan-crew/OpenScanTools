@@ -189,5 +189,6 @@
         <file>resources/images/Ouverture_OpenScanTools_800-399.jpg</file>
         <file>icons/100x100/so_filter.png</file>
         <file>icons/100x100/polygon_selector.png</file>
+        <file>icons/100x100/filter_export.png</file>
     </qresource>
 </RCC>
