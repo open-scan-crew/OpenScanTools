@@ -130,7 +130,7 @@ The gridded box must be selected before starting this function.</string>
     </widget>
    </item>
    <item row="3" column="1">
-    <widget class="QToolButton" name="toolButton_ColorimetricFilter">
+    <widget class="QToolButton" name="toolButton_FilteredScans">
      <property name="toolTip">
       <string>Export points using active filters (colorimetric, polygons).</string>
      </property>
@@ -223,7 +223,7 @@ The gridded box must be selected before starting this function.</string>
   <tabstop>toolButton_grid</tabstop>
   <tabstop>toolButton_clipping</tabstop>
   <tabstop>toolButton_scans</tabstop>
-  <tabstop>toolButton_ColorimetricFilter</tabstop>
+  <tabstop>toolButton_FilteredScans</tabstop>
   <tabstop>toolButton_pco</tabstop>
  </tabstops>
  <resources>
