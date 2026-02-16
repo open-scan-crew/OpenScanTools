@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>291</width>
+    <width>317</width>
     <height>120</height>
    </rect>
   </property>
@@ -57,7 +57,7 @@
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>Import Scans</string>
+      <string>Import Scans - please create a project or use an existing project before importing.</string>
      </property>
      <property name="text">
       <string>Import</string>
@@ -217,7 +217,7 @@
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>New project</string>
+      <string>Create a new project</string>
      </property>
      <property name="text">
       <string>New</string>

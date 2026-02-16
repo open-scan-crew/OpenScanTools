@@ -43,33 +43,34 @@
        <height>0</height>
       </size>
      </property>
-   </spacer>
-  </item>
-  <item row="2" column="0">
-   <widget class="QToolButton" name="toolbutton_colorbalance">
-    <property name="toolTip">
-     <string>Apply a color balance to the point clouds to get a smoother rendering. This option will modify the scans files.</string>
-    </property>
-    <property name="text">
-     <string>Color balance</string>
-    </property>
-    <property name="icon">
-     <iconset resource="../../../openscantools.qrc">
-      <normaloff>:/icons/100x100/icons8-color-wheel-30.png</normaloff>:/icons/100x100/icons8-color-wheel-30.png</iconset>
-    </property>
-    <property name="toolButtonStyle">
-     <enum>Qt::ToolButtonTextBesideIcon</enum>
-    </property>
-    <property name="autoRaise">
-     <bool>true</bool>
-    </property>
-   </widget>
-  </item>
+    </spacer>
+   </item>
+   <item row="2" column="0">
+    <widget class="QToolButton" name="toolbutton_colorbalance">
+     <property name="toolTip">
+      <string>Apply a color balance to the point clouds to get a smoother rendering. You can apply the filter to clipped scans.
+The result will be exported to the folder of your choice.</string>
+     </property>
+     <property name="text">
+      <string>Color balance</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../../openscantools.qrc">
+       <normaloff>:/icons/100x100/icons8-color-wheel-30.png</normaloff>:/icons/100x100/icons8-color-wheel-30.png</iconset>
+     </property>
+     <property name="toolButtonStyle">
+      <enum>Qt::ToolButtonTextBesideIcon</enum>
+     </property>
+     <property name="autoRaise">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
    <item row="1" column="0">
     <widget class="QToolButton" name="toolButton_statisticalOutlierFilter">
      <property name="toolTip">
-      <string>This statistical outlier filter allows you to remove invalid points. The result will be exported to the folder of your choice.
-You can apply the filter to clipped scans.</string>
+      <string>This statistical outlier filter allows you to remove invalid points. You can apply the filter to clipped scans.
+The result will be exported to the folder of your choice.</string>
      </property>
      <property name="text">
       <string>Stat outlier filter</string>
@@ -98,9 +99,10 @@ You can apply the filter to clipped scans.</string>
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>This will use the clipping to clean the point cloud.
-Warning: the points will be deleted so that the result will be as shown on the screen.
-It is recommended to activate the desired clippings before starting the cleaning.</string>
+      <string>This will use the clipping/filter to clean the point cloud.
+The points will be deleted so that the result will be as shown on the screen (what you see is what you get).
+Activate clippings and / or filters before starting the cleaning.
+Warning: this will permanently remove points (no undo).</string>
      </property>
      <property name="text">
       <string>Clean point cloud</string>

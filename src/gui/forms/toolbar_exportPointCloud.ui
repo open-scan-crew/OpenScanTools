@@ -44,8 +44,8 @@
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>Use it on a clipping box splitted into a grid.
-The gridded box must be selected before starting this function.</string>
+      <string>Use it on a scan clipped by a box splitted into a grid.
+The gridded box must selected before starting this function.</string>
      </property>
      <property name="text">
       <string>Gridded Box</string>
@@ -132,7 +132,9 @@ The gridded box must be selected before starting this function.</string>
    <item row="3" column="1">
     <widget class="QToolButton" name="toolButton_FilteredScans">
      <property name="toolTip">
-      <string>Export points using active filters (colorimetric, polygons).</string>
+      <string>Export points using active filters (colorimetric, polygons). This function may take some time even if few points are exported, as it scans the entire scan.
+Tip to save time if the area is small: create a clipping box on the area and activate it.
+This will limit the calculation to this box.</string>
      </property>
      <property name="text">
       <string>Filtered scans</string>
@@ -167,7 +169,7 @@ The gridded box must be selected before starting this function.</string>
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>Export single or multiple clipping boxes.You must select or activate the boxes before using this function.</string>
+      <string>Export scans that are clipped by objects (boxes, tags, pipes...).You must select or activate some clippings before using this function.</string>
      </property>
      <property name="text">
       <string>Clipping</string>

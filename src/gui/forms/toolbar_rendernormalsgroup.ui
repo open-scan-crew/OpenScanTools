@@ -88,6 +88,9 @@
    </item>
    <item row="1" column="4">
     <widget class="QCheckBox" name="checkBox_ao">
+     <property name="toolTip">
+      <string>Ambient occlusion.</string>
+     </property>
      <property name="text">
       <string>Amb. occl.</string>
      </property>
@@ -154,6 +157,9 @@
    </item>
    <item row="4" column="4">
     <widget class="QCheckBox" name="checkBox_blendColor">
+     <property name="toolTip">
+      <string>Blends the normals and the colors to get a smoother result. When activated, you may need to increase the saturation to accentuate the colors.</string>
+     </property>
      <property name="text">
       <string>Blend colors</string>
      </property>
@@ -213,6 +219,9 @@
    </item>
    <item row="4" column="6">
     <widget class="QLabel" name="label_sharpness">
+     <property name="toolTip">
+      <string>This will give a more &quot;metallic&quot; rendering to the point cloud.</string>
+     </property>
      <property name="text">
       <string>Gloss</string>
      </property>

@@ -51,7 +51,7 @@
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>Create a box aligned to a 3 point plan</string>
+      <string>Create a box aligned to a 3 point plane</string>
      </property>
      <property name="text">
       <string>Attached 3 points</string>

@@ -13,6 +13,10 @@
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
     <widget class="QToolButton" name="toolButton_polygonalSelector">
+     <property name="toolTip">
+      <string>Click this button, then create a polygon. To finish a polygon: double click, Enter/return/ESC.
+To recall the function, press Enter/Return again.You can create up to 16 polygons per filter.</string>
+     </property>
      <property name="text">
       <string>Selector</string>
      </property>
@@ -50,6 +54,11 @@
    </item>
    <item row="1" column="0">
     <widget class="QPushButton" name="pushButtonApply">
+     <property name="toolTip">
+      <string>Apply the current filter. To export the result, please go to the Export tab.
+If you want to clean the point cloud using this filter, go to the Edition tab.
+Tip: create viewpoints to store multiple filters.</string>
+     </property>
      <property name="text">
       <string>Apply</string>
      </property>
@@ -57,6 +66,9 @@
    </item>
    <item row="1" column="1">
     <widget class="QPushButton" name="pushButtonDeactivate">
+     <property name="toolTip">
+      <string>Deactivate the filter. It is still available if you apply again.</string>
+     </property>
      <property name="text">
       <string>Deactivate</string>
      </property>
@@ -64,6 +76,9 @@
    </item>
    <item row="1" column="2">
     <widget class="QPushButton" name="pushButtonReset">
+     <property name="toolTip">
+      <string>This will reset the filter.</string>
+     </property>
      <property name="text">
       <string>Reset</string>
      </property>
@@ -92,7 +107,11 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="comboBox_polygonList"/>
+      <widget class="QComboBox" name="comboBox_polygonList">
+       <property name="toolTip">
+        <string>List of polygons created in the filter. Check &quot;Manage&quot; to select a polygon.</string>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QCheckBox" name="checkBox_managePolygon">
@@ -107,6 +126,9 @@
     <layout class="QHBoxLayout" name="horizontalLayout_deleteRow">
      <item>
       <widget class="QPushButton" name="deletePolygonButton">
+       <property name="toolTip">
+        <string>Delete the selected polygon.</string>
+       </property>
        <property name="text">
         <string>Delete</string>
        </property>

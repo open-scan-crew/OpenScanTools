@@ -64,6 +64,9 @@
    </item>
    <item row="0" column="0">
     <widget class="QCheckBox" name="displayGridCheckBox">
+     <property name="toolTip">
+      <string>This feature displays a grid when the orthographic mode is enabled. If you export the HD image, the grid will be included.</string>
+     </property>
      <property name="text">
       <string>Display Grid</string>
      </property>

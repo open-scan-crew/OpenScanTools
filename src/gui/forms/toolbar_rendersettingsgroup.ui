@@ -43,7 +43,11 @@
     </widget>
    </item>
    <item row="1" column="3">
-    <widget class="QComboBox" name="comboBox_gapFillingStrength"/>
+    <widget class="QComboBox" name="comboBox_gapFillingStrength">
+     <property name="toolTip">
+      <string>Fill in the empty spaces between the dots. If insufficient, also increase the point size.</string>
+     </property>
+    </widget>
    </item>
    <item row="2" column="6">
     <widget class="QSlider" name="slider_normals">
@@ -279,6 +283,9 @@
       </item>
       <item row="2" column="2">
        <widget class="QSpinBox" name="spinBox_rampStep">
+        <property name="toolTip">
+         <string>Max 240 steps.</string>
+        </property>
         <property name="minimum">
          <number>4</number>
         </property>
@@ -359,6 +366,9 @@
    </item>
    <item row="2" column="2">
     <widget class="QPushButton" name="pushButton_editDisplayPresets">
+     <property name="toolTip">
+      <string>Edit a preset that you aldready created. Initial/raw presets cannot be edited.</string>
+     </property>
      <property name="text">
       <string>Edit</string>
      </property>
@@ -374,7 +384,7 @@
    <item row="2" column="0">
     <widget class="QLabel" name="label_displayPreset">
      <property name="toolTip">
-      <string>Use this section to save renderings and visibility parameters. The initial preset is provided as standard and cannot be deleted.</string>
+      <string>Use this section to save renderings and visibility parameters. The initial/raw presets are provided as standard and cannot be deleted.</string>
      </property>
      <property name="text">
       <string>Presets</string>
@@ -393,6 +403,9 @@
    </item>
    <item row="2" column="3">
     <widget class="QPushButton" name="pushButton_newDisplayPresets">
+     <property name="toolTip">
+      <string>Create a new preset. The created presets will be available in all projects.</string>
+     </property>
      <property name="text">
       <string>New</string>
      </property>
