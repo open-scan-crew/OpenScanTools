@@ -66,7 +66,7 @@ enum class ContextType
 	deletePoints,
 	statisticalOutlierFilter,
 	colorBalanceFilter,
-	colorimetricFilterExport,
+	filteredScansExport,
 	multipleCylinders,
 	cylinder2ClickExtend,
 	testCylinder,

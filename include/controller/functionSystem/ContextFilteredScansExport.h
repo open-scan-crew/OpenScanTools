@@ -1,5 +1,5 @@
-#ifndef CONTEXT_COLORIMETRIC_FILTER_EXPORT_H
-#define CONTEXT_COLORIMETRIC_FILTER_EXPORT_H
+#ifndef CONTEXT_FILTERED_SCANS_EXPORT_H
+#define CONTEXT_FILTERED_SCANS_EXPORT_H
 
 #include "controller/functionSystem/AContext.h"
 #include "io/exports/ExportParameters.hpp"
@@ -12,11 +12,11 @@ class CameraNode;
 class Controller;
 class IMessage;
 
-class ContextColorimetricFilterExport : public AContext
+class ContextFilteredScansExport : public AContext
 {
 public:
-    ContextColorimetricFilterExport(const ContextId& id);
-    ~ContextColorimetricFilterExport();
+    ContextFilteredScansExport(const ContextId& id);
+    ~ContextFilteredScansExport();
 
     ContextState start(Controller& controller) override;
     ContextState feedMessage(IMessage* message, Controller& controller) override;
@@ -26,13 +26,14 @@ public:
 
 private:
     bool prepareOutputDirectory(Controller& controller, const std::filesystem::path& folderPath);
-    bool hasActiveColorimetricFilter() const;
+    bool hasActiveFilter() const;
     std::wstring buildDefaultFileName(const std::wstring& projectName) const;
 
 private:
     int m_neededMessageCount = 2;
     ClippingExportParameters m_parameters;
-    ColorimetricFilterSettings m_filterSettings;
+    ColorimetricFilterSettings m_colorimetricFilterSettings;
+    PolygonalSelectorSettings m_polygonalSelectorSettings;
     UiRenderMode m_renderMode = UiRenderMode::RGB;
     bool m_filterReady = false;
     glm::dvec3 m_scanTranslationToAdd = glm::dvec3(0.0);

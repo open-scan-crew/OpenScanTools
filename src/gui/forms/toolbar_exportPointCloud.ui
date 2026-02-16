@@ -130,16 +130,16 @@ The gridded box must be selected before starting this function.</string>
     </widget>
    </item>
    <item row="3" column="1">
-    <widget class="QToolButton" name="toolButton_ColorimetricFilter">
+    <widget class="QToolButton" name="toolButton_FilteredScans">
      <property name="toolTip">
-      <string>Export points using active colorimetric filter.</string>
+      <string>Export points using active filters (colorimetric, polygons).</string>
      </property>
      <property name="text">
-      <string>Colorimetric Filter</string>
+      <string>Filtered scans</string>
      </property>
      <property name="icon">
       <iconset resource="../../../openscantools.qrc">
-       <normaloff>:/icons/100x100/icons8-color-wheel-30.png</normaloff>:/icons/100x100/icons8-color-wheel-30.png</iconset>
+       <normaloff>:/icons/100x100/filter_export.png</normaloff>:/icons/100x100/filter_export.png</iconset>
      </property>
      <property name="iconSize">
       <size>
@@ -223,7 +223,7 @@ The gridded box must be selected before starting this function.</string>
   <tabstop>toolButton_grid</tabstop>
   <tabstop>toolButton_clipping</tabstop>
   <tabstop>toolButton_scans</tabstop>
-  <tabstop>toolButton_ColorimetricFilter</tabstop>
+  <tabstop>toolButton_FilteredScans</tabstop>
   <tabstop>toolButton_pco</tabstop>
  </tabstops>
  <resources>

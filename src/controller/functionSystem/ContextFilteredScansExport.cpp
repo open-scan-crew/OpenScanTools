@@ -1,4 +1,4 @@
-#include "controller/functionSystem/ContextColorimetricFilterExport.h"
+#include "controller/functionSystem/ContextFilteredScansExport.h"
 
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
@@ -32,16 +32,16 @@
 #define Yes 0x00004000
 #define No 0x00010000
 
-ContextColorimetricFilterExport::ContextColorimetricFilterExport(const ContextId& id)
+ContextFilteredScansExport::ContextFilteredScansExport(const ContextId& id)
     : AContext(id)
 {
     m_state = ContextState::waiting_for_input;
 }
 
-ContextColorimetricFilterExport::~ContextColorimetricFilterExport()
+ContextFilteredScansExport::~ContextFilteredScansExport()
 {}
 
-ContextState ContextColorimetricFilterExport::start(Controller& controller)
+ContextState ContextFilteredScansExport::start(Controller& controller)
 {
     controller.updateInfo(new GuiDataContextRequestActiveCamera(m_id));
     if (!controller.getContext().getIsCurrentProjectSaved())
@@ -50,7 +50,7 @@ ContextState ContextColorimetricFilterExport::start(Controller& controller)
     return (m_state = ContextState::waiting_for_input);
 }
 
-ContextState ContextColorimetricFilterExport::feedMessage(IMessage* message, Controller& controller)
+ContextState ContextFilteredScansExport::feedMessage(IMessage* message, Controller& controller)
 {
     GraphManager& graphManager = controller.getGraphManager();
 
@@ -69,18 +69,19 @@ ContextState ContextColorimetricFilterExport::feedMessage(IMessage* message, Con
         ReadPtr<CameraNode> rCamera = cameraMsg->m_cameraNode.cget();
         if (!rCamera)
         {
-            controller.updateInfo(new GuiDataWarning(TEXT_COLORIMETRIC_FILTER_ACTIVATE_FIRST));
+            controller.updateInfo(new GuiDataWarning(TEXT_FILTER_ACTIVATE_FIRST));
             return (m_state = ContextState::abort);
         }
 
         const DisplayParameters& display = rCamera->getDisplayParameters();
-        m_filterSettings = display.m_colorimetricFilter;
+        m_colorimetricFilterSettings = display.m_colorimetricFilter;
+        m_polygonalSelectorSettings = display.m_polygonalSelector;
         m_renderMode = display.m_mode;
-        m_filterReady = hasActiveColorimetricFilter();
+        m_filterReady = hasActiveFilter();
 
         if (!m_filterReady)
         {
-            controller.updateInfo(new GuiDataWarning(TEXT_COLORIMETRIC_FILTER_ACTIVATE_FIRST));
+            controller.updateInfo(new GuiDataWarning(TEXT_FILTER_ACTIVATE_FIRST));
             return (m_state = ContextState::abort);
         }
 
@@ -137,7 +138,7 @@ ContextState ContextColorimetricFilterExport::feedMessage(IMessage* message, Con
     return m_state;
 }
 
-ContextState ContextColorimetricFilterExport::launch(Controller& controller)
+ContextState ContextFilteredScansExport::launch(Controller& controller)
 {
     GraphManager& graphManager = controller.getGraphManager();
     TlStreamLock streamLock;
@@ -157,7 +158,7 @@ ContextState ContextColorimetricFilterExport::launch(Controller& controller)
     const uint64_t totalScans = scans.size();
     const uint64_t totalProgressSteps = totalScans * 100;
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString()));
-    controller.updateInfo(new GuiDataProcessingSplashScreenStart(totalProgressSteps, TEXT_EXPORT_COLORIMETRIC_FILTER_TITLE_PROGRESS, TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(0).arg(totalScans)));
+    controller.updateInfo(new GuiDataProcessingSplashScreenStart(totalProgressSteps, TEXT_EXPORT_FILTERED_SCANS_TITLE_PROGRESS, TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(0).arg(totalScans)));
 
     CSVWriter csvWriter(m_parameters.outFolder / "summary.csv");
     csvWriter << "Name;Point_Count;X;Y;Z;SizeX;SizeY;SizeZ;RotationX;RotationY;RotationZ" << CSVWriter::endl;
@@ -219,7 +220,7 @@ ContextState ContextColorimetricFilterExport::launch(Controller& controller)
         if (m_parameters.method == ExportPointCloudMerging::SCAN_SEPARATED)
         {
             std::wstring writerLog;
-            std::wstring outputName = wScan->getName() + L"_CF";
+            std::wstring outputName = wScan->getName() + L"_FLT";
             IScanFileWriter* writerRaw = nullptr;
             if (!getScanFileWriter(m_parameters.outFolder, outputName, m_parameters.outFileType, writerLog, &writerRaw, true) || writerRaw == nullptr)
             {
@@ -239,7 +240,7 @@ ContextState ContextColorimetricFilterExport::launch(Controller& controller)
         TlScanOverseer::getInstance().getScanHeader(scanGuid, header);
         header.guid = xg::newGuid();
         if (m_parameters.method == ExportPointCloudMerging::SCAN_SEPARATED)
-            header.name = wScan->getName() + L"_CF";
+            header.name = wScan->getName() + L"_FLT";
 
         writer->appendPointCloud(header, wScan->getTransformation());
         writer->setPostTranslation(m_scanTranslationToAdd);
@@ -255,7 +256,15 @@ ContextState ContextColorimetricFilterExport::launch(Controller& controller)
         };
 
         uint64_t keptPoints = 0;
-        success &= TlScanOverseer::getInstance().filterColorimetricAndWrite(scanGuid, (TransformationModule)*&wScan, *clippingToUse, m_filterSettings, m_renderMode, writer, keptPoints, progressCallback);
+        success &= TlScanOverseer::getInstance().filterAndWrite(scanGuid,
+                                                                 (TransformationModule)*&wScan,
+                                                                 *clippingToUse,
+                                                                 m_colorimetricFilterSettings,
+                                                                 m_polygonalSelectorSettings,
+                                                                 m_renderMode,
+                                                                 writer,
+                                                                 keptPoints,
+                                                                 progressCallback);
         success &= writer->finalizePointCloud();
 
         tls::ScanHeader outHeader = writer->getLastScanHeader();
@@ -281,17 +290,17 @@ ContextState ContextColorimetricFilterExport::launch(Controller& controller)
     return (m_state = (success && !wasAborted) ? ContextState::done : ContextState::abort);
 }
 
-bool ContextColorimetricFilterExport::canAutoRelaunch() const
+bool ContextFilteredScansExport::canAutoRelaunch() const
 {
     return false;
 }
 
-ContextType ContextColorimetricFilterExport::getType() const
+ContextType ContextFilteredScansExport::getType() const
 {
-    return ContextType::colorimetricFilterExport;
+    return ContextType::filteredScansExport;
 }
 
-bool ContextColorimetricFilterExport::prepareOutputDirectory(Controller& controller, const std::filesystem::path& folderPath)
+bool ContextFilteredScansExport::prepareOutputDirectory(Controller& controller, const std::filesystem::path& folderPath)
 {
     if (std::filesystem::is_directory(folderPath))
         return true;
@@ -313,21 +322,31 @@ bool ContextColorimetricFilterExport::prepareOutputDirectory(Controller& control
     return true;
 }
 
-bool ContextColorimetricFilterExport::hasActiveColorimetricFilter() const
+bool ContextFilteredScansExport::hasActiveFilter() const
 {
-    if (!m_filterSettings.enabled)
-        return false;
-
-    auto ordered = ColorimetricFilterUtils::normalizeSettings(m_filterSettings, m_renderMode);
-    for (const auto& entry : ordered)
+    bool hasActiveColorimetricFilter = false;
+    if (m_colorimetricFilterSettings.enabled)
     {
-        if (entry.enabled)
-            return true;
+        auto ordered = ColorimetricFilterUtils::normalizeSettings(m_colorimetricFilterSettings, m_renderMode);
+        for (const auto& entry : ordered)
+        {
+            if (entry.enabled)
+            {
+                hasActiveColorimetricFilter = true;
+                break;
+            }
+        }
     }
-    return false;
+
+    bool hasActivePolygonalFilter = m_polygonalSelectorSettings.enabled
+        && m_polygonalSelectorSettings.active
+        && m_polygonalSelectorSettings.appliedPolygonCount > 0
+        && !m_polygonalSelectorSettings.polygons.empty();
+
+    return hasActiveColorimetricFilter || hasActivePolygonalFilter;
 }
 
-std::wstring ContextColorimetricFilterExport::buildDefaultFileName(const std::wstring& projectName) const
+std::wstring ContextFilteredScansExport::buildDefaultFileName(const std::wstring& projectName) const
 {
     std::wstring fileName = L"export_" + projectName;
     std::time_t time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());

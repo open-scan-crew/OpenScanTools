@@ -2426,22 +2426,22 @@ Perspective</translation>
 <context>
     <name>DisplayPresetManager</name>
     <message>
-        <location filename="../../src/gui/DisplayPresetManager.cpp" line="943"/>
+        <location filename="../../src/gui/DisplayPresetManager.cpp" line="1080"/>
         <source>Please enter a name for the preset.</source>
         <translation>Veuillez saisir un nom pour le préréglage.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/DisplayPresetManager.cpp" line="949"/>
+        <location filename="../../src/gui/DisplayPresetManager.cpp" line="1086"/>
         <source>Initial cannot be used to name the preset. Please enter another name</source>
         <translation>Initial ne peut pas être utilisé. Veuillez saisir un autre nom</translation>
     </message>
     <message>
-        <location filename="../../src/gui/DisplayPresetManager.cpp" line="954"/>
+        <location filename="../../src/gui/DisplayPresetManager.cpp" line="1091"/>
         <source>Raw rendering cannot be used to name the preset. Please enter another name</source>
         <translation>Raw rendering ne peut pas être utilisé. Veuillez saisir un autre nom</translation>
     </message>
     <message>
-        <location filename="../../src/gui/DisplayPresetManager.cpp" line="960"/>
+        <location filename="../../src/gui/DisplayPresetManager.cpp" line="1097"/>
         <source>This name is already used and cannot be used to name the preset. Please enter another name</source>
         <translation>Ce nom est déjà utilisé. Veuillez entrer un autre nom</translation>
     </message>
@@ -7537,12 +7537,12 @@ Attention : vous ne pouvez pas annuler cette action.</translation>
         <translation>Erreur : The projet n’a pas pu être sauvegardé.</translation>
     </message>
     <message>
-        <location filename="../../src/controller/functionSystem/ContextPickTemperature.cpp" line="105"/>
+        <location filename="../../src/controller/functionSystem/ContextPickTemperature.cpp" line="124"/>
         <source>Pick a point to read temperature</source>
         <translation>Cliquez sur un point pour lire sa température</translation>
     </message>
     <message>
-        <location filename="../../src/controller/functionSystem/ContextPickColorimetric.cpp" line="102"/>
+        <location filename="../../src/controller/functionSystem/ContextPickColorimetric.cpp" line="121"/>
         <source>Pick a point to extract its color</source>
         <translation>Prélevez un point pour extraire sa couleur</translation>
     </message>
@@ -10442,13 +10442,13 @@ The gridded box must be selected before starting this function.</source>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="135"/>
-        <source>Export points using active colorimetric filter.</source>
-        <translation>Exporte les points issus du filtre colorimétrique.</translation>
+        <source>Export points using active filters (colorimetric, polygons).</source>
+        <translation>Exporte les points en utilisant les filtres actifs (colorimétrique, polygones).</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="138"/>
-        <source>Colorimetric Filter</source>
-        <translation>Filtre colorimétrique</translation>
+        <source>Filtered scans</source>
+        <translation>Scans filtrés</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="170"/>
@@ -11211,6 +11211,54 @@ Séparateur de colonnes: tabulation, espace, ou ;</translation>
         <location filename="../../src/gui/forms/toolbar_rendertransparencygroup.ui" line="149"/>
         <source>transparency</source>
         <translation>transparence</translation>
+    </message>
+</context>
+<context>
+    <name>toolbar_selector</name>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="17"/>
+        <source>Selector</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="37"/>
+        <source>Show selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="47"/>
+        <source>Hide selected</source>
+        <translation type="unfinished">Cacher les objets sélectionnés</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="54"/>
+        <source>Apply</source>
+        <translation type="unfinished">Appliquer</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="61"/>
+        <source>Deactivate</source>
+        <translation type="unfinished">Désactiver</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="68"/>
+        <source>Reset</source>
+        <translation type="unfinished">Réinitialiser</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="90"/>
+        <source>List</source>
+        <translation type="unfinished">Liste</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="100"/>
+        <source>Manage</source>
+        <translation type="unfinished">Gérer</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="111"/>
+        <source>Delete</source>
+        <translation type="unfinished">Supprimer</translation>
     </message>
 </context>
 <context>

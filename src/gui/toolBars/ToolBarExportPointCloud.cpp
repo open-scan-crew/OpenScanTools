@@ -13,13 +13,13 @@ ToolBarExportPointCloud::ToolBarExportPointCloud(IDataDispatcher &dataDispatcher
 	m_ui.toolButton_grid->setIconSize(QSize(20, 20) * guiScale);
 	m_ui.toolButton_scans->setIconSize(QSize(20, 20) * guiScale);
 	m_ui.toolButton_pco->setIconSize(QSize(20, 20) * guiScale);
-	m_ui.toolButton_ColorimetricFilter->setIconSize(QSize(20, 20) * guiScale);
+	m_ui.toolButton_FilteredScans->setIconSize(QSize(20, 20) * guiScale);
 
 	QObject::connect(m_ui.toolButton_grid, &QToolButton::clicked, this, &ToolBarExportPointCloud::slotExportGrid);
 	QObject::connect(m_ui.toolButton_clipping, &QToolButton::clicked, this, &ToolBarExportPointCloud::slotExportClipping);
 	QObject::connect(m_ui.toolButton_scans, &QToolButton::clicked, this, &ToolBarExportPointCloud::slotExportScans);
 	QObject::connect(m_ui.toolButton_pco, &QToolButton::clicked, this, &ToolBarExportPointCloud::slotExportPCOs);
-	QObject::connect(m_ui.toolButton_ColorimetricFilter, &QToolButton::clicked, this, &ToolBarExportPointCloud::slotExportColorimetricFilter);
+	QObject::connect(m_ui.toolButton_FilteredScans, &QToolButton::clicked, this, &ToolBarExportPointCloud::slotExportFilteredScans);
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);
 	m_methods.insert({ guiDType::projectLoaded, &ToolBarExportPointCloud::onProjectLoad });
@@ -69,7 +69,7 @@ void ToolBarExportPointCloud::slotExportPCOs()
 	m_dataDispatcher.sendControl(new control::exportPC::StartExport(message));
 }
 
-void ToolBarExportPointCloud::slotExportColorimetricFilter()
+void ToolBarExportPointCloud::slotExportFilteredScans()
 {
-	m_dataDispatcher.sendControl(new control::exportPC::StartColorimetricFilterExport());
+	m_dataDispatcher.sendControl(new control::exportPC::StartFilteredScansExport());
 }

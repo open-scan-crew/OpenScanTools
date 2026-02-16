@@ -29,7 +29,7 @@
 #include "controller/functionSystem/ContextDeletePoints.h"
 #include "controller/functionSystem/ContextStatisticalOutlierFilter.h"
 #include "controller/functionSystem/ContextColorBalanceFilter.h"
-#include "controller/functionSystem/ContextColorimetricFilterExport.h"
+#include "controller/functionSystem/ContextFilteredScansExport.h"
 #include "controller/functionSystem/ContextMultipleCylindersMeasure.h"
 #include "controller/functionSystem/ContextPointCreation.h"
 #include "controller/functionSystem/Context4ClicsSphere.h"
@@ -200,8 +200,8 @@ AContext* ContextFactory::createContext(const ContextType& type, ContextId& id, 
 			return new ContextStatisticalOutlierFilter(id);
 		case ContextType::colorBalanceFilter:
 			return new ContextColorBalanceFilter(id);
-		case ContextType::colorimetricFilterExport:
-			return new ContextColorimetricFilterExport(id);
+		case ContextType::filteredScansExport:
+			return new ContextFilteredScansExport(id);
 		case ContextType::pointCreation:
 			return new ContextPointCreation(id);
 		case ContextType::Sphere:

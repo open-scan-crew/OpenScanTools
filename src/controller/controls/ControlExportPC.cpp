@@ -127,32 +127,32 @@ namespace control
         }
 
         // ***************************
-        // StartColorimetricFilterExport
+        // StartFilteredScansExport
         // ***************************
 
-        StartColorimetricFilterExport::StartColorimetricFilterExport()
+        StartFilteredScansExport::StartFilteredScansExport()
         {}
 
-        StartColorimetricFilterExport::~StartColorimetricFilterExport()
+        StartFilteredScansExport::~StartFilteredScansExport()
         {}
 
-        void StartColorimetricFilterExport::doFunction(Controller& controller)
+        void StartFilteredScansExport::doFunction(Controller& controller)
         {
-            controller.getFunctionManager().launchFunction(controller, ContextType::colorimetricFilterExport);
+            controller.getFunctionManager().launchFunction(controller, ContextType::filteredScansExport);
         }
 
-        bool StartColorimetricFilterExport::canUndo() const
+        bool StartFilteredScansExport::canUndo() const
         {
             return (false);
         }
 
-        void StartColorimetricFilterExport::undoFunction(Controller& controller)
+        void StartFilteredScansExport::undoFunction(Controller& controller)
         {
         }
 
-        ControlType StartColorimetricFilterExport::getType() const
+        ControlType StartFilteredScansExport::getType() const
         {
-            return (ControlType::startColorimetricFilterExport);
+            return (ControlType::startFilteredScansExport);
         }
     }
 }

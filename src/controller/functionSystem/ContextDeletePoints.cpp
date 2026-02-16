@@ -3,7 +3,9 @@
 #include "controller/ControllerContext.h"
 #include "controller/IControlListener.h"
 #include "controller/functionSystem/FunctionManager.h"
+#include "controller/messages/CameraMessage.h"
 #include "controller/messages/ModalMessage.h"
+#include "gui/GuiData/GuiDataContextRequest.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "io/exports/TlsFileWriter.h"
 #include "pointCloudEngine/TlScanOverseer.h"
@@ -11,11 +13,13 @@
 
 #include "models/graph/PointCloudNode.h"
 #include "models/graph/GraphManager.h"
+#include "models/graph/CameraNode.h"
 
 #include "gui/texts/ExportTexts.hpp"
 #include "gui/texts/SplashScreenTexts.hpp"
 #include "gui/texts/ContextTexts.hpp"
 
+#include "utils/ColorimetricFilterUtils.h"
 #include "utils/Logger.h"
 
 #include <algorithm>
@@ -32,6 +36,8 @@ ContextDeletePoints::ContextDeletePoints(const ContextId& id)
     m_state = ContextState::waiting_for_input;
     m_warningModal = false;
     m_pendingDeleteConfirmation = false;
+    m_waitingSaveModal = false;
+    m_hasCameraSettings = false;
 }
 
 ContextDeletePoints::~ContextDeletePoints()
@@ -41,16 +47,18 @@ ContextState ContextDeletePoints::start(Controller& controller)
 {
     m_warningModal = false;
     m_clippingFilter = ExportClippingFilter::ACTIVE;
+    m_pendingDeleteConfirmation = true;
+    m_waitingSaveModal = false;
+    m_hasCameraSettings = false;
+
+    controller.updateInfo(new GuiDataContextRequestActiveCamera(m_id));
 
     if (controller.getContext().getIsCurrentProjectSaved() == false)
     {
         controller.updateInfo(new GuiDataModal(Yes | No, TEXT_DELETE_SAVE_BEFORE_QUESTION));
-        m_pendingDeleteConfirmation = true;
+        m_waitingSaveModal = true;
         return (m_state = ContextState::waiting_for_input);
     }
-
-    if (!beginDeleteConfirmation(controller))
-        return (m_state = ContextState::abort);
 
     return (m_state = ContextState::waiting_for_input);
 }
@@ -59,6 +67,30 @@ ContextState ContextDeletePoints::feedMessage(IMessage* message, Controller& con
 {
     switch (message->getType())
     {
+    case IMessage::MessageType::CAMERA:
+    {
+        CameraMessage* cameraMsg = static_cast<CameraMessage*>(message);
+        ReadPtr<CameraNode> rCamera = cameraMsg->m_cameraNode.cget();
+        if (!rCamera)
+        {
+            controller.updateInfo(new GuiDataWarning(TEXT_FILTER_ACTIVATE_FIRST));
+            return (m_state = ContextState::abort);
+        }
+
+        const DisplayParameters& display = rCamera->getDisplayParameters();
+        m_colorimetricFilterSettings = display.m_colorimetricFilter;
+        m_polygonalSelectorSettings = display.m_polygonalSelector;
+        m_renderMode = display.m_mode;
+        m_hasCameraSettings = true;
+
+        if (m_pendingDeleteConfirmation && !m_waitingSaveModal)
+        {
+            m_pendingDeleteConfirmation = false;
+            if (!beginDeleteConfirmation(controller))
+                m_state = ContextState::abort;
+        }
+        break;
+    }
     case IMessage::MessageType::MODAL:
     {
         if (!m_warningModal)
@@ -67,7 +99,8 @@ ContextState ContextDeletePoints::feedMessage(IMessage* message, Controller& con
             if (modal->m_returnedValue == Yes)
                 m_saveContext = controller.getFunctionManager().launchBackgroundFunction(controller, ContextType::saveProject, m_id);
 
-            if (m_pendingDeleteConfirmation)
+            m_waitingSaveModal = false;
+            if (m_pendingDeleteConfirmation && m_hasCameraSettings)
             {
                 m_pendingDeleteConfirmation = false;
                 if (!beginDeleteConfirmation(controller))
@@ -99,9 +132,9 @@ bool ContextDeletePoints::beginDeleteConfirmation(Controller& controller)
     GraphManager& graphManager = controller.getGraphManager();
 
     std::unordered_set<SafePtr<AClippingNode>> clips = graphManager.getClippingObjects(true, false);
-    if (clips.empty())
+    if (clips.empty() && !hasActiveFilter())
     {
-        FUNCLOG << "No active clipping boxes" << LOGENDL;
+        FUNCLOG << "No active clipping boxes or filters" << LOGENDL;
         controller.updateInfo(new GuiDataWarning(TEXT_DELETE_POINTS_NO_ACTIVE_CLIPPING));
         return false;
     }
@@ -195,39 +228,55 @@ ContextState ContextDeletePoints::launch(Controller& controller)
         tls::ScanGuid old_guid = wScan->getScanGuid();
         tls::ScanGuid new_guid = old_guid;
 
-        if (TlScanOverseer::getInstance().testClippingEffect(old_guid, (TransformationModule)*&wScan, *clippingToUse))
+        const uint64_t currentScanIndex = scan_count;
+        TlsFileWriter* tls_writer = nullptr;
+        std::wstring log;
+        TlsFileWriter::getWriter(temp_folder, wScan->getName(), log, (IScanFileWriter**)&tls_writer);
+        if (tls_writer == nullptr)
+            continue;
+
+        temp_path = tls_writer->getFilePath();
+        tls::ScanHeader header;
+        TlScanOverseer::getInstance().getScanHeader(old_guid, header);
+        header.guid = xg::newGuid();
+        tls_writer->appendPointCloud(header, wScan->getTransformation());
+
+        auto progressCallback = [currentScanIndex, &updateProgress](size_t processed, size_t total)
         {
-            const uint64_t currentScanIndex = scan_count;
-            TlsFileWriter* tls_writer = nullptr;
-            std::wstring log;
-            TlsFileWriter::getWriter(temp_folder, wScan->getName(), log, (IScanFileWriter**)&tls_writer);
-            if (tls_writer == nullptr)
-                continue;
-            temp_path = tls_writer->getFilePath();
-            tls::ScanHeader header;
-            TlScanOverseer::getInstance().getScanHeader(old_guid, header);
-            header.guid = xg::newGuid();
-            tls_writer->appendPointCloud(header, wScan->getTransformation());
+            if (total == 0)
+                return;
+            int percent = static_cast<int>((processed * 100) / total);
+            percent = std::clamp(percent, 0, 99);
+            uint64_t progressValue = currentScanIndex * 100 + static_cast<uint64_t>(percent);
+            updateProgress(currentScanIndex, percent, progressValue);
+        };
 
-            auto progressCallback = [currentScanIndex, &updateProgress](size_t processed, size_t total)
-            {
-                if (total == 0)
-                    return;
-                int percent = static_cast<int>((processed * 100) / total);
-                percent = std::clamp(percent, 0, 99);
-                uint64_t progressValue = currentScanIndex * 100 + static_cast<uint64_t>(percent);
-                updateProgress(currentScanIndex, percent, progressValue);
-            };
-            bool res = TlScanOverseer::getInstance().clipScan(old_guid, (TransformationModule)*&wScan, *clippingToUse, tls_writer, progressCallback);
+        uint64_t kept_points = 0;
+        bool res = TlScanOverseer::getInstance().filterAndWrite(old_guid,
+                                                                 (TransformationModule)*&wScan,
+                                                                 *clippingToUse,
+                                                                 m_colorimetricFilterSettings,
+                                                                 m_polygonalSelectorSettings,
+                                                                 m_renderMode,
+                                                                 tls_writer,
+                                                                 kept_points,
+                                                                 progressCallback);
 
-            res &= tls_writer->finalizePointCloud();
+        res &= tls_writer->finalizePointCloud();
 
-            deleted_point_count = initial_point_count - tls_writer->getScanPointCount();
-            delete tls_writer;
-
+        if (kept_points < initial_point_count)
+        {
+            deleted_point_count = initial_point_count - kept_points;
             // Register the tls in the Overseer and get the Guid.
             res &= TlScanOverseer::getInstance().getScanGuid(temp_path, new_guid);
         }
+        else
+        {
+            std::error_code ec;
+            std::filesystem::remove(temp_path, ec);
+        }
+
+        delete tls_writer;
 
         // LOG
         scan_count++;
@@ -306,4 +355,28 @@ bool ContextDeletePoints::prepareOutputDirectory(Controller& controller, const s
     }
     */
     return true;
+}
+
+bool ContextDeletePoints::hasActiveFilter() const
+{
+    bool hasActiveColorimetricFilter = false;
+    if (m_colorimetricFilterSettings.enabled)
+    {
+        auto ordered = ColorimetricFilterUtils::normalizeSettings(m_colorimetricFilterSettings, m_renderMode);
+        for (const auto& entry : ordered)
+        {
+            if (entry.enabled)
+            {
+                hasActiveColorimetricFilter = true;
+                break;
+            }
+        }
+    }
+
+    const bool hasActivePolygonalFilter = m_polygonalSelectorSettings.enabled
+        && m_polygonalSelectorSettings.active
+        && m_polygonalSelectorSettings.appliedPolygonCount > 0
+        && !m_polygonalSelectorSettings.polygons.empty();
+
+    return hasActiveColorimetricFilter || hasActivePolygonalFilter;
 }

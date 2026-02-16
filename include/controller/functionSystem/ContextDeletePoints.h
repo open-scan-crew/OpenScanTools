@@ -3,6 +3,7 @@
 
 #include "controller/functionSystem/AContext.h"
 #include "io/exports/ExportParameters.hpp"
+#include "models/3d/DisplayParameters.h"
 
 class ContextDeletePoints : public AContext
 {
@@ -19,6 +20,7 @@ public:
 private:
     bool prepareOutputDirectory(Controller& controller, const std::filesystem::path& folderPath);
     bool beginDeleteConfirmation(Controller& controller);
+    bool hasActiveFilter() const;
 
 private:
     ExportClippingFilter m_clippingFilter;
@@ -28,6 +30,11 @@ private:
 
     bool m_warningModal;
     bool m_pendingDeleteConfirmation;
+    bool m_waitingSaveModal;
+    bool m_hasCameraSettings;
+    ColorimetricFilterSettings m_colorimetricFilterSettings;
+    PolygonalSelectorSettings m_polygonalSelectorSettings;
+    UiRenderMode m_renderMode = UiRenderMode::RGB;
 };
 
 #endif

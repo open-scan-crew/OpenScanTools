@@ -54,11 +54,11 @@ namespace control
             ControlType getType() const override;
         };
 
-        class StartColorimetricFilterExport : public AControl
+        class StartFilteredScansExport : public AControl
         {
         public:
-            StartColorimetricFilterExport();
-            ~StartColorimetricFilterExport();
+            StartFilteredScansExport();
+            ~StartFilteredScansExport();
             void doFunction(Controller& controller) override;
             bool canUndo() const override;
             void undoFunction(Controller& controller) override;
