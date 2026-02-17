@@ -37,6 +37,9 @@ To recall the function, press Enter/Return again.You can create up to 16 polygon
    </item>
    <item row="0" column="1">
     <widget class="QRadioButton" name="radioButtonShowSelected">
+     <property name="toolTip">
+      <string>Show the points inside the polygons.</string>
+     </property>
      <property name="text">
       <string>Show selected</string>
      </property>
@@ -47,6 +50,9 @@ To recall the function, press Enter/Return again.You can create up to 16 polygon
    </item>
    <item row="0" column="2">
     <widget class="QRadioButton" name="radioButtonHideSelected">
+     <property name="toolTip">
+      <string>Show the points outside the polygons.</string>
+     </property>
      <property name="text">
       <string>Hide selected</string>
      </property>
@@ -115,6 +121,9 @@ Tip: create viewpoints to store multiple filters.</string>
      </item>
      <item>
       <widget class="QCheckBox" name="checkBox_managePolygon">
+       <property name="toolTip">
+        <string>Check this box to select a polygon you want to delete. Uncheck to exit.</string>
+       </property>
        <property name="text">
         <string>Manage</string>
        </property>

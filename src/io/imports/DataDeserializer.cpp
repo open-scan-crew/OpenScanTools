@@ -369,7 +369,7 @@ bool ImportPointCloudNode(const nlohmann::json& json, PointCloudNode& data)
     bool retVal = true;
 
     if (json.find(Key_Path) != json.end())
-        data.setTlsFilePath(Utils::from_utf8(json.at(Key_Path).get<std::string>()), false);
+        data.setTlsFilePath(Utils::from_utf8(json.at(Key_Path).get<std::string>()), false, tls::ScanGuid(), false);
     else
     {
         IOLOG << "Scan Path read error" << LOGENDL;

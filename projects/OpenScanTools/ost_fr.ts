@@ -4524,12 +4524,12 @@ Do you want to save it before closing?</source>
         <translation>Affichage du texte</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="63"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="64"/>
         <source>Normals</source>
         <translation>Normales</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="65"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="66"/>
         <source>Transparency</source>
         <translation>Transparence</translation>
     </message>
@@ -5362,7 +5362,7 @@ Attention: vous ne pouvez pas annuler cette action.</translation>
     <message>
         <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="62"/>
         <source>Objects clipping</source>
-        <translation></translation>
+        <translation>Clipping d&apos;objets</translation>
     </message>
     <message>
         <location filename="../../include/gui/texts/ExportTexts.hpp" line="45"/>
@@ -6846,7 +6846,12 @@ Conversion ignorée.
         <translation>Naviguer</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="66"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="63"/>
+        <source>Polygonal selector</source>
+        <translation>Sélection polygonale</translation>
+    </message>
+    <message>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="67"/>
         <source>Enhance</source>
         <translation>Améliorer</translation>
     </message>
@@ -6866,7 +6871,7 @@ Conversion ignorée.
         <translation>Importer des scans</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="64"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="65"/>
         <source>Ortho Grid</source>
         <translation>Grille orthographique</translation>
     </message>
@@ -8153,6 +8158,11 @@ Attention : vous ne pouvez pas annuler cette action.</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_imagegroup.ui" line="315"/>
+        <source>Improves images. Requires more computing time.</source>
+        <translation>Améliore les images. Requiert plus de temps de calcul.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_imagegroup.ui" line="318"/>
         <source>Antialiasing</source>
         <translation>Antialiasing</translation>
     </message>
@@ -10665,7 +10675,7 @@ Cela limitera le temps de calcul.</translation>
     <message>
         <location filename="../../src/gui/forms/toolbar_measuregroup.ui" line="44"/>
         <source>Click on a point then on a pipe.</source>
-        <translation>Clique sur un point puis sur un tuyeau.</translation>
+        <translation>Clique sur un point puis sur un tube.</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_measuregroup.ui" line="76"/>
@@ -10690,7 +10700,7 @@ Cela limitera le temps de calcul.</translation>
     <message>
         <location filename="../../src/gui/forms/toolbar_measuregroup.ui" line="105"/>
         <source>Click on a pipe then a plane</source>
-        <translation>Clique sur un tuyeau puis sur un plan</translation>
+        <translation>Cliquer sur un tube puis sur un plan</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_measuregroup.ui" line="201"/>
@@ -10914,11 +10924,6 @@ Voir également les paramètres de copie.</translation>
         <translation>Mode robuste</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="174"/>
-        <source>Do a single click on a representative area of the pipe to detect it. Avoid clicking close to the elbows or accessoires.</source>
-        <translation>Cliquez sur une portion représentative, et correctemet scannée, du tube. Evitez de cliquer près des coudes, des accessoires, ou des passages de murs.</translation>
-    </message>
-    <message>
         <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="177"/>
         <source>Detect pipe</source>
         <translation>Détecter tube</translation>
@@ -10974,6 +10979,11 @@ Voir également les paramètres de copie.</translation>
 Do 2 clics on the perimeter (not to close to eachother), and 2 clics along the axis.</source>
         <translation>A utiliser pour les diamètres importants ou en cas de difficulté avec la détection classique.
 Faire 2 clics (pas trop rapprochés) sur le périmètre, puis 2 sur la longueur.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="174"/>
+        <source>Choose a representative area of the pipe to detect it. Avoid clicking close to the elbows or accessories.</source>
+        <translation>Choisissez une portion représentative du tube et évitez de cliquer près des coudes ou des accessoires.</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="197"/>
@@ -11161,7 +11171,7 @@ Séparateur de colonnes: tabulation, espace, ou ;</translation>
     <message>
         <location filename="../../src/gui/forms/toolbar_renderenhancegroup.ui" line="62"/>
         <source>This function adds a slight blur that can help soften the rendering. It is best to keep the values fairly low. </source>
-        <translation>Cette fonction ajoute un léger flou qui adoucit le rendu. Il est conseillé de garder des valeurs assez basses.</translation>
+        <translation>Cette fonction ajoute un léger flou qui adoucit le rendu. Il est conseillé de garder des valeurs assez basses. </translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_renderenhancegroup.ui" line="65"/>
@@ -11451,16 +11461,26 @@ Pour rappeler la fonction, appuyez sur Entrée/retour. Vous pouvez créer jusqu&
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_selector.ui" line="41"/>
+        <source>Show the points inside the polygons.</source>
+        <translation>Montrer les points inclus dans les polygones.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="44"/>
         <source>Show selected</source>
         <translation>Montrer</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_selector.ui" line="51"/>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="54"/>
+        <source>Show the points outside the polygons.</source>
+        <translation>Masquer les points inclus dans les polygones.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="57"/>
         <source>Hide selected</source>
         <translation>Masquer</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_selector.ui" line="58"/>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="64"/>
         <source>Apply the current filter. To export the result, please go to the Export tab.
 If you want to clean the point cloud using this filter, go to the Edition tab.
 Tip: create viewpoints to store multiple filters.</source>
@@ -11469,52 +11489,57 @@ Si vous voulez nettoyer le nuage de points, allez dans l&apos;onglet Edition.
 Astuce: créez des points de vue pour enregistrer plusieurs filtres.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_selector.ui" line="63"/>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="69"/>
         <source>Apply</source>
         <translation>Appliquer</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_selector.ui" line="70"/>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="76"/>
         <source>Deactivate the filter. It is still available if you apply again.</source>
         <translation>Désactive le filtre en cours. Il reste disponible si vous l&apos;appliquez à nouveau.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_selector.ui" line="73"/>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="79"/>
         <source>Deactivate</source>
         <translation>Désactiver</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_selector.ui" line="80"/>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="86"/>
         <source>This will reset the filter.</source>
         <translation>Réinitialise le filtre.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_selector.ui" line="83"/>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="89"/>
         <source>Reset</source>
         <translation>Réinitialiser</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_selector.ui" line="105"/>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="111"/>
         <source>List</source>
         <translation>Liste</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_selector.ui" line="112"/>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="118"/>
         <source>List of polygons created in the filter. Check &quot;Manage&quot; to select a polygon.</source>
         <translation>Liste des polygones créés dans le filtre. Cochez &quot;Gérer&quot; pour sélectionner un polygone.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_selector.ui" line="119"/>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="125"/>
+        <source>Check this box to select a polygon you want to delete. Uncheck to exit.</source>
+        <translation>Cochez cette case pour pouvoir sélectionner un polygone à supprimer.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="128"/>
         <source>Manage</source>
         <translation>Gérer</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_selector.ui" line="130"/>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="139"/>
         <source>Delete the selected polygon.</source>
         <translation>Supprime le polygone sélectionné.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_selector.ui" line="133"/>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="142"/>
         <source>Delete</source>
         <translation>Supprimer</translation>
     </message>
@@ -11583,59 +11608,78 @@ Astuce: créez des points de vue pour enregistrer plusieurs filtres.</translatio
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="124"/>
+        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="48"/>
+        <source>Max tilt / height ratio</source>
+        <translation>Ratio max déport / hauteur</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="131"/>
+        <source>Click 3 points on the lower beam face: 2 at the extremities, one in the middle.</source>
+        <translation>Cliquez sur 3 points de la face inférieure de la poutre: 2 aux extrémités, 1 vers le milieu.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="134"/>
         <source>Manual</source>
         <translation>Manuel</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="137"/>
-        <source>First, set an axis perpendicular to the tilt direction. Then, click on a point at the bottom and one at the top of the column face.</source>
-        <translation>Définissez d&apos;abord un axe perpendiculaire à la direction recherchée pour le déport, en cliquant sur 2 points. Ensuite, cliquez sur un point en bas et un en haut de la face du poteau. L&apos;axe est conservé jusqu&apos;à ce que la fonction soit quittée.</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="140"/>
+        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="151"/>
         <source>Column Tilt</source>
         <translation>Déport de poteau</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="48"/>
+        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="51"/>
         <source>Max t/h 1/</source>
         <translation>Max d/h 1/</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="77"/>
-        <source>Calculates the max bending value for beams without roll.
-Click on 2 points on the bottom face, close to the extremity. A tag is created at the max bending point.</source>
-        <translation>Calcule la flèche maximale pour les poutres sans roulis.
-Cliquez sur 2 points de la face inférieure, près des extrémités. Un tag est créé au point de flexion maximale.</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="61"/>
+        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="64"/>
         <source>Max ratio tilt / height. Enter 0 to ignore.</source>
         <translation>Ratio déport / hauteur maxi autorisé. Saisir 0 pour ignorer.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="64"/>
+        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="67"/>
         <source>150</source>
         <translation>150</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="81"/>
+        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="80"/>
+        <source>Calculates the max bending value for beams without roll.
+Click on 2 points on the bottom face, close to the extremity. A tag is created at the max bending point.
+Tag colors: green=within tolerance, red=outside tolerance, orange=not reliable.</source>
+        <translation>Calcule la flèche maximale pour des poutres sans roulis.
+Cliquez sur 2 points de la face inférieure, proches des extrémités. Un tag est créé à l&apos;endroit de la flèche max.
+Couleur du tag: vert=dans la tolérance, rouge=hors tolérance, orange=résultat peu fiable.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="85"/>
         <source>Beam Bending</source>
         <translation>Flexion de poutre</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="117"/>
+        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="121"/>
+        <source>Max bending / lentgh ratio</source>
+        <translation>Ratio max flèche / longueur</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="124"/>
         <source>Max b/l 1/</source>
         <translation>Max f/l 1/</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="107"/>
+        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="147"/>
+        <source>First, set an axis perpendicular to the tilt direction. Then, click on a point at the bottom and one at the top of the column face.
+Tag colors: green=within tolerance, red=outside tolerance, orange=not reliable.</source>
+        <translation>D&apos;abord, définissez un axe perpendiculaire à la direction du déport recherché. Ensuite, cliquez sur un point en bas et un en haut du poteau.
+Couleur du tag: vert=dans la tolérance, rouge=hors tolérance, orange=résultat peu fiable.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="111"/>
         <source>Max ratio bending / length. Enter 0 to ignore.</source>
         <translation>Ratio flèche / longueur maxi autorisé. Saisir 0 pour ignorer.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="110"/>
+        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="114"/>
         <source>200</source>
         <translation>200</translation>
     </message>

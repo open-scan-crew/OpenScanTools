@@ -338,9 +338,9 @@ Gui::Gui(Controller& controller)
     // Add groups to the Clipping Tab
 	ribbonTabContent = new RibbonTabContent();
 	ribbonTabContent->addWidget(TEXT_ATTRIBUTE, new ToolBarAttributesGroup(controller, this, m_guiScale));
-	ribbonTabContent->addWidget(TEXT_BOX, new ToolBarClippingGroup(m_dataDispatcher, this, m_guiScale));
-	ribbonTabContent->addWidget("Polygonal selector", new ToolBarPolygonalSelector(m_dataDispatcher, this, m_guiScale));
+	ribbonTabContent->addWidget(TEXT_BOX, new ToolBarClippingGroup(m_dataDispatcher, this, m_guiScale));	
 	ribbonTabContent->addWidget(TEXT_CLIPPING_GROUP_NAME, new ToolBarClippingParameters(m_dataDispatcher, this, m_guiScale));
+	ribbonTabContent->addWidget(TEXT_POLYGONAL_SELECTOR, new ToolBarPolygonalSelector(m_dataDispatcher, this, m_guiScale));
     m_ribbon->addTab(TEXT_CLIPPING, ribbonTabContent);
 
 	// Add groups to the Edition

@@ -346,7 +346,7 @@ std::unordered_set<SafePtr<AGraphNode>> SaveLoadSystem::LoadFileObjects(Controll
                 continue;
 
             std::filesystem::path pcPath = findPointCloudPath(wPCNode, internalInfo, folder);
-            wPCNode->setTlsFilePath(pcPath, false);
+            wPCNode->setTlsFilePath(pcPath, false, tls::ScanGuid(), false);
             if (wPCNode->getScanGuid() == tls::ScanGuid())
                 failedFileImport.insert(object);
             else if (forceCopy)

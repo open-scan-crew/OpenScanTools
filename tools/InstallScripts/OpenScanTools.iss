@@ -3,7 +3,7 @@
 
 #define MyAppName "OpenScanTools"
 #define MyAppVersion "1.1"
-#define MyBuildVersion "1.1.0"
+#define MyBuildVersion "1.1.1"
 #define MyAppPublisher "OpenScanTools"
 #define MyAppURL "https://www.openscantools.com/"
 #define MyAppExeName "OpenScanTools.exe"

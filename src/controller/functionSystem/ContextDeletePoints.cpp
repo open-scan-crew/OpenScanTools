@@ -290,7 +290,7 @@ ContextState ContextDeletePoints::launch(Controller& controller)
             std::filesystem::path absolutePath = wScan->getTlsFilePath();
             // NOTE - On choisi de ne pas supprimer le fichier au cas où cela soit une mauvaise manipulation.
             TlScanOverseer::getInstance().freeScan_async(old_guid, false);
-            wScan->setTlsFilePath(temp_path, false);
+            wScan->setTlsFilePath(temp_path, false, tls::ScanGuid(), false);
             if (new_guid == xg::Guid())
             {
                 controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Scan %1 totally deleted from project.").arg(qScanName)));

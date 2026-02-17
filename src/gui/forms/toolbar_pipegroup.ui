@@ -171,7 +171,7 @@ Do 2 clics on the perimeter (not to close to eachother), and 2 clics along the a
    <item row="2" column="4">
     <widget class="QToolButton" name="pipeToolButton">
      <property name="toolTip">
-      <string>Do a single click on a representative area of the pipe to detect it. Avoid clicking close to the elbows or accessoires.</string>
+      <string>Choose a representative area of the pipe to detect it. Avoid clicking close to the elbows or accessories.</string>
      </property>
      <property name="text">
       <string>Detect pipe</string>
