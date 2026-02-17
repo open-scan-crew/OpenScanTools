@@ -116,6 +116,10 @@ struct ColorimetricFilterUniform
     glm::mat4 polygonViewProj[MAX_POLYGONAL_SELECTOR_POLYGONS] = {};
     glm::vec4 polygonVertices[MAX_POLYGONAL_SELECTOR_POLYGONS * MAX_POLYGONAL_SELECTOR_VERTICES] = {}; // xy: normalized screen coords
     glm::vec4 polygonMeta[MAX_POLYGONAL_SELECTOR_POLYGONS] = {}; // x: vertexCount
+    glm::vec4 polygonSnapshotCounts[MAX_POLYGONAL_SELECTOR_POLYGONS] = {}; // x: unionCount, y: intersectionCount
+    glm::mat4 polygonSnapshotMat[MAX_POLYGONAL_SELECTOR_POLYGONS * MAX_POLYGONAL_SELECTOR_SNAPSHOT_CLIPS] = {};
+    glm::vec4 polygonSnapshotParams[MAX_POLYGONAL_SELECTOR_POLYGONS * MAX_POLYGONAL_SELECTOR_SNAPSHOT_CLIPS] = {};
+    glm::vec4 polygonSnapshotMeta[MAX_POLYGONAL_SELECTOR_POLYGONS * MAX_POLYGONAL_SELECTOR_SNAPSHOT_CLIPS] = {}; // x: shape, y: mode
 };
 
 enum class ProjectionMode

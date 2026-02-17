@@ -35,6 +35,36 @@ uint32_t computeNextPolygonId(const PolygonalSelectorSettings& settings)
 
     return std::max<uint32_t>(std::max<uint32_t>(settings.nextPolygonId, maxSuffix + 1), 1u);
 }
+
+void captureSnapshotClipping(const ClippingAssembly& assembly, PolygonalSelectorPolygon& polygon)
+{
+    polygon.snapshotUnion.clear();
+    polygon.snapshotIntersection.clear();
+
+    auto convert = [](const std::shared_ptr<IClippingGeometry>& geom) -> PolygonalSelectorPolygon::SnapshotClip
+    {
+        PolygonalSelectorPolygon::SnapshotClip snapshot;
+        snapshot.shape = static_cast<int32_t>(geom->getShape());
+        snapshot.mode = static_cast<int32_t>(geom->mode);
+        snapshot.matRTInv = geom->matRT_inv_store;
+        snapshot.params = geom->params;
+        return snapshot;
+    };
+
+    for (const std::shared_ptr<IClippingGeometry>& geom : assembly.clippingUnion)
+    {
+        if (polygon.snapshotUnion.size() >= MAX_POLYGONAL_SELECTOR_SNAPSHOT_CLIPS)
+            break;
+        polygon.snapshotUnion.push_back(convert(geom));
+    }
+
+    for (const std::shared_ptr<IClippingGeometry>& geom : assembly.clippingIntersection)
+    {
+        if (polygon.snapshotUnion.size() + polygon.snapshotIntersection.size() >= MAX_POLYGONAL_SELECTOR_SNAPSHOT_CLIPS)
+            break;
+        polygon.snapshotIntersection.push_back(convert(geom));
+    }
+}
 }
 
 ContextPolygonalSelector::ContextPolygonalSelector(const ContextId& id)
@@ -144,6 +174,10 @@ ContextState ContextPolygonalSelector::validate(Controller& controller)
             polygon.name = QString("polygon_%1").arg(m_settings.nextPolygonId).toStdString();
             polygon.normalizedVertices = m_currentVertices;
             polygon.camera = m_lastSnapshot;
+
+            ClippingAssembly clippingAssembly;
+            controller.getGraphManager().getClippingAssembly(clippingAssembly, true, false);
+            captureSnapshotClipping(clippingAssembly, polygon);
 
             controller.updateInfo(new GuiDataRenderPolygonalSelector(m_settings, SafePtr<CameraNode>(), m_currentVertices, true));
 

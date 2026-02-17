@@ -264,6 +264,12 @@
 #define Key_Polygonal_Selector_Cam_Proj	"PolygonalSelectorCameraProj"
 #define Key_Polygonal_Selector_Cam_Viewport "PolygonalSelectorCameraViewport"
 #define Key_Polygonal_Selector_Cam_Perspective "PolygonalSelectorCameraPerspective"
+#define Key_Polygonal_Selector_SnapshotUnion "PolygonalSelectorSnapshotUnion"
+#define Key_Polygonal_Selector_SnapshotIntersection "PolygonalSelectorSnapshotIntersection"
+#define Key_Polygonal_Selector_SnapshotClipShape "PolygonalSelectorSnapshotClipShape"
+#define Key_Polygonal_Selector_SnapshotClipMode "PolygonalSelectorSnapshotClipMode"
+#define Key_Polygonal_Selector_SnapshotClipMat "PolygonalSelectorSnapshotClipMat"
+#define Key_Polygonal_Selector_SnapshotClipParams "PolygonalSelectorSnapshotClipParams"
 
 #define Key_Active_Scans				"ActiveScans"
 #define Key_Active_Clippings			"ActiveClippings"
