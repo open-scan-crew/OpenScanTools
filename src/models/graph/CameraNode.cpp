@@ -277,6 +277,29 @@ ColorimetricFilterUniform CameraNode::buildColorimetricFilterUniform() const
             const glm::vec2& uv = polygon.normalizedVertices[v];
             uniform.polygonVertices[pIndex * MAX_POLYGONAL_SELECTOR_VERTICES + v] = glm::vec4(uv.x, uv.y, 0.0f, 0.0f);
         }
+
+        const uint32_t maxSnapshotClipCount = MAX_POLYGONAL_SELECTOR_SNAPSHOT_CLIPS;
+        const uint32_t unionCount = std::min<uint32_t>(static_cast<uint32_t>(polygon.snapshotUnion.size()), maxSnapshotClipCount);
+        const uint32_t intersectionCount = std::min<uint32_t>(static_cast<uint32_t>(polygon.snapshotIntersection.size()), maxSnapshotClipCount - unionCount);
+        uniform.polygonSnapshotCounts[pIndex] = glm::vec4(static_cast<float>(unionCount), static_cast<float>(intersectionCount), 0.0f, 0.0f);
+
+        uint32_t localIndex = 0;
+        for (uint32_t i = 0; i < unionCount; ++i)
+        {
+            const PolygonalSelectorPolygon::SnapshotClip& clip = polygon.snapshotUnion[i];
+            const uint32_t dst = pIndex * MAX_POLYGONAL_SELECTOR_SNAPSHOT_CLIPS + localIndex++;
+            uniform.polygonSnapshotMat[dst] = glm::mat4(clip.matRTInv);
+            uniform.polygonSnapshotParams[dst] = clip.params;
+            uniform.polygonSnapshotMeta[dst] = glm::vec4(static_cast<float>(clip.shape), static_cast<float>(clip.mode), 0.0f, 0.0f);
+        }
+        for (uint32_t i = 0; i < intersectionCount; ++i)
+        {
+            const PolygonalSelectorPolygon::SnapshotClip& clip = polygon.snapshotIntersection[i];
+            const uint32_t dst = pIndex * MAX_POLYGONAL_SELECTOR_SNAPSHOT_CLIPS + localIndex++;
+            uniform.polygonSnapshotMat[dst] = glm::mat4(clip.matRTInv);
+            uniform.polygonSnapshotParams[dst] = clip.params;
+            uniform.polygonSnapshotMeta[dst] = glm::vec4(static_cast<float>(clip.shape), static_cast<float>(clip.mode), 0.0f, 0.0f);
+        }
     }
 
     return uniform;
