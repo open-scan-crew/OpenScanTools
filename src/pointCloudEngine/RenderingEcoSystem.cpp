@@ -176,6 +176,34 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
         hash += hash_fn_32(polygon.camera.viewportWidth);
         hash += hash_fn_32(polygon.camera.viewportHeight);
         hash += hash_fn_b(polygon.camera.perspective);
+
+        hash += hash_fn_64(static_cast<uint64_t>(polygon.snapshotUnion.size()));
+        for (const PolygonalSelectorPolygon::SnapshotClip& clip : polygon.snapshotUnion)
+        {
+            hash += hash_fn_32(static_cast<uint32_t>(clip.shape));
+            hash += hash_fn_32(static_cast<uint32_t>(clip.mode));
+            hash += hash_fn_f(clip.params.x);
+            hash += hash_fn_f(clip.params.y);
+            hash += hash_fn_f(clip.params.z);
+            hash += hash_fn_f(clip.params.w);
+            for (int c = 0; c < 4; ++c)
+                for (int r = 0; r < 4; ++r)
+                    hash += hash_fn_d(clip.matRTInv[c][r]);
+        }
+
+        hash += hash_fn_64(static_cast<uint64_t>(polygon.snapshotIntersection.size()));
+        for (const PolygonalSelectorPolygon::SnapshotClip& clip : polygon.snapshotIntersection)
+        {
+            hash += hash_fn_32(static_cast<uint32_t>(clip.shape));
+            hash += hash_fn_32(static_cast<uint32_t>(clip.mode));
+            hash += hash_fn_f(clip.params.x);
+            hash += hash_fn_f(clip.params.y);
+            hash += hash_fn_f(clip.params.z);
+            hash += hash_fn_f(clip.params.w);
+            for (int c = 0; c < 4; ++c)
+                for (int r = 0; r < 4; ++r)
+                    hash += hash_fn_d(clip.matRTInv[c][r]);
+        }
     }
 
     //hash += hash_fn_f(display.m_alphaObject);             // Do not affect the point cloud
