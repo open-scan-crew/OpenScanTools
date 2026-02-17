@@ -105,11 +105,6 @@ void ShortcutSystem::slotDelete()
 void ShortcutSystem::slotAbort()
 {
 	GUI_LOG << "shortcut abort" << LOGENDL;
-	if (m_activeContext == ContextType::polygonalSelector)
-	{
-		m_dataDispatcher.sendControl(new control::function::Validate());
-		return;
-	}
 
 	if (m_notInContext)
 		m_dataDispatcher.updateInformation(new GuiDataDisableFullScreen());

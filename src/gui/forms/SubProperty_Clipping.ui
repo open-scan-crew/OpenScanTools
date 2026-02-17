@@ -193,6 +193,11 @@
         <property name="enabled">
          <bool>true</bool>
         </property>
+        <property name="toolTip">
+         <string>By phase: use this for scans of the same area taken at different times.
+Give names to the phases of your scans. Give the object (box, tag, etc.) a phase name.
+Scans with the same phase as the object are then clipped in interior mode, while those with a different phase are clipped in exterior mode.</string>
+        </property>
         <property name="layoutDirection">
          <enum>Qt::RightToLeft</enum>
         </property>
