@@ -24,9 +24,19 @@ struct PolygonalSelectorCameraSnapshot
 
 struct PolygonalSelectorPolygon
 {
+    struct SnapshotClip
+    {
+        int32_t shape = 0; // ClippingShape
+        int32_t mode = 0;  // ClippingMode
+        glm::dmat4 matRTInv = glm::dmat4(1.0);
+        glm::vec4 params = glm::vec4(0.0f);
+    };
+
     std::string name;
     std::vector<glm::vec2> normalizedVertices;
     PolygonalSelectorCameraSnapshot camera;
+    std::vector<SnapshotClip> snapshotUnion;
+    std::vector<SnapshotClip> snapshotIntersection;
 };
 
 struct PolygonalSelectorSettings

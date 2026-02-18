@@ -93,6 +93,62 @@ namespace
         return pointInPolygon(uv, polygon.normalizedVertices);
     }
 
+    bool snapshotClipAcceptsPoint(const PolygonalSelectorPolygon::SnapshotClip& clip, const glm::dvec4& point4)
+    {
+        glm::dvec4 localPt = clip.matRTInv * point4;
+
+        bool inside = false;
+        if (clip.shape == static_cast<int32_t>(ClippingShape::box))
+        {
+            inside = (std::abs(localPt.x) <= clip.params.x)
+                && (std::abs(localPt.y) <= clip.params.y)
+                && (std::abs(localPt.z) <= clip.params.z);
+        }
+        else if (clip.shape == static_cast<int32_t>(ClippingShape::cylinder))
+        {
+            const double dxy = std::sqrt(localPt.x * localPt.x + localPt.y * localPt.y);
+            inside = (dxy >= clip.params.x)
+                && (dxy <= clip.params.y)
+                && (std::abs(localPt.z) <= clip.params.z);
+        }
+        else if (clip.shape == static_cast<int32_t>(ClippingShape::sphere))
+        {
+            const double dxyz = std::sqrt(localPt.x * localPt.x + localPt.y * localPt.y + localPt.z * localPt.z);
+            inside = (dxyz >= clip.params.x)
+                && (dxyz <= clip.params.y);
+        }
+        else
+        {
+            return false;
+        }
+
+        return (clip.mode == static_cast<int32_t>(ClippingMode::showInterior)) ? inside : !inside;
+    }
+
+    bool pointPassesPolygonSnapshot(const glm::dvec3& worldPoint, const PolygonalSelectorPolygon& polygon)
+    {
+        if (polygon.snapshotUnion.empty() && polygon.snapshotIntersection.empty())
+            return true;
+
+        glm::dvec4 point4(worldPoint, 1.0);
+
+        for (const PolygonalSelectorPolygon::SnapshotClip& clip : polygon.snapshotIntersection)
+        {
+            if (!snapshotClipAcceptsPoint(clip, point4))
+                return false;
+        }
+
+        if (polygon.snapshotUnion.empty())
+            return true;
+
+        for (const PolygonalSelectorPolygon::SnapshotClip& clip : polygon.snapshotUnion)
+        {
+            if (snapshotClipAcceptsPoint(clip, point4))
+                return true;
+        }
+        return false;
+    }
+
     PreparedRayTracingDisplayFilter prepareRayTracingDisplayFilter(const RayTracingDisplayFilterSettings* settings)
     {
         PreparedRayTracingDisplayFilter prepared;
@@ -178,7 +234,8 @@ namespace
             {
                 if (isPointInsidePolygonSelection(worldPoint, preparedFilter.polygons->at(polygonIndex)))
                 {
-                    insideAppliedPolygon = true;
+                    if (pointPassesPolygonSnapshot(worldPoint, preparedFilter.polygons->at(polygonIndex)))
+                        insideAppliedPolygon = true;
                     break;
                 }
             }
@@ -1256,7 +1313,8 @@ bool EmbeddedScan::filterAndWrite(const TransformationModule& src_transfo,
             {
                 if (isPointInsidePolygonSelection(worldPoint, polygonalSelectorSettings.polygons[polygonIndex]))
                 {
-                    insideAppliedPolygon = true;
+                    if (pointPassesPolygonSnapshot(worldPoint, polygonalSelectorSettings.polygons[polygonIndex]))
+                        insideAppliedPolygon = true;
                     break;
                 }
             }

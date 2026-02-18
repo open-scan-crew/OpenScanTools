@@ -8,5 +8,6 @@ constexpr int MAX_ACTIVE_CLIPPING = 512;
 
 constexpr uint32_t MAX_POLYGONAL_SELECTOR_POLYGONS = 16;
 constexpr uint32_t MAX_POLYGONAL_SELECTOR_VERTICES = 32;
+constexpr uint32_t MAX_POLYGONAL_SELECTOR_SNAPSHOT_CLIPS = 8;
 
 #endif

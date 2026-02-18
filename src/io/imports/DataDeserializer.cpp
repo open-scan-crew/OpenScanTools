@@ -801,6 +801,57 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
                         polygon.camera.perspective = cameraJson.at(Key_Polygonal_Selector_Cam_Perspective).get<bool>();
                 }
 
+                auto readSnapshotClip = [](const nlohmann::json& clipJson, PolygonalSelectorPolygon::SnapshotClip& clip)
+                {
+                    if (clipJson.find(Key_Polygonal_Selector_SnapshotClipShape) != clipJson.end())
+                        clip.shape = clipJson.at(Key_Polygonal_Selector_SnapshotClipShape).get<int32_t>();
+                    if (clipJson.find(Key_Polygonal_Selector_SnapshotClipMode) != clipJson.end())
+                        clip.mode = clipJson.at(Key_Polygonal_Selector_SnapshotClipMode).get<int32_t>();
+
+                    if (clipJson.find(Key_Polygonal_Selector_SnapshotClipMat) != clipJson.end())
+                    {
+                        const auto& mat = clipJson.at(Key_Polygonal_Selector_SnapshotClipMat);
+                        if (mat.is_array() && mat.size() == 16)
+                        {
+                            for (int c = 0; c < 4; ++c)
+                                for (int r = 0; r < 4; ++r)
+                                    clip.matRTInv[c][r] = mat.at(c * 4 + r).get<double>();
+                        }
+                    }
+
+                    if (clipJson.find(Key_Polygonal_Selector_SnapshotClipParams) != clipJson.end())
+                    {
+                        const auto& params = clipJson.at(Key_Polygonal_Selector_SnapshotClipParams);
+                        if (params.is_array() && params.size() >= 4)
+                        {
+                            clip.params.x = params.at(0).get<float>();
+                            clip.params.y = params.at(1).get<float>();
+                            clip.params.z = params.at(2).get<float>();
+                            clip.params.w = params.at(3).get<float>();
+                        }
+                    }
+                };
+
+                if (polygonJson.find(Key_Polygonal_Selector_SnapshotUnion) != polygonJson.end())
+                {
+                    for (const auto& clipJson : polygonJson.at(Key_Polygonal_Selector_SnapshotUnion))
+                    {
+                        PolygonalSelectorPolygon::SnapshotClip clip;
+                        readSnapshotClip(clipJson, clip);
+                        polygon.snapshotUnion.push_back(clip);
+                    }
+                }
+
+                if (polygonJson.find(Key_Polygonal_Selector_SnapshotIntersection) != polygonJson.end())
+                {
+                    for (const auto& clipJson : polygonJson.at(Key_Polygonal_Selector_SnapshotIntersection))
+                    {
+                        PolygonalSelectorPolygon::SnapshotClip clip;
+                        readSnapshotClip(clipJson, clip);
+                        polygon.snapshotIntersection.push_back(clip);
+                    }
+                }
+
                 data.m_polygonalSelector.polygons.push_back(std::move(polygon));
             }
 

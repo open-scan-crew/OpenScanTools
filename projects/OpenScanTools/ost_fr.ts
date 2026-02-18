@@ -2426,22 +2426,22 @@ Perspective</translation>
 <context>
     <name>DisplayPresetManager</name>
     <message>
-        <location filename="../../src/gui/DisplayPresetManager.cpp" line="1080"/>
+        <location filename="../../src/gui/DisplayPresetManager.cpp" line="1155"/>
         <source>Please enter a name for the preset.</source>
         <translation>Veuillez saisir un nom pour le préréglage.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/DisplayPresetManager.cpp" line="1086"/>
+        <location filename="../../src/gui/DisplayPresetManager.cpp" line="1161"/>
         <source>Initial cannot be used to name the preset. Please enter another name</source>
         <translation>Initial ne peut pas être utilisé. Veuillez saisir un autre nom</translation>
     </message>
     <message>
-        <location filename="../../src/gui/DisplayPresetManager.cpp" line="1091"/>
+        <location filename="../../src/gui/DisplayPresetManager.cpp" line="1166"/>
         <source>Raw rendering cannot be used to name the preset. Please enter another name</source>
         <translation>Raw rendering ne peut pas être utilisé. Veuillez saisir un autre nom</translation>
     </message>
     <message>
-        <location filename="../../src/gui/DisplayPresetManager.cpp" line="1097"/>
+        <location filename="../../src/gui/DisplayPresetManager.cpp" line="1172"/>
         <source>This name is already used and cannot be used to name the preset. Please enter another name</source>
         <translation>Ce nom est déjà utilisé. Veuillez entrer un autre nom</translation>
     </message>
@@ -2784,8 +2784,8 @@ Veuillez spécifier le dossier parent de ces fichiers. (Ces fichiers vont être 
     </message>
     <message>
         <location filename="../../src/gui/forms/Property_Box.ui" line="62"/>
-        <source>It&apos;s replacing the box by a grid</source>
-        <translation>Cela remplace la box en grille</translation>
+        <source>This feature divides a box into a grid. Use this if you want to split your scan export into smaller files.</source>
+        <translation>Divise une box en grille. A utiliser si vous voulez scinder votre export de scans en fichiers plus légers.</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/Property_Box.ui" line="65"/>
@@ -7727,12 +7727,12 @@ Attention : vous ne pouvez pas annuler cette action.</translation>
 <context>
     <name>SubPropertyClipping</name>
     <message>
-        <location filename="../../src/gui/forms/SubProperty_Clipping.ui" line="226"/>
+        <location filename="../../src/gui/forms/SubProperty_Clipping.ui" line="231"/>
         <source>Show interior</source>
         <translation>Montrer intérieur</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/SubProperty_Clipping.ui" line="213"/>
+        <location filename="../../src/gui/forms/SubProperty_Clipping.ui" line="218"/>
         <source>Show exterior</source>
         <translation>Montrer extérieur</translation>
     </message>
@@ -7749,7 +7749,7 @@ Attention : vous ne pouvez pas annuler cette action.</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/SubProperty_Clipping.ui" line="94"/>
-        <location filename="../../src/gui/forms/SubProperty_Clipping.ui" line="249"/>
+        <location filename="../../src/gui/forms/SubProperty_Clipping.ui" line="254"/>
         <source>Max</source>
         <translation></translation>
     </message>
@@ -7769,7 +7769,16 @@ Attention : vous ne pouvez pas annuler cette action.</translation>
         <translation>Clipping</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/SubProperty_Clipping.ui" line="200"/>
+        <location filename="../../src/gui/forms/SubProperty_Clipping.ui" line="197"/>
+        <source>By phase: use this for scans of the same area taken at different times.
+Give names to the phases of your scans. Give the object (box, tag, etc.) a phase name.
+Scans with the same phase as the object are then clipped in interior mode, while those with a different phase are clipped in exterior mode.</source>
+        <translation type="unfinished">Par phase: à utiliser pour des scans effectués à différentes périodes dans une même zone.
+Donnez des noms de phase à vos scans. Donnez un nom de phase à l&apos;objet (box, tag etc...).
+Les scans ayant la même phase que l&apos;objet sont clippés en mode intérieur, ceux ayant une phase différente sont clippés en mode extérieur.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/SubProperty_Clipping.ui" line="205"/>
         <source>By phase</source>
         <translation>Par phase</translation>
     </message>

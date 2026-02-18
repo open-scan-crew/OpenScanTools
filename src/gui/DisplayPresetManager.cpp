@@ -145,6 +145,30 @@ namespace
 				{ Key_Polygonal_Selector_Cam_Viewport, { polygon.camera.viewportWidth, polygon.camera.viewportHeight } },
 				{ Key_Polygonal_Selector_Cam_Perspective, polygon.camera.perspective }
 			};
+
+			auto writeSnapshotClip = [](const PolygonalSelectorPolygon::SnapshotClip& clip)
+			{
+				return nlohmann::json{
+					{ Key_Polygonal_Selector_SnapshotClipShape, clip.shape },
+					{ Key_Polygonal_Selector_SnapshotClipMode, clip.mode },
+					{ Key_Polygonal_Selector_SnapshotClipMat, {
+						clip.matRTInv[0][0], clip.matRTInv[0][1], clip.matRTInv[0][2], clip.matRTInv[0][3],
+						clip.matRTInv[1][0], clip.matRTInv[1][1], clip.matRTInv[1][2], clip.matRTInv[1][3],
+						clip.matRTInv[2][0], clip.matRTInv[2][1], clip.matRTInv[2][2], clip.matRTInv[2][3],
+						clip.matRTInv[3][0], clip.matRTInv[3][1], clip.matRTInv[3][2], clip.matRTInv[3][3]
+					} },
+					{ Key_Polygonal_Selector_SnapshotClipParams, { clip.params.x, clip.params.y, clip.params.z, clip.params.w } }
+				};
+			};
+
+			polygonJson[Key_Polygonal_Selector_SnapshotUnion] = nlohmann::json::array();
+			for (const PolygonalSelectorPolygon::SnapshotClip& clip : polygon.snapshotUnion)
+				polygonJson[Key_Polygonal_Selector_SnapshotUnion].push_back(writeSnapshotClip(clip));
+
+			polygonJson[Key_Polygonal_Selector_SnapshotIntersection] = nlohmann::json::array();
+			for (const PolygonalSelectorPolygon::SnapshotClip& clip : polygon.snapshotIntersection)
+				polygonJson[Key_Polygonal_Selector_SnapshotIntersection].push_back(writeSnapshotClip(clip));
+
 			json[Key_Polygonal_Selector][Key_Polygonal_Selector_Polygons].push_back(polygonJson);
 		}
 
@@ -441,11 +465,62 @@ namespace
 								polygon.camera.viewportHeight = viewport.at(1).get<uint32_t>();
 							}
 						}
-						if (cameraJson.find(Key_Polygonal_Selector_Cam_Perspective) != cameraJson.end())
-							polygon.camera.perspective = cameraJson.at(Key_Polygonal_Selector_Cam_Perspective).get<bool>();
-					}
-					data.m_polygonalSelector.polygons.push_back(std::move(polygon));
+					if (cameraJson.find(Key_Polygonal_Selector_Cam_Perspective) != cameraJson.end())
+						polygon.camera.perspective = cameraJson.at(Key_Polygonal_Selector_Cam_Perspective).get<bool>();
 				}
+
+				auto readSnapshotClip = [](const nlohmann::json& clipJson, PolygonalSelectorPolygon::SnapshotClip& clip)
+				{
+					if (clipJson.find(Key_Polygonal_Selector_SnapshotClipShape) != clipJson.end())
+						clip.shape = clipJson.at(Key_Polygonal_Selector_SnapshotClipShape).get<int32_t>();
+					if (clipJson.find(Key_Polygonal_Selector_SnapshotClipMode) != clipJson.end())
+						clip.mode = clipJson.at(Key_Polygonal_Selector_SnapshotClipMode).get<int32_t>();
+
+					if (clipJson.find(Key_Polygonal_Selector_SnapshotClipMat) != clipJson.end())
+					{
+						const auto& mat = clipJson.at(Key_Polygonal_Selector_SnapshotClipMat);
+						if (mat.is_array() && mat.size() == 16)
+						{
+							for (int c = 0; c < 4; ++c)
+								for (int r = 0; r < 4; ++r)
+									clip.matRTInv[c][r] = mat.at(c * 4 + r).get<double>();
+						}
+					}
+
+					if (clipJson.find(Key_Polygonal_Selector_SnapshotClipParams) != clipJson.end())
+					{
+						const auto& params = clipJson.at(Key_Polygonal_Selector_SnapshotClipParams);
+						if (params.is_array() && params.size() >= 4)
+						{
+							clip.params.x = params.at(0).get<float>();
+							clip.params.y = params.at(1).get<float>();
+							clip.params.z = params.at(2).get<float>();
+							clip.params.w = params.at(3).get<float>();
+						}
+					}
+				};
+
+				if (polygonJson.find(Key_Polygonal_Selector_SnapshotUnion) != polygonJson.end())
+				{
+					for (const auto& clipJson : polygonJson.at(Key_Polygonal_Selector_SnapshotUnion))
+					{
+						PolygonalSelectorPolygon::SnapshotClip clip;
+						readSnapshotClip(clipJson, clip);
+						polygon.snapshotUnion.push_back(clip);
+					}
+				}
+
+				if (polygonJson.find(Key_Polygonal_Selector_SnapshotIntersection) != polygonJson.end())
+				{
+					for (const auto& clipJson : polygonJson.at(Key_Polygonal_Selector_SnapshotIntersection))
+					{
+						PolygonalSelectorPolygon::SnapshotClip clip;
+						readSnapshotClip(clipJson, clip);
+						polygon.snapshotIntersection.push_back(clip);
+					}
+				}
+				data.m_polygonalSelector.polygons.push_back(std::move(polygon));
+			}
 
 				for (size_t i = 0; i < data.m_polygonalSelector.polygons.size(); ++i)
 				{

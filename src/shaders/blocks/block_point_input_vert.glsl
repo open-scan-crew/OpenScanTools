@@ -21,6 +21,7 @@ layout(location = 1) out float filterReject;
 
 #define MAX_POLYGONAL_SELECTOR_POLYGONS 16
 #define MAX_POLYGONAL_SELECTOR_VERTICES 32
+#define MAX_POLYGONAL_SELECTOR_SNAPSHOT_CLIPS 8
 
 layout(push_constant) uniform PC {
     layout(offset = 0) float ptSize;
@@ -53,6 +54,10 @@ layout(set = 0, binding = 4) uniform uniformColorimetricFilter {
     mat4 polygonViewProj[MAX_POLYGONAL_SELECTOR_POLYGONS];
     vec4 polygonVertices[MAX_POLYGONAL_SELECTOR_POLYGONS * MAX_POLYGONAL_SELECTOR_VERTICES];
     vec4 polygonMeta[MAX_POLYGONAL_SELECTOR_POLYGONS];
+    vec4 polygonSnapshotCounts[MAX_POLYGONAL_SELECTOR_POLYGONS];
+    mat4 polygonSnapshotMat[MAX_POLYGONAL_SELECTOR_POLYGONS * MAX_POLYGONAL_SELECTOR_SNAPSHOT_CLIPS];
+    vec4 polygonSnapshotParams[MAX_POLYGONAL_SELECTOR_POLYGONS * MAX_POLYGONAL_SELECTOR_SNAPSHOT_CLIPS];
+    vec4 polygonSnapshotMeta[MAX_POLYGONAL_SELECTOR_POLYGONS * MAX_POLYGONAL_SELECTOR_SNAPSHOT_CLIPS];
 } uColorFilter;
 
 const float COLORIMETRIC_MAX_DISTANCE = 1.7320508;
@@ -82,6 +87,74 @@ vec3 getRgbNorm()
 #endif
 
 float gPolygonHighlight = 0.0;
+
+bool snapshotClipAcceptsPoint(int clipIndex, vec3 worldPos)
+{
+    vec4 localPt = uColorFilter.polygonSnapshotMat[clipIndex] * vec4(worldPos, 1.0);
+    vec4 params = uColorFilter.polygonSnapshotParams[clipIndex];
+    int shape = int(uColorFilter.polygonSnapshotMeta[clipIndex].x);
+    int mode = int(uColorFilter.polygonSnapshotMeta[clipIndex].y);
+
+    bool inside = false;
+    if (shape == 0) // box
+    {
+        inside = abs(localPt.x) <= params.x && abs(localPt.y) <= params.y && abs(localPt.z) <= params.z;
+    }
+    else if (shape == 1) // cylinder
+    {
+        float dxy = length(localPt.xy);
+        inside = (dxy >= params.x) && (dxy <= params.y) && (abs(localPt.z) <= params.z);
+    }
+    else if (shape == 2) // sphere
+    {
+        float dxyz = length(localPt.xyz);
+        inside = (dxyz >= params.x) && (dxyz <= params.y);
+    }
+    else
+    {
+        return false;
+    }
+
+    return (mode == 0) ? inside : !inside; // 0 = showInterior
+}
+
+bool pointPassesSnapshot(int polygonIndex, vec3 worldPos)
+{
+    int unionCount = int(uColorFilter.polygonSnapshotCounts[polygonIndex].x);
+    int interCount = int(uColorFilter.polygonSnapshotCounts[polygonIndex].y);
+
+    if (unionCount <= 0 && interCount <= 0)
+        return true;
+
+    int baseIndex = polygonIndex * MAX_POLYGONAL_SELECTOR_SNAPSHOT_CLIPS;
+
+    bool intersectionOk = true;
+    for (int i = 0; i < interCount; ++i)
+    {
+        if (!snapshotClipAcceptsPoint(baseIndex + unionCount + i, worldPos))
+        {
+            intersectionOk = false;
+            break;
+        }
+    }
+    if (!intersectionOk)
+        return false;
+
+    if (unionCount <= 0)
+        return true;
+
+    bool unionOk = false;
+    for (int i = 0; i < unionCount; ++i)
+    {
+        if (snapshotClipAcceptsPoint(baseIndex + i, worldPos))
+        {
+            unionOk = true;
+            break;
+        }
+    }
+
+    return unionOk;
+}
 
 bool pointInPolygon(vec2 p, int polygonIndex)
 {
@@ -134,6 +207,8 @@ void evaluatePolygonSelector(vec3 worldPos, out bool insideApplied, out bool ins
 
         vec2 uv = ndc.xy * 0.5 + vec2(0.5, 0.5);
         if (!pointInPolygon(uv, p))
+            continue;
+        if (!pointPassesSnapshot(p, worldPos))
             continue;
 
         if (p < appliedCount)
