@@ -149,6 +149,7 @@ void ExportClippingData(nlohmann::json& json, const ClippingData& data)
 	json[Key_ClippingMode] = magic_enum::enum_name(data.getClippingMode());
 	json[Key_MinClipDistance] = data.getMinClipDist();
 	json[Key_MaxClipDistance] = data.getMaxClipDist();
+	json[Key_LengthThresholdClip] = data.getLengthThresholdClip();
 	json[Key_Active] = data.isClippingActive();
 
 
@@ -838,6 +839,7 @@ nlohmann::json DataSerializer::Serialize(const ProjectInfos& data)
 	json[Key_ColumnTiltTolerance] = data.m_columnTiltTolerance;
 	json[Key_DefaultClipMode] = data.m_defaultClipMode;
 	json[Key_DefaultClipDistances] = { data.m_defaultMinClipDistance, data.m_defaultMaxClipDistance };
+	json[Key_DefaultLengthThresholdClip] = data.m_defaultLengthThresholdClip;
 	json[Key_DefaultRampDistances] = { data.m_defaultMinRampDistance, data.m_defaultMaxRampDistance };
 	json[Key_DefaultRampSteps] = data.m_defaultRampSteps;
 	json[Key_ImportScanTranslation] = { data.m_importScanTranslation.x, data.m_importScanTranslation.y, data.m_importScanTranslation.z };

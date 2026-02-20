@@ -23,6 +23,7 @@ SubPropertyClipping::SubPropertyClipping(QWidget *parent, float guiScale)
 	connect(m_ui.PhaseModeRadioBtn, SIGNAL(pressed()), this, SLOT(onShowPhaseClick()));
 	connect(m_ui.lineEdit_minClip, &QLineEdit::editingFinished, this, &SubPropertyClipping::onMinClipDistEdit);
 	connect(m_ui.lineEdit_maxClip, &QLineEdit::editingFinished, this, &SubPropertyClipping::onMaxClipDistEdit);
+	connect(m_ui.lineEdit_lengthThresholdClip, &QLineEdit::editingFinished, this, &SubPropertyClipping::onLengthThresholdClipEdit);
 
 	connect(m_ui.group_ramp, &QGroupBox::clicked, this, &SubPropertyClipping::onRampActive);
 	connect(m_ui.lineEdit_minRamp, &QLineEdit::editingFinished, this, &SubPropertyClipping::onRampMin);
@@ -35,6 +36,9 @@ SubPropertyClipping::SubPropertyClipping(QWidget *parent, float guiScale)
 
 	m_ui.lineEdit_maxClip->setRules(ANumericLineEdit::LineEditRules::Nothing);
 	m_ui.lineEdit_maxClip->setType(NumericType::DISTANCE);
+
+	m_ui.lineEdit_lengthThresholdClip->setRules(ANumericLineEdit::LineEditRules::NotNegative);
+	m_ui.lineEdit_lengthThresholdClip->setType(NumericType::DISTANCE);
 
 	m_ui.lineEdit_minRamp->setRules(ANumericLineEdit::LineEditRules::Nothing);
 	m_ui.lineEdit_minRamp->setType(NumericType::DISTANCE);
@@ -80,6 +84,7 @@ void SubPropertyClipping::update()
 
 	m_ui.lineEdit_minClip->setValue(rClip->getMinClipDist());
 	m_ui.lineEdit_maxClip->setValue(rClip->getMaxClipDist());
+	m_ui.lineEdit_lengthThresholdClip->setValue(rClip->getLengthThresholdClip());
 
 	m_ui.group_ramp->setChecked(rClip->isRampActive());
 	m_ui.lineEdit_minRamp->setValue(rClip->getRampMin());
@@ -99,11 +104,16 @@ void SubPropertyClipping::prepareUi(ElementType type)
 	m_ui.PhaseModeRadioBtn->setEnabled(true);
 
 	bool isBox = (type == ElementType::Box);
+	bool supportsLengthThreshold = (type == ElementType::Cylinder
+		|| type == ElementType::SimpleMeasure
+		|| type == ElementType::PolylineMeasure);
 
 	m_ui.label_minClip->setVisible(!isBox);
 	m_ui.lineEdit_minClip->setVisible(!isBox);
 	m_ui.label_maxClip->setVisible(!isBox);
 	m_ui.lineEdit_maxClip->setVisible(!isBox);
+	m_ui.label_lengthThresholdClip->setVisible(supportsLengthThreshold);
+	m_ui.lineEdit_lengthThresholdClip->setVisible(supportsLengthThreshold);
 
 	m_ui.lineEdit_minRamp->setVisible(!isBox);
 	m_ui.label_minRamp->setVisible(!isBox);
@@ -154,6 +164,12 @@ void SubPropertyClipping::onMaxClipDistEdit()
 		m_dataDispatcher->sendControl(new control::clippingEdition::SetMaxClipDist(m_storedClip, m_ui.lineEdit_maxClip->getValue()));
 }
 
+void SubPropertyClipping::onLengthThresholdClipEdit()
+{
+	if (m_dataDispatcher)
+		m_dataDispatcher->sendControl(new control::clippingEdition::SetLengthThresholdClip(m_storedClip, m_ui.lineEdit_lengthThresholdClip->getValue()));
+}
+
 void SubPropertyClipping::onRampActive(bool active)
 {
 	if (m_dataDispatcher)
@@ -192,6 +208,7 @@ void SubPropertyClipping::blockSignals(bool value)
 	m_ui.group_clip->blockSignals(value);
 	m_ui.lineEdit_minClip->blockSignals(value);
 	m_ui.lineEdit_maxClip->blockSignals(value);
+	m_ui.lineEdit_lengthThresholdClip->blockSignals(value);
 
 	m_ui.group_ramp->blockSignals(value);
 	m_ui.lineEdit_minRamp->blockSignals(value);

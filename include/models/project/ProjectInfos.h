@@ -36,6 +36,7 @@ public:
 
 	float m_defaultMinClipDistance;
 	float m_defaultMaxClipDistance;
+	float m_defaultLengthThresholdClip;
 	ClippingMode m_defaultClipMode;
 	float m_defaultMinRampDistance;
 	float m_defaultMaxRampDistance;

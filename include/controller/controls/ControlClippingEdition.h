@@ -80,6 +80,15 @@ namespace control::clippingEdition
         ControlType getType() const override;
     };
 
+    class SetLengthThresholdClip : public ATEditionControl<AClippingNode, float>
+    {
+    public:
+        SetLengthThresholdClip(SafePtr<AClippingNode> toEditData, float value);
+        SetLengthThresholdClip(const std::unordered_set<SafePtr<AClippingNode>>& toEditDatas, float value);
+        ~SetLengthThresholdClip();
+        ControlType getType() const override;
+    };
+
     class SetDefaultMinClipDistance : public AControl
     {
     public:
@@ -96,6 +105,17 @@ namespace control::clippingEdition
     public:
         SetDefaultMaxClipDistance(float value);
         ~SetDefaultMaxClipDistance();
+        void doFunction(Controller& controller) override;
+        ControlType getType() const override;
+    private:
+        float m_value;
+    };
+
+    class SetDefaultLengthThresholdClip : public AControl
+    {
+    public:
+        SetDefaultLengthThresholdClip(float value);
+        ~SetDefaultLengthThresholdClip();
         void doFunction(Controller& controller) override;
         ControlType getType() const override;
     private:

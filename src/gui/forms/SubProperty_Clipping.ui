@@ -248,6 +248,16 @@ Scans with the same phase as the object are then clipped in interior mode, while
         </property>
        </widget>
       </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_lengthThresholdClip">
+        <property name="text">
+         <string>Length threshold</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QDoubleEdit" name="lineEdit_lengthThresholdClip"/>
+      </item>
       <item row="2" column="2">
        <widget class="QLabel" name="label_maxClip">
         <property name="text">
