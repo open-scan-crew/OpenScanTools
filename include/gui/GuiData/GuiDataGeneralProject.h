@@ -167,7 +167,7 @@ public:
 class GuiDataDefaultClipParams : public IGuiData
 {
 public:
-	GuiDataDefaultClipParams(float min, float max, ClippingMode mode);
+	GuiDataDefaultClipParams(float min, float max, float lengthThreshold, ClippingMode mode);
 	~GuiDataDefaultClipParams();
 	guiDType getType() override;
 
@@ -175,6 +175,7 @@ public:
 	const ClippingMode m_mode;
 	const float m_minClipDistance;
 	const float m_maxClipDistance;
+	const float m_lengthThresholdClip;
 };
 
 class GuiDataDefaultRampParams : public IGuiData

@@ -47,6 +47,7 @@
 #define Key_ClippingMode "ClippingMode"
 #define Key_MinClipDistance "MinClipDist"
 #define Key_MaxClipDistance "MaxClipDist"
+#define Key_LengthThresholdClip "LengthThresholdClip"
 #define Key_Active "Active"
 
 //RampProperties
@@ -182,6 +183,7 @@
 #define Key_ColumnTiltTolerance "ColumnTiltTolerance"
 #define Key_DefaultClipMode "DefaultClipMode"
 #define Key_DefaultClipDistances "DefaultClipDistances"
+#define Key_DefaultLengthThresholdClip "DefaultLengthThresholdClip"
 #define Key_DefaultRampDistances "DefaultRampDistances"
 #define Key_DefaultRampSteps "DefaultRampSteps"
 #define Key_ImportScanTranslation "ImportScanTranslation"
