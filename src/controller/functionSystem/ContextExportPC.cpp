@@ -316,6 +316,8 @@ bool ContextExportPC::processExport(Controller& controller, CSVWriter* csv_write
     };
 
     size_t units_done = 0;
+    ClippingAssembly emptyClippingAssembly;
+
     // For each new output file
     for (const ExportTask& task : export_tasks)
     {
@@ -342,12 +344,19 @@ bool ContextExportPC::processExport(Controller& controller, CSVWriter* csv_write
                 break;
 
             const tls::PointCloudInstance& pc = task.input_pcs[pc_index];
-            const ClippingAssembly* clippingsToUse = &task.clippings;
-            ClippingAssembly resolvedAssembly;
+
+            const bool isPointCloudClippable = pc.isClippable;
+
+            const ClippingAssembly* clippingAssemblyForCurrentPointCloud = &emptyClippingAssembly;
+            ClippingAssembly phaseResolvedClippingAssembly;
             if (task.clippings.hasPhaseClipping())
             {
-                resolvedAssembly = task.clippings.resolveByPhase(pc.phase);
-                clippingsToUse = &resolvedAssembly;
+                phaseResolvedClippingAssembly = task.clippings.resolveByPhase(pc.phase);
+                clippingAssemblyForCurrentPointCloud = isPointCloudClippable ? &phaseResolvedClippingAssembly : &emptyClippingAssembly;
+            }
+            else
+            {
+                clippingAssemblyForCurrentPointCloud = isPointCloudClippable ? &task.clippings : &emptyClippingAssembly;
             }
 
             size_t pc_count = task.input_pcs.size();
@@ -355,7 +364,7 @@ bool ContextExportPC::processExport(Controller& controller, CSVWriter* csv_write
             int next_percent = static_cast<int>(((pc_index + 1) * 100) / pc_count);
             int span_percent = std::max(1, next_percent - base_percent);
             auto progressCallback = makeProgressCallback(units_done, base_percent, span_percent);
-            success &= TlScanOverseer::getInstance().clipScan(pc.header.guid, pc.transfo, *clippingsToUse, scanFileWriter.get(), progressCallback);
+            success &= TlScanOverseer::getInstance().clipScan(pc.header.guid, pc.transfo, *clippingAssemblyForCurrentPointCloud, scanFileWriter.get(), progressCallback);
         }
 
         // TODO - FileType::RCP & m_parameters.pointDensity

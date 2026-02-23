@@ -5,6 +5,7 @@
 
 #include "models/graph/AClippingNode.h"
 #include "models/graph/ViewPointNode.h"
+#include "models/graph/PointCloudNode.h"
 
 ViewPointData::ViewPointData()
 {}
@@ -27,6 +28,7 @@ void ViewPointData::copyViewPointData(const ViewPointData& data)
 	m_activeRamps = data.getActiveRamps();
 	m_visibleObjects = data.getVisibleObjects();
 	m_scanClusterColors = data.getScanClusterColors();
+	m_pointCloudObjectsClippable = data.getPointCloudObjectsClippable();
 }
 
 void ViewPointData::setPanoramicScan(SafePtr<PointCloudNode> id)
@@ -62,6 +64,11 @@ void ViewPointData::setVisibleObjects(const std::unordered_set<SafePtr<AGraphNod
 void ViewPointData::setScanClusterColors(const std::unordered_map<SafePtr<AGraphNode>, Color32>& map)
 {
 	m_scanClusterColors = map;
+}
+
+void ViewPointData::setPointCloudObjectsClippable(const std::unordered_map<SafePtr<AGraphNode>, bool>& map)
+{
+	m_pointCloudObjectsClippable = map;
 }
 
 bool ViewPointData::isPanoramicScan() const
@@ -109,6 +116,11 @@ const std::unordered_map<SafePtr<AGraphNode>, Color32>& ViewPointData::getScanCl
 	return m_scanClusterColors;
 }
 
+const std::unordered_map<SafePtr<AGraphNode>, bool>& ViewPointData::getPointCloudObjectsClippable() const
+{
+	return m_pointCloudObjectsClippable;
+}
+
 void ViewPointData::updateViewpointsObjectsValue(Controller& controller, SafePtr<ViewPointNode> viewpoint)
 {
 	GraphManager& graphManager = controller.getGraphManager();
@@ -131,11 +143,21 @@ void ViewPointData::updateViewpointsObjectsValue(Controller& controller, SafePtr
 	std::unordered_set<SafePtr<AClippingNode>> activeRamps = graphManager.getRampObjects(true, false);
 
 	std::unordered_map<SafePtr<AGraphNode>, Color32> scanClusterColors;
+	std::unordered_map<SafePtr<AGraphNode>, bool> pointCloudObjectsClippable;
 	for (const SafePtr<AGraphNode>& object : graphManager.getNodesByTypes({ ElementType::Cluster, ElementType::Scan }))
 	{
 		ReadPtr<AGraphNode> rObject = object.cget();
 		if (rObject)
 			scanClusterColors[object] = rObject->getColor();
+	}
+
+	for (const SafePtr<AGraphNode>& object : graphManager.getNodesByTypes({ ElementType::Scan, ElementType::PCO }))
+	{
+		ReadPtr<PointCloudNode> rPointCloud = static_pointer_cast<PointCloudNode>(object).cget();
+		if (!rPointCloud)
+			continue;
+
+		pointCloudObjectsClippable[object] = rPointCloud->getClippable();
 	}
 
 	std::unordered_set<SafePtr<AGraphNode>> visible;
@@ -152,5 +174,6 @@ void ViewPointData::updateViewpointsObjectsValue(Controller& controller, SafePtr
 	wVP->setPhaseClippings(phases);
 	wVP->setActiveRamps(activeRamps);
 	wVP->setScanClusterColors(scanClusterColors);
+	wVP->setPointCloudObjectsClippable(pointCloudObjectsClippable);
 	wVP->setVisibleObjects(visible);
 }

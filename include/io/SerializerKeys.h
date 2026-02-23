@@ -280,6 +280,7 @@
 #define Key_Active_Ramps				"ActiveRamps"
 #define Key_Visible_Objects				"VisibleObjects"
 #define Key_Objects_Colors				"ObjectsColors"
+#define Key_PointCloud_Objects_Clippable	"PointCloudObjectsClippable"
 #define Key_Ortho_Grid_Active			"OrthoGridActive"
 #define Key_Ortho_Grid_Color			"OrthoGridColor"
 #define Key_Ortho_Grid_Step				"OrthoGridStep"

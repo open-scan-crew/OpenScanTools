@@ -2083,6 +2083,31 @@ bool ImportViewPointData(const nlohmann::json& json, ViewPointData& data, const 
         IOLOG << "ViewPoint ObjectsColors read error" << LOGENDL;
     }
 
+    if (json.find(Key_PointCloud_Objects_Clippable) != json.end())
+    {
+        std::unordered_map<SafePtr<AGraphNode>, bool> map;
+        for (const nlohmann::json& child : json.at(Key_PointCloud_Objects_Clippable))
+        {
+            if (!child.is_array() || child.size() < 2)
+            {
+                IOLOG << "ViewPoint PointCloudObjectsClippable malformed" << LOGENDL;
+                continue;
+            }
+
+            xg::Guid guid = xg::Guid(child[0].get<std::string>());
+            if (nodeById.find(guid) == nodeById.end())
+            {
+                IOLOG << "ViewPoint PointCloudObjectsClippable couldnt find object" << LOGENDL;
+                continue;
+            }
+
+            SafePtr<AGraphNode> childNode = nodeById.at(guid);
+            if (childNode)
+                map[childNode] = child[1].get<bool>();
+        }
+        data.setPointCloudObjectsClippable(map);
+    }
+
     //if (json.find(Key_Active_Scans) != json.end())
     //{
     //	std::unordered_set<xg::Guid> list;
