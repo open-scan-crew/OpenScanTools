@@ -83,7 +83,7 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="2" rowspan="2">
+   <item row="1" column="2" rowspan="3">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Default mode :</string>
@@ -150,6 +150,32 @@
      </property>
     </widget>
    </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_defaultLengthThreshold">
+     <property name="text">
+      <string>Length threshold</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QDoubleEdit" name="lineEdit_defaultLengthThreshold">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="acceptDrops">
+      <bool>false</bool>
+     </property>
+     <property name="toolTip">
+      <string/>
+     </property>
+     <property name="text">
+      <string notr="true">0.0</string>
+     </property>
+    </widget>
+   </item>
    <item row="1" column="3">
     <spacer name="horizontalSpacer">
      <property name="orientation">
@@ -174,6 +200,8 @@
  </customwidgets>
  <tabstops>
   <tabstop>lineEdit_defaultMin</tabstop>
+  <tabstop>lineEdit_defaultMax</tabstop>
+  <tabstop>lineEdit_defaultLengthThreshold</tabstop>
   <tabstop>exteriorRadioButton</tabstop>
   <tabstop>interiorRadioButton</tabstop>
  </tabstops>

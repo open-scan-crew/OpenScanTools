@@ -8,6 +8,7 @@ ProjectInfos::ProjectInfos()
 	, m_columnTiltTolerance(150.0)
 	, m_defaultMinClipDistance(0.0)
 	, m_defaultMaxClipDistance(0.5)
+	, m_defaultLengthThresholdClip(0.0)
 	, m_defaultMinRampDistance(0.0)
 	, m_defaultMaxRampDistance(0.5)
 {
@@ -30,6 +31,7 @@ ProjectInfos::ProjectInfos(const ProjectInfos& p)
 	this->m_columnTiltTolerance = p.m_columnTiltTolerance;
 	this->m_defaultMinClipDistance = p.m_defaultMinClipDistance;
 	this->m_defaultMaxClipDistance = p.m_defaultMaxClipDistance;
+	this->m_defaultLengthThresholdClip = p.m_defaultLengthThresholdClip;
 	this->m_defaultMinRampDistance = p.m_defaultMinRampDistance;
 	this->m_defaultMaxRampDistance = p.m_defaultMaxRampDistance;
 	this->m_defaultScan = p.m_defaultScan;

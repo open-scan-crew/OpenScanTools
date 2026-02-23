@@ -3,6 +3,7 @@
 #include "gui/GuiData/GuiDataRendering.h"
 #include "gui/IDataDispatcher.h"
 #include "controller/controls/ControlClippingEdition.h"
+#include "gui/widgets/CustomWidgets/ANumericLineEdit.h"
 
 #define _USE_MATH_DEFINES
 //#include <math.h>
@@ -16,9 +17,12 @@ ToolBarClippingParameters::ToolBarClippingParameters(IDataDispatcher &dataDispat
 
     m_ui.lineEdit_defaultMin->setType(NumericType::DISTANCE);
     m_ui.lineEdit_defaultMax->setType(NumericType::DISTANCE);
+    m_ui.lineEdit_defaultLengthThreshold->setRules(ANumericLineEdit::LineEditRules::NotNegative);
+    m_ui.lineEdit_defaultLengthThreshold->setType(NumericType::DISTANCE);
 
     connect(m_ui.lineEdit_defaultMin, &QLineEdit::editingFinished, this, &ToolBarClippingParameters::sendDefaultDistances);
     connect(m_ui.lineEdit_defaultMax, &QLineEdit::editingFinished, this, &ToolBarClippingParameters::sendDefaultDistances);
+    connect(m_ui.lineEdit_defaultLengthThreshold, &QLineEdit::editingFinished, this, &ToolBarClippingParameters::sendDefaultDistances);
 
     connect(m_ui.exteriorRadioButton, &QRadioButton::released, this, [this]() { updateDefaultClippingMode(ClippingMode::showExterior); });
     connect(m_ui.interiorRadioButton, &QRadioButton::released, this, [this]() { updateDefaultClippingMode(ClippingMode::showInterior); });
@@ -58,6 +62,7 @@ void ToolBarClippingParameters::onRenderUnitUsage(IGuiData* idata)
 
     m_ui.lineEdit_defaultMin->setUnit(castdata->m_valueParameters.distanceUnit);
     m_ui.lineEdit_defaultMax->setUnit(castdata->m_valueParameters.distanceUnit);
+    m_ui.lineEdit_defaultLengthThreshold->setUnit(castdata->m_valueParameters.distanceUnit);
 }
 
 void ToolBarClippingParameters::onValues(IGuiData* data)
@@ -68,6 +73,7 @@ void ToolBarClippingParameters::onValues(IGuiData* data)
 
     m_ui.lineEdit_defaultMin->setValue(castData->m_minClipDistance);
     m_ui.lineEdit_defaultMax->setValue(castData->m_maxClipDistance);
+    m_ui.lineEdit_defaultLengthThreshold->setValue(castData->m_lengthThresholdClip);
     m_ui.exteriorRadioButton->setChecked(castData->m_mode == ClippingMode::showExterior);
 
     blockAllSignals(false);
@@ -77,14 +83,17 @@ void ToolBarClippingParameters::blockAllSignals(bool value)
 {
     m_ui.lineEdit_defaultMin->blockSignals(value);
     m_ui.lineEdit_defaultMax->blockSignals(value);
+    m_ui.lineEdit_defaultLengthThreshold->blockSignals(value);
 }
 
 void ToolBarClippingParameters::sendDefaultDistances()
 {
     float min = m_ui.lineEdit_defaultMin->getValue();
     float max = m_ui.lineEdit_defaultMax->getValue();
+    float lengthThreshold = m_ui.lineEdit_defaultLengthThreshold->getValue();
     m_dataDispatcher.sendControl(new control::clippingEdition::SetDefaultMinClipDistance(min));
     m_dataDispatcher.sendControl(new control::clippingEdition::SetDefaultMaxClipDistance(max));
+    m_dataDispatcher.sendControl(new control::clippingEdition::SetDefaultLengthThresholdClip(lengthThreshold));
 }
 
 void ToolBarClippingParameters::updateDefaultClippingMode(ClippingMode mode)

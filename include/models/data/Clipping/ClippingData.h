@@ -19,6 +19,7 @@ public:
 	void setClippingActive(bool active);
 	void setMinClipDist(float minDist);
 	void setMaxClipDist(float maxDist);
+	void setLengthThresholdClip(float lengthThreshold);
 
 	void setRampActive(bool active);
 	void setRampMin(float min);
@@ -32,6 +33,7 @@ public:
 	bool isClippingActive() const;
 	float getMinClipDist() const;
 	float getMaxClipDist() const;
+	float getLengthThresholdClip() const;
 
 	bool isRampActive() const;
 	float getRampMin() const;
@@ -44,6 +46,7 @@ protected:
 	bool m_clippingActive = false;
 	float m_minClipDist = 0.f;
 	float m_maxClipDist = 1.f;
+	float m_lengthThresholdClip = 0.f;
 
 	bool m_rampActive = false;
 	float m_rampMin = 0.f;

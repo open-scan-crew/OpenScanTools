@@ -237,6 +237,14 @@ bool ImportClippingData(const nlohmann::json& json, ClippingData& data)
         IOLOG << "ImportClippingData MaxClipDistance read error" << LOGENDL;
     }
 
+    if (json.find(Key_LengthThresholdClip) != json.end())
+        data.setLengthThresholdClip((json.at(Key_LengthThresholdClip).get<float>()));
+    else
+    {
+        IOLOG << "ImportClippingData LengthThresholdClip read missing, default used" << LOGENDL;
+        data.setLengthThresholdClip(0.f);
+    }
+
     if (json.find(Key_Active) != json.end())
         data.setClippingActive((json.at(Key_Active).get<bool>()));
     else
@@ -2861,6 +2869,14 @@ bool DataDeserializer::DeserializeProjectInfos(const nlohmann::json& json, const
         data.m_defaultMinClipDistance = 0.0f;
         data.m_defaultMaxClipDistance = 0.5f;
         IOLOG << "ProjectInfos DefaultClipDistances reset" << LOGENDL;
+    }
+
+    if (json.find(Key_DefaultLengthThresholdClip) != json.end())
+        data.m_defaultLengthThresholdClip = std::max(0.f, json.at(Key_DefaultLengthThresholdClip).get<float>());
+    else
+    {
+        data.m_defaultLengthThresholdClip = 0.0f;
+        IOLOG << "ProjectInfos DefaultLengthThresholdClip reset" << LOGENDL;
     }
 
     if (json.find(Key_DefaultRampDistances) != json.end())
