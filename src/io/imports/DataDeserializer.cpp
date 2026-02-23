@@ -2083,6 +2083,29 @@ bool ImportViewPointData(const nlohmann::json& json, ViewPointData& data, const 
         IOLOG << "ViewPoint ObjectsColors read error" << LOGENDL;
     }
 
+    if (json.find(Key_Objects_Clippable) != json.end())
+    {
+        std::unordered_map<SafePtr<AGraphNode>, bool> map;
+        for (const nlohmann::json& child : json.at(Key_Objects_Clippable))
+        {
+            bool clippable = child[1].get<bool>();
+            xg::Guid guid = xg::Guid(child[0].get<std::string>());
+            if (nodeById.find(guid) == nodeById.end())
+            {
+                IOLOG << "ViewPoint ObjectsClippable couldnt find object" << LOGENDL;
+                continue;
+            }
+            SafePtr<AGraphNode> childNode = nodeById.at(guid);
+            if (childNode)
+                map[childNode] = clippable;
+        }
+        data.setObjectsClippable(map);
+    }
+    else
+    {
+        IOLOG << "ViewPoint ObjectsClippable read missing" << LOGENDL;
+    }
+
     //if (json.find(Key_Active_Scans) != json.end())
     //{
     //	std::unordered_set<xg::Guid> list;
