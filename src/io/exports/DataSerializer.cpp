@@ -542,6 +542,16 @@ void ExportViewPointData(nlohmann::json& json, const ViewPointData& data)
 		childrenElem.push_back({ rObj->getId(), colorSet.second.r, colorSet.second.g, colorSet.second.b, colorSet.second.a });
 	}
 	json[Key_Objects_Colors] = childrenElem;
+
+	childrenElem.clear();
+	for (const std::pair<SafePtr<AGraphNode>, bool>& clippableSet : data.getObjectsClippable())
+	{
+		ReadPtr<AGraphNode> rObj = clippableSet.first.cget();
+		if (!rObj)
+			continue;
+		childrenElem.push_back({ rObj->getId(), clippableSet.second });
+	}
+	json[Key_Objects_Clippable] = childrenElem;
 }
 
 void DataSerializer::Serialize(nlohmann::json& json, const SafePtr<TagNode>& object)
