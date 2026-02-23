@@ -207,18 +207,26 @@ ContextState ContextDeletePoints::launch(Controller& controller)
                             .arg(percent);
         controller.updateInfo(new GuiDataProcessingSplashScreenProgressBarUpdate(state, progressValue));
     };
+    ClippingAssembly emptyClippingAssembly;
+
     for (const SafePtr<PointCloudNode>& scan : scans)
     {
         WritePtr<PointCloudNode> wScan = scan.get();
         if (!wScan)
             continue;
 
-        const ClippingAssembly* clippingToUse = &clippingAssembly;
-        ClippingAssembly resolvedAssembly;
+        const bool isScanClippable = wScan->getClippable();
+
+        const ClippingAssembly* clippingAssemblyForCurrentScan = &emptyClippingAssembly;
+        ClippingAssembly phaseResolvedClippingAssembly;
         if (clippingAssembly.hasPhaseClipping())
         {
-            resolvedAssembly = clippingAssembly.resolveByPhase(wScan->getPhase());
-            clippingToUse = &resolvedAssembly;
+            phaseResolvedClippingAssembly = clippingAssembly.resolveByPhase(wScan->getPhase());
+            clippingAssemblyForCurrentScan = isScanClippable ? &phaseResolvedClippingAssembly : &emptyClippingAssembly;
+        }
+        else
+        {
+            clippingAssemblyForCurrentScan = isScanClippable ? &clippingAssembly : &emptyClippingAssembly;
         }
 
         size_t initial_point_count = wScan->getNbPoint();
@@ -254,7 +262,7 @@ ContextState ContextDeletePoints::launch(Controller& controller)
         uint64_t kept_points = 0;
         bool res = TlScanOverseer::getInstance().filterAndWrite(old_guid,
                                                                  (TransformationModule)*&wScan,
-                                                                 *clippingToUse,
+                                                                 *clippingAssemblyForCurrentScan,
                                                                  m_colorimetricFilterSettings,
                                                                  m_polygonalSelectorSettings,
                                                                  m_renderMode,
