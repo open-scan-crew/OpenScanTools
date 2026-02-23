@@ -285,10 +285,11 @@ namespace control::viewpoint
 
             if (clippableList.find(object) != clippableList.end() && writeObject->getType() == ElementType::Scan)
             {
-                WritePtr<PointCloudNode> writePointCloud = static_pointer_cast<PointCloudNode>(object).get();
-                if (writePointCloud && writePointCloud->getClippable() != clippableList.at(object))
+                PointCloudNode* pointCloud = static_cast<PointCloudNode*>(writeObject.operator->());
+                const bool clippableState = clippableList.at(object);
+                if (pointCloud->getClippable() != clippableState)
                 {
-                    writePointCloud->setClippable(clippableList.at(object));
+                    pointCloud->setClippable(clippableState);
                     editedNodes.insert(object);
                 }
             }

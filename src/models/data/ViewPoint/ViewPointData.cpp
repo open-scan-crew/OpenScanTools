@@ -152,9 +152,8 @@ void ViewPointData::updateViewpointsObjectsValue(Controller& controller, SafePtr
 
 		if (rObject && rObject->getType() == ElementType::Scan)
 		{
-			ReadPtr<PointCloudNode> rPointCloud = static_pointer_cast<PointCloudNode>(object).cget();
-			if (rPointCloud)
-				objectsClippable[object] = rPointCloud->getClippable();
+			const PointCloudNode* pointCloud = static_cast<const PointCloudNode*>(rObject.operator->());
+			objectsClippable[object] = pointCloud->getClippable();
 		}
 	}
 
