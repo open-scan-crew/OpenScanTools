@@ -261,7 +261,7 @@ bool ObjectNodeVisitor::drawManipulatorText()
         text += " : " + fmt::format(fmt::runtime(m_length_format), UnitConverter::meterToX(rManipNode->getDistanceToDisplay(), m_camera.m_unitUsage.distanceUnit));
         break;
     case ManipulationMode::Rotation:
-        text += " : " + fmt::format(fmt::runtime(m_simple_format), rManipNode->getDistanceToDisplay(), "Â°");
+        text += " : " + fmt::format(fmt::runtime(m_simple_format), rManipNode->getDistanceToDisplay(), " °");
         break;
     }
 
