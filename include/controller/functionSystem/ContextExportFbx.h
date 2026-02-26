@@ -37,8 +37,8 @@ private:
 
 	FbxMesh* createMesh(FbxScene* output, const std::wstring& meshName, const RawMeshData& geom);
 
-	void addObject(FbxScene* output, FbxMesh* mesh, const glm::mat4& transfo, const std::wstring& name, const Color32& color);
-	void addObject(FbxScene* output, const std::vector<std::vector<glm::dvec3>>& mesures, const glm::mat4& transfo, const std::wstring& name, const Color32& color);
+	void addObject(FbxScene* output, FbxMesh* mesh, const glm::dmat4& transfo, const std::wstring& name, const Color32& color);
+	void addObject(FbxScene* output, const std::vector<std::vector<glm::dvec3>>& mesures, const glm::dmat4& transfo, const std::wstring& name, const Color32& color);
 
 private:
 	std::unordered_set<SafePtr<AGraphNode>>					m_listToExport;
