@@ -1,6 +1,9 @@
 #include "io/exports/dxfExport.h"
 #include "utils/Utils.h"
 
+#include <iomanip>
+#include <locale>
+
 #define DELTA_CM 0.005
 
 dxfExport::dxfExport()
@@ -21,6 +24,14 @@ bool dxfExport::begin(const std::filesystem::path & fileName)
 	m_file.open(fileName);
 	if (m_file.bad())
 		return (false);
+
+	// Force a stable numeric format for CAD interoperability:
+	// - classic locale to keep '.' as decimal separator
+	// - fixed notation (no scientific e+XX)
+	// - 4 decimals to preserve 0.1 mm precision in meters
+	m_file.imbue(std::locale::classic());
+	m_file << std::fixed << std::setprecision(4);
+
 	f_closed = false;
 	m_status = true;
 
@@ -70,7 +81,7 @@ bool dxfExport::end()
 	return m_status;
 }
 
-bool dxfExport::text(std::wstring name, int layer, const glm::vec3& center, float radius)
+bool dxfExport::text(std::wstring name, int layer, const glm::dvec3& center, double radius)
 {
 	m_file << "  " << 0 << std::endl; // entity type
 	m_file << "TEXT" << std::endl;
@@ -97,7 +108,7 @@ bool dxfExport::text(std::wstring name, int layer, const glm::vec3& center, floa
 	return (m_file.bad());
 }
 
-bool dxfExport::point(float x, float y, float z, int layer)
+bool dxfExport::point(double x, double y, double z, int layer)
 {
 	m_file << "  " << 0 << std::endl; // entity type
 	m_file << "POINT" << std::endl;
@@ -117,7 +128,7 @@ bool dxfExport::point(float x, float y, float z, int layer)
 	return (m_file.bad());
 }
 
-bool dxfExport::drawFace(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, int layer)
+bool dxfExport::drawFace(const glm::dvec3& p1, const glm::dvec3& p2, const glm::dvec3& p3, int layer)
 {
 	m_file << "  " << 0 << std::endl; // entity type
 	m_file << "3DFACE" << std::endl;
@@ -155,7 +166,7 @@ bool dxfExport::drawFace(const glm::vec3& p1, const glm::vec3& p2, const glm::ve
 	return (m_file.bad());
 }
 
-bool dxfExport::drawLine(const glm::vec3& p1, const glm::vec3& p2, int layer)
+bool dxfExport::drawLine(const glm::dvec3& p1, const glm::dvec3& p2, int layer)
 {
 	m_file << "  " << 0 << std::endl; // entity type
 	m_file << "LINE" << std::endl;
@@ -184,10 +195,10 @@ bool dxfExport::drawLine(const glm::vec3& p1, const glm::vec3& p2, int layer)
 	return (m_file.bad());
 }
 
-bool dxfExport::drawTarget(const glm::vec3& center, int layer)
+bool dxfExport::drawTarget(const glm::dvec3& center, int layer)
 {
-	drawLine(center - glm::vec3(DELTA_CM, 0, 0), center + glm::vec3(DELTA_CM, 0, 0), layer);
-	drawLine(center - glm::vec3(0, DELTA_CM, 0), center + glm::vec3(0, DELTA_CM, 0), layer);
-	drawLine(center - glm::vec3(0, 0, DELTA_CM), center + glm::vec3(0, 0, DELTA_CM), layer);
+	drawLine(center - glm::dvec3(DELTA_CM, 0.0, 0.0), center + glm::dvec3(DELTA_CM, 0.0, 0.0), layer);
+	drawLine(center - glm::dvec3(0.0, DELTA_CM, 0.0), center + glm::dvec3(0.0, DELTA_CM, 0.0), layer);
+	drawLine(center - glm::dvec3(0.0, 0.0, DELTA_CM), center + glm::dvec3(0.0, 0.0, DELTA_CM), layer);
 	return (m_file.bad());
 }
