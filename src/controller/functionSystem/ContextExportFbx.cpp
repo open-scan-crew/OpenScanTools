@@ -353,7 +353,7 @@ FbxMesh* ContextExportFbx::createMesh(FbxScene* scene, const std::wstring& meshN
 	return pMesh;
 }
 
-void ContextExportFbx::addObject(FbxScene* scene, FbxMesh* pMesh, const glm::mat4& transfo, const std::wstring& name, const Color32& color)
+void ContextExportFbx::addObject(FbxScene* scene, FbxMesh* pMesh, const glm::dmat4& transfo, const std::wstring& name, const Color32& color)
 {
 	FbxLayer* lLayer = pMesh->GetLayer(0);
 	if (!lLayer)
@@ -396,7 +396,7 @@ void ContextExportFbx::addObject(FbxScene* scene, FbxMesh* pMesh, const glm::mat
 	lRootNode->AddChild(lNode);
 }
 
-void ContextExportFbx::addObject(FbxScene* scene, const std::vector<std::vector<glm::dvec3>>& mesures, const glm::mat4& transfo, const std::wstring& name, const Color32& color)
+void ContextExportFbx::addObject(FbxScene* scene, const std::vector<std::vector<glm::dvec3>>& mesures, const glm::dmat4& transfo, const std::wstring& name, const Color32& color)
 {
 	FbxLine* fbxline = FbxLine::Create(scene, Utils::to_utf8(name).c_str());
 
