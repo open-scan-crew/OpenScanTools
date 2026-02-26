@@ -6,6 +6,7 @@
 #include "models/graph/GraphManager.h"
 #include "models/graph/AClippingNode.h"
 #include "models/graph/ViewPointNode.h"
+#include "models/graph/PointCloudNode.h"
 #include "models/graph/CameraNode.h"
 
 #include "utils/Logger.h"
@@ -208,6 +209,7 @@ namespace control::viewpoint
 
         std::unordered_set<SafePtr<AGraphNode>> visibleList;
         std::unordered_map<SafePtr<AGraphNode>, Color32> colorList;
+        std::unordered_map<SafePtr<AGraphNode>, bool> clippableList;
 
         {
             ReadPtr<ViewPointNode> readViewpoint = m_viewPoint.cget();
@@ -220,6 +222,7 @@ namespace control::viewpoint
             activeRampList = readViewpoint->getActiveRamps(); // NEW
             visibleList = readViewpoint->getVisibleObjects();
             colorList = readViewpoint->getScanClusterColors();
+            clippableList = readViewpoint->getObjectsClippable();
         }
 
         GraphManager& graphManager = controller.getGraphManager();
@@ -278,6 +281,17 @@ namespace control::viewpoint
             {
                 writeObject->setColor(colorList.at(object));
                 editedNodes.insert(object);
+            }
+
+            if (clippableList.find(object) != clippableList.end() && writeObject->getType() == ElementType::Scan)
+            {
+                PointCloudNode* pointCloud = static_cast<PointCloudNode*>(writeObject.operator->());
+                const bool clippableState = clippableList.at(object);
+                if (pointCloud->getClippable() != clippableState)
+                {
+                    pointCloud->setClippable(clippableState);
+                    editedNodes.insert(object);
+                }
             }
         }
 

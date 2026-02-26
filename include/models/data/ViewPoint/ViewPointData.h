@@ -5,6 +5,7 @@
 #include "utils/safe_ptr.h"
 #include "utils/Color32.hpp"
 
+#include <unordered_map>
 #include <unordered_set>
 
 class PointCloudNode;
@@ -33,6 +34,7 @@ public:
 	void setVisibleObjects(const std::unordered_set<SafePtr<AGraphNode>>& list);
 
 	void setScanClusterColors(const std::unordered_map<SafePtr<AGraphNode>, Color32>& map);
+	void setObjectsClippable(const std::unordered_map<SafePtr<AGraphNode>, bool>& map);
 
 	bool isPanoramicScan() const;
 	SafePtr<PointCloudNode> getPanoramicScan() const;
@@ -45,6 +47,7 @@ public:
 	const std::unordered_set<SafePtr<AGraphNode>>& getVisibleObjects() const;
 
 	const std::unordered_map<SafePtr<AGraphNode>, Color32>& getScanClusterColors() const;
+	const std::unordered_map<SafePtr<AGraphNode>, bool>& getObjectsClippable() const;
 
 	static void updateViewpointsObjectsValue(Controller& controller, SafePtr<ViewPointNode> viewpoint);
 
@@ -59,6 +62,7 @@ protected:
 	std::unordered_set<SafePtr<AGraphNode>> m_visibleObjects;
 
 	std::unordered_map<SafePtr<AGraphNode>, Color32> m_scanClusterColors;
+	std::unordered_map<SafePtr<AGraphNode>, bool> m_objectsClippable;
 
 };
 
