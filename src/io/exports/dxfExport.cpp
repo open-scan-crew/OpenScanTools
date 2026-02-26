@@ -1,6 +1,9 @@
 #include "io/exports/dxfExport.h"
 #include "utils/Utils.h"
 
+#include <iomanip>
+#include <locale>
+
 #define DELTA_CM 0.005
 
 dxfExport::dxfExport()
@@ -21,6 +24,14 @@ bool dxfExport::begin(const std::filesystem::path & fileName)
 	m_file.open(fileName);
 	if (m_file.bad())
 		return (false);
+
+	// Force a stable numeric format for CAD interoperability:
+	// - classic locale to keep '.' as decimal separator
+	// - fixed notation (no scientific e+XX)
+	// - 6 decimals to preserve 0.001 mm precision in meters
+	m_file.imbue(std::locale::classic());
+	m_file << std::fixed << std::setprecision(6);
+
 	f_closed = false;
 	m_status = true;
 
