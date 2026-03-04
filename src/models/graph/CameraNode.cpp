@@ -594,8 +594,8 @@ void CameraNode::AddViewPoint(SafePtr<ViewPointNode> vp, const InterpolationValu
     if (!vpnode)
         return;
 
-    m_animation.push_back(vp);
-    m_initialAnimation.push_back(vp);
+    m_animationPlaylist.push_back(vp);
+    m_initialAnimationPlaylist.push_back(vp);
 
     m_trajectory.push_back({ vpnode->getCenter(), 3.0 * (double)M_PI / 2.0, (double)-M_PI / 2.0, 0.0 });
 }
@@ -615,7 +615,7 @@ void CameraNode::AddViewPoint1(SafePtr<ViewPointNode> vp, const InterpolationVal
 bool CameraNode::startAnimation(const bool& isOffline, const uint64_t& step)
 {
     m_isOfflineRendering = isOffline;
-    if (m_animation.size() < 2)
+    if (m_animationPlaylist.size() < 2)
     {
         m_isAnimated = false;
         return false;
@@ -623,7 +623,7 @@ bool CameraNode::startAnimation(const bool& isOffline, const uint64_t& step)
     // TODO - Update the values in the UI.
 
     m_trajectory.clear();
-    for (const SafePtr<ViewPointNode>& vp : m_animation)
+    for (const SafePtr<ViewPointNode>& vp : m_animationPlaylist)
     {
         ReadPtr<ViewPointNode> node = vp.cget();
         if (!node)
@@ -656,7 +656,7 @@ bool CameraNode::startAnimation(const bool& isOffline, const uint64_t& step)
         m_trajectory[i].dtime_arrival = m_trajectory[i - 1].dtime_arrival + dt;
     }
 
-    SafePtr<ViewPointNode> firstViewpoint = m_animation.front();
+    SafePtr<ViewPointNode> firstViewpoint = m_animationPlaylist.front();
     ReadPtr<ViewPointNode> rFirstViewpoint = firstViewpoint.cget();
     if (!rFirstViewpoint)
     {
@@ -694,6 +694,8 @@ bool CameraNode::endAnimation()
 {
     const bool wasAnimated = m_isAnimated;
     m_isAnimated = false;
+    m_animMode = AnimationMode::Simple;
+    m_animation.clear();
     m_pendingComplexAnimationStart = false;
     m_animationStartViewpoint.reset();
     m_trajectory.clear();
@@ -704,8 +706,8 @@ bool CameraNode::endAnimation()
 
 void CameraNode::cleanAnimation()
 {
-    m_animation.clear();
-    m_initialAnimation.clear();
+    m_animationPlaylist.clear();
+    m_initialAnimationPlaylist.clear();
     m_pendingComplexAnimationStart = false;
     m_animationStartViewpoint.reset();
     m_trajectory.clear();
@@ -1263,7 +1265,7 @@ void CameraNode::freeAllUniforms()
 void CameraNode::startPlayTrajectory(const uint64_t& animationStep)
 {
     m_currentKeyPoint = 1;
-    m_initialAnimation = m_animation;
+    m_initialAnimationPlaylist = m_animationPlaylist;
     if (m_trajectory.size() < 2)
         return;
 
@@ -1320,7 +1322,7 @@ bool CameraNode::animateComplexTrajectory()
         {
             setPosition(m_trajectory[m_currentKeyPoint].point);
             setThetaAndPhi(m_trajectory[m_currentKeyPoint].theta, m_trajectory[m_currentKeyPoint].phi);
-            m_animation = m_initialAnimation;
+            m_animationPlaylist = m_initialAnimationPlaylist;
             m_isAnimated = false;
             return true;
         }
@@ -1903,9 +1905,11 @@ void CameraNode::moveToData(const SafePtr<AGraphNode>& data)
 
         lookDir = glm::dvec4(0.0, 0.0, 1.0, 1.0) * cli->getInverseTransformation();
         m_animation.clear();
-        m_initialAnimation.clear();
         m_pendingComplexAnimationStart = false;
         m_animationStartViewpoint.reset();
+        m_trajectory.clear();
+        m_currentKeyPoint = 0;
+        m_animFrames = 0;
         m_animation.push_back(vp);
     }
     break;

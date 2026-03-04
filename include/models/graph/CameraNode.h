@@ -273,8 +273,11 @@ private:
     bool m_loop = false;
     AnimationMode m_animMode = AnimationMode::Simple;
 
+    // Single-target viewpoint queue used by manual viewpoint navigation (moveToData).
     std::deque<SafePtr<ViewPointNode>> m_animation;
-    std::deque<SafePtr<ViewPointNode>> m_initialAnimation;
+    // Dedicated sequence used by toolbar-driven multi-viewpoint animation.
+    std::deque<SafePtr<ViewPointNode>> m_animationPlaylist;
+    std::deque<SafePtr<ViewPointNode>> m_initialAnimationPlaylist;
     std::vector<KeyPoint> m_trajectory;
     //from camera
     uint64_t m_currentKeyPoint = 0;
