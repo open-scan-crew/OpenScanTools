@@ -1323,11 +1323,25 @@ bool CameraNode::animateComplexTrajectory()
 
         if (m_loop == false)
         {
-            setPosition(m_trajectory[m_currentKeyPoint].point);
+            // Avoid forcing an abrupt final snap when the camera is already very close
+            // to the target pose at the end of the sampled trajectory.
+            const glm::dvec3& endPoint = m_trajectory[m_currentKeyPoint].point;
+            if (glm::distance(m_center, endPoint) > 1e-4)
+                setPosition(endPoint);
+
             if (m_orientationTrajectory.size() == m_trajectory.size())
-                m_quaternion = glm::normalize(m_orientationTrajectory[m_currentKeyPoint].orientation);
+            {
+                const glm::dquat endOrientation = glm::normalize(m_orientationTrajectory[m_currentKeyPoint].orientation);
+                const double orientationAlignment = std::abs(glm::dot(glm::normalize(m_quaternion), endOrientation));
+                const double maxAllowedResidualAngleRad = glm::radians(0.5);
+                const double minAllowedAlignment = std::cos(maxAllowedResidualAngleRad * 0.5);
+                if (orientationAlignment < minAllowedAlignment)
+                    m_quaternion = endOrientation;
+            }
             else
+            {
                 setThetaAndPhi(m_trajectory[m_currentKeyPoint].theta, m_trajectory[m_currentKeyPoint].phi);
+            }
             m_animationPlaylist = m_initialAnimationPlaylist;
             m_isAnimated = false;
             m_dataDispatcher.updateInformation(new GuiDataRenderStopAnimation());
