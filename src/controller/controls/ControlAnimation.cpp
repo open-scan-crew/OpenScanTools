@@ -1,10 +1,49 @@
 #include "controller/controls/ControlAnimation.h"
 #include "controller/Controller.h"
 #include "models/graph/AGraphNode.h"
+#include "models/graph/GraphManager.h"
+#include "models/graph/CameraNode.h"
+#include "models/graph/ViewPointNode.h"
+
+#include "gui/GuiData/GuiDataRendering.h"
+#include "gui/GuiData/GuiDataMessages.h"
+#include "gui/texts/ContextTexts.hpp"
+
+#include <algorithm>
 
 
 namespace control::animation
 {
+    namespace
+    {
+        std::vector<SafePtr<ViewPointNode>> collectPerspectiveViewpointsSorted(Controller& controller)
+        {
+            std::vector<SafePtr<ViewPointNode>> viewpoints;
+            const std::unordered_set<SafePtr<AGraphNode>> allViewpoints = controller.getGraphManager().getNodesByTypes({ ElementType::ViewPoint }, ObjectStatusFilter::ALL);
+            viewpoints.reserve(allViewpoints.size());
+
+            for (const SafePtr<AGraphNode>& node : allViewpoints)
+            {
+                SafePtr<ViewPointNode> viewpoint = static_pointer_cast<ViewPointNode>(node);
+                ReadPtr<ViewPointNode> rViewpoint = viewpoint.cget();
+                if (!rViewpoint || rViewpoint->getProjectionMode() != ProjectionMode::Perspective)
+                    continue;
+                viewpoints.push_back(viewpoint);
+            }
+
+            std::sort(viewpoints.begin(), viewpoints.end(), [](const SafePtr<ViewPointNode>& a, const SafePtr<ViewPointNode>& b)
+                {
+                    ReadPtr<ViewPointNode> ra = a.cget();
+                    ReadPtr<ViewPointNode> rb = b.cget();
+                    if (!ra || !rb)
+                        return bool(ra);
+                    return ra->getUserIndex() < rb->getUserIndex();
+                });
+
+            return viewpoints;
+        }
+    }
+
     AddViewPoint::AddViewPoint(SafePtr<AGraphNode> toAdd)
         : m_toAdd(toAdd)
     {}
@@ -81,4 +120,55 @@ namespace control::animation
         return ControlType::addScansAnimationKeyPoint;
     }
 
-} 
+    PrepareViewpointsAnimation::PrepareViewpointsAnimation()
+    {}
+
+    PrepareViewpointsAnimation::~PrepareViewpointsAnimation()
+    {}
+
+    void PrepareViewpointsAnimation::doFunction(Controller& controller)
+    {
+        const std::vector<SafePtr<ViewPointNode>> viewpoints = collectPerspectiveViewpointsSorted(controller);
+        const bool canStart = viewpoints.size() >= 2;
+        controller.updateInfo(new GuiDataRenderAnimationToolbarState(canStart));
+
+        if (!canStart)
+        {
+            controller.updateInfo(new GuiDataWarning(TEXT_CONTEXT_ANIMATION_NEED_TWO_VIEWPOINTS));
+            return;
+        }
+
+        WritePtr<CameraNode> wCam = controller.getGraphManager().getCameraNode().get();
+        if (!wCam)
+            return;
+
+        wCam->cleanAnimation();
+        wCam->setLoop(false);
+        wCam->setSpeed(3);
+        for (const SafePtr<ViewPointNode>& viewpoint : viewpoints)
+            wCam->AddViewPoint(viewpoint);
+    }
+
+    ControlType PrepareViewpointsAnimation::getType() const
+    {
+        return ControlType::prepareViewpointsAnimation;
+    }
+
+    RefreshViewpointsAnimationState::RefreshViewpointsAnimationState()
+    {}
+
+    RefreshViewpointsAnimationState::~RefreshViewpointsAnimationState()
+    {}
+
+    void RefreshViewpointsAnimationState::doFunction(Controller& controller)
+    {
+        const std::vector<SafePtr<ViewPointNode>> viewpoints = collectPerspectiveViewpointsSorted(controller);
+        controller.updateInfo(new GuiDataRenderAnimationToolbarState(viewpoints.size() >= 2));
+    }
+
+    ControlType RefreshViewpointsAnimationState::getType() const
+    {
+        return ControlType::refreshViewpointsAnimationState;
+    }
+
+}

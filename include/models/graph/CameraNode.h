@@ -273,8 +273,11 @@ private:
     bool m_loop = false;
     AnimationMode m_animMode = AnimationMode::Simple;
 
+    // Single-target viewpoint queue used by manual viewpoint navigation (moveToData).
     std::deque<SafePtr<ViewPointNode>> m_animation;
-    std::deque<SafePtr<ViewPointNode>> m_initialAnimation;
+    // Dedicated sequence used by toolbar-driven multi-viewpoint animation.
+    std::deque<SafePtr<ViewPointNode>> m_animationPlaylist;
+    std::deque<SafePtr<ViewPointNode>> m_initialAnimationPlaylist;
     std::vector<KeyPoint> m_trajectory;
     //from camera
     uint64_t m_currentKeyPoint = 0;
@@ -282,6 +285,9 @@ private:
     double m_offlineAnimStep = 0.0;
     std::chrono::steady_clock::time_point m_startTrajectoryTime;
     SimpleAnimation m_simpleAnimation = SimpleAnimation();
+    bool m_pendingComplexAnimationStart = false;
+    uint64_t m_pendingComplexAnimationStep = 1000;
+    SafePtr<ViewPointNode> m_animationStartViewpoint;
 
     // Uniform for projection and view matrix (separated)
     VkMultiUniform m_uniProjView;
