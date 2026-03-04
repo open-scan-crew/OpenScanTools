@@ -22,22 +22,22 @@ public:
 
 private:
 	void onProjectLoad(IGuiData* keyValue);
+	void onProjectTreeActualize(IGuiData* keyValue);
+	void onAnimationToolbarState(IGuiData* keyValue);
 	void updateUI();
+	void refreshAnimationAvailability();
 
 private slots:
 	void slotStartAnimation();
 	void slotStopAnimation();
-	void slotCleanAnimationList();
-	void slotSpeedChange();
-	void slotLoopAnimation();
-	void slotRecordPerformance();
-	void slotScansAnimation();
 
 private:
 	std::unordered_map<guiDType, AnimGroupMethod> m_methods;
 	Ui::toolbar_animationgroup m_ui;
 	IDataDispatcher &m_dataDispatcher;
 	bool m_isStarted;
+	bool m_isProjectLoaded;
+	bool m_canStartAnimation;
 };
 
 #endif // TOOLBAR_ANIMATION_H
