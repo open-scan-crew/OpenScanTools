@@ -1391,7 +1391,23 @@ void CameraNode::buildCatmullRomPlaybackPathFromTrajectory()
     sampledOrientationTrajectory.reserve(controlCount * 12);
 
     sampledTrajectory.push_back({ m_trajectory[0].point, m_trajectory[0].theta, m_trajectory[0].phi, 0.0 });
-    sampledOrientationTrajectory.push_back({ m_orientationTrajectory[0].orientation, 0.0 });
+    std::vector<glm::dquat> controlOrientations;
+    controlOrientations.reserve(controlCount);
+    for (const OrientationKeyPoint& orientationKp : m_orientationTrajectory)
+        controlOrientations.push_back(glm::normalize(orientationKp.orientation));
+
+    enforceQuaternionSignContinuity(controlOrientations);
+
+    std::vector<glm::dquat> squadIntermediates(controlCount);
+    if (controlCount > 0)
+    {
+        squadIntermediates.front() = controlOrientations.front();
+        squadIntermediates.back() = controlOrientations.back();
+        for (size_t i = 1; i + 1 < controlCount; ++i)
+            squadIntermediates[i] = computeSquadIntermediate(controlOrientations[i - 1], controlOrientations[i], controlOrientations[i + 1]);
+    }
+
+    sampledOrientationTrajectory.push_back({ controlOrientations[0], 0.0 });
 
     for (size_t i = 0; i + 1 < controlCount; ++i)
     {
@@ -1407,9 +1423,11 @@ void CameraNode::buildCatmullRomPlaybackPathFromTrajectory()
         {
             const double localT = static_cast<double>(step) / static_cast<double>(sampleCount);
             const glm::dvec3 sampledPosition = evaluateCentripetalCatmullRom(p0, p1, p2, p3, localT);
-            const glm::dquat sampledOrientation = slerpShortestPath(
-                m_orientationTrajectory[i].orientation,
-                m_orientationTrajectory[i + 1].orientation,
+            const glm::dquat sampledOrientation = squadShortestPath(
+                controlOrientations[i],
+                controlOrientations[i + 1],
+                squadIntermediates[i],
+                squadIntermediates[i + 1],
                 localT);
 
             sampledTrajectory.push_back({ sampledPosition, 0.0, 0.0, 0.0 });
@@ -1473,6 +1491,83 @@ glm::dquat CameraNode::slerpShortestPath(const glm::dquat& q0, const glm::dquat&
     if (glm::dot(q0, q1Shortest) < 0.0)
         q1Shortest = -q1Shortest;
     return glm::slerp(q0, q1Shortest, std::clamp(t, 0.0, 1.0));
+}
+
+glm::dquat CameraNode::squadShortestPath(const glm::dquat& q0, const glm::dquat& q1, const glm::dquat& s0, const glm::dquat& s1, double t)
+{
+    const double clampedT = std::clamp(t, 0.0, 1.0);
+
+    glm::dquat q1Aligned = q1;
+    glm::dquat s1Aligned = s1;
+    if (glm::dot(q0, q1Aligned) < 0.0)
+    {
+        q1Aligned = -q1Aligned;
+        s1Aligned = -s1Aligned;
+    }
+
+    glm::dquat s0Aligned = s0;
+    if (glm::dot(q0, s0Aligned) < 0.0)
+        s0Aligned = -s0Aligned;
+    if (glm::dot(q1Aligned, s1Aligned) < 0.0)
+        s1Aligned = -s1Aligned;
+
+    const glm::dquat slerpDirect = slerpShortestPath(q0, q1Aligned, clampedT);
+    const glm::dquat slerpControl = slerpShortestPath(s0Aligned, s1Aligned, clampedT);
+    const double blend = 2.0 * clampedT * (1.0 - clampedT);
+    return glm::normalize(slerpShortestPath(slerpDirect, slerpControl, blend));
+}
+
+glm::dquat CameraNode::computeSquadIntermediate(const glm::dquat& qPrev, const glm::dquat& qCurr, const glm::dquat& qNext)
+{
+    const glm::dquat qPrevAligned = (glm::dot(qCurr, qPrev) < 0.0) ? -qPrev : qPrev;
+    const glm::dquat qNextAligned = (glm::dot(qCurr, qNext) < 0.0) ? -qNext : qNext;
+
+    const glm::dquat invCurr = glm::inverse(qCurr);
+    const glm::dquat logPrev = quaternionLog(invCurr * qPrevAligned);
+    const glm::dquat logNext = quaternionLog(invCurr * qNextAligned);
+
+    const glm::dquat averageLog(
+        0.0,
+        -0.25 * (logPrev.x + logNext.x),
+        -0.25 * (logPrev.y + logNext.y),
+        -0.25 * (logPrev.z + logNext.z));
+
+    return glm::normalize(qCurr * quaternionExp(averageLog));
+}
+
+glm::dquat CameraNode::quaternionLog(const glm::dquat& q)
+{
+    const glm::dquat normalized = glm::normalize(q);
+    const glm::dvec3 v(normalized.x, normalized.y, normalized.z);
+    const double vNorm = glm::length(v);
+    if (vNorm < 1e-12)
+        return glm::dquat(0.0, 0.0, 0.0, 0.0);
+
+    const double angle = std::atan2(vNorm, normalized.w);
+    const glm::dvec3 axis = v / vNorm;
+    const glm::dvec3 logV = axis * angle;
+    return glm::dquat(0.0, logV.x, logV.y, logV.z);
+}
+
+glm::dquat CameraNode::quaternionExp(const glm::dquat& q)
+{
+    const glm::dvec3 v(q.x, q.y, q.z);
+    const double theta = glm::length(v);
+    if (theta < 1e-12)
+        return glm::normalize(glm::dquat(std::cos(theta), v.x, v.y, v.z));
+
+    const glm::dvec3 axis = v / theta;
+    const double sinTheta = std::sin(theta);
+    return glm::normalize(glm::dquat(std::cos(theta), axis.x * sinTheta, axis.y * sinTheta, axis.z * sinTheta));
+}
+
+void CameraNode::enforceQuaternionSignContinuity(std::vector<glm::dquat>& quaternions)
+{
+    for (size_t i = 1; i < quaternions.size(); ++i)
+    {
+        if (glm::dot(quaternions[i - 1], quaternions[i]) < 0.0)
+            quaternions[i] = -quaternions[i];
+    }
 }
 
 /*

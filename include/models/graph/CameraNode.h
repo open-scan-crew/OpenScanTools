@@ -189,6 +189,11 @@ private:
         const glm::dvec3& p3,
         double t);
     static glm::dquat slerpShortestPath(const glm::dquat& q0, const glm::dquat& q1, double t);
+    static glm::dquat squadShortestPath(const glm::dquat& q0, const glm::dquat& q1, const glm::dquat& s0, const glm::dquat& s1, double t);
+    static glm::dquat computeSquadIntermediate(const glm::dquat& qPrev, const glm::dquat& qCurr, const glm::dquat& qNext);
+    static glm::dquat quaternionLog(const glm::dquat& q);
+    static glm::dquat quaternionExp(const glm::dquat& q);
+    static void enforceQuaternionSignContinuity(std::vector<glm::dquat>& quaternions);
 
     void applyProjection(const ProjectionData& projectionData);
 
