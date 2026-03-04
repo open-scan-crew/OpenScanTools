@@ -1431,7 +1431,17 @@ void CameraNode::buildCatmullRomPlaybackPathFromTrajectory()
         const glm::dvec3& p3 = (i + 2 < controlCount) ? m_trajectory[i + 2].point : m_trajectory[i + 1].point;
 
         const double segmentDistance = glm::distance(p1, p2);
-        const int sampleCount = std::clamp(static_cast<int>(std::ceil(segmentDistance / 0.25)), 4, 48);
+        const int positionSampleCount = std::clamp(static_cast<int>(std::ceil(segmentDistance / 0.25)), 4, 48);
+
+        const double orientationAlignment = std::clamp(std::abs(glm::dot(controlOrientations[i], controlOrientations[i + 1])), 0.0, 1.0);
+        const double orientationAngle = 2.0 * std::acos(orientationAlignment);
+        const int orientationSampleCount = std::clamp(static_cast<int>(std::ceil(orientationAngle / glm::radians(2.0))), 1, 48);
+
+        int sampleCount = std::max(positionSampleCount, orientationSampleCount);
+        const bool isLastControlSegment = (i + 1 == controlCount - 1);
+        if (isLastControlSegment)
+            sampleCount = std::min(sampleCount * 2, 64);
+        sampleCount = std::clamp(sampleCount, 4, 64);
 
         for (int step = 1; step <= sampleCount; ++step)
         {
