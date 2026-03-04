@@ -21,9 +21,11 @@ ToolBarAnimationGroup::ToolBarAnimationGroup(IDataDispatcher &dataDispatcher, QW
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::actualizeNodes);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::renderAnimationToolbarState);
+	m_dataDispatcher.registerObserverOnKey(this, guiDType::renderStopAnimation);
 	m_methods.insert({ guiDType::projectLoaded, &ToolBarAnimationGroup::onProjectLoad });
 	m_methods.insert({ guiDType::actualizeNodes, &ToolBarAnimationGroup::onProjectTreeActualize });
 	m_methods.insert({ guiDType::renderAnimationToolbarState, &ToolBarAnimationGroup::onAnimationToolbarState });
+	m_methods.insert({ guiDType::renderStopAnimation, &ToolBarAnimationGroup::onRenderStopAnimation });
 }
 
 ToolBarAnimationGroup::~ToolBarAnimationGroup()
@@ -69,6 +71,14 @@ void ToolBarAnimationGroup::onAnimationToolbarState(IGuiData* data)
 	m_canStartAnimation = state->m_canStart;
 	if (!m_canStartAnimation)
 		m_isStarted = false;
+	updateUI();
+}
+
+void ToolBarAnimationGroup::onRenderStopAnimation(IGuiData* data)
+{
+	(void)data;
+	m_isStarted = false;
+	refreshAnimationAvailability();
 	updateUI();
 }
 

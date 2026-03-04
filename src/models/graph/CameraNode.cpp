@@ -1324,6 +1324,7 @@ bool CameraNode::animateComplexTrajectory()
             setThetaAndPhi(m_trajectory[m_currentKeyPoint].theta, m_trajectory[m_currentKeyPoint].phi);
             m_animationPlaylist = m_initialAnimationPlaylist;
             m_isAnimated = false;
+            m_dataDispatcher.updateInformation(new GuiDataRenderStopAnimation());
             return true;
         }
         else

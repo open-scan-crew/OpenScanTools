@@ -24,6 +24,7 @@ private:
 	void onProjectLoad(IGuiData* keyValue);
 	void onProjectTreeActualize(IGuiData* keyValue);
 	void onAnimationToolbarState(IGuiData* keyValue);
+	void onRenderStopAnimation(IGuiData* keyValue);
 	void updateUI();
 	void refreshAnimationAvailability();
 
