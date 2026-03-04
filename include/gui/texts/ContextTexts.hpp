@@ -147,6 +147,9 @@
 #define TEXT_CONTEXT_EXPORT_VIDEO_FAIL QObject::tr("Fail")
 #define TEXT_CONTEXT_EXPORT_VIDEO_TIME QObject::tr("Sequence generated in %1 seconds")
 
+//ContextAnimation
+#define TEXT_CONTEXT_ANIMATION_NEED_TWO_VIEWPOINTS QObject::tr("At least two perspective viewpoints are required to start the animation.")
+
 //ContextMoveManip
 #define TEXT_MOVE_MANIP_START QObject::tr("Select a temporary position for the manipulator.")
 

@@ -405,6 +405,15 @@ guiDType GuiDataRenderAnimationSpeed::getType()
 	return guiDType::renderAnimationSpeed;
 }
 
+GuiDataRenderAnimationToolbarState::GuiDataRenderAnimationToolbarState(bool canStart)
+	: m_canStart(canStart)
+{}
+
+guiDType GuiDataRenderAnimationToolbarState::getType()
+{
+	return guiDType::renderAnimationToolbarState;
+}
+
 GuiDataRenderAnimationLoop::GuiDataRenderAnimationLoop(const bool& loop)
 	:_loop(loop)
 {}
