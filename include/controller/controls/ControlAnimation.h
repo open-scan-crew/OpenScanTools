@@ -31,6 +31,24 @@ namespace control::animation
         ControlType getType() const override;
     };
 
+    class PrepareViewpointsAnimation : public AControl
+    {
+    public:
+        PrepareViewpointsAnimation();
+        ~PrepareViewpointsAnimation();
+        void doFunction(Controller& controller) override;
+        ControlType getType() const override;
+    };
+
+    class RefreshViewpointsAnimationState : public AControl
+    {
+    public:
+        RefreshViewpointsAnimationState();
+        ~RefreshViewpointsAnimationState();
+        void doFunction(Controller& controller) override;
+        ControlType getType() const override;
+    };
+
     class Examine : public AControl
     {
     public:
