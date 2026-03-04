@@ -45,7 +45,7 @@
    <item row="0" column="1">
     <widget class="QPushButton" name="scansAnimPushButton">
      <property name="text">
-      <string>Scans list</string>
+      <string>Viewpoint list</string>
      </property>
     </widget>
    </item>
