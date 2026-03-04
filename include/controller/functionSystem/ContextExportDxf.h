@@ -25,9 +25,9 @@ public:
 private:
 	ContextState processError(const ErrorType& error, Controller& controller);
 	ErrorType getFilename(const ElementType& type, std::filesystem::path& output) const;
-	ErrorType exportMarker(const std::filesystem::path& output, const glm::vec3& center, const std::wstring& text);
+	ErrorType exportMarker(const std::filesystem::path& output, const glm::dvec3& center, const std::wstring& text);
 	ErrorType exportLines(const std::filesystem::path& output, const std::vector<Measure>& lines, const glm::dvec3& decalExport, const std::wstring& text);
-	ErrorType exportWireframeObject(const std::filesystem::path& output, const glm::mat4& model,const std::vector<glm::vec3>& vertices, const std::vector<uint32_t>& edgesIndices, const std::wstring& text);
+	ErrorType exportWireframeObject(const std::filesystem::path& output, const glm::dmat4& model,const std::vector<glm::dvec3>& vertices, const std::vector<uint32_t>& edgesIndices, const std::wstring& text);
 
 private:
 	std::unordered_set<SafePtr<AGraphNode>>			m_listToExport;

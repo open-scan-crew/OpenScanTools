@@ -86,7 +86,7 @@ ContextState ContextExportDxf::launch(Controller& controller)
 		}
 
 		std::wstring text;
-		glm::vec3 position;
+		glm::dvec3 position;
 		std::vector<Measure> measures;
 		switch (type)
 		{
@@ -185,9 +185,9 @@ ContextState ContextExportDxf::launch(Controller& controller)
 				break;
 		}		
 
-		std::vector<glm::vec3> vertices;
+		std::vector<glm::dvec3> vertices;
 		std::vector<uint32_t> edgesIndices;
-		glm::mat4 model;
+		glm::dmat4 model;
 
 		switch (type)
 		{
@@ -196,7 +196,9 @@ ContextState ContextExportDxf::launch(Controller& controller)
 					ReadPtr<TransformationModule> transfo = static_pointer_cast<TransformationModule>(exportPtr).cget();
 					if (!transfo)
 						continue;
-					GeometryGenerator::generateBoxWire(vertices, edgesIndices);
+					std::vector<glm::vec3> verticesFloat;
+					GeometryGenerator::generateBoxWire(verticesFloat, edgesIndices);
+					vertices.assign(verticesFloat.begin(), verticesFloat.end());
 					model = transfo->getTransformation();
 				}
 				break;
@@ -205,7 +207,9 @@ ContextState ContextExportDxf::launch(Controller& controller)
 					ReadPtr<CylinderNode> rCylinder = static_pointer_cast<CylinderNode>(exportPtr).cget();
 					if (!rCylinder)
 						continue;
-					GeometryGenerator::generateCylinderWire(36u, vertices, edgesIndices);
+					std::vector<glm::vec3> verticesFloat;
+					GeometryGenerator::generateCylinderWire(36u, verticesFloat, edgesIndices);
+					vertices.assign(verticesFloat.begin(), verticesFloat.end());
 					model = rCylinder->getTransformation();
 				}
 				break;
@@ -214,7 +218,9 @@ ContextState ContextExportDxf::launch(Controller& controller)
 				ReadPtr<TorusNode> torus = static_pointer_cast<TorusNode>(exportPtr).cget();
 				if (!torus)
 					continue;
-				GeometryGenerator::generateTorusWire((float)(torus->getMainAngle()), (float)(torus->getMainRadius()), (float)(torus->getAdjustedTubeRadius()), 36u, vertices, edgesIndices);
+				std::vector<glm::vec3> verticesFloat;
+				GeometryGenerator::generateTorusWire((float)(torus->getMainAngle()), (float)(torus->getMainRadius()), (float)(torus->getAdjustedTubeRadius()), 36u, verticesFloat, edgesIndices);
+				vertices.assign(verticesFloat.begin(), verticesFloat.end());
 				
 				glm::dmat4 translation = { 1.0f, 0.f, 0.f, 0.f,
 							  0.f, 1.0f, 0.f, 0.f,
@@ -232,7 +238,9 @@ ContextState ContextExportDxf::launch(Controller& controller)
 					ReadPtr<SphereNode> rSphere = static_pointer_cast<SphereNode>(exportPtr).cget();
 					if (!rSphere)
 						continue;
-					GeometryGenerator::generateSphereWire(16u, 16u, vertices, edgesIndices);
+					std::vector<glm::vec3> verticesFloat;
+					GeometryGenerator::generateSphereWire(16u, 16u, verticesFloat, edgesIndices);
+					vertices.assign(verticesFloat.begin(), verticesFloat.end());
 					model = rSphere->getTransformation();
 				}
 				break;
@@ -253,7 +261,7 @@ ContextState ContextExportDxf::launch(Controller& controller)
 
 		glm::dvec3 decalExport = m_primitiveExportParam.exportWithScanImportTranslation ? -controller.getContext().getProjectInfo().m_importScanTranslation : glm::dvec3(0);
 		position += decalExport;
-		glm::mat4 decalMat = { 1.0f, 0.f, 0.f, 0.f,
+		glm::dmat4 decalMat = { 1.0f, 0.f, 0.f, 0.f,
 							  0.f, 1.0f, 0.f, 0.f,
 							  0.f, 0.f, 1.0f, 0.f,
 							  decalExport.x, decalExport.y, decalExport.z, 1.f };
@@ -362,7 +370,7 @@ ContextExportDxf::ErrorType ContextExportDxf::getFilename(const ElementType& typ
 	return ErrorType::Success;
 }
 
-ContextExportDxf::ErrorType ContextExportDxf::exportMarker(const std::filesystem::path& output, const glm::vec3& center, const std::wstring& text)
+ContextExportDxf::ErrorType ContextExportDxf::exportMarker(const std::filesystem::path& output, const glm::dvec3& center, const std::wstring& text)
 {
 	if(drawTarget(center, 0))
 		return ErrorType::FailedToWrite;
@@ -383,13 +391,13 @@ ContextExportDxf::ErrorType ContextExportDxf::exportLines(const std::filesystem:
 	return ErrorType::Success;
 }
 
-ContextExportDxf::ErrorType ContextExportDxf::exportWireframeObject(const std::filesystem::path& output, const glm::mat4& model, const std::vector<glm::vec3>& vertices, const std::vector<uint32_t>& edgesIndices, const std::wstring& text)
+ContextExportDxf::ErrorType ContextExportDxf::exportWireframeObject(const std::filesystem::path& output, const glm::dmat4& model, const std::vector<glm::dvec3>& vertices, const std::vector<uint32_t>& edgesIndices, const std::wstring& text)
 {
 	for (uint64_t iterator(0); iterator < edgesIndices.size(); iterator += 2)
-		if (drawLine(model * glm::vec4(vertices[edgesIndices[iterator]], 1.0f), model * glm::vec4(vertices[edgesIndices[iterator + 1]], 1.0f), 0))
+		if (drawLine(model * glm::dvec4(vertices[edgesIndices[iterator]], 1.0), model * glm::dvec4(vertices[edgesIndices[iterator + 1]], 1.0), 0))
 			return ErrorType::FailedToWrite;
 	
-	if (this->text(text, 0, model * glm::vec4(vertices[0], 1.0f), RADIUS_TEXT))
+	if (this->text(text, 0, model * glm::dvec4(vertices[0], 1.0), RADIUS_TEXT))
 		return ErrorType::FailedToWrite;
 	return ErrorType::Success;
 }
