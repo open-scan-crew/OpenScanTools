@@ -26,8 +26,12 @@ struct KeyPoint {
     double dtime_arrival;
 };
 
-// NEW struct for the KeyPoint with quaternion
-//struct 
+struct OrientationKeyPoint {
+    // Quaternion orientation sampled on the playback path.
+    glm::dquat orientation;
+    // Relative time of arrival on the sampled path.
+    double dtime_arrival;
+};
 
 struct SimpleAnimation {
     KeyPoint start;
@@ -172,6 +176,19 @@ private:
     void startPlayTrajectory(const uint64_t& animationStep);
     bool animateSimpleTrajectory();
     bool animateComplexTrajectory();
+    // Build the trajectory played by complex animation:
+    // - linear fallback for 2 viewpoints
+    // - centripetal Catmull-Rom sampling for 3+ viewpoints
+    void buildComplexAnimationPlaybackPath();
+    void buildLinearPlaybackPathFromTrajectory();
+    void buildCatmullRomPlaybackPathFromTrajectory();
+    static glm::dvec3 evaluateCentripetalCatmullRom(
+        const glm::dvec3& p0,
+        const glm::dvec3& p1,
+        const glm::dvec3& p2,
+        const glm::dvec3& p3,
+        double t);
+    static glm::dquat slerpShortestPath(const glm::dquat& q0, const glm::dquat& q1, double t);
 
     void applyProjection(const ProjectionData& projectionData);
 
@@ -279,6 +296,7 @@ private:
     std::deque<SafePtr<ViewPointNode>> m_animationPlaylist;
     std::deque<SafePtr<ViewPointNode>> m_initialAnimationPlaylist;
     std::vector<KeyPoint> m_trajectory;
+    std::vector<OrientationKeyPoint> m_orientationTrajectory;
     //from camera
     uint64_t m_currentKeyPoint = 0;
     uint64_t m_animFrames = 0;
