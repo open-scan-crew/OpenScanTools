@@ -622,22 +622,38 @@ bool CameraNode::startAnimation(const bool& isOffline, const uint64_t& step)
     }
     // TODO - Update the values in the UI.
 
-    bool first(true);
     m_trajectory.clear();
     for (const SafePtr<ViewPointNode>& vp : m_animation)
     {
         ReadPtr<ViewPointNode> node = vp.cget();
         if (!node)
             continue;
-        //Note (aurélien) quick fix from viewpointTransfert
-        float speed = 1.0f / node->getScale().x;
-        if (first)
-        {
-            first = false;
-            speed = 1.0f;
-        }
-        //AddViewPoint(animation, InterpolationValueWithPreviousAnimation::BEZIER);
-        AddViewPoint1(vp, InterpolationValueWithPreviousAnimation::BEZIER);
+
+        const glm::dvec3 lookDir = glm::dvec4(0.0, 0.0, 1.0, 1.0) * node->getInverseTransformation();
+        double theta = 0.0;
+        if (!(lookDir.x == 0.0 && lookDir.y == 0.0))
+            theta = atan2(-lookDir.x, lookDir.y);
+
+        const double normXY = sqrt(lookDir.x * lookDir.x + lookDir.y * lookDir.y);
+        const double phi = atan2(-normXY, lookDir.z);
+
+        m_trajectory.push_back({ node->getCenter(), theta, phi, 0.0 });
+    }
+
+    if (m_trajectory.size() < 2)
+    {
+        m_isAnimated = false;
+        return false;
+    }
+
+    // Build cumulative arrival times with fixed speed (3 m/s)
+    const double speedMps = (m_speed > 0.0) ? m_speed : 3.0;
+    m_trajectory[0].dtime_arrival = 0.0;
+    for (size_t i = 1; i < m_trajectory.size(); ++i)
+    {
+        const double distance = glm::distance(m_trajectory[i - 1].point, m_trajectory[i].point);
+        const double dt = std::max(distance / speedMps, 0.001);
+        m_trajectory[i].dtime_arrival = m_trajectory[i - 1].dtime_arrival + dt;
     }
 
     SafePtr<ViewPointNode> firstViewpoint = m_animation.front();
@@ -676,19 +692,25 @@ bool CameraNode::startAnimation(const bool& isOffline, const uint64_t& step)
 
 bool CameraNode::endAnimation()
 {
-    if (m_isAnimated)
-    {
-        m_animation = m_initialAnimation;
-        m_isAnimated = false;
-        return true;
-    }
-    return false;
+    const bool wasAnimated = m_isAnimated;
+    m_isAnimated = false;
+    m_pendingComplexAnimationStart = false;
+    m_animationStartViewpoint.reset();
+    m_trajectory.clear();
+    m_currentKeyPoint = 0;
+    m_animFrames = 0;
+    return wasAnimated;
 }
 
 void CameraNode::cleanAnimation()
 {
     m_animation.clear();
     m_initialAnimation.clear();
+    m_pendingComplexAnimationStart = false;
+    m_animationStartViewpoint.reset();
+    m_trajectory.clear();
+    m_currentKeyPoint = 0;
+    m_animFrames = 0;
 }
 
 void CameraNode::setSpeed(const int& speed)
@@ -1880,6 +1902,10 @@ void CameraNode::moveToData(const SafePtr<AGraphNode>& data)
             m_panoramicScan = cli->getPanoramicScan();
 
         lookDir = glm::dvec4(0.0, 0.0, 1.0, 1.0) * cli->getInverseTransformation();
+        m_animation.clear();
+        m_initialAnimation.clear();
+        m_pendingComplexAnimationStart = false;
+        m_animationStartViewpoint.reset();
         m_animation.push_back(vp);
     }
     break;
