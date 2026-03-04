@@ -1,35 +1,29 @@
 #include "gui/toolBars/ToolBarAnimationGroup.h"
 #include "gui/GuiData/GuiDataRendering.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
-#include "controller/controls/ControlIO.h"
 #include "controller/controls/ControlAnimation.h"
-#include "io/ImageTypes.h"
 
 ToolBarAnimationGroup::ToolBarAnimationGroup(IDataDispatcher &dataDispatcher, QWidget *parent, float guiScale)
 	: QWidget(parent)
 	, m_dataDispatcher(dataDispatcher)
 	, m_isStarted(false)
+	, m_isProjectLoaded(false)
+	, m_canStartAnimation(false)
 {
 	m_ui.setupUi(this);
 	setEnabled(false);
 
-	connect(m_ui.cleanListButton, &QPushButton::pressed, this, &ToolBarAnimationGroup::slotCleanAnimationList);
 	connect(m_ui.startAnimationButton, &QPushButton::pressed, this, &ToolBarAnimationGroup::slotStartAnimation); 
 	connect(m_ui.stopAnimationButton, &QPushButton::pressed, this, &ToolBarAnimationGroup::slotStopAnimation); 
-	connect(m_ui.loopCheckBox, &QCheckBox::clicked, this, &ToolBarAnimationGroup::slotLoopAnimation);
-	connect(m_ui.animationSpeedSlider, &QSlider::valueChanged, this, &ToolBarAnimationGroup::slotSpeedChange);
-	connect(m_ui.recordPerfCheckBox, &QCheckBox::clicked, this, &ToolBarAnimationGroup::slotRecordPerformance);
-	connect(m_ui.scansAnimPushButton, &QPushButton::clicked, this, &ToolBarAnimationGroup::slotScansAnimation);
-
-	m_ui.formatComboBox->clear();
-	for (const auto& iterator : ImageFormatDictio)
-		m_ui.formatComboBox->addItem(QString::fromStdString(iterator.second));
-	m_ui.formatComboBox->setCurrentIndex(1);
 
 	updateUI();
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);
+	m_dataDispatcher.registerObserverOnKey(this, guiDType::actualizeNodes);
+	m_dataDispatcher.registerObserverOnKey(this, guiDType::renderAnimationToolbarState);
 	m_methods.insert({ guiDType::projectLoaded, &ToolBarAnimationGroup::onProjectLoad });
+	m_methods.insert({ guiDType::actualizeNodes, &ToolBarAnimationGroup::onProjectTreeActualize });
+	m_methods.insert({ guiDType::renderAnimationToolbarState, &ToolBarAnimationGroup::onAnimationToolbarState });
 }
 
 ToolBarAnimationGroup::~ToolBarAnimationGroup()
@@ -49,58 +43,68 @@ void ToolBarAnimationGroup::informData(IGuiData* data)
 void ToolBarAnimationGroup::onProjectLoad(IGuiData* data)
 {
 	GuiDataProjectLoaded* plData = static_cast<GuiDataProjectLoaded*>(data);
-	setEnabled(plData->m_isProjectLoad);
+	m_isProjectLoaded = plData->m_isProjectLoad;
+	setEnabled(m_isProjectLoaded);
+	if (m_isProjectLoaded)
+		refreshAnimationAvailability();
+	else
+	{
+		m_canStartAnimation = false;
+		m_isStarted = false;
+		updateUI();
+	}
+}
+
+void ToolBarAnimationGroup::onProjectTreeActualize(IGuiData* data)
+{
+	(void)data;
+	if (!m_isProjectLoaded)
+		return;
+	refreshAnimationAvailability();
+}
+
+void ToolBarAnimationGroup::onAnimationToolbarState(IGuiData* data)
+{
+	auto state = static_cast<GuiDataRenderAnimationToolbarState*>(data);
+	m_canStartAnimation = state->m_canStart;
+	if (!m_canStartAnimation)
+		m_isStarted = false;
+	updateUI();
 }
 
 void ToolBarAnimationGroup::updateUI()
 {
-	m_ui.cleanListButton->setDisabled(m_isStarted);
-	m_ui.startAnimationButton->setDisabled(m_isStarted);
-	m_ui.cleanListButton->setDisabled(m_isStarted);
-	m_ui.formatComboBox->setDisabled(m_isStarted);
-	m_ui.stopAnimationButton->setEnabled(m_isStarted);
+	const bool canStart = m_isProjectLoaded && m_canStartAnimation && !m_isStarted;
+	m_ui.startAnimationButton->setEnabled(canStart);
+	m_ui.stopAnimationButton->setEnabled(m_isProjectLoaded && m_isStarted);
 }
 
 void ToolBarAnimationGroup::slotStartAnimation()
 {
+	if (!m_isProjectLoaded || !m_canStartAnimation)
+		return;
+
+	m_dataDispatcher.sendControl(new control::animation::PrepareViewpointsAnimation());
+	if (!m_canStartAnimation)
+		return;
+
 	m_dataDispatcher.updateInformation(new GuiDataRenderStartAnimation());
 	m_isStarted = true;
 	updateUI();
-	if (m_ui.recordPerfCheckBox->isChecked())
-		m_dataDispatcher.sendControl(new control::io::RecordPerformance());
-	else
-		m_dataDispatcher.updateInformation(new GuiDataRenderRecordPerformances(""));
 }
 
 void ToolBarAnimationGroup::slotStopAnimation()
 {
+	if (!m_isStarted)
+		return;
+
 	m_dataDispatcher.updateInformation(new GuiDataRenderStopAnimation());
 	m_isStarted = false;
+	refreshAnimationAvailability();
 	updateUI();
 }
 
-void ToolBarAnimationGroup::slotCleanAnimationList()
+void ToolBarAnimationGroup::refreshAnimationAvailability()
 {
-	m_dataDispatcher.updateInformation(new GuiDataRenderCleanAnimationList());
-}
-
-void ToolBarAnimationGroup::slotLoopAnimation()
-{
-	m_dataDispatcher.updateInformation(new GuiDataRenderAnimationLoop(m_ui.loopCheckBox->isChecked()));
-}
-
-void ToolBarAnimationGroup::slotSpeedChange()
-{
-	m_dataDispatcher.updateInformation(new GuiDataRenderAnimationSpeed(m_ui.animationSpeedSlider->value()));
-}
-
-void ToolBarAnimationGroup::slotRecordPerformance()
-{
-	if(m_ui.recordPerfCheckBox->isChecked())
-		m_dataDispatcher.updateInformation(new GuiDataRenderRecordPerformances(""));
-}
-
-void ToolBarAnimationGroup::slotScansAnimation()
-{
-	m_dataDispatcher.sendControl(new control::animation::AddScansViewPoint());
+	m_dataDispatcher.sendControl(new control::animation::RefreshViewpointsAnimationState());
 }

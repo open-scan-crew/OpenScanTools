@@ -282,6 +282,9 @@ private:
     double m_offlineAnimStep = 0.0;
     std::chrono::steady_clock::time_point m_startTrajectoryTime;
     SimpleAnimation m_simpleAnimation = SimpleAnimation();
+    bool m_pendingComplexAnimationStart = false;
+    uint64_t m_pendingComplexAnimationStep = 1000;
+    SafePtr<ViewPointNode> m_animationStartViewpoint;
 
     // Uniform for projection and view matrix (separated)
     VkMultiUniform m_uniProjView;

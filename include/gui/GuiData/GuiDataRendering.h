@@ -416,6 +416,16 @@ public:
 	const uint16_t m_speed;
 };
 
+class GuiDataRenderAnimationToolbarState : public IGuiData
+{
+public:
+	GuiDataRenderAnimationToolbarState(bool canStart);
+	~GuiDataRenderAnimationToolbarState() {}
+	virtual guiDType getType() override;
+
+	const bool m_canStart;
+};
+
 class GuiDataRenderRecordPerformances : public IGuiData
 {
 public:

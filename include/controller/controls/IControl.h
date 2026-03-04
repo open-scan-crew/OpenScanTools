@@ -364,6 +364,8 @@ enum class ControlType
 	// control::animation
 	addAnimationKeyPoint,
 	addScansAnimationKeyPoint,
+	prepareViewpointsAnimation,
+	refreshViewpointsAnimationState,
 
 	// control::Measure
 	SendPipeDetectionOptions,//Standard
