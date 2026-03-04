@@ -623,6 +623,7 @@ bool CameraNode::startAnimation(const bool& isOffline, const uint64_t& step)
     // TODO - Update the values in the UI.
 
     m_trajectory.clear();
+    m_orientationTrajectory.clear();
     for (const SafePtr<ViewPointNode>& vp : m_animationPlaylist)
     {
         ReadPtr<ViewPointNode> node = vp.cget();
@@ -638,6 +639,7 @@ bool CameraNode::startAnimation(const bool& isOffline, const uint64_t& step)
         const double phi = atan2(-normXY, lookDir.z);
 
         m_trajectory.push_back({ node->getCenter(), theta, phi, 0.0 });
+        m_orientationTrajectory.push_back({ node->getOrientation(), 0.0 });
     }
 
     if (m_trajectory.size() < 2)
@@ -646,15 +648,7 @@ bool CameraNode::startAnimation(const bool& isOffline, const uint64_t& step)
         return false;
     }
 
-    // Build cumulative arrival times with fixed speed (3 m/s)
-    const double speedMps = (m_speed > 0.0) ? m_speed : 3.0;
-    m_trajectory[0].dtime_arrival = 0.0;
-    for (size_t i = 1; i < m_trajectory.size(); ++i)
-    {
-        const double distance = glm::distance(m_trajectory[i - 1].point, m_trajectory[i].point);
-        const double dt = std::max(distance / speedMps, 0.001);
-        m_trajectory[i].dtime_arrival = m_trajectory[i - 1].dtime_arrival + dt;
-    }
+    buildComplexAnimationPlaybackPath();
 
     SafePtr<ViewPointNode> firstViewpoint = m_animationPlaylist.front();
     ReadPtr<ViewPointNode> rFirstViewpoint = firstViewpoint.cget();
@@ -699,6 +693,7 @@ bool CameraNode::endAnimation()
     m_pendingComplexAnimationStart = false;
     m_animationStartViewpoint.reset();
     m_trajectory.clear();
+    m_orientationTrajectory.clear();
     m_currentKeyPoint = 0;
     m_animFrames = 0;
     return wasAnimated;
@@ -711,6 +706,7 @@ void CameraNode::cleanAnimation()
     m_pendingComplexAnimationStart = false;
     m_animationStartViewpoint.reset();
     m_trajectory.clear();
+    m_orientationTrajectory.clear();
     m_currentKeyPoint = 0;
     m_animFrames = 0;
 }
@@ -1269,8 +1265,6 @@ void CameraNode::startPlayTrajectory(const uint64_t& animationStep)
     if (m_trajectory.size() < 2)
         return;
 
-    updateTrajectoryToBezier();
-
     if (m_isOfflineRendering)
     {
         m_animFrames = 0;
@@ -1301,13 +1295,22 @@ bool CameraNode::animateComplexTrajectory()
 
         m_center = (kPt1.point * progress + kPt0.point * (1 - progress));
 
-        double delta_theta = kPt1.theta - kPt0.theta;
-        modulo2Pi(0.0, delta_theta);
+        if (m_orientationTrajectory.size() == m_trajectory.size())
+        {
+            const glm::dquat q0 = m_orientationTrajectory[m_currentKeyPoint - 1].orientation;
+            const glm::dquat q1 = m_orientationTrajectory[m_currentKeyPoint].orientation;
+            m_quaternion = glm::normalize(slerpShortestPath(q0, q1, progress));
+        }
+        else
+        {
+            double delta_theta = kPt1.theta - kPt0.theta;
+            modulo2Pi(0.0, delta_theta);
 
-        double theta1_modulo = kPt0.theta + progress * delta_theta;
-        modulo2Pi(0.0, theta1_modulo); //unsure about that
+            double theta1_modulo = kPt0.theta + progress * delta_theta;
+            modulo2Pi(0.0, theta1_modulo); //unsure about that
 
-        setThetaAndPhi(theta1_modulo, kPt1.phi * progress + kPt0.phi * (1 - progress));
+            setThetaAndPhi(theta1_modulo, kPt1.phi * progress + kPt0.phi * (1 - progress));
+        }
     }
     else if (m_currentKeyPoint + 1 < m_trajectory.size())
     {
@@ -1321,7 +1324,10 @@ bool CameraNode::animateComplexTrajectory()
         if (m_loop == false)
         {
             setPosition(m_trajectory[m_currentKeyPoint].point);
-            setThetaAndPhi(m_trajectory[m_currentKeyPoint].theta, m_trajectory[m_currentKeyPoint].phi);
+            if (m_orientationTrajectory.size() == m_trajectory.size())
+                m_quaternion = glm::normalize(m_orientationTrajectory[m_currentKeyPoint].orientation);
+            else
+                setThetaAndPhi(m_trajectory[m_currentKeyPoint].theta, m_trajectory[m_currentKeyPoint].phi);
             m_animationPlaylist = m_initialAnimationPlaylist;
             m_isAnimated = false;
             m_dataDispatcher.updateInformation(new GuiDataRenderStopAnimation());
@@ -1330,13 +1336,238 @@ bool CameraNode::animateComplexTrajectory()
         else
         {
             setPosition(m_trajectory[0].point);
-            setThetaAndPhi(m_trajectory[0].theta, m_trajectory[0].phi);
+            if (m_orientationTrajectory.size() == m_trajectory.size())
+                m_quaternion = glm::normalize(m_orientationTrajectory[0].orientation);
+            else
+                setThetaAndPhi(m_trajectory[0].theta, m_trajectory[0].phi);
             m_startTrajectoryTime = std::chrono::steady_clock::now();
             m_currentKeyPoint = 1;
         }
     }
 
     return true;
+}
+
+void CameraNode::buildComplexAnimationPlaybackPath()
+{
+    if (m_trajectory.size() < 2 || m_orientationTrajectory.size() != m_trajectory.size())
+        return;
+
+    if (m_trajectory.size() < 3)
+    {
+        buildLinearPlaybackPathFromTrajectory();
+        return;
+    }
+
+    buildCatmullRomPlaybackPathFromTrajectory();
+}
+
+void CameraNode::buildLinearPlaybackPathFromTrajectory()
+{
+    const double speedMps = (m_speed > 0.0) ? m_speed : 3.0;
+    m_trajectory[0].dtime_arrival = 0.0;
+    m_orientationTrajectory[0].dtime_arrival = 0.0;
+    for (size_t i = 1; i < m_trajectory.size(); ++i)
+    {
+        const double distance = glm::distance(m_trajectory[i - 1].point, m_trajectory[i].point);
+        const double dt = std::max(distance / speedMps, 0.001);
+        m_trajectory[i].dtime_arrival = m_trajectory[i - 1].dtime_arrival + dt;
+        m_orientationTrajectory[i].dtime_arrival = m_trajectory[i].dtime_arrival;
+    }
+}
+
+void CameraNode::buildCatmullRomPlaybackPathFromTrajectory()
+{
+    const size_t controlCount = m_trajectory.size();
+    if (controlCount < 3)
+    {
+        buildLinearPlaybackPathFromTrajectory();
+        return;
+    }
+
+    std::vector<KeyPoint> sampledTrajectory;
+    std::vector<OrientationKeyPoint> sampledOrientationTrajectory;
+    sampledTrajectory.reserve(controlCount * 12);
+    sampledOrientationTrajectory.reserve(controlCount * 12);
+
+    sampledTrajectory.push_back({ m_trajectory[0].point, m_trajectory[0].theta, m_trajectory[0].phi, 0.0 });
+    std::vector<glm::dquat> controlOrientations;
+    controlOrientations.reserve(controlCount);
+    for (const OrientationKeyPoint& orientationKp : m_orientationTrajectory)
+        controlOrientations.push_back(glm::normalize(orientationKp.orientation));
+
+    enforceQuaternionSignContinuity(controlOrientations);
+
+    std::vector<glm::dquat> squadIntermediates(controlCount);
+    if (controlCount > 0)
+    {
+        squadIntermediates.front() = controlOrientations.front();
+        squadIntermediates.back() = controlOrientations.back();
+        for (size_t i = 1; i + 1 < controlCount; ++i)
+            squadIntermediates[i] = computeSquadIntermediate(controlOrientations[i - 1], controlOrientations[i], controlOrientations[i + 1]);
+    }
+
+    sampledOrientationTrajectory.push_back({ controlOrientations[0], 0.0 });
+
+    for (size_t i = 0; i + 1 < controlCount; ++i)
+    {
+        const glm::dvec3& p0 = (i == 0) ? m_trajectory[i].point : m_trajectory[i - 1].point;
+        const glm::dvec3& p1 = m_trajectory[i].point;
+        const glm::dvec3& p2 = m_trajectory[i + 1].point;
+        const glm::dvec3& p3 = (i + 2 < controlCount) ? m_trajectory[i + 2].point : m_trajectory[i + 1].point;
+
+        const double segmentDistance = glm::distance(p1, p2);
+        const int sampleCount = std::clamp(static_cast<int>(std::ceil(segmentDistance / 0.25)), 4, 48);
+
+        for (int step = 1; step <= sampleCount; ++step)
+        {
+            const double localT = static_cast<double>(step) / static_cast<double>(sampleCount);
+            const glm::dvec3 sampledPosition = evaluateCentripetalCatmullRom(p0, p1, p2, p3, localT);
+            const glm::dquat sampledOrientation = squadShortestPath(
+                controlOrientations[i],
+                controlOrientations[i + 1],
+                squadIntermediates[i],
+                squadIntermediates[i + 1],
+                localT);
+
+            sampledTrajectory.push_back({ sampledPosition, 0.0, 0.0, 0.0 });
+            sampledOrientationTrajectory.push_back({ glm::normalize(sampledOrientation), 0.0 });
+        }
+    }
+
+    if (sampledTrajectory.size() < 2)
+    {
+        buildLinearPlaybackPathFromTrajectory();
+        return;
+    }
+
+    const double speedMps = (m_speed > 0.0) ? m_speed : 3.0;
+    sampledTrajectory[0].dtime_arrival = 0.0;
+    sampledOrientationTrajectory[0].dtime_arrival = 0.0;
+    for (size_t i = 1; i < sampledTrajectory.size(); ++i)
+    {
+        const double distance = glm::distance(sampledTrajectory[i - 1].point, sampledTrajectory[i].point);
+        const double dt = std::max(distance / speedMps, 0.001);
+        sampledTrajectory[i].dtime_arrival = sampledTrajectory[i - 1].dtime_arrival + dt;
+        sampledOrientationTrajectory[i].dtime_arrival = sampledTrajectory[i].dtime_arrival;
+    }
+
+    m_trajectory = std::move(sampledTrajectory);
+    m_orientationTrajectory = std::move(sampledOrientationTrajectory);
+}
+
+glm::dvec3 CameraNode::evaluateCentripetalCatmullRom(
+    const glm::dvec3& p0,
+    const glm::dvec3& p1,
+    const glm::dvec3& p2,
+    const glm::dvec3& p3,
+    double t)
+{
+    const double alpha = 0.5;
+    const auto computeKnot = [alpha](double prev, const glm::dvec3& a, const glm::dvec3& b)
+    {
+        return prev + std::pow(std::max(glm::distance(a, b), 1e-9), alpha);
+    };
+
+    const double t0 = 0.0;
+    const double t1 = computeKnot(t0, p0, p1);
+    const double t2 = computeKnot(t1, p1, p2);
+    const double t3 = computeKnot(t2, p2, p3);
+    const double u = t1 + (t2 - t1) * std::clamp(t, 0.0, 1.0);
+
+    const glm::dvec3 a1 = ((t1 - u) / (t1 - t0)) * p0 + ((u - t0) / (t1 - t0)) * p1;
+    const glm::dvec3 a2 = ((t2 - u) / (t2 - t1)) * p1 + ((u - t1) / (t2 - t1)) * p2;
+    const glm::dvec3 a3 = ((t3 - u) / (t3 - t2)) * p2 + ((u - t2) / (t3 - t2)) * p3;
+
+    const glm::dvec3 b1 = ((t2 - u) / (t2 - t0)) * a1 + ((u - t0) / (t2 - t0)) * a2;
+    const glm::dvec3 b2 = ((t3 - u) / (t3 - t1)) * a2 + ((u - t1) / (t3 - t1)) * a3;
+
+    return ((t2 - u) / (t2 - t1)) * b1 + ((u - t1) / (t2 - t1)) * b2;
+}
+
+glm::dquat CameraNode::slerpShortestPath(const glm::dquat& q0, const glm::dquat& q1, double t)
+{
+    glm::dquat q1Shortest = q1;
+    if (glm::dot(q0, q1Shortest) < 0.0)
+        q1Shortest = -q1Shortest;
+    return glm::slerp(q0, q1Shortest, std::clamp(t, 0.0, 1.0));
+}
+
+glm::dquat CameraNode::squadShortestPath(const glm::dquat& q0, const glm::dquat& q1, const glm::dquat& s0, const glm::dquat& s1, double t)
+{
+    const double clampedT = std::clamp(t, 0.0, 1.0);
+
+    glm::dquat q1Aligned = q1;
+    glm::dquat s1Aligned = s1;
+    if (glm::dot(q0, q1Aligned) < 0.0)
+    {
+        q1Aligned = -q1Aligned;
+        s1Aligned = -s1Aligned;
+    }
+
+    glm::dquat s0Aligned = s0;
+    if (glm::dot(q0, s0Aligned) < 0.0)
+        s0Aligned = -s0Aligned;
+    if (glm::dot(q1Aligned, s1Aligned) < 0.0)
+        s1Aligned = -s1Aligned;
+
+    const glm::dquat slerpDirect = slerpShortestPath(q0, q1Aligned, clampedT);
+    const glm::dquat slerpControl = slerpShortestPath(s0Aligned, s1Aligned, clampedT);
+    const double blend = 2.0 * clampedT * (1.0 - clampedT);
+    return glm::normalize(slerpShortestPath(slerpDirect, slerpControl, blend));
+}
+
+glm::dquat CameraNode::computeSquadIntermediate(const glm::dquat& qPrev, const glm::dquat& qCurr, const glm::dquat& qNext)
+{
+    const glm::dquat qPrevAligned = (glm::dot(qCurr, qPrev) < 0.0) ? -qPrev : qPrev;
+    const glm::dquat qNextAligned = (glm::dot(qCurr, qNext) < 0.0) ? -qNext : qNext;
+
+    const glm::dquat invCurr = glm::inverse(qCurr);
+    const glm::dquat logPrev = quaternionLog(invCurr * qPrevAligned);
+    const glm::dquat logNext = quaternionLog(invCurr * qNextAligned);
+
+    const glm::dquat averageLog(
+        0.0,
+        -0.25 * (logPrev.x + logNext.x),
+        -0.25 * (logPrev.y + logNext.y),
+        -0.25 * (logPrev.z + logNext.z));
+
+    return glm::normalize(qCurr * quaternionExp(averageLog));
+}
+
+glm::dquat CameraNode::quaternionLog(const glm::dquat& q)
+{
+    const glm::dquat normalized = glm::normalize(q);
+    const glm::dvec3 v(normalized.x, normalized.y, normalized.z);
+    const double vNorm = glm::length(v);
+    if (vNorm < 1e-12)
+        return glm::dquat(0.0, 0.0, 0.0, 0.0);
+
+    const double angle = std::atan2(vNorm, normalized.w);
+    const glm::dvec3 axis = v / vNorm;
+    const glm::dvec3 logV = axis * angle;
+    return glm::dquat(0.0, logV.x, logV.y, logV.z);
+}
+
+glm::dquat CameraNode::quaternionExp(const glm::dquat& q)
+{
+    const glm::dvec3 v(q.x, q.y, q.z);
+    const double theta = glm::length(v);
+    if (theta < 1e-12)
+        return glm::normalize(glm::dquat(std::cos(theta), v.x, v.y, v.z));
+
+    const glm::dvec3 axis = v / theta;
+    const double sinTheta = std::sin(theta);
+    return glm::normalize(glm::dquat(std::cos(theta), axis.x * sinTheta, axis.y * sinTheta, axis.z * sinTheta));
+}
+
+void CameraNode::enforceQuaternionSignContinuity(std::vector<glm::dquat>& quaternions)
+{
+    for (size_t i = 1; i < quaternions.size(); ++i)
+    {
+        if (glm::dot(quaternions[i - 1], quaternions[i]) < 0.0)
+            quaternions[i] = -quaternions[i];
+    }
 }
 
 /*
@@ -1909,6 +2140,7 @@ void CameraNode::moveToData(const SafePtr<AGraphNode>& data)
         m_pendingComplexAnimationStart = false;
         m_animationStartViewpoint.reset();
         m_trajectory.clear();
+        m_orientationTrajectory.clear();
         m_currentKeyPoint = 0;
         m_animFrames = 0;
         m_animation.push_back(vp);
