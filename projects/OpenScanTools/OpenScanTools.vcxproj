@@ -813,7 +813,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarConvertImage.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarExportGroup.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarExportPointCloud.cpp" />
-    <ClCompile Include="..\..\src\gui\toolBars\ToolBarExportVideo.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarFilterGroup.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarFindScan.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarFOV.cpp" />
@@ -1427,7 +1426,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarImportScantra.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarFindScan.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarOrthoGrid.h" />
-    <QtMoc Include="..\..\include\gui\toolBars\ToolBarExportVideo.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarAutoSeeding.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarManipulateObjects.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarConvertImage.h" />
@@ -2019,7 +2017,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtUic Include="..\..\src\gui\forms\toolbar_connectpipegroup.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_convertImage.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_exportPointCloud.ui" />
-    <QtUic Include="..\..\src\gui\forms\toolbar_exportVideo.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_findScan.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_fov.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_importObjects.ui" />
