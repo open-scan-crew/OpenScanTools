@@ -3,6 +3,7 @@
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "controller/controls/ControlAnimation.h"
 
+
 ToolBarAnimationGroup::ToolBarAnimationGroup(IDataDispatcher &dataDispatcher, QWidget *parent, float guiScale)
 	: QWidget(parent)
 	, m_dataDispatcher(dataDispatcher)
@@ -141,6 +142,7 @@ void ToolBarAnimationGroup::slotAnimationModeChanged()
 {
 	const bool viewpointsMode = m_ui.betweenViewpointsRadioButton->isChecked();
 	m_ui.interpolateCheckBox->setEnabled(viewpointsMode);
+	m_ui.degreesSpinBox->setEnabled(!viewpointsMode);
 }
 
 void ToolBarAnimationGroup::refreshAnimationAvailability()
