@@ -223,8 +223,7 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
 
                 if (m_parameters.interpolateRenderingBetweenViewpoints)
                 {
-                    
-                    wCam->m_transparency = ui::transparency::uiValue_to_trueValue(ui::transparency::trueValue_to_uiValue(wCam->m_transparency) + m_addTransp);
+                    wCam->m_transparency += m_addTransp;                    
                     wCam->m_postRenderingNormals.normalStrength += m_addNStren;
                     wCam->m_postRenderingNormals.gloss += m_addNGloss;
                     wCam->m_contrast += m_addContr;
