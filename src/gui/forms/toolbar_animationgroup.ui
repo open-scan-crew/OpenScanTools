@@ -29,6 +29,9 @@
    <property name="horizontalSpacing">
     <number>6</number>
    </property>
+   <property name="horizontalSpacing">
+    <number>8</number>
+   </property>
    <property name="verticalSpacing">
     <number>0</number>
    </property>
