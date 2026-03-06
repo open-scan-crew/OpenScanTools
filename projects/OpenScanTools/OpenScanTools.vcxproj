@@ -1945,6 +1945,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtUic Include="..\..\src\gui\forms\AuthorDialog.ui" />
     <QtUic Include="..\..\src\gui\forms\Calendar_Dialog.ui" />
     <QtUic Include="..\..\src\gui\forms\convertion_options.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogAnimationConfig.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogDeletePoints.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogStatisticalOutlierFilter.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogColorBalanceFilter.ui" />

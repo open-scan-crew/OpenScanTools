@@ -4395,6 +4395,9 @@
     <QtUic Include="..\..\src\gui\forms\DialogImportPCObject.ui">
       <Filter>Form Files</Filter>
     </QtUic>
+    <QtUic Include="..\..\src\gui\forms\DialogAnimationConfig.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\shaders\blocks\block_point_input_vert.glsl">
