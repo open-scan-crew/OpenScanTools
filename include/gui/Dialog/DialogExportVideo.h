@@ -20,8 +20,6 @@ public:
     void closeEvent(QCloseEvent* event);
 
 private:
-    void onAnimationModeSelection();
-
     void onViewpoint1Click();
     void onViewpoint2Click();
 
@@ -36,12 +34,20 @@ private:
     void startGeneration();
     void cancelGeneration();
 
+public:
+    void setAnimationMode(VideoAnimationMode mode);
+    void setLength(int length);
+    void setInterpolateRenderings(bool interpolate);
+
 private:
     Ui::DialogExportVideo m_ui;
     QString m_openPath;
 
     int m_viewpointToEdit = -1;
 	VideoExportParameters m_parameters;
+	VideoAnimationMode m_animationMode = VideoAnimationMode::BETWEENVIEWPOINTS;
+	int m_length = 30;
+	bool m_interpolateRenderings = false;
 
     static constexpr uint64_t MAX_MP4_PIXELS = 8294400;
 };

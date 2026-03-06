@@ -6,6 +6,7 @@
 #include "ui_toolbar_animationgroup.h"
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
+#include "gui/Dialog/DialogExportVideo.h"
 
 class ToolBarAnimationGroup;
 
@@ -31,11 +32,14 @@ private:
 private slots:
 	void slotStartAnimation();
 	void slotStopAnimation();
+	void slotGenerateVideo();
+	void slotAnimationModeChanged();
 
 private:
 	std::unordered_map<guiDType, AnimGroupMethod> m_methods;
 	Ui::toolbar_animationgroup m_ui;
 	IDataDispatcher &m_dataDispatcher;
+	DialogExportVideo* m_dialog;
 	bool m_isStarted;
 	bool m_isProjectLoaded;
 	bool m_canStartAnimation;
