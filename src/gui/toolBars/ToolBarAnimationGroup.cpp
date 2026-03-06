@@ -13,6 +13,11 @@ ToolBarAnimationGroup::ToolBarAnimationGroup(IDataDispatcher &dataDispatcher, QW
 	, m_dialog(new DialogExportVideo(dataDispatcher, this, guiScale))
 {
 	m_ui.setupUi(this);
+	auto* animationModeGroup = new QButtonGroup(this);
+	animationModeGroup->setExclusive(true);
+	animationModeGroup->addButton(m_ui.orbital360RadioButton);
+	animationModeGroup->addButton(m_ui.betweenViewpointsRadioButton);
+
 	setEnabled(false);
 	m_ui.comboBox_animationList->setEnabled(false);
 	m_ui.toolButton_editViewpointAnimConfig->setEnabled(false);
