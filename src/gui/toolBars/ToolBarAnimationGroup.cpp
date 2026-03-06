@@ -6,15 +6,25 @@
 ToolBarAnimationGroup::ToolBarAnimationGroup(IDataDispatcher &dataDispatcher, QWidget *parent, float guiScale)
 	: QWidget(parent)
 	, m_dataDispatcher(dataDispatcher)
+	, m_dialog(new DialogExportVideo(dataDispatcher, this, guiScale))
 	, m_isStarted(false)
 	, m_isProjectLoaded(false)
 	, m_canStartAnimation(false)
 {
 	m_ui.setupUi(this);
+	m_ui.comboBox_animationList->setEnabled(false);
+	m_ui.toolButton_editViewpointAnimConfig->setEnabled(false);
+	m_ui.toolButton_newViewpointAnimConfig->setEnabled(false);
+	m_ui.degreesSpinBox->setEnabled(false);
+	m_ui.label_degrees->setEnabled(false);
 	setEnabled(false);
 
 	connect(m_ui.startAnimationButton, &QPushButton::pressed, this, &ToolBarAnimationGroup::slotStartAnimation); 
 	connect(m_ui.stopAnimationButton, &QPushButton::pressed, this, &ToolBarAnimationGroup::slotStopAnimation); 
+	connect(m_ui.generateVideoPushButton, &QPushButton::clicked, this, &ToolBarAnimationGroup::slotGenerateVideo);
+	connect(m_ui.betweenViewpointsRadioButton, &QRadioButton::toggled, this, &ToolBarAnimationGroup::slotAnimationModeChanged);
+	connect(m_ui.orbital360RadioButton, &QRadioButton::toggled, this, &ToolBarAnimationGroup::slotAnimationModeChanged);
+	slotAnimationModeChanged();
 
 	updateUI();
 
@@ -112,6 +122,24 @@ void ToolBarAnimationGroup::slotStopAnimation()
 	m_isStarted = false;
 	refreshAnimationAvailability();
 	updateUI();
+}
+
+void ToolBarAnimationGroup::slotGenerateVideo()
+{
+	if (!m_isProjectLoaded)
+		return;
+
+	VideoAnimationMode animationMode = m_ui.betweenViewpointsRadioButton->isChecked()
+		? VideoAnimationMode::BETWEENVIEWPOINTS
+		: VideoAnimationMode::ORBITAL;
+	m_dialog->setToolbarAnimationOptions(animationMode, m_ui.lengthSpinBox->value(), m_ui.interpolateCheckBox->isChecked());
+	m_dialog->show();
+}
+
+void ToolBarAnimationGroup::slotAnimationModeChanged()
+{
+	bool useViewpoints = m_ui.betweenViewpointsRadioButton->isChecked();
+	m_ui.interpolateCheckBox->setEnabled(useViewpoints);
 }
 
 void ToolBarAnimationGroup::refreshAnimationAvailability()
