@@ -3,6 +3,8 @@
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "controller/controls/ControlAnimation.h"
 
+#include <QButtonGroup>
+
 ToolBarAnimationGroup::ToolBarAnimationGroup(IDataDispatcher &dataDispatcher, QWidget *parent, float guiScale)
 	: QWidget(parent)
 	, m_dataDispatcher(dataDispatcher)
@@ -12,6 +14,11 @@ ToolBarAnimationGroup::ToolBarAnimationGroup(IDataDispatcher &dataDispatcher, QW
 	, m_dialog(new DialogExportVideo(dataDispatcher, this, guiScale))
 {
 	m_ui.setupUi(this);
+	auto* animationModeGroup = new QButtonGroup(this);
+	animationModeGroup->setExclusive(true);
+	animationModeGroup->addButton(m_ui.orbital360RadioButton);
+	animationModeGroup->addButton(m_ui.betweenViewpointsRadioButton);
+
 	setEnabled(false);
 	m_ui.comboBox_animationList->setEnabled(false);
 	m_ui.toolButton_editViewpointAnimConfig->setEnabled(false);
@@ -141,6 +148,7 @@ void ToolBarAnimationGroup::slotAnimationModeChanged()
 {
 	const bool viewpointsMode = m_ui.betweenViewpointsRadioButton->isChecked();
 	m_ui.interpolateCheckBox->setEnabled(viewpointsMode);
+	m_ui.degreesSpinBox->setEnabled(!viewpointsMode);
 }
 
 void ToolBarAnimationGroup::refreshAnimationAvailability()
