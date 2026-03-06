@@ -2,6 +2,7 @@
 #define TOOLBAR_ANIMATION_H
 
 #include <QtWidgets/qwidget.h>
+#include <QtWidgets/qbuttongroup.h>
 
 #include "ui_toolbar_animationgroup.h"
 #include "gui/IPanel.h"
@@ -40,6 +41,7 @@ private:
 	Ui::toolbar_animationgroup m_ui;
 	IDataDispatcher &m_dataDispatcher;
 	DialogExportVideo* m_dialog;
+	QButtonGroup m_animationModeButtons;
 	bool m_isStarted;
 	bool m_isProjectLoaded;
 	bool m_canStartAnimation;

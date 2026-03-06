@@ -13,6 +13,9 @@ ToolBarAnimationGroup::ToolBarAnimationGroup(IDataDispatcher &dataDispatcher, QW
 {
 	m_ui.setupUi(this);
 	setEnabled(false);
+	m_animationModeButtons.setExclusive(true);
+	m_animationModeButtons.addButton(m_ui.orbital360RadioButton);
+	m_animationModeButtons.addButton(m_ui.betweenViewpointsRadioButton);
 
 	connect(m_ui.startAnimationButton, &QPushButton::pressed, this, &ToolBarAnimationGroup::slotStartAnimation); 
 	connect(m_ui.stopAnimationButton, &QPushButton::pressed, this, &ToolBarAnimationGroup::slotStopAnimation); 
