@@ -1864,9 +1864,6 @@
     <ClCompile Include="..\..\src\gui\Dialog\DialogExportVideo.cpp">
       <Filter>src\gui\Dialog</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\gui\toolBars\ToolBarExportVideo.cpp">
-      <Filter>src\gui\toolBars</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\controller\functionSystem\ContextExportVideoHD.cpp">
       <Filter>src\controller\contexts</Filter>
     </ClCompile>
@@ -2455,9 +2452,6 @@
       <Filter>include\gui\toolBars</Filter>
     </QtMoc>
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarAutoSeeding.h">
-      <Filter>include\gui\toolBars</Filter>
-    </QtMoc>
-    <QtMoc Include="..\..\include\gui\toolBars\ToolBarExportVideo.h">
       <Filter>include\gui\toolBars</Filter>
     </QtMoc>
     <QtMoc Include="..\..\include\gui\Dialog\DialogExportVideo.h">
@@ -4384,9 +4378,6 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\DialogExportVideo.ui">
-      <Filter>Form Files</Filter>
-    </QtUic>
-    <QtUic Include="..\..\src\gui\forms\toolbar_exportVideo.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\toolbar_autoSeeding.ui">

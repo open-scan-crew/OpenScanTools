@@ -6,15 +6,24 @@
 ToolBarAnimationGroup::ToolBarAnimationGroup(IDataDispatcher &dataDispatcher, QWidget *parent, float guiScale)
 	: QWidget(parent)
 	, m_dataDispatcher(dataDispatcher)
+	, m_dialog(new DialogExportVideo(dataDispatcher, this, guiScale))
 	, m_isStarted(false)
 	, m_isProjectLoaded(false)
 	, m_canStartAnimation(false)
 {
 	m_ui.setupUi(this);
 	setEnabled(false);
+	m_animationModeButtons.setExclusive(true);
+	m_animationModeButtons.addButton(m_ui.orbital360RadioButton);
+	m_animationModeButtons.addButton(m_ui.betweenViewpointsRadioButton);
 
 	connect(m_ui.startAnimationButton, &QPushButton::pressed, this, &ToolBarAnimationGroup::slotStartAnimation); 
 	connect(m_ui.stopAnimationButton, &QPushButton::pressed, this, &ToolBarAnimationGroup::slotStopAnimation); 
+	connect(m_ui.generateVideoPushButton, &QPushButton::clicked, this, &ToolBarAnimationGroup::slotGenerateVideo);
+	connect(m_ui.betweenViewpointsRadioButton, &QRadioButton::clicked, this, &ToolBarAnimationGroup::slotAnimationModeChanged);
+	connect(m_ui.orbital360RadioButton, &QRadioButton::clicked, this, &ToolBarAnimationGroup::slotAnimationModeChanged);
+	m_ui.degreesLabel->setEnabled(false);
+	slotAnimationModeChanged();
 
 	updateUI();
 
@@ -112,6 +121,22 @@ void ToolBarAnimationGroup::slotStopAnimation()
 	m_isStarted = false;
 	refreshAnimationAvailability();
 	updateUI();
+}
+
+void ToolBarAnimationGroup::slotGenerateVideo()
+{
+	if (!m_isProjectLoaded)
+		return;
+
+	m_dialog->setAnimationMode(m_ui.betweenViewpointsRadioButton->isChecked() ? VideoAnimationMode::BETWEENVIEWPOINTS : VideoAnimationMode::ORBITAL);
+	m_dialog->setLength(m_ui.lengthSpinBox->value());
+	m_dialog->setInterpolateRenderings(m_ui.interpolateCheckBox->isChecked());
+	m_dialog->show();
+}
+
+void ToolBarAnimationGroup::slotAnimationModeChanged()
+{
+	m_ui.interpolateCheckBox->setEnabled(m_ui.betweenViewpointsRadioButton->isChecked());
 }
 
 void ToolBarAnimationGroup::refreshAnimationAvailability()

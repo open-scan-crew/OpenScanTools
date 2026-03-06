@@ -27,78 +27,33 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0" colspan="4">
-    <widget class="QFrame" name="animationTypeFrame">
-     <property name="frameShape">
-      <enum>QFrame::Box</enum>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_3">
-      <property name="leftMargin">
-       <number>6</number>
-      </property>
-      <property name="topMargin">
-       <number>6</number>
-      </property>
-      <property name="rightMargin">
-       <number>6</number>
-      </property>
-      <property name="bottomMargin">
-       <number>6</number>
-      </property>
-      <item row="1" column="0">
-       <widget class="QWidget" name="betweenViewpointsWidget" native="true">
-        <layout class="QGridLayout" name="gridLayout_2">
-         <item row="2" column="1">
-          <widget class="QLineEdit" name="lineEditViewPoint2">
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLineEdit" name="lineEditViewPoint1">
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QPushButton" name="pushButtonViewPoint2">
-           <property name="text">
-            <string>Select viewpoint 2</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QPushButton" name="pushButtonViewPoint1">
-           <property name="text">
-            <string>Select viewpoint 1</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QCheckBox" name="interpolateCheckBox">
-           <property name="text">
-            <string>Interpolate rendering values</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QRadioButton" name="orbital360RadioButton">
-        <property name="text">
-         <string>Orbital 360</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QRadioButton" name="betweenViewpointsRadioButton">
-        <property name="text">
-         <string>Between 2 viewpoints</string>
-        </property>
-        <property name="checked">
+    <widget class="QWidget" name="betweenViewpointsWidget" native="true">
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="lineEditViewPoint1">
+        <property name="readOnly">
          <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QPushButton" name="pushButtonViewPoint2">
+        <property name="text">
+         <string>Select viewpoint 2</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="lineEditViewPoint2">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QPushButton" name="pushButtonViewPoint1">
+        <property name="text">
+         <string>Select viewpoint 1</string>
         </property>
        </widget>
       </item>
@@ -191,16 +146,6 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
-    <widget class="QSpinBox" name="lengthSpinBox">
-     <property name="maximum">
-      <number>99999</number>
-     </property>
-     <property name="value">
-      <number>30</number>
-     </property>
-    </widget>
-   </item>
    <item row="8" column="1" colspan="2">
     <widget class="QLineEdit" name="fileLineEdit">
      <property name="placeholderText">
@@ -246,13 +191,6 @@
     <widget class="QLineEdit" name="folderLineEdit">
      <property name="placeholderText">
       <string>Enter output folder</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>Video length (seconds)</string>
      </property>
     </widget>
    </item>

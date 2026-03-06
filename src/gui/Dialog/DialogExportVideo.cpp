@@ -45,9 +45,6 @@ DialogExportVideo::DialogExportVideo(IDataDispatcher& dataDispatcher, QWidget *p
 
 	m_openPath = QStandardPaths::locate(QStandardPaths::DocumentsLocation, QString(), QStandardPaths::LocateDirectory);
 
-	connect(m_ui.betweenViewpointsRadioButton, &QPushButton::clicked, this, &DialogExportVideo::onAnimationModeSelection);
-	connect(m_ui.orbital360RadioButton, &QPushButton::clicked, this, &DialogExportVideo::onAnimationModeSelection);
-
 	connect(m_ui.pushButtonViewPoint1, &QPushButton::clicked, this, &DialogExportVideo::onViewpoint1Click);
 	connect(m_ui.pushButtonViewPoint2, &QPushButton::clicked, this, &DialogExportVideo::onViewpoint2Click);
 
@@ -120,14 +117,6 @@ void DialogExportVideo::informData(IGuiData *data)
 		break;
     }
 }
-
-void DialogExportVideo::onAnimationModeSelection()
-{
-	bool betweenViewpoints = m_ui.betweenViewpointsRadioButton->isChecked();
-	m_ui.betweenViewpointsWidget->setEnabled(betweenViewpoints);
-	m_parameters.animMode = betweenViewpoints ? VideoAnimationMode::BETWEENVIEWPOINTS : VideoAnimationMode::ORBITAL;
-}
-
 void DialogExportVideo::onViewpoint1Click()
 {
 	m_ui.lineEditViewPoint1->clear();
@@ -184,7 +173,7 @@ void DialogExportVideo::startGeneration()
         return;
     }
 
-	m_parameters.animMode = m_ui.betweenViewpointsRadioButton->isChecked() ? VideoAnimationMode::BETWEENVIEWPOINTS : VideoAnimationMode::ORBITAL;
+	m_parameters.animMode = m_animationMode;
 	if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS)
 	{
 		if (!m_parameters.start || !m_parameters.finish)
@@ -227,11 +216,11 @@ void DialogExportVideo::startGeneration()
         m_parameters.outputFilePath.clear();
     }
 
-	m_parameters.length = m_ui.lengthSpinBox->value();
+	m_parameters.length = m_length;
 	m_parameters.fps = m_ui.fpsSpinBox->value();
 	m_parameters.hdImage = m_ui.imageHDRadioButton->isChecked();
 	m_parameters.openFolderAfterExport = m_ui.openExplorerFolderCheckBox->isChecked();
-	m_parameters.interpolateRenderingBetweenViewpoints = m_ui.interpolateCheckBox->isChecked();
+	m_parameters.interpolateRenderingBetweenViewpoints = m_interpolateRenderings;
 
 	m_dataDispatcher.sendControl(new control::io::GenerateVideoHD(exportBasePath, m_parameters));
 
@@ -311,4 +300,19 @@ bool DialogExportVideo::isX265Available() const
     QString output = ffmpegCheck.readAllStandardOutput();
     output.append(ffmpegCheck.readAllStandardError());
     return output.contains("libx265", Qt::CaseInsensitive) || output.contains("x265", Qt::CaseInsensitive);
+}
+
+void DialogExportVideo::setAnimationMode(VideoAnimationMode mode)
+{
+	m_animationMode = mode;
+}
+
+void DialogExportVideo::setLength(int length)
+{
+	m_length = length;
+}
+
+void DialogExportVideo::setInterpolateRenderings(bool interpolate)
+{
+	m_interpolateRenderings = interpolate;
 }
