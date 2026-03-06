@@ -15,12 +15,13 @@ public:
     DialogExportVideo(IDataDispatcher& dataDispatcher, QWidget *parent, float guiScale);
     ~DialogExportVideo();
 
+    void setToolbarAnimationOptions(VideoAnimationMode animationMode, int lengthSeconds, bool interpolateRenderings);
 
     void informData(IGuiData *data) override;
     void closeEvent(QCloseEvent* event);
 
 private:
-    void onAnimationModeSelection();
+    void updateViewpointSelectionAvailability();
 
     void onViewpoint1Click();
     void onViewpoint2Click();
@@ -42,6 +43,9 @@ private:
 
     int m_viewpointToEdit = -1;
 	VideoExportParameters m_parameters;
+	VideoAnimationMode m_toolbarAnimationMode = VideoAnimationMode::BETWEENVIEWPOINTS;
+	int m_toolbarLengthSeconds = 30;
+	bool m_toolbarInterpolateRenderings = false;
 
     static constexpr uint64_t MAX_MP4_PIXELS = 8294400;
 };

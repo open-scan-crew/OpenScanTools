@@ -17,6 +17,7 @@
 #include <QtWidgets/QSpinBox>
 #include <QtCore/QProcess>
 #include <QtCore/qstandardpaths.h>
+#include <algorithm>
 #include <filesystem>
 
 namespace
@@ -45,9 +46,6 @@ DialogExportVideo::DialogExportVideo(IDataDispatcher& dataDispatcher, QWidget *p
 
 	m_openPath = QStandardPaths::locate(QStandardPaths::DocumentsLocation, QString(), QStandardPaths::LocateDirectory);
 
-	connect(m_ui.betweenViewpointsRadioButton, &QPushButton::clicked, this, &DialogExportVideo::onAnimationModeSelection);
-	connect(m_ui.orbital360RadioButton, &QPushButton::clicked, this, &DialogExportVideo::onAnimationModeSelection);
-
 	connect(m_ui.pushButtonViewPoint1, &QPushButton::clicked, this, &DialogExportVideo::onViewpoint1Click);
 	connect(m_ui.pushButtonViewPoint2, &QPushButton::clicked, this, &DialogExportVideo::onViewpoint2Click);
 
@@ -65,6 +63,7 @@ DialogExportVideo::DialogExportVideo(IDataDispatcher& dataDispatcher, QWidget *p
     connect(m_ui.mp4RadioButton, &QRadioButton::toggled, this, &DialogExportVideo::onOutputTypeChanged);
     connect(m_ui.imageRadioButton, &QRadioButton::toggled, this, &DialogExportVideo::onOutputTypeChanged);
     onOutputTypeChanged();
+    updateViewpointSelectionAvailability();
 }
 
 DialogExportVideo::~DialogExportVideo()
@@ -121,11 +120,17 @@ void DialogExportVideo::informData(IGuiData *data)
     }
 }
 
-void DialogExportVideo::onAnimationModeSelection()
+void DialogExportVideo::setToolbarAnimationOptions(VideoAnimationMode animationMode, int lengthSeconds, bool interpolateRenderings)
 {
-	bool betweenViewpoints = m_ui.betweenViewpointsRadioButton->isChecked();
-	m_ui.betweenViewpointsWidget->setEnabled(betweenViewpoints);
-	m_parameters.animMode = betweenViewpoints ? VideoAnimationMode::BETWEENVIEWPOINTS : VideoAnimationMode::ORBITAL;
+	m_toolbarAnimationMode = animationMode;
+	m_toolbarLengthSeconds = std::max(1, lengthSeconds);
+	m_toolbarInterpolateRenderings = interpolateRenderings;
+	updateViewpointSelectionAvailability();
+}
+
+void DialogExportVideo::updateViewpointSelectionAvailability()
+{
+	m_ui.betweenViewpointsWidget->setEnabled(m_toolbarAnimationMode == VideoAnimationMode::BETWEENVIEWPOINTS);
 }
 
 void DialogExportVideo::onViewpoint1Click()
@@ -184,7 +189,7 @@ void DialogExportVideo::startGeneration()
         return;
     }
 
-	m_parameters.animMode = m_ui.betweenViewpointsRadioButton->isChecked() ? VideoAnimationMode::BETWEENVIEWPOINTS : VideoAnimationMode::ORBITAL;
+	m_parameters.animMode = m_toolbarAnimationMode;
 	if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS)
 	{
 		if (!m_parameters.start || !m_parameters.finish)
@@ -227,11 +232,11 @@ void DialogExportVideo::startGeneration()
         m_parameters.outputFilePath.clear();
     }
 
-	m_parameters.length = m_ui.lengthSpinBox->value();
+	m_parameters.length = m_toolbarLengthSeconds;
 	m_parameters.fps = m_ui.fpsSpinBox->value();
 	m_parameters.hdImage = m_ui.imageHDRadioButton->isChecked();
 	m_parameters.openFolderAfterExport = m_ui.openExplorerFolderCheckBox->isChecked();
-	m_parameters.interpolateRenderingBetweenViewpoints = m_ui.interpolateCheckBox->isChecked();
+	m_parameters.interpolateRenderingBetweenViewpoints = m_toolbarInterpolateRenderings;
 
 	m_dataDispatcher.sendControl(new control::io::GenerateVideoHD(exportBasePath, m_parameters));
 
