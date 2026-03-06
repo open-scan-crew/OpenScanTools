@@ -84,7 +84,6 @@
 #include "gui/toolBars/ToolBarSlabGroup.h"
 #include "gui/toolBars/ToolBarOrthoGrid.h"
 #include "gui/toolBars/ToolBarAutoSeeding.h"
-#include "gui/toolBars/ToolBarExportVideo.h"
 #include "gui/toolBars/ToolBarAnimationGroup.h"
 #include "gui/toolBars/ToolBarManipulateObjects.h"
 #include "gui/toolBars/ToolBarConvertImage.h"
@@ -365,7 +364,6 @@ Gui::Gui(Controller& controller)
 	ribbonTabContent->addWidget(TEXT_SHARE, new ToolBarShareGroup(m_dataDispatcher, this, m_guiScale));
 	ribbonTabContent->addWidget(TEXT_POINT_CLOUD, new ToolBarExportPointCloud(m_dataDispatcher, this, m_guiScale));
 	ribbonTabContent->addWidget(TEXT_IMAGE, new ToolBarImageGroup(m_dataDispatcher, this, m_guiScale));
-	ribbonTabContent->addWidget(TEXT_VIDEO, new ToolBarExportVideo(m_dataDispatcher, this, m_guiScale));
 	ribbonTabContent->addWidget(TEXT_ANIMATION, new ToolBarAnimationGroup(m_dataDispatcher, this, m_guiScale));
 	m_ribbon->addTab(TEXT_EXPORT, ribbonTabContent);
 

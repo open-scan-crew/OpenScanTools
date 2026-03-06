@@ -9,12 +9,21 @@ ToolBarAnimationGroup::ToolBarAnimationGroup(IDataDispatcher &dataDispatcher, QW
 	, m_isStarted(false)
 	, m_isProjectLoaded(false)
 	, m_canStartAnimation(false)
+	, m_dialog(new DialogExportVideo(dataDispatcher, this, guiScale))
 {
 	m_ui.setupUi(this);
 	setEnabled(false);
+	m_ui.comboBox_animationList->setEnabled(false);
+	m_ui.toolButton_editViewpointAnimConfig->setEnabled(false);
+	m_ui.toolButton_newViewpointAnimConfig->setEnabled(false);
 
 	connect(m_ui.startAnimationButton, &QPushButton::pressed, this, &ToolBarAnimationGroup::slotStartAnimation); 
 	connect(m_ui.stopAnimationButton, &QPushButton::pressed, this, &ToolBarAnimationGroup::slotStopAnimation); 
+	connect(m_ui.generateVideoPushButton, &QPushButton::clicked, this, &ToolBarAnimationGroup::slotGenerateVideo);
+	connect(m_ui.orbital360RadioButton, &QRadioButton::toggled, this, &ToolBarAnimationGroup::slotAnimationModeChanged);
+	connect(m_ui.betweenViewpointsRadioButton, &QRadioButton::toggled, this, &ToolBarAnimationGroup::slotAnimationModeChanged);
+
+	slotAnimationModeChanged();
 
 	updateUI();
 
@@ -87,6 +96,7 @@ void ToolBarAnimationGroup::updateUI()
 	const bool canStart = m_isProjectLoaded && m_canStartAnimation && !m_isStarted;
 	m_ui.startAnimationButton->setEnabled(canStart);
 	m_ui.stopAnimationButton->setEnabled(m_isProjectLoaded && m_isStarted);
+	m_ui.generateVideoPushButton->setEnabled(m_isProjectLoaded);
 }
 
 void ToolBarAnimationGroup::slotStartAnimation()
@@ -112,6 +122,25 @@ void ToolBarAnimationGroup::slotStopAnimation()
 	m_isStarted = false;
 	refreshAnimationAvailability();
 	updateUI();
+}
+
+void ToolBarAnimationGroup::slotGenerateVideo()
+{
+	if (!m_isProjectLoaded)
+		return;
+
+	const VideoAnimationMode mode = m_ui.betweenViewpointsRadioButton->isChecked()
+		? VideoAnimationMode::BETWEENVIEWPOINTS
+		: VideoAnimationMode::ORBITAL;
+
+	m_dialog->setAnimationOptions(mode, m_ui.lengthSpinBox->value(), m_ui.interpolateCheckBox->isChecked());
+	m_dialog->show();
+}
+
+void ToolBarAnimationGroup::slotAnimationModeChanged()
+{
+	const bool viewpointsMode = m_ui.betweenViewpointsRadioButton->isChecked();
+	m_ui.interpolateCheckBox->setEnabled(viewpointsMode);
 }
 
 void ToolBarAnimationGroup::refreshAnimationAvailability()
