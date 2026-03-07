@@ -188,6 +188,7 @@ enum class guiDType
 	closeUOProperties,
 	projectOrientation,
 	sendUserOrientationList,
+	sendViewPointAnimationData,
 
 
 	importFileObjectDialog,
