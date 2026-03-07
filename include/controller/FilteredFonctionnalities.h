@@ -367,6 +367,9 @@ static const std::unordered_map<ControlType, std::unordered_set<LicenceVersion>>
 	{ControlType::addScansAnimationKeyPoint, {LicenceVersion::Standard} },
 	{ControlType::prepareViewpointsAnimation, {LicenceVersion::Free} },
 	{ControlType::refreshViewpointsAnimationState, {LicenceVersion::Free} },
+	{ControlType::createEditViewPointAnimation, {LicenceVersion::Free} },
+	{ControlType::deleteViewPointAnimation, {LicenceVersion::Free} },
+	{ControlType::sendViewPointAnimationData, {LicenceVersion::Free} },
 
 	// control::Measure
 	{ControlType::SendPipeDetectionOptions, {LicenceVersion::Free} },

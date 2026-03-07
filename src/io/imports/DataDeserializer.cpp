@@ -4,6 +4,7 @@
 #include "utils/Logger.h"
 
 #include "models/application/UserOrientation.h"
+#include "models/application/ViewPointAnimation.h"
 #include "models/project/ProjectInfos.h"
 #include "models/application/Author.h"
 
@@ -2803,6 +2804,61 @@ bool DataDeserializer::DeserializeUserOrientation(const nlohmann::json& json, Us
         IOLOG << "UserOrientation Order read error" << LOGENDL;
         retVal = false;
     }
+    return retVal;
+}
+
+bool DataDeserializer::DeserializeViewPointAnimation(const nlohmann::json& json, ViewPointAnimationConfig& data)
+{
+    bool retVal = true;
+
+    if (json.find(Key_Id) != json.end())
+        data.setId(xg::Guid(json.at(Key_Id).get<std::string>()));
+    else
+        retVal = false;
+
+    if (json.find(Key_Name) != json.end())
+        data.setName(QString::fromStdWString(Utils::from_utf8(json.at(Key_Name).get<std::string>())));
+    else
+        retVal = false;
+
+    if (json.find(Key_Order) != json.end())
+        data.setOrder(json.at(Key_Order).get<uint32_t>());
+    else
+        retVal = false;
+
+    ViewPointAnimationMode mode = ViewPointAnimationMode::PositionAsTime;
+    if (json.find(Key_AnimationMode) != json.end())
+    {
+        auto modeOpt = magic_enum::enum_cast<ViewPointAnimationMode>(json.at(Key_AnimationMode).get<std::string>());
+        mode = modeOpt.has_value() ? modeOpt.value() : ViewPointAnimationMode::PositionAsTime;
+    }
+    data.setMode(mode);
+
+    std::vector<ViewPointAnimationLine> lines;
+    if (json.find(Key_AnimationLines) != json.end() && json.at(Key_AnimationLines).is_array())
+    {
+        for (const nlohmann::json& lineJson : json.at(Key_AnimationLines))
+        {
+            ViewPointAnimationLine line;
+            if (lineJson.find(Key_ViewPointId) != lineJson.end())
+                line.viewpointId = xg::Guid(lineJson.at(Key_ViewPointId).get<std::string>());
+            else
+            {
+                retVal = false;
+                continue;
+            }
+
+            if (lineJson.find(Key_Name) != lineJson.end())
+                line.viewpointName = QString::fromStdWString(Utils::from_utf8(lineJson.at(Key_Name).get<std::string>()));
+
+            if (lineJson.find(Key_Position) != lineJson.end())
+                line.position = lineJson.at(Key_Position).get<double>();
+
+            lines.push_back(line);
+        }
+    }
+    data.setLines(lines);
+
     return retVal;
 }
 
