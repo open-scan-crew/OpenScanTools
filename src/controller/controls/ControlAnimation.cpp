@@ -4,18 +4,126 @@
 #include "models/graph/GraphManager.h"
 #include "models/graph/CameraNode.h"
 #include "models/graph/ViewPointNode.h"
+#include "models/3d/DisplayParameters.h"
 
 #include "gui/GuiData/GuiDataRendering.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/texts/ContextTexts.hpp"
 
 #include <algorithm>
+#include <qobject.h>
 
 
 namespace control::animation
 {
     namespace
     {
+        std::vector<AnimationViewpointInfo> collectAllViewpointInfos(Controller& controller)
+        {
+            std::vector<AnimationViewpointInfo> viewpoints;
+            const std::unordered_set<SafePtr<AGraphNode>> allViewpoints = controller.getGraphManager().getNodesByTypes({ ElementType::ViewPoint }, ObjectStatusFilter::ALL);
+            viewpoints.reserve(allViewpoints.size());
+
+            for (const SafePtr<AGraphNode>& node : allViewpoints)
+            {
+                SafePtr<ViewPointNode> viewpoint = static_pointer_cast<ViewPointNode>(node);
+                ReadPtr<ViewPointNode> rViewpoint = viewpoint.cget();
+                if (!rViewpoint)
+                    continue;
+
+                AnimationViewpointInfo info;
+                info.id = rViewpoint->getId();
+                info.name = QString::fromStdWString(rViewpoint->getComposedName());
+                info.projectionMode = rViewpoint->getProjectionMode();
+                info.renderMode = rViewpoint->m_mode;
+                info.blendMode = rViewpoint->m_blendMode;
+                info.normals = rViewpoint->m_postRenderingNormals.show;
+                info.blendColor = rViewpoint->m_postRenderingNormals.blendColor;
+                info.edgeAwareBlur = rViewpoint->m_edgeAwareBlur.enabled;
+                info.depthLining = rViewpoint->m_depthLining.enabled;
+                info.depthLiningStrongMode = rViewpoint->m_depthLining.strongMode;
+                viewpoints.push_back(info);
+            }
+
+            std::sort(viewpoints.begin(), viewpoints.end(), [](const AnimationViewpointInfo& a, const AnimationViewpointInfo& b)
+                {
+                    return a.name.toLower() < b.name.toLower();
+                });
+
+            return viewpoints;
+        }
+
+        bool normalizeAnimationConfigs(Controller& controller)
+        {
+            bool changed = false;
+            std::unordered_map<xg::Guid, AnimationViewpointInfo> infosById;
+            for (const AnimationViewpointInfo& info : collectAllViewpointInfos(controller))
+                infosById[info.id] = info;
+
+            std::unordered_map<viewPointAnimationId, ViewPointAnimationConfig>& configs = controller.getContext().getViewPointAnimations();
+            for (auto& pair : configs)
+            {
+                std::vector<ViewPointAnimationLine> normalizedLines;
+                double previousPosition = 0.0;
+                for (const ViewPointAnimationLine& line : pair.second.getLines())
+                {
+                    auto itInfo = infosById.find(line.viewpointId);
+                    if (itInfo == infosById.end())
+                    {
+                        changed = true;
+                        continue;
+                    }
+
+                    ViewPointAnimationLine normalized = line;
+                    if (normalized.viewpointName != itInfo->second.name)
+                    {
+                        normalized.viewpointName = itInfo->second.name;
+                        changed = true;
+                    }
+                    if (normalizedLines.empty())
+                    {
+                        if (normalized.position != 0.0)
+                        {
+                            normalized.position = 0.0;
+                            changed = true;
+                        }
+                    }
+                    else if (normalized.position < previousPosition)
+                    {
+                        normalized.position = previousPosition;
+                        changed = true;
+                    }
+
+                    previousPosition = normalized.position;
+                    normalizedLines.push_back(normalized);
+                }
+
+                if (normalizedLines.size() != pair.second.getLines().size())
+                    changed = true;
+                pair.second.setLines(normalizedLines);
+            }
+
+            return changed;
+        }
+
+        std::vector<ViewPointAnimationConfig> getSortedAnimationConfigs(Controller& controller)
+        {
+            std::vector<ViewPointAnimationConfig> ordered;
+            const std::unordered_map<viewPointAnimationId, ViewPointAnimationConfig>& configs = controller.getContext().cgetViewPointAnimations();
+            ordered.reserve(configs.size());
+            for (const auto& pair : configs)
+                ordered.push_back(pair.second);
+
+            std::sort(ordered.begin(), ordered.end(), [](const ViewPointAnimationConfig& a, const ViewPointAnimationConfig& b)
+                {
+                    if (a.getOrder() != b.getOrder())
+                        return a.getOrder() < b.getOrder();
+                    return a.getName().toLower() < b.getName().toLower();
+                });
+
+            return ordered;
+        }
+
         std::vector<SafePtr<ViewPointNode>> collectPerspectiveViewpointsSorted(Controller& controller)
         {
             std::vector<SafePtr<ViewPointNode>> viewpoints;
@@ -162,13 +270,95 @@ namespace control::animation
 
     void RefreshViewpointsAnimationState::doFunction(Controller& controller)
     {
+        normalizeAnimationConfigs(controller);
         const std::vector<SafePtr<ViewPointNode>> viewpoints = collectPerspectiveViewpointsSorted(controller);
         controller.updateInfo(new GuiDataRenderAnimationToolbarState(viewpoints.size() >= 2));
+        controller.updateInfo(new GuiDataSendViewPointAnimationData(getSortedAnimationConfigs(controller), collectAllViewpointInfos(controller)));
     }
 
     ControlType RefreshViewpointsAnimationState::getType() const
     {
         return ControlType::refreshViewpointsAnimationState;
+    }
+
+    CreateEditViewPointAnimation::CreateEditViewPointAnimation(const ViewPointAnimationConfig& config)
+        : m_config(config)
+    {}
+
+    CreateEditViewPointAnimation::~CreateEditViewPointAnimation()
+    {}
+
+    void CreateEditViewPointAnimation::doFunction(Controller& controller)
+    {
+        std::unordered_map<viewPointAnimationId, ViewPointAnimationConfig>& configs = controller.getContext().getViewPointAnimations();
+
+        for (const auto& pair : configs)
+        {
+            if (pair.first != m_config.getId() && pair.second.getName().compare(m_config.getName(), Qt::CaseInsensitive) == 0)
+            {
+                controller.updateInfo(new GuiDataWarning(QObject::tr("Animation name already exists.")));
+                return;
+            }
+        }
+
+        auto inserted = configs.insert_or_assign(m_config.getId(), m_config);
+        if (inserted.second)
+            configs[m_config.getId()].setOrder(static_cast<uint32_t>(configs.size() - 1));
+
+        normalizeAnimationConfigs(controller);
+        controller.updateInfo(new GuiDataSendViewPointAnimationData(getSortedAnimationConfigs(controller), collectAllViewpointInfos(controller)));
+    }
+
+    ControlType CreateEditViewPointAnimation::getType() const
+    {
+        return ControlType::createEditViewPointAnimation;
+    }
+
+    DeleteViewPointAnimation::DeleteViewPointAnimation(viewPointAnimationId id)
+        : m_id(id)
+    {}
+
+    DeleteViewPointAnimation::~DeleteViewPointAnimation()
+    {}
+
+    void DeleteViewPointAnimation::doFunction(Controller& controller)
+    {
+        std::unordered_map<viewPointAnimationId, ViewPointAnimationConfig>& configs = controller.getContext().getViewPointAnimations();
+        auto it = configs.find(m_id);
+        if (it == configs.end())
+            return;
+
+        const uint32_t deletedOrder = it->second.getOrder();
+        configs.erase(it);
+        for (auto& pair : configs)
+        {
+            if (pair.second.getOrder() > deletedOrder)
+                pair.second.setOrder(pair.second.getOrder() - 1);
+        }
+
+        controller.updateInfo(new GuiDataSendViewPointAnimationData(getSortedAnimationConfigs(controller), collectAllViewpointInfos(controller)));
+    }
+
+    ControlType DeleteViewPointAnimation::getType() const
+    {
+        return ControlType::deleteViewPointAnimation;
+    }
+
+    SendViewPointAnimationData::SendViewPointAnimationData()
+    {}
+
+    SendViewPointAnimationData::~SendViewPointAnimationData()
+    {}
+
+    void SendViewPointAnimationData::doFunction(Controller& controller)
+    {
+        normalizeAnimationConfigs(controller);
+        controller.updateInfo(new GuiDataSendViewPointAnimationData(getSortedAnimationConfigs(controller), collectAllViewpointInfos(controller)));
+    }
+
+    ControlType SendViewPointAnimationData::getType() const
+    {
+        return ControlType::sendViewPointAnimationData;
     }
 
 }

@@ -11,6 +11,7 @@
 #define Key_SaveLoadSystemVersion ">SaveLoadSystemVersion"
 #define Key_DefaultScanId "DefaultScanId"
 #define Key_UserOrientations "UserOrientations"
+#define Key_ViewPointAnimations "ViewPointAnimations"
 #define Key_Author "Author"
 #define Key_Authors "Authors"
 #define Key_Tags "Tags"
@@ -175,6 +176,12 @@
 #define Key_Order "Order"
 #define Key_OldPoint "OldPoint"
 #define Key_NewPoint "NewPoint"
+
+//ViewPointAnimation
+#define Key_AnimationMode "AnimationMode"
+#define Key_AnimationLines "AnimationLines"
+#define Key_ViewPointId "ViewPointId"
+#define Key_Position "Position"
 
 //ProjectInfos
 #define Key_Company "Company"
