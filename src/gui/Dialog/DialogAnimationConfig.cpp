@@ -125,7 +125,7 @@ void DialogAnimationConfig::insertRowAt(int row)
     for (const AnimationViewpointInfo& vp : m_availableViewpoints)
         combo->addItem(vp.name, guidToQString(vp.id));
 
-    connect(combo, &QComboBox::currentIndexChanged, this, [this, combo](int) {
+    connect(combo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this, combo](int) {
         xg::Guid id = qStringToGuid(combo->currentData().toString());
         if (!id.isValid())
             return;
