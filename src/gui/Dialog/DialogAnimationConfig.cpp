@@ -4,7 +4,7 @@
 #include "gui/Dialog/MessageSplashScreen.h"
 
 #include <QtWidgets/qcombobox.h>
-#include <QtWidgets/qdoubleSpinBox.h>
+#include <QtWidgets/QDoubleSpinBox>
 #include <QtWidgets/qheaderview.h>
 #include <QtWidgets/qtablewidgetitem.h>
 
