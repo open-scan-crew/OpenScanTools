@@ -1261,6 +1261,9 @@
     <ClCompile Include="..\..\src\models\application\UserOrientation.cpp">
       <Filter>src\models\application</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\models\application\ViewPointAnimation.cpp">
+      <Filter>src\models\application</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\controller\Controller_p.cpp">
       <Filter>src\controller</Filter>
     </ClCompile>
@@ -1864,6 +1867,9 @@
     <ClCompile Include="..\..\src\gui\Dialog\DialogExportVideo.cpp">
       <Filter>src\gui\Dialog</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\gui\Dialog\DialogAnimationConfig.cpp">
+      <Filter>src\gui\Dialog</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\controller\functionSystem\ContextExportVideoHD.cpp">
       <Filter>src\controller\contexts</Filter>
     </ClCompile>
@@ -2455,6 +2461,9 @@
       <Filter>include\gui\toolBars</Filter>
     </QtMoc>
     <QtMoc Include="..\..\include\gui\Dialog\DialogExportVideo.h">
+      <Filter>include\gui\Dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\include\gui\Dialog\DialogAnimationConfig.h">
       <Filter>include\gui\Dialog</Filter>
     </QtMoc>
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarManipulateObjects.h">
@@ -3168,6 +3177,9 @@
       <Filter>include\controller\controls</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\models\application\UserOrientation.h">
+      <Filter>include\models\application</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\models\application\ViewPointAnimation.h">
       <Filter>include\models\application</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\controller\Controller_p.h">
