@@ -8,8 +8,10 @@
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
 #include "gui/Dialog/DialogExportVideo.h"
+#include "models/application/ViewPointAnimation.h"
 
 class ToolBarAnimationGroup;
+class DialogAnimationConfig;
 
 typedef void (ToolBarAnimationGroup::* AnimGroupMethod)(IGuiData*);
 
@@ -35,16 +37,23 @@ private slots:
 	void slotStopAnimation();
 	void slotGenerateVideo();
 	void slotAnimationModeChanged();
+	void slotNewViewPointAnimationConfig();
+	void slotEditViewPointAnimationConfig();
+	void slotAnimationConfigChanged(int index);
+	void onAnimationData(IGuiData* keyValue);
 
 private:
 	std::unordered_map<guiDType, AnimGroupMethod> m_methods;
 	Ui::toolbar_animationgroup m_ui;
 	IDataDispatcher &m_dataDispatcher;
 	DialogExportVideo* m_dialog;
+	DialogAnimationConfig* m_animationConfigDialog;
 	QButtonGroup m_animationModeButtons;
 	bool m_isStarted;
 	bool m_isProjectLoaded;
 	bool m_canStartAnimation;
+	std::vector<ViewPointAnimationConfig> m_animationConfigs;
+	std::vector<AnimationViewpointInfo> m_availableViewpoints;
 };
 
 #endif // TOOLBAR_ANIMATION_H

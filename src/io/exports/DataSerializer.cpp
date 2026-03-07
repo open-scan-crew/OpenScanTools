@@ -29,6 +29,7 @@
 #include "models/application/TagTemplate.h"
 
 #include "models/application/UserOrientation.h"
+#include "models/application/ViewPointAnimation.h"
 #include "models/project/ProjectInfos.h"
 #include "models/application/Author.h"
 
@@ -822,6 +823,28 @@ nlohmann::json DataSerializer::Serialize(const UserOrientation& data)
 
 	json[Key_OldPoint] = { data.getOldPoint().x, data.getOldPoint().y, data.getOldPoint().z };
 	json[Key_NewPoint] = { data.getNewPoint().x, data.getNewPoint().y, data.getNewPoint().z };
+
+	return json;
+}
+
+nlohmann::json DataSerializer::Serialize(const ViewPointAnimationConfig& data)
+{
+	nlohmann::json json;
+	json[Key_Id] = data.getId();
+	json[Key_Name] = Utils::to_utf8(data.getName().toStdWString());
+	json[Key_Order] = data.getOrder();
+	json[Key_AnimationMode] = magic_enum::enum_name(data.getMode());
+
+	nlohmann::json lines = nlohmann::json::array();
+	for (const ViewPointAnimationLine& line : data.getLines())
+	{
+		nlohmann::json lineJson;
+		lineJson[Key_ViewPointId] = line.viewpointId;
+		lineJson[Key_Name] = Utils::to_utf8(line.viewpointName.toStdWString());
+		lineJson[Key_Position] = line.position;
+		lines.push_back(lineJson);
+	}
+	json[Key_AnimationLines] = lines;
 
 	return json;
 }

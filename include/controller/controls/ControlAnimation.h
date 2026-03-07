@@ -3,6 +3,7 @@
 
 #include "controller/controls/IControl.h"
 #include "models/OpenScanToolsModelEssentials.h"
+#include "models/application/ViewPointAnimation.h"
 
 class IPanel;
 class AGraphNode;
@@ -45,6 +46,37 @@ namespace control::animation
     public:
         RefreshViewpointsAnimationState();
         ~RefreshViewpointsAnimationState();
+        void doFunction(Controller& controller) override;
+        ControlType getType() const override;
+    };
+
+    class CreateEditViewPointAnimation : public AControl
+    {
+    public:
+        CreateEditViewPointAnimation(const ViewPointAnimationConfig& config);
+        ~CreateEditViewPointAnimation();
+        void doFunction(Controller& controller) override;
+        ControlType getType() const override;
+    private:
+        ViewPointAnimationConfig m_config;
+    };
+
+    class DeleteViewPointAnimation : public AControl
+    {
+    public:
+        DeleteViewPointAnimation(viewPointAnimationId id);
+        ~DeleteViewPointAnimation();
+        void doFunction(Controller& controller) override;
+        ControlType getType() const override;
+    private:
+        viewPointAnimationId m_id;
+    };
+
+    class SendViewPointAnimationData : public AControl
+    {
+    public:
+        SendViewPointAnimationData();
+        ~SendViewPointAnimationData();
         void doFunction(Controller& controller) override;
         ControlType getType() const override;
     };
