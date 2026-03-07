@@ -6,7 +6,7 @@
 #include <QtWidgets/qcombobox.h>
 #include <QtWidgets/QDoubleSpinBox>
 #include <QtWidgets/qheaderview.h>
-#include <QtWidgets/qtablewidgetitem.h>
+#include <QtWidgets/QTableWidgetItem>
 
 namespace
 {
