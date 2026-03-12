@@ -2,11 +2,13 @@
 #include "gui/GuiData/GuiDataRendering.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "controller/controls/ControlAnimation.h"
+#include "gui/Dialog/DialogAnimationConfig.h"
 
 ToolBarAnimationGroup::ToolBarAnimationGroup(IDataDispatcher &dataDispatcher, QWidget *parent, float guiScale)
 	: QWidget(parent)
 	, m_dataDispatcher(dataDispatcher)
 	, m_dialog(new DialogExportVideo(dataDispatcher, this, guiScale))
+	, m_animationConfigDialog(new DialogAnimationConfig(dataDispatcher, this))
 	, m_isStarted(false)
 	, m_isProjectLoaded(false)
 	, m_canStartAnimation(false)
@@ -22,6 +24,9 @@ ToolBarAnimationGroup::ToolBarAnimationGroup(IDataDispatcher &dataDispatcher, QW
 	connect(m_ui.generateVideoPushButton, &QPushButton::clicked, this, &ToolBarAnimationGroup::slotGenerateVideo);
 	connect(m_ui.betweenViewpointsRadioButton, &QRadioButton::clicked, this, &ToolBarAnimationGroup::slotAnimationModeChanged);
 	connect(m_ui.orbital360RadioButton, &QRadioButton::clicked, this, &ToolBarAnimationGroup::slotAnimationModeChanged);
+	connect(m_ui.toolButton_newViewpointAnimConfig, &QToolButton::clicked, this, &ToolBarAnimationGroup::slotNewViewPointAnimationConfig);
+	connect(m_ui.toolButton_editViewpointAnimConfig, &QToolButton::clicked, this, &ToolBarAnimationGroup::slotEditViewPointAnimationConfig);
+	connect(m_ui.comboBox_animationList, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarAnimationGroup::slotAnimationConfigChanged);
 	m_ui.degreesLabel->setEnabled(false);
 	slotAnimationModeChanged();
 
@@ -31,10 +36,12 @@ ToolBarAnimationGroup::ToolBarAnimationGroup(IDataDispatcher &dataDispatcher, QW
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::actualizeNodes);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::renderAnimationToolbarState);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::renderStopAnimation);
+	m_dataDispatcher.registerObserverOnKey(this, guiDType::sendViewPointAnimationData);
 	m_methods.insert({ guiDType::projectLoaded, &ToolBarAnimationGroup::onProjectLoad });
 	m_methods.insert({ guiDType::actualizeNodes, &ToolBarAnimationGroup::onProjectTreeActualize });
 	m_methods.insert({ guiDType::renderAnimationToolbarState, &ToolBarAnimationGroup::onAnimationToolbarState });
 	m_methods.insert({ guiDType::renderStopAnimation, &ToolBarAnimationGroup::onRenderStopAnimation });
+	m_methods.insert({ guiDType::sendViewPointAnimationData, &ToolBarAnimationGroup::onAnimationData });
 }
 
 ToolBarAnimationGroup::~ToolBarAnimationGroup()
@@ -62,6 +69,9 @@ void ToolBarAnimationGroup::onProjectLoad(IGuiData* data)
 	{
 		m_canStartAnimation = false;
 		m_isStarted = false;
+		m_animationConfigs.clear();
+		m_availableViewpoints.clear();
+		m_ui.comboBox_animationList->clear();
 		updateUI();
 	}
 }
@@ -96,6 +106,12 @@ void ToolBarAnimationGroup::updateUI()
 	const bool canStart = m_isProjectLoaded && m_canStartAnimation && !m_isStarted;
 	m_ui.startAnimationButton->setEnabled(canStart);
 	m_ui.stopAnimationButton->setEnabled(m_isProjectLoaded && m_isStarted);
+
+	const bool hasSelection = m_ui.comboBox_animationList->currentIndex() >= 0;
+	const bool viewpointsMode = m_ui.betweenViewpointsRadioButton->isChecked();
+	m_ui.comboBox_animationList->setEnabled(m_isProjectLoaded && viewpointsMode);
+	m_ui.toolButton_newViewpointAnimConfig->setEnabled(m_isProjectLoaded && viewpointsMode);
+	m_ui.toolButton_editViewpointAnimConfig->setEnabled(m_isProjectLoaded && viewpointsMode && hasSelection);
 }
 
 void ToolBarAnimationGroup::slotStartAnimation()
@@ -137,9 +153,72 @@ void ToolBarAnimationGroup::slotGenerateVideo()
 void ToolBarAnimationGroup::slotAnimationModeChanged()
 {
 	m_ui.interpolateCheckBox->setEnabled(m_ui.betweenViewpointsRadioButton->isChecked());
+	updateUI();
 }
 
 void ToolBarAnimationGroup::refreshAnimationAvailability()
 {
 	m_dataDispatcher.sendControl(new control::animation::RefreshViewpointsAnimationState());
+	m_dataDispatcher.sendControl(new control::animation::SendViewPointAnimationData());
+}
+
+void ToolBarAnimationGroup::slotNewViewPointAnimationConfig()
+{
+	m_animationConfigDialog->setKnownAnimations(m_animationConfigs);
+	m_animationConfigDialog->setAvailableViewpoints(m_availableViewpoints);
+	m_animationConfigDialog->setupForNew();
+	m_animationConfigDialog->exec();
+}
+
+void ToolBarAnimationGroup::slotEditViewPointAnimationConfig()
+{
+	const int index = m_ui.comboBox_animationList->currentIndex();
+	if (index < 0)
+		return;
+
+	const xg::Guid selectedId(m_ui.comboBox_animationList->itemData(index).toString().toStdString());
+	for (const ViewPointAnimationConfig& cfg : m_animationConfigs)
+	{
+		if (cfg.getId() == selectedId)
+		{
+			m_animationConfigDialog->setKnownAnimations(m_animationConfigs);
+			m_animationConfigDialog->setAvailableViewpoints(m_availableViewpoints);
+			m_animationConfigDialog->setupForEdit(cfg);
+			m_animationConfigDialog->exec();
+			break;
+		}
+	}
+}
+
+void ToolBarAnimationGroup::slotAnimationConfigChanged(int index)
+{
+	(void)index;
+	updateUI();
+}
+
+void ToolBarAnimationGroup::onAnimationData(IGuiData* keyValue)
+{
+	auto animationData = static_cast<GuiDataSendViewPointAnimationData*>(keyValue);
+	m_animationConfigs = animationData->m_animations;
+	m_availableViewpoints = animationData->m_viewpoints;
+
+	QString selectedId;
+	if (m_ui.comboBox_animationList->currentIndex() >= 0)
+		selectedId = m_ui.comboBox_animationList->currentData().toString();
+
+	m_ui.comboBox_animationList->blockSignals(true);
+	m_ui.comboBox_animationList->clear();
+	int selectionIndex = -1;
+	for (const ViewPointAnimationConfig& config : m_animationConfigs)
+	{
+		const QString id = QString::fromStdString(config.getId().str());
+		m_ui.comboBox_animationList->addItem(config.getName(), id);
+		if (!selectedId.isEmpty() && selectedId == id)
+			selectionIndex = m_ui.comboBox_animationList->count() - 1;
+	}
+	if (selectionIndex >= 0)
+		m_ui.comboBox_animationList->setCurrentIndex(selectionIndex);
+	m_ui.comboBox_animationList->blockSignals(false);
+
+	updateUI();
 }
