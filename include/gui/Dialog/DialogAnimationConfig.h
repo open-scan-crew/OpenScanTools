@@ -34,7 +34,6 @@ private slots:
 
 private:
     void configureTable();
-    void refreshLineColumn();
     void setCurrentConfigToUi(const ViewPointAnimationConfig& config);
     std::vector<ViewPointAnimationLine> readLinesFromUi(bool* ok = nullptr) const;
     ViewPointAnimationConfig buildConfigFromUi(bool* ok = nullptr) const;
@@ -43,7 +42,6 @@ private:
     void insertRowAt(int row);
     void showSplashMessage(const QString& message) const;
     AnimationViewpointInfo findViewpointInfo(const xg::Guid& id) const;
-    void validatePositionRow(int row) const;
     void checkRenderingConsistency(const xg::Guid& newViewpointId) const;
 
 private:

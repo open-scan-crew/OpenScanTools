@@ -6,7 +6,6 @@
 #include <QtWidgets/qcombobox.h>
 #include <QtWidgets/QDoubleSpinBox>
 #include <QtWidgets/qheaderview.h>
-#include <QtWidgets/QTableWidgetItem>
 
 namespace
 {
@@ -80,28 +79,16 @@ void DialogAnimationConfig::setupForEdit(const ViewPointAnimationConfig& config)
 
 void DialogAnimationConfig::configureTable()
 {
-    m_ui.animationListWidgetTable->setColumnCount(3);
-    m_ui.animationListWidgetTable->setHorizontalHeaderLabels({ tr("Line"), tr("Viewpoint name"), tr("Position") });
-    m_ui.animationListWidgetTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    m_ui.animationListWidgetTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
-    m_ui.animationListWidgetTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+    m_ui.animationListWidgetTable->setColumnCount(2);
+    m_ui.animationListWidgetTable->setHorizontalHeaderLabels({ tr("Viewpoint name"), tr("Position") });
+    m_ui.animationListWidgetTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+    m_ui.animationListWidgetTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
     m_ui.animationListWidgetTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_ui.animationListWidgetTable->setSelectionMode(QAbstractItemView::SingleSelection);
-}
-
-void DialogAnimationConfig::refreshLineColumn()
-{
-    for (int row = 0; row < m_ui.animationListWidgetTable->rowCount(); ++row)
-    {
-        QTableWidgetItem* item = m_ui.animationListWidgetTable->item(row, 0);
-        if (!item)
-        {
-            item = new QTableWidgetItem();
-            item->setFlags(item->flags() & ~Qt::ItemIsEditable);
-            m_ui.animationListWidgetTable->setItem(row, 0, item);
-        }
-        item->setText(QString("%1").arg(row + 1, 2, 10, QChar('0')));
-    }
+    m_ui.animationListWidgetTable->verticalHeader()->setSectionsClickable(true);
+    connect(m_ui.animationListWidgetTable->verticalHeader(), &QHeaderView::sectionClicked, this, [this](int row) {
+        m_ui.animationListWidgetTable->selectRow(row);
+    });
 }
 
 int DialogAnimationConfig::selectedRow() const
@@ -115,10 +102,6 @@ int DialogAnimationConfig::selectedRow() const
 void DialogAnimationConfig::insertRowAt(int row)
 {
     m_ui.animationListWidgetTable->insertRow(row);
-
-    QTableWidgetItem* lineItem = new QTableWidgetItem();
-    lineItem->setFlags(lineItem->flags() & ~Qt::ItemIsEditable);
-    m_ui.animationListWidgetTable->setItem(row, 0, lineItem);
 
     QComboBox* combo = new QComboBox(m_ui.animationListWidgetTable);
     combo->addItem(tr("Select viewpoint"), QString());
@@ -141,36 +124,20 @@ void DialogAnimationConfig::insertRowAt(int row)
         checkRenderingConsistency(id);
     });
 
-    m_ui.animationListWidgetTable->setCellWidget(row, 1, combo);
+    m_ui.animationListWidgetTable->setCellWidget(row, 0, combo);
 
     QDoubleSpinBox* spin = new QDoubleSpinBox(m_ui.animationListWidgetTable);
     spin->setDecimals(3);
-    spin->setRange(-1000000.0, 1000000.0);
+    spin->setRange(0.0, 1000000.0);
     spin->setSingleStep(0.1);
-    connect(spin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this, spin](double) {
-        const int rowIndex = m_ui.animationListWidgetTable->indexAt(spin->pos()).row();
-        if (rowIndex >= 0)
-            validatePositionRow(rowIndex);
-    });
-    m_ui.animationListWidgetTable->setCellWidget(row, 2, spin);
-
-    double position = 0.0;
-    if (row > 0)
-    {
-        auto* prevSpin = qobject_cast<QDoubleSpinBox*>(m_ui.animationListWidgetTable->cellWidget(row - 1, 2));
-        if (prevSpin)
-            position = prevSpin->value();
-    }
-    spin->setValue(row == 0 ? 0.0 : position);
-
-    refreshLineColumn();
+    m_ui.animationListWidgetTable->setCellWidget(row, 1, spin);
 }
 
 void DialogAnimationConfig::onAddViewpoint()
 {
     if (m_ui.animationListWidgetTable->rowCount() > 0)
     {
-        auto* lastCombo = qobject_cast<QComboBox*>(m_ui.animationListWidgetTable->cellWidget(m_ui.animationListWidgetTable->rowCount() - 1, 1));
+        auto* lastCombo = qobject_cast<QComboBox*>(m_ui.animationListWidgetTable->cellWidget(m_ui.animationListWidgetTable->rowCount() - 1, 0));
         if (lastCombo && !qStringToGuid(lastCombo->currentData().toString()).isValid())
         {
             showSplashMessage(tr("You must select a viewpoint before adding a new line."));
@@ -191,26 +158,27 @@ void DialogAnimationConfig::onMoveUp()
     if (row <= 0)
         return;
 
-    auto* comboA = qobject_cast<QComboBox*>(m_ui.animationListWidgetTable->cellWidget(row, 1));
-    auto* comboB = qobject_cast<QComboBox*>(m_ui.animationListWidgetTable->cellWidget(row - 1, 1));
-    auto* posA = qobject_cast<QDoubleSpinBox*>(m_ui.animationListWidgetTable->cellWidget(row, 2));
-    auto* posB = qobject_cast<QDoubleSpinBox*>(m_ui.animationListWidgetTable->cellWidget(row - 1, 2));
-    if (!comboA || !comboB || !posA || !posB)
+    auto* combo = qobject_cast<QComboBox*>(m_ui.animationListWidgetTable->cellWidget(row, 0));
+    auto* pos = qobject_cast<QDoubleSpinBox*>(m_ui.animationListWidgetTable->cellWidget(row, 1));
+    if (!combo || !pos)
         return;
 
-    const QVariant comboAData = comboA->currentData();
-    const QVariant comboBData = comboB->currentData();
-    const double posAValue = posA->value();
-    const double posBValue = posB->value();
+    const QVariant movedViewpointData = combo->currentData();
+    const double movedPosition = pos->value();
 
-    comboA->setCurrentIndex(comboA->findData(comboBData));
-    comboB->setCurrentIndex(comboB->findData(comboAData));
-    posA->setValue(posBValue);
-    posB->setValue(posAValue);
+    m_ui.animationListWidgetTable->removeRow(row);
+    const int targetRow = row - 1;
+    insertRowAt(targetRow);
 
-    validatePositionRow(row - 1);
-    validatePositionRow(row);
-    m_ui.animationListWidgetTable->selectRow(row - 1);
+    auto* targetCombo = qobject_cast<QComboBox*>(m_ui.animationListWidgetTable->cellWidget(targetRow, 0));
+    auto* targetPos = qobject_cast<QDoubleSpinBox*>(m_ui.animationListWidgetTable->cellWidget(targetRow, 1));
+    if (!targetCombo || !targetPos)
+        return;
+
+    targetCombo->setCurrentIndex(targetCombo->findData(movedViewpointData));
+    targetPos->setValue(movedPosition);
+
+    m_ui.animationListWidgetTable->selectRow(targetRow);
 }
 
 void DialogAnimationConfig::onMoveDown()
@@ -219,26 +187,27 @@ void DialogAnimationConfig::onMoveDown()
     if (row < 0 || row >= m_ui.animationListWidgetTable->rowCount() - 1)
         return;
 
-    auto* comboA = qobject_cast<QComboBox*>(m_ui.animationListWidgetTable->cellWidget(row, 1));
-    auto* comboB = qobject_cast<QComboBox*>(m_ui.animationListWidgetTable->cellWidget(row + 1, 1));
-    auto* posA = qobject_cast<QDoubleSpinBox*>(m_ui.animationListWidgetTable->cellWidget(row, 2));
-    auto* posB = qobject_cast<QDoubleSpinBox*>(m_ui.animationListWidgetTable->cellWidget(row + 1, 2));
-    if (!comboA || !comboB || !posA || !posB)
+    auto* combo = qobject_cast<QComboBox*>(m_ui.animationListWidgetTable->cellWidget(row, 0));
+    auto* pos = qobject_cast<QDoubleSpinBox*>(m_ui.animationListWidgetTable->cellWidget(row, 1));
+    if (!combo || !pos)
         return;
 
-    const QVariant comboAData = comboA->currentData();
-    const QVariant comboBData = comboB->currentData();
-    const double posAValue = posA->value();
-    const double posBValue = posB->value();
+    const QVariant movedViewpointData = combo->currentData();
+    const double movedPosition = pos->value();
 
-    comboA->setCurrentIndex(comboA->findData(comboBData));
-    comboB->setCurrentIndex(comboB->findData(comboAData));
-    posA->setValue(posBValue);
-    posB->setValue(posAValue);
+    m_ui.animationListWidgetTable->removeRow(row);
+    const int targetRow = row + 1;
+    insertRowAt(targetRow);
 
-    validatePositionRow(row);
-    validatePositionRow(row + 1);
-    m_ui.animationListWidgetTable->selectRow(row + 1);
+    auto* targetCombo = qobject_cast<QComboBox*>(m_ui.animationListWidgetTable->cellWidget(targetRow, 0));
+    auto* targetPos = qobject_cast<QDoubleSpinBox*>(m_ui.animationListWidgetTable->cellWidget(targetRow, 1));
+    if (!targetCombo || !targetPos)
+        return;
+
+    targetCombo->setCurrentIndex(targetCombo->findData(movedViewpointData));
+    targetPos->setValue(movedPosition);
+
+    m_ui.animationListWidgetTable->selectRow(targetRow);
 }
 
 void DialogAnimationConfig::onDeleteViewpoint()
@@ -248,13 +217,6 @@ void DialogAnimationConfig::onDeleteViewpoint()
         return;
 
     m_ui.animationListWidgetTable->removeRow(row);
-    refreshLineColumn();
-    if (m_ui.animationListWidgetTable->rowCount() > 0)
-    {
-        validatePositionRow(0);
-        for (int i = 1; i < m_ui.animationListWidgetTable->rowCount(); ++i)
-            validatePositionRow(i);
-    }
 }
 
 void DialogAnimationConfig::onCleanList()
@@ -323,8 +285,8 @@ void DialogAnimationConfig::setCurrentConfigToUi(const ViewPointAnimationConfig&
     for (const ViewPointAnimationLine& line : config.getLines())
     {
         insertRowAt(row);
-        auto* combo = qobject_cast<QComboBox*>(m_ui.animationListWidgetTable->cellWidget(row, 1));
-        auto* spin = qobject_cast<QDoubleSpinBox*>(m_ui.animationListWidgetTable->cellWidget(row, 2));
+        auto* combo = qobject_cast<QComboBox*>(m_ui.animationListWidgetTable->cellWidget(row, 0));
+        auto* spin = qobject_cast<QDoubleSpinBox*>(m_ui.animationListWidgetTable->cellWidget(row, 1));
         if (combo)
         {
             const int idx = combo->findData(guidToQString(line.viewpointId));
@@ -334,8 +296,6 @@ void DialogAnimationConfig::setCurrentConfigToUi(const ViewPointAnimationConfig&
             spin->setValue(line.position);
         ++row;
     }
-
-    refreshLineColumn();
 }
 
 std::vector<ViewPointAnimationLine> DialogAnimationConfig::readLinesFromUi(bool* ok) const
@@ -346,8 +306,8 @@ std::vector<ViewPointAnimationLine> DialogAnimationConfig::readLinesFromUi(bool*
 
     for (int row = 0; row < m_ui.animationListWidgetTable->rowCount(); ++row)
     {
-        auto* combo = qobject_cast<QComboBox*>(m_ui.animationListWidgetTable->cellWidget(row, 1));
-        auto* spin = qobject_cast<QDoubleSpinBox*>(m_ui.animationListWidgetTable->cellWidget(row, 2));
+        auto* combo = qobject_cast<QComboBox*>(m_ui.animationListWidgetTable->cellWidget(row, 0));
+        auto* spin = qobject_cast<QDoubleSpinBox*>(m_ui.animationListWidgetTable->cellWidget(row, 1));
         if (!combo || !spin)
             continue;
 
@@ -440,46 +400,13 @@ AnimationViewpointInfo DialogAnimationConfig::findViewpointInfo(const xg::Guid& 
     return AnimationViewpointInfo();
 }
 
-void DialogAnimationConfig::validatePositionRow(int row) const
-{
-    auto* spin = qobject_cast<QDoubleSpinBox*>(m_ui.animationListWidgetTable->cellWidget(row, 2));
-    if (!spin)
-        return;
-
-    if (row == 0)
-    {
-        if (spin->value() != 0.0)
-            spin->setValue(0.0);
-        return;
-    }
-
-    auto* prevSpin = qobject_cast<QDoubleSpinBox*>(m_ui.animationListWidgetTable->cellWidget(row - 1, 2));
-    if (!prevSpin)
-        return;
-
-    double candidate = spin->value();
-    const double previous = prevSpin->value();
-    if (candidate < previous)
-        candidate = previous;
-
-    if (row < m_ui.animationListWidgetTable->rowCount() - 1)
-    {
-        auto* nextSpin = qobject_cast<QDoubleSpinBox*>(m_ui.animationListWidgetTable->cellWidget(row + 1, 2));
-        if (nextSpin && candidate > nextSpin->value())
-            candidate = previous;
-    }
-
-    if (candidate != spin->value())
-        spin->setValue(candidate);
-}
-
 void DialogAnimationConfig::checkRenderingConsistency(const xg::Guid& newViewpointId) const
 {
     AnimationViewpointInfo ref;
     bool foundRef = false;
     for (int row = 0; row < m_ui.animationListWidgetTable->rowCount(); ++row)
     {
-        auto* combo = qobject_cast<QComboBox*>(m_ui.animationListWidgetTable->cellWidget(row, 1));
+        auto* combo = qobject_cast<QComboBox*>(m_ui.animationListWidgetTable->cellWidget(row, 0));
         if (!combo)
             continue;
         const xg::Guid id = qStringToGuid(combo->currentData().toString());
