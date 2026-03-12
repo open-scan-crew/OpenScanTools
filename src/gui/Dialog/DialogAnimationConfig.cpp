@@ -7,6 +7,7 @@
 #include <QtWidgets/QDoubleSpinBox>
 #include <QtWidgets/qheaderview.h>
 #include <QtWidgets/qpushbutton.h>
+#include <QtGui/qwheelevent.h>
 
 namespace
 {
@@ -19,6 +20,30 @@ xg::Guid qStringToGuid(const QString& value)
 {
     return xg::Guid(value.toStdString());
 }
+
+class NoWheelComboBox : public QComboBox
+{
+public:
+    using QComboBox::QComboBox;
+
+protected:
+    void wheelEvent(QWheelEvent* event) override
+    {
+        event->ignore();
+    }
+};
+
+class NoWheelDoubleSpinBox : public QDoubleSpinBox
+{
+public:
+    using QDoubleSpinBox::QDoubleSpinBox;
+
+protected:
+    void wheelEvent(QWheelEvent* event) override
+    {
+        event->ignore();
+    }
+};
 }
 
 DialogAnimationConfig::DialogAnimationConfig(IDataDispatcher& dataDispatcher, QWidget* parent)
@@ -117,7 +142,7 @@ void DialogAnimationConfig::insertRowAt(int row)
 {
     m_ui.animationListWidgetTable->insertRow(row);
 
-    QComboBox* combo = new QComboBox(m_ui.animationListWidgetTable);
+    QComboBox* combo = new NoWheelComboBox(m_ui.animationListWidgetTable);
     combo->addItem(tr("Select viewpoint"), QString());
     for (const AnimationViewpointInfo& vp : m_availableViewpoints)
         combo->addItem(vp.name, guidToQString(vp.id));
@@ -140,7 +165,7 @@ void DialogAnimationConfig::insertRowAt(int row)
 
     m_ui.animationListWidgetTable->setCellWidget(row, 0, combo);
 
-    QDoubleSpinBox* spin = new QDoubleSpinBox(m_ui.animationListWidgetTable);
+    QDoubleSpinBox* spin = new NoWheelDoubleSpinBox(m_ui.animationListWidgetTable);
     spin->setDecimals(3);
     spin->setRange(0.0, 1000000.0);
     spin->setSingleStep(0.1);
