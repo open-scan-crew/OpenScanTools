@@ -167,7 +167,9 @@ void ToolBarAnimationGroup::slotNewViewPointAnimationConfig()
 	m_animationConfigDialog->setKnownAnimations(m_animationConfigs);
 	m_animationConfigDialog->setAvailableViewpoints(m_availableViewpoints);
 	m_animationConfigDialog->setupForNew();
-	m_animationConfigDialog->exec();
+	m_animationConfigDialog->show();
+	m_animationConfigDialog->raise();
+	m_animationConfigDialog->activateWindow();
 }
 
 void ToolBarAnimationGroup::slotEditViewPointAnimationConfig()
@@ -184,7 +186,9 @@ void ToolBarAnimationGroup::slotEditViewPointAnimationConfig()
 			m_animationConfigDialog->setKnownAnimations(m_animationConfigs);
 			m_animationConfigDialog->setAvailableViewpoints(m_availableViewpoints);
 			m_animationConfigDialog->setupForEdit(cfg);
-			m_animationConfigDialog->exec();
+			m_animationConfigDialog->show();
+			m_animationConfigDialog->raise();
+			m_animationConfigDialog->activateWindow();
 			break;
 		}
 	}

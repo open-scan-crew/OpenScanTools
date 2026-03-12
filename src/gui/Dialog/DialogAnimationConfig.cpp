@@ -6,6 +6,7 @@
 #include <QtWidgets/qcombobox.h>
 #include <QtWidgets/QDoubleSpinBox>
 #include <QtWidgets/qheaderview.h>
+#include <QtWidgets/qpushbutton.h>
 
 namespace
 {
@@ -27,6 +28,16 @@ DialogAnimationConfig::DialogAnimationConfig(IDataDispatcher& dataDispatcher, QW
     , m_isEdition(false)
 {
     m_ui.setupUi(this);
+    setModal(false);
+
+    const auto pushButtons = findChildren<QPushButton*>();
+    for (QPushButton* button : pushButtons)
+    {
+        if (!button)
+            continue;
+        button->setAutoDefault(false);
+        button->setDefault(false);
+    }
 
     configureTable();
 
@@ -42,6 +53,7 @@ DialogAnimationConfig::DialogAnimationConfig(IDataDispatcher& dataDispatcher, QW
     connect(m_ui.cancelButton, &QPushButton::clicked, this, &DialogAnimationConfig::onCancel);
 
     setupForNew();
+    m_ui.lineEdit_animationName->setFocus();
 }
 
 DialogAnimationConfig::~DialogAnimationConfig()
@@ -66,6 +78,7 @@ void DialogAnimationConfig::setupForNew()
     m_ui.positionAsTimeRadioButton->setChecked(true);
     m_ui.updateButton->setEnabled(false);
     m_ui.deleteButton->setEnabled(false);
+    m_ui.lineEdit_animationName->setFocus();
 }
 
 void DialogAnimationConfig::setupForEdit(const ViewPointAnimationConfig& config)
@@ -75,6 +88,7 @@ void DialogAnimationConfig::setupForEdit(const ViewPointAnimationConfig& config)
     setCurrentConfigToUi(config);
     m_ui.updateButton->setEnabled(true);
     m_ui.deleteButton->setEnabled(true);
+    m_ui.lineEdit_animationName->setFocus();
 }
 
 void DialogAnimationConfig::configureTable()
