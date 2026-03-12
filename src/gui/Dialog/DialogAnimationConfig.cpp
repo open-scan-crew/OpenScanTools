@@ -7,7 +7,7 @@
 #include <QtWidgets/QDoubleSpinBox>
 #include <QtWidgets/qheaderview.h>
 #include <QtWidgets/qpushbutton.h>
-#include <QtGui/qwheelevent.h>
+#include <QtGui/QWheelEvent>
 
 namespace
 {
