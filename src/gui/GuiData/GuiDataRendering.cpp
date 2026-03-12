@@ -423,6 +423,16 @@ guiDType GuiDataRenderAnimationLoop::getType()
 	return guiDType::renderAnimationLoop;
 }
 
+GuiDataSendViewPointAnimationData::GuiDataSendViewPointAnimationData(const std::vector<ViewPointAnimationConfig>& animations, const std::vector<AnimationViewpointInfo>& viewpoints)
+	: m_animations(animations)
+	, m_viewpoints(viewpoints)
+{}
+
+guiDType GuiDataSendViewPointAnimationData::getType()
+{
+	return guiDType::sendViewPointAnimationData;
+}
+
 GuiDataRenderRecordPerformances::GuiDataRenderRecordPerformances(const std::filesystem::path& file)
 	: m_path(file)
 {}
