@@ -733,6 +733,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\gui\Dialog\DialogExportPrimitives.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogExportSubProject.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogExportVideo.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogAnimationConfig.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogGizmo.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogImageHD.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogImportAsciiPC.cpp" />
@@ -1063,6 +1064,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\models\application\List.cpp" />
     <ClCompile Include="..\..\src\models\application\TagTemplate.cpp" />
     <ClCompile Include="..\..\src\models\application\UserOrientation.cpp" />
+    <ClCompile Include="..\..\src\models\application\ViewPointAnimation.cpp" />
     <ClCompile Include="..\..\src\models\data\BeamBendingMeasure\BeamBendingMeasureData.cpp" />
     <ClCompile Include="..\..\src\models\data\Clipping\ClippingGeometry.cpp" />
     <ClCompile Include="..\..\src\models\data\Clipping\ClippingData.cpp" />
@@ -1402,6 +1404,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtMoc Include="..\..\include\gui\Dialog\DialogShortcuts.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogSearchedObjects.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogExportVideo.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogAnimationConfig.h" />
     <ClInclude Include="..\..\include\controller\messages\VideoExportParametersMessage.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogImportImage.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogImportPCObject.h" />
@@ -1765,6 +1768,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\models\application\Ids.hpp" />
     <ClInclude Include="..\..\include\models\application\List.hxx" />
     <ClInclude Include="..\..\include\models\application\UserOrientation.h" />
+    <ClInclude Include="..\..\include\models\application\ViewPointAnimation.h" />
     <ClInclude Include="..\..\include\models\data\Box\ClippingBoxSettings.h" />
     <ClInclude Include="..\..\include\models\data\Clipping\ClippingGeometry.h" />
     <ClInclude Include="..\..\include\models\data\Clipping\ClippingData.h" />
