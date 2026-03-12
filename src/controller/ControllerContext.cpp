@@ -689,6 +689,7 @@ void ControllerContext::cleanProjectInfo()
 	m_info = ProjectInfos();
 	m_internInfo = ProjectInternalInfo();
 	m_userOrientations.clear();
+	m_viewPointAnimations.clear();
 	m_projectLoaded = false;
 }
 
@@ -726,6 +727,16 @@ std::unordered_map<userOrientationId, UserOrientation>& ControllerContext::getUs
 const std::unordered_map<userOrientationId, UserOrientation>& ControllerContext::cgetUserOrientations() const
 {
 	return m_userOrientations;
+}
+
+std::unordered_map<viewPointAnimationId, ViewPointAnimationConfig>& ControllerContext::getViewPointAnimations()
+{
+	return m_viewPointAnimations;
+}
+
+const std::unordered_map<viewPointAnimationId, ViewPointAnimationConfig>& ControllerContext::cgetViewPointAnimations() const
+{
+	return m_viewPointAnimations;
 }
 
 const UserOrientation& ControllerContext::getActiveUserOrientation() const

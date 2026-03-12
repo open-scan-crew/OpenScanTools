@@ -33,6 +33,7 @@ class ViewPointNode;
 class CameraNode;
 
 class UserOrientation;
+class ViewPointAnimationConfig;
 class Author;
 class ProjectInfos;
 
@@ -65,6 +66,7 @@ namespace DataSerializer
 
 
 	nlohmann::json Serialize(const UserOrientation& data);
+	nlohmann::json Serialize(const ViewPointAnimationConfig& data);
 	nlohmann::json Serialize(const Author& auth);
 	nlohmann::json Serialize(const ProjectInfos& data);
 	nlohmann::json Serialize(const sma::TagTemplate& data);

@@ -12,6 +12,7 @@
 #include "utils/Color32.hpp"
 #include "utils/safe_ptr.h"
 #include "models/3d/NavigationTypes.h"
+#include "models/application/ViewPointAnimation.h"
 
 #include <filesystem>
 #include <cstdint>
@@ -424,6 +425,17 @@ public:
 	virtual guiDType getType() override;
 
 	const bool m_canStart;
+};
+
+class GuiDataSendViewPointAnimationData : public IGuiData
+{
+public:
+	GuiDataSendViewPointAnimationData(const std::vector<ViewPointAnimationConfig>& animations, const std::vector<AnimationViewpointInfo>& viewpoints);
+	~GuiDataSendViewPointAnimationData() {}
+	virtual guiDType getType() override;
+
+	const std::vector<ViewPointAnimationConfig> m_animations;
+	const std::vector<AnimationViewpointInfo> m_viewpoints;
 };
 
 class GuiDataRenderRecordPerformances : public IGuiData
