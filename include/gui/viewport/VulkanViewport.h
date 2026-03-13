@@ -11,6 +11,7 @@
 
 #include "glm/glm.hpp"
 
+#include <chrono>
 #include <mutex>
 #include <unordered_map>
 #include <vector>
@@ -181,6 +182,7 @@ protected:
     void onRenderAnimationSpeed(IGuiData* data); // FIXME - Move to CameraNode
     void onRenderAnimationLoop(IGuiData* data);  // FIXME - Move to CameraNode
     void onRenderStartAnimation(IGuiData* data);  // FIXME - Move to CameraNode
+    void onRenderPauseAnimation(IGuiData* data);  // FIXME - Move to CameraNode
     void onRenderStopAnimation(IGuiData* data);  // FIXME - Move to CameraNode
     void onRenderCleanAnimationList(IGuiData* data);  // FIXME - Move to CameraNode
     void onUserOrientation(IGuiData* data); // FIXME - Move to CameraNode
@@ -293,6 +295,13 @@ private:
 
     // Animation
     bool m_saveImagesAnim;
+    bool m_isOrbitalAnimationActive = false;
+    bool m_isOrbitalAnimationPaused = false;
+    bool m_orbitalUsesExamine = false;
+    double m_orbitalDurationSeconds = 0.0;
+    double m_orbitalElapsedSeconds = 0.0;
+    double m_orbitalAppliedAngle = 0.0;
+    std::chrono::steady_clock::time_point m_orbitalStartTime;
 };
 
 #endif // VULKAN_VIEWPORT_H_
