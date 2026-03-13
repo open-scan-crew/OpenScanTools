@@ -377,8 +377,26 @@ public:
 class GuiDataRenderStartAnimation : public IGuiData
 {
 public:
-	GuiDataRenderStartAnimation() {}
+	GuiDataRenderStartAnimation(bool isOrbital = false, double durationSeconds = 0.0, bool resume = false, int orbitalDegrees = 360)
+		: m_isOrbital(isOrbital)
+		, m_durationSeconds(durationSeconds)
+		, m_resume(resume)
+		, m_orbitalDegrees(orbitalDegrees)
+	{}
 	~GuiDataRenderStartAnimation() {}
+	virtual guiDType getType() override;
+
+	const bool m_isOrbital;
+	const double m_durationSeconds;
+	const bool m_resume;
+	const int m_orbitalDegrees;
+};
+
+class GuiDataRenderPauseAnimation : public IGuiData
+{
+public:
+	GuiDataRenderPauseAnimation() {}
+	~GuiDataRenderPauseAnimation() {}
 	virtual guiDType getType() override;
 };
 

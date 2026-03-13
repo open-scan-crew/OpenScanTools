@@ -149,6 +149,7 @@
 
 //ContextAnimation
 #define TEXT_CONTEXT_ANIMATION_NEED_TWO_VIEWPOINTS QObject::tr("At least two perspective viewpoints are required to start the animation.")
+#define TEXT_CONTEXT_ANIMATION_INCONSISTENT_TIMES QObject::tr("The table of viewpoints contains inconsistent time values. Times must be increasing. Example: if you have entered 5 in the Position field for a row in the table, then you must enter a higher value in the next row, for example 6.")
 
 //ContextMoveManip
 #define TEXT_MOVE_MANIP_START QObject::tr("Select a temporary position for the manipulator.")
