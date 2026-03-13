@@ -12,6 +12,7 @@
 #include "gui/texts/ContextTexts.hpp"
 
 #include <algorithm>
+#include <limits>
 #include <qobject.h>
 
 
@@ -229,7 +230,9 @@ namespace control::animation
         return ControlType::addScansAnimationKeyPoint;
     }
 
-    PrepareViewpointsAnimation::PrepareViewpointsAnimation()
+    PrepareViewpointsAnimation::PrepareViewpointsAnimation(const viewPointAnimationId& animationId, int lengthSeconds)
+        : m_animationId(animationId)
+        , m_lengthSeconds(lengthSeconds)
     {}
 
     PrepareViewpointsAnimation::~PrepareViewpointsAnimation()
@@ -237,7 +240,50 @@ namespace control::animation
 
     void PrepareViewpointsAnimation::doFunction(Controller& controller)
     {
-        const std::vector<SafePtr<ViewPointNode>> viewpoints = collectPerspectiveViewpointsSorted(controller);
+        const std::unordered_map<viewPointAnimationId, ViewPointAnimationConfig>& configs = controller.getContext().cgetViewPointAnimations();
+        auto itConfig = configs.find(m_animationId);
+        if (itConfig == configs.end())
+        {
+            controller.updateInfo(new GuiDataRenderAnimationToolbarState(false));
+            controller.updateInfo(new GuiDataWarning(TEXT_CONTEXT_ANIMATION_NEED_TWO_VIEWPOINTS));
+            return;
+        }
+
+        std::unordered_map<xg::Guid, SafePtr<ViewPointNode>> perspectiveById;
+        for (const SafePtr<ViewPointNode>& viewpoint : collectPerspectiveViewpointsSorted(controller))
+        {
+            ReadPtr<ViewPointNode> rViewpoint = viewpoint.cget();
+            if (!rViewpoint)
+                continue;
+            perspectiveById.insert_or_assign(rViewpoint->getId(), viewpoint);
+        }
+
+        std::vector<SafePtr<ViewPointNode>> viewpoints;
+        std::vector<double> controlTimes;
+        viewpoints.reserve(itConfig->second.getLines().size());
+        controlTimes.reserve(itConfig->second.getLines().size());
+
+        double previousTime = -std::numeric_limits<double>::infinity();
+        for (const ViewPointAnimationLine& line : itConfig->second.getLines())
+        {
+            auto itVp = perspectiveById.find(line.viewpointId);
+            if (itVp == perspectiveById.end())
+                continue;
+
+            viewpoints.push_back(itVp->second);
+            controlTimes.push_back(line.position);
+
+            if (itConfig->second.getMode() == ViewPointAnimationMode::PositionAsTime)
+            {
+                if (line.position <= previousTime)
+                {
+                    controller.updateInfo(new GuiDataWarning(TEXT_CONTEXT_ANIMATION_INCONSISTENT_TIMES));
+                    return;
+                }
+                previousTime = line.position;
+            }
+        }
+
         const bool canStart = viewpoints.size() >= 2;
         controller.updateInfo(new GuiDataRenderAnimationToolbarState(canStart));
 
@@ -253,7 +299,8 @@ namespace control::animation
 
         wCam->cleanAnimation();
         wCam->setLoop(false);
-        wCam->setSpeed(3);
+        wCam->setSpeed(1);
+        wCam->setAnimationTiming(itConfig->second.getMode(), static_cast<double>(m_lengthSeconds), controlTimes);
         for (const SafePtr<ViewPointNode>& viewpoint : viewpoints)
             wCam->AddViewPoint(viewpoint);
     }

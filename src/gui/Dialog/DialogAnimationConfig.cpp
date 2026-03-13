@@ -73,7 +73,6 @@ DialogAnimationConfig::DialogAnimationConfig(IDataDispatcher& dataDispatcher, QW
     connect(m_ui.pushButtonCleanAnimList, &QPushButton::clicked, this, &DialogAnimationConfig::onCleanList);
 
     connect(m_ui.okButton, &QPushButton::clicked, this, &DialogAnimationConfig::onOk);
-    connect(m_ui.updateButton, &QPushButton::clicked, this, &DialogAnimationConfig::onUpdate);
     connect(m_ui.deleteButton, &QPushButton::clicked, this, &DialogAnimationConfig::onDelete);
     connect(m_ui.cancelButton, &QPushButton::clicked, this, &DialogAnimationConfig::onCancel);
 
@@ -101,7 +100,6 @@ void DialogAnimationConfig::setupForNew()
     m_ui.lineEdit_animationName->clear();
     m_ui.animationListWidgetTable->setRowCount(0);
     m_ui.positionAsTimeRadioButton->setChecked(true);
-    m_ui.updateButton->setEnabled(false);
     m_ui.deleteButton->setEnabled(false);
     m_ui.lineEdit_animationName->setFocus();
 }
@@ -111,7 +109,6 @@ void DialogAnimationConfig::setupForEdit(const ViewPointAnimationConfig& config)
     m_isEdition = true;
     m_editId = config.getId();
     setCurrentConfigToUi(config);
-    m_ui.updateButton->setEnabled(true);
     m_ui.deleteButton->setEnabled(true);
     m_ui.lineEdit_animationName->setFocus();
 }
@@ -265,7 +262,7 @@ void DialogAnimationConfig::onCleanList()
 
 void DialogAnimationConfig::onOk()
 {
-    if (!validateBeforeSave(true))
+    if (!validateBeforeSave())
         return;
 
     bool ok = false;
@@ -273,23 +270,6 @@ void DialogAnimationConfig::onOk()
     if (!ok)
         return;
 
-    m_dataDispatcher.sendControl(new control::animation::CreateEditViewPointAnimation(config));
-    accept();
-}
-
-void DialogAnimationConfig::onUpdate()
-{
-    if (!m_isEdition)
-        return;
-    if (!validateBeforeSave(false))
-        return;
-
-    bool ok = false;
-    ViewPointAnimationConfig config = buildConfigFromUi(&ok);
-    if (!ok)
-        return;
-
-    config.setId(m_editId);
     m_dataDispatcher.sendControl(new control::animation::CreateEditViewPointAnimation(config));
     accept();
 }
@@ -392,7 +372,7 @@ ViewPointAnimationConfig DialogAnimationConfig::buildConfigFromUi(bool* ok) cons
     return config;
 }
 
-bool DialogAnimationConfig::validateBeforeSave(bool creationMode) const
+bool DialogAnimationConfig::validateBeforeSave() const
 {
     const QString name = m_ui.lineEdit_animationName->text().trimmed();
     if (name.isEmpty())
@@ -405,7 +385,7 @@ bool DialogAnimationConfig::validateBeforeSave(bool creationMode) const
     {
         if (cfg.getName().compare(name, Qt::CaseInsensitive) == 0)
         {
-            if (creationMode || cfg.getId() != m_editId)
+            if (!m_isEdition || cfg.getId() != m_editId)
             {
                 showSplashMessage(tr("Animation name already exists."));
                 return false;
