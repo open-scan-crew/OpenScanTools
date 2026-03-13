@@ -161,11 +161,15 @@ void ToolBarAnimationGroup::updateUI()
 	m_ui.comboBox_animationList->setEnabled(canEditViewpoints);
 	m_ui.toolButton_newViewpointAnimConfig->setEnabled(canEditViewpoints);
 	m_ui.toolButton_editViewpointAnimConfig->setEnabled(canEditViewpoints && hasSelection);
-	m_ui.interpolateCheckBox->setEnabled(canEditViewpoints);
+
+	const ViewPointAnimationConfig* selectedConfig = getSelectedAnimationConfig();
+	const bool hasTwoViewpoints = selectedConfig && selectedConfig->getLines().size() == 2;
+	m_ui.interpolateCheckBox->setEnabled(canEditViewpoints && hasTwoViewpoints);
+	if (!hasTwoViewpoints)
+		m_ui.interpolateCheckBox->setChecked(false);
 	m_ui.degreesLabel->setEnabled(m_isProjectLoaded && !viewpointsMode);
 	m_ui.degreesSpinBox->setEnabled(m_isProjectLoaded && !viewpointsMode);
 
-	const ViewPointAnimationConfig* selectedConfig = getSelectedAnimationConfig();
 	const bool usesPositionAsTime = selectedConfig && selectedConfig->getMode() == ViewPointAnimationMode::PositionAsTime;
 	m_ui.lengthSpinBox->setEnabled(m_isProjectLoaded && (!viewpointsMode || !usesPositionAsTime));
 }
@@ -260,13 +264,17 @@ void ToolBarAnimationGroup::slotGenerateVideo()
 
 	m_dialog->setAnimationMode(m_ui.betweenViewpointsRadioButton->isChecked() ? VideoAnimationMode::BETWEENVIEWPOINTS : VideoAnimationMode::ORBITAL);
 	m_dialog->setLength(m_ui.lengthSpinBox->value());
+	m_dialog->setOrbitalDegrees(m_ui.degreesSpinBox->value());
+	const ViewPointAnimationConfig* selectedConfig = getSelectedAnimationConfig();
+	m_dialog->setSelectedAnimation(selectedConfig ? selectedConfig->getId() : viewPointAnimationId(), selectedConfig != nullptr);
 	m_dialog->setInterpolateRenderings(m_ui.interpolateCheckBox->isChecked());
 	m_dialog->show();
 }
 
 void ToolBarAnimationGroup::slotAnimationModeChanged()
 {
-	m_ui.interpolateCheckBox->setEnabled(m_ui.betweenViewpointsRadioButton->isChecked());
+	if (!m_ui.betweenViewpointsRadioButton->isChecked())
+		m_ui.interpolateCheckBox->setChecked(false);
 	if (!m_ui.betweenViewpointsRadioButton->isChecked())
 		m_isPaused = false;
 	updateUI();
