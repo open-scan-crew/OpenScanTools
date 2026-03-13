@@ -3,6 +3,8 @@
 
 #include <QtWidgets/qwidget.h>
 #include <QtWidgets/qbuttongroup.h>
+#include <QtCore/qelapsedtimer.h>
+#include <QtCore/qtimer.h>
 
 #include "ui_toolbar_animationgroup.h"
 #include "gui/IPanel.h"
@@ -31,16 +33,24 @@ private:
 	void onRenderStopAnimation(IGuiData* keyValue);
 	void updateUI();
 	void refreshAnimationAvailability();
+	const ViewPointAnimationConfig* getSelectedAnimationConfig() const;
+	void updateChronometerDisplay();
+	void startChronometer();
+	void pauseChronometer();
+	void resetChronometer();
+	void finishChronometer();
 
 private slots:
 	void slotStartAnimation();
 	void slotStopAnimation();
+	void slotPauseAnimation();
 	void slotGenerateVideo();
 	void slotAnimationModeChanged();
 	void slotNewViewPointAnimationConfig();
 	void slotEditViewPointAnimationConfig();
 	void slotAnimationConfigChanged(int index);
 	void onAnimationData(IGuiData* keyValue);
+	void slotChronometerTick();
 
 private:
 	std::unordered_map<guiDType, AnimGroupMethod> m_methods;
@@ -50,8 +60,14 @@ private:
 	DialogAnimationConfig* m_animationConfigDialog;
 	QButtonGroup m_animationModeButtons;
 	bool m_isStarted;
+	bool m_isPaused;
+	bool m_isOrbitalRunning;
 	bool m_isProjectLoaded;
 	bool m_canStartAnimation;
+	bool m_isStopRequested;
+	QElapsedTimer m_chronometerRunTimer;
+	QTimer m_chronometerUpdateTimer;
+	qint64 m_chronometerAccumulatedMs;
 	std::vector<ViewPointAnimationConfig> m_animationConfigs;
 	std::vector<AnimationViewpointInfo> m_availableViewpoints;
 };

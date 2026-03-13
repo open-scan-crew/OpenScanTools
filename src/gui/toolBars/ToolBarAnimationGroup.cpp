@@ -1,8 +1,12 @@
 #include "gui/toolBars/ToolBarAnimationGroup.h"
 #include "gui/GuiData/GuiDataRendering.h"
+#include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "controller/controls/ControlAnimation.h"
 #include "gui/Dialog/DialogAnimationConfig.h"
+#include "gui/texts/ContextTexts.hpp"
+
+#include <limits>
 
 ToolBarAnimationGroup::ToolBarAnimationGroup(IDataDispatcher &dataDispatcher, QWidget *parent, float guiScale)
 	: QWidget(parent)
@@ -10,16 +14,26 @@ ToolBarAnimationGroup::ToolBarAnimationGroup(IDataDispatcher &dataDispatcher, QW
 	, m_dialog(new DialogExportVideo(dataDispatcher, this, guiScale))
 	, m_animationConfigDialog(new DialogAnimationConfig(dataDispatcher, this))
 	, m_isStarted(false)
+	, m_isPaused(false)
+	, m_isOrbitalRunning(false)
 	, m_isProjectLoaded(false)
 	, m_canStartAnimation(false)
+	, m_isStopRequested(false)
+	, m_chronometerAccumulatedMs(0)
 {
 	m_ui.setupUi(this);
+	m_chronometerUpdateTimer.setInterval(10);
+	m_chronometerUpdateTimer.setSingleShot(false);
+	connect(&m_chronometerUpdateTimer, &QTimer::timeout, this, &ToolBarAnimationGroup::slotChronometerTick);
+	resetChronometer();
+
 	setEnabled(false);
 	m_animationModeButtons.setExclusive(true);
 	m_animationModeButtons.addButton(m_ui.orbital360RadioButton);
 	m_animationModeButtons.addButton(m_ui.betweenViewpointsRadioButton);
 
 	connect(m_ui.startAnimationButton, &QPushButton::pressed, this, &ToolBarAnimationGroup::slotStartAnimation); 
+	connect(m_ui.pauseAnimationButton, &QPushButton::pressed, this, &ToolBarAnimationGroup::slotPauseAnimation);
 	connect(m_ui.stopAnimationButton, &QPushButton::pressed, this, &ToolBarAnimationGroup::slotStopAnimation); 
 	connect(m_ui.generateVideoPushButton, &QPushButton::clicked, this, &ToolBarAnimationGroup::slotGenerateVideo);
 	connect(m_ui.betweenViewpointsRadioButton, &QRadioButton::clicked, this, &ToolBarAnimationGroup::slotAnimationModeChanged);
@@ -69,9 +83,13 @@ void ToolBarAnimationGroup::onProjectLoad(IGuiData* data)
 	{
 		m_canStartAnimation = false;
 		m_isStarted = false;
+		m_isPaused = false;
+		m_isOrbitalRunning = false;
+		m_isStopRequested = false;
 		m_animationConfigs.clear();
 		m_availableViewpoints.clear();
 		m_ui.comboBox_animationList->clear();
+		resetChronometer();
 		updateUI();
 	}
 }
@@ -90,6 +108,8 @@ void ToolBarAnimationGroup::onAnimationToolbarState(IGuiData* data)
 	m_canStartAnimation = state->m_canStart;
 	if (!m_canStartAnimation)
 		m_isStarted = false;
+	if (!m_canStartAnimation)
+		m_isPaused = false;
 	updateUI();
 }
 
@@ -97,44 +117,119 @@ void ToolBarAnimationGroup::onRenderStopAnimation(IGuiData* data)
 {
 	(void)data;
 	m_isStarted = false;
+	m_isPaused = false;
+	m_isOrbitalRunning = false;
+	if (m_isStopRequested)
+	{
+		resetChronometer();
+		m_isStopRequested = false;
+	}
+	else
+	{
+		finishChronometer();
+	}
 	refreshAnimationAvailability();
 	updateUI();
 }
 
 void ToolBarAnimationGroup::updateUI()
 {
-	const bool canStart = m_isProjectLoaded && m_canStartAnimation && !m_isStarted;
-	m_ui.startAnimationButton->setEnabled(canStart);
-	m_ui.stopAnimationButton->setEnabled(m_isProjectLoaded && m_isStarted);
-
-	const bool hasSelection = m_ui.comboBox_animationList->currentIndex() >= 0;
 	const bool viewpointsMode = m_ui.betweenViewpointsRadioButton->isChecked();
-	m_ui.comboBox_animationList->setEnabled(m_isProjectLoaded && viewpointsMode);
-	m_ui.toolButton_newViewpointAnimConfig->setEnabled(m_isProjectLoaded && viewpointsMode);
-	m_ui.toolButton_editViewpointAnimConfig->setEnabled(m_isProjectLoaded && viewpointsMode && hasSelection);
+	const bool hasSelection = m_ui.comboBox_animationList->currentIndex() >= 0;
+	const bool canPrepareBetween = m_canStartAnimation && viewpointsMode && hasSelection;
+	const bool canStart = m_isProjectLoaded && !m_isStarted && ((viewpointsMode && (canPrepareBetween || m_isPaused)) || (!viewpointsMode));
+	m_ui.startAnimationButton->setEnabled(canStart);
+	m_ui.pauseAnimationButton->setEnabled(m_isProjectLoaded && m_isStarted);
+	m_ui.stopAnimationButton->setEnabled(m_isProjectLoaded && (m_isStarted || m_isPaused));
+
+	const bool canEditViewpoints = m_isProjectLoaded && viewpointsMode;
+	m_ui.comboBox_animationList->setEnabled(canEditViewpoints);
+	m_ui.toolButton_newViewpointAnimConfig->setEnabled(canEditViewpoints);
+	m_ui.toolButton_editViewpointAnimConfig->setEnabled(canEditViewpoints && hasSelection);
+	m_ui.interpolateCheckBox->setEnabled(canEditViewpoints);
+	m_ui.degreesLabel->setEnabled(m_isProjectLoaded && !viewpointsMode);
+	m_ui.degreesSpinBox->setEnabled(m_isProjectLoaded && !viewpointsMode);
+
+	const ViewPointAnimationConfig* selectedConfig = getSelectedAnimationConfig();
+	const bool usesPositionAsTime = selectedConfig && selectedConfig->getMode() == ViewPointAnimationMode::PositionAsTime;
+	m_ui.lengthSpinBox->setEnabled(m_isProjectLoaded && (!viewpointsMode || !usesPositionAsTime));
 }
 
 void ToolBarAnimationGroup::slotStartAnimation()
 {
-	if (!m_isProjectLoaded || !m_canStartAnimation)
+	if (!m_isProjectLoaded)
 		return;
 
-	m_dataDispatcher.sendControl(new control::animation::PrepareViewpointsAnimation());
-	if (!m_canStartAnimation)
+	const bool viewpointsMode = m_ui.betweenViewpointsRadioButton->isChecked();
+	if (m_isPaused)
+	{
+		m_isStopRequested = false;
+		m_dataDispatcher.updateInformation(new GuiDataRenderStartAnimation(!viewpointsMode, static_cast<double>(m_ui.lengthSpinBox->value()), true, m_ui.degreesSpinBox->value()));
+		startChronometer();
+		m_isStarted = true;
+		m_isPaused = false;
+		updateUI();
 		return;
+	}
 
-	m_dataDispatcher.updateInformation(new GuiDataRenderStartAnimation());
+	if (viewpointsMode)
+	{
+		const ViewPointAnimationConfig* selectedConfig = getSelectedAnimationConfig();
+		if (!selectedConfig)
+			return;
+
+		if (selectedConfig->getMode() == ViewPointAnimationMode::PositionAsTime)
+		{
+			double previousTime = -std::numeric_limits<double>::infinity();
+			for (const ViewPointAnimationLine& line : selectedConfig->getLines())
+			{
+				if (line.position <= previousTime)
+				{
+					m_dataDispatcher.updateInformation(new GuiDataWarning(TEXT_CONTEXT_ANIMATION_INCONSISTENT_TIMES));
+					return;
+				}
+				previousTime = line.position;
+			}
+		}
+
+		m_dataDispatcher.sendControl(new control::animation::PrepareViewpointsAnimation(selectedConfig->getId(), m_ui.lengthSpinBox->value()));
+		if (!m_canStartAnimation)
+			return;
+	}
+
+	resetChronometer();
+	m_isStopRequested = false;
+	m_dataDispatcher.updateInformation(new GuiDataRenderStartAnimation(!viewpointsMode, static_cast<double>(m_ui.lengthSpinBox->value()), false, m_ui.degreesSpinBox->value()));
+	startChronometer();
 	m_isStarted = true;
+	m_isPaused = false;
+	m_isOrbitalRunning = !viewpointsMode;
+	updateUI();
+}
+
+void ToolBarAnimationGroup::slotPauseAnimation()
+{
+	if (!m_isStarted)
+		return;
+
+	m_dataDispatcher.updateInformation(new GuiDataRenderPauseAnimation());
+	pauseChronometer();
+	m_isStarted = false;
+	m_isPaused = true;
 	updateUI();
 }
 
 void ToolBarAnimationGroup::slotStopAnimation()
 {
-	if (!m_isStarted)
+	if (!m_isStarted && !m_isPaused)
 		return;
 
 	m_dataDispatcher.updateInformation(new GuiDataRenderStopAnimation());
+	m_isStopRequested = true;
+	resetChronometer();
 	m_isStarted = false;
+	m_isPaused = false;
+	m_isOrbitalRunning = false;
 	refreshAnimationAvailability();
 	updateUI();
 }
@@ -153,6 +248,8 @@ void ToolBarAnimationGroup::slotGenerateVideo()
 void ToolBarAnimationGroup::slotAnimationModeChanged()
 {
 	m_ui.interpolateCheckBox->setEnabled(m_ui.betweenViewpointsRadioButton->isChecked());
+	if (!m_ui.betweenViewpointsRadioButton->isChecked())
+		m_isPaused = false;
 	updateUI();
 }
 
@@ -197,6 +294,7 @@ void ToolBarAnimationGroup::slotEditViewPointAnimationConfig()
 void ToolBarAnimationGroup::slotAnimationConfigChanged(int index)
 {
 	(void)index;
+	m_dataDispatcher.sendControl(new control::animation::RefreshViewpointsAnimationState());
 	updateUI();
 }
 
@@ -225,4 +323,65 @@ void ToolBarAnimationGroup::onAnimationData(IGuiData* keyValue)
 	m_ui.comboBox_animationList->blockSignals(false);
 
 	updateUI();
+}
+
+const ViewPointAnimationConfig* ToolBarAnimationGroup::getSelectedAnimationConfig() const
+{
+	const int index = m_ui.comboBox_animationList->currentIndex();
+	if (index < 0)
+		return nullptr;
+
+	const xg::Guid selectedId(m_ui.comboBox_animationList->itemData(index).toString().toStdString());
+	for (const ViewPointAnimationConfig& cfg : m_animationConfigs)
+	{
+		if (cfg.getId() == selectedId)
+			return &cfg;
+	}
+
+	return nullptr;
+}
+
+void ToolBarAnimationGroup::updateChronometerDisplay()
+{
+	const double displayedSeconds = static_cast<double>(m_chronometerAccumulatedMs) / 1000.0;
+	m_ui.chronometerLineEdit->setText(QString::number(displayedSeconds, 'f', 2));
+}
+
+void ToolBarAnimationGroup::startChronometer()
+{
+	m_chronometerRunTimer.start();
+	if (!m_chronometerUpdateTimer.isActive())
+		m_chronometerUpdateTimer.start();
+}
+
+void ToolBarAnimationGroup::pauseChronometer()
+{
+	if (m_chronometerRunTimer.isValid())
+        m_chronometerAccumulatedMs += m_chronometerRunTimer.elapsed();
+	m_chronometerRunTimer.invalidate();
+	m_chronometerUpdateTimer.stop();
+	updateChronometerDisplay();
+}
+
+void ToolBarAnimationGroup::resetChronometer()
+{
+	m_chronometerAccumulatedMs = 0;
+	m_chronometerRunTimer.invalidate();
+	m_chronometerUpdateTimer.stop();
+	updateChronometerDisplay();
+}
+
+void ToolBarAnimationGroup::finishChronometer()
+{
+	pauseChronometer();
+}
+
+void ToolBarAnimationGroup::slotChronometerTick()
+{
+	if (!m_chronometerRunTimer.isValid())
+        return;
+
+	const qint64 elapsedMs = m_chronometerAccumulatedMs + m_chronometerRunTimer.elapsed();
+	const double displayedSeconds = static_cast<double>(elapsedMs) / 1000.0;
+	m_ui.chronometerLineEdit->setText(QString::number(displayedSeconds, 'f', 2));
 }
