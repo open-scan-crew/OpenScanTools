@@ -35,10 +35,13 @@ namespace control::animation
     class PrepareViewpointsAnimation : public AControl
     {
     public:
-        PrepareViewpointsAnimation();
+        PrepareViewpointsAnimation(const viewPointAnimationId& animationId, int lengthSeconds);
         ~PrepareViewpointsAnimation();
         void doFunction(Controller& controller) override;
         ControlType getType() const override;
+    private:
+        viewPointAnimationId m_animationId;
+        int m_lengthSeconds;
     };
 
     class RefreshViewpointsAnimationState : public AControl

@@ -318,6 +318,9 @@ bool CameraNode::updateAnimation()
 {
     if (!m_isAnimated)
         return false;
+    if (m_isAnimationPaused)
+        return true;
+
     switch (m_animMode)
     {
     case AnimationMode::Simple:
@@ -688,6 +691,7 @@ bool CameraNode::endAnimation()
 {
     const bool wasAnimated = m_isAnimated;
     m_isAnimated = false;
+    m_isAnimationPaused = false;
     m_animMode = AnimationMode::Simple;
     m_animation.clear();
     m_pendingComplexAnimationStart = false;
@@ -696,7 +700,36 @@ bool CameraNode::endAnimation()
     m_orientationTrajectory.clear();
     m_currentKeyPoint = 0;
     m_animFrames = 0;
+    m_totalPausedDurationSeconds = 0.0;
     return wasAnimated;
+}
+
+bool CameraNode::pauseAnimation()
+{
+    if (!m_isAnimated || m_isAnimationPaused)
+        return false;
+
+    m_isAnimationPaused = true;
+    m_pauseTrajectoryTime = std::chrono::steady_clock::now();
+    return true;
+}
+
+bool CameraNode::resumeAnimation()
+{
+    if (!m_isAnimated || !m_isAnimationPaused)
+        return false;
+
+    const std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+    m_totalPausedDurationSeconds += std::chrono::duration<double>(now - m_pauseTrajectoryTime).count();
+    m_isAnimationPaused = false;
+    return true;
+}
+
+void CameraNode::setAnimationTiming(ViewPointAnimationMode mode, double durationSeconds, const std::vector<double>& controlPointTimesSec)
+{
+    m_viewPointAnimationMode = mode;
+    m_animationDurationSeconds = std::max(0.0, durationSeconds);
+    m_controlPointTimesSeconds = controlPointTimesSec;
 }
 
 void CameraNode::cleanAnimation()
@@ -709,6 +742,8 @@ void CameraNode::cleanAnimation()
     m_orientationTrajectory.clear();
     m_currentKeyPoint = 0;
     m_animFrames = 0;
+    m_isAnimationPaused = false;
+    m_totalPausedDurationSeconds = 0.0;
 }
 
 void CameraNode::setSpeed(const int& speed)
@@ -1262,6 +1297,8 @@ void CameraNode::startPlayTrajectory(const uint64_t& animationStep)
 {
     m_currentKeyPoint = 1;
     m_initialAnimationPlaylist = m_animationPlaylist;
+    m_isAnimationPaused = false;
+    m_totalPausedDurationSeconds = 0.0;
     if (m_trajectory.size() < 2)
         return;
 
@@ -1281,7 +1318,10 @@ bool CameraNode::animateComplexTrajectory()
     if (m_isOfflineRendering)
         dtime = (dtime += m_speed) / m_offlineAnimStep;
     else
-        dtime = std::chrono::duration<double, std::ratio<1>>(std::chrono::steady_clock::now() - m_startTrajectoryTime).count() * m_speed;
+    {
+        const double elapsedSeconds = std::chrono::duration<double, std::ratio<1>>(std::chrono::steady_clock::now() - m_startTrajectoryTime).count() - m_totalPausedDurationSeconds;
+        dtime = std::max(0.0, elapsedSeconds) * ((m_speed > 0.0) ? m_speed : 1.0);
+    }
 
     if (m_currentKeyPoint >= m_trajectory.size())
         return true;
@@ -1378,16 +1418,7 @@ void CameraNode::buildComplexAnimationPlaybackPath()
 
 void CameraNode::buildLinearPlaybackPathFromTrajectory()
 {
-    const double speedMps = (m_speed > 0.0) ? m_speed : 3.0;
-    m_trajectory[0].dtime_arrival = 0.0;
-    m_orientationTrajectory[0].dtime_arrival = 0.0;
-    for (size_t i = 1; i < m_trajectory.size(); ++i)
-    {
-        const double distance = glm::distance(m_trajectory[i - 1].point, m_trajectory[i].point);
-        const double dt = std::max(distance / speedMps, 0.001);
-        m_trajectory[i].dtime_arrival = m_trajectory[i - 1].dtime_arrival + dt;
-        m_orientationTrajectory[i].dtime_arrival = m_trajectory[i].dtime_arrival;
-    }
+    applyPlaybackTimingFromControlPoints();
 }
 
 void CameraNode::buildCatmullRomPlaybackPathFromTrajectory()
@@ -1465,19 +1496,95 @@ void CameraNode::buildCatmullRomPlaybackPathFromTrajectory()
         return;
     }
 
-    const double speedMps = (m_speed > 0.0) ? m_speed : 3.0;
-    sampledTrajectory[0].dtime_arrival = 0.0;
-    sampledOrientationTrajectory[0].dtime_arrival = 0.0;
-    for (size_t i = 1; i < sampledTrajectory.size(); ++i)
-    {
-        const double distance = glm::distance(sampledTrajectory[i - 1].point, sampledTrajectory[i].point);
-        const double dt = std::max(distance / speedMps, 0.001);
-        sampledTrajectory[i].dtime_arrival = sampledTrajectory[i - 1].dtime_arrival + dt;
-        sampledOrientationTrajectory[i].dtime_arrival = sampledTrajectory[i].dtime_arrival;
-    }
-
     m_trajectory = std::move(sampledTrajectory);
     m_orientationTrajectory = std::move(sampledOrientationTrajectory);
+    applyPlaybackTimingFromControlPoints();
+}
+
+double CameraNode::smoothstep01(double t)
+{
+    const double clamped = std::clamp(t, 0.0, 1.0);
+    return clamped * clamped * (3.0 - 2.0 * clamped);
+}
+
+void CameraNode::applyPlaybackTimingFromControlPoints()
+{
+    if (m_trajectory.size() < 2 || m_orientationTrajectory.size() != m_trajectory.size())
+        return;
+
+    std::vector<double> cumulativeDistances(m_trajectory.size(), 0.0);
+    for (size_t i = 1; i < m_trajectory.size(); ++i)
+        cumulativeDistances[i] = cumulativeDistances[i - 1] + glm::distance(m_trajectory[i - 1].point, m_trajectory[i].point);
+
+    const double totalDistance = cumulativeDistances.back();
+    const double targetDuration = std::max(m_animationDurationSeconds, 0.001);
+
+    if (m_viewPointAnimationMode == ViewPointAnimationMode::ConstantSpeed || m_controlPointTimesSeconds.size() < 2)
+    {
+        m_trajectory[0].dtime_arrival = 0.0;
+        for (size_t i = 1; i < m_trajectory.size(); ++i)
+        {
+            const double alpha = (totalDistance > 1e-9) ? cumulativeDistances[i] / totalDistance : static_cast<double>(i) / static_cast<double>(m_trajectory.size() - 1);
+            m_trajectory[i].dtime_arrival = targetDuration * alpha;
+        }
+    }
+    else
+    {
+        const double firstTime = m_controlPointTimesSeconds.front();
+        std::vector<double> controlTimes = m_controlPointTimesSeconds;
+        for (double& t : controlTimes)
+            t -= firstTime;
+
+        if (m_viewPointAnimationMode == ViewPointAnimationMode::ConstantIntervals)
+        {
+            controlTimes.resize(m_controlPointTimesSeconds.size());
+            const size_t last = controlTimes.size() - 1;
+            for (size_t i = 0; i <= last; ++i)
+                controlTimes[i] = targetDuration * static_cast<double>(i) / static_cast<double>(last);
+        }
+
+        const size_t segmentCount = controlTimes.size() - 1;
+        std::vector<size_t> segmentStartIndices(segmentCount, 0);
+        std::vector<size_t> segmentEndIndices(segmentCount, 0);
+
+        size_t cursor = 0;
+        for (size_t seg = 0; seg < segmentCount; ++seg)
+        {
+            segmentStartIndices[seg] = cursor;
+            const double segmentTarget = static_cast<double>(seg + 1) / static_cast<double>(segmentCount);
+            while (cursor + 1 < cumulativeDistances.size())
+            {
+                const double ratio = (totalDistance > 1e-9) ? cumulativeDistances[cursor + 1] / totalDistance : static_cast<double>(cursor + 1) / static_cast<double>(cumulativeDistances.size() - 1);
+                if (ratio >= segmentTarget)
+                    break;
+                ++cursor;
+            }
+            if (cursor + 1 < cumulativeDistances.size())
+                ++cursor;
+            segmentEndIndices[seg] = cursor;
+        }
+        segmentEndIndices.back() = cumulativeDistances.size() - 1;
+
+        m_trajectory[0].dtime_arrival = controlTimes[0];
+        for (size_t seg = 0; seg < segmentCount; ++seg)
+        {
+            const size_t startIdx = segmentStartIndices[seg];
+            const size_t maxIndex = cumulativeDistances.size() - 1;
+            const size_t endIdx = std::min(std::max(segmentEndIndices[seg], std::min(startIdx + 1, maxIndex)), maxIndex);
+            const double startDistance = cumulativeDistances[startIdx];
+            const double endDistance = cumulativeDistances[endIdx];
+            const double segmentDuration = std::max(0.001, controlTimes[seg + 1] - controlTimes[seg]);
+            for (size_t i = startIdx + 1; i <= endIdx; ++i)
+            {
+                const double segmentAlpha = (endDistance > startDistance) ? (cumulativeDistances[i] - startDistance) / (endDistance - startDistance) : static_cast<double>(i - startIdx) / static_cast<double>(endIdx - startIdx);
+                const double easedAlpha = smoothstep01(segmentAlpha);
+                m_trajectory[i].dtime_arrival = controlTimes[seg] + segmentDuration * easedAlpha;
+            }
+        }
+    }
+
+    for (size_t i = 0; i < m_orientationTrajectory.size(); ++i)
+        m_orientationTrajectory[i].dtime_arrival = m_trajectory[i].dtime_arrival;
 }
 
 glm::dvec3 CameraNode::evaluateCentripetalCatmullRom(
