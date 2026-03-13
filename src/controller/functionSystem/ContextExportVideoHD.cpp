@@ -24,6 +24,7 @@
 #include "utils/math/basic_define.h"
 #include <cmath>
 #include <algorithm>
+#include <limits>
 #include <filesystem>
 #include <QtCore/QProcess>
 #include <QtCore/QStringList>
@@ -42,6 +43,93 @@ QString resolveFfmpegExecutable()
         return QString::fromStdWString(candidate.wstring());
     }
     return QStringLiteral("ffmpeg");
+}
+
+struct PreparedBetweenAnimation
+{
+    std::vector<SafePtr<ViewPointNode>> viewpoints;
+    std::vector<double> controlTimes;
+    ViewPointAnimationMode mode = ViewPointAnimationMode::ConstantSpeed;
+    double durationSeconds = 0.0;
+};
+
+enum class PrepareBetweenAnimationError
+{
+    MissingAnimation,
+    InconsistentTimes,
+    NotEnoughViewpoints,
+    InvalidDuration
+};
+
+bool prepareBetweenAnimationForExport(Controller& controller, const VideoExportParameters& parameters, PreparedBetweenAnimation& prepared, PrepareBetweenAnimationError& error)
+{
+    const std::unordered_map<viewPointAnimationId, ViewPointAnimationConfig>& configs = controller.getContext().cgetViewPointAnimations();
+    auto itConfig = configs.find(parameters.selectedAnimationId);
+    if (itConfig == configs.end())
+    {
+        error = PrepareBetweenAnimationError::MissingAnimation;
+        return false;
+    }
+
+    std::unordered_map<xg::Guid, SafePtr<ViewPointNode>> perspectiveById;
+    const std::unordered_set<SafePtr<AGraphNode>> allViewpoints = controller.getGraphManager().getNodesByTypes({ ElementType::ViewPoint }, ObjectStatusFilter::ALL);
+    for (const SafePtr<AGraphNode>& node : allViewpoints)
+    {
+        SafePtr<ViewPointNode> viewpoint = static_pointer_cast<ViewPointNode>(node);
+        ReadPtr<ViewPointNode> rViewpoint = viewpoint.cget();
+        if (!rViewpoint || rViewpoint->getProjectionMode() != ProjectionMode::Perspective)
+            continue;
+        perspectiveById.insert_or_assign(rViewpoint->getId(), viewpoint);
+    }
+
+    prepared.viewpoints.clear();
+    prepared.controlTimes.clear();
+    prepared.mode = itConfig->second.getMode();
+    prepared.viewpoints.reserve(itConfig->second.getLines().size());
+    prepared.controlTimes.reserve(itConfig->second.getLines().size());
+
+    double previousTime = -std::numeric_limits<double>::infinity();
+    for (const ViewPointAnimationLine& line : itConfig->second.getLines())
+    {
+        auto itVp = perspectiveById.find(line.viewpointId);
+        if (itVp == perspectiveById.end())
+            continue;
+
+        if (prepared.mode == ViewPointAnimationMode::PositionAsTime)
+        {
+            if (line.position <= previousTime)
+            {
+                error = PrepareBetweenAnimationError::InconsistentTimes;
+                return false;
+            }
+            previousTime = line.position;
+        }
+
+        prepared.viewpoints.push_back(itVp->second);
+        prepared.controlTimes.push_back(line.position);
+    }
+
+    if (prepared.viewpoints.size() < 2)
+    {
+        error = PrepareBetweenAnimationError::NotEnoughViewpoints;
+        return false;
+    }
+
+    if (prepared.mode == ViewPointAnimationMode::PositionAsTime)
+    {
+        prepared.durationSeconds = prepared.controlTimes.back();
+        if (prepared.durationSeconds <= 0.0)
+        {
+            error = PrepareBetweenAnimationError::InvalidDuration;
+            return false;
+        }
+    }
+    else
+    {
+        prepared.durationSeconds = std::max(0.001, static_cast<double>(parameters.length));
+    }
+
+    return true;
 }
 }
 
@@ -107,9 +195,6 @@ ContextState ContextExportVideoHD::feedMessage(IMessage* message, Controller& co
 
 ContextState ContextExportVideoHD::launch(Controller& controller)
 {
-    if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS && m_parameters.start == m_parameters.finish)
-        return abort(controller);
-
     //Start - Move to start position
     if (m_exportState == 0)
     {
@@ -119,13 +204,46 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
             return abort(controller);
 
         wCam->setProjectionMode(ProjectionMode::Perspective);
-        m_exportState = 1;
-
         if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS)
         {
-            wCam->moveToData(m_parameters.start);
+            PreparedBetweenAnimation prepared;
+            PrepareBetweenAnimationError prepareError = PrepareBetweenAnimationError::NotEnoughViewpoints;
+            if (!prepareBetweenAnimationForExport(controller, m_parameters, prepared, prepareError))
+            {
+                if (prepareError == PrepareBetweenAnimationError::InconsistentTimes)
+                    controller.updateInfo(new GuiDataWarning(TEXT_CONTEXT_ANIMATION_INCONSISTENT_TIMES));
+                else
+                    controller.updateInfo(new GuiDataWarning(TEXT_CONTEXT_ANIMATION_NEED_TWO_VIEWPOINTS));
+                return abort(controller);
+            }
+
+            wCam->cleanAnimation();
+            wCam->setLoop(false);
+            wCam->setSpeed(1);
+            wCam->setAnimationTiming(prepared.mode, prepared.durationSeconds, prepared.controlTimes);
+            for (const SafePtr<ViewPointNode>& viewpoint : prepared.viewpoints)
+                wCam->AddViewPoint(viewpoint);
+
+            ReadPtr<ViewPointNode> rStart = prepared.viewpoints.front().cget();
+            if (!rStart)
+                return abort(controller);
+
+            m_parameters.start = prepared.viewpoints.front();
+            m_parameters.finish = prepared.viewpoints.back();
+            m_parameters.length = static_cast<int>(std::lround(prepared.durationSeconds));
+            if (m_parameters.length <= 0)
+                m_parameters.length = 1;
+            m_totalFrames = std::max<long>(1, static_cast<long>(std::lround(prepared.durationSeconds * static_cast<double>(m_parameters.fps))));
+
+            if (prepared.viewpoints.size() != 2)
+                m_parameters.interpolateRenderingBetweenViewpoints = false;
+
+            wCam->moveToData(prepared.viewpoints.front());
+            m_exportState = 1;
             return m_state = ContextState::waiting_for_input;
         }
+
+        m_exportState = 1;
 
     }
 
@@ -133,10 +251,12 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
     if (m_exportState == 1)
     {
         SafePtr<CameraNode> cam = controller.getGraphManager().getCameraNode();
-        ReadPtr<CameraNode> rCam = cam.cget();
-        if (!rCam)
+        if (!cam.cget())
             return abort(controller);
-        m_totalFrames = (long)m_parameters.length * (long)m_parameters.fps;
+        if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS)
+            m_totalFrames = std::max<long>(1, m_totalFrames);
+        else
+            m_totalFrames = std::max<long>(1, static_cast<long>(m_parameters.length) * static_cast<long>(m_parameters.fps));
         m_animFrame = 1;
         m_frameDigits = std::max<uint8_t>(1, (uint8_t)(std::log10(std::max<long>(1, m_totalFrames)) + 1));
 
@@ -145,28 +265,20 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
 
         if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS)
         {
+            WritePtr<CameraNode> wCam = cam.get();
+            if (!wCam)
+                return abort(controller);
+            if (!wCam->startAnimation(true, static_cast<uint64_t>(std::max(1, m_parameters.fps))))
+            {
+                controller.updateInfo(new GuiDataWarning(TEXT_CONTEXT_ANIMATION_NEED_TWO_VIEWPOINTS));
+                return abort(controller);
+            }
+
             ReadPtr<ViewPointNode> rStart;
             ReadPtr<ViewPointNode> rFinish;
             multi_cget(m_parameters.start, m_parameters.finish, rStart, rFinish);
             if (!rStart || !rFinish)
                 return abort(controller);
-
-            glm::dvec3 finishLookDir = glm::dvec4(0.0, 0.0, 1.0, 1.0) * rFinish->getInverseTransformation();
-
-            double endTheta;
-            if (finishLookDir.x == 0.0 && finishLookDir.y == 0.0)   // Must we change the test to x < epsilon ?
-                endTheta = 0.;
-            else
-                endTheta = atan2(-finishLookDir.x, finishLookDir.y);
-
-            double normXY = sqrt(finishLookDir.x * finishLookDir.x + finishLookDir.y * finishLookDir.y);
-            double endPhi = atan2(-normXY, finishLookDir.z);
-
-            CameraNode::modulo2Pi(rCam->getTheta(), endTheta);
-
-            m_addPosition = (rFinish->getCenter() - rStart->getCenter()) / (double)m_totalFrames;
-            m_addTheta = (endTheta - rCam->getTheta()) / m_totalFrames;
-            m_addPhi = (endPhi - rCam->getPhi()) / m_totalFrames;
 
             if (rStart->m_blendMode == rFinish->m_blendMode &&
                 rStart->m_postRenderingNormals.show == rFinish->m_postRenderingNormals.show &&
@@ -196,7 +308,7 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
             }
         }
         else
-            m_addTheta = 2 * M_PI / m_totalFrames;
+            m_addTheta = glm::radians(static_cast<double>(std::clamp(m_parameters.orbitalDegrees, 1, 360))) / m_totalFrames;
 
         controller.updateInfo(new GuiDataCallImage(m_parameters.hdImage, getNextFramePath()));
         m_exportState = 2;
@@ -217,9 +329,8 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
         {
             case VideoAnimationMode::BETWEENVIEWPOINTS:
             {
-                wCam->addGlobalTranslation(m_addPosition);
-                wCam->yaw(m_addTheta);
-                wCam->pitch(m_addPhi);
+                if (!wCam->updateAnimation())
+                    return abort(controller);
 
                 if (m_parameters.interpolateRenderingBetweenViewpoints)
                 {
