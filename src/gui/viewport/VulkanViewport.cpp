@@ -199,6 +199,7 @@ void VulkanViewport::onRenderStartAnimation(IGuiData* data)
         m_orbitalDurationSeconds = std::max(0.001, startData->m_durationSeconds);
         m_orbitalElapsedSeconds = 0.0;
         m_orbitalAppliedAngle = 0.0;
+        m_orbitalTotalAngleRad = glm::radians(static_cast<double>(std::clamp(startData->m_orbitalDegrees, 1, 360)));
         m_orbitalStartTime = std::chrono::steady_clock::now();
         m_orbitalUsesExamine = wCam->isExamineActive();
         return;
@@ -238,6 +239,7 @@ void VulkanViewport::onRenderStopAnimation(IGuiData* data)
     m_isOrbitalAnimationPaused = false;
     m_orbitalElapsedSeconds = 0.0;
     m_orbitalAppliedAngle = 0.0;
+    m_orbitalTotalAngleRad = 0.0;
     wCam->endAnimation();
 }
 
@@ -353,7 +355,7 @@ void VulkanViewport::updateInputs(WritePtr<CameraNode>& wCam, SafePtr<Manipulato
     {
         const double elapsed = m_orbitalElapsedSeconds + std::chrono::duration<double>(std::chrono::steady_clock::now() - m_orbitalStartTime).count();
         const double clampedElapsed = std::min(elapsed, m_orbitalDurationSeconds);
-        const double targetAngle = 2.0 * M_PI * (clampedElapsed / m_orbitalDurationSeconds);
+        const double targetAngle = m_orbitalTotalAngleRad * (clampedElapsed / m_orbitalDurationSeconds);
         const double deltaAngle = targetAngle - m_orbitalAppliedAngle;
 
         if (deltaAngle > 0.0)
@@ -371,6 +373,7 @@ void VulkanViewport::updateInputs(WritePtr<CameraNode>& wCam, SafePtr<Manipulato
             m_isOrbitalAnimationPaused = false;
             m_orbitalElapsedSeconds = 0.0;
             m_orbitalAppliedAngle = 0.0;
+            m_orbitalTotalAngleRad = 0.0;
             m_dataDispatcher.updateInformation(new GuiDataRenderStopAnimation());
         }
     }

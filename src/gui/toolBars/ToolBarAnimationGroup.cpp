@@ -129,6 +129,8 @@ void ToolBarAnimationGroup::updateUI()
 	m_ui.toolButton_newViewpointAnimConfig->setEnabled(canEditViewpoints);
 	m_ui.toolButton_editViewpointAnimConfig->setEnabled(canEditViewpoints && hasSelection);
 	m_ui.interpolateCheckBox->setEnabled(canEditViewpoints);
+	m_ui.degreesLabel->setEnabled(m_isProjectLoaded && !viewpointsMode);
+	m_ui.degreesSpinBox->setEnabled(m_isProjectLoaded && !viewpointsMode);
 
 	const ViewPointAnimationConfig* selectedConfig = getSelectedAnimationConfig();
 	const bool usesPositionAsTime = selectedConfig && selectedConfig->getMode() == ViewPointAnimationMode::PositionAsTime;
@@ -143,7 +145,7 @@ void ToolBarAnimationGroup::slotStartAnimation()
 	const bool viewpointsMode = m_ui.betweenViewpointsRadioButton->isChecked();
 	if (m_isPaused)
 	{
-		m_dataDispatcher.updateInformation(new GuiDataRenderStartAnimation(!viewpointsMode, static_cast<double>(m_ui.lengthSpinBox->value()), true));
+		m_dataDispatcher.updateInformation(new GuiDataRenderStartAnimation(!viewpointsMode, static_cast<double>(m_ui.lengthSpinBox->value()), true, m_ui.degreesSpinBox->value()));
 		m_isStarted = true;
 		m_isPaused = false;
 		updateUI();
@@ -175,7 +177,7 @@ void ToolBarAnimationGroup::slotStartAnimation()
 			return;
 	}
 
-	m_dataDispatcher.updateInformation(new GuiDataRenderStartAnimation(!viewpointsMode, static_cast<double>(m_ui.lengthSpinBox->value()), false));
+	m_dataDispatcher.updateInformation(new GuiDataRenderStartAnimation(!viewpointsMode, static_cast<double>(m_ui.lengthSpinBox->value()), false, m_ui.degreesSpinBox->value()));
 	m_isStarted = true;
 	m_isPaused = false;
 	m_isOrbitalRunning = !viewpointsMode;

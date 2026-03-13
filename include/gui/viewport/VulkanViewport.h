@@ -301,6 +301,7 @@ private:
     double m_orbitalDurationSeconds = 0.0;
     double m_orbitalElapsedSeconds = 0.0;
     double m_orbitalAppliedAngle = 0.0;
+    double m_orbitalTotalAngleRad = 0.0;
     std::chrono::steady_clock::time_point m_orbitalStartTime;
 };
 
