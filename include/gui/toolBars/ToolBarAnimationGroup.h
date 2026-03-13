@@ -31,10 +31,12 @@ private:
 	void onRenderStopAnimation(IGuiData* keyValue);
 	void updateUI();
 	void refreshAnimationAvailability();
+	const ViewPointAnimationConfig* getSelectedAnimationConfig() const;
 
 private slots:
 	void slotStartAnimation();
 	void slotStopAnimation();
+	void slotPauseAnimation();
 	void slotGenerateVideo();
 	void slotAnimationModeChanged();
 	void slotNewViewPointAnimationConfig();
@@ -50,6 +52,8 @@ private:
 	DialogAnimationConfig* m_animationConfigDialog;
 	QButtonGroup m_animationModeButtons;
 	bool m_isStarted;
+	bool m_isPaused;
+	bool m_isOrbitalRunning;
 	bool m_isProjectLoaded;
 	bool m_canStartAnimation;
 	std::vector<ViewPointAnimationConfig> m_animationConfigs;
