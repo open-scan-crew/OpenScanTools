@@ -300,8 +300,8 @@ private:
     bool m_orbitalUsesExamine = false;
     double m_orbitalDurationSeconds = 0.0;
     double m_orbitalElapsedSeconds = 0.0;
+    double m_orbitalAppliedAngle = 0.0;
     std::chrono::steady_clock::time_point m_orbitalStartTime;
-    std::chrono::steady_clock::time_point m_orbitalPauseTime;
 };
 
 #endif // VULKAN_VIEWPORT_H_

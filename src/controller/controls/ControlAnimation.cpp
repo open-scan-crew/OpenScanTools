@@ -278,7 +278,6 @@ namespace control::animation
                 if (line.position <= previousTime)
                 {
                     controller.updateInfo(new GuiDataWarning(TEXT_CONTEXT_ANIMATION_INCONSISTENT_TIMES));
-                    controller.updateInfo(new GuiDataRenderAnimationToolbarState(false));
                     return;
                 }
                 previousTime = line.position;
