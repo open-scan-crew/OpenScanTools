@@ -4,6 +4,7 @@
 #include "ui_DialogExportVideo.h"
 #include "gui/Dialog/ADialog.h"
 #include "io/exports/ExportParameters.hpp"
+#include "models/application/ViewPointAnimation.h"
 #include <optional>
 #include <utility>
 
@@ -20,9 +21,6 @@ public:
     void closeEvent(QCloseEvent* event);
 
 private:
-    void onViewpoint1Click();
-    void onViewpoint2Click();
-
     void onSelectOutFolder();
 	void onSelectOutFile();
 
@@ -37,16 +35,20 @@ private:
 public:
     void setAnimationMode(VideoAnimationMode mode);
     void setLength(int length);
+    void setOrbitalDegrees(int degrees);
+    void setSelectedAnimation(const viewPointAnimationId& animationId, bool hasSelection);
     void setInterpolateRenderings(bool interpolate);
 
 private:
     Ui::DialogExportVideo m_ui;
     QString m_openPath;
 
-    int m_viewpointToEdit = -1;
 	VideoExportParameters m_parameters;
 	VideoAnimationMode m_animationMode = VideoAnimationMode::BETWEENVIEWPOINTS;
 	int m_length = 30;
+	int m_orbitalDegrees = 360;
+	viewPointAnimationId m_selectedAnimationId;
+	bool m_hasSelectedAnimation = false;
 	bool m_interpolateRenderings = false;
 
     static constexpr uint64_t MAX_MP4_PIXELS = 8294400;
