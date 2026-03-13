@@ -1,5 +1,6 @@
 #include "gui/toolBars/ToolBarAnimationGroup.h"
 #include "gui/GuiData/GuiDataRendering.h"
+#include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "controller/controls/ControlAnimation.h"
 #include "gui/Dialog/DialogAnimationConfig.h"
