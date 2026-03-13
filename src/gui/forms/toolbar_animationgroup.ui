@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>739</width>
+    <width>800</width>
     <height>139</height>
    </rect>
   </property>
@@ -164,6 +164,16 @@
     </widget>
    </item>
    <item row="1" column="7">
+    <widget class="QPushButton" name="pauseAnimationButton">
+     <property name="text">
+      <string>Pause</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="8">
     <widget class="QPushButton" name="stopAnimationButton">
      <property name="text">
       <string>Stop</string>
@@ -173,7 +183,7 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="6" colspan="2">
+   <item row="2" column="6" colspan="3">
     <widget class="QPushButton" name="generateVideoPushButton">
      <property name="toolTip">
       <string>Video generation. Please make sure you are in perspective mode and that you selected a frame in the image section.</string>

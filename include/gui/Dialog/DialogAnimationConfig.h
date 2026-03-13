@@ -28,7 +28,6 @@ private slots:
     void onCleanList();
 
     void onOk();
-    void onUpdate();
     void onDelete();
     void onCancel();
 
@@ -37,7 +36,7 @@ private:
     void setCurrentConfigToUi(const ViewPointAnimationConfig& config);
     std::vector<ViewPointAnimationLine> readLinesFromUi(bool* ok = nullptr) const;
     ViewPointAnimationConfig buildConfigFromUi(bool* ok = nullptr) const;
-    bool validateBeforeSave(bool creationMode) const;
+    bool validateBeforeSave() const;
     int selectedRow() const;
     void insertRowAt(int row);
     void showSplashMessage(const QString& message) const;

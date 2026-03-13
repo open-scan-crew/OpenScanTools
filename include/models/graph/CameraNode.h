@@ -11,8 +11,11 @@
 
 #include "models/3d/RenderingParameters.h"
 #include "pointCloudEngine/RenderingTypes.h"
+#include "models/application/ViewPointAnimation.h"
 
 #include <deque>
+#include <chrono>
+#include <vector>
 
 class ViewPointNode;
 class PointCloudNode;
@@ -90,9 +93,12 @@ public:
     void AddViewPoint1(SafePtr<ViewPointNode> vp, const InterpolationValueWithPreviousAnimation& interpolation = InterpolationValueWithPreviousAnimation::NONE);
     bool startAnimation(const bool& isOffline = false, const uint64_t& step = 1000);
     bool endAnimation();
+    bool pauseAnimation();
+    bool resumeAnimation();
     void cleanAnimation();
     void setSpeed(const int& speed);
     void setLoop(const bool& loop);
+    void setAnimationTiming(ViewPointAnimationMode mode, double durationSeconds, const std::vector<double>& controlPointTimesSec);
 
     // Orientation as Euler angles
     void yaw(double _amount);
@@ -182,6 +188,8 @@ private:
     void buildComplexAnimationPlaybackPath();
     void buildLinearPlaybackPathFromTrajectory();
     void buildCatmullRomPlaybackPathFromTrajectory();
+    void applyPlaybackTimingFromControlPoints();
+    static double smoothstep01(double t);
     static glm::dvec3 evaluateCentripetalCatmullRom(
         const glm::dvec3& p0,
         const glm::dvec3& p1,
@@ -292,6 +300,7 @@ private:
     double m_speed = 0.0;
     bool m_isAnimated = false;
     bool m_isOfflineRendering = false;
+    bool m_isAnimationPaused = false;
     bool m_loop = false;
     AnimationMode m_animMode = AnimationMode::Simple;
 
@@ -307,6 +316,11 @@ private:
     uint64_t m_animFrames = 0;
     double m_offlineAnimStep = 0.0;
     std::chrono::steady_clock::time_point m_startTrajectoryTime;
+    std::chrono::steady_clock::time_point m_pauseTrajectoryTime;
+    double m_totalPausedDurationSeconds = 0.0;
+    ViewPointAnimationMode m_viewPointAnimationMode = ViewPointAnimationMode::ConstantSpeed;
+    double m_animationDurationSeconds = 0.0;
+    std::vector<double> m_controlPointTimesSeconds;
     SimpleAnimation m_simpleAnimation = SimpleAnimation();
     bool m_pendingComplexAnimationStart = false;
     uint64_t m_pendingComplexAnimationStep = 1000;
