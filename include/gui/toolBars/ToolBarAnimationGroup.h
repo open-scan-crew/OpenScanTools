@@ -30,6 +30,7 @@ private:
 	void onProjectLoad(IGuiData* keyValue);
 	void onProjectTreeActualize(IGuiData* keyValue);
 	void onAnimationToolbarState(IGuiData* keyValue);
+	void onAnimationPlaybackStart(IGuiData* keyValue);
 	void onRenderStopAnimation(IGuiData* keyValue);
 	void updateUI();
 	void refreshAnimationAvailability();
@@ -65,6 +66,7 @@ private:
 	bool m_isProjectLoaded;
 	bool m_canStartAnimation;
 	bool m_isStopRequested;
+	bool m_waitingChronometerStartAtFirstViewpoint;
 	QElapsedTimer m_chronometerRunTimer;
 	QTimer m_chronometerUpdateTimer;
 	qint64 m_chronometerAccumulatedMs;

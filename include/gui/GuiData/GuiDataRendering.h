@@ -400,6 +400,14 @@ public:
 	virtual guiDType getType() override;
 };
 
+class GuiDataRenderAnimationPlaybackStart : public IGuiData
+{
+public:
+	GuiDataRenderAnimationPlaybackStart() {}
+	~GuiDataRenderAnimationPlaybackStart() {}
+	virtual guiDType getType() override;
+};
+
 class GuiDataRenderStopAnimation : public IGuiData
 {
 public:

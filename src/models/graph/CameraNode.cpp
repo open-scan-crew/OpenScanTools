@@ -555,6 +555,7 @@ bool CameraNode::animateSimpleTrajectory()
             m_animationStartViewpoint.reset();
             m_animMode = AnimationMode::Complex;
             startPlayTrajectory(m_pendingComplexAnimationStep);
+            m_dataDispatcher.updateInformation(new GuiDataRenderAnimationPlaybackStart());
             m_isAnimated = (m_trajectory.size() >= 2);
             return m_isAnimated;
         }
@@ -683,6 +684,7 @@ bool CameraNode::startAnimation(const bool& isOffline, const uint64_t& step)
 
     m_animMode = AnimationMode::Complex;
     startPlayTrajectory(step);
+    m_dataDispatcher.updateInformation(new GuiDataRenderAnimationPlaybackStart());
     m_isAnimated = (m_trajectory.size() >= 2);
     return true;
 }

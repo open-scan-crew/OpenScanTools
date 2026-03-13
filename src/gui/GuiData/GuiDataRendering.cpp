@@ -391,6 +391,11 @@ guiDType GuiDataRenderPauseAnimation::getType()
 	return guiDType::renderPauseAnimation;
 }
 
+guiDType GuiDataRenderAnimationPlaybackStart::getType()
+{
+	return guiDType::renderAnimationPlaybackStart;
+}
+
 guiDType GuiDataRenderStopAnimation::getType()
 {
 	return guiDType::renderStopAnimation;

@@ -19,6 +19,7 @@ ToolBarAnimationGroup::ToolBarAnimationGroup(IDataDispatcher &dataDispatcher, QW
 	, m_isProjectLoaded(false)
 	, m_canStartAnimation(false)
 	, m_isStopRequested(false)
+	, m_waitingChronometerStartAtFirstViewpoint(false)
 	, m_chronometerAccumulatedMs(0)
 {
 	m_ui.setupUi(this);
@@ -49,11 +50,13 @@ ToolBarAnimationGroup::ToolBarAnimationGroup(IDataDispatcher &dataDispatcher, QW
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::actualizeNodes);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::renderAnimationToolbarState);
+	m_dataDispatcher.registerObserverOnKey(this, guiDType::renderAnimationPlaybackStart);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::renderStopAnimation);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::sendViewPointAnimationData);
 	m_methods.insert({ guiDType::projectLoaded, &ToolBarAnimationGroup::onProjectLoad });
 	m_methods.insert({ guiDType::actualizeNodes, &ToolBarAnimationGroup::onProjectTreeActualize });
 	m_methods.insert({ guiDType::renderAnimationToolbarState, &ToolBarAnimationGroup::onAnimationToolbarState });
+	m_methods.insert({ guiDType::renderAnimationPlaybackStart, &ToolBarAnimationGroup::onAnimationPlaybackStart });
 	m_methods.insert({ guiDType::renderStopAnimation, &ToolBarAnimationGroup::onRenderStopAnimation });
 	m_methods.insert({ guiDType::sendViewPointAnimationData, &ToolBarAnimationGroup::onAnimationData });
 }
@@ -86,12 +89,23 @@ void ToolBarAnimationGroup::onProjectLoad(IGuiData* data)
 		m_isPaused = false;
 		m_isOrbitalRunning = false;
 		m_isStopRequested = false;
+		m_waitingChronometerStartAtFirstViewpoint = false;
 		m_animationConfigs.clear();
 		m_availableViewpoints.clear();
 		m_ui.comboBox_animationList->clear();
 		resetChronometer();
 		updateUI();
 	}
+}
+
+void ToolBarAnimationGroup::onAnimationPlaybackStart(IGuiData* data)
+{
+	(void)data;
+	if (!m_waitingChronometerStartAtFirstViewpoint)
+		return;
+
+	m_waitingChronometerStartAtFirstViewpoint = false;
+	startChronometer();
 }
 
 void ToolBarAnimationGroup::onProjectTreeActualize(IGuiData* data)
@@ -119,6 +133,7 @@ void ToolBarAnimationGroup::onRenderStopAnimation(IGuiData* data)
 	m_isStarted = false;
 	m_isPaused = false;
 	m_isOrbitalRunning = false;
+	m_waitingChronometerStartAtFirstViewpoint = false;
 	if (m_isStopRequested)
 	{
 		resetChronometer();
@@ -164,6 +179,7 @@ void ToolBarAnimationGroup::slotStartAnimation()
 	if (m_isPaused)
 	{
 		m_isStopRequested = false;
+		m_waitingChronometerStartAtFirstViewpoint = false;
 		m_dataDispatcher.updateInformation(new GuiDataRenderStartAnimation(!viewpointsMode, static_cast<double>(m_ui.lengthSpinBox->value()), true, m_ui.degreesSpinBox->value()));
 		startChronometer();
 		m_isStarted = true;
@@ -199,8 +215,10 @@ void ToolBarAnimationGroup::slotStartAnimation()
 
 	resetChronometer();
 	m_isStopRequested = false;
+	m_waitingChronometerStartAtFirstViewpoint = viewpointsMode;
 	m_dataDispatcher.updateInformation(new GuiDataRenderStartAnimation(!viewpointsMode, static_cast<double>(m_ui.lengthSpinBox->value()), false, m_ui.degreesSpinBox->value()));
-	startChronometer();
+	if (!viewpointsMode)
+		startChronometer();
 	m_isStarted = true;
 	m_isPaused = false;
 	m_isOrbitalRunning = !viewpointsMode;
@@ -226,6 +244,7 @@ void ToolBarAnimationGroup::slotStopAnimation()
 
 	m_dataDispatcher.updateInformation(new GuiDataRenderStopAnimation());
 	m_isStopRequested = true;
+	m_waitingChronometerStartAtFirstViewpoint = false;
 	resetChronometer();
 	m_isStarted = false;
 	m_isPaused = false;

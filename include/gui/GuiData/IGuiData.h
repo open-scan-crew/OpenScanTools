@@ -51,6 +51,7 @@ enum class guiDType
 	renderDistanceRampValues,
 	renderDisplayAllMarkersTexts,
 	renderStartAnimation,
+	renderAnimationPlaybackStart,
 	renderPauseAnimation,
 	renderStopAnimation,
 	renderCleanAnimationList,
