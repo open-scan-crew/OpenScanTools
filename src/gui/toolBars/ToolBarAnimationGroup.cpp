@@ -3,6 +3,9 @@
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "controller/controls/ControlAnimation.h"
 #include "gui/Dialog/DialogAnimationConfig.h"
+#include "gui/texts/ContextTexts.hpp"
+
+#include <limits>
 
 ToolBarAnimationGroup::ToolBarAnimationGroup(IDataDispatcher &dataDispatcher, QWidget *parent, float guiScale)
 	: QWidget(parent)
@@ -151,6 +154,20 @@ void ToolBarAnimationGroup::slotStartAnimation()
 		const ViewPointAnimationConfig* selectedConfig = getSelectedAnimationConfig();
 		if (!selectedConfig)
 			return;
+
+		if (selectedConfig->getMode() == ViewPointAnimationMode::PositionAsTime)
+		{
+			double previousTime = -std::numeric_limits<double>::infinity();
+			for (const ViewPointAnimationLine& line : selectedConfig->getLines())
+			{
+				if (line.position <= previousTime)
+				{
+					m_dataDispatcher.updateInformation(new GuiDataWarning(TEXT_CONTEXT_ANIMATION_INCONSISTENT_TIMES));
+					return;
+				}
+				previousTime = line.position;
+			}
+		}
 
 		m_dataDispatcher.sendControl(new control::animation::PrepareViewpointsAnimation(selectedConfig->getId(), m_ui.lengthSpinBox->value()));
 		if (!m_canStartAnimation)
