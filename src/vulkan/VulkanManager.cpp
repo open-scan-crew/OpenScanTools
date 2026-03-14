@@ -1820,19 +1820,19 @@ VkResult VulkanManager::allocSmartBuffer(VkDeviceSize dataSize, SmartBuffer& sbu
     if ((err = tryAllocBuffer(bufferInfo, allocCI, &sbuf)) != VK_SUCCESS)
         return err;
 
-    // Actualize the buffer size after allocation
+    // Actualize the allocation size after allocation
     VmaAllocationInfo allocInfo;
     vmaGetAllocationInfo(m_allocator, sbuf.alloc, &allocInfo);
-    sbuf.size = allocInfo.size;
+    sbuf.allocationSize = allocInfo.size;
 
     {
         std::lock_guard<std::mutex> lock(m_mutexBufferAllocated);
         m_smartBufferAllocated.insert(&sbuf);
     }
     if (isLocal)
-        m_pointsDevicePoolUsed += sbuf.size;
+        m_pointsDevicePoolUsed += sbuf.allocationSize;
     else
-        m_pointsHostPoolUsed += sbuf.size;
+        m_pointsHostPoolUsed += sbuf.allocationSize;
 
     return err;
 }
@@ -1874,10 +1874,10 @@ VkResult VulkanManager::allocSimpleBuffer(VkDeviceSize dataSize, SimpleBuffer& s
             return err;
     }
 
-    // Actualize the buffer size after allocation
+    // Actualize the allocation size after allocation
     VmaAllocationInfo allocInfo;
     vmaGetAllocationInfo(m_allocator, sbuf.alloc, &allocInfo);
-    sbuf.size = allocInfo.size;
+    sbuf.allocationSize = allocInfo.size;
 
     {
         std::lock_guard<std::mutex> lock(m_mutexBufferAllocated);
@@ -1885,9 +1885,9 @@ VkResult VulkanManager::allocSimpleBuffer(VkDeviceSize dataSize, SimpleBuffer& s
     }
 
     if (sbuf.isLocalMem)
-        m_objectsDevicePoolUsed += sbuf.size;
+        m_objectsDevicePoolUsed += sbuf.allocationSize;
     else
-        m_objectsHostPoolUsed += sbuf.size;
+        m_objectsHostPoolUsed += sbuf.allocationSize;
 
     return err;
 }
@@ -1991,15 +1991,16 @@ void VulkanManager::freeAllocation(SmartBuffer& sbuf)
         m_smartBufferAllocated.erase(&sbuf);
     }
     if (sbuf.isLocalMem)
-        m_pointsDevicePoolUsed -= sbuf.size;
+        m_pointsDevicePoolUsed -= sbuf.allocationSize;
     else
-        m_pointsHostPoolUsed -= sbuf.size;
+        m_pointsHostPoolUsed -= sbuf.allocationSize;
 
     sbuf.lastUseFrameIndex.store(0);
     sbuf.ongoingProcesses.store(0);
     sbuf.alloc = VK_NULL_HANDLE;
     sbuf.buffer = VK_NULL_HANDLE;
     sbuf.size = 0;
+    sbuf.allocationSize = 0;
 }
 
 void VulkanManager::freeAllocation(SimpleBuffer& sbuf)
@@ -2014,14 +2015,15 @@ void VulkanManager::freeAllocation(SimpleBuffer& sbuf)
         m_simpleBufferAllocated.erase(&sbuf);
     }
     if (sbuf.isLocalMem)
-        m_objectsDevicePoolUsed -= sbuf.size;
+        m_objectsDevicePoolUsed -= sbuf.allocationSize;
     else
-        m_objectsHostPoolUsed -= sbuf.size;
+        m_objectsHostPoolUsed -= sbuf.allocationSize;
 
 
     sbuf.alloc = VK_NULL_HANDLE;
     sbuf.buffer = VK_NULL_HANDLE;
     sbuf.size = 0;
+    sbuf.allocationSize = 0;
 }
 
 bool VulkanManager::freeDeviceMemory(VkDeviceSize minMemoryNeeded)
