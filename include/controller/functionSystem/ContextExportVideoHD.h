@@ -4,6 +4,7 @@
 #include "controller/functionSystem/AContext.h"
 #include "io/exports/ExportParameters.hpp"
 #include "pointCloudEngine/RenderingTypes.h"
+#include "models/application/ViewPointAnimation.h"
 #include <optional>
 
 class ContextExportVideoHD : public AContext
@@ -25,9 +26,18 @@ public:
 	virtual ContextType getType() const override;
 
 private:
+	struct PreparedAnimation
+	{
+		std::vector<SafePtr<ViewPointNode>> viewpoints;
+		ViewPointAnimationMode mode = ViewPointAnimationMode::ConstantSpeed;
+		std::vector<double> controlTimes;
+		double durationSeconds = 0.0;
+	};
+
 	bool encodeVideo();
 	std::optional<std::filesystem::path> firstFrameFilepath() const;
 	void cleanupFrames();
+	std::optional<PreparedAnimation> prepareViewpointAnimation(Controller& controller) const;
 
 	VideoExportParameters m_parameters;
 	std::filesystem::path m_exportPath;
@@ -53,6 +63,8 @@ private:
 	float m_addAlpha = 0.f;
 
 	double m_addFovy = 0.;
+	bool m_usePreparedCameraAnimation = false;
+	PreparedAnimation m_preparedAnimation;
 
 	std::chrono::steady_clock::time_point m_tpStart;
 	DecimationOptions m_precedentOptions;
