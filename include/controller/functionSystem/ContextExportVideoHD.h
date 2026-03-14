@@ -54,7 +54,6 @@ private:
 	float m_addAlpha = 0.f;
 
 	double m_addFovy = 0.;
-	bool m_usePreparedViewpointAnimation = false;
 	ViewPointAnimationMode m_preparedAnimationMode = ViewPointAnimationMode::ConstantSpeed;
 	std::vector<SafePtr<ViewPointNode>> m_preparedAnimationViewpoints;
 	std::vector<double> m_preparedControlTimes;

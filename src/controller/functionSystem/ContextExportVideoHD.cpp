@@ -80,7 +80,6 @@ ContextState ContextExportVideoHD::start(Controller& controller)
     noDecimation.mode = DecimationMode::None;
     controller.updateInfo(new GuiDataRenderDecimationOptions(noDecimation));
     m_exportState = 0;
-    m_usePreparedViewpointAnimation = false;
     m_preparedAnimationViewpoints.clear();
     m_preparedControlTimes.clear();
     return m_state = ContextState::waiting_for_input;
@@ -143,7 +142,6 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
 
         if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS)
         {
-            m_usePreparedViewpointAnimation = true;
             m_preparedAnimationMode = m_parameters.animationMode;
             m_preparedAnimationViewpoints.clear();
             m_preparedControlTimes.clear();
@@ -151,7 +149,10 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
             const std::unordered_map<viewPointAnimationId, ViewPointAnimationConfig>& configs = controller.getContext().cgetViewPointAnimations();
             auto itConfig = configs.find(m_parameters.animationId);
             if (itConfig == configs.end())
+            {
+                controller.updateInfo(new GuiDataWarning(TEXT_CONTEXT_ANIMATION_NEED_TWO_VIEWPOINTS));
                 return abort(controller);
+            }
 
             m_preparedAnimationMode = itConfig->second.getMode();
 
@@ -166,7 +167,10 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
                 if (m_preparedAnimationMode == ViewPointAnimationMode::PositionAsTime)
                 {
                     if (line.position <= previousTime)
+                    {
+                        controller.updateInfo(new GuiDataWarning(TEXT_CONTEXT_ANIMATION_INCONSISTENT_TIMES));
                         return abort(controller);
+                    }
                     previousTime = line.position;
                 }
 
@@ -175,7 +179,10 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
             }
 
             if (m_preparedAnimationViewpoints.size() < 2)
+            {
+                controller.updateInfo(new GuiDataWarning(TEXT_CONTEXT_ANIMATION_NEED_TWO_VIEWPOINTS));
                 return abort(controller);
+            }
 
             wCam->cleanAnimation();
             wCam->setLoop(false);
@@ -277,7 +284,7 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
         {
             case VideoAnimationMode::BETWEENVIEWPOINTS:
             {
-                wCam->animateComplexTrajectory();
+                wCam->advanceOfflineAnimationStep();
 
                 if (m_parameters.interpolateRenderingBetweenViewpoints)
                 {
