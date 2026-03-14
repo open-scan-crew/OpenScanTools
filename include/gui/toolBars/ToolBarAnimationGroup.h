@@ -40,6 +40,7 @@ private:
 	void pauseChronometer();
 	void resetChronometer();
 	void finishChronometer();
+	void startViewpointsAnimationPlayback();
 
 private slots:
 	void slotStartAnimation();
@@ -66,6 +67,7 @@ private:
 	bool m_isProjectLoaded;
 	bool m_canStartAnimation;
 	bool m_isStopRequested;
+	bool m_pendingViewpointsStart;
 	bool m_waitingChronometerStartAtFirstViewpoint;
 	QElapsedTimer m_chronometerRunTimer;
 	QTimer m_chronometerUpdateTimer;

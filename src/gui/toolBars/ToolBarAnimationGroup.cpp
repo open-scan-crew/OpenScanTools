@@ -20,6 +20,7 @@ ToolBarAnimationGroup::ToolBarAnimationGroup(IDataDispatcher &dataDispatcher, QW
 	, m_isProjectLoaded(false)
 	, m_canStartAnimation(false)
 	, m_isStopRequested(false)
+	, m_pendingViewpointsStart(false)
 	, m_waitingChronometerStartAtFirstViewpoint(false)
 	, m_chronometerAccumulatedMs(0)
 {
@@ -90,6 +91,7 @@ void ToolBarAnimationGroup::onProjectLoad(IGuiData* data)
 		m_isPaused = false;
 		m_isOrbitalRunning = false;
 		m_isStopRequested = false;
+		m_pendingViewpointsStart = false;
 		m_waitingChronometerStartAtFirstViewpoint = false;
 		m_animationConfigs.clear();
 		m_availableViewpoints.clear();
@@ -125,6 +127,19 @@ void ToolBarAnimationGroup::onAnimationToolbarState(IGuiData* data)
 {
 	auto state = static_cast<GuiDataRenderAnimationToolbarState*>(data);
 	m_canStartAnimation = state->m_canStart;
+	if (m_pendingViewpointsStart)
+	{
+		if (m_canStartAnimation && m_isProjectLoaded && m_ui.betweenViewpointsRadioButton->isChecked())
+		{
+			m_pendingViewpointsStart = false;
+			startViewpointsAnimationPlayback();
+			return;
+		}
+
+		if (!m_canStartAnimation)
+			m_pendingViewpointsStart = false;
+	}
+
 	if (!m_canStartAnimation)
 		m_isStarted = false;
 	if (!m_canStartAnimation)
@@ -142,6 +157,7 @@ void ToolBarAnimationGroup::onRenderStopAnimation(IGuiData* data)
     m_isStarted = false;
 	m_isPaused = false;
 	m_isOrbitalRunning = false;
+	m_pendingViewpointsStart = false;
 	m_waitingChronometerStartAtFirstViewpoint = false;
 	if (m_isStopRequested)
 	{
@@ -189,6 +205,7 @@ void ToolBarAnimationGroup::slotStartAnimation()
 	{
 		GUI_LOG << "[ANIM_DBG] toolbar start clicked while paused resume path" << LOGENDL;
 		m_isStopRequested = false;
+		m_pendingViewpointsStart = false;
 		m_waitingChronometerStartAtFirstViewpoint = false;
 		m_dataDispatcher.updateInformation(new GuiDataRenderStartAnimation(!viewpointsMode, static_cast<double>(m_ui.lengthSpinBox->value()), true, m_ui.degreesSpinBox->value()));
 		startChronometer();
@@ -219,9 +236,10 @@ void ToolBarAnimationGroup::slotStartAnimation()
 			}
 		}
 
+		m_pendingViewpointsStart = true;
 		m_dataDispatcher.sendControl(new control::animation::PrepareViewpointsAnimation(selectedConfig->getId(), m_ui.lengthSpinBox->value()));
-		if (!m_canStartAnimation)
-			return;
+		updateUI();
+		return;
 	}
 
 	resetChronometer();
@@ -238,6 +256,18 @@ void ToolBarAnimationGroup::slotStartAnimation()
 	m_isStarted = true;
 	m_isPaused = false;
 	m_isOrbitalRunning = !viewpointsMode;
+	updateUI();
+}
+
+void ToolBarAnimationGroup::startViewpointsAnimationPlayback()
+{
+	resetChronometer();
+	m_isStopRequested = false;
+	m_waitingChronometerStartAtFirstViewpoint = true;
+	m_dataDispatcher.updateInformation(new GuiDataRenderStartAnimation(false, static_cast<double>(m_ui.lengthSpinBox->value()), false, m_ui.degreesSpinBox->value()));
+	m_isStarted = true;
+	m_isPaused = false;
+	m_isOrbitalRunning = false;
 	updateUI();
 }
 
@@ -260,6 +290,7 @@ void ToolBarAnimationGroup::slotStopAnimation()
 
 	m_dataDispatcher.updateInformation(new GuiDataRenderStopAnimation());
 	m_isStopRequested = true;
+	m_pendingViewpointsStart = false;
 	m_waitingChronometerStartAtFirstViewpoint = false;
 	resetChronometer();
 	m_isStarted = false;
@@ -284,7 +315,10 @@ void ToolBarAnimationGroup::slotAnimationModeChanged()
 {
 	m_ui.interpolateCheckBox->setEnabled(m_ui.betweenViewpointsRadioButton->isChecked());
 	if (!m_ui.betweenViewpointsRadioButton->isChecked())
+	{
+		m_pendingViewpointsStart = false;
 		m_isPaused = false;
+	}
 	updateUI();
 }
 

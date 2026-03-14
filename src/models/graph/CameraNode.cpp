@@ -673,14 +673,6 @@ bool CameraNode::startAnimation(const bool& isOffline, const uint64_t& step)
 
     m_dataDispatcher.sendControl(new control::viewpoint::UpdateStatesFromViewpoint(firstViewpoint));
 
-    GRAPH_LOG << "[ANIM_DBG] camera startAnimation prepared"
-        << " sampledTrajectorySize=" << m_trajectory.size()
-        << " orientationSize=" << m_orientationTrajectory.size()
-        << " firstDtime=" << m_trajectory.front().dtime_arrival
-        << " secondDtime=" << m_trajectory[1].dtime_arrival
-        << " startPoint=(" << m_trajectory.front().point.x << ", " << m_trajectory.front().point.y << ", " << m_trajectory.front().point.z << ")"
-        << LOGENDL;
-
     m_animMode = AnimationMode::Viewpoint;
     startPlayTrajectory(step);
     m_dataDispatcher.updateInformation(new GuiDataRenderAnimationPlaybackStart());
@@ -1331,11 +1323,6 @@ bool CameraNode::animateViewpointTrajectory()
         const double segmentDuration = kPt1.dtime_arrival - kPt0.dtime_arrival;
         if (segmentDuration <= 1e-9)
         {
-            GRAPH_LOG << "[ANIM_DBG] camera degenerate segment"
-                << " keyPoint=" << m_currentKeyPoint
-                << " t0=" << kPt0.dtime_arrival
-                << " t1=" << kPt1.dtime_arrival
-                << LOGENDL;
             if (m_currentKeyPoint + 1 < m_trajectory.size())
             {
                 m_currentKeyPoint++;
@@ -1400,11 +1387,6 @@ bool CameraNode::animateViewpointTrajectory()
             m_animationPlaylist = m_initialAnimationPlaylist;
             m_isAnimated = false;
             m_animMode = AnimationMode::Simple;
-            GRAPH_LOG << "[ANIM_DBG] camera viewpoint animation reached end"
-                << " keyPoint=" << m_currentKeyPoint
-                << " totalKeyPoints=" << m_trajectory.size()
-                << " dtime=" << dtime
-                << LOGENDL;
             m_dataDispatcher.updateInformation(new GuiDataRenderStopAnimation());
             return true;
         }
