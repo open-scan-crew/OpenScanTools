@@ -14,6 +14,7 @@
 #include "models/ElementType.h"
 
 #include "utils/math/trigo.h"
+#include "utils/Logger.h"
 
 #include "vulkan/TlFramebuffer_T.h"
 #include "vulkan/VulkanManager.h"
@@ -187,6 +188,9 @@ void VulkanViewport::onRenderStartAnimation(IGuiData* data)
 
     if (startData->m_isOrbital)
     {
+        GUI_LOG << "[ANIM_DBG] viewport start request orbital resume=" << startData->m_resume
+            << " duration=" << startData->m_durationSeconds
+            << " degrees=" << startData->m_orbitalDegrees << LOGENDL;
         m_viewpointStartInputLockArmed = false;
         if (startData->m_resume && m_isOrbitalAnimationActive && m_isOrbitalAnimationPaused)
         {
@@ -208,6 +212,7 @@ void VulkanViewport::onRenderStartAnimation(IGuiData* data)
 
     if (startData->m_resume)
     {
+        GUI_LOG << "[ANIM_DBG] viewport resume request viewpoints" << LOGENDL;
         m_viewpointStartInputLockArmed = false;
         wCam->resumeAnimation();
     }
@@ -215,6 +220,10 @@ void VulkanViewport::onRenderStartAnimation(IGuiData* data)
     {
         const bool started = wCam->startAnimation(m_saveImagesAnim);
         m_viewpointStartInputLockArmed = started;
+        GUI_LOG << "[ANIM_DBG] viewport start request viewpoints started=" << started
+            << " inputLockArmed=" << m_viewpointStartInputLockArmed
+            << " mouseDeltas(dx,dy,wheel)= (" << m_MI.deltaX << ", " << m_MI.deltaY << ", " << m_MI.wheel << ")"
+            << LOGENDL;
         if (started)
             m_MI.resetDeltas();
     }
@@ -250,6 +259,7 @@ void VulkanViewport::onRenderStopAnimation(IGuiData* data)
     m_orbitalElapsedSeconds = 0.0;
     m_orbitalAppliedAngle = 0.0;
     m_orbitalTotalAngleRad = 0.0;
+    GUI_LOG << "[ANIM_DBG] viewport received stop animation" << LOGENDL;
     wCam->endAnimation();
 }
 
@@ -395,6 +405,9 @@ void VulkanViewport::updateInputs(WritePtr<CameraNode>& wCam, SafePtr<Manipulato
     {
         skipUserInputThisFrame = true;
         m_viewpointStartInputLockArmed = false;
+        GUI_LOG << "[ANIM_DBG] viewport consumed one-frame viewpoints input lock"
+            << " mouseDeltas(dx,dy,wheel)= (" << m_MI.deltaX << ", " << m_MI.deltaY << ", " << m_MI.wheel << ")"
+            << LOGENDL;
         m_MI.resetDeltas();
     }
 

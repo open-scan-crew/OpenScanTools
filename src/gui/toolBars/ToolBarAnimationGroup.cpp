@@ -5,6 +5,7 @@
 #include "controller/controls/ControlAnimation.h"
 #include "gui/Dialog/DialogAnimationConfig.h"
 #include "gui/texts/ContextTexts.hpp"
+#include "utils/Logger.h"
 
 #include <limits>
 
@@ -100,9 +101,13 @@ void ToolBarAnimationGroup::onProjectLoad(IGuiData* data)
 
 void ToolBarAnimationGroup::onAnimationPlaybackStart(IGuiData* data)
 {
-	(void)data;
-	if (!m_waitingChronometerStartAtFirstViewpoint)
-		return;
+    (void)data;
+    GUI_LOG << "[ANIM_DBG] toolbar received playback start"
+        << " waitingFirstViewpoint=" << m_waitingChronometerStartAtFirstViewpoint
+        << " accumulatedMs=" << m_chronometerAccumulatedMs
+        << LOGENDL;
+    if (!m_waitingChronometerStartAtFirstViewpoint)
+        return;
 
 	m_waitingChronometerStartAtFirstViewpoint = false;
 	startChronometer();
@@ -129,8 +134,12 @@ void ToolBarAnimationGroup::onAnimationToolbarState(IGuiData* data)
 
 void ToolBarAnimationGroup::onRenderStopAnimation(IGuiData* data)
 {
-	(void)data;
-	m_isStarted = false;
+    (void)data;
+    GUI_LOG << "[ANIM_DBG] toolbar received stop animation"
+        << " isStopRequested=" << m_isStopRequested
+        << " accumulatedMs(before)=" << m_chronometerAccumulatedMs
+        << LOGENDL;
+    m_isStarted = false;
 	m_isPaused = false;
 	m_isOrbitalRunning = false;
 	m_waitingChronometerStartAtFirstViewpoint = false;
@@ -178,6 +187,7 @@ void ToolBarAnimationGroup::slotStartAnimation()
 	const bool viewpointsMode = m_ui.betweenViewpointsRadioButton->isChecked();
 	if (m_isPaused)
 	{
+		GUI_LOG << "[ANIM_DBG] toolbar start clicked while paused resume path" << LOGENDL;
 		m_isStopRequested = false;
 		m_waitingChronometerStartAtFirstViewpoint = false;
 		m_dataDispatcher.updateInformation(new GuiDataRenderStartAnimation(!viewpointsMode, static_cast<double>(m_ui.lengthSpinBox->value()), true, m_ui.degreesSpinBox->value()));
@@ -190,6 +200,7 @@ void ToolBarAnimationGroup::slotStartAnimation()
 
 	if (viewpointsMode)
 	{
+		GUI_LOG << "[ANIM_DBG] toolbar start clicked viewpoints mode" << LOGENDL;
 		const ViewPointAnimationConfig* selectedConfig = getSelectedAnimationConfig();
 		if (!selectedConfig)
 			return;
@@ -214,6 +225,11 @@ void ToolBarAnimationGroup::slotStartAnimation()
 	}
 
 	resetChronometer();
+	GUI_LOG << "[ANIM_DBG] toolbar start dispatch"
+		<< " viewpointsMode=" << viewpointsMode
+		<< " canStartAnimation=" << m_canStartAnimation
+		<< " waitPlaybackStart=" << viewpointsMode
+		<< LOGENDL;
 	m_isStopRequested = false;
 	m_waitingChronometerStartAtFirstViewpoint = viewpointsMode;
 	m_dataDispatcher.updateInformation(new GuiDataRenderStartAnimation(!viewpointsMode, static_cast<double>(m_ui.lengthSpinBox->value()), false, m_ui.degreesSpinBox->value()));
