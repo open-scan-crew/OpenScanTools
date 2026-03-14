@@ -46,7 +46,7 @@ enum class InterpolationValueWithPreviousAnimation { NONE, BEZIER/*, LINEAR*/ };
 class CameraNode : public AGraphNode, public IPanel, public RenderingParameters
 {
 private:
-    enum class AnimationMode { Simple, Complex/*, HorizontalExamine*/ };
+    enum class AnimationMode { Simple, Viewpoint/*, HorizontalExamine*/ };
 
 public:
     CameraNode(const std::wstring& name, IDataDispatcher& dataDispatcher);
@@ -87,7 +87,7 @@ public:
     void lookAt(double endTheta, double endPhi, double dt_sec);
     void translateTo(glm::dvec3 endPoint, double dt_sec);
 
-    //Complex animation
+    // Viewpoints animation
 
     void AddViewPoint(SafePtr<ViewPointNode> vp, const InterpolationValueWithPreviousAnimation& interpolation = InterpolationValueWithPreviousAnimation::NONE);
     void AddViewPoint1(SafePtr<ViewPointNode> vp, const InterpolationValueWithPreviousAnimation& interpolation = InterpolationValueWithPreviousAnimation::NONE);
@@ -181,11 +181,11 @@ private:
 
     void startPlayTrajectory(const uint64_t& animationStep);
     bool animateSimpleTrajectory();
-    bool animateComplexTrajectory();
-    // Build the trajectory played by complex animation:
+    bool animateViewpointTrajectory();
+    // Build the trajectory played by viewpoints animation:
     // - linear fallback for 2 viewpoints
     // - centripetal Catmull-Rom sampling for 3+ viewpoints
-    void buildComplexAnimationPlaybackPath();
+    void buildViewpointAnimationPlaybackPath();
     void buildLinearPlaybackPathFromTrajectory();
     void buildCatmullRomPlaybackPathFromTrajectory();
     void applyPlaybackTimingFromControlPoints();
@@ -322,10 +322,6 @@ private:
     double m_animationDurationSeconds = 0.0;
     std::vector<double> m_controlPointTimesSeconds;
     SimpleAnimation m_simpleAnimation = SimpleAnimation();
-    bool m_pendingComplexAnimationStart = false;
-    uint64_t m_pendingComplexAnimationStep = 1000;
-    SafePtr<ViewPointNode> m_animationStartViewpoint;
-
     // Uniform for projection and view matrix (separated)
     VkMultiUniform m_uniProjView;
     // Uniform view Matrix 
