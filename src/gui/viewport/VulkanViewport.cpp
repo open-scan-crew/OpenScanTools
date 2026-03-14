@@ -187,6 +187,7 @@ void VulkanViewport::onRenderStartAnimation(IGuiData* data)
 
     if (startData->m_isOrbital)
     {
+        m_viewpointStartInputLockArmed = false;
         if (startData->m_resume && m_isOrbitalAnimationActive && m_isOrbitalAnimationPaused)
         {
             m_orbitalStartTime = std::chrono::steady_clock::now();
@@ -206,9 +207,17 @@ void VulkanViewport::onRenderStartAnimation(IGuiData* data)
     }
 
     if (startData->m_resume)
+    {
+        m_viewpointStartInputLockArmed = false;
         wCam->resumeAnimation();
+    }
     else
-        wCam->startAnimation(m_saveImagesAnim);
+    {
+        const bool started = wCam->startAnimation(m_saveImagesAnim);
+        m_viewpointStartInputLockArmed = started;
+        if (started)
+            m_MI.resetDeltas();
+    }
 }
 
 void VulkanViewport::onRenderPauseAnimation(IGuiData* data)
@@ -237,6 +246,7 @@ void VulkanViewport::onRenderStopAnimation(IGuiData* data)
 
     m_isOrbitalAnimationActive = false;
     m_isOrbitalAnimationPaused = false;
+    m_viewpointStartInputLockArmed = false;
     m_orbitalElapsedSeconds = 0.0;
     m_orbitalAppliedAngle = 0.0;
     m_orbitalTotalAngleRad = 0.0;
@@ -380,8 +390,16 @@ void VulkanViewport::updateInputs(WritePtr<CameraNode>& wCam, SafePtr<Manipulato
 
     updateProjNaviMode(wCam); // here or after ?
 
+    bool skipUserInputThisFrame = false;
+    if (m_viewpointStartInputLockArmed)
+    {
+        skipUserInputThisFrame = true;
+        m_viewpointStartInputLockArmed = false;
+        m_MI.resetDeltas();
+    }
+
     // Skip inputs when in animation mode
-    if (!wCam->isAnimated() && !m_isOrbitalAnimationActive)
+    if (!skipUserInputThisFrame && !wCam->isAnimated() && !m_isOrbitalAnimationActive)
     {
         updateMouseInputEffect(wCam, manipNode);
         applyMouseInput(wCam, manipNode);
