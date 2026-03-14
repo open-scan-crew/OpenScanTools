@@ -326,8 +326,8 @@ bool CameraNode::updateAnimation()
     case AnimationMode::Simple:
         animateSimpleTrajectory();
         break;
-    case AnimationMode::Complex:
-        animateComplexTrajectory();
+    case AnimationMode::Viewpoint:
+        animateViewpointTrajectory();
         break;
     }
 
@@ -449,6 +449,7 @@ void CameraNode::lookAt(glm::dvec3 _lookPoint, double _dt_sec)
 
     m_simpleAnimation = { { m_center, getTheta(), getPhi(), (double)std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()).time_since_epoch().count() },
                             { m_center, endTheta, endPhi, _dt_sec * 1000.0} };
+    m_animMode = AnimationMode::Simple;
     m_isAnimated = true;
 }
 
@@ -458,6 +459,7 @@ void CameraNode::lookAt(double endTheta, double endPhi, double dt_sec)
 
     m_simpleAnimation = { { m_center, getTheta(), getPhi(), (double)std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()).time_since_epoch().count() },
                             { m_center, endTheta, endPhi, dt_sec * 1000.0} };
+    m_animMode = AnimationMode::Simple;
     m_isAnimated = true;
 }
 
@@ -469,6 +471,7 @@ void CameraNode::translateTo(glm::dvec3 _endPoint, double _dt_sec)
 
     m_simpleAnimation = { { m_center, getTheta(), getPhi(), (double)std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()).time_since_epoch().count() },
                             { _endPoint, getTheta(), getPhi(), _dt_sec * 1000.0} };
+    m_animMode = AnimationMode::Simple;
     m_isAnimated = true;
 }
 
@@ -492,6 +495,7 @@ void CameraNode::moveTo(glm::dvec3 _endPoint, double _stopDist, double _dt_sec)
 
     m_simpleAnimation = { { m_center, getTheta(), getPhi(), (double)std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()).time_since_epoch().count() },
                             { stopPoint, endTheta, endPhi, _dt_sec * 1000.0} };
+    m_animMode = AnimationMode::Simple;
     m_isAnimated = true;
 }
 
@@ -515,6 +519,7 @@ void CameraNode::moveTo(glm::dvec3 _endPoint, double _dt_sec, glm::dvec3 _lookDi
 
     m_simpleAnimation = { { m_center, getTheta(), getPhi(), (double)std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()).time_since_epoch().count() },
                             { _endPoint, endTheta, endPhi, _dt_sec * 1000.0} };
+    m_animMode = AnimationMode::Simple;
     m_isAnimated = true;
 }
 
@@ -524,6 +529,7 @@ void CameraNode::moveTo(const glm::dvec3& endPoint, double endTheta, double endP
 
     m_simpleAnimation = { { m_center, getTheta(), getPhi(), (double)std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()).time_since_epoch().count() },
                             { endPoint, endTheta, endPhi, dt_sec * 1000.0} };
+    m_animMode = AnimationMode::Simple;
     m_isAnimated = true;
 }
 
@@ -540,26 +546,7 @@ bool CameraNode::animateSimpleTrajectory()
     if (progress > 1.0 || !m_simpleAnimation.end.dtime_arrival)
     {
         m_center = m_simpleAnimation.end.point;
-        if (m_pendingComplexAnimationStart)
-        {
-            ReadPtr<ViewPointNode> rVp = m_animationStartViewpoint.cget();
-            if (rVp)
-            {
-                static_cast<DisplayParameters&>(*this) = *&rVp;
-                applyProjection(*&rVp);
-                m_quaternion = rVp->getOrientation();
-                m_dataDispatcher.sendControl(new control::viewpoint::UpdateStatesFromViewpoint(m_animationStartViewpoint));
-            }
-
-            m_pendingComplexAnimationStart = false;
-            m_animationStartViewpoint.reset();
-            m_animMode = AnimationMode::Complex;
-            startPlayTrajectory(m_pendingComplexAnimationStep);
-            m_dataDispatcher.updateInformation(new GuiDataRenderAnimationPlaybackStart());
-            m_isAnimated = (m_trajectory.size() >= 2);
-            return m_isAnimated;
-        }
-        else if (!m_animation.empty())
+        if (!m_animation.empty())
         {
             //Note(Aurélien) #363 do stuff
             ReadPtr<ViewPointNode> rVp = m_animation.begin()->cget();
@@ -652,7 +639,7 @@ bool CameraNode::startAnimation(const bool& isOffline, const uint64_t& step)
         return false;
     }
 
-    buildComplexAnimationPlaybackPath();
+    buildViewpointAnimationPlaybackPath();
 
     SafePtr<ViewPointNode> firstViewpoint = m_animationPlaylist.front();
     ReadPtr<ViewPointNode> rFirstViewpoint = firstViewpoint.cget();
@@ -662,27 +649,12 @@ bool CameraNode::startAnimation(const bool& isOffline, const uint64_t& step)
         return false;
     }
 
-    const glm::dvec3 startPoint = rFirstViewpoint->getCenter();
-    const glm::dvec3 startLookDir = glm::dvec4(0.0, 0.0, 1.0, 1.0) * rFirstViewpoint->getInverseTransformation();
-    const bool needMoveToFirstViewpoint = glm::distance(getCenter(), startPoint) > 0.001;
-
-    if (needMoveToFirstViewpoint)
-    {
-        m_animMode = AnimationMode::Simple;
-        m_pendingComplexAnimationStart = true;
-        m_pendingComplexAnimationStep = step;
-        m_animationStartViewpoint = firstViewpoint;
-        moveTo(startPoint, 1.0, startLookDir, glm::dvec3(0.0, 0.0, 1.0));
-        m_isAnimated = true;
-        return true;
-    }
-
     static_cast<DisplayParameters&>(*this) = *&rFirstViewpoint;
     applyProjection(*&rFirstViewpoint);
     m_quaternion = rFirstViewpoint->getOrientation();
     m_dataDispatcher.sendControl(new control::viewpoint::UpdateStatesFromViewpoint(firstViewpoint));
 
-    m_animMode = AnimationMode::Complex;
+    m_animMode = AnimationMode::Viewpoint;
     startPlayTrajectory(step);
     m_dataDispatcher.updateInformation(new GuiDataRenderAnimationPlaybackStart());
     m_isAnimated = (m_trajectory.size() >= 2);
@@ -696,8 +668,6 @@ bool CameraNode::endAnimation()
     m_isAnimationPaused = false;
     m_animMode = AnimationMode::Simple;
     m_animation.clear();
-    m_pendingComplexAnimationStart = false;
-    m_animationStartViewpoint.reset();
     m_trajectory.clear();
     m_orientationTrajectory.clear();
     m_currentKeyPoint = 0;
@@ -738,8 +708,6 @@ void CameraNode::cleanAnimation()
 {
     m_animationPlaylist.clear();
     m_initialAnimationPlaylist.clear();
-    m_pendingComplexAnimationStart = false;
-    m_animationStartViewpoint.reset();
     m_trajectory.clear();
     m_orientationTrajectory.clear();
     m_currentKeyPoint = 0;
@@ -1313,7 +1281,7 @@ void CameraNode::startPlayTrajectory(const uint64_t& animationStep)
         m_startTrajectoryTime = std::chrono::steady_clock::now();
 }
 
-bool CameraNode::animateComplexTrajectory()
+bool CameraNode::animateViewpointTrajectory()
 {
     // Get time elapsed since the start of the trajectory
     double dtime((double)m_animFrames);
@@ -1357,7 +1325,7 @@ bool CameraNode::animateComplexTrajectory()
     else if (m_currentKeyPoint + 1 < m_trajectory.size())
     {
         m_currentKeyPoint++;
-        return animateComplexTrajectory();
+        return animateViewpointTrajectory();
     }
     else
     {
@@ -1386,6 +1354,7 @@ bool CameraNode::animateComplexTrajectory()
             }
             m_animationPlaylist = m_initialAnimationPlaylist;
             m_isAnimated = false;
+            m_animMode = AnimationMode::Simple;
             m_dataDispatcher.updateInformation(new GuiDataRenderStopAnimation());
             return true;
         }
@@ -1404,7 +1373,7 @@ bool CameraNode::animateComplexTrajectory()
     return true;
 }
 
-void CameraNode::buildComplexAnimationPlaybackPath()
+void CameraNode::buildViewpointAnimationPlaybackPath()
 {
     if (m_trajectory.size() < 2 || m_orientationTrajectory.size() != m_trajectory.size())
         return;
@@ -2270,8 +2239,6 @@ void CameraNode::moveToData(const SafePtr<AGraphNode>& data)
 
         lookDir = glm::dvec4(0.0, 0.0, 1.0, 1.0) * cli->getInverseTransformation();
         m_animation.clear();
-        m_pendingComplexAnimationStart = false;
-        m_animationStartViewpoint.reset();
         m_trajectory.clear();
         m_orientationTrajectory.clear();
         m_currentKeyPoint = 0;
