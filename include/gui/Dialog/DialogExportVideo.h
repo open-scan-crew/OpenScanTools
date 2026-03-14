@@ -4,6 +4,7 @@
 #include "ui_DialogExportVideo.h"
 #include "gui/Dialog/ADialog.h"
 #include "io/exports/ExportParameters.hpp"
+#include "models/application/ViewPointAnimation.h"
 #include <optional>
 #include <utility>
 
@@ -38,6 +39,8 @@ public:
     void setAnimationMode(VideoAnimationMode mode);
     void setLength(int length);
     void setInterpolateRenderings(bool interpolate);
+    void setOrbitalDegrees(int degrees);
+    void setAnimationSelection(const viewPointAnimationId& animationId);
 
 private:
     Ui::DialogExportVideo m_ui;
@@ -47,6 +50,8 @@ private:
 	VideoExportParameters m_parameters;
 	VideoAnimationMode m_animationMode = VideoAnimationMode::BETWEENVIEWPOINTS;
 	int m_length = 30;
+	int m_orbitalDegrees = 360;
+	viewPointAnimationId m_animationId;
 	bool m_interpolateRenderings = false;
 
     static constexpr uint64_t MAX_MP4_PIXELS = 8294400;

@@ -5,6 +5,7 @@
 #include "io/FileUtils.h"
 #include "tls_def.h"
 #include "models/OpenScanToolsModelEssentials.h"
+#include "models/application/ViewPointAnimation.h"
 
 // NOTE - The enums are used for combo box indexes
 //  (*) They must start at 0 and the values increase "naturally".
@@ -69,6 +70,8 @@ struct VideoExportParameters
     int bitrateKbps = 5000;
     std::filesystem::path outputFilePath;
     VideoAnimationMode animMode = VideoAnimationMode::NONE;
+    viewPointAnimationId animationId;
+    int orbitalDegrees = 360;
     SafePtr<ViewPointNode> start;
     SafePtr<ViewPointNode> finish;
     bool interpolateRenderingBetweenViewpoints = false;
