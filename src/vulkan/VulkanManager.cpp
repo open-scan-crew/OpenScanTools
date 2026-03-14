@@ -2018,6 +2018,9 @@ void VulkanManager::freeAllocation(SmartBuffer& sbuf)
     if (sbuf.alloc == VK_NULL_HANDLE)
         return;
 
+    if (m_pfnDev && m_device != VK_NULL_HANDLE)
+        deviceWaitIdleThreadSafe();
+
     vmaDestroyBuffer(m_allocator, sbuf.buffer, sbuf.alloc);
     {
         std::lock_guard<std::mutex> lock(m_mutexBufferAllocated);
