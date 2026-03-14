@@ -25,6 +25,7 @@
 #include "models/graph/GraphManager.h"
 
 #include "pointCloudEngine/PCE_core.h"
+#include "vulkan/VulkanManager.h"
 
 #include "utils/FilesAndFoldersDefinitions.h"
 #include "utils/Config.h"
@@ -381,6 +382,16 @@ namespace control::project
     void Close::doFunction(Controller& controller)
     {
         CONTROLLOG << "control::project::Close[begin]" << LOGENDL;
+
+        VulkanManager& vkm = VulkanManager::getInstance();
+        vkm.beginQueueSubmissionBlock();
+        struct QueueSubmissionBlockGuard
+        {
+            VulkanManager& vkm;
+            ~QueueSubmissionBlockGuard() { vkm.endQueueSubmissionBlock(); }
+        } submissionBlockGuard{ vkm };
+
+        vkm.waitForRenderFence();
 
         ControllerContext& context = controller.getContext();
 

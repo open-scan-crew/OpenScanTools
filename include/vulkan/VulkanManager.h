@@ -159,6 +159,10 @@ public:
     static std::mutex& getQueueApiMutex();
     static void logQueueApiCall(const char* tag, VkQueue queue);
 
+    void beginQueueSubmissionBlock();
+    void endQueueSubmissionBlock();
+    bool isQueueSubmissionBlocked() const;
+
     uint32_t getCurrentFrameIndex() const;
     // For all the frame index inferior or equal to the "safe frame index" it is guaranted
     // that all the command buffers are completed and the gpu resources are free to manipulate
@@ -435,6 +439,8 @@ private:
     std::atomic<bool> m_noMoreFreeMemoryForFrame_host = false;
     uint32_t m_missedDeviceAllocations = 0;
     uint32_t m_missedHostAllocations = 0;
+
+    std::atomic<bool> m_blockQueueSubmissions = false;
 
     // Streaming Resources
     TlStreamer* m_streamer = nullptr;
