@@ -157,6 +157,7 @@ public:
     void waitIdle();
     void waitForStreamingIdle();
     static std::mutex& getQueueApiMutex();
+    static void logQueueApiCall(const char* tag, VkQueue queue);
 
     uint32_t getCurrentFrameIndex() const;
     // For all the frame index inferior or equal to the "safe frame index" it is guaranted
