@@ -143,8 +143,21 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
             for (const SafePtr<ViewPointNode>& viewpoint : m_preparedAnimation.viewpoints)
                 wCam->AddViewPoint(viewpoint);
 
-            wCam->moveToData(m_preparedAnimation.viewpoints.front());
-            return m_state = ContextState::waiting_for_input;
+            // Force a synchronous jump to the first viewpoint before frame generation.
+            // Relying on moveToData() + asynchronous ANIMATIONEND can stall the export state machine.
+            ReadPtr<ViewPointNode> rFirstViewpoint = m_preparedAnimation.viewpoints.front().cget();
+            if (!rFirstViewpoint)
+                return abort(controller);
+
+            const glm::dvec3 firstLookDir = glm::dvec4(0.0, 0.0, 1.0, 1.0) * rFirstViewpoint->getInverseTransformation();
+            double firstTheta = 0.0;
+            if (!(firstLookDir.x == 0.0 && firstLookDir.y == 0.0))
+                firstTheta = atan2(-firstLookDir.x, firstLookDir.y);
+            const double firstNormXY = sqrt(firstLookDir.x * firstLookDir.x + firstLookDir.y * firstLookDir.y);
+            const double firstPhi = atan2(-firstNormXY, firstLookDir.z);
+
+            wCam->moveTo(rFirstViewpoint->getCenter(), firstTheta, firstPhi, 0.0);
+            wCam->updateAnimation();
         }
 
     }
