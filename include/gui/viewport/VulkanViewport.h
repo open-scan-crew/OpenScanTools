@@ -297,6 +297,9 @@ private:
     bool m_saveImagesAnim;
     bool m_isOrbitalAnimationActive = false;
     bool m_isOrbitalAnimationPaused = false;
+    // One-frame guard to avoid applying stale user input on the same frame
+    // as a viewpoints animation start.
+    bool m_viewpointStartInputLockArmed = false;
     bool m_orbitalUsesExamine = false;
     double m_orbitalDurationSeconds = 0.0;
     double m_orbitalElapsedSeconds = 0.0;

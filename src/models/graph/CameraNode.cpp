@@ -605,6 +605,13 @@ void CameraNode::AddViewPoint1(SafePtr<ViewPointNode> vp, const InterpolationVal
 
 bool CameraNode::startAnimation(const bool& isOffline, const uint64_t& step)
 {
+    GRAPH_LOG << "[ANIM_DBG] camera startAnimation request"
+        << " offline=" << isOffline
+        << " playlistSize=" << m_animationPlaylist.size()
+        << " durationSec=" << m_animationDurationSeconds
+        << " mode=" << static_cast<int>(m_viewPointAnimationMode)
+        << LOGENDL;
+
     m_isOfflineRendering = isOffline;
     if (m_animationPlaylist.size() < 2)
     {
