@@ -13,6 +13,7 @@
 #include <array>
 #include <future>
 #include <type_traits>
+#include <vector>
 
 #include "vulkan/vulkan.h"
 #include "vulkan/VulkanFunctions.h"
@@ -155,6 +156,12 @@ public:
     void submitVirtualFramebuffer(TlFramebuffer fb);
     void waitIdle();
     void waitForStreamingIdle();
+    static std::mutex& getQueueApiMutex();
+    static void logQueueApiCall(const char* tag, VkQueue queue);
+
+    void beginQueueSubmissionBlock();
+    void endQueueSubmissionBlock();
+    bool isQueueSubmissionBlocked() const;
 
     uint32_t getCurrentFrameIndex() const;
     // For all the frame index inferior or equal to the "safe frame index" it is guaranted
@@ -316,6 +323,7 @@ private:
     // Memory utilities
     void checkAllocations();
     void defragmentMemory();
+    void collectDeferredSimpleBufferFrees(bool force = false);
 
     // Cleanup Functions
     void cleanupAll();
@@ -411,6 +419,17 @@ private:
     std::mutex m_mutexBufferAllocated;
     std::unordered_set<SmartBuffer*> m_smartBufferAllocated;
     std::unordered_set<SimpleBuffer*> m_simpleBufferAllocated;
+
+    struct DeferredSimpleBufferFree
+    {
+        VkBuffer buffer = VK_NULL_HANDLE;
+        VmaAllocation allocation = VK_NULL_HANDLE;
+        VkDeviceSize allocationSize = 0;
+        bool isLocalMem = false;
+        uint32_t safeFrameIndex = 0;
+    };
+    std::mutex m_mutexDeferredSimpleFrees;
+    std::vector<DeferredSimpleBufferFree> m_deferredSimpleFrees;
     
     VkDeviceSize m_pointsDevicePoolUsed = 0;
     VkDeviceSize m_pointsHostPoolUsed = 0;
@@ -420,6 +439,8 @@ private:
     std::atomic<bool> m_noMoreFreeMemoryForFrame_host = false;
     uint32_t m_missedDeviceAllocations = 0;
     uint32_t m_missedHostAllocations = 0;
+
+    std::atomic<bool> m_blockQueueSubmissions = false;
 
     // Streaming Resources
     TlStreamer* m_streamer = nullptr;
