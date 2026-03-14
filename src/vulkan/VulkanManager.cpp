@@ -199,7 +199,15 @@ void VulkanManager::stopAllRendering()
 void VulkanManager::initStreaming()
 {
     if (m_streamer == nullptr)
-        m_streamer = new TlStreamer(m_device, m_pfnDev, getQueue(m_streamingQID), m_streamingQID.family, 32 * 1024 * 1024);
+    {
+        VkQueue streamingQueue = getQueue(m_streamingQID);
+        VkQueue graphicsQueue = getQueue(m_graphicsQID);
+        Logger::log(VK_LOG) << "Queue handles graphics=" << graphicsQueue << " streaming=" << streamingQueue
+                           << " graphics(family,index)= (" << m_graphicsQID.family << ", " << m_graphicsQID.index << ")"
+                           << " streaming(family,index)= (" << m_streamingQID.family << ", " << m_streamingQID.index << ")"
+                           << Logger::endl;
+        m_streamer = new TlStreamer(m_device, m_pfnDev, streamingQueue, m_streamingQID.family, 32 * 1024 * 1024);
+    }
     else
         VKM_ERROR << "Try to start the streaming module more than one time." << Logger::endl;
 
@@ -1264,7 +1272,7 @@ void VulkanManager::submitMultipleFramebuffer(std::vector<TlFramebuffer> fbs)
 
         submitInfos.push_back(submitInfo);
     }
-    err = m_pfnDev->vkQueueSubmit(getQueue(m_graphicsQID), (uint32_t)submitInfos.size(), submitInfos.data(), renderFence);
+    err = queueSubmitThreadSafe(getQueue(m_graphicsQID), (uint32_t)submitInfos.size(), submitInfos.data(), renderFence);
     check_vk_result(err, "Submit Graphic Queue");
 
     for (TlFramebuffer fb : fbs)
@@ -1277,7 +1285,7 @@ void VulkanManager::submitMultipleFramebuffer(std::vector<TlFramebuffer> fbs)
         presentInfo.pSwapchains = &fb->swapchain;
         presentInfo.pImageIndices = &fb->currentImage;
         // FIXME - Utiliser la bonne queue si la presentation se fait sur une queue diffÃ©rente.
-        err = m_pfnDev->vkQueuePresentKHR(getQueue(m_graphicsQID), &presentInfo);
+        err = queuePresentThreadSafe(getQueue(m_graphicsQID), &presentInfo);
         if (err == VK_ERROR_OUT_OF_DATE_KHR || err == VK_SUBOPTIMAL_KHR) {
             VKM_INFO << "Out of date swapchain (end render pass)\n" << Logger::endl;
             fb->mustRecreateSwapchain.store(true);
@@ -1311,7 +1319,7 @@ void VulkanManager::submitVirtualFramebuffer(TlFramebuffer fb)
     submitInfo.signalSemaphoreCount = 0;
     submitInfo.pSignalSemaphores = nullptr;
 
-    err = m_pfnDev->vkQueueSubmit(getQueue(m_graphicsQID), 1, &submitInfo, renderFence);
+    err = queueSubmitThreadSafe(getQueue(m_graphicsQID), 1, &submitInfo, renderFence);
     check_vk_result(err, "Submit Graphic Queue");
 }
 
@@ -1336,6 +1344,25 @@ uint32_t VulkanManager::getCurrentFrameIndex() const
 {
     return m_currentFrameIndex.load();
 }
+
+VkResult VulkanManager::queueSubmitThreadSafe(VkQueue queue, uint32_t submitCount, const VkSubmitInfo* pSubmits, VkFence fence) const
+{
+    std::lock_guard<std::mutex> lock(m_queueSubmitMutex);
+    return m_pfnDev->vkQueueSubmit(queue, submitCount, pSubmits, fence);
+}
+
+VkResult VulkanManager::queuePresentThreadSafe(VkQueue queue, const VkPresentInfoKHR* pPresentInfo) const
+{
+    std::lock_guard<std::mutex> lock(m_queueSubmitMutex);
+    return m_pfnDev->vkQueuePresentKHR(queue, pPresentInfo);
+}
+
+VkResult VulkanManager::queueWaitIdleThreadSafe(VkQueue queue) const
+{
+    std::lock_guard<std::mutex> lock(m_queueSubmitMutex);
+    return m_pfnDev->vkQueueWaitIdle(queue);
+}
+
 
 uint32_t VulkanManager::getSafeFrameIndex()
 {
@@ -1433,8 +1460,8 @@ bool VulkanManager::loadInSimpleBuffer_local(SimpleBuffer& smpBuf, VkDeviceSize 
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &m_transferCmdBuf;
 
-        m_pfnDev->vkQueueSubmit(getQueue(m_transferQID), 1, &submitInfo, VK_NULL_HANDLE);
-        m_pfnDev->vkQueueWaitIdle(getQueue(m_transferQID));
+        queueSubmitThreadSafe(getQueue(m_transferQID), 1, &submitInfo, VK_NULL_HANDLE);
+        queueWaitIdleThreadSafe(getQueue(m_transferQID));
         //++++++++++++++++++++++++++++
     }
     return (true);
@@ -1603,8 +1630,8 @@ bool VulkanManager::downloadSimpleBuffer_async(const SimpleBuffer& smpBuf, void*
             submitInfo.commandBufferCount = 1;
             submitInfo.pCommandBuffers = &m_transferCmdBuf;
 
-            m_pfnDev->vkQueueSubmit(getQueue(m_transferQID), 1, &submitInfo, VK_NULL_HANDLE);
-            m_pfnDev->vkQueueWaitIdle(getQueue(m_transferQID));
+            queueSubmitThreadSafe(getQueue(m_transferQID), 1, &submitInfo, VK_NULL_HANDLE);
+            queueWaitIdleThreadSafe(getQueue(m_transferQID));
             //++++++++++++++++++++++++++++
 
             VkMappedMemoryRange range = {};
@@ -3685,8 +3712,8 @@ void VulkanManager::endTransferCommand(VkCommandBuffer _cmdBuffer)
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &_cmdBuffer;
 
-    m_pfnDev->vkQueueSubmit(getQueue(m_transferQID), 1, &submitInfo, VK_NULL_HANDLE);
-    m_pfnDev->vkQueueWaitIdle(getQueue(m_transferQID));
+    queueSubmitThreadSafe(getQueue(m_transferQID), 1, &submitInfo, VK_NULL_HANDLE);
+    queueWaitIdleThreadSafe(getQueue(m_transferQID));
 
     m_pfnDev->vkFreeCommandBuffers(m_device, m_transferCmdPool, 1, &_cmdBuffer);
 }
