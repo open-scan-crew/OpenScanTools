@@ -348,8 +348,11 @@ void VulkanViewport::updateInputs(WritePtr<CameraNode>& wCam, SafePtr<Manipulato
     // Reset the selection rectangle
     m_selectionRect = { {-1, -1}, {-1, -1} };
 
-    // Update automatic animation already running
-    wCam->updateAnimation();
+    // Update automatic animation already running.
+    // Offline export animations are explicitly advanced by ContextExportVideoHD
+    // once per exported frame to keep deterministic camera progression.
+    if (!(wCam->isAnimated() && wCam->isOfflineRenderingAnimation()))
+        wCam->updateAnimation();
 
     if (m_isOrbitalAnimationActive && !m_isOrbitalAnimationPaused)
     {

@@ -78,6 +78,7 @@ public:
 
     bool updateAnimation();
     bool isAnimated() const;
+    bool isOfflineRenderingAnimation() const;
 
     glm::dvec3 getViewAxis() const; // or front axis ?
     void adjustToScene(const BoundingBoxD& sceneBBox);

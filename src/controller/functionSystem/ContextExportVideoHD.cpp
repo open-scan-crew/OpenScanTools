@@ -24,6 +24,7 @@
 #include "utils/math/basic_define.h"
 #include <cmath>
 #include <algorithm>
+#include <limits>
 #include <filesystem>
 #include <QtCore/QProcess>
 #include <QtCore/QStringList>
@@ -60,6 +61,8 @@ ContextState ContextExportVideoHD::start(Controller& controller)
     DecimationOptions noDecimation = m_precedentOptions;
     noDecimation.mode = DecimationMode::None;
     controller.updateInfo(new GuiDataRenderDecimationOptions(noDecimation));
+    m_usePreparedCameraAnimation = false;
+    m_preparedAnimation = PreparedAnimation();
     return m_state = ContextState::waiting_for_input;
 }
 
@@ -107,12 +110,39 @@ ContextState ContextExportVideoHD::feedMessage(IMessage* message, Controller& co
 
 ContextState ContextExportVideoHD::launch(Controller& controller)
 {
-    if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS && m_parameters.start == m_parameters.finish)
+    if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS && !m_parameters.animationId.isValid() && m_parameters.start == m_parameters.finish)
         return abort(controller);
 
     //Start - Move to start position
     if (m_exportState == 0)
     {
+        m_usePreparedCameraAnimation = false;
+        std::optional<PreparedAnimation> preparedAnimation;
+        glm::dvec3 firstCenter(0.0);
+        double firstTheta = 0.0;
+        double firstPhi = 0.0;
+
+        if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS)
+        {
+            preparedAnimation = prepareViewpointAnimation(controller);
+            if (!preparedAnimation.has_value())
+            {
+                controller.updateInfo(new GuiDataWarning(TEXT_CONTEXT_ANIMATION_NEED_TWO_VIEWPOINTS));
+                return abort(controller);
+            }
+
+            ReadPtr<ViewPointNode> rFirstViewpoint = preparedAnimation->viewpoints.front().cget();
+            if (!rFirstViewpoint)
+                return abort(controller);
+
+            const glm::dvec3 firstLookDir = glm::dvec4(0.0, 0.0, 1.0, 1.0) * rFirstViewpoint->getInverseTransformation();
+            if (!(firstLookDir.x == 0.0 && firstLookDir.y == 0.0))
+                firstTheta = atan2(-firstLookDir.x, firstLookDir.y);
+            const double firstNormXY = sqrt(firstLookDir.x * firstLookDir.x + firstLookDir.y * firstLookDir.y);
+            firstPhi = atan2(-firstNormXY, firstLookDir.z);
+            firstCenter = rFirstViewpoint->getCenter();
+        }
+
         SafePtr<CameraNode> cam = controller.getGraphManager().getCameraNode();
         WritePtr<CameraNode> wCam = cam.get();
         if (!wCam)
@@ -121,10 +151,23 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
         wCam->setProjectionMode(ProjectionMode::Perspective);
         m_exportState = 1;
 
-        if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS)
+        if (preparedAnimation.has_value())
         {
-            wCam->moveToData(m_parameters.start);
-            return m_state = ContextState::waiting_for_input;
+            m_preparedAnimation = preparedAnimation.value();
+            m_usePreparedCameraAnimation = true;
+
+            wCam->cleanAnimation();
+            wCam->setLoop(false);
+            wCam->setSpeed(1);
+            wCam->setAnimationTiming(m_preparedAnimation.mode, m_preparedAnimation.durationSeconds, m_preparedAnimation.controlTimes);
+            for (const SafePtr<ViewPointNode>& viewpoint : m_preparedAnimation.viewpoints)
+                wCam->AddViewPoint(viewpoint);
+
+            // Force a synchronous jump to the first viewpoint before frame generation.
+            // Relying on moveToData() + asynchronous ANIMATIONEND can stall the export state machine.
+            const glm::dvec3 deltaToFirst = firstCenter - wCam->getCenter();
+            wCam->moveGlobal(deltaToFirst.x, deltaToFirst.y, deltaToFirst.z);
+            wCam->setThetaAndPhi(firstTheta, firstPhi);
         }
 
     }
@@ -133,10 +176,13 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
     if (m_exportState == 1)
     {
         SafePtr<CameraNode> cam = controller.getGraphManager().getCameraNode();
-        ReadPtr<CameraNode> rCam = cam.cget();
-        if (!rCam)
+        WritePtr<CameraNode> wCam = cam.get();
+        if (!wCam)
             return abort(controller);
-        m_totalFrames = (long)m_parameters.length * (long)m_parameters.fps;
+        if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS && m_usePreparedCameraAnimation)
+            m_totalFrames = std::max<long>(1, static_cast<long>(std::llround(m_preparedAnimation.durationSeconds * static_cast<double>(m_parameters.fps))));
+        else
+            m_totalFrames = (long)m_parameters.length * (long)m_parameters.fps;
         m_animFrame = 1;
         m_frameDigits = std::max<uint8_t>(1, (uint8_t)(std::log10(std::max<long>(1, m_totalFrames)) + 1));
 
@@ -145,58 +191,95 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
 
         if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS)
         {
-            ReadPtr<ViewPointNode> rStart;
-            ReadPtr<ViewPointNode> rFinish;
-            multi_cget(m_parameters.start, m_parameters.finish, rStart, rFinish);
-            if (!rStart || !rFinish)
-                return abort(controller);
-
-            glm::dvec3 finishLookDir = glm::dvec4(0.0, 0.0, 1.0, 1.0) * rFinish->getInverseTransformation();
-
-            double endTheta;
-            if (finishLookDir.x == 0.0 && finishLookDir.y == 0.0)   // Must we change the test to x < epsilon ?
-                endTheta = 0.;
-            else
-                endTheta = atan2(-finishLookDir.x, finishLookDir.y);
-
-            double normXY = sqrt(finishLookDir.x * finishLookDir.x + finishLookDir.y * finishLookDir.y);
-            double endPhi = atan2(-normXY, finishLookDir.z);
-
-            CameraNode::modulo2Pi(rCam->getTheta(), endTheta);
-
-            m_addPosition = (rFinish->getCenter() - rStart->getCenter()) / (double)m_totalFrames;
-            m_addTheta = (endTheta - rCam->getTheta()) / m_totalFrames;
-            m_addPhi = (endPhi - rCam->getPhi()) / m_totalFrames;
-
-            if (rStart->m_blendMode == rFinish->m_blendMode &&
-                rStart->m_postRenderingNormals.show == rFinish->m_postRenderingNormals.show &&
-                rStart->m_postRenderingNormals.blendColor == rFinish->m_postRenderingNormals.blendColor &&
-                rStart->m_postRenderingNormals.inverseTone == rFinish->m_postRenderingNormals.inverseTone &&
-                rStart->m_mode == rFinish->m_mode &&
-                rStart->m_negativeEffect == rFinish->m_negativeEffect &&
-                rStart->m_reduceFlash == rFinish->m_reduceFlash &&
-                rStart->m_flashAdvanced == rFinish->m_flashAdvanced &&
-                rStart->m_flashControl == rFinish->m_flashControl
-                )
+            if (!m_usePreparedCameraAnimation)
             {
-                m_addTransp = (rFinish->m_transparency - rStart->m_transparency) / m_totalFrames;
+                ReadPtr<ViewPointNode> rStart;
+                ReadPtr<ViewPointNode> rFinish;
+                multi_cget(m_parameters.start, m_parameters.finish, rStart, rFinish);
+                if (!rStart || !rFinish)
+                    return abort(controller);
 
-                m_addNStren = (rFinish->m_postRenderingNormals.normalStrength - rStart->m_postRenderingNormals.normalStrength) / m_totalFrames;
-                m_addNGloss = (rFinish->m_postRenderingNormals.gloss - rStart->m_postRenderingNormals.gloss) / m_totalFrames;
+                glm::dvec3 finishLookDir = glm::dvec4(0.0, 0.0, 1.0, 1.0) * rFinish->getInverseTransformation();
 
-                m_addHue = (rFinish->m_hue - rStart->m_hue) / m_totalFrames;
+                double endTheta;
+                if (finishLookDir.x == 0.0 && finishLookDir.y == 0.0)
+                    endTheta = 0.;
+                else
+                    endTheta = atan2(-finishLookDir.x, finishLookDir.y);
 
-                m_addBright = (rFinish->m_brightness - rStart->m_brightness) / m_totalFrames;
-                m_addSatur = (rFinish->m_saturation - rStart->m_saturation) / m_totalFrames;
-                m_addLumi = (rFinish->m_luminance - rStart->m_luminance) / m_totalFrames;
-                m_addContr = (rFinish->m_contrast - rStart->m_contrast) / m_totalFrames;
-                m_addAlpha = (rFinish->m_alphaObject - rStart->m_alphaObject) / m_totalFrames;
+                double normXY = sqrt(finishLookDir.x * finishLookDir.x + finishLookDir.y * finishLookDir.y);
+                double endPhi = atan2(-normXY, finishLookDir.z);
 
-                m_addFovy = (rFinish->getFovy() - rStart->getFovy()) / m_totalFrames;
+                CameraNode::modulo2Pi(wCam->getTheta(), endTheta);
+
+                m_addPosition = (rFinish->getCenter() - rStart->getCenter()) / (double)m_totalFrames;
+                m_addTheta = (endTheta - wCam->getTheta()) / m_totalFrames;
+                m_addPhi = (endPhi - wCam->getPhi()) / m_totalFrames;
+
+                if (rStart->m_blendMode == rFinish->m_blendMode &&
+                    rStart->m_postRenderingNormals.show == rFinish->m_postRenderingNormals.show &&
+                    rStart->m_postRenderingNormals.blendColor == rFinish->m_postRenderingNormals.blendColor &&
+                    rStart->m_postRenderingNormals.inverseTone == rFinish->m_postRenderingNormals.inverseTone &&
+                    rStart->m_mode == rFinish->m_mode &&
+                    rStart->m_negativeEffect == rFinish->m_negativeEffect &&
+                    rStart->m_reduceFlash == rFinish->m_reduceFlash &&
+                    rStart->m_flashAdvanced == rFinish->m_flashAdvanced &&
+                    rStart->m_flashControl == rFinish->m_flashControl
+                    )
+                {
+                    m_addTransp = (rFinish->m_transparency - rStart->m_transparency) / m_totalFrames;
+
+                    m_addNStren = (rFinish->m_postRenderingNormals.normalStrength - rStart->m_postRenderingNormals.normalStrength) / m_totalFrames;
+                    m_addNGloss = (rFinish->m_postRenderingNormals.gloss - rStart->m_postRenderingNormals.gloss) / m_totalFrames;
+
+                    m_addHue = (rFinish->m_hue - rStart->m_hue) / m_totalFrames;
+
+                    m_addBright = (rFinish->m_brightness - rStart->m_brightness) / m_totalFrames;
+                    m_addSatur = (rFinish->m_saturation - rStart->m_saturation) / m_totalFrames;
+                    m_addLumi = (rFinish->m_luminance - rStart->m_luminance) / m_totalFrames;
+                    m_addContr = (rFinish->m_contrast - rStart->m_contrast) / m_totalFrames;
+                    m_addAlpha = (rFinish->m_alphaObject - rStart->m_alphaObject) / m_totalFrames;
+
+                    m_addFovy = (rFinish->getFovy() - rStart->getFovy()) / m_totalFrames;
+                }
+            }
+            else
+            {
+                if (!wCam->startAnimation(true, static_cast<uint64_t>(std::max(1, m_parameters.fps))))
+                    return abort(controller);
+
+                if (m_preparedAnimation.viewpoints.size() == 2 && m_parameters.interpolateRenderingBetweenViewpoints)
+                {
+                    ReadPtr<ViewPointNode> rStart;
+                    ReadPtr<ViewPointNode> rFinish;
+                    multi_cget(m_preparedAnimation.viewpoints.front(), m_preparedAnimation.viewpoints.back(), rStart, rFinish);
+                    if (rStart && rFinish &&
+                        rStart->m_blendMode == rFinish->m_blendMode &&
+                        rStart->m_postRenderingNormals.show == rFinish->m_postRenderingNormals.show &&
+                        rStart->m_postRenderingNormals.blendColor == rFinish->m_postRenderingNormals.blendColor &&
+                        rStart->m_postRenderingNormals.inverseTone == rFinish->m_postRenderingNormals.inverseTone &&
+                        rStart->m_mode == rFinish->m_mode &&
+                        rStart->m_negativeEffect == rFinish->m_negativeEffect &&
+                        rStart->m_reduceFlash == rFinish->m_reduceFlash &&
+                        rStart->m_flashAdvanced == rFinish->m_flashAdvanced &&
+                        rStart->m_flashControl == rFinish->m_flashControl)
+                    {
+                        m_addTransp = (rFinish->m_transparency - rStart->m_transparency) / m_totalFrames;
+                        m_addNStren = (rFinish->m_postRenderingNormals.normalStrength - rStart->m_postRenderingNormals.normalStrength) / m_totalFrames;
+                        m_addNGloss = (rFinish->m_postRenderingNormals.gloss - rStart->m_postRenderingNormals.gloss) / m_totalFrames;
+                        m_addHue = (rFinish->m_hue - rStart->m_hue) / m_totalFrames;
+                        m_addBright = (rFinish->m_brightness - rStart->m_brightness) / m_totalFrames;
+                        m_addSatur = (rFinish->m_saturation - rStart->m_saturation) / m_totalFrames;
+                        m_addLumi = (rFinish->m_luminance - rStart->m_luminance) / m_totalFrames;
+                        m_addContr = (rFinish->m_contrast - rStart->m_contrast) / m_totalFrames;
+                        m_addAlpha = (rFinish->m_alphaObject - rStart->m_alphaObject) / m_totalFrames;
+                        m_addFovy = (rFinish->getFovy() - rStart->getFovy()) / m_totalFrames;
+                    }
+                }
             }
         }
         else
-            m_addTheta = 2 * M_PI / m_totalFrames;
+            m_addTheta = glm::radians(static_cast<double>(std::clamp(m_parameters.orbitalDegrees, 1, 360))) / m_totalFrames;
 
         controller.updateInfo(new GuiDataCallImage(m_parameters.hdImage, getNextFramePath()));
         m_exportState = 2;
@@ -217,11 +300,16 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
         {
             case VideoAnimationMode::BETWEENVIEWPOINTS:
             {
-                wCam->addGlobalTranslation(m_addPosition);
-                wCam->yaw(m_addTheta);
-                wCam->pitch(m_addPhi);
+                if (m_usePreparedCameraAnimation)
+                    wCam->updateAnimation();
+                else
+                {
+                    wCam->addGlobalTranslation(m_addPosition);
+                    wCam->yaw(m_addTheta);
+                    wCam->pitch(m_addPhi);
+                }
 
-                if (m_parameters.interpolateRenderingBetweenViewpoints)
+                if (m_parameters.interpolateRenderingBetweenViewpoints && (!m_usePreparedCameraAnimation || m_preparedAnimation.viewpoints.size() == 2))
                 {
                     wCam->m_transparency += m_addTransp;                    
                     wCam->m_postRenderingNormals.normalStrength += m_addNStren;
@@ -252,6 +340,14 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
 
     if (m_exportState == 3)
     {
+        if (m_usePreparedCameraAnimation)
+        {
+            SafePtr<CameraNode> cam = controller.getGraphManager().getCameraNode();
+            WritePtr<CameraNode> wCam = cam.get();
+            if (wCam && wCam->isAnimated())
+                wCam->endAnimation();
+        }
+
         if (!encodeVideo())
             return abort(controller);
 
@@ -270,6 +366,14 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
 
 ContextState ContextExportVideoHD::abort(Controller& controller)
 {
+    if (m_usePreparedCameraAnimation)
+    {
+        SafePtr<CameraNode> cam = controller.getGraphManager().getCameraNode();
+        WritePtr<CameraNode> wCam = cam.get();
+        if (wCam && wCam->isAnimated())
+            wCam->endAnimation();
+    }
+
     controller.updateInfo(new GuiDataRenderDecimationOptions(m_precedentOptions));
 
     encodeVideo();
@@ -285,6 +389,14 @@ ContextState ContextExportVideoHD::abort(Controller& controller)
 
 ContextState ContextExportVideoHD::validate(Controller& controller)
 {
+    if (m_usePreparedCameraAnimation)
+    {
+        SafePtr<CameraNode> cam = controller.getGraphManager().getCameraNode();
+        WritePtr<CameraNode> wCam = cam.get();
+        if (wCam && wCam->isAnimated())
+            wCam->endAnimation();
+    }
+
     controller.updateInfo(new GuiDataRenderDecimationOptions(m_precedentOptions));
 
     std::chrono::steady_clock::time_point tpEnd = std::chrono::steady_clock::now();
@@ -430,4 +542,59 @@ std::filesystem::path ContextExportVideoHD::getNextFramePath()
 ContextType ContextExportVideoHD::getType() const
 {
 	return ContextType::exportVideoHD;
+}
+
+std::optional<ContextExportVideoHD::PreparedAnimation> ContextExportVideoHD::prepareViewpointAnimation(Controller& controller) const
+{
+    if (!m_parameters.animationId.isValid())
+        return std::nullopt;
+
+    const std::unordered_map<viewPointAnimationId, ViewPointAnimationConfig>& configs = controller.getContext().cgetViewPointAnimations();
+    auto itConfig = configs.find(m_parameters.animationId);
+    if (itConfig == configs.end())
+        return std::nullopt;
+
+    std::unordered_map<xg::Guid, SafePtr<ViewPointNode>> perspectiveById;
+    const std::unordered_set<SafePtr<AGraphNode>> allViewpoints = controller.getGraphManager().getNodesByTypes({ ElementType::ViewPoint }, ObjectStatusFilter::ALL);
+    for (const SafePtr<AGraphNode>& node : allViewpoints)
+    {
+        SafePtr<ViewPointNode> viewpoint = static_pointer_cast<ViewPointNode>(node);
+        ReadPtr<ViewPointNode> rViewpoint = viewpoint.cget();
+        if (!rViewpoint || rViewpoint->getProjectionMode() == ProjectionMode::Orthographic)
+            continue;
+        perspectiveById.insert_or_assign(rViewpoint->getId(), viewpoint);
+    }
+
+    PreparedAnimation prepared;
+    prepared.mode = itConfig->second.getMode();
+
+    double previousTime = -std::numeric_limits<double>::infinity();
+    for (const ViewPointAnimationLine& line : itConfig->second.getLines())
+    {
+        auto itVp = perspectiveById.find(line.viewpointId);
+        if (itVp == perspectiveById.end())
+            continue;
+
+        prepared.viewpoints.push_back(itVp->second);
+        prepared.controlTimes.push_back(line.position);
+        if (prepared.mode == ViewPointAnimationMode::PositionAsTime)
+        {
+            if (line.position <= previousTime)
+                return std::nullopt;
+            previousTime = line.position;
+        }
+    }
+
+    if (prepared.viewpoints.size() < 2)
+        return std::nullopt;
+
+    if (prepared.mode == ViewPointAnimationMode::PositionAsTime)
+        prepared.durationSeconds = std::max(0.0, prepared.controlTimes.back() - prepared.controlTimes.front());
+    else
+        prepared.durationSeconds = std::max(0.0, static_cast<double>(m_parameters.length));
+
+    if (prepared.durationSeconds <= 0.0)
+        prepared.durationSeconds = std::max(1.0 / std::max(1, m_parameters.fps), 0.001);
+
+    return prepared;
 }
