@@ -335,6 +335,11 @@ bool CameraNode::updateAnimation()
     return true;
 }
 
+bool CameraNode::isOfflineRenderingAnimation() const
+{
+    return m_isOfflineRendering;
+}
+
 glm::dvec3 CameraNode::getViewAxis() const
 {
     return (glm::mat3_cast(m_quaternion) * glm::dvec3(0, 0, 1));
@@ -1590,6 +1595,22 @@ void CameraNode::applyPlaybackTimingFromControlPoints()
             }
         }
     }
+
+    // Ensure strictly monotonic timing for sampled trajectory points.
+    // Some segment repartitions can leave plateaus (or near-plateaus) in dtime_arrival,
+    // which makes offline stepping skip many points in one update and can snap to the end.
+    m_trajectory[0].dtime_arrival = std::max(0.0, m_trajectory[0].dtime_arrival);
+    const double minStep = targetDuration / std::max<size_t>(m_trajectory.size() - 1, 1) * 1e-3;
+    for (size_t i = 1; i < m_trajectory.size(); ++i)
+    {
+        m_trajectory[i].dtime_arrival = std::max(m_trajectory[i].dtime_arrival, m_trajectory[i - 1].dtime_arrival + minStep);
+    }
+    m_trajectory.back().dtime_arrival = targetDuration;
+    for (size_t i = m_trajectory.size() - 1; i > 0; --i)
+    {
+        m_trajectory[i - 1].dtime_arrival = std::min(m_trajectory[i - 1].dtime_arrival, m_trajectory[i].dtime_arrival - minStep);
+    }
+    m_trajectory[0].dtime_arrival = 0.0;
 
     for (size_t i = 0; i < m_orientationTrajectory.size(); ++i)
         m_orientationTrajectory[i].dtime_arrival = m_trajectory[i].dtime_arrival;
