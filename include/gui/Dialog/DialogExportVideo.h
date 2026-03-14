@@ -4,6 +4,7 @@
 #include "ui_DialogExportVideo.h"
 #include "gui/Dialog/ADialog.h"
 #include "io/exports/ExportParameters.hpp"
+#include "models/application/ViewPointAnimation.h"
 #include <optional>
 #include <utility>
 
