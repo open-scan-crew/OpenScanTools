@@ -758,6 +758,8 @@ std::vector<uint32_t> VulkanManager::sampleIndexList(TlFramebuffer _fb, uint32_t
 
 void VulkanManager::startNextFrame()
 {
+    collectDeferredSimpleBufferFrees(false);
+
     if (m_missedDeviceAllocations > 0)
         VKM_WARNING << m_missedDeviceAllocations << " device allocations failed during frame " << m_currentFrameIndex << Logger::endl;
     if (m_missedHostAllocations > 0)
@@ -2009,21 +2011,66 @@ void VulkanManager::freeAllocation(SimpleBuffer& sbuf)
         return;
 
     assert(sbuf.buffer != VK_NULL_HANDLE && sbuf.size != 0);
-    vmaDestroyBuffer(m_allocator, sbuf.buffer, sbuf.alloc);
+
+    DeferredSimpleBufferFree deferredFree{};
+    deferredFree.buffer = sbuf.buffer;
+    deferredFree.allocation = sbuf.alloc;
+    deferredFree.allocationSize = sbuf.allocationSize;
+    deferredFree.isLocalMem = sbuf.isLocalMem;
+    deferredFree.safeFrameIndex = m_currentFrameIndex.load() + m_maxSafeFrame;
+
+    {
+        std::lock_guard<std::mutex> lock(m_mutexDeferredSimpleFrees);
+        m_deferredSimpleFrees.emplace_back(deferredFree);
+    }
+
     {
         std::lock_guard<std::mutex> lock(m_mutexBufferAllocated);
         m_simpleBufferAllocated.erase(&sbuf);
     }
-    if (sbuf.isLocalMem)
-        m_objectsDevicePoolUsed -= sbuf.allocationSize;
-    else
-        m_objectsHostPoolUsed -= sbuf.allocationSize;
-
 
     sbuf.alloc = VK_NULL_HANDLE;
     sbuf.buffer = VK_NULL_HANDLE;
     sbuf.size = 0;
     sbuf.allocationSize = 0;
+}
+
+void VulkanManager::collectDeferredSimpleBufferFrees(bool force)
+{
+    if (m_allocator == VK_NULL_HANDLE)
+        return;
+
+    std::vector<DeferredSimpleBufferFree> toFree;
+    {
+        std::lock_guard<std::mutex> lock(m_mutexDeferredSimpleFrees);
+        if (m_deferredSimpleFrees.empty())
+            return;
+
+        const uint32_t currentFI = m_currentFrameIndex.load();
+        auto it = m_deferredSimpleFrees.begin();
+        while (it != m_deferredSimpleFrees.end())
+        {
+            if (force || it->safeFrameIndex <= currentFI)
+            {
+                toFree.emplace_back(*it);
+                it = m_deferredSimpleFrees.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
+        }
+    }
+
+    for (const DeferredSimpleBufferFree& deferred : toFree)
+    {
+        vmaDestroyBuffer(m_allocator, deferred.buffer, deferred.allocation);
+
+        if (deferred.isLocalMem)
+            m_objectsDevicePoolUsed -= deferred.allocationSize;
+        else
+            m_objectsHostPoolUsed -= deferred.allocationSize;
+    }
 }
 
 bool VulkanManager::freeDeviceMemory(VkDeviceSize minMemoryNeeded)
@@ -4220,6 +4267,9 @@ void VulkanManager::cleanupAll()
     using namespace tls::vk;
     if (m_device && m_pfnDev)
     {
+        m_pfnDev->vkDeviceWaitIdle(m_device);
+        collectDeferredSimpleBufferFrees(true);
+
         destroyCommandPool(*m_pfnDev, m_device, m_graphicsCmdPool);
         destroyCommandPool(*m_pfnDev, m_device, m_computeCmdPool);
         freeCommandBuffer(*m_pfnDev, m_device, m_transferCmdPool, m_transferCmdBuf);
@@ -4410,6 +4460,8 @@ void VulkanManager::cleanupPermanentResources(TlFramebuffer _fb)
         freeAllocation(_fb->drawMeasureBuffers[i]);
     }
     _fb->drawMeasureBuffers.clear();
+
+    collectDeferredSimpleBufferFrees(true);
 }
 
 template<class Buffer>
@@ -4425,8 +4477,11 @@ void pushToVectors(std::unordered_set<Buffer*>& sbuffers, std::vector<SimpleBuff
 
 void VulkanManager::checkAllocations()
 {
+    collectDeferredSimpleBufferFrees(true);
+
     assert(m_smartBufferAllocated.empty());
     assert(m_simpleBufferAllocated.empty());
+    assert(m_deferredSimpleFrees.empty());
     assert(m_pointsDevicePoolUsed == 0);
     assert(m_pointsHostPoolUsed == 0);
     assert(m_objectsDevicePoolUsed == 0);
