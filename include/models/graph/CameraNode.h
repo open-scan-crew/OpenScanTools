@@ -168,6 +168,7 @@ public:
     void setOrthoHeight(double height);
 
     void moveToData(const SafePtr<AGraphNode>& data);
+    bool advanceOfflineAnimationStep();
 
     // Draw camera
     glm::vec3 getExamineTargetPosition() const;

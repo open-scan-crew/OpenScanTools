@@ -535,7 +535,19 @@ bool CameraNode::animateSimpleTrajectory()
 {
     if (!m_isAnimated)
         return false;
-    double dt = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()).time_since_epoch().count() - m_simpleAnimation.start.dtime_arrival;
+
+    double dt = 0.0;
+    if (m_isOfflineRendering)
+    {
+        const uint64_t frameStep = static_cast<uint64_t>(std::max(1.0, m_speed));
+        m_animFrames += frameStep;
+        dt = (static_cast<double>(m_animFrames) / m_offlineAnimStep) * 1000.0;
+    }
+    else
+    {
+        dt = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()).time_since_epoch().count() - m_simpleAnimation.start.dtime_arrival;
+    }
+
     double progress = dt / m_simpleAnimation.end.dtime_arrival;
     if (progress > 1.0 || !m_simpleAnimation.end.dtime_arrival)
     {
@@ -619,6 +631,12 @@ void CameraNode::AddViewPoint1(SafePtr<ViewPointNode> vp, const InterpolationVal
 bool CameraNode::startAnimation(const bool& isOffline, const uint64_t& step)
 {
     m_isOfflineRendering = isOffline;
+    if (m_isOfflineRendering)
+    {
+        m_animFrames = 0;
+        m_offlineAnimStep = step ? step : 1000.0;
+    }
+
     if (m_animationPlaylist.size() < 2)
     {
         m_isAnimated = false;
@@ -687,6 +705,16 @@ bool CameraNode::startAnimation(const bool& isOffline, const uint64_t& step)
     m_dataDispatcher.updateInformation(new GuiDataRenderAnimationPlaybackStart());
     m_isAnimated = (m_trajectory.size() >= 2);
     return true;
+}
+
+bool CameraNode::advanceOfflineAnimationStep()
+{
+    if (!m_isOfflineRendering || !m_isAnimated)
+        return false;
+
+    // In offline export we may still be in simple mode while moving to the
+    // first viewpoint before the complex trajectory starts.
+    return updateAnimation();
 }
 
 bool CameraNode::endAnimation()
@@ -1318,7 +1346,11 @@ bool CameraNode::animateComplexTrajectory()
     // Get time elapsed since the start of the trajectory
     double dtime((double)m_animFrames);
     if (m_isOfflineRendering)
-        dtime = (dtime += m_speed) / m_offlineAnimStep;
+    {
+        const uint64_t frameStep = static_cast<uint64_t>(std::max(1.0, m_speed));
+        m_animFrames += frameStep;
+        dtime = static_cast<double>(m_animFrames) / m_offlineAnimStep;
+    }
     else
     {
         const double elapsedSeconds = std::chrono::duration<double, std::ratio<1>>(std::chrono::steady_clock::now() - m_startTrajectoryTime).count() - m_totalPausedDurationSeconds;
