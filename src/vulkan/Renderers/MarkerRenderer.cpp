@@ -280,12 +280,15 @@ void MarkerRenderer::createDescriptorSet_storageBuffers()
     err = h_pfn->vkAllocateDescriptorSets(h_device, &ds_allocInfo, &m_ds_storageBuffers);
     check_vk_result(err, "Allocate Descriptor Sets");
 
+    assert(m_vertPosBuf.size <= m_vertPosBuf.allocationSize);
+    assert(m_vertUVBuf.size <= m_vertUVBuf.allocationSize);
+
     // Update Descriptor Set
     VkDescriptorBufferInfo storageBufferInfo[] = {
         {
             m_vertPosBuf.buffer, // buffer
             0,  // offset
-            m_vertPosBuf.size // range
+            m_vertPosBuf.size // range (logical VkBuffer size)
         },
         {
             m_vertUVBuf.buffer,
