@@ -689,6 +689,14 @@ bool CameraNode::startAnimation(const bool& isOffline, const uint64_t& step)
     return true;
 }
 
+bool CameraNode::advanceOfflineAnimationStep()
+{
+    if (!m_isOfflineRendering || !m_isAnimated || m_animMode != AnimationMode::Complex)
+        return false;
+
+    return animateComplexTrajectory();
+}
+
 bool CameraNode::endAnimation()
 {
     const bool wasAnimated = m_isAnimated;
