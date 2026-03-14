@@ -193,13 +193,21 @@ void VulkanManager::stopAllRendering()
     // TODO - Add an atomic to block all new command to the queues
 
     if (m_device)
-        m_pfnDev->vkDeviceWaitIdle(m_device);
+        deviceWaitIdleThreadSafe();
 }
 
 void VulkanManager::initStreaming()
 {
     if (m_streamer == nullptr)
-        m_streamer = new TlStreamer(m_device, m_pfnDev, getQueue(m_streamingQID), m_streamingQID.family, 32 * 1024 * 1024);
+    {
+        VkQueue streamingQueue = getQueue(m_streamingQID);
+        VkQueue graphicsQueue = getQueue(m_graphicsQID);
+        Logger::log(VK_LOG) << "Queue handles graphics=" << graphicsQueue << " streaming=" << streamingQueue
+                           << " graphics(family,index)= (" << m_graphicsQID.family << ", " << m_graphicsQID.index << ")"
+                           << " streaming(family,index)= (" << m_streamingQID.family << ", " << m_streamingQID.index << ")"
+                           << Logger::endl;
+        m_streamer = new TlStreamer(m_device, m_pfnDev, streamingQueue, m_streamingQID.family, 32 * 1024 * 1024);
+    }
     else
         VKM_ERROR << "Try to start the streaming module more than one time." << Logger::endl;
 
@@ -1264,7 +1272,7 @@ void VulkanManager::submitMultipleFramebuffer(std::vector<TlFramebuffer> fbs)
 
         submitInfos.push_back(submitInfo);
     }
-    err = m_pfnDev->vkQueueSubmit(getQueue(m_graphicsQID), (uint32_t)submitInfos.size(), submitInfos.data(), renderFence);
+    err = queueSubmitThreadSafe(getQueue(m_graphicsQID), (uint32_t)submitInfos.size(), submitInfos.data(), renderFence);
     check_vk_result(err, "Submit Graphic Queue");
 
     for (TlFramebuffer fb : fbs)
@@ -1277,7 +1285,7 @@ void VulkanManager::submitMultipleFramebuffer(std::vector<TlFramebuffer> fbs)
         presentInfo.pSwapchains = &fb->swapchain;
         presentInfo.pImageIndices = &fb->currentImage;
         // FIXME - Utiliser la bonne queue si la presentation se fait sur une queue diffÃ©rente.
-        err = m_pfnDev->vkQueuePresentKHR(getQueue(m_graphicsQID), &presentInfo);
+        err = queuePresentThreadSafe(getQueue(m_graphicsQID), &presentInfo);
         if (err == VK_ERROR_OUT_OF_DATE_KHR || err == VK_SUBOPTIMAL_KHR) {
             VKM_INFO << "Out of date swapchain (end render pass)\n" << Logger::endl;
             fb->mustRecreateSwapchain.store(true);
@@ -1311,7 +1319,7 @@ void VulkanManager::submitVirtualFramebuffer(TlFramebuffer fb)
     submitInfo.signalSemaphoreCount = 0;
     submitInfo.pSignalSemaphores = nullptr;
 
-    err = m_pfnDev->vkQueueSubmit(getQueue(m_graphicsQID), 1, &submitInfo, renderFence);
+    err = queueSubmitThreadSafe(getQueue(m_graphicsQID), 1, &submitInfo, renderFence);
     check_vk_result(err, "Submit Graphic Queue");
 }
 
@@ -1324,7 +1332,7 @@ void VulkanManager::waitForRenderFence()
 
 void VulkanManager::waitIdle()
 {
-    m_pfnDev->vkDeviceWaitIdle(m_device);
+    deviceWaitIdleThreadSafe();
 }
 
 void VulkanManager::waitForStreamingIdle()
@@ -1336,6 +1344,31 @@ uint32_t VulkanManager::getCurrentFrameIndex() const
 {
     return m_currentFrameIndex.load();
 }
+
+VkResult VulkanManager::queueSubmitThreadSafe(VkQueue queue, uint32_t submitCount, const VkSubmitInfo* pSubmits, VkFence fence) const
+{
+    std::lock_guard<std::mutex> lock(m_queueSubmitMutex);
+    return m_pfnDev->vkQueueSubmit(queue, submitCount, pSubmits, fence);
+}
+
+VkResult VulkanManager::queuePresentThreadSafe(VkQueue queue, const VkPresentInfoKHR* pPresentInfo) const
+{
+    std::lock_guard<std::mutex> lock(m_queueSubmitMutex);
+    return m_pfnDev->vkQueuePresentKHR(queue, pPresentInfo);
+}
+
+VkResult VulkanManager::queueWaitIdleThreadSafe(VkQueue queue) const
+{
+    std::lock_guard<std::mutex> lock(m_queueSubmitMutex);
+    return m_pfnDev->vkQueueWaitIdle(queue);
+}
+
+VkResult VulkanManager::deviceWaitIdleThreadSafe() const
+{
+    std::lock_guard<std::mutex> lock(m_queueSubmitMutex);
+    return m_pfnDev->vkDeviceWaitIdle(m_device);
+}
+
 
 uint32_t VulkanManager::getSafeFrameIndex()
 {
@@ -1433,8 +1466,8 @@ bool VulkanManager::loadInSimpleBuffer_local(SimpleBuffer& smpBuf, VkDeviceSize 
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &m_transferCmdBuf;
 
-        m_pfnDev->vkQueueSubmit(getQueue(m_transferQID), 1, &submitInfo, VK_NULL_HANDLE);
-        m_pfnDev->vkQueueWaitIdle(getQueue(m_transferQID));
+        queueSubmitThreadSafe(getQueue(m_transferQID), 1, &submitInfo, VK_NULL_HANDLE);
+        queueWaitIdleThreadSafe(getQueue(m_transferQID));
         //++++++++++++++++++++++++++++
     }
     return (true);
@@ -1603,8 +1636,8 @@ bool VulkanManager::downloadSimpleBuffer_async(const SimpleBuffer& smpBuf, void*
             submitInfo.commandBufferCount = 1;
             submitInfo.pCommandBuffers = &m_transferCmdBuf;
 
-            m_pfnDev->vkQueueSubmit(getQueue(m_transferQID), 1, &submitInfo, VK_NULL_HANDLE);
-            m_pfnDev->vkQueueWaitIdle(getQueue(m_transferQID));
+            queueSubmitThreadSafe(getQueue(m_transferQID), 1, &submitInfo, VK_NULL_HANDLE);
+            queueWaitIdleThreadSafe(getQueue(m_transferQID));
             //++++++++++++++++++++++++++++
 
             VkMappedMemoryRange range = {};
@@ -1823,16 +1856,16 @@ VkResult VulkanManager::allocSmartBuffer(VkDeviceSize dataSize, SmartBuffer& sbu
     // Actualize the buffer size after allocation
     VmaAllocationInfo allocInfo;
     vmaGetAllocationInfo(m_allocator, sbuf.alloc, &allocInfo);
-    sbuf.size = allocInfo.size;
+    sbuf.allocationSize = allocInfo.size;
 
     {
         std::lock_guard<std::mutex> lock(m_mutexBufferAllocated);
         m_smartBufferAllocated.insert(&sbuf);
     }
     if (isLocal)
-        m_pointsDevicePoolUsed += sbuf.size;
+        m_pointsDevicePoolUsed += sbuf.allocationSize;
     else
-        m_pointsHostPoolUsed += sbuf.size;
+        m_pointsHostPoolUsed += sbuf.allocationSize;
 
     return err;
 }
@@ -1877,7 +1910,7 @@ VkResult VulkanManager::allocSimpleBuffer(VkDeviceSize dataSize, SimpleBuffer& s
     // Actualize the buffer size after allocation
     VmaAllocationInfo allocInfo;
     vmaGetAllocationInfo(m_allocator, sbuf.alloc, &allocInfo);
-    sbuf.size = allocInfo.size;
+    sbuf.allocationSize = allocInfo.size;
 
     {
         std::lock_guard<std::mutex> lock(m_mutexBufferAllocated);
@@ -1885,9 +1918,9 @@ VkResult VulkanManager::allocSimpleBuffer(VkDeviceSize dataSize, SimpleBuffer& s
     }
 
     if (sbuf.isLocalMem)
-        m_objectsDevicePoolUsed += sbuf.size;
+        m_objectsDevicePoolUsed += sbuf.allocationSize;
     else
-        m_objectsHostPoolUsed += sbuf.size;
+        m_objectsHostPoolUsed += sbuf.allocationSize;
 
     return err;
 }
@@ -1985,21 +2018,25 @@ void VulkanManager::freeAllocation(SmartBuffer& sbuf)
     if (sbuf.alloc == VK_NULL_HANDLE)
         return;
 
+    if (m_pfnDev && m_device != VK_NULL_HANDLE)
+        deviceWaitIdleThreadSafe();
+
     vmaDestroyBuffer(m_allocator, sbuf.buffer, sbuf.alloc);
     {
         std::lock_guard<std::mutex> lock(m_mutexBufferAllocated);
         m_smartBufferAllocated.erase(&sbuf);
     }
     if (sbuf.isLocalMem)
-        m_pointsDevicePoolUsed -= sbuf.size;
+        m_pointsDevicePoolUsed -= sbuf.allocationSize;
     else
-        m_pointsHostPoolUsed -= sbuf.size;
+        m_pointsHostPoolUsed -= sbuf.allocationSize;
 
     sbuf.lastUseFrameIndex.store(0);
     sbuf.ongoingProcesses.store(0);
     sbuf.alloc = VK_NULL_HANDLE;
     sbuf.buffer = VK_NULL_HANDLE;
     sbuf.size = 0;
+    sbuf.allocationSize = 0;
 }
 
 void VulkanManager::freeAllocation(SimpleBuffer& sbuf)
@@ -2008,20 +2045,25 @@ void VulkanManager::freeAllocation(SimpleBuffer& sbuf)
         return;
 
     assert(sbuf.buffer != VK_NULL_HANDLE && sbuf.size != 0);
+
+    if (m_pfnDev && m_device != VK_NULL_HANDLE)
+        deviceWaitIdleThreadSafe();
+
     vmaDestroyBuffer(m_allocator, sbuf.buffer, sbuf.alloc);
     {
         std::lock_guard<std::mutex> lock(m_mutexBufferAllocated);
         m_simpleBufferAllocated.erase(&sbuf);
     }
     if (sbuf.isLocalMem)
-        m_objectsDevicePoolUsed -= sbuf.size;
+        m_objectsDevicePoolUsed -= sbuf.allocationSize;
     else
-        m_objectsHostPoolUsed -= sbuf.size;
+        m_objectsHostPoolUsed -= sbuf.allocationSize;
 
 
     sbuf.alloc = VK_NULL_HANDLE;
     sbuf.buffer = VK_NULL_HANDLE;
     sbuf.size = 0;
+    sbuf.allocationSize = 0;
 }
 
 bool VulkanManager::freeDeviceMemory(VkDeviceSize minMemoryNeeded)
@@ -3676,8 +3718,8 @@ void VulkanManager::endTransferCommand(VkCommandBuffer _cmdBuffer)
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &_cmdBuffer;
 
-    m_pfnDev->vkQueueSubmit(getQueue(m_transferQID), 1, &submitInfo, VK_NULL_HANDLE);
-    m_pfnDev->vkQueueWaitIdle(getQueue(m_transferQID));
+    queueSubmitThreadSafe(getQueue(m_transferQID), 1, &submitInfo, VK_NULL_HANDLE);
+    queueWaitIdleThreadSafe(getQueue(m_transferQID));
 
     m_pfnDev->vkFreeCommandBuffers(m_device, m_transferCmdPool, 1, &_cmdBuffer);
 }
@@ -4297,7 +4339,7 @@ void VulkanManager::cleanupAll()
 void VulkanManager::cleanupSizeDependantResources(TlFramebuffer _fb)
 {
     if (m_device && m_pfnDev) {
-        m_pfnDev->vkDeviceWaitIdle(m_device);
+        deviceWaitIdleThreadSafe();
 
         // pc color
         tls::vk::destroyImageView(*m_pfnDev, m_device, _fb->pcColorImageView);

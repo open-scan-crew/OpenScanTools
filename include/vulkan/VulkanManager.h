@@ -92,6 +92,11 @@ public:
     void startTransferThread();
     void waitForRenderFence();
 
+    VkResult queueSubmitThreadSafe(VkQueue queue, uint32_t submitCount, const VkSubmitInfo* pSubmits, VkFence fence) const;
+    VkResult queuePresentThreadSafe(VkQueue queue, const VkPresentInfoKHR* pPresentInfo) const;
+    VkResult queueWaitIdleThreadSafe(VkQueue queue) const;
+    VkResult deviceWaitIdleThreadSafe() const;
+
     // Framebuffer management
     bool initFramebuffer(TlFramebuffer& framebuffer, uint64_t winId, int _width, int _height, bool preciseColor);
     void destroyFramebuffer(TlFramebuffer& framebuffer);
@@ -396,6 +401,9 @@ private:
 
     // Synchronization Objects
     std::array<VkFence, MAX_FRAMES_IN_FLIGHT> m_renderFences{};
+    // Thread-safe external synchronization for VkQueue host access.
+    mutable std::mutex m_queueSubmitMutex;
+
 
     // Vulkan Memory Allocator
     VmaPool m_hostPool = VK_NULL_HANDLE;

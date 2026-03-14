@@ -24,6 +24,8 @@ public:
     VkBuffer buffer = VK_NULL_HANDLE;
     // TODO - Remove and use the VmaAllocationInfo
     VkDeviceSize size = 0;
+    // Actual allocated bytes in the memory allocator (can be larger than size).
+    VkDeviceSize allocationSize = 0;
     bool isLocalMem = false;
 };
 
