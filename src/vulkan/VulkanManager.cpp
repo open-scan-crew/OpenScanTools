@@ -1258,11 +1258,6 @@ void VulkanManager::submitMultipleFramebuffer(std::vector<TlFramebuffer> fbs)
     if (fbs.empty())
         return;
 
-    if (isQueueSubmissionBlocked())
-    {
-        logQueueApiCall("render_submit_multi_blocked", getQueue(m_graphicsQID));
-        return;
-    }
 
     const uint32_t fenceIndex = m_currentFrameIndex.load() % MAX_FRAMES_IN_FLIGHT;
     VkFence renderFence = m_renderFences[fenceIndex];
@@ -1329,11 +1324,6 @@ void VulkanManager::submitVirtualFramebuffer(TlFramebuffer fb)
 {
     VkResult err;
 
-    if (isQueueSubmissionBlocked())
-    {
-        logQueueApiCall("render_submit_virtual_blocked", getQueue(m_graphicsQID));
-        return;
-    }
     const uint32_t fenceIndex = m_currentFrameIndex.load() % MAX_FRAMES_IN_FLIGHT;
     VkFence renderFence = m_renderFences[fenceIndex];
     m_pfnDev->vkResetFences(m_device, 1, &renderFence);
@@ -1384,20 +1374,6 @@ void VulkanManager::logQueueApiCall(const char* tag, VkQueue queue)
 #endif
 }
 
-void VulkanManager::beginQueueSubmissionBlock()
-{
-    m_blockQueueSubmissions.store(true);
-}
-
-void VulkanManager::endQueueSubmissionBlock()
-{
-    m_blockQueueSubmissions.store(false);
-}
-
-bool VulkanManager::isQueueSubmissionBlocked() const
-{
-    return m_blockQueueSubmissions.load();
-}
 
 void VulkanManager::waitForStreamingIdle()
 {
