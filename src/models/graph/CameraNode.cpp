@@ -1316,9 +1316,15 @@ void CameraNode::startPlayTrajectory(const uint64_t& animationStep)
 bool CameraNode::animateComplexTrajectory()
 {
     // Get time elapsed since the start of the trajectory
-    double dtime((double)m_animFrames);
+    double dtime(0.0);
     if (m_isOfflineRendering)
-        dtime = (dtime += m_speed) / m_offlineAnimStep;
+    {
+        // Offline playback must advance deterministically on each generated frame.
+        // Without incrementing m_animFrames, dtime stays nearly constant and the
+        // camera remains stuck near the first sampled pose.
+        ++m_animFrames;
+        dtime = (static_cast<double>(m_animFrames) * std::max(m_speed, 1.0)) / m_offlineAnimStep;
+    }
     else
     {
         const double elapsedSeconds = std::chrono::duration<double, std::ratio<1>>(std::chrono::steady_clock::now() - m_startTrajectoryTime).count() - m_totalPausedDurationSeconds;

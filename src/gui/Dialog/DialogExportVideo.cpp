@@ -176,15 +176,9 @@ void DialogExportVideo::startGeneration()
 	m_parameters.animMode = m_animationMode;
 	if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS)
 	{
-		if (!m_parameters.start || !m_parameters.finish)
+		if (!m_animationId.isValid())
 		{
 			m_dataDispatcher.updateInformation(new GuiDataWarning(TEXT_EXPORT_VIDEO_MISSING_VIEWPOINTS));
-			return;
-		}
-
-		if (m_parameters.start == m_parameters.finish)
-		{
-			m_dataDispatcher.updateInformation(new GuiDataWarning(TEXT_EXPORT_VIDEO_SAME_VIEWPOINTS));
 			return;
 		}
 	}
@@ -217,6 +211,8 @@ void DialogExportVideo::startGeneration()
     }
 
 	m_parameters.length = m_length;
+	m_parameters.animationId = m_animationId;
+	m_parameters.orbitalDegrees = m_orbitalDegrees;
 	m_parameters.fps = m_ui.fpsSpinBox->value();
 	m_parameters.hdImage = m_ui.imageHDRadioButton->isChecked();
 	m_parameters.openFolderAfterExport = m_ui.openExplorerFolderCheckBox->isChecked();
@@ -312,7 +308,17 @@ void DialogExportVideo::setLength(int length)
 	m_length = length;
 }
 
+void DialogExportVideo::setOrbitalDegrees(int degrees)
+{
+	m_orbitalDegrees = degrees;
+}
+
 void DialogExportVideo::setInterpolateRenderings(bool interpolate)
 {
 	m_interpolateRenderings = interpolate;
+}
+
+void DialogExportVideo::setAnimationSelection(const viewPointAnimationId& animationId)
+{
+	m_animationId = animationId;
 }
