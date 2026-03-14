@@ -7,9 +7,8 @@
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataIO.h"
+#include "gui/texts/ContextTexts.hpp"
 #include "utils/Config.h"
-
-#include "models/graph/ViewPointNode.h"
 
 #include <QtWidgets/qfiledialog.h>
 #include <QtWidgets/QApplication>
@@ -45,9 +44,6 @@ DialogExportVideo::DialogExportVideo(IDataDispatcher& dataDispatcher, QWidget *p
 
 	m_openPath = QStandardPaths::locate(QStandardPaths::DocumentsLocation, QString(), QStandardPaths::LocateDirectory);
 
-	connect(m_ui.pushButtonViewPoint1, &QPushButton::clicked, this, &DialogExportVideo::onViewpoint1Click);
-	connect(m_ui.pushButtonViewPoint2, &QPushButton::clicked, this, &DialogExportVideo::onViewpoint2Click);
-
     connect(m_ui.folderToolButton, &QToolButton::clicked, this, &DialogExportVideo::onSelectOutFolder);
 	connect(m_ui.fileToolButton, &QToolButton::clicked, this, &DialogExportVideo::onSelectOutFile);
 
@@ -55,7 +51,6 @@ DialogExportVideo::DialogExportVideo(IDataDispatcher& dataDispatcher, QWidget *p
     connect(m_ui.cancelPushButton, &QPushButton::clicked, this, &DialogExportVideo::cancelGeneration);
 
     m_dataDispatcher.registerObserverOnKey(this, guiDType::projectPath);
-    m_dataDispatcher.registerObserverOnKey(this, guiDType::objectSelected);
 	this->setMinimumWidth(344 * guiScale);
 	adjustSize();
 
@@ -77,56 +72,9 @@ void DialogExportVideo::informData(IGuiData *data)
 		{
 			auto dataType = static_cast<GuiDataProjectPath*>(data);
 			m_openPath = QString::fromStdWString(dataType->m_path.wstring());
-			m_ui.lineEditViewPoint1->clear();
-			m_ui.lineEditViewPoint2->clear();
-			m_parameters.start.reset();
-			m_parameters.finish.reset();
-		}
-		break;
-		case guiDType::objectSelected:
-		{
-			if (m_viewpointToEdit != 1 && m_viewpointToEdit != 2)
-				return;
-			auto dataType = static_cast<GuiDataObjectSelected*>(data);
-			if (dataType->m_type != ElementType::ViewPoint)
-				return;
-
-			SafePtr<ViewPointNode> viewpoint = static_pointer_cast<ViewPointNode>(dataType->m_object);
-			ReadPtr<ViewPointNode> rViewpoint = viewpoint.cget();
-			if (!rViewpoint)
-				return;
-			if (rViewpoint->getProjectionMode() == ProjectionMode::Orthographic)
-			{
-				m_dataDispatcher.updateInformation(new GuiDataWarning(TEXT_EXPORT_VIDEO_ORTHO_VIEWPOINT));
-				return;
-			}
-
-			if (m_viewpointToEdit == 1)
-			{
-				m_parameters.start = viewpoint;
-				m_ui.lineEditViewPoint1->setText(QString::fromStdWString(rViewpoint->getComposedName()));
-			}
-			else if(m_viewpointToEdit == 2)
-			{
-				m_parameters.finish = viewpoint;
-				m_ui.lineEditViewPoint2->setText(QString::fromStdWString(rViewpoint->getComposedName()));
-			}
-
-			m_viewpointToEdit = -1;
 		}
 		break;
     }
-}
-void DialogExportVideo::onViewpoint1Click()
-{
-	m_ui.lineEditViewPoint1->clear();
-	m_viewpointToEdit = 1;
-}
-
-void DialogExportVideo::onViewpoint2Click()
-{
-	m_ui.lineEditViewPoint2->clear();
-	m_viewpointToEdit = 2;
 }
 
 void DialogExportVideo::onSelectOutFolder()
@@ -176,15 +124,9 @@ void DialogExportVideo::startGeneration()
 	m_parameters.animMode = m_animationMode;
 	if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS)
 	{
-		if (!m_parameters.start || !m_parameters.finish)
+		if (!m_selectedAnimationId.isValid() || m_selectedAnimationViewpointCount < 2)
 		{
-			m_dataDispatcher.updateInformation(new GuiDataWarning(TEXT_EXPORT_VIDEO_MISSING_VIEWPOINTS));
-			return;
-		}
-
-		if (m_parameters.start == m_parameters.finish)
-		{
-			m_dataDispatcher.updateInformation(new GuiDataWarning(TEXT_EXPORT_VIDEO_SAME_VIEWPOINTS));
+			m_dataDispatcher.updateInformation(new GuiDataWarning(TEXT_CONTEXT_ANIMATION_NEED_TWO_VIEWPOINTS));
 			return;
 		}
 	}
@@ -220,7 +162,10 @@ void DialogExportVideo::startGeneration()
 	m_parameters.fps = m_ui.fpsSpinBox->value();
 	m_parameters.hdImage = m_ui.imageHDRadioButton->isChecked();
 	m_parameters.openFolderAfterExport = m_ui.openExplorerFolderCheckBox->isChecked();
-	m_parameters.interpolateRenderingBetweenViewpoints = m_interpolateRenderings;
+	m_parameters.interpolateRenderingBetweenViewpoints = (m_interpolateRenderings && m_selectedAnimationViewpointCount == 2);
+	m_parameters.animationId = m_selectedAnimationId;
+	m_parameters.animationMode = m_selectedAnimationMode;
+	m_parameters.orbitalDegrees = m_orbitalDegrees;
 
 	m_dataDispatcher.sendControl(new control::io::GenerateVideoHD(exportBasePath, m_parameters));
 
@@ -315,4 +260,16 @@ void DialogExportVideo::setLength(int length)
 void DialogExportVideo::setInterpolateRenderings(bool interpolate)
 {
 	m_interpolateRenderings = interpolate;
+}
+
+void DialogExportVideo::setOrbitalDegrees(int degrees)
+{
+	m_orbitalDegrees = degrees;
+}
+
+void DialogExportVideo::setSelectedAnimation(const viewPointAnimationId& animationId, ViewPointAnimationMode animationMode, size_t viewpointCount)
+{
+	m_selectedAnimationId = animationId;
+	m_selectedAnimationMode = animationMode;
+	m_selectedAnimationViewpointCount = viewpointCount;
 }
