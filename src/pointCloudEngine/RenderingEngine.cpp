@@ -282,6 +282,14 @@ VkExtent2D getViewportExtent(VulkanViewport& viewport)
 
 void RenderingEngine::update()
 {
+    VulkanManager& vkm = VulkanManager::getInstance();
+    vkm.beginRenderFrameScope();
+    struct RenderFrameScopeGuard
+    {
+        VulkanManager& vkm;
+        ~RenderFrameScopeGuard() { vkm.endRenderFrameScope(); }
+    } renderFrameScopeGuard{ vkm };
+
     //initializeManipulators();
     // Refresh the Scene
     m_renderSwapIndex = ++m_renderSwapIndex % 2;
@@ -292,7 +300,6 @@ void RenderingEngine::update()
 
     std::vector<TlFramebuffer> m_framebuffersToRender;
     // Instruct the drawing for each viewport (if necessary)
-    VulkanManager& vkm = VulkanManager::getInstance();
     vkm.startNextFrame();
     vkm.waitForRenderFence();
     // Refresh the Inputs for each viewport.

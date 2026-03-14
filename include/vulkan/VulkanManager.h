@@ -12,6 +12,7 @@
 #include <queue>
 #include <array>
 #include <future>
+#include <condition_variable>
 #include <type_traits>
 #include <vector>
 
@@ -156,6 +157,10 @@ public:
     void submitVirtualFramebuffer(TlFramebuffer fb);
     void waitIdle();
     void waitForStreamingIdle();
+    void beginQueueSubmissionBlock();
+    void endQueueSubmissionBlock();
+    void beginRenderFrameScope();
+    void endRenderFrameScope();
     static std::mutex& getQueueApiMutex();
     static void logQueueApiCall(const char* tag, VkQueue queue);
 
@@ -448,6 +453,12 @@ private:
     std::condition_variable m_transfer_cv;
     std::queue<std::function<void()>> m_transferTasks;
     std::thread m_transferThread;
+
+    // Used to suspend the render loop at frame boundaries during project close.
+    std::mutex m_renderBlockMutex;
+    std::condition_variable m_renderBlockCv;
+    bool m_queueSubmissionBlocked = false;
+    uint32_t m_renderFrameScopeCount = 0;
 
     // Use to free safely any buffers rendered on any framebuffer
     uint32_t m_maxSafeFrame = 0;

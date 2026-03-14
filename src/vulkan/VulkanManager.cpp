@@ -1359,6 +1359,39 @@ void VulkanManager::waitIdle()
     m_pfnDev->vkDeviceWaitIdle(m_device);
 }
 
+void VulkanManager::beginQueueSubmissionBlock()
+{
+    std::unique_lock<std::mutex> lock(m_renderBlockMutex);
+    m_queueSubmissionBlocked = true;
+    m_renderBlockCv.wait(lock, [this]() { return m_renderFrameScopeCount == 0; });
+}
+
+void VulkanManager::endQueueSubmissionBlock()
+{
+    {
+        std::lock_guard<std::mutex> lock(m_renderBlockMutex);
+        m_queueSubmissionBlocked = false;
+    }
+    m_renderBlockCv.notify_all();
+}
+
+void VulkanManager::beginRenderFrameScope()
+{
+    std::unique_lock<std::mutex> lock(m_renderBlockMutex);
+    m_renderBlockCv.wait(lock, [this]() { return !m_queueSubmissionBlocked; });
+    ++m_renderFrameScopeCount;
+}
+
+void VulkanManager::endRenderFrameScope()
+{
+    {
+        std::lock_guard<std::mutex> lock(m_renderBlockMutex);
+        assert(m_renderFrameScopeCount > 0);
+        --m_renderFrameScopeCount;
+    }
+    m_renderBlockCv.notify_all();
+}
+
 std::mutex& VulkanManager::getQueueApiMutex()
 {
     return g_vulkanQueueApiMutex;
