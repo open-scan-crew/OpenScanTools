@@ -641,6 +641,12 @@ bool CameraNode::startAnimation(const bool& isOffline, const uint64_t& step)
 
     buildViewpointAnimationPlaybackPath();
 
+    if (m_trajectory.size() < 2)
+    {
+        m_isAnimated = false;
+        return false;
+    }
+
     SafePtr<ViewPointNode> firstViewpoint = m_animationPlaylist.front();
     ReadPtr<ViewPointNode> rFirstViewpoint = firstViewpoint.cget();
     if (!rFirstViewpoint)
@@ -651,7 +657,13 @@ bool CameraNode::startAnimation(const bool& isOffline, const uint64_t& step)
 
     static_cast<DisplayParameters&>(*this) = *&rFirstViewpoint;
     applyProjection(*&rFirstViewpoint);
-    m_quaternion = rFirstViewpoint->getOrientation();
+
+    setPosition(m_trajectory.front().point);
+    if (m_orientationTrajectory.size() == m_trajectory.size())
+        m_quaternion = glm::normalize(m_orientationTrajectory.front().orientation);
+    else
+        setThetaAndPhi(m_trajectory.front().theta, m_trajectory.front().phi);
+
     m_dataDispatcher.sendControl(new control::viewpoint::UpdateStatesFromViewpoint(firstViewpoint));
 
     m_animMode = AnimationMode::Viewpoint;
@@ -1301,7 +1313,20 @@ bool CameraNode::animateViewpointTrajectory()
         KeyPoint kPt0 = m_trajectory[m_currentKeyPoint - 1];
         KeyPoint kPt1 = m_trajectory[m_currentKeyPoint];
 
-        double progress = (dtime - kPt0.dtime_arrival) / (kPt1.dtime_arrival - kPt0.dtime_arrival);
+        const double segmentDuration = kPt1.dtime_arrival - kPt0.dtime_arrival;
+        if (segmentDuration <= 1e-9)
+        {
+            if (m_currentKeyPoint + 1 < m_trajectory.size())
+            {
+                m_currentKeyPoint++;
+                return animateViewpointTrajectory();
+            }
+            dtime = kPt1.dtime_arrival;
+        }
+
+        const double safeSegmentDuration = std::max(kPt1.dtime_arrival - kPt0.dtime_arrival, 1e-9);
+        double progress = (dtime - kPt0.dtime_arrival) / safeSegmentDuration;
+        progress = std::clamp(progress, 0.0, 1.0);
 
         m_center = (kPt1.point * progress + kPt0.point * (1 - progress));
 
