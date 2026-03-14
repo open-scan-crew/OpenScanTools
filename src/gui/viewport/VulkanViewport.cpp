@@ -14,6 +14,7 @@
 #include "models/ElementType.h"
 
 #include "utils/math/trigo.h"
+#include "utils/Logger.h"
 
 #include "vulkan/TlFramebuffer_T.h"
 #include "vulkan/VulkanManager.h"

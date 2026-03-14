@@ -285,10 +285,10 @@ namespace control::animation
         }
 
         const bool canStart = viewpoints.size() >= 2;
-        controller.updateInfo(new GuiDataRenderAnimationToolbarState(canStart));
 
         if (!canStart)
         {
+            controller.updateInfo(new GuiDataRenderAnimationToolbarState(false));
             controller.updateInfo(new GuiDataWarning(TEXT_CONTEXT_ANIMATION_NEED_TWO_VIEWPOINTS));
             return;
         }
@@ -303,6 +303,8 @@ namespace control::animation
         wCam->setAnimationTiming(itConfig->second.getMode(), static_cast<double>(m_lengthSeconds), controlTimes);
         for (const SafePtr<ViewPointNode>& viewpoint : viewpoints)
             wCam->AddViewPoint(viewpoint);
+
+        controller.updateInfo(new GuiDataRenderAnimationToolbarState(true));
     }
 
     ControlType PrepareViewpointsAnimation::getType() const
