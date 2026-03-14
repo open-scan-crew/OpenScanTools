@@ -689,6 +689,16 @@ bool CameraNode::startAnimation(const bool& isOffline, const uint64_t& step)
     return true;
 }
 
+bool CameraNode::advanceOfflineAnimationStep()
+{
+    if (!m_isOfflineRendering || !m_isAnimated)
+        return false;
+
+    // In offline export we may still be in simple mode while moving to the
+    // first viewpoint before the complex trajectory starts.
+    return updateAnimation();
+}
+
 bool CameraNode::endAnimation()
 {
     const bool wasAnimated = m_isAnimated;
