@@ -82,6 +82,7 @@ ContextState ContextExportVideoHD::start(Controller& controller)
     m_exportState = 0;
     m_preparedAnimationViewpoints.clear();
     m_preparedControlTimes.clear();
+    m_waitingMoveToFirstViewpoint = false;
     return m_state = ContextState::waiting_for_input;
 }
 
@@ -109,8 +110,9 @@ ContextState ContextExportVideoHD::feedMessage(IMessage* message, Controller& co
         case IMessage::MessageType::GENERALMESSAGE:
         {
             GeneralMessage* out = static_cast<GeneralMessage*>(message);
-            if (out->m_info == GeneralInfo::ANIMATIONEND && m_exportState == 1)
+            if (out->m_info == GeneralInfo::ANIMATIONEND && m_exportState == 1 && m_waitingMoveToFirstViewpoint)
             {
+                m_waitingMoveToFirstViewpoint = false;
                 m_state = ContextState::ready_for_using;
             }
             if (out->m_info == GeneralInfo::IMAGEEND && m_exportState == 2)
@@ -129,7 +131,7 @@ ContextState ContextExportVideoHD::feedMessage(IMessage* message, Controller& co
 
 ContextState ContextExportVideoHD::launch(Controller& controller)
 {
-    //Start - Move to start position
+    //Start - Prepare animation/move to first viewpoint
     if (m_exportState == 0)
     {
         SafePtr<CameraNode> cam = controller.getGraphManager().getCameraNode();
@@ -201,18 +203,29 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
                 wCam->AddViewPoint(viewpoint);
 
             wCam->moveToData(m_preparedAnimationViewpoints.front());
+            m_waitingMoveToFirstViewpoint = true;
+            return m_state = ContextState::waiting_for_input;
+        }
+        m_waitingMoveToFirstViewpoint = false;
+    }
+
+    //Initialize frame generation and trigger first frame capture
+    if (m_exportState == 1)
+    {
+        SafePtr<CameraNode> cam = controller.getGraphManager().getCameraNode();
+        WritePtr<CameraNode> wCam = cam.get();
+        if (!wCam)
+            return abort(controller);
+
+        if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS)
+        {
+            if (m_waitingMoveToFirstViewpoint)
+                return m_state = ContextState::waiting_for_input;
+
             if (!wCam->startAnimation(true, static_cast<uint64_t>(std::max(1, m_parameters.fps))))
                 return abort(controller);
         }
 
-    }
-
-    //Calcul camera move delta
-    if (m_exportState == 1)
-    {
-        SafePtr<CameraNode> cam = controller.getGraphManager().getCameraNode();
-        if (!cam.cget())
-            return abort(controller);
         if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS && m_preparedAnimationMode == ViewPointAnimationMode::PositionAsTime && !m_preparedControlTimes.empty())
             m_totalFrames = static_cast<long>(std::ceil(std::max(0.0, m_preparedControlTimes.back()) * static_cast<double>(m_parameters.fps)));
         else

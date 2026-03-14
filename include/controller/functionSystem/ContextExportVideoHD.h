@@ -57,6 +57,7 @@ private:
 	ViewPointAnimationMode m_preparedAnimationMode = ViewPointAnimationMode::ConstantSpeed;
 	std::vector<SafePtr<ViewPointNode>> m_preparedAnimationViewpoints;
 	std::vector<double> m_preparedControlTimes;
+	bool m_waitingMoveToFirstViewpoint = false;
 
 	std::chrono::steady_clock::time_point m_tpStart;
 	DecimationOptions m_precedentOptions;
