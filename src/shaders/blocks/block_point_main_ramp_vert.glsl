@@ -8,6 +8,7 @@ vec3 colorRamp(float r)
 
 void main()
 {
+    filterReject = 0.0;
     gl_PointSize = pc.ptSize;
 
 #ifdef ATTRIB_RGB
