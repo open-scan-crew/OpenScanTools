@@ -1,4 +1,5 @@
 void main() {
+    filterReject = 0.0;
     gl_PointSize = pc.ptSize;
     vec4 worldPos4 = uScan.model * vec4(vec3(posXY, posZ) * coordPrec + origin, 1.0);
 #ifdef _CLIPPING_ACTIVATED
