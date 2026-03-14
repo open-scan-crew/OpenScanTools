@@ -1328,7 +1328,11 @@ bool CameraNode::animateComplexTrajectory()
     // Get time elapsed since the start of the trajectory
     double dtime((double)m_animFrames);
     if (m_isOfflineRendering)
-        dtime = (dtime += m_speed) / m_offlineAnimStep;
+    {
+        const uint64_t frameStep = static_cast<uint64_t>(std::max(1.0, m_speed));
+        m_animFrames += frameStep;
+        dtime = static_cast<double>(m_animFrames) / m_offlineAnimStep;
+    }
     else
     {
         const double elapsedSeconds = std::chrono::duration<double, std::ratio<1>>(std::chrono::steady_clock::now() - m_startTrajectoryTime).count() - m_totalPausedDurationSeconds;

@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <limits>
+#include <QtCore/QObject>
 #include <QtCore/QProcess>
 #include <QtCore/QStringList>
 #include "utils/Config.h"
@@ -297,7 +298,12 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
         {
             case VideoAnimationMode::BETWEENVIEWPOINTS:
             {
-                wCam->advanceOfflineAnimationStep();
+                const bool progressed = wCam->advanceOfflineAnimationStep();
+                if (!progressed)
+                {
+                    controller.updateInfo(new GuiDataWarning(QObject::tr("Camera animation did not progress while generating frames.")));
+                    return abort(controller);
+                }
 
                 if (m_parameters.interpolateRenderingBetweenViewpoints)
                 {
