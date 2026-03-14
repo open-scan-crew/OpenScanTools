@@ -193,7 +193,7 @@ void VulkanManager::stopAllRendering()
     // TODO - Add an atomic to block all new command to the queues
 
     if (m_device)
-        m_pfnDev->vkDeviceWaitIdle(m_device);
+        deviceWaitIdleThreadSafe();
 }
 
 void VulkanManager::initStreaming()
@@ -1332,7 +1332,7 @@ void VulkanManager::waitForRenderFence()
 
 void VulkanManager::waitIdle()
 {
-    m_pfnDev->vkDeviceWaitIdle(m_device);
+    deviceWaitIdleThreadSafe();
 }
 
 void VulkanManager::waitForStreamingIdle()
@@ -1361,6 +1361,12 @@ VkResult VulkanManager::queueWaitIdleThreadSafe(VkQueue queue) const
 {
     std::lock_guard<std::mutex> lock(m_queueSubmitMutex);
     return m_pfnDev->vkQueueWaitIdle(queue);
+}
+
+VkResult VulkanManager::deviceWaitIdleThreadSafe() const
+{
+    std::lock_guard<std::mutex> lock(m_queueSubmitMutex);
+    return m_pfnDev->vkDeviceWaitIdle(m_device);
 }
 
 
@@ -2013,7 +2019,7 @@ void VulkanManager::freeAllocation(SmartBuffer& sbuf)
         return;
 
     if (m_pfnDev && m_device != VK_NULL_HANDLE)
-        m_pfnDev->vkDeviceWaitIdle(m_device);
+        deviceWaitIdleThreadSafe();
 
     vmaDestroyBuffer(m_allocator, sbuf.buffer, sbuf.alloc);
     {
@@ -2041,7 +2047,7 @@ void VulkanManager::freeAllocation(SimpleBuffer& sbuf)
     assert(sbuf.buffer != VK_NULL_HANDLE && sbuf.size != 0);
 
     if (m_pfnDev && m_device != VK_NULL_HANDLE)
-        m_pfnDev->vkDeviceWaitIdle(m_device);
+        deviceWaitIdleThreadSafe();
 
     vmaDestroyBuffer(m_allocator, sbuf.buffer, sbuf.alloc);
     {
@@ -4333,7 +4339,7 @@ void VulkanManager::cleanupAll()
 void VulkanManager::cleanupSizeDependantResources(TlFramebuffer _fb)
 {
     if (m_device && m_pfnDev) {
-        m_pfnDev->vkDeviceWaitIdle(m_device);
+        deviceWaitIdleThreadSafe();
 
         // pc color
         tls::vk::destroyImageView(*m_pfnDev, m_device, _fb->pcColorImageView);

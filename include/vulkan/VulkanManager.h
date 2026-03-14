@@ -95,6 +95,7 @@ public:
     VkResult queueSubmitThreadSafe(VkQueue queue, uint32_t submitCount, const VkSubmitInfo* pSubmits, VkFence fence) const;
     VkResult queuePresentThreadSafe(VkQueue queue, const VkPresentInfoKHR* pPresentInfo) const;
     VkResult queueWaitIdleThreadSafe(VkQueue queue) const;
+    VkResult deviceWaitIdleThreadSafe() const;
 
     // Framebuffer management
     bool initFramebuffer(TlFramebuffer& framebuffer, uint64_t winId, int _width, int _height, bool preciseColor);
