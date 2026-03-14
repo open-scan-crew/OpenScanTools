@@ -260,6 +260,14 @@ void RenderingEngine::run()
 
     while (m_stopEngine.load() == false)
     {
+        VulkanManager& vkm = VulkanManager::getInstance();
+        vkm.beginRenderLoopScope();
+        struct RenderLoopScopeGuard
+        {
+            VulkanManager& vkm;
+            ~RenderLoopScopeGuard() { vkm.endRenderLoopScope(); }
+        } renderLoopScopeGuard{ vkm };
+
         // Introduit une pause possible dans le rendu pour faire autre chose (image HD)
         if (m_doHDRender.load() == true)
             updateHD();

@@ -36,6 +36,17 @@
 namespace
 {
     std::mutex g_vulkanQueueApiMutex;
+
+#ifndef NDEBUG
+    inline void logQueueCallDebug(const char* tag, VkQueue queue)
+    {
+        Logger::log(LoggerMode::VKLog)
+            << "QueueDiag ; tag=" << tag
+            << " ; thread=" << std::this_thread::get_id()
+            << " ; queue=" << queue
+            << Logger::endl;
+    }
+#endif
 }
 
 void deleteCharPP(uint32_t _count, char* const* _cstringList)
@@ -1247,6 +1258,7 @@ void VulkanManager::submitMultipleFramebuffer(std::vector<TlFramebuffer> fbs)
     if (fbs.empty())
         return;
 
+
     const uint32_t fenceIndex = m_currentFrameIndex.load() % MAX_FRAMES_IN_FLIGHT;
     VkFence renderFence = m_renderFences[fenceIndex];
     m_pfnDev->vkResetFences(m_device, 1, &renderFence);
@@ -1273,6 +1285,7 @@ void VulkanManager::submitMultipleFramebuffer(std::vector<TlFramebuffer> fbs)
     }
     {
         std::lock_guard<std::mutex> lock(getQueueApiMutex());
+        logQueueApiCall("render_submit_multi", getQueue(m_graphicsQID));
         err = m_pfnDev->vkQueueSubmit(getQueue(m_graphicsQID), (uint32_t)submitInfos.size(), submitInfos.data(), renderFence);
     }
     check_vk_result(err, "Submit Graphic Queue");
@@ -1289,6 +1302,7 @@ void VulkanManager::submitMultipleFramebuffer(std::vector<TlFramebuffer> fbs)
         // FIXME - Utiliser la bonne queue si la presentation se fait sur une queue diffÃ©rente.
         {
             std::lock_guard<std::mutex> lock(getQueueApiMutex());
+            logQueueApiCall("render_present", getQueue(m_graphicsQID));
             err = m_pfnDev->vkQueuePresentKHR(getQueue(m_graphicsQID), &presentInfo);
         }
         if (err == VK_ERROR_OUT_OF_DATE_KHR || err == VK_SUBOPTIMAL_KHR) {
@@ -1309,6 +1323,7 @@ void VulkanManager::submitMultipleFramebuffer(std::vector<TlFramebuffer> fbs)
 void VulkanManager::submitVirtualFramebuffer(TlFramebuffer fb)
 {
     VkResult err;
+
     const uint32_t fenceIndex = m_currentFrameIndex.load() % MAX_FRAMES_IN_FLIGHT;
     VkFence renderFence = m_renderFences[fenceIndex];
     m_pfnDev->vkResetFences(m_device, 1, &renderFence);
@@ -1326,6 +1341,7 @@ void VulkanManager::submitVirtualFramebuffer(TlFramebuffer fb)
 
     {
         std::lock_guard<std::mutex> lock(getQueueApiMutex());
+        logQueueApiCall("render_submit_virtual", getQueue(m_graphicsQID));
         err = m_pfnDev->vkQueueSubmit(getQueue(m_graphicsQID), 1, &submitInfo, renderFence);
     }
     check_vk_result(err, "Submit Graphic Queue");
@@ -1343,10 +1359,54 @@ void VulkanManager::waitIdle()
     m_pfnDev->vkDeviceWaitIdle(m_device);
 }
 
+void VulkanManager::beginQueueSubmissionBlock()
+{
+    std::unique_lock<std::mutex> lock(m_renderLoopBlockMutex);
+    m_queueSubmissionBlockRequested = true;
+    m_renderLoopBlockCv.wait(lock, [this]() { return m_activeRenderLoopScopes == 0; });
+}
+
+void VulkanManager::endQueueSubmissionBlock()
+{
+    {
+        std::lock_guard<std::mutex> lock(m_renderLoopBlockMutex);
+        m_queueSubmissionBlockRequested = false;
+    }
+    m_renderLoopBlockCv.notify_all();
+}
+
+void VulkanManager::beginRenderLoopScope()
+{
+    std::unique_lock<std::mutex> lock(m_renderLoopBlockMutex);
+    m_renderLoopBlockCv.wait(lock, [this]() { return !m_queueSubmissionBlockRequested; });
+    ++m_activeRenderLoopScopes;
+}
+
+void VulkanManager::endRenderLoopScope()
+{
+    {
+        std::lock_guard<std::mutex> lock(m_renderLoopBlockMutex);
+        assert(m_activeRenderLoopScopes > 0);
+        --m_activeRenderLoopScopes;
+    }
+    m_renderLoopBlockCv.notify_all();
+}
+
 std::mutex& VulkanManager::getQueueApiMutex()
 {
     return g_vulkanQueueApiMutex;
 }
+
+void VulkanManager::logQueueApiCall(const char* tag, VkQueue queue)
+{
+#ifndef NDEBUG
+    logQueueCallDebug(tag, queue);
+#else
+    (void)tag;
+    (void)queue;
+#endif
+}
+
 
 void VulkanManager::waitForStreamingIdle()
 {
@@ -1456,7 +1516,9 @@ bool VulkanManager::loadInSimpleBuffer_local(SimpleBuffer& smpBuf, VkDeviceSize 
 
         {
             std::lock_guard<std::mutex> lock(getQueueApiMutex());
+            logQueueApiCall("transfer_submit_load_local", getQueue(m_transferQID));
             m_pfnDev->vkQueueSubmit(getQueue(m_transferQID), 1, &submitInfo, VK_NULL_HANDLE);
+            logQueueApiCall("transfer_wait_idle_load_local", getQueue(m_transferQID));
             m_pfnDev->vkQueueWaitIdle(getQueue(m_transferQID));
         }
         //++++++++++++++++++++++++++++
@@ -1629,7 +1691,9 @@ bool VulkanManager::downloadSimpleBuffer_async(const SimpleBuffer& smpBuf, void*
 
             {
                 std::lock_guard<std::mutex> lock(getQueueApiMutex());
+                logQueueApiCall("transfer_submit_download", getQueue(m_transferQID));
                 m_pfnDev->vkQueueSubmit(getQueue(m_transferQID), 1, &submitInfo, VK_NULL_HANDLE);
+                logQueueApiCall("transfer_wait_idle_download", getQueue(m_transferQID));
                 m_pfnDev->vkQueueWaitIdle(getQueue(m_transferQID));
             }
             //++++++++++++++++++++++++++++
@@ -3752,7 +3816,9 @@ void VulkanManager::endTransferCommand(VkCommandBuffer _cmdBuffer)
 
     {
         std::lock_guard<std::mutex> lock(getQueueApiMutex());
+        logQueueApiCall("transfer_submit_texture", getQueue(m_transferQID));
         m_pfnDev->vkQueueSubmit(getQueue(m_transferQID), 1, &submitInfo, VK_NULL_HANDLE);
+        logQueueApiCall("transfer_wait_idle_texture", getQueue(m_transferQID));
         m_pfnDev->vkQueueWaitIdle(getQueue(m_transferQID));
     }
 

@@ -156,7 +156,13 @@ public:
     void submitVirtualFramebuffer(TlFramebuffer fb);
     void waitIdle();
     void waitForStreamingIdle();
+    void beginQueueSubmissionBlock();
+    void endQueueSubmissionBlock();
+    void beginRenderLoopScope();
+    void endRenderLoopScope();
     static std::mutex& getQueueApiMutex();
+    static void logQueueApiCall(const char* tag, VkQueue queue);
+
 
     uint32_t getCurrentFrameIndex() const;
     // For all the frame index inferior or equal to the "safe frame index" it is guaranted
@@ -435,6 +441,7 @@ private:
     uint32_t m_missedDeviceAllocations = 0;
     uint32_t m_missedHostAllocations = 0;
 
+
     // Streaming Resources
     TlStreamer* m_streamer = nullptr;
     std::thread m_streamingThread;
@@ -445,6 +452,11 @@ private:
     std::condition_variable m_transfer_cv;
     std::queue<std::function<void()>> m_transferTasks;
     std::thread m_transferThread;
+
+    std::mutex m_renderLoopBlockMutex;
+    std::condition_variable m_renderLoopBlockCv;
+    bool m_queueSubmissionBlockRequested = false;
+    uint32_t m_activeRenderLoopScopes = 0;
 
     // Use to free safely any buffers rendered on any framebuffer
     uint32_t m_maxSafeFrame = 0;
