@@ -116,6 +116,33 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
     //Start - Move to start position
     if (m_exportState == 0)
     {
+        m_usePreparedCameraAnimation = false;
+        std::optional<PreparedAnimation> preparedAnimation;
+        glm::dvec3 firstCenter(0.0);
+        double firstTheta = 0.0;
+        double firstPhi = 0.0;
+
+        if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS)
+        {
+            preparedAnimation = prepareViewpointAnimation(controller);
+            if (!preparedAnimation.has_value())
+            {
+                controller.updateInfo(new GuiDataWarning(TEXT_CONTEXT_ANIMATION_NEED_TWO_VIEWPOINTS));
+                return abort(controller);
+            }
+
+            ReadPtr<ViewPointNode> rFirstViewpoint = preparedAnimation->viewpoints.front().cget();
+            if (!rFirstViewpoint)
+                return abort(controller);
+
+            const glm::dvec3 firstLookDir = glm::dvec4(0.0, 0.0, 1.0, 1.0) * rFirstViewpoint->getInverseTransformation();
+            if (!(firstLookDir.x == 0.0 && firstLookDir.y == 0.0))
+                firstTheta = atan2(-firstLookDir.x, firstLookDir.y);
+            const double firstNormXY = sqrt(firstLookDir.x * firstLookDir.x + firstLookDir.y * firstLookDir.y);
+            firstPhi = atan2(-firstNormXY, firstLookDir.z);
+            firstCenter = rFirstViewpoint->getCenter();
+        }
+
         SafePtr<CameraNode> cam = controller.getGraphManager().getCameraNode();
         WritePtr<CameraNode> wCam = cam.get();
         if (!wCam)
@@ -124,15 +151,8 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
         wCam->setProjectionMode(ProjectionMode::Perspective);
         m_exportState = 1;
 
-        if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS)
+        if (preparedAnimation.has_value())
         {
-            auto preparedAnimation = prepareViewpointAnimation(controller);
-            if (!preparedAnimation.has_value())
-            {
-                controller.updateInfo(new GuiDataWarning(TEXT_CONTEXT_ANIMATION_NEED_TWO_VIEWPOINTS));
-                return abort(controller);
-            }
-
             m_preparedAnimation = preparedAnimation.value();
             m_usePreparedCameraAnimation = true;
 
@@ -145,18 +165,6 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
 
             // Force a synchronous jump to the first viewpoint before frame generation.
             // Relying on moveToData() + asynchronous ANIMATIONEND can stall the export state machine.
-            ReadPtr<ViewPointNode> rFirstViewpoint = m_preparedAnimation.viewpoints.front().cget();
-            if (!rFirstViewpoint)
-                return abort(controller);
-
-            const glm::dvec3 firstLookDir = glm::dvec4(0.0, 0.0, 1.0, 1.0) * rFirstViewpoint->getInverseTransformation();
-            double firstTheta = 0.0;
-            if (!(firstLookDir.x == 0.0 && firstLookDir.y == 0.0))
-                firstTheta = atan2(-firstLookDir.x, firstLookDir.y);
-            const double firstNormXY = sqrt(firstLookDir.x * firstLookDir.x + firstLookDir.y * firstLookDir.y);
-            const double firstPhi = atan2(-firstNormXY, firstLookDir.z);
-
-            const glm::dvec3 firstCenter = rFirstViewpoint->getCenter();
             const glm::dvec3 deltaToFirst = firstCenter - wCam->getCenter();
             wCam->moveGlobal(deltaToFirst.x, deltaToFirst.y, deltaToFirst.z);
             wCam->setThetaAndPhi(firstTheta, firstPhi);
@@ -168,8 +176,8 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
     if (m_exportState == 1)
     {
         SafePtr<CameraNode> cam = controller.getGraphManager().getCameraNode();
-        ReadPtr<CameraNode> rCam = cam.cget();
-        if (!rCam)
+        WritePtr<CameraNode> wCam = cam.get();
+        if (!wCam)
             return abort(controller);
         if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS && m_usePreparedCameraAnimation)
             m_totalFrames = std::max<long>(1, static_cast<long>(std::llround(m_preparedAnimation.durationSeconds * static_cast<double>(m_parameters.fps))));
@@ -202,11 +210,11 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
                 double normXY = sqrt(finishLookDir.x * finishLookDir.x + finishLookDir.y * finishLookDir.y);
                 double endPhi = atan2(-normXY, finishLookDir.z);
 
-                CameraNode::modulo2Pi(rCam->getTheta(), endTheta);
+                CameraNode::modulo2Pi(wCam->getTheta(), endTheta);
 
                 m_addPosition = (rFinish->getCenter() - rStart->getCenter()) / (double)m_totalFrames;
-                m_addTheta = (endTheta - rCam->getTheta()) / m_totalFrames;
-                m_addPhi = (endPhi - rCam->getPhi()) / m_totalFrames;
+                m_addTheta = (endTheta - wCam->getTheta()) / m_totalFrames;
+                m_addPhi = (endPhi - wCam->getPhi()) / m_totalFrames;
 
                 if (rStart->m_blendMode == rFinish->m_blendMode &&
                     rStart->m_postRenderingNormals.show == rFinish->m_postRenderingNormals.show &&
@@ -237,9 +245,6 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
             }
             else
             {
-                WritePtr<CameraNode> wCam = cam.get();
-                if (!wCam)
-                    return abort(controller);
                 if (!wCam->startAnimation(true, static_cast<uint64_t>(std::max(1, m_parameters.fps))))
                     return abort(controller);
 
