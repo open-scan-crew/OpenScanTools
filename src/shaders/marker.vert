@@ -20,7 +20,7 @@ layout(location = 2) out uint geomGraphicID;
 layout(location = 3) out uint geomTextureID;
 layout(location = 4) out uint geomFirstVertex;
 layout(location = 5) out uint geomVertexCount;
-layout(location = 6) out uint geomStyle;
+layout(location = 6) out uint geomStatus;
 layout(location = 7) out float billboardScale;
 
 layout(push_constant) uniform PC {
@@ -46,7 +46,7 @@ void main() {
     geomTextureID = textureID;
     geomFirstVertex = firstVertex;
     geomVertexCount = vertexCount;
-    geomStyle = style;
+    geomStatus = style;
 
     // Clamp the coord of the vertex (when z is too small)
     if (z <= pcst.near)
