@@ -302,10 +302,10 @@ void TlStreamer::submitVulkanTransfers(const std::vector<TlStagedTransferInfo>& 
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &m_tsfCmdBuf;
 
-    h_pfn->vkQueueSubmit(h_tsfQueue, 1, &submitInfo, m_transferFence);
+    VulkanManager::getInstance().queueSubmitThreadSafe(h_tsfQueue, 1, &submitInfo, m_transferFence);
 
     // TODO - try to remove the wait -> a fence should suffice
-    h_pfn->vkQueueWaitIdle(h_tsfQueue);
+    VulkanManager::getInstance().queueWaitIdleThreadSafe(h_tsfQueue);
 
     for (uint32_t i = 0; i < _stagedTransfers.size(); i++)
     {

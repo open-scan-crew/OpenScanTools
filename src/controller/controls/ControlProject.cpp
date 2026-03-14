@@ -25,6 +25,7 @@
 #include "models/graph/GraphManager.h"
 
 #include "pointCloudEngine/PCE_core.h"
+#include "vulkan/VulkanManager.h"
 
 #include "utils/FilesAndFoldersDefinitions.h"
 #include "utils/Config.h"
@@ -386,8 +387,14 @@ namespace control::project
 
         controller.updateInfo(new GuiDataSplashScreenStart(TEXT_PROJECT_CLOSING, GuiDataSplashScreenStart::SplashScreenType::Display));
 
+        // Halt stream updates during project teardown to avoid resource churn while closing.
+        TlStreamLock streamLock;
+
         // Close all project info in the Gui
         controller.getGraphManager().cleanProjectObjects();
+
+        // Coarse-grain synchronization once before mass resource release.
+        VulkanManager::getInstance().waitIdle();
         controller.updateInfo(new GuiDataUndoRedoAble(false, false));
         if (context.isProjectLoaded())
             controller.updateInfo(new GuiDataProjectLoaded(false, context.cgetProjectInfo().m_projectName));
