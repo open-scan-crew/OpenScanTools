@@ -156,8 +156,10 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
             const double firstNormXY = sqrt(firstLookDir.x * firstLookDir.x + firstLookDir.y * firstLookDir.y);
             const double firstPhi = atan2(-firstNormXY, firstLookDir.z);
 
-            wCam->moveTo(rFirstViewpoint->getCenter(), firstTheta, firstPhi, 0.0);
-            wCam->updateAnimation();
+            const glm::dvec3 firstCenter = rFirstViewpoint->getCenter();
+            const glm::dvec3 deltaToFirst = firstCenter - wCam->getCenter();
+            wCam->moveGlobal(deltaToFirst.x, deltaToFirst.y, deltaToFirst.z);
+            wCam->setThetaAndPhi(firstTheta, firstPhi);
         }
 
     }
