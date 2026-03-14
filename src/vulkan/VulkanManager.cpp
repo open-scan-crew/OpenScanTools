@@ -33,6 +33,11 @@
             log << " ";\
         log << blank;
 
+namespace
+{
+    std::mutex g_vulkanQueueApiMutex;
+}
+
 void deleteCharPP(uint32_t _count, char* const* _cstringList)
 {
     for (uint32_t i = 0; i < _count; i++) {
@@ -1266,7 +1271,10 @@ void VulkanManager::submitMultipleFramebuffer(std::vector<TlFramebuffer> fbs)
 
         submitInfos.push_back(submitInfo);
     }
-    err = m_pfnDev->vkQueueSubmit(getQueue(m_graphicsQID), (uint32_t)submitInfos.size(), submitInfos.data(), renderFence);
+    {
+        std::lock_guard<std::mutex> lock(getQueueApiMutex());
+        err = m_pfnDev->vkQueueSubmit(getQueue(m_graphicsQID), (uint32_t)submitInfos.size(), submitInfos.data(), renderFence);
+    }
     check_vk_result(err, "Submit Graphic Queue");
 
     for (TlFramebuffer fb : fbs)
@@ -1279,7 +1287,10 @@ void VulkanManager::submitMultipleFramebuffer(std::vector<TlFramebuffer> fbs)
         presentInfo.pSwapchains = &fb->swapchain;
         presentInfo.pImageIndices = &fb->currentImage;
         // FIXME - Utiliser la bonne queue si la presentation se fait sur une queue diffÃ©rente.
-        err = m_pfnDev->vkQueuePresentKHR(getQueue(m_graphicsQID), &presentInfo);
+        {
+            std::lock_guard<std::mutex> lock(getQueueApiMutex());
+            err = m_pfnDev->vkQueuePresentKHR(getQueue(m_graphicsQID), &presentInfo);
+        }
         if (err == VK_ERROR_OUT_OF_DATE_KHR || err == VK_SUBOPTIMAL_KHR) {
             VKM_INFO << "Out of date swapchain (end render pass)\n" << Logger::endl;
             fb->mustRecreateSwapchain.store(true);
@@ -1313,7 +1324,10 @@ void VulkanManager::submitVirtualFramebuffer(TlFramebuffer fb)
     submitInfo.signalSemaphoreCount = 0;
     submitInfo.pSignalSemaphores = nullptr;
 
-    err = m_pfnDev->vkQueueSubmit(getQueue(m_graphicsQID), 1, &submitInfo, renderFence);
+    {
+        std::lock_guard<std::mutex> lock(getQueueApiMutex());
+        err = m_pfnDev->vkQueueSubmit(getQueue(m_graphicsQID), 1, &submitInfo, renderFence);
+    }
     check_vk_result(err, "Submit Graphic Queue");
 }
 
@@ -1327,6 +1341,11 @@ void VulkanManager::waitForRenderFence()
 void VulkanManager::waitIdle()
 {
     m_pfnDev->vkDeviceWaitIdle(m_device);
+}
+
+std::mutex& VulkanManager::getQueueApiMutex()
+{
+    return g_vulkanQueueApiMutex;
 }
 
 void VulkanManager::waitForStreamingIdle()
@@ -1435,8 +1454,11 @@ bool VulkanManager::loadInSimpleBuffer_local(SimpleBuffer& smpBuf, VkDeviceSize 
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &m_transferCmdBuf;
 
-        m_pfnDev->vkQueueSubmit(getQueue(m_transferQID), 1, &submitInfo, VK_NULL_HANDLE);
-        m_pfnDev->vkQueueWaitIdle(getQueue(m_transferQID));
+        {
+            std::lock_guard<std::mutex> lock(getQueueApiMutex());
+            m_pfnDev->vkQueueSubmit(getQueue(m_transferQID), 1, &submitInfo, VK_NULL_HANDLE);
+            m_pfnDev->vkQueueWaitIdle(getQueue(m_transferQID));
+        }
         //++++++++++++++++++++++++++++
     }
     return (true);
@@ -1605,8 +1627,11 @@ bool VulkanManager::downloadSimpleBuffer_async(const SimpleBuffer& smpBuf, void*
             submitInfo.commandBufferCount = 1;
             submitInfo.pCommandBuffers = &m_transferCmdBuf;
 
-            m_pfnDev->vkQueueSubmit(getQueue(m_transferQID), 1, &submitInfo, VK_NULL_HANDLE);
-            m_pfnDev->vkQueueWaitIdle(getQueue(m_transferQID));
+            {
+                std::lock_guard<std::mutex> lock(getQueueApiMutex());
+                m_pfnDev->vkQueueSubmit(getQueue(m_transferQID), 1, &submitInfo, VK_NULL_HANDLE);
+                m_pfnDev->vkQueueWaitIdle(getQueue(m_transferQID));
+            }
             //++++++++++++++++++++++++++++
 
             VkMappedMemoryRange range = {};
@@ -3725,8 +3750,11 @@ void VulkanManager::endTransferCommand(VkCommandBuffer _cmdBuffer)
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &_cmdBuffer;
 
-    m_pfnDev->vkQueueSubmit(getQueue(m_transferQID), 1, &submitInfo, VK_NULL_HANDLE);
-    m_pfnDev->vkQueueWaitIdle(getQueue(m_transferQID));
+    {
+        std::lock_guard<std::mutex> lock(getQueueApiMutex());
+        m_pfnDev->vkQueueSubmit(getQueue(m_transferQID), 1, &submitInfo, VK_NULL_HANDLE);
+        m_pfnDev->vkQueueWaitIdle(getQueue(m_transferQID));
+    }
 
     m_pfnDev->vkFreeCommandBuffers(m_device, m_transferCmdPool, 1, &_cmdBuffer);
 }

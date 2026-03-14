@@ -156,6 +156,7 @@ public:
     void submitVirtualFramebuffer(TlFramebuffer fb);
     void waitIdle();
     void waitForStreamingIdle();
+    static std::mutex& getQueueApiMutex();
 
     uint32_t getCurrentFrameIndex() const;
     // For all the frame index inferior or equal to the "safe frame index" it is guaranted
