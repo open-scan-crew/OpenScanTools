@@ -1343,6 +1343,50 @@ void VulkanManager::waitIdle()
     m_pfnDev->vkDeviceWaitIdle(m_device);
 }
 
+bool VulkanManager::requestRenderPauseAndWait(std::chrono::milliseconds timeout)
+{
+    {
+        std::lock_guard<std::mutex> lock(m_renderPauseMutex);
+        m_renderPauseRequested = true;
+    }
+    m_renderPauseCv.notify_all();
+
+    std::unique_lock<std::mutex> lock(m_renderPauseMutex);
+    const bool paused = m_renderPauseCv.wait_for(lock, timeout, [this]() {
+        return m_renderPauseAck;
+    });
+
+    if (!paused)
+        VKM_WARNING << "Timeout while waiting render pause acknowledgement." << Logger::endl;
+
+    return paused;
+}
+
+void VulkanManager::resumeRender()
+{
+    {
+        std::lock_guard<std::mutex> lock(m_renderPauseMutex);
+        m_renderPauseRequested = false;
+    }
+    m_renderPauseCv.notify_all();
+}
+
+void VulkanManager::waitIfRenderPauseRequested()
+{
+    std::unique_lock<std::mutex> lock(m_renderPauseMutex);
+    if (!m_renderPauseRequested)
+        return;
+
+    m_renderPauseAck = true;
+    m_renderPauseCv.notify_all();
+
+    m_renderPauseCv.wait(lock, [this]() {
+        return !m_renderPauseRequested;
+    });
+
+    m_renderPauseAck = false;
+}
+
 std::mutex& VulkanManager::getQueueApiMutex()
 {
     return g_vulkanQueueApiMutex;

@@ -25,6 +25,7 @@
 #include "models/graph/GraphManager.h"
 
 #include "pointCloudEngine/PCE_core.h"
+#include "vulkan/VulkanManager.h"
 
 #include "utils/FilesAndFoldersDefinitions.h"
 #include "utils/Config.h"
@@ -386,6 +387,11 @@ namespace control::project
 
         controller.updateInfo(new GuiDataSplashScreenStart(TEXT_PROJECT_CLOSING, GuiDataSplashScreenStart::SplashScreenType::Display));
 
+        constexpr auto kRenderPauseTimeout = std::chrono::milliseconds(2000);
+        bool renderPaused = VulkanManager::getInstance().requestRenderPauseAndWait(kRenderPauseTimeout);
+        if (!renderPaused)
+            CONTROLLOG << "control::project::Close render pause ack timeout" << LOGENDL;
+
         // Close all project info in the Gui
         controller.getGraphManager().cleanProjectObjects();
         controller.updateInfo(new GuiDataUndoRedoAble(false, false));
@@ -404,6 +410,8 @@ namespace control::project
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             counter++;
         }
+
+        VulkanManager::getInstance().resumeRender();
         controller.updateInfo(new GuiDataSplashScreenEnd(GuiDataSplashScreenEnd::SplashScreenType::Display));
 
         CONTROLLOG << "control::project::Close[end]" << LOGENDL;

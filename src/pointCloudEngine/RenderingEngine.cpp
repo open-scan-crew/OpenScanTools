@@ -260,6 +260,10 @@ void RenderingEngine::run()
 
     while (m_stopEngine.load() == false)
     {
+        VulkanManager::getInstance().waitIfRenderPauseRequested();
+        if (m_stopEngine.load() == true)
+            break;
+
         // Introduit une pause possible dans le rendu pour faire autre chose (image HD)
         if (m_doHDRender.load() == true)
             updateHD();
