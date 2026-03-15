@@ -12,6 +12,7 @@
 #include <queue>
 #include <array>
 #include <future>
+#include <chrono>
 #include <type_traits>
 #include <vector>
 
@@ -156,6 +157,9 @@ public:
     void submitVirtualFramebuffer(TlFramebuffer fb);
     void waitIdle();
     void waitForStreamingIdle();
+    bool requestRenderPauseAndWait(std::chrono::milliseconds timeout);
+    void resumeRender();
+    void waitIfRenderPauseRequested();
     static std::mutex& getQueueApiMutex();
 
     uint32_t getCurrentFrameIndex() const;
@@ -445,6 +449,12 @@ private:
     std::condition_variable m_transfer_cv;
     std::queue<std::function<void()>> m_transferTasks;
     std::thread m_transferThread;
+
+    // Render loop pause protocol (used during project close/load)
+    std::mutex m_renderPauseMutex;
+    std::condition_variable m_renderPauseCv;
+    bool m_renderPauseRequested = false;
+    bool m_renderPauseAck = false;
 
     // Use to free safely any buffers rendered on any framebuffer
     uint32_t m_maxSafeFrame = 0;
