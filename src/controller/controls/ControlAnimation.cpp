@@ -399,7 +399,30 @@ namespace control::animation
 
         applyPreparedViewpointsAnimationToCamera(*&wCam, prepared, m_lengthSeconds);
 
-        controller.updateInfo(new GuiDataRenderAnimationToolbarState(true));
+        if (result)
+        {
+            result->mode = itConfig->second.getMode();
+            result->viewpointCount = viewpoints.size();
+            if (itConfig->second.getMode() == ViewPointAnimationMode::PositionAsTime && controlTimes.size() >= 2)
+                result->effectiveDurationSeconds = std::max(0.0, controlTimes.back() - controlTimes.front());
+            else
+                result->effectiveDurationSeconds = std::max(0.0, static_cast<double>(lengthSeconds));
+        }
+
+        return true;
+    }
+
+    void PrepareViewpointsAnimation::doFunction(Controller& controller)
+    {
+        const bool prepared = prepareViewpointsAnimationForPlayback(
+            controller,
+            m_animationId,
+            m_lengthSeconds,
+            m_interpolateRenderingBetweenViewpoints,
+            nullptr,
+            true);
+
+        controller.updateInfo(new GuiDataRenderAnimationToolbarState(prepared));
     }
 
     ControlType PrepareViewpointsAnimation::getType() const
