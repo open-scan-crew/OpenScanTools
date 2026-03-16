@@ -1334,7 +1334,10 @@ bool CameraNode::animateViewpointTrajectory()
     // Get time elapsed since the start of the trajectory
     double dtime((double)m_animFrames);
     if (m_isOfflineRendering)
-        dtime = (dtime += m_speed) / m_offlineAnimStep;
+    {
+        dtime = (dtime + m_speed) / m_offlineAnimStep;
+        ++m_animFrames;
+    }
     else
     {
         const double elapsedSeconds = std::chrono::duration<double, std::ratio<1>>(std::chrono::steady_clock::now() - m_startTrajectoryTime).count() - m_totalPausedDurationSeconds;

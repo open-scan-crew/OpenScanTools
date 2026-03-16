@@ -19,12 +19,22 @@ namespace control::animation
         size_t viewpointCount = 0;
     };
 
-    bool prepareViewpointsAnimationForPlayback(
+    struct PreparedViewpointsAnimationPlayback
+    {
+        std::vector<SafePtr<ViewPointNode>> viewpoints;
+        std::vector<double> controlTimes;
+        ViewPointAnimationMode mode = ViewPointAnimationMode::ConstantSpeed;
+        bool smoothTransitions = false;
+        bool enableInterpolation = false;
+        ViewpointsAnimationPreparationResult metrics;
+    };
+
+    bool buildViewpointsAnimationPlayback(
         Controller& controller,
         const viewPointAnimationId& animationId,
         int lengthSeconds,
         bool interpolateRenderingBetweenViewpoints,
-        ViewpointsAnimationPreparationResult* result = nullptr,
+        PreparedViewpointsAnimationPlayback& prepared,
         bool emitWarnings = true);
 
     class AddViewPoint : public AControl

@@ -115,6 +115,20 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
     // Start and prepare trajectory
     if (m_exportState == 0)
     {
+        control::animation::PreparedViewpointsAnimationPlayback preparedViewpoints;
+        if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS)
+        {
+            const bool prepared = control::animation::buildViewpointsAnimationPlayback(
+                controller,
+                m_parameters.viewpointAnimationId,
+                m_parameters.length,
+                m_parameters.interpolateRenderingBetweenViewpoints,
+                preparedViewpoints,
+                true);
+            if (!prepared)
+                return abort(controller);
+        }
+
         SafePtr<CameraNode> cam = controller.getGraphManager().getCameraNode();
         WritePtr<CameraNode> wCam = cam.get();
         if (!wCam)
@@ -124,21 +138,18 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
         m_totalFrames = 1;
         if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS)
         {
-            control::animation::ViewpointsAnimationPreparationResult preparation;
-            const bool prepared = control::animation::prepareViewpointsAnimationForPlayback(
-                controller,
-                m_parameters.viewpointAnimationId,
-                m_parameters.length,
-                m_parameters.interpolateRenderingBetweenViewpoints,
-                &preparation,
-                true);
-            if (!prepared)
-                return abort(controller);
+            wCam->cleanAnimation();
+            wCam->setLoop(false);
+            wCam->setSpeed(1);
+            wCam->setViewpointRenderInterpolationEnabled(preparedViewpoints.enableInterpolation);
+            wCam->setAnimationTiming(preparedViewpoints.mode, static_cast<double>(m_parameters.length), preparedViewpoints.controlTimes, preparedViewpoints.smoothTransitions);
+            for (const SafePtr<ViewPointNode>& viewpoint : preparedViewpoints.viewpoints)
+                wCam->AddViewPoint(viewpoint);
 
             if (!wCam->startAnimation(true, static_cast<uint64_t>(std::max(1, m_parameters.fps))))
                 return abort(controller);
 
-            const double durationSeconds = std::max(0.0, preparation.effectiveDurationSeconds);
+            const double durationSeconds = std::max(0.0, preparedViewpoints.metrics.effectiveDurationSeconds);
             m_totalFrames = std::max<long>(1, static_cast<long>(std::llround(durationSeconds * static_cast<double>(std::max(1, m_parameters.fps)))) + 1);
         }
         else
