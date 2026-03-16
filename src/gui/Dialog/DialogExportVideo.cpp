@@ -125,7 +125,7 @@ void DialogExportVideo::startGeneration()
 	m_parameters.animMode = m_animationMode;
 	if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS)
 	{
-		if (m_animationConfigId.isNull())
+		if (m_animationConfigId == xg::Guid())
 		{
 			m_dataDispatcher.updateInformation(new GuiDataWarning(TEXT_CONTEXT_ANIMATION_NEED_TWO_VIEWPOINTS));
 			return;
