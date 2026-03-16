@@ -306,6 +306,9 @@ void ToolBarAnimationGroup::slotGenerateVideo()
 		return;
 
 	m_dialog->setAnimationMode(m_ui.betweenViewpointsRadioButton->isChecked() ? VideoAnimationMode::BETWEENVIEWPOINTS : VideoAnimationMode::ORBITAL);
+	const ViewPointAnimationConfig* selectedConfig = getSelectedAnimationConfig();
+	m_dialog->setViewpointAnimationId(selectedConfig ? selectedConfig->getId() : xg::Guid());
+	m_dialog->setOrbitalDegrees(m_ui.degreesSpinBox->value());
 	m_dialog->setLength(m_ui.lengthSpinBox->value());
 	m_dialog->setInterpolateRenderings(m_ui.interpolateCheckBox->isChecked());
 	m_dialog->show();

@@ -5,11 +5,40 @@
 #include "models/OpenScanToolsModelEssentials.h"
 #include "models/application/ViewPointAnimation.h"
 
+#include <cstddef>
+#include <vector>
+
 class IPanel;
 class AGraphNode;
+class ViewPointNode;
 
 namespace control::animation
 {
+    struct ViewpointsAnimationPreparationResult
+    {
+        double effectiveDurationSeconds = 0.0;
+        ViewPointAnimationMode mode = ViewPointAnimationMode::ConstantSpeed;
+        size_t viewpointCount = 0;
+    };
+
+    struct PreparedViewpointsAnimationPlayback
+    {
+        std::vector<SafePtr<ViewPointNode>> viewpoints;
+        std::vector<double> controlTimes;
+        ViewPointAnimationMode mode = ViewPointAnimationMode::ConstantSpeed;
+        bool smoothTransitions = false;
+        bool enableInterpolation = false;
+        ViewpointsAnimationPreparationResult metrics;
+    };
+
+    bool buildViewpointsAnimationPlayback(
+        Controller& controller,
+        const viewPointAnimationId& animationId,
+        int lengthSeconds,
+        bool interpolateRenderingBetweenViewpoints,
+        PreparedViewpointsAnimationPlayback& prepared,
+        bool emitWarnings = true);
+
     class AddViewPoint : public AControl
     {
     public:
