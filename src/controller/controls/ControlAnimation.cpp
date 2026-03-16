@@ -152,6 +152,43 @@ namespace control::animation
 
             return viewpoints;
         }
+
+        bool areViewpointsInterpolationCompatible(const ViewPointNode& reference, const ViewPointNode& candidate)
+        {
+            return reference.m_mode == candidate.m_mode &&
+                reference.m_blendMode == candidate.m_blendMode &&
+                reference.m_reduceFlash == candidate.m_reduceFlash &&
+                reference.m_flashAdvanced == candidate.m_flashAdvanced &&
+                reference.m_negativeEffect == candidate.m_negativeEffect &&
+                reference.m_postRenderingNormals.show == candidate.m_postRenderingNormals.show &&
+                reference.m_postRenderingAmbientOcclusion.enabled == candidate.m_postRenderingAmbientOcclusion.enabled &&
+                reference.m_postRenderingNormals.blendColor == candidate.m_postRenderingNormals.blendColor &&
+                reference.m_edgeAwareBlur.enabled == candidate.m_edgeAwareBlur.enabled &&
+                reference.m_depthLining.enabled == candidate.m_depthLining.enabled &&
+                reference.m_depthLining.strongMode == candidate.m_depthLining.strongMode;
+        }
+
+        bool canInterpolateSelectedViewpoints(const std::vector<SafePtr<ViewPointNode>>& viewpoints)
+        {
+            if (viewpoints.size() < 2)
+                return false;
+
+            ReadPtr<ViewPointNode> rReference = viewpoints.front().cget();
+            if (!rReference)
+                return false;
+
+            for (size_t i = 1; i < viewpoints.size(); ++i)
+            {
+                ReadPtr<ViewPointNode> rCandidate = viewpoints[i].cget();
+                if (!rCandidate)
+                    return false;
+
+                if (!areViewpointsInterpolationCompatible(*&rReference, *&rCandidate))
+                    return false;
+            }
+
+            return true;
+        }
     }
 
     AddViewPoint::AddViewPoint(SafePtr<AGraphNode> toAdd)
@@ -230,9 +267,10 @@ namespace control::animation
         return ControlType::addScansAnimationKeyPoint;
     }
 
-    PrepareViewpointsAnimation::PrepareViewpointsAnimation(const viewPointAnimationId& animationId, int lengthSeconds)
+    PrepareViewpointsAnimation::PrepareViewpointsAnimation(const viewPointAnimationId& animationId, int lengthSeconds, bool interpolateRenderingBetweenViewpoints)
         : m_animationId(animationId)
         , m_lengthSeconds(lengthSeconds)
+        , m_interpolateRenderingBetweenViewpoints(interpolateRenderingBetweenViewpoints)
     {}
 
     PrepareViewpointsAnimation::~PrepareViewpointsAnimation()
@@ -300,6 +338,16 @@ namespace control::animation
         wCam->cleanAnimation();
         wCam->setLoop(false);
         wCam->setSpeed(1);
+
+        bool enableInterpolation = false;
+        if (m_interpolateRenderingBetweenViewpoints)
+        {
+            enableInterpolation = canInterpolateSelectedViewpoints(viewpoints);
+            if (!enableInterpolation)
+                controller.updateInfo(new GuiDataWarning(TEXT_CONTEXT_ANIMATION_INCONSISTENT_INTERPOLATION));
+        }
+        wCam->setViewpointRenderInterpolationEnabled(enableInterpolation);
+
         wCam->setAnimationTiming(itConfig->second.getMode(), static_cast<double>(m_lengthSeconds), controlTimes, itConfig->second.getSmoothTransitions());
         for (const SafePtr<ViewPointNode>& viewpoint : viewpoints)
             wCam->AddViewPoint(viewpoint);
