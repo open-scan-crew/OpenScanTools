@@ -20,9 +20,6 @@ public:
     void closeEvent(QCloseEvent* event);
 
 private:
-    void onViewpoint1Click();
-    void onViewpoint2Click();
-
     void onSelectOutFolder();
 	void onSelectOutFile();
 
@@ -36,6 +33,8 @@ private:
 
 public:
     void setAnimationMode(VideoAnimationMode mode);
+    void setViewpointAnimationId(const viewPointAnimationId& animationId);
+    void setOrbitalDegrees(int degrees);
     void setLength(int length);
     void setInterpolateRenderings(bool interpolate);
 
@@ -43,9 +42,10 @@ private:
     Ui::DialogExportVideo m_ui;
     QString m_openPath;
 
-    int m_viewpointToEdit = -1;
 	VideoExportParameters m_parameters;
 	VideoAnimationMode m_animationMode = VideoAnimationMode::BETWEENVIEWPOINTS;
+	viewPointAnimationId m_viewpointAnimationId = xg::Guid();
+	int m_orbitalDegrees = 360;
 	int m_length = 30;
 	bool m_interpolateRenderings = false;
 
