@@ -206,17 +206,10 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
         }
 
         m_exportState = 1;
-        controller.updateInfo(new GuiDataCallImage(m_parameters.hdImage, getNextFramePath()));
-        return m_state = ContextState::waiting_for_input;
+        return m_state = ContextState::ready_for_using;
     }
 
     if (m_exportState == 1)
-    {
-        m_exportState = 2;
-        return m_state = ContextState::waiting_for_input;
-    }
-
-    if (m_exportState == 2)
     {
         SafePtr<CameraNode> cam = controller.getGraphManager().getCameraNode();
         WritePtr<CameraNode> wCam = cam.get();
@@ -229,7 +222,7 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
             return m_state = ContextState::ready_for_using;
         }
 
-        if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS)
+        if (m_animFrame > 1 && m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS)
         {
             const double t = std::clamp(static_cast<double>(m_animFrame - 1) / static_cast<double>(std::max(1, m_parameters.fps)), 0.0, m_viewpointControlTimes.back());
             auto upper = std::upper_bound(m_viewpointControlTimes.begin(), m_viewpointControlTimes.end(), t);
@@ -267,7 +260,7 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
                 wCam->setFovy(left->getFovy() * (1.0 - alpha) + right->getFovy() * alpha);
             }
         }
-        else
+        else if (m_animFrame > 1)
         {
             const double target = m_orbitalTotalAngleRad * static_cast<double>(m_animFrame - 1) / static_cast<double>(std::max<long>(1, m_totalFrames));
             const double delta = target - m_orbitalLastAppliedRad;
@@ -282,6 +275,12 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
         }
 
         controller.updateInfo(new GuiDataCallImage(m_parameters.hdImage, getNextFramePath()));
+        m_exportState = 2;
+        return m_state = ContextState::waiting_for_input;
+    }
+
+    if (m_exportState == 2)
+    {
         return m_state = ContextState::waiting_for_input;
     }
 
