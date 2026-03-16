@@ -180,6 +180,7 @@
 //ViewPointAnimation
 #define Key_AnimationMode "AnimationMode"
 #define Key_AnimationLines "AnimationLines"
+#define Key_SmoothTransitions "SmoothTransitions"
 #define Key_ViewPointId "ViewPointId"
 #define Key_Position "Position"
 

@@ -4,12 +4,14 @@ ViewPointAnimationConfig::ViewPointAnimationConfig()
     : m_id(xg::newGuid())
     , m_order(0)
     , m_mode(ViewPointAnimationMode::PositionAsTime)
+    , m_smoothTransitions(false)
 {}
 
 ViewPointAnimationConfig::ViewPointAnimationConfig(viewPointAnimationId id)
     : m_id(id)
     , m_order(0)
     , m_mode(ViewPointAnimationMode::PositionAsTime)
+    , m_smoothTransitions(false)
 {}
 
 viewPointAnimationId ViewPointAnimationConfig::getId() const
@@ -30,6 +32,11 @@ uint32_t ViewPointAnimationConfig::getOrder() const
 ViewPointAnimationMode ViewPointAnimationConfig::getMode() const
 {
     return m_mode;
+}
+
+bool ViewPointAnimationConfig::getSmoothTransitions() const
+{
+    return m_smoothTransitions;
 }
 
 const std::vector<ViewPointAnimationLine>& ViewPointAnimationConfig::getLines() const
@@ -55,6 +62,11 @@ void ViewPointAnimationConfig::setOrder(uint32_t order)
 void ViewPointAnimationConfig::setMode(ViewPointAnimationMode mode)
 {
     m_mode = mode;
+}
+
+void ViewPointAnimationConfig::setSmoothTransitions(bool smoothTransitions)
+{
+    m_smoothTransitions = smoothTransitions;
 }
 
 void ViewPointAnimationConfig::setLines(const std::vector<ViewPointAnimationLine>& lines)

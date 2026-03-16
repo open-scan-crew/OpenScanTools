@@ -98,7 +98,7 @@ public:
     void cleanAnimation();
     void setSpeed(const int& speed);
     void setLoop(const bool& loop);
-    void setAnimationTiming(ViewPointAnimationMode mode, double durationSeconds, const std::vector<double>& controlPointTimesSec);
+    void setAnimationTiming(ViewPointAnimationMode mode, double durationSeconds, const std::vector<double>& controlPointTimesSec, bool smoothTransitions);
 
     // Orientation as Euler angles
     void yaw(double _amount);
@@ -190,6 +190,9 @@ private:
     void buildCatmullRomPlaybackPathFromTrajectory();
     void applyPlaybackTimingFromControlPoints();
     static double smoothstep01(double t);
+    static double smootherstep01(double t);
+    static std::vector<double> computeMonotonicCubicSlopes(const std::vector<double>& x, const std::vector<double>& y);
+    static double evaluateMonotonicCubicHermite(const std::vector<double>& x, const std::vector<double>& y, const std::vector<double>& slopes, double xQuery);
     static glm::dvec3 evaluateCentripetalCatmullRom(
         const glm::dvec3& p0,
         const glm::dvec3& p1,
@@ -321,6 +324,7 @@ private:
     ViewPointAnimationMode m_viewPointAnimationMode = ViewPointAnimationMode::ConstantSpeed;
     double m_animationDurationSeconds = 0.0;
     std::vector<double> m_controlPointTimesSeconds;
+    bool m_smoothViewpointTransitions = false;
     SimpleAnimation m_simpleAnimation = SimpleAnimation();
     // Uniform for projection and view matrix (separated)
     VkMultiUniform m_uniProjView;

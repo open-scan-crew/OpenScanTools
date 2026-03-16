@@ -300,7 +300,7 @@ namespace control::animation
         wCam->cleanAnimation();
         wCam->setLoop(false);
         wCam->setSpeed(1);
-        wCam->setAnimationTiming(itConfig->second.getMode(), static_cast<double>(m_lengthSeconds), controlTimes);
+        wCam->setAnimationTiming(itConfig->second.getMode(), static_cast<double>(m_lengthSeconds), controlTimes, itConfig->second.getSmoothTransitions());
         for (const SafePtr<ViewPointNode>& viewpoint : viewpoints)
             wCam->AddViewPoint(viewpoint);
 

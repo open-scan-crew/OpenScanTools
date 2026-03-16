@@ -716,11 +716,12 @@ bool CameraNode::resumeAnimation()
     return true;
 }
 
-void CameraNode::setAnimationTiming(ViewPointAnimationMode mode, double durationSeconds, const std::vector<double>& controlPointTimesSec)
+void CameraNode::setAnimationTiming(ViewPointAnimationMode mode, double durationSeconds, const std::vector<double>& controlPointTimesSec, bool smoothTransitions)
 {
     m_viewPointAnimationMode = mode;
     m_animationDurationSeconds = std::max(0.0, durationSeconds);
     m_controlPointTimesSeconds = controlPointTimesSec;
+    m_smoothViewpointTransitions = smoothTransitions;
 }
 
 void CameraNode::cleanAnimation()
@@ -1510,6 +1511,102 @@ double CameraNode::smoothstep01(double t)
     return clamped * clamped * (3.0 - 2.0 * clamped);
 }
 
+double CameraNode::smootherstep01(double t)
+{
+    const double clamped = std::clamp(t, 0.0, 1.0);
+    return clamped * clamped * clamped * (clamped * (clamped * 6.0 - 15.0) + 10.0);
+}
+
+std::vector<double> CameraNode::computeMonotonicCubicSlopes(const std::vector<double>& x, const std::vector<double>& y)
+{
+    const size_t count = x.size();
+    std::vector<double> slopes(count, 0.0);
+    if (count < 2 || y.size() != count)
+        return slopes;
+
+    std::vector<double> h(count - 1, 0.0);
+    std::vector<double> delta(count - 1, 0.0);
+    for (size_t i = 0; i + 1 < count; ++i)
+    {
+        h[i] = std::max(x[i + 1] - x[i], 1e-9);
+        delta[i] = (y[i + 1] - y[i]) / h[i];
+    }
+
+    slopes.front() = delta.front();
+    slopes.back() = delta.back();
+
+    if (count == 2)
+        return slopes;
+
+    for (size_t i = 1; i + 1 < count; ++i)
+    {
+        if (delta[i - 1] * delta[i] <= 0.0)
+        {
+            slopes[i] = 0.0;
+            continue;
+        }
+
+        const double w1 = 2.0 * h[i] + h[i - 1];
+        const double w2 = h[i] + 2.0 * h[i - 1];
+        slopes[i] = (w1 + w2) / (w1 / delta[i - 1] + w2 / delta[i]);
+    }
+
+    const auto clampEndpointSlope = [](double endpointSlope, double endpointDelta, double neighborDelta)
+    {
+        if (endpointDelta == 0.0)
+            return 0.0;
+        if (endpointSlope * endpointDelta <= 0.0)
+            return 0.0;
+        if (endpointDelta * neighborDelta < 0.0 && std::abs(endpointSlope) > std::abs(3.0 * endpointDelta))
+            return 3.0 * endpointDelta;
+        return endpointSlope;
+    };
+
+    const double d0 = delta[0];
+    const double d1 = delta[1];
+    const double h0 = h[0];
+    const double h1 = h[1];
+    const double m0 = ((2.0 * h0 + h1) * d0 - h0 * d1) / (h0 + h1);
+    slopes[0] = clampEndpointSlope(m0, d0, d1);
+
+    const size_t last = count - 1;
+    const double dn1 = delta[last - 1];
+    const double dn2 = delta[last - 2];
+    const double hn1 = h[last - 1];
+    const double hn2 = h[last - 2];
+    const double mn = ((2.0 * hn1 + hn2) * dn1 - hn1 * dn2) / (hn1 + hn2);
+    slopes[last] = clampEndpointSlope(mn, dn1, dn2);
+
+    return slopes;
+}
+
+double CameraNode::evaluateMonotonicCubicHermite(const std::vector<double>& x, const std::vector<double>& y, const std::vector<double>& slopes, double xQuery)
+{
+    if (x.size() < 2 || y.size() != x.size() || slopes.size() != x.size())
+        return 0.0;
+
+    if (xQuery <= x.front())
+        return y.front();
+    if (xQuery >= x.back())
+        return y.back();
+
+    auto upper = std::upper_bound(x.begin(), x.end(), xQuery);
+    size_t i = static_cast<size_t>(std::distance(x.begin(), upper) - 1);
+    i = std::min(i, x.size() - 2);
+
+    const double x0 = x[i];
+    const double x1 = x[i + 1];
+    const double h = std::max(x1 - x0, 1e-9);
+    const double t = std::clamp((xQuery - x0) / h, 0.0, 1.0);
+
+    const double h00 = (2.0 * t * t * t - 3.0 * t * t + 1.0);
+    const double h10 = (t * t * t - 2.0 * t * t + t);
+    const double h01 = (-2.0 * t * t * t + 3.0 * t * t);
+    const double h11 = (t * t * t - t * t);
+
+    return h00 * y[i] + h10 * h * slopes[i] + h01 * y[i + 1] + h11 * h * slopes[i + 1];
+}
+
 void CameraNode::applyPlaybackTimingFromControlPoints()
 {
     if (m_trajectory.size() < 2 || m_orientationTrajectory.size() != m_trajectory.size())
@@ -1569,20 +1666,72 @@ void CameraNode::applyPlaybackTimingFromControlPoints()
         segmentEndIndices.back() = cumulativeDistances.size() - 1;
 
         m_trajectory[0].dtime_arrival = controlTimes[0];
-        for (size_t seg = 0; seg < segmentCount; ++seg)
+        if (!m_smoothViewpointTransitions)
         {
-            const size_t startIdx = segmentStartIndices[seg];
-            const size_t maxIndex = cumulativeDistances.size() - 1;
-            const size_t endIdx = std::min(std::max(segmentEndIndices[seg], std::min(startIdx + 1, maxIndex)), maxIndex);
-            const double startDistance = cumulativeDistances[startIdx];
-            const double endDistance = cumulativeDistances[endIdx];
-            const double segmentDuration = std::max(0.001, controlTimes[seg + 1] - controlTimes[seg]);
-            for (size_t i = startIdx + 1; i <= endIdx; ++i)
+            for (size_t seg = 0; seg < segmentCount; ++seg)
             {
-                const double segmentAlpha = (endDistance > startDistance) ? (cumulativeDistances[i] - startDistance) / (endDistance - startDistance) : static_cast<double>(i - startIdx) / static_cast<double>(endIdx - startIdx);
-                const double easedAlpha = smoothstep01(segmentAlpha);
-                m_trajectory[i].dtime_arrival = controlTimes[seg] + segmentDuration * easedAlpha;
+                const size_t startIdx = segmentStartIndices[seg];
+                const size_t maxIndex = cumulativeDistances.size() - 1;
+                const size_t endIdx = std::min(std::max(segmentEndIndices[seg], std::min(startIdx + 1, maxIndex)), maxIndex);
+                const double startDistance = cumulativeDistances[startIdx];
+                const double endDistance = cumulativeDistances[endIdx];
+                const double segmentDuration = std::max(0.001, controlTimes[seg + 1] - controlTimes[seg]);
+                for (size_t i = startIdx + 1; i <= endIdx; ++i)
+                {
+                    const double segmentAlpha = (endDistance > startDistance) ? (cumulativeDistances[i] - startDistance) / (endDistance - startDistance) : static_cast<double>(i - startIdx) / static_cast<double>(endIdx - startIdx);
+                    const double easedAlpha = smoothstep01(segmentAlpha);
+                    m_trajectory[i].dtime_arrival = controlTimes[seg] + segmentDuration * easedAlpha;
+                }
             }
+        }
+        else
+        {
+            // Smoother mode (Option B): use a monotonic cubic interpolation of time over path progress.
+            // This keeps a strictly increasing timeline while avoiding abrupt speed changes at viewpoints.
+            std::vector<double> controlRatios(controlTimes.size(), 0.0);
+            controlRatios.front() = 0.0;
+            for (size_t seg = 0; seg < segmentCount; ++seg)
+            {
+                const size_t maxIndex = cumulativeDistances.size() - 1;
+                const size_t endIdx = std::min(segmentEndIndices[seg], maxIndex);
+                controlRatios[seg + 1] = (totalDistance > 1e-9)
+                    ? std::clamp(cumulativeDistances[endIdx] / totalDistance, 0.0, 1.0)
+                    : static_cast<double>(seg + 1) / static_cast<double>(segmentCount);
+            }
+
+            for (size_t i = 1; i < controlRatios.size(); ++i)
+            {
+                if (controlRatios[i] <= controlRatios[i - 1])
+                    controlRatios[i] = std::min(1.0, controlRatios[i - 1] + 1e-6);
+            }
+            controlRatios.back() = 1.0;
+
+            std::vector<double> smoothedControlTimes = controlTimes;
+            if (smoothedControlTimes.size() >= 2)
+            {
+                for (size_t i = 1; i + 1 < smoothedControlTimes.size(); ++i)
+                {
+                    const double neighborAverage = 0.5 * (controlTimes[i - 1] + controlTimes[i + 1]);
+                    const double blended = controlTimes[i] + (neighborAverage - controlTimes[i]) * 0.2;
+                    smoothedControlTimes[i] = std::clamp(blended, controlTimes[i - 1] + 1e-6, controlTimes[i + 1] - 1e-6);
+                }
+            }
+
+            const std::vector<double> slopes = computeMonotonicCubicSlopes(controlRatios, smoothedControlTimes);
+            for (size_t i = 1; i < m_trajectory.size(); ++i)
+            {
+                const double ratio = (totalDistance > 1e-9)
+                    ? std::clamp(cumulativeDistances[i] / totalDistance, 0.0, 1.0)
+                    : static_cast<double>(i) / static_cast<double>(m_trajectory.size() - 1);
+                const double easedRatio = smootherstep01(ratio);
+                const double blendRatio = std::clamp(0.75 * ratio + 0.25 * easedRatio, 0.0, 1.0);
+                m_trajectory[i].dtime_arrival = evaluateMonotonicCubicHermite(controlRatios, smoothedControlTimes, slopes, blendRatio);
+            }
+
+            for (size_t i = 1; i < m_trajectory.size(); ++i)
+                m_trajectory[i].dtime_arrival = std::max(m_trajectory[i].dtime_arrival, m_trajectory[i - 1].dtime_arrival + 1e-6);
+
+            m_trajectory.back().dtime_arrival = std::max(controlTimes.back(), m_trajectory[m_trajectory.size() - 2].dtime_arrival + 1e-6);
         }
     }
 

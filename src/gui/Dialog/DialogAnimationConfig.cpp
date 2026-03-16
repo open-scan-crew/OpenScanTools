@@ -100,6 +100,7 @@ void DialogAnimationConfig::setupForNew()
     m_ui.lineEdit_animationName->clear();
     m_ui.animationListWidgetTable->setRowCount(0);
     m_ui.positionAsTimeRadioButton->setChecked(true);
+    m_ui.smoothTransitionsCheckBox->setChecked(false);
     m_ui.deleteButton->setEnabled(false);
     m_ui.lineEdit_animationName->setFocus();
 }
@@ -300,6 +301,8 @@ void DialogAnimationConfig::setCurrentConfigToUi(const ViewPointAnimationConfig&
     else
         m_ui.constantIntervalsRadioButton->setChecked(true);
 
+    m_ui.smoothTransitionsCheckBox->setChecked(config.getSmoothTransitions());
+
     int row = 0;
     for (const ViewPointAnimationLine& line : config.getLines())
     {
@@ -355,6 +358,7 @@ ViewPointAnimationConfig DialogAnimationConfig::buildConfigFromUi(bool* ok) cons
     config.setMode(m_ui.positionAsTimeRadioButton->isChecked() ? ViewPointAnimationMode::PositionAsTime :
                    m_ui.constantSpeedRadioButton->isChecked() ? ViewPointAnimationMode::ConstantSpeed :
                                                                ViewPointAnimationMode::ConstantIntervals);
+    config.setSmoothTransitions(m_ui.smoothTransitionsCheckBox->isChecked());
     config.setLines(readLinesFromUi(ok));
 
     if (m_isEdition)
