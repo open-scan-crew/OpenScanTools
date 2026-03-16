@@ -276,15 +276,21 @@ namespace control::animation
     PrepareViewpointsAnimation::~PrepareViewpointsAnimation()
     {}
 
-    void PrepareViewpointsAnimation::doFunction(Controller& controller)
+    bool prepareViewpointsAnimationForPlayback(
+        Controller& controller,
+        const viewPointAnimationId& animationId,
+        int lengthSeconds,
+        bool interpolateRenderingBetweenViewpoints,
+        ViewpointsAnimationPreparationResult* result,
+        bool emitWarnings)
     {
         const std::unordered_map<viewPointAnimationId, ViewPointAnimationConfig>& configs = controller.getContext().cgetViewPointAnimations();
-        auto itConfig = configs.find(m_animationId);
+        auto itConfig = configs.find(animationId);
         if (itConfig == configs.end())
         {
-            controller.updateInfo(new GuiDataRenderAnimationToolbarState(false));
-            controller.updateInfo(new GuiDataWarning(TEXT_CONTEXT_ANIMATION_NEED_TWO_VIEWPOINTS));
-            return;
+            if (emitWarnings)
+                controller.updateInfo(new GuiDataWarning(TEXT_CONTEXT_ANIMATION_NEED_TWO_VIEWPOINTS));
+            return false;
         }
 
         std::unordered_map<xg::Guid, SafePtr<ViewPointNode>> perspectiveById;
@@ -315,44 +321,66 @@ namespace control::animation
             {
                 if (line.position <= previousTime)
                 {
-                    controller.updateInfo(new GuiDataWarning(TEXT_CONTEXT_ANIMATION_INCONSISTENT_TIMES));
-                    return;
+                    if (emitWarnings)
+                        controller.updateInfo(new GuiDataWarning(TEXT_CONTEXT_ANIMATION_INCONSISTENT_TIMES));
+                    return false;
                 }
                 previousTime = line.position;
             }
         }
 
-        const bool canStart = viewpoints.size() >= 2;
-
-        if (!canStart)
+        if (viewpoints.size() < 2)
         {
-            controller.updateInfo(new GuiDataRenderAnimationToolbarState(false));
-            controller.updateInfo(new GuiDataWarning(TEXT_CONTEXT_ANIMATION_NEED_TWO_VIEWPOINTS));
-            return;
+            if (emitWarnings)
+                controller.updateInfo(new GuiDataWarning(TEXT_CONTEXT_ANIMATION_NEED_TWO_VIEWPOINTS));
+            return false;
         }
 
         WritePtr<CameraNode> wCam = controller.getGraphManager().getCameraNode().get();
         if (!wCam)
-            return;
+            return false;
 
         wCam->cleanAnimation();
         wCam->setLoop(false);
         wCam->setSpeed(1);
 
         bool enableInterpolation = false;
-        if (m_interpolateRenderingBetweenViewpoints)
+        if (interpolateRenderingBetweenViewpoints)
         {
             enableInterpolation = canInterpolateSelectedViewpoints(viewpoints);
-            if (!enableInterpolation)
+            if (!enableInterpolation && emitWarnings)
                 controller.updateInfo(new GuiDataWarning(TEXT_CONTEXT_ANIMATION_INCONSISTENT_INTERPOLATION));
         }
         wCam->setViewpointRenderInterpolationEnabled(enableInterpolation);
 
-        wCam->setAnimationTiming(itConfig->second.getMode(), static_cast<double>(m_lengthSeconds), controlTimes, itConfig->second.getSmoothTransitions());
+        wCam->setAnimationTiming(itConfig->second.getMode(), static_cast<double>(lengthSeconds), controlTimes, itConfig->second.getSmoothTransitions());
         for (const SafePtr<ViewPointNode>& viewpoint : viewpoints)
             wCam->AddViewPoint(viewpoint);
 
-        controller.updateInfo(new GuiDataRenderAnimationToolbarState(true));
+        if (result)
+        {
+            result->mode = itConfig->second.getMode();
+            result->viewpointCount = viewpoints.size();
+            if (itConfig->second.getMode() == ViewPointAnimationMode::PositionAsTime && controlTimes.size() >= 2)
+                result->effectiveDurationSeconds = std::max(0.0, controlTimes.back() - controlTimes.front());
+            else
+                result->effectiveDurationSeconds = std::max(0.0, static_cast<double>(lengthSeconds));
+        }
+
+        return true;
+    }
+
+    void PrepareViewpointsAnimation::doFunction(Controller& controller)
+    {
+        const bool prepared = prepareViewpointsAnimationForPlayback(
+            controller,
+            m_animationId,
+            m_lengthSeconds,
+            m_interpolateRenderingBetweenViewpoints,
+            nullptr,
+            true);
+
+        controller.updateInfo(new GuiDataRenderAnimationToolbarState(prepared));
     }
 
     ControlType PrepareViewpointsAnimation::getType() const
