@@ -207,7 +207,7 @@ void ToolBarAnimationGroup::slotStartAnimation()
 		m_isStopRequested = false;
 		m_pendingViewpointsStart = false;
 		m_waitingChronometerStartAtFirstViewpoint = false;
-		m_dataDispatcher.updateInformation(new GuiDataRenderStartAnimation(!viewpointsMode, static_cast<double>(m_ui.lengthSpinBox->value()), true, m_ui.degreesSpinBox->value()));
+		m_dataDispatcher.updateInformation(new GuiDataRenderStartAnimation(!viewpointsMode, static_cast<double>(m_ui.lengthSpinBox->value()), true, m_ui.degreesSpinBox->value(), m_ui.interpolateCheckBox->isChecked()));
 		startChronometer();
 		m_isStarted = true;
 		m_isPaused = false;
@@ -237,7 +237,7 @@ void ToolBarAnimationGroup::slotStartAnimation()
 		}
 
 		m_pendingViewpointsStart = true;
-		m_dataDispatcher.sendControl(new control::animation::PrepareViewpointsAnimation(selectedConfig->getId(), m_ui.lengthSpinBox->value()));
+		m_dataDispatcher.sendControl(new control::animation::PrepareViewpointsAnimation(selectedConfig->getId(), m_ui.lengthSpinBox->value(), m_ui.interpolateCheckBox->isChecked()));
 		updateUI();
 		return;
 	}
@@ -250,7 +250,7 @@ void ToolBarAnimationGroup::slotStartAnimation()
 		<< LOGENDL;
 	m_isStopRequested = false;
 	m_waitingChronometerStartAtFirstViewpoint = viewpointsMode;
-	m_dataDispatcher.updateInformation(new GuiDataRenderStartAnimation(!viewpointsMode, static_cast<double>(m_ui.lengthSpinBox->value()), false, m_ui.degreesSpinBox->value()));
+	m_dataDispatcher.updateInformation(new GuiDataRenderStartAnimation(!viewpointsMode, static_cast<double>(m_ui.lengthSpinBox->value()), false, m_ui.degreesSpinBox->value(), m_ui.interpolateCheckBox->isChecked()));
 	if (!viewpointsMode)
 		startChronometer();
 	m_isStarted = true;
@@ -264,7 +264,7 @@ void ToolBarAnimationGroup::startViewpointsAnimationPlayback()
 	resetChronometer();
 	m_isStopRequested = false;
 	m_waitingChronometerStartAtFirstViewpoint = true;
-	m_dataDispatcher.updateInformation(new GuiDataRenderStartAnimation(false, static_cast<double>(m_ui.lengthSpinBox->value()), false, m_ui.degreesSpinBox->value()));
+	m_dataDispatcher.updateInformation(new GuiDataRenderStartAnimation(false, static_cast<double>(m_ui.lengthSpinBox->value()), false, m_ui.degreesSpinBox->value(), m_ui.interpolateCheckBox->isChecked()));
 	m_isStarted = true;
 	m_isPaused = false;
 	m_isOrbitalRunning = false;

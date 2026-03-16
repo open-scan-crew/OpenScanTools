@@ -218,6 +218,7 @@ void VulkanViewport::onRenderStartAnimation(IGuiData* data)
     }
     else
     {
+        wCam->setViewpointRenderInterpolationEnabled(startData->m_interpolateViewpointRenderings);
         const bool started = wCam->startAnimation(m_saveImagesAnim);
         m_viewpointStartInputLockArmed = started;
         GUI_LOG << "[ANIM_DBG] viewport start request viewpoints started=" << started

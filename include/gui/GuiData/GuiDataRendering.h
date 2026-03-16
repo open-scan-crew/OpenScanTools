@@ -377,11 +377,12 @@ public:
 class GuiDataRenderStartAnimation : public IGuiData
 {
 public:
-	GuiDataRenderStartAnimation(bool isOrbital = false, double durationSeconds = 0.0, bool resume = false, int orbitalDegrees = 360)
+	GuiDataRenderStartAnimation(bool isOrbital = false, double durationSeconds = 0.0, bool resume = false, int orbitalDegrees = 360, bool interpolateViewpointRenderings = false)
 		: m_isOrbital(isOrbital)
 		, m_durationSeconds(durationSeconds)
 		, m_resume(resume)
 		, m_orbitalDegrees(orbitalDegrees)
+		, m_interpolateViewpointRenderings(interpolateViewpointRenderings)
 	{}
 	~GuiDataRenderStartAnimation() {}
 	virtual guiDType getType() override;
@@ -390,6 +391,7 @@ public:
 	const double m_durationSeconds;
 	const bool m_resume;
 	const int m_orbitalDegrees;
+	const bool m_interpolateViewpointRenderings;
 };
 
 class GuiDataRenderPauseAnimation : public IGuiData

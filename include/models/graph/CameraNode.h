@@ -41,6 +41,20 @@ struct SimpleAnimation {
     KeyPoint end;
 };
 
+struct ViewpointRenderState
+{
+    float transparency = 0.0f;
+    float normalStrength = 0.0f;
+    float normalGloss = 0.0f;
+    float hue = 0.0f;
+    float brightness = 0.0f;
+    float saturation = 0.0f;
+    float luminance = 0.0f;
+    float contrast = 0.0f;
+    float alphaObject = 0.0f;
+    float fovy = 0.0f;
+};
+
 enum class InterpolationValueWithPreviousAnimation { NONE, BEZIER/*, LINEAR*/ };
 
 class CameraNode : public AGraphNode, public IPanel, public RenderingParameters
@@ -99,6 +113,7 @@ public:
     void setSpeed(const int& speed);
     void setLoop(const bool& loop);
     void setAnimationTiming(ViewPointAnimationMode mode, double durationSeconds, const std::vector<double>& controlPointTimesSec, bool smoothTransitions);
+    void setViewpointRenderInterpolationEnabled(bool enabled);
 
     // Orientation as Euler angles
     void yaw(double _amount);
@@ -205,6 +220,12 @@ private:
     static glm::dquat quaternionLog(const glm::dquat& q);
     static glm::dquat quaternionExp(const glm::dquat& q);
     static void enforceQuaternionSignContinuity(std::vector<glm::dquat>& quaternions);
+    void resetViewpointRenderInterpolation();
+    void initializeViewpointRenderInterpolationControlTimes();
+    void applyViewpointRenderInterpolation(double elapsedAnimationSeconds);
+    static ViewpointRenderState buildViewpointRenderState(const ViewPointNode& viewpoint);
+    static ViewpointRenderState lerpViewpointRenderState(const ViewpointRenderState& start, const ViewpointRenderState& end, double t);
+    void applyViewpointRenderState(const ViewpointRenderState& state);
 
     void applyProjection(const ProjectionData& projectionData);
 
@@ -325,6 +346,9 @@ private:
     double m_animationDurationSeconds = 0.0;
     std::vector<double> m_controlPointTimesSeconds;
     bool m_smoothViewpointTransitions = false;
+    bool m_interpolateViewpointRenderings = false;
+    std::vector<ViewpointRenderState> m_viewpointRenderStates;
+    std::vector<double> m_renderControlPointTimesSeconds;
     SimpleAnimation m_simpleAnimation = SimpleAnimation();
     // Uniform for projection and view matrix (separated)
     VkMultiUniform m_uniProjView;

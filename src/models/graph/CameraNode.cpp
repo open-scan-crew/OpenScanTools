@@ -646,6 +646,25 @@ bool CameraNode::startAnimation(const bool& isOffline, const uint64_t& step)
         return false;
     }
 
+    if (m_interpolateViewpointRenderings)
+    {
+        m_viewpointRenderStates.clear();
+        m_viewpointRenderStates.reserve(m_animationPlaylist.size());
+        for (const SafePtr<ViewPointNode>& vp : m_animationPlaylist)
+        {
+            ReadPtr<ViewPointNode> rViewPoint = vp.cget();
+            if (!rViewPoint)
+            {
+                m_interpolateViewpointRenderings = false;
+                resetViewpointRenderInterpolation();
+                break;
+            }
+            m_viewpointRenderStates.push_back(buildViewpointRenderState(*&rViewPoint));
+        }
+        if (m_interpolateViewpointRenderings)
+            initializeViewpointRenderInterpolationControlTimes();
+    }
+
     buildViewpointAnimationPlaybackPath();
 
     if (m_trajectory.size() < 2)
@@ -692,6 +711,7 @@ bool CameraNode::endAnimation()
     m_currentKeyPoint = 0;
     m_animFrames = 0;
     m_totalPausedDurationSeconds = 0.0;
+    resetViewpointRenderInterpolation();
     return wasAnimated;
 }
 
@@ -724,6 +744,13 @@ void CameraNode::setAnimationTiming(ViewPointAnimationMode mode, double duration
     m_smoothViewpointTransitions = smoothTransitions;
 }
 
+void CameraNode::setViewpointRenderInterpolationEnabled(bool enabled)
+{
+    m_interpolateViewpointRenderings = enabled;
+    if (!enabled)
+        resetViewpointRenderInterpolation();
+}
+
 void CameraNode::cleanAnimation()
 {
     m_animationPlaylist.clear();
@@ -734,6 +761,7 @@ void CameraNode::cleanAnimation()
     m_animFrames = 0;
     m_isAnimationPaused = false;
     m_totalPausedDurationSeconds = 0.0;
+    resetViewpointRenderInterpolation();
 }
 
 void CameraNode::setSpeed(const int& speed)
@@ -1313,6 +1341,8 @@ bool CameraNode::animateViewpointTrajectory()
         dtime = std::max(0.0, elapsedSeconds) * ((m_speed > 0.0) ? m_speed : 1.0);
     }
 
+    applyViewpointRenderInterpolation(dtime);
+
     if (m_currentKeyPoint >= m_trajectory.size())
         return true;
 
@@ -1404,6 +1434,112 @@ bool CameraNode::animateViewpointTrajectory()
     }
 
     return true;
+}
+
+void CameraNode::resetViewpointRenderInterpolation()
+{
+    m_viewpointRenderStates.clear();
+    m_renderControlPointTimesSeconds.clear();
+}
+
+void CameraNode::initializeViewpointRenderInterpolationControlTimes()
+{
+    m_renderControlPointTimesSeconds.clear();
+    if (m_viewpointRenderStates.size() < 2)
+        return;
+
+    if (m_viewPointAnimationMode == ViewPointAnimationMode::PositionAsTime && m_controlPointTimesSeconds.size() == m_viewpointRenderStates.size())
+    {
+        m_renderControlPointTimesSeconds = m_controlPointTimesSeconds;
+        const double firstTime = m_renderControlPointTimesSeconds.front();
+        for (double& controlTime : m_renderControlPointTimesSeconds)
+            controlTime -= firstTime;
+        return;
+    }
+
+    const double targetDuration = std::max(m_animationDurationSeconds, 0.001);
+    const size_t lastIndex = m_viewpointRenderStates.size() - 1;
+    m_renderControlPointTimesSeconds.resize(m_viewpointRenderStates.size(), 0.0);
+    for (size_t i = 0; i <= lastIndex; ++i)
+        m_renderControlPointTimesSeconds[i] = targetDuration * static_cast<double>(i) / static_cast<double>(lastIndex);
+}
+
+void CameraNode::applyViewpointRenderInterpolation(double elapsedAnimationSeconds)
+{
+    if (!m_interpolateViewpointRenderings || m_viewpointRenderStates.size() < 2 || m_renderControlPointTimesSeconds.size() != m_viewpointRenderStates.size())
+        return;
+
+    const double clampedTime = std::clamp(elapsedAnimationSeconds, m_renderControlPointTimesSeconds.front(), m_renderControlPointTimesSeconds.back());
+    auto upperBound = std::upper_bound(m_renderControlPointTimesSeconds.begin(), m_renderControlPointTimesSeconds.end(), clampedTime);
+
+    if (upperBound == m_renderControlPointTimesSeconds.begin())
+    {
+        applyViewpointRenderState(m_viewpointRenderStates.front());
+        return;
+    }
+
+    if (upperBound == m_renderControlPointTimesSeconds.end())
+    {
+        applyViewpointRenderState(m_viewpointRenderStates.back());
+        return;
+    }
+
+    const size_t rightIndex = static_cast<size_t>(std::distance(m_renderControlPointTimesSeconds.begin(), upperBound));
+    const size_t leftIndex = rightIndex - 1;
+    const double leftTime = m_renderControlPointTimesSeconds[leftIndex];
+    const double rightTime = m_renderControlPointTimesSeconds[rightIndex];
+    const double safeDuration = std::max(rightTime - leftTime, 1e-9);
+    const double alpha = std::clamp((clampedTime - leftTime) / safeDuration, 0.0, 1.0);
+
+    const ViewpointRenderState interpolatedState = lerpViewpointRenderState(m_viewpointRenderStates[leftIndex], m_viewpointRenderStates[rightIndex], alpha);
+    applyViewpointRenderState(interpolatedState);
+}
+
+ViewpointRenderState CameraNode::buildViewpointRenderState(const ViewPointNode& viewpoint)
+{
+    ViewpointRenderState state;
+    state.transparency = viewpoint.m_transparency;
+    state.normalStrength = viewpoint.m_postRenderingNormals.normalStrength;
+    state.normalGloss = viewpoint.m_postRenderingNormals.gloss;
+    state.hue = viewpoint.m_hue;
+    state.brightness = viewpoint.m_brightness;
+    state.saturation = viewpoint.m_saturation;
+    state.luminance = viewpoint.m_luminance;
+    state.contrast = viewpoint.m_contrast;
+    state.alphaObject = viewpoint.m_alphaObject;
+    state.fovy = viewpoint.getFovy();
+    return state;
+}
+
+ViewpointRenderState CameraNode::lerpViewpointRenderState(const ViewpointRenderState& start, const ViewpointRenderState& end, double t)
+{
+    const float alpha = static_cast<float>(std::clamp(t, 0.0, 1.0));
+    ViewpointRenderState state;
+    state.transparency = start.transparency + (end.transparency - start.transparency) * alpha;
+    state.normalStrength = start.normalStrength + (end.normalStrength - start.normalStrength) * alpha;
+    state.normalGloss = start.normalGloss + (end.normalGloss - start.normalGloss) * alpha;
+    state.hue = start.hue + (end.hue - start.hue) * alpha;
+    state.brightness = start.brightness + (end.brightness - start.brightness) * alpha;
+    state.saturation = start.saturation + (end.saturation - start.saturation) * alpha;
+    state.luminance = start.luminance + (end.luminance - start.luminance) * alpha;
+    state.contrast = start.contrast + (end.contrast - start.contrast) * alpha;
+    state.alphaObject = start.alphaObject + (end.alphaObject - start.alphaObject) * alpha;
+    state.fovy = start.fovy + (end.fovy - start.fovy) * alpha;
+    return state;
+}
+
+void CameraNode::applyViewpointRenderState(const ViewpointRenderState& state)
+{
+    m_transparency = state.transparency;
+    m_postRenderingNormals.normalStrength = state.normalStrength;
+    m_postRenderingNormals.gloss = state.normalGloss;
+    m_hue = state.hue;
+    m_brightness = state.brightness;
+    m_saturation = state.saturation;
+    m_luminance = state.luminance;
+    m_contrast = state.contrast;
+    m_alphaObject = state.alphaObject;
+    setFovy(state.fovy, false);
 }
 
 void CameraNode::buildViewpointAnimationPlaybackPath()
