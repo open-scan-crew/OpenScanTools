@@ -1,6 +1,9 @@
 #ifndef ANIMATION_HELPER_H_
 #define ANIMATION_HELPER_H_
 
+#include "controller/Controller.h"
+#include "controller/ControllerContext.h"
+#include "models/graph/GraphManager.h"
 #include "models/application/ViewPointAnimation.h"
 #include "models/graph/ViewPointNode.h"
 #include "models/graph/AGraphNode.h"
@@ -10,8 +13,6 @@
 #include <vector>
 #include <limits>
 #include <algorithm>
-
-class Controller;
 
 namespace control::animation::helper
 {

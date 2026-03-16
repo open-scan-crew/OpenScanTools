@@ -304,13 +304,13 @@ namespace control::animation
     RefreshViewpointsAnimationState::~RefreshViewpointsAnimationState()
     {}
 
-    void RefreshViewpointsAnimationState::doFunction(Controller& controller)
-    {
-        normalizeAnimationConfigs(controller);
-        const std::vector<SafePtr<ViewPointNode>> viewpoints = collectPerspectiveViewpointsSorted(controller);
-        controller.updateInfo(new GuiDataRenderAnimationToolbarState(viewpoints.size() >= 2));
-        controller.updateInfo(new GuiDataSendViewPointAnimationData(getSortedAnimationConfigs(controller), collectAllViewpointInfos(controller)));
-    }
+	void RefreshViewpointsAnimationState::doFunction(Controller& controller)
+	{
+		normalizeAnimationConfigs(controller);
+		const std::vector<SafePtr<ViewPointNode>> viewpoints = helper::collectPerspectiveViewpointsSorted(controller);
+		controller.updateInfo(new GuiDataRenderAnimationToolbarState(viewpoints.size() >= 2));
+		controller.updateInfo(new GuiDataSendViewPointAnimationData(getSortedAnimationConfigs(controller), collectAllViewpointInfos(controller)));
+	}
 
     ControlType RefreshViewpointsAnimationState::getType() const
     {
