@@ -107,6 +107,8 @@ ContextState ContextExportVideoHD::feedMessage(IMessage* message, Controller& co
                 m_animFrame++;
                 if (m_animFrame > m_totalFrames)
                     m_exportState = 3;
+                else
+                    m_exportState = 1;
                 m_state = ContextState::ready_for_using;
             }
         }
