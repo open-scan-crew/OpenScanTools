@@ -1,6 +1,7 @@
 #include "controller/functionSystem/ContextExportVideoHD.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
+#include "controller/controls/AnimationHelper.h"
 
 #include "models/graph/GraphManager.h"
 #include "models/graph/AGraphNode.h"
@@ -26,9 +27,8 @@
 #include "utils/math/basic_define.h"
 #include <cmath>
 #include <algorithm>
-#include <unordered_map>
-#include <limits>
-#include <glm/gtc/quaternion.hpp>
+#include <unordered_set>
+#include <glm/gtx/quaternion.hpp>
 #include <filesystem>
 #include <QtCore/QProcess>
 #include <QtCore/QStringList>
@@ -49,70 +49,6 @@ QString resolveFfmpegExecutable()
     return QStringLiteral("ffmpeg");
 }
 
-bool areViewpointsInterpolationCompatible(const ViewPointNode& reference, const ViewPointNode& candidate)
-{
-    return reference.m_mode == candidate.m_mode &&
-        reference.m_blendMode == candidate.m_blendMode &&
-        reference.m_reduceFlash == candidate.m_reduceFlash &&
-        reference.m_flashAdvanced == candidate.m_flashAdvanced &&
-        reference.m_negativeEffect == candidate.m_negativeEffect &&
-        reference.m_postRenderingNormals.show == candidate.m_postRenderingNormals.show &&
-        reference.m_postRenderingAmbientOcclusion.enabled == candidate.m_postRenderingAmbientOcclusion.enabled &&
-        reference.m_postRenderingNormals.blendColor == candidate.m_postRenderingNormals.blendColor &&
-        reference.m_edgeAwareBlur.enabled == candidate.m_edgeAwareBlur.enabled &&
-        reference.m_depthLining.enabled == candidate.m_depthLining.enabled &&
-        reference.m_depthLining.strongMode == candidate.m_depthLining.strongMode;
-}
-
-bool buildAnimationViewpointSequence(Controller& controller,
-    const viewPointAnimationId& animationId,
-    std::vector<SafePtr<ViewPointNode>>& viewpoints,
-    std::vector<double>& controlTimes,
-    ViewPointAnimationMode& mode)
-{
-    viewpoints.clear();
-    controlTimes.clear();
-
-    const std::unordered_map<viewPointAnimationId, ViewPointAnimationConfig>& configs = controller.getContext().cgetViewPointAnimations();
-    auto itConfig = configs.find(animationId);
-    if (itConfig == configs.end())
-        return false;
-
-    mode = itConfig->second.getMode();
-
-    std::unordered_map<xg::Guid, SafePtr<ViewPointNode>> perspectiveById;
-    const std::unordered_set<SafePtr<AGraphNode>> allViewpoints = controller.getGraphManager().getNodesByTypes({ ElementType::ViewPoint }, ObjectStatusFilter::ALL);
-    perspectiveById.reserve(allViewpoints.size());
-
-    for (const SafePtr<AGraphNode>& node : allViewpoints)
-    {
-        SafePtr<ViewPointNode> viewpoint = static_pointer_cast<ViewPointNode>(node);
-        ReadPtr<ViewPointNode> rViewpoint = viewpoint.cget();
-        if (!rViewpoint || rViewpoint->getProjectionMode() != ProjectionMode::Perspective)
-            continue;
-        perspectiveById.insert_or_assign(rViewpoint->getId(), viewpoint);
-    }
-
-    viewpoints.reserve(itConfig->second.getLines().size());
-    controlTimes.reserve(itConfig->second.getLines().size());
-
-    double previousTime = -std::numeric_limits<double>::infinity();
-    for (const ViewPointAnimationLine& line : itConfig->second.getLines())
-    {
-        auto itVp = perspectiveById.find(line.viewpointId);
-        if (itVp == perspectiveById.end())
-            continue;
-
-        if (mode == ViewPointAnimationMode::PositionAsTime && line.position <= previousTime)
-            return false;
-
-        viewpoints.push_back(itVp->second);
-        controlTimes.push_back(line.position);
-        previousTime = line.position;
-    }
-
-    return viewpoints.size() >= 2;
-}
 }
 
 ContextExportVideoHD::ContextExportVideoHD(const ContextId& id)
@@ -200,7 +136,7 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
         if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS)
         {
             ViewPointAnimationMode mode = ViewPointAnimationMode::ConstantIntervals;
-            if (!buildAnimationViewpointSequence(controller, m_parameters.viewPointAnimation, m_viewpoints, m_viewpointControlTimes, mode))
+            if (!control::animation::helper::buildAnimationViewpointSequence(controller, m_parameters.viewPointAnimation, m_viewpoints, m_viewpointControlTimes, mode))
                 return abort(controller);
 
             bool canInterpolate = true;
@@ -210,7 +146,7 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
             for (size_t i = 1; i < m_viewpoints.size() && canInterpolate; ++i)
             {
                 ReadPtr<ViewPointNode> rCandidate = m_viewpoints[i].cget();
-                canInterpolate = rCandidate && areViewpointsInterpolationCompatible(*&rReference, *&rCandidate);
+                canInterpolate = rCandidate && control::animation::helper::areViewpointsInterpolationCompatible(*&rReference, *&rCandidate);
             }
             wCam->setViewpointRenderInterpolationEnabled(m_parameters.interpolateRenderingBetweenViewpoints && canInterpolate);
 
@@ -317,7 +253,7 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
             wCam->setPosition(left->getCenter() * (1.0 - alpha) + right->getCenter() * alpha);
             wCam->setRotation(glm::normalize(glm::slerp(left->getOrientation(), right->getOrientation(), alpha)));
 
-            if (m_parameters.interpolateRenderingBetweenViewpoints && areViewpointsInterpolationCompatible(*&left, *&right))
+            if (m_parameters.interpolateRenderingBetweenViewpoints && control::animation::helper::areViewpointsInterpolationCompatible(*&left, *&right))
             {
                 wCam->m_transparency = left->m_transparency * static_cast<float>(1.0 - alpha) + right->m_transparency * static_cast<float>(alpha);
                 wCam->m_postRenderingNormals.normalStrength = left->m_postRenderingNormals.normalStrength * static_cast<float>(1.0 - alpha) + right->m_postRenderingNormals.normalStrength * static_cast<float>(alpha);
