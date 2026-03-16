@@ -2834,6 +2834,11 @@ bool DataDeserializer::DeserializeViewPointAnimation(const nlohmann::json& json,
     }
     data.setMode(mode);
 
+    bool smoothTransitions = false;
+    if (json.find(Key_SmoothTransitions) != json.end())
+        smoothTransitions = json.at(Key_SmoothTransitions).get<bool>();
+    data.setSmoothTransitions(smoothTransitions);
+
     std::vector<ViewPointAnimationLine> lines;
     if (json.find(Key_AnimationLines) != json.end() && json.at(Key_AnimationLines).is_array())
     {

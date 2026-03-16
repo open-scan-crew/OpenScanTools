@@ -34,12 +34,14 @@ public:
     const QString& getName() const;
     uint32_t getOrder() const;
     ViewPointAnimationMode getMode() const;
+    bool getSmoothTransitions() const;
     const std::vector<ViewPointAnimationLine>& getLines() const;
 
     void setId(const viewPointAnimationId& id);
     void setName(const QString& name);
     void setOrder(uint32_t order);
     void setMode(ViewPointAnimationMode mode);
+    void setSmoothTransitions(bool smoothTransitions);
     void setLines(const std::vector<ViewPointAnimationLine>& lines);
 
 private:
@@ -47,6 +49,7 @@ private:
     QString m_name;
     uint32_t m_order;
     ViewPointAnimationMode m_mode;
+    bool m_smoothTransitions;
     std::vector<ViewPointAnimationLine> m_lines;
 };
 

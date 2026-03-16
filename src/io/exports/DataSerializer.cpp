@@ -834,6 +834,7 @@ nlohmann::json DataSerializer::Serialize(const ViewPointAnimationConfig& data)
 	json[Key_Name] = Utils::to_utf8(data.getName().toStdWString());
 	json[Key_Order] = data.getOrder();
 	json[Key_AnimationMode] = magic_enum::enum_name(data.getMode());
+	json[Key_SmoothTransitions] = data.getSmoothTransitions();
 
 	nlohmann::json lines = nlohmann::json::array();
 	for (const ViewPointAnimationLine& line : data.getLines())
