@@ -74,6 +74,11 @@ namespace
 		json[Key_FlashAdvanced] = params.m_flashAdvanced;
 		json[Key_FlashControl] = params.m_flashControl;
 		json[Key_Transparency] = params.m_transparency;
+			json[Key_AdaptiveTransparency] = params.m_adaptiveTransparency;
+			json[Key_AdaptiveTransparencyNear] = params.m_adaptiveTransparencyNear;
+			json[Key_AdaptiveTransparencyFar] = params.m_adaptiveTransparencyFar;
+			json[Key_AdaptiveTransparencyDistNear] = params.m_adaptiveTransparencyDistNear;
+			json[Key_AdaptiveTransparencyDistFar] = params.m_adaptiveTransparencyDistFar;
 
 		json[Key_Post_Rendering_Normals] = { params.m_postRenderingNormals.show, params.m_postRenderingNormals.inverseTone, params.m_postRenderingNormals.blendColor, params.m_postRenderingNormals.normalStrength, params.m_postRenderingNormals.gloss };
 		json[Key_Post_Rendering_Ambient_Occlusion] = { params.m_postRenderingAmbientOcclusion.enabled, params.m_postRenderingAmbientOcclusion.radius, params.m_postRenderingAmbientOcclusion.intensity };
@@ -305,6 +310,23 @@ namespace
 			data.m_transparency = json.at(Key_Transparency).get<float>();
 		else
 			retVal = false;
+
+		if (json.find(Key_AdaptiveTransparency) != json.end())
+			data.m_adaptiveTransparency = json.at(Key_AdaptiveTransparency).get<bool>();
+		else
+			data.m_adaptiveTransparency = false;
+
+		if (json.find(Key_AdaptiveTransparencyNear) != json.end())
+			data.m_adaptiveTransparencyNear = json.at(Key_AdaptiveTransparencyNear).get<float>();
+
+		if (json.find(Key_AdaptiveTransparencyFar) != json.end())
+			data.m_adaptiveTransparencyFar = json.at(Key_AdaptiveTransparencyFar).get<float>();
+
+		if (json.find(Key_AdaptiveTransparencyDistNear) != json.end())
+			data.m_adaptiveTransparencyDistNear = json.at(Key_AdaptiveTransparencyDistNear).get<float>();
+
+		if (json.find(Key_AdaptiveTransparencyDistFar) != json.end())
+			data.m_adaptiveTransparencyDistFar = json.at(Key_AdaptiveTransparencyDistFar).get<float>();
 
 		if (json.find(Key_Display_Guizmo) != json.end())
 			data.m_displayGizmo = json.at(Key_Display_Guizmo).get<bool>();
@@ -933,7 +955,7 @@ void DisplayPresetManager::applyPreset(const DisplayPreset& preset)
 	m_dataDispatcher.updateInformation(new GuiDataRenderFlatColor(params.m_flatColor, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderDistanceRampValues(params.m_distRampMin, params.m_distRampMax, params.m_distRampSteps, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderTransparency(params.m_blendMode, params.m_transparency, m_focusCamera), this);
-	m_dataDispatcher.updateInformation(new GuiDataRenderTransparencyOptions(params.m_negativeEffect, params.m_reduceFlash, params.m_flashAdvanced, params.m_flashControl, 0.f, m_focusCamera), this);
+	m_dataDispatcher.updateInformation(new GuiDataRenderTransparencyOptions(params.m_negativeEffect, params.m_reduceFlash, params.m_flashAdvanced, params.m_flashControl, params.m_adaptiveTransparency, params.m_adaptiveTransparencyNear, params.m_adaptiveTransparencyFar, params.m_adaptiveTransparencyDistNear, params.m_adaptiveTransparencyDistFar, 0.f, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataPostRenderingNormals(params.m_postRenderingNormals, false, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderAmbientOcclusion(params.m_postRenderingAmbientOcclusion, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataEdgeAwareBlur(params.m_edgeAwareBlur, m_focusCamera), this);

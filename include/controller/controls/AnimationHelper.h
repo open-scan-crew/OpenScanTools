@@ -50,6 +50,7 @@ namespace control::animation::helper
             reference.m_reduceFlash == candidate.m_reduceFlash &&
             reference.m_flashAdvanced == candidate.m_flashAdvanced &&
             reference.m_negativeEffect == candidate.m_negativeEffect &&
+            reference.m_adaptiveTransparency == candidate.m_adaptiveTransparency &&
             reference.m_postRenderingNormals.show == candidate.m_postRenderingNormals.show &&
             reference.m_postRenderingAmbientOcclusion.enabled == candidate.m_postRenderingAmbientOcclusion.enabled &&
             reference.m_postRenderingNormals.blendColor == candidate.m_postRenderingNormals.blendColor &&

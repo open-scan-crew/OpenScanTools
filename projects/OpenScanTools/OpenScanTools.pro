@@ -253,6 +253,7 @@ HEADERS += ../../ext/imgui/imconfig.h \
     ../../include/gui/Dialog/DialogDeviceSelection.h \
     ../../include/gui/Dialog/HyperlinkAddDialog.h \
     ../../include/gui/Dialog/DialogSettings.h \
+    ../../include/gui/Dialog/DialogAdaptiveTransparencySettings.h \
     ../../include/gui/Dialog/DialogDeleteScanTypeSelect.h \
     ../../include/gui/Dialog/DialogAbout.h \
     ../../include/gui/Dialog/AListModifierDialog.h \
@@ -857,6 +858,7 @@ SOURCES += ../../ext/imgui/imgui.cpp \
     ../../src/gui/Dialog/DialogProjectTemplateEdition.cpp \
     ../../src/gui/Dialog/DialogRecentProjects.cpp \
     ../../src/gui/Dialog/DialogSettings.cpp \
+    ../../src/gui/Dialog/DialogAdaptiveTransparencySettings.cpp \
     ../../src/gui/Dialog/HyperlinkAddDialog.cpp \
     ../../src/gui/Dialog/ListListDialog.cpp \
     ../../src/gui/Dialog/ListModifierDialog.cpp \
@@ -1358,6 +1360,7 @@ FORMS += ../../src/gui/forms/AddHyperlinkDialog.ui \
     ../../src/gui/forms/DialogProjectTemplateEdition.ui \
     ../../src/gui/forms/DialogRecentProjects.ui \
     ../../src/gui/forms/DialogSettings.ui \
+    ../../src/gui/forms/DialogAdaptiveTransparencySettings.ui \
     ../../src/gui/forms/Message_Splashscreen.ui \
     ../../src/gui/forms/processing_splashscreen.ui \
     ../../src/gui/forms/Property_Clipping.ui \

@@ -748,6 +748,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\gui\Dialog\DialogSearchedObjects.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogSetOfPoints.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogSettings.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogAdaptiveTransparencySettings.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogShortcuts.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogSubProjectInfo.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\HyperlinkAddDialog.cpp" />
@@ -1588,6 +1589,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtMoc Include="..\..\include\gui\Dialog\DialogDisplayPresets.h" />
     <QtMoc Include="..\..\include\gui\Dialog\HyperlinkAddDialog.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogSettings.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogAdaptiveTransparencySettings.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogDeleteScanTypeSelect.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogAbout.h" />
     <QtMoc Include="..\..\include\gui\Dialog\AListModifierDialog.h" />
@@ -1978,6 +1980,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtUic Include="..\..\src\gui\forms\DialogSearchedObjects.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogSetOfPoints.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogSettings.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogAdaptiveTransparencySettings.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogShortcuts.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogSubProjectInfo.ui" />
     <QtUic Include="..\..\src\gui\forms\Message_Splashscreen.ui" />

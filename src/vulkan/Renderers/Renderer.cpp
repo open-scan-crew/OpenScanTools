@@ -5,6 +5,7 @@
 #include "models/3d/UniformClippingData.h"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/packing.hpp>
 
 #include <chrono>
 
@@ -512,7 +513,10 @@ void Renderer::createPointPipelineLayout()
     // rampMin     | 28     | 4
     // rampMax     | 32     | 4
     // rampSteps   | 36     | 4
+    // trsUiPack   | 40     | 4 (half2 : near/far)
+    // trsDstPack  | 44     | 4 (half2 : near/far)
     // ptColor     | 48     | 12
+    // adaptiveTrs | 60     | 4
     //-------------+---------------------------------
     VkPushConstantRange pcr[] =
     {
@@ -951,6 +955,24 @@ void Renderer::setConstantPointSize(float ptSize, VkCommandBuffer _cmdBuffer)
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, 4, &ptSize);
 
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT, 0, 4, &ptSize);
+}
+
+void Renderer::setConstantTransparency(float transparency, bool adaptiveTransparency, float adaptiveTransparencyNear, float adaptiveTransparencyFar,
+    float adaptiveTransparencyDistNear, float adaptiveTransparencyDistFar, VkCommandBuffer _cmdBuffer)
+{
+    const int adaptive = adaptiveTransparency ? 1 : 0;
+    const uint32_t uiPack = glm::packHalf2x16(glm::vec2(adaptiveTransparencyNear, adaptiveTransparencyFar));
+    const uint32_t distPack = glm::packHalf2x16(glm::vec2(adaptiveTransparencyDistNear, adaptiveTransparencyDistFar));
+
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 4, 4, &transparency);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 40, 4, &uiPack);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 44, 4, &distPack);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 60, 4, &adaptive);
+
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT, 4, 4, &transparency);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT, 40, 4, &uiPack);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT, 44, 4, &distPack);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT, 60, 4, &adaptive);
 }
 
 void Renderer::setConstantContrastBrightness(float contrast, float brightness, VkCommandBuffer _cmdBuffer)
