@@ -4,6 +4,7 @@
 #include "controller/controls/AnimationHelper.h"
 
 #include "models/graph/GraphManager.h"
+#include "models/graph/AGraphNode.h"
 #include "models/graph/CameraNode.h"
 #include "models/graph/ViewPointNode.h"
 #include "models/application/ViewPointAnimation.h"
