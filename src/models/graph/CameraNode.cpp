@@ -2247,6 +2247,15 @@ void CameraNode::onRenderTransparencyOptions(IGuiData* data)
     m_flashAdvanced = castData->m_flashAdvanced;
     m_flashControl = castData->m_flashControl;
     m_negativeEffect = castData->m_negativeEffect;
+    m_adaptiveTransparency = castData->m_adaptiveTransparency;
+    m_adaptiveTransparencyNear = castData->m_adaptiveTransparencyNear;
+    m_adaptiveTransparencyFar = castData->m_adaptiveTransparencyFar;
+    m_adaptiveTransparencyDistNear = std::max(castData->m_adaptiveTransparencyDistNear, 0.001f);
+    m_adaptiveTransparencyDistFar = castData->m_adaptiveTransparencyDistFar;
+    if (m_adaptiveTransparencyDistFar <= m_adaptiveTransparencyDistNear)
+        m_adaptiveTransparencyDistFar = m_adaptiveTransparencyDistNear + 1.f;
+    m_adaptiveTransparencyNear = std::clamp(castData->m_adaptiveTransparencyNear, 1.f, 100.f);
+    m_adaptiveTransparencyFar = std::clamp(castData->m_adaptiveTransparencyFar, 1.f, 100.f);
     sendNewUIViewPoint();
 }
 
