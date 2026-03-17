@@ -2589,6 +2589,18 @@ void CameraNode::moveToData(const SafePtr<AGraphNode>& data)
     sendNewUIViewPoint();
 }
 
+void CameraNode::snapToViewPoint(const SafePtr<ViewPointNode>& viewpoint)
+{
+    ReadPtr<ViewPointNode> rViewpoint = viewpoint.cget();
+    if (!rViewpoint)
+        return;
+
+    static_cast<DisplayParameters&>(*this) = *&rViewpoint;
+    applyProjection(*&rViewpoint);
+    setPosition(rViewpoint->getCenter());
+    m_quaternion = glm::normalize(rViewpoint->getOrientation());
+}
+
 void CameraNode::onCameraToViewPoint(IGuiData* data)
 {
     auto gui = static_cast<GuiDataCameraInfo*>(data);

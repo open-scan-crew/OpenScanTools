@@ -7,7 +7,6 @@
 #include "models/graph/AGraphNode.h"
 #include "models/graph/CameraNode.h"
 #include "models/graph/ViewPointNode.h"
-#include "models/3d/DisplayParameters.h"
 #include "models/application/ViewPointAnimation.h"
 
 #include "controller/messages/FilesMessage.h"
@@ -200,10 +199,7 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
 
             // Snap directly to the first viewpoint (same expectation as animation Start):
             // no initial transition trajectory before frame 1 capture.
-            static_cast<DisplayParameters&>(*wCam) = *&rStart;
-            wCam->applyProjection(*&rStart);
-            wCam->setPosition(rStart->getCenter());
-            wCam->setRotation(glm::normalize(rStart->getOrientation()));
+            wCam->snapToViewPoint(m_viewpoints.front());
         }
         else
         {
