@@ -594,6 +594,35 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
         retVal = false;
     }
 
+    if (json.find(Key_AdaptiveTransparency) != json.end())
+    {
+        data.m_adaptiveTransparency = json.at(Key_AdaptiveTransparency).get<bool>();
+    }
+    else
+    {
+        data.m_adaptiveTransparency = false;
+    }
+
+    if (json.find(Key_AdaptiveTransparencyNear) != json.end())
+    {
+        data.m_adaptiveTransparencyNear = json.at(Key_AdaptiveTransparencyNear).get<float>();
+    }
+
+    if (json.find(Key_AdaptiveTransparencyFar) != json.end())
+    {
+        data.m_adaptiveTransparencyFar = json.at(Key_AdaptiveTransparencyFar).get<float>();
+    }
+
+    if (json.find(Key_AdaptiveTransparencyDistNear) != json.end())
+    {
+        data.m_adaptiveTransparencyDistNear = json.at(Key_AdaptiveTransparencyDistNear).get<float>();
+    }
+
+    if (json.find(Key_AdaptiveTransparencyDistFar) != json.end())
+    {
+        data.m_adaptiveTransparencyDistFar = json.at(Key_AdaptiveTransparencyDistFar).get<float>();
+    }
+
     if (json.find(Key_Display_Guizmo) != json.end())
     {
         data.m_displayGizmo = json.at(Key_Display_Guizmo).get<bool>();

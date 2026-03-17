@@ -366,6 +366,11 @@ void ExportRenderingParameters(nlohmann::json& json, const RenderingParameters& 
     json[Key_FlashAdvanced] = params.m_flashAdvanced;
     json[Key_FlashControl] = params.m_flashControl;
 	json[Key_Transparency] = params.m_transparency;
+    json[Key_AdaptiveTransparency] = params.m_adaptiveTransparency;
+    json[Key_AdaptiveTransparencyNear] = params.m_adaptiveTransparencyNear;
+    json[Key_AdaptiveTransparencyFar] = params.m_adaptiveTransparencyFar;
+    json[Key_AdaptiveTransparencyDistNear] = params.m_adaptiveTransparencyDistNear;
+    json[Key_AdaptiveTransparencyDistFar] = params.m_adaptiveTransparencyDistFar;
 
     json[Key_Post_Rendering_Normals] = { params.m_postRenderingNormals.show, params.m_postRenderingNormals.inverseTone, params.m_postRenderingNormals.blendColor, params.m_postRenderingNormals.normalStrength, params.m_postRenderingNormals.gloss };
     json[Key_Post_Rendering_Ambient_Occlusion] = { params.m_postRenderingAmbientOcclusion.enabled, params.m_postRenderingAmbientOcclusion.radius, params.m_postRenderingAmbientOcclusion.intensity };

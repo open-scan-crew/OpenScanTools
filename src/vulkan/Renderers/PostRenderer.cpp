@@ -176,7 +176,7 @@ void PostRenderer::createPipelineLayouts()
         {
             VK_SHADER_STAGE_COMPUTE_BIT,
             0,
-            64
+            80
         }
     };
 
@@ -593,7 +593,7 @@ void PostRenderer::setConstantLighting(const PostRenderingNormals& lighting, VkC
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_normalPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 52, 4, &blend);
 }
 
-void PostRenderer::setConstantHDR(float opacity, bool substract, bool noFlash, bool flashAdvanced, float flashControl, VkExtent2D screenSize, Color32 background, VkCommandBuffer _cmdBuffer)
+void PostRenderer::setConstantHDR(float opacity, bool substract, bool noFlash, bool flashAdvanced, float flashControl, bool adaptiveTransparency, float adaptiveTransparencyNear, float adaptiveTransparencyFar, float adaptiveTransparencyDistNear, float adaptiveTransparencyDistFar, float nearZ, float farZ, bool isPerspective, VkExtent2D screenSize, Color32 background, VkCommandBuffer _cmdBuffer)
 {
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_transparencyHDRPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, 4, &opacity);
     int mode = substract ? 1 : 0;
@@ -606,6 +606,16 @@ void PostRenderer::setConstantHDR(float opacity, bool substract, bool noFlash, b
     int iAdvanced = flashAdvanced ? 1 : 0;
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_transparencyHDRPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 32, 4, &iAdvanced);
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_transparencyHDRPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 36, 4, &flashControl);
+    int iAdaptive = adaptiveTransparency ? 1 : 0;
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_transparencyHDRPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 40, 4, &iAdaptive);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_transparencyHDRPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 44, 4, &adaptiveTransparencyNear);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_transparencyHDRPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 48, 4, &adaptiveTransparencyFar);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_transparencyHDRPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 52, 4, &adaptiveTransparencyDistNear);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_transparencyHDRPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 56, 4, &adaptiveTransparencyDistFar);
+    float nearFar[2] = { nearZ, farZ };
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_transparencyHDRPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 60, 8, nearFar);
+    int projMode = isPerspective ? 0 : 1;
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_transparencyHDRPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 68, 4, &projMode);
 }
 
 void PostRenderer::cleanup()

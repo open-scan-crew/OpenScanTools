@@ -5,6 +5,7 @@
 layout (local_size_x = 16, local_size_y = 16) in;
 
 layout(set = 0, binding = 0, rgba16) uniform image2D inOutColorImage;
+layout(set = 0, binding = 1) uniform sampler2D inDepthImage;
 
 layout(push_constant) uniform PC {
    layout(offset = 0) float transparency;
@@ -14,26 +15,65 @@ layout(push_constant) uniform PC {
    layout(offset = 28) int noFlash;
    layout(offset = 32) int flashAdvanced;
    layout(offset = 36) float flashControl; // slider value [0..100]
+   layout(offset = 40) int adaptiveTransparency;
+   layout(offset = 44) float adaptiveTransparencyNear;
+   layout(offset = 48) float adaptiveTransparencyFar;
+   layout(offset = 52) float adaptiveTransparencyDistNear;
+   layout(offset = 56) float adaptiveTransparencyDistFar;
+   layout(offset = 60) vec2 nearFar;
+   layout(offset = 68) int projMode; // 0 perspective, 1 ortho
 } pc;
 
-void main() 
+float linearizeDepth(float rawDepth)
+{
+   float diffFarNear = pc.nearFar.y - pc.nearFar.x;
+   float mulFarNear = pc.nearFar.y * pc.nearFar.x;
+   if (pc.projMode == 0)
+      return mulFarNear / (pc.nearFar.y - rawDepth * diffFarNear);
+   return rawDepth * diffFarNear + pc.nearFar.x;
+}
+
+float uiToTrueTransparency(float uiTransparency)
+{
+   return 1.0 - 0.1 * exp(uiTransparency * -0.0554518);
+}
+
+float computeAdaptiveTransparency(ivec2 coord)
+{
+   float rawDepth = texelFetch(inDepthImage, coord, 0).r;
+   if (rawDepth <= 0.0)
+      return pc.transparency;
+
+   float linearDepth = linearizeDepth(rawDepth);
+   float nearDist = max(pc.adaptiveTransparencyDistNear, 0.0001);
+   float farDist = max(pc.adaptiveTransparencyDistFar, nearDist + 0.0001);
+   float k = clamp((linearDepth - nearDist) / (farDist - nearDist), 0.0, 1.0);
+   float uiTransparency = mix(pc.adaptiveTransparencyNear, pc.adaptiveTransparencyFar, k);
+   return uiToTrueTransparency(clamp(uiTransparency, 1.0, 100.0));
+}
+
+void main()
 {
    if (gl_GlobalInvocationID.x >= pc.screenSize.x ||
        gl_GlobalInvocationID.y >= pc.screenSize.y)
       return;
 
-   vec4 inColor = imageLoad(inOutColorImage, ivec2(gl_GlobalInvocationID.xy));
+   ivec2 gid = ivec2(gl_GlobalInvocationID.xy);
+   vec4 inColor = imageLoad(inOutColorImage, gid);
    float n = inColor.a;
-   float a = 1.f - pow(pc.transparency, n);
+
+   float transparency = pc.transparency;
+   if (pc.adaptiveTransparency != 0 && pc.projMode == 0)
+      transparency = computeAdaptiveTransparency(gid);
+
+   float a = 1.f - pow(transparency, n);
    vec3 c_rgb = n > 0.f ? inColor.rgb / n : vec3(0.0, 0.0, 0.0);
 
-   // Traitement HDR
    if (pc.noFlash != 0)
    {
       if (pc.flashAdvanced == 0)
       {
-         // Basic mode: legacy behaviour
-         float S = 0.5f;  // seuil
+         float S = 0.5f;
          vec3 c_hsl = rgb2hsl(c_rgb);
          if (a > S)
          {
@@ -48,12 +88,9 @@ void main()
       }
       else
       {
-         // Advanced mode: tone-map luminance only and preserve chroma
-         // Map slider [0..100] to exposure in [0.2, 10.0]
          float exposure = 0.2 + clamp(pc.flashControl, 0.0, 100.0) * (10.0 - 0.2) / 100.0;
          const vec3 luma = vec3(0.2126, 0.7152, 0.0722);
          float Y = dot(c_rgb, luma);
-         // Knee to keep mid-tones intact
          float Y0 = 0.6;
          float high = max(Y - Y0, 0.0);
          float Yt = Y0 + (1.0 - exp(-exposure * high));
@@ -61,11 +98,11 @@ void main()
          c_rgb *= scale;
       }
    }
-   // ***** Inversion des couleurs *****
+
    if (pc.substractiveMode == 1)
       c_rgb = vec3(1.0) - c_rgb;
 
    vec4 outColor = vec4(mix(pc.background, c_rgb, a), a);
 
-   imageStore(inOutColorImage, ivec2(gl_GlobalInvocationID.xy), outColor);
+   imageStore(inOutColorImage, gid, outColor);
 }

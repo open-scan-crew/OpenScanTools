@@ -891,7 +891,7 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
         if (display.m_blendMode != BlendMode::Opaque && display.m_transparency > 0.f)
         {
             vkm.beginPostTreatmentTransparency(framebuffer);
-            m_postRenderer.setConstantHDR(display.m_transparency, display.m_negativeEffect, display.m_reduceFlash, display.m_flashAdvanced, display.m_flashControl, framebuffer->extent, display.m_backgroundColor, cmdBuffer);
+            m_postRenderer.setConstantHDR(display.m_transparency, display.m_negativeEffect, display.m_reduceFlash, display.m_flashAdvanced, display.m_flashControl, display.m_adaptiveTransparency, display.m_adaptiveTransparencyNear, display.m_adaptiveTransparencyFar, display.m_adaptiveTransparencyDistNear, display.m_adaptiveTransparencyDistFar, wCamera->getNear(), wCamera->getFar(), wCamera->getProjectionMode() == ProjectionMode::Perspective, framebuffer->extent, display.m_backgroundColor, cmdBuffer);
             m_postRenderer.processTransparencyHDR(cmdBuffer, framebuffer->descSetSamplers, framebuffer->extent);
         }
     }
@@ -1068,7 +1068,7 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
     if (displayParam.m_blendMode != BlendMode::Opaque && displayParam.m_transparency > 0.f)
     {
         vkm.beginPostTreatmentTransparency(framebuffer);
-        m_postRenderer.setConstantHDR(displayParam.m_transparency, displayParam.m_negativeEffect, displayParam.m_reduceFlash, displayParam.m_flashAdvanced, displayParam.m_flashControl, framebuffer->extent, displayParam.m_backgroundColor, cmdBuffer);
+        m_postRenderer.setConstantHDR(displayParam.m_transparency, displayParam.m_negativeEffect, displayParam.m_reduceFlash, displayParam.m_flashAdvanced, displayParam.m_flashControl, displayParam.m_adaptiveTransparency, displayParam.m_adaptiveTransparencyNear, displayParam.m_adaptiveTransparencyFar, displayParam.m_adaptiveTransparencyDistNear, displayParam.m_adaptiveTransparencyDistFar, camera.getNear(), camera.getFar(), camera.getProjectionMode() == ProjectionMode::Perspective, framebuffer->extent, displayParam.m_backgroundColor, cmdBuffer);
         m_postRenderer.processTransparencyHDR(cmdBuffer, framebuffer->descSetSamplers, framebuffer->extent);
     }
 
