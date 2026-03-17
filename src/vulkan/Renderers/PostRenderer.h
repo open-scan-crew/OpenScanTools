@@ -41,7 +41,7 @@ public:
     void setConstantTexelThreshold(int texelThreshold, VkCommandBuffer _cmdBuffer);
     void setConstantLighting(const PostRenderingNormals& lighting, VkCommandBuffer _cmdBuffer) const;
 
-    void setConstantHDR(float transparency, bool substract, bool noFlash, bool flashAdvanced, float flashControl, VkExtent2D screenSize, Color32 background, VkCommandBuffer _cmdBuffer);
+    void setConstantHDR(float transparency, bool substract, bool noFlash, bool flashAdvanced, float highlightKneeStart, float highlightKneeSoftness, VkExtent2D screenSize, Color32 background, VkCommandBuffer _cmdBuffer);
 
     void cleanup();
 

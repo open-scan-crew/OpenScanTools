@@ -2245,7 +2245,8 @@ void CameraNode::onRenderTransparencyOptions(IGuiData* data)
     auto castData = static_cast<GuiDataRenderTransparencyOptions*>(data);
     m_reduceFlash = castData->m_reduceFlash;
     m_flashAdvanced = castData->m_flashAdvanced;
-    m_flashControl = castData->m_flashControl;
+    m_highlightKneeStart = castData->m_highlightKneeStart;
+    m_highlightKneeSoftness = castData->m_highlightKneeSoftness;
     m_negativeEffect = castData->m_negativeEffect;
     sendNewUIViewPoint();
 }
