@@ -150,6 +150,20 @@
      </property>
     </widget>
    </item>
+   <item row="0" column="3">
+    <widget class="QCheckBox" name="checkBox_adaptiveTransparency">
+     <property name="text">
+      <string>Adaptive</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3">
+    <widget class="QPushButton" name="pushButton_adaptiveTransparencySettings">
+     <property name="text">
+      <string>Adaptive settings</string>
+     </property>
+    </widget>
+   </item>
    <item row="1" column="1">
     <widget class="QRadioButton" name="basicEnhanceContrastRadioButton">
      <property name="text">
@@ -160,7 +174,7 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="3" rowspan="4">
+   <item row="0" column="4" rowspan="5">
     <spacer name="horizontalSpacer">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -176,7 +190,7 @@
      </property>
     </spacer>
    </item>
-   <item row="0" column="3">
+   <item row="2" column="3">
     <widget class="QCheckBox" name="checkBox_negativeEffect">
      <property name="text">
       <string>Negative Effect</string>

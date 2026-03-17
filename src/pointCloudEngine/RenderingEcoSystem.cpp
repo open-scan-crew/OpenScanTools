@@ -124,6 +124,11 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
     hash += hash_fn_32((uint32_t)display.m_flashAdvanced);
     hash += hash_fn_f(display.m_flashControl);
     hash += hash_fn_f(display.m_transparency);
+    hash += hash_fn_b(display.m_adaptiveTransparency);
+    hash += hash_fn_f(display.m_adaptiveTransparencyNear);
+    hash += hash_fn_f(display.m_adaptiveTransparencyFar);
+    hash += hash_fn_f(display.m_adaptiveTransparencyDistNear);
+    hash += hash_fn_f(display.m_adaptiveTransparencyDistFar);
 
     hash += hash_fn_b(display.m_postRenderingNormals.show);
     hash += hash_fn_b(display.m_postRenderingNormals.inverseTone);

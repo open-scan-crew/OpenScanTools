@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DialogAdaptiveTransparencySettings</class>
+ <widget class="QDialog" name="DialogAdaptiveTransparencySettings">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>360</width>
+    <height>260</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Adaptive transparency settings</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="label_transparencyNear">
+     <property name="text">
+      <string>Transparency near</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QSpinBox" name="lineEdit_transparencyNear"/>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_distanceNear">
+     <property name="text">
+      <string>Distance near</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QDoubleEdit" name="lineEdit_transparencyDistNear" native="true"/>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_transparencyFar">
+     <property name="text">
+      <string>Transparency far</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QSpinBox" name="lineEdit_transparencyFar"/>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_distanceFar">
+     <property name="text">
+      <string>Distance far</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QDoubleEdit" name="lineEdit_transparencyDistFar" native="true"/>
+   </item>
+   <item row="4" column="0">
+    <widget class="QPushButton" name="okButton">
+     <property name="text">
+      <string>Ok</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QPushButton" name="cancelButton">
+     <property name="text">
+      <string>Cancel</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QDoubleEdit</class>
+   <extends>QLineEdit</extends>
+   <header>qdoubleedit.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

@@ -39,7 +39,7 @@ void main()
     #endif
     }
 
-    fragColor = vec4(outColor, 1.0);
+    fragColor = vec4(outColor, pointTransparencyWeight(worldPos4.xyz));
     filterReject = evaluateColorimetricFilter(getRgbNorm(), getIntensityNorm(), worldPos4.xyz);
     if (gPolygonHighlight > 0.5)
         fragColor.rgb = mix(fragColor.rgb, vec3(242.0 / 255.0, 214.0 / 255.0, 0.0), 0.85);

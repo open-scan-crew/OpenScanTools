@@ -93,6 +93,11 @@ public:
     bool           m_flashAdvanced = false;
     float          m_flashControl = 80.f; // [0.0, 100.0]
     float          m_transparency = 10.f; // [0.0, 100.0]
+    bool           m_adaptiveTransparency = false;
+    float          m_adaptiveTransparencyNear = 5.f;      // [1.0, 100.0]
+    float          m_adaptiveTransparencyFar = 40.f;      // [1.0, 100.0]
+    float          m_adaptiveTransparencyDistNear = 2.f;  // meters
+    float          m_adaptiveTransparencyDistFar = 10.f;  // meters
 
     // Post processing
     PostRenderingNormals    m_postRenderingNormals = { true, false, true, 0.4f, 1.f };
