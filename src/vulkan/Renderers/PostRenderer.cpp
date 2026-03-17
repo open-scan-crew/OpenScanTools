@@ -613,9 +613,11 @@ void PostRenderer::setConstantHDR(float opacity, bool substract, bool noFlash, b
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_transparencyHDRPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 52, 4, &adaptiveTransparencyDistNear);
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_transparencyHDRPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 56, 4, &adaptiveTransparencyDistFar);
     float nearFar[2] = { nearZ, farZ };
-    h_pfn->vkCmdPushConstants(_cmdBuffer, m_transparencyHDRPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 60, 8, nearFar);
+    float pad0 = 0.f;
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_transparencyHDRPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 60, 4, &pad0);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_transparencyHDRPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 64, 8, nearFar);
     int projMode = isPerspective ? 0 : 1;
-    h_pfn->vkCmdPushConstants(_cmdBuffer, m_transparencyHDRPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 68, 4, &projMode);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_transparencyHDRPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 72, 4, &projMode);
 }
 
 void PostRenderer::cleanup()

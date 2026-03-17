@@ -20,8 +20,9 @@ layout(push_constant) uniform PC {
    layout(offset = 48) float adaptiveTransparencyFar;
    layout(offset = 52) float adaptiveTransparencyDistNear;
    layout(offset = 56) float adaptiveTransparencyDistFar;
-   layout(offset = 60) vec2 nearFar;
-   layout(offset = 68) int projMode; // 0 perspective, 1 ortho
+   layout(offset = 60) float _pad0;
+   layout(offset = 64) vec2 nearFar;
+   layout(offset = 72) int projMode; // 0 perspective, 1 ortho
 } pc;
 
 float linearizeDepth(float rawDepth)
