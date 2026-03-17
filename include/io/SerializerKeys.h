@@ -233,6 +233,11 @@
 #define Key_FlashAdvanced               "FlashAdvanced"
 #define Key_FlashControl                "FlashControl"
 #define Key_Transparency				"Transparency"
+#define Key_AdaptiveTransparency         "AdaptiveTransparency"
+#define Key_AdaptiveTransparencyNear     "AdaptiveTransparencyNear"
+#define Key_AdaptiveTransparencyFar      "AdaptiveTransparencyFar"
+#define Key_AdaptiveTransparencyDistNear "AdaptiveTransparencyDistNear"
+#define Key_AdaptiveTransparencyDistFar  "AdaptiveTransparencyDistFar"
 
 #define Key_Post_Rendering_Normals		"PostRenderingNormals"
 #define Key_Post_Rendering_Ambient_Occlusion "PostRenderingAmbientOcclusion"

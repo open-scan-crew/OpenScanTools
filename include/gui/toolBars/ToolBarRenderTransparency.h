@@ -4,6 +4,8 @@
 #include "ui_toolbar_rendertransparencygroup.h"
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
+#include "gui/Dialog/DialogAdaptiveTransparencySettings.h"
+#include "gui/UnitUsage.h"
 
 #include "utils/safe_ptr.h"
 
@@ -33,6 +35,7 @@ private:
 	void blockAllSignals(bool block);
 	void enableUI(bool transparencyActive);
     void updateFlashControlState();
+    void updateAdaptiveControlsState();
 
 	void sendTransparency();
 	void sendTransparencyOptions();
@@ -41,12 +44,16 @@ private slots:
 	void slotTranparencyActivationChanged(int value);
 	void slotTransparencyValueChanged(int value);
 	void slotTransparencyOptionsChanged(int value);
+    void slotAdaptiveTransparencyChanged(int value);
+    void slotAdaptiveTransparencySettings();
 
 private:
 	std::unordered_map<guiDType, GuiDataFunction> m_methods;
 	Ui::toolbar_rendertransparencygroup m_ui;
 	IDataDispatcher& m_dataDispatcher;
 	SafePtr<CameraNode>	m_focusCamera;
+    AdaptiveTransparencySettings m_adaptiveSettings;
+    UnitType m_distanceUnit = UnitType::M;
 };
 
 #endif // TOOLBAR_RENDER_TRANSPARENCY_H

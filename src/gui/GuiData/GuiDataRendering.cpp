@@ -234,12 +234,17 @@ guiDType GuiDataRenderTransparency::getType()
 
 //*** Transparency Options ***//
 
-GuiDataRenderTransparencyOptions::GuiDataRenderTransparencyOptions(bool negativeEffect, bool reduceFlash, bool flashAdvanced, float flashControl, float hlt, SafePtr<CameraNode> camera)
+GuiDataRenderTransparencyOptions::GuiDataRenderTransparencyOptions(bool negativeEffect, bool reduceFlash, bool flashAdvanced, float flashControl, bool adaptiveTransparency, float adaptiveTransparencyNear, float adaptiveTransparencyFar, float adaptiveTransparencyDistNear, float adaptiveTransparencyDistFar, float hlt, SafePtr<CameraNode> camera)
 	: GuiDataActiveCamera(camera)
 	, m_negativeEffect(negativeEffect)
 	, m_reduceFlash(reduceFlash)
     , m_flashAdvanced(flashAdvanced)
     , m_flashControl(flashControl)
+    , m_adaptiveTransparency(adaptiveTransparency)
+    , m_adaptiveTransparencyNear(adaptiveTransparencyNear)
+    , m_adaptiveTransparencyFar(adaptiveTransparencyFar)
+    , m_adaptiveTransparencyDistNear(adaptiveTransparencyDistNear)
+    , m_adaptiveTransparencyDistFar(adaptiveTransparencyDistFar)
 	, m_highLuminosityThreshold(hlt)
 {}
 

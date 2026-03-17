@@ -1105,6 +1105,9 @@
     <ClCompile Include="..\..\src\gui\Dialog\DialogSettings.cpp">
       <Filter>src\gui\Dialog</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\gui\Dialog\DialogAdaptiveTransparencySettings.cpp">
+      <Filter>src\gui\Dialog</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarPipeGroup.cpp">
       <Filter>src\gui\toolBars</Filter>
     </ClCompile>
@@ -2275,6 +2278,9 @@
       <Filter>include\gui\widgets</Filter>
     </QtMoc>
     <QtMoc Include="..\..\include\gui\Dialog\DialogSettings.h">
+      <Filter>include\gui\Dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\include\gui\Dialog\DialogAdaptiveTransparencySettings.h">
       <Filter>include\gui\Dialog</Filter>
     </QtMoc>
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarMarkerDisplayOptions.h">
@@ -4183,6 +4189,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\DialogSettings.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="..\..\src\gui\forms\DialogAdaptiveTransparencySettings.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\toolbar_pipegroup.ui">
