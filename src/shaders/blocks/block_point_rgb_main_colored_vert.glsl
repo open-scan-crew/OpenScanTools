@@ -9,7 +9,7 @@ void main() {
     vec3 hsv = rgb2hsv(color.rgb);
     float intensity = pc.contrast * (hsv.z / 255.0 + pc.brightness) + 0.5;
     //fragColor = vec4(pc.ptColor * intensity, pc.transparency);
-    fragColor = vec4(pc.ptColor * intensity, 1.0);
+    fragColor = vec4(pc.ptColor * intensity, pointTransparencyWeight(worldPos4.xyz));
     filterReject = evaluateColorimetricFilter(getRgbNorm(), getIntensityNorm(), worldPos4.xyz);
     if (gPolygonHighlight > 0.5)
         fragColor.rgb = mix(fragColor.rgb, vec3(242.0 / 255.0, 214.0 / 255.0, 0.0), 0.85);

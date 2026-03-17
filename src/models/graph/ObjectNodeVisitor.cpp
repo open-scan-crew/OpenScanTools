@@ -1543,6 +1543,9 @@ void ObjectNodeVisitor::draw_baked_pointClouds(VkCommandBuffer cmdBuffer, Render
 
     renderer.setViewportAndScissor(0, 0, m_fbExtent.width, m_fbExtent.height, cmdBuffer);
     renderer.setConstantPointSize(m_displayParameters.m_pointSize, cmdBuffer);
+    renderer.setConstantTransparency(m_displayParameters.m_transparency, m_displayParameters.m_adaptiveTransparency,
+        m_displayParameters.m_adaptiveTransparencyNear, m_displayParameters.m_adaptiveTransparencyFar,
+        m_displayParameters.m_adaptiveTransparencyDistNear, m_displayParameters.m_adaptiveTransparencyDistFar, cmdBuffer);
     renderer.setConstantContrastBrightness((float)m_displayParameters.m_contrast, (float)m_displayParameters.m_brightness, cmdBuffer);
     renderer.setConstantSaturationLuminance((float)m_displayParameters.m_saturation, (float)m_displayParameters.m_luminance, cmdBuffer);
     renderer.setConstantBlending((float)m_displayParameters.m_hue, cmdBuffer);

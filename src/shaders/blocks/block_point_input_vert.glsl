@@ -25,6 +25,7 @@ layout(location = 1) out float filterReject;
 
 layout(push_constant) uniform PC {
     layout(offset = 0) float ptSize;
+    layout(offset = 4) float transparency;
     layout(offset = 8) float contrast;
     layout(offset = 12) float brightness;
     layout(offset = 16) float saturation;
@@ -33,7 +34,10 @@ layout(push_constant) uniform PC {
     layout(offset = 28) float rampMin;
     layout(offset = 32) float rampMax;
     layout(offset = 36) int rampSteps;
+    layout(offset = 40) uint adaptiveTransparencyUiPack;
+    layout(offset = 44) uint adaptiveTransparencyDistPack;
     layout(offset = 48) vec3 ptColor;
+    layout(offset = 60) int adaptiveTransparency;
 } pc;
 
 layout(set = 0, binding = 0) uniform uniformCamera {
@@ -61,6 +65,29 @@ layout(set = 0, binding = 4) uniform uniformColorimetricFilter {
 } uColorFilter;
 
 const float COLORIMETRIC_MAX_DISTANCE = 1.7320508;
+
+float uiToTrueTransparency(float uiTransparency)
+{
+    return 1.0 - 0.1 * exp(uiTransparency * -0.0554518);
+}
+
+float pointTransparencyWeight(vec3 worldPos)
+{
+    float uiTransparency = pc.transparency;
+    if (pc.adaptiveTransparency != 0)
+    {
+        vec2 uiNearFar = unpackHalf2x16(pc.adaptiveTransparencyUiPack);
+        vec2 distNearFar = unpackHalf2x16(pc.adaptiveTransparencyDistPack);
+        float pointDist = length((uCam.view * vec4(worldPos, 1.0)).xyz);
+        float nearDist = max(distNearFar.x, 0.0001);
+        float farDist = max(distNearFar.y, nearDist + 0.0001);
+        float k = clamp((pointDist - nearDist) / (farDist - nearDist), 0.0, 1.0);
+        uiTransparency = mix(uiNearFar.x, uiNearFar.y, k);
+    }
+
+    float trueTransparency = uiToTrueTransparency(clamp(uiTransparency, 1.0, 100.0));
+    return -log(max(trueTransparency, 1e-6));
+}
 
 #ifdef ATTRIB_I
 float getIntensityNorm()

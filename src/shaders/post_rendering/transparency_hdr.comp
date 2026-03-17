@@ -25,43 +25,6 @@ layout(push_constant) uniform PC {
    layout(offset = 72) int projMode; // 0 perspective, 1 ortho
 } pc;
 
-float linearizeDepth(float rawDepth)
-{
-   float diffFarNear = pc.nearFar.y - pc.nearFar.x;
-   float mulFarNear = pc.nearFar.y * pc.nearFar.x;
-   if (pc.projMode == 0)
-      return mulFarNear / (pc.nearFar.y - rawDepth * diffFarNear);
-   return rawDepth * diffFarNear + pc.nearFar.x;
-}
-
-float uiToTrueTransparency(float uiTransparency)
-{
-   return 1.0 - 0.1 * exp(uiTransparency * -0.0554518);
-}
-
-float fetchRawDepthMs(ivec2 coord)
-{
-   const int sampleCount = textureSamples(inDepthImage);
-   float rawDepth = 1.0;
-   for (int s = 0; s < sampleCount; ++s)
-      rawDepth = min(rawDepth, texelFetch(inDepthImage, coord, s).r);
-   return rawDepth;
-}
-
-float computeAdaptiveTransparency(ivec2 coord)
-{
-   float rawDepth = fetchRawDepthMs(coord);
-   if (rawDepth <= 0.0)
-      return pc.transparency;
-
-   float linearDepth = linearizeDepth(rawDepth);
-   float nearDist = max(pc.adaptiveTransparencyDistNear, 0.0001);
-   float farDist = max(pc.adaptiveTransparencyDistFar, nearDist + 0.0001);
-   float k = clamp((linearDepth - nearDist) / (farDist - nearDist), 0.0, 1.0);
-   float uiTransparency = mix(pc.adaptiveTransparencyNear, pc.adaptiveTransparencyFar, k);
-   return uiToTrueTransparency(clamp(uiTransparency, 1.0, 100.0));
-}
-
 void main()
 {
    if (gl_GlobalInvocationID.x >= pc.screenSize.x ||
@@ -72,11 +35,7 @@ void main()
    vec4 inColor = imageLoad(inOutColorImage, gid);
    float n = inColor.a;
 
-   float transparency = pc.transparency;
-   if (pc.adaptiveTransparency != 0 && pc.projMode == 0)
-      transparency = computeAdaptiveTransparency(gid);
-
-   float a = 1.f - pow(transparency, n);
+   float a = 1.f - exp(-n);
    vec3 c_rgb = n > 0.f ? inColor.rgb / n : vec3(0.0, 0.0, 0.0);
 
    if (pc.noFlash != 0)

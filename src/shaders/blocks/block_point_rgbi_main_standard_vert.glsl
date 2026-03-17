@@ -15,7 +15,7 @@ void main() {
     hsl.z *= pc.luminance;
     hsl.y *= pc.saturation;
     //fragColor = vec4(hsl2rgb(hsl), pc.transparency);
-    fragColor = vec4(hsl2rgb(hsl), 1.0);
+    fragColor = vec4(hsl2rgb(hsl), pointTransparencyWeight(worldPos4.xyz));
     filterReject = evaluateColorimetricFilter(getRgbNorm(), getIntensityNorm(), worldPos4.xyz);
     if (gPolygonHighlight > 0.5)
         fragColor.rgb = mix(fragColor.rgb, vec3(242.0 / 255.0, 214.0 / 255.0, 0.0), 0.85);
