@@ -48,7 +48,8 @@ namespace control::animation::helper
         return reference.m_mode == candidate.m_mode &&
             reference.m_blendMode == candidate.m_blendMode &&
             reference.m_reduceFlash == candidate.m_reduceFlash &&
-            reference.m_flashAdvanced == candidate.m_flashAdvanced &&
+            reference.m_kneeStart == candidate.m_kneeStart &&
+            reference.m_kneeSoftness == candidate.m_kneeSoftness &&
             reference.m_negativeEffect == candidate.m_negativeEffect &&
             reference.m_postRenderingNormals.show == candidate.m_postRenderingNormals.show &&
             reference.m_postRenderingAmbientOcclusion.enabled == candidate.m_postRenderingAmbientOcclusion.enabled &&

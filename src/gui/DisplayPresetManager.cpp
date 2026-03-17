@@ -71,8 +71,8 @@ namespace
 		json[Key_Blend_Mode] = magic_enum::enum_name(params.m_blendMode);
 		json[Key_NegativeEffect] = params.m_negativeEffect;
 		json[Key_ReduceFlash] = params.m_reduceFlash;
-		json[Key_FlashAdvanced] = params.m_flashAdvanced;
-		json[Key_FlashControl] = params.m_flashControl;
+		json[Key_KneeStart] = params.m_kneeStart;
+		json[Key_KneeSoftness] = params.m_kneeSoftness;
 		json[Key_Transparency] = params.m_transparency;
 
 		json[Key_Post_Rendering_Normals] = { params.m_postRenderingNormals.show, params.m_postRenderingNormals.inverseTone, params.m_postRenderingNormals.blendColor, params.m_postRenderingNormals.normalStrength, params.m_postRenderingNormals.gloss };
@@ -291,15 +291,15 @@ namespace
 		if (json.find(Key_ReduceFlash) != json.end())
 			data.m_reduceFlash = json.at(Key_ReduceFlash).get<bool>();
 
-		if (json.find(Key_FlashAdvanced) != json.end())
-			data.m_flashAdvanced = json.at(Key_FlashAdvanced).get<bool>();
+		if (json.find(Key_KneeStart) != json.end())
+			data.m_kneeStart = json.at(Key_KneeStart).get<float>();
 		else
-			data.m_flashAdvanced = false;
+			data.m_kneeStart = 50.f;
 
-		if (json.find(Key_FlashControl) != json.end())
-			data.m_flashControl = json.at(Key_FlashControl).get<float>();
+		if (json.find(Key_KneeSoftness) != json.end())
+			data.m_kneeSoftness = json.at(Key_KneeSoftness).get<float>();
 		else
-			data.m_flashControl = 50.f;
+			data.m_kneeSoftness = 50.f;
 
 		if (json.find(Key_Transparency) != json.end())
 			data.m_transparency = json.at(Key_Transparency).get<float>();
@@ -933,7 +933,7 @@ void DisplayPresetManager::applyPreset(const DisplayPreset& preset)
 	m_dataDispatcher.updateInformation(new GuiDataRenderFlatColor(params.m_flatColor, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderDistanceRampValues(params.m_distRampMin, params.m_distRampMax, params.m_distRampSteps, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderTransparency(params.m_blendMode, params.m_transparency, m_focusCamera), this);
-	m_dataDispatcher.updateInformation(new GuiDataRenderTransparencyOptions(params.m_negativeEffect, params.m_reduceFlash, params.m_flashAdvanced, params.m_flashControl, 0.f, m_focusCamera), this);
+	m_dataDispatcher.updateInformation(new GuiDataRenderTransparencyOptions(params.m_negativeEffect, params.m_reduceFlash, params.m_kneeStart, params.m_kneeSoftness, 0.f, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataPostRenderingNormals(params.m_postRenderingNormals, false, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderAmbientOcclusion(params.m_postRenderingAmbientOcclusion, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataEdgeAwareBlur(params.m_edgeAwareBlur, m_focusCamera), this);

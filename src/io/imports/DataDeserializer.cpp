@@ -566,22 +566,22 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
 
     }
 
-    if (json.find(Key_FlashAdvanced) != json.end())
+    if (json.find(Key_KneeStart) != json.end())
     {
-        data.m_flashAdvanced = json.at(Key_FlashAdvanced).get<bool>();
+        data.m_kneeStart = json.at(Key_KneeStart).get<float>();
     }
     else
     {
-        data.m_flashAdvanced = false;
+        data.m_kneeStart = 50.f;
     }
 
-    if (json.find(Key_FlashControl) != json.end())
+    if (json.find(Key_KneeSoftness) != json.end())
     {
-        data.m_flashControl = json.at(Key_FlashControl).get<float>();
+        data.m_kneeSoftness = json.at(Key_KneeSoftness).get<float>();
     }
     else
     {
-        data.m_flashControl = 50.f;
+        data.m_kneeSoftness = 50.f;
     }
 
     if (json.find(Key_Transparency) != json.end())

@@ -66,14 +66,14 @@
     </widget>
    </item>
    <item row="2" column="0">
-    <widget class="QLabel" name="label_flashControl">
+    <widget class="QLabel" name="label_kneeStart">
      <property name="text">
-      <string>Flash control</string>
+      <string>Knee start</string>
      </property>
     </widget>
    </item>
    <item row="2" column="1">
-    <widget class="QSlider" name="slider_flashControl">
+    <widget class="QSlider" name="slider_kneeStart">
      <property name="minimumSize">
       <size>
        <width>100</width>
@@ -107,18 +107,8 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="2">
-    <widget class="QRadioButton" name="advEnhanceContrastRadioButton">
-     <property name="toolTip">
-      <string>The advanced mode allows you to remove the white flash.</string>
-     </property>
-     <property name="text">
-      <string>Advanced</string>
-     </property>
-    </widget>
-   </item>
    <item row="2" column="2">
-    <widget class="QSpinBox" name="spinBox_flashControl">
+    <widget class="QSpinBox" name="spinBox_kneeStart">
      <property name="minimum">
       <number>0</number>
      </property>
@@ -150,17 +140,48 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
-    <widget class="QRadioButton" name="basicEnhanceContrastRadioButton">
-     <property name="text">
-      <string>Basic</string>
+   <item row="3" column="1">
+    <widget class="QSlider" name="slider_kneeSoftness">
+     <property name="minimumSize">
+      <size>
+       <width>100</width>
+       <height>0</height>
+      </size>
      </property>
-     <property name="checked">
-      <bool>true</bool>
+     <property name="minimum">
+      <number>0</number>
+     </property>
+     <property name="maximum">
+      <number>100</number>
+     </property>
+     <property name="value">
+      <number>50</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="tickPosition">
+      <enum>QSlider::TicksAbove</enum>
+     </property>
+     <property name="tickInterval">
+      <number>10</number>
      </property>
     </widget>
    </item>
-   <item row="1" column="3" rowspan="4">
+   <item row="3" column="2">
+    <widget class="QSpinBox" name="spinBox_kneeSoftness">
+     <property name="minimum">
+      <number>0</number>
+     </property>
+     <property name="maximum">
+      <number>100</number>
+     </property>
+     <property name="value">
+      <number>50</number>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3" rowspan="5">
     <spacer name="horizontalSpacer">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -180,6 +201,13 @@
     <widget class="QCheckBox" name="checkBox_negativeEffect">
      <property name="text">
       <string>Negative Effect</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_kneeSoftness">
+     <property name="text">
+      <string>Knee softness</string>
      </property>
     </widget>
    </item>

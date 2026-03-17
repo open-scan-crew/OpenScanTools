@@ -12,8 +12,8 @@ layout(push_constant) uniform PC {
    layout(offset = 8) ivec2 screenSize;
    layout(offset = 16) vec3 background;
    layout(offset = 28) int noFlash;
-   layout(offset = 32) int flashAdvanced;
-   layout(offset = 36) float flashControl; // slider value [0..100]
+   layout(offset = 32) float kneeStart;     // slider value [0..100]
+   layout(offset = 36) float kneeSoftness;  // slider value [0..100]
 } pc;
 
 void main() 
@@ -30,36 +30,20 @@ void main()
    // Traitement HDR
    if (pc.noFlash != 0)
    {
-      if (pc.flashAdvanced == 0)
-      {
-         // Basic mode: legacy behaviour
-         float S = 0.5f;  // seuil
-         vec3 c_hsl = rgb2hsl(c_rgb);
-         if (a > S)
-         {
-            c_hsl.z = mix(c_hsl.z, 1.f, (a - S) / (1.0 - S));
-            a = 1.0;
-         }
-         else
-         {
-            a = a / S;
-         }
-         c_rgb = hsl2rgb(c_hsl);
-      }
-      else
-      {
-         // Advanced mode: tone-map luminance only and preserve chroma
-         // Map slider [0..100] to exposure in [0.2, 10.0]
-         float exposure = 0.2 + clamp(pc.flashControl, 0.0, 100.0) * (10.0 - 0.2) / 100.0;
-         const vec3 luma = vec3(0.2126, 0.7152, 0.0722);
-         float Y = dot(c_rgb, luma);
-         // Knee to keep mid-tones intact
-         float Y0 = 0.6;
-         float high = max(Y - Y0, 0.0);
-         float Yt = Y0 + (1.0 - exp(-exposure * high));
-         float scale = (Y > 1e-6) ? (Yt / Y) : 1.0;
-         c_rgb *= scale;
-      }
+      // Knee-based highlight compression. This reduces white flash contamination
+      // while preserving mids, and remains disabled when Enhance Contrast is off.
+      float knee = clamp(pc.kneeStart, 0.0, 100.0) / 100.0;
+      float softness = clamp(pc.kneeSoftness, 0.0, 100.0) / 100.0;
+
+      const vec3 luma = vec3(0.2126, 0.7152, 0.0722);
+      float Y = dot(c_rgb, luma);
+      float high = max(Y - knee, 0.0);
+
+      // Soft-knee Reinhard-like compression. Smaller softRange means stronger highlight rolloff.
+      float softRange = mix(0.05, 1.0, softness);
+      float Yt = knee + softRange * log(1.0 + high / softRange);
+      float scale = (Y > 1e-6) ? (Yt / Y) : 1.0;
+      c_rgb *= scale;
    }
    // ***** Inversion des couleurs *****
    if (pc.substractiveMode == 1)
