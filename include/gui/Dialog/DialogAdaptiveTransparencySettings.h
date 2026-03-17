@@ -30,7 +30,7 @@ private slots:
 
 private:
     void applySettingsToUi(const AdaptiveTransparencySettings& settings);
-    void enforceDistanceConstraint(bool forceFarUpdate);
+    void enforceDistanceConstraint();
 
 private:
     Ui::DialogAdaptiveTransparencySettings m_ui;

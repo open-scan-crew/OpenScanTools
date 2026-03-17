@@ -2,10 +2,21 @@
 
 #include "gui/widgets/CustomWidgets/qdoubleedit.h"
 
+#include <QtWidgets/QPushButton>
+
 DialogAdaptiveTransparencySettings::DialogAdaptiveTransparencySettings(const AdaptiveTransparencySettings& settings, UnitType distanceUnit, QWidget* parent)
     : QDialog(parent)
 {
     m_ui.setupUi(this);
+
+    const auto pushButtons = findChildren<QPushButton*>();
+    for (QPushButton* button : pushButtons)
+    {
+        if (!button)
+            continue;
+        button->setAutoDefault(false);
+        button->setDefault(false);
+    }
 
     m_ui.lineEdit_transparencyNear->setRange(1, 100);
     m_ui.lineEdit_transparencyFar->setRange(1, 100);
@@ -38,12 +49,12 @@ AdaptiveTransparencySettings DialogAdaptiveTransparencySettings::getSettings() c
 
 void DialogAdaptiveTransparencySettings::onDistanceNearEdited()
 {
-    enforceDistanceConstraint(true);
+    enforceDistanceConstraint();
 }
 
 void DialogAdaptiveTransparencySettings::onDistanceFarEdited()
 {
-    enforceDistanceConstraint(false);
+    enforceDistanceConstraint();
 }
 
 void DialogAdaptiveTransparencySettings::applySettingsToUi(const AdaptiveTransparencySettings& settings)
@@ -52,13 +63,13 @@ void DialogAdaptiveTransparencySettings::applySettingsToUi(const AdaptiveTranspa
     m_ui.lineEdit_transparencyFar->setValue(static_cast<int>(settings.transparencyFar));
     m_ui.lineEdit_transparencyDistNear->setValue(settings.distanceNear);
     m_ui.lineEdit_transparencyDistFar->setValue(settings.distanceFar);
-    enforceDistanceConstraint(true);
+    enforceDistanceConstraint();
 }
 
-void DialogAdaptiveTransparencySettings::enforceDistanceConstraint(bool forceFarUpdate)
+void DialogAdaptiveTransparencySettings::enforceDistanceConstraint()
 {
     const double nearDist = m_ui.lineEdit_transparencyDistNear->getValue();
     const double farDist = m_ui.lineEdit_transparencyDistFar->getValue();
-    if (forceFarUpdate || farDist <= nearDist)
+    if (farDist <= nearDist)
         m_ui.lineEdit_transparencyDistFar->setValue(nearDist + 1.0);
 }
