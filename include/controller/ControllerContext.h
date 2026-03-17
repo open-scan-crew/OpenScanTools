@@ -14,6 +14,7 @@
 #include "models/data/Box/ClippingBoxSettings.h"
 #include "models/project/ProjectInfos.h"
 #include "models/application/UserOrientation.h"
+#include "models/application/ViewPointAnimation.h"
 
 #include "utils/Color32.hpp"
 
@@ -145,6 +146,9 @@ public:
 	std::unordered_map<xg::Guid, UserOrientation>& getUserOrientations();
 	const std::unordered_map<xg::Guid, UserOrientation>& cgetUserOrientations() const;
 
+	std::unordered_map<viewPointAnimationId, ViewPointAnimationConfig>& getViewPointAnimations();
+	const std::unordered_map<viewPointAnimationId, ViewPointAnimationConfig>& cgetViewPointAnimations() const;
+
 	const UserOrientation& getActiveUserOrientation() const;
 	void setActiveUserOrientation(const UserOrientation& uo);
 
@@ -198,6 +202,7 @@ private:
 	bool m_projectLoaded = false;
 
 	std::unordered_map<xg::Guid, UserOrientation> m_userOrientations;
+	std::unordered_map<viewPointAnimationId, ViewPointAnimationConfig> m_viewPointAnimations;
 	UserOrientation m_activeUserOrientation;
 };
 

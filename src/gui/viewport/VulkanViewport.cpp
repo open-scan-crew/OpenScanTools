@@ -14,6 +14,7 @@
 #include "models/ElementType.h"
 
 #include "utils/math/trigo.h"
+#include "utils/Logger.h"
 
 #include "vulkan/TlFramebuffer_T.h"
 #include "vulkan/VulkanManager.h"
@@ -120,6 +121,7 @@ VulkanViewport::VulkanViewport(IDataDispatcher& dataDispatcher, float guiScale)
     registerGuiDataFunction(guiDType::renderAnimationSpeed, &VulkanViewport::onRenderAnimationSpeed);
     registerGuiDataFunction(guiDType::renderAnimationLoop, &VulkanViewport::onRenderAnimationLoop);
     registerGuiDataFunction(guiDType::renderStartAnimation, &VulkanViewport::onRenderStartAnimation);
+    registerGuiDataFunction(guiDType::renderPauseAnimation, &VulkanViewport::onRenderPauseAnimation);
     registerGuiDataFunction(guiDType::renderStopAnimation, &VulkanViewport::onRenderStopAnimation);
     registerGuiDataFunction(guiDType::renderCleanAnimationList, &VulkanViewport::onRenderCleanAnimationList);
     registerGuiDataFunction(guiDType::userOrientation, &VulkanViewport::onUserOrientation);
@@ -179,10 +181,71 @@ void VulkanViewport::onRenderAnimationLoop(IGuiData* data)
 
 void VulkanViewport::onRenderStartAnimation(IGuiData* data)
 {
+    auto startData = static_cast<GuiDataRenderStartAnimation*>(data);
     WritePtr<CameraNode> wCam = m_cam.get();
     if (!wCam)
         return;
-    wCam->startAnimation(m_saveImagesAnim);
+
+    if (startData->m_isOrbital)
+    {
+        GUI_LOG << "[ANIM_DBG] viewport start request orbital resume=" << startData->m_resume
+            << " duration=" << startData->m_durationSeconds
+            << " degrees=" << startData->m_orbitalDegrees << LOGENDL;
+        m_viewpointStartInputLockArmed = false;
+        if (startData->m_resume && m_isOrbitalAnimationActive && m_isOrbitalAnimationPaused)
+        {
+            m_orbitalStartTime = std::chrono::steady_clock::now();
+            m_isOrbitalAnimationPaused = false;
+            return;
+        }
+
+        m_isOrbitalAnimationActive = true;
+        m_isOrbitalAnimationPaused = false;
+        m_orbitalDurationSeconds = std::max(0.001, startData->m_durationSeconds);
+        m_orbitalElapsedSeconds = 0.0;
+        m_orbitalAppliedAngle = 0.0;
+        m_orbitalTotalAngleRad = glm::radians(static_cast<double>(std::clamp(startData->m_orbitalDegrees, 1, 360)));
+        m_orbitalStartTime = std::chrono::steady_clock::now();
+        m_orbitalUsesExamine = wCam->isExamineActive();
+        return;
+    }
+
+    if (startData->m_resume)
+    {
+        GUI_LOG << "[ANIM_DBG] viewport resume request viewpoints" << LOGENDL;
+        m_viewpointStartInputLockArmed = false;
+        wCam->resumeAnimation();
+    }
+    else
+    {
+        wCam->setViewpointRenderInterpolationEnabled(startData->m_interpolateViewpointRenderings);
+        const bool started = wCam->startAnimation(m_saveImagesAnim);
+        m_viewpointStartInputLockArmed = started;
+        GUI_LOG << "[ANIM_DBG] viewport start request viewpoints started=" << started
+            << " inputLockArmed=" << m_viewpointStartInputLockArmed
+            << " mouseDeltas(dx,dy,wheel)= (" << m_MI.deltaX << ", " << m_MI.deltaY << ", " << m_MI.wheel << ")"
+            << LOGENDL;
+        if (started)
+            m_MI.resetDeltas();
+    }
+}
+
+void VulkanViewport::onRenderPauseAnimation(IGuiData* data)
+{
+    (void)data;
+    WritePtr<CameraNode> wCam = m_cam.get();
+    if (!wCam)
+        return;
+
+    if (m_isOrbitalAnimationActive && !m_isOrbitalAnimationPaused)
+    {
+        m_isOrbitalAnimationPaused = true;
+        const std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+        m_orbitalElapsedSeconds += std::chrono::duration<double>(now - m_orbitalStartTime).count();
+        return;
+    }
+
+    wCam->pauseAnimation();
 }
 
 void VulkanViewport::onRenderStopAnimation(IGuiData* data)
@@ -190,6 +253,14 @@ void VulkanViewport::onRenderStopAnimation(IGuiData* data)
     WritePtr<CameraNode> wCam = m_cam.get();
     if (!wCam)
         return;
+
+    m_isOrbitalAnimationActive = false;
+    m_isOrbitalAnimationPaused = false;
+    m_viewpointStartInputLockArmed = false;
+    m_orbitalElapsedSeconds = 0.0;
+    m_orbitalAppliedAngle = 0.0;
+    m_orbitalTotalAngleRad = 0.0;
+    GUI_LOG << "[ANIM_DBG] viewport received stop animation" << LOGENDL;
     wCam->endAnimation();
 }
 
@@ -301,10 +372,48 @@ void VulkanViewport::updateInputs(WritePtr<CameraNode>& wCam, SafePtr<Manipulato
     // Update automatic animation already running
     wCam->updateAnimation();
 
+    if (m_isOrbitalAnimationActive && !m_isOrbitalAnimationPaused)
+    {
+        const double elapsed = m_orbitalElapsedSeconds + std::chrono::duration<double>(std::chrono::steady_clock::now() - m_orbitalStartTime).count();
+        const double clampedElapsed = std::min(elapsed, m_orbitalDurationSeconds);
+        const double targetAngle = m_orbitalTotalAngleRad * (clampedElapsed / m_orbitalDurationSeconds);
+        const double deltaAngle = targetAngle - m_orbitalAppliedAngle;
+
+        if (deltaAngle > 0.0)
+        {
+            if (m_orbitalUsesExamine)
+                wCam->moveAroundExamine(0.0, deltaAngle, 0.0);
+            else
+                wCam->yaw(deltaAngle);
+            m_orbitalAppliedAngle = targetAngle;
+        }
+
+        if (clampedElapsed >= m_orbitalDurationSeconds)
+        {
+            m_isOrbitalAnimationActive = false;
+            m_isOrbitalAnimationPaused = false;
+            m_orbitalElapsedSeconds = 0.0;
+            m_orbitalAppliedAngle = 0.0;
+            m_orbitalTotalAngleRad = 0.0;
+            m_dataDispatcher.updateInformation(new GuiDataRenderStopAnimation());
+        }
+    }
+
     updateProjNaviMode(wCam); // here or after ?
 
+    bool skipUserInputThisFrame = false;
+    if (m_viewpointStartInputLockArmed)
+    {
+        skipUserInputThisFrame = true;
+        m_viewpointStartInputLockArmed = false;
+        GUI_LOG << "[ANIM_DBG] viewport consumed one-frame viewpoints input lock"
+            << " mouseDeltas(dx,dy,wheel)= (" << m_MI.deltaX << ", " << m_MI.deltaY << ", " << m_MI.wheel << ")"
+            << LOGENDL;
+        m_MI.resetDeltas();
+    }
+
     // Skip inputs when in animation mode
-    if (!wCam->isAnimated())
+    if (!skipUserInputThisFrame && !wCam->isAnimated() && !m_isOrbitalAnimationActive)
     {
         updateMouseInputEffect(wCam, manipNode);
         applyMouseInput(wCam, manipNode);

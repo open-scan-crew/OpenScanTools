@@ -49,6 +49,7 @@
 #include "models/application/Author.h"
 #include "models/application/Ids.hpp"
 #include "models/application/List.h"
+#include "models/application/ViewPointAnimation.h"
 
 
 // External libs
@@ -86,6 +87,14 @@ nlohmann::json exportUserOrientationBlock(const ControllerContext& context)
     IOLOG << "export UserOrientation" << LOGENDL;
     for (const std::pair<userOrientationId, UserOrientation>& orientation : context.cgetUserOrientations())
         structureObject.push_back(DataSerializer::Serialize(orientation.second));
+    return structureObject;
+}
+
+nlohmann::json exportViewPointAnimationBlock(const ControllerContext& context)
+{
+    nlohmann::json structureObject = nlohmann::json::array();
+    for (const std::pair<viewPointAnimationId, ViewPointAnimationConfig>& animation : context.cgetViewPointAnimations())
+        structureObject.push_back(DataSerializer::Serialize(animation.second));
     return structureObject;
 }
 
@@ -767,7 +776,6 @@ void LoadTagFile(Controller& controller, std::unordered_map<SafePtr<AGraphNode>,
             loadObj[tagNode] = std::pair(guid, iterator);
         }
     }
-
     controller.getContext().addProjectAuthors({ author });
     IOLOG << "project import tag from " << tagFilePath.stem() << LOGENDL;
 
@@ -1173,6 +1181,16 @@ void SaveLoadSystem::importJsonProject(const std::filesystem::path& importPath, 
         errorMsg += TEXT_TEMPLATE_INVALID_USER_ORIENTATION.toStdString();
     }
 
+    if (jsonProject.find(Key_ViewPointAnimations) != jsonProject.end() && jsonProject.at(Key_ViewPointAnimations).is_array())
+    {
+        for (const nlohmann::json& animationJson : jsonProject.at(Key_ViewPointAnimations))
+        {
+            ViewPointAnimationConfig config;
+            if (DataDeserializer::DeserializeViewPointAnimation(animationJson, config))
+                context.getViewPointAnimations().insert_or_assign(config.getId(), config);
+        }
+    }
+
     IOLOG << "Importation over\n" << LOGENDL;
 
     const ProjectInfos& projectInfos = context.getProjectInfo();
@@ -1528,6 +1546,7 @@ bool SaveLoadSystem::ExportProject(Controller& controller, const std::unordered_
     }
 
     jsonProject[Key_UserOrientations] = exportUserOrientationBlock(context);
+    jsonProject[Key_ViewPointAnimations] = exportViewPointAnimationBlock(context);
 
     if (!utils::writeJsonFile(exportPath, jsonProject))
     {

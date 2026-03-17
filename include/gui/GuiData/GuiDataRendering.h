@@ -12,6 +12,7 @@
 #include "utils/Color32.hpp"
 #include "utils/safe_ptr.h"
 #include "models/3d/NavigationTypes.h"
+#include "models/application/ViewPointAnimation.h"
 
 #include <filesystem>
 #include <cstdint>
@@ -376,8 +377,36 @@ public:
 class GuiDataRenderStartAnimation : public IGuiData
 {
 public:
-	GuiDataRenderStartAnimation() {}
+	GuiDataRenderStartAnimation(bool isOrbital = false, double durationSeconds = 0.0, bool resume = false, int orbitalDegrees = 360, bool interpolateViewpointRenderings = false)
+		: m_isOrbital(isOrbital)
+		, m_durationSeconds(durationSeconds)
+		, m_resume(resume)
+		, m_orbitalDegrees(orbitalDegrees)
+		, m_interpolateViewpointRenderings(interpolateViewpointRenderings)
+	{}
 	~GuiDataRenderStartAnimation() {}
+	virtual guiDType getType() override;
+
+	const bool m_isOrbital;
+	const double m_durationSeconds;
+	const bool m_resume;
+	const int m_orbitalDegrees;
+	const bool m_interpolateViewpointRenderings;
+};
+
+class GuiDataRenderPauseAnimation : public IGuiData
+{
+public:
+	GuiDataRenderPauseAnimation() {}
+	~GuiDataRenderPauseAnimation() {}
+	virtual guiDType getType() override;
+};
+
+class GuiDataRenderAnimationPlaybackStart : public IGuiData
+{
+public:
+	GuiDataRenderAnimationPlaybackStart() {}
+	~GuiDataRenderAnimationPlaybackStart() {}
 	virtual guiDType getType() override;
 };
 
@@ -414,6 +443,27 @@ public:
 	virtual guiDType getType() override;
 
 	const uint16_t m_speed;
+};
+
+class GuiDataRenderAnimationToolbarState : public IGuiData
+{
+public:
+	GuiDataRenderAnimationToolbarState(bool canStart);
+	~GuiDataRenderAnimationToolbarState() {}
+	virtual guiDType getType() override;
+
+	const bool m_canStart;
+};
+
+class GuiDataSendViewPointAnimationData : public IGuiData
+{
+public:
+	GuiDataSendViewPointAnimationData(const std::vector<ViewPointAnimationConfig>& animations, const std::vector<AnimationViewpointInfo>& viewpoints);
+	~GuiDataSendViewPointAnimationData() {}
+	virtual guiDType getType() override;
+
+	const std::vector<ViewPointAnimationConfig> m_animations;
+	const std::vector<AnimationViewpointInfo> m_viewpoints;
 };
 
 class GuiDataRenderRecordPerformances : public IGuiData

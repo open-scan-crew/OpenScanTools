@@ -11,8 +11,11 @@
 
 #include "models/3d/RenderingParameters.h"
 #include "pointCloudEngine/RenderingTypes.h"
+#include "models/application/ViewPointAnimation.h"
 
 #include <deque>
+#include <chrono>
+#include <vector>
 
 class ViewPointNode;
 class PointCloudNode;
@@ -26,12 +29,30 @@ struct KeyPoint {
     double dtime_arrival;
 };
 
-// NEW struct for the KeyPoint with quaternion
-//struct 
+struct OrientationKeyPoint {
+    // Quaternion orientation sampled on the playback path.
+    glm::dquat orientation;
+    // Relative time of arrival on the sampled path.
+    double dtime_arrival;
+};
 
 struct SimpleAnimation {
     KeyPoint start;
     KeyPoint end;
+};
+
+struct ViewpointRenderState
+{
+    float transparency = 0.0f;
+    float normalStrength = 0.0f;
+    float normalGloss = 0.0f;
+    float hue = 0.0f;
+    float brightness = 0.0f;
+    float saturation = 0.0f;
+    float luminance = 0.0f;
+    float contrast = 0.0f;
+    float alphaObject = 0.0f;
+    float fovy = 0.0f;
 };
 
 enum class InterpolationValueWithPreviousAnimation { NONE, BEZIER/*, LINEAR*/ };
@@ -39,7 +60,7 @@ enum class InterpolationValueWithPreviousAnimation { NONE, BEZIER/*, LINEAR*/ };
 class CameraNode : public AGraphNode, public IPanel, public RenderingParameters
 {
 private:
-    enum class AnimationMode { Simple, Complex/*, HorizontalExamine*/ };
+    enum class AnimationMode { Simple, Viewpoint/*, HorizontalExamine*/ };
 
 public:
     CameraNode(const std::wstring& name, IDataDispatcher& dataDispatcher);
@@ -80,15 +101,19 @@ public:
     void lookAt(double endTheta, double endPhi, double dt_sec);
     void translateTo(glm::dvec3 endPoint, double dt_sec);
 
-    //Complex animation
+    // Viewpoints animation
 
     void AddViewPoint(SafePtr<ViewPointNode> vp, const InterpolationValueWithPreviousAnimation& interpolation = InterpolationValueWithPreviousAnimation::NONE);
     void AddViewPoint1(SafePtr<ViewPointNode> vp, const InterpolationValueWithPreviousAnimation& interpolation = InterpolationValueWithPreviousAnimation::NONE);
     bool startAnimation(const bool& isOffline = false, const uint64_t& step = 1000);
     bool endAnimation();
+    bool pauseAnimation();
+    bool resumeAnimation();
     void cleanAnimation();
     void setSpeed(const int& speed);
     void setLoop(const bool& loop);
+    void setAnimationTiming(ViewPointAnimationMode mode, double durationSeconds, const std::vector<double>& controlPointTimesSec, bool smoothTransitions);
+    void setViewpointRenderInterpolationEnabled(bool enabled);
 
     // Orientation as Euler angles
     void yaw(double _amount);
@@ -158,6 +183,7 @@ public:
     void setOrthoHeight(double height);
 
     void moveToData(const SafePtr<AGraphNode>& data);
+    void snapToViewPoint(const SafePtr<ViewPointNode>& viewpoint);
 
     // Draw camera
     glm::vec3 getExamineTargetPosition() const;
@@ -171,7 +197,36 @@ private:
 
     void startPlayTrajectory(const uint64_t& animationStep);
     bool animateSimpleTrajectory();
-    bool animateComplexTrajectory();
+    bool animateViewpointTrajectory();
+    // Build the trajectory played by viewpoints animation:
+    // - linear fallback for 2 viewpoints
+    // - centripetal Catmull-Rom sampling for 3+ viewpoints
+    void buildViewpointAnimationPlaybackPath();
+    void buildLinearPlaybackPathFromTrajectory();
+    void buildCatmullRomPlaybackPathFromTrajectory();
+    void applyPlaybackTimingFromControlPoints();
+    static double smoothstep01(double t);
+    static double smootherstep01(double t);
+    static std::vector<double> computeMonotonicCubicSlopes(const std::vector<double>& x, const std::vector<double>& y);
+    static double evaluateMonotonicCubicHermite(const std::vector<double>& x, const std::vector<double>& y, const std::vector<double>& slopes, double xQuery);
+    static glm::dvec3 evaluateCentripetalCatmullRom(
+        const glm::dvec3& p0,
+        const glm::dvec3& p1,
+        const glm::dvec3& p2,
+        const glm::dvec3& p3,
+        double t);
+    static glm::dquat slerpShortestPath(const glm::dquat& q0, const glm::dquat& q1, double t);
+    static glm::dquat squadShortestPath(const glm::dquat& q0, const glm::dquat& q1, const glm::dquat& s0, const glm::dquat& s1, double t);
+    static glm::dquat computeSquadIntermediate(const glm::dquat& qPrev, const glm::dquat& qCurr, const glm::dquat& qNext);
+    static glm::dquat quaternionLog(const glm::dquat& q);
+    static glm::dquat quaternionExp(const glm::dquat& q);
+    static void enforceQuaternionSignContinuity(std::vector<glm::dquat>& quaternions);
+    void resetViewpointRenderInterpolation();
+    void initializeViewpointRenderInterpolationControlTimes();
+    void applyViewpointRenderInterpolation(double elapsedAnimationSeconds);
+    static ViewpointRenderState buildViewpointRenderState(const ViewPointNode& viewpoint);
+    static ViewpointRenderState lerpViewpointRenderState(const ViewpointRenderState& start, const ViewpointRenderState& end, double t);
+    void applyViewpointRenderState(const ViewpointRenderState& state);
 
     void applyProjection(const ProjectionData& projectionData);
 
@@ -270,19 +325,32 @@ private:
     double m_speed = 0.0;
     bool m_isAnimated = false;
     bool m_isOfflineRendering = false;
+    bool m_isAnimationPaused = false;
     bool m_loop = false;
     AnimationMode m_animMode = AnimationMode::Simple;
 
+    // Single-target viewpoint queue used by manual viewpoint navigation (moveToData).
     std::deque<SafePtr<ViewPointNode>> m_animation;
-    std::deque<SafePtr<ViewPointNode>> m_initialAnimation;
+    // Dedicated sequence used by toolbar-driven multi-viewpoint animation.
+    std::deque<SafePtr<ViewPointNode>> m_animationPlaylist;
+    std::deque<SafePtr<ViewPointNode>> m_initialAnimationPlaylist;
     std::vector<KeyPoint> m_trajectory;
+    std::vector<OrientationKeyPoint> m_orientationTrajectory;
     //from camera
     uint64_t m_currentKeyPoint = 0;
     uint64_t m_animFrames = 0;
     double m_offlineAnimStep = 0.0;
     std::chrono::steady_clock::time_point m_startTrajectoryTime;
+    std::chrono::steady_clock::time_point m_pauseTrajectoryTime;
+    double m_totalPausedDurationSeconds = 0.0;
+    ViewPointAnimationMode m_viewPointAnimationMode = ViewPointAnimationMode::ConstantSpeed;
+    double m_animationDurationSeconds = 0.0;
+    std::vector<double> m_controlPointTimesSeconds;
+    bool m_smoothViewpointTransitions = false;
+    bool m_interpolateViewpointRenderings = false;
+    std::vector<ViewpointRenderState> m_viewpointRenderStates;
+    std::vector<double> m_renderControlPointTimesSeconds;
     SimpleAnimation m_simpleAnimation = SimpleAnimation();
-
     // Uniform for projection and view matrix (separated)
     VkMultiUniform m_uniProjView;
     // Uniform view Matrix 

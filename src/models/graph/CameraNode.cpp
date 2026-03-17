@@ -318,13 +318,16 @@ bool CameraNode::updateAnimation()
 {
     if (!m_isAnimated)
         return false;
+    if (m_isAnimationPaused)
+        return true;
+
     switch (m_animMode)
     {
     case AnimationMode::Simple:
         animateSimpleTrajectory();
         break;
-    case AnimationMode::Complex:
-        animateComplexTrajectory();
+    case AnimationMode::Viewpoint:
+        animateViewpointTrajectory();
         break;
     }
 
@@ -446,6 +449,7 @@ void CameraNode::lookAt(glm::dvec3 _lookPoint, double _dt_sec)
 
     m_simpleAnimation = { { m_center, getTheta(), getPhi(), (double)std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()).time_since_epoch().count() },
                             { m_center, endTheta, endPhi, _dt_sec * 1000.0} };
+    m_animMode = AnimationMode::Simple;
     m_isAnimated = true;
 }
 
@@ -455,6 +459,7 @@ void CameraNode::lookAt(double endTheta, double endPhi, double dt_sec)
 
     m_simpleAnimation = { { m_center, getTheta(), getPhi(), (double)std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()).time_since_epoch().count() },
                             { m_center, endTheta, endPhi, dt_sec * 1000.0} };
+    m_animMode = AnimationMode::Simple;
     m_isAnimated = true;
 }
 
@@ -466,6 +471,7 @@ void CameraNode::translateTo(glm::dvec3 _endPoint, double _dt_sec)
 
     m_simpleAnimation = { { m_center, getTheta(), getPhi(), (double)std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()).time_since_epoch().count() },
                             { _endPoint, getTheta(), getPhi(), _dt_sec * 1000.0} };
+    m_animMode = AnimationMode::Simple;
     m_isAnimated = true;
 }
 
@@ -489,6 +495,7 @@ void CameraNode::moveTo(glm::dvec3 _endPoint, double _stopDist, double _dt_sec)
 
     m_simpleAnimation = { { m_center, getTheta(), getPhi(), (double)std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()).time_since_epoch().count() },
                             { stopPoint, endTheta, endPhi, _dt_sec * 1000.0} };
+    m_animMode = AnimationMode::Simple;
     m_isAnimated = true;
 }
 
@@ -512,6 +519,7 @@ void CameraNode::moveTo(glm::dvec3 _endPoint, double _dt_sec, glm::dvec3 _lookDi
 
     m_simpleAnimation = { { m_center, getTheta(), getPhi(), (double)std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()).time_since_epoch().count() },
                             { _endPoint, endTheta, endPhi, _dt_sec * 1000.0} };
+    m_animMode = AnimationMode::Simple;
     m_isAnimated = true;
 }
 
@@ -521,6 +529,7 @@ void CameraNode::moveTo(const glm::dvec3& endPoint, double endTheta, double endP
 
     m_simpleAnimation = { { m_center, getTheta(), getPhi(), (double)std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()).time_since_epoch().count() },
                             { endPoint, endTheta, endPhi, dt_sec * 1000.0} };
+    m_animMode = AnimationMode::Simple;
     m_isAnimated = true;
 }
 
@@ -576,8 +585,8 @@ void CameraNode::AddViewPoint(SafePtr<ViewPointNode> vp, const InterpolationValu
     if (!vpnode)
         return;
 
-    m_animation.push_back(vp);
-    m_initialAnimation.push_back(vp);
+    m_animationPlaylist.push_back(vp);
+    m_initialAnimationPlaylist.push_back(vp);
 
     m_trajectory.push_back({ vpnode->getCenter(), 3.0 * (double)M_PI / 2.0, (double)-M_PI / 2.0, 0.0 });
 }
@@ -596,57 +605,168 @@ void CameraNode::AddViewPoint1(SafePtr<ViewPointNode> vp, const InterpolationVal
 
 bool CameraNode::startAnimation(const bool& isOffline, const uint64_t& step)
 {
-    m_animMode = AnimationMode::Complex;
+    GRAPH_LOG << "[ANIM_DBG] camera startAnimation request"
+        << " offline=" << isOffline
+        << " playlistSize=" << m_animationPlaylist.size()
+        << " durationSec=" << m_animationDurationSeconds
+        << " mode=" << static_cast<int>(m_viewPointAnimationMode)
+        << LOGENDL;
+
     m_isOfflineRendering = isOffline;
-    if (m_animation.size() == 0)
+    if (m_animationPlaylist.size() < 2)
     {
         m_isAnimated = false;
-        return true;
+        return false;
     }
     // TODO - Update the values in the UI.
 
-    bool first(true);
     m_trajectory.clear();
-    for (const SafePtr<ViewPointNode>& vp : m_animation)
+    m_orientationTrajectory.clear();
+    for (const SafePtr<ViewPointNode>& vp : m_animationPlaylist)
     {
         ReadPtr<ViewPointNode> node = vp.cget();
         if (!node)
             continue;
-        //Note (aurélien) quick fix from viewpointTransfert
-        float speed = 1.0f / node->getScale().x;
-        if (first)
-        {
-            first = false;
-            speed = 1.0f;
-        }
-        //AddViewPoint(animation, InterpolationValueWithPreviousAnimation::BEZIER);
-        AddViewPoint1(vp, InterpolationValueWithPreviousAnimation::BEZIER);
+
+        const glm::dvec3 lookDir = glm::dvec4(0.0, 0.0, 1.0, 1.0) * node->getInverseTransformation();
+        double theta = 0.0;
+        if (!(lookDir.x == 0.0 && lookDir.y == 0.0))
+            theta = atan2(-lookDir.x, lookDir.y);
+
+        const double normXY = sqrt(lookDir.x * lookDir.x + lookDir.y * lookDir.y);
+        const double phi = atan2(-normXY, lookDir.z);
+
+        m_trajectory.push_back({ node->getCenter(), theta, phi, 0.0 });
+        m_orientationTrajectory.push_back({ node->getOrientation(), 0.0 });
     }
+
+    if (m_trajectory.size() < 2)
+    {
+        m_isAnimated = false;
+        return false;
+    }
+
+    if (m_interpolateViewpointRenderings)
+    {
+        m_viewpointRenderStates.clear();
+        m_viewpointRenderStates.reserve(m_animationPlaylist.size());
+        for (const SafePtr<ViewPointNode>& vp : m_animationPlaylist)
+        {
+            ReadPtr<ViewPointNode> rViewPoint = vp.cget();
+            if (!rViewPoint)
+            {
+                m_interpolateViewpointRenderings = false;
+                resetViewpointRenderInterpolation();
+                break;
+            }
+            m_viewpointRenderStates.push_back(buildViewpointRenderState(*&rViewPoint));
+        }
+        if (m_interpolateViewpointRenderings)
+            initializeViewpointRenderInterpolationControlTimes();
+    }
+
+    buildViewpointAnimationPlaybackPath();
+
+    if (m_trajectory.size() < 2)
+    {
+        m_isAnimated = false;
+        return false;
+    }
+
+    SafePtr<ViewPointNode> firstViewpoint = m_animationPlaylist.front();
+    ReadPtr<ViewPointNode> rFirstViewpoint = firstViewpoint.cget();
+    if (!rFirstViewpoint)
+    {
+        m_isAnimated = false;
+        return false;
+    }
+
+    static_cast<DisplayParameters&>(*this) = *&rFirstViewpoint;
+    applyProjection(*&rFirstViewpoint);
+
+    setPosition(m_trajectory.front().point);
+    if (m_orientationTrajectory.size() == m_trajectory.size())
+        m_quaternion = glm::normalize(m_orientationTrajectory.front().orientation);
+    else
+        setThetaAndPhi(m_trajectory.front().theta, m_trajectory.front().phi);
+
+    m_dataDispatcher.sendControl(new control::viewpoint::UpdateStatesFromViewpoint(firstViewpoint));
+
+    m_animMode = AnimationMode::Viewpoint;
     startPlayTrajectory(step);
-    m_isAnimated = true;
+    m_dataDispatcher.updateInformation(new GuiDataRenderAnimationPlaybackStart());
+    m_isAnimated = (m_trajectory.size() >= 2);
     return true;
 }
 
 bool CameraNode::endAnimation()
 {
-    if (m_isAnimated)
-    {
-        m_animation = m_initialAnimation;
-        m_isAnimated = false;
-        return true;
-    }
-    return false;
+    const bool wasAnimated = m_isAnimated;
+    m_isAnimated = false;
+    m_isAnimationPaused = false;
+    m_animMode = AnimationMode::Simple;
+    m_animation.clear();
+    m_trajectory.clear();
+    m_orientationTrajectory.clear();
+    m_currentKeyPoint = 0;
+    m_animFrames = 0;
+    m_totalPausedDurationSeconds = 0.0;
+    resetViewpointRenderInterpolation();
+    return wasAnimated;
+}
+
+bool CameraNode::pauseAnimation()
+{
+    if (!m_isAnimated || m_isAnimationPaused)
+        return false;
+
+    m_isAnimationPaused = true;
+    m_pauseTrajectoryTime = std::chrono::steady_clock::now();
+    return true;
+}
+
+bool CameraNode::resumeAnimation()
+{
+    if (!m_isAnimated || !m_isAnimationPaused)
+        return false;
+
+    const std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+    m_totalPausedDurationSeconds += std::chrono::duration<double>(now - m_pauseTrajectoryTime).count();
+    m_isAnimationPaused = false;
+    return true;
+}
+
+void CameraNode::setAnimationTiming(ViewPointAnimationMode mode, double durationSeconds, const std::vector<double>& controlPointTimesSec, bool smoothTransitions)
+{
+    m_viewPointAnimationMode = mode;
+    m_animationDurationSeconds = std::max(0.0, durationSeconds);
+    m_controlPointTimesSeconds = controlPointTimesSec;
+    m_smoothViewpointTransitions = smoothTransitions;
+}
+
+void CameraNode::setViewpointRenderInterpolationEnabled(bool enabled)
+{
+    m_interpolateViewpointRenderings = enabled;
+    if (!enabled)
+        resetViewpointRenderInterpolation();
 }
 
 void CameraNode::cleanAnimation()
 {
-    m_animation.clear();
-    m_initialAnimation.clear();
+    m_animationPlaylist.clear();
+    m_initialAnimationPlaylist.clear();
+    m_trajectory.clear();
+    m_orientationTrajectory.clear();
+    m_currentKeyPoint = 0;
+    m_animFrames = 0;
+    m_isAnimationPaused = false;
+    m_totalPausedDurationSeconds = 0.0;
+    resetViewpointRenderInterpolation();
 }
 
 void CameraNode::setSpeed(const int& speed)
 {
-    m_speed = speed ? speed * 1.2f : 1.0f;
+    m_speed = speed > 0 ? static_cast<double>(speed) : 1.0;
 }
 
 void CameraNode::setLoop(const bool& loop)
@@ -1194,11 +1314,11 @@ void CameraNode::freeAllUniforms()
 void CameraNode::startPlayTrajectory(const uint64_t& animationStep)
 {
     m_currentKeyPoint = 1;
-    m_initialAnimation = m_animation;
+    m_initialAnimationPlaylist = m_animationPlaylist;
+    m_isAnimationPaused = false;
+    m_totalPausedDurationSeconds = 0.0;
     if (m_trajectory.size() < 2)
         return;
-
-    updateTrajectoryToBezier();
 
     if (m_isOfflineRendering)
     {
@@ -1209,14 +1329,19 @@ void CameraNode::startPlayTrajectory(const uint64_t& animationStep)
         m_startTrajectoryTime = std::chrono::steady_clock::now();
 }
 
-bool CameraNode::animateComplexTrajectory()
+bool CameraNode::animateViewpointTrajectory()
 {
     // Get time elapsed since the start of the trajectory
     double dtime((double)m_animFrames);
     if (m_isOfflineRendering)
         dtime = (dtime += m_speed) / m_offlineAnimStep;
     else
-        dtime = std::chrono::duration<double, std::ratio<1>>(std::chrono::steady_clock::now() - m_startTrajectoryTime).count() * m_speed;
+    {
+        const double elapsedSeconds = std::chrono::duration<double, std::ratio<1>>(std::chrono::steady_clock::now() - m_startTrajectoryTime).count() - m_totalPausedDurationSeconds;
+        dtime = std::max(0.0, elapsedSeconds) * ((m_speed > 0.0) ? m_speed : 1.0);
+    }
+
+    applyViewpointRenderInterpolation(dtime);
 
     if (m_currentKeyPoint >= m_trajectory.size())
         return true;
@@ -1226,22 +1351,44 @@ bool CameraNode::animateComplexTrajectory()
         KeyPoint kPt0 = m_trajectory[m_currentKeyPoint - 1];
         KeyPoint kPt1 = m_trajectory[m_currentKeyPoint];
 
-        double progress = (dtime - kPt0.dtime_arrival) / (kPt1.dtime_arrival - kPt0.dtime_arrival);
+        const double segmentDuration = kPt1.dtime_arrival - kPt0.dtime_arrival;
+        if (segmentDuration <= 1e-9)
+        {
+            if (m_currentKeyPoint + 1 < m_trajectory.size())
+            {
+                m_currentKeyPoint++;
+                return animateViewpointTrajectory();
+            }
+            dtime = kPt1.dtime_arrival;
+        }
+
+        const double safeSegmentDuration = std::max(kPt1.dtime_arrival - kPt0.dtime_arrival, 1e-9);
+        double progress = (dtime - kPt0.dtime_arrival) / safeSegmentDuration;
+        progress = std::clamp(progress, 0.0, 1.0);
 
         m_center = (kPt1.point * progress + kPt0.point * (1 - progress));
 
-        double delta_theta = kPt1.theta - kPt0.theta;
-        modulo2Pi(0.0, delta_theta);
+        if (m_orientationTrajectory.size() == m_trajectory.size())
+        {
+            const glm::dquat q0 = m_orientationTrajectory[m_currentKeyPoint - 1].orientation;
+            const glm::dquat q1 = m_orientationTrajectory[m_currentKeyPoint].orientation;
+            m_quaternion = glm::normalize(slerpShortestPath(q0, q1, progress));
+        }
+        else
+        {
+            double delta_theta = kPt1.theta - kPt0.theta;
+            modulo2Pi(0.0, delta_theta);
 
-        double theta1_modulo = kPt0.theta + progress * delta_theta;
-        modulo2Pi(0.0, theta1_modulo); //unsure about that
+            double theta1_modulo = kPt0.theta + progress * delta_theta;
+            modulo2Pi(0.0, theta1_modulo); //unsure about that
 
-        setThetaAndPhi(theta1_modulo, kPt1.phi * progress + kPt0.phi * (1 - progress));
+            setThetaAndPhi(theta1_modulo, kPt1.phi * progress + kPt0.phi * (1 - progress));
+        }
     }
     else if (m_currentKeyPoint + 1 < m_trajectory.size())
     {
         m_currentKeyPoint++;
-        return animateComplexTrajectory();
+        return animateViewpointTrajectory();
     }
     else
     {
@@ -1249,22 +1396,597 @@ bool CameraNode::animateComplexTrajectory()
 
         if (m_loop == false)
         {
-            setPosition(m_trajectory[m_currentKeyPoint].point);
-            setThetaAndPhi(m_trajectory[m_currentKeyPoint].theta, m_trajectory[m_currentKeyPoint].phi);
-            m_animation = m_initialAnimation;
+            // Avoid forcing an abrupt final snap when the camera is already very close
+            // to the target pose at the end of the sampled trajectory.
+            const glm::dvec3& endPoint = m_trajectory[m_currentKeyPoint].point;
+            if (glm::distance(m_center, endPoint) > 1e-4)
+                setPosition(endPoint);
+
+            if (m_orientationTrajectory.size() == m_trajectory.size())
+            {
+                const glm::dquat endOrientation = glm::normalize(m_orientationTrajectory[m_currentKeyPoint].orientation);
+                const double orientationAlignment = std::abs(glm::dot(glm::normalize(m_quaternion), endOrientation));
+                const double maxAllowedResidualAngleRad = glm::radians(0.5);
+                const double minAllowedAlignment = std::cos(maxAllowedResidualAngleRad * 0.5);
+                if (orientationAlignment < minAllowedAlignment)
+                    m_quaternion = endOrientation;
+            }
+            else
+            {
+                setThetaAndPhi(m_trajectory[m_currentKeyPoint].theta, m_trajectory[m_currentKeyPoint].phi);
+            }
+            m_animationPlaylist = m_initialAnimationPlaylist;
             m_isAnimated = false;
+            m_animMode = AnimationMode::Simple;
+            m_dataDispatcher.updateInformation(new GuiDataRenderStopAnimation());
             return true;
         }
         else
         {
             setPosition(m_trajectory[0].point);
-            setThetaAndPhi(m_trajectory[0].theta, m_trajectory[0].phi);
+            if (m_orientationTrajectory.size() == m_trajectory.size())
+                m_quaternion = glm::normalize(m_orientationTrajectory[0].orientation);
+            else
+                setThetaAndPhi(m_trajectory[0].theta, m_trajectory[0].phi);
             m_startTrajectoryTime = std::chrono::steady_clock::now();
             m_currentKeyPoint = 1;
         }
     }
 
     return true;
+}
+
+void CameraNode::resetViewpointRenderInterpolation()
+{
+    m_viewpointRenderStates.clear();
+    m_renderControlPointTimesSeconds.clear();
+}
+
+void CameraNode::initializeViewpointRenderInterpolationControlTimes()
+{
+    m_renderControlPointTimesSeconds.clear();
+    if (m_viewpointRenderStates.size() < 2)
+        return;
+
+    if (m_viewPointAnimationMode == ViewPointAnimationMode::PositionAsTime && m_controlPointTimesSeconds.size() == m_viewpointRenderStates.size())
+    {
+        m_renderControlPointTimesSeconds = m_controlPointTimesSeconds;
+        const double firstTime = m_renderControlPointTimesSeconds.front();
+        for (double& controlTime : m_renderControlPointTimesSeconds)
+            controlTime -= firstTime;
+        return;
+    }
+
+    const double targetDuration = std::max(m_animationDurationSeconds, 0.001);
+    const size_t lastIndex = m_viewpointRenderStates.size() - 1;
+    m_renderControlPointTimesSeconds.resize(m_viewpointRenderStates.size(), 0.0);
+    for (size_t i = 0; i <= lastIndex; ++i)
+        m_renderControlPointTimesSeconds[i] = targetDuration * static_cast<double>(i) / static_cast<double>(lastIndex);
+}
+
+void CameraNode::applyViewpointRenderInterpolation(double elapsedAnimationSeconds)
+{
+    if (!m_interpolateViewpointRenderings || m_viewpointRenderStates.size() < 2 || m_renderControlPointTimesSeconds.size() != m_viewpointRenderStates.size())
+        return;
+
+    const double clampedTime = std::clamp(elapsedAnimationSeconds, m_renderControlPointTimesSeconds.front(), m_renderControlPointTimesSeconds.back());
+    auto upperBound = std::upper_bound(m_renderControlPointTimesSeconds.begin(), m_renderControlPointTimesSeconds.end(), clampedTime);
+
+    if (upperBound == m_renderControlPointTimesSeconds.begin())
+    {
+        applyViewpointRenderState(m_viewpointRenderStates.front());
+        return;
+    }
+
+    if (upperBound == m_renderControlPointTimesSeconds.end())
+    {
+        applyViewpointRenderState(m_viewpointRenderStates.back());
+        return;
+    }
+
+    const size_t rightIndex = static_cast<size_t>(std::distance(m_renderControlPointTimesSeconds.begin(), upperBound));
+    const size_t leftIndex = rightIndex - 1;
+    const double leftTime = m_renderControlPointTimesSeconds[leftIndex];
+    const double rightTime = m_renderControlPointTimesSeconds[rightIndex];
+    const double safeDuration = std::max(rightTime - leftTime, 1e-9);
+    const double alpha = std::clamp((clampedTime - leftTime) / safeDuration, 0.0, 1.0);
+
+    const ViewpointRenderState interpolatedState = lerpViewpointRenderState(m_viewpointRenderStates[leftIndex], m_viewpointRenderStates[rightIndex], alpha);
+    applyViewpointRenderState(interpolatedState);
+}
+
+ViewpointRenderState CameraNode::buildViewpointRenderState(const ViewPointNode& viewpoint)
+{
+    ViewpointRenderState state;
+    state.transparency = viewpoint.m_transparency;
+    state.normalStrength = viewpoint.m_postRenderingNormals.normalStrength;
+    state.normalGloss = viewpoint.m_postRenderingNormals.gloss;
+    state.hue = viewpoint.m_hue;
+    state.brightness = viewpoint.m_brightness;
+    state.saturation = viewpoint.m_saturation;
+    state.luminance = viewpoint.m_luminance;
+    state.contrast = viewpoint.m_contrast;
+    state.alphaObject = viewpoint.m_alphaObject;
+    state.fovy = viewpoint.getFovy();
+    return state;
+}
+
+ViewpointRenderState CameraNode::lerpViewpointRenderState(const ViewpointRenderState& start, const ViewpointRenderState& end, double t)
+{
+    const float alpha = static_cast<float>(std::clamp(t, 0.0, 1.0));
+    ViewpointRenderState state;
+    state.transparency = start.transparency + (end.transparency - start.transparency) * alpha;
+    state.normalStrength = start.normalStrength + (end.normalStrength - start.normalStrength) * alpha;
+    state.normalGloss = start.normalGloss + (end.normalGloss - start.normalGloss) * alpha;
+    state.hue = start.hue + (end.hue - start.hue) * alpha;
+    state.brightness = start.brightness + (end.brightness - start.brightness) * alpha;
+    state.saturation = start.saturation + (end.saturation - start.saturation) * alpha;
+    state.luminance = start.luminance + (end.luminance - start.luminance) * alpha;
+    state.contrast = start.contrast + (end.contrast - start.contrast) * alpha;
+    state.alphaObject = start.alphaObject + (end.alphaObject - start.alphaObject) * alpha;
+    state.fovy = start.fovy + (end.fovy - start.fovy) * alpha;
+    return state;
+}
+
+void CameraNode::applyViewpointRenderState(const ViewpointRenderState& state)
+{
+    m_transparency = state.transparency;
+    m_postRenderingNormals.normalStrength = state.normalStrength;
+    m_postRenderingNormals.gloss = state.normalGloss;
+    m_hue = state.hue;
+    m_brightness = state.brightness;
+    m_saturation = state.saturation;
+    m_luminance = state.luminance;
+    m_contrast = state.contrast;
+    m_alphaObject = state.alphaObject;
+    setFovy(state.fovy, false);
+}
+
+void CameraNode::buildViewpointAnimationPlaybackPath()
+{
+    if (m_trajectory.size() < 2 || m_orientationTrajectory.size() != m_trajectory.size())
+        return;
+
+    if (m_trajectory.size() < 3)
+    {
+        buildLinearPlaybackPathFromTrajectory();
+        return;
+    }
+
+    buildCatmullRomPlaybackPathFromTrajectory();
+}
+
+void CameraNode::buildLinearPlaybackPathFromTrajectory()
+{
+    applyPlaybackTimingFromControlPoints();
+}
+
+void CameraNode::buildCatmullRomPlaybackPathFromTrajectory()
+{
+    const size_t controlCount = m_trajectory.size();
+    if (controlCount < 3)
+    {
+        buildLinearPlaybackPathFromTrajectory();
+        return;
+    }
+
+    std::vector<KeyPoint> sampledTrajectory;
+    std::vector<OrientationKeyPoint> sampledOrientationTrajectory;
+    sampledTrajectory.reserve(controlCount * 12);
+    sampledOrientationTrajectory.reserve(controlCount * 12);
+
+    sampledTrajectory.push_back({ m_trajectory[0].point, m_trajectory[0].theta, m_trajectory[0].phi, 0.0 });
+    std::vector<glm::dquat> controlOrientations;
+    controlOrientations.reserve(controlCount);
+    for (const OrientationKeyPoint& orientationKp : m_orientationTrajectory)
+        controlOrientations.push_back(glm::normalize(orientationKp.orientation));
+
+    enforceQuaternionSignContinuity(controlOrientations);
+
+    std::vector<glm::dquat> squadIntermediates(controlCount);
+    if (controlCount > 0)
+    {
+        squadIntermediates.front() = controlOrientations.front();
+        squadIntermediates.back() = controlOrientations.back();
+        for (size_t i = 1; i + 1 < controlCount; ++i)
+            squadIntermediates[i] = computeSquadIntermediate(controlOrientations[i - 1], controlOrientations[i], controlOrientations[i + 1]);
+    }
+
+    sampledOrientationTrajectory.push_back({ controlOrientations[0], 0.0 });
+
+    for (size_t i = 0; i + 1 < controlCount; ++i)
+    {
+        const glm::dvec3& p0 = (i == 0) ? m_trajectory[i].point : m_trajectory[i - 1].point;
+        const glm::dvec3& p1 = m_trajectory[i].point;
+        const glm::dvec3& p2 = m_trajectory[i + 1].point;
+        const glm::dvec3& p3 = (i + 2 < controlCount) ? m_trajectory[i + 2].point : m_trajectory[i + 1].point;
+
+        const double segmentDistance = glm::distance(p1, p2);
+        const int positionSampleCount = std::clamp(static_cast<int>(std::ceil(segmentDistance / 0.25)), 4, 48);
+
+        const double orientationAlignment = std::clamp(std::abs(glm::dot(controlOrientations[i], controlOrientations[i + 1])), 0.0, 1.0);
+        const double orientationAngle = 2.0 * std::acos(orientationAlignment);
+        const int orientationSampleCount = std::clamp(static_cast<int>(std::ceil(orientationAngle / glm::radians(2.0))), 1, 48);
+
+        int sampleCount = std::max(positionSampleCount, orientationSampleCount);
+        const bool isLastControlSegment = (i + 1 == controlCount - 1);
+        if (isLastControlSegment)
+            sampleCount = std::min(sampleCount * 2, 64);
+        sampleCount = std::clamp(sampleCount, 4, 64);
+
+        for (int step = 1; step <= sampleCount; ++step)
+        {
+            const double localT = static_cast<double>(step) / static_cast<double>(sampleCount);
+            const glm::dvec3 sampledPosition = evaluateCentripetalCatmullRom(p0, p1, p2, p3, localT);
+            const glm::dquat sampledOrientation = squadShortestPath(
+                controlOrientations[i],
+                controlOrientations[i + 1],
+                squadIntermediates[i],
+                squadIntermediates[i + 1],
+                localT);
+
+            sampledTrajectory.push_back({ sampledPosition, 0.0, 0.0, 0.0 });
+            sampledOrientationTrajectory.push_back({ glm::normalize(sampledOrientation), 0.0 });
+        }
+    }
+
+    if (sampledTrajectory.size() < 2)
+    {
+        buildLinearPlaybackPathFromTrajectory();
+        return;
+    }
+
+    m_trajectory = std::move(sampledTrajectory);
+    m_orientationTrajectory = std::move(sampledOrientationTrajectory);
+    applyPlaybackTimingFromControlPoints();
+}
+
+double CameraNode::smoothstep01(double t)
+{
+    const double clamped = std::clamp(t, 0.0, 1.0);
+    return clamped * clamped * (3.0 - 2.0 * clamped);
+}
+
+double CameraNode::smootherstep01(double t)
+{
+    const double clamped = std::clamp(t, 0.0, 1.0);
+    return clamped * clamped * clamped * (clamped * (clamped * 6.0 - 15.0) + 10.0);
+}
+
+std::vector<double> CameraNode::computeMonotonicCubicSlopes(const std::vector<double>& x, const std::vector<double>& y)
+{
+    const size_t count = x.size();
+    std::vector<double> slopes(count, 0.0);
+    if (count < 2 || y.size() != count)
+        return slopes;
+
+    std::vector<double> h(count - 1, 0.0);
+    std::vector<double> delta(count - 1, 0.0);
+    for (size_t i = 0; i + 1 < count; ++i)
+    {
+        h[i] = std::max(x[i + 1] - x[i], 1e-9);
+        delta[i] = (y[i + 1] - y[i]) / h[i];
+    }
+
+    slopes.front() = delta.front();
+    slopes.back() = delta.back();
+
+    if (count == 2)
+        return slopes;
+
+    for (size_t i = 1; i + 1 < count; ++i)
+    {
+        if (delta[i - 1] * delta[i] <= 0.0)
+        {
+            slopes[i] = 0.0;
+            continue;
+        }
+
+        const double w1 = 2.0 * h[i] + h[i - 1];
+        const double w2 = h[i] + 2.0 * h[i - 1];
+        slopes[i] = (w1 + w2) / (w1 / delta[i - 1] + w2 / delta[i]);
+    }
+
+    const auto clampEndpointSlope = [](double endpointSlope, double endpointDelta, double neighborDelta)
+    {
+        if (endpointDelta == 0.0)
+            return 0.0;
+        if (endpointSlope * endpointDelta <= 0.0)
+            return 0.0;
+        if (endpointDelta * neighborDelta < 0.0 && std::abs(endpointSlope) > std::abs(3.0 * endpointDelta))
+            return 3.0 * endpointDelta;
+        return endpointSlope;
+    };
+
+    const double d0 = delta[0];
+    const double d1 = delta[1];
+    const double h0 = h[0];
+    const double h1 = h[1];
+    const double m0 = ((2.0 * h0 + h1) * d0 - h0 * d1) / (h0 + h1);
+    slopes[0] = clampEndpointSlope(m0, d0, d1);
+
+    const size_t last = count - 1;
+    const double dn1 = delta[last - 1];
+    const double dn2 = delta[last - 2];
+    const double hn1 = h[last - 1];
+    const double hn2 = h[last - 2];
+    const double mn = ((2.0 * hn1 + hn2) * dn1 - hn1 * dn2) / (hn1 + hn2);
+    slopes[last] = clampEndpointSlope(mn, dn1, dn2);
+
+    return slopes;
+}
+
+double CameraNode::evaluateMonotonicCubicHermite(const std::vector<double>& x, const std::vector<double>& y, const std::vector<double>& slopes, double xQuery)
+{
+    if (x.size() < 2 || y.size() != x.size() || slopes.size() != x.size())
+        return 0.0;
+
+    if (xQuery <= x.front())
+        return y.front();
+    if (xQuery >= x.back())
+        return y.back();
+
+    auto upper = std::upper_bound(x.begin(), x.end(), xQuery);
+    size_t i = static_cast<size_t>(std::distance(x.begin(), upper) - 1);
+    i = std::min(i, x.size() - 2);
+
+    const double x0 = x[i];
+    const double x1 = x[i + 1];
+    const double h = std::max(x1 - x0, 1e-9);
+    const double t = std::clamp((xQuery - x0) / h, 0.0, 1.0);
+
+    const double h00 = (2.0 * t * t * t - 3.0 * t * t + 1.0);
+    const double h10 = (t * t * t - 2.0 * t * t + t);
+    const double h01 = (-2.0 * t * t * t + 3.0 * t * t);
+    const double h11 = (t * t * t - t * t);
+
+    return h00 * y[i] + h10 * h * slopes[i] + h01 * y[i + 1] + h11 * h * slopes[i + 1];
+}
+
+void CameraNode::applyPlaybackTimingFromControlPoints()
+{
+    if (m_trajectory.size() < 2 || m_orientationTrajectory.size() != m_trajectory.size())
+        return;
+
+    std::vector<double> cumulativeDistances(m_trajectory.size(), 0.0);
+    for (size_t i = 1; i < m_trajectory.size(); ++i)
+        cumulativeDistances[i] = cumulativeDistances[i - 1] + glm::distance(m_trajectory[i - 1].point, m_trajectory[i].point);
+
+    const double totalDistance = cumulativeDistances.back();
+    const double targetDuration = std::max(m_animationDurationSeconds, 0.001);
+
+    if (m_viewPointAnimationMode == ViewPointAnimationMode::ConstantSpeed || m_controlPointTimesSeconds.size() < 2)
+    {
+        m_trajectory[0].dtime_arrival = 0.0;
+        for (size_t i = 1; i < m_trajectory.size(); ++i)
+        {
+            const double alpha = (totalDistance > 1e-9) ? cumulativeDistances[i] / totalDistance : static_cast<double>(i) / static_cast<double>(m_trajectory.size() - 1);
+            m_trajectory[i].dtime_arrival = targetDuration * alpha;
+        }
+    }
+    else
+    {
+        const double firstTime = m_controlPointTimesSeconds.front();
+        std::vector<double> controlTimes = m_controlPointTimesSeconds;
+        for (double& t : controlTimes)
+            t -= firstTime;
+
+        if (m_viewPointAnimationMode == ViewPointAnimationMode::ConstantIntervals)
+        {
+            controlTimes.resize(m_controlPointTimesSeconds.size());
+            const size_t last = controlTimes.size() - 1;
+            for (size_t i = 0; i <= last; ++i)
+                controlTimes[i] = targetDuration * static_cast<double>(i) / static_cast<double>(last);
+        }
+
+        const size_t segmentCount = controlTimes.size() - 1;
+        std::vector<size_t> segmentStartIndices(segmentCount, 0);
+        std::vector<size_t> segmentEndIndices(segmentCount, 0);
+
+        size_t cursor = 0;
+        for (size_t seg = 0; seg < segmentCount; ++seg)
+        {
+            segmentStartIndices[seg] = cursor;
+            const double segmentTarget = static_cast<double>(seg + 1) / static_cast<double>(segmentCount);
+            while (cursor + 1 < cumulativeDistances.size())
+            {
+                const double ratio = (totalDistance > 1e-9) ? cumulativeDistances[cursor + 1] / totalDistance : static_cast<double>(cursor + 1) / static_cast<double>(cumulativeDistances.size() - 1);
+                if (ratio >= segmentTarget)
+                    break;
+                ++cursor;
+            }
+            if (cursor + 1 < cumulativeDistances.size())
+                ++cursor;
+            segmentEndIndices[seg] = cursor;
+        }
+        segmentEndIndices.back() = cumulativeDistances.size() - 1;
+
+        m_trajectory[0].dtime_arrival = controlTimes[0];
+        if (!m_smoothViewpointTransitions)
+        {
+            for (size_t seg = 0; seg < segmentCount; ++seg)
+            {
+                const size_t startIdx = segmentStartIndices[seg];
+                const size_t maxIndex = cumulativeDistances.size() - 1;
+                const size_t endIdx = std::min(std::max(segmentEndIndices[seg], std::min(startIdx + 1, maxIndex)), maxIndex);
+                const double startDistance = cumulativeDistances[startIdx];
+                const double endDistance = cumulativeDistances[endIdx];
+                const double segmentDuration = std::max(0.001, controlTimes[seg + 1] - controlTimes[seg]);
+                for (size_t i = startIdx + 1; i <= endIdx; ++i)
+                {
+                    const double segmentAlpha = (endDistance > startDistance) ? (cumulativeDistances[i] - startDistance) / (endDistance - startDistance) : static_cast<double>(i - startIdx) / static_cast<double>(endIdx - startIdx);
+                    const double easedAlpha = smoothstep01(segmentAlpha);
+                    m_trajectory[i].dtime_arrival = controlTimes[seg] + segmentDuration * easedAlpha;
+                }
+            }
+        }
+        else
+        {
+            // Smoother mode (Option B): use a monotonic cubic interpolation of time over path progress.
+            // This keeps a strictly increasing timeline while avoiding abrupt speed changes at viewpoints.
+            std::vector<double> controlRatios(controlTimes.size(), 0.0);
+            controlRatios.front() = 0.0;
+            for (size_t seg = 0; seg < segmentCount; ++seg)
+            {
+                const size_t maxIndex = cumulativeDistances.size() - 1;
+                const size_t endIdx = std::min(segmentEndIndices[seg], maxIndex);
+                controlRatios[seg + 1] = (totalDistance > 1e-9)
+                    ? std::clamp(cumulativeDistances[endIdx] / totalDistance, 0.0, 1.0)
+                    : static_cast<double>(seg + 1) / static_cast<double>(segmentCount);
+            }
+
+            for (size_t i = 1; i < controlRatios.size(); ++i)
+            {
+                if (controlRatios[i] <= controlRatios[i - 1])
+                    controlRatios[i] = std::min(1.0, controlRatios[i - 1] + 1e-6);
+            }
+            controlRatios.back() = 1.0;
+
+            std::vector<double> smoothedControlTimes = controlTimes;
+            if (smoothedControlTimes.size() >= 2)
+            {
+                for (size_t i = 1; i + 1 < smoothedControlTimes.size(); ++i)
+                {
+                    const double neighborAverage = 0.5 * (controlTimes[i - 1] + controlTimes[i + 1]);
+                    const double blended = controlTimes[i] + (neighborAverage - controlTimes[i]) * 0.2;
+                    smoothedControlTimes[i] = std::clamp(blended, controlTimes[i - 1] + 1e-6, controlTimes[i + 1] - 1e-6);
+                }
+            }
+
+            const std::vector<double> slopes = computeMonotonicCubicSlopes(controlRatios, smoothedControlTimes);
+            for (size_t i = 1; i < m_trajectory.size(); ++i)
+            {
+                const double ratio = (totalDistance > 1e-9)
+                    ? std::clamp(cumulativeDistances[i] / totalDistance, 0.0, 1.0)
+                    : static_cast<double>(i) / static_cast<double>(m_trajectory.size() - 1);
+                const double easedRatio = smootherstep01(ratio);
+                const double blendRatio = std::clamp(0.75 * ratio + 0.25 * easedRatio, 0.0, 1.0);
+                m_trajectory[i].dtime_arrival = evaluateMonotonicCubicHermite(controlRatios, smoothedControlTimes, slopes, blendRatio);
+            }
+
+            for (size_t i = 1; i < m_trajectory.size(); ++i)
+                m_trajectory[i].dtime_arrival = std::max(m_trajectory[i].dtime_arrival, m_trajectory[i - 1].dtime_arrival + 1e-6);
+
+            m_trajectory.back().dtime_arrival = std::max(controlTimes.back(), m_trajectory[m_trajectory.size() - 2].dtime_arrival + 1e-6);
+        }
+    }
+
+    for (size_t i = 0; i < m_orientationTrajectory.size(); ++i)
+        m_orientationTrajectory[i].dtime_arrival = m_trajectory[i].dtime_arrival;
+}
+
+glm::dvec3 CameraNode::evaluateCentripetalCatmullRom(
+    const glm::dvec3& p0,
+    const glm::dvec3& p1,
+    const glm::dvec3& p2,
+    const glm::dvec3& p3,
+    double t)
+{
+    const double alpha = 0.5;
+    const auto computeKnot = [alpha](double prev, const glm::dvec3& a, const glm::dvec3& b)
+    {
+        return prev + std::pow(std::max(glm::distance(a, b), 1e-9), alpha);
+    };
+
+    const double t0 = 0.0;
+    const double t1 = computeKnot(t0, p0, p1);
+    const double t2 = computeKnot(t1, p1, p2);
+    const double t3 = computeKnot(t2, p2, p3);
+    const double u = t1 + (t2 - t1) * std::clamp(t, 0.0, 1.0);
+
+    const glm::dvec3 a1 = ((t1 - u) / (t1 - t0)) * p0 + ((u - t0) / (t1 - t0)) * p1;
+    const glm::dvec3 a2 = ((t2 - u) / (t2 - t1)) * p1 + ((u - t1) / (t2 - t1)) * p2;
+    const glm::dvec3 a3 = ((t3 - u) / (t3 - t2)) * p2 + ((u - t2) / (t3 - t2)) * p3;
+
+    const glm::dvec3 b1 = ((t2 - u) / (t2 - t0)) * a1 + ((u - t0) / (t2 - t0)) * a2;
+    const glm::dvec3 b2 = ((t3 - u) / (t3 - t1)) * a2 + ((u - t1) / (t3 - t1)) * a3;
+
+    return ((t2 - u) / (t2 - t1)) * b1 + ((u - t1) / (t2 - t1)) * b2;
+}
+
+glm::dquat CameraNode::slerpShortestPath(const glm::dquat& q0, const glm::dquat& q1, double t)
+{
+    glm::dquat q1Shortest = q1;
+    if (glm::dot(q0, q1Shortest) < 0.0)
+        q1Shortest = -q1Shortest;
+    return glm::slerp(q0, q1Shortest, std::clamp(t, 0.0, 1.0));
+}
+
+glm::dquat CameraNode::squadShortestPath(const glm::dquat& q0, const glm::dquat& q1, const glm::dquat& s0, const glm::dquat& s1, double t)
+{
+    const double clampedT = std::clamp(t, 0.0, 1.0);
+
+    glm::dquat q1Aligned = q1;
+    glm::dquat s1Aligned = s1;
+    if (glm::dot(q0, q1Aligned) < 0.0)
+    {
+        q1Aligned = -q1Aligned;
+        s1Aligned = -s1Aligned;
+    }
+
+    glm::dquat s0Aligned = s0;
+    if (glm::dot(q0, s0Aligned) < 0.0)
+        s0Aligned = -s0Aligned;
+    if (glm::dot(q1Aligned, s1Aligned) < 0.0)
+        s1Aligned = -s1Aligned;
+
+    const glm::dquat slerpDirect = slerpShortestPath(q0, q1Aligned, clampedT);
+    const glm::dquat slerpControl = slerpShortestPath(s0Aligned, s1Aligned, clampedT);
+    const double blend = 2.0 * clampedT * (1.0 - clampedT);
+    return glm::normalize(slerpShortestPath(slerpDirect, slerpControl, blend));
+}
+
+glm::dquat CameraNode::computeSquadIntermediate(const glm::dquat& qPrev, const glm::dquat& qCurr, const glm::dquat& qNext)
+{
+    const glm::dquat qPrevAligned = (glm::dot(qCurr, qPrev) < 0.0) ? -qPrev : qPrev;
+    const glm::dquat qNextAligned = (glm::dot(qCurr, qNext) < 0.0) ? -qNext : qNext;
+
+    const glm::dquat invCurr = glm::inverse(qCurr);
+    const glm::dquat logPrev = quaternionLog(invCurr * qPrevAligned);
+    const glm::dquat logNext = quaternionLog(invCurr * qNextAligned);
+
+    const glm::dquat averageLog(
+        0.0,
+        -0.25 * (logPrev.x + logNext.x),
+        -0.25 * (logPrev.y + logNext.y),
+        -0.25 * (logPrev.z + logNext.z));
+
+    return glm::normalize(qCurr * quaternionExp(averageLog));
+}
+
+glm::dquat CameraNode::quaternionLog(const glm::dquat& q)
+{
+    const glm::dquat normalized = glm::normalize(q);
+    const glm::dvec3 v(normalized.x, normalized.y, normalized.z);
+    const double vNorm = glm::length(v);
+    if (vNorm < 1e-12)
+        return glm::dquat(0.0, 0.0, 0.0, 0.0);
+
+    const double angle = std::atan2(vNorm, normalized.w);
+    const glm::dvec3 axis = v / vNorm;
+    const glm::dvec3 logV = axis * angle;
+    return glm::dquat(0.0, logV.x, logV.y, logV.z);
+}
+
+glm::dquat CameraNode::quaternionExp(const glm::dquat& q)
+{
+    const glm::dvec3 v(q.x, q.y, q.z);
+    const double theta = glm::length(v);
+    if (theta < 1e-12)
+        return glm::normalize(glm::dquat(std::cos(theta), v.x, v.y, v.z));
+
+    const glm::dvec3 axis = v / theta;
+    const double sinTheta = std::sin(theta);
+    return glm::normalize(glm::dquat(std::cos(theta), axis.x * sinTheta, axis.y * sinTheta, axis.z * sinTheta));
+}
+
+void CameraNode::enforceQuaternionSignContinuity(std::vector<glm::dquat>& quaternions)
+{
+    for (size_t i = 1; i < quaternions.size(); ++i)
+    {
+        if (glm::dot(quaternions[i - 1], quaternions[i]) < 0.0)
+            quaternions[i] = -quaternions[i];
+    }
 }
 
 /*
@@ -1833,6 +2555,11 @@ void CameraNode::moveToData(const SafePtr<AGraphNode>& data)
             m_panoramicScan = cli->getPanoramicScan();
 
         lookDir = glm::dvec4(0.0, 0.0, 1.0, 1.0) * cli->getInverseTransformation();
+        m_animation.clear();
+        m_trajectory.clear();
+        m_orientationTrajectory.clear();
+        m_currentKeyPoint = 0;
+        m_animFrames = 0;
         m_animation.push_back(vp);
     }
     break;
@@ -1860,6 +2587,18 @@ void CameraNode::moveToData(const SafePtr<AGraphNode>& data)
         resetExaminePoint();
 
     sendNewUIViewPoint();
+}
+
+void CameraNode::snapToViewPoint(const SafePtr<ViewPointNode>& viewpoint)
+{
+    ReadPtr<ViewPointNode> rViewpoint = viewpoint.cget();
+    if (!rViewpoint)
+        return;
+
+    static_cast<DisplayParameters&>(*this) = *&rViewpoint;
+    applyProjection(*&rViewpoint);
+    setPosition(rViewpoint->getCenter());
+    m_quaternion = glm::normalize(rViewpoint->getOrientation());
 }
 
 void CameraNode::onCameraToViewPoint(IGuiData* data)

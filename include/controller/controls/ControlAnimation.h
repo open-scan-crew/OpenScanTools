@@ -3,6 +3,7 @@
 
 #include "controller/controls/IControl.h"
 #include "models/OpenScanToolsModelEssentials.h"
+#include "models/application/ViewPointAnimation.h"
 
 class IPanel;
 class AGraphNode;
@@ -27,6 +28,59 @@ namespace control::animation
     public:
         AddScansViewPoint();
         ~AddScansViewPoint();
+        void doFunction(Controller& controller) override;
+        ControlType getType() const override;
+    };
+
+    class PrepareViewpointsAnimation : public AControl
+    {
+    public:
+        PrepareViewpointsAnimation(const viewPointAnimationId& animationId, int lengthSeconds, bool interpolateRenderingBetweenViewpoints);
+        ~PrepareViewpointsAnimation();
+        void doFunction(Controller& controller) override;
+        ControlType getType() const override;
+    private:
+        viewPointAnimationId m_animationId;
+        int m_lengthSeconds;
+        bool m_interpolateRenderingBetweenViewpoints;
+    };
+
+    class RefreshViewpointsAnimationState : public AControl
+    {
+    public:
+        RefreshViewpointsAnimationState();
+        ~RefreshViewpointsAnimationState();
+        void doFunction(Controller& controller) override;
+        ControlType getType() const override;
+    };
+
+    class CreateEditViewPointAnimation : public AControl
+    {
+    public:
+        CreateEditViewPointAnimation(const ViewPointAnimationConfig& config);
+        ~CreateEditViewPointAnimation();
+        void doFunction(Controller& controller) override;
+        ControlType getType() const override;
+    private:
+        ViewPointAnimationConfig m_config;
+    };
+
+    class DeleteViewPointAnimation : public AControl
+    {
+    public:
+        DeleteViewPointAnimation(viewPointAnimationId id);
+        ~DeleteViewPointAnimation();
+        void doFunction(Controller& controller) override;
+        ControlType getType() const override;
+    private:
+        viewPointAnimationId m_id;
+    };
+
+    class SendViewPointAnimationData : public AControl
+    {
+    public:
+        SendViewPointAnimationData();
+        ~SendViewPointAnimationData();
         void doFunction(Controller& controller) override;
         ControlType getType() const override;
     };

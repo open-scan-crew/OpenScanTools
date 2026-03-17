@@ -51,10 +51,13 @@ enum class guiDType
 	renderDistanceRampValues,
 	renderDisplayAllMarkersTexts,
 	renderStartAnimation,
+	renderAnimationPlaybackStart,
+	renderPauseAnimation,
 	renderStopAnimation,
 	renderCleanAnimationList,
 	renderAnimationSpeed,
 	renderAnimationLoop,
+	renderAnimationToolbarState,
 	renderRecordPerformance,
     renderImagesFormat,
     renderMeasureOptions,
@@ -187,6 +190,7 @@ enum class guiDType
 	closeUOProperties,
 	projectOrientation,
 	sendUserOrientationList,
+	sendViewPointAnimationData,
 
 
 	importFileObjectDialog,

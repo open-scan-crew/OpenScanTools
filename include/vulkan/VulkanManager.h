@@ -12,7 +12,9 @@
 #include <queue>
 #include <array>
 #include <future>
+#include <chrono>
 #include <type_traits>
+#include <vector>
 
 #include "vulkan/vulkan.h"
 #include "vulkan/VulkanFunctions.h"
@@ -155,6 +157,10 @@ public:
     void submitVirtualFramebuffer(TlFramebuffer fb);
     void waitIdle();
     void waitForStreamingIdle();
+    bool requestRenderPauseAndWait(std::chrono::milliseconds timeout);
+    void resumeRender();
+    void waitIfRenderPauseRequested();
+    static std::mutex& getQueueApiMutex();
 
     uint32_t getCurrentFrameIndex() const;
     // For all the frame index inferior or equal to the "safe frame index" it is guaranted
@@ -316,6 +322,7 @@ private:
     // Memory utilities
     void checkAllocations();
     void defragmentMemory();
+    void collectDeferredSimpleBufferFrees(bool force = false);
 
     // Cleanup Functions
     void cleanupAll();
@@ -411,6 +418,17 @@ private:
     std::mutex m_mutexBufferAllocated;
     std::unordered_set<SmartBuffer*> m_smartBufferAllocated;
     std::unordered_set<SimpleBuffer*> m_simpleBufferAllocated;
+
+    struct DeferredSimpleBufferFree
+    {
+        VkBuffer buffer = VK_NULL_HANDLE;
+        VmaAllocation allocation = VK_NULL_HANDLE;
+        VkDeviceSize allocationSize = 0;
+        bool isLocalMem = false;
+        uint32_t safeFrameIndex = 0;
+    };
+    std::mutex m_mutexDeferredSimpleFrees;
+    std::vector<DeferredSimpleBufferFree> m_deferredSimpleFrees;
     
     VkDeviceSize m_pointsDevicePoolUsed = 0;
     VkDeviceSize m_pointsHostPoolUsed = 0;
@@ -431,6 +449,12 @@ private:
     std::condition_variable m_transfer_cv;
     std::queue<std::function<void()>> m_transferTasks;
     std::thread m_transferThread;
+
+    // Render loop pause protocol (used during project close/load)
+    std::mutex m_renderPauseMutex;
+    std::condition_variable m_renderPauseCv;
+    bool m_renderPauseRequested = false;
+    bool m_renderPauseAck = false;
 
     // Use to free safely any buffers rendered on any framebuffer
     uint32_t m_maxSafeFrame = 0;

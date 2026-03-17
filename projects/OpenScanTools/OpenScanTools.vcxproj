@@ -733,6 +733,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\gui\Dialog\DialogExportPrimitives.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogExportSubProject.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogExportVideo.cpp" />
+    <ClCompile Include="..\..\src\gui\Dialog\DialogAnimationConfig.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogGizmo.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogImageHD.cpp" />
     <ClCompile Include="..\..\src\gui\Dialog\DialogImportAsciiPC.cpp" />
@@ -813,7 +814,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarConvertImage.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarExportGroup.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarExportPointCloud.cpp" />
-    <ClCompile Include="..\..\src\gui\toolBars\ToolBarExportVideo.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarFilterGroup.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarFindScan.cpp" />
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarFOV.cpp" />
@@ -1064,6 +1064,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClCompile Include="..\..\src\models\application\List.cpp" />
     <ClCompile Include="..\..\src\models\application\TagTemplate.cpp" />
     <ClCompile Include="..\..\src\models\application\UserOrientation.cpp" />
+    <ClCompile Include="..\..\src\models\application\ViewPointAnimation.cpp" />
     <ClCompile Include="..\..\src\models\data\BeamBendingMeasure\BeamBendingMeasureData.cpp" />
     <ClCompile Include="..\..\src\models\data\Clipping\ClippingGeometry.cpp" />
     <ClCompile Include="..\..\src\models\data\Clipping\ClippingData.cpp" />
@@ -1403,6 +1404,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtMoc Include="..\..\include\gui\Dialog\DialogShortcuts.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogSearchedObjects.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogExportVideo.h" />
+    <QtMoc Include="..\..\include\gui\Dialog\DialogAnimationConfig.h" />
     <ClInclude Include="..\..\include\controller\messages\VideoExportParametersMessage.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogImportImage.h" />
     <QtMoc Include="..\..\include\gui\Dialog\DialogImportPCObject.h" />
@@ -1427,7 +1429,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarImportScantra.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarFindScan.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarOrthoGrid.h" />
-    <QtMoc Include="..\..\include\gui\toolBars\ToolBarExportVideo.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarAutoSeeding.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarManipulateObjects.h" />
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarConvertImage.h" />
@@ -1767,6 +1768,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <ClInclude Include="..\..\include\models\application\Ids.hpp" />
     <ClInclude Include="..\..\include\models\application\List.hxx" />
     <ClInclude Include="..\..\include\models\application\UserOrientation.h" />
+    <ClInclude Include="..\..\include\models\application\ViewPointAnimation.h" />
     <ClInclude Include="..\..\include\models\data\Box\ClippingBoxSettings.h" />
     <ClInclude Include="..\..\include\models\data\Clipping\ClippingGeometry.h" />
     <ClInclude Include="..\..\include\models\data\Clipping\ClippingData.h" />
@@ -1947,6 +1949,7 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtUic Include="..\..\src\gui\forms\AuthorDialog.ui" />
     <QtUic Include="..\..\src\gui\forms\Calendar_Dialog.ui" />
     <QtUic Include="..\..\src\gui\forms\convertion_options.ui" />
+    <QtUic Include="..\..\src\gui\forms\DialogAnimationConfig.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogDeletePoints.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogStatisticalOutlierFilter.ui" />
     <QtUic Include="..\..\src\gui\forms\DialogColorBalanceFilter.ui" />
@@ -2019,7 +2022,6 @@ xcopy /y "$(SolutionDir)projects\OpenScanTools\OpenScanTools.ico" "$(SolutionDir
     <QtUic Include="..\..\src\gui\forms\toolbar_connectpipegroup.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_convertImage.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_exportPointCloud.ui" />
-    <QtUic Include="..\..\src\gui\forms\toolbar_exportVideo.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_findScan.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_fov.ui" />
     <QtUic Include="..\..\src\gui\forms\toolbar_importObjects.ui" />

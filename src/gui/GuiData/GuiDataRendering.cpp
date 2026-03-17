@@ -386,6 +386,16 @@ guiDType GuiDataRenderStartAnimation::getType()
 	return guiDType::renderStartAnimation;
 }
 
+guiDType GuiDataRenderPauseAnimation::getType()
+{
+	return guiDType::renderPauseAnimation;
+}
+
+guiDType GuiDataRenderAnimationPlaybackStart::getType()
+{
+	return guiDType::renderAnimationPlaybackStart;
+}
+
 guiDType GuiDataRenderStopAnimation::getType()
 {
 	return guiDType::renderStopAnimation;
@@ -405,6 +415,15 @@ guiDType GuiDataRenderAnimationSpeed::getType()
 	return guiDType::renderAnimationSpeed;
 }
 
+GuiDataRenderAnimationToolbarState::GuiDataRenderAnimationToolbarState(bool canStart)
+	: m_canStart(canStart)
+{}
+
+guiDType GuiDataRenderAnimationToolbarState::getType()
+{
+	return guiDType::renderAnimationToolbarState;
+}
+
 GuiDataRenderAnimationLoop::GuiDataRenderAnimationLoop(const bool& loop)
 	:_loop(loop)
 {}
@@ -412,6 +431,16 @@ GuiDataRenderAnimationLoop::GuiDataRenderAnimationLoop(const bool& loop)
 guiDType GuiDataRenderAnimationLoop::getType()
 {
 	return guiDType::renderAnimationLoop;
+}
+
+GuiDataSendViewPointAnimationData::GuiDataSendViewPointAnimationData(const std::vector<ViewPointAnimationConfig>& animations, const std::vector<AnimationViewpointInfo>& viewpoints)
+	: m_animations(animations)
+	, m_viewpoints(viewpoints)
+{}
+
+guiDType GuiDataSendViewPointAnimationData::getType()
+{
+	return guiDType::sendViewPointAnimationData;
 }
 
 GuiDataRenderRecordPerformances::GuiDataRenderRecordPerformances(const std::filesystem::path& file)
