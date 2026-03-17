@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>462</width>
-    <height>105</height>
+    <width>540</width>
+    <height>132</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -66,14 +66,14 @@
     </widget>
    </item>
    <item row="2" column="0">
-    <widget class="QLabel" name="label_flashControl">
+    <widget class="QLabel" name="label_kneeStart">
      <property name="text">
-      <string>Flash control</string>
+      <string>Knee start</string>
      </property>
     </widget>
    </item>
    <item row="2" column="1">
-    <widget class="QSlider" name="slider_flashControl">
+    <widget class="QSlider" name="slider_kneeStart">
      <property name="minimumSize">
       <size>
        <width>100</width>
@@ -87,8 +87,8 @@
       <number>100</number>
      </property>
      <property name="value">
-      <number>50</number>
-     </property>
+      <number>10</number>
+      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -118,7 +118,55 @@
     </widget>
    </item>
    <item row="2" column="2">
-    <widget class="QSpinBox" name="spinBox_flashControl">
+    <widget class="QSpinBox" name="spinBox_kneeStart">
+     <property name="minimum">
+      <number>0</number>
+     </property>
+     <property name="maximum">
+      <number>100</number>
+     </property>
+     <property name="value">
+      <number>10</number>
+      </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_kneeSoftness">
+     <property name="text">
+      <string>Knee softness</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QSlider" name="slider_kneeSoftness">
+     <property name="minimumSize">
+      <size>
+       <width>100</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="minimum">
+      <number>0</number>
+     </property>
+     <property name="maximum">
+      <number>100</number>
+     </property>
+     <property name="value">
+      <number>50</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="tickPosition">
+      <enum>QSlider::TicksAbove</enum>
+     </property>
+     <property name="tickInterval">
+      <number>10</number>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="2">
+    <widget class="QSpinBox" name="spinBox_kneeSoftness">
      <property name="minimum">
       <number>0</number>
      </property>

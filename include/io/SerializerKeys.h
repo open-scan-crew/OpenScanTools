@@ -231,7 +231,8 @@
 #define Key_NegativeEffect				"NegativeEffect"
 #define Key_ReduceFlash					"ReduceFlash"
 #define Key_FlashAdvanced               "FlashAdvanced"
-#define Key_FlashControl                "FlashControl"
+#define Key_HighlightKneeStart          "HighlightKneeStart"
+#define Key_HighlightKneeSoftness       "HighlightKneeSoftness"
 #define Key_Transparency				"Transparency"
 
 #define Key_Post_Rendering_Normals		"PostRenderingNormals"
