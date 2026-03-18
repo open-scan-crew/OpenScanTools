@@ -891,7 +891,7 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
         if (display.m_blendMode != BlendMode::Opaque && display.m_transparency > 0.f)
         {
             vkm.beginPostTreatmentTransparency(framebuffer);
-            m_postRenderer.setConstantHDR(display.m_transparency, display.m_negativeEffect, display.m_reduceFlash, display.m_flashAdvanced, display.m_flashControl, framebuffer->extent, display.m_backgroundColor, cmdBuffer);
+            m_postRenderer.setConstantHDR(display.m_transparency, display.m_negativeEffect, display.m_reduceFlash, display.m_flashAdvanced, display.m_highlightKneeStart, display.m_highlightKneeSoftness, display.m_advancedFlashBoost, framebuffer->extent, display.m_backgroundColor, cmdBuffer);
             m_postRenderer.processTransparencyHDR(cmdBuffer, framebuffer->descSetSamplers, framebuffer->extent);
         }
     }
@@ -1068,7 +1068,7 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
     if (displayParam.m_blendMode != BlendMode::Opaque && displayParam.m_transparency > 0.f)
     {
         vkm.beginPostTreatmentTransparency(framebuffer);
-        m_postRenderer.setConstantHDR(displayParam.m_transparency, displayParam.m_negativeEffect, displayParam.m_reduceFlash, displayParam.m_flashAdvanced, displayParam.m_flashControl, framebuffer->extent, displayParam.m_backgroundColor, cmdBuffer);
+        m_postRenderer.setConstantHDR(displayParam.m_transparency, displayParam.m_negativeEffect, displayParam.m_reduceFlash, displayParam.m_flashAdvanced, displayParam.m_highlightKneeStart, displayParam.m_highlightKneeSoftness, displayParam.m_advancedFlashBoost, framebuffer->extent, displayParam.m_backgroundColor, cmdBuffer);
         m_postRenderer.processTransparencyHDR(cmdBuffer, framebuffer->descSetSamplers, framebuffer->extent);
     }
 

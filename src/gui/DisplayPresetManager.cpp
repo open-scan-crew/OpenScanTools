@@ -65,14 +65,16 @@ namespace
 		json[Key_Blending] = params.m_hue;
 		json[Key_Flat_Color] = { params.m_flatColor.x, params.m_flatColor.y, params.m_flatColor.z };
 
-		json[Key_DistRamp] = { params.m_distRampMin, params.m_distRampMax };
-		json[Key_DistRampSteps] = params.m_distRampSteps;
+			json[Key_DistRamp] = { params.m_distRampMin, params.m_distRampMax };
+			json[Key_DistRampSteps] = params.m_distRampSteps;
 
 		json[Key_Blend_Mode] = magic_enum::enum_name(params.m_blendMode);
 		json[Key_NegativeEffect] = params.m_negativeEffect;
 		json[Key_ReduceFlash] = params.m_reduceFlash;
 		json[Key_FlashAdvanced] = params.m_flashAdvanced;
-		json[Key_FlashControl] = params.m_flashControl;
+		json[Key_HighlightKneeStart] = params.m_highlightKneeStart;
+		json[Key_HighlightKneeSoftness] = params.m_highlightKneeSoftness;
+		json[Key_AdvancedFlashBoost] = params.m_advancedFlashBoost;
 		json[Key_Transparency] = params.m_transparency;
 
 		json[Key_Post_Rendering_Normals] = { params.m_postRenderingNormals.show, params.m_postRenderingNormals.inverseTone, params.m_postRenderingNormals.blendColor, params.m_postRenderingNormals.normalStrength, params.m_postRenderingNormals.gloss };
@@ -296,10 +298,20 @@ namespace
 		else
 			data.m_flashAdvanced = false;
 
-		if (json.find(Key_FlashControl) != json.end())
-			data.m_flashControl = json.at(Key_FlashControl).get<float>();
+		if (json.find(Key_HighlightKneeStart) != json.end())
+			data.m_highlightKneeStart = json.at(Key_HighlightKneeStart).get<float>();
 		else
-			data.m_flashControl = 50.f;
+			data.m_highlightKneeStart = 15.f;
+
+		if (json.find(Key_HighlightKneeSoftness) != json.end())
+			data.m_highlightKneeSoftness = json.at(Key_HighlightKneeSoftness).get<float>();
+		else
+			data.m_highlightKneeSoftness = 50.f;
+
+		if (json.find(Key_AdvancedFlashBoost) != json.end())
+			data.m_advancedFlashBoost = json.at(Key_AdvancedFlashBoost).get<float>();
+		else
+			data.m_advancedFlashBoost = 50.f;
 
 		if (json.find(Key_Transparency) != json.end())
 			data.m_transparency = json.at(Key_Transparency).get<float>();
@@ -933,7 +945,7 @@ void DisplayPresetManager::applyPreset(const DisplayPreset& preset)
 	m_dataDispatcher.updateInformation(new GuiDataRenderFlatColor(params.m_flatColor, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderDistanceRampValues(params.m_distRampMin, params.m_distRampMax, params.m_distRampSteps, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderTransparency(params.m_blendMode, params.m_transparency, m_focusCamera), this);
-	m_dataDispatcher.updateInformation(new GuiDataRenderTransparencyOptions(params.m_negativeEffect, params.m_reduceFlash, params.m_flashAdvanced, params.m_flashControl, 0.f, m_focusCamera), this);
+	m_dataDispatcher.updateInformation(new GuiDataRenderTransparencyOptions(params.m_negativeEffect, params.m_reduceFlash, params.m_flashAdvanced, params.m_highlightKneeStart, params.m_highlightKneeSoftness, params.m_advancedFlashBoost, 0.f, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataPostRenderingNormals(params.m_postRenderingNormals, false, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderAmbientOcclusion(params.m_postRenderingAmbientOcclusion, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataEdgeAwareBlur(params.m_edgeAwareBlur, m_focusCamera), this);
