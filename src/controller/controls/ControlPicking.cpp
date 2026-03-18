@@ -1,6 +1,7 @@
 #include "controller/controls/ControlPicking.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
+#include "controller/IControlListener.h"
 #include "controller/controls/ControlFunction.h"
 #include "controller/functionSystem/FunctionManager.h"
 #include "controller/messages/FullClickMessage.h"
@@ -259,7 +260,7 @@ namespace control::picking
         graphManager.getClippingAssembly(clippingAssembly, true, false);
 
         TlScanOverseer::setWorkingScansTransfo(graphManager.getVisiblePointCloudInstances(tls::ScanGuid(), true, true));
-        const GeometricBox searchBox = makeGeometricBoxFromClippingBox(*rBox);
+        const GeometricBox searchBox = makeGeometricBoxFromClippingBox(*&rBox);
         std::vector<PointXYZIRGB> points;
         TlScanOverseer::getInstance().collectPointsInGeometricBox(searchBox, clippingAssembly, tls::ScanGuid(), points);
 
