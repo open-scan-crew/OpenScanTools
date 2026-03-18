@@ -29,23 +29,18 @@ namespace control::picking
 {
     namespace
     {
-        GeometricBox makeGeometricBoxFromClippingBox(const BoxNode& box)
+        GeometricBox makeGeometricBoxFromBoundingBox(const BoundingBoxD& bbox)
         {
-            const glm::dvec3 localScale = box.getScale();
-            const glm::dmat4 transform = box.getCumulatedTransformation();
             std::vector<glm::dvec3> corners;
             corners.reserve(8);
-            for (int sx : { -1, 1 })
-            {
-                for (int sy : { -1, 1 })
-                {
-                    for (int sz : { -1, 1 })
-                    {
-                        const glm::dvec4 localCorner(localScale.x * sx, localScale.y * sy, localScale.z * sz, 1.0);
-                        corners.push_back(glm::dvec3(transform * localCorner));
-                    }
-                }
-            }
+            corners.push_back({ bbox.xMin, bbox.yMin, bbox.zMin });
+            corners.push_back({ bbox.xMax, bbox.yMin, bbox.zMin });
+            corners.push_back({ bbox.xMin, bbox.yMax, bbox.zMin });
+            corners.push_back({ bbox.xMin, bbox.yMin, bbox.zMax });
+            corners.push_back({ bbox.xMax, bbox.yMax, bbox.zMin });
+            corners.push_back({ bbox.xMax, bbox.yMin, bbox.zMax });
+            corners.push_back({ bbox.xMin, bbox.yMax, bbox.zMax });
+            corners.push_back({ bbox.xMax, bbox.yMax, bbox.zMax });
             return GeometricBox(corners);
         }
 
@@ -249,13 +244,6 @@ namespace control::picking
             return;
         }
 
-        ReadPtr<BoxNode> rBox = static_pointer_cast<BoxNode>(clipping).cget();
-        if (!rBox)
-        {
-            controller.updateInfo(new GuiDataWarning(TEXT_TEMPERATURE_MINMAX_NEEDS_ONE_INTERIOR_CLIP));
-            return;
-        }
-
         controller.updateInfo(new GuiDataProcessingSplashScreenStart(1, QObject::tr("Find min max temperature"), QObject::tr("Please wait...")));
         controller.updateInfo(new GuiDataProcessingSplashScreenEnableCancelButton(false));
 
@@ -263,7 +251,16 @@ namespace control::picking
         graphManager.getClippingAssembly(clippingAssembly, true, false);
 
         TlScanOverseer::setWorkingScansTransfo(graphManager.getVisiblePointCloudInstances(tls::ScanGuid(), true, true));
-        const GeometricBox searchBox = makeGeometricBoxFromClippingBox(*&rBox);
+
+        const BoundingBoxD visibleScansBBox = graphManager.getScanBoundingBox(ObjectStatusFilter::VISIBLE);
+        if (!visibleScansBBox.isValid())
+        {
+            controller.updateInfo(new GuiDataProcessingSplashScreenEnd(QObject::tr("Done")));
+            controller.updateInfo(new GuiDataWarning(QObject::tr("No visible scan found in the project.")));
+            return;
+        }
+
+        const GeometricBox searchBox = makeGeometricBoxFromBoundingBox(visibleScansBBox);
         std::vector<PointXYZIRGB> points;
         TlScanOverseer::getInstance().collectPointsInGeometricBox(searchBox, clippingAssembly, tls::ScanGuid(), points);
 
