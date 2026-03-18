@@ -68,6 +68,16 @@
      </property>
     </widget>
    </item>
+   <item row="2" column="0" colspan="2">
+    <widget class="QCheckBox" name="verticalOrbitalCheckBox">
+     <property name="text">
+      <string>Vertical</string>
+     </property>
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="2" rowspan="3">
     <widget class="Line" name="line_1">
      <property name="orientation">

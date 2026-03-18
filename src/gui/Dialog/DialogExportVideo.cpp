@@ -162,6 +162,7 @@ void DialogExportVideo::startGeneration()
 	m_parameters.length = m_length;
 	m_parameters.viewPointAnimation = m_animationConfigId;
 	m_parameters.orbitalDegrees = m_orbitalDegrees;
+	m_parameters.verticalOrbital = m_verticalOrbital;
 	m_parameters.fps = m_ui.fpsSpinBox->value();
 	m_parameters.hdImage = m_ui.imageHDRadioButton->isChecked();
 	m_parameters.openFolderAfterExport = m_ui.openExplorerFolderCheckBox->isChecked();
@@ -269,5 +270,11 @@ void DialogExportVideo::setAnimationConfigId(const viewPointAnimationId& id)
 
 void DialogExportVideo::setOrbitalDegrees(int degrees)
 {
-	m_orbitalDegrees = std::clamp(degrees, 1, 360);
+	m_orbitalDegrees = std::clamp(degrees, 1, m_verticalOrbital ? 180 : 360);
+}
+
+void DialogExportVideo::setVerticalOrbital(bool vertical)
+{
+	m_verticalOrbital = vertical;
+	m_orbitalDegrees = std::clamp(m_orbitalDegrees, 1, m_verticalOrbital ? 180 : 360);
 }

@@ -41,10 +41,13 @@ ToolBarAnimationGroup::ToolBarAnimationGroup(IDataDispatcher &dataDispatcher, QW
 	connect(m_ui.generateVideoPushButton, &QPushButton::clicked, this, &ToolBarAnimationGroup::slotGenerateVideo);
 	connect(m_ui.betweenViewpointsRadioButton, &QRadioButton::clicked, this, &ToolBarAnimationGroup::slotAnimationModeChanged);
 	connect(m_ui.orbital360RadioButton, &QRadioButton::clicked, this, &ToolBarAnimationGroup::slotAnimationModeChanged);
+	connect(m_ui.verticalOrbitalCheckBox, &QCheckBox::toggled, this, &ToolBarAnimationGroup::slotVerticalOrbitalToggled);
 	connect(m_ui.toolButton_newViewpointAnimConfig, &QToolButton::clicked, this, &ToolBarAnimationGroup::slotNewViewPointAnimationConfig);
 	connect(m_ui.toolButton_editViewpointAnimConfig, &QToolButton::clicked, this, &ToolBarAnimationGroup::slotEditViewPointAnimationConfig);
 	connect(m_ui.comboBox_animationList, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarAnimationGroup::slotAnimationConfigChanged);
 	m_ui.degreesLabel->setEnabled(false);
+	m_ui.verticalOrbitalCheckBox->setChecked(false);
+	updateOrbitalDegreesUI();
 	slotAnimationModeChanged();
 
 	updateUI();
@@ -189,6 +192,7 @@ void ToolBarAnimationGroup::updateUI()
 	m_ui.interpolateCheckBox->setEnabled(canEditViewpoints);
 	m_ui.degreesLabel->setEnabled(m_isProjectLoaded && !viewpointsMode);
 	m_ui.degreesSpinBox->setEnabled(m_isProjectLoaded && !viewpointsMode);
+	m_ui.verticalOrbitalCheckBox->setEnabled(m_isProjectLoaded && !viewpointsMode);
 
 	const ViewPointAnimationConfig* selectedConfig = getSelectedAnimationConfig();
 	const bool usesPositionAsTime = selectedConfig && selectedConfig->getMode() == ViewPointAnimationMode::PositionAsTime;
@@ -207,7 +211,7 @@ void ToolBarAnimationGroup::slotStartAnimation()
 		m_isStopRequested = false;
 		m_pendingViewpointsStart = false;
 		m_waitingChronometerStartAtFirstViewpoint = false;
-		m_dataDispatcher.updateInformation(new GuiDataRenderStartAnimation(!viewpointsMode, static_cast<double>(m_ui.lengthSpinBox->value()), true, m_ui.degreesSpinBox->value(), m_ui.interpolateCheckBox->isChecked()));
+		m_dataDispatcher.updateInformation(new GuiDataRenderStartAnimation(!viewpointsMode, static_cast<double>(m_ui.lengthSpinBox->value()), true, m_ui.degreesSpinBox->value(), m_ui.interpolateCheckBox->isChecked(), m_ui.verticalOrbitalCheckBox->isChecked()));
 		startChronometer();
 		m_isStarted = true;
 		m_isPaused = false;
@@ -250,7 +254,7 @@ void ToolBarAnimationGroup::slotStartAnimation()
 		<< LOGENDL;
 	m_isStopRequested = false;
 	m_waitingChronometerStartAtFirstViewpoint = viewpointsMode;
-	m_dataDispatcher.updateInformation(new GuiDataRenderStartAnimation(!viewpointsMode, static_cast<double>(m_ui.lengthSpinBox->value()), false, m_ui.degreesSpinBox->value(), m_ui.interpolateCheckBox->isChecked()));
+	m_dataDispatcher.updateInformation(new GuiDataRenderStartAnimation(!viewpointsMode, static_cast<double>(m_ui.lengthSpinBox->value()), false, m_ui.degreesSpinBox->value(), m_ui.interpolateCheckBox->isChecked(), m_ui.verticalOrbitalCheckBox->isChecked()));
 	if (!viewpointsMode)
 		startChronometer();
 	m_isStarted = true;
@@ -264,7 +268,7 @@ void ToolBarAnimationGroup::startViewpointsAnimationPlayback()
 	resetChronometer();
 	m_isStopRequested = false;
 	m_waitingChronometerStartAtFirstViewpoint = true;
-	m_dataDispatcher.updateInformation(new GuiDataRenderStartAnimation(false, static_cast<double>(m_ui.lengthSpinBox->value()), false, m_ui.degreesSpinBox->value(), m_ui.interpolateCheckBox->isChecked()));
+	m_dataDispatcher.updateInformation(new GuiDataRenderStartAnimation(false, static_cast<double>(m_ui.lengthSpinBox->value()), false, m_ui.degreesSpinBox->value(), m_ui.interpolateCheckBox->isChecked(), m_ui.verticalOrbitalCheckBox->isChecked()));
 	m_isStarted = true;
 	m_isPaused = false;
 	m_isOrbitalRunning = false;
@@ -309,6 +313,7 @@ void ToolBarAnimationGroup::slotGenerateVideo()
 	m_dialog->setLength(m_ui.lengthSpinBox->value());
 	m_dialog->setInterpolateRenderings(m_ui.interpolateCheckBox->isChecked());
 	m_dialog->setOrbitalDegrees(m_ui.degreesSpinBox->value());
+	m_dialog->setVerticalOrbital(m_ui.verticalOrbitalCheckBox->isChecked());
 	const ViewPointAnimationConfig* selectedConfig = getSelectedAnimationConfig();
 	m_dialog->setAnimationConfigId(selectedConfig ? selectedConfig->getId() : xg::Guid());
 	m_dialog->show();
@@ -322,7 +327,23 @@ void ToolBarAnimationGroup::slotAnimationModeChanged()
 		m_pendingViewpointsStart = false;
 		m_isPaused = false;
 	}
+	updateOrbitalDegreesUI();
 	updateUI();
+}
+
+void ToolBarAnimationGroup::slotVerticalOrbitalToggled(bool checked)
+{
+	(void)checked;
+	updateOrbitalDegreesUI();
+}
+
+void ToolBarAnimationGroup::updateOrbitalDegreesUI()
+{
+	const bool isVertical = m_ui.verticalOrbitalCheckBox->isChecked();
+	const int maxDegrees = isVertical ? 180 : 360;
+	m_ui.degreesSpinBox->setMaximum(maxDegrees);
+	if (m_ui.degreesSpinBox->value() > maxDegrees)
+		m_ui.degreesSpinBox->setValue(maxDegrees);
 }
 
 void ToolBarAnimationGroup::refreshAnimationAvailability()

@@ -70,7 +70,10 @@ ContextState ContextExportVideoHD::start(Controller& controller)
     m_viewpointControlTimes.clear();
     m_orbitalTotalAngleRad = 0.0;
     m_orbitalLastAppliedRad = 0.0;
+    m_orbitalRealAppliedRad = 0.0;
+    m_orbitalDirectionSign = 1.0;
     m_orbitalUsesExamine = false;
+    m_orbitalVertical = false;
     DecimationOptions noDecimation = m_precedentOptions;
     noDecimation.mode = DecimationMode::None;
     controller.updateInfo(new GuiDataRenderDecimationOptions(noDecimation));
@@ -205,8 +208,24 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
         {
             m_viewpoints.clear();
             m_viewpointControlTimes.clear();
-            m_orbitalTotalAngleRad = glm::radians(static_cast<double>(std::clamp(m_parameters.orbitalDegrees, 1, 360)));
+            m_orbitalVertical = m_parameters.verticalOrbital;
+            m_orbitalDirectionSign = -1.0; // current vertical behavior: bottom -> top
+            const int maxDegrees = m_orbitalVertical ? 180 : 360;
+            const double requestedAngleRad = glm::radians(static_cast<double>(std::clamp(m_parameters.orbitalDegrees, 1, maxDegrees)));
+            if (m_orbitalVertical)
+            {
+                const double phi = wCam->getPhi();
+                const double remainingUntilClamp = (m_orbitalDirectionSign >= 0.0)
+                    ? std::max(0.0, 0.0 - phi)
+                    : std::max(0.0, phi + M_PI);
+                m_orbitalTotalAngleRad = std::min(requestedAngleRad, remainingUntilClamp);
+            }
+            else
+            {
+                m_orbitalTotalAngleRad = requestedAngleRad;
+            }
             m_orbitalLastAppliedRad = 0.0;
+            m_orbitalRealAppliedRad = 0.0;
             m_orbitalUsesExamine = wCam->isExamineActive();
         }
 
@@ -271,11 +290,31 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
             const double delta = target - m_orbitalLastAppliedRad;
             if (delta > 0.0)
             {
-                if (m_orbitalUsesExamine)
-                    wCam->moveAroundExamine(0.0, delta, 0.0);
+                if (m_orbitalVertical)
+                {
+                    const double signedDelta = m_orbitalDirectionSign * delta;
+                    const double phiBefore = wCam->getPhi();
+                    if (m_orbitalUsesExamine)
+                        wCam->moveAroundExamine(0.0, 0.0, signedDelta);
+                    else
+                        wCam->pitch(signedDelta);
+                    const double phiAfter = wCam->getPhi();
+                    m_orbitalRealAppliedRad += std::abs(phiAfter - phiBefore);
+                }
                 else
-                    wCam->yaw(delta);
+                {
+                    if (m_orbitalUsesExamine)
+                        wCam->moveAroundExamine(0.0, delta, 0.0);
+                    else
+                        wCam->yaw(delta);
+                    m_orbitalRealAppliedRad = target;
+                }
                 m_orbitalLastAppliedRad = target;
+            }
+
+            if (m_orbitalRealAppliedRad + 1e-9 >= m_orbitalTotalAngleRad)
+            {
+                m_animFrame = m_totalFrames + 1;
             }
         }
 
