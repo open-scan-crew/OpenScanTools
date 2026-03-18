@@ -32,7 +32,7 @@ private:
 
 	void blockAllSignals(bool block);
 	void enableUI(bool transparencyActive);
-    void updateFlashControlState();
+	void updateAdvancedControlsState();
 
 	void sendTransparency();
 	void sendTransparencyOptions();
