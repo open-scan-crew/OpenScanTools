@@ -52,6 +52,17 @@ namespace control::picking
         ControlType getType() const override;
     };
 
+    class FindMinMaxTemperatureInClipping : public AControl
+    {
+    public:
+        FindMinMaxTemperatureInClipping();
+        ~FindMinMaxTemperatureInClipping();
+        void doFunction(Controller& controller) override;
+        bool canUndo() const override;
+        void undoFunction(Controller& controller) override;
+        ControlType getType() const override;
+    };
+
 }
 
 #endif // !CONTROL_PICKING_H_
