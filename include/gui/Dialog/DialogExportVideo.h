@@ -38,6 +38,7 @@ public:
     void setInterpolateRenderings(bool interpolate);
     void setAnimationConfigId(const viewPointAnimationId& id);
     void setOrbitalDegrees(int degrees);
+    void setVerticalOrbital(bool vertical);
 
 private:
     Ui::DialogExportVideo m_ui;
@@ -48,6 +49,7 @@ private:
 	bool m_interpolateRenderings = false;
 	viewPointAnimationId m_animationConfigId;
 	int m_orbitalDegrees = 360;
+	bool m_verticalOrbital = false;
 
     static constexpr uint64_t MAX_MP4_PIXELS = 8294400;
 };

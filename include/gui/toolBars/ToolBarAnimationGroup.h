@@ -48,11 +48,13 @@ private slots:
 	void slotPauseAnimation();
 	void slotGenerateVideo();
 	void slotAnimationModeChanged();
+	void slotVerticalOrbitalToggled(bool checked);
 	void slotNewViewPointAnimationConfig();
 	void slotEditViewPointAnimationConfig();
 	void slotAnimationConfigChanged(int index);
 	void onAnimationData(IGuiData* keyValue);
 	void slotChronometerTick();
+	void updateOrbitalDegreesUI();
 
 private:
 	std::unordered_map<guiDType, AnimGroupMethod> m_methods;
