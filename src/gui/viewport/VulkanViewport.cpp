@@ -25,6 +25,7 @@
 #include <QtGui/qevent.h>
 #include <QApplication.h>
 #include <algorithm>
+#include <cmath>
 
 namespace
 {
@@ -190,7 +191,8 @@ void VulkanViewport::onRenderStartAnimation(IGuiData* data)
     {
         GUI_LOG << "[ANIM_DBG] viewport start request orbital resume=" << startData->m_resume
             << " duration=" << startData->m_durationSeconds
-            << " degrees=" << startData->m_orbitalDegrees << LOGENDL;
+            << " degrees=" << startData->m_orbitalDegrees
+            << " vertical=" << startData->m_verticalOrbital << LOGENDL;
         m_viewpointStartInputLockArmed = false;
         if (startData->m_resume && m_isOrbitalAnimationActive && m_isOrbitalAnimationPaused)
         {
@@ -204,7 +206,11 @@ void VulkanViewport::onRenderStartAnimation(IGuiData* data)
         m_orbitalDurationSeconds = std::max(0.001, startData->m_durationSeconds);
         m_orbitalElapsedSeconds = 0.0;
         m_orbitalAppliedAngle = 0.0;
-        m_orbitalTotalAngleRad = glm::radians(static_cast<double>(std::clamp(startData->m_orbitalDegrees, 1, 360)));
+        m_orbitalAppliedRealAngle = 0.0;
+        m_orbitalVertical = startData->m_verticalOrbital;
+        m_orbitalDirectionSign = 1.0; // reserved for future inversion option
+        const int maxDegrees = m_orbitalVertical ? 180 : 360;
+        m_orbitalTotalAngleRad = glm::radians(static_cast<double>(std::clamp(startData->m_orbitalDegrees, 1, maxDegrees)));
         m_orbitalStartTime = std::chrono::steady_clock::now();
         m_orbitalUsesExamine = wCam->isExamineActive();
         return;
@@ -259,7 +265,10 @@ void VulkanViewport::onRenderStopAnimation(IGuiData* data)
     m_viewpointStartInputLockArmed = false;
     m_orbitalElapsedSeconds = 0.0;
     m_orbitalAppliedAngle = 0.0;
+    m_orbitalAppliedRealAngle = 0.0;
     m_orbitalTotalAngleRad = 0.0;
+    m_orbitalVertical = false;
+    m_orbitalDirectionSign = 1.0;
     GUI_LOG << "[ANIM_DBG] viewport received stop animation" << LOGENDL;
     wCam->endAnimation();
 }
@@ -381,20 +390,39 @@ void VulkanViewport::updateInputs(WritePtr<CameraNode>& wCam, SafePtr<Manipulato
 
         if (deltaAngle > 0.0)
         {
-            if (m_orbitalUsesExamine)
-                wCam->moveAroundExamine(0.0, deltaAngle, 0.0);
+            if (m_orbitalVertical)
+            {
+                const double signedDelta = m_orbitalDirectionSign * deltaAngle;
+                const double phiBefore = wCam->getPhi();
+                if (m_orbitalUsesExamine)
+                    wCam->moveAroundExamine(0.0, 0.0, signedDelta);
+                else
+                    wCam->pitch(signedDelta);
+                const double phiAfter = wCam->getPhi();
+                m_orbitalAppliedRealAngle += std::abs(phiAfter - phiBefore);
+            }
             else
-                wCam->yaw(deltaAngle);
+            {
+                if (m_orbitalUsesExamine)
+                    wCam->moveAroundExamine(0.0, deltaAngle, 0.0);
+                else
+                    wCam->yaw(deltaAngle);
+                m_orbitalAppliedRealAngle = targetAngle;
+            }
             m_orbitalAppliedAngle = targetAngle;
         }
 
-        if (clampedElapsed >= m_orbitalDurationSeconds)
+        const bool reachedAngle = m_orbitalAppliedRealAngle + 1e-9 >= m_orbitalTotalAngleRad;
+        if (clampedElapsed >= m_orbitalDurationSeconds || reachedAngle)
         {
             m_isOrbitalAnimationActive = false;
             m_isOrbitalAnimationPaused = false;
             m_orbitalElapsedSeconds = 0.0;
             m_orbitalAppliedAngle = 0.0;
+            m_orbitalAppliedRealAngle = 0.0;
             m_orbitalTotalAngleRad = 0.0;
+            m_orbitalVertical = false;
+            m_orbitalDirectionSign = 1.0;
             m_dataDispatcher.updateInformation(new GuiDataRenderStopAnimation());
         }
     }

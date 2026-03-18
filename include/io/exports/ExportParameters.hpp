@@ -72,6 +72,7 @@ struct VideoExportParameters
     VideoAnimationMode animMode = VideoAnimationMode::NONE;
     viewPointAnimationId viewPointAnimation = xg::Guid();
     int orbitalDegrees = 360;
+    bool verticalOrbital = false;
     bool interpolateRenderingBetweenViewpoints = false;
     bool openFolderAfterExport = false;
 
