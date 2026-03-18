@@ -209,9 +209,21 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
             m_viewpoints.clear();
             m_viewpointControlTimes.clear();
             m_orbitalVertical = m_parameters.verticalOrbital;
-            m_orbitalDirectionSign = 1.0; // reserved for future inversion option
+            m_orbitalDirectionSign = -1.0; // current vertical behavior: bottom -> top
             const int maxDegrees = m_orbitalVertical ? 180 : 360;
-            m_orbitalTotalAngleRad = glm::radians(static_cast<double>(std::clamp(m_parameters.orbitalDegrees, 1, maxDegrees)));
+            const double requestedAngleRad = glm::radians(static_cast<double>(std::clamp(m_parameters.orbitalDegrees, 1, maxDegrees)));
+            if (m_orbitalVertical)
+            {
+                const double phi = wCam->getPhi();
+                const double remainingUntilClamp = (m_orbitalDirectionSign >= 0.0)
+                    ? std::max(0.0, 0.0 - phi)
+                    : std::max(0.0, phi + M_PI);
+                m_orbitalTotalAngleRad = std::min(requestedAngleRad, remainingUntilClamp);
+            }
+            else
+            {
+                m_orbitalTotalAngleRad = requestedAngleRad;
+            }
             m_orbitalLastAppliedRad = 0.0;
             m_orbitalRealAppliedRad = 0.0;
             m_orbitalUsesExamine = wCam->isExamineActive();

@@ -208,9 +208,21 @@ void VulkanViewport::onRenderStartAnimation(IGuiData* data)
         m_orbitalAppliedAngle = 0.0;
         m_orbitalAppliedRealAngle = 0.0;
         m_orbitalVertical = startData->m_verticalOrbital;
-        m_orbitalDirectionSign = 1.0; // reserved for future inversion option
+        m_orbitalDirectionSign = -1.0; // current vertical behavior: bottom -> top
         const int maxDegrees = m_orbitalVertical ? 180 : 360;
-        m_orbitalTotalAngleRad = glm::radians(static_cast<double>(std::clamp(startData->m_orbitalDegrees, 1, maxDegrees)));
+        const double requestedAngleRad = glm::radians(static_cast<double>(std::clamp(startData->m_orbitalDegrees, 1, maxDegrees)));
+        if (m_orbitalVertical)
+        {
+            const double phi = wCam->getPhi();
+            const double remainingUntilClamp = (m_orbitalDirectionSign >= 0.0)
+                ? std::max(0.0, 0.0 - phi)
+                : std::max(0.0, phi + M_PI);
+            m_orbitalTotalAngleRad = std::min(requestedAngleRad, remainingUntilClamp);
+        }
+        else
+        {
+            m_orbitalTotalAngleRad = requestedAngleRad;
+        }
         m_orbitalStartTime = std::chrono::steady_clock::now();
         m_orbitalUsesExamine = wCam->isExamineActive();
         return;
