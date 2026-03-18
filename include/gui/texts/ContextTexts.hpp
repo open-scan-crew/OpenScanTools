@@ -99,7 +99,7 @@
 #define TEXT_DELETE_POINTS_QUESTION QObject::tr("Warning: points will be permanently deleted. This action cannot be undone.\nDo you confirm?")
 #define TEXT_DELETE_SAVE_BEFORE_QUESTION QObject::tr("It is recommended to save the project before deleting points. Do you want to save now?")
 #define TEXT_DELETE_POINTS_NO_ACTIVE_CLIPPING QObject::tr("You must activate some clippings or filters to run this feature")
-#define TEXT_TEMPERATURE_MINMAX_NEEDS_ONE_INTERIOR_CLIP QObject::tr("You have to clip an area to use this feature with one clipping box. Please create one clipping box and activate \"Show interior\" mode")
+#define TEXT_TEMPERATURE_MINMAX_NEEDS_ONE_INTERIOR_CLIP QObject::tr("To use this feature, please create one clipping box on the desired area and activate it (Show interior mode). Then, hide the box (click the visibility icon in the tree panel). The function will not run if several clipping boxes are active at the same time, or if the clipping box is visible on screen.")
 
 //ContextStatisticalOutlierFilter
 #define TEXT_STAT_OUTLIER_FILTER_QUESTION QObject::tr("Warning: some points will be permanently deleted.\nDepending on the size of the scans and the filter settings, the calculation time may be significant. We recommend that you first perform a test on a small clipped portion.\nDo you confirm?")

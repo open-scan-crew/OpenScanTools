@@ -240,7 +240,10 @@ namespace control::picking
 
         const SafePtr<AClippingNode>& clipping = *clippings.begin();
         ReadPtr<AClippingNode> rClip = clipping.cget();
-        if (!rClip || rClip->getType() != ElementType::Box || rClip->getClippingMode() != ClippingMode::showInterior)
+        if (!rClip
+            || rClip->getType() != ElementType::Box
+            || rClip->getClippingMode() != ClippingMode::showInterior
+            || rClip->isVisible())
         {
             controller.updateInfo(new GuiDataWarning(TEXT_TEMPERATURE_MINMAX_NEEDS_ONE_INTERIOR_CLIP));
             return;
