@@ -15,6 +15,7 @@ layout(push_constant) uniform PC {
    layout(offset = 32) int flashAdvanced;
    layout(offset = 36) float highlightKneeStart;    // [0..100]
    layout(offset = 40) float highlightKneeSoftness; // [0..100]
+   layout(offset = 44) float advancedFlashBoost;    // [0..100]
 } pc;
 
 void main() 
@@ -55,9 +56,17 @@ void main()
 
          float knee = clamp(pc.highlightKneeStart, 0.0, 100.0) / 100.0;
          float softness = clamp(pc.highlightKneeSoftness, 0.0, 100.0) / 100.0;
+         float boost = clamp(pc.advancedFlashBoost, 0.0, 100.0) / 100.0;
          float high = max(Y - knee, 0.0);
          float softRange = mix(0.05, 1.0, softness);
          float Yt = knee + softRange * log(1.0 + high / softRange);
+
+         // Re-dynamize low/mid tones while preserving highlight compression
+         float shadowWeight = (knee < 0.999)
+            ? (1.0 - smoothstep(knee, 1.0, Y))
+            : float(Y < 1.0);
+         float boostGain = 1.0 + boost * 0.8 * shadowWeight;
+         Yt *= boostGain;
 
          float scale = (Y > 1e-6) ? (Yt / Y) : 1.0;
          c_rgb *= scale;

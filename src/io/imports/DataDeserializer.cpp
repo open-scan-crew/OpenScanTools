@@ -585,6 +585,11 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
     else
         data.m_highlightKneeSoftness = 50.f;
 
+    if (json.find(Key_AdvancedFlashBoost) != json.end())
+        data.m_advancedFlashBoost = json.at(Key_AdvancedFlashBoost).get<float>();
+    else
+        data.m_advancedFlashBoost = 20.f;
+
     if (json.find(Key_Transparency) != json.end())
     {
         data.m_transparency = json.at(Key_Transparency).get<float>();

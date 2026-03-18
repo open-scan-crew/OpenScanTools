@@ -16,6 +16,7 @@ ToolBarRenderTransparency::ToolBarRenderTransparency(IDataDispatcher& dataDispat
     m_ui.slider_transparency->setMinimumWidth(100.f * guiScale);
     m_ui.slider_kneeStart->setMinimumWidth(100.f * guiScale);
     m_ui.slider_kneeSoftness->setMinimumWidth(100.f * guiScale);
+    m_ui.slider_advancedBoost->setMinimumWidth(100.f * guiScale);
 
     connect(m_ui.slider_transparency, &QSlider::valueChanged, m_ui.spinBox_transparency, &QSpinBox::setValue);
     connect(m_ui.spinBox_transparency, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), m_ui.slider_transparency, &QSlider::setValue);
@@ -33,6 +34,9 @@ ToolBarRenderTransparency::ToolBarRenderTransparency(IDataDispatcher& dataDispat
     connect(m_ui.slider_kneeSoftness, &QSlider::valueChanged, m_ui.spinBox_kneeSoftness, &QSpinBox::setValue);
     connect(m_ui.spinBox_kneeSoftness, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), m_ui.slider_kneeSoftness, &QSlider::setValue);
     connect(m_ui.slider_kneeSoftness, &QSlider::valueChanged, this, &ToolBarRenderTransparency::slotTransparencyOptionsChanged);
+    connect(m_ui.slider_advancedBoost, &QSlider::valueChanged, m_ui.spinBox_advancedBoost, &QSpinBox::setValue);
+    connect(m_ui.spinBox_advancedBoost, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), m_ui.slider_advancedBoost, &QSlider::setValue);
+    connect(m_ui.slider_advancedBoost, &QSlider::valueChanged, this, &ToolBarRenderTransparency::slotTransparencyOptionsChanged);
 
     registerGuiDataFunction(guiDType::projectLoaded, &ToolBarRenderTransparency::onProjectLoad);
     registerGuiDataFunction(guiDType::renderActiveCamera, &ToolBarRenderTransparency::onActiveCamera);
@@ -95,6 +99,8 @@ void ToolBarRenderTransparency::onActiveCamera(IGuiData* idata)
     m_ui.slider_kneeStart->setValue(static_cast<int>(displayParameters.m_highlightKneeStart));
     m_ui.spinBox_kneeSoftness->setValue(static_cast<int>(displayParameters.m_highlightKneeSoftness));
     m_ui.slider_kneeSoftness->setValue(static_cast<int>(displayParameters.m_highlightKneeSoftness));
+    m_ui.spinBox_advancedBoost->setValue(static_cast<int>(displayParameters.m_advancedFlashBoost));
+    m_ui.slider_advancedBoost->setValue(static_cast<int>(displayParameters.m_advancedFlashBoost));
 
     blockAllSignals(false);
     updateAdvancedControlsState();
@@ -114,6 +120,8 @@ void ToolBarRenderTransparency::blockAllSignals(bool block)
     m_ui.spinBox_kneeStart->blockSignals(block);
     m_ui.slider_kneeSoftness->blockSignals(block);
     m_ui.spinBox_kneeSoftness->blockSignals(block);
+    m_ui.slider_advancedBoost->blockSignals(block);
+    m_ui.spinBox_advancedBoost->blockSignals(block);
 }
 
 void ToolBarRenderTransparency::enableUI(bool transparencyActive)
@@ -138,7 +146,8 @@ void ToolBarRenderTransparency::sendTransparencyOptions()
     bool advanced = m_ui.advEnhanceContrastRadioButton->isChecked();
     float kneeStart = static_cast<float>(m_ui.slider_kneeStart->value());
     float kneeSoftness = static_cast<float>(m_ui.slider_kneeSoftness->value());
-    m_dataDispatcher.updateInformation(new GuiDataRenderTransparencyOptions(m_ui.checkBox_negativeEffect->isChecked(), m_ui.checkBox_enhanceContrast->isChecked(), advanced, kneeStart, kneeSoftness, 0.f, m_focusCamera));
+    float advancedBoost = static_cast<float>(m_ui.slider_advancedBoost->value());
+    m_dataDispatcher.updateInformation(new GuiDataRenderTransparencyOptions(m_ui.checkBox_negativeEffect->isChecked(), m_ui.checkBox_enhanceContrast->isChecked(), advanced, kneeStart, kneeSoftness, advancedBoost, 0.f, m_focusCamera));
 }
 
 void ToolBarRenderTransparency::slotTranparencyActivationChanged(int value)
@@ -172,4 +181,7 @@ void ToolBarRenderTransparency::updateAdvancedControlsState()
     m_ui.slider_kneeSoftness->setEnabled(advanced);
     m_ui.spinBox_kneeSoftness->setEnabled(advanced);
     m_ui.label_kneeSoftness->setEnabled(advanced);
+    m_ui.slider_advancedBoost->setEnabled(advanced);
+    m_ui.spinBox_advancedBoost->setEnabled(advanced);
+    m_ui.label_advancedBoost->setEnabled(advanced);
 }

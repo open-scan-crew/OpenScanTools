@@ -234,13 +234,14 @@ guiDType GuiDataRenderTransparency::getType()
 
 //*** Transparency Options ***//
 
-GuiDataRenderTransparencyOptions::GuiDataRenderTransparencyOptions(bool negativeEffect, bool reduceFlash, bool flashAdvanced, float kneeStart, float kneeSoftness, float hlt, SafePtr<CameraNode> camera)
+GuiDataRenderTransparencyOptions::GuiDataRenderTransparencyOptions(bool negativeEffect, bool reduceFlash, bool flashAdvanced, float kneeStart, float kneeSoftness, float advancedBoost, float hlt, SafePtr<CameraNode> camera)
 	: GuiDataActiveCamera(camera)
 	, m_negativeEffect(negativeEffect)
 	, m_reduceFlash(reduceFlash)
 	, m_flashAdvanced(flashAdvanced)
 	, m_highlightKneeStart(kneeStart)
 	, m_highlightKneeSoftness(kneeSoftness)
+	, m_advancedFlashBoost(advancedBoost)
 	, m_highLuminosityThreshold(hlt)
 {}
 

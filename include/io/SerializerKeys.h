@@ -233,6 +233,7 @@
 #define Key_FlashAdvanced               "FlashAdvanced"
 #define Key_HighlightKneeStart          "HighlightKneeStart"
 #define Key_HighlightKneeSoftness       "HighlightKneeSoftness"
+#define Key_AdvancedFlashBoost          "AdvancedFlashBoost"
 #define Key_Transparency				"Transparency"
 
 #define Key_Post_Rendering_Normals		"PostRenderingNormals"

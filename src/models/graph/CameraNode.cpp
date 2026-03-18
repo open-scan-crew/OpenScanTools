@@ -2247,6 +2247,7 @@ void CameraNode::onRenderTransparencyOptions(IGuiData* data)
     m_flashAdvanced = castData->m_flashAdvanced;
     m_highlightKneeStart = castData->m_highlightKneeStart;
     m_highlightKneeSoftness = castData->m_highlightKneeSoftness;
+    m_advancedFlashBoost = castData->m_advancedFlashBoost;
     m_negativeEffect = castData->m_negativeEffect;
     sendNewUIViewPoint();
 }

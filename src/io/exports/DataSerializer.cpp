@@ -366,6 +366,7 @@ void ExportRenderingParameters(nlohmann::json& json, const RenderingParameters& 
     json[Key_FlashAdvanced] = params.m_flashAdvanced;
     json[Key_HighlightKneeStart] = params.m_highlightKneeStart;
     json[Key_HighlightKneeSoftness] = params.m_highlightKneeSoftness;
+    json[Key_AdvancedFlashBoost] = params.m_advancedFlashBoost;
 	json[Key_Transparency] = params.m_transparency;
 
     json[Key_Post_Rendering_Normals] = { params.m_postRenderingNormals.show, params.m_postRenderingNormals.inverseTone, params.m_postRenderingNormals.blendColor, params.m_postRenderingNormals.normalStrength, params.m_postRenderingNormals.gloss };
