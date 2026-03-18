@@ -13,6 +13,7 @@
 #include "utils/Logger.h"
 #include "utils/ProjectColor.hpp"
 
+#include "models/graph/BoxNode.h"
 #include "models/graph/GraphManager.h"
 #include "models/graph/TagNode.h"
 #include "models/pointCloud/PointXYZIRGB.h"
