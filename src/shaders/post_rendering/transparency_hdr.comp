@@ -65,7 +65,7 @@ void main()
          float shadowWeight = (knee < 0.999)
             ? (1.0 - smoothstep(knee, 1.0, Y))
             : float(Y < 1.0);
-         float boostGain = 1.0 + boost * 0.8 * shadowWeight;
+         float boostGain = 1.0 + boost * 1.6 * shadowWeight;
          Yt *= boostGain;
 
          float scale = (Y > 1e-6) ? (Yt / Y) : 1.0;
