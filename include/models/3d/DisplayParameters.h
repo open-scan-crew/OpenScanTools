@@ -91,9 +91,9 @@ public:
     bool           m_negativeEffect = false;
     bool           m_reduceFlash = true;
     bool           m_flashAdvanced = false;
-    float          m_highlightKneeStart = 10.f; // [0.0, 100.0]
+    float          m_highlightKneeStart = 15.f; // [0.0, 100.0]
     float          m_highlightKneeSoftness = 50.f; // [0.0, 100.0]
-    float          m_advancedFlashBoost = 20.f; // [0.0, 100.0]
+    float          m_advancedFlashBoost = 50.f; // [0.0, 100.0]
     float          m_transparency = 10.f; // [0.0, 100.0]
 
     // Post processing
