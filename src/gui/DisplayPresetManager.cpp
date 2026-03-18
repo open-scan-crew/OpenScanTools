@@ -65,8 +65,8 @@ namespace
 		json[Key_Blending] = params.m_hue;
 		json[Key_Flat_Color] = { params.m_flatColor.x, params.m_flatColor.y, params.m_flatColor.z };
 
-		json[Key_DistRamp] = { params.m_distRampMin, params.m_distRampMax };
-		json[Key_DistRampSteps] = params.m_distRampSteps;
+			json[Key_DistRamp] = { params.m_distRampMin, params.m_distRampMax };
+			json[Key_DistRampSteps] = params.m_distRampSteps;
 
 		json[Key_Blend_Mode] = magic_enum::enum_name(params.m_blendMode);
 		json[Key_NegativeEffect] = params.m_negativeEffect;
