@@ -44,7 +44,10 @@ private:
 	std::vector<double> m_viewpointControlTimes;
 	double m_orbitalTotalAngleRad = 0.0;
 	double m_orbitalLastAppliedRad = 0.0;
+	double m_orbitalRealAppliedRad = 0.0;
+	double m_orbitalDirectionSign = 1.0;
 	bool m_orbitalUsesExamine = false;
+	bool m_orbitalVertical = false;
 
 	std::chrono::steady_clock::time_point m_tpStart;
 	DecimationOptions m_precedentOptions;
