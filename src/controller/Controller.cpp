@@ -9,6 +9,7 @@
 #include "pointCloudEngine/EmbeddedScan.h"
 
 #include "controls/ControlMetaControl.h"
+#include "models/application/Author.h"
 #include "models/graph/CameraNode.h"
 
 #include "utils/FilesAndFoldersDefinitions.h"
