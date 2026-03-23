@@ -664,6 +664,7 @@ bool CameraNode::startAnimation(const bool& isOffline, const uint64_t& step)
         if (m_interpolateViewpointRenderings)
             initializeViewpointRenderInterpolationControlTimes();
     }
+    m_lastAppliedVisibilityViewpointIndex = 0;
 
     buildViewpointAnimationPlaybackPath();
 
@@ -711,6 +712,7 @@ bool CameraNode::endAnimation()
     m_currentKeyPoint = 0;
     m_animFrames = 0;
     m_totalPausedDurationSeconds = 0.0;
+    m_lastAppliedVisibilityViewpointIndex = 0;
     resetViewpointRenderInterpolation();
     return wasAnimated;
 }
@@ -761,6 +763,7 @@ void CameraNode::cleanAnimation()
     m_animFrames = 0;
     m_isAnimationPaused = false;
     m_totalPausedDurationSeconds = 0.0;
+    m_lastAppliedVisibilityViewpointIndex = 0;
     resetViewpointRenderInterpolation();
 }
 
@@ -1342,6 +1345,23 @@ bool CameraNode::animateViewpointTrajectory()
     }
 
     applyViewpointRenderInterpolation(dtime);
+
+    if (m_interpolateViewpointRenderings &&
+        m_renderControlPointTimesSeconds.size() == m_animationPlaylist.size() &&
+        !m_animationPlaylist.empty())
+    {
+        auto upperBound = std::upper_bound(m_renderControlPointTimesSeconds.begin(), m_renderControlPointTimesSeconds.end(), dtime);
+        size_t activeViewpointIndex = 0;
+        if (upperBound != m_renderControlPointTimesSeconds.begin())
+            activeViewpointIndex = static_cast<size_t>(std::distance(m_renderControlPointTimesSeconds.begin(), upperBound) - 1);
+        activeViewpointIndex = std::min(activeViewpointIndex, m_animationPlaylist.size() - 1);
+
+        if (activeViewpointIndex != m_lastAppliedVisibilityViewpointIndex)
+        {
+            m_lastAppliedVisibilityViewpointIndex = activeViewpointIndex;
+            m_dataDispatcher.sendControl(new control::viewpoint::UpdateStatesFromViewpoint(m_animationPlaylist[activeViewpointIndex]));
+        }
+    }
 
     if (m_currentKeyPoint >= m_trajectory.size())
         return true;
