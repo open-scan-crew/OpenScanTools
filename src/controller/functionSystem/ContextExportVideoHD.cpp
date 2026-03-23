@@ -64,9 +64,9 @@ Color32 normalizedRgbToColor32(const glm::vec3& rgb, uint8_t alpha)
 {
     const glm::vec3 clamped = glm::clamp(rgb, glm::vec3(0.0f), glm::vec3(1.0f));
     return Color32(
-        static_cast<uint8_t>(std::round(clamped.r * 255.0f)),
-        static_cast<uint8_t>(std::round(clamped.g * 255.0f)),
-        static_cast<uint8_t>(std::round(clamped.b * 255.0f)),
+        static_cast<uint8_t>(std::round(clamped.x * 255.0f)),
+        static_cast<uint8_t>(std::round(clamped.y * 255.0f)),
+        static_cast<uint8_t>(std::round(clamped.z * 255.0f)),
         alpha);
 }
 
