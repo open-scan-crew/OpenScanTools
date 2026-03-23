@@ -28,10 +28,12 @@
 #include "utils/Logger.h"
 #include "utils/math/trigo.h"
 #include "utils/math/glm_extended.h"
+#include "utils/ColorConversion.h"
 #include "utils/ColorimetricFilterUtils.h"
 
 #include <algorithm>
 #include <charconv>
+#include <cmath>
 
 namespace
 {
@@ -59,6 +61,49 @@ uint32_t computeNextPolygonId(const PolygonalSelectorSettings& settings)
         maxSuffix = std::max<uint32_t>(maxSuffix, getPolygonSuffix(polygon.name));
 
     return std::max<uint32_t>(std::max<uint32_t>(settings.nextPolygonId, maxSuffix + 1), 1u);
+}
+
+glm::vec3 color32ToNormalizedRgb(const Color32& color)
+{
+    return glm::vec3(
+        static_cast<float>(color.r) / 255.0f,
+        static_cast<float>(color.g) / 255.0f,
+        static_cast<float>(color.b) / 255.0f);
+}
+
+Color32 normalizedRgbToColor32(const glm::vec3& rgb, uint8_t alpha)
+{
+    const glm::vec3 clamped = glm::clamp(rgb, glm::vec3(0.0f), glm::vec3(1.0f));
+    return Color32(
+        static_cast<uint8_t>(std::round(clamped.r * 255.0f)),
+        static_cast<uint8_t>(std::round(clamped.g * 255.0f)),
+        static_cast<uint8_t>(std::round(clamped.b * 255.0f)),
+        alpha);
+}
+
+Color32 interpolateColorHsvShortestPath(const Color32& start, const Color32& end, float alpha)
+{
+    const glm::vec3 startHsv = utils::color::rgb2hsv(color32ToNormalizedRgb(start));
+    const glm::vec3 endHsv = utils::color::rgb2hsv(color32ToNormalizedRgb(end));
+
+    float hueDelta = endHsv.x - startHsv.x;
+    if (hueDelta > 0.5f)
+        hueDelta -= 1.0f;
+    else if (hueDelta < -0.5f)
+        hueDelta += 1.0f;
+
+    glm::vec3 hsv;
+    hsv.x = startHsv.x + hueDelta * alpha;
+    if (hsv.x < 0.0f)
+        hsv.x += 1.0f;
+    else if (hsv.x >= 1.0f)
+        hsv.x -= 1.0f;
+    hsv.y = startHsv.y + (endHsv.y - startHsv.y) * alpha;
+    hsv.z = startHsv.z + (endHsv.z - startHsv.z) * alpha;
+
+    const uint8_t interpolatedAlpha = static_cast<uint8_t>(std::round(
+        static_cast<float>(start.a) + (static_cast<float>(end.a) - static_cast<float>(start.a)) * alpha));
+    return normalizedRgbToColor32(utils::color::hsv2rgb(hsv), interpolatedAlpha);
 }
 }
 
@@ -1518,6 +1563,7 @@ void CameraNode::applyViewpointRenderInterpolation(double elapsedAnimationSecond
 ViewpointRenderState CameraNode::buildViewpointRenderState(const ViewPointNode& viewpoint)
 {
     ViewpointRenderState state;
+    state.renderMode = viewpoint.m_mode;
     state.transparency = viewpoint.m_transparency;
     state.normalStrength = viewpoint.m_postRenderingNormals.normalStrength;
     state.normalGloss = viewpoint.m_postRenderingNormals.gloss;
@@ -1528,6 +1574,8 @@ ViewpointRenderState CameraNode::buildViewpointRenderState(const ViewPointNode& 
     state.contrast = viewpoint.m_contrast;
     state.alphaObject = viewpoint.m_alphaObject;
     state.fovy = viewpoint.getFovy();
+    state.visibleObjects = viewpoint.getVisibleObjects();
+    state.scanClusterColors = viewpoint.getScanClusterColors();
     return state;
 }
 
@@ -1545,6 +1593,31 @@ ViewpointRenderState CameraNode::lerpViewpointRenderState(const ViewpointRenderS
     state.contrast = start.contrast + (end.contrast - start.contrast) * alpha;
     state.alphaObject = start.alphaObject + (end.alphaObject - start.alphaObject) * alpha;
     state.fovy = start.fovy + (end.fovy - start.fovy) * alpha;
+    state.renderMode = start.renderMode;
+    state.visibleObjects = start.visibleObjects;
+
+    const bool interpolateScanClusterColors =
+        start.renderMode == end.renderMode &&
+        (start.renderMode == UiRenderMode::Scans_Color || start.renderMode == UiRenderMode::Clusters_Color);
+
+    if (!interpolateScanClusterColors)
+        return state;
+
+    for (const auto& [object, startColor] : start.scanClusterColors)
+    {
+        if (start.visibleObjects.find(object) == start.visibleObjects.end())
+            continue;
+
+        auto endColorIt = end.scanClusterColors.find(object);
+        if (endColorIt == end.scanClusterColors.end())
+            continue;
+
+        if (end.visibleObjects.find(object) == end.visibleObjects.end())
+            continue;
+
+        state.scanClusterColors[object] = interpolateColorHsvShortestPath(startColor, endColorIt->second, alpha);
+    }
+
     return state;
 }
 
@@ -1560,6 +1633,16 @@ void CameraNode::applyViewpointRenderState(const ViewpointRenderState& state)
     m_contrast = state.contrast;
     m_alphaObject = state.alphaObject;
     setFovy(state.fovy, false);
+
+    if (state.renderMode == UiRenderMode::Scans_Color || state.renderMode == UiRenderMode::Clusters_Color)
+    {
+        for (const auto& [object, color] : state.scanClusterColors)
+        {
+            WritePtr<AGraphNode> wObject = object.get();
+            if (wObject)
+                wObject->setColor(color);
+        }
+    }
 }
 
 void CameraNode::buildViewpointAnimationPlaybackPath()
