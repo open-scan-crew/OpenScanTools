@@ -222,5 +222,9 @@ namespace control::author
         SafePtr<Author> active = controller.getContext().getActiveAuthor();
 
         controller.updateInfo(new GuiDataSendAuthorsList(authors, active));
+
+        ReadPtr<Author> rAuth = active.cget();
+        if (rAuth)
+            controller.updateInfo(new GuiDataAuthorNameSelection(rAuth->getName()));
     }
 }

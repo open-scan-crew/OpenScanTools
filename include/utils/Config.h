@@ -7,6 +7,7 @@
 #include <unordered_set>
 #include <vector>
 #include <filesystem>
+#include <string>
 
 enum LoggerMode;
 class Color32;
@@ -28,6 +29,11 @@ namespace Config
 
 	LanguageType getLanguage();
 	bool setLanguage(LanguageType type);
+
+    std::string getSessionAuthorId();
+    std::wstring getSessionAuthorName();
+    bool setSessionAuthor(const std::string& id, const std::wstring& name);
+    bool clearSessionAuthor();
 
 	bool getCenteringConfiguration();
 	bool setCenteringConfiguration(bool value);
