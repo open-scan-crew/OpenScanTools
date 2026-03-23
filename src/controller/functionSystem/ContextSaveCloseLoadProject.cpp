@@ -9,6 +9,7 @@
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataContextRequest.h"
 #include "gui/GuiData/GuiDataIO.h"
+#include "gui/GuiData/GuiDataRendering.h"
 #include "controller/controls/ControlProject.h"
 #include "controller/controls/ControlApplication.h"
 #include "models/application/Author.h"
@@ -24,6 +25,14 @@
 #define No 0x00010000
 #define Cancel 0x00400000
 
+namespace
+{
+    void stopAnimationBeforeSaveModal(Controller& controller, const char* contextName)
+    {
+        CONTROLLOG << contextName << " stopping active animation before save modal" << LOGENDL;
+        controller.updateInfo(new GuiDataRenderStopAnimation());
+    }
+}
 
 // *******************************************
 //           Save & Create Project
@@ -63,6 +72,7 @@ ContextState ContextSaveCloseCreateProject::feedMessage(IMessage* message, Contr
         m_languageTemplate = msg->language_template_;
 
 		if (controller.getContext().getIsCurrentProjectSaved() == false) {
+            stopAnimationBeforeSaveModal(controller, "ContextSaveCloseCreateProject");
 			controller.updateInfo(new GuiDataModal(Yes | No | Cancel, TEXT_SAVELOADCLOSE_SAVE_QUESTION));
 			m_isWaitingModal = true;
 		}
@@ -144,7 +154,10 @@ ContextState ContextSaveCloseProject::start(Controller& controller)
 {
     controller.updateInfo(new GuiDataContextRequestActiveCamera(m_id));
     if (controller.getContext().getIsCurrentProjectSaved() == false)
+    {
+        stopAnimationBeforeSaveModal(controller, "ContextSaveCloseProject");
         controller.updateInfo(new GuiDataModal(Yes | No | Cancel, TEXT_SAVELOADCLOSE_SAVE_QUESTION));
+    }
     else
         return (m_state = ContextState::ready_for_using);
     return (m_state = ContextState::waiting_for_input);
@@ -239,6 +252,7 @@ ContextState ContextSaveCloseLoadProject::feedMessage(IMessage* message, Control
             if (controller.getContext().getIsCurrentProjectSaved() == false)
             {
                 m_modalsReturn = WaitFor::Save;
+                stopAnimationBeforeSaveModal(controller, "ContextSaveCloseLoadProject");
                 controller.updateInfo(new GuiDataModal(Yes | No | Cancel, TEXT_SAVELOADCLOSE_SAVE_QUESTION));
             }
             else if (!m_backups.empty())
@@ -369,6 +383,7 @@ ContextState ContextSaveQuitProject::start(Controller& controller)
 
     if (controller.getContext().getIsCurrentProjectSaved() == false)
     {
+        stopAnimationBeforeSaveModal(controller, "ContextSaveQuitProject");
         controller.updateInfo(new GuiDataModal(Yes | No | Cancel, TEXT_SAVELOADCLOSE_SAVE_QUESTION));
         m_disableSave = false;
     }
