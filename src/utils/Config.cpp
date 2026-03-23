@@ -22,6 +22,8 @@
 #define LOG_JSON_KEY "logs"
 #define LICENSE_JSON_KEY "license"
 #define LANG_JSON_KEY "lang"
+#define SESSION_AUTHOR_ID_JSON_KEY "session_author_id"
+#define SESSION_AUTHOR_NAME_JSON_KEY "session_author_name"
 #define CENTER_JSON_KEY "center"
 #define KEEP_EXAMINE_JSON_KEY "keep_examine"
 #define EXAMINE_DISPLAY_JSON_KEY "display_examine"
@@ -204,6 +206,48 @@ namespace Config
 		jsonConfig[LANG_JSON_KEY] = std::string(magic_enum::enum_name(type));
 		return saveConfigFile(filePath);
 	}
+
+    std::string getSessionAuthorId()
+    {
+        if (jsonConfig.find(SESSION_AUTHOR_ID_JSON_KEY) == jsonConfig.end())
+            return "";
+        try
+        {
+            return cleanString(jsonConfig.at(SESSION_AUTHOR_ID_JSON_KEY).dump());
+        }
+        catch (...)
+        {
+            return "";
+        }
+    }
+
+    std::wstring getSessionAuthorName()
+    {
+        if (jsonConfig.find(SESSION_AUTHOR_NAME_JSON_KEY) == jsonConfig.end())
+            return L"";
+        try
+        {
+            return cleanWString(jsonConfig.at(SESSION_AUTHOR_NAME_JSON_KEY).get<std::string>());
+        }
+        catch (...)
+        {
+            return L"";
+        }
+    }
+
+    bool setSessionAuthor(const std::string& id, const std::wstring& name)
+    {
+        jsonConfig[SESSION_AUTHOR_ID_JSON_KEY] = id;
+        jsonConfig[SESSION_AUTHOR_NAME_JSON_KEY] = Utils::to_utf8(name);
+        return saveConfigFile(filePath);
+    }
+
+    bool clearSessionAuthor()
+    {
+        jsonConfig.erase(SESSION_AUTHOR_ID_JSON_KEY);
+        jsonConfig.erase(SESSION_AUTHOR_NAME_JSON_KEY);
+        return saveConfigFile(filePath);
+    }
 
 	bool getCenteringConfiguration()
 	{

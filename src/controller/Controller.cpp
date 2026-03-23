@@ -12,6 +12,7 @@
 #include "models/graph/CameraNode.h"
 
 #include "utils/FilesAndFoldersDefinitions.h"
+#include "utils/Config.h"
 #include "utils/Logger.h"
 
 #define CONTROLLERLOG Logger::log(LoggerMode::ControllerLog)
@@ -25,7 +26,41 @@ Controller::Controller(IDataDispatcher& dataDispatcher, GraphManager& graphManag
     m_p->context.addLocalAuthors(SaveLoadSystem::loadLocalAuthors(*this, errorMsg));
     assert(errorMsg == SaveLoadSystem::ErrorCode::Success);
 
-    m_p->dataDispatcher.updateInformation(new GuiDataSendAuthorsList(m_p->context.getLocalAuthors(), SafePtr<Author>()));
+    SafePtr<Author> restoredAuthor;
+    std::string sessionAuthorId = Config::getSessionAuthorId();
+    std::wstring sessionAuthorName = Config::getSessionAuthorName();
+
+    if (!sessionAuthorId.empty() || !sessionAuthorName.empty())
+    {
+        for (const SafePtr<Author>& author : m_p->context.getLocalAuthors())
+        {
+            ReadPtr<Author> rAuth = author.cget();
+            if (!rAuth)
+                continue;
+
+            if (!sessionAuthorId.empty() && rAuth->getId().isValid() && rAuth->getId().str() == sessionAuthorId)
+            {
+                restoredAuthor = author;
+                break;
+            }
+            if (sessionAuthorId.empty() && !sessionAuthorName.empty() && rAuth->getName() == sessionAuthorName)
+            {
+                restoredAuthor = author;
+                break;
+            }
+        }
+    }
+
+    if (restoredAuthor)
+    {
+        m_p->context.setActiveAuthor(restoredAuthor);
+    }
+    else if (!sessionAuthorId.empty() || !sessionAuthorName.empty())
+    {
+        Config::clearSessionAuthor();
+    }
+
+    m_p->dataDispatcher.updateInformation(new GuiDataSendAuthorsList(m_p->context.getLocalAuthors(), restoredAuthor));
 }
 
 Controller::~Controller()

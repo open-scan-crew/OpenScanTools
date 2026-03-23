@@ -113,6 +113,7 @@
 #include "controller/controls/ControlProject.h"
 #include "controller/controls/ControlApplication.h"
 #include "controller/controls/ControlModal.h"
+#include "controller/controls/ControlAuthor.h"
 #include "controller/controls/ControlFunction.h"
 #include "controller/controls/ControlIO.h"
 
@@ -536,7 +537,11 @@ void Gui::informData(IGuiData *data)
 void Gui::launch()
 {
 	show();
-	m_projectGroup->manageAuthors(false);
+    m_dataDispatcher.sendControl(new control::author::SendAuthorList());
+
+    bool hasSessionAuthor = !Config::getSessionAuthorId().empty() || !Config::getSessionAuthorName().empty();
+    if (!hasSessionAuthor)
+	    m_projectGroup->manageAuthors(false);
 }
 
 void Gui::showWarningMBox(IGuiData * data)
