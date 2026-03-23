@@ -17,6 +17,7 @@ ToolBarRenderRampGroup::ToolBarRenderRampGroup(IDataDispatcher& dataDispatcher, 
 	m_ui.checkBox_showScale->setChecked(true);
 	m_ui.checkBox_showTemperatureScale->setEnabled(false);
 	m_ui.pushButton_pickTemperature->setEnabled(false);
+	m_ui.pushButton_findMinMaxTemperature->setEnabled(false);
 	m_ui.lineEdit_temperatureScale->setPlaceholderText(tr("No file found"));
 
 	// Connect widgets
@@ -35,6 +36,10 @@ ToolBarRenderRampGroup::ToolBarRenderRampGroup(IDataDispatcher& dataDispatcher, 
 	connect(m_ui.pushButton_pickTemperature, &QPushButton::clicked, [this]()
 		{
 			m_dataDispatcher.sendControl(new control::picking::PickTemperatureFromPick());
+		});
+	connect(m_ui.pushButton_findMinMaxTemperature, &QPushButton::clicked, [this]()
+		{
+			m_dataDispatcher.sendControl(new control::picking::FindMinMaxTemperatureInClipping());
 		});
 
 	// GuiData link
@@ -101,6 +106,7 @@ void ToolBarRenderRampGroup::updateTemperatureScaleStatus(IGuiData* data)
 	const bool canUseTemperatureScale = m_temperatureScaleValid && m_temperatureScaleFileFound;
 	m_ui.checkBox_showTemperatureScale->setEnabled(canUseTemperatureScale);
 	m_ui.pushButton_pickTemperature->setEnabled(canUseTemperatureScale);
+	m_ui.pushButton_findMinMaxTemperature->setEnabled(canUseTemperatureScale);
 
 	if (m_temperatureScalePath.empty())
 	{

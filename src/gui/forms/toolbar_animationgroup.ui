@@ -27,9 +27,6 @@
     <number>0</number>
    </property>
    <property name="horizontalSpacing">
-    <number>6</number>
-   </property>
-   <property name="horizontalSpacing">
     <number>8</number>
    </property>
    <property name="verticalSpacing">
@@ -37,14 +34,18 @@
    </property>
    <item row="0" column="0">
     <widget class="QRadioButton" name="orbital360RadioButton">
-    <property name="text">
-     <string>Orbital</string>
-    </property>
-    <property name="autoExclusive">
-     <bool>true</bool>
-    </property>
-   </widget>
-  </item>
+     <property name="toolTip">
+      <string>Creates an orbital animation, around the central target. If no target is specified, the camera rotates on its own axis.
+If you want a vertical rotation, please check the Vertical checkbox.</string>
+     </property>
+     <property name="text">
+      <string>Orbital</string>
+     </property>
+     <property name="autoExclusive">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
    <item row="1" column="0">
     <widget class="QLabel" name="degreesLabel">
      <property name="text">
@@ -54,6 +55,9 @@
    </item>
    <item row="1" column="1">
     <widget class="QSpinBox" name="degreesSpinBox">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="minimum">
       <number>1</number>
      </property>
@@ -63,18 +67,18 @@
      <property name="value">
       <number>360</number>
      </property>
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
     </widget>
    </item>
    <item row="2" column="0" colspan="2">
     <widget class="QCheckBox" name="verticalOrbitalCheckBox">
-     <property name="text">
-      <string>Vertical</string>
-     </property>
      <property name="enabled">
       <bool>false</bool>
+     </property>
+     <property name="toolTip">
+      <string>Creates a vertical orbital animation. Rotation is limited to 180 degrees (it stops when vertical).</string>
+     </property>
+     <property name="text">
+      <string>Vertical</string>
      </property>
     </widget>
    </item>
@@ -87,19 +91,26 @@
    </item>
    <item row="0" column="3">
     <widget class="QRadioButton" name="betweenViewpointsRadioButton">
+     <property name="toolTip">
+      <string>Creates an animation that uses viewpoints. It uses the selected animation.</string>
+     </property>
      <property name="text">
       <string>Use viewpoints</string>
      </property>
-    <property name="checked">
-     <bool>true</bool>
-    </property>
-    <property name="autoExclusive">
-     <bool>true</bool>
-    </property>
-   </widget>
-  </item>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+     <property name="autoExclusive">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="4">
     <widget class="QCheckBox" name="interpolateCheckBox">
+     <property name="toolTip">
+      <string>Interpolates renderings such as: transparency, normals, gloss, fov, hue, contrast / brightness.
+The different viewpoints must be consistent to interpolate. For example, you can't interpolate values if transparency is activated on some viewpoints and not the others.</string>
+     </property>
      <property name="text">
       <string>Interpolate renderings</string>
      </property>
@@ -121,21 +132,27 @@
    </item>
    <item row="2" column="3">
     <widget class="QToolButton" name="toolButton_editViewpointAnimConfig">
-     <property name="text">
-      <string>Edit</string>
-     </property>
      <property name="enabled">
       <bool>false</bool>
+     </property>
+     <property name="toolTip">
+      <string>Edit an existing animation.</string>
+     </property>
+     <property name="text">
+      <string>Edit</string>
      </property>
     </widget>
    </item>
    <item row="2" column="4">
     <widget class="QToolButton" name="toolButton_newViewpointAnimConfig">
-     <property name="text">
-      <string>New</string>
-     </property>
      <property name="enabled">
       <bool>false</bool>
+     </property>
+     <property name="toolTip">
+      <string>Create a new animation that uses viewpoints.</string>
+     </property>
+     <property name="text">
+      <string>New</string>
      </property>
     </widget>
    </item>
@@ -155,6 +172,10 @@
    </item>
    <item row="0" column="7">
     <widget class="QSpinBox" name="lengthSpinBox">
+     <property name="toolTip">
+      <string>To be use for orbital and viewpoints animations.
+In case you define an animation between viewpoints with positions as time, this field is greyed out. </string>
+     </property>
      <property name="maximum">
       <number>99999</number>
      </property>
@@ -165,14 +186,14 @@
    </item>
    <item row="0" column="8">
     <widget class="QLineEdit" name="chronometerLineEdit">
-     <property name="readOnly">
-      <bool>true</bool>
+     <property name="text">
+      <string>0.00</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
-     <property name="text">
-      <string>0.00</string>
+     <property name="readOnly">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -209,7 +230,7 @@
    <item row="2" column="6" colspan="3">
     <widget class="QPushButton" name="generateVideoPushButton">
      <property name="toolTip">
-      <string>Video generation. Please make sure you are in perspective mode and that you selected a frame in the image section.</string>
+      <string>Generates a video that uses the animation settings.</string>
      </property>
      <property name="toolTipDuration">
       <number>-1</number>
