@@ -11,7 +11,9 @@
 #include "gui/GuiData/GuiDataIO.h"
 #include "controller/controls/ControlProject.h"
 #include "controller/controls/ControlApplication.h"
+#include "models/application/Author.h"
 #include "utils/FilesAndFoldersDefinitions.h"
+#include "utils/Config.h"
 #include "utils/Logger.h"
 #include "utils/system.h"
 #include "gui/texts/ContextTexts.hpp"
@@ -418,6 +420,12 @@ ContextState ContextSaveQuitProject::launch(Controller& controller)
     //controller.saveCurrentProject();
     if (m_closeLastProject)
         controller.getControlListener()->notifyUIControl(new control::project::Close());
+
+    ReadPtr<Author> rAuth = controller.getContext().getActiveAuthor().cget();
+    if (rAuth && rAuth->getId().isValid())
+        Config::setSessionAuthor(rAuth->getId().str(), rAuth->getName());
+    else
+        Config::clearSessionAuthor();
 
     controller.getControlListener()->notifyUIControl(new control::application::Quit());
 
