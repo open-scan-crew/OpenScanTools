@@ -1,7 +1,9 @@
 #include "controller/functionSystem/ContextExportVideoHD.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
+#include "controller/IControlListener.h"
 #include "controller/controls/AnimationHelper.h"
+#include "controller/controls/ControlViewPoint.h"
 
 #include "models/graph/GraphManager.h"
 #include "models/graph/AGraphNode.h"
@@ -68,6 +70,7 @@ ContextState ContextExportVideoHD::start(Controller& controller)
     m_totalFrames = 0;
     m_viewpoints.clear();
     m_viewpointControlTimes.clear();
+    m_lastAppliedVisibilityViewpointIndex = 0;
     m_orbitalTotalAngleRad = 0.0;
     m_orbitalLastAppliedRad = 0.0;
     m_orbitalRealAppliedRad = 0.0;
@@ -203,6 +206,8 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
             // Snap directly to the first viewpoint (same expectation as animation Start):
             // no initial transition trajectory before frame 1 capture.
             wCam->snapToViewPoint(m_viewpoints.front());
+            m_lastAppliedVisibilityViewpointIndex = 0;
+            controller.getControlListener()->notifyUIControl(new control::viewpoint::UpdateStatesFromViewpoint(m_viewpoints.front()));
         }
         else
         {
@@ -256,6 +261,16 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
             if (rightIndex >= m_viewpointControlTimes.size())
                 rightIndex = m_viewpointControlTimes.size() - 1;
             const size_t leftIndex = rightIndex - 1;
+            size_t activeViewpointIndex = leftIndex;
+            if (rightIndex < m_viewpointControlTimes.size() && t >= m_viewpointControlTimes[rightIndex])
+                activeViewpointIndex = rightIndex;
+            activeViewpointIndex = std::min(activeViewpointIndex, m_viewpoints.size() - 1);
+
+            if (activeViewpointIndex != m_lastAppliedVisibilityViewpointIndex)
+            {
+                m_lastAppliedVisibilityViewpointIndex = activeViewpointIndex;
+                controller.getControlListener()->notifyUIControl(new control::viewpoint::UpdateStatesFromViewpoint(m_viewpoints[activeViewpointIndex]));
+            }
 
             ReadPtr<ViewPointNode> left = m_viewpoints[leftIndex].cget();
             ReadPtr<ViewPointNode> right = m_viewpoints[rightIndex].cget();

@@ -350,6 +350,7 @@ private:
     bool m_interpolateViewpointRenderings = false;
     std::vector<ViewpointRenderState> m_viewpointRenderStates;
     std::vector<double> m_renderControlPointTimesSeconds;
+    size_t m_lastAppliedVisibilityViewpointIndex = 0;
     SimpleAnimation m_simpleAnimation = SimpleAnimation();
     // Uniform for projection and view matrix (separated)
     VkMultiUniform m_uniProjView;
