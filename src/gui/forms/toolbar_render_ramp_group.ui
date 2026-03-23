@@ -89,7 +89,7 @@ Separator for columns: tab, space, or ;</string>
    <item row="0" column="2">
     <widget class="QPushButton" name="pushButton_findMinMaxTemperature">
      <property name="toolTip">
-      <string>Create 2 tags in one active clipping box (Show interior): one at minimum temperature and one at maximum temperature.</string>
+      <string>Create 2 tags in one active clipping box (Show interior mode): one at minimum temperature and one at maximum temperature.Please make sure that only one clipping box is activated.</string>
      </property>
      <property name="text">
       <string>Find min max temp.</string>
