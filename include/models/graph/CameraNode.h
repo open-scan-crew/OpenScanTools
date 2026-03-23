@@ -43,6 +43,7 @@ struct SimpleAnimation {
 
 struct ViewpointRenderState
 {
+    UiRenderMode renderMode = UiRenderMode::RGB;
     float transparency = 0.0f;
     float normalStrength = 0.0f;
     float normalGloss = 0.0f;
@@ -53,6 +54,8 @@ struct ViewpointRenderState
     float contrast = 0.0f;
     float alphaObject = 0.0f;
     float fovy = 0.0f;
+    std::unordered_set<SafePtr<AGraphNode>> visibleObjects;
+    std::unordered_map<SafePtr<AGraphNode>, Color32> scanClusterColors;
 };
 
 enum class InterpolationValueWithPreviousAnimation { NONE, BEZIER/*, LINEAR*/ };
