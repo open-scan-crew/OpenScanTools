@@ -1,6 +1,7 @@
 #include "controller/functionSystem/ContextExportVideoHD.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
+#include "controller/IControlListener.h"
 #include "controller/controls/AnimationHelper.h"
 #include "controller/controls/ControlViewPoint.h"
 
