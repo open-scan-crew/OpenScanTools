@@ -486,75 +486,71 @@ void ExportViewPointData(nlohmann::json& json, const ViewPointData& data)
                 displayParams.m_depthLining.threshold, displayParams.m_depthLining.sensitivity,
                 displayParams.m_depthLining.strongMode };
 
-	nlohmann::json childrenElem = nlohmann::json::array();
-	for (const SafePtr<AClippingNode>& clip : data.getActiveClippings())
+	nlohmann::json statesElem = nlohmann::json::array();
+	for (const std::pair<SafePtr<AGraphNode>, ViewPointData::ObjectState>& statePair : data.getObjectStates())
 	{
-		ReadPtr<AClippingNode> rClip = clip.cget();
-		if (!rClip)
-			continue;
-		childrenElem.push_back(rClip->getId());
-	}
-	json[Key_Active_Clippings] = childrenElem;
-
-	childrenElem.clear();
-	for (const SafePtr<AClippingNode>& clip : data.getInteriorClippings())
-	{
-		ReadPtr<AClippingNode> rClip = clip.cget();
-		if (!rClip)
-			continue;
-		childrenElem.push_back(rClip->getId());
-	}
-	json[Key_Interior_Clippings] = childrenElem;
-
-	childrenElem.clear();
-	for (const SafePtr<AClippingNode>& clip : data.getPhaseClippings())
-	{
-		ReadPtr<AClippingNode> rClip = clip.cget();
-		if (!rClip)
-			continue;
-		childrenElem.push_back(rClip->getId());
-	}
-	json[Key_Phase_Clippings] = childrenElem;
-
-	childrenElem.clear();
-	for (const SafePtr<AClippingNode>& ramp : data.getActiveRamps())
-	{
-		ReadPtr<AClippingNode> rRamp = ramp.cget();
-		if (!rRamp)
-			continue;
-		childrenElem.push_back(rRamp->getId());
-	}
-	json[Key_Active_Ramps] = childrenElem;
-
-	childrenElem.clear();
-	for (const SafePtr<AGraphNode>& obj : data.getVisibleObjects())
-	{
-		ReadPtr<AGraphNode> rObj = obj.cget();
+		ReadPtr<AGraphNode> rObj = statePair.first.cget();
 		if (!rObj)
 			continue;
-		childrenElem.push_back(rObj->getId());
-	}
-	json[Key_Visible_Objects] = childrenElem;
 
-	childrenElem.clear();
-	for (std::pair<SafePtr<AGraphNode>,Color32> colorSet : data.getScanClusterColors())
-	{
-		ReadPtr<AGraphNode> rObj = colorSet.first.cget();
-		if (!rObj)
-			continue;
-		childrenElem.push_back({ rObj->getId(), colorSet.second.r, colorSet.second.g, colorSet.second.b, colorSet.second.a });
-	}
-	json[Key_Objects_Colors] = childrenElem;
+		const ViewPointData::ObjectState& state = statePair.second;
+		nlohmann::json stateJson;
+		stateJson[Key_ObjectState_Id] = rObj->getId();
+		stateJson[Key_ObjectState_Visible] = state.visible;
 
-	childrenElem.clear();
-	for (const std::pair<SafePtr<AGraphNode>, bool>& clippableSet : data.getObjectsClippable())
-	{
-		ReadPtr<AGraphNode> rObj = clippableSet.first.cget();
-		if (!rObj)
-			continue;
-		childrenElem.push_back({ rObj->getId(), clippableSet.second });
+		if (state.color.has_value())
+			stateJson[Key_ObjectState_Color] = { state.color.value().r, state.color.value().g, state.color.value().b, state.color.value().a };
+
+		if (state.center.has_value() || state.orientation.has_value() || state.scale.has_value())
+		{
+			nlohmann::json transfoJson;
+			if (state.center.has_value())
+				transfoJson[Key_Center] = { state.center.value().x, state.center.value().y, state.center.value().z };
+			if (state.orientation.has_value())
+				transfoJson[Key_Quaternion] = { state.orientation.value().x, state.orientation.value().y, state.orientation.value().z, state.orientation.value().w };
+			if (state.scale.has_value())
+				transfoJson[Key_Size] = { state.scale.value().x, state.scale.value().y, state.scale.value().z };
+			stateJson[Key_ObjectState_Transform] = transfoJson;
+		}
+
+		if (state.clippable.has_value())
+			stateJson[Key_ObjectState_Clippable] = state.clippable.value();
+
+		if (state.clippingMode.has_value() || state.clippingActive.has_value() || state.minClipDist.has_value() || state.maxClipDist.has_value() || state.lengthThresholdClip.has_value())
+		{
+			nlohmann::json clippingJson;
+			if (state.clippingMode.has_value())
+				clippingJson[Key_ClippingMode] = magic_enum::enum_name(state.clippingMode.value());
+			if (state.clippingActive.has_value())
+				clippingJson[Key_Active] = state.clippingActive.value();
+			if (state.minClipDist.has_value())
+				clippingJson[Key_MinClipDistance] = state.minClipDist.value();
+			if (state.maxClipDist.has_value())
+				clippingJson[Key_MaxClipDistance] = state.maxClipDist.value();
+			if (state.lengthThresholdClip.has_value())
+				clippingJson[Key_LengthThresholdClip] = state.lengthThresholdClip.value();
+			stateJson[Key_ObjectState_Clipping] = clippingJson;
+		}
+
+		if (state.rampActive.has_value() || state.rampMin.has_value() || state.rampMax.has_value() || state.rampSteps.has_value() || state.rampClamped.has_value())
+		{
+			nlohmann::json rampJson;
+			if (state.rampActive.has_value())
+				rampJson[Key_RampActive] = state.rampActive.value();
+			if (state.rampMin.has_value())
+				rampJson[Key_MinRampDistance] = state.rampMin.value();
+			if (state.rampMax.has_value())
+				rampJson[Key_MaxRampDistance] = state.rampMax.value();
+			if (state.rampSteps.has_value())
+				rampJson[Key_RampSteps] = state.rampSteps.value();
+			if (state.rampClamped.has_value())
+				rampJson[Key_RampClamped] = state.rampClamped.value();
+			stateJson[Key_ObjectState_Ramp] = rampJson;
+		}
+
+		statesElem.push_back(stateJson);
 	}
-	json[Key_Objects_Clippable] = childrenElem;
+	json[Key_Objects_States_V2] = statesElem;
 }
 
 void DataSerializer::Serialize(nlohmann::json& json, const SafePtr<TagNode>& object)

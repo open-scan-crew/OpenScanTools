@@ -210,6 +210,7 @@ namespace control::viewpoint
         std::unordered_set<SafePtr<AGraphNode>> visibleList;
         std::unordered_map<SafePtr<AGraphNode>, Color32> colorList;
         std::unordered_map<SafePtr<AGraphNode>, bool> clippableList;
+        std::unordered_map<SafePtr<AGraphNode>, ViewPointData::ObjectState> objectStates;
 
         {
             ReadPtr<ViewPointNode> readViewpoint = m_viewPoint.cget();
@@ -223,6 +224,7 @@ namespace control::viewpoint
             visibleList = readViewpoint->getVisibleObjects();
             colorList = readViewpoint->getScanClusterColors();
             clippableList = readViewpoint->getObjectsClippable();
+            objectStates = readViewpoint->getObjectStates();
         }
 
         GraphManager& graphManager = controller.getGraphManager();
@@ -264,33 +266,110 @@ namespace control::viewpoint
             }
         }
 
-        for (const SafePtr<AGraphNode>& object : graphManager.getProjectNodes())
+        if (!objectStates.empty())
         {
-            WritePtr<AGraphNode> writeObject = object.get();
-            if (!writeObject)
-                continue;
-
-            bool visibleState = (visibleList.find(object) != visibleList.end());
-            if (writeObject->isVisible() != visibleState)
+            for (const std::pair<SafePtr<AGraphNode>, ViewPointData::ObjectState>& pair : objectStates)
             {
-                writeObject->setVisible(visibleState);
-                editedNodes.insert(object);
-            }
+                const SafePtr<AGraphNode>& object = pair.first;
+                const ViewPointData::ObjectState& state = pair.second;
 
-            if (colorList.find(object) != colorList.end())
-            {
-                writeObject->setColor(colorList.at(object));
-                editedNodes.insert(object);
-            }
+                WritePtr<AGraphNode> writeObject = object.get();
+                if (!writeObject)
+                    continue;
 
-            if (clippableList.find(object) != clippableList.end() && writeObject->getType() == ElementType::Scan)
-            {
-                PointCloudNode* pointCloud = static_cast<PointCloudNode*>(writeObject.operator->());
-                const bool clippableState = clippableList.at(object);
-                if (pointCloud->getClippable() != clippableState)
+                if (writeObject->isVisible() != state.visible)
                 {
-                    pointCloud->setClippable(clippableState);
+                    writeObject->setVisible(state.visible);
                     editedNodes.insert(object);
+                }
+
+                if (state.color.has_value() && writeObject->getColor() != state.color.value())
+                {
+                    writeObject->setColor(state.color.value());
+                    editedNodes.insert(object);
+                }
+
+                if (state.center.has_value() || state.orientation.has_value() || state.scale.has_value())
+                {
+                    if (state.center.has_value())
+                        writeObject->setPosition(state.center.value());
+                    if (state.orientation.has_value())
+                        writeObject->setRotation(state.orientation.value());
+                    if (state.scale.has_value())
+                        writeObject->setScale(state.scale.value());
+                    editedNodes.insert(object);
+                }
+
+                if (state.clippable.has_value() &&
+                    (writeObject->getType() == ElementType::Scan || writeObject->getType() == ElementType::PCO))
+                {
+                    PointCloudNode* pointCloud = static_cast<PointCloudNode*>(writeObject.operator->());
+                    if (pointCloud->getClippable() != state.clippable.value())
+                    {
+                        pointCloud->setClippable(state.clippable.value());
+                        editedNodes.insert(object);
+                    }
+                }
+
+                if (AClippingNode* clippingObject = dynamic_cast<AClippingNode*>(writeObject.operator->()))
+                {
+                    if (state.clippingMode.has_value())
+                        clippingObject->setClippingMode(state.clippingMode.value());
+                    if (state.clippingActive.has_value())
+                        clippingObject->setClippingActive(state.clippingActive.value());
+                    if (state.minClipDist.has_value())
+                        clippingObject->setMinClipDist(state.minClipDist.value());
+                    if (state.maxClipDist.has_value())
+                        clippingObject->setMaxClipDist(state.maxClipDist.value());
+                    if (state.lengthThresholdClip.has_value())
+                        clippingObject->setLengthThresholdClip(state.lengthThresholdClip.value());
+
+                    if (state.rampActive.has_value())
+                        clippingObject->setRampActive(state.rampActive.value());
+                    if (state.rampMin.has_value())
+                        clippingObject->setRampMin(state.rampMin.value());
+                    if (state.rampMax.has_value())
+                        clippingObject->setRampMax(state.rampMax.value());
+                    if (state.rampSteps.has_value())
+                        clippingObject->setRampSteps(state.rampSteps.value());
+                    if (state.rampClamped.has_value())
+                        clippingObject->setRampClamped(state.rampClamped.value());
+
+                    editedNodes.insert(object);
+                }
+            }
+        }
+        else
+        {
+            for (const SafePtr<AGraphNode>& object : graphManager.getProjectNodes())
+            {
+                WritePtr<AGraphNode> writeObject = object.get();
+                if (!writeObject)
+                    continue;
+
+                bool visibleState = (visibleList.find(object) != visibleList.end());
+                if (writeObject->isVisible() != visibleState)
+                {
+                    writeObject->setVisible(visibleState);
+                    editedNodes.insert(object);
+                }
+
+                if (colorList.find(object) != colorList.end())
+                {
+                    writeObject->setColor(colorList.at(object));
+                    editedNodes.insert(object);
+                }
+
+                if (clippableList.find(object) != clippableList.end() &&
+                    (writeObject->getType() == ElementType::Scan || writeObject->getType() == ElementType::PCO))
+                {
+                    PointCloudNode* pointCloud = static_cast<PointCloudNode*>(writeObject.operator->());
+                    const bool clippableState = clippableList.at(object);
+                    if (pointCloud->getClippable() != clippableState)
+                    {
+                        pointCloud->setClippable(clippableState);
+                        editedNodes.insert(object);
+                    }
                 }
             }
         }

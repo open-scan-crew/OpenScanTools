@@ -6,6 +6,15 @@
 #include "models/graph/AClippingNode.h"
 #include "models/graph/ViewPointNode.h"
 #include "models/graph/PointCloudNode.h"
+#include "models/ElementType.h"
+
+namespace
+{
+bool supportsViewpointExtendedState(ElementType type)
+{
+	return type != ElementType::ViewPoint;
+}
+}
 
 ViewPointData::ViewPointData()
 {}
@@ -29,6 +38,7 @@ void ViewPointData::copyViewPointData(const ViewPointData& data)
 	m_visibleObjects = data.getVisibleObjects();
 	m_scanClusterColors = data.getScanClusterColors();
 	m_objectsClippable = data.getObjectsClippable();
+	m_objectStates = data.getObjectStates();
 }
 
 void ViewPointData::setPanoramicScan(SafePtr<PointCloudNode> id)
@@ -69,6 +79,11 @@ void ViewPointData::setScanClusterColors(const std::unordered_map<SafePtr<AGraph
 void ViewPointData::setObjectsClippable(const std::unordered_map<SafePtr<AGraphNode>, bool>& map)
 {
 	m_objectsClippable = map;
+}
+
+void ViewPointData::setObjectStates(const std::unordered_map<SafePtr<AGraphNode>, ObjectState>& map)
+{
+	m_objectStates = map;
 }
 
 bool ViewPointData::isPanoramicScan() const
@@ -121,6 +136,11 @@ const std::unordered_map<SafePtr<AGraphNode>, bool>& ViewPointData::getObjectsCl
 	return m_objectsClippable;
 }
 
+const std::unordered_map<SafePtr<AGraphNode>, ViewPointData::ObjectState>& ViewPointData::getObjectStates() const
+{
+	return m_objectStates;
+}
+
 void ViewPointData::updateViewpointsObjectsValue(Controller& controller, SafePtr<ViewPointNode> viewpoint)
 {
 	GraphManager& graphManager = controller.getGraphManager();
@@ -144,23 +164,54 @@ void ViewPointData::updateViewpointsObjectsValue(Controller& controller, SafePtr
 
 	std::unordered_map<SafePtr<AGraphNode>, Color32> scanClusterColors;
 	std::unordered_map<SafePtr<AGraphNode>, bool> objectsClippable;
-	for (const SafePtr<AGraphNode>& object : graphManager.getNodesByTypes({ ElementType::Cluster, ElementType::Scan }))
-	{
-		ReadPtr<AGraphNode> rObject = object.cget();
-		if (rObject)
-			scanClusterColors[object] = rObject->getColor();
-
-		if (rObject && rObject->getType() == ElementType::Scan)
-		{
-			const PointCloudNode* pointCloud = static_cast<const PointCloudNode*>(rObject.operator->());
-			objectsClippable[object] = pointCloud->getClippable();
-		}
-	}
-
+	std::unordered_map<SafePtr<AGraphNode>, ObjectState> objectStates;
 	std::unordered_set<SafePtr<AGraphNode>> visible;
 	for (const SafePtr<AGraphNode>& object : graphManager.getProjectNodes())
-		if (object.cget()->isVisible())
+	{
+		ReadPtr<AGraphNode> rObject = object.cget();
+		if (!rObject)
+			continue;
+
+		if (rObject->isVisible())
 			visible.insert(object);
+
+		if (!supportsViewpointExtendedState(rObject->getType()))
+			continue;
+
+		ObjectState state;
+		state.visible = rObject->isVisible();
+		state.color = rObject->getColor();
+		state.center = rObject->getCenter();
+		state.orientation = rObject->getOrientation();
+		state.scale = rObject->getScale();
+
+		if (rObject->getType() == ElementType::Scan || rObject->getType() == ElementType::PCO)
+		{
+			const PointCloudNode* pointCloud = static_cast<const PointCloudNode*>(rObject.operator->());
+			state.clippable = pointCloud->getClippable();
+			objectsClippable[object] = pointCloud->getClippable();
+		}
+
+		if (const AClippingNode* clippingObject = dynamic_cast<const AClippingNode*>(rObject.operator->()))
+		{
+			state.clippingMode = clippingObject->getClippingMode();
+			state.clippingActive = clippingObject->isClippingActive();
+			state.minClipDist = clippingObject->getMinClipDist();
+			state.maxClipDist = clippingObject->getMaxClipDist();
+			state.lengthThresholdClip = clippingObject->getLengthThresholdClip();
+
+			state.rampActive = clippingObject->isRampActive();
+			state.rampMin = clippingObject->getRampMin();
+			state.rampMax = clippingObject->getRampMax();
+			state.rampSteps = clippingObject->getRampSteps();
+			state.rampClamped = clippingObject->isRampClamped();
+		}
+
+		objectStates[object] = state;
+
+		if (rObject->getType() == ElementType::Cluster || rObject->getType() == ElementType::Scan)
+			scanClusterColors[object] = rObject->getColor();
+	}
 
 	WritePtr<ViewPointNode> wVP = viewpoint.get();
 	if (!wVP)
@@ -173,4 +224,5 @@ void ViewPointData::updateViewpointsObjectsValue(Controller& controller, SafePtr
 	wVP->setScanClusterColors(scanClusterColors);
 	wVP->setObjectsClippable(objectsClippable);
 	wVP->setVisibleObjects(visible);
+	wVP->setObjectStates(objectStates);
 }
