@@ -34,6 +34,7 @@
 #include "models/application/Author.h"
 
 #include "magic_enum/magic_enum.hpp"
+#include <algorithm>
 
 #define IOLOG Logger::log(LoggerMode::IOLog)
 
@@ -537,24 +538,130 @@ void ExportViewPointData(nlohmann::json& json, const ViewPointData& data)
 	json[Key_Visible_Objects] = childrenElem;
 
 	childrenElem.clear();
-	for (std::pair<SafePtr<AGraphNode>,Color32> colorSet : data.getScanClusterColors())
+	for (const std::pair<SafePtr<AGraphNode>, TransformationModule>& transformSet : data.getObjectsTransform())
+	{
+		ReadPtr<AGraphNode> rObj = transformSet.first.cget();
+		if (!rObj)
+			continue;
+
+		const TransformationModule& transfo = transformSet.second;
+		nlohmann::json objState;
+		objState[Key_Id] = rObj->getId();
+		objState[Key_ViewPoint_Object_Transform] =
+		{
+			{ Key_Center, { transfo.getCenter().x, transfo.getCenter().y, transfo.getCenter().z } },
+			{ Key_Quaternion, { transfo.getOrientation()[0], transfo.getOrientation()[1], transfo.getOrientation()[2], transfo.getOrientation()[3] } },
+			{ Key_Size, { transfo.getScale().x, transfo.getScale().y, transfo.getScale().z } }
+		};
+
+		auto colorIt = data.getScanClusterColors().find(transformSet.first);
+		if (colorIt != data.getScanClusterColors().end())
+			objState[Key_ColorRGBA] = { colorIt->second.r, colorIt->second.g, colorIt->second.b, colorIt->second.a };
+
+		auto clippableIt = data.getObjectsClippable().find(transformSet.first);
+		if (clippableIt != data.getObjectsClippable().end())
+			objState[Key_Clippable] = clippableIt->second;
+
+		auto clipIt = data.getObjectsClippingDistances().find(transformSet.first);
+		if (clipIt != data.getObjectsClippingDistances().end())
+		{
+			objState[Key_ViewPoint_Object_Clip] =
+			{
+				{ Key_MinClipDistance, clipIt->second.minClip },
+				{ Key_MaxClipDistance, clipIt->second.maxClip },
+				{ Key_LengthThresholdClip, clipIt->second.lengthThreshold }
+			};
+		}
+
+		auto rampIt = data.getObjectsRampDistances().find(transformSet.first);
+		if (rampIt != data.getObjectsRampDistances().end())
+		{
+			objState[Key_ViewPoint_Object_Ramp] =
+			{
+				{ Key_MinRampDistance, rampIt->second.minRamp },
+				{ Key_MaxRampDistance, rampIt->second.maxRamp },
+				{ Key_RampSteps, rampIt->second.stepsRamp }
+			};
+		}
+
+		childrenElem.push_back(objState);
+	}
+
+	for (const std::pair<SafePtr<AGraphNode>, Color32>& colorSet : data.getScanClusterColors())
 	{
 		ReadPtr<AGraphNode> rObj = colorSet.first.cget();
 		if (!rObj)
 			continue;
-		childrenElem.push_back({ rObj->getId(), colorSet.second.r, colorSet.second.g, colorSet.second.b, colorSet.second.a });
+		const std::string objectId = rObj->getId().str();
+		auto it = std::find_if(childrenElem.begin(), childrenElem.end(), [&objectId](const nlohmann::json& state)
+			{
+				return state.find(Key_Id) != state.end() && state.at(Key_Id).get<std::string>() == objectId;
+			});
+		if (it != childrenElem.end())
+			continue;
+		childrenElem.push_back({ { Key_Id, rObj->getId() }, { Key_ColorRGBA, { colorSet.second.r, colorSet.second.g, colorSet.second.b, colorSet.second.a } } });
 	}
-	json[Key_Objects_Colors] = childrenElem;
 
-	childrenElem.clear();
 	for (const std::pair<SafePtr<AGraphNode>, bool>& clippableSet : data.getObjectsClippable())
 	{
 		ReadPtr<AGraphNode> rObj = clippableSet.first.cget();
 		if (!rObj)
 			continue;
-		childrenElem.push_back({ rObj->getId(), clippableSet.second });
+		const std::string objectId = rObj->getId().str();
+		auto it = std::find_if(childrenElem.begin(), childrenElem.end(), [&objectId](const nlohmann::json& state)
+			{
+				return state.find(Key_Id) != state.end() && state.at(Key_Id).get<std::string>() == objectId;
+			});
+		if (it != childrenElem.end())
+			continue;
+		childrenElem.push_back({ { Key_Id, rObj->getId() }, { Key_Clippable, clippableSet.second } });
 	}
-	json[Key_Objects_Clippable] = childrenElem;
+
+	for (const std::pair<SafePtr<AGraphNode>, ViewPointData::ClippingDistances>& clipSet : data.getObjectsClippingDistances())
+	{
+		ReadPtr<AGraphNode> rObj = clipSet.first.cget();
+		if (!rObj)
+			continue;
+		const std::string objectId = rObj->getId().str();
+		auto it = std::find_if(childrenElem.begin(), childrenElem.end(), [&objectId](const nlohmann::json& state)
+			{
+				return state.find(Key_Id) != state.end() && state.at(Key_Id).get<std::string>() == objectId;
+			});
+		if (it != childrenElem.end())
+			continue;
+		childrenElem.push_back({
+			{ Key_Id, rObj->getId() },
+			{ Key_ViewPoint_Object_Clip, {
+				{ Key_MinClipDistance, clipSet.second.minClip },
+				{ Key_MaxClipDistance, clipSet.second.maxClip },
+				{ Key_LengthThresholdClip, clipSet.second.lengthThreshold }
+			} }
+		});
+	}
+
+	for (const std::pair<SafePtr<AGraphNode>, ViewPointData::RampDistances>& rampSet : data.getObjectsRampDistances())
+	{
+		ReadPtr<AGraphNode> rObj = rampSet.first.cget();
+		if (!rObj)
+			continue;
+		const std::string objectId = rObj->getId().str();
+		auto it = std::find_if(childrenElem.begin(), childrenElem.end(), [&objectId](const nlohmann::json& state)
+			{
+				return state.find(Key_Id) != state.end() && state.at(Key_Id).get<std::string>() == objectId;
+			});
+		if (it != childrenElem.end())
+			continue;
+		childrenElem.push_back({
+			{ Key_Id, rObj->getId() },
+			{ Key_ViewPoint_Object_Ramp, {
+				{ Key_MinRampDistance, rampSet.second.minRamp },
+				{ Key_MaxRampDistance, rampSet.second.maxRamp },
+				{ Key_RampSteps, rampSet.second.stepsRamp }
+			} }
+		});
+	}
+
+	json[Key_ViewPoint_Object_States] = childrenElem;
 }
 
 void DataSerializer::Serialize(nlohmann::json& json, const SafePtr<TagNode>& object)
