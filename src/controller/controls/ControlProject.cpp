@@ -387,6 +387,12 @@ namespace control::project
 
         controller.updateInfo(new GuiDataSplashScreenStart(TEXT_PROJECT_CLOSING, GuiDataSplashScreenStart::SplashScreenType::Display));
 
+        // Ensure any running animation is stopped before pausing the render loop.
+        // This avoids shutdown deadlocks when quitting while an animation is active.
+        CONTROLLOG << "control::project::Close stopping active animation before render pause" << LOGENDL;
+        controller.updateInfo(new GuiDataRenderStopAnimation());
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
         constexpr auto kRenderPauseTimeout = std::chrono::milliseconds(2000);
         bool renderPaused = VulkanManager::getInstance().requestRenderPauseAndWait(kRenderPauseTimeout);
         if (!renderPaused)

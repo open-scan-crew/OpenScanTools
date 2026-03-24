@@ -1,7 +1,9 @@
 #include "controller/functionSystem/ContextExportVideoHD.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
+#include "controller/IControlListener.h"
 #include "controller/controls/AnimationHelper.h"
+#include "controller/controls/ControlViewPoint.h"
 
 #include "models/graph/GraphManager.h"
 #include "models/graph/AGraphNode.h"
@@ -24,6 +26,7 @@
 
 #include "utils/Logger.h"
 #include "utils/Utils.h"
+#include "utils/ColorConversion.h"
 #include "utils/math/basic_define.h"
 #include <cmath>
 #include <algorithm>
@@ -49,6 +52,49 @@ QString resolveFfmpegExecutable()
     return QStringLiteral("ffmpeg");
 }
 
+glm::vec3 color32ToNormalizedRgb(const Color32& color)
+{
+    return glm::vec3(
+        static_cast<float>(color.r) / 255.0f,
+        static_cast<float>(color.g) / 255.0f,
+        static_cast<float>(color.b) / 255.0f);
+}
+
+Color32 normalizedRgbToColor32(const glm::vec3& rgb, uint8_t alpha)
+{
+    const glm::vec3 clamped = glm::clamp(rgb, glm::vec3(0.0f), glm::vec3(1.0f));
+    return Color32(
+        static_cast<uint8_t>(std::round(clamped.x * 255.0f)),
+        static_cast<uint8_t>(std::round(clamped.y * 255.0f)),
+        static_cast<uint8_t>(std::round(clamped.z * 255.0f)),
+        alpha);
+}
+
+Color32 interpolateColorHsvShortestPath(const Color32& start, const Color32& end, float alpha)
+{
+    const glm::vec3 startHsv = utils::color::rgb2hsv(color32ToNormalizedRgb(start));
+    const glm::vec3 endHsv = utils::color::rgb2hsv(color32ToNormalizedRgb(end));
+
+    float hueDelta = endHsv.x - startHsv.x;
+    if (hueDelta > 0.5f)
+        hueDelta -= 1.0f;
+    else if (hueDelta < -0.5f)
+        hueDelta += 1.0f;
+
+    glm::vec3 hsv;
+    hsv.x = startHsv.x + hueDelta * alpha;
+    if (hsv.x < 0.0f)
+        hsv.x += 1.0f;
+    else if (hsv.x >= 1.0f)
+        hsv.x -= 1.0f;
+    hsv.y = startHsv.y + (endHsv.y - startHsv.y) * alpha;
+    hsv.z = startHsv.z + (endHsv.z - startHsv.z) * alpha;
+
+    const uint8_t interpolatedAlpha = static_cast<uint8_t>(std::round(
+        static_cast<float>(start.a) + (static_cast<float>(end.a) - static_cast<float>(start.a)) * alpha));
+    return normalizedRgbToColor32(utils::color::hsv2rgb(hsv), interpolatedAlpha);
+}
+
 }
 
 ContextExportVideoHD::ContextExportVideoHD(const ContextId& id)
@@ -68,6 +114,7 @@ ContextState ContextExportVideoHD::start(Controller& controller)
     m_totalFrames = 0;
     m_viewpoints.clear();
     m_viewpointControlTimes.clear();
+    m_lastAppliedVisibilityViewpointIndex = 0;
     m_orbitalTotalAngleRad = 0.0;
     m_orbitalLastAppliedRad = 0.0;
     m_orbitalRealAppliedRad = 0.0;
@@ -203,6 +250,8 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
             // Snap directly to the first viewpoint (same expectation as animation Start):
             // no initial transition trajectory before frame 1 capture.
             wCam->snapToViewPoint(m_viewpoints.front());
+            m_lastAppliedVisibilityViewpointIndex = 0;
+            controller.getControlListener()->notifyUIControl(new control::viewpoint::UpdateStatesFromViewpoint(m_viewpoints.front()));
         }
         else
         {
@@ -256,6 +305,16 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
             if (rightIndex >= m_viewpointControlTimes.size())
                 rightIndex = m_viewpointControlTimes.size() - 1;
             const size_t leftIndex = rightIndex - 1;
+            size_t activeViewpointIndex = leftIndex;
+            if (rightIndex < m_viewpointControlTimes.size() && t >= m_viewpointControlTimes[rightIndex])
+                activeViewpointIndex = rightIndex;
+            activeViewpointIndex = std::min(activeViewpointIndex, m_viewpoints.size() - 1);
+
+            if (activeViewpointIndex != m_lastAppliedVisibilityViewpointIndex)
+            {
+                m_lastAppliedVisibilityViewpointIndex = activeViewpointIndex;
+                controller.getControlListener()->notifyUIControl(new control::viewpoint::UpdateStatesFromViewpoint(m_viewpoints[activeViewpointIndex]));
+            }
 
             ReadPtr<ViewPointNode> left = m_viewpoints[leftIndex].cget();
             ReadPtr<ViewPointNode> right = m_viewpoints[rightIndex].cget();
@@ -282,6 +341,31 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
                 wCam->m_hue = left->m_hue * static_cast<float>(1.0 - alpha) + right->m_hue * static_cast<float>(alpha);
                 wCam->m_alphaObject = left->m_alphaObject * static_cast<float>(1.0 - alpha) + right->m_alphaObject * static_cast<float>(alpha);
                 wCam->setFovy(left->getFovy() * (1.0 - alpha) + right->getFovy() * alpha);
+
+                if (left->m_mode == UiRenderMode::Scans_Color || left->m_mode == UiRenderMode::Clusters_Color)
+                {
+                    const std::unordered_set<SafePtr<AGraphNode>>& leftVisible = left->getVisibleObjects();
+                    const std::unordered_set<SafePtr<AGraphNode>>& rightVisible = right->getVisibleObjects();
+                    const std::unordered_map<SafePtr<AGraphNode>, Color32>& leftColors = left->getScanClusterColors();
+                    const std::unordered_map<SafePtr<AGraphNode>, Color32>& rightColors = right->getScanClusterColors();
+                    const float alphaF = static_cast<float>(alpha);
+
+                    for (const auto& [object, leftColor] : leftColors)
+                    {
+                        if (leftVisible.find(object) == leftVisible.end() || rightVisible.find(object) == rightVisible.end())
+                            continue;
+
+                        auto itRightColor = rightColors.find(object);
+                        if (itRightColor == rightColors.end())
+                            continue;
+
+                        WritePtr<AGraphNode> wObject = object.get();
+                        if (!wObject)
+                            continue;
+
+                        wObject->setColor(interpolateColorHsvShortestPath(leftColor, itRightColor->second, alphaF));
+                    }
+                }
             }
         }
         else if (m_animFrame > 1)
