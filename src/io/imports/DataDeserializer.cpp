@@ -2067,9 +2067,79 @@ bool ImportViewPointData(const nlohmann::json& json, ViewPointData& data, const 
         retVal = false;
     }
 
-    if (json.find(Key_Objects_Colors) != json.end())
+    std::unordered_map<SafePtr<AGraphNode>, TransformationModule> objectsTransform;
+    std::unordered_map<SafePtr<AGraphNode>, ViewPointData::ClippingDistances> objectsClippingDistances;
+    std::unordered_map<SafePtr<AGraphNode>, ViewPointData::RampDistances> objectsRampDistances;
+    std::unordered_map<SafePtr<AGraphNode>, Color32> objectColors;
+    std::unordered_map<SafePtr<AGraphNode>, bool> objectClippable;
+
+    const bool hasObjectStates = json.find(Key_ViewPoint_Object_States) != json.end();
+    if (hasObjectStates)
     {
-        std::unordered_map<SafePtr<AGraphNode>, Color32> map;
+        for (const nlohmann::json& objectState : json.at(Key_ViewPoint_Object_States))
+        {
+            if (objectState.find(Key_Id) == objectState.end())
+                continue;
+
+            xg::Guid guid = xg::Guid(objectState.at(Key_Id).get<std::string>());
+            auto itNode = nodeById.find(guid);
+            if (itNode == nodeById.end())
+            {
+                IOLOG << "ViewPoint ObjectState couldnt find object" << LOGENDL;
+                continue;
+            }
+
+            const SafePtr<AGraphNode>& objectNode = itNode->second;
+            if (!objectNode)
+                continue;
+
+            if (objectState.find(Key_ViewPoint_Object_Transform) != objectState.end())
+            {
+                TransformationModule transform;
+                ImportTransformationModule(objectState.at(Key_ViewPoint_Object_Transform), transform);
+                objectsTransform[objectNode] = transform;
+            }
+
+            if (objectState.find(Key_ColorRGBA) != objectState.end())
+            {
+                const nlohmann::json& color = objectState.at(Key_ColorRGBA);
+                if (!color.is_null() && color.size() == 4)
+                    objectColors[objectNode] = Color32(color[0], color[1], color[2], color[3]);
+            }
+
+            if (objectState.find(Key_Clippable) != objectState.end())
+                objectClippable[objectNode] = objectState.at(Key_Clippable).get<bool>();
+
+            if (objectState.find(Key_ViewPoint_Object_Clip) != objectState.end())
+            {
+                const nlohmann::json& clip = objectState.at(Key_ViewPoint_Object_Clip);
+                ViewPointData::ClippingDistances distances;
+                if (clip.find(Key_MinClipDistance) != clip.end())
+                    distances.minClip = clip.at(Key_MinClipDistance).get<float>();
+                if (clip.find(Key_MaxClipDistance) != clip.end())
+                    distances.maxClip = clip.at(Key_MaxClipDistance).get<float>();
+                if (clip.find(Key_LengthThresholdClip) != clip.end())
+                    distances.lengthThreshold = clip.at(Key_LengthThresholdClip).get<float>();
+                objectsClippingDistances[objectNode] = distances;
+            }
+
+            if (objectState.find(Key_ViewPoint_Object_Ramp) != objectState.end())
+            {
+                const nlohmann::json& ramp = objectState.at(Key_ViewPoint_Object_Ramp);
+                ViewPointData::RampDistances distances;
+                if (ramp.find(Key_MinRampDistance) != ramp.end())
+                    distances.minRamp = ramp.at(Key_MinRampDistance).get<float>();
+                if (ramp.find(Key_MaxRampDistance) != ramp.end())
+                    distances.maxRamp = ramp.at(Key_MaxRampDistance).get<float>();
+                if (ramp.find(Key_RampSteps) != ramp.end())
+                    distances.stepsRamp = ramp.at(Key_RampSteps).get<int>();
+                objectsRampDistances[objectNode] = distances;
+            }
+        }
+    }
+
+    if (!hasObjectStates && json.find(Key_Objects_Colors) != json.end())
+    {
         for (const nlohmann::json& child : json.at(Key_Objects_Colors))
         {
             Color32 color = Color32(child[1].get<uint8_t>(), child[2].get<uint8_t>(), child[3].get<uint8_t>(), child[4].get<uint8_t>());
@@ -2081,18 +2151,16 @@ bool ImportViewPointData(const nlohmann::json& json, ViewPointData& data, const 
             }
             SafePtr<AGraphNode> childNode = nodeById.at(guid);
             if (childNode)
-                map[childNode] = color;
+                objectColors[childNode] = color;
         }
-        data.setScanClusterColors(map);
     }
-    else
+    else if (!hasObjectStates)
     {
         IOLOG << "ViewPoint ObjectsColors read error" << LOGENDL;
     }
 
-    if (json.find(Key_Objects_Clippable) != json.end())
+    if (!hasObjectStates && json.find(Key_Objects_Clippable) != json.end())
     {
-        std::unordered_map<SafePtr<AGraphNode>, bool> map;
         for (const nlohmann::json& child : json.at(Key_Objects_Clippable))
         {
             bool clippable = child[1].get<bool>();
@@ -2104,14 +2172,19 @@ bool ImportViewPointData(const nlohmann::json& json, ViewPointData& data, const 
             }
             SafePtr<AGraphNode> childNode = nodeById.at(guid);
             if (childNode)
-                map[childNode] = clippable;
+                objectClippable[childNode] = clippable;
         }
-        data.setObjectsClippable(map);
     }
-    else
+    else if (!hasObjectStates)
     {
         IOLOG << "ViewPoint ObjectsClippable read missing" << LOGENDL;
     }
+
+    data.setScanClusterColors(objectColors);
+    data.setObjectsClippable(objectClippable);
+    data.setObjectsTransform(objectsTransform);
+    data.setObjectsClippingDistances(objectsClippingDistances);
+    data.setObjectsRampDistances(objectsRampDistances);
 
     //if (json.find(Key_Active_Scans) != json.end())
     //{
