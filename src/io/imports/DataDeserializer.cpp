@@ -1953,6 +1953,150 @@ bool ImportViewPointData(const nlohmann::json& json, ViewPointData& data, const 
             IOLOG << "ViewPoint DepthLining malformed" << LOGENDL;
     }
 
+    if (json.find(Key_Objects_States_V2) != json.end() && json.at(Key_Objects_States_V2).is_array())
+    {
+        std::unordered_map<SafePtr<AGraphNode>, ViewPointData::ObjectState> objectStates;
+        std::unordered_set<SafePtr<AGraphNode>> visibleObjects;
+        std::unordered_map<SafePtr<AGraphNode>, Color32> scanClusterColors;
+        std::unordered_map<SafePtr<AGraphNode>, bool> objectsClippable;
+        std::unordered_set<SafePtr<AClippingNode>> activeClippings;
+        std::unordered_set<SafePtr<AClippingNode>> interiorClippings;
+        std::unordered_set<SafePtr<AClippingNode>> phaseClippings;
+        std::unordered_set<SafePtr<AClippingNode>> activeRamps;
+
+        for (const nlohmann::json& stateJson : json.at(Key_Objects_States_V2))
+        {
+            if (stateJson.find(Key_ObjectState_Id) == stateJson.end())
+                continue;
+
+            xg::Guid guid = xg::Guid(stateJson.at(Key_ObjectState_Id).get<std::string>());
+            if (nodeById.find(guid) == nodeById.end())
+            {
+                IOLOG << "ViewPoint ObjectsStatesV2 couldnt find object" << LOGENDL;
+                continue;
+            }
+
+            SafePtr<AGraphNode> node = nodeById.at(guid);
+            if (!node)
+                continue;
+
+            ReadPtr<AGraphNode> rNode = node.cget();
+            if (!rNode)
+                continue;
+
+            ViewPointData::ObjectState state;
+            state.visible = stateJson.value(Key_ObjectState_Visible, true);
+            if (state.visible)
+                visibleObjects.insert(node);
+
+            if (stateJson.find(Key_ObjectState_Color) != stateJson.end())
+            {
+                nlohmann::json colorJson = stateJson.at(Key_ObjectState_Color);
+                if (colorJson.is_array() && colorJson.size() == 4)
+                {
+                    state.color = Color32(colorJson[0], colorJson[1], colorJson[2], colorJson[3]);
+                    if (rNode->getType() == ElementType::Cluster || rNode->getType() == ElementType::Scan)
+                        scanClusterColors[node] = state.color.value();
+                }
+            }
+
+            if (stateJson.find(Key_ObjectState_Transform) != stateJson.end())
+            {
+                const nlohmann::json& transfoJson = stateJson.at(Key_ObjectState_Transform);
+                if (transfoJson.find(Key_Center) != transfoJson.end())
+                {
+                    const nlohmann::json& pos = transfoJson.at(Key_Center);
+                    if (pos.is_array() && pos.size() == 3)
+                        state.center = glm::dvec3(pos[0], pos[1], pos[2]);
+                }
+                if (transfoJson.find(Key_Quaternion) != transfoJson.end())
+                {
+                    const nlohmann::json& quat = transfoJson.at(Key_Quaternion);
+                    if (quat.is_array() && quat.size() == 4)
+                        state.orientation = glm::dquat(quat[3], quat[0], quat[1], quat[2]);
+                }
+                if (transfoJson.find(Key_Size) != transfoJson.end())
+                {
+                    const nlohmann::json& size = transfoJson.at(Key_Size);
+                    if (size.is_array() && size.size() == 3)
+                        state.scale = glm::dvec3(size[0], size[1], size[2]);
+                }
+            }
+
+            if (stateJson.find(Key_ObjectState_Clippable) != stateJson.end())
+            {
+                state.clippable = stateJson.at(Key_ObjectState_Clippable).get<bool>();
+                objectsClippable[node] = state.clippable.value();
+            }
+
+            if (stateJson.find(Key_ObjectState_Clipping) != stateJson.end())
+            {
+                const nlohmann::json& clipJson = stateJson.at(Key_ObjectState_Clipping);
+
+                if (clipJson.find(Key_ClippingMode) != clipJson.end())
+                {
+                    auto mode = magic_enum::enum_cast<ClippingMode>(clipJson.at(Key_ClippingMode).get<std::string>());
+                    if (mode.has_value())
+                    {
+                        state.clippingMode = mode.value();
+                        if (dynamic_cast<const AClippingNode*>(rNode.operator->()))
+                        {
+                            SafePtr<AClippingNode> clipNode = static_pointer_cast<AClippingNode>(node);
+                            if (mode.value() == ClippingMode::showInterior)
+                                interiorClippings.insert(clipNode);
+                            else if (mode.value() == ClippingMode::byPhase)
+                                phaseClippings.insert(clipNode);
+                        }
+                    }
+                }
+                if (clipJson.find(Key_Active) != clipJson.end())
+                {
+                    state.clippingActive = clipJson.at(Key_Active).get<bool>();
+                    if (state.clippingActive.value() && dynamic_cast<const AClippingNode*>(rNode.operator->()))
+                        activeClippings.insert(static_pointer_cast<AClippingNode>(node));
+                }
+                if (clipJson.find(Key_MinClipDistance) != clipJson.end())
+                    state.minClipDist = clipJson.at(Key_MinClipDistance).get<float>();
+                if (clipJson.find(Key_MaxClipDistance) != clipJson.end())
+                    state.maxClipDist = clipJson.at(Key_MaxClipDistance).get<float>();
+                if (clipJson.find(Key_LengthThresholdClip) != clipJson.end())
+                    state.lengthThresholdClip = clipJson.at(Key_LengthThresholdClip).get<float>();
+            }
+
+            if (stateJson.find(Key_ObjectState_Ramp) != stateJson.end())
+            {
+                const nlohmann::json& rampJson = stateJson.at(Key_ObjectState_Ramp);
+                if (rampJson.find(Key_RampActive) != rampJson.end())
+                {
+                    state.rampActive = rampJson.at(Key_RampActive).get<bool>();
+                    if (state.rampActive.value() && dynamic_cast<const AClippingNode*>(rNode.operator->()))
+                        activeRamps.insert(static_pointer_cast<AClippingNode>(node));
+                }
+                if (rampJson.find(Key_MinRampDistance) != rampJson.end())
+                    state.rampMin = rampJson.at(Key_MinRampDistance).get<float>();
+                if (rampJson.find(Key_MaxRampDistance) != rampJson.end())
+                    state.rampMax = rampJson.at(Key_MaxRampDistance).get<float>();
+                if (rampJson.find(Key_RampSteps) != rampJson.end())
+                    state.rampSteps = rampJson.at(Key_RampSteps).get<int>();
+                if (rampJson.find(Key_RampClamped) != rampJson.end())
+                    state.rampClamped = rampJson.at(Key_RampClamped).get<bool>();
+            }
+
+            objectStates[node] = state;
+        }
+
+        data.setObjectStates(objectStates);
+        data.setVisibleObjects(visibleObjects);
+        data.setScanClusterColors(scanClusterColors);
+        data.setObjectsClippable(objectsClippable);
+        data.setActiveClippings(activeClippings);
+        data.setInteriorClippings(interiorClippings);
+        data.setPhaseClippings(phaseClippings);
+        data.setActiveRamps(activeRamps);
+
+        return retVal;
+    }
+
     if (json.find(Key_Active_Clippings) != json.end())
     {
         std::unordered_set<SafePtr<AClippingNode>> list;
