@@ -41,6 +41,40 @@ uint32_t computeNextPolygonId(const PolygonalSelectorSettings& settings)
 
     return std::max<uint32_t>(std::max<uint32_t>(settings.nextPolygonId, maxSuffix + 1), 1u);
 }
+
+bool supportsViewpointTransform(ElementType type)
+{
+    return type == ElementType::Box ||
+        type == ElementType::Cylinder ||
+        type == ElementType::Sphere ||
+        type == ElementType::MeshObject ||
+        type == ElementType::Tag ||
+        type == ElementType::Point ||
+        type == ElementType::PCO;
+}
+
+bool supportsViewpointClippable(ElementType type)
+{
+    return type == ElementType::Scan || type == ElementType::PCO;
+}
+
+bool supportsViewpointClippingDistances(ElementType type)
+{
+    return type == ElementType::Box ||
+        type == ElementType::Tag ||
+        type == ElementType::Point ||
+        type == ElementType::Cylinder ||
+        type == ElementType::Sphere ||
+        type == ElementType::SimpleMeasure ||
+        type == ElementType::PolylineMeasure;
+}
+
+bool supportsLengthThreshold(ElementType type)
+{
+    return type == ElementType::Cylinder ||
+        type == ElementType::SimpleMeasure ||
+        type == ElementType::PolylineMeasure;
+}
 }
 
 namespace control::viewpoint
@@ -210,6 +244,9 @@ namespace control::viewpoint
         std::unordered_set<SafePtr<AGraphNode>> visibleList;
         std::unordered_map<SafePtr<AGraphNode>, Color32> colorList;
         std::unordered_map<SafePtr<AGraphNode>, bool> clippableList;
+        std::unordered_map<SafePtr<AGraphNode>, TransformationModule> transformList;
+        std::unordered_map<SafePtr<AGraphNode>, ViewPointData::ClippingDistances> clippingDistancesList;
+        std::unordered_map<SafePtr<AGraphNode>, ViewPointData::RampDistances> rampDistancesList;
 
         {
             ReadPtr<ViewPointNode> readViewpoint = m_viewPoint.cget();
@@ -223,6 +260,9 @@ namespace control::viewpoint
             visibleList = readViewpoint->getVisibleObjects();
             colorList = readViewpoint->getScanClusterColors();
             clippableList = readViewpoint->getObjectsClippable();
+            transformList = readViewpoint->getObjectsTransform();
+            clippingDistancesList = readViewpoint->getObjectsClippingDistances();
+            rampDistancesList = readViewpoint->getObjectsRampDistances();
         }
 
         GraphManager& graphManager = controller.getGraphManager();
@@ -283,7 +323,41 @@ namespace control::viewpoint
                 editedNodes.insert(object);
             }
 
-            if (clippableList.find(object) != clippableList.end() && writeObject->getType() == ElementType::Scan)
+            if (transformList.find(object) != transformList.end() && supportsViewpointTransform(writeObject->getType()))
+            {
+                writeObject->setTransformationModule(transformList.at(object));
+                editedNodes.insert(object);
+            }
+
+            if (clippingDistancesList.find(object) != clippingDistancesList.end() && supportsViewpointClippingDistances(writeObject->getType()))
+            {
+                const ViewPointData::ClippingDistances& clipValues = clippingDistancesList.at(object);
+                AClippingNode* clippingObject = static_cast<AClippingNode*>(writeObject.operator->());
+                if (clippingObject->getMinClipDist() != clipValues.minClip)
+                    clippingObject->setMinClipDist(clipValues.minClip);
+                if (clippingObject->getMaxClipDist() != clipValues.maxClip)
+                    clippingObject->setMaxClipDist(clipValues.maxClip);
+                if (supportsLengthThreshold(writeObject->getType()) && clippingObject->getLengthThresholdClip() != clipValues.lengthThreshold)
+                    clippingObject->setLengthThresholdClip(clipValues.lengthThreshold);
+                editedNodes.insert(object);
+            }
+
+            if (rampDistancesList.find(object) != rampDistancesList.end() && supportsViewpointClippingDistances(writeObject->getType()))
+            {
+                const ViewPointData::RampDistances& rampValues = rampDistancesList.at(object);
+                AClippingNode* clippingObject = static_cast<AClippingNode*>(writeObject.operator->());
+                if (clippingObject->getRampMin() != rampValues.minRamp)
+                    clippingObject->setRampMin(rampValues.minRamp);
+                if (clippingObject->getRampMax() != rampValues.maxRamp)
+                    clippingObject->setRampMax(rampValues.maxRamp);
+                if (clippingObject->getRampSteps() != rampValues.stepsRamp)
+                    clippingObject->setRampSteps(rampValues.stepsRamp);
+                if (writeObject->getType() == ElementType::Box && clippingObject->isRampClamped() != rampValues.rampClamped)
+                    clippingObject->setRampClamped(rampValues.rampClamped);
+                editedNodes.insert(object);
+            }
+
+            if (clippableList.find(object) != clippableList.end() && supportsViewpointClippable(writeObject->getType()))
             {
                 PointCloudNode* pointCloud = static_cast<PointCloudNode*>(writeObject.operator->());
                 const bool clippableState = clippableList.at(object);
