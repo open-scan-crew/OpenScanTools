@@ -108,16 +108,10 @@ bool supportsInterpolatedLengthThreshold(ElementType type)
 
 void interpolateAndApplyObjects(const ViewPointNode& left, const ViewPointNode& right, double alpha)
 {
-    const auto& leftVisible = left.getVisibleObjects();
-    const auto& rightVisible = right.getVisibleObjects();
-
     const auto& leftTransforms = left.getObjectsTransform();
     const auto& rightTransforms = right.getObjectsTransform();
     for (const auto& [object, leftTransform] : leftTransforms)
     {
-        if (leftVisible.find(object) == leftVisible.end() || rightVisible.find(object) == rightVisible.end())
-            continue;
-
         auto itRightTransform = rightTransforms.find(object);
         if (itRightTransform == rightTransforms.end())
             continue;
@@ -142,9 +136,6 @@ void interpolateAndApplyObjects(const ViewPointNode& left, const ViewPointNode& 
     const auto& rightClips = right.getObjectsClippingDistances();
     for (const auto& [object, leftClip] : leftClips)
     {
-        if (leftVisible.find(object) == leftVisible.end() || rightVisible.find(object) == rightVisible.end())
-            continue;
-
         auto itRightClip = rightClips.find(object);
         if (itRightClip == rightClips.end())
             continue;
@@ -164,9 +155,6 @@ void interpolateAndApplyObjects(const ViewPointNode& left, const ViewPointNode& 
     const auto& rightRamps = right.getObjectsRampDistances();
     for (const auto& [object, leftRamp] : leftRamps)
     {
-        if (leftVisible.find(object) == leftVisible.end() || rightVisible.find(object) == rightVisible.end())
-            continue;
-
         auto itRightRamp = rightRamps.find(object);
         if (itRightRamp == rightRamps.end())
             continue;

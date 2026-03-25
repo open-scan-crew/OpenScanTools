@@ -1667,9 +1667,6 @@ ViewpointRenderState CameraNode::lerpViewpointRenderState(const ViewpointRenderS
 
     for (const auto& [object, startTransform] : start.objectTransforms)
     {
-        if (start.visibleObjects.find(object) == start.visibleObjects.end() || end.visibleObjects.find(object) == end.visibleObjects.end())
-            continue;
-
         auto endTransformIt = end.objectTransforms.find(object);
         if (endTransformIt == end.objectTransforms.end())
             continue;
@@ -1698,9 +1695,6 @@ ViewpointRenderState CameraNode::lerpViewpointRenderState(const ViewpointRenderS
 
     for (const auto& [object, startClip] : start.objectClippingDistances)
     {
-        if (start.visibleObjects.find(object) == start.visibleObjects.end() || end.visibleObjects.find(object) == end.visibleObjects.end())
-            continue;
-
         auto endClipIt = end.objectClippingDistances.find(object);
         if (endClipIt == end.objectClippingDistances.end())
             continue;
@@ -1720,9 +1714,6 @@ ViewpointRenderState CameraNode::lerpViewpointRenderState(const ViewpointRenderS
 
     for (const auto& [object, startRamp] : start.objectRampDistances)
     {
-        if (start.visibleObjects.find(object) == start.visibleObjects.end() || end.visibleObjects.find(object) == end.visibleObjects.end())
-            continue;
-
         auto endRampIt = end.objectRampDistances.find(object);
         if (endRampIt == end.objectRampDistances.end())
             continue;
