@@ -7,6 +7,7 @@
 
 #include "models/graph/GraphManager.h"
 #include "models/graph/AGraphNode.h"
+#include "models/graph/AClippingNode.h"
 #include "models/graph/CameraNode.h"
 #include "models/graph/ViewPointNode.h"
 #include "models/application/ViewPointAnimation.h"
@@ -68,6 +69,118 @@ Color32 normalizedRgbToColor32(const glm::vec3& rgb, uint8_t alpha)
         static_cast<uint8_t>(std::round(clamped.y * 255.0f)),
         static_cast<uint8_t>(std::round(clamped.z * 255.0f)),
         alpha);
+}
+
+
+
+bool supportsInterpolatedObjectTransform(ElementType type)
+{
+    return type == ElementType::Box ||
+        type == ElementType::Cylinder ||
+        type == ElementType::Sphere ||
+        type == ElementType::MeshObject ||
+        type == ElementType::Tag ||
+        type == ElementType::Point ||
+        type == ElementType::PCO;
+}
+
+bool isPositionOnlyInterpolatedObject(ElementType type)
+{
+    return type == ElementType::Tag || type == ElementType::Point;
+}
+
+bool supportsInterpolatedClippingDistances(ElementType type)
+{
+    return type == ElementType::Tag ||
+        type == ElementType::Point ||
+        type == ElementType::Cylinder ||
+        type == ElementType::Sphere ||
+        type == ElementType::SimpleMeasure ||
+        type == ElementType::PolylineMeasure;
+}
+
+bool supportsInterpolatedLengthThreshold(ElementType type)
+{
+    return type == ElementType::Cylinder ||
+        type == ElementType::SimpleMeasure ||
+        type == ElementType::PolylineMeasure;
+}
+
+void interpolateAndApplyObjects(const ViewPointNode& left, const ViewPointNode& right, double alpha)
+{
+    const auto& leftVisible = left.getVisibleObjects();
+    const auto& rightVisible = right.getVisibleObjects();
+
+    const auto& leftTransforms = left.getObjectsTransform();
+    const auto& rightTransforms = right.getObjectsTransform();
+    for (const auto& [object, leftTransform] : leftTransforms)
+    {
+        if (leftVisible.find(object) == leftVisible.end() || rightVisible.find(object) == rightVisible.end())
+            continue;
+
+        auto itRightTransform = rightTransforms.find(object);
+        if (itRightTransform == rightTransforms.end())
+            continue;
+
+        WritePtr<AGraphNode> wObject = object.get();
+        if (!wObject || !supportsInterpolatedObjectTransform(wObject->getType()))
+            continue;
+
+        const glm::dvec3 interpolatedCenter = leftTransform.getCenter() + (itRightTransform->second.getCenter() - leftTransform.getCenter()) * alpha;
+        if (isPositionOnlyInterpolatedObject(wObject->getType()))
+        {
+            wObject->setPosition(interpolatedCenter);
+            continue;
+        }
+
+        const glm::dquat interpolatedOrientation = glm::normalize(glm::slerp(leftTransform.getOrientation(), itRightTransform->second.getOrientation(), alpha));
+        const glm::dvec3 interpolatedScale = leftTransform.getScale() + (itRightTransform->second.getScale() - leftTransform.getScale()) * alpha;
+        wObject->setTransformationModule(TransformationModule(interpolatedCenter, interpolatedOrientation, interpolatedScale));
+    }
+
+    const auto& leftClips = left.getObjectsClippingDistances();
+    const auto& rightClips = right.getObjectsClippingDistances();
+    for (const auto& [object, leftClip] : leftClips)
+    {
+        if (leftVisible.find(object) == leftVisible.end() || rightVisible.find(object) == rightVisible.end())
+            continue;
+
+        auto itRightClip = rightClips.find(object);
+        if (itRightClip == rightClips.end())
+            continue;
+
+        WritePtr<AGraphNode> wObject = object.get();
+        if (!wObject || !supportsInterpolatedClippingDistances(wObject->getType()))
+            continue;
+
+        AClippingNode* clippingObject = static_cast<AClippingNode*>(wObject.operator->());
+        clippingObject->setMinClipDist(leftClip.minClip + (itRightClip->second.minClip - leftClip.minClip) * static_cast<float>(alpha));
+        clippingObject->setMaxClipDist(leftClip.maxClip + (itRightClip->second.maxClip - leftClip.maxClip) * static_cast<float>(alpha));
+        if (supportsInterpolatedLengthThreshold(wObject->getType()))
+            clippingObject->setLengthThresholdClip(leftClip.lengthThreshold + (itRightClip->second.lengthThreshold - leftClip.lengthThreshold) * static_cast<float>(alpha));
+    }
+
+    const auto& leftRamps = left.getObjectsRampDistances();
+    const auto& rightRamps = right.getObjectsRampDistances();
+    for (const auto& [object, leftRamp] : leftRamps)
+    {
+        if (leftVisible.find(object) == leftVisible.end() || rightVisible.find(object) == rightVisible.end())
+            continue;
+
+        auto itRightRamp = rightRamps.find(object);
+        if (itRightRamp == rightRamps.end())
+            continue;
+
+        WritePtr<AGraphNode> wObject = object.get();
+        if (!wObject || !supportsInterpolatedClippingDistances(wObject->getType()))
+            continue;
+
+        AClippingNode* clippingObject = static_cast<AClippingNode*>(wObject.operator->());
+        clippingObject->setRampMin(leftRamp.minRamp + (itRightRamp->second.minRamp - leftRamp.minRamp) * static_cast<float>(alpha));
+        clippingObject->setRampMax(leftRamp.maxRamp + (itRightRamp->second.maxRamp - leftRamp.maxRamp) * static_cast<float>(alpha));
+        const float steps = static_cast<float>(leftRamp.stepsRamp) + static_cast<float>(itRightRamp->second.stepsRamp - leftRamp.stepsRamp) * static_cast<float>(alpha);
+        clippingObject->setRampSteps(std::max(1, static_cast<int>(std::round(steps))));
+    }
 }
 
 Color32 interpolateColorHsvShortestPath(const Color32& start, const Color32& end, float alpha)
@@ -366,6 +479,8 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
                         wObject->setColor(interpolateColorHsvShortestPath(leftColor, itRightColor->second, alphaF));
                     }
                 }
+
+                interpolateAndApplyObjects(*&left, *&right, alpha);
             }
         }
         else if (m_animFrame > 1)
