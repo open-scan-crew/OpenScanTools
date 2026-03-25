@@ -574,15 +574,16 @@ void ExportViewPointData(nlohmann::json& json, const ViewPointData& data)
 		}
 
 		auto rampIt = data.getObjectsRampDistances().find(transformSet.first);
-		if (rampIt != data.getObjectsRampDistances().end())
-		{
-			objState[Key_ViewPoint_Object_Ramp] =
+			if (rampIt != data.getObjectsRampDistances().end())
 			{
-				{ Key_MinRampDistance, rampIt->second.minRamp },
-				{ Key_MaxRampDistance, rampIt->second.maxRamp },
-				{ Key_RampSteps, rampIt->second.stepsRamp }
-			};
-		}
+				objState[Key_ViewPoint_Object_Ramp] =
+				{
+					{ Key_MinRampDistance, rampIt->second.minRamp },
+					{ Key_MaxRampDistance, rampIt->second.maxRamp },
+					{ Key_RampSteps, rampIt->second.stepsRamp },
+					{ Key_RampClamped, rampIt->second.rampClamped }
+				};
+			}
 
 		childrenElem.push_back(objState);
 	}
@@ -651,15 +652,16 @@ void ExportViewPointData(nlohmann::json& json, const ViewPointData& data)
 			});
 		if (it != childrenElem.end())
 			continue;
-		childrenElem.push_back({
-			{ Key_Id, rObj->getId() },
-			{ Key_ViewPoint_Object_Ramp, {
-				{ Key_MinRampDistance, rampSet.second.minRamp },
-				{ Key_MaxRampDistance, rampSet.second.maxRamp },
-				{ Key_RampSteps, rampSet.second.stepsRamp }
-			} }
-		});
-	}
+			childrenElem.push_back({
+				{ Key_Id, rObj->getId() },
+				{ Key_ViewPoint_Object_Ramp, {
+					{ Key_MinRampDistance, rampSet.second.minRamp },
+					{ Key_MaxRampDistance, rampSet.second.maxRamp },
+					{ Key_RampSteps, rampSet.second.stepsRamp },
+					{ Key_RampClamped, rampSet.second.rampClamped }
+				} }
+			});
+		}
 
 	json[Key_ViewPoint_Object_States] = childrenElem;
 }

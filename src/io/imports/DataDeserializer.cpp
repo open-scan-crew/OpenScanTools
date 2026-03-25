@@ -2133,6 +2133,8 @@ bool ImportViewPointData(const nlohmann::json& json, ViewPointData& data, const 
                     distances.maxRamp = ramp.at(Key_MaxRampDistance).get<float>();
                 if (ramp.find(Key_RampSteps) != ramp.end())
                     distances.stepsRamp = ramp.at(Key_RampSteps).get<int>();
+                if (ramp.find(Key_RampClamped) != ramp.end())
+                    distances.rampClamped = ramp.at(Key_RampClamped).get<bool>();
                 objectsRampDistances[objectNode] = distances;
             }
         }

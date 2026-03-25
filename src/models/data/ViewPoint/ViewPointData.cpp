@@ -40,7 +40,8 @@ namespace
 
 	bool supportsViewpointClippingDistances(ElementType type)
 	{
-		return type == ElementType::Tag ||
+		return type == ElementType::Box ||
+			type == ElementType::Tag ||
 			type == ElementType::Point ||
 			type == ElementType::Cylinder ||
 			type == ElementType::Sphere ||
@@ -262,6 +263,7 @@ void ViewPointData::updateViewpointsObjectsValue(Controller& controller, SafePtr
 			rampDistances.minRamp = clippingObject->getRampMin();
 			rampDistances.maxRamp = clippingObject->getRampMax();
 			rampDistances.stepsRamp = clippingObject->getRampSteps();
+			rampDistances.rampClamped = clippingObject->isRampClamped();
 			objectsRampDistances[object] = rampDistances;
 		}
 	}
