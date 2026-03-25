@@ -9,6 +9,50 @@
 #include "models/graph/GraphManager.h"
 #include "utils/Logger.h"
 
+#include <cwctype>
+
+namespace
+{
+std::wstring getNextCopyName(const std::wstring& sourceName, const GraphManager& graphManager)
+{
+    const std::wstring copyToken = L"_copy";
+    std::wstring baseName = sourceName;
+    const size_t suffixPos = sourceName.rfind(copyToken);
+    if (suffixPos != std::wstring::npos)
+    {
+        bool isNumericSuffix = (suffixPos + copyToken.size() < sourceName.size());
+        for (size_t i = suffixPos + copyToken.size(); i < sourceName.size(); ++i)
+        {
+            if (!iswdigit(sourceName[i]))
+            {
+                isNumericSuffix = false;
+                break;
+            }
+        }
+        if (isNumericSuffix)
+            baseName = sourceName.substr(0, suffixPos);
+    }
+
+    std::unordered_set<std::wstring> usedNames;
+    for (const SafePtr<AGraphNode>& node : graphManager.getNodesByTypes({ ElementType::PCO }, ObjectStatusFilter::ALL))
+    {
+        ReadPtr<AGraphNode> rNode = node.cget();
+        if (!rNode)
+            continue;
+        usedNames.insert(rNode->getName());
+    }
+
+    uint32_t index = 1;
+    std::wstring candidate;
+    do
+    {
+        candidate = baseName + copyToken + std::to_wstring(index++);
+    } while (usedNames.find(candidate) != usedNames.end());
+
+    return candidate;
+}
+}
+
 
 ContextPCODuplication::ContextPCODuplication(const ContextId& id)
 	: ARayTracingContext(id)
@@ -87,6 +131,8 @@ ContextState ContextPCODuplication::launch(Controller& controller)
     wNewPco->setModificationTime(time(&timeNow));
     wNewPco->setAuthor(controller.getContext().getActiveAuthor());
     wNewPco->setUserIndex(controller.getNextUserId(wNewPco->getType()));
+    wNewPco->setName(getNextCopyName(wNewPco->getName(), graphManager));
+    wNewPco->setImportedOriginal(false);
     setObjectParameters(controller, *&wNewPco, m_clickResults.empty() ? glm::dvec3() : m_clickResults[0].position, scale);
 
     controller.getControlListener()->notifyUIControl(new control::function::AddNodes(newPco));

@@ -8,6 +8,7 @@
 #include "io/exports/DataSerializer.h"
 #include "io/imports/DataDeserializer.h"
 #include "pointCloudEngine/PCE_core.h"
+#include "pointCloudEngine/TlScanOverseer.h"
 
 #include "utils/Config.h"
 #include "utils/Logger.h"
@@ -1270,12 +1271,40 @@ SafePtr<PointCloudNode> SaveLoadSystem::ImportNewTlsFile(const std::filesystem::
 
     std::filesystem::path filename(filePath.filename());
     std::filesystem::path dst_path = context.cgetProjectInternalInfo().getPointCloudFolderPath(is_object) / filename;
-    // Asynchronous copy
-    // The availability of the name in the filesystem is checked by the PCE
-    if (!std::filesystem::exists(dst_path))
-        tlCopyScanFile(scanGuid, dst_path, true, false, false);
-    else
-        IOLOG << "INFO: " << filePath << " already exist." << LOGENDL;
+    if (std::filesystem::exists(dst_path))
+    {
+        uint32_t suffix = 1;
+        std::filesystem::path stem = dst_path.stem();
+        std::filesystem::path ext = dst_path.extension();
+        do
+        {
+            dst_path = context.cgetProjectInternalInfo().getPointCloudFolderPath(is_object) / (stem.wstring() + L"_" + std::to_wstring(suffix++) + ext.wstring());
+        } while (std::filesystem::exists(dst_path));
+    }
+
+    tlCopyScanFile(scanGuid, dst_path, true, true, false);
+    TlScanOverseer::getInstance().resourceManagement_sync();
+
+    std::filesystem::path currentPath;
+    bool pathReady = tlGetCurrentScanPath(scanGuid, currentPath);
+    bool pathMatches = false;
+    if (pathReady)
+    {
+        try
+        {
+            pathMatches = std::filesystem::equivalent(currentPath, dst_path);
+        }
+        catch (...)
+        {
+            pathMatches = (currentPath == dst_path);
+        }
+    }
+    if (!pathReady || !pathMatches)
+    {
+        IOLOG << "Error: failed to remap imported scan path into project folder for " << filePath << LOGENDL;
+        errorCode = ErrorCode::Failed_Write_Permission;
+        return SafePtr<PointCloudNode>();
+    }
 
     uint64_t nbScanBeforeImport = controller.getGraphManager().getNodesByTypes({ ElementType::Scan }).size();
     SafePtr<PointCloudNode> pc = make_safe<PointCloudNode>(is_object);
@@ -1292,6 +1321,7 @@ SafePtr<PointCloudNode> SaveLoadSystem::ImportNewTlsFile(const std::filesystem::
         if (!is_object)
             wpc->setManipulable(Config::isUnlockScanManipulation());
         wpc->setTlsFilePath(dst_path, true, scanGuid);
+        wpc->setImportedOriginal(true);
         if (!is_object)
             wpc->setColor(Color32(rand() % 255, rand() % 255, rand() % 255, 255));
     }

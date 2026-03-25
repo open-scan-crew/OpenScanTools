@@ -417,6 +417,8 @@ ObjectAllocation::ReturnCode MeshManager::loadExternModel(MeshObjOutputData& dat
                 if (filepath.empty())
                     controller->updateInfo(new GuiDataProcessingSplashScreenLogUpdate(TEXT_SPLASH_SCREEN_WRITE_INTERN_FILE_ERROR.arg(QString::fromStdWString(writingInfo.first.name))));
             }
+            if (filepath.empty())
+                return ObjectAllocation::ReturnCode::Load_File_Error;
 
             MeshId meshId = writingInfo.first.meshId;
             if (data.meshIdInfo.find(meshId) == data.meshIdInfo.end())
@@ -1149,6 +1151,8 @@ bool MeshManager::removeMeshInstance(MeshId id)
         return false;
     if (m_meshesCounters.find(id) == m_meshesCounters.end())
     {
+        GRAPH_LOG << "removeMeshInstance called on unknown mesh id " << id << " (loaded="
+                  << (m_meshes.find(id) != m_meshes.end()) << ")" << Logger::endl;
         assert(false);
         return false;
     }
