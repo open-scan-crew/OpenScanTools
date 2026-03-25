@@ -12,6 +12,7 @@
 #include "models/3d/RenderingParameters.h"
 #include "pointCloudEngine/RenderingTypes.h"
 #include "models/application/ViewPointAnimation.h"
+#include "models/data/ViewPoint/ViewPointData.h"
 
 #include <deque>
 #include <chrono>
@@ -56,6 +57,10 @@ struct ViewpointRenderState
     float fovy = 0.0f;
     std::unordered_set<SafePtr<AGraphNode>> visibleObjects;
     std::unordered_map<SafePtr<AGraphNode>, Color32> scanClusterColors;
+    std::unordered_map<SafePtr<AGraphNode>, TransformationModule> objectTransforms;
+    std::unordered_set<SafePtr<AGraphNode>> positionOnlyObjects;
+    std::unordered_map<SafePtr<AGraphNode>, ViewPointData::ClippingDistances> objectClippingDistances;
+    std::unordered_map<SafePtr<AGraphNode>, ViewPointData::RampDistances> objectRampDistances;
 };
 
 enum class InterpolationValueWithPreviousAnimation { NONE, BEZIER/*, LINEAR*/ };
