@@ -133,6 +133,7 @@ ContextState ContextMeshObjectDuplication::launch(Controller& controller)
     wNewObj->setUserIndex(controller.getNextUserId(wNewObj->getType()));
     wNewObj->setName(getNextCopyName(wNewObj->getName(), graphManager));
     wNewObj->setObjectName(wNewObj->getName());
+    wNewObj->setImportedOriginal(false);
     setObjectParameters(controller, *&wNewObj, m_clickResults.empty() ? glm::dvec3() : m_clickResults[0].position, scale * glm::dvec3(dim));
 
     MeshManager& meshManager = MeshManager::getInstance();

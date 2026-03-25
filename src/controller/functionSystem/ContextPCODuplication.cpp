@@ -132,6 +132,7 @@ ContextState ContextPCODuplication::launch(Controller& controller)
     wNewPco->setAuthor(controller.getContext().getActiveAuthor());
     wNewPco->setUserIndex(controller.getNextUserId(wNewPco->getType()));
     wNewPco->setName(getNextCopyName(wNewPco->getName(), graphManager));
+    wNewPco->setImportedOriginal(false);
     setObjectParameters(controller, *&wNewPco, m_clickResults.empty() ? glm::dvec3() : m_clickResults[0].position, scale);
 
     controller.getControlListener()->notifyUIControl(new control::function::AddNodes(newPco));

@@ -1292,6 +1292,7 @@ SafePtr<PointCloudNode> SaveLoadSystem::ImportNewTlsFile(const std::filesystem::
         if (!is_object)
             wpc->setManipulable(Config::isUnlockScanManipulation());
         wpc->setTlsFilePath(dst_path, true, scanGuid);
+        wpc->setImportedOriginal(true);
         if (!is_object)
             wpc->setColor(Color32(rand() % 255, rand() % 255, rand() % 255, 255));
     }

@@ -242,6 +242,7 @@ ContextState ContextMeshObjectCreation::launch(Controller& controller)
 
 			wObject->setFilePath(meshInfo.path);
 			wObject->setObjectName(name);
+			wObject->setImportedOriginal(true);
 			wObject->setMeshId(mId);
 			manager.addMeshInstance(mId);
 			wObject->setDimension(smesh.m_dimensions);

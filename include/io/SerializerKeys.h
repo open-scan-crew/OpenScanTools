@@ -80,6 +80,7 @@
 //Scan, PCO & meshObject
 #define Key_Path "Path"
 #define Key_Clippable "Clippable"
+#define Key_IsImportedOriginal "IsImportedOriginal"
 
 //Grid
 #define Key_GridType "GridType"

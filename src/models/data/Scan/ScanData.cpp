@@ -19,6 +19,7 @@ void ScanData::copyScanData(const ScanData& uiScanData)
     m_scanGuid = uiScanData.getScanGuid();
     m_clippable = uiScanData.m_clippable;
     is_object_ = uiScanData.is_object_;
+    m_isImportedOriginal = uiScanData.m_isImportedOriginal;
 }
 
 void ScanData::setClippable(bool clippable)
@@ -29,6 +30,16 @@ void ScanData::setClippable(bool clippable)
 bool ScanData::getClippable() const
 {
     return (m_clippable);
+}
+
+void ScanData::setImportedOriginal(bool isImportedOriginal)
+{
+    m_isImportedOriginal = isImportedOriginal;
+}
+
+bool ScanData::isImportedOriginal() const
+{
+    return m_isImportedOriginal;
 }
 
 void ScanData::setIsObject(bool is_object)

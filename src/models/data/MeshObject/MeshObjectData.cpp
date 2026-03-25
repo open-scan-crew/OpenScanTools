@@ -18,6 +18,7 @@ void MeshObjectData::copyWavefrontData(const MeshObjectData& data)
 	m_objectName = data.getObjectName();
 	m_dimension = data.getDimension();
 	m_meshId = data.getMeshId();
+	m_isImportedOriginal = data.isImportedOriginal();
 }
 
 void MeshObjectData::setFilePath(const std::filesystem::path& filePath)
@@ -40,6 +41,11 @@ void MeshObjectData::setDimension(const glm::vec3& dimension)
 	m_dimension = dimension;
 }
 
+void MeshObjectData::setImportedOriginal(bool isImportedOriginal)
+{
+	m_isImportedOriginal = isImportedOriginal;
+}
+
 std::filesystem::path MeshObjectData::getFilePath() const
 {
 	return m_filePath;
@@ -58,4 +64,9 @@ MeshId MeshObjectData::getMeshId() const
 glm::vec3 MeshObjectData::getDimension() const
 {
 	return m_dimension;
+}
+
+bool MeshObjectData::isImportedOriginal() const
+{
+	return m_isImportedOriginal;
 }
