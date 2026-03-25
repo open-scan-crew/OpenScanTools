@@ -83,7 +83,8 @@ bool isPositionOnlyInterpolatedObject(ElementType type)
 
 bool supportsInterpolatedClippingDistances(ElementType type)
 {
-    return type == ElementType::Tag ||
+    return type == ElementType::Box ||
+        type == ElementType::Tag ||
         type == ElementType::Point ||
         type == ElementType::Cylinder ||
         type == ElementType::Sphere ||
@@ -1727,6 +1728,7 @@ ViewpointRenderState CameraNode::lerpViewpointRenderState(const ViewpointRenderS
         interpolatedRamp.maxRamp = startRamp.maxRamp + (endRampIt->second.maxRamp - startRamp.maxRamp) * alpha;
         const float steps = static_cast<float>(startRamp.stepsRamp) + static_cast<float>(endRampIt->second.stepsRamp - startRamp.stepsRamp) * alpha;
         interpolatedRamp.stepsRamp = std::max(1, static_cast<int>(std::round(steps)));
+        interpolatedRamp.rampClamped = startRamp.rampClamped;
         state.objectRampDistances[object] = interpolatedRamp;
     }
 
@@ -1791,6 +1793,8 @@ void CameraNode::applyViewpointRenderState(const ViewpointRenderState& state)
         clippingObject->setRampMin(ramp.minRamp);
         clippingObject->setRampMax(ramp.maxRamp);
         clippingObject->setRampSteps(std::max(1, ramp.stepsRamp));
+        if (wObject->getType() == ElementType::Box)
+            clippingObject->setRampClamped(ramp.rampClamped);
     }
 }
 

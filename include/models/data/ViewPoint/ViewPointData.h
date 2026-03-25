@@ -31,6 +31,7 @@ public:
 		float minRamp = 0.f;
 		float maxRamp = 1.f;
 		int stepsRamp = 8;
+		bool rampClamped = false;
 	};
 
 	ViewPointData();

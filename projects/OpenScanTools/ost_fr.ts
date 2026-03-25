@@ -7705,7 +7705,7 @@ Attention : vous ne pouvez pas annuler cette action.</translation>
         <translation>Erreur : l&apos;application a crash. Veuillez nous envoyer le fichier log pour le support. Vous pouvez trouver le fichier log dans C:\Documents\OpenScanTools.</translation>
     </message>
     <message>
-        <location filename="../../src/controller/Controller.cpp" line="115"/>
+        <location filename="../../src/controller/Controller.cpp" line="151"/>
         <source>Error : The project couldn&apos;t be saved.</source>
         <translation>Erreur : The projet n’a pas pu être sauvegardé.</translation>
     </message>
@@ -10221,10 +10221,11 @@ Si vous désirez une animation verticale, cochez la case ci-dessous.</translatio
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="111"/>
-        <source>Interpolates renderings such as: transparency, normals, gloss, fov, hue, contrast / brightness.
+        <source>Interpolates renderings such as: transparency, normals, gloss, fov, hue, contrast / brightness, objects positions and size.
 The different viewpoints must be consistent to interpolate. For example, you can&apos;t interpolate values if transparency is activated on some viewpoints and not the others.</source>
-        <translation>Interpole les valeurs de rendus tels que: transparence, normales, éclat, champ de vue, fausses couleurs, contraste / luminosité.
-Les divers points de vue d&apos;une animation doivent être cohérents. Par exemple, vous ne pouvez pas interpoler des valeurs de transparence si elle est active sur certains point sde vue et pas d&apos;autres.</translation>
+        <translation>Interpole les rendus et éléments tels que: transparence, normales, éclat, fov,fausses couleurs, contraste/luminosité, poisitons et dimensions des objets.
+Les divers points de vue de l&apos;animation doivent être cohérents pour l&apos;interpolation. Par exemple, si le rendu est transparent sur un point de vue et pas un autre,
+alors la transparence ne pourra pas être interpolée.</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="115"/>

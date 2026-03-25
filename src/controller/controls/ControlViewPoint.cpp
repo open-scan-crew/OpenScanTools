@@ -60,7 +60,8 @@ bool supportsViewpointClippable(ElementType type)
 
 bool supportsViewpointClippingDistances(ElementType type)
 {
-    return type == ElementType::Tag ||
+    return type == ElementType::Box ||
+        type == ElementType::Tag ||
         type == ElementType::Point ||
         type == ElementType::Cylinder ||
         type == ElementType::Sphere ||
@@ -351,6 +352,8 @@ namespace control::viewpoint
                     clippingObject->setRampMax(rampValues.maxRamp);
                 if (clippingObject->getRampSteps() != rampValues.stepsRamp)
                     clippingObject->setRampSteps(rampValues.stepsRamp);
+                if (writeObject->getType() == ElementType::Box && clippingObject->isRampClamped() != rampValues.rampClamped)
+                    clippingObject->setRampClamped(rampValues.rampClamped);
                 editedNodes.insert(object);
             }
 

@@ -108,7 +108,7 @@ If you want a vertical rotation, please check the Vertical checkbox.</string>
    <item row="0" column="4">
     <widget class="QCheckBox" name="interpolateCheckBox">
      <property name="toolTip">
-      <string>Interpolates renderings such as: transparency, normals, gloss, fov, hue, contrast / brightness.
+      <string>Interpolates renderings such as: transparency, normals, gloss, fov, hue, contrast / brightness, objects positions and size.
 The different viewpoints must be consistent to interpolate. For example, you can't interpolate values if transparency is activated on some viewpoints and not the others.</string>
      </property>
      <property name="text">
