@@ -9,6 +9,7 @@
 #include "models/graph/SimpleMeasureNode.h"
 #include "models/graph/PolylineMeasureNode.h"
 #include "models/graph/ViewPointNode.h"
+#include "models/graph/AClippingNode.h"
 #include "models/graph/TargetNode.h"
 #include "models/3d/UniformClippingData.h"
 
@@ -61,6 +62,40 @@ uint32_t computeNextPolygonId(const PolygonalSelectorSettings& settings)
         maxSuffix = std::max<uint32_t>(maxSuffix, getPolygonSuffix(polygon.name));
 
     return std::max<uint32_t>(std::max<uint32_t>(settings.nextPolygonId, maxSuffix + 1), 1u);
+}
+
+
+bool supportsInterpolatedObjectTransform(ElementType type)
+{
+    return type == ElementType::Box ||
+        type == ElementType::Cylinder ||
+        type == ElementType::Sphere ||
+        type == ElementType::MeshObject ||
+        type == ElementType::Tag ||
+        type == ElementType::Point ||
+        type == ElementType::PCO;
+}
+
+bool isPositionOnlyInterpolatedObject(ElementType type)
+{
+    return type == ElementType::Tag || type == ElementType::Point;
+}
+
+bool supportsInterpolatedClippingDistances(ElementType type)
+{
+    return type == ElementType::Tag ||
+        type == ElementType::Point ||
+        type == ElementType::Cylinder ||
+        type == ElementType::Sphere ||
+        type == ElementType::SimpleMeasure ||
+        type == ElementType::PolylineMeasure;
+}
+
+bool supportsInterpolatedLengthThreshold(ElementType type)
+{
+    return type == ElementType::Cylinder ||
+        type == ElementType::SimpleMeasure ||
+        type == ElementType::PolylineMeasure;
 }
 
 glm::vec3 color32ToNormalizedRgb(const Color32& color)
@@ -1576,6 +1611,18 @@ ViewpointRenderState CameraNode::buildViewpointRenderState(const ViewPointNode& 
     state.fovy = viewpoint.getFovy();
     state.visibleObjects = viewpoint.getVisibleObjects();
     state.scanClusterColors = viewpoint.getScanClusterColors();
+    state.objectTransforms = viewpoint.getObjectsTransform();
+    for (const auto& [object, transform] : state.objectTransforms)
+    {
+        ReadPtr<AGraphNode> rObject = object.cget();
+        if (!rObject || !supportsInterpolatedObjectTransform(rObject->getType()))
+            continue;
+
+        if (isPositionOnlyInterpolatedObject(rObject->getType()))
+            state.positionOnlyObjects.insert(object);
+    }
+    state.objectClippingDistances = viewpoint.getObjectsClippingDistances();
+    state.objectRampDistances = viewpoint.getObjectsRampDistances();
     return state;
 }
 
@@ -1600,22 +1647,87 @@ ViewpointRenderState CameraNode::lerpViewpointRenderState(const ViewpointRenderS
         start.renderMode == end.renderMode &&
         (start.renderMode == UiRenderMode::Scans_Color || start.renderMode == UiRenderMode::Clusters_Color);
 
-    if (!interpolateScanClusterColors)
-        return state;
-
-    for (const auto& [object, startColor] : start.scanClusterColors)
+    if (interpolateScanClusterColors)
     {
-        if (start.visibleObjects.find(object) == start.visibleObjects.end())
+        for (const auto& [object, startColor] : start.scanClusterColors)
+        {
+            if (start.visibleObjects.find(object) == start.visibleObjects.end())
+                continue;
+
+            auto endColorIt = end.scanClusterColors.find(object);
+            if (endColorIt == end.scanClusterColors.end())
+                continue;
+
+            if (end.visibleObjects.find(object) == end.visibleObjects.end())
+                continue;
+
+            state.scanClusterColors[object] = interpolateColorHsvShortestPath(startColor, endColorIt->second, alpha);
+        }
+    }
+
+    for (const auto& [object, startTransform] : start.objectTransforms)
+    {
+        auto endTransformIt = end.objectTransforms.find(object);
+        if (endTransformIt == end.objectTransforms.end())
             continue;
 
-        auto endColorIt = end.scanClusterColors.find(object);
-        if (endColorIt == end.scanClusterColors.end())
+        ReadPtr<AGraphNode> rObject = object.cget();
+        if (!rObject || !supportsInterpolatedObjectTransform(rObject->getType()))
             continue;
 
-        if (end.visibleObjects.find(object) == end.visibleObjects.end())
+        const bool positionOnly = isPositionOnlyInterpolatedObject(rObject->getType());
+        if (positionOnly)
+            state.positionOnlyObjects.insert(object);
+
+        const glm::dvec3 interpolatedCenter = startTransform.getCenter() + (endTransformIt->second.getCenter() - startTransform.getCenter()) * static_cast<double>(alpha);
+        if (positionOnly)
+        {
+            TransformationModule interpolatedTransform = startTransform;
+            interpolatedTransform.setPosition(interpolatedCenter);
+            state.objectTransforms[object] = interpolatedTransform;
+            continue;
+        }
+
+        const glm::dquat interpolatedOrientation = glm::normalize(glm::slerp(startTransform.getOrientation(), endTransformIt->second.getOrientation(), static_cast<double>(alpha)));
+        const glm::dvec3 interpolatedScale = startTransform.getScale() + (endTransformIt->second.getScale() - startTransform.getScale()) * static_cast<double>(alpha);
+        state.objectTransforms[object] = TransformationModule(interpolatedCenter, interpolatedOrientation, interpolatedScale);
+    }
+
+    for (const auto& [object, startClip] : start.objectClippingDistances)
+    {
+        auto endClipIt = end.objectClippingDistances.find(object);
+        if (endClipIt == end.objectClippingDistances.end())
             continue;
 
-        state.scanClusterColors[object] = interpolateColorHsvShortestPath(startColor, endColorIt->second, alpha);
+        ReadPtr<AGraphNode> rObject = object.cget();
+        if (!rObject || !supportsInterpolatedClippingDistances(rObject->getType()))
+            continue;
+
+        ViewPointData::ClippingDistances interpolatedClip;
+        interpolatedClip.minClip = startClip.minClip + (endClipIt->second.minClip - startClip.minClip) * alpha;
+        interpolatedClip.maxClip = startClip.maxClip + (endClipIt->second.maxClip - startClip.maxClip) * alpha;
+        interpolatedClip.lengthThreshold = supportsInterpolatedLengthThreshold(rObject->getType())
+            ? startClip.lengthThreshold + (endClipIt->second.lengthThreshold - startClip.lengthThreshold) * alpha
+            : 0.f;
+        state.objectClippingDistances[object] = interpolatedClip;
+    }
+
+    for (const auto& [object, startRamp] : start.objectRampDistances)
+    {
+        auto endRampIt = end.objectRampDistances.find(object);
+        if (endRampIt == end.objectRampDistances.end())
+            continue;
+
+        ReadPtr<AGraphNode> rObject = object.cget();
+        if (!rObject || !supportsInterpolatedClippingDistances(rObject->getType()))
+            continue;
+
+        ViewPointData::RampDistances interpolatedRamp;
+        interpolatedRamp.minRamp = startRamp.minRamp + (endRampIt->second.minRamp - startRamp.minRamp) * alpha;
+        interpolatedRamp.maxRamp = startRamp.maxRamp + (endRampIt->second.maxRamp - startRamp.maxRamp) * alpha;
+        const float steps = static_cast<float>(startRamp.stepsRamp) + static_cast<float>(endRampIt->second.stepsRamp - startRamp.stepsRamp) * alpha;
+        interpolatedRamp.stepsRamp = std::max(1, static_cast<int>(std::round(steps)));
+        state.objectRampDistances[object] = interpolatedRamp;
     }
 
     return state;
@@ -1642,6 +1754,43 @@ void CameraNode::applyViewpointRenderState(const ViewpointRenderState& state)
             if (wObject)
                 wObject->setColor(color);
         }
+    }
+
+    for (const auto& [object, transform] : state.objectTransforms)
+    {
+        WritePtr<AGraphNode> wObject = object.get();
+        if (!wObject)
+            continue;
+
+        if (state.positionOnlyObjects.find(object) != state.positionOnlyObjects.end())
+            wObject->setPosition(transform.getCenter());
+        else
+            wObject->setTransformationModule(transform);
+    }
+
+    for (const auto& [object, clip] : state.objectClippingDistances)
+    {
+        WritePtr<AGraphNode> wObject = object.get();
+        if (!wObject || !supportsInterpolatedClippingDistances(wObject->getType()))
+            continue;
+
+        AClippingNode* clippingObject = static_cast<AClippingNode*>(wObject.operator->());
+        clippingObject->setMinClipDist(clip.minClip);
+        clippingObject->setMaxClipDist(clip.maxClip);
+        if (supportsInterpolatedLengthThreshold(wObject->getType()))
+            clippingObject->setLengthThresholdClip(clip.lengthThreshold);
+    }
+
+    for (const auto& [object, ramp] : state.objectRampDistances)
+    {
+        WritePtr<AGraphNode> wObject = object.get();
+        if (!wObject || !supportsInterpolatedClippingDistances(wObject->getType()))
+            continue;
+
+        AClippingNode* clippingObject = static_cast<AClippingNode*>(wObject.operator->());
+        clippingObject->setRampMin(ramp.minRamp);
+        clippingObject->setRampMax(ramp.maxRamp);
+        clippingObject->setRampSteps(std::max(1, ramp.stepsRamp));
     }
 }
 
