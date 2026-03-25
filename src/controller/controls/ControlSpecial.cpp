@@ -13,8 +13,6 @@
 #include "models/graph/MeshObjectNode.h"
 #include "models/ElementType.h"
 
-#include "vulkan/MeshManager.h"
-
 #include "utils/Logger.h"
 
 
@@ -237,9 +235,6 @@ namespace control::special
 		std::unordered_set<SafePtr<AGraphNode>> importantDatas;
 		std::unordered_set<SafePtr<AGraphNode>> otherDatas;
 
-		std::unordered_map<MeshId, std::unordered_set<SafePtr<AGraphNode>>> meshIdToMeshObjects;
-		std::unordered_map<tls::ScanGuid, std::unordered_set<SafePtr<AGraphNode>>> scanObjPathToTls;
-
 
 		for (const SafePtr<AGraphNode>& node : graphManager.getSelectedNodes())
 		{
@@ -318,7 +313,7 @@ namespace control::special
 					ReadPtr<PointCloudNode> scan = static_pointer_cast<PointCloudNode>(toDelete).cget();
 					if (!scan)
 						continue;
-					if(scan->getScanGuid().isValid())
+					if(scan->getScanGuid().isValid() && scan->isImportedOriginal())
 						importantDatas.insert(toDelete);
 					else
 						otherDatas.insert(toDelete);
@@ -329,11 +324,10 @@ namespace control::special
 					ReadPtr<PointCloudNode> scanObj = static_pointer_cast<PointCloudNode>(toDelete).cget();
 					if (!scanObj)
 						continue;
-					tls::ScanGuid scanGuid = scanObj->getScanGuid();
-					if (scanObjPathToTls.find(scanGuid) != scanObjPathToTls.end())
-						scanObjPathToTls[scanGuid].insert(toDelete);
+					if (scanObj->getScanGuid().isValid() && scanObj->isImportedOriginal())
+						importantDatas.insert(toDelete);
 					else
-						scanObjPathToTls[scanGuid] = { toDelete };
+						otherDatas.insert(toDelete);
 				}
 				break;
 				case ElementType::MeshObject:
@@ -341,11 +335,10 @@ namespace control::special
 					ReadPtr<MeshObjectNode> meshObject = static_pointer_cast<MeshObjectNode>(toDelete).cget();
 					if (!meshObject)
 						continue;
-					xg::Guid meshId = meshObject->getMeshId();
-					if (meshIdToMeshObjects.find(meshId) != meshIdToMeshObjects.end())
-						meshIdToMeshObjects[meshId].insert(toDelete);
+					if (meshObject->getMeshId().isValid() && meshObject->isImportedOriginal())
+						importantDatas.insert(toDelete);
 					else
-						meshIdToMeshObjects[meshId] = { toDelete };
+						otherDatas.insert(toDelete);
 					break;
 				}
 				default:
@@ -353,23 +346,6 @@ namespace control::special
 					break;
 		    }
         }
-
-		for (auto meshElement : meshIdToMeshObjects)
-		{
-			MeshManager& manager = MeshManager::getInstance();
-			if (meshElement.first.isValid() && manager.getMeshCounters(meshElement.first) <= meshElement.second.size())
-				importantDatas.insert(meshElement.second.begin(), meshElement.second.end());
-			else
-				otherDatas.insert(meshElement.second.begin(), meshElement.second.end());
-		}
-
-		for (auto scanObjElement : scanObjPathToTls)
-		{
-			if (scanObjElement.first.isValid() && graphManager.getPCOcounters(scanObjElement.first) <= scanObjElement.second.size())
-				importantDatas.insert(scanObjElement.second.begin(), scanObjElement.second.end());
-			else
-				otherDatas.insert(scanObjElement.second.begin(), scanObjElement.second.end());
-		}
 
 		if (!importantDatas.empty())
 		{

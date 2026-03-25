@@ -186,6 +186,7 @@ void ExportTagData(nlohmann::json& json, const TagData& data)
 void ExportScanData(nlohmann::json& json, const ScanData& data)
 {
 	json[Key_Clippable] = data.getClippable();
+	json[Key_IsImportedOriginal] = data.isImportedOriginal();
 	//json[Key_PointCloud_IsObject] = data.is_object_;
 }
 
@@ -231,6 +232,7 @@ void ExportMeshObjectData(nlohmann::json& json, const MeshObjectData& data)
 	json[Key_Path] = Utils::to_utf8(data.getFilePath().wstring());
 	json[Key_ObjectName] = Utils::to_utf8(data.getObjectName());
 	json[Key_MeshId] = data.getMeshId();
+	json[Key_IsImportedOriginal] = data.isImportedOriginal();
 }
 
 void ExportSimpleMeasureData(nlohmann::json& json, const SimpleMeasureData& data)

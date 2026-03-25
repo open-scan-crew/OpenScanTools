@@ -18,17 +18,20 @@ public:
 	void setObjectName(const std::wstring& name);
 	void setMeshId(const MeshId& id);
 	void setDimension(const glm::vec3& dimension);
+	void setImportedOriginal(bool isImportedOriginal);
 
 	std::filesystem::path getFilePath() const;
 	std::wstring getObjectName() const;
 	MeshId getMeshId() const;
 	glm::vec3 getDimension() const;
+	bool isImportedOriginal() const;
 
 protected:
 	std::filesystem::path	m_filePath;
 	std::wstring			m_objectName;
 	MeshId					m_meshId;
 	glm::vec3				m_dimension;
+	bool                    m_isImportedOriginal = true;
 };
 
 #endif

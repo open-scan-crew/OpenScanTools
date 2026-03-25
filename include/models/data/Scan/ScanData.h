@@ -20,6 +20,8 @@ public:
 
     void setClippable(bool clippable);
     bool getClippable() const;
+    void setImportedOriginal(bool isImportedOriginal);
+    bool isImportedOriginal() const;
 
     void freeScanFile() const;
     void eraseScanFile() const;
@@ -46,6 +48,7 @@ protected:
     tls::ScanGuid m_scanGuid = xg::Guid();
     bool m_clippable = true;
     bool is_object_ = false;
+    bool m_isImportedOriginal = true;
 };
 
 

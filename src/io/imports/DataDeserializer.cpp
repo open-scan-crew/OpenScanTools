@@ -42,6 +42,7 @@
 
 #include <algorithm>
 #include <string>
+#include <cwctype>
 
 namespace
 {
@@ -58,6 +59,23 @@ uint32_t getPolygonSuffix(const std::string& name)
     bool ok = false;
     int suffix = QString::fromStdString(name.substr(8)).toInt(&ok);
     return (ok && suffix > 0) ? static_cast<uint32_t>(suffix) : 0;
+}
+
+bool hasCopyNumericSuffix(const std::wstring& name)
+{
+    const std::wstring copyToken = L"_copy";
+    const size_t suffixPos = name.rfind(copyToken);
+    if (suffixPos == std::wstring::npos)
+        return false;
+    if (suffixPos + copyToken.size() >= name.size())
+        return false;
+
+    for (size_t i = suffixPos + copyToken.size(); i < name.size(); ++i)
+    {
+        if (!iswdigit(name[i]))
+            return false;
+    }
+    return true;
 }
 }
 
@@ -369,6 +387,13 @@ bool ImportScanData(const nlohmann::json& json, ScanData& data)
         auto elemType = magic_enum::enum_cast<ElementType>(json.at(Key_Type).get<std::string>());
         data.setIsObject(elemType == ElementType::PCO);
     }
+
+    if (json.find(Key_IsImportedOriginal) != json.end())
+        data.setImportedOriginal(json.at(Key_IsImportedOriginal).get<bool>());
+    else if (json.find(Key_Name) != json.end())
+        data.setImportedOriginal(!hasCopyNumericSuffix(Utils::from_utf8(json.at(Key_Name).get<std::string>())));
+    else
+        data.setImportedOriginal(true);
 
     return retVal;
 }
@@ -1207,6 +1232,11 @@ bool ImportMeshObjectData(const nlohmann::json& json, MeshObjectData& data, cons
         IOLOG << "MeshObject Key_MeshId read error" << LOGENDL;
         retVal = false;
     }
+
+    if (json.find(Key_IsImportedOriginal) != json.end())
+        data.setImportedOriginal(json.at(Key_IsImportedOriginal).get<bool>());
+    else
+        data.setImportedOriginal(!hasCopyNumericSuffix(data.getObjectName()));
 
     return retVal;
 }
