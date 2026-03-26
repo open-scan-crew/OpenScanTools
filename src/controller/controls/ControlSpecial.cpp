@@ -163,6 +163,7 @@ namespace control::special
 					WritePtr<PointCloudNode> scan = static_pointer_cast<PointCloudNode>(pNode).get();
 					if (!scan)
 						continue;
+					scan->setDead(true);
 
 					CONTROLLOG << "The file " << scan->getTlsFilePath() << " -- {" << scan->getScanGuid() << "} will be definitly deleted." << LOGENDL;
 					const std::filesystem::path currentPath = scan->getTlsFilePath();
