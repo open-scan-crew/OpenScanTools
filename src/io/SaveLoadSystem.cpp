@@ -8,6 +8,7 @@
 #include "io/exports/DataSerializer.h"
 #include "io/imports/DataDeserializer.h"
 #include "pointCloudEngine/PCE_core.h"
+#include "pointCloudEngine/TlScanOverseer.h"
 
 #include "utils/Config.h"
 #include "utils/Logger.h"
@@ -61,6 +62,8 @@
 #include <filesystem>
 #include <fstream>
 #include <algorithm>
+#include <chrono>
+#include <thread>
 
 #define SAVELOADSYSTEMVERSION 2.0f
 
@@ -1270,12 +1273,33 @@ SafePtr<PointCloudNode> SaveLoadSystem::ImportNewTlsFile(const std::filesystem::
 
     std::filesystem::path filename(filePath.filename());
     std::filesystem::path dst_path = context.cgetProjectInternalInfo().getPointCloudFolderPath(is_object) / filename;
-    // Asynchronous copy
-    // The availability of the name in the filesystem is checked by the PCE
-    if (!std::filesystem::exists(dst_path))
-        tlCopyScanFile(scanGuid, dst_path, true, false, false);
-    else
-        IOLOG << "INFO: " << filePath << " already exist." << LOGENDL;
+    // Copy to project folder and force destination update to avoid keeping a source path
+    // when a file with the same name already exists in destination.
+    tlCopyScanFile(scanGuid, dst_path, true, true, false);
+
+    // Ensure copy queue is processed and the active scan path points to project storage
+    // before exposing the node to delete workflows.
+    std::filesystem::path currentPath;
+    bool copiedToProjectPath = false;
+    constexpr int maxRetry = 100; // 100 * 50ms = 5s max wait
+    for (int i = 0; i < maxRetry; ++i)
+    {
+        TlScanOverseer::getInstance().resourceManagement_sync();
+        if (tlGetCurrentScanPath(scanGuid, currentPath) && currentPath == dst_path)
+        {
+            copiedToProjectPath = true;
+            break;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
+
+    if (!copiedToProjectPath)
+    {
+        IOLOG << "Error: TLS import copy to project path failed or timed out. Source [" << filePath
+            << "], destination [" << dst_path << "], current [" << currentPath << "]." << LOGENDL;
+        errorCode = ErrorCode::Failed_Write_Permission;
+        return SafePtr<PointCloudNode>();
+    }
 
     uint64_t nbScanBeforeImport = controller.getGraphManager().getNodesByTypes({ ElementType::Scan }).size();
     SafePtr<PointCloudNode> pc = make_safe<PointCloudNode>(is_object);
