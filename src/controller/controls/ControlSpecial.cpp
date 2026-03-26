@@ -66,7 +66,7 @@ namespace control::special
 					scanGuid = rScan->getScanGuid();
 				}
 
-				if (controller.getGraphManager().getPCOcounters(scanGuid) == 0)
+					if (controller.getGraphManager().getPCOcounters(scanGuid, false) == 0)
 				{
 					WritePtr<PointCloudNode> wScan = scan.get();
 					if (!wScan)
@@ -165,7 +165,38 @@ namespace control::special
 						continue;
 
 					CONTROLLOG << "The file " << scan->getTlsFilePath() << " -- {" << scan->getScanGuid() << "} will be definitly deleted." << LOGENDL;
-					scan->eraseScanFile();
+					const std::filesystem::path currentPath = scan->getTlsFilePath();
+					const ProjectInternalInfo& projectInfo = controller.getContext().cgetProjectInternalInfo();
+					const std::filesystem::path allowedRoot = projectInfo.getPointCloudFolderPath(type == ElementType::PCO);
+
+					bool canDeletePhysicalFile = false;
+					if (!currentPath.empty())
+					{
+						std::error_code ec;
+						const std::filesystem::path canonicalCurrent = std::filesystem::weakly_canonical(currentPath, ec);
+						if (!ec)
+						{
+							const std::filesystem::path canonicalAllowedRoot = std::filesystem::weakly_canonical(allowedRoot, ec);
+							if (!ec)
+							{
+								const std::wstring currentStr = canonicalCurrent.native();
+								const std::wstring allowedStr = canonicalAllowedRoot.native();
+								canDeletePhysicalFile = currentStr.rfind(allowedStr, 0) == 0;
+							}
+						}
+					}
+
+					if (canDeletePhysicalFile)
+					{
+						scan->eraseScanFile();
+					}
+					else
+					{
+						Logger::log(IOLog) << "WARNING - blocked physical deletion for scan {" << scan->getScanGuid()
+							<< "} because current path is outside project folder. current=" << currentPath
+							<< " expectedRoot=" << allowedRoot << Logger::endl;
+						scan->freeScanFile();
+					}
 					break;
 				}
 				case ElementType::MeshObject:
@@ -365,7 +396,7 @@ namespace control::special
 
 		for (auto scanObjElement : scanObjPathToTls)
 		{
-			if (scanObjElement.first.isValid() && graphManager.getPCOcounters(scanObjElement.first) <= scanObjElement.second.size())
+			if (scanObjElement.first.isValid() && graphManager.getPCOcounters(scanObjElement.first, false) <= scanObjElement.second.size())
 				importantDatas.insert(scanObjElement.second.begin(), scanObjElement.second.end());
 			else
 				otherDatas.insert(scanObjElement.second.begin(), scanObjElement.second.end());
