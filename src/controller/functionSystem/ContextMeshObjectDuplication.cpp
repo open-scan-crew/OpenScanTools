@@ -9,6 +9,7 @@
 
 #include "models/graph/MeshObjectNode.h"
 #include "models/graph/GraphManager.h"
+#include "vulkan/MeshManager.h"
 #include <algorithm>
 #include <regex>
 
