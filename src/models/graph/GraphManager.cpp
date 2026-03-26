@@ -595,12 +595,21 @@ uint32_t GraphManager::getActiveClippingAndRampCount() const
 
 uint32_t GraphManager::getPCOcounters(const tls::ScanGuid& scan) const
 {
+    return getPCOcounters(scan, true);
+}
+
+uint32_t GraphManager::getPCOcounters(const tls::ScanGuid& scan, bool includeDeadNodes) const
+{
     return (uint32_t)getNodesOnFilter<PointCloudNode>(
-            [](ReadPtr<AGraphNode>& node)
-            { return node->getType() == ElementType::PCO || node->getType() == ElementType::Scan; },
-            [&scan](ReadPtr<PointCloudNode>& node)
-            { return node->getScanGuid() == scan; }
-        ).size();
+        [](ReadPtr<AGraphNode>& node)
+        { return node->getType() == ElementType::PCO || node->getType() == ElementType::Scan; },
+        [&scan, includeDeadNodes](ReadPtr<PointCloudNode>& node)
+        {
+            if (!includeDeadNodes && node->isDead())
+                return false;
+            return node->getScanGuid() == scan;
+        }
+    ).size();
 }
 
 std::unordered_set<SafePtr<TagNode>> GraphManager::getTagsWithTemplate(SafePtr<sma::TagTemplate> tagTemplate) const

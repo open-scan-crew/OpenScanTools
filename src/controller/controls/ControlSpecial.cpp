@@ -66,7 +66,7 @@ namespace control::special
 					scanGuid = rScan->getScanGuid();
 				}
 
-				if (controller.getGraphManager().getPCOcounters(scanGuid) == 0)
+					if (controller.getGraphManager().getPCOcounters(scanGuid, false) == 0)
 				{
 					WritePtr<PointCloudNode> wScan = scan.get();
 					if (!wScan)
@@ -396,7 +396,7 @@ namespace control::special
 
 		for (auto scanObjElement : scanObjPathToTls)
 		{
-			if (scanObjElement.first.isValid() && graphManager.getPCOcounters(scanObjElement.first) <= scanObjElement.second.size())
+			if (scanObjElement.first.isValid() && graphManager.getPCOcounters(scanObjElement.first, false) <= scanObjElement.second.size())
 				importantDatas.insert(scanObjElement.second.begin(), scanObjElement.second.end());
 			else
 				otherDatas.insert(scanObjElement.second.begin(), scanObjElement.second.end());
