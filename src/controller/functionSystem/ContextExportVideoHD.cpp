@@ -311,6 +311,9 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
                 const double offset = m_viewpointControlTimes.front();
                 for (double& value : m_viewpointControlTimes)
                     value -= offset;
+
+                const double effectiveDuration = std::max(0.0, m_viewpointControlTimes.back());
+                m_totalFrames = std::max<long>(1, static_cast<long>(std::ceil(effectiveDuration * static_cast<double>(std::max(1, m_parameters.fps)))));
             }
             else if (mode == ViewPointAnimationMode::ConstantSpeed)
             {
