@@ -182,10 +182,40 @@ ObjectAllocation::ReturnCode MeshManager::loadFile(MeshObjOutputData& data, cons
 {
     HashMeshObjInput input_hash; 
     size_t objId = input_hash(input);
-    if (m_loaded.find(objId) != m_loaded.end())
+    auto loadedIt = m_loaded.find(objId);
+    if (loadedIt != m_loaded.end())
     {
-        data = m_loaded[objId];
-        return ObjectAllocation::ReturnCode::Success;
+        bool cacheUsable = true;
+        for (const auto& meshInfo : loadedIt->second.meshIdInfo)
+        {
+            if (!isMeshLoaded(meshInfo.first))
+            {
+                cacheUsable = false;
+                break;
+            }
+
+            const std::filesystem::path& cachedPath = meshInfo.second.path;
+            if (cachedPath.empty())
+                continue;
+
+            std::filesystem::path checkPath = cachedPath;
+            if (!checkPath.is_absolute() && !folderOutputPath.empty())
+                checkPath = folderOutputPath / checkPath.filename();
+
+            if (!std::filesystem::exists(checkPath))
+            {
+                cacheUsable = false;
+                break;
+            }
+        }
+
+        if (cacheUsable)
+        {
+            data = loadedIt->second;
+            return ObjectAllocation::ReturnCode::Success;
+        }
+
+        m_loaded.erase(loadedIt);
     }
 
     ObjectAllocation::ReturnCode ret;
