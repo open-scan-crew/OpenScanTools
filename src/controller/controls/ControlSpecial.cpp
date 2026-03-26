@@ -426,7 +426,11 @@ namespace control::special
 					{
 						ReadPtr<PointCloudNode> scan = static_pointer_cast<PointCloudNode>(importantData).cget();
 						if (scan)
+						{
 							filePath = scan->getTlsFilePath();
+							if (filePath.empty())
+								filePath = scan->getBackupFilePath();
+						}
 						break;
 					}
 					case ElementType::MeshObject:
@@ -438,10 +442,8 @@ namespace control::special
 					}
 				}
 
-				if (!filePath.empty())
-					importantObject[importantData] = { QString::fromStdWString(name), QString::fromStdWString(filePath.wstring()) };
-				else
-					otherDatas.insert(importantData);
+				const QString displayPath = filePath.empty() ? QStringLiteral("<path unavailable>") : QString::fromStdWString(filePath.wstring());
+				importantObject[importantData] = { QString::fromStdWString(name), displayPath };
 			}
 			controller.updateInfo(new GuiDataDeleteFileDependantObjectDialog(importantObject, otherDatas));
 		}
