@@ -182,10 +182,40 @@ ObjectAllocation::ReturnCode MeshManager::loadFile(MeshObjOutputData& data, cons
 {
     HashMeshObjInput input_hash; 
     size_t objId = input_hash(input);
-    if (m_loaded.find(objId) != m_loaded.end())
+    auto loadedIt = m_loaded.find(objId);
+    if (loadedIt != m_loaded.end())
     {
-        data = m_loaded[objId];
-        return ObjectAllocation::ReturnCode::Success;
+        bool cacheUsable = true;
+        for (const auto& meshInfo : loadedIt->second.meshIdInfo)
+        {
+            if (!isMeshLoaded(meshInfo.first))
+            {
+                cacheUsable = false;
+                break;
+            }
+
+            const std::filesystem::path& cachedPath = meshInfo.second.path;
+            if (cachedPath.empty())
+                continue;
+
+            std::filesystem::path checkPath = cachedPath;
+            if (!checkPath.is_absolute() && !folderOutputPath.empty())
+                checkPath = folderOutputPath / checkPath.filename();
+
+            if (!std::filesystem::exists(checkPath))
+            {
+                cacheUsable = false;
+                break;
+            }
+        }
+
+        if (cacheUsable)
+        {
+            data = loadedIt->second;
+            return ObjectAllocation::ReturnCode::Success;
+        }
+
+        m_loaded.erase(loadedIt);
     }
 
     ObjectAllocation::ReturnCode ret;
@@ -520,6 +550,34 @@ uint64_t MeshManager::getMeshCounters(const MeshId& id)
     if (m_meshesCounters.find(id) == m_meshesCounters.end())
         return 0;
     return m_meshesCounters[id];
+}
+
+void MeshManager::invalidateLoadedCacheForPath(const std::filesystem::path& meshPath)
+{
+    if (meshPath.empty())
+        return;
+
+    const std::filesystem::path targetFilename = meshPath.filename();
+    for (auto it = m_loaded.begin(); it != m_loaded.end(); )
+    {
+        bool invalidate = false;
+        for (const auto& meshInfo : it->second.meshIdInfo)
+        {
+            const std::filesystem::path& cachedPath = meshInfo.second.path;
+            if (cachedPath.empty())
+                continue;
+            if (cachedPath == meshPath || cachedPath.filename() == targetFilename)
+            {
+                invalidate = true;
+                break;
+            }
+        }
+
+        if (invalidate)
+            it = m_loaded.erase(it);
+        else
+            ++it;
+    }
 }
 
 ObjectAllocation::ReturnCode MeshManager::getBoxId(GenericMeshId& id)
@@ -1149,7 +1207,7 @@ bool MeshManager::removeMeshInstance(MeshId id)
         return false;
     if (m_meshesCounters.find(id) == m_meshesCounters.end())
     {
-        assert(false);
+        GRAPH_LOG << "Warning: removeMeshInstance called on unknown MeshId {" << id << "}." << Logger::endl;
         return false;
     }
 

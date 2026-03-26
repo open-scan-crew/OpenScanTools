@@ -24,7 +24,8 @@ PointCloudNode::PointCloudNode(bool is_object)
 PointCloudNode::~PointCloudNode()
 {
     VulkanManager::getInstance().freeUniform(m_modelUni);
-    freeScanFile();
+    if (!is_dead_)
+        freeScanFile();
 }
 
 ElementType PointCloudNode::getType() const

@@ -1,6 +1,25 @@
 #include "models/data/Scan/ScanData.h"
 #include "utils/time.h"
 #include "pointCloudEngine/PCE_core.h"
+#include <ctime>
+
+namespace
+{
+bool getScanHeaderSafe(const tls::ScanGuid& scanGuid, tls::ScanHeader& header)
+{
+    header = tls::ScanHeader{};
+    return tlGetScanHeader(scanGuid, header);
+}
+
+bool toLocalTimeSafe(time_t t, std::tm& outTm)
+{
+#ifdef _WIN32
+    return localtime_s(&outTm, &t) == 0;
+#else
+    return localtime_r(&t, &outTm) != nullptr;
+#endif
+}
+}
 
 
 ScanData::ScanData()
@@ -68,7 +87,8 @@ bool ScanData::getTlsPresent() const
 tls::PointFormat ScanData::getPointFormat() const
 {
     tls::ScanHeader header;
-    tlGetScanHeader(m_scanGuid, header);
+    if (!getScanHeaderSafe(m_scanGuid, header))
+        return tls::PointFormat::TL_POINT_FORMAT_UNDEFINED;
     return header.format;
 }
 
@@ -89,41 +109,50 @@ bool ScanData::getIntensityAvailable() const
 uint64_t ScanData::getNbPoint() const
 {
     tls::ScanHeader header;
-    tlGetScanHeader(m_scanGuid, header);
+    if (!getScanHeaderSafe(m_scanGuid, header))
+        return 0;
     return header.pointCount;
 }
 
 std::wstring ScanData::getSensorModel() const
 {
     tls::ScanHeader header;
-    tlGetScanHeader(m_scanGuid, header);
+    if (!getScanHeaderSafe(m_scanGuid, header))
+        return L"";
     return header.sensorModel;
 }
 
 std::wstring ScanData::getSensorSerialNumber() const
 {
     tls::ScanHeader header;
-    tlGetScanHeader(m_scanGuid, header);
+    if (!getScanHeaderSafe(m_scanGuid, header))
+        return L"";
     return header.sensorSerialNumber;
 }
 
 time_t ScanData::getAcquisitionTime() const
 {
     tls::ScanHeader header;
-    tlGetScanHeader(m_scanGuid, header);
+    if (!getScanHeaderSafe(m_scanGuid, header))
+        return 0;
     return header.acquisitionDate;
 }
 
 const std::wstring ScanData::getStringAcquisitionTime() const
 {
     time_t t = getAcquisitionTime();
-    if (t == 0)
+    if (t <= 0)
         return L"Not available";
     else
     {
         wchar_t strDate[128];
-        std::wcsftime(strDate, sizeof(strDate), DISPLAY_WIDE_TIME_FORMAT, std::localtime(&t));
-        return (std::wstring(strDate));
+        std::tm localTm{};
+        if (!toLocalTimeSafe(t, localTm))
+            return L"Not available";
+
+        if (std::wcsftime(strDate, sizeof(strDate) / sizeof(wchar_t), DISPLAY_WIDE_TIME_FORMAT, &localTm) == 0)
+            return L"Not available";
+        return std::wstring(strDate);
     }
 }
 

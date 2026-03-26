@@ -595,12 +595,21 @@ uint32_t GraphManager::getActiveClippingAndRampCount() const
 
 uint32_t GraphManager::getPCOcounters(const tls::ScanGuid& scan) const
 {
+    return getPCOcounters(scan, true);
+}
+
+uint32_t GraphManager::getPCOcounters(const tls::ScanGuid& scan, bool includeDeadNodes) const
+{
     return (uint32_t)getNodesOnFilter<PointCloudNode>(
-            [](ReadPtr<AGraphNode>& node)
-            { return node->getType() == ElementType::PCO || node->getType() == ElementType::Scan; },
-            [&scan](ReadPtr<PointCloudNode>& node)
-            { return node->getScanGuid() == scan; }
-        ).size();
+        [](ReadPtr<AGraphNode>& node)
+        { return node->getType() == ElementType::PCO || node->getType() == ElementType::Scan; },
+        [&scan, includeDeadNodes](ReadPtr<PointCloudNode>& node)
+        {
+            if (!includeDeadNodes && node->isDead())
+                return false;
+            return node->getScanGuid() == scan;
+        }
+    ).size();
 }
 
 std::unordered_set<SafePtr<TagNode>> GraphManager::getTagsWithTemplate(SafePtr<sma::TagTemplate> tagTemplate) const
@@ -717,6 +726,8 @@ std::unordered_set<SafePtr<PointCloudNode>> GraphManager::getVisibleScans(const 
         [](ReadPtr<AGraphNode>& node) {
             return node->getType() == ElementType::Scan; },
         [&pano](ReadPtr<PointCloudNode>& scan) {
+            if (scan->isDead())
+                return false;
             return ((pano == xg::Guid() && scan->isVisible()) || scan->getScanGuid() == pano); }
             );
 }
@@ -740,7 +751,7 @@ std::vector<tls::PointCloudInstance> GraphManager::getPointCloudInstances(const 
                 },
                 [&pano](ReadPtr<PointCloudNode>& node)
                 {
-                    return (pano != xg::Guid() && node->getScanGuid() == pano);
+                    return !node->isDead() && (pano != xg::Guid() && node->getScanGuid() == pano);
                 }
             );
 
@@ -769,7 +780,7 @@ std::vector<tls::PointCloudInstance> GraphManager::getPointCloudInstances(const 
                 bool verifState = (filterStatus == ObjectStatusFilter::ALL ||
                     (filterStatus == ObjectStatusFilter::VISIBLE && node->isVisible()) ||
                     (filterStatus == ObjectStatusFilter::SELECTED && node->isSelected()));
-                return verifType && verifState;
+                return !node->isDead() && verifType && verifState;
             }
         );
 
