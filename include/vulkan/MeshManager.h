@@ -131,10 +131,11 @@ public:
 
 	static std::shared_ptr<MeshBuffer> getGenericMesh(GenericMeshId meshId);
 	SMesh const getMesh(const MeshId& id);
-	std::shared_ptr<MeshBuffer> getManipMesh(ManipulationMode manipMod);
-	bool isMeshLoaded(const MeshId& id);
-	bool addMeshInstance(const MeshId& id);
-	uint64_t getMeshCounters(const MeshId& id);
+		std::shared_ptr<MeshBuffer> getManipMesh(ManipulationMode manipMod);
+		bool isMeshLoaded(const MeshId& id);
+		bool addMeshInstance(const MeshId& id);
+		uint64_t getMeshCounters(const MeshId& id);
+		void invalidateLoadedCacheForPath(const std::filesystem::path& meshPath);
 
 	glm::vec3 getMeshDimension(const MeshId& id);
 

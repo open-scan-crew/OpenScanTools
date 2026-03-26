@@ -8,6 +8,40 @@
 #include "models/graph/PointCloudNode.h"
 #include "models/graph/GraphManager.h"
 #include "utils/Logger.h"
+#include <algorithm>
+#include <regex>
+
+namespace
+{
+std::wstring getPCOCopyName(const std::wstring& sourceName, const GraphManager& graphManager)
+{
+    std::wstring baseName = sourceName;
+    std::wsmatch match;
+    static const std::wregex copySuffix(LR"(^(.*)_copy([0-9]+)$)");
+    if (std::regex_match(sourceName, match, copySuffix) && match.size() > 1)
+        baseName = match[1].str();
+
+    int maxIndex = 0;
+    std::unordered_set<SafePtr<AGraphNode>> allPcos = graphManager.getNodesByTypes({ ElementType::PCO }, ObjectStatusFilter::ALL);
+    for (const SafePtr<AGraphNode>& pcoNode : allPcos)
+    {
+        ReadPtr<PointCloudNode> rPco = static_pointer_cast<PointCloudNode>(pcoNode).cget();
+        if (!rPco)
+            continue;
+        const std::wstring& existingName = rPco->getName();
+        if (existingName == baseName)
+        {
+            maxIndex = std::max(maxIndex, 0);
+            continue;
+        }
+        if (std::regex_match(existingName, match, copySuffix) && match.size() > 2 && match[1].str() == baseName)
+        {
+            maxIndex = std::max(maxIndex, std::stoi(match[2].str()));
+        }
+    }
+    return baseName + L"_copy" + std::to_wstring(maxIndex + 1);
+}
+}
 
 
 ContextPCODuplication::ContextPCODuplication(const ContextId& id)
@@ -87,6 +121,7 @@ ContextState ContextPCODuplication::launch(Controller& controller)
     wNewPco->setModificationTime(time(&timeNow));
     wNewPco->setAuthor(controller.getContext().getActiveAuthor());
     wNewPco->setUserIndex(controller.getNextUserId(wNewPco->getType()));
+    wNewPco->setName(getPCOCopyName(wNewPco->getName(), graphManager));
     setObjectParameters(controller, *&wNewPco, m_clickResults.empty() ? glm::dvec3() : m_clickResults[0].position, scale);
 
     controller.getControlListener()->notifyUIControl(new control::function::AddNodes(newPco));
