@@ -9,6 +9,40 @@
 
 #include "models/graph/MeshObjectNode.h"
 #include "models/graph/GraphManager.h"
+#include <algorithm>
+#include <regex>
+
+namespace
+{
+std::wstring getMeshCopyName(const std::wstring& sourceName, const GraphManager& graphManager)
+{
+    std::wstring baseName = sourceName;
+    std::wsmatch match;
+    static const std::wregex copySuffix(LR"(^(.*)_copy([0-9]+)$)");
+    if (std::regex_match(sourceName, match, copySuffix) && match.size() > 1)
+        baseName = match[1].str();
+
+    int maxIndex = 0;
+    std::unordered_set<SafePtr<AGraphNode>> allMeshes = graphManager.getNodesByTypes({ ElementType::MeshObject }, ObjectStatusFilter::ALL);
+    for (const SafePtr<AGraphNode>& meshNode : allMeshes)
+    {
+        ReadPtr<MeshObjectNode> rMesh = static_pointer_cast<MeshObjectNode>(meshNode).cget();
+        if (!rMesh)
+            continue;
+        const std::wstring& existingName = rMesh->getName();
+        if (existingName == baseName)
+        {
+            maxIndex = std::max(maxIndex, 0);
+            continue;
+        }
+        if (std::regex_match(existingName, match, copySuffix) && match.size() > 2 && match[1].str() == baseName)
+        {
+            maxIndex = std::max(maxIndex, std::stoi(match[2].str()));
+        }
+    }
+    return baseName + L"_copy" + std::to_wstring(maxIndex + 1);
+}
+}
 
 ContextMeshObjectDuplication::ContextMeshObjectDuplication(const ContextId& id)
 	: ARayTracingContext(id)
@@ -86,9 +120,8 @@ ContextState ContextMeshObjectDuplication::launch(Controller& controller)
     wNewObj->setModificationTime(time(&timeNow));
     wNewObj->setAuthor(controller.getContext().getActiveAuthor());
     wNewObj->setUserIndex(controller.getNextUserId(wNewObj->getType()));
+    wNewObj->setName(getMeshCopyName(wNewObj->getName(), graphManager));
     setObjectParameters(controller, *&wNewObj, m_clickResults.empty() ? glm::dvec3() : m_clickResults[0].position, scale * glm::dvec3(dim));
-
-    MeshManager::getInstance().addMeshInstance(wNewObj->getMeshId());
 
     controller.getControlListener()->notifyUIControl(new control::function::AddNodes(newObj));
 
