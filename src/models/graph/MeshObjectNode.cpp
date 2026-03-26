@@ -7,7 +7,6 @@ MeshObjectNode::MeshObjectNode(const MeshObjectNode& node)
     : AGraphNode(node)
     , MeshObjectData(node)
 {
-
 }
 
 MeshObjectNode::MeshObjectNode()
