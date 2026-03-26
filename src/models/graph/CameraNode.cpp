@@ -793,6 +793,7 @@ bool CameraNode::endAnimation()
     m_currentKeyPoint = 0;
     m_animFrames = 0;
     m_totalPausedDurationSeconds = 0.0;
+    m_controlPointTrajectoryIndices.clear();
     m_lastAppliedVisibilityViewpointIndex = 0;
     resetViewpointRenderInterpolation();
     return wasAnimated;
@@ -824,6 +825,7 @@ void CameraNode::setAnimationTiming(ViewPointAnimationMode mode, double duration
     m_viewPointAnimationMode = mode;
     m_animationDurationSeconds = std::max(0.0, durationSeconds);
     m_controlPointTimesSeconds = controlPointTimesSec;
+    m_controlPointTrajectoryIndices.clear();
     m_smoothViewpointTransitions = smoothTransitions;
 }
 
@@ -844,6 +846,7 @@ void CameraNode::cleanAnimation()
     m_animFrames = 0;
     m_isAnimationPaused = false;
     m_totalPausedDurationSeconds = 0.0;
+    m_controlPointTrajectoryIndices.clear();
     m_lastAppliedVisibilityViewpointIndex = 0;
     resetViewpointRenderInterpolation();
 }
@@ -1814,6 +1817,9 @@ void CameraNode::buildViewpointAnimationPlaybackPath()
 
 void CameraNode::buildLinearPlaybackPathFromTrajectory()
 {
+    m_controlPointTrajectoryIndices.resize(m_trajectory.size(), 0);
+    for (size_t i = 0; i < m_controlPointTrajectoryIndices.size(); ++i)
+        m_controlPointTrajectoryIndices[i] = i;
     applyPlaybackTimingFromControlPoints();
 }
 
@@ -1832,6 +1838,8 @@ void CameraNode::buildCatmullRomPlaybackPathFromTrajectory()
     sampledOrientationTrajectory.reserve(controlCount * 12);
 
     sampledTrajectory.push_back({ m_trajectory[0].point, m_trajectory[0].theta, m_trajectory[0].phi, 0.0 });
+    std::vector<size_t> sampledControlPointIndices(controlCount, 0);
+    sampledControlPointIndices[0] = 0;
     std::vector<glm::dquat> controlOrientations;
     controlOrientations.reserve(controlCount);
     for (const OrientationKeyPoint& orientationKp : m_orientationTrajectory)
@@ -1884,6 +1892,7 @@ void CameraNode::buildCatmullRomPlaybackPathFromTrajectory()
             sampledTrajectory.push_back({ sampledPosition, 0.0, 0.0, 0.0 });
             sampledOrientationTrajectory.push_back({ glm::normalize(sampledOrientation), 0.0 });
         }
+        sampledControlPointIndices[i + 1] = sampledTrajectory.size() - 1;
     }
 
     if (sampledTrajectory.size() < 2)
@@ -1894,6 +1903,7 @@ void CameraNode::buildCatmullRomPlaybackPathFromTrajectory()
 
     m_trajectory = std::move(sampledTrajectory);
     m_orientationTrajectory = std::move(sampledOrientationTrajectory);
+    m_controlPointTrajectoryIndices = std::move(sampledControlPointIndices);
     applyPlaybackTimingFromControlPoints();
 }
 
@@ -2035,36 +2045,30 @@ void CameraNode::applyPlaybackTimingFromControlPoints()
                 controlTimes[i] = targetDuration * static_cast<double>(i) / static_cast<double>(last);
         }
 
-        const size_t segmentCount = controlTimes.size() - 1;
-        std::vector<size_t> segmentStartIndices(segmentCount, 0);
-        std::vector<size_t> segmentEndIndices(segmentCount, 0);
-
-        size_t cursor = 0;
-        for (size_t seg = 0; seg < segmentCount; ++seg)
+        std::vector<size_t> controlIndices = m_controlPointTrajectoryIndices;
+        if (controlIndices.size() != controlTimes.size())
         {
-            segmentStartIndices[seg] = cursor;
-            const double segmentTarget = static_cast<double>(seg + 1) / static_cast<double>(segmentCount);
-            while (cursor + 1 < cumulativeDistances.size())
-            {
-                const double ratio = (totalDistance > 1e-9) ? cumulativeDistances[cursor + 1] / totalDistance : static_cast<double>(cursor + 1) / static_cast<double>(cumulativeDistances.size() - 1);
-                if (ratio >= segmentTarget)
-                    break;
-                ++cursor;
-            }
-            if (cursor + 1 < cumulativeDistances.size())
-                ++cursor;
-            segmentEndIndices[seg] = cursor;
+            controlIndices.resize(controlTimes.size(), 0);
+            const size_t lastTrajectoryIndex = m_trajectory.size() - 1;
+            const size_t lastControlIndex = controlTimes.size() - 1;
+            for (size_t i = 0; i <= lastControlIndex; ++i)
+                controlIndices[i] = static_cast<size_t>((lastTrajectoryIndex * i) / std::max<size_t>(1, lastControlIndex));
         }
-        segmentEndIndices.back() = cumulativeDistances.size() - 1;
+        for (size_t& index : controlIndices)
+            index = std::min(index, m_trajectory.size() - 1);
+        controlIndices.front() = 0;
+        controlIndices.back() = m_trajectory.size() - 1;
+
+        const size_t segmentCount = controlTimes.size() - 1;
 
         m_trajectory[0].dtime_arrival = controlTimes[0];
         if (!m_smoothViewpointTransitions)
         {
             for (size_t seg = 0; seg < segmentCount; ++seg)
             {
-                const size_t startIdx = segmentStartIndices[seg];
+                const size_t startIdx = controlIndices[seg];
                 const size_t maxIndex = cumulativeDistances.size() - 1;
-                const size_t endIdx = std::min(std::max(segmentEndIndices[seg], std::min(startIdx + 1, maxIndex)), maxIndex);
+                const size_t endIdx = std::min(std::max(controlIndices[seg + 1], std::min(startIdx + 1, maxIndex)), maxIndex);
                 const double startDistance = cumulativeDistances[startIdx];
                 const double endDistance = cumulativeDistances[endIdx];
                 const double segmentDuration = std::max(0.001, controlTimes[seg + 1] - controlTimes[seg]);
@@ -2085,7 +2089,7 @@ void CameraNode::applyPlaybackTimingFromControlPoints()
             for (size_t seg = 0; seg < segmentCount; ++seg)
             {
                 const size_t maxIndex = cumulativeDistances.size() - 1;
-                const size_t endIdx = std::min(segmentEndIndices[seg], maxIndex);
+                const size_t endIdx = std::min(controlIndices[seg + 1], maxIndex);
                 controlRatios[seg + 1] = (totalDistance > 1e-9)
                     ? std::clamp(cumulativeDistances[endIdx] / totalDistance, 0.0, 1.0)
                     : static_cast<double>(seg + 1) / static_cast<double>(segmentCount);
@@ -2098,18 +2102,7 @@ void CameraNode::applyPlaybackTimingFromControlPoints()
             }
             controlRatios.back() = 1.0;
 
-            std::vector<double> smoothedControlTimes = controlTimes;
-            if (smoothedControlTimes.size() >= 2)
-            {
-                for (size_t i = 1; i + 1 < smoothedControlTimes.size(); ++i)
-                {
-                    const double neighborAverage = 0.5 * (controlTimes[i - 1] + controlTimes[i + 1]);
-                    const double blended = controlTimes[i] + (neighborAverage - controlTimes[i]) * 0.2;
-                    smoothedControlTimes[i] = std::clamp(blended, controlTimes[i - 1] + 1e-6, controlTimes[i + 1] - 1e-6);
-                }
-            }
-
-            const std::vector<double> slopes = computeMonotonicCubicSlopes(controlRatios, smoothedControlTimes);
+            const std::vector<double> slopes = computeMonotonicCubicSlopes(controlRatios, controlTimes);
             for (size_t i = 1; i < m_trajectory.size(); ++i)
             {
                 const double ratio = (totalDistance > 1e-9)
@@ -2117,7 +2110,7 @@ void CameraNode::applyPlaybackTimingFromControlPoints()
                     : static_cast<double>(i) / static_cast<double>(m_trajectory.size() - 1);
                 const double easedRatio = smootherstep01(ratio);
                 const double blendRatio = std::clamp(0.75 * ratio + 0.25 * easedRatio, 0.0, 1.0);
-                m_trajectory[i].dtime_arrival = evaluateMonotonicCubicHermite(controlRatios, smoothedControlTimes, slopes, blendRatio);
+                m_trajectory[i].dtime_arrival = evaluateMonotonicCubicHermite(controlRatios, controlTimes, slopes, blendRatio);
             }
 
             for (size_t i = 1; i < m_trajectory.size(); ++i)

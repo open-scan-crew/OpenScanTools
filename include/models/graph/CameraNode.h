@@ -354,6 +354,7 @@ private:
     ViewPointAnimationMode m_viewPointAnimationMode = ViewPointAnimationMode::ConstantSpeed;
     double m_animationDurationSeconds = 0.0;
     std::vector<double> m_controlPointTimesSeconds;
+    std::vector<size_t> m_controlPointTrajectoryIndices;
     bool m_smoothViewpointTransitions = false;
     bool m_interpolateViewpointRenderings = false;
     std::vector<ViewpointRenderState> m_viewpointRenderStates;
