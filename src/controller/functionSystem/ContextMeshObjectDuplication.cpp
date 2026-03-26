@@ -124,8 +124,6 @@ ContextState ContextMeshObjectDuplication::launch(Controller& controller)
     wNewObj->setName(getMeshCopyName(wNewObj->getName(), graphManager));
     setObjectParameters(controller, *&wNewObj, m_clickResults.empty() ? glm::dvec3() : m_clickResults[0].position, scale * glm::dvec3(dim));
 
-    MeshManager::getInstance().addMeshInstance(wNewObj->getMeshId());
-
     controller.getControlListener()->notifyUIControl(new control::function::AddNodes(newObj));
 
     controller.updateInfo(new GuiDataTmpMessage(TEXT_MESHOBJECT_DUPLICATION_DONE));
