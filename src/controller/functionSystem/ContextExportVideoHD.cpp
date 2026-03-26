@@ -284,10 +284,6 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
 
         m_totalFrames = std::max<long>(1, static_cast<long>(m_parameters.length) * static_cast<long>(m_parameters.fps));
         m_animFrame = 1;
-        m_frameDigits = std::max<uint8_t>(1, static_cast<uint8_t>(std::log10(std::max<long>(1, m_totalFrames)) + 1));
-
-        controller.updateInfo(new GuiDataProcessingSplashScreenStart(m_totalFrames, TEXT_CONTEXT_EXPORT_VIDEO, TEXT_CONTEXT_EXPORT_VIDEO_STEPS.arg(0).arg(m_totalFrames)));
-        m_tpStart = std::chrono::steady_clock::now();
 
         if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS)
         {
@@ -384,6 +380,10 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
             m_orbitalRealAppliedRad = 0.0;
             m_orbitalUsesExamine = wCam->isExamineActive();
         }
+
+        m_frameDigits = std::max<uint8_t>(1, static_cast<uint8_t>(std::log10(std::max<long>(1, m_totalFrames)) + 1));
+        controller.updateInfo(new GuiDataProcessingSplashScreenStart(m_totalFrames, TEXT_CONTEXT_EXPORT_VIDEO, TEXT_CONTEXT_EXPORT_VIDEO_STEPS.arg(0).arg(m_totalFrames)));
+        m_tpStart = std::chrono::steady_clock::now();
 
         m_exportState = 1;
         return m_state = ContextState::ready_for_using;
