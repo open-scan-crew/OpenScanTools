@@ -124,6 +124,15 @@ ContextState ContextMeshObjectDuplication::launch(Controller& controller)
     wNewObj->setName(getMeshCopyName(wNewObj->getName(), graphManager));
     setObjectParameters(controller, *&wNewObj, m_clickResults.empty() ? glm::dvec3() : m_clickResults[0].position, scale * glm::dvec3(dim));
 
+    if (!MeshManager::getInstance().addMeshInstance(wNewObj->getMeshId()))
+    {
+        FUNCLOG << "AContextWavefrontDuplication failed to register mesh instance" << LOGENDL;
+        if (m_mode == DuplicationMode::Click)
+            return ARayTracingContext::abort(controller);
+        else
+            return (m_state = ContextState::abort);
+    }
+
     controller.getControlListener()->notifyUIControl(new control::function::AddNodes(newObj));
 
     controller.updateInfo(new GuiDataTmpMessage(TEXT_MESHOBJECT_DUPLICATION_DONE));

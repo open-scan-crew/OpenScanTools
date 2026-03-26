@@ -377,13 +377,16 @@ std::unordered_set<SafePtr<AGraphNode>> SaveLoadSystem::LoadFileObjects(Controll
                 WritePtr<MeshObjectNode> wMesh = mesh.get();
                 if (!wMesh)
                     continue;
-                if (MeshManager::getInstance().isMeshLoaded(wMesh->getMeshId()))
+                MeshManager& meshManager = MeshManager::getInstance();
+                if (meshManager.isMeshLoaded(wMesh->getMeshId()))
+                {
+                    meshManager.addMeshInstance(wMesh->getMeshId());
                     continue;
+                }
                 if (folder.empty())
                     folder = internalInfo.getObjectsFilesFolderPath();
                 from = folder / wMesh->getFilePath().filename();
 
-                MeshManager& meshManager = MeshManager::getInstance();
                 ret = meshManager.reloadMeshFile(*&wMesh, folder, &controller);
             }
 

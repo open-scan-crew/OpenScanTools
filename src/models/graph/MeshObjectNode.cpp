@@ -17,7 +17,7 @@ MeshObjectNode::MeshObjectNode()
 
 MeshObjectNode::~MeshObjectNode()
 {
-    if (!is_dead_)
+    if (!is_dead_ && m_meshId.isValid())
         MeshManager::getInstance().removeMeshInstance(m_meshId);
 }
 
@@ -33,9 +33,9 @@ TreeType MeshObjectNode::getDefaultTreeType() const
 
 void MeshObjectNode::setDead(bool isDead)
 {
-    if (!is_dead_ && isDead)
+    if (!is_dead_ && isDead && m_meshId.isValid())
         MeshManager::getInstance().removeMeshInstance(m_meshId);
-    if(is_dead_ && !isDead)
+    if(is_dead_ && !isDead && m_meshId.isValid())
         addMeshInstance();
     AGraphNode::setDead(isDead);
 
