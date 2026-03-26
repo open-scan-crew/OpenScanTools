@@ -71,6 +71,12 @@ Color32 normalizedRgbToColor32(const glm::vec3& rgb, uint8_t alpha)
         alpha);
 }
 
+double smoothstep01(double x)
+{
+    x = std::clamp(x, 0.0, 1.0);
+    return x * x * (3.0 - 2.0 * x);
+}
+
 
 
 bool supportsInterpolatedObjectTransform(ElementType type)
@@ -218,6 +224,8 @@ ContextState ContextExportVideoHD::start(Controller& controller)
     m_totalFrames = 0;
     m_viewpoints.clear();
     m_viewpointControlTimes.clear();
+    m_viewpointAnimationMode = ViewPointAnimationMode::ConstantIntervals;
+    m_smoothViewpointTransitions = false;
     m_lastAppliedVisibilityViewpointIndex = 0;
     m_orbitalTotalAngleRad = 0.0;
     m_orbitalLastAppliedRad = 0.0;
@@ -284,15 +292,16 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
 
         m_totalFrames = std::max<long>(1, static_cast<long>(m_parameters.length) * static_cast<long>(m_parameters.fps));
         m_animFrame = 1;
-        m_frameDigits = std::max<uint8_t>(1, static_cast<uint8_t>(std::log10(std::max<long>(1, m_totalFrames)) + 1));
-
-        controller.updateInfo(new GuiDataProcessingSplashScreenStart(m_totalFrames, TEXT_CONTEXT_EXPORT_VIDEO, TEXT_CONTEXT_EXPORT_VIDEO_STEPS.arg(0).arg(m_totalFrames)));
-        m_tpStart = std::chrono::steady_clock::now();
 
         if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS)
         {
-            ViewPointAnimationMode mode = ViewPointAnimationMode::ConstantIntervals;
-            if (!control::animation::helper::buildAnimationViewpointSequence(controller, m_parameters.viewPointAnimation, m_viewpoints, m_viewpointControlTimes, mode))
+            if (!control::animation::helper::buildAnimationViewpointSequence(
+                controller,
+                m_parameters.viewPointAnimation,
+                m_viewpoints,
+                m_viewpointControlTimes,
+                m_viewpointAnimationMode,
+                m_smoothViewpointTransitions))
                 return abort(controller);
 
             bool canInterpolate = true;
@@ -306,13 +315,16 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
             }
             wCam->setViewpointRenderInterpolationEnabled(m_parameters.interpolateRenderingBetweenViewpoints && canInterpolate);
 
-            if (mode == ViewPointAnimationMode::PositionAsTime)
+            if (m_viewpointAnimationMode == ViewPointAnimationMode::PositionAsTime)
             {
                 const double offset = m_viewpointControlTimes.front();
                 for (double& value : m_viewpointControlTimes)
                     value -= offset;
+
+                const double effectiveDuration = std::max(0.0, m_viewpointControlTimes.back());
+                m_totalFrames = std::max<long>(1, static_cast<long>(std::ceil(effectiveDuration * static_cast<double>(std::max(1, m_parameters.fps)))));
             }
-            else if (mode == ViewPointAnimationMode::ConstantSpeed)
+            else if (m_viewpointAnimationMode == ViewPointAnimationMode::ConstantSpeed)
             {
                 std::vector<double> cumulative(m_viewpoints.size(), 0.0);
                 double totalDist = 0.0;
@@ -382,6 +394,10 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
             m_orbitalUsesExamine = wCam->isExamineActive();
         }
 
+        m_frameDigits = std::max<uint8_t>(1, static_cast<uint8_t>(std::log10(std::max<long>(1, m_totalFrames)) + 1));
+        controller.updateInfo(new GuiDataProcessingSplashScreenStart(m_totalFrames, TEXT_CONTEXT_EXPORT_VIDEO, TEXT_CONTEXT_EXPORT_VIDEO_STEPS.arg(0).arg(m_totalFrames)));
+        m_tpStart = std::chrono::steady_clock::now();
+
         m_exportState = 1;
         return m_state = ContextState::ready_for_using;
     }
@@ -428,7 +444,12 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
             const double leftTime = m_viewpointControlTimes[leftIndex];
             const double rightTime = m_viewpointControlTimes[rightIndex];
             const double safeDuration = std::max(1e-9, rightTime - leftTime);
-            const double alpha = std::clamp((t - leftTime) / safeDuration, 0.0, 1.0);
+            const double linearAlpha = std::clamp((t - leftTime) / safeDuration, 0.0, 1.0);
+            const bool useSmoothTransition =
+                m_smoothViewpointTransitions &&
+                (m_viewpointAnimationMode == ViewPointAnimationMode::PositionAsTime ||
+                 m_viewpointAnimationMode == ViewPointAnimationMode::ConstantIntervals);
+            const double alpha = useSmoothTransition ? smoothstep01(linearAlpha) : linearAlpha;
 
             wCam->setPosition(left->getCenter() * (1.0 - alpha) + right->getCenter() * alpha);
             wCam->setRotation(glm::normalize(glm::slerp(left->getOrientation(), right->getOrientation(), alpha)));
