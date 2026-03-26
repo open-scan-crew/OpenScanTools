@@ -7,7 +7,8 @@ MeshObjectNode::MeshObjectNode(const MeshObjectNode& node)
     : AGraphNode(node)
     , MeshObjectData(node)
 {
-
+    if (m_meshId.isValid())
+        addMeshInstance();
 }
 
 MeshObjectNode::MeshObjectNode()

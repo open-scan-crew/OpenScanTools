@@ -90,6 +90,7 @@ public:
 	uint32_t getActiveClippingAndRampCount() const;
 
 	uint32_t getPCOcounters(const tls::ScanGuid& scan) const;
+	uint32_t getPCOcounters(const tls::ScanGuid& scan, bool includeDeadNodes) const;
 	bool isFilePathOrScanExists(const std::wstring& name, const std::filesystem::path& filePath) const;
 
 	void replaceObjectsSelected(std::unordered_set<SafePtr<AGraphNode>> toSelectDatas);

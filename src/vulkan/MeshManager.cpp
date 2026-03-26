@@ -522,6 +522,34 @@ uint64_t MeshManager::getMeshCounters(const MeshId& id)
     return m_meshesCounters[id];
 }
 
+void MeshManager::invalidateLoadedCacheForPath(const std::filesystem::path& meshPath)
+{
+    if (meshPath.empty())
+        return;
+
+    const std::filesystem::path targetFilename = meshPath.filename();
+    for (auto it = m_loaded.begin(); it != m_loaded.end(); )
+    {
+        bool invalidate = false;
+        for (const auto& meshInfo : it->second.meshIdInfo)
+        {
+            const std::filesystem::path& cachedPath = meshInfo.second.path;
+            if (cachedPath.empty())
+                continue;
+            if (cachedPath == meshPath || cachedPath.filename() == targetFilename)
+            {
+                invalidate = true;
+                break;
+            }
+        }
+
+        if (invalidate)
+            it = m_loaded.erase(it);
+        else
+            ++it;
+    }
+}
+
 ObjectAllocation::ReturnCode MeshManager::getBoxId(GenericMeshId& id)
 {
     id.type = GenericMeshType::Cube;
@@ -1149,7 +1177,7 @@ bool MeshManager::removeMeshInstance(MeshId id)
         return false;
     if (m_meshesCounters.find(id) == m_meshesCounters.end())
     {
-        assert(false);
+        GRAPH_LOG << "Warning: removeMeshInstance called on unknown MeshId {" << id << "}." << Logger::endl;
         return false;
     }
 
