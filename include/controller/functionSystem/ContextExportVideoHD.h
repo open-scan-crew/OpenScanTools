@@ -4,6 +4,8 @@
 #include "controller/functionSystem/AContext.h"
 #include "io/exports/ExportParameters.hpp"
 #include "pointCloudEngine/RenderingTypes.h"
+#include <glm/vec3.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <cstddef>
 #include <optional>
 #include <vector>
@@ -43,6 +45,12 @@ private:
 	uint8_t m_frameDigits = 0;
 	std::vector<SafePtr<ViewPointNode>> m_viewpoints;
 	std::vector<double> m_viewpointControlTimes;
+	std::vector<glm::dvec3> m_sampledPositions;
+	std::vector<glm::dquat> m_sampledOrientations;
+	std::vector<double> m_sampledTimes;
+	std::vector<size_t> m_controlPointSampleIndices;
+	ViewPointAnimationMode m_viewpointAnimationMode = ViewPointAnimationMode::ConstantIntervals;
+	bool m_smoothViewpointTransitions = false;
 	size_t m_lastAppliedVisibilityViewpointIndex = 0;
 	double m_orbitalTotalAngleRad = 0.0;
 	double m_orbitalLastAppliedRad = 0.0;

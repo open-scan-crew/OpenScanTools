@@ -85,7 +85,8 @@ namespace control::animation::helper
         const viewPointAnimationId& animationId,
         std::vector<SafePtr<ViewPointNode>>& viewpoints,
         std::vector<double>& controlTimes,
-        ViewPointAnimationMode& mode)
+        ViewPointAnimationMode& mode,
+        bool& smoothTransitions)
     {
         viewpoints.clear();
         controlTimes.clear();
@@ -96,6 +97,7 @@ namespace control::animation::helper
             return false;
 
         mode = itConfig->second.getMode();
+        smoothTransitions = itConfig->second.getSmoothTransitions();
 
         std::unordered_map<xg::Guid, SafePtr<ViewPointNode>> perspectiveById;
         for (const SafePtr<ViewPointNode>& viewpoint : collectPerspectiveViewpointsSorted(controller))

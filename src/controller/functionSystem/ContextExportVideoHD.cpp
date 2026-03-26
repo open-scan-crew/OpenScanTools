@@ -71,6 +71,368 @@ Color32 normalizedRgbToColor32(const glm::vec3& rgb, uint8_t alpha)
         alpha);
 }
 
+double smoothstep01(double x)
+{
+    x = std::clamp(x, 0.0, 1.0);
+    return x * x * (3.0 - 2.0 * x);
+}
+
+double smootherstep01(double x)
+{
+    x = std::clamp(x, 0.0, 1.0);
+    return x * x * x * (x * (x * 6.0 - 15.0) + 10.0);
+}
+
+glm::dvec3 evaluateCentripetalCatmullRom(
+    const glm::dvec3& p0,
+    const glm::dvec3& p1,
+    const glm::dvec3& p2,
+    const glm::dvec3& p3,
+    double t)
+{
+    const double alpha = 0.5;
+    const auto computeKnot = [alpha](double prev, const glm::dvec3& a, const glm::dvec3& b)
+    {
+        return prev + std::pow(std::max(glm::distance(a, b), 1e-9), alpha);
+    };
+
+    const double t0 = 0.0;
+    const double t1 = computeKnot(t0, p0, p1);
+    const double t2 = computeKnot(t1, p1, p2);
+    const double t3 = computeKnot(t2, p2, p3);
+    const double u = t1 + (t2 - t1) * std::clamp(t, 0.0, 1.0);
+
+    const glm::dvec3 a1 = ((t1 - u) / (t1 - t0)) * p0 + ((u - t0) / (t1 - t0)) * p1;
+    const glm::dvec3 a2 = ((t2 - u) / (t2 - t1)) * p1 + ((u - t1) / (t2 - t1)) * p2;
+    const glm::dvec3 a3 = ((t3 - u) / (t3 - t2)) * p2 + ((u - t2) / (t3 - t2)) * p3;
+
+    const glm::dvec3 b1 = ((t2 - u) / (t2 - t0)) * a1 + ((u - t0) / (t2 - t0)) * a2;
+    const glm::dvec3 b2 = ((t3 - u) / (t3 - t1)) * a2 + ((u - t1) / (t3 - t1)) * a3;
+
+    return ((t2 - u) / (t2 - t1)) * b1 + ((u - t1) / (t2 - t1)) * b2;
+}
+
+glm::dquat quaternionLog(const glm::dquat& q)
+{
+    const glm::dquat normalized = glm::normalize(q);
+    const glm::dvec3 v(normalized.x, normalized.y, normalized.z);
+    const double vNorm = glm::length(v);
+    if (vNorm < 1e-12)
+        return glm::dquat(0.0, 0.0, 0.0, 0.0);
+
+    const double angle = std::atan2(vNorm, normalized.w);
+    const glm::dvec3 axis = v / vNorm;
+    const glm::dvec3 logV = axis * angle;
+    return glm::dquat(0.0, logV.x, logV.y, logV.z);
+}
+
+glm::dquat quaternionExp(const glm::dquat& q)
+{
+    const glm::dvec3 v(q.x, q.y, q.z);
+    const double theta = glm::length(v);
+    if (theta < 1e-12)
+        return glm::normalize(glm::dquat(std::cos(theta), v.x, v.y, v.z));
+
+    const glm::dvec3 axis = v / theta;
+    const double sinTheta = std::sin(theta);
+    return glm::normalize(glm::dquat(std::cos(theta), axis.x * sinTheta, axis.y * sinTheta, axis.z * sinTheta));
+}
+
+glm::dquat slerpShortestPath(const glm::dquat& q0, const glm::dquat& q1, double t)
+{
+    glm::dquat q1Shortest = q1;
+    if (glm::dot(q0, q1Shortest) < 0.0)
+        q1Shortest = -q1Shortest;
+    return glm::slerp(q0, q1Shortest, std::clamp(t, 0.0, 1.0));
+}
+
+glm::dquat computeSquadIntermediate(const glm::dquat& qPrev, const glm::dquat& qCurr, const glm::dquat& qNext)
+{
+    const glm::dquat qPrevAligned = (glm::dot(qCurr, qPrev) < 0.0) ? -qPrev : qPrev;
+    const glm::dquat qNextAligned = (glm::dot(qCurr, qNext) < 0.0) ? -qNext : qNext;
+
+    const glm::dquat invCurr = glm::inverse(qCurr);
+    const glm::dquat logPrev = quaternionLog(invCurr * qPrevAligned);
+    const glm::dquat logNext = quaternionLog(invCurr * qNextAligned);
+
+    const glm::dquat averageLog(
+        0.0,
+        -0.25 * (logPrev.x + logNext.x),
+        -0.25 * (logPrev.y + logNext.y),
+        -0.25 * (logPrev.z + logNext.z));
+
+    return glm::normalize(qCurr * quaternionExp(averageLog));
+}
+
+glm::dquat squadShortestPath(const glm::dquat& q0, const glm::dquat& q1, const glm::dquat& s0, const glm::dquat& s1, double t)
+{
+    const double clampedT = std::clamp(t, 0.0, 1.0);
+
+    glm::dquat q1Aligned = q1;
+    glm::dquat s1Aligned = s1;
+    if (glm::dot(q0, q1Aligned) < 0.0)
+    {
+        q1Aligned = -q1Aligned;
+        s1Aligned = -s1Aligned;
+    }
+
+    glm::dquat s0Aligned = s0;
+    if (glm::dot(q0, s0Aligned) < 0.0)
+        s0Aligned = -s0Aligned;
+    if (glm::dot(q1Aligned, s1Aligned) < 0.0)
+        s1Aligned = -s1Aligned;
+
+    const glm::dquat slerpDirect = slerpShortestPath(q0, q1Aligned, clampedT);
+    const glm::dquat slerpControl = slerpShortestPath(s0Aligned, s1Aligned, clampedT);
+    const double blend = 2.0 * clampedT * (1.0 - clampedT);
+    return glm::normalize(slerpShortestPath(slerpDirect, slerpControl, blend));
+}
+
+void enforceQuaternionSignContinuity(std::vector<glm::dquat>& quaternions)
+{
+    for (size_t i = 1; i < quaternions.size(); ++i)
+    {
+        if (glm::dot(quaternions[i - 1], quaternions[i]) < 0.0)
+            quaternions[i] = -quaternions[i];
+    }
+}
+
+std::vector<double> computeMonotonicCubicSlopes(const std::vector<double>& x, const std::vector<double>& y)
+{
+    const size_t count = x.size();
+    std::vector<double> slopes(count, 0.0);
+    if (count < 2 || y.size() != count)
+        return slopes;
+
+    std::vector<double> h(count - 1, 0.0);
+    std::vector<double> delta(count - 1, 0.0);
+    for (size_t i = 0; i + 1 < count; ++i)
+    {
+        h[i] = std::max(x[i + 1] - x[i], 1e-9);
+        delta[i] = (y[i + 1] - y[i]) / h[i];
+    }
+
+    slopes.front() = delta.front();
+    slopes.back() = delta.back();
+    if (count == 2)
+        return slopes;
+
+    for (size_t i = 1; i + 1 < count; ++i)
+    {
+        if (delta[i - 1] * delta[i] <= 0.0)
+        {
+            slopes[i] = 0.0;
+            continue;
+        }
+
+        const double w1 = 2.0 * h[i] + h[i - 1];
+        const double w2 = h[i] + 2.0 * h[i - 1];
+        slopes[i] = (w1 + w2) / (w1 / delta[i - 1] + w2 / delta[i]);
+    }
+    return slopes;
+}
+
+double evaluateMonotonicCubicHermite(const std::vector<double>& x, const std::vector<double>& y, const std::vector<double>& slopes, double xQuery)
+{
+    if (x.size() < 2 || y.size() != x.size() || slopes.size() != x.size())
+        return 0.0;
+    if (xQuery <= x.front())
+        return y.front();
+    if (xQuery >= x.back())
+        return y.back();
+
+    auto upper = std::upper_bound(x.begin(), x.end(), xQuery);
+    size_t i = static_cast<size_t>(std::distance(x.begin(), upper) - 1);
+    i = std::min(i, x.size() - 2);
+
+    const double x0 = x[i];
+    const double x1 = x[i + 1];
+    const double h = std::max(x1 - x0, 1e-9);
+    const double t = std::clamp((xQuery - x0) / h, 0.0, 1.0);
+
+    const double h00 = (2.0 * t * t * t - 3.0 * t * t + 1.0);
+    const double h10 = (t * t * t - 2.0 * t * t + t);
+    const double h01 = (-2.0 * t * t * t + 3.0 * t * t);
+    const double h11 = (t * t * t - t * t);
+
+    return h00 * y[i] + h10 * h * slopes[i] + h01 * y[i + 1] + h11 * h * slopes[i + 1];
+}
+
+void buildSampledPlaybackPath(
+    const std::vector<SafePtr<ViewPointNode>>& viewpoints,
+    std::vector<glm::dvec3>& outPositions,
+    std::vector<glm::dquat>& outOrientations,
+    std::vector<size_t>& outControlIndices)
+{
+    outPositions.clear();
+    outOrientations.clear();
+    outControlIndices.clear();
+    if (viewpoints.size() < 2)
+        return;
+
+    const size_t controlCount = viewpoints.size();
+    outControlIndices.resize(controlCount, 0);
+    outPositions.reserve(controlCount * 12);
+    outOrientations.reserve(controlCount * 12);
+
+    std::vector<glm::dvec3> controlPositions;
+    std::vector<glm::dquat> controlOrientations;
+    controlPositions.reserve(controlCount);
+    controlOrientations.reserve(controlCount);
+    for (const SafePtr<ViewPointNode>& viewpoint : viewpoints)
+    {
+        ReadPtr<ViewPointNode> rViewpoint = viewpoint.cget();
+        if (!rViewpoint)
+        {
+            outPositions.clear();
+            outOrientations.clear();
+            outControlIndices.clear();
+            return;
+        }
+        controlPositions.push_back(rViewpoint->getCenter());
+        controlOrientations.push_back(glm::normalize(rViewpoint->getOrientation()));
+    }
+
+    enforceQuaternionSignContinuity(controlOrientations);
+
+    if (controlCount < 3)
+    {
+        outPositions = controlPositions;
+        outOrientations = controlOrientations;
+        for (size_t i = 0; i < controlCount; ++i)
+            outControlIndices[i] = i;
+        return;
+    }
+
+    outPositions.push_back(controlPositions[0]);
+    outOrientations.push_back(controlOrientations[0]);
+    outControlIndices[0] = 0;
+
+    std::vector<glm::dquat> squadIntermediates(controlCount);
+    squadIntermediates.front() = controlOrientations.front();
+    squadIntermediates.back() = controlOrientations.back();
+    for (size_t i = 1; i + 1 < controlCount; ++i)
+        squadIntermediates[i] = computeSquadIntermediate(controlOrientations[i - 1], controlOrientations[i], controlOrientations[i + 1]);
+
+    for (size_t i = 0; i + 1 < controlCount; ++i)
+    {
+        const glm::dvec3& p0 = (i == 0) ? controlPositions[i] : controlPositions[i - 1];
+        const glm::dvec3& p1 = controlPositions[i];
+        const glm::dvec3& p2 = controlPositions[i + 1];
+        const glm::dvec3& p3 = (i + 2 < controlCount) ? controlPositions[i + 2] : controlPositions[i + 1];
+
+        const double segmentDistance = glm::distance(p1, p2);
+        const int positionSampleCount = std::clamp(static_cast<int>(std::ceil(segmentDistance / 0.25)), 4, 48);
+        const double orientationAlignment = std::clamp(std::abs(glm::dot(controlOrientations[i], controlOrientations[i + 1])), 0.0, 1.0);
+        const double orientationAngle = 2.0 * std::acos(orientationAlignment);
+        const int orientationSampleCount = std::clamp(static_cast<int>(std::ceil(orientationAngle / glm::radians(2.0))), 1, 48);
+
+        int sampleCount = std::max(positionSampleCount, orientationSampleCount);
+        if (i + 1 == controlCount - 1)
+            sampleCount = std::min(sampleCount * 2, 64);
+        sampleCount = std::clamp(sampleCount, 4, 64);
+
+        for (int step = 1; step <= sampleCount; ++step)
+        {
+            const double localT = static_cast<double>(step) / static_cast<double>(sampleCount);
+            outPositions.push_back(evaluateCentripetalCatmullRom(p0, p1, p2, p3, localT));
+            outOrientations.push_back(squadShortestPath(controlOrientations[i], controlOrientations[i + 1], squadIntermediates[i], squadIntermediates[i + 1], localT));
+        }
+        outControlIndices[i + 1] = outPositions.size() - 1;
+    }
+}
+
+std::vector<double> computeSampledTimes(
+    ViewPointAnimationMode mode,
+    double targetDuration,
+    const std::vector<double>& controlTimesInput,
+    bool smoothTransitions,
+    const std::vector<glm::dvec3>& sampledPositions,
+    const std::vector<size_t>& controlIndices)
+{
+    std::vector<double> sampledTimes(sampledPositions.size(), 0.0);
+    if (sampledPositions.size() < 2)
+        return sampledTimes;
+
+    std::vector<double> cumulativeDistances(sampledPositions.size(), 0.0);
+    for (size_t i = 1; i < sampledPositions.size(); ++i)
+        cumulativeDistances[i] = cumulativeDistances[i - 1] + glm::distance(sampledPositions[i - 1], sampledPositions[i]);
+    const double totalDistance = cumulativeDistances.back();
+
+    if (mode == ViewPointAnimationMode::ConstantSpeed || controlTimesInput.size() < 2)
+    {
+        for (size_t i = 1; i < sampledTimes.size(); ++i)
+        {
+            const double alpha = (totalDistance > 1e-9) ? cumulativeDistances[i] / totalDistance : static_cast<double>(i) / static_cast<double>(sampledTimes.size() - 1);
+            sampledTimes[i] = targetDuration * alpha;
+        }
+        return sampledTimes;
+    }
+
+    std::vector<double> controlTimes = controlTimesInput;
+    const double firstTime = controlTimes.front();
+    for (double& t : controlTimes)
+        t -= firstTime;
+
+    if (mode == ViewPointAnimationMode::ConstantIntervals)
+    {
+        const size_t last = controlTimes.size() - 1;
+        for (size_t i = 0; i <= last; ++i)
+            controlTimes[i] = targetDuration * static_cast<double>(i) / static_cast<double>(last);
+    }
+
+    sampledTimes.front() = controlTimes.front();
+    const size_t segmentCount = controlTimes.size() - 1;
+    if (!smoothTransitions)
+    {
+        for (size_t seg = 0; seg < segmentCount; ++seg)
+        {
+            const size_t startIdx = controlIndices[seg];
+            const size_t endIdx = std::max(controlIndices[seg + 1], startIdx + 1);
+            const double startDistance = cumulativeDistances[startIdx];
+            const double endDistance = cumulativeDistances[endIdx];
+            const double segmentDuration = std::max(0.001, controlTimes[seg + 1] - controlTimes[seg]);
+            for (size_t i = startIdx + 1; i <= endIdx; ++i)
+            {
+                const double segmentAlpha = (endDistance > startDistance) ? (cumulativeDistances[i] - startDistance) / (endDistance - startDistance) : static_cast<double>(i - startIdx) / static_cast<double>(endIdx - startIdx);
+                sampledTimes[i] = controlTimes[seg] + segmentDuration * smoothstep01(segmentAlpha);
+            }
+        }
+        return sampledTimes;
+    }
+
+    std::vector<double> controlRatios(controlTimes.size(), 0.0);
+    controlRatios.front() = 0.0;
+    for (size_t seg = 0; seg < segmentCount; ++seg)
+    {
+        const size_t endIdx = controlIndices[seg + 1];
+        controlRatios[seg + 1] = (totalDistance > 1e-9)
+            ? std::clamp(cumulativeDistances[endIdx] / totalDistance, 0.0, 1.0)
+            : static_cast<double>(seg + 1) / static_cast<double>(segmentCount);
+    }
+    for (size_t i = 1; i < controlRatios.size(); ++i)
+    {
+        if (controlRatios[i] <= controlRatios[i - 1])
+            controlRatios[i] = std::min(1.0, controlRatios[i - 1] + 1e-6);
+    }
+    controlRatios.back() = 1.0;
+
+    const std::vector<double> slopes = computeMonotonicCubicSlopes(controlRatios, controlTimes);
+    for (size_t i = 1; i < sampledPositions.size(); ++i)
+    {
+        const double ratio = (totalDistance > 1e-9)
+            ? std::clamp(cumulativeDistances[i] / totalDistance, 0.0, 1.0)
+            : static_cast<double>(i) / static_cast<double>(sampledPositions.size() - 1);
+        const double easedRatio = smootherstep01(ratio);
+        const double blendRatio = std::clamp(0.75 * ratio + 0.25 * easedRatio, 0.0, 1.0);
+        sampledTimes[i] = evaluateMonotonicCubicHermite(controlRatios, controlTimes, slopes, blendRatio);
+    }
+    for (size_t i = 1; i < sampledTimes.size(); ++i)
+        sampledTimes[i] = std::max(sampledTimes[i], sampledTimes[i - 1] + 1e-6);
+    sampledTimes.back() = std::max(controlTimes.back(), sampledTimes[sampledTimes.size() - 2] + 1e-6);
+    return sampledTimes;
+}
+
 
 
 bool supportsInterpolatedObjectTransform(ElementType type)
@@ -218,6 +580,12 @@ ContextState ContextExportVideoHD::start(Controller& controller)
     m_totalFrames = 0;
     m_viewpoints.clear();
     m_viewpointControlTimes.clear();
+    m_sampledPositions.clear();
+    m_sampledOrientations.clear();
+    m_sampledTimes.clear();
+    m_controlPointSampleIndices.clear();
+    m_viewpointAnimationMode = ViewPointAnimationMode::ConstantIntervals;
+    m_smoothViewpointTransitions = false;
     m_lastAppliedVisibilityViewpointIndex = 0;
     m_orbitalTotalAngleRad = 0.0;
     m_orbitalLastAppliedRad = 0.0;
@@ -284,15 +652,16 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
 
         m_totalFrames = std::max<long>(1, static_cast<long>(m_parameters.length) * static_cast<long>(m_parameters.fps));
         m_animFrame = 1;
-        m_frameDigits = std::max<uint8_t>(1, static_cast<uint8_t>(std::log10(std::max<long>(1, m_totalFrames)) + 1));
-
-        controller.updateInfo(new GuiDataProcessingSplashScreenStart(m_totalFrames, TEXT_CONTEXT_EXPORT_VIDEO, TEXT_CONTEXT_EXPORT_VIDEO_STEPS.arg(0).arg(m_totalFrames)));
-        m_tpStart = std::chrono::steady_clock::now();
 
         if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS)
         {
-            ViewPointAnimationMode mode = ViewPointAnimationMode::ConstantIntervals;
-            if (!control::animation::helper::buildAnimationViewpointSequence(controller, m_parameters.viewPointAnimation, m_viewpoints, m_viewpointControlTimes, mode))
+            if (!control::animation::helper::buildAnimationViewpointSequence(
+                controller,
+                m_parameters.viewPointAnimation,
+                m_viewpoints,
+                m_viewpointControlTimes,
+                m_viewpointAnimationMode,
+                m_smoothViewpointTransitions))
                 return abort(controller);
 
             bool canInterpolate = true;
@@ -306,37 +675,42 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
             }
             wCam->setViewpointRenderInterpolationEnabled(m_parameters.interpolateRenderingBetweenViewpoints && canInterpolate);
 
-            if (mode == ViewPointAnimationMode::PositionAsTime)
+            buildSampledPlaybackPath(m_viewpoints, m_sampledPositions, m_sampledOrientations, m_controlPointSampleIndices);
+            if (m_sampledPositions.size() < 2 || m_sampledOrientations.size() != m_sampledPositions.size() || m_controlPointSampleIndices.size() != m_viewpoints.size())
+                return abort(controller);
+
+            if (m_viewpointAnimationMode == ViewPointAnimationMode::PositionAsTime)
             {
                 const double offset = m_viewpointControlTimes.front();
                 for (double& value : m_viewpointControlTimes)
                     value -= offset;
+
+                const double effectiveDuration = std::max(0.0, m_viewpointControlTimes.back());
+                m_totalFrames = std::max<long>(1, static_cast<long>(std::ceil(effectiveDuration * static_cast<double>(std::max(1, m_parameters.fps)))));
             }
-            else if (mode == ViewPointAnimationMode::ConstantSpeed)
+            else if (m_viewpointAnimationMode == ViewPointAnimationMode::ConstantSpeed)
             {
-                std::vector<double> cumulative(m_viewpoints.size(), 0.0);
-                double totalDist = 0.0;
-                for (size_t i = 1; i < m_viewpoints.size(); ++i)
-                {
-                    ReadPtr<ViewPointNode> prev = m_viewpoints[i - 1].cget();
-                    ReadPtr<ViewPointNode> curr = m_viewpoints[i].cget();
-                    if (!prev || !curr)
-                        return abort(controller);
-                    totalDist += glm::distance(prev->getCenter(), curr->getCenter());
-                    cumulative[i] = totalDist;
-                }
                 const double targetDuration = std::max(0.001, static_cast<double>(m_parameters.length));
+                std::vector<double> cumulative(m_sampledPositions.size(), 0.0);
+                for (size_t i = 1; i < m_sampledPositions.size(); ++i)
+                    cumulative[i] = cumulative[i - 1] + glm::distance(m_sampledPositions[i - 1], m_sampledPositions[i]);
+
+                const double totalDist = cumulative.back();
+                m_viewpointControlTimes.resize(m_viewpoints.size(), 0.0);
                 if (totalDist <= 1e-9)
                 {
-                    for (size_t i = 0; i < cumulative.size(); ++i)
-                        cumulative[i] = targetDuration * static_cast<double>(i) / static_cast<double>(std::max<size_t>(1, cumulative.size() - 1));
+                    const size_t lastIndex = m_viewpoints.size() - 1;
+                    for (size_t i = 0; i <= lastIndex; ++i)
+                        m_viewpointControlTimes[i] = targetDuration * static_cast<double>(i) / static_cast<double>(std::max<size_t>(1, lastIndex));
                 }
                 else
                 {
-                    for (double& value : cumulative)
-                        value = targetDuration * value / totalDist;
+                    for (size_t i = 0; i < m_viewpoints.size(); ++i)
+                    {
+                        const size_t sampleIdx = std::min(m_controlPointSampleIndices[i], cumulative.size() - 1);
+                        m_viewpointControlTimes[i] = targetDuration * cumulative[sampleIdx] / totalDist;
+                    }
                 }
-                m_viewpointControlTimes = cumulative;
             }
             else
             {
@@ -346,6 +720,19 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
                 for (size_t i = 0; i <= lastIndex; ++i)
                     m_viewpointControlTimes[i] = targetDuration * static_cast<double>(i) / static_cast<double>(std::max<size_t>(1, lastIndex));
             }
+
+            const double playbackDuration = (m_viewpointAnimationMode == ViewPointAnimationMode::PositionAsTime)
+                ? std::max(0.001, m_viewpointControlTimes.back())
+                : std::max(0.001, static_cast<double>(m_parameters.length));
+            m_sampledTimes = computeSampledTimes(
+                m_viewpointAnimationMode,
+                playbackDuration,
+                m_viewpointControlTimes,
+                m_smoothViewpointTransitions,
+                m_sampledPositions,
+                m_controlPointSampleIndices);
+            if (m_sampledTimes.size() != m_sampledPositions.size())
+                return abort(controller);
 
             ReadPtr<ViewPointNode> rStart = m_viewpoints.front().cget();
             if (!rStart)
@@ -361,6 +748,10 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
         {
             m_viewpoints.clear();
             m_viewpointControlTimes.clear();
+            m_sampledPositions.clear();
+            m_sampledOrientations.clear();
+            m_sampledTimes.clear();
+            m_controlPointSampleIndices.clear();
             m_orbitalVertical = m_parameters.verticalOrbital;
             m_orbitalDirectionSign = -1.0; // current vertical behavior: bottom -> top
             const int maxDegrees = m_orbitalVertical ? 180 : 360;
@@ -382,6 +773,10 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
             m_orbitalUsesExamine = wCam->isExamineActive();
         }
 
+        m_frameDigits = std::max<uint8_t>(1, static_cast<uint8_t>(std::log10(std::max<long>(1, m_totalFrames)) + 1));
+        controller.updateInfo(new GuiDataProcessingSplashScreenStart(m_totalFrames, TEXT_CONTEXT_EXPORT_VIDEO, TEXT_CONTEXT_EXPORT_VIDEO_STEPS.arg(0).arg(m_totalFrames)));
+        m_tpStart = std::chrono::steady_clock::now();
+
         m_exportState = 1;
         return m_state = ContextState::ready_for_using;
     }
@@ -401,7 +796,22 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
 
         if (m_animFrame > 1 && m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS)
         {
-            const double t = std::clamp(static_cast<double>(m_animFrame - 1) / static_cast<double>(std::max(1, m_parameters.fps)), 0.0, m_viewpointControlTimes.back());
+            const double t = std::clamp(static_cast<double>(m_animFrame - 1) / static_cast<double>(std::max(1, m_parameters.fps)), 0.0, m_sampledTimes.back());
+
+            auto sampledUpper = std::upper_bound(m_sampledTimes.begin(), m_sampledTimes.end(), t);
+            size_t sampledRightIndex = static_cast<size_t>(std::distance(m_sampledTimes.begin(), sampledUpper));
+            if (sampledRightIndex == 0)
+                sampledRightIndex = 1;
+            if (sampledRightIndex >= m_sampledTimes.size())
+                sampledRightIndex = m_sampledTimes.size() - 1;
+            const size_t sampledLeftIndex = sampledRightIndex - 1;
+            const double leftSampleTime = m_sampledTimes[sampledLeftIndex];
+            const double rightSampleTime = m_sampledTimes[sampledRightIndex];
+            const double safeSampleDuration = std::max(1e-9, rightSampleTime - leftSampleTime);
+            const double sampleAlpha = std::clamp((t - leftSampleTime) / safeSampleDuration, 0.0, 1.0);
+            wCam->setPosition(m_sampledPositions[sampledLeftIndex] * (1.0 - sampleAlpha) + m_sampledPositions[sampledRightIndex] * sampleAlpha);
+            wCam->setRotation(glm::normalize(slerpShortestPath(m_sampledOrientations[sampledLeftIndex], m_sampledOrientations[sampledRightIndex], sampleAlpha)));
+
             auto upper = std::upper_bound(m_viewpointControlTimes.begin(), m_viewpointControlTimes.end(), t);
             size_t rightIndex = static_cast<size_t>(std::distance(m_viewpointControlTimes.begin(), upper));
             if (rightIndex == 0)
@@ -428,10 +838,12 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
             const double leftTime = m_viewpointControlTimes[leftIndex];
             const double rightTime = m_viewpointControlTimes[rightIndex];
             const double safeDuration = std::max(1e-9, rightTime - leftTime);
-            const double alpha = std::clamp((t - leftTime) / safeDuration, 0.0, 1.0);
-
-            wCam->setPosition(left->getCenter() * (1.0 - alpha) + right->getCenter() * alpha);
-            wCam->setRotation(glm::normalize(glm::slerp(left->getOrientation(), right->getOrientation(), alpha)));
+            const double linearAlpha = std::clamp((t - leftTime) / safeDuration, 0.0, 1.0);
+            const bool useSmoothTransition =
+                m_smoothViewpointTransitions &&
+                (m_viewpointAnimationMode == ViewPointAnimationMode::PositionAsTime ||
+                 m_viewpointAnimationMode == ViewPointAnimationMode::ConstantIntervals);
+            const double alpha = useSmoothTransition ? smoothstep01(linearAlpha) : linearAlpha;
 
             if (m_parameters.interpolateRenderingBetweenViewpoints && control::animation::helper::areViewpointsInterpolationCompatible(*&left, *&right))
             {
