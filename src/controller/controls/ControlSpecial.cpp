@@ -207,6 +207,7 @@ namespace control::special
 
 					CONTROLLOG << "The file " << meshObj->getFilePath() << " -- {" << meshObj->getMeshId() << "} will be definitly deleted." << LOGENDL;
 					std::filesystem::path filePath = controller.getContext().cgetProjectInternalInfo().getObjectsFilesFolderPath() / meshObj->getFilePath().filename();
+					MeshManager::getInstance().invalidateLoadedCacheForPath(filePath);
 
 					if (!std::filesystem::exists(filePath) || std::filesystem::is_directory(filePath))
 						break;
@@ -437,10 +438,9 @@ namespace control::special
 					}
 				}
 
-				if (!filePath.empty() && std::filesystem::exists(filePath))
+				if (!filePath.empty())
 					importantObject[importantData] = { QString::fromStdWString(name), QString::fromStdWString(filePath.wstring()) };
-
-				if (!std::filesystem::exists(filePath))
+				else
 					otherDatas.insert(importantData);
 			}
 			controller.updateInfo(new GuiDataDeleteFileDependantObjectDialog(importantObject, otherDatas));
