@@ -1149,7 +1149,7 @@ bool MeshManager::removeMeshInstance(MeshId id)
         return false;
     if (m_meshesCounters.find(id) == m_meshesCounters.end())
     {
-        assert(false);
+        GRAPH_LOG << "Warning: removeMeshInstance called on unknown MeshId {" << id << "}." << Logger::endl;
         return false;
     }
 
