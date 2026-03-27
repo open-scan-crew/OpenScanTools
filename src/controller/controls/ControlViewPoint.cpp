@@ -1,5 +1,6 @@
 #include "controller/controls/ControlViewPoint.h"
 #include "controller/Controller.h"
+#include "controller/ControllerContext.h"
 #include "controller/functionSystem/FunctionManager.h"
 #include "controller/messages/DataIDListMessage.h"
 
