@@ -391,6 +391,7 @@ namespace control::viewpoint
 
         GraphManager& graphManager = controller.getGraphManager();
         std::unordered_set<SafePtr<AGraphNode>> viewpoints = graphManager.getNodesByTypes({ ElementType::ViewPoint }, ObjectStatusFilter::ALL);
+        bool removedAnyPolygon = false;
 
         for (const SafePtr<AGraphNode>& vpNode : viewpoints)
         {
@@ -406,6 +407,7 @@ namespace control::viewpoint
                 continue;
 
             selector.polygons.erase(removeIt, selector.polygons.end());
+            removedAnyPolygon = true;
             selector.appliedPolygonCount = std::min<uint32_t>(selector.appliedPolygonCount, static_cast<uint32_t>(selector.polygons.size()));
             selector.pendingApply = selector.appliedPolygonCount < selector.polygons.size();
             selector.nextPolygonId = computeNextPolygonId(selector);
