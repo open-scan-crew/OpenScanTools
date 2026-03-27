@@ -1,5 +1,6 @@
 #include "controller/controls/ControlViewPoint.h"
 #include "controller/Controller.h"
+#include "controller/ControllerContext.h"
 #include "controller/functionSystem/FunctionManager.h"
 #include "controller/messages/DataIDListMessage.h"
 
@@ -417,6 +418,11 @@ namespace control::viewpoint
                 selector.manageMode = false;
             }
         }
+
+        // ProjectDataChange (A-ready, B-migration anchor)
+        // Deletion can be initiated from toolbar settings tied to the active camera, even when
+        // no persisted viewpoint selector contains the polygon anymore at this stage.
+        controller.getContext().markCurrentProjectDataChanged();
 
         CONTROLLOG << "control::viewpoint::DeletePolygonFromProject do " << m_polygonName << LOGENDL;
     }
