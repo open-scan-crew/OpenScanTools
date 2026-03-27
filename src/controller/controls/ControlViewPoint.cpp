@@ -1,5 +1,6 @@
 #include "controller/controls/ControlViewPoint.h"
 #include "controller/Controller.h"
+#include "controller/ControllerContext.h"
 #include "controller/functionSystem/FunctionManager.h"
 #include "controller/messages/DataIDListMessage.h"
 
@@ -390,6 +391,7 @@ namespace control::viewpoint
 
         GraphManager& graphManager = controller.getGraphManager();
         std::unordered_set<SafePtr<AGraphNode>> viewpoints = graphManager.getNodesByTypes({ ElementType::ViewPoint }, ObjectStatusFilter::ALL);
+        bool removedAnyPolygon = false;
 
         for (const SafePtr<AGraphNode>& vpNode : viewpoints)
         {
@@ -405,6 +407,7 @@ namespace control::viewpoint
                 continue;
 
             selector.polygons.erase(removeIt, selector.polygons.end());
+            removedAnyPolygon = true;
             selector.appliedPolygonCount = std::min<uint32_t>(selector.appliedPolygonCount, static_cast<uint32_t>(selector.polygons.size()));
             selector.pendingApply = selector.appliedPolygonCount < selector.polygons.size();
             selector.nextPolygonId = computeNextPolygonId(selector);
@@ -416,6 +419,12 @@ namespace control::viewpoint
                 selector.highlightedPolygonIndex = -1;
                 selector.manageMode = false;
             }
+        }
+
+        if (removedAnyPolygon)
+        {
+            // ProjectDataChange (A-ready, B-migration anchor)
+            controller.getContext().markCurrentProjectDataChanged();
         }
 
         CONTROLLOG << "control::viewpoint::DeletePolygonFromProject do " << m_polygonName << LOGENDL;

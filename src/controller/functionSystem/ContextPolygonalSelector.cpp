@@ -1,6 +1,7 @@
 #include "controller/functionSystem/ContextPolygonalSelector.h"
 
 #include "controller/Controller.h"
+#include "controller/ControllerContext.h"
 #include "controller/controls/ControlFunction.h"
 #include "controller/messages/FullClickMessage.h"
 #include "controller/messages/IMessage.h"
@@ -185,6 +186,9 @@ ContextState ContextPolygonalSelector::validate(Controller& controller)
             ++m_settings.nextPolygonId;
             m_settings.enabled = true;
             m_settings.pendingApply = true;
+
+            // ProjectDataChange (A-ready, B-migration anchor)
+            controller.getContext().markCurrentProjectDataChanged();
         }
     }
 
