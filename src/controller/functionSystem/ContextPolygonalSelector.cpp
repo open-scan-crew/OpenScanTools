@@ -185,6 +185,9 @@ ContextState ContextPolygonalSelector::validate(Controller& controller)
             ++m_settings.nextPolygonId;
             m_settings.enabled = true;
             m_settings.pendingApply = true;
+
+            // ProjectDataChange (A-ready, B-migration anchor)
+            controller.getContext().markCurrentProjectDataChanged();
         }
     }
 

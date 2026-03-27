@@ -341,6 +341,9 @@ namespace control::animation
         if (inserted.second)
             configs[m_config.getId()].setOrder(static_cast<uint32_t>(configs.size() - 1));
 
+        // ProjectDataChange (A-ready, B-migration anchor)
+        controller.getContext().markCurrentProjectDataChanged();
+
         normalizeAnimationConfigs(controller);
         controller.updateInfo(new GuiDataSendViewPointAnimationData(getSortedAnimationConfigs(controller), collectAllViewpointInfos(controller)));
     }
@@ -371,6 +374,9 @@ namespace control::animation
             if (pair.second.getOrder() > deletedOrder)
                 pair.second.setOrder(pair.second.getOrder() - 1);
         }
+
+        // ProjectDataChange (A-ready, B-migration anchor)
+        controller.getContext().markCurrentProjectDataChanged();
 
         controller.updateInfo(new GuiDataSendViewPointAnimationData(getSortedAnimationConfigs(controller), collectAllViewpointInfos(controller)));
     }

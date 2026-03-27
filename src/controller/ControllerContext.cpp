@@ -258,6 +258,12 @@ void ControllerContext::setIsCurrentProjectSaved(bool value)
 	m_isCurrentProjectSaved = value;
 }
 
+void ControllerContext::markCurrentProjectDataChanged()
+{
+	// ProjectDataChange (A-ready, B-migration anchor)
+	setIsCurrentProjectSaved(false);
+}
+
 bool ControllerContext::setUserLists(std::vector<UserList> list, bool reset)
 {
 	if (list.empty())

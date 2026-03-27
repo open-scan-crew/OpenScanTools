@@ -112,6 +112,8 @@ public:
 
 	void setActiveIcon(scs::MarkerIcon icon);
 	void setIsCurrentProjectSaved(bool value);
+	// ProjectDataChange (A-ready, B-migration anchor)
+	void markCurrentProjectDataChanged();
 	bool setStandards(std::vector<StandardList> list, const StandardType& type, bool reset = false);
 	void setPolyLineOptions(const PolyLineOptions& options);
 
