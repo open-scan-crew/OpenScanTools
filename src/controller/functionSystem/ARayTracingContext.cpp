@@ -566,7 +566,9 @@ glm::dvec3 ARayTracingContext::rayTracePointClouds(Controller& controller, Click
     ClippingAssembly clipAssembly;
     controller.getGraphManager().getClippingAssembly(clipAssembly, true, false);
 
-    bool isOrtho = (std::fabs(abs(clickInfo.fov)) <= std::numeric_limits<double>::epsilon());
+    // Keep a practical tolerance: view mode can leave tiny residual values around zero.
+    constexpr double kOrthoFovEpsilon = 1e-10;
+    bool isOrtho = (std::abs(clickInfo.fov) <= kOrthoFovEpsilon);
     TlScanOverseer::setWorkingScansTransfo(controller.getGraphManager().getVisiblePointCloudInstances(clickInfo.panoramic, true, true));
 
     double cosAngleThreshold = atan(clickInfo.heightAt1m * pointSize / (1.0 * clickInfo.height)); // angle across a visible point in the viewport
