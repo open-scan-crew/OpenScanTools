@@ -26,6 +26,8 @@
 
 namespace
 {
+constexpr bool kRayTracingPickDebug = false;
+
 RayTracingDisplayFilterSettings buildRayTracingDisplayFilterSettings(const ClickInfo& clickInfo)
 {
     RayTracingDisplayFilterSettings settings;
@@ -39,6 +41,17 @@ RayTracingDisplayFilterSettings buildRayTracingDisplayFilterSettings(const Click
     settings.colorimetricFilter = display.m_colorimetricFilter;
     settings.polygonalSelector = display.m_polygonalSelector;
     return settings;
+}
+
+bool isOrthographicPick(const ClickInfo& clickInfo)
+{
+    // Use camera projection mode as source of truth; fov can be stale/ambiguous in orthographic workflows.
+    ReadPtr<CameraNode> rCamera = clickInfo.viewport.cget();
+    if (rCamera)
+        return rCamera->getProjectionMode() == ProjectionMode::Orthographic;
+
+    // Fallback kept for safety if the viewport pointer is unavailable.
+    return (std::fabs(abs(clickInfo.fov)) <= std::numeric_limits<double>::epsilon());
 }
 }
 
@@ -566,7 +579,15 @@ glm::dvec3 ARayTracingContext::rayTracePointClouds(Controller& controller, Click
     ClippingAssembly clipAssembly;
     controller.getGraphManager().getClippingAssembly(clipAssembly, true, false);
 
-    bool isOrtho = (std::fabs(abs(clickInfo.fov)) <= std::numeric_limits<double>::epsilon());
+    bool isOrtho = isOrthographicPick(clickInfo);
+    if (kRayTracingPickDebug)
+    {
+        ReadPtr<CameraNode> rCamera = clickInfo.viewport.cget();
+        ProjectionMode mode = rCamera ? rCamera->getProjectionMode() : ProjectionMode::Perspective;
+        Logger::log(LoggerMode::rayTracingLog) << "[PickDebug] mode=" << static_cast<int>(mode)
+            << " fov=" << clickInfo.fov << " isOrtho=" << isOrtho
+            << " heightAt1m=" << clickInfo.heightAt1m << Logger::endl;
+    }
     TlScanOverseer::setWorkingScansTransfo(controller.getGraphManager().getVisiblePointCloudInstances(clickInfo.panoramic, true, true));
 
     double cosAngleThreshold = atan(clickInfo.heightAt1m * pointSize / (1.0 * clickInfo.height)); // angle across a visible point in the viewport

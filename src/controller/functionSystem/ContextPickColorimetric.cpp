@@ -61,6 +61,16 @@ namespace
         return settings;
     }
 
+    bool isOrthographicPick(const ClickInfo& clickInfo)
+    {
+        // Projection mode is more robust than testing fov == 0 for orthographic picks.
+        ReadPtr<CameraNode> rCamera = clickInfo.viewport.cget();
+        if (rCamera)
+            return rCamera->getProjectionMode() == ProjectionMode::Orthographic;
+
+        return (std::abs(clickInfo.fov) <= std::numeric_limits<double>::epsilon());
+    }
+
     bool tryFindNearestPoint(const Controller& controller, const ClickInfo& clickInfo, const glm::dvec3& point, PointXYZIRGB& outPoint)
     {
         double radius = computePickRadius(controller, clickInfo, point);
@@ -100,7 +110,7 @@ namespace
     {
         double height = std::max(1.0, static_cast<double>(clickInfo.height));
         double pointSize = controller.cgetContext().getRenderPointSize() + 2.0;
-        bool isOrtho = (std::abs(clickInfo.fov) <= std::numeric_limits<double>::epsilon());
+        bool isOrtho = isOrthographicPick(clickInfo);
         double cosAngleThreshold = atan(clickInfo.heightAt1m * pointSize / (1.0 * height));
         cosAngleThreshold = isOrtho ? clickInfo.heightAt1m * pointSize / (1.0 * height) : cos(cosAngleThreshold);
 
