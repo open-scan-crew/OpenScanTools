@@ -219,8 +219,7 @@ public:
     glm::dvec3 getLocalCoord(const glm::dvec3& globalCoord) const;
 
 protected:
-    int updateRay(glm::dvec3& localRay, glm::dvec3& localRayOrigin, const double& rootSize); //returns a=4x+2y+z, where s=0 iff ray.s>0 and 1 otherwise
-	void traceRay(const double& tx0, const double& ty0, const double& tz0, const double& tx1, const double& ty1, const double& tz1, const uint32_t& cellId, const int& rayModifier, std::vector<uint32_t>& leafList, const ClippingAssembly& clippingAssembly, const glm::dvec3& localRayOrigin);	
+	void traceRay(const double& tx0, const double& ty0, const double& tz0, const double& tx1, const double& ty1, const double& tz1, const uint32_t& cellId, std::vector<uint32_t>& leafList, const ClippingAssembly& clippingAssembly, const glm::dvec3& localRayOrigin);
 	glm::dvec3 findBestPointIterative(const std::vector<uint32_t>& leafList, const glm::dvec3& rayDirection, const glm::dvec3& rayOrigin, const double& cosAngleThreshold, const double& rayRadius, const ClippingAssembly& localClippingAssembly, const bool& isOrtho, const RayTracingDisplayFilterSettings* displayFilterSettings, bool& success);
     glm::dvec3 findBestPointIterativeWithPoint(const std::vector<uint32_t>& leafList, const glm::dvec3& rayDirection, const glm::dvec3& rayOrigin, const double& cosAngleThreshold, const double& rayRadius, const ClippingAssembly& localClippingAssembly, const bool& isOrtho, const RayTracingDisplayFilterSettings* displayFilterSettings, tls::Point& outPoint, bool& success);
 
