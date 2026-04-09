@@ -64,6 +64,31 @@ namespace
         return settings;
     }
 
+    bool prepareStableRayForScene(const Controller& controller, const ClickInfo& clickInfo, bool isOrtho, glm::dvec3& outRay, glm::dvec3& outRayOrigin)
+    {
+        outRay = clickInfo.ray;
+        const double rayLength = glm::length(outRay);
+        if (rayLength <= 1e-12)
+            return false;
+        outRay /= rayLength;
+
+        outRayOrigin = clickInfo.rayOrigin;
+        if (!isOrtho)
+            return true;
+
+        const BoundingBoxD visibleScansBBox = controller.cgetGraphManager().getScanBoundingBox(ObjectStatusFilter::VISIBLE);
+        if (visibleScansBBox.isValid())
+        {
+            const double backOffset = std::max(1.0, glm::length(visibleScansBBox.size()) * 1.25);
+            outRayOrigin -= outRay * backOffset;
+        }
+        else
+        {
+            outRayOrigin -= outRay * 50.0;
+        }
+        return true;
+    }
+
     bool tryFindNearestColor(const Controller& controller, const ClickInfo& clickInfo, const glm::dvec3& point, PointXYZIRGB& outPoint)
     {
         double radius = computePickRadius(controller, clickInfo, point);
@@ -103,7 +128,9 @@ namespace
     {
         double height = std::max(1.0, static_cast<double>(clickInfo.height));
         double pointSize = controller.cgetContext().getRenderPointSize() + 2.0;
-        bool isOrtho = (std::abs(clickInfo.fov) <= std::numeric_limits<double>::epsilon());
+        // Keep a practical tolerance: view mode can leave tiny residual values around zero.
+        constexpr double kOrthoFovEpsilon = 1e-10;
+        bool isOrtho = (std::abs(clickInfo.fov) <= kOrthoFovEpsilon);
         double cosAngleThreshold = atan(clickInfo.heightAt1m * pointSize / (1.0 * height));
         cosAngleThreshold = isOrtho ? clickInfo.heightAt1m * pointSize / (1.0 * height) : cos(cosAngleThreshold);
 
@@ -112,9 +139,13 @@ namespace
 
         TlScanOverseer::setWorkingScansTransfo(controller.cgetGraphManager().getVisiblePointCloudInstances(clickInfo.panoramic, true, true));
         glm::dvec3 bestPoint;
+        glm::dvec3 stableRay = clickInfo.ray;
+        glm::dvec3 stableRayOrigin = clickInfo.rayOrigin;
+        if (!prepareStableRayForScene(controller, clickInfo, isOrtho, stableRay, stableRayOrigin))
+            return false;
         std::string scanName;
         RayTracingDisplayFilterSettings displayFilterSettings = buildRayTracingDisplayFilterSettings(clickInfo);
-        return TlScanOverseer::getInstance().rayTracingWithPoint(clickInfo.ray, clickInfo.rayOrigin, bestPoint, outPoint, cosAngleThreshold, clipAssembly, isOrtho, scanName, &displayFilterSettings);
+        return TlScanOverseer::getInstance().rayTracingWithPoint(stableRay, stableRayOrigin, bestPoint, outPoint, cosAngleThreshold, clipAssembly, isOrtho, scanName, &displayFilterSettings);
     }
 }
 
