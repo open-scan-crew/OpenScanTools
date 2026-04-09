@@ -476,14 +476,19 @@ ClickInfo VulkanViewport::generateRaytracingInfos(const WritePtr<CameraNode>& wC
 {
     assert(wCam);
 
-    glm::dvec4 eyeCoord = wCam->getEyeCoord((double)(m_MI.lastX), (double)(m_MI.lastY), 1.0f, (double)width(), (double)height());
-    glm::dvec4 pickPos = wCam->getModelMatrix() * eyeCoord;
-    glm::dvec4 eyeCoord0 = wCam->getEyeCoord((double)(m_MI.lastX), (double)(m_MI.lastY), 0.0f, (double)width(), (double)height());
-    glm::dvec4 pickPos0 = wCam->getModelMatrix() * eyeCoord0;
-
-    glm::dvec3 rayOrigin = glm::dvec3(pickPos0.x, pickPos0.y, pickPos0.z);
-
-    glm::dvec3 ray = glm::dvec3(pickPos.x - pickPos0.x, pickPos.y - pickPos0.y, pickPos.z - pickPos0.z);
+    glm::dvec3 rayOrigin(0.0), ray(0.0);
+    // Use the camera's dedicated conversion to keep ray generation consistent
+    // with camera/view conventions (including orthographic mode).
+    wCam->getScreenToViewDirection(
+        glm::dvec2((double)m_MI.lastX, (double)m_MI.lastY),
+        glm::ivec2((int)width(), (int)height()),
+        rayOrigin,
+        ray
+    );
+    if (glm::length(ray) > 0.0)
+    {
+        ray = glm::normalize(ray);
+    }
 
     uint32_t w = m_framebuffer->extent.width;
     uint32_t h = m_framebuffer->extent.height;
