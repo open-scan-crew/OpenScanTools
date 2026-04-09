@@ -3411,7 +3411,6 @@ void EmbeddedScan::traceRay(const double& tx0, const double& ty0, const double& 
     bool isNodeInteresting(false);
 
     double txm, tym, tzm;
-    int currNode;
 
     if ((tx1 < 0.0) || (ty1 < 0.0) || (tz1 < 0.0)) { return; }
     if (cell.m_isLeaf)
@@ -3453,80 +3452,51 @@ void EmbeddedScan::traceRay(const double& tx0, const double& ty0, const double& 
 		else
 			tzm = -DBL_MAX;
 	}
-    currNode = OctreeRayTracing::firstNode(tx0, ty0, tz0, txm, tym, tzm);
-
-    while (currNode < 8)
+    struct ChildCandidate
     {
-        int ourIndex = rayModifier ^ currNode;
-        bool hasChild(cell.m_children[ourIndex] != NO_CHILD);
+        uint32_t childId = NO_CHILD;
+        double tx0 = 0.0, ty0 = 0.0, tz0 = 0.0;
+        double tx1 = 0.0, ty1 = 0.0, tz1 = 0.0;
+        double tEnter = 0.0;
+    };
 
-        switch (currNode)
+    // Explicitly test every octant range. This supercover-friendly traversal
+    // avoids missing neighbors when rays lie on split boundaries.
+    std::vector<ChildCandidate> candidates;
+    candidates.reserve(8);
+    auto appendCandidate = [&](int traversalIndex, double c_tx0, double c_ty0, double c_tz0, double c_tx1, double c_ty1, double c_tz1)
+    {
+        const int ourIndex = rayModifier ^ traversalIndex;
+        const uint32_t childId = cell.m_children[ourIndex];
+        if (childId == NO_CHILD)
+            return;
+
+        const double tEnter = std::max(c_tx0, std::max(c_ty0, c_tz0));
+        const double tExit = std::min(c_tx1, std::min(c_ty1, c_tz1));
+        if (tEnter > tExit + kRayIntersectionEpsilon || tExit < 0.0)
+            return;
+
+        candidates.push_back({ childId, c_tx0, c_ty0, c_tz0, c_tx1, c_ty1, c_tz1, tEnter });
+    };
+
+    appendCandidate(0, tx0, ty0, tz0, txm, tym, tzm);
+    appendCandidate(1, tx0, ty0, tzm, txm, tym, tz1);
+    appendCandidate(2, tx0, tym, tz0, txm, ty1, tzm);
+    appendCandidate(3, tx0, tym, tzm, txm, ty1, tz1);
+    appendCandidate(4, txm, ty0, tz0, tx1, tym, tzm);
+    appendCandidate(5, txm, ty0, tzm, tx1, tym, tz1);
+    appendCandidate(6, txm, tym, tz0, tx1, ty1, tzm);
+    appendCandidate(7, txm, tym, tzm, tx1, ty1, tz1);
+
+    std::sort(candidates.begin(), candidates.end(),
+        [](const ChildCandidate& a, const ChildCandidate& b)
         {
-        case 0:
-        {
-            if (hasChild) {
-                traceRay(tx0, ty0, tz0, txm, tym, tzm, cell.m_children[ourIndex], rayModifier, leafList, clippingAssembly, localRayOrigin);
-            }
-            currNode = OctreeRayTracing::new_node(txm, tym, tzm, 4, 2, 1);
-            break;
-        }
-        case 1:
-        {
-            if (hasChild) {
-                traceRay(tx0, ty0, tzm, txm, tym, tz1, cell.m_children[ourIndex], rayModifier, leafList, clippingAssembly, localRayOrigin);
-            }
-            currNode = OctreeRayTracing::new_node(txm, tym, tz1, 5, 3, 8);
-            break;
-        }
-        case 2:
-        {
-            if (hasChild) {
-                traceRay(tx0, tym, tz0, txm, ty1, tzm, cell.m_children[ourIndex], rayModifier, leafList, clippingAssembly, localRayOrigin);
-            }
-            currNode = OctreeRayTracing::new_node(txm, ty1, tzm, 6, 8, 3);
-            break;
-        }
-        case 3:
-        {
-            if (hasChild) {
-                traceRay(tx0, tym, tzm, txm, ty1, tz1, cell.m_children[ourIndex], rayModifier, leafList, clippingAssembly, localRayOrigin);
-            }
-            currNode = OctreeRayTracing::new_node(txm, ty1, tz1, 7, 8, 8);
-            break;
-        }
-        case 4:
-        {
-            if (hasChild) {
-                traceRay(txm, ty0, tz0, tx1, tym, tzm, cell.m_children[ourIndex], rayModifier, leafList, clippingAssembly, localRayOrigin);
-            }
-            currNode = OctreeRayTracing::new_node(tx1, tym, tzm, 8, 6, 5);
-            break;
-        }
-        case 5:
-        {
-            if (hasChild) {
-                traceRay(txm, ty0, tzm, tx1, tym, tz1, cell.m_children[ourIndex], rayModifier, leafList, clippingAssembly, localRayOrigin);
-            }
-            currNode = OctreeRayTracing::new_node(tx1, tym, tz1, 8, 7, 8);
-            break;
-        }
-        case 6:
-        {
-            if (hasChild) {
-                traceRay(txm, tym, tz0, tx1, ty1, tzm, cell.m_children[ourIndex], rayModifier, leafList, clippingAssembly, localRayOrigin);
-            }
-            currNode = OctreeRayTracing::new_node(tx1, ty1, tzm, 8, 8, 7);
-            break;
-        }
-        case 7:
-        {
-            if (hasChild) {
-                traceRay(txm, tym, tzm, tx1, ty1, tz1, cell.m_children[ourIndex], rayModifier, leafList, clippingAssembly, localRayOrigin);
-            }
-            currNode = 8;
-            break;
-        }
-        }
+            return a.tEnter < b.tEnter;
+        });
+
+    for (const ChildCandidate& c : candidates)
+    {
+        traceRay(c.tx0, c.ty0, c.tz0, c.tx1, c.ty1, c.tz1, c.childId, rayModifier, leafList, clippingAssembly, localRayOrigin);
     }
 }
 
