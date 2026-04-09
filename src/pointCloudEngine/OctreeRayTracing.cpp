@@ -38,18 +38,23 @@ int OctreeRayTracing::firstNode(const double& tx0, const double& ty0, const doub
 	{
 		if (tym < tx0) { result = result | 2; test++; }
 		if (tzm < tx0) { result = result | 1; test++; }
+		// Important: do not fall through, only evaluate the entry plane branch.
+		break;
 	}
 
 	case 1:
 	{
 		if (txm < ty0) { result = result | 4; test++; }
 		if (tzm < ty0) { result = result | 1; test++; }
+		// Important: do not fall through, only evaluate the entry plane branch.
+		break;
 	}
 
 	case 2:
 	{
 		if (txm < tz0) { result = result | 4; test++; }
 		if (tym < tz0) { result = result | 2; test++; }
+		break;
 	}
 	}
 	return result;
