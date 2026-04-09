@@ -40,6 +40,33 @@ RayTracingDisplayFilterSettings buildRayTracingDisplayFilterSettings(const Click
     settings.polygonalSelector = display.m_polygonalSelector;
     return settings;
 }
+
+bool prepareStableRayForScene(const Controller& controller, const ClickInfo& clickInfo, bool isOrtho, glm::dvec3& outRay, glm::dvec3& outRayOrigin)
+{
+    outRay = clickInfo.ray;
+    const double rayLength = glm::length(outRay);
+    if (rayLength <= 1e-12)
+        return false;
+    outRay /= rayLength;
+
+    outRayOrigin = clickInfo.rayOrigin;
+    if (!isOrtho)
+        return true;
+
+    // In orthographic mode, move the ray origin behind the visible scene so all
+    // candidate points remain in front of the ray, independent of near/far setup.
+    const BoundingBoxD visibleScansBBox = controller.cgetGraphManager().getScanBoundingBox(ObjectStatusFilter::VISIBLE);
+    if (visibleScansBBox.isValid())
+    {
+        const double backOffset = std::max(1.0, glm::length(visibleScansBBox.size()) * 1.25);
+        outRayOrigin -= outRay * backOffset;
+    }
+    else
+    {
+        outRayOrigin -= outRay * 50.0;
+    }
+    return true;
+}
 }
 
 ARayTracingContext::ARayTracingContext(const ContextId& id)
@@ -566,7 +593,9 @@ glm::dvec3 ARayTracingContext::rayTracePointClouds(Controller& controller, Click
     ClippingAssembly clipAssembly;
     controller.getGraphManager().getClippingAssembly(clipAssembly, true, false);
 
-    bool isOrtho = (std::fabs(abs(clickInfo.fov)) <= std::numeric_limits<double>::epsilon());
+    // Keep a practical tolerance: view mode can leave tiny residual values around zero.
+    constexpr double kOrthoFovEpsilon = 1e-10;
+    bool isOrtho = (std::abs(clickInfo.fov) <= kOrthoFovEpsilon);
     TlScanOverseer::setWorkingScansTransfo(controller.getGraphManager().getVisiblePointCloudInstances(clickInfo.panoramic, true, true));
 
     double cosAngleThreshold = atan(clickInfo.heightAt1m * pointSize / (1.0 * clickInfo.height)); // angle across a visible point in the viewport
@@ -574,9 +603,16 @@ glm::dvec3 ARayTracingContext::rayTracePointClouds(Controller& controller, Click
     cosAngleThreshold = isOrtho ? clickInfo.heightAt1m * pointSize / (1.0 * clickInfo.height) : cos(cosAngleThreshold);
 
     RayTracingDisplayFilterSettings displayFilterSettings = buildRayTracingDisplayFilterSettings(clickInfo);
+    glm::dvec3 stableRay = clickInfo.ray;
+    glm::dvec3 stableRayOrigin = clickInfo.rayOrigin;
+    if (!prepareStableRayForScene(controller, clickInfo, isOrtho, stableRay, stableRayOrigin))
+    {
+        controller.updateInfo(new GuiDataTmpMessage(TEXT_RAYTRACING_FAILED));
+        return glm::dvec3(NAN);
+    }
 
     TlStreamLock streamLock;
-    if (TlScanOverseer::getInstance().rayTracing(clickInfo.ray, clickInfo.rayOrigin, result, cosAngleThreshold, clipAssembly, isOrtho, scanName, &displayFilterSettings) == false)
+    if (TlScanOverseer::getInstance().rayTracing(stableRay, stableRayOrigin, result, cosAngleThreshold, clipAssembly, isOrtho, scanName, &displayFilterSettings) == false)
     {
         controller.updateInfo(new GuiDataTmpMessage(TEXT_RAYTRACING_FAILED));
         FUNCLOG << "picking nan detected" << LOGENDL;
