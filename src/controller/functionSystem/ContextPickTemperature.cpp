@@ -103,7 +103,9 @@ namespace
     {
         double height = std::max(1.0, static_cast<double>(clickInfo.height));
         double pointSize = controller.cgetContext().getRenderPointSize() + 2.0;
-        bool isOrtho = (std::abs(clickInfo.fov) <= std::numeric_limits<double>::epsilon());
+        // Keep a practical tolerance: view mode can leave tiny residual values around zero.
+        constexpr double kOrthoFovEpsilon = 1e-10;
+        bool isOrtho = (std::abs(clickInfo.fov) <= kOrthoFovEpsilon);
         double cosAngleThreshold = atan(clickInfo.heightAt1m * pointSize / (1.0 * height));
         cosAngleThreshold = isOrtho ? clickInfo.heightAt1m * pointSize / (1.0 * height) : cos(cosAngleThreshold);
 

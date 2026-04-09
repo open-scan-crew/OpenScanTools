@@ -10,21 +10,17 @@
 
 int OctreeRayTracing::computeExitPlane(const double& tx0, const double& ty0, const double& tz0)
 {
-	int result(3);
+	// Deterministic tie-breaking is important for orthographic / axis-aligned rays:
+	// when two components are equal we keep a stable priority (X, then Y, then Z).
 	if ((tx0 >= ty0) && (tx0 >= tz0))
 	{
-		result = 0;
+		return 0;
 	}
-	if ((ty0 >= tx0) && (ty0 >= tz0))
+	if (ty0 >= tz0)
 	{
-		result = 1;
+		return 1;
 	}
-	if ((tz0 >= tx0) && (tz0 >= ty0))
-	{
-		result = 2;
-	}
-
-	return result;
+	return 2;
 }
 
 int OctreeRayTracing::firstNode(const double& tx0, const double& ty0, const double& tz0, const double& txm, const double& tym, const double& tzm)
@@ -36,20 +32,26 @@ int OctreeRayTracing::firstNode(const double& tx0, const double& ty0, const doub
 	{
 	case 0:
 	{
-		if (tym < tx0) { result = result | 2; test++; }
-		if (tzm < tx0) { result = result | 1; test++; }
+		// NOTE: use <= so ties are handled consistently on octree boundaries.
+		if (tym <= tx0) { result = result | 2; test++; }
+		if (tzm <= tx0) { result = result | 1; test++; }
+		// Important: do not fall through, only evaluate the entry plane branch.
+		break;
 	}
 
 	case 1:
 	{
-		if (txm < ty0) { result = result | 4; test++; }
-		if (tzm < ty0) { result = result | 1; test++; }
+		if (txm <= ty0) { result = result | 4; test++; }
+		if (tzm <= ty0) { result = result | 1; test++; }
+		// Important: do not fall through, only evaluate the entry plane branch.
+		break;
 	}
 
 	case 2:
 	{
-		if (txm < tz0) { result = result | 4; test++; }
-		if (tym < tz0) { result = result | 2; test++; }
+		if (txm <= tz0) { result = result | 4; test++; }
+		if (tym <= tz0) { result = result | 2; test++; }
+		break;
 	}
 	}
 	return result;
@@ -57,14 +59,15 @@ int OctreeRayTracing::firstNode(const double& tx0, const double& ty0, const doub
 
 int OctreeRayTracing::new_node(const double& a, const double& b, const double& c, const int& p, const int& q, const int& r)
 {
-	if (a < b)
+	// NOTE: <= keeps deterministic behavior when crossing voxel/octree boundaries.
+	if (a <= b)
 	{
-		if (a < c) { return p; }
+		if (a <= c) { return p; }
 		else { return r; }
 	}
 	else
 	{
-		if (b < c) { return q; }
+		if (b <= c) { return q; }
 		else { return r; }
 	}
 }
