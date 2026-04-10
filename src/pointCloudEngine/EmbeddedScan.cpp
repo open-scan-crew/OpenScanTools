@@ -32,6 +32,8 @@ using namespace std::chrono;
 namespace
 {
     constexpr float kColorimetricMaxDistance = 1.7320508f;
+    // Stabilize ray sign classification for near-zero components (orthographic axis-aligned views).
+    constexpr double kRaySignEpsilon = 1e-12;
 
     struct PreparedRayTracingDisplayFilter
     {
@@ -3319,11 +3321,21 @@ int EmbeddedScan::updateRay(glm::dvec3& localRay, glm::dvec3& localRayOrigin, co
 {
     int result(0);
     TreeCell root = m_vTreeCells[m_uRootCell];
-    double norm = glm::length(localRay);
+    const double norm = glm::length(localRay);
+
+    // Defensive guard: degenerate ray cannot be normalized safely.
+    if (norm <= std::numeric_limits<double>::epsilon())
+        return result;
+
     localRay = localRay / norm;
     for (int loop = 0; loop < 3; loop++)
     {
-        if (localRay[loop] < 0)
+        // Freeze near-zero components to avoid unstable sign flips around +/- epsilon.
+        if (std::abs(localRay[loop]) <= kRaySignEpsilon)
+            localRay[loop] = 0.0;
+
+        // Mirror remapping must only apply to robustly negative components.
+        if (localRay[loop] < -kRaySignEpsilon)
         {
             localRay[loop] = -localRay[loop];
             localRayOrigin[loop] = 2 * root.m_position[loop] + rootSize - localRayOrigin[loop];
