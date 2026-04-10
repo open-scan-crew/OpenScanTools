@@ -515,6 +515,7 @@ void ToolBarImageGroup::refreshImageSize()
 
 	setAreaWidthHeight(area_width, area_height);
 	setSilentWidthHeight(width, height);
+	savePersistentSettingsToCamera();
 
 	// Indique au viewport les dimmensions du 
 	m_dataDispatcher.updateInformation(new GuiDataPrepareHDImage(useFrame, showGrid, ratio, m_focusCamera), this);
