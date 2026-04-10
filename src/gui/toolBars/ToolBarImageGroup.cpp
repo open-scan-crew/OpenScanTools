@@ -260,7 +260,7 @@ ToolBarImageGroup::ToolBarImageGroup(IDataDispatcher& dataDispatcher, QWidget* p
 	QObject::connect(m_ui.comboBox_scale, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarImageGroup::slotScaleChanged);
 	QObject::connect(m_ui.comboBox_dpi, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarImageGroup::slotDPIChanged);
 	QObject::connect(m_ui.toolButton_createImage, &QToolButton::clicked, this, [this]() {slotCreateImage("", true); });
-	QObject::connect(m_ui.lineEdit_imageW, &QLineEdit::textChanged, this, &ToolBarImageGroup::refreshImageSize);
+	QObject::connect(m_ui.lineEdit_imageW, &QLineEdit::textChanged, this, [this]() { refreshImageSize(); savePersistentSettingsToCamera(); });
 	QObject::connect(m_ui.lineEdit_imageH, &QLineEdit::textChanged, this, &ToolBarImageGroup::slotHeightChanged);
 	// The two radio buttons (*_ratioImage and *_ratioPrint) are exclusive, only one connect is needed
 	QObject::connect(m_ui.radioButton_ratioImage, &QRadioButton::toggled, this, &ToolBarImageGroup::slotRatio);
@@ -358,6 +358,9 @@ void ToolBarImageGroup::onActiveCamera(IGuiData* data)
 	if (!vp)
 		return;
 
+	// Restore persisted toolbar settings from camera/viewpoint state.
+	loadPersistentSettingsFromCamera(*&vp);
+
 	if (m_projection == ProjectionMode::Perspective && vp->getProjectionMode() == ProjectionMode::Orthographic)
 	{
 		bool resW = false;
@@ -412,6 +415,7 @@ void ToolBarImageGroup::quickScreenshot(std::filesystem::path filepath)
 void ToolBarImageGroup::imageFormat()
 {
 	m_dataDispatcher.updateInformation(new GuiDataRenderImagesFormat((ImageFormat)m_ui.formatComboBox->currentIndex(), isAlphaChannelEnabled()), this);
+	savePersistentSettingsToCamera();
 }
 
 bool ToolBarImageGroup::isAlphaChannelEnabled() const
@@ -494,6 +498,78 @@ void ToolBarImageGroup::refreshImageSize()
 
 	// Indique au viewport les dimmensions du 
 	m_dataDispatcher.updateInformation(new GuiDataPrepareHDImage(useFrame, showGrid, ratio, m_focusCamera), this);
+}
+
+void ToolBarImageGroup::savePersistentSettingsToCamera()
+{
+	WritePtr<CameraNode> wCam = m_focusCamera.get();
+	if (!wCam)
+		return;
+
+	wCam->m_imageUseFrame = m_ui.checkBox_frame->isChecked();
+	wCam->m_imageShowGrid = m_ui.checkBox_hdImageGrid->isChecked();
+	wCam->m_imageRatioImageMode = m_ui.radioButton_ratioImage->isChecked();
+	wCam->m_imageRatioImageIndex = m_ui.comboBox_ratioImage->currentData().toInt();
+	wCam->m_imageRatioPrintIndex = m_ui.comboBox_print->currentData().toInt();
+	wCam->m_imagePortrait = m_ui.radioButton_portrait->isChecked();
+	wCam->m_imageWidth = m_ui.lineEdit_imageW->text().toUInt();
+	wCam->m_imageHeight = m_ui.lineEdit_imageH->text().toUInt();
+	wCam->m_imageAlpha = isAlphaChannelEnabled();
+	wCam->m_imageFormat = m_ui.formatComboBox->currentIndex();
+	wCam->m_imageAntialiasing = m_ui.comboBox_antialiasHD->currentData().toInt();
+	wCam->m_imageScaleIndex = m_ui.comboBox_scale->currentData().toInt();
+	wCam->m_imageDpiIndex = m_ui.comboBox_dpi->currentData().toInt();
+}
+
+void ToolBarImageGroup::loadPersistentSettingsFromCamera(const CameraNode& camera)
+{
+	m_ui.checkBox_frame->blockSignals(true);
+	m_ui.checkBox_hdImageGrid->blockSignals(true);
+	m_ui.radioButton_ratioImage->blockSignals(true);
+	m_ui.radioButton_print->blockSignals(true);
+	m_ui.comboBox_ratioImage->blockSignals(true);
+	m_ui.comboBox_print->blockSignals(true);
+	m_ui.radioButton_portrait->blockSignals(true);
+	m_ui.radioButton_landscape->blockSignals(true);
+	m_ui.comboBox_scale->blockSignals(true);
+	m_ui.comboBox_dpi->blockSignals(true);
+	m_ui.formatComboBox->blockSignals(true);
+	m_ui.checkBox_alphaImage->blockSignals(true);
+	m_ui.comboBox_antialiasHD->blockSignals(true);
+
+	m_ui.checkBox_frame->setChecked(camera.m_imageUseFrame);
+	m_ui.checkBox_hdImageGrid->setChecked(camera.m_imageShowGrid);
+	m_ui.radioButton_ratioImage->setChecked(camera.m_imageRatioImageMode);
+	m_ui.radioButton_print->setChecked(!camera.m_imageRatioImageMode);
+	int ratioImageIndex = m_ui.comboBox_ratioImage->findData(camera.m_imageRatioImageIndex);
+	int ratioPrintIndex = m_ui.comboBox_print->findData(camera.m_imageRatioPrintIndex);
+	m_ui.comboBox_ratioImage->setCurrentIndex(ratioImageIndex >= 0 ? ratioImageIndex : 0);
+	m_ui.comboBox_print->setCurrentIndex(ratioPrintIndex >= 0 ? ratioPrintIndex : 0);
+	m_ui.radioButton_portrait->setChecked(camera.m_imagePortrait);
+	m_ui.radioButton_landscape->setChecked(!camera.m_imagePortrait);
+	setSilentWidthHeight(camera.m_imageWidth, camera.m_imageHeight);
+	int scaleIndex = m_ui.comboBox_scale->findData(camera.m_imageScaleIndex);
+	int dpiIndex = m_ui.comboBox_dpi->findData(camera.m_imageDpiIndex);
+	m_ui.comboBox_scale->setCurrentIndex(scaleIndex >= 0 ? scaleIndex : 0);
+	m_ui.comboBox_dpi->setCurrentIndex(dpiIndex >= 0 ? dpiIndex : 0);
+	m_ui.formatComboBox->setCurrentIndex(camera.m_imageFormat);
+	m_ui.checkBox_alphaImage->setChecked(camera.m_imageAlpha);
+	int antialiasIndex = m_ui.comboBox_antialiasHD->findData(camera.m_imageAntialiasing);
+	m_ui.comboBox_antialiasHD->setCurrentIndex(antialiasIndex >= 0 ? antialiasIndex : 0);
+
+	m_ui.checkBox_frame->blockSignals(false);
+	m_ui.checkBox_hdImageGrid->blockSignals(false);
+	m_ui.radioButton_ratioImage->blockSignals(false);
+	m_ui.radioButton_print->blockSignals(false);
+	m_ui.comboBox_ratioImage->blockSignals(false);
+	m_ui.comboBox_print->blockSignals(false);
+	m_ui.radioButton_portrait->blockSignals(false);
+	m_ui.radioButton_landscape->blockSignals(false);
+	m_ui.comboBox_scale->blockSignals(false);
+	m_ui.comboBox_dpi->blockSignals(false);
+	m_ui.formatComboBox->blockSignals(false);
+	m_ui.checkBox_alphaImage->blockSignals(false);
+	m_ui.comboBox_antialiasHD->blockSignals(false);
 }
 
 double ToolBarImageGroup::getRatioWH()
@@ -621,22 +697,26 @@ void ToolBarImageGroup::slotCreateImage(std::filesystem::path filepath, bool sho
 void ToolBarImageGroup::slotShowFrame()
 {
 	refreshShowUI();
+	savePersistentSettingsToCamera();
 }
 
 void ToolBarImageGroup::slotRatio()
 {
 	refreshImageSize();
+	savePersistentSettingsToCamera();
 }
 
 void ToolBarImageGroup::slotRatioChanged(int)
 {
 	refreshImageSize();
+	savePersistentSettingsToCamera();
 }
 
 void ToolBarImageGroup::slotScaleChanged(int)
 {
 	m_scale = g_imageScaleValues.at((ImageScale)(m_ui.comboBox_scale->currentData().toInt()));
 	refreshImageSize();
+	savePersistentSettingsToCamera();
 }
 
 void ToolBarImageGroup::slotDPIChanged(int)
@@ -644,6 +724,7 @@ void ToolBarImageGroup::slotDPIChanged(int)
 	// Convert to dots per millimeter
 	m_dpmm = g_imageDPIValues.at((ImageDPI)(m_ui.comboBox_dpi->currentData().toInt())) / 25.4;
 	refreshImageSize();
+	savePersistentSettingsToCamera();
 }
 
 void ToolBarImageGroup::slotPortrait(bool checked)
@@ -666,6 +747,7 @@ void ToolBarImageGroup::slotPortrait(bool checked)
 	}
 
 	refreshImageSize();
+	savePersistentSettingsToCamera();
 }
 
 void ToolBarImageGroup::slotHeightChanged()
@@ -680,4 +762,5 @@ void ToolBarImageGroup::slotHeightChanged()
 	uint32_t width = round(height * ratio);
 
 	setSilentWidthHeight(width, height);
+	savePersistentSettingsToCamera();
 }

@@ -301,6 +301,9 @@ void VulkanViewport::onUserOrientation(IGuiData* data)
         return;
     wCam->setApplyUserOrientation(true);
     wCam->setUserOrientation(userOrientation->m_userOrientation);
+    // Persist toolbar user-orientation mode in camera/viewpoint display state.
+    wCam->m_viewpointUserOrientationEnabled = true;
+    wCam->m_viewpointUserOrientationId = userOrientation->m_userOrientation.getId().str();
     Logger::log(LoggerMode::GuiLog) << "Viewport - User orientation name : " << userOrientation->m_userOrientation.getName().toStdString() << Logger::endl;
 }
 
@@ -310,6 +313,8 @@ void VulkanViewport::onProjectOrientation(IGuiData* data)
     if (!wCam)
         return;
     wCam->setApplyUserOrientation(false);
+    wCam->m_viewpointUserOrientationEnabled = false;
+    wCam->m_viewpointUserOrientationId.clear();
 }
 
 void VulkanViewport::onQuitEvent(IGuiData* data)
