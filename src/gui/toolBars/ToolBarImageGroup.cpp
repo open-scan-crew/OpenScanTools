@@ -354,14 +354,34 @@ void ToolBarImageGroup::onActiveCamera(IGuiData* data)
 	if (castData->m_camera && castData->m_camera != m_focusCamera)
 		return;
 
-	ReadPtr<CameraNode> vp = m_focusCamera.cget();
-	if (!vp)
-		return;
+	ProjectionMode cameraProjection = m_projection;
+	double cameraHeightAt1m = std::numeric_limits<double>::quiet_NaN();
+	double cameraRatioWH = std::numeric_limits<double>::quiet_NaN();
+	bool switchPerspToOrtho = false;
+	bool switchOrthoToPersp = false;
 
-	// Restore persisted toolbar settings from camera/viewpoint state.
-	loadPersistentSettingsFromCamera(*&vp);
+	{
+		ReadPtr<CameraNode> vp = m_focusCamera.cget();
+		if (!vp)
+			return;
 
-	if (m_projection == ProjectionMode::Perspective && vp->getProjectionMode() == ProjectionMode::Orthographic)
+		// Restore persisted toolbar settings from camera/viewpoint state.
+		loadPersistentSettingsFromCamera(*&vp);
+
+		cameraProjection = vp->getProjectionMode();
+		switchPerspToOrtho = (m_projection == ProjectionMode::Perspective && cameraProjection == ProjectionMode::Orthographic);
+		switchOrthoToPersp = (m_projection == ProjectionMode::Orthographic && cameraProjection == ProjectionMode::Perspective);
+		if (cameraProjection == ProjectionMode::Orthographic)
+		{
+			cameraHeightAt1m = vp->getHeightAt1m();
+			cameraRatioWH = vp->getRatioW_H();
+		}
+	}
+	// IMPORTANT: do not keep a ReadPtr alive while calling refreshShowUI()/refreshImageSize(),
+	// because they dispatch GUI updates and may re-enter camera access paths.
+	// Keeping the read lock here can deadlock when another path requests a write lock.
+
+	if (switchPerspToOrtho)
 	{
 		bool resW = false;
 		bool resH = false;
@@ -371,15 +391,15 @@ void ToolBarImageGroup::onActiveCamera(IGuiData* data)
 		m_storePerspImageSize = glm::ivec2(width, height);
 	}
 
-	if (m_projection == ProjectionMode::Orthographic && vp->getProjectionMode() == ProjectionMode::Perspective)
+	if (switchOrthoToPersp)
 		setSilentWidthHeight(m_storePerspImageSize.x, m_storePerspImageSize.y);
 
-	m_projection = vp->getProjectionMode();
+	m_projection = cameraProjection;
 
 	if (m_projection == ProjectionMode::Orthographic)
 	{
-		m_cameraOrthoSize = glm::dvec2(vp->getHeightAt1m());
-		m_cameraOrthoSize.x *= vp->getRatioW_H();
+		m_cameraOrthoSize = glm::dvec2(cameraHeightAt1m);
+		m_cameraOrthoSize.x *= cameraRatioWH;
 	}
 	else
 	{
