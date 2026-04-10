@@ -4,7 +4,7 @@
 #include "io/SerializerKeys.h"
 #include "models/3d/DisplayParameters.h"
 
-#include <nlohmann/json.hpp>
+#include <nlohmannJson/json.hpp>
 
 #include <vector>
 
