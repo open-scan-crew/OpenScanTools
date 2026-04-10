@@ -4845,16 +4845,17 @@ void EmbeddedScan::rayTraversal(const glm::dvec3& targetPoint, const VoxelGrid& 
         case 0:
         {
             //all positive
+            // Each axis time must be guarded with its own ray component to avoid copy/paste axis mismatch.
             xTime = (voxelGrid.m_xMin + (currX + 1) * voxelSize - currPoint[0]) / ray[0];
             if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
                 xTime = DBL_MAX;
               
             yTime = (voxelGrid.m_yMin + (currY + 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
                
             zTime = (voxelGrid.m_zMin + (currZ + 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position
@@ -4896,11 +4897,11 @@ void EmbeddedScan::rayTraversal(const glm::dvec3& targetPoint, const VoxelGrid& 
                 xTime = DBL_MAX;
                
             yTime = (voxelGrid.m_yMin + (currY + 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
                 
             zTime = (voxelGrid.m_zMin + (currZ + 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position
@@ -4941,11 +4942,11 @@ void EmbeddedScan::rayTraversal(const glm::dvec3& targetPoint, const VoxelGrid& 
                 xTime = DBL_MAX;
                
             yTime = (voxelGrid.m_yMin + (currY - 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
                
             zTime = (voxelGrid.m_zMin + (currZ + 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position
@@ -4986,11 +4987,11 @@ void EmbeddedScan::rayTraversal(const glm::dvec3& targetPoint, const VoxelGrid& 
                 xTime = DBL_MAX;
               
             yTime = (voxelGrid.m_yMin + (currY - 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
                
             zTime = (voxelGrid.m_zMin + (currZ + 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position
@@ -5031,11 +5032,11 @@ void EmbeddedScan::rayTraversal(const glm::dvec3& targetPoint, const VoxelGrid& 
                 xTime = DBL_MAX;
               
             yTime = (voxelGrid.m_yMin + (currY + 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
               
             zTime = (voxelGrid.m_zMin + (currZ - 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position
@@ -5076,11 +5077,11 @@ void EmbeddedScan::rayTraversal(const glm::dvec3& targetPoint, const VoxelGrid& 
                 xTime = DBL_MAX;
               
             yTime = (voxelGrid.m_yMin + (currY + 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
               
             zTime = (voxelGrid.m_zMin + (currZ - 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position
@@ -5121,11 +5122,11 @@ void EmbeddedScan::rayTraversal(const glm::dvec3& targetPoint, const VoxelGrid& 
                 xTime = DBL_MAX;
               
             yTime = (voxelGrid.m_yMin + (currY - 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
               
             zTime = (voxelGrid.m_zMin + (currZ - 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position
@@ -5166,11 +5167,11 @@ void EmbeddedScan::rayTraversal(const glm::dvec3& targetPoint, const VoxelGrid& 
                 xTime = DBL_MAX;
                
             yTime = (voxelGrid.m_yMin + (currY - 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
                 
             zTime = (voxelGrid.m_zMin + (currZ - 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position
@@ -5280,16 +5281,17 @@ void EmbeddedScan::octreeRayTraversal(const glm::dvec3& targetPoint, const Octre
         case 0:
         {
             //all positive
+            // Keep per-axis zero checks aligned with the corresponding time computation.
             xTime = (tMin + (currX + 1) * voxelSize - currPoint[0]) / ray[0];
             if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
                 xTime = DBL_MAX;
 
             yTime = (tMin + (currY + 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
 
             zTime = (tMin + (currZ + 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position
@@ -5331,11 +5333,11 @@ void EmbeddedScan::octreeRayTraversal(const glm::dvec3& targetPoint, const Octre
                 xTime = DBL_MAX;
 
             yTime = (tMin + (currY + 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
 
             zTime = (tMin + (currZ + 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position
@@ -5376,11 +5378,11 @@ void EmbeddedScan::octreeRayTraversal(const glm::dvec3& targetPoint, const Octre
                 xTime = DBL_MAX;
 
             yTime = (tMin + (currY - 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
 
             zTime = (tMin + (currZ + 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position
@@ -5421,11 +5423,11 @@ void EmbeddedScan::octreeRayTraversal(const glm::dvec3& targetPoint, const Octre
                 xTime = DBL_MAX;
 
             yTime = (tMin + (currY - 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
 
             zTime = (tMin + (currZ + 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position
@@ -5466,11 +5468,11 @@ void EmbeddedScan::octreeRayTraversal(const glm::dvec3& targetPoint, const Octre
                 xTime = DBL_MAX;
 
             yTime = (tMin + (currY + 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
 
             zTime = (tMin + (currZ - 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position
@@ -5511,11 +5513,11 @@ void EmbeddedScan::octreeRayTraversal(const glm::dvec3& targetPoint, const Octre
                 xTime = DBL_MAX;
 
             yTime = (tMin + (currY + 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
 
             zTime = (tMin + (currZ - 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position
@@ -5556,11 +5558,11 @@ void EmbeddedScan::octreeRayTraversal(const glm::dvec3& targetPoint, const Octre
                 xTime = DBL_MAX;
 
             yTime = (tMin + (currY - 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
 
             zTime = (tMin + (currZ - 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position
@@ -5601,11 +5603,11 @@ void EmbeddedScan::octreeRayTraversal(const glm::dvec3& targetPoint, const Octre
                 xTime = DBL_MAX;
 
             yTime = (tMin + (currY - 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
 
             zTime = (tMin + (currZ - 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position
