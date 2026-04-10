@@ -984,6 +984,42 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
         retVal = false;
     }
 
+    if (json.find(Key_Image_Group_Settings) != json.end())
+    {
+        const nlohmann::json& image = json.at(Key_Image_Group_Settings);
+        if (image.find(Key_Image_Group_Use_Frame) != image.end())
+            data.m_imageUseFrame = image.at(Key_Image_Group_Use_Frame).get<bool>();
+        if (image.find(Key_Image_Group_Show_Grid) != image.end())
+            data.m_imageShowGrid = image.at(Key_Image_Group_Show_Grid).get<bool>();
+        if (image.find(Key_Image_Group_Ratio_Image) != image.end())
+            data.m_imageRatioImageMode = image.at(Key_Image_Group_Ratio_Image).get<bool>();
+        if (image.find(Key_Image_Group_Ratio_Image_Id) != image.end())
+            data.m_imageRatioImageIndex = image.at(Key_Image_Group_Ratio_Image_Id).get<int>();
+        if (image.find(Key_Image_Group_Ratio_Print_Id) != image.end())
+            data.m_imageRatioPrintIndex = image.at(Key_Image_Group_Ratio_Print_Id).get<int>();
+        if (image.find(Key_Image_Group_Portrait) != image.end())
+            data.m_imagePortrait = image.at(Key_Image_Group_Portrait).get<bool>();
+        if (image.find(Key_Image_Group_Width) != image.end())
+            data.m_imageWidth = image.at(Key_Image_Group_Width).get<uint32_t>();
+        if (image.find(Key_Image_Group_Height) != image.end())
+            data.m_imageHeight = image.at(Key_Image_Group_Height).get<uint32_t>();
+        if (image.find(Key_Image_Group_Alpha) != image.end())
+            data.m_imageAlpha = image.at(Key_Image_Group_Alpha).get<bool>();
+        if (image.find(Key_Image_Group_Format) != image.end())
+            data.m_imageFormat = image.at(Key_Image_Group_Format).get<int>();
+        if (image.find(Key_Image_Group_Antialiasing) != image.end())
+            data.m_imageAntialiasing = image.at(Key_Image_Group_Antialiasing).get<int>();
+        if (image.find(Key_Image_Group_Scale_Index) != image.end())
+            data.m_imageScaleIndex = image.at(Key_Image_Group_Scale_Index).get<int>();
+        if (image.find(Key_Image_Group_Dpi_Index) != image.end())
+            data.m_imageDpiIndex = image.at(Key_Image_Group_Dpi_Index).get<int>();
+    }
+
+    if (json.find(Key_Viewpoint_User_Orientation_Enabled) != json.end())
+        data.m_viewpointUserOrientationEnabled = json.at(Key_Viewpoint_User_Orientation_Enabled).get<bool>();
+    if (json.find(Key_Viewpoint_User_Orientation_Id) != json.end())
+        data.m_viewpointUserOrientationId = json.at(Key_Viewpoint_User_Orientation_Id).get<std::string>();
+
     return retVal;
 }
 

@@ -9,6 +9,7 @@
 #include "models/graph/ViewPointNode.h"
 #include "models/graph/PointCloudNode.h"
 #include "models/graph/CameraNode.h"
+#include "gui/GuiData/GuiDataUserOrientation.h"
 
 #include "utils/Logger.h"
 
@@ -248,6 +249,8 @@ namespace control::viewpoint
         std::unordered_map<SafePtr<AGraphNode>, TransformationModule> transformList;
         std::unordered_map<SafePtr<AGraphNode>, ViewPointData::ClippingDistances> clippingDistancesList;
         std::unordered_map<SafePtr<AGraphNode>, ViewPointData::RampDistances> rampDistancesList;
+        bool useUserOrientation = false;
+        std::string userOrientationId;
 
         {
             ReadPtr<ViewPointNode> readViewpoint = m_viewPoint.cget();
@@ -264,6 +267,8 @@ namespace control::viewpoint
             transformList = readViewpoint->getObjectsTransform();
             clippingDistancesList = readViewpoint->getObjectsClippingDistances();
             rampDistancesList = readViewpoint->getObjectsRampDistances();
+            useUserOrientation = readViewpoint->m_viewpointUserOrientationEnabled;
+            userOrientationId = readViewpoint->m_viewpointUserOrientationId;
         }
 
         GraphManager& graphManager = controller.getGraphManager();
@@ -370,7 +375,34 @@ namespace control::viewpoint
             }
         }
 
-            controller.actualizeTreeView(editedNodes);
+        // Restore user-orientation toolbar state from viewpoint.
+        ControllerContext& context = controller.getContext();
+        SafePtr<CameraNode> camera = graphManager.getCameraNode();
+        WritePtr<CameraNode> wCamera = camera.get();
+        if (useUserOrientation && !userOrientationId.empty())
+        {
+            xg::Guid orientationId(userOrientationId);
+            auto it = context.getUserOrientations().find(orientationId);
+            if (it != context.getUserOrientations().end())
+            {
+                if (wCamera)
+                {
+                    wCamera->setApplyUserOrientation(true);
+                    wCamera->setUserOrientation(it->second);
+                }
+                context.setActiveUserOrientation(it->second);
+                controller.updateInfo(new GuiDataSetUserOrientation(it->second));
+            }
+        }
+        else
+        {
+            if (wCamera)
+                wCamera->setApplyUserOrientation(false);
+            context.setActiveUserOrientation(UserOrientation());
+            controller.updateInfo(new GuiDataUnsetUserOrientation());
+        }
+
+        controller.actualizeTreeView(editedNodes);
 
         CONTROLLOG << "control::viewpoint::UpdateViewPoint undo " << LOGENDL;
     }
