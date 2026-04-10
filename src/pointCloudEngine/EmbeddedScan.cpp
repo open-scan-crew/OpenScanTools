@@ -2897,6 +2897,24 @@ bool EmbeddedScan::beginRayTracing(const glm::dvec3& globalRay, const glm::dvec3
     std::vector<uint32_t> leafList;
     if (max0 < min1) { traceRay(tx0, ty0, tz0, tx1, ty1, tz1, m_uRootCell, rayModifier, leafList, localAssembly, localRayOrigin); }
 
+    // PASS-1 instrumentation:
+    // Capture the complete setup of octree ray traversal to diagnose angular failures in ortho mode.
+    Logger::log(LoggerMode::rayTracingLog)
+        << "[PICK_DBG][BeginRayTracing]"
+        << " isOrtho=" << isOrtho
+        << " globalRay=(" << globalRay.x << "," << globalRay.y << "," << globalRay.z << ")"
+        << " globalRayOrigin=(" << globalRayOrigin.x << "," << globalRayOrigin.y << "," << globalRayOrigin.z << ")"
+        << " localRayNormalized=(" << trueLocalRay.x << "," << trueLocalRay.y << "," << trueLocalRay.z << ")"
+        << " localRayTraversal=(" << localRay.x << "," << localRay.y << "," << localRay.z << ")"
+        << " localRayOriginTraversal=(" << localRayOrigin.x << "," << localRayOrigin.y << "," << localRayOrigin.z << ")"
+        << " rayModifier=" << rayModifier
+        << " tx0/ty0/tz0=(" << tx0 << "," << ty0 << "," << tz0 << ")"
+        << " tx1/ty1/tz1=(" << tx1 << "," << ty1 << "," << tz1 << ")"
+        << " max0=" << max0
+        << " min1=" << min1
+        << " leafCount=" << leafList.size()
+        << Logger::endl;
+
     //leafList has been computed, now make the list of points 
 	double rayRadius = 0.0015;
 
@@ -2975,6 +2993,24 @@ bool EmbeddedScan::beginRayTracingWithPoint(const glm::dvec3& globalRay, const g
     std::vector<uint32_t> leafList;
     if (max0 < min1) { traceRay(tx0, ty0, tz0, tx1, ty1, tz1, m_uRootCell, rayModifier, leafList, localAssembly, localRayOrigin); }
 
+    // PASS-1 instrumentation:
+    // Same diagnostics path for feature variants that require point payload (temperature/colorimetric).
+    Logger::log(LoggerMode::rayTracingLog)
+        << "[PICK_DBG][BeginRayTracingWithPoint]"
+        << " isOrtho=" << isOrtho
+        << " globalRay=(" << globalRay.x << "," << globalRay.y << "," << globalRay.z << ")"
+        << " globalRayOrigin=(" << globalRayOrigin.x << "," << globalRayOrigin.y << "," << globalRayOrigin.z << ")"
+        << " localRayNormalized=(" << trueLocalRay.x << "," << trueLocalRay.y << "," << trueLocalRay.z << ")"
+        << " localRayTraversal=(" << localRay.x << "," << localRay.y << "," << localRay.z << ")"
+        << " localRayOriginTraversal=(" << localRayOrigin.x << "," << localRayOrigin.y << "," << localRayOrigin.z << ")"
+        << " rayModifier=" << rayModifier
+        << " tx0/ty0/tz0=(" << tx0 << "," << ty0 << "," << tz0 << ")"
+        << " tx1/ty1/tz1=(" << tx1 << "," << ty1 << "," << tz1 << ")"
+        << " max0=" << max0
+        << " min1=" << min1
+        << " leafCount=" << leafList.size()
+        << Logger::endl;
+
     double rayRadius = 0.0015;
     bool success = false;
     tls::Point localPoint{};
@@ -3002,6 +3038,10 @@ glm::dvec3 EmbeddedScan::findBestPointIterative(const std::vector<uint32_t>& lea
 
 	glm::dvec3 result(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN());
     const PreparedRayTracingDisplayFilter preparedFilter = prepareRayTracingDisplayFilter(displayFilterSettings);
+    uint64_t testedPoints = 0;
+    uint64_t clippedOutPoints = 0;
+    uint64_t displayFilteredOutPoints = 0;
+    uint64_t backFacingRejectedPoints = 0;
 
 	for (int leafStep = 0; leafStep < (int)leafList.size(); leafStep++)
 	{
@@ -3012,13 +3052,16 @@ glm::dvec3 EmbeddedScan::findBestPointIterative(const std::vector<uint32_t>& lea
 
         for (const tls::Point& pointData : cellPoints)
         {
+            ++testedPoints;
             glm::dvec3 point(pointData.x, pointData.y, pointData.z);
             if (!localClippingAssembly.testPoint(glm::dvec4(point, 1.0)))
             {
+                ++clippedOutPoints;
                 continue;
             }
             if (preparedFilter.anyFilterEnabled && isPointRejectedByDisplayFilters(preparedFilter, pointData, getGlobalCoord(point)))
             {
+                ++displayFilteredOutPoints;
                 continue;
             }
 
@@ -3026,6 +3069,7 @@ glm::dvec3 EmbeddedScan::findBestPointIterative(const std::vector<uint32_t>& lea
             currDistance = glm::length(pointRay);
             if (glm::dot(pointRay, rayDirection) < 0)
             {
+                ++backFacingRejectedPoints;
                 continue;
             }
             success = true;
@@ -3150,6 +3194,17 @@ glm::dvec3 EmbeddedScan::findBestPointIterative(const std::vector<uint32_t>& lea
 			}
 		}
 	}
+    Logger::log(LoggerMode::rayTracingLog)
+        << "[PICK_DBG][FindBestPointIterative]"
+        << " isOrtho=" << isOrtho
+        << " leafCount=" << leafList.size()
+        << " tested=" << testedPoints
+        << " clippedOut=" << clippedOutPoints
+        << " displayFilteredOut=" << displayFilteredOutPoints
+        << " rejectedDot=" << backFacingRejectedPoints
+        << " success=" << success
+        << " result=(" << result.x << "," << result.y << "," << result.z << ")"
+        << Logger::endl;
 	return getGlobalCoord(result);
 }
 
@@ -3166,6 +3221,10 @@ glm::dvec3 EmbeddedScan::findBestPointIterativeWithPoint(const std::vector<uint3
 
     glm::dvec3 result(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN());
     const PreparedRayTracingDisplayFilter preparedFilter = prepareRayTracingDisplayFilter(displayFilterSettings);
+    uint64_t testedPoints = 0;
+    uint64_t clippedOutPoints = 0;
+    uint64_t displayFilteredOutPoints = 0;
+    uint64_t backFacingRejectedPoints = 0;
 
     for (int leafStep = 0; leafStep < (int)leafList.size(); leafStep++)
     {
@@ -3176,13 +3235,16 @@ glm::dvec3 EmbeddedScan::findBestPointIterativeWithPoint(const std::vector<uint3
 
         for (const tls::Point& pointData : cellPoints)
         {
+            ++testedPoints;
             glm::dvec3 point(pointData.x, pointData.y, pointData.z);
             if (!localClippingAssembly.testPoint(glm::dvec4(point, 1.0)))
             {
+                ++clippedOutPoints;
                 continue;
             }
             if (preparedFilter.anyFilterEnabled && isPointRejectedByDisplayFilters(preparedFilter, pointData, getGlobalCoord(point)))
             {
+                ++displayFilteredOutPoints;
                 continue;
             }
 
@@ -3190,6 +3252,7 @@ glm::dvec3 EmbeddedScan::findBestPointIterativeWithPoint(const std::vector<uint3
             currDistance = glm::length(pointRay);
             if (glm::dot(pointRay, rayDirection) < 0)
             {
+                ++backFacingRejectedPoints;
                 continue;
             }
             success = true;
@@ -3312,6 +3375,17 @@ glm::dvec3 EmbeddedScan::findBestPointIterativeWithPoint(const std::vector<uint3
             }
         }
     }
+    Logger::log(LoggerMode::rayTracingLog)
+        << "[PICK_DBG][FindBestPointIterativeWithPoint]"
+        << " isOrtho=" << isOrtho
+        << " leafCount=" << leafList.size()
+        << " tested=" << testedPoints
+        << " clippedOut=" << clippedOutPoints
+        << " displayFilteredOut=" << displayFilteredOutPoints
+        << " rejectedDot=" << backFacingRejectedPoints
+        << " success=" << success
+        << " result=(" << result.x << "," << result.y << "," << result.z << ")"
+        << Logger::endl;
     return getGlobalCoord(result);
 }
 
@@ -3320,7 +3394,9 @@ int EmbeddedScan::updateRay(glm::dvec3& localRay, glm::dvec3& localRayOrigin, co
     int result(0);
     TreeCell root = m_vTreeCells[m_uRootCell];
     double norm = glm::length(localRay);
+    glm::dvec3 localRayBeforeNormalization = localRay;
     localRay = localRay / norm;
+    glm::dvec3 localRayOriginBeforeRemap = localRayOrigin;
     for (int loop = 0; loop < 3; loop++)
     {
         if (localRay[loop] < 0)
@@ -3330,6 +3406,16 @@ int EmbeddedScan::updateRay(glm::dvec3& localRay, glm::dvec3& localRayOrigin, co
             result += 1 << (2 - loop);
         }
     }
+    // PASS-1 instrumentation:
+    // Log remapping decisions (rayModifier and mirrored origin) which are critical for octree child indexing.
+    Logger::log(LoggerMode::rayTracingLog)
+        << "[PICK_DBG][UpdateRay]"
+        << " inputRay=(" << localRayBeforeNormalization.x << "," << localRayBeforeNormalization.y << "," << localRayBeforeNormalization.z << ")"
+        << " normalizedRay=(" << localRay.x << "," << localRay.y << "," << localRay.z << ")"
+        << " originBefore=(" << localRayOriginBeforeRemap.x << "," << localRayOriginBeforeRemap.y << "," << localRayOriginBeforeRemap.z << ")"
+        << " originAfter=(" << localRayOrigin.x << "," << localRayOrigin.y << "," << localRayOrigin.z << ")"
+        << " rayModifier=" << result
+        << Logger::endl;
     return result;
 }
 
