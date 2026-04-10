@@ -52,6 +52,8 @@ private:
 	void refreshShowUI();
 	void refreshImageSize();
 	double getRatioWH();
+	void savePersistentSettingsToCamera();
+	void loadPersistentSettingsFromCamera(const CameraNode& camera);
 
 	void setAreaWidthHeight(uint32_t area_w, uint32_t area_h);
 	void setSilentWidthHeight(uint32_t w, uint32_t h);
