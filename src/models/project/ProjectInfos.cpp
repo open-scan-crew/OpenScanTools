@@ -9,6 +9,7 @@ ProjectInfos::ProjectInfos()
 	, m_defaultMinClipDistance(0.0)
 	, m_defaultMaxClipDistance(0.5)
 	, m_defaultLengthThresholdClip(0.0)
+	, m_defaultClipMode(ClippingMode::showExterior)
 	, m_defaultMinRampDistance(0.0)
 	, m_defaultMaxRampDistance(0.5)
 {
@@ -32,8 +33,12 @@ ProjectInfos::ProjectInfos(const ProjectInfos& p)
 	this->m_defaultMinClipDistance = p.m_defaultMinClipDistance;
 	this->m_defaultMaxClipDistance = p.m_defaultMaxClipDistance;
 	this->m_defaultLengthThresholdClip = p.m_defaultLengthThresholdClip;
+	// Keep clipping defaults consistent across ProjectInfos copies.
+	this->m_defaultClipMode = p.m_defaultClipMode;
 	this->m_defaultMinRampDistance = p.m_defaultMinRampDistance;
 	this->m_defaultMaxRampDistance = p.m_defaultMaxRampDistance;
+	// Keep ramp defaults consistent across ProjectInfos copies.
+	this->m_defaultRampSteps = p.m_defaultRampSteps;
 	this->m_defaultScan = p.m_defaultScan;
 	this->m_importScanTranslation = p.m_importScanTranslation;
 	this->m_id = p.m_id;
