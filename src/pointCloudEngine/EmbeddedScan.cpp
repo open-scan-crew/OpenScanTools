@@ -32,6 +32,9 @@ using namespace std::chrono;
 namespace
 {
     constexpr float kColorimetricMaxDistance = 1.7320508f;
+    // Pass-2 stability epsilon used to classify near-zero normalized ray components.
+    // This avoids sign flips caused by floating noise in orthographic axis-aligned views.
+    constexpr double kRaySignEpsilon = 1e-12;
 
     struct PreparedRayTracingDisplayFilter
     {
@@ -3395,11 +3398,29 @@ int EmbeddedScan::updateRay(glm::dvec3& localRay, glm::dvec3& localRayOrigin, co
     TreeCell root = m_vTreeCells[m_uRootCell];
     double norm = glm::length(localRay);
     glm::dvec3 localRayBeforeNormalization = localRay;
+    if (norm <= std::numeric_limits<double>::epsilon())
+    {
+        // Defensive guard: should not happen in normal picking flow, but avoids undefined
+        // behavior if an invalid zero-length ray reaches this stage.
+        Logger::log(LoggerMode::rayTracingLog)
+            << "[PICK_DBG][UpdateRay] invalid ray norm=" << norm
+            << " inputRay=(" << localRayBeforeNormalization.x << "," << localRayBeforeNormalization.y << "," << localRayBeforeNormalization.z << ")"
+            << Logger::endl;
+        return result;
+    }
     localRay = localRay / norm;
     glm::dvec3 localRayOriginBeforeRemap = localRayOrigin;
     for (int loop = 0; loop < 3; loop++)
     {
-        if (localRay[loop] < 0)
+        // Pass-2 fix: treat near-zero values as exact zero before sign remapping.
+        // Without this, tiny negative noise (e.g. -1e-17) flips octree parity.
+        if (std::abs(localRay[loop]) <= kRaySignEpsilon)
+        {
+            localRay[loop] = 0.0;
+            continue;
+        }
+
+        if (localRay[loop] < -kRaySignEpsilon)
         {
             localRay[loop] = -localRay[loop];
             localRayOrigin[loop] = 2 * root.m_position[loop] + rootSize - localRayOrigin[loop];
