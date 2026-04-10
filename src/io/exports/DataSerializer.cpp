@@ -471,6 +471,27 @@ void ExportRenderingParameters(nlohmann::json& json, const RenderingParameters& 
 
 	// Single source of truth: keep OrthoGrid serialization in one helper.
 	persistence::writeOrthoGrid(json, params);
+
+	// Persist HD export toolbar state (project + viewpoints).
+	json[Key_Image_Group_Settings] = {
+		{ Key_Image_Group_Use_Frame, params.m_imageUseFrame },
+		{ Key_Image_Group_Show_Grid, params.m_imageShowGrid },
+		{ Key_Image_Group_Ratio_Image, params.m_imageRatioImageMode },
+		{ Key_Image_Group_Ratio_Image_Id, params.m_imageRatioImageIndex },
+		{ Key_Image_Group_Ratio_Print_Id, params.m_imageRatioPrintIndex },
+		{ Key_Image_Group_Portrait, params.m_imagePortrait },
+		{ Key_Image_Group_Width, params.m_imageWidth },
+		{ Key_Image_Group_Height, params.m_imageHeight },
+		{ Key_Image_Group_Alpha, params.m_imageAlpha },
+		{ Key_Image_Group_Format, params.m_imageFormat },
+		{ Key_Image_Group_Antialiasing, params.m_imageAntialiasing },
+		{ Key_Image_Group_Scale_Index, params.m_imageScaleIndex },
+		{ Key_Image_Group_Dpi_Index, params.m_imageDpiIndex }
+	};
+
+	// Persist user orientation viewpoint mode (project + viewpoints).
+	json[Key_Viewpoint_User_Orientation_Enabled] = params.m_viewpointUserOrientationEnabled;
+	json[Key_Viewpoint_User_Orientation_Id] = params.m_viewpointUserOrientationId;
 }
 
 void ExportViewPointData(nlohmann::json& json, const ViewPointData& data)
