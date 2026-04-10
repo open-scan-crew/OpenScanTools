@@ -1,4 +1,5 @@
 #include "io/exports/DataSerializer.h"
+#include "io/PersistenceSchema.h"
 
 #include "utils/Logger.h"
 
@@ -468,12 +469,8 @@ void ExportRenderingParameters(nlohmann::json& json, const RenderingParameters& 
 		json[Key_Polygonal_Selector][Key_Polygonal_Selector_Polygons].push_back(polygonJson);
 	}
 
-	json[Key_Ortho_Grid_Active] = params.m_orthoGridActive;
-	json[Key_Ortho_Grid_Color] = { params.m_orthoGridColor.r, params.m_orthoGridColor.g, params.m_orthoGridColor.b, params.m_orthoGridColor.a };
-	json[Key_Ortho_Grid_Step] = params.m_orthoGridStep;
-	// NOTE: linewidth must be persisted under its dedicated key.
-	// Writing it to Key_Ortho_Grid_Step corrupts both step/linewidth on reload.
-	json[Key_Ortho_Grid_Linewidth] = params.m_orthoGridLineWidth;
+	// Single source of truth: keep OrthoGrid serialization in one helper.
+	persistence::writeOrthoGrid(json, params);
 }
 
 void ExportViewPointData(nlohmann::json& json, const ViewPointData& data)
