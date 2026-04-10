@@ -8,6 +8,7 @@
 #include "gui/GuiData/GuiDataRendering.h"
 #include "gui/toolBars/ToolBarRenderSettings.h"
 #include "gui/toolBars/ToolBarShowHideGroup.h"
+#include "io/PersistenceSchema.h"
 #include "io/SerializerKeys.h"
 #include "utils/JsonWriter.h"
 #include "utils/System.h"
@@ -174,10 +175,9 @@ namespace
 			json[Key_Polygonal_Selector][Key_Polygonal_Selector_Polygons].push_back(polygonJson);
 		}
 
-		json[Key_Ortho_Grid_Active] = params.m_orthoGridActive;
-		json[Key_Ortho_Grid_Color] = { params.m_orthoGridColor.r, params.m_orthoGridColor.g, params.m_orthoGridColor.b, params.m_orthoGridColor.a };
-		json[Key_Ortho_Grid_Step] = params.m_orthoGridStep;
-		json[Key_Ortho_Grid_Linewidth] = params.m_orthoGridLineWidth;
+			// Single source of truth: keep OrthoGrid serialization aligned
+			// with project and viewpoint serializers.
+			persistence::writeOrthoGrid(json, params);
 
 		return json;
 	}

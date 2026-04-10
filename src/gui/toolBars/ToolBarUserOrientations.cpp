@@ -15,9 +15,11 @@ ToolBarUserOrientation::ToolBarUserOrientation(IDataDispatcher &dataDispatcher, 
 	setEnabled(false);
 
     // Projection Mode
-    m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);
+	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::callbackUO);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::sendUserOrientationList);
+	m_dataDispatcher.registerObserverOnKey(this, guiDType::userOrientation);
+	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectOrientation);
 
 	connect(m_ui.editButton, &QAbstractButton::released, this, [this]() {this->slotEditOrientation(this->m_ui.orientationsListBox->currentIndex()); });
     connect(m_ui.newButton, &QAbstractButton::released, this, &ToolBarUserOrientation::slotNewOrientation);
@@ -29,6 +31,8 @@ ToolBarUserOrientation::ToolBarUserOrientation(IDataDispatcher &dataDispatcher, 
 	m_methods.insert(std::pair<guiDType, UserOrientationMethod>(guiDType::projectLoaded, &ToolBarUserOrientation::onProjectLoad));
 	m_methods.insert(std::pair<guiDType, UserOrientationMethod>(guiDType::callbackUO, &ToolBarUserOrientation::onEditUO));
 	m_methods.insert(std::pair<guiDType, UserOrientationMethod>(guiDType::sendUserOrientationList, &ToolBarUserOrientation::onLoadUO));
+	m_methods.insert(std::pair<guiDType, UserOrientationMethod>(guiDType::userOrientation, &ToolBarUserOrientation::onSetUO));
+	m_methods.insert(std::pair<guiDType, UserOrientationMethod>(guiDType::projectOrientation, &ToolBarUserOrientation::onUnsetUO));
 
 
 	
@@ -101,6 +105,33 @@ void ToolBarUserOrientation::onLoadUO(IGuiData * data)
 	slotSetOrientation(m_ui.orientationsListBox->currentIndex());
 }
 
+void ToolBarUserOrientation::onSetUO(IGuiData* data)
+{
+	auto setData = static_cast<GuiDataSetUserOrientation*>(data);
+	m_useUserOrientation = true;
+	m_ui.userButton->setChecked(true);
+	m_ui.projectButton->setChecked(false);
+
+	for (size_t i = 0; i < m_idList.size(); ++i)
+	{
+		if (m_idList[i] == setData->m_userOrientation.getId())
+		{
+			m_ui.orientationsListBox->blockSignals(true);
+			m_ui.orientationsListBox->setCurrentIndex(static_cast<int>(i));
+			m_ui.orientationsListBox->blockSignals(false);
+			break;
+		}
+	}
+}
+
+void ToolBarUserOrientation::onUnsetUO(IGuiData* data)
+{
+	(void)data;
+	m_useUserOrientation = false;
+	m_ui.projectButton->setChecked(true);
+	m_ui.userButton->setChecked(false);
+}
+
 
 void ToolBarUserOrientation::changeOrientation(bool isUserOrientation)
 {
@@ -130,5 +161,3 @@ void ToolBarUserOrientation::slotNewOrientation()
 {
 	m_dataDispatcher.sendControl(new control::userOrientation::UserOrientationsProperties());
 }
-
-
