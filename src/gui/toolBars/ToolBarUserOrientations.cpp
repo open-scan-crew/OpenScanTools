@@ -19,7 +19,7 @@ ToolBarUserOrientation::ToolBarUserOrientation(IDataDispatcher &dataDispatcher, 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::callbackUO);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::sendUserOrientationList);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::userOrientation);
-	m_dataDispatcher.registerObserverOnKey(this, guiDType::unsetUserOrientation);
+	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectOrientation);
 
 	connect(m_ui.editButton, &QAbstractButton::released, this, [this]() {this->slotEditOrientation(this->m_ui.orientationsListBox->currentIndex()); });
     connect(m_ui.newButton, &QAbstractButton::released, this, &ToolBarUserOrientation::slotNewOrientation);
@@ -32,7 +32,7 @@ ToolBarUserOrientation::ToolBarUserOrientation(IDataDispatcher &dataDispatcher, 
 	m_methods.insert(std::pair<guiDType, UserOrientationMethod>(guiDType::callbackUO, &ToolBarUserOrientation::onEditUO));
 	m_methods.insert(std::pair<guiDType, UserOrientationMethod>(guiDType::sendUserOrientationList, &ToolBarUserOrientation::onLoadUO));
 	m_methods.insert(std::pair<guiDType, UserOrientationMethod>(guiDType::userOrientation, &ToolBarUserOrientation::onSetUO));
-	m_methods.insert(std::pair<guiDType, UserOrientationMethod>(guiDType::unsetUserOrientation, &ToolBarUserOrientation::onUnsetUO));
+	m_methods.insert(std::pair<guiDType, UserOrientationMethod>(guiDType::projectOrientation, &ToolBarUserOrientation::onUnsetUO));
 
 
 	
@@ -161,4 +161,3 @@ void ToolBarUserOrientation::slotNewOrientation()
 {
 	m_dataDispatcher.sendControl(new control::userOrientation::UserOrientationsProperties());
 }
-

@@ -527,7 +527,7 @@ void ToolBarImageGroup::loadPersistentSettingsFromCamera(const CameraNode& camer
 	m_ui.checkBox_frame->blockSignals(true);
 	m_ui.checkBox_hdImageGrid->blockSignals(true);
 	m_ui.radioButton_ratioImage->blockSignals(true);
-	m_ui.radioButton_ratioPrint->blockSignals(true);
+	m_ui.radioButton_print->blockSignals(true);
 	m_ui.comboBox_ratioImage->blockSignals(true);
 	m_ui.comboBox_print->blockSignals(true);
 	m_ui.radioButton_portrait->blockSignals(true);
@@ -541,7 +541,7 @@ void ToolBarImageGroup::loadPersistentSettingsFromCamera(const CameraNode& camer
 	m_ui.checkBox_frame->setChecked(camera.m_imageUseFrame);
 	m_ui.checkBox_hdImageGrid->setChecked(camera.m_imageShowGrid);
 	m_ui.radioButton_ratioImage->setChecked(camera.m_imageRatioImageMode);
-	m_ui.radioButton_ratioPrint->setChecked(!camera.m_imageRatioImageMode);
+	m_ui.radioButton_print->setChecked(!camera.m_imageRatioImageMode);
 	int ratioImageIndex = m_ui.comboBox_ratioImage->findData(camera.m_imageRatioImageIndex);
 	int ratioPrintIndex = m_ui.comboBox_print->findData(camera.m_imageRatioPrintIndex);
 	m_ui.comboBox_ratioImage->setCurrentIndex(ratioImageIndex >= 0 ? ratioImageIndex : 0);
@@ -561,7 +561,7 @@ void ToolBarImageGroup::loadPersistentSettingsFromCamera(const CameraNode& camer
 	m_ui.checkBox_frame->blockSignals(false);
 	m_ui.checkBox_hdImageGrid->blockSignals(false);
 	m_ui.radioButton_ratioImage->blockSignals(false);
-	m_ui.radioButton_ratioPrint->blockSignals(false);
+	m_ui.radioButton_print->blockSignals(false);
 	m_ui.comboBox_ratioImage->blockSignals(false);
 	m_ui.comboBox_print->blockSignals(false);
 	m_ui.radioButton_portrait->blockSignals(false);
