@@ -30,6 +30,8 @@ private:
 	void onProjectLoad(IGuiData* data);
 	void onEditUO(IGuiData* data);
 	void onLoadUO(IGuiData* data);
+	void onSetUO(IGuiData* data);
+	void onUnsetUO(IGuiData* data);
 
 	void changeOrientation(bool isUserOrientation);
 
@@ -51,4 +53,3 @@ private:
 };
 
 #endif // TOOLBAR_VIEWINGMODEGROUP_H
-

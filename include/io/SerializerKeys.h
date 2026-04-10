@@ -299,6 +299,22 @@
 #define Key_Ortho_Grid_Color			"OrthoGridColor"
 #define Key_Ortho_Grid_Step				"OrthoGridStep"
 #define Key_Ortho_Grid_Linewidth		"OrthoGridLinewidth"
+#define Key_Image_Group_Settings        "ImageGroupSettings"
+#define Key_Image_Group_Use_Frame       "UseFrame"
+#define Key_Image_Group_Show_Grid       "ShowGrid"
+#define Key_Image_Group_Ratio_Image     "RatioImageMode"
+#define Key_Image_Group_Ratio_Image_Id  "RatioImageIndex"
+#define Key_Image_Group_Ratio_Print_Id  "RatioPrintIndex"
+#define Key_Image_Group_Portrait        "Portrait"
+#define Key_Image_Group_Width           "ImageWidth"
+#define Key_Image_Group_Height          "ImageHeight"
+#define Key_Image_Group_Alpha           "Alpha"
+#define Key_Image_Group_Format          "Format"
+#define Key_Image_Group_Antialiasing    "Antialiasing"
+#define Key_Image_Group_Scale_Index     "ScaleIndex"
+#define Key_Image_Group_Dpi_Index       "DpiIndex"
+#define Key_Viewpoint_User_Orientation_Enabled "ViewpointUserOrientationEnabled"
+#define Key_Viewpoint_User_Orientation_Id      "ViewpointUserOrientationId"
 
 /*** EXTRA KEY ***/
 
