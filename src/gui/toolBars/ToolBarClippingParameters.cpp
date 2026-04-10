@@ -74,7 +74,10 @@ void ToolBarClippingParameters::onValues(IGuiData* data)
     m_ui.lineEdit_defaultMin->setValue(castData->m_minClipDistance);
     m_ui.lineEdit_defaultMax->setValue(castData->m_maxClipDistance);
     m_ui.lineEdit_defaultLengthThreshold->setValue(castData->m_lengthThresholdClip);
+    // Keep both radio buttons explicitly synchronized with the persisted mode.
+    // Relying on only one side is fragile when UI state evolves.
     m_ui.exteriorRadioButton->setChecked(castData->m_mode == ClippingMode::showExterior);
+    m_ui.interiorRadioButton->setChecked(castData->m_mode == ClippingMode::showInterior);
 
     blockAllSignals(false);
 }
@@ -84,6 +87,10 @@ void ToolBarClippingParameters::blockAllSignals(bool value)
     m_ui.lineEdit_defaultMin->blockSignals(value);
     m_ui.lineEdit_defaultMax->blockSignals(value);
     m_ui.lineEdit_defaultLengthThreshold->blockSignals(value);
+    // Block radio button signals while restoring persisted values
+    // to avoid spurious SetDefaultClippingMode controls.
+    m_ui.exteriorRadioButton->blockSignals(value);
+    m_ui.interiorRadioButton->blockSignals(value);
 }
 
 void ToolBarClippingParameters::sendDefaultDistances()

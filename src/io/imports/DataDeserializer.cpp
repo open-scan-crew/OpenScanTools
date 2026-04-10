@@ -974,15 +974,61 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
         retVal = false;
     }
 
+    // Pass 4 compat: accept former OrthoGrid linewidth spelling used by some legacy files.
+    constexpr const char* Legacy_Key_Ortho_Grid_LineWidth = "OrthoGridLineWidth";
     if (json.find(Key_Ortho_Grid_Linewidth) != json.end())
     {
         data.m_orthoGridLineWidth = json.at(Key_Ortho_Grid_Linewidth).get<uint32_t>();
+    }
+    else if (json.find(Legacy_Key_Ortho_Grid_LineWidth) != json.end())
+    {
+        data.m_orthoGridLineWidth = json.at(Legacy_Key_Ortho_Grid_LineWidth).get<uint32_t>();
     }
     else
     {
         IOLOG << "ViewPoint Key_Ortho_Grid_Linewidth read error" << LOGENDL;
         retVal = false;
     }
+
+    // Pass 4 compat: read image-group settings from nested block first (canonical),
+    // then fallback to root-level keys for migration from intermediate formats.
+    const nlohmann::json* imageSrc = nullptr;
+    if (json.find(Key_Image_Group_Settings) != json.end() && json.at(Key_Image_Group_Settings).is_object())
+        imageSrc = &json.at(Key_Image_Group_Settings);
+    else
+        imageSrc = &json;
+
+    if (imageSrc->find(Key_Image_Group_Use_Frame) != imageSrc->end())
+        data.m_imageUseFrame = imageSrc->at(Key_Image_Group_Use_Frame).get<bool>();
+    if (imageSrc->find(Key_Image_Group_Show_Grid) != imageSrc->end())
+        data.m_imageShowGrid = imageSrc->at(Key_Image_Group_Show_Grid).get<bool>();
+    if (imageSrc->find(Key_Image_Group_Ratio_Image) != imageSrc->end())
+        data.m_imageRatioImageMode = imageSrc->at(Key_Image_Group_Ratio_Image).get<bool>();
+    if (imageSrc->find(Key_Image_Group_Ratio_Image_Id) != imageSrc->end())
+        data.m_imageRatioImageIndex = imageSrc->at(Key_Image_Group_Ratio_Image_Id).get<int>();
+    if (imageSrc->find(Key_Image_Group_Ratio_Print_Id) != imageSrc->end())
+        data.m_imageRatioPrintIndex = imageSrc->at(Key_Image_Group_Ratio_Print_Id).get<int>();
+    if (imageSrc->find(Key_Image_Group_Portrait) != imageSrc->end())
+        data.m_imagePortrait = imageSrc->at(Key_Image_Group_Portrait).get<bool>();
+    if (imageSrc->find(Key_Image_Group_Width) != imageSrc->end())
+        data.m_imageWidth = imageSrc->at(Key_Image_Group_Width).get<uint32_t>();
+    if (imageSrc->find(Key_Image_Group_Height) != imageSrc->end())
+        data.m_imageHeight = imageSrc->at(Key_Image_Group_Height).get<uint32_t>();
+    if (imageSrc->find(Key_Image_Group_Alpha) != imageSrc->end())
+        data.m_imageAlpha = imageSrc->at(Key_Image_Group_Alpha).get<bool>();
+    if (imageSrc->find(Key_Image_Group_Format) != imageSrc->end())
+        data.m_imageFormat = imageSrc->at(Key_Image_Group_Format).get<int>();
+    if (imageSrc->find(Key_Image_Group_Antialiasing) != imageSrc->end())
+        data.m_imageAntialiasing = imageSrc->at(Key_Image_Group_Antialiasing).get<int>();
+    if (imageSrc->find(Key_Image_Group_Scale_Index) != imageSrc->end())
+        data.m_imageScaleIndex = imageSrc->at(Key_Image_Group_Scale_Index).get<int>();
+    if (imageSrc->find(Key_Image_Group_Dpi_Index) != imageSrc->end())
+        data.m_imageDpiIndex = imageSrc->at(Key_Image_Group_Dpi_Index).get<int>();
+
+    if (json.find(Key_Viewpoint_User_Orientation_Enabled) != json.end())
+        data.m_viewpointUserOrientationEnabled = json.at(Key_Viewpoint_User_Orientation_Enabled).get<bool>();
+    if (json.find(Key_Viewpoint_User_Orientation_Id) != json.end())
+        data.m_viewpointUserOrientationId = json.at(Key_Viewpoint_User_Orientation_Id).get<std::string>();
 
     return retVal;
 }
