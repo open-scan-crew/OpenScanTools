@@ -1,31 +1,31 @@
 # OpenScanTools – Persistence Matrix (Single Source of Truth)
 
-Ce document formalise la **source de vérité fonctionnelle** pour la persistance des réglages projet/viewpoint.
+This document defines the **functional source of truth** for project/viewpoint persistence settings.
 
-## Légende
+## Legend
 - **Scope**
-  - `ProjectOnly` : sauvegardé uniquement au niveau projet.
-  - `SharedProjectViewpoint` : sauvegardé dans projet **et** viewpoint.
-  - `RuntimeOnly` : non persisté.
+  - `ProjectOnly`: saved only at project level.
+  - `SharedProjectViewpoint`: saved in both project **and** viewpoint.
+  - `RuntimeOnly`: not persisted.
 - **Status**
-  - `Implemented` : déjà implémenté dans le code.
-  - `Planned` : ciblé pour une passe suivante.
+  - `Implemented`: already implemented in code.
+  - `Planned`: targeted for a future pass.
 
 ---
 
-## Matrice
+## Matrix
 
 | Field ID | Scope | Status | Project key | Viewpoint key | Notes |
 |---|---|---|---|---|---|
-| `userOrientation.mode` | SharedProjectViewpoint | Implemented | `ViewpointUserOrientationEnabled` | `ViewpointUserOrientationEnabled` | Radio `user/project` |
-| `userOrientation.selectedId` | SharedProjectViewpoint | Implemented | `ViewpointUserOrientationId` | `ViewpointUserOrientationId` | Combo user orientation |
+| `userOrientation.mode` | SharedProjectViewpoint | Implemented | `ViewpointUserOrientationEnabled` | `ViewpointUserOrientationEnabled` | User/project radio mode |
+| `userOrientation.selectedId` | SharedProjectViewpoint | Implemented | `ViewpointUserOrientationId` | `ViewpointUserOrientationId` | User orientation combo |
 | `orthoGrid.active` | SharedProjectViewpoint | Implemented | `OrthoGridActive` | `OrthoGridActive` | |
 | `orthoGrid.color` | SharedProjectViewpoint | Implemented | `OrthoGridColor` | `OrthoGridColor` | |
 | `orthoGrid.step` | SharedProjectViewpoint | Implemented | `OrthoGridStep` | `OrthoGridStep` | |
-| `orthoGrid.lineWidth` | SharedProjectViewpoint | Implemented | `OrthoGridLinewidth` | `OrthoGridLinewidth` | Bug de clé corrigé en passe 1 |
+| `orthoGrid.lineWidth` | SharedProjectViewpoint | Implemented | `OrthoGridLinewidth` | `OrthoGridLinewidth` | Key typo fixed in pass 1 |
 | `imagegroup.useFrame` | SharedProjectViewpoint | Implemented | `ImageGroupSettings` | `ImageGroupSettings` | |
-| `imagegroup.ratioMode` | SharedProjectViewpoint | Implemented | `ImageGroupSettings` | `ImageGroupSettings` | ratio image vs ratio print |
-| `imagegroup.ratioChoice` | SharedProjectViewpoint | Implemented | `ImageGroupSettings` | `ImageGroupSettings` | combo ratio |
+| `imagegroup.ratioMode` | SharedProjectViewpoint | Implemented | `ImageGroupSettings` | `ImageGroupSettings` | image ratio vs print ratio |
+| `imagegroup.ratioChoice` | SharedProjectViewpoint | Implemented | `ImageGroupSettings` | `ImageGroupSettings` | ratio combo |
 | `imagegroup.orientation` | SharedProjectViewpoint | Implemented | `ImageGroupSettings` | `ImageGroupSettings` | portrait/landscape |
 | `imagegroup.grid` | SharedProjectViewpoint | Implemented | `ImageGroupSettings` | `ImageGroupSettings` | |
 | `imagegroup.width` | SharedProjectViewpoint | Implemented | `ImageGroupSettings` | `ImageGroupSettings` | |
@@ -33,7 +33,7 @@ Ce document formalise la **source de vérité fonctionnelle** pour la persistanc
 | `imagegroup.alpha` | SharedProjectViewpoint | Implemented | `ImageGroupSettings` | `ImageGroupSettings` | |
 | `imagegroup.format` | SharedProjectViewpoint | Implemented | `ImageGroupSettings` | `ImageGroupSettings` | |
 | `imagegroup.antialiasing` | SharedProjectViewpoint | Implemented | `ImageGroupSettings` | `ImageGroupSettings` | |
-| `imagegroup.scaleOrDpi` | SharedProjectViewpoint | Implemented | `ImageGroupSettings` | `ImageGroupSettings` | mode selon projection |
+| `imagegroup.scaleOrDpi` | SharedProjectViewpoint | Implemented | `ImageGroupSettings` | `ImageGroupSettings` | mode depends on projection |
 | `clipping.defaultMode` | ProjectOnly | Implemented | `DefaultClipMode` | — | |
 | `clipping.defaultDistances` | ProjectOnly | Implemented | `DefaultClipDistances` | — | |
 | `clipping.defaultLengthThreshold` | ProjectOnly | Implemented | `DefaultLengthThresholdClip` | — | |
@@ -43,12 +43,12 @@ Ce document formalise la **source de vérité fonctionnelle** pour la persistanc
 
 ---
 
-## Convention opérationnelle
+## Operational convention
 
-1. Toute évolution de scope/clé doit être modifiée dans :
-   - ce document
+1. Any scope/key change must be updated in:
+   - this document
    - `include/io/PersistenceSchema.h`
-2. Toute nouvelle persistance doit indiquer explicitement :
-   - fallback legacy (si nécessaire)
-   - clé projet et clé viewpoint (ou absence explicite)
-3. Les sérialisations du même concept doivent passer par un helper partagé pour éviter les dérives de clé.
+2. Any new persistence field must explicitly define:
+   - legacy fallback behavior (if needed)
+   - project key and viewpoint key (or explicit absence)
+3. Serializing the same concept in multiple places must use a shared helper to prevent key drift.
