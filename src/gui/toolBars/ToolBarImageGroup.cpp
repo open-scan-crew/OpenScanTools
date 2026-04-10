@@ -260,7 +260,7 @@ ToolBarImageGroup::ToolBarImageGroup(IDataDispatcher& dataDispatcher, QWidget* p
 	QObject::connect(m_ui.comboBox_scale, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarImageGroup::slotScaleChanged);
 	QObject::connect(m_ui.comboBox_dpi, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarImageGroup::slotDPIChanged);
 	QObject::connect(m_ui.toolButton_createImage, &QToolButton::clicked, this, [this]() {slotCreateImage("", true); });
-	QObject::connect(m_ui.lineEdit_imageW, &QLineEdit::textChanged, this, &ToolBarImageGroup::refreshImageSize);
+	QObject::connect(m_ui.lineEdit_imageW, &QLineEdit::textChanged, this, [this]() { refreshImageSize(); savePersistentSettingsToCamera(); });
 	QObject::connect(m_ui.lineEdit_imageH, &QLineEdit::textChanged, this, &ToolBarImageGroup::slotHeightChanged);
 	// The two radio buttons (*_ratioImage and *_ratioPrint) are exclusive, only one connect is needed
 	QObject::connect(m_ui.radioButton_ratioImage, &QRadioButton::toggled, this, &ToolBarImageGroup::slotRatio);
