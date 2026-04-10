@@ -354,11 +354,14 @@ void ToolBarImageGroup::onActiveCamera(IGuiData* data)
 	if (castData->m_camera && castData->m_camera != m_focusCamera)
 		return;
 
+	// Keep previous perspective resolution before loading the new camera/viewpoint state.
+	const uint32_t previousUiWidth = m_ui.lineEdit_imageW->text().toUInt();
+	const uint32_t previousUiHeight = m_ui.lineEdit_imageH->text().toUInt();
+
 	ProjectionMode cameraProjection = m_projection;
 	double cameraHeightAt1m = std::numeric_limits<double>::quiet_NaN();
 	double cameraRatioWH = std::numeric_limits<double>::quiet_NaN();
 	bool switchPerspToOrtho = false;
-	bool switchOrthoToPersp = false;
 
 	{
 		ReadPtr<CameraNode> vp = m_focusCamera.cget();
@@ -370,7 +373,6 @@ void ToolBarImageGroup::onActiveCamera(IGuiData* data)
 
 		cameraProjection = vp->getProjectionMode();
 		switchPerspToOrtho = (m_projection == ProjectionMode::Perspective && cameraProjection == ProjectionMode::Orthographic);
-		switchOrthoToPersp = (m_projection == ProjectionMode::Orthographic && cameraProjection == ProjectionMode::Perspective);
 		if (cameraProjection == ProjectionMode::Orthographic)
 		{
 			cameraHeightAt1m = vp->getHeightAt1m();
@@ -383,16 +385,12 @@ void ToolBarImageGroup::onActiveCamera(IGuiData* data)
 
 	if (switchPerspToOrtho)
 	{
-		bool resW = false;
-		bool resH = false;
-		uint32_t width = m_ui.lineEdit_imageW->text().toUInt(&resW, 10);
-		uint32_t height = m_ui.lineEdit_imageH->text().toUInt(&resH, 10);
-
-		m_storePerspImageSize = glm::ivec2(width, height);
+		// Preserve the perspective dimensions that were visible before switching to ortho.
+		m_storePerspImageSize = glm::ivec2(previousUiWidth, previousUiHeight);
 	}
-
-	if (switchOrthoToPersp)
-		setSilentWidthHeight(m_storePerspImageSize.x, m_storePerspImageSize.y);
+	// IMPORTANT:
+	// Do not overwrite perspective width/height when entering perspective.
+	// Values are now persisted per camera/viewpoint and already restored by loadPersistentSettingsFromCamera().
 
 	m_projection = cameraProjection;
 
@@ -573,6 +571,9 @@ void ToolBarImageGroup::loadPersistentSettingsFromCamera(const CameraNode& camer
 	int dpiIndex = m_ui.comboBox_dpi->findData(camera.m_imageDpiIndex);
 	m_ui.comboBox_scale->setCurrentIndex(scaleIndex >= 0 ? scaleIndex : 0);
 	m_ui.comboBox_dpi->setCurrentIndex(dpiIndex >= 0 ? dpiIndex : 0);
+	// Keep internal numeric caches aligned even when signals are blocked during restore.
+	m_scale = g_imageScaleValues.at((ImageScale)(m_ui.comboBox_scale->currentData().toInt()));
+	m_dpmm = g_imageDPIValues.at((ImageDPI)(m_ui.comboBox_dpi->currentData().toInt())) / 25.4;
 	m_ui.formatComboBox->setCurrentIndex(camera.m_imageFormat);
 	m_ui.checkBox_alphaImage->setChecked(camera.m_imageAlpha);
 	int antialiasIndex = m_ui.comboBox_antialiasHD->findData(camera.m_imageAntialiasing);
