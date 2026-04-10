@@ -485,6 +485,17 @@ ClickInfo VulkanViewport::generateRaytracingInfos(const WritePtr<CameraNode>& wC
 
     glm::dvec3 ray = glm::dvec3(pickPos.x - pickPos0.x, pickPos.y - pickPos0.y, pickPos.z - pickPos0.z);
 
+    // PASS-1 instrumentation:
+    // Log raw picking ray generation at the viewport boundary to correlate camera angle
+    // with downstream octree traversal behavior.
+    Logger::log(LoggerMode::rayTracingLog)
+        << "[PICK_DBG][ViewportRay] mouse=(" << m_MI.lastX << "," << m_MI.lastY << ")"
+        << " rayOrigin=(" << rayOrigin.x << "," << rayOrigin.y << "," << rayOrigin.z << ")"
+        << " ray=(" << ray.x << "," << ray.y << "," << ray.z << ")"
+        << " fov=" << wCam->getFovy()
+        << " heightAt1m=" << wCam->getHeightAt1m()
+        << Logger::endl;
+
     uint32_t w = m_framebuffer->extent.width;
     uint32_t h = m_framebuffer->extent.height;
 
