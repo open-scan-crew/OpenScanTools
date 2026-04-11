@@ -31,7 +31,7 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
     {
 		//fixeme (Aurélien) to remove when I & RGB done
 #ifndef _DEBUG
-		if (iterator == 2)
+		if (UiRenderMode(iterator) == UiRenderMode::IntensityRGB_Combined)
 			continue;
 #endif // !_DEBUG
         m_ui.comboBox_renderMode->addItem(QString::fromStdString(tradUiRenderMode.at(UiRenderMode(iterator))),QVariant(iterator));
@@ -422,6 +422,7 @@ void ToolBarRenderSettings::switchRenderMode(const int& mode)
 		}
 		break;
 		case UiRenderMode::RGB:
+		case UiRenderMode::Cartoon_RGB: // Keeps RGB-like controls; dedicated shader is selected by render mode mapping.
 		{
             showSaturationLuminance();
             m_ui.ramp_options->setVisible(false);

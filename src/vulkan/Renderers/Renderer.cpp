@@ -82,6 +82,16 @@ static uint32_t point_rgb_standard_clip_vert_spv[] =
 #include "point_rgb_standard_clip.vert.spv"
 };
 
+static uint32_t point_rgb_cartoon_vert_spv[] =
+{
+#include "point_rgb_cartoon.vert.spv"
+};
+
+static uint32_t point_rgb_cartoon_clip_vert_spv[] =
+{
+#include "point_rgb_cartoon_clip.vert.spv"
+};
+
 static uint32_t point_rgb_colored_vert_spv[] =
 {
 #include "point_rgb_colored.vert.spv"
@@ -172,6 +182,12 @@ Renderer::Renderer()
             { tls::PointFormat::TL_POINT_XYZ_RGB, { point_rgb_standard_vert_spv, sizeof(point_rgb_standard_vert_spv), point_rgb_standard_clip_vert_spv, sizeof(point_rgb_standard_clip_vert_spv), true }},
             { tls::PointFormat::TL_POINT_XYZ_I_RGB, { point_rgb_standard_vert_spv, sizeof(point_rgb_standard_vert_spv), point_rgb_standard_clip_vert_spv, sizeof(point_rgb_standard_clip_vert_spv), true }}}
         },
+        { RenderMode::RGB_Cartoon, {
+            // Pass 2: dedicated cartoon vertex shader for RGB-capable point formats.
+            { tls::PointFormat::TL_POINT_XYZ_I, { point_i_standard_vert_spv, sizeof(point_i_standard_vert_spv), point_i_standard_clip_vert_spv, sizeof(point_i_standard_clip_vert_spv), true }},
+            { tls::PointFormat::TL_POINT_XYZ_RGB, { point_rgb_cartoon_vert_spv, sizeof(point_rgb_cartoon_vert_spv), point_rgb_cartoon_clip_vert_spv, sizeof(point_rgb_cartoon_clip_vert_spv), true }},
+            { tls::PointFormat::TL_POINT_XYZ_I_RGB, { point_rgb_cartoon_vert_spv, sizeof(point_rgb_cartoon_vert_spv), point_rgb_cartoon_clip_vert_spv, sizeof(point_rgb_cartoon_clip_vert_spv), true }}}
+        },
         { RenderMode::IntensityRGB_Combined, {
             { tls::PointFormat::TL_POINT_XYZ_I, { point_i_standard_vert_spv, sizeof(point_i_standard_vert_spv), point_i_standard_clip_vert_spv, sizeof(point_i_standard_clip_vert_spv), true }},
             { tls::PointFormat::TL_POINT_XYZ_RGB, { point_rgb_standard_vert_spv, sizeof(point_rgb_standard_vert_spv), point_rgb_standard_clip_vert_spv, sizeof(point_rgb_standard_clip_vert_spv), true }},
@@ -253,6 +269,9 @@ std::string Renderer::getShaderKey(RenderMode renderMode, tls::PointFormat forma
         break;
     case (RGB):
         key += "RGB";
+        break;
+    case (RGB_Cartoon):
+        key += "RGB_Cartoon";
         break;
     case (IntensityRGB_Combined):
         key += "RGBI";
@@ -679,7 +698,8 @@ void Renderer::createGraphicPipelines()
                 vertexBindingDesc.push_back({ 3, sizeof(uint8_t), VK_VERTEX_INPUT_RATE_VERTEX });
             }
             else if (format == tls::PointFormat::TL_POINT_XYZ_RGB ||
-                (format == tls::PointFormat::TL_POINT_XYZ_I_RGB && (renderMode == RenderMode::RGB)))
+                (format == tls::PointFormat::TL_POINT_XYZ_I_RGB &&
+                    (renderMode == RenderMode::RGB || renderMode == RenderMode::RGB_Cartoon)))
             {
                 vertexAttrDesc.push_back(vertexAttrDescRGB);
                 vertexBindingDesc.push_back({ 1, 3 * sizeof(uint8_t), VK_VERTEX_INPUT_RATE_VERTEX });
@@ -834,7 +854,7 @@ void Renderer::bindVertexBuffers(VkCommandBuffer _cmdBuffer, RenderMode _renderM
             VkDeviceSize iOffset = _cellDrawInfo.m_iOffset;
             h_pfn->vkCmdBindVertexBuffers(_cmdBuffer, 3, 1, &_cellDrawInfo.buffer, &iOffset);
         }
-        else if (_renderMode == RenderMode::RGB)
+        else if (_renderMode == RenderMode::RGB || _renderMode == RenderMode::RGB_Cartoon)
         {
             VkDeviceSize rgbOffset = _cellDrawInfo.m_rgbOffset;
             h_pfn->vkCmdBindVertexBuffers(_cmdBuffer, 1, 1, &_cellDrawInfo.buffer, &rgbOffset);
