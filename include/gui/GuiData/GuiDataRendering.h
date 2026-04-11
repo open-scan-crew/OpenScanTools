@@ -238,6 +238,19 @@ public:
 	int m_saturation;
 };
 
+class GuiDataRenderCartoonOptions : public GuiDataActiveCamera
+{
+public:
+	GuiDataRenderCartoonOptions(int valueLevels, int saturationMinPercent, int saturationLevels, SafePtr<CameraNode> camera);
+	~GuiDataRenderCartoonOptions() {};
+	virtual guiDType getType() override;
+
+public:
+	int m_valueLevels;
+	int m_saturationMinPercent;
+	int m_saturationLevels;
+};
+
 class GuiDataRenderTransparency : public GuiDataActiveCamera
 {
 public:

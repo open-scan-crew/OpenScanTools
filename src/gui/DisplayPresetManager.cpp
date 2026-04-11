@@ -64,6 +64,9 @@ namespace
 		json[Key_Saturation] = params.m_saturation;
 		json[Key_Luminance] = params.m_luminance;
 		json[Key_Blending] = params.m_hue;
+		json[Key_Cartoon_Value_Levels] = params.m_cartoonValueLevels;
+		json[Key_Cartoon_Saturation_Min_Percent] = params.m_cartoonSaturationMinPercent;
+		json[Key_Cartoon_Saturation_Levels] = params.m_cartoonSaturationLevels;
 		json[Key_Flat_Color] = { params.m_flatColor.x, params.m_flatColor.y, params.m_flatColor.z };
 
 			json[Key_DistRamp] = { params.m_distRampMin, params.m_distRampMax };
@@ -250,6 +253,22 @@ namespace
 			data.m_hue = json.at(Key_Blending).get<float>();
 		else
 			retVal = false;
+
+		// Pass 3 - cartoon RGB options (with robust defaults for retro compatibility).
+		if (json.find(Key_Cartoon_Value_Levels) != json.end())
+			data.m_cartoonValueLevels = json.at(Key_Cartoon_Value_Levels).get<int>();
+		else
+			data.m_cartoonValueLevels = 8;
+
+		if (json.find(Key_Cartoon_Saturation_Min_Percent) != json.end())
+			data.m_cartoonSaturationMinPercent = json.at(Key_Cartoon_Saturation_Min_Percent).get<int>();
+		else
+			data.m_cartoonSaturationMinPercent = 12;
+
+		if (json.find(Key_Cartoon_Saturation_Levels) != json.end())
+			data.m_cartoonSaturationLevels = json.at(Key_Cartoon_Saturation_Levels).get<int>();
+		else
+			data.m_cartoonSaturationLevels = 4;
 
 		if (json.find(Key_Flat_Color) != json.end())
 		{

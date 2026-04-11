@@ -43,6 +43,7 @@ enum class guiDType
 	renderLuminance,
 	renderBlending,
 	renderSaturation,
+	renderCartoonOptions,
 	renderTransparency,
 	renderTransparencyOptions,
 	renderViewPoint,

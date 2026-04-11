@@ -223,6 +223,9 @@
 #define Key_Luminance					"Luminance"
 #define Key_Blending					"Blending"
 #define Key_Flat_Color					"FlatColor"
+#define Key_Cartoon_Value_Levels			"CartoonValueLevels"
+#define Key_Cartoon_Saturation_Min_Percent		"CartoonSaturationMinPercent"
+#define Key_Cartoon_Saturation_Levels			"CartoonSaturationLevels"
 
 #define Key_DistRamp					"DistanceRamp"
 #define Key_DistRampSteps				"DistanceRampSteps"

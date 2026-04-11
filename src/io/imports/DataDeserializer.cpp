@@ -503,6 +503,22 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
         retVal = false;
     }
 
+    // Pass 3 - cartoon RGB options (retro-compatible defaults when keys are absent).
+    if (json.find(Key_Cartoon_Value_Levels) != json.end())
+        data.m_cartoonValueLevels = json.at(Key_Cartoon_Value_Levels).get<int>();
+    else
+        data.m_cartoonValueLevels = 8;
+
+    if (json.find(Key_Cartoon_Saturation_Min_Percent) != json.end())
+        data.m_cartoonSaturationMinPercent = json.at(Key_Cartoon_Saturation_Min_Percent).get<int>();
+    else
+        data.m_cartoonSaturationMinPercent = 12;
+
+    if (json.find(Key_Cartoon_Saturation_Levels) != json.end())
+        data.m_cartoonSaturationLevels = json.at(Key_Cartoon_Saturation_Levels).get<int>();
+    else
+        data.m_cartoonSaturationLevels = 4;
+
     if (json.find(Key_Flat_Color) != json.end())
     {
         nlohmann::json color = json.at(Key_Flat_Color);

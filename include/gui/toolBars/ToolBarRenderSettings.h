@@ -57,6 +57,7 @@ private:
 
     void showContrastBrightness();
     void showSaturationLuminance();
+        void updateCartoonOptionsVisibility();
         void enableFalseColor(bool);
         bool rampValidValue(float& min, float& max, int& step);
         void sendTransparency();
@@ -72,6 +73,7 @@ private slots:
 	void slotSetPointSize(int pointSize);
 	void slotSetTexelThreshold(int index);
 	void slotSetRenderMode(int mode);
+        void slotCartoonOptionChanged(int value);
         void slotColorPicking();
         void slotRampValues();
         void slotNormalsChanged();

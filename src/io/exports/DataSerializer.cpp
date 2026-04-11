@@ -357,6 +357,9 @@ void ExportRenderingParameters(nlohmann::json& json, const RenderingParameters& 
 	json[Key_Saturation] = params.m_saturation;
 	json[Key_Luminance] = params.m_luminance;
 	json[Key_Blending] = params.m_hue;
+	json[Key_Cartoon_Value_Levels] = params.m_cartoonValueLevels;
+	json[Key_Cartoon_Saturation_Min_Percent] = params.m_cartoonSaturationMinPercent;
+	json[Key_Cartoon_Saturation_Levels] = params.m_cartoonSaturationLevels;
 	json[Key_Flat_Color] = { params.m_flatColor.x, params.m_flatColor.y, params.m_flatColor.z };
 
 	json[Key_DistRamp] = { params.m_distRampMin, params.m_distRampMax };

@@ -25,6 +25,7 @@ layout(location = 1) out float filterReject;
 
 layout(push_constant) uniform PC {
     layout(offset = 0) float ptSize;
+    layout(offset = 4) float cartoonSaturationLevels;
     layout(offset = 8) float contrast;
     layout(offset = 12) float brightness;
     layout(offset = 16) float saturation;
@@ -33,6 +34,8 @@ layout(push_constant) uniform PC {
     layout(offset = 28) float rampMin;
     layout(offset = 32) float rampMax;
     layout(offset = 36) int rampSteps;
+    layout(offset = 40) float cartoonValueLevels;
+    layout(offset = 44) float cartoonSaturationMin;
     layout(offset = 48) vec3 ptColor;
 } pc;
 
