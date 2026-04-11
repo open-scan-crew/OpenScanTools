@@ -125,6 +125,25 @@ public:
     float           m_orthoGridStep = 5.f;
     uint32_t        m_orthoGridLineWidth = 1;
 
+    // HD export UI state persisted in project + viewpoints.
+    bool            m_imageUseFrame = false;
+    bool            m_imageShowGrid = false;
+    bool            m_imageRatioImageMode = true;
+    int             m_imageRatioImageIndex = 3; // 3/2
+    int             m_imageRatioPrintIndex = 0; // ISO A
+    bool            m_imagePortrait = false;
+    uint32_t        m_imageWidth = 3000;
+    uint32_t        m_imageHeight = 2000;
+    bool            m_imageAlpha = false;
+    int             m_imageFormat = 1;
+    int             m_imageAntialiasing = 0;
+    int             m_imageScaleIndex = 14; // 1/50
+    int             m_imageDpiIndex = 2;    // 150
+
+    // User orientation viewpoint state (enabled + selected UO id).
+    bool            m_viewpointUserOrientationEnabled = false;
+    std::string     m_viewpointUserOrientationId;
+
 };
 
 #endif // !DISPLAYPARAMETERS_H_

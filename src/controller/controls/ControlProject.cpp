@@ -15,6 +15,7 @@
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataTemplate.h"
 #include "gui/GuiData/GuiDataIO.h"
+#include "gui/GuiData/GuiDataUserOrientation.h"
 #include "gui/Texts.hpp"
 #include "gui/texts/ContextTexts.hpp"
 
@@ -229,6 +230,28 @@ namespace control::project
         controller.updateInfo(new GuiDataSendTemplateList(controller.getContext().getTemplates()));
 
         controller.updateInfo(new GuiDataCameraInfo(controller.getGraphManager().getCameraNode()));
+        {
+            ReadPtr<CameraNode> rCam = controller.getGraphManager().getCameraNode().cget();
+            if (rCam && rCam->m_viewpointUserOrientationEnabled && !rCam->m_viewpointUserOrientationId.empty())
+            {
+                auto itUo = context.getUserOrientations().find(xg::Guid(rCam->m_viewpointUserOrientationId));
+                if (itUo != context.getUserOrientations().end())
+                {
+                    context.setActiveUserOrientation(itUo->second);
+                    controller.updateInfo(new GuiDataSetUserOrientation(itUo->second));
+                }
+                else
+                {
+                    context.setActiveUserOrientation(UserOrientation());
+                    controller.updateInfo(new GuiDataUnsetUserOrientation());
+                }
+            }
+            else
+            {
+                context.setActiveUserOrientation(UserOrientation());
+                controller.updateInfo(new GuiDataUnsetUserOrientation());
+            }
+        }
 
         controller.updateInfo(new GuiDataGlobalColorPickerValue(controller.getContext().getActiveColor()));
 
