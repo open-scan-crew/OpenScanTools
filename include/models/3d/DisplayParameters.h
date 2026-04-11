@@ -80,6 +80,10 @@ public:
     float          m_luminance = 0.f;
     float          m_hue = 0.f;
     glm::vec3      m_flatColor = glm::vec3(0.5f);
+    // Cartoon RGB (display-only) parameters.
+    int            m_cartoonValueLevels = 8;
+    int            m_cartoonSaturationMinPercent = 12; // [0..100]
+    int            m_cartoonSaturationLevels = 4;
 
     // Ramp Distance
     float          m_distRampMin = 0.f;

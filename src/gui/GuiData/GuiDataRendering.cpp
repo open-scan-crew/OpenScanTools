@@ -220,6 +220,19 @@ guiDType GuiDataRenderSaturation::getType()
 	return guiDType::renderSaturation;
 }
 
+//*** Cartoon RGB options ***//
+GuiDataRenderCartoonOptions::GuiDataRenderCartoonOptions(int valueLevels, int saturationMinPercent, int saturationLevels, SafePtr<CameraNode> camera)
+	: GuiDataActiveCamera(camera)
+	, m_valueLevels(valueLevels)
+	, m_saturationMinPercent(saturationMinPercent)
+	, m_saturationLevels(saturationLevels)
+{}
+
+guiDType GuiDataRenderCartoonOptions::getType()
+{
+	return guiDType::renderCartoonOptions;
+}
+
 //*** Transparency ***//
 GuiDataRenderTransparency::GuiDataRenderTransparency(BlendMode mode, float _transparencyValue, SafePtr<CameraNode> camera)
 	: GuiDataActiveCamera(camera)

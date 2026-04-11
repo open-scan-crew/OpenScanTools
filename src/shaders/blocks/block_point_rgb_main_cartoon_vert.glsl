@@ -7,18 +7,15 @@ void main() {
     gl_Position = uCam.projView * worldPos4;
 #endif
 
-    // Pass 2 defaults for the cartoon look:
-    // - quantize value (lightness proxy in HSV) for posterization
-    // - enforce and quantize saturation to reduce noisy desaturated tones
-    const float kValueLevels = 8.0;
-    const float kSaturationLevels = 4.0;
-    const float kMinSaturation = 0.12;
-
     vec3 hsv = rgb2hsv(color.rgb / 255.0);
-    hsv.y = max(hsv.y, kMinSaturation);
+    // Pass 3: configurable cartoon controls (driven from toolbar + persisted in viewpoints/project).
+    float valueLevels = max(pc.cartoonValueLevels, 2.0);
+    float saturationLevels = max(pc.cartoonSaturationLevels, 1.0);
+    float minSaturation = clamp(pc.cartoonSaturationMin, 0.0, 1.0);
+    hsv.y = max(hsv.y, minSaturation);
 
-    float satDen = max(kSaturationLevels - 1.0, 1.0);
-    float valDen = max(kValueLevels - 1.0, 1.0);
+    float satDen = max(saturationLevels - 1.0, 1.0);
+    float valDen = max(valueLevels - 1.0, 1.0);
     hsv.y = floor(hsv.y * satDen + 0.5) / satDen;
     hsv.z = floor(hsv.z * valDen + 0.5) / valDen;
 

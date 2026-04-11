@@ -7,6 +7,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <chrono>
+#include <algorithm>
 
 static const int UNIFORM_DATA_SIZE = 16 * sizeof(float);
 
@@ -522,7 +523,7 @@ void Renderer::createPointPipelineLayout()
     // NAME        | offset | size
     //-------------+--------+-----------------------
     // ptSize      | 0      | 4
-    // transparency| 4      | 4
+    // cartoonSatL | 4      | 4
     // contrast    | 8      | 4
     // brightness  | 12     | 4
     // saturation  | 16     | 4
@@ -531,6 +532,8 @@ void Renderer::createPointPipelineLayout()
     // rampMin     | 28     | 4
     // rampMax     | 32     | 4
     // rampSteps   | 36     | 4
+    // cartoonValL | 40     | 4
+    // cartoonSatM | 44     | 4
     // ptColor     | 48     | 12
     //-------------+---------------------------------
     VkPushConstantRange pcr[] =
@@ -996,6 +999,22 @@ void Renderer::setConstantSaturationLuminance(float saturation, float luminance,
 
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT, 16, 4, &fsaturation);
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT, 20, 4, &fluminance);
+}
+
+void Renderer::setConstantCartoonOptions(float valueLevels, float saturationMinPercent, float saturationLevels, VkCommandBuffer _cmdBuffer)
+{
+    const float fValueLevels = std::max(valueLevels, 2.0f);
+    const float fSaturationLevels = std::max(saturationLevels, 1.0f);
+    const float fSaturationMin = std::clamp(saturationMinPercent / 100.0f, 0.0f, 1.0f);
+
+    // Offsets are mirrored in block_point_input_vert.glsl.
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 4, 4, &fSaturationLevels);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 40, 4, &fValueLevels);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 44, 4, &fSaturationMin);
+
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT, 4, 4, &fSaturationLevels);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT, 40, 4, &fValueLevels);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT, 44, 4, &fSaturationMin);
 }
 
 void Renderer::setConstantBlending(float blending, VkCommandBuffer _cmdBuffer)
