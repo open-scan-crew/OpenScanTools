@@ -30,6 +30,7 @@ enum RenderMode
 {
     Intensity,
     RGB,
+    RGB_Cartoon,
     IntensityRGB_Combined,
     Grey_Colored,
     Flat,
@@ -50,9 +51,7 @@ std::unordered_map<UiRenderMode, std::string> getTradUiRenderMode();
 const static std::unordered_map<UiRenderMode, RenderMode> correspUiRenderMode = {
     { UiRenderMode::Intensity, RenderMode::Intensity},
     { UiRenderMode::RGB, RenderMode::RGB},
-    // NOTE: Pass 1 - temporary routing to RGB pipeline.
-    // A dedicated GPU RenderMode/shader is introduced in pass 2.
-    { UiRenderMode::Cartoon_RGB, RenderMode::RGB},
+    { UiRenderMode::Cartoon_RGB, RenderMode::RGB_Cartoon},
     { UiRenderMode::IntensityRGB_Combined, RenderMode::IntensityRGB_Combined},
     { UiRenderMode::Grey_Colored, RenderMode::Grey_Colored},
     { UiRenderMode::Scans_Color, RenderMode::Grey_Colored},

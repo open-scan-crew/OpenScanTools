@@ -422,7 +422,7 @@ void ToolBarRenderSettings::switchRenderMode(const int& mode)
 		}
 		break;
 		case UiRenderMode::RGB:
-		case UiRenderMode::Cartoon_RGB: // Pass 1: UI behavior aligned with RGB until cartoon shader pass.
+		case UiRenderMode::Cartoon_RGB: // Keeps RGB-like controls; dedicated shader is selected by render mode mapping.
 		{
             showSaturationLuminance();
             m_ui.ramp_options->setVisible(false);
