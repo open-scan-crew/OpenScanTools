@@ -7,6 +7,7 @@ std::unordered_map<UiRenderMode, std::string>  getTradUiRenderMode()
 {
 	return std::unordered_map<UiRenderMode, std::string>({
 		{ UiRenderMode::RGB, TEXT_RENDERING_TYPES_RGB.toStdString()},
+		{ UiRenderMode::Cartoon_RGB, TEXT_RENDERING_TYPES_CARTOON_RGB.toStdString()},
 	    { UiRenderMode::Intensity, TEXT_RENDERING_TYPES_INTENSITY.toStdString()},
 	    { UiRenderMode::IntensityRGB_Combined, TEXT_RENDERING_TYPES_INTENSITY_RGB_COMBINED.toStdString()},
 	    { UiRenderMode::Grey_Colored, TEXT_RENDERING_TYPES_GREY_COLORED.toStdString()},

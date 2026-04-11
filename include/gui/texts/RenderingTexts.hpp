@@ -6,6 +6,7 @@
 //RenderingTypes 
 #define TEXT_RENDERING_TYPES_INTENSITY QObject::tr("Intensity")
 #define TEXT_RENDERING_TYPES_RGB QObject::tr("RGB")
+#define TEXT_RENDERING_TYPES_CARTOON_RGB QObject::tr("Cartoon RGB")
 #define TEXT_RENDERING_TYPES_INTENSITY_RGB_COMBINED QObject::tr("Intensity & RGB")
 #define TEXT_RENDERING_TYPES_GREY_COLORED QObject::tr("Colored")
 #define TEXT_RENDERING_TYPES_SCANS_COLOR QObject::tr("Colored by Scans")
