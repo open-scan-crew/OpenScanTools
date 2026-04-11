@@ -11,6 +11,9 @@ enum class UiRenderMode
 {
     Intensity,
     RGB,
+    // NOTE: Pass 1 - dedicated UI mode for upcoming cartoon RGB rendering.
+    // It is intentionally placed right after RGB for combo ordering.
+    Cartoon_RGB,
     IntensityRGB_Combined,
     Grey_Colored,
     Scans_Color,
@@ -47,6 +50,9 @@ std::unordered_map<UiRenderMode, std::string> getTradUiRenderMode();
 const static std::unordered_map<UiRenderMode, RenderMode> correspUiRenderMode = {
     { UiRenderMode::Intensity, RenderMode::Intensity},
     { UiRenderMode::RGB, RenderMode::RGB},
+    // NOTE: Pass 1 - temporary routing to RGB pipeline.
+    // A dedicated GPU RenderMode/shader is introduced in pass 2.
+    { UiRenderMode::Cartoon_RGB, RenderMode::RGB},
     { UiRenderMode::IntensityRGB_Combined, RenderMode::IntensityRGB_Combined},
     { UiRenderMode::Grey_Colored, RenderMode::Grey_Colored},
     { UiRenderMode::Scans_Color, RenderMode::Grey_Colored},
