@@ -10,14 +10,12 @@
 enum class UiRenderMode
 {
     Intensity,
-    RGB,
-    // NOTE: Pass 1 - dedicated UI mode for upcoming cartoon RGB rendering.
-    // It is intentionally placed right after RGB for combo ordering.
-    Cartoon_RGB,
+    RGB,    
     IntensityRGB_Combined,
     Grey_Colored,
     Scans_Color,
     Clusters_Color,
+    Cartoon_RGB,
     Flat,
     Distance_Ramp,
     Flat_Distance_Ramp,
@@ -96,12 +94,12 @@ struct PostRenderingAmbientOcclusion
 struct ColorNoiseReduction
 {
     bool enabled = true;
-    float radius = 2.0f;
+    float radius = 5.0f;
     // Internal depth gate used to preserve geometric edges.
     // Intentionally not exposed in the UI for pass 1.
     float depthAwareThreshold = 0.05f;
     // User-facing intensity of the spray/noise reduction.
-    float strength = 0.40f;
+    float strength = 0.45f;
     float resolutionScale = 1.0f; // 1.0 = full res, 0.5 = half res
 };
 

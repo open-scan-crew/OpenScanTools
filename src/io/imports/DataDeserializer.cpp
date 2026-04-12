@@ -507,7 +507,7 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
     if (json.find(Key_Cartoon_Value_Levels) != json.end())
         data.m_cartoonValueLevels = json.at(Key_Cartoon_Value_Levels).get<int>();
     else
-        data.m_cartoonValueLevels = 8;
+        data.m_cartoonValueLevels = 6;
 
     if (json.find(Key_Cartoon_Saturation_Min_Percent) != json.end())
         data.m_cartoonSaturationMinPercent = json.at(Key_Cartoon_Saturation_Min_Percent).get<int>();
