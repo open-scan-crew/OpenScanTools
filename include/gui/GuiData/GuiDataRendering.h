@@ -344,15 +344,15 @@ public:
 	PostRenderingAmbientOcclusion m_ao;
 };
 
-class GuiDataEdgeAwareBlur : public GuiDataActiveCamera
+class GuiDataColorNoiseReduction : public GuiDataActiveCamera
 {
 public:
-        GuiDataEdgeAwareBlur(const EdgeAwareBlur& blurSettings, SafePtr<CameraNode> camera);
-        ~GuiDataEdgeAwareBlur() {};
+        GuiDataColorNoiseReduction(const ColorNoiseReduction& blurSettings, SafePtr<CameraNode> camera);
+        ~GuiDataColorNoiseReduction() {};
         virtual guiDType getType() override;
 
 public:
-        EdgeAwareBlur m_blur;
+        ColorNoiseReduction m_blur;
 };
 
 class GuiDataDepthLining : public GuiDataActiveCamera

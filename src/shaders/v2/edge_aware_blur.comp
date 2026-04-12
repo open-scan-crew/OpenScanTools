@@ -11,8 +11,8 @@ layout(set = 1, binding = 2) buffer correctedDepth
 layout(push_constant) uniform PC {
    layout(offset = 0) ivec2 screenSize;
    layout(offset = 8) float radius;
-   layout(offset = 12) float depthThreshold;
-   layout(offset = 16) float blendStrength;
+   layout(offset = 12) float depthAwareThreshold;
+   layout(offset = 16) float strength;
    layout(offset = 20) float resolutionScale;
 } pc;
 
@@ -27,9 +27,24 @@ void main()
    vec4 centerColor = imageLoad(inOutColorImage, gid);
    float centerDepth = depth[idx];
 
+   // Fast-path: keep original color when effect strength is effectively disabled
+   // (avoids extra neighborhood work and keeps deterministic output).
+   if (pc.strength <= 1e-4)
+   {
+      imageStore(inOutColorImage, gid, centerColor);
+      return;
+   }
+
+   // Skip empty pixels (background / no reconstructed geometry).
+   if (centerDepth <= 0.0)
+   {
+      imageStore(inOutColorImage, gid, centerColor);
+      return;
+   }
+
    // Parameters
-   int r = int(max(pc.radius, 1.0));
-   float depthSigma = max(pc.depthThreshold, 1e-4);
+   int r = int(clamp(pc.radius, 1.0, 20.0));
+   float depthSigma = max(pc.depthAwareThreshold, 1e-4);
    float radiusNorm = float(r);
    int stride = int(round(max(1.0, 1.0 / max(pc.resolutionScale, 0.001))));
 
@@ -43,20 +58,33 @@ void main()
          ivec2 coord = clamp(gid + ivec2(x, y), ivec2(0), pc.screenSize - ivec2(1));
          uint sampleIdx = uint(coord.x + coord.y * pc.screenSize.x);
          float sampleDepth = depth[sampleIdx];
+         if (sampleDepth <= 0.0)
+            continue;
          vec3 sampleColor = imageLoad(inOutColorImage, coord).rgb;
 
          float dist2 = float(x * x + y * y);
          float spatialWeight = exp(-dist2 / (2.0 * radiusNorm * radiusNorm));
-         float depthDelta = sampleDepth - centerDepth;
+
+         // Geometric edge preservation:
+         // normalized depth difference prevents excessive smoothing across depth jumps.
+         float depthNorm = max(max(centerDepth, sampleDepth), 1e-6);
+         float depthDelta = abs(sampleDepth - centerDepth) / depthNorm;
          float depthWeight = exp(-(depthDelta * depthDelta) / (2.0 * depthSigma * depthSigma));
 
-         float w = spatialWeight * depthWeight;
+         // Spray reduction:
+         // robust color gating rejects chromatic outliers inside the local neighborhood.
+         vec3 colorDelta = sampleColor - centerColor.rgb;
+         float colorDist2 = dot(colorDelta, colorDelta);
+         float colorSigma = mix(0.025, 0.20, clamp(pc.strength, 0.0, 1.0));
+         float colorWeight = 1.0 / (1.0 + colorDist2 / (colorSigma * colorSigma));
+
+         float w = spatialWeight * depthWeight * colorWeight;
          accumColor += sampleColor * w;
          accumWeight += w;
       }
    }
 
-   vec3 blurred = (accumWeight > 0.0) ? (accumColor / accumWeight) : centerColor.rgb;
-   vec3 mixed = mix(centerColor.rgb, blurred, clamp(pc.blendStrength, 0.0, 1.0));
-   imageStore(inOutColorImage, gid, vec4(mixed, centerColor.a));
+   vec3 stabilizedColor = (accumWeight > 0.0) ? (accumColor / accumWeight) : centerColor.rgb;
+   vec3 outputColor = mix(centerColor.rgb, stabilizedColor, clamp(pc.strength, 0.0, 1.0));
+   imageStore(inOutColorImage, gid, vec4(outputColor, centerColor.a));
 }

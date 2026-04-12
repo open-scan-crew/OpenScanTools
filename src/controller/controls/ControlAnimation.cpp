@@ -42,7 +42,7 @@ namespace control::animation
                 info.blendMode = rViewpoint->m_blendMode;
                 info.normals = rViewpoint->m_postRenderingNormals.show;
                 info.blendColor = rViewpoint->m_postRenderingNormals.blendColor;
-                info.edgeAwareBlur = rViewpoint->m_edgeAwareBlur.enabled;
+                info.colorNoiseReduction = rViewpoint->m_colorNoiseReduction.enabled;
                 info.depthLining = rViewpoint->m_depthLining.enabled;
                 info.depthLiningStrongMode = rViewpoint->m_depthLining.strongMode;
                 viewpoints.push_back(info);

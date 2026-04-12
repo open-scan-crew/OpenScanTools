@@ -76,7 +76,7 @@ enum class guiDType
         renderAlphaObjectsRendering,
         renderPostRenderingNormals,
         renderAmbientOcclusion,
-        renderEdgeAwareBlur,
+        renderColorNoiseReduction,
         renderDepthLining,
         renderRampScale,
         renderColorimetricFilter,

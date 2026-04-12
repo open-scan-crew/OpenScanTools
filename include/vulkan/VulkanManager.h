@@ -144,7 +144,7 @@ public:
     void beginPostTreatmentFilling(TlFramebuffer framebuffer);
     void beginPostTreatmentNormal(TlFramebuffer framebuffer);
     void beginPostTreatmentAmbientOcclusion(TlFramebuffer framebuffer);
-    void beginPostTreatmentEdgeAwareBlur(TlFramebuffer framebuffer);
+    void beginPostTreatmentColorNoiseReduction(TlFramebuffer framebuffer);
     void beginPostTreatmentDepthLining(TlFramebuffer framebuffer);
     void beginPostTreatmentTransparency(TlFramebuffer framebuffer);
 

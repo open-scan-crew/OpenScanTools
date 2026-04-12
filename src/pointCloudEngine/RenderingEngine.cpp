@@ -362,16 +362,16 @@ void RenderingEngine::updateHD()
     // Should be input parameters
     // NOTE: Gap filling relies on a 3x3 kernel. A base 2px border keeps a one-pixel safety zone
     // after the image transfer cropping and avoids visible seams between tiles when the texel
-    // threshold is low (e.g., 2). Post-processing passes like edge-aware blur and depth lining can
+    // threshold is low (e.g., 2). Post-processing passes like color-noise reduction and depth lining can
     // require a larger footprint, so the border is expanded accordingly.
     auto computeTileBorder = [](const DisplayParameters& display) {
         constexpr uint32_t baseBorder = 2;
         uint32_t border = baseBorder;
 
-        if (display.m_edgeAwareBlur.enabled)
+        if (display.m_colorNoiseReduction.enabled)
         {
-            const float resolutionScale = std::max(display.m_edgeAwareBlur.resolutionScale, 0.1f);
-            const uint32_t blurFootprint = static_cast<uint32_t>(std::ceil(display.m_edgeAwareBlur.radius / resolutionScale));
+            const float resolutionScale = std::max(display.m_colorNoiseReduction.resolutionScale, 0.1f);
+            const uint32_t blurFootprint = static_cast<uint32_t>(std::ceil(display.m_colorNoiseReduction.radius / resolutionScale));
             border = std::max(border, blurFootprint + 1u); // +1 to keep a safety band after cropping
         }
 
@@ -882,10 +882,10 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
             m_postRenderer.processDepthLining(cmdBuffer, display.m_depthLining, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
         }
 
-        if (display.m_edgeAwareBlur.enabled)
+        if (display.m_colorNoiseReduction.enabled)
         {
-            vkm.beginPostTreatmentEdgeAwareBlur(framebuffer);
-            m_postRenderer.processEdgeAwareBlur(cmdBuffer, display.m_edgeAwareBlur, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
+            vkm.beginPostTreatmentColorNoiseReduction(framebuffer);
+            m_postRenderer.processColorNoiseReduction(cmdBuffer, display.m_colorNoiseReduction, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
         }
 
         if (display.m_blendMode != BlendMode::Opaque && display.m_transparency > 0.f)
@@ -1059,10 +1059,10 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
         m_postRenderer.processDepthLining(cmdBuffer, displayParam.m_depthLining, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
     }
 
-    if (displayParam.m_edgeAwareBlur.enabled)
+    if (displayParam.m_colorNoiseReduction.enabled)
     {
-        vkm.beginPostTreatmentEdgeAwareBlur(framebuffer);
-        m_postRenderer.processEdgeAwareBlur(cmdBuffer, displayParam.m_edgeAwareBlur, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
+        vkm.beginPostTreatmentColorNoiseReduction(framebuffer);
+        m_postRenderer.processColorNoiseReduction(cmdBuffer, displayParam.m_colorNoiseReduction, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
     }
 
     if (displayParam.m_blendMode != BlendMode::Opaque && displayParam.m_transparency > 0.f)

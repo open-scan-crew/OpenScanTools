@@ -57,12 +57,12 @@
     </widget>
    </item>
    <item row="0" column="0" colspan="2">
-    <widget class="QCheckBox" name="checkBox_edgeAwareBlur">
+   <widget class="QCheckBox" name="checkBox_colorNoiseReduction">
      <property name="toolTip">
-      <string>This function adds a slight blur that can help soften the rendering. It is best to keep the values fairly low. </string>
+      <string>Reduces color spray/noise on scans while preserving geometric edges.</string>
      </property>
      <property name="text">
-      <string>Smooth render</string>
+      <string>Color noise reduction</string>
      </property>
     </widget>
    </item>
@@ -184,9 +184,9 @@
     </widget>
    </item>
    <item row="2" column="0">
-    <widget class="QLabel" name="label_mix">
+   <widget class="QLabel" name="label_mix">
      <property name="text">
-      <string>Mix</string>
+      <string>Strength</string>
      </property>
     </widget>
    </item>
@@ -199,7 +199,7 @@
       </size>
      </property>
      <property name="value">
-      <number>30</number>
+      <number>40</number>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -209,7 +209,7 @@
    <item row="2" column="2">
     <widget class="QSpinBox" name="spinBox_edgeAwareBlend">
      <property name="value">
-      <number>30</number>
+      <number>40</number>
      </property>
     </widget>
    </item>
