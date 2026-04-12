@@ -535,6 +535,7 @@ void Renderer::createPointPipelineLayout()
     // cartoonValL | 40     | 4
     // cartoonSatM | 44     | 4
     // ptColor     | 48     | 12
+    // cartoonExpP | 60     | 4
     //-------------+---------------------------------
     VkPushConstantRange pcr[] =
     {
@@ -1001,20 +1002,23 @@ void Renderer::setConstantSaturationLuminance(float saturation, float luminance,
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT, 20, 4, &fluminance);
 }
 
-void Renderer::setConstantCartoonOptions(float valueLevels, float saturationMinPercent, float saturationLevels, VkCommandBuffer _cmdBuffer)
+void Renderer::setConstantCartoonOptions(float valueLevels, float saturationMinPercent, float saturationLevels, float experimentalPaletteSize, VkCommandBuffer _cmdBuffer)
 {
     const float fValueLevels = std::max(valueLevels, 2.0f);
     const float fSaturationLevels = std::max(saturationLevels, 1.0f);
     const float fSaturationMin = std::clamp(saturationMinPercent / 100.0f, 0.0f, 1.0f);
+    const float fExperimentalPaletteSize = std::max(0.0f, experimentalPaletteSize);
 
     // Offsets are mirrored in block_point_input_vert.glsl.
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 4, 4, &fSaturationLevels);
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 40, 4, &fValueLevels);
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 44, 4, &fSaturationMin);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 60, 4, &fExperimentalPaletteSize);
 
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT, 4, 4, &fSaturationLevels);
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT, 40, 4, &fValueLevels);
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT, 44, 4, &fSaturationMin);
+    h_pfn->vkCmdPushConstants(_cmdBuffer, m_pipelineLayout_cb, VK_SHADER_STAGE_VERTEX_BIT, 60, 4, &fExperimentalPaletteSize);
 }
 
 void Renderer::setConstantBlending(float blending, VkCommandBuffer _cmdBuffer)

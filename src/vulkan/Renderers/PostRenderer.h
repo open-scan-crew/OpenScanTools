@@ -28,12 +28,12 @@ public:
     void processNormalColored(VkCommandBuffer _cmdBuffer, VkUniformOffset matrixUniOffset, VkDescriptorSet descSetColor, VkDescriptorSet descSetOutput, VkExtent2D extent);
     void processTransparencyHDR(VkCommandBuffer _cmdBuffer, VkDescriptorSet descSetColor, VkExtent2D extent);
     void processAmbientOcclusion(VkCommandBuffer _cmdBuffer, const PostRenderingAmbientOcclusion& aoSettings, float nearZ, float farZ, bool isPerspective, VkDescriptorSet descSetColor, VkDescriptorSet descSetDepth, VkExtent2D extent);
-    void processEdgeAwareBlur(VkCommandBuffer _cmdBuffer, const EdgeAwareBlur& blurSettings, VkDescriptorSet descSetColor, VkDescriptorSet descSetDepth, VkExtent2D extent);
+    void processColorNoiseReduction(VkCommandBuffer _cmdBuffer, const ColorNoiseReduction& blurSettings, VkDescriptorSet descSetColor, VkDescriptorSet descSetDepth, VkExtent2D extent);
     void processDepthLining(VkCommandBuffer _cmdBuffer, const DepthLining& liningSettings, VkDescriptorSet descSetColor, VkDescriptorSet descSetDepth, VkExtent2D extent);
 
     // Compatibility helpers used by some build targets
-    bool initEdgeAwareBlur(VulkanManager& vkm, uint32_t swapChainImageCount);
-    void transitionAndDispatchEdgeAwareBlur(VkCommandBuffer _cmdBuffer, const EdgeAwareBlur& blurSettings, VkDescriptorSet descSetColor, VkDescriptorSet descSetDepth, VkExtent2D extent);
+    bool initColorNoiseReduction(VulkanManager& vkm, uint32_t swapChainImageCount);
+    void transitionAndDispatchColorNoiseReduction(VkCommandBuffer _cmdBuffer, const ColorNoiseReduction& blurSettings, VkDescriptorSet descSetColor, VkDescriptorSet descSetDepth, VkExtent2D extent);
     void setConstantZRange(float nearZ, float farZ, VkCommandBuffer _cmdBuffer);
     void setConstantScreenSize(VkExtent2D screenSize, glm::vec2 pixelSize, VkCommandBuffer _cmdBuffer);
     void setConstantScreenOffset(glm::vec2 offset, VkCommandBuffer cmdBuffer);
@@ -54,7 +54,7 @@ private:
     void createFillingPipeline();
     void createNormalPipeline();
     void createAmbientOcclusionPipeline();
-    void createEdgeAwarePipeline();
+    void createColorNoiseReductionPipeline();
     void createDepthLiningPipeline();
     void createTransparencyHDRPipeline();
 
@@ -82,7 +82,7 @@ private:
     Shader m_normalColoredCompShader;
     Shader m_transparencyHDRCompShader;
     Shader m_ambientOcclusionCompShader;
-    Shader m_edgeAwareBlurCompShader;
+    Shader m_colorNoiseReductionCompShader;
     Shader m_depthLiningCompShader;
 
     VkPipeline m_fillingPipeline;
@@ -91,10 +91,10 @@ private:
     VkPipeline m_ambientOcclusionPipeline = VK_NULL_HANDLE;
     VkPipeline m_transparencyHDRPipeline;
     VkPipeline m_hdrSubsPipeline;
-    VkPipeline m_edgeAwarePipeline;
+    VkPipeline m_colorNoiseReductionPipeline;
     VkPipeline m_depthLiningPipeline;
 
-    VkPipelineLayout m_edgeAwarePipelineLayout = VK_NULL_HANDLE;
+    VkPipelineLayout m_colorNoiseReductionPipelineLayout = VK_NULL_HANDLE;
     VkPipelineLayout m_depthLiningPipelineLayout = VK_NULL_HANDLE;
 };
 

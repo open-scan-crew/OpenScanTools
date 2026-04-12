@@ -51,7 +51,7 @@ public:
     void setConstantPointSize(float ptSize, VkCommandBuffer _cmdBuffer);
     void setConstantContrastBrightness(float contrast, float brightness, VkCommandBuffer _cmdBuffer);
 	void setConstantSaturationLuminance(float saturation, float luminance, VkCommandBuffer _cmdBuffer);
-    void setConstantCartoonOptions(float valueLevels, float saturationMinPercent, float saturationLevels, VkCommandBuffer _cmdBuffer);
+    void setConstantCartoonOptions(float valueLevels, float saturationMinPercent, float saturationLevels, float experimentalPaletteSize, VkCommandBuffer _cmdBuffer);
     void setConstantBlending(float blending, VkCommandBuffer _cmdBuffer);
     void setConstantRampDistance(float min, float max, int steps, VkCommandBuffer _cmdBuffer);
 	void setConstantPtColor(const glm::vec3& color, VkCommandBuffer _cmdBuffer);

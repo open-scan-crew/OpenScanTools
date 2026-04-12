@@ -1,3 +1,38 @@
+float hueDistance(float a, float b)
+{
+    float d = abs(a - b);
+    return min(d, 1.0 - d);
+}
+
+vec3 projectToExperimentalPalette(vec3 hsv, float paletteSize)
+{
+    // Internal pass 3A path:
+    // build a compact procedural palette in HSV and project to nearest hue anchor.
+    float k = clamp(floor(paletteSize + 0.5), 3.0, 16.0);
+    vec3 best = hsv;
+    float bestDist = 1e9;
+
+    for (int i = 0; i < 16; ++i)
+    {
+        if (float(i) >= k)
+            break;
+
+        float hueAnchor = (float(i) + 0.5) / k;
+        vec3 candidate = vec3(hueAnchor, max(hsv.y, 0.55), hsv.z);
+        float dh = hueDistance(hsv.x, candidate.x);
+        float ds = hsv.y - candidate.y;
+        float dv = hsv.z - candidate.z;
+        float dist = (dh * dh) * 2.4 + (ds * ds) * 0.6 + (dv * dv) * 0.2;
+        if (dist < bestDist)
+        {
+            bestDist = dist;
+            best = candidate;
+        }
+    }
+
+    return best;
+}
+
 void main() {
     gl_PointSize = pc.ptSize;
     vec4 worldPos4 = uScan.model * vec4(vec3(posXY, posZ) * coordPrec + origin, 1.0);
@@ -18,6 +53,11 @@ void main() {
     float valDen = max(valueLevels - 1.0, 1.0);
     hsv.y = floor(hsv.y * satDen + 0.5) / satDen;
     hsv.z = floor(hsv.z * valDen + 0.5) / valDen;
+
+    // Pass 3A (internal, non-UI): optional experimental palette projection.
+    // 0.0 = disabled (legacy path), >0.0 = palette size.
+    if (pc.cartoonExperimentalPaletteSize > 0.5)
+        hsv = projectToExperimentalPalette(hsv, pc.cartoonExperimentalPaletteSize);
 
     // Keep existing toolbar controls active in cartoon mode.
     hsv.y = clamp(hsv.y * pc.saturation, 0.0, 1.0);

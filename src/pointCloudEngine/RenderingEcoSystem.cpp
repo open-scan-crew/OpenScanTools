@@ -118,6 +118,7 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
     hash += hash_fn_i(display.m_cartoonValueLevels);
     hash += hash_fn_i(display.m_cartoonSaturationMinPercent);
     hash += hash_fn_i(display.m_cartoonSaturationLevels);
+    hash += hash_fn_i(display.m_cartoonExperimentalPaletteSize);
     hash += hash_vec3(display.m_flatColor);
     hash += hash_fn_f(display.m_distRampMin);
     hash += hash_fn_f(display.m_distRampMax);
@@ -140,11 +141,11 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
     hash += hash_fn_b(display.m_postRenderingAmbientOcclusion.enabled);
     hash += hash_fn_f(display.m_postRenderingAmbientOcclusion.radius);
     hash += hash_fn_f(display.m_postRenderingAmbientOcclusion.intensity);
-    hash += hash_fn_b(display.m_edgeAwareBlur.enabled);
-    hash += hash_fn_f(display.m_edgeAwareBlur.radius);
-    hash += hash_fn_f(display.m_edgeAwareBlur.depthThreshold);
-    hash += hash_fn_f(display.m_edgeAwareBlur.blendStrength);
-    hash += hash_fn_f(display.m_edgeAwareBlur.resolutionScale);
+    hash += hash_fn_b(display.m_colorNoiseReduction.enabled);
+    hash += hash_fn_f(display.m_colorNoiseReduction.radius);
+    hash += hash_fn_f(display.m_colorNoiseReduction.depthAwareThreshold);
+    hash += hash_fn_f(display.m_colorNoiseReduction.strength);
+    hash += hash_fn_f(display.m_colorNoiseReduction.resolutionScale);
     hash += hash_fn_b(display.m_depthLining.enabled);
     hash += hash_fn_f(display.m_depthLining.strength);
     hash += hash_fn_f(display.m_depthLining.threshold);

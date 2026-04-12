@@ -179,7 +179,7 @@ CameraNode::CameraNode(const std::wstring& name, IDataDispatcher& dataDispatcher
     registerGuiDataFunction(guiDType::renderAlphaObjectsRendering, &CameraNode::onRenderAlphaObjects);
     registerGuiDataFunction(guiDType::renderPostRenderingNormals, &CameraNode::onRenderNormals);
     registerGuiDataFunction(guiDType::renderAmbientOcclusion, &CameraNode::onRenderAmbientOcclusion);
-    registerGuiDataFunction(guiDType::renderEdgeAwareBlur, &CameraNode::onRenderEdgeAwareBlur);
+    registerGuiDataFunction(guiDType::renderColorNoiseReduction, &CameraNode::onRenderColorNoiseReduction);
     registerGuiDataFunction(guiDType::renderDepthLining, &CameraNode::onRenderDepthLining);
     registerGuiDataFunction(guiDType::renderRampScale, &CameraNode::onRenderRampScale);
     registerGuiDataFunction(guiDType::renderColorimetricFilter, &CameraNode::onRenderColorimetricFilter);
@@ -1615,6 +1615,7 @@ ViewpointRenderState CameraNode::buildViewpointRenderState(const ViewPointNode& 
     state.cartoonValueLevels = static_cast<float>(viewpoint.m_cartoonValueLevels);
     state.cartoonSaturationMinPercent = static_cast<float>(viewpoint.m_cartoonSaturationMinPercent);
     state.cartoonSaturationLevels = static_cast<float>(viewpoint.m_cartoonSaturationLevels);
+    state.cartoonExperimentalPaletteSize = static_cast<float>(viewpoint.m_cartoonExperimentalPaletteSize);
     state.alphaObject = viewpoint.m_alphaObject;
     state.fovy = viewpoint.getFovy();
     state.visibleObjects = viewpoint.getVisibleObjects();
@@ -1649,6 +1650,7 @@ ViewpointRenderState CameraNode::lerpViewpointRenderState(const ViewpointRenderS
     state.cartoonValueLevels = start.cartoonValueLevels + (end.cartoonValueLevels - start.cartoonValueLevels) * alpha;
     state.cartoonSaturationMinPercent = start.cartoonSaturationMinPercent + (end.cartoonSaturationMinPercent - start.cartoonSaturationMinPercent) * alpha;
     state.cartoonSaturationLevels = start.cartoonSaturationLevels + (end.cartoonSaturationLevels - start.cartoonSaturationLevels) * alpha;
+    state.cartoonExperimentalPaletteSize = start.cartoonExperimentalPaletteSize + (end.cartoonExperimentalPaletteSize - start.cartoonExperimentalPaletteSize) * alpha;
     state.alphaObject = start.alphaObject + (end.alphaObject - start.alphaObject) * alpha;
     state.fovy = start.fovy + (end.fovy - start.fovy) * alpha;
     state.renderMode = start.renderMode;
@@ -1758,6 +1760,7 @@ void CameraNode::applyViewpointRenderState(const ViewpointRenderState& state)
     m_cartoonValueLevels = std::max(2, static_cast<int>(std::round(state.cartoonValueLevels)));
     m_cartoonSaturationMinPercent = std::clamp(static_cast<int>(std::round(state.cartoonSaturationMinPercent)), 0, 100);
     m_cartoonSaturationLevels = std::max(1, static_cast<int>(std::round(state.cartoonSaturationLevels)));
+    m_cartoonExperimentalPaletteSize = std::max(0, static_cast<int>(std::round(state.cartoonExperimentalPaletteSize)));
     m_alphaObject = state.alphaObject;
     setFovy(state.fovy, false);
 
@@ -2596,10 +2599,10 @@ void CameraNode::onRenderAmbientOcclusion(IGuiData* data)
     sendNewUIViewPoint();
 }
 
-void CameraNode::onRenderEdgeAwareBlur(IGuiData* data)
+void CameraNode::onRenderColorNoiseReduction(IGuiData* data)
 {
-    auto blurData = static_cast<GuiDataEdgeAwareBlur*>(data);
-    m_edgeAwareBlur = blurData->m_blur;
+    auto blurData = static_cast<GuiDataColorNoiseReduction*>(data);
+    m_colorNoiseReduction = blurData->m_blur;
 
     sendNewUIViewPoint();
 }

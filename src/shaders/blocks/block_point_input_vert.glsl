@@ -37,6 +37,7 @@ layout(push_constant) uniform PC {
     layout(offset = 40) float cartoonValueLevels;
     layout(offset = 44) float cartoonSaturationMin;
     layout(offset = 48) vec3 ptColor;
+    layout(offset = 60) float cartoonExperimentalPaletteSize;
 } pc;
 
 layout(set = 0, binding = 0) uniform uniformCamera {

@@ -455,7 +455,7 @@ void DialogAnimationConfig::checkRenderingConsistency(const xg::Guid& newViewpoi
         current.blendMode == ref.blendMode &&
         current.normals == ref.normals &&
         current.blendColor == ref.blendColor &&
-        current.edgeAwareBlur == ref.edgeAwareBlur &&
+        current.colorNoiseReduction == ref.colorNoiseReduction &&
         current.depthLining == ref.depthLining &&
         current.depthLiningStrongMode == ref.depthLiningStrongMode;
 

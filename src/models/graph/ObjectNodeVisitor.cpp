@@ -1549,6 +1549,7 @@ void ObjectNodeVisitor::draw_baked_pointClouds(VkCommandBuffer cmdBuffer, Render
         static_cast<float>(m_displayParameters.m_cartoonValueLevels),
         static_cast<float>(m_displayParameters.m_cartoonSaturationMinPercent),
         static_cast<float>(m_displayParameters.m_cartoonSaturationLevels),
+        static_cast<float>(m_displayParameters.m_cartoonExperimentalPaletteSize),
         cmdBuffer);
     renderer.setConstantBlending((float)m_displayParameters.m_hue, cmdBuffer);
 
