@@ -457,7 +457,26 @@ void ToolBarRenderSettings::switchRenderMode(const int& mode)
 
 void ToolBarRenderSettings::updateCartoonOptionsVisibility()
 {
-    m_ui.cartoon_options->setVisible(m_currentRenderMode == UiRenderMode::Cartoon_RGB);
+    const bool showCartoonControls = (m_currentRenderMode == UiRenderMode::Cartoon_RGB);
+
+    // The .ui currently places Cartoon widgets directly in the root grid layout,
+    // so toggling only "cartoon_options" is not enough. Explicitly toggling all
+    // Cartoon widgets guarantees robust behavior regardless of layout structure.
+    setCartoonControlsVisible(showCartoonControls);
+}
+
+void ToolBarRenderSettings::setCartoonControlsVisible(bool visible)
+{
+    // Keep the dedicated placeholder in sync in case the UI is refactored later.
+    m_ui.cartoon_options->setVisible(visible);
+
+    // Explicit controls used by Cartoon mode.
+    m_ui.label_cartoonLevels->setVisible(visible);
+    m_ui.spinBox_cartoonLevels->setVisible(visible);
+    m_ui.label_cartoonSatMin->setVisible(visible);
+    m_ui.spinBox_cartoonSaturationMin->setVisible(visible);
+    m_ui.label_cartoonSatLevels->setVisible(visible);
+    m_ui.spinBox_cartoonSaturationLevels->setVisible(visible);
 }
 
 void ToolBarRenderSettings::setDisplayPresetNames(const QStringList& names, const QString& selectedName)
