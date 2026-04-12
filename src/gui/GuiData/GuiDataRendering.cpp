@@ -348,14 +348,14 @@ guiDType GuiDataRenderAmbientOcclusion::getType()
 	return guiDType::renderAmbientOcclusion;
 }
 
-GuiDataEdgeAwareBlur::GuiDataEdgeAwareBlur(const EdgeAwareBlur& blurSettings, SafePtr<CameraNode> camera)
+GuiDataColorNoiseReduction::GuiDataColorNoiseReduction(const ColorNoiseReduction& blurSettings, SafePtr<CameraNode> camera)
         : GuiDataActiveCamera(camera)
         , m_blur(blurSettings)
 {}
 
-guiDType GuiDataEdgeAwareBlur::getType()
+guiDType GuiDataColorNoiseReduction::getType()
 {
-        return  guiDType::renderEdgeAwareBlur;
+        return  guiDType::renderColorNoiseReduction;
 }
 
 GuiDataDepthLining::GuiDataDepthLining(const DepthLining& liningSettings, SafePtr<CameraNode> camera)

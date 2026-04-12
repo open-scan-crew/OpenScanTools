@@ -966,7 +966,7 @@ void VulkanManager::beginPostTreatmentAmbientOcclusion(TlFramebuffer _fb)
     beginPostTreatmentNormal(_fb);
 }
 
-void VulkanManager::beginPostTreatmentEdgeAwareBlur(TlFramebuffer _fb)
+void VulkanManager::beginPostTreatmentColorNoiseReduction(TlFramebuffer _fb)
 {
     beginPostTreatmentNormal(_fb);
 }

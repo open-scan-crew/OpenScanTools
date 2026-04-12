@@ -53,7 +53,7 @@ namespace control::animation::helper
             reference.m_postRenderingNormals.show == candidate.m_postRenderingNormals.show &&
             reference.m_postRenderingAmbientOcclusion.enabled == candidate.m_postRenderingAmbientOcclusion.enabled &&
             reference.m_postRenderingNormals.blendColor == candidate.m_postRenderingNormals.blendColor &&
-            reference.m_edgeAwareBlur.enabled == candidate.m_edgeAwareBlur.enabled &&
+            reference.m_colorNoiseReduction.enabled == candidate.m_colorNoiseReduction.enabled &&
             reference.m_depthLining.enabled == candidate.m_depthLining.enabled &&
             reference.m_depthLining.strongMode == candidate.m_depthLining.strongMode;
     }

@@ -360,6 +360,7 @@ void ExportRenderingParameters(nlohmann::json& json, const RenderingParameters& 
 	json[Key_Cartoon_Value_Levels] = params.m_cartoonValueLevels;
 	json[Key_Cartoon_Saturation_Min_Percent] = params.m_cartoonSaturationMinPercent;
 	json[Key_Cartoon_Saturation_Levels] = params.m_cartoonSaturationLevels;
+	json[Key_Cartoon_Experimental_Palette_Size] = params.m_cartoonExperimentalPaletteSize;
 	json[Key_Flat_Color] = { params.m_flatColor.x, params.m_flatColor.y, params.m_flatColor.z };
 
 	json[Key_DistRamp] = { params.m_distRampMin, params.m_distRampMax };
@@ -376,7 +377,7 @@ void ExportRenderingParameters(nlohmann::json& json, const RenderingParameters& 
 
     json[Key_Post_Rendering_Normals] = { params.m_postRenderingNormals.show, params.m_postRenderingNormals.inverseTone, params.m_postRenderingNormals.blendColor, params.m_postRenderingNormals.normalStrength, params.m_postRenderingNormals.gloss };
     json[Key_Post_Rendering_Ambient_Occlusion] = { params.m_postRenderingAmbientOcclusion.enabled, params.m_postRenderingAmbientOcclusion.radius, params.m_postRenderingAmbientOcclusion.intensity };
-    json[Key_Edge_Aware_Blur] = { params.m_edgeAwareBlur.enabled, params.m_edgeAwareBlur.radius, params.m_edgeAwareBlur.depthThreshold, params.m_edgeAwareBlur.blendStrength, params.m_edgeAwareBlur.resolutionScale };
+    json[Key_Color_Noise_Reduction] = { params.m_colorNoiseReduction.enabled, params.m_colorNoiseReduction.radius, params.m_colorNoiseReduction.depthAwareThreshold, params.m_colorNoiseReduction.strength, params.m_colorNoiseReduction.resolutionScale };
     json[Key_Depth_Lining] = { params.m_depthLining.enabled, params.m_depthLining.strength, params.m_depthLining.threshold, params.m_depthLining.sensitivity, params.m_depthLining.strongMode };
 
     json[Key_Display_Guizmo] = params.m_displayGizmo;
@@ -502,9 +503,9 @@ void ExportViewPointData(nlohmann::json& json, const ViewPointData& data)
         ExportRenderingParameters(json, data);
 
         const DisplayParameters& displayParams = data.getDisplayParameters();
-        json[Key_Edge_Aware_Blur] = { displayParams.m_edgeAwareBlur.enabled, displayParams.m_edgeAwareBlur.radius,
-                displayParams.m_edgeAwareBlur.depthThreshold, displayParams.m_edgeAwareBlur.blendStrength,
-                displayParams.m_edgeAwareBlur.resolutionScale };
+        json[Key_Color_Noise_Reduction] = { displayParams.m_colorNoiseReduction.enabled, displayParams.m_colorNoiseReduction.radius,
+                displayParams.m_colorNoiseReduction.depthAwareThreshold, displayParams.m_colorNoiseReduction.strength,
+                displayParams.m_colorNoiseReduction.resolutionScale };
         json[Key_Post_Rendering_Ambient_Occlusion] = { displayParams.m_postRenderingAmbientOcclusion.enabled, displayParams.m_postRenderingAmbientOcclusion.radius, displayParams.m_postRenderingAmbientOcclusion.intensity };
         json[Key_Depth_Lining] = { displayParams.m_depthLining.enabled, displayParams.m_depthLining.strength,
                 displayParams.m_depthLining.threshold, displayParams.m_depthLining.sensitivity,

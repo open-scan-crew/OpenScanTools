@@ -1,3 +1,43 @@
+float hueDistance(float a, float b)
+{
+    float d = abs(a - b);
+    return min(d, 1.0 - d);
+}
+
+vec3 projectToExperimentalPalette(vec3 hsv, float paletteSize)
+{
+    // Internal pass 3A path:
+    // keep hue close to source and only apply a gentle local quantization.
+    float k = clamp(floor(paletteSize + 0.5), 3.0, 16.0);
+    vec3 best = hsv;
+    float bestDist = 1e9;
+    float step = 1.0 / k;
+    float anchorBias = 0.25;
+
+    for (int i = 0; i < 16; ++i)
+    {
+        if (float(i) >= k)
+            break;
+
+        float hueAnchor = (float(i) + 0.5) / k;
+        float hueDelta = hueAnchor - hsv.x;
+        hueDelta -= floor(hueDelta + 0.5);
+        float projectedHue = fract(hsv.x + hueDelta * anchorBias + 1.0);
+        vec3 candidate = vec3(projectedHue, hsv.y, hsv.z);
+        float dh = hueDistance(hsv.x, candidate.x);
+        float ds = hsv.y - candidate.y;
+        float dv = hsv.z - candidate.z;
+        float dist = (dh * dh) * (0.35 / max(step, 1e-4)) + (ds * ds) * 1.0 + (dv * dv) * 0.9;
+        if (dist < bestDist)
+        {
+            bestDist = dist;
+            best = candidate;
+        }
+    }
+
+    return best;
+}
+
 void main() {
     gl_PointSize = pc.ptSize;
     vec4 worldPos4 = uScan.model * vec4(vec3(posXY, posZ) * coordPrec + origin, 1.0);
@@ -18,6 +58,11 @@ void main() {
     float valDen = max(valueLevels - 1.0, 1.0);
     hsv.y = floor(hsv.y * satDen + 0.5) / satDen;
     hsv.z = floor(hsv.z * valDen + 0.5) / valDen;
+
+    // Pass 3A (internal, non-UI): optional experimental palette projection.
+    // 0.0 = disabled (legacy path), >0.0 = palette size.
+    if (pc.cartoonExperimentalPaletteSize > 0.5)
+        hsv = projectToExperimentalPalette(hsv, pc.cartoonExperimentalPaletteSize);
 
     // Keep existing toolbar controls active in cartoon mode.
     hsv.y = clamp(hsv.y * pc.saturation, 0.0, 1.0);

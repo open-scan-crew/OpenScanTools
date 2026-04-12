@@ -62,7 +62,7 @@ struct AnimationViewpointInfo
     BlendMode blendMode = BlendMode::Opaque;
     bool normals = false;
     bool blendColor = false;
-    bool edgeAwareBlur = false;
+    bool colorNoiseReduction = false;
     bool depthLining = false;
     bool depthLiningStrongMode = false;
 };
