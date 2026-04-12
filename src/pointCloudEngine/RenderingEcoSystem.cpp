@@ -113,6 +113,11 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
     hash += hash_fn_f(display.m_saturation);
     hash += hash_fn_f(display.m_luminance);
     hash += hash_fn_f(display.m_hue);
+    // Keep Cartoon uniforms in the frame hash so editing these UI settings triggers
+    // an immediate point-cloud refresh without requiring camera interaction.
+    hash += hash_fn_i(display.m_cartoonValueLevels);
+    hash += hash_fn_i(display.m_cartoonSaturationMinPercent);
+    hash += hash_fn_i(display.m_cartoonSaturationLevels);
     hash += hash_vec3(display.m_flatColor);
     hash += hash_fn_f(display.m_distRampMin);
     hash += hash_fn_f(display.m_distRampMax);
