@@ -4430,6 +4430,9 @@
     <None Include="..\..\src\shaders\blocks\block_point_rgb_main_standard_vert.glsl">
       <Filter>shaders\glsl_blocks</Filter>
     </None>
+    <None Include="..\..\src\shaders\blocks\block_point_rgb_main_cartoon_vert.glsl">
+      <Filter>shaders\glsl_blocks</Filter>
+    </None>
     <None Include="..\..\src\shaders\blocks\block_point_input_geom.glsl">
       <Filter>shaders\glsl_blocks</Filter>
     </None>
@@ -4498,7 +4501,13 @@
     <CustomBuild Include="..\..\src\shaders\point_rgb_standard.vert">
       <Filter>shaders\glsl_assembled</Filter>
     </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\point_rgb_cartoon.vert">
+      <Filter>shaders\glsl_assembled</Filter>
+    </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_rgb_standard_clip.vert">
+      <Filter>shaders\glsl_assembled</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\point_rgb_cartoon_clip.vert">
       <Filter>shaders\glsl_assembled</Filter>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_rgbi_standard.vert">

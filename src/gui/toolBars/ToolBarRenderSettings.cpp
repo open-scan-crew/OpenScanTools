@@ -31,7 +31,7 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
     {
 		//fixeme (Aurélien) to remove when I & RGB done
 #ifndef _DEBUG
-		if (iterator == 2)
+		if (UiRenderMode(iterator) == UiRenderMode::IntensityRGB_Combined)
 			continue;
 #endif // !_DEBUG
         m_ui.comboBox_renderMode->addItem(QString::fromStdString(tradUiRenderMode.at(UiRenderMode(iterator))),QVariant(iterator));
@@ -100,11 +100,17 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 	connect(m_ui.pushButton_newDisplayPresets, &QPushButton::clicked, this, &ToolBarRenderSettings::slotDisplayPresetNew);
 	connect(m_ui.pushButton_editDisplayPresets, &QPushButton::clicked, this, &ToolBarRenderSettings::slotDisplayPresetEdit);
 
+    // Pass 3 - Cartoon RGB options (shown only for Cartoon RGB render mode).
+    connect(m_ui.spinBox_cartoonLevels, qOverload<int>(&QSpinBox::valueChanged), this, &ToolBarRenderSettings::slotCartoonOptionChanged);
+    connect(m_ui.spinBox_cartoonSaturationMin, qOverload<int>(&QSpinBox::valueChanged), this, &ToolBarRenderSettings::slotCartoonOptionChanged);
+    connect(m_ui.spinBox_cartoonSaturationLevels, qOverload<int>(&QSpinBox::valueChanged), this, &ToolBarRenderSettings::slotCartoonOptionChanged);
+
 	registerGuiDataFunction(guiDType::renderBrightness, &ToolBarRenderSettings::onRenderBrightness);
 	registerGuiDataFunction(guiDType::renderContrast, &ToolBarRenderSettings::onRenderContrast);
 	registerGuiDataFunction(guiDType::renderColorMode, &ToolBarRenderSettings::onRenderColorMode);
 	registerGuiDataFunction(guiDType::renderLuminance, &ToolBarRenderSettings::onRenderLuminance);
 	registerGuiDataFunction(guiDType::renderBlending, &ToolBarRenderSettings::onRenderBlending);
+	registerGuiDataFunction(guiDType::renderCartoonOptions, &ToolBarRenderSettings::onRenderCartoonOptions);
 	registerGuiDataFunction(guiDType::renderPointSize, &ToolBarRenderSettings::onRenderPointSize);
 	registerGuiDataFunction(guiDType::renderTexelThreshold, &ToolBarRenderSettings::onRenderTexelThreshold);
         registerGuiDataFunction(guiDType::renderSaturation, &ToolBarRenderSettings::onRenderSaturation);
@@ -191,6 +197,20 @@ void ToolBarRenderSettings::onRenderBlending(IGuiData* idata)
 	const QSignalBlocker sliderBlocker(m_ui.falseColorSlider);
 	m_ui.falseColorSpinBox->setValue(data->m_hue);
 	m_ui.falseColorSlider->setValue(data->m_hue);
+}
+
+void ToolBarRenderSettings::onRenderCartoonOptions(IGuiData* idata)
+{
+    auto* data = static_cast<GuiDataRenderCartoonOptions*>(idata);
+
+    // Keep Cartoon controls synchronized across all tabs/toolbars without
+    // re-emitting valueChanged signals (avoids feedback loops).
+    const QSignalBlocker levelsBlocker(m_ui.spinBox_cartoonLevels);
+    const QSignalBlocker satMinBlocker(m_ui.spinBox_cartoonSaturationMin);
+    const QSignalBlocker satLevelsBlocker(m_ui.spinBox_cartoonSaturationLevels);
+    m_ui.spinBox_cartoonLevels->setValue(data->m_valueLevels);
+    m_ui.spinBox_cartoonSaturationMin->setValue(data->m_saturationMinPercent);
+    m_ui.spinBox_cartoonSaturationLevels->setValue(data->m_saturationLevels);
 }
 
 void ToolBarRenderSettings::onRenderPointSize(IGuiData* idata)
@@ -299,6 +319,9 @@ void ToolBarRenderSettings::onActiveCamera(IGuiData* idata)
 
 	m_ui.falseColorSpinBox->setValue(displayParameters.m_hue);
 	m_ui.falseColorSlider->setValue(displayParameters.m_hue);
+	m_ui.spinBox_cartoonLevels->setValue(displayParameters.m_cartoonValueLevels);
+	m_ui.spinBox_cartoonSaturationMin->setValue(displayParameters.m_cartoonSaturationMinPercent);
+	m_ui.spinBox_cartoonSaturationLevels->setValue(displayParameters.m_cartoonSaturationLevels);
 
 	if (displayParameters.m_pointSize != m_ui.spinBox_pointSize->value())
 		m_ui.spinBox_pointSize->setValue(displayParameters.m_pointSize);
@@ -372,6 +395,9 @@ void ToolBarRenderSettings::blockAllSignals(bool block)
 	m_ui.checkBox_normals->blockSignals(block);
 	m_ui.slider_normals->blockSignals(block);
 	m_ui.spinBox_normals->blockSignals(block);
+    m_ui.spinBox_cartoonLevels->blockSignals(block);
+    m_ui.spinBox_cartoonSaturationMin->blockSignals(block);
+    m_ui.spinBox_cartoonSaturationLevels->blockSignals(block);
 }
 
 void ToolBarRenderSettings::switchRenderMode(const int& mode)
@@ -422,11 +448,12 @@ void ToolBarRenderSettings::switchRenderMode(const int& mode)
 		}
 		break;
 		case UiRenderMode::RGB:
+		case UiRenderMode::Cartoon_RGB: // Keeps RGB-like controls; dedicated shader is selected by render mode mapping.
 		{
             showSaturationLuminance();
             m_ui.ramp_options->setVisible(false);
-			m_ui.pushButton_color->hide();
-			enableFalseColor(false);
+				m_ui.pushButton_color->hide();
+				enableFalseColor(false);
 		}
 		break;
 		case UiRenderMode::IntensityRGB_Combined:
@@ -437,9 +464,34 @@ void ToolBarRenderSettings::switchRenderMode(const int& mode)
 			m_ui.pushButton_color->hide();
 			enableFalseColor(true);
 		}
-		break;
+			break;
 	}
+    updateCartoonOptionsVisibility();
 	//adjustSize();
+}
+
+void ToolBarRenderSettings::updateCartoonOptionsVisibility()
+{
+    const bool showCartoonControls = (m_currentRenderMode == UiRenderMode::Cartoon_RGB);
+
+    // The .ui currently places Cartoon widgets directly in the root grid layout,
+    // so toggling only "cartoon_options" is not enough. Explicitly toggling all
+    // Cartoon widgets guarantees robust behavior regardless of layout structure.
+    setCartoonControlsVisible(showCartoonControls);
+}
+
+void ToolBarRenderSettings::setCartoonControlsVisible(bool visible)
+{
+    // Keep the dedicated placeholder in sync in case the UI is refactored later.
+    m_ui.cartoon_options->setVisible(visible);
+
+    // Explicit controls used by Cartoon mode.
+    m_ui.label_cartoonLevels->setVisible(visible);
+    m_ui.spinBox_cartoonLevels->setVisible(visible);
+    m_ui.label_cartoonSatMin->setVisible(visible);
+    m_ui.spinBox_cartoonSaturationMin->setVisible(visible);
+    m_ui.label_cartoonSatLevels->setVisible(visible);
+    m_ui.spinBox_cartoonSaturationLevels->setVisible(visible);
 }
 
 void ToolBarRenderSettings::setDisplayPresetNames(const QStringList& names, const QString& selectedName)
@@ -559,6 +611,19 @@ void ToolBarRenderSettings::slotSetRenderMode(int mode)
 	switchRenderMode(m_ui.comboBox_renderMode->currentData().toInt());
 
 	m_dataDispatcher.sendControl(new control::application::RenderModeUpdate(UiRenderMode(m_ui.comboBox_renderMode->currentData().toInt()), m_focusCamera));	
+}
+
+void ToolBarRenderSettings::slotCartoonOptionChanged(int value)
+{
+    Q_UNUSED(value);
+    // Pass 3 - dedicated event so CameraNode / rendering pipeline can update immediately.
+    m_dataDispatcher.updateInformation(
+        new GuiDataRenderCartoonOptions(
+            m_ui.spinBox_cartoonLevels->value(),
+            m_ui.spinBox_cartoonSaturationMin->value(),
+            m_ui.spinBox_cartoonSaturationLevels->value(),
+            m_focusCamera),
+        this);
 }
 
 void ToolBarRenderSettings::slotColorPicking()

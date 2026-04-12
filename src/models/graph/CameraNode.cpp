@@ -164,6 +164,7 @@ CameraNode::CameraNode(const std::wstring& name, IDataDispatcher& dataDispatcher
     registerGuiDataFunction(guiDType::renderContrast, &CameraNode::onRenderContrast);
     registerGuiDataFunction(guiDType::renderLuminance, &CameraNode::onRenderLuminance);
     registerGuiDataFunction(guiDType::renderSaturation, &CameraNode::onRenderSaturation);
+    registerGuiDataFunction(guiDType::renderCartoonOptions, &CameraNode::onRenderCartoonOptions);
     registerGuiDataFunction(guiDType::renderBlending, &CameraNode::onRenderBlending);
     registerGuiDataFunction(guiDType::renderTransparency, &CameraNode::onRenderTransparency);
     registerGuiDataFunction(guiDType::renderTransparencyOptions, &CameraNode::onRenderTransparencyOptions);
@@ -1611,6 +1612,9 @@ ViewpointRenderState CameraNode::buildViewpointRenderState(const ViewPointNode& 
     state.saturation = viewpoint.m_saturation;
     state.luminance = viewpoint.m_luminance;
     state.contrast = viewpoint.m_contrast;
+    state.cartoonValueLevels = static_cast<float>(viewpoint.m_cartoonValueLevels);
+    state.cartoonSaturationMinPercent = static_cast<float>(viewpoint.m_cartoonSaturationMinPercent);
+    state.cartoonSaturationLevels = static_cast<float>(viewpoint.m_cartoonSaturationLevels);
     state.alphaObject = viewpoint.m_alphaObject;
     state.fovy = viewpoint.getFovy();
     state.visibleObjects = viewpoint.getVisibleObjects();
@@ -1642,6 +1646,9 @@ ViewpointRenderState CameraNode::lerpViewpointRenderState(const ViewpointRenderS
     state.saturation = start.saturation + (end.saturation - start.saturation) * alpha;
     state.luminance = start.luminance + (end.luminance - start.luminance) * alpha;
     state.contrast = start.contrast + (end.contrast - start.contrast) * alpha;
+    state.cartoonValueLevels = start.cartoonValueLevels + (end.cartoonValueLevels - start.cartoonValueLevels) * alpha;
+    state.cartoonSaturationMinPercent = start.cartoonSaturationMinPercent + (end.cartoonSaturationMinPercent - start.cartoonSaturationMinPercent) * alpha;
+    state.cartoonSaturationLevels = start.cartoonSaturationLevels + (end.cartoonSaturationLevels - start.cartoonSaturationLevels) * alpha;
     state.alphaObject = start.alphaObject + (end.alphaObject - start.alphaObject) * alpha;
     state.fovy = start.fovy + (end.fovy - start.fovy) * alpha;
     state.renderMode = start.renderMode;
@@ -1748,6 +1755,9 @@ void CameraNode::applyViewpointRenderState(const ViewpointRenderState& state)
     m_saturation = state.saturation;
     m_luminance = state.luminance;
     m_contrast = state.contrast;
+    m_cartoonValueLevels = std::max(2, static_cast<int>(std::round(state.cartoonValueLevels)));
+    m_cartoonSaturationMinPercent = std::clamp(static_cast<int>(std::round(state.cartoonSaturationMinPercent)), 0, 100);
+    m_cartoonSaturationLevels = std::max(1, static_cast<int>(std::round(state.cartoonSaturationLevels)));
     m_alphaObject = state.alphaObject;
     setFovy(state.fovy, false);
 
@@ -2474,6 +2484,14 @@ void CameraNode::onRenderLuminance(IGuiData* data)
 void CameraNode::onRenderSaturation(IGuiData* data)
 {
     m_saturation = static_cast<GuiDataRenderSaturation*>(data)->m_saturation;
+}
+
+void CameraNode::onRenderCartoonOptions(IGuiData* data)
+{
+    auto castData = static_cast<GuiDataRenderCartoonOptions*>(data);
+    m_cartoonValueLevels = castData->m_valueLevels;
+    m_cartoonSaturationMinPercent = castData->m_saturationMinPercent;
+    m_cartoonSaturationLevels = castData->m_saturationLevels;
 }
 
 void CameraNode::onRenderBlending(IGuiData* data)

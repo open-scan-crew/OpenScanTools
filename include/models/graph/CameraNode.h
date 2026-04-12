@@ -53,6 +53,9 @@ struct ViewpointRenderState
     float saturation = 0.0f;
     float luminance = 0.0f;
     float contrast = 0.0f;
+    float cartoonValueLevels = 0.0f;
+    float cartoonSaturationMinPercent = 0.0f;
+    float cartoonSaturationLevels = 0.0f;
     float alphaObject = 0.0f;
     float fovy = 0.0f;
     std::unordered_set<SafePtr<AGraphNode>> visibleObjects;
@@ -282,6 +285,7 @@ private:
     void onRenderContrast(IGuiData* data);
     void onRenderLuminance(IGuiData* data);
     void onRenderSaturation(IGuiData* data);
+    void onRenderCartoonOptions(IGuiData* data);
     void onRenderBlending(IGuiData* data);
     void onRenderTransparency(IGuiData* data);
     void onRenderTransparencyOptions(IGuiData* data);
