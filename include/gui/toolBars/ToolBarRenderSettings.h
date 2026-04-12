@@ -57,11 +57,12 @@ private:
 
     void showContrastBrightness();
     void showSaturationLuminance();
-        void updateCartoonOptionsVisibility();
-        void enableFalseColor(bool);
-        bool rampValidValue(float& min, float& max, int& step);
-        void sendTransparency();
-        void changeEvent(QEvent* event) override;
+    void updateCartoonOptionsVisibility();
+    void setCartoonControlsVisible(bool visible);
+    void enableFalseColor(bool);
+    bool rampValidValue(float& min, float& max, int& step);
+    void sendTransparency();
+    void changeEvent(QEvent* event) override;
 
 private slots:
 	void slotBrightnessLuminanceValueChanged(int value);
