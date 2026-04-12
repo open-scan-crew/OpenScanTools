@@ -30,9 +30,9 @@
     <number>3</number>
    </property>
    <item row="0" column="0" colspan="2">
-    <widget class="QCheckBox" name="checkBox_edgeAwareBlur">
+   <widget class="QCheckBox" name="checkBox_colorNoiseReduction">
      <property name="text">
-      <string>Smooth render</string>
+      <string>Color noise reduction</string>
      </property>
     </widget>
    </item>
@@ -87,9 +87,9 @@
     <widget class="QSpinBox" name="spinBox_edgeAwareDepth"/>
    </item>
    <item row="2" column="2">
-    <widget class="QLabel" name="label_mix">
+   <widget class="QLabel" name="label_mix">
      <property name="text">
-      <string>Mix</string>
+      <string>Strength</string>
      </property>
     </widget>
    </item>

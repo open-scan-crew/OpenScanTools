@@ -241,7 +241,9 @@
 
 #define Key_Post_Rendering_Normals		"PostRenderingNormals"
 #define Key_Post_Rendering_Ambient_Occlusion "PostRenderingAmbientOcclusion"
-#define Key_Edge_Aware_Blur			"EdgeAwareBlur"
+#define Key_Color_Noise_Reduction			"ColorNoiseReduction"
+// Legacy key kept for backward compatibility with old projects/viewpoints.
+#define Key_Edge_Aware_Blur_Legacy            "EdgeAwareBlur"
 #define Key_Depth_Lining			"DepthLining"
 #define Key_Display_Guizmo				"DisplayGuizmo"
 #define Key_Ramp_Scale_Options			"RampScaleOptions"

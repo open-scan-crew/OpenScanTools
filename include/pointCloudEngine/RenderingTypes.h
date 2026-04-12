@@ -93,12 +93,15 @@ struct PostRenderingAmbientOcclusion
     float intensity = 0.4f;
 };
 
-struct EdgeAwareBlur
+struct ColorNoiseReduction
 {
     bool enabled = true;
-    float radius = 2.0f;
-    float depthThreshold = 0.35f;
-    float blendStrength = 0.25f;
+    float radius = 5.0f;
+    // Internal depth gate used to preserve geometric edges.
+    // Intentionally not exposed in the UI for pass 1.
+    float depthAwareThreshold = 0.05f;
+    // User-facing intensity of the spray/noise reduction.
+    float strength = 0.45f;
     float resolutionScale = 1.0f; // 1.0 = full res, 0.5 = half res
 };
 

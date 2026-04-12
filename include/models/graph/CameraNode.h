@@ -300,7 +300,7 @@ private:
     void onRenderAlphaObjects(IGuiData* data);
     void onRenderNormals(IGuiData* data);
     void onRenderAmbientOcclusion(IGuiData* data);
-    void onRenderEdgeAwareBlur(IGuiData* data);
+    void onRenderColorNoiseReduction(IGuiData* data);
     void onRenderDepthLining(IGuiData* data);
     void onRenderRampScale(IGuiData* data);
     void onRenderColorimetricFilter(IGuiData* data);

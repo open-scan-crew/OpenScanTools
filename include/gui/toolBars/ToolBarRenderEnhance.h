@@ -25,8 +25,8 @@ private:
 	void onActiveCamera(IGuiData* data);
 	void onFocusViewport(IGuiData* data);
 	void blockAllSignals(bool block);
-	void updateEdgeAwareBlurUi(bool enabled);
-	EdgeAwareBlur getEdgeAwareBlurFromUi() const;
+	void updateColorNoiseReductionUi(bool enabled);
+	ColorNoiseReduction getColorNoiseReductionFromUi() const;
 	void updateDepthLiningUi(bool enabled);
 	DepthLining getDepthLiningFromUi() const;
 
@@ -43,8 +43,8 @@ private:
 	SafePtr<CameraNode> m_focusCamera;
 
 private slots:
-	void slotEdgeAwareBlurToggled(int state);
-	void slotEdgeAwareBlurValueChanged(int value);
+	void slotColorNoiseReductionToggled(int state);
+	void slotColorNoiseReductionValueChanged(int value);
 	void slotDepthLiningToggled(int state);
 	void slotDepthLiningValueChanged(int value);
 	void slotDepthLiningSensitivityChanged(int value);

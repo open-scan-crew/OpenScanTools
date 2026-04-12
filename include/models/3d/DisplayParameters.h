@@ -81,7 +81,7 @@ public:
     float          m_hue = 0.f;
     glm::vec3      m_flatColor = glm::vec3(0.5f);
     // Cartoon RGB (display-only) parameters.
-    int            m_cartoonValueLevels = 8;
+    int            m_cartoonValueLevels = 6;
     int            m_cartoonSaturationMinPercent = 12; // [0..100]
     int            m_cartoonSaturationLevels = 4;
 
@@ -103,7 +103,7 @@ public:
     // Post processing
     PostRenderingNormals    m_postRenderingNormals = { true, false, true, 0.4f, 1.f };
     PostRenderingAmbientOcclusion m_postRenderingAmbientOcclusion = {};
-    EdgeAwareBlur           m_edgeAwareBlur = {};
+    ColorNoiseReduction           m_colorNoiseReduction = {};
     DepthLining             m_depthLining = {};
 
     // GUI
