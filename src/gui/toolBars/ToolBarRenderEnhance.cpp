@@ -16,6 +16,10 @@ namespace
 	constexpr int COLOR_NOISE_REDUCTION_DEPTH_FIXED = 5;
 	[[maybe_unused]] constexpr std::array<const char*, 3> COLOR_NOISE_REDUCTION_RESOLUTION_LABELS = { "Full res", "Half res", "Quarter res" };
 	constexpr std::array<float, 3> COLOR_NOISE_REDUCTION_RESOLUTION_SCALES = { 1.0f, 0.5f, 0.25f };
+	// Pass 2 tuning:
+	// Keep full-res on small kernels, switch to half-res sampling on larger kernels
+	// to stabilize performance while preserving perceived sharpness.
+	constexpr int COLOR_NOISE_REDUCTION_HALF_RES_RADIUS_THRESHOLD = 5;
 }
 
 ToolBarRenderEnhance::ToolBarRenderEnhance(IDataDispatcher& dataDispatcher, QWidget* parent, float guiScale)
@@ -143,10 +147,15 @@ ColorNoiseReduction ToolBarRenderEnhance::getColorNoiseReductionFromUi() const
 {
 	ColorNoiseReduction settings = {};
 	settings.enabled = m_ui.checkBox_colorNoiseReduction->isChecked();
-	settings.radius = static_cast<float>(m_ui.spinBox_edgeAwareRadius->value());
+	const int radiusUi = std::clamp(m_ui.spinBox_edgeAwareRadius->value(), m_ui.slider_edgeAwareRadius->minimum(), m_ui.slider_edgeAwareRadius->maximum());
+	const int strengthUi = std::clamp(m_ui.spinBox_edgeAwareBlend->value(), m_ui.slider_edgeAwareBlend->minimum(), m_ui.slider_edgeAwareBlend->maximum());
+
+	settings.radius = static_cast<float>(radiusUi);
 	settings.depthAwareThreshold = static_cast<float>(COLOR_NOISE_REDUCTION_DEPTH_FIXED) / 100.f;
-	settings.strength = m_ui.spinBox_edgeAwareBlend->value() / 100.f;
-	settings.resolutionScale = COLOR_NOISE_REDUCTION_RESOLUTION_SCALES.front();
+	settings.strength = strengthUi / 100.f;
+	settings.resolutionScale = (radiusUi >= COLOR_NOISE_REDUCTION_HALF_RES_RADIUS_THRESHOLD)
+		? COLOR_NOISE_REDUCTION_RESOLUTION_SCALES[1]
+		: COLOR_NOISE_REDUCTION_RESOLUTION_SCALES[0];
 
 	return settings;
 }

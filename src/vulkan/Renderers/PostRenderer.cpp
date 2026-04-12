@@ -499,6 +499,13 @@ void PostRenderer::processColorNoiseReduction(VkCommandBuffer _cmdBuffer, const 
     VkDescriptorSet descSets[] = { descSetColor, descSetDepth };
     h_pfn->vkCmdBindDescriptorSets(_cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_colorNoiseReductionPipelineLayout, 0, 2, descSets, 0, nullptr);
 
+    // Clamp runtime values before sending push constants to keep shader behavior stable
+    // even with legacy/hand-edited project files.
+    const float radius = std::clamp(blurSettings.radius, 0.0f, 20.0f);
+    const float depthAwareThreshold = std::clamp(blurSettings.depthAwareThreshold, 0.0001f, 1.0f);
+    const float strength = std::clamp(blurSettings.strength, 0.0f, 1.0f);
+    const float resolutionScale = std::clamp(blurSettings.resolutionScale, 0.1f, 1.0f);
+
     struct
     {
         glm::ivec2 screenSize;
@@ -506,7 +513,7 @@ void PostRenderer::processColorNoiseReduction(VkCommandBuffer _cmdBuffer, const 
         float depthAwareThreshold;
         float strength;
         float resolutionScale;
-    } pc = { glm::ivec2(_extent.width, _extent.height), blurSettings.radius, blurSettings.depthAwareThreshold, blurSettings.strength, blurSettings.resolutionScale };
+    } pc = { glm::ivec2(_extent.width, _extent.height), radius, depthAwareThreshold, strength, resolutionScale };
 
     h_pfn->vkCmdPushConstants(_cmdBuffer, m_colorNoiseReductionPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(pc), &pc);
 

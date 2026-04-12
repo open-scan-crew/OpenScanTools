@@ -101,7 +101,7 @@ struct ColorNoiseReduction
     // Intentionally not exposed in the UI for pass 1.
     float depthAwareThreshold = 0.05f;
     // User-facing intensity of the spray/noise reduction.
-    float strength = 0.30f;
+    float strength = 0.40f;
     float resolutionScale = 1.0f; // 1.0 = full res, 0.5 = half res
 };
 

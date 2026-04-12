@@ -199,7 +199,7 @@
       </size>
      </property>
      <property name="value">
-      <number>30</number>
+      <number>40</number>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -209,7 +209,7 @@
    <item row="2" column="2">
     <widget class="QSpinBox" name="spinBox_edgeAwareBlend">
      <property name="value">
-      <number>30</number>
+      <number>40</number>
      </property>
     </widget>
    </item>
