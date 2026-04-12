@@ -11,8 +11,8 @@ layout(set = 1, binding = 2) buffer correctedDepth
 layout(push_constant) uniform PC {
    layout(offset = 0) ivec2 screenSize;
    layout(offset = 8) float radius;
-   layout(offset = 12) float depthThreshold;
-   layout(offset = 16) float blendStrength;
+   layout(offset = 12) float depthAwareThreshold;
+   layout(offset = 16) float strength;
    layout(offset = 20) float resolutionScale;
 } pc;
 
@@ -29,7 +29,7 @@ void main()
 
    // Parameters
    int r = int(max(pc.radius, 1.0));
-   float depthSigma = max(pc.depthThreshold, 1e-4);
+   float depthSigma = max(pc.depthAwareThreshold, 1e-4);
    float radiusNorm = float(r);
    int stride = int(round(max(1.0, 1.0 / max(pc.resolutionScale, 0.001))));
 
@@ -47,16 +47,27 @@ void main()
 
          float dist2 = float(x * x + y * y);
          float spatialWeight = exp(-dist2 / (2.0 * radiusNorm * radiusNorm));
-         float depthDelta = sampleDepth - centerDepth;
+
+         // Geometric edge preservation:
+         // normalized depth difference prevents excessive smoothing across depth jumps.
+         float depthNorm = max(max(centerDepth, sampleDepth), 1e-6);
+         float depthDelta = abs(sampleDepth - centerDepth) / depthNorm;
          float depthWeight = exp(-(depthDelta * depthDelta) / (2.0 * depthSigma * depthSigma));
 
-         float w = spatialWeight * depthWeight;
+         // Spray reduction:
+         // robust color gating rejects chromatic outliers inside the local neighborhood.
+         vec3 colorDelta = sampleColor - centerColor.rgb;
+         float colorDist2 = dot(colorDelta, colorDelta);
+         float colorSigma = mix(0.02, 0.22, clamp(pc.strength, 0.0, 1.0));
+         float colorWeight = 1.0 / (1.0 + colorDist2 / (colorSigma * colorSigma));
+
+         float w = spatialWeight * depthWeight * colorWeight;
          accumColor += sampleColor * w;
          accumWeight += w;
       }
    }
 
-   vec3 blurred = (accumWeight > 0.0) ? (accumColor / accumWeight) : centerColor.rgb;
-   vec3 mixed = mix(centerColor.rgb, blurred, clamp(pc.blendStrength, 0.0, 1.0));
-   imageStore(inOutColorImage, gid, vec4(mixed, centerColor.a));
+   vec3 stabilizedColor = (accumWeight > 0.0) ? (accumColor / accumWeight) : centerColor.rgb;
+   vec3 outputColor = mix(centerColor.rgb, stabilizedColor, clamp(pc.strength, 0.0, 1.0));
+   imageStore(inOutColorImage, gid, vec4(outputColor, centerColor.a));
 }

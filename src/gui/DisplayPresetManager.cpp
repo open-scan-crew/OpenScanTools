@@ -83,7 +83,7 @@ namespace
 
 		json[Key_Post_Rendering_Normals] = { params.m_postRenderingNormals.show, params.m_postRenderingNormals.inverseTone, params.m_postRenderingNormals.blendColor, params.m_postRenderingNormals.normalStrength, params.m_postRenderingNormals.gloss };
 		json[Key_Post_Rendering_Ambient_Occlusion] = { params.m_postRenderingAmbientOcclusion.enabled, params.m_postRenderingAmbientOcclusion.radius, params.m_postRenderingAmbientOcclusion.intensity };
-		json[Key_Edge_Aware_Blur] = { params.m_edgeAwareBlur.enabled, params.m_edgeAwareBlur.radius, params.m_edgeAwareBlur.depthThreshold, params.m_edgeAwareBlur.blendStrength, params.m_edgeAwareBlur.resolutionScale };
+		json[Key_Color_Noise_Reduction] = { params.m_colorNoiseReduction.enabled, params.m_colorNoiseReduction.radius, params.m_colorNoiseReduction.depthAwareThreshold, params.m_colorNoiseReduction.strength, params.m_colorNoiseReduction.resolutionScale };
 		json[Key_Depth_Lining] = { params.m_depthLining.enabled, params.m_depthLining.strength, params.m_depthLining.threshold, params.m_depthLining.sensitivity, params.m_depthLining.strongMode };
 
 		json[Key_Display_Guizmo] = params.m_displayGizmo;
@@ -599,11 +599,18 @@ namespace
 				data.m_postRenderingAmbientOcclusion = { options[0], options[1], options[2] };
 		}
 
-		if (json.find(Key_Edge_Aware_Blur) != json.end())
+		if (json.find(Key_Color_Noise_Reduction) != json.end())
 		{
-			nlohmann::json options = json.at(Key_Edge_Aware_Blur);
+			nlohmann::json options = json.at(Key_Color_Noise_Reduction);
 			if (options.size() == 5)
-				data.m_edgeAwareBlur = { options[0], options[1], options[2], options[3], options[4] };
+				data.m_colorNoiseReduction = { options[0], options[1], options[2], options[3], options[4] };
+		}
+		else if (json.find(Key_Edge_Aware_Blur_Legacy) != json.end())
+		{
+			// Backward compatibility with legacy display presets.
+			nlohmann::json options = json.at(Key_Edge_Aware_Blur_Legacy);
+			if (options.size() == 5)
+				data.m_colorNoiseReduction = { options[0], options[1], options[2], options[3], options[4] };
 		}
 
 		if (json.find(Key_Depth_Lining) != json.end())
@@ -967,7 +974,7 @@ void DisplayPresetManager::applyPreset(const DisplayPreset& preset)
 	m_dataDispatcher.updateInformation(new GuiDataRenderTransparencyOptions(params.m_negativeEffect, params.m_reduceFlash, params.m_flashAdvanced, params.m_highlightKneeStart, params.m_highlightKneeSoftness, params.m_advancedFlashBoost, 0.f, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataPostRenderingNormals(params.m_postRenderingNormals, false, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderAmbientOcclusion(params.m_postRenderingAmbientOcclusion, m_focusCamera), this);
-	m_dataDispatcher.updateInformation(new GuiDataEdgeAwareBlur(params.m_edgeAwareBlur, m_focusCamera), this);
+	m_dataDispatcher.updateInformation(new GuiDataColorNoiseReduction(params.m_colorNoiseReduction, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataDepthLining(params.m_depthLining, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderColorimetricFilter(params.m_colorimetricFilter, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderPolygonalSelector(params.m_polygonalSelector, m_focusCamera), this);
@@ -1060,7 +1067,7 @@ DisplayPresetManager::DisplayPreset DisplayPresetManager::getRawPreset() const
 	parameters.m_saturation = 0.f;
 	parameters.m_postRenderingNormals.show = false;
 	parameters.m_postRenderingAmbientOcclusion.enabled = false;
-	parameters.m_edgeAwareBlur.enabled = false;
+	parameters.m_colorNoiseReduction.enabled = false;
 	parameters.m_depthLining.enabled = false;
 	preset.displayParameters = parameters;
 	preset.showHideState = getDefaultShowHideState();
