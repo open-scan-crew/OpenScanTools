@@ -67,6 +67,7 @@ namespace
 		json[Key_Cartoon_Value_Levels] = params.m_cartoonValueLevels;
 		json[Key_Cartoon_Saturation_Min_Percent] = params.m_cartoonSaturationMinPercent;
 		json[Key_Cartoon_Saturation_Levels] = params.m_cartoonSaturationLevels;
+		json[Key_Cartoon_Experimental_Palette_Size] = params.m_cartoonExperimentalPaletteSize;
 		json[Key_Flat_Color] = { params.m_flatColor.x, params.m_flatColor.y, params.m_flatColor.z };
 
 			json[Key_DistRamp] = { params.m_distRampMin, params.m_distRampMax };
@@ -269,6 +270,12 @@ namespace
 			data.m_cartoonSaturationLevels = json.at(Key_Cartoon_Saturation_Levels).get<int>();
 		else
 			data.m_cartoonSaturationLevels = 4;
+
+		// Pass 3A (internal): optional experimental palette size for cartoon mode.
+		if (json.find(Key_Cartoon_Experimental_Palette_Size) != json.end())
+			data.m_cartoonExperimentalPaletteSize = std::max(0, json.at(Key_Cartoon_Experimental_Palette_Size).get<int>());
+		else
+			data.m_cartoonExperimentalPaletteSize = 0;
 
 		if (json.find(Key_Flat_Color) != json.end())
 		{

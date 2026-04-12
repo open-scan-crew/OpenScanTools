@@ -519,6 +519,12 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
     else
         data.m_cartoonSaturationLevels = 4;
 
+    // Pass 3A (internal): optional experimental palette size for cartoon mode.
+    if (json.find(Key_Cartoon_Experimental_Palette_Size) != json.end())
+        data.m_cartoonExperimentalPaletteSize = std::max(0, json.at(Key_Cartoon_Experimental_Palette_Size).get<int>());
+    else
+        data.m_cartoonExperimentalPaletteSize = 0;
+
     if (json.find(Key_Flat_Color) != json.end())
     {
         nlohmann::json color = json.at(Key_Flat_Color);

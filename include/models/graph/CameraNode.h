@@ -56,6 +56,7 @@ struct ViewpointRenderState
     float cartoonValueLevels = 0.0f;
     float cartoonSaturationMinPercent = 0.0f;
     float cartoonSaturationLevels = 0.0f;
+    float cartoonExperimentalPaletteSize = 0.0f;
     float alphaObject = 0.0f;
     float fovy = 0.0f;
     std::unordered_set<SafePtr<AGraphNode>> visibleObjects;

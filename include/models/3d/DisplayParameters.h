@@ -84,6 +84,9 @@ public:
     int            m_cartoonValueLevels = 6;
     int            m_cartoonSaturationMinPercent = 12; // [0..100]
     int            m_cartoonSaturationLevels = 4;
+    // Internal/dev toggle for pass 3A evaluation:
+    // 0 => legacy cartoon quantization, >0 => experimental palette path (palette size).
+    int            m_cartoonExperimentalPaletteSize = 0;
 
     // Ramp Distance
     float          m_distRampMin = 0.f;

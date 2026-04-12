@@ -226,6 +226,7 @@
 #define Key_Cartoon_Value_Levels			"CartoonValueLevels"
 #define Key_Cartoon_Saturation_Min_Percent		"CartoonSaturationMinPercent"
 #define Key_Cartoon_Saturation_Levels			"CartoonSaturationLevels"
+#define Key_Cartoon_Experimental_Palette_Size		"CartoonExperimentalPaletteSize"
 
 #define Key_DistRamp					"DistanceRamp"
 #define Key_DistRampSteps				"DistanceRampSteps"

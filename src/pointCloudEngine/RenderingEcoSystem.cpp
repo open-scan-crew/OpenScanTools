@@ -118,6 +118,7 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
     hash += hash_fn_i(display.m_cartoonValueLevels);
     hash += hash_fn_i(display.m_cartoonSaturationMinPercent);
     hash += hash_fn_i(display.m_cartoonSaturationLevels);
+    hash += hash_fn_i(display.m_cartoonExperimentalPaletteSize);
     hash += hash_vec3(display.m_flatColor);
     hash += hash_fn_f(display.m_distRampMin);
     hash += hash_fn_f(display.m_distRampMax);
