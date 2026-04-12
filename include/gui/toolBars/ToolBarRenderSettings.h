@@ -37,6 +37,7 @@ private:
 	void onRenderColorMode(IGuiData* data);
 	void onRenderLuminance(IGuiData* data);
 	void onRenderBlending(IGuiData* data);
+	void onRenderCartoonOptions(IGuiData* data);
 	void onRenderPointSize(IGuiData* data);
 	void onRenderTexelThreshold(IGuiData* data);
 	void onRenderSaturation(IGuiData* data);

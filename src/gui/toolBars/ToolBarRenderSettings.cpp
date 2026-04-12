@@ -110,6 +110,7 @@ ToolBarRenderSettings::ToolBarRenderSettings(IDataDispatcher &dataDispatcher, QW
 	registerGuiDataFunction(guiDType::renderColorMode, &ToolBarRenderSettings::onRenderColorMode);
 	registerGuiDataFunction(guiDType::renderLuminance, &ToolBarRenderSettings::onRenderLuminance);
 	registerGuiDataFunction(guiDType::renderBlending, &ToolBarRenderSettings::onRenderBlending);
+	registerGuiDataFunction(guiDType::renderCartoonOptions, &ToolBarRenderSettings::onRenderCartoonOptions);
 	registerGuiDataFunction(guiDType::renderPointSize, &ToolBarRenderSettings::onRenderPointSize);
 	registerGuiDataFunction(guiDType::renderTexelThreshold, &ToolBarRenderSettings::onRenderTexelThreshold);
         registerGuiDataFunction(guiDType::renderSaturation, &ToolBarRenderSettings::onRenderSaturation);
@@ -196,6 +197,20 @@ void ToolBarRenderSettings::onRenderBlending(IGuiData* idata)
 	const QSignalBlocker sliderBlocker(m_ui.falseColorSlider);
 	m_ui.falseColorSpinBox->setValue(data->m_hue);
 	m_ui.falseColorSlider->setValue(data->m_hue);
+}
+
+void ToolBarRenderSettings::onRenderCartoonOptions(IGuiData* idata)
+{
+    auto* data = static_cast<GuiDataRenderCartoonOptions*>(idata);
+
+    // Keep Cartoon controls synchronized across all tabs/toolbars without
+    // re-emitting valueChanged signals (avoids feedback loops).
+    const QSignalBlocker levelsBlocker(m_ui.spinBox_cartoonLevels);
+    const QSignalBlocker satMinBlocker(m_ui.spinBox_cartoonSaturationMin);
+    const QSignalBlocker satLevelsBlocker(m_ui.spinBox_cartoonSaturationLevels);
+    m_ui.spinBox_cartoonLevels->setValue(data->m_valueLevels);
+    m_ui.spinBox_cartoonSaturationMin->setValue(data->m_saturationMinPercent);
+    m_ui.spinBox_cartoonSaturationLevels->setValue(data->m_saturationLevels);
 }
 
 void ToolBarRenderSettings::onRenderPointSize(IGuiData* idata)
