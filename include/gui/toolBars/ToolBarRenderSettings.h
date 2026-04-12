@@ -37,6 +37,7 @@ private:
 	void onRenderColorMode(IGuiData* data);
 	void onRenderLuminance(IGuiData* data);
 	void onRenderBlending(IGuiData* data);
+	void onRenderCartoonOptions(IGuiData* data);
 	void onRenderPointSize(IGuiData* data);
 	void onRenderTexelThreshold(IGuiData* data);
 	void onRenderSaturation(IGuiData* data);
@@ -57,11 +58,12 @@ private:
 
     void showContrastBrightness();
     void showSaturationLuminance();
-        void updateCartoonOptionsVisibility();
-        void enableFalseColor(bool);
-        bool rampValidValue(float& min, float& max, int& step);
-        void sendTransparency();
-        void changeEvent(QEvent* event) override;
+    void updateCartoonOptionsVisibility();
+    void setCartoonControlsVisible(bool visible);
+    void enableFalseColor(bool);
+    bool rampValidValue(float& min, float& max, int& step);
+    void sendTransparency();
+    void changeEvent(QEvent* event) override;
 
 private slots:
 	void slotBrightnessLuminanceValueChanged(int value);
