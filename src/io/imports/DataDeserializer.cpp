@@ -938,13 +938,22 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
             IOLOG << "ViewPoint PostRenderingAmbientOcclusion malformed" << LOGENDL;
     }
 
-    if (json.find(Key_Edge_Aware_Blur) != json.end())
+    if (json.find(Key_Color_Noise_Reduction) != json.end())
     {
-        nlohmann::json options = json.at(Key_Edge_Aware_Blur);
+        nlohmann::json options = json.at(Key_Color_Noise_Reduction);
         if (options.size() == 5)
-            data.m_edgeAwareBlur = { options[0], options[1], options[2], options[3], options[4] };
+            data.m_colorNoiseReduction = { options[0], options[1], options[2], options[3], options[4] };
         else
-            IOLOG << "ViewPoint EdgeAwareBlur malformed" << LOGENDL;
+            IOLOG << "ViewPoint ColorNoiseReduction malformed" << LOGENDL;
+    }
+    else if (json.find(Key_Edge_Aware_Blur_Legacy) != json.end())
+    {
+        // Backward compatibility: old projects used "EdgeAwareBlur".
+        nlohmann::json options = json.at(Key_Edge_Aware_Blur_Legacy);
+        if (options.size() == 5)
+            data.m_colorNoiseReduction = { options[0], options[1], options[2], options[3], options[4] };
+        else
+            IOLOG << "ViewPoint EdgeAwareBlur (legacy) malformed" << LOGENDL;
     }
 
     if (json.find(Key_Depth_Lining) != json.end())
@@ -1997,13 +2006,22 @@ bool ImportColumnTiltMeasureData(const nlohmann::json& json, ColumnTiltMeasureDa
 bool ImportViewPointData(const nlohmann::json& json, ViewPointData& data, const std::unordered_map<xg::Guid, SafePtr<AGraphNode>>& nodeById)
 {
     bool retVal(true);
-    if (json.find(Key_Edge_Aware_Blur) != json.end())
+    if (json.find(Key_Color_Noise_Reduction) != json.end())
     {
-        nlohmann::json options = json.at(Key_Edge_Aware_Blur);
+        nlohmann::json options = json.at(Key_Color_Noise_Reduction);
         if (options.size() == 5)
-            data.m_edgeAwareBlur = { options[0], options[1], options[2], options[3], options[4] };
+            data.m_colorNoiseReduction = { options[0], options[1], options[2], options[3], options[4] };
         else
-            IOLOG << "ViewPoint EdgeAwareBlur malformed" << LOGENDL;
+            IOLOG << "ViewPoint ColorNoiseReduction malformed" << LOGENDL;
+    }
+    else if (json.find(Key_Edge_Aware_Blur_Legacy) != json.end())
+    {
+        // Backward compatibility: old projects used "EdgeAwareBlur".
+        nlohmann::json options = json.at(Key_Edge_Aware_Blur_Legacy);
+        if (options.size() == 5)
+            data.m_colorNoiseReduction = { options[0], options[1], options[2], options[3], options[4] };
+        else
+            IOLOG << "ViewPoint EdgeAwareBlur (legacy) malformed" << LOGENDL;
     }
 
     if (json.find(Key_Depth_Lining) != json.end())

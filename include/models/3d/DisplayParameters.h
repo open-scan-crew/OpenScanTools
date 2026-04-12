@@ -103,7 +103,7 @@ public:
     // Post processing
     PostRenderingNormals    m_postRenderingNormals = { true, false, true, 0.4f, 1.f };
     PostRenderingAmbientOcclusion m_postRenderingAmbientOcclusion = {};
-    EdgeAwareBlur           m_edgeAwareBlur = {};
+    ColorNoiseReduction           m_colorNoiseReduction = {};
     DepthLining             m_depthLining = {};
 
     // GUI
