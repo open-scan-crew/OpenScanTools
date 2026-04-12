@@ -20,6 +20,8 @@ namespace
 	// Keep full-res on small kernels, switch to half-res sampling on larger kernels
 	// to stabilize performance while preserving perceived sharpness.
 	constexpr int COLOR_NOISE_REDUCTION_HALF_RES_RADIUS_THRESHOLD = 5;
+	// UI strength is expressed as percentage [0..100], while shader strength is [0..1.5].
+	constexpr float COLOR_NOISE_REDUCTION_STRENGTH_UI_TO_SHADER = 1.5f;
 }
 
 ToolBarRenderEnhance::ToolBarRenderEnhance(IDataDispatcher& dataDispatcher, QWidget* parent, float guiScale)
@@ -88,7 +90,10 @@ void ToolBarRenderEnhance::onActiveCamera(IGuiData* data)
 
 	const ColorNoiseReduction& noiseReductionSettings = displayParameters.m_colorNoiseReduction;
 	int radiusValue = std::clamp(static_cast<int>(std::round(noiseReductionSettings.radius)), m_ui.slider_edgeAwareRadius->minimum(), m_ui.slider_edgeAwareRadius->maximum());
-	int strengthValue = std::clamp(static_cast<int>(std::round(noiseReductionSettings.strength * 100.f)), m_ui.slider_edgeAwareBlend->minimum(), m_ui.slider_edgeAwareBlend->maximum());
+	int strengthValue = std::clamp(
+		static_cast<int>(std::round((noiseReductionSettings.strength / COLOR_NOISE_REDUCTION_STRENGTH_UI_TO_SHADER) * 100.f)),
+		m_ui.slider_edgeAwareBlend->minimum(),
+		m_ui.slider_edgeAwareBlend->maximum());
 
 	const DepthLining& liningSettings = displayParameters.m_depthLining;
 	int liningStrength = std::clamp(static_cast<int>(std::round((liningSettings.strength / DEPTH_LINING_STRENGTH_UI_SCALE) * 100.f)), m_ui.slider_depthLiningStrength->minimum(), m_ui.slider_depthLiningStrength->maximum());
@@ -152,7 +157,7 @@ ColorNoiseReduction ToolBarRenderEnhance::getColorNoiseReductionFromUi() const
 
 	settings.radius = static_cast<float>(radiusUi);
 	settings.depthAwareThreshold = static_cast<float>(COLOR_NOISE_REDUCTION_DEPTH_FIXED) / 100.f;
-	settings.strength = strengthUi / 100.f;
+	settings.strength = (strengthUi / 100.f) * COLOR_NOISE_REDUCTION_STRENGTH_UI_TO_SHADER;
 	settings.resolutionScale = (radiusUi >= COLOR_NOISE_REDUCTION_HALF_RES_RADIUS_THRESHOLD)
 		? COLOR_NOISE_REDUCTION_RESOLUTION_SCALES[1]
 		: COLOR_NOISE_REDUCTION_RESOLUTION_SCALES[0];

@@ -503,7 +503,7 @@ void PostRenderer::processColorNoiseReduction(VkCommandBuffer _cmdBuffer, const 
     // even with legacy/hand-edited project files.
     const float radius = std::clamp(blurSettings.radius, 0.0f, 20.0f);
     const float depthAwareThreshold = std::clamp(blurSettings.depthAwareThreshold, 0.0001f, 1.0f);
-    const float strength = std::clamp(blurSettings.strength, 0.0f, 1.0f);
+    const float strength = std::clamp(blurSettings.strength, 0.0f, 1.5f);
     const float resolutionScale = std::clamp(blurSettings.resolutionScale, 0.1f, 1.0f);
 
     struct

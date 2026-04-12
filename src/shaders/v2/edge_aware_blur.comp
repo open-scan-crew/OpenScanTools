@@ -43,6 +43,8 @@ void main()
    }
 
    // Parameters
+   float strengthClamped = clamp(pc.strength, 0.0, 1.5);
+   float strengthNormalized = clamp(strengthClamped / 1.5, 0.0, 1.0);
    int r = int(clamp(pc.radius, 1.0, 20.0));
    float depthSigma = max(pc.depthAwareThreshold, 1e-4);
    float radiusNorm = float(r);
@@ -75,7 +77,9 @@ void main()
          // robust color gating rejects chromatic outliers inside the local neighborhood.
          vec3 colorDelta = sampleColor - centerColor.rgb;
          float colorDist2 = dot(colorDelta, colorDelta);
-         float colorSigma = mix(0.025, 0.20, clamp(pc.strength, 0.0, 1.0));
+         // Pass 2 request: allow 1.5x stronger maximum effect compared to previous range.
+         // We model this by extending the upper chroma tolerance envelope.
+         float colorSigma = mix(0.025, 0.29, strengthNormalized);
          float colorWeight = 1.0 / (1.0 + colorDist2 / (colorSigma * colorSigma));
 
          float w = spatialWeight * depthWeight * colorWeight;
@@ -85,6 +89,6 @@ void main()
    }
 
    vec3 stabilizedColor = (accumWeight > 0.0) ? (accumColor / accumWeight) : centerColor.rgb;
-   vec3 outputColor = mix(centerColor.rgb, stabilizedColor, clamp(pc.strength, 0.0, 1.0));
+   vec3 outputColor = mix(centerColor.rgb, stabilizedColor, clamp(strengthClamped, 0.0, 1.0));
    imageStore(inOutColorImage, gid, vec4(outputColor, centerColor.a));
 }
