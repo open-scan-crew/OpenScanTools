@@ -62,7 +62,8 @@ ContextState ContextExportStep::feedMessage(IMessage* message, Controller& contr
 
 ContextState ContextExportStep::launch(Controller& controller)
 {
-    IOLOG << "ContextExportStep launch " << LOGENDL;
+    // Intentionally keep this context quiet in production logs:
+    // previous step-by-step "launch X" traces were diagnostic noise.
 
     m_state = ContextState::running;
     ErrorType err(ErrorType::Success);
@@ -73,11 +74,9 @@ ContextState ContextExportStep::launch(Controller& controller)
     if (m_output.filename().wstring().find_first_of(L".") == std::wstring::npos)
         m_output += ".step";
 
-    IOLOG << "ContextExportStep launch 1" << LOGENDL;
 
     setRootName(m_output.filename().stem().string());
 
-    IOLOG << "ContextExportStep launch 2" << LOGENDL;
 
     std::vector<SafePtr<AGraphNode>> listToExport;
     for (const SafePtr<AGraphNode>& exportObj : m_listToExport)
@@ -98,13 +97,11 @@ ContextState ContextExportStep::launch(Controller& controller)
             return ((readA->getUserIndex() < readB->getUserIndex()));
         });
 
-    IOLOG << "ContextExportStep launch 3 -- exportSize" << listToExport.size() << LOGENDL;
 
     std::map<xg::Guid, primitiveId> objToPrim;
 
     for (const SafePtr<AGraphNode>& exportObj : listToExport)
     {
-        IOLOG << "ContextExportStep launch 3.5 " << LOGENDL;
         primitiveId primId;
 
         ElementType type;
@@ -244,7 +241,6 @@ ContextState ContextExportStep::launch(Controller& controller)
         }
     }
 
-    //IOLOG << "ContextExportStep launch 3 -- pipingSize : " << m_pipingDirectory.size() << LOGENDL;
 
     /*
     for (auto pipingDirectory : m_pipingDirectory) {
@@ -267,7 +263,6 @@ ContextState ContextExportStep::launch(Controller& controller)
     }
     */
 
-    IOLOG << "ContextExportStep launch 4" << LOGENDL;
 
     std::wstring authName = L"NO_AUTHOR";
     ReadPtr<Author> rAuth = controller.getContext().getActiveAuthor().cget();
@@ -280,7 +275,6 @@ ContextState ContextExportStep::launch(Controller& controller)
     if (m_parameters.openFolderWindowsAfterExport)
         controller.updateInfo(new GuiDataOpenInExplorer(m_output));
 
-    IOLOG << "ContextExportStep launch 5" << LOGENDL;
 
     return (m_state = ContextState::done);
 }

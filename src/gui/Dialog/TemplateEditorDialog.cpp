@@ -25,7 +25,6 @@ TemplateEditorDialog::TemplateEditorDialog(IDataDispatcher &dataDispacher, QWidg
 							{sma::tFieldType::string, TEXT_TEMPLATEEDITOR_STRING }, })
 {
 	ui->setupUi(this);
-	GUI_LOG << "create TemplateEditorDialog" << LOGENDL;
 
 	m_defaultValueManagers.insert(std::pair<sma::tFieldType, std::pair<defaultValueWidgetGenerator, defaultValueGatherer>>(sma::tFieldType::string,
 		std::pair<defaultValueWidgetGenerator, defaultValueGatherer>(&TemplateEditorDialog::generateStringWidget, &TemplateEditorDialog::gatherStringWidget)));

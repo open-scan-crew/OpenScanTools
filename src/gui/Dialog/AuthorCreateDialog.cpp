@@ -12,12 +12,10 @@ AuthorCreateDialog::AuthorCreateDialog(IDataDispatcher& dataDispatcher, QWidget 
 
 	QObject::connect(ui->CancelBtn, SIGNAL(clicked()), this, SLOT(cancelCreation()));
 	QObject::connect(ui->OkBtn, SIGNAL(clicked()), this, SLOT(acceptCreation()));
-	GUI_LOG << "create AuthorCreateDialog" << LOGENDL;
 }
 
 AuthorCreateDialog::~AuthorCreateDialog()
 {
-	GUI_LOG << "destroy AuthorCreateDialog" << LOGENDL;
 	m_dataDispatcher.unregisterObserver(this);
 }
 
