@@ -2546,22 +2546,22 @@ Perspective</translation>
 <context>
     <name>DisplayPresetManager</name>
     <message>
-        <location filename="../../src/gui/DisplayPresetManager.cpp" line="1167"/>
+        <location filename="../../src/gui/DisplayPresetManager.cpp" line="1193"/>
         <source>Please enter a name for the preset.</source>
         <translation>Veuillez saisir un nom pour le préréglage.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/DisplayPresetManager.cpp" line="1173"/>
+        <location filename="../../src/gui/DisplayPresetManager.cpp" line="1199"/>
         <source>Initial cannot be used to name the preset. Please enter another name</source>
         <translation>Initial ne peut pas être utilisé. Veuillez saisir un autre nom</translation>
     </message>
     <message>
-        <location filename="../../src/gui/DisplayPresetManager.cpp" line="1178"/>
+        <location filename="../../src/gui/DisplayPresetManager.cpp" line="1204"/>
         <source>Raw rendering cannot be used to name the preset. Please enter another name</source>
         <translation>Raw rendering ne peut pas être utilisé. Veuillez saisir un autre nom</translation>
     </message>
     <message>
-        <location filename="../../src/gui/DisplayPresetManager.cpp" line="1184"/>
+        <location filename="../../src/gui/DisplayPresetManager.cpp" line="1210"/>
         <source>This name is already used and cannot be used to name the preset. Please enter another name</source>
         <translation>Ce nom est déjà utilisé. Veuillez entrer un autre nom</translation>
     </message>
@@ -7093,66 +7093,71 @@ Fichier non trouvé :
     </message>
     <message>
         <location filename="../../include/gui/texts/RenderingTexts.hpp" line="9"/>
+        <source>Cartoon RGB</source>
+        <translation>Cartoon RGB</translation>
+    </message>
+    <message>
+        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="10"/>
         <source>Intensity &amp; RGB</source>
         <translation>Intensité &amp; RVB</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="10"/>
+        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="11"/>
         <source>Colored</source>
         <translation>Coloré</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="11"/>
+        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="12"/>
         <source>Colored by Scans</source>
         <translation>Coloré par Scans</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="12"/>
+        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="13"/>
         <source>Colored by Clusters</source>
         <translation>Coloré par Groupes</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="13"/>
+        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="14"/>
         <source>Flat</source>
         <translation>Plat</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="14"/>
+        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="15"/>
         <source>Distance Ramp</source>
         <translation>Rampe de distance</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="15"/>
+        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="16"/>
         <source>Raw Distance Ramp</source>
         <translation>Rampe brute de distance</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="16"/>
+        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="17"/>
         <source>False Color</source>
         <translation>Fausse couleur</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="17"/>
+        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="18"/>
         <source>Normals Colored</source>
         <translation>Normales Colorées</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="20"/>
+        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="21"/>
         <source>Contrast</source>
         <translation>Contraste</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="21"/>
+        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="22"/>
         <source>Brightness</source>
         <translation>Luminosité</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="22"/>
+        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="23"/>
         <source>Saturation</source>
         <translation>Saturation</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="23"/>
+        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="24"/>
         <source>Luminance</source>
         <translation>Luminance</translation>
     </message>
@@ -11440,16 +11445,6 @@ Séparateur de colonnes: tabulation, espace, ou ;</translation>
         <translation>Paramètres d&apos;amélioration</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_renderenhancegroup.ui" line="62"/>
-        <source>This function adds a slight blur that can help soften the rendering. It is best to keep the values fairly low. </source>
-        <translation>Cette fonction ajoute un léger flou qui adoucit le rendu. Il est conseillé de garder des valeurs assez basses. </translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/toolbar_renderenhancegroup.ui" line="65"/>
-        <source>Smooth render</source>
-        <translation>Adoucir</translation>
-    </message>
-    <message>
         <location filename="../../src/gui/forms/toolbar_renderenhancegroup.ui" line="72"/>
         <source>Radius</source>
         <translation>Rayon</translation>
@@ -11458,11 +11453,6 @@ Séparateur de colonnes: tabulation, espace, ou ;</translation>
         <location filename="../../src/gui/forms/toolbar_renderenhancegroup.ui" line="99"/>
         <source>This feature accentuates contours.</source>
         <translation>Accentue les contours.</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/toolbar_renderenhancegroup.ui" line="189"/>
-        <source>Mix</source>
-        <translation>Mix</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_renderenhancegroup.ui" line="102"/>
@@ -11480,7 +11470,18 @@ Séparateur de colonnes: tabulation, espace, ou ;</translation>
         <translation>Sensibilité</translation>
     </message>
     <message>
+        <location filename="../../src/gui/forms/toolbar_renderenhancegroup.ui" line="62"/>
+        <source>Reduces color spray/noise on scans while preserving geometric edges.</source>
+        <translation>Réduit le bruit des couleurs et l&apos;effet moucheté tout en conservant les arêtes.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_renderenhancegroup.ui" line="65"/>
+        <source>Color noise reduction</source>
+        <translation>Réduction bruit</translation>
+    </message>
+    <message>
         <location filename="../../src/gui/forms/toolbar_renderenhancegroup.ui" line="92"/>
+        <location filename="../../src/gui/forms/toolbar_renderenhancegroup.ui" line="189"/>
         <source>Strength</source>
         <translation>Force</translation>
     </message>
@@ -11557,118 +11558,138 @@ Si activé, vous pouvez augmenter la saturation pour accentuer les couleurs.</tr
         <translation>Param. de rendu</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="35"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="55"/>
         <source>Two types of normals are available: normal type 1 (greyed out), normal type 2 (ticked).</source>
         <translation>Deux types de normales sont disponibles: type 1 (case grisée), type2 (case cochée).</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="48"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="552"/>
         <source>Fill in the empty spaces between the dots. If insufficient, also increase the point size.</source>
         <translation>Remplis les espaces vides entre les points. Si insuffisant, grossir également les points.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="287"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="493"/>
         <source>Max 240 steps.</source>
         <translation>240 nuances max.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="370"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="122"/>
         <source>Edit a preset that you aldready created. Initial/raw presets cannot be edited.</source>
         <translation>Editer un préréglage déjà existant.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="373"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="125"/>
         <source>Edit</source>
         <translation>Editer</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="390"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="48"/>
         <source>Presets</source>
         <translation>Préréglages</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="407"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="176"/>
         <source>Create a new preset. The created presets will be available in all projects.</source>
         <translation>Créer un nouveau préréglage. Les préréglages seront utilisables sur tous les projets.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="410"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="179"/>
         <source>New</source>
         <translation>Nouveau</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="427"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="35"/>
         <source>Hue</source>
         <translation>Teinte</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="38"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="58"/>
         <source>Normals</source>
         <translation>Normales</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="420"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="78"/>
         <source>Transp</source>
         <translation>Transp</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="312"/>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="319"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="518"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="525"/>
         <source>These values apply to tags, points, spheres, cylinders. The ramps on the boxes are determined by their thickness (Z, blue axis).</source>
         <translation>Ces valeurs s&apos;appliquent aux tags, points, sphères, cylindres. Les rampes sur les boites sont déterminées par leur épaisseur (Z, axe bleu).</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="380"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="418"/>
         <source>Point size</source>
         <translation>Taille point</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="202"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="319"/>
         <source>Contrast</source>
         <translation>Contraste</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="161"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="278"/>
         <source>Brightness</source>
         <translation>Luminosité</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="387"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="45"/>
         <source>Use this section to save renderings and visibility parameters. The initial/raw presets are provided as standard and cannot be deleted.</source>
         <translation>Utilisez cette section pour enregistrer les rendus. Les rendus initial/raw sont fournis par défaut et ne peuvent être modifiés.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="400"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="411"/>
         <source>Selected Color</source>
         <translation>Couleur sélectionnée</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="273"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="479"/>
         <source>Ramp Steps</source>
         <translation>Nbre couleurs</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="235"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="559"/>
+        <source>%</source>
+        <translation>%</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="594"/>
         <source>Mode</source>
         <translation>Mode</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="437"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="601"/>
+        <source>Sat min</source>
+        <translation>Sat min</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="608"/>
+        <source>Levels</source>
+        <translation>Niveaux</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="641"/>
+        <source>Sat levels</source>
+        <translation>Niv sat</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="394"/>
         <source>Objects transp.</source>
         <translation>Transp. objets</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="363"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="186"/>
         <source>Gap filling</source>
         <translation>Rempl. espaces</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="280"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="486"/>
         <source>Ramp Min</source>
         <translation>Rampe Min</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="326"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="532"/>
         <source>Ramp Max</source>
         <translation>Rampe Max</translation>
     </message>

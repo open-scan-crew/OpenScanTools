@@ -179,7 +179,7 @@ CameraNode::CameraNode(const std::wstring& name, IDataDispatcher& dataDispatcher
     registerGuiDataFunction(guiDType::renderAlphaObjectsRendering, &CameraNode::onRenderAlphaObjects);
     registerGuiDataFunction(guiDType::renderPostRenderingNormals, &CameraNode::onRenderNormals);
     registerGuiDataFunction(guiDType::renderAmbientOcclusion, &CameraNode::onRenderAmbientOcclusion);
-    registerGuiDataFunction(guiDType::renderEdgeAwareBlur, &CameraNode::onRenderEdgeAwareBlur);
+    registerGuiDataFunction(guiDType::renderColorNoiseReduction, &CameraNode::onRenderColorNoiseReduction);
     registerGuiDataFunction(guiDType::renderDepthLining, &CameraNode::onRenderDepthLining);
     registerGuiDataFunction(guiDType::renderRampScale, &CameraNode::onRenderRampScale);
     registerGuiDataFunction(guiDType::renderColorimetricFilter, &CameraNode::onRenderColorimetricFilter);
@@ -2596,10 +2596,10 @@ void CameraNode::onRenderAmbientOcclusion(IGuiData* data)
     sendNewUIViewPoint();
 }
 
-void CameraNode::onRenderEdgeAwareBlur(IGuiData* data)
+void CameraNode::onRenderColorNoiseReduction(IGuiData* data)
 {
-    auto blurData = static_cast<GuiDataEdgeAwareBlur*>(data);
-    m_edgeAwareBlur = blurData->m_blur;
+    auto blurData = static_cast<GuiDataColorNoiseReduction*>(data);
+    m_colorNoiseReduction = blurData->m_blur;
 
     sendNewUIViewPoint();
 }
