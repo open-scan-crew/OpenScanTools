@@ -23,7 +23,6 @@ TemplateManagerDialog::TemplateManagerDialog(IDataDispatcher &dataDispacher, QWi
 	m_ui->setupUi(this);
 	m_templateEditorDialog.hide();
 	m_templateNameDialog.hide();
-	GUI_LOG << "create TemplateManagerDialog" << LOGENDL;
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::sendTemplateList);
 	m_ui->templateList->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
@@ -45,7 +44,6 @@ TemplateManagerDialog::TemplateManagerDialog(IDataDispatcher &dataDispacher, QWi
 
 TemplateManagerDialog::~TemplateManagerDialog()
 {
-	GUI_LOG << "delete TemplateManagerDialog" << LOGENDL;
 	m_dataDispatcher.sendControl(new control::tagTemplate::SaveTemplates);
 	m_dataDispatcher.unregisterObserver(this);
 }
@@ -76,7 +74,6 @@ void TemplateManagerDialog::clickOnItem(const QModelIndex &idx)
 		m_ui->ExportBtn->setEnabled(false);
 	}
 
-	GUI_LOG << "click on item " << tempNode->text().toStdWString() << LOGENDL;
 }
 
 void TemplateManagerDialog::receiveTemplateList(IGuiData * data)
@@ -134,7 +131,6 @@ void TemplateManagerDialog::deleteTemplate()
 
 void TemplateManagerDialog::showTreeMenu(QPoint p)
 {
-	GUI_LOG << "show Tree Menu" << LOGENDL;
 
 	m_idSaved = m_ui->templateList->indexAt(p);
 	if (m_idSaved.isValid() == false)
@@ -159,7 +155,6 @@ void TemplateManagerDialog::showTreeMenu(QPoint p)
 
 void TemplateManagerDialog::newTemplate()
 {
-	GUI_LOG << "add new template" << LOGENDL;
 	m_templateNameDialog.show();
 }
 

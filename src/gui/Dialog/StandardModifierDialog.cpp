@@ -35,7 +35,6 @@ StandardModifierDialog::StandardModifierDialog(IDataDispatcher& dataDispatcher, 
 
 StandardModifierDialog::~StandardModifierDialog()
 {
-	GUI_LOG << "destroy StandardModifierDialog" << LOGENDL;
 }
 
 void StandardModifierDialog::getList(IGuiData *data)
@@ -143,19 +142,13 @@ void StandardModifierDialog::renameElem()
 
 void StandardModifierDialog::deleteElem()
 {
-	std::wstringstream ss;
 	QModelIndexList list = m_ui.listView->selectionModel()->selectedIndexes();
-
-	int i = 0;
 
 	foreach(const QModelIndex &index, list)
 	{
-		ss << ((i == 0) ? "" : ", ");
 		ItemNode *element = static_cast<ItemNode*>(model->itemFromIndex(index));
-		ss << element->getWStrData();
 		m_dataDispatcher.sendControl(new control::standards::RemoveItemFromList(m_list, std::stod(element->getWStrData()), m_type));
 	}
-	GUI_LOG << "delete " << ss.str() << LOGENDL;
 }
 
 void StandardModifierDialog::clearList()

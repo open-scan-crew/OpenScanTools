@@ -11,12 +11,10 @@ TagTemplateNameDialog::TagTemplateNameDialog(IDataDispatcher& dataDispatcher, QW
 
 	QObject::connect(ui->CancelBtn, SIGNAL(clicked()), this, SLOT(cancelCreation()));
 	QObject::connect(ui->okBtn, SIGNAL(clicked()), this, SLOT(acceptCreation()));
-	GUI_LOG << "create TagTemplateNameDialog" << LOGENDL;
 }
 
 TagTemplateNameDialog::~TagTemplateNameDialog()
 {
-	GUI_LOG << "destroy TagTemplateNameDialog" << LOGENDL;
 	m_dataDispatcher.unregisterObserver(this);
 }
 
