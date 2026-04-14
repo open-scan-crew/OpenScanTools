@@ -10,12 +10,10 @@ AListNameDialog::AListNameDialog(IDataDispatcher& dataDispatcher, QWidget *paren
 
 	QObject::connect(m_ui.CancelBtn, SIGNAL(clicked()), this, SLOT(cancelCreation()));
 	QObject::connect(m_ui.okBtn, SIGNAL(clicked()), this, SLOT(acceptCreation()));
-	GUI_LOG << "create AListNameDialog" << LOGENDL;
 }
 
 AListNameDialog::~AListNameDialog()
 {
-	GUI_LOG << "destroy AListNameDialog" << LOGENDL;
 	m_dataDispatcher.unregisterObserver(this);
 }
 

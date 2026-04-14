@@ -15,7 +15,6 @@ DialogRecentProjects::DialogRecentProjects(IDataDispatcher& dataDispatcher, QWid
 	this->show();
 	setModal(true);
 	
-	GUI_LOG << "create DialogRecentProjects" << LOGENDL;
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::sendRecentProjects);
 
@@ -27,7 +26,6 @@ DialogRecentProjects::DialogRecentProjects(IDataDispatcher& dataDispatcher, QWid
 
 DialogRecentProjects::~DialogRecentProjects()
 {
-	GUI_LOG << "destroy DialogRecentProjects " << LOGENDL;
 	m_dataDispatcher.unregisterObserver(this);
 }
 
