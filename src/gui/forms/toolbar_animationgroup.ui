@@ -240,6 +240,16 @@ In case you define an animation between viewpoints with positions as time, this 
      </property>
     </widget>
    </item>
+   <item row="2" column="8">
+    <widget class="QCheckBox" name="lockImageSettingsCheckBox">
+     <property name="toolTip">
+      <string>Keep current image settings when opening a viewpoint from the tree.</string>
+     </property>
+     <property name="text">
+      <string>Lock image settings</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources/>

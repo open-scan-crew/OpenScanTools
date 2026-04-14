@@ -240,6 +240,7 @@ CameraNode::CameraNode(const std::wstring& name, IDataDispatcher& dataDispatcher
     //Near-far distances
     registerGuiDataFunction(guiDType::renderPerspectiveZ, &CameraNode::onRenderPerspectiveZ);
     registerGuiDataFunction(guiDType::renderOrthographicZ, &CameraNode::onRenderOrthographicZ);
+    registerGuiDataFunction(guiDType::renderViewpointImageSettingsLock, &CameraNode::onRenderViewpointImageSettingsLock);
 }
 
 CameraNode::CameraNode(const CameraNode& camera)
@@ -672,7 +673,8 @@ bool CameraNode::animateSimpleTrajectory()
         {
             //Note(Aurélien) #363 do stuff
             ReadPtr<ViewPointNode> rVp = m_animation.begin()->cget();
-            static_cast<DisplayParameters&>(*this) = *&rVp;
+            // Keep current image export toolbar settings when requested by the animation toolbar lock.
+            copyDisplayParametersFromViewpoint(static_cast<DisplayParameters&>(*this), static_cast<const DisplayParameters&>(*&rVp), m_preserveImageSettingsOnViewpointNavigation);
             applyProjection(*&rVp);
             m_quaternion = rVp->getOrientation();
             m_dataDispatcher.sendControl(new control::viewpoint::UpdateStatesFromViewpoint(*m_animation.begin()));
@@ -2980,6 +2982,12 @@ void CameraNode::onRenderOrthographicZ(IGuiData* data)
     }
 
     m_savedCameraParams[(int)ProjectionMode::Orthographic].setOrthographicZBounds(castData->m_zBounds);
+}
+
+void CameraNode::onRenderViewpointImageSettingsLock(IGuiData* data)
+{
+    const auto lockData = static_cast<GuiDataRenderViewpointImageSettingsLock*>(data);
+    m_preserveImageSettingsOnViewpointNavigation = lockData->m_lockImageSettings;
 }
 
 //FROM Camera

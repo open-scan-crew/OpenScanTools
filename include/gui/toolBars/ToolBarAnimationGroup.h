@@ -28,6 +28,7 @@ public:
 
 private:
 	void onProjectLoad(IGuiData* keyValue);
+	void onProjectProperties(IGuiData* keyValue);
 	void onProjectTreeActualize(IGuiData* keyValue);
 	void onAnimationToolbarState(IGuiData* keyValue);
 	void onAnimationPlaybackStart(IGuiData* keyValue);
@@ -52,6 +53,7 @@ private slots:
 	void slotNewViewPointAnimationConfig();
 	void slotEditViewPointAnimationConfig();
 	void slotAnimationConfigChanged(int index);
+	void slotLockImageSettingsToggled(bool checked);
 	void onAnimationData(IGuiData* keyValue);
 	void slotChronometerTick();
 	void updateOrbitalDegreesUI();

@@ -833,4 +833,34 @@ namespace control::project
     {
         return (ControlType::showPropertiesProject);
     }
+
+    SetAnimationLockImageSettings::SetAnimationLockImageSettings(bool locked)
+        : m_locked(locked)
+    {}
+
+    SetAnimationLockImageSettings::~SetAnimationLockImageSettings()
+    {}
+
+    void SetAnimationLockImageSettings::doFunction(Controller& controller)
+    {
+        ProjectInfos& infos = controller.getContext().getProjectInfo();
+        infos.m_animationLockImageSettings = m_locked;
+        controller.updateInfo(new GuiDataProjectProperties(controller.getContext(), controller.getGraphManager(), false));
+        controller.updateInfo(new GuiDataRenderViewpointImageSettingsLock(m_locked));
+    }
+
+    bool SetAnimationLockImageSettings::canUndo() const
+    {
+        return false;
+    }
+
+    void SetAnimationLockImageSettings::undoFunction(Controller& controller)
+    {
+        (void)controller;
+    }
+
+    ControlType SetAnimationLockImageSettings::getType() const
+    {
+        return ControlType::setAnimationLockImageSettingsProject;
+    }
 }

@@ -472,6 +472,16 @@ public:
 	const bool m_canStart;
 };
 
+class GuiDataRenderViewpointImageSettingsLock : public IGuiData
+{
+public:
+	GuiDataRenderViewpointImageSettingsLock(bool lockImageSettings);
+	~GuiDataRenderViewpointImageSettingsLock() {}
+	virtual guiDType getType() override;
+
+	const bool m_lockImageSettings;
+};
+
 class GuiDataSendViewPointAnimationData : public IGuiData
 {
 public:

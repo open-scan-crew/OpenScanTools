@@ -39,6 +39,7 @@ ProjectInfos::ProjectInfos(const ProjectInfos& p)
 	this->m_defaultMaxRampDistance = p.m_defaultMaxRampDistance;
 	// Keep ramp defaults consistent across ProjectInfos copies.
 	this->m_defaultRampSteps = p.m_defaultRampSteps;
+	this->m_animationLockImageSettings = p.m_animationLockImageSettings;
 	this->m_defaultScan = p.m_defaultScan;
 	this->m_importScanTranslation = p.m_importScanTranslation;
 	this->m_id = p.m_id;
