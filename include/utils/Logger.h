@@ -6,6 +6,7 @@
 #include <sstream>
 #include <ostream>
 #include <mutex>
+#include <cstddef>
 #include <glm/glm.hpp>
 
 #include "utils/Utils.h"
@@ -71,11 +72,13 @@ public:
 private:
     friend class SubLogger;
     static void flushLog(LoggerMode mode, const std::stringbuf& log);
+    static void cleanupOldLogs(const std::filesystem::path& logDirectory, const std::filesystem::path& currentLogFile);
 
 private:
     static std::mutex loggerMutex;
     static bool modeEnabled[LoggerMode::LOGGER_MODE_MAX_ENUM];
     static std::ofstream out;
+    static constexpr std::size_t maxLogFilesToKeep = 20;
 
     static thread_local SubLogger trueLogger;
     static SubLogger deadEndLogger;
