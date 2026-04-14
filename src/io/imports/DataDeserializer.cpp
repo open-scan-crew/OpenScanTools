@@ -3146,6 +3146,12 @@ bool DataDeserializer::DeserializeProjectInfos(const nlohmann::json& json, const
         data.m_defaultRampSteps = 8;
     }
 
+    // Backward compatibility: old projects don't carry this key.
+    if (json.find(Key_AnimationLockImageSettings) != json.end())
+        data.m_animationLockImageSettings = json.at(Key_AnimationLockImageSettings).get<bool>();
+    else
+        data.m_animationLockImageSettings = false;
+
     if (json.find(Key_DefaultScanId) != json.end())
         data.m_defaultScan = xg::Guid(json.at(Key_DefaultScanId).get<std::string>());
     else

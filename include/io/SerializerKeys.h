@@ -194,6 +194,7 @@
 #define Key_DefaultLengthThresholdClip "DefaultLengthThresholdClip"
 #define Key_DefaultRampDistances "DefaultRampDistances"
 #define Key_DefaultRampSteps "DefaultRampSteps"
+#define Key_AnimationLockImageSettings "AnimationLockImageSettings"
 #define Key_ImportScanTranslation "ImportScanTranslation"
 #define Key_Project_Id "ProjectId"
 #define Key_CustomScanFolderPath "CustomScanFolderPath"

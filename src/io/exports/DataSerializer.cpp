@@ -1010,6 +1010,7 @@ nlohmann::json DataSerializer::Serialize(const ProjectInfos& data)
 	json[Key_DefaultLengthThresholdClip] = data.m_defaultLengthThresholdClip;
 	json[Key_DefaultRampDistances] = { data.m_defaultMinRampDistance, data.m_defaultMaxRampDistance };
 	json[Key_DefaultRampSteps] = data.m_defaultRampSteps;
+	json[Key_AnimationLockImageSettings] = data.m_animationLockImageSettings;
 	json[Key_ImportScanTranslation] = { data.m_importScanTranslation.x, data.m_importScanTranslation.y, data.m_importScanTranslation.z };
 	json[Key_Project_Id] = data.m_id;
 	json[Key_CustomScanFolderPath] = Utils::to_utf8(data.m_customScanFolderPath.wstring());

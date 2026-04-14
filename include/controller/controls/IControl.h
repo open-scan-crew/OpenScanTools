@@ -63,10 +63,11 @@ enum class ControlType
 	editProject, //Free
 	saveCreateProject,
 	saveCloseProject, //Free
-	saveCloseLoadProject, //Free
-	saveCloseLoadProjectCentral, //Free
-	saveQuitProject, //Free
-	functionImportScanProject,
+		saveCloseLoadProject, //Free
+		saveCloseLoadProjectCentral, //Free
+		saveQuitProject, //Free
+		setAnimationLockImageSettingsProject, //Free
+		functionImportScanProject,
 	importScanProject,
 	applyProjectTransformation, //Free
 	deleteScanProject,
