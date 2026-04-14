@@ -2894,7 +2894,7 @@ void CameraNode::moveToData(const SafePtr<AGraphNode>& data)
     sendNewUIViewPoint();
 }
 
-void CameraNode::snapToViewPoint(const SafePtr<ViewPointNode>& viewpoint)
+void CameraNode::snapToViewPoint(const SafePtr<ViewPointNode>& viewpoint, bool preserveImageSettings)
 {
     ReadPtr<ViewPointNode> rViewpoint = viewpoint.cget();
     if (!rViewpoint)
