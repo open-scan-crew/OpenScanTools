@@ -2894,7 +2894,19 @@ void CameraNode::moveToData(const SafePtr<AGraphNode>& data)
     sendNewUIViewPoint();
 }
 
-void CameraNode::snapToViewPoint(const SafePtr<ViewPointNode>& viewpoint)
+void CameraNode::snapToViewPoint(const SafePtr<ViewPointNode>& viewpoint, bool preserveImageSettings)
+{
+    ReadPtr<ViewPointNode> rViewpoint = viewpoint.cget();
+    if (!rViewpoint)
+        return;
+
+    copyDisplayParametersFromViewpoint(static_cast<DisplayParameters&>(*this), static_cast<const DisplayParameters&>(*&rViewpoint), false);
+    applyProjection(*&rViewpoint);
+    setPosition(rViewpoint->getCenter());
+    m_quaternion = glm::normalize(rViewpoint->getOrientation());
+}
+
+void CameraNode::snapToViewPointForPlayback(const SafePtr<ViewPointNode>& viewpoint)
 {
     snapToViewPoint(viewpoint, false);
 }
