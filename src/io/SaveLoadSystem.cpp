@@ -127,6 +127,10 @@ std::unordered_map<StandardType, std::vector<StandardList>> ImportStandards(cons
         return (standards);
     }
 
+    // Standards are optional in object files. Absence of the key is not an import error.
+    if (jsonTemplates.find(Key_Standards) == jsonTemplates.end())
+        return (standards);
+
     if (!DataDeserializer::DeserializeStandards(jsonTemplates, standards))
         IOLOG << "Error import standards" << LOGENDL;
 
@@ -1120,16 +1124,28 @@ void SaveLoadSystem::importJsonProject(const std::filesystem::path& importPath, 
 
     for (const std::filesystem::path& p : objectPathsList)
     {
+        // Ignore folders and unrelated files to avoid noisy "Cannot find" import logs.
+        if (!std::filesystem::is_regular_file(p))
+            continue;
+
+        const std::filesystem::path extension = p.extension();
+        const bool isObjectPayload = extension == File_Extension_Tags
+                                  || extension == File_Extension_Objects
+                                  || extension == File_Extension_ViewPoints;
+
+        if (!isObjectPayload)
+            continue;
+
         controller.getContext().setUserLists(ImportLists<UserList>(p));
         controller.getContext().setTemplates(ImportTemplates(controller, p));
         for (const auto& standardType : ImportStandards(p))
             controller.getContext().setStandards(standardType.second, standardType.first);
 
-        if (p.extension() == File_Extension_Tags)
+        if (extension == File_Extension_Tags)
             LoadTagFile(controller, loadObjs, p);
-        else if (p.extension() == File_Extension_Objects)
+        else if (extension == File_Extension_Objects)
             LoadObjFile(controller, loadObjs, p);
-        else if (p.extension() == File_Extension_ViewPoints)
+        else if (extension == File_Extension_ViewPoints)
             LoadViewPointsFile(controller, loadObjs, p);
     }
 
@@ -2097,16 +2113,28 @@ void SaveLoadSystem::importAuthorObjects(const std::vector<std::filesystem::path
     std::unordered_map<SafePtr<AGraphNode>, std::pair<xg::Guid, nlohmann::json>> loadObjs;
     for (const std::filesystem::path& p : importFiles)
     {
+        // Keep import resilient to folder selections and unsupported files.
+        if (!std::filesystem::is_regular_file(p))
+            continue;
+
+        const std::filesystem::path extension = p.extension();
+        const bool isObjectPayload = extension == File_Extension_Tags
+                                  || extension == File_Extension_Objects
+                                  || extension == File_Extension_ViewPoints;
+
+        if (!isObjectPayload)
+            continue;
+
         controller.getContext().setUserLists(ImportLists<UserList>(p));
         controller.getContext().setTemplates(ImportTemplates(controller, p));
         for (const auto& standardType : ImportStandards(p))
             controller.getContext().setStandards(standardType.second, standardType.first);
 
-        if (p.extension() == File_Extension_Tags)
+        if (extension == File_Extension_Tags)
             LoadTagFile(controller, loadObjs, p);
-        else if (p.extension() == File_Extension_Objects)
+        else if (extension == File_Extension_Objects)
             LoadObjFile(controller, loadObjs, p);
-        else if (p.extension() == File_Extension_ViewPoints)
+        else if (extension == File_Extension_ViewPoints)
             LoadViewPointsFile(controller, loadObjs, p);
     }
 

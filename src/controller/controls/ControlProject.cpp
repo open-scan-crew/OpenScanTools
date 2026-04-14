@@ -115,8 +115,10 @@ namespace control::project
             if (lang == LanguageType::Nothing)
                 lang = Config::getLanguage();
 
+            // Keep project bootstrap files consistent with what the loader expects.
             SaveLoadSystem::ExportTemplates(sma::GenerateDefaultTemplates(lang), slsError, context.cgetProjectInternalInfo().getTemplatesFolderPath() / File_Templates);
             SaveLoadSystem::ExportLists(generateDefaultLists(lang), context.cgetProjectInternalInfo().getTemplatesFolderPath() / File_Lists);
+            SaveLoadSystem::ExportLists(generateDefaultPipeStandardList(), context.cgetProjectInternalInfo().getTemplatesFolderPath() / File_Pipes);
         }
         else
         {
