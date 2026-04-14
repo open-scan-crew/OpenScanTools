@@ -227,7 +227,7 @@ In case you define an animation between viewpoints with positions as time, this 
      </property>
     </widget>
    </item>
-   <item row="2" column="6" colspan="3">
+   <item row="2" column="6" colspan="2">
     <widget class="QPushButton" name="generateVideoPushButton">
      <property name="toolTip">
       <string>Generates a video that uses the animation settings.</string>
