@@ -194,7 +194,12 @@ public:
     void setOrthoHeight(double height);
 
     void moveToData(const SafePtr<AGraphNode>& data);
-    void snapToViewPoint(const SafePtr<ViewPointNode>& viewpoint, bool preserveImageSettings = false);
+    // Legacy/default behavior: applying a viewpoint restores its full persisted state.
+    // Keep this for explicit viewpoint activation flows (e.g. double-click viewpoint).
+    void snapToViewPoint(const SafePtr<ViewPointNode>& viewpoint);
+    // Playback/export behavior: keep current image toolbar settings while applying
+    // viewpoint camera/render state.
+    void snapToViewPointForPlayback(const SafePtr<ViewPointNode>& viewpoint);
 
     // Draw camera
     glm::vec3 getExamineTargetPosition() const;

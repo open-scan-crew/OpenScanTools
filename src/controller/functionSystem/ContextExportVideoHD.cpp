@@ -741,7 +741,7 @@ ContextState ContextExportVideoHD::launch(Controller& controller)
             // Snap directly to the first viewpoint (same expectation as animation Start):
             // no initial transition trajectory before frame 1 capture.
             // Video export in viewpoints mode must keep current toolbar image settings.
-            wCam->snapToViewPoint(m_viewpoints.front(), true);
+            wCam->snapToViewPointForPlayback(m_viewpoints.front());
             m_lastAppliedVisibilityViewpointIndex = 0;
             controller.getControlListener()->notifyUIControl(new control::viewpoint::UpdateStatesFromViewpoint(m_viewpoints.front()));
         }

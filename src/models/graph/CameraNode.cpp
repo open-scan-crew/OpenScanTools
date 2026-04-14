@@ -672,6 +672,8 @@ bool CameraNode::animateSimpleTrajectory()
         {
             //Note(Aurélien) #363 do stuff
             ReadPtr<ViewPointNode> rVp = m_animation.begin()->cget();
+            // Keep legacy behavior here: explicit viewpoint activation restores
+            // the full viewpoint state, including persisted image toolbar settings.
             static_cast<DisplayParameters&>(*this) = *&rVp;
             applyProjection(*&rVp);
             m_quaternion = rVp->getOrientation();
@@ -2898,7 +2900,19 @@ void CameraNode::snapToViewPoint(const SafePtr<ViewPointNode>& viewpoint, bool p
     if (!rViewpoint)
         return;
 
-    copyDisplayParametersFromViewpoint(static_cast<DisplayParameters&>(*this), static_cast<const DisplayParameters&>(*&rViewpoint), preserveImageSettings);
+    copyDisplayParametersFromViewpoint(static_cast<DisplayParameters&>(*this), static_cast<const DisplayParameters&>(*&rViewpoint), false);
+    applyProjection(*&rViewpoint);
+    setPosition(rViewpoint->getCenter());
+    m_quaternion = glm::normalize(rViewpoint->getOrientation());
+}
+
+void CameraNode::snapToViewPointForPlayback(const SafePtr<ViewPointNode>& viewpoint)
+{
+    ReadPtr<ViewPointNode> rViewpoint = viewpoint.cget();
+    if (!rViewpoint)
+        return;
+
+    copyDisplayParametersFromViewpoint(static_cast<DisplayParameters&>(*this), static_cast<const DisplayParameters&>(*&rViewpoint), true);
     applyProjection(*&rViewpoint);
     setPosition(rViewpoint->getCenter());
     m_quaternion = glm::normalize(rViewpoint->getOrientation());
