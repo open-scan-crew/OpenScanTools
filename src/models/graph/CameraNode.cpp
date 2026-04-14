@@ -141,6 +141,46 @@ Color32 interpolateColorHsvShortestPath(const Color32& start, const Color32& end
         static_cast<float>(start.a) + (static_cast<float>(end.a) - static_cast<float>(start.a)) * alpha));
     return normalizedRgbToColor32(utils::color::hsv2rgb(hsv), interpolatedAlpha);
 }
+
+// Copy full display parameters from a viewpoint to the camera while optionally
+// preserving the current image toolbar state (frame, ratios, W/H, alpha, format, AA...).
+// This is used by animation/video contexts where image export settings must remain
+// user-controlled and should not be overridden by viewpoint persisted values.
+void copyDisplayParametersFromViewpoint(DisplayParameters& cameraDisplay, const DisplayParameters& viewpointDisplay, bool preserveImageSettings)
+{
+    const bool previousImageUseFrame = cameraDisplay.m_imageUseFrame;
+    const bool previousImageShowGrid = cameraDisplay.m_imageShowGrid;
+    const bool previousImageRatioImageMode = cameraDisplay.m_imageRatioImageMode;
+    const int previousImageRatioImageIndex = cameraDisplay.m_imageRatioImageIndex;
+    const int previousImageRatioPrintIndex = cameraDisplay.m_imageRatioPrintIndex;
+    const bool previousImagePortrait = cameraDisplay.m_imagePortrait;
+    const uint32_t previousImageWidth = cameraDisplay.m_imageWidth;
+    const uint32_t previousImageHeight = cameraDisplay.m_imageHeight;
+    const bool previousImageAlpha = cameraDisplay.m_imageAlpha;
+    const int previousImageFormat = cameraDisplay.m_imageFormat;
+    const int previousImageAntialiasing = cameraDisplay.m_imageAntialiasing;
+    const int previousImageScaleIndex = cameraDisplay.m_imageScaleIndex;
+    const int previousImageDpiIndex = cameraDisplay.m_imageDpiIndex;
+
+    cameraDisplay = viewpointDisplay;
+
+    if (!preserveImageSettings)
+        return;
+
+    cameraDisplay.m_imageUseFrame = previousImageUseFrame;
+    cameraDisplay.m_imageShowGrid = previousImageShowGrid;
+    cameraDisplay.m_imageRatioImageMode = previousImageRatioImageMode;
+    cameraDisplay.m_imageRatioImageIndex = previousImageRatioImageIndex;
+    cameraDisplay.m_imageRatioPrintIndex = previousImageRatioPrintIndex;
+    cameraDisplay.m_imagePortrait = previousImagePortrait;
+    cameraDisplay.m_imageWidth = previousImageWidth;
+    cameraDisplay.m_imageHeight = previousImageHeight;
+    cameraDisplay.m_imageAlpha = previousImageAlpha;
+    cameraDisplay.m_imageFormat = previousImageFormat;
+    cameraDisplay.m_imageAntialiasing = previousImageAntialiasing;
+    cameraDisplay.m_imageScaleIndex = previousImageScaleIndex;
+    cameraDisplay.m_imageDpiIndex = previousImageDpiIndex;
+}
 }
 
 CameraNode::CameraNode(const std::wstring& name, IDataDispatcher& dataDispatcher)
@@ -632,6 +672,8 @@ bool CameraNode::animateSimpleTrajectory()
         {
             //Note(Aurélien) #363 do stuff
             ReadPtr<ViewPointNode> rVp = m_animation.begin()->cget();
+            // Keep legacy behavior here: explicit viewpoint activation restores
+            // the full viewpoint state, including persisted image toolbar settings.
             static_cast<DisplayParameters&>(*this) = *&rVp;
             applyProjection(*&rVp);
             m_quaternion = rVp->getOrientation();
@@ -757,7 +799,8 @@ bool CameraNode::startAnimation(const bool& isOffline, const uint64_t& step)
         return false;
     }
 
-    static_cast<DisplayParameters&>(*this) = *&rFirstViewpoint;
+    // During viewpoints animation playback, keep current image export toolbar values.
+    copyDisplayParametersFromViewpoint(static_cast<DisplayParameters&>(*this), static_cast<const DisplayParameters&>(*&rFirstViewpoint), true);
     applyProjection(*&rFirstViewpoint);
 
     setPosition(m_trajectory.front().point);
@@ -2857,7 +2900,19 @@ void CameraNode::snapToViewPoint(const SafePtr<ViewPointNode>& viewpoint)
     if (!rViewpoint)
         return;
 
-    static_cast<DisplayParameters&>(*this) = *&rViewpoint;
+    copyDisplayParametersFromViewpoint(static_cast<DisplayParameters&>(*this), static_cast<const DisplayParameters&>(*&rViewpoint), false);
+    applyProjection(*&rViewpoint);
+    setPosition(rViewpoint->getCenter());
+    m_quaternion = glm::normalize(rViewpoint->getOrientation());
+}
+
+void CameraNode::snapToViewPointForPlayback(const SafePtr<ViewPointNode>& viewpoint)
+{
+    ReadPtr<ViewPointNode> rViewpoint = viewpoint.cget();
+    if (!rViewpoint)
+        return;
+
+    copyDisplayParametersFromViewpoint(static_cast<DisplayParameters&>(*this), static_cast<const DisplayParameters&>(*&rViewpoint), true);
     applyProjection(*&rViewpoint);
     setPosition(rViewpoint->getCenter());
     m_quaternion = glm::normalize(rViewpoint->getOrientation());
