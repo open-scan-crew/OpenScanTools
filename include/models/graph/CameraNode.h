@@ -194,7 +194,7 @@ public:
     void setOrthoHeight(double height);
 
     void moveToData(const SafePtr<AGraphNode>& data);
-    void snapToViewPoint(const SafePtr<ViewPointNode>& viewpoint);
+    void snapToViewPoint(const SafePtr<ViewPointNode>& viewpoint, bool preserveImageSettings = false);
 
     // Draw camera
     glm::vec3 getExamineTargetPosition() const;

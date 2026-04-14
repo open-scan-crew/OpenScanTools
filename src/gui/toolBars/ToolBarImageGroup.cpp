@@ -255,6 +255,9 @@ ToolBarImageGroup::ToolBarImageGroup(IDataDispatcher& dataDispatcher, QWidget* p
 
 	QObject::connect(m_ui.formatComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarImageGroup::imageFormat);
 	QObject::connect(m_ui.checkBox_alphaImage, &QCheckBox::toggled, this, &ToolBarImageGroup::imageFormat);
+	// Keep antialiasing persistence aligned with the other HD image toolbar fields.
+	// Without this, viewpoints (which copy camera persisted settings) may miss the latest UI choice.
+	QObject::connect(m_ui.comboBox_antialiasHD, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int) { savePersistentSettingsToCamera(); });
 	QObject::connect(m_ui.comboBox_print, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarImageGroup::slotRatioChanged);
 	QObject::connect(m_ui.comboBox_ratioImage, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarImageGroup::slotRatioChanged);
 	QObject::connect(m_ui.comboBox_scale, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarImageGroup::slotScaleChanged);
