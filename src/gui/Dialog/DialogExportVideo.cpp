@@ -57,6 +57,12 @@ DialogExportVideo::DialogExportVideo(IDataDispatcher& dataDispatcher, QWidget *p
 
     connect(m_ui.mp4RadioButton, &QRadioButton::toggled, this, &DialogExportVideo::onOutputTypeChanged);
     connect(m_ui.imageRadioButton, &QRadioButton::toggled, this, &DialogExportVideo::onOutputTypeChanged);
+
+    // The option to choose between an HD image and a screenshot has been hidden and set to HD image by default, so as not to add an extra layer of complexity for the user. However, both options are still available in case they are needed in the future.
+    m_ui.imageHDRadioButton->setChecked(true);
+    m_ui.label_4->setVisible(false);
+    m_ui.widget->setVisible(false);
+
     onOutputTypeChanged();
 }
 
