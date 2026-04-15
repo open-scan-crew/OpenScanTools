@@ -1558,7 +1558,7 @@ du modèle comme les scans</translation>
         <translation>Annuler</translation>
     </message>
     <message>
-        <location filename="../../src/gui/Dialog/DialogRecentProjects.cpp" line="60"/>
+        <location filename="../../src/gui/Dialog/DialogRecentProjects.cpp" line="58"/>
         <source>You must select a project.</source>
         <translation>Vous devez sélectionner un projet.</translation>
     </message>
@@ -8376,22 +8376,22 @@ Les scans ayant la même phase que l&apos;objet sont clippés en mode intérieur
         <translation>Format:</translation>
     </message>
     <message>
-        <location filename="../../src/gui/toolBars/ToolBarImageGroup.cpp" line="300"/>
+        <location filename="../../src/gui/toolBars/ToolBarImageGroup.cpp" line="303"/>
         <source>Off</source>
         <translation>Aucun</translation>
     </message>
     <message>
-        <location filename="../../src/gui/toolBars/ToolBarImageGroup.cpp" line="301"/>
+        <location filename="../../src/gui/toolBars/ToolBarImageGroup.cpp" line="304"/>
         <source>Low</source>
         <translation>Bas</translation>
     </message>
     <message>
-        <location filename="../../src/gui/toolBars/ToolBarImageGroup.cpp" line="302"/>
+        <location filename="../../src/gui/toolBars/ToolBarImageGroup.cpp" line="305"/>
         <source>Mid</source>
         <translation>Moyen</translation>
     </message>
     <message>
-        <location filename="../../src/gui/toolBars/ToolBarImageGroup.cpp" line="303"/>
+        <location filename="../../src/gui/toolBars/ToolBarImageGroup.cpp" line="306"/>
         <source>High</source>
         <translation>Elevé</translation>
     </message>
@@ -10254,8 +10254,8 @@ alors la transparence ne pourra pas être interpolée.</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="152"/>
-        <source>Create a new animation that uses viewpoints.</source>
-        <translation>Créer une nouvelle animation qui utilise des points de vue.</translation>
+        <source>Create a new animation that uses viewpoints. Viewpoints must be in perspective mode.</source>
+        <translation>Créer une animation qui utilise les points de vue. Les points de vue doivent être en mode perspective.</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="155"/>
@@ -10303,6 +10303,20 @@ Pour les animations entre points de vue en mode &quot;Temps de position&quot;, c
         <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="239"/>
         <source>Generate video</source>
         <translation>Générer vidéo</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="246"/>
+        <source>Keep current image settings (resolution, frame, ratio, format, antialiasing) when opening a viewpoint from the tree.
+If unchecked, a double click on a viewpoint will load the viewpoint settings.
+Tip: Leave the checkbox selected for video editing.</source>
+        <translation>Conserver les paramètres d&apos;image actuels (résolution, cadre, ratio, format, antialiasing) lors de l&apos;ouverture d&apos;un point de vue à partir de l&apos;arborescence.
+Si cette option n&apos;est pas cochée, un double-clic sur un point de vue chargera les paramètres de ce dernier.
+Conseil: laissez cette case cochée pour l&apos;édition vidéo.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="251"/>
+        <source>Lock image settings</source>
+        <translation>Verrou param. img</translation>
     </message>
 </context>
 <context>

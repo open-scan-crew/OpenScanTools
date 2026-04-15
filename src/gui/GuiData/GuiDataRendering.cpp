@@ -439,6 +439,15 @@ guiDType GuiDataRenderAnimationToolbarState::getType()
 	return guiDType::renderAnimationToolbarState;
 }
 
+GuiDataRenderViewpointImageSettingsLock::GuiDataRenderViewpointImageSettingsLock(bool lockImageSettings)
+	: m_lockImageSettings(lockImageSettings)
+{}
+
+guiDType GuiDataRenderViewpointImageSettingsLock::getType()
+{
+	return guiDType::renderViewpointImageSettingsLock;
+}
+
 GuiDataRenderAnimationLoop::GuiDataRenderAnimationLoop(const bool& loop)
 	:_loop(loop)
 {}

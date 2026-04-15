@@ -3,6 +3,7 @@
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "controller/controls/ControlAnimation.h"
+#include "controller/controls/ControlProject.h"
 #include "gui/Dialog/DialogAnimationConfig.h"
 #include "gui/texts/ContextTexts.hpp"
 #include "utils/Logger.h"
@@ -45,20 +46,24 @@ ToolBarAnimationGroup::ToolBarAnimationGroup(IDataDispatcher &dataDispatcher, QW
 	connect(m_ui.toolButton_newViewpointAnimConfig, &QToolButton::clicked, this, &ToolBarAnimationGroup::slotNewViewPointAnimationConfig);
 	connect(m_ui.toolButton_editViewpointAnimConfig, &QToolButton::clicked, this, &ToolBarAnimationGroup::slotEditViewPointAnimationConfig);
 	connect(m_ui.comboBox_animationList, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ToolBarAnimationGroup::slotAnimationConfigChanged);
+	connect(m_ui.lockImageSettingsCheckBox, &QCheckBox::toggled, this, &ToolBarAnimationGroup::slotLockImageSettingsToggled);
 	m_ui.degreesLabel->setEnabled(false);
 	m_ui.verticalOrbitalCheckBox->setChecked(false);
+	m_ui.lockImageSettingsCheckBox->setChecked(false);
 	updateOrbitalDegreesUI();
 	slotAnimationModeChanged();
 
 	updateUI();
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);
+	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectDataPropertiesNoOpen);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::actualizeNodes);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::renderAnimationToolbarState);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::renderAnimationPlaybackStart);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::renderStopAnimation);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::sendViewPointAnimationData);
 	m_methods.insert({ guiDType::projectLoaded, &ToolBarAnimationGroup::onProjectLoad });
+	m_methods.insert({ guiDType::projectDataPropertiesNoOpen, &ToolBarAnimationGroup::onProjectProperties });
 	m_methods.insert({ guiDType::actualizeNodes, &ToolBarAnimationGroup::onProjectTreeActualize });
 	m_methods.insert({ guiDType::renderAnimationToolbarState, &ToolBarAnimationGroup::onAnimationToolbarState });
 	m_methods.insert({ guiDType::renderAnimationPlaybackStart, &ToolBarAnimationGroup::onAnimationPlaybackStart });
@@ -99,9 +104,21 @@ void ToolBarAnimationGroup::onProjectLoad(IGuiData* data)
 		m_animationConfigs.clear();
 		m_availableViewpoints.clear();
 		m_ui.comboBox_animationList->clear();
+		m_ui.lockImageSettingsCheckBox->setChecked(false);
+		// Keep camera behavior in sync even when project closes.
+		m_dataDispatcher.updateInformation(new GuiDataRenderViewpointImageSettingsLock(false));
 		resetChronometer();
 		updateUI();
 	}
+}
+
+void ToolBarAnimationGroup::onProjectProperties(IGuiData* data)
+{
+	auto projectData = static_cast<GuiDataProjectProperties*>(data);
+	m_ui.lockImageSettingsCheckBox->blockSignals(true);
+	m_ui.lockImageSettingsCheckBox->setChecked(projectData->m_projectInfo.m_animationLockImageSettings);
+	m_ui.lockImageSettingsCheckBox->blockSignals(false);
+	m_dataDispatcher.updateInformation(new GuiDataRenderViewpointImageSettingsLock(projectData->m_projectInfo.m_animationLockImageSettings));
 }
 
 void ToolBarAnimationGroup::onAnimationPlaybackStart(IGuiData* data)
@@ -374,6 +391,14 @@ void ToolBarAnimationGroup::slotAnimationConfigChanged(int index)
 	(void)index;
 	m_dataDispatcher.sendControl(new control::animation::RefreshViewpointsAnimationState());
 	updateUI();
+}
+
+void ToolBarAnimationGroup::slotLockImageSettingsToggled(bool checked)
+{
+	// Sync camera behavior immediately to avoid surprise when opening viewpoints.
+	m_dataDispatcher.updateInformation(new GuiDataRenderViewpointImageSettingsLock(checked));
+	// Persist at project level so state is restored on project reopen.
+	m_dataDispatcher.sendControl(new control::project::SetAnimationLockImageSettings(checked));
 }
 
 void ToolBarAnimationGroup::onAnimationData(IGuiData* keyValue)

@@ -59,6 +59,7 @@ enum class guiDType
 	renderAnimationSpeed,
 	renderAnimationLoop,
 	renderAnimationToolbarState,
+	renderViewpointImageSettingsLock,
 	renderRecordPerformance,
     renderImagesFormat,
     renderMeasureOptions,

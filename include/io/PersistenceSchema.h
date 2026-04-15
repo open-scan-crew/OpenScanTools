@@ -64,6 +64,7 @@ namespace persistence
 			{ "clipping.defaultDistances", Scope::ProjectOnly, Status::Implemented, Key_DefaultClipDistances, "" },
 			{ "clipping.defaultLengthThreshold", Scope::ProjectOnly, Status::Implemented, Key_DefaultLengthThresholdClip, "" },
 			{ "animation.length", Scope::ProjectOnly, Status::Planned, "", "" },
+			{ "animation.lockImageSettings", Scope::ProjectOnly, Status::Implemented, Key_AnimationLockImageSettings, "" },
 			{ "ramp.defaultDistances", Scope::ProjectOnly, Status::Implemented, Key_DefaultRampDistances, "" },
 			{ "ramp.defaultSteps", Scope::ProjectOnly, Status::Implemented, Key_DefaultRampSteps, "" }
 		};

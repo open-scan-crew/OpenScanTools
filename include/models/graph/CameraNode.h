@@ -321,6 +321,7 @@ private:
     void onRenderNavigationParameters(IGuiData* data);
     void onRenderPerspectiveZ(IGuiData* data);
     void onRenderOrthographicZ(IGuiData* data);
+    void onRenderViewpointImageSettingsLock(IGuiData* data);
 
 private:
     IDataDispatcher& m_dataDispatcher;
@@ -343,6 +344,8 @@ private:
 
     // Single-target viewpoint queue used by manual viewpoint navigation (moveToData).
     std::deque<SafePtr<ViewPointNode>> m_animation;
+    // Controls whether viewpoint navigation should preserve current image toolbar settings.
+    bool m_preserveImageSettingsOnViewpointNavigation = false;
     // Dedicated sequence used by toolbar-driven multi-viewpoint animation.
     std::deque<SafePtr<ViewPointNode>> m_animationPlaylist;
     std::deque<SafePtr<ViewPointNode>> m_initialAnimationPlaylist;

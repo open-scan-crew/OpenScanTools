@@ -149,7 +149,7 @@ The different viewpoints must be consistent to interpolate. For example, you can
       <bool>false</bool>
      </property>
      <property name="toolTip">
-      <string>Create a new animation that uses viewpoints.</string>
+      <string>Create a new animation that uses viewpoints. Viewpoints must be in perspective mode.</string>
      </property>
      <property name="text">
       <string>New</string>
@@ -227,7 +227,7 @@ In case you define an animation between viewpoints with positions as time, this 
      </property>
     </widget>
    </item>
-   <item row="2" column="6" colspan="3">
+   <item row="2" column="6" colspan="2">
     <widget class="QPushButton" name="generateVideoPushButton">
      <property name="toolTip">
       <string>Generates a video that uses the animation settings.</string>
@@ -237,6 +237,18 @@ In case you define an animation between viewpoints with positions as time, this 
      </property>
      <property name="text">
       <string>Generate video</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="8">
+    <widget class="QCheckBox" name="lockImageSettingsCheckBox">
+     <property name="toolTip">
+      <string>Keep current image settings (resolution, frame, ratio, format, antialiasing) when opening a viewpoint from the tree.
+If unchecked, a double click on a viewpoint will load the viewpoint settings.
+Tip: Leave the checkbox selected for video editing.</string>
+     </property>
+     <property name="text">
+      <string>Lock image settings</string>
      </property>
     </widget>
    </item>
