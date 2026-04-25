@@ -4,6 +4,7 @@
 #include "controller/Controller.h"
 #include "controller/IControlListener.h"
 #include "io/SaveLoadSystem.h"
+#include "pointCloudEngine/TlScanOverseer.h"
 
 #include "models/graph/PointCloudNode.h"
 #include "models/graph/GraphManager.h"
@@ -78,6 +79,12 @@ ContextState ContextImportScan::launch(Controller& controller)
 		if (error != SaveLoadSystem::ErrorCode::Success)
 		{
 			CONTROLLOG << "Error during ContextImportScan" << LOGENDL;
+			CONTROLLOG << "Import failure details: path=[" << inputFile
+				<< "], errorCode=" << static_cast<int>(error)
+				<< ", activeScans=" << TlScanOverseer::getInstance().getActiveScanCount()
+				<< ", pendingFree=" << TlScanOverseer::getInstance().getScansPendingFreeCount()
+				<< ", pendingCopy=" << TlScanOverseer::getInstance().getPendingCopyCount()
+				<< LOGENDL;
 			// Show a dedicated user-facing message for duplicate scans already present
 			// in project instead of reporting a generic failure.
 			QString log = (error == SaveLoadSystem::ErrorCode::Already_Exists)

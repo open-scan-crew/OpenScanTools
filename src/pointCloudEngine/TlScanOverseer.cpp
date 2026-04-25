@@ -68,11 +68,19 @@ void TlScanOverseer::setWorkingScansTransfo(const std::vector<tls::PointCloudIns
 
 bool TlScanOverseer::getScanGuid(std::filesystem::path _filePath, tls::ScanGuid& _scanGuid)
 {
+    const size_t activeBefore = getActiveScanCount();
+    const size_t pendingFreeBefore = getScansPendingFreeCount();
+    const size_t pendingCopyBefore = getPendingCopyCount();
+
     EmbeddedScan* newScan = new EmbeddedScan(_filePath);
     xg::Guid nullGuid;
 
     if (newScan->getGuid() == nullGuid)
     {
+        Logger::log(IOLog) << "ERROR - getScanGuid failed for path [" << _filePath
+            << "], returned null GUID. ActiveScans=" << activeBefore
+            << ", PendingFree=" << pendingFreeBefore
+            << ", PendingCopy=" << pendingCopyBefore << Logger::endl;
         _scanGuid = nullGuid;
         // No memory leak
         delete newScan; 
@@ -84,6 +92,10 @@ bool TlScanOverseer::getScanGuid(std::filesystem::path _filePath, tls::ScanGuid&
     if (it_scan != m_activeScans.end())
     {
         _scanGuid = it_scan->second->getGuid();
+        Logger::log(IOLog) << "INFO - getScanGuid reuse existing GUID {" << _scanGuid
+            << "} for path [" << _filePath << "]. ActiveScans=" << m_activeScans.size()
+            << ", PendingFree=" << m_scansToFree.size()
+            << ", PendingCopy=" << pendingCopyBefore << Logger::endl;
         // No memory leak
         delete newScan;
         return true;
@@ -91,6 +103,10 @@ bool TlScanOverseer::getScanGuid(std::filesystem::path _filePath, tls::ScanGuid&
 
     m_activeScans.insert({ newScan->getGuid(), newScan });
     _scanGuid = newScan->getGuid();
+    Logger::log(IOLog) << "INFO - getScanGuid registered GUID {" << _scanGuid
+        << "} for path [" << _filePath << "]. ActiveScans=" << m_activeScans.size()
+        << ", PendingFree=" << m_scansToFree.size()
+        << ", PendingCopy=" << pendingCopyBefore << Logger::endl;
 
     return true;
 }
@@ -133,6 +149,24 @@ bool  TlScanOverseer::isScanLeftTofree()
 {
     std::lock_guard<std::mutex> lock(m_activeMutex);
     return !m_scansToFree.empty();
+}
+
+size_t TlScanOverseer::getActiveScanCount()
+{
+    std::lock_guard<std::mutex> lock(m_activeMutex);
+    return m_activeScans.size();
+}
+
+size_t TlScanOverseer::getScansPendingFreeCount()
+{
+    std::lock_guard<std::mutex> lock(m_activeMutex);
+    return m_scansToFree.size();
+}
+
+size_t TlScanOverseer::getPendingCopyCount()
+{
+    std::lock_guard<std::mutex> lock(m_copyMutex);
+    return m_waitingCopies.size();
 }
 
 void TlScanOverseer::copyScanFile_async(const tls::ScanGuid& scanGuid, const std::filesystem::path& destPath, bool savePath, bool overrideDestination, bool removeSource)

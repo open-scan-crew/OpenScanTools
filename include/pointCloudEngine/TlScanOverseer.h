@@ -193,6 +193,11 @@ public:
     bool getScanPath(tls::ScanGuid scanGuid, std::filesystem::path& scanPath);
 
     bool isScanLeftTofree();
+    // Diagnostic helpers for large import investigations.
+    // They expose runtime queue sizes without changing functional behavior.
+    size_t getActiveScanCount();
+    size_t getScansPendingFreeCount();
+    size_t getPendingCopyCount();
     void copyScanFile_async(const tls::ScanGuid& scanGuid, const std::filesystem::path& destPath, bool savePath, bool overrideDestination, bool removeSource);
     void freeScan_async(tls::ScanGuid scanGuid, bool deletePhysicalFile);
     void resourceManagement_sync();

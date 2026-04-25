@@ -13,7 +13,9 @@
 #include <atomic>
 #include <cmath>
 #include <chrono>
+#include <cerrno>
 #include <condition_variable>
+#include <cstring>
 #include <future>
 #include <mutex>
 #include <set>
@@ -259,7 +261,15 @@ EmbeddedScan::EmbeddedScan(std::filesystem::path const& filepath)
     // open tls file
     if (!tls_img_file_.open(filepath, tls::usage::read))
     {
-        Logger::log(IOLog) << "An error occured while opening the TLS file '" << filepath << "'" << Logger::endl;
+        std::error_code ecExists;
+        const bool exists = std::filesystem::exists(filepath, ecExists);
+        std::error_code ecSize;
+        const uintmax_t fileSize = exists ? std::filesystem::file_size(filepath, ecSize) : 0;
+        Logger::log(IOLog) << "An error occured while opening the TLS file '" << filepath << "'"
+            << " (exists=" << exists
+            << ", size=" << (ecSize ? 0 : fileSize)
+            << ", errno=" << errno
+            << ", strerror=" << std::strerror(errno) << ")" << Logger::endl;
         return;
     }
 
