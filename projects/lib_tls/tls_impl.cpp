@@ -8,6 +8,8 @@
 #include "tls_transform.h"
 #include "utils.h"
 
+#include <cerrno>
+#include <cstring>
 #include <map>
 
 using namespace tls;
@@ -447,7 +449,9 @@ void ImageFile_p::open_file()
     fstr_.open(filepath_, std::ios::in | std::ios::out | std::ios::binary | std::ios::ate);
     if (fstr_.fail())
     {
-        std::string msg = "An unexpected error occured while opening the file '" + filepath_.string();
+        std::string msg = "An unexpected error occured while opening the file '" + filepath_.string()
+            + "' (errno=" + std::to_string(errno)
+            + ", strerror=" + std::string(std::strerror(errno)) + ")";
         results_.push_back({ result::ERROR, msg });
         return;
     }

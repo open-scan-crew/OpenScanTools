@@ -65,6 +65,7 @@
 #include <chrono>
 #include <thread>
 #include <cwctype>
+#include <cstdio>
 
 #define SAVELOADSYSTEMVERSION 2.0f
 
@@ -1303,7 +1304,19 @@ SafePtr<PointCloudNode> SaveLoadSystem::ImportNewTlsFile(const std::filesystem::
     tls::ScanGuid scanGuid;
     if (tlGetScanGuid(filePath, scanGuid) == false)
     {
-        IOLOG << "Error: " << filePath << " is not a valid tls file." << LOGENDL;
+        // Diagnostic detail for large-batch imports: this path currently fails before
+        // any node is created, often due to lower-level open/read failures.
+        const size_t activeScans = TlScanOverseer::getInstance().getActiveScanCount();
+        const size_t pendingFree = TlScanOverseer::getInstance().getScansPendingFreeCount();
+        const size_t pendingCopy = TlScanOverseer::getInstance().getPendingCopyCount();
+        IOLOG << "Error: " << filePath << " is not a valid tls file."
+            << " Diagnostics{activeScans=" << activeScans
+            << ", pendingFree=" << pendingFree
+            << ", pendingCopy=" << pendingCopy;
+#if defined(_WIN32)
+        IOLOG << ", maxStdio=" << _getmaxstdio();
+#endif
+        IOLOG << "}" << LOGENDL;
         errorCode = ErrorCode::Failed_To_Open;
         return SafePtr<PointCloudNode>();
     }
