@@ -78,7 +78,12 @@ ContextState ContextImportScan::launch(Controller& controller)
 		if (error != SaveLoadSystem::ErrorCode::Success)
 		{
 			CONTROLLOG << "Error during ContextImportScan" << LOGENDL;
-			controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString(TEXT_SCAN_IMPORT_FAILED).arg(QString::fromStdWString(inputFile.wstring()))));
+			// Show a dedicated user-facing message for duplicate scans already present
+			// in project instead of reporting a generic failure.
+			QString log = (error == SaveLoadSystem::ErrorCode::Already_Exists)
+				? QString(TEXT_SCAN_IMPORT_ALREADY_EXISTS_IGNORED)
+				: QString(TEXT_SCAN_IMPORT_FAILED).arg(QString::fromStdWString(inputFile.wstring()));
+			controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(log));
 			controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));
 			controller.getControlListener()->notifyUIControl(new control::project::StartSave());
 			continue;

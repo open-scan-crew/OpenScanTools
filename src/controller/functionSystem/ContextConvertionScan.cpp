@@ -300,11 +300,18 @@ void ContextConvertionScan::registerConvertedScan(Controller& controller, const 
     if (error != SaveLoadSystem::ErrorCode::Success)
     {
         QString log;
-        // Keep failure reporting explicit regardless of overwrite mode.
-        // Overwrite may be enabled for conversion output, but a registration/import
-        // failure must still be surfaced as an error.
-        FUNCLOG << "Error during ContextConversionScan" << LOGENDL;
-        log = QString(TEXT_SCAN_IMPORT_FAILED).arg(QString::fromStdWString(filename.stem().wstring()));
+        if (error == SaveLoadSystem::ErrorCode::Already_Exists)
+        {
+            // Conversion output exists in project model already: report as ignored import
+            // to avoid surfacing this expected case as a hard failure.
+            log = QString(TEXT_SCAN_IMPORT_ALREADY_EXISTS_IGNORED);
+        }
+        else
+        {
+            // Keep failure reporting explicit for non-duplicate errors.
+            FUNCLOG << "Error during ContextConversionScan" << LOGENDL;
+            log = QString(TEXT_SCAN_IMPORT_FAILED).arg(QString::fromStdWString(filename.stem().wstring()));
+        }
 
         controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(log));
         controller.updateInfo(new GuiDataTmpMessage(log));

@@ -1312,9 +1312,9 @@ SafePtr<PointCloudNode> SaveLoadSystem::ImportNewTlsFile(const std::filesystem::
     if (graphManager.isFilePathOrScanExists(filePath.stem().wstring(), filePath) == true)
     {
         IOLOG << "Error : file or name already exists in the project : " << filePath.stem().string() << LOGENDL;
-        // TODO - Ask the user if he want to save the Scanunder an other name (or append it)
-        //return ("Error : file or name already exists and the Scanhas been copied");
-        errorCode = ErrorCode::Failed_Write_Permission;
+        // Dedicated status so UI can report "already exists" as an ignored import
+        // instead of a generic write/open failure.
+        errorCode = ErrorCode::Already_Exists;
         return SafePtr<PointCloudNode>();
     }
 
