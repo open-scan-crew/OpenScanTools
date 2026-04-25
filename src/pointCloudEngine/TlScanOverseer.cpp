@@ -208,6 +208,18 @@ bool TlScanOverseer::doFileCopy(scanCopyInfo& copyInfo)
     }
 
     try {
+        std::filesystem::path old_path = oldScan->getPath();
+
+        // Robust guard: even with "overwrite existing", trying to copy a file onto itself
+        // can throw on some platforms when path separators differ ('/' vs '\').
+        // Treat equivalent source/destination as a successful no-op.
+        std::error_code sameFileEc;
+        if (std::filesystem::equivalent(old_path, copyInfo.path, sameFileEc))
+        {
+            Logger::log(IOLog) << "INFO - source and destination are equivalent. Skip copy for {" << copyInfo.guid << "}." << Logger::endl;
+            return true;
+        }
+
         // Check that the destination path is free
         if (!copyInfo.overrideDestination && std::filesystem::exists(copyInfo.path))
         {
@@ -243,7 +255,6 @@ bool TlScanOverseer::doFileCopy(scanCopyInfo& copyInfo)
         {
             std::filesystem::copy_options options = std::filesystem::copy_options::none;
             options |= copyInfo.overrideDestination ? std::filesystem::copy_options::overwrite_existing : std::filesystem::copy_options::skip_existing;
-            std::filesystem::path old_path = oldScan->getPath();
 
             std::filesystem::copy(old_path, copyInfo.path, options);
 

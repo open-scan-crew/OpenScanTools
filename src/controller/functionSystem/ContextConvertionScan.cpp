@@ -257,6 +257,9 @@ ContextType ContextConvertionScan::getType() const
 
 void ContextConvertionScan::registerConvertedScan(Controller& controller, const std::filesystem::path& filename, bool overwritedFile, bool asObject, float time)
 {
+    (void)overwritedFile;
+    (void)asObject;
+
     SaveLoadSystem::ErrorCode error;
 
     SafePtr<PointCloudNode> pcObj = SaveLoadSystem::ImportNewTlsFile(filename, m_scanInfo.asObject, controller, error);
@@ -264,13 +267,11 @@ void ContextConvertionScan::registerConvertedScan(Controller& controller, const 
     if (error != SaveLoadSystem::ErrorCode::Success)
     {
         QString log;
-        if (overwritedFile == false)
-        {
-            FUNCLOG << "Error during ContextConversionScan" << LOGENDL;
-            log = QString(TEXT_SCAN_IMPORT_FAILED).arg(QString::fromStdWString(filename.stem().wstring()));
-        }
-        else
-            log = QString(TEXT_SCAN_IMPORT_DONE_TEXT).arg(QString::fromStdWString(filename.stem().wstring()));
+        // Keep failure reporting explicit regardless of overwrite mode.
+        // Overwrite may be enabled for conversion output, but a registration/import
+        // failure must still be surfaced as an error.
+        FUNCLOG << "Error during ContextConversionScan" << LOGENDL;
+        log = QString(TEXT_SCAN_IMPORT_FAILED).arg(QString::fromStdWString(filename.stem().wstring()));
 
         controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(log));
         controller.updateInfo(new GuiDataTmpMessage(log));

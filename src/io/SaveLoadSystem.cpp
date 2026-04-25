@@ -64,6 +64,7 @@
 #include <algorithm>
 #include <chrono>
 #include <thread>
+#include <cwctype>
 
 #define SAVELOADSYSTEMVERSION 2.0f
 
@@ -75,6 +76,33 @@ static const std::unordered_map<SaveLoadSystem::ObjectsFileType, std::pair<std::
 , {SaveLoadSystem::ObjectsFileType::Tld_Backup, {std::string(File_Extension_Tags) + File_Extension_Backup, Key_Tags}}
 , {SaveLoadSystem::ObjectsFileType::Tlv_Backup, {std::string(File_Extension_ViewPoints) + File_Extension_Backup, Key_ViewPoints}}
 };
+
+namespace
+{
+    std::wstring normalizePathKey(std::filesystem::path path)
+    {
+        path = path.lexically_normal();
+        std::wstring key = path.generic_wstring();
+#ifdef _WIN32
+        std::transform(key.begin(), key.end(), key.begin(), towlower);
+#endif
+        return key;
+    }
+
+    bool arePathsEquivalent(const std::filesystem::path& lhs, const std::filesystem::path& rhs)
+    {
+        if (lhs.empty() || rhs.empty())
+            return false;
+
+        std::error_code ec;
+        if (std::filesystem::equivalent(lhs, rhs, ec))
+            return true;
+
+        // Fallback for cases where equivalent() cannot resolve one path but both refer
+        // to the same location with different textual forms.
+        return normalizePathKey(lhs) == normalizePathKey(rhs);
+    }
+}
 
 
 std::filesystem::path getExplicitPath(const ProjectInternalInfo& project, const std::filesystem::path& file)
@@ -1304,7 +1332,7 @@ SafePtr<PointCloudNode> SaveLoadSystem::ImportNewTlsFile(const std::filesystem::
     for (int i = 0; i < maxRetry; ++i)
     {
         TlScanOverseer::getInstance().resourceManagement_sync();
-        if (tlGetCurrentScanPath(scanGuid, currentPath) && currentPath == dst_path)
+        if (tlGetCurrentScanPath(scanGuid, currentPath) && arePathsEquivalent(currentPath, dst_path))
         {
             copiedToProjectPath = true;
             break;
