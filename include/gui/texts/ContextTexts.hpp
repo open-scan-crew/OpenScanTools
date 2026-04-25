@@ -135,6 +135,7 @@
 #define TEXT_SCAN_IMPORT_DONE_TEXT QObject::tr("%1 imported")
 #define TEXT_SCAN_IMPORT_DONE_TIMING_TEXT QObject::tr("%1 imported in %2 seconds.")
 #define TEXT_SCAN_IMPORT_FAILED QObject::tr("Scan import %1 failed.")
+#define TEXT_SCAN_IMPORT_ALREADY_EXISTS_IGNORED QObject::tr("The scan already exists in the project. Import ignored.")
 
 
 //ContextFindScan
