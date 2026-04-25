@@ -1320,9 +1320,17 @@ SafePtr<PointCloudNode> SaveLoadSystem::ImportNewTlsFile(const std::filesystem::
 
     std::filesystem::path filename(filePath.filename());
     std::filesystem::path dst_path = context.cgetProjectInternalInfo().getPointCloudFolderPath(is_object) / filename;
-    // Copy to project folder and force destination update to avoid keeping a source path
-    // when a file with the same name already exists in destination.
-    tlCopyScanFile(scanGuid, dst_path, true, true, false);
+    const bool fileAlreadyInProjectStorage = arePathsEquivalent(filePath, dst_path);
+    if (!fileAlreadyInProjectStorage)
+    {
+        // Copy to project folder and force destination update to avoid keeping a source path
+        // when a file with the same name already exists in destination.
+        tlCopyScanFile(scanGuid, dst_path, true, true, false);
+    }
+    else
+    {
+        IOLOG << "INFO - TLS file already in project storage, skip physical copy: " << dst_path << LOGENDL;
+    }
 
     // Ensure copy queue is processed and the active scan path points to project storage
     // before exposing the node to delete workflows.

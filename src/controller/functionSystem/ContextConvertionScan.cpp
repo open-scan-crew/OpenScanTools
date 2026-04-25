@@ -27,6 +27,7 @@
 #include "utils/Logger.h"
 
 #include <chrono>
+#include <unordered_set>
 
 
 constexpr double BIG_COORDINATES_THRESHOLD = 10000.0;
@@ -34,6 +35,38 @@ constexpr double BIG_COORDINATES_THRESHOLD = 10000.0;
 #define Ok 0x00000400
 
 constexpr uint64_t POINTS_PER_READ = 2 * 1048576;
+
+namespace
+{
+    bool hasDuplicateScanNames(const IScanFileReader& fileReader)
+    {
+        std::unordered_set<std::wstring> names;
+        for (uint32_t s = 0; s < fileReader.getScanCount(); ++s)
+        {
+            const std::wstring& name = fileReader.getTlsScanHeader(s).name;
+            if (!names.insert(name).second)
+                return true;
+        }
+        return false;
+    }
+
+    std::wstring buildConvertedOutputName(const IScanFileReader& fileReader, const std::filesystem::path& inputFile, uint32_t scanIndex, bool useAutoRenaming)
+    {
+        if (fileReader.getScanCount() <= 1)
+            return inputFile.stem().wstring();
+
+        if (useAutoRenaming)
+        {
+            std::filesystem::path converter(Utils::completeWithZeros(scanIndex + 1));
+            std::wstring outputName = inputFile.stem().wstring();
+            outputName += L"_" + converter.wstring();
+            return outputName;
+        }
+
+        std::filesystem::path converter(fileReader.getTlsScanHeader(scanIndex).name);
+        return converter.wstring();
+    }
+}
 
 BoundingBoxD getScansBoundingBox(const std::vector<glm::dvec3>& scansPositions)
 {
@@ -321,6 +354,10 @@ void ContextConvertionScan::convertFile(Controller& controller, const std::files
         return;
     }
 
+    // Use the same naming strategy as pre-check (checkScansExist) to avoid
+    // mismatches between collision detection and actual conversion output names.
+    const bool useAutoRenaming = hasDuplicateScanNames(*fileReader);
+
     for (uint32_t s = 0; s < fileReader->getScanCount(); ++s) 
     {
         if (m_state != ContextState::running)
@@ -335,23 +372,7 @@ void ContextConvertionScan::convertFile(Controller& controller, const std::files
 
         outputDir = controller.getContext().cgetProjectInternalInfo().getPointCloudFolderPath(m_scanInfo.asObject);
 
-        std::wstring outputName;
-        if (fileReader->getScanCount() > 1)
-        {
-            if (fileReader->getScanCount() > 1 && fileReader->getTlsScanHeader(1).name == fileReader->getTlsScanHeader(0).name)
-            {
-                std::filesystem::path converter(Utils::completeWithZeros(s + 1));
-                outputName = inputFile.stem();
-                outputName += L"_" + converter.wstring();
-            }
-            else
-            {
-                std::filesystem::path converter(fileReader->getTlsScanHeader(s).name);
-                outputName = converter.wstring();
-            }
-        }
-        else
-            outputName = inputFile.stem();
+        std::wstring outputName = buildConvertedOutputName(*fileReader, inputFile, s, useAutoRenaming);
 
         if (!m_properties.overwriteExisting && std::filesystem::exists(outputDir / (outputName + std::wstring(L".tls"))))
         {
@@ -464,11 +485,13 @@ int ContextConvertionScan::checkScansExist(const std::filesystem::path& inputFil
         return -1;
     }
 
+    const bool useAutoRenaming = hasDuplicateScanNames(*fileReader);
+    renaming = useAutoRenaming;
+
     for (uint32_t s = 0; s < fileReader->getScanCount(); ++s)
     {
         std::filesystem::path outputFile = destDir;
-        std::filesystem::path converter(fileReader->getTlsScanHeader(s).name);
-        outputFile /= fileReader->getScanCount() == 1 ? inputFile.stem() : std::filesystem::path(converter.wstring());
+        outputFile /= std::filesystem::path(buildConvertedOutputName(*fileReader, inputFile, s, useAutoRenaming));
         outputFile += ".tls";
         headers.push_back(fileReader->getTlsScanHeader(s));
         if (std::filesystem::exists(outputFile))
@@ -477,8 +500,6 @@ int ContextConvertionScan::checkScansExist(const std::filesystem::path& inputFil
             retCode++;
         }
     }
-    //Note (Aurélien) only a quick check of scan name on the first ones, not sure there is a case where we need to check every scans...
-    renaming = (fileReader->getScanCount() > 1 && fileReader->getTlsScanHeader(1).name == fileReader->getTlsScanHeader(0).name);
     delete fileReader;
     return retCode;
 }
