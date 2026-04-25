@@ -13,7 +13,9 @@
 #include <atomic>
 #include <cmath>
 #include <chrono>
+#include <cerrno>
 #include <condition_variable>
+#include <cstring>
 #include <future>
 #include <mutex>
 #include <set>
@@ -34,6 +36,22 @@ namespace
     constexpr float kColorimetricMaxDistance = 1.7320508f;
     // Stabilize ray sign classification for near-zero components (orthographic axis-aligned views).
     constexpr double kRaySignEpsilon = 1e-12;
+
+    // Helper used only for diagnostics/logging.
+    // MSVC marks strerror as deprecated (C4996), so use strerror_s on Windows
+    // and keep a portable fallback elsewhere.
+    std::string errnoToString(int err)
+    {
+#if defined(_WIN32)
+        char buffer[256] = {};
+        if (::strerror_s(buffer, sizeof(buffer), err) == 0)
+            return std::string(buffer);
+        return std::string("unknown");
+#else
+        const char* msg = std::strerror(err);
+        return msg ? std::string(msg) : std::string("unknown");
+#endif
+    }
 
     struct PreparedRayTracingDisplayFilter
     {
@@ -259,7 +277,15 @@ EmbeddedScan::EmbeddedScan(std::filesystem::path const& filepath)
     // open tls file
     if (!tls_img_file_.open(filepath, tls::usage::read))
     {
-        Logger::log(IOLog) << "An error occured while opening the TLS file '" << filepath << "'" << Logger::endl;
+        std::error_code ecExists;
+        const bool exists = std::filesystem::exists(filepath, ecExists);
+        std::error_code ecSize;
+        const uintmax_t fileSize = exists ? std::filesystem::file_size(filepath, ecSize) : 0;
+        Logger::log(IOLog) << "An error occured while opening the TLS file '" << filepath << "'"
+            << " (exists=" << exists
+            << ", size=" << (ecSize ? 0 : fileSize)
+            << ", errno=" << errno
+            << ", strerror=" << errnoToString(errno) << ")" << Logger::endl;
         return;
     }
 

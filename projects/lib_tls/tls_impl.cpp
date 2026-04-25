@@ -8,9 +8,30 @@
 #include "tls_transform.h"
 #include "utils.h"
 
+#include <cerrno>
+#include <cstring>
 #include <map>
 
 using namespace tls;
+
+namespace
+{
+    // Helper used only for diagnostics/logging.
+    // MSVC marks strerror as deprecated (C4996), so use strerror_s on Windows
+    // and keep a portable fallback elsewhere.
+    std::string errnoToString(int err)
+    {
+#if defined(_WIN32)
+        char buffer[256] = {};
+        if (::strerror_s(buffer, sizeof(buffer), err) == 0)
+            return std::string(buffer);
+        return std::string("unknown");
+#else
+        const char* msg = std::strerror(err);
+        return msg ? std::string(msg) : std::string("unknown");
+#endif
+    }
+}
 
 float tls::getPrecisionValue(PrecisionType precisionType)
 {
@@ -447,7 +468,9 @@ void ImageFile_p::open_file()
     fstr_.open(filepath_, std::ios::in | std::ios::out | std::ios::binary | std::ios::ate);
     if (fstr_.fail())
     {
-        std::string msg = "An unexpected error occured while opening the file '" + filepath_.string();
+        std::string msg = "An unexpected error occured while opening the file '" + filepath_.string()
+            + "' (errno=" + std::to_string(errno)
+            + ", strerror=" + errnoToString(errno) + ")";
         results_.push_back({ result::ERROR, msg });
         return;
     }
