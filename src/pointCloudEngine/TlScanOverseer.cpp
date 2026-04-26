@@ -238,11 +238,19 @@ bool TlScanOverseer::getScanPath(tls::ScanGuid scanGuid, std::filesystem::path& 
         scanPath = it_scan->second->getPath();
         return true;
     }
-    else
+
+    // Pass 2.2.C:
+    // Save/serialization paths must remain available even when scans are not
+    // currently active in runtime. Fall back to the persistent GUID->path map.
+    auto it_registered = m_scanPathByGuid.find(scanGuid);
+    if (it_registered != m_scanPathByGuid.end())
     {
-        Logger::log(IOLog) << "Info: try to get information of a Scan not present, UUID = " << scanGuid << Logger::endl;
-        return false;
+        scanPath = it_registered->second;
+        return true;
     }
+
+    Logger::log(IOLog) << "Info: try to get information of a Scan not present, UUID = " << scanGuid << Logger::endl;
+    return false;
 }
 
 bool  TlScanOverseer::isScanLeftTofree()
