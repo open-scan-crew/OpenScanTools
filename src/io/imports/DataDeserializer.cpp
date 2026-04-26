@@ -12,6 +12,7 @@
 #include "controller/ControllerContext.h"
 
 #include "utils/ProjectColor.hpp"
+#include "pointCloudEngine/PCE_core.h"
 
 #include "models/graph/TagNode.h"
 #include "models/graph/PointNode.h"
@@ -378,7 +379,19 @@ bool ImportPointCloudNode(const nlohmann::json& json, PointCloudNode& data)
     bool retVal = true;
 
     if (json.find(Key_Path) != json.end())
-        data.setTlsFilePath(Utils::from_utf8(json.at(Key_Path).get<std::string>()), false, tls::ScanGuid(), false);
+    {
+        const std::filesystem::path scanPath = Utils::from_utf8(json.at(Key_Path).get<std::string>());
+        tls::ScanGuid scanGuid;
+
+        // Pass 2.1:
+        // Use a lightweight GUID lookup during project reload to avoid
+        // registering hundreds of scans as active runtime resources.
+        // Runtime activation is handled later by rendering/streaming needs.
+        if (!tlLookupScanGuid(scanPath, scanGuid))
+            scanGuid = tls::ScanGuid();
+
+        data.setTlsFilePath(scanPath, false, scanGuid, false);
+    }
     else
     {
         IOLOG << "Scan Path read error" << LOGENDL;
