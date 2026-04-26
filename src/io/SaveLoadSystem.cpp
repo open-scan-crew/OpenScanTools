@@ -390,7 +390,22 @@ std::unordered_set<SafePtr<AGraphNode>> SaveLoadSystem::LoadFileObjects(Controll
                 continue;
 
             std::filesystem::path pcPath = findPointCloudPath(wPCNode, internalInfo, folder);
-            wPCNode->setTlsFilePath(pcPath, false, tls::ScanGuid(), false);
+            tls::ScanGuid resolvedGuid;
+            if (forceCopy)
+            {
+                // Keep the previous behavior for copy workflows:
+                // the scan must be registered as active to be used by tlCopyScanFile.
+                tlGetScanGuid(pcPath, resolvedGuid);
+            }
+            else
+            {
+                // Pass 2.1:
+                // For standard project reload, resolve GUID without activating
+                // a runtime scan resource (prevents massive active-scan buildup).
+                tlLookupScanGuid(pcPath, resolvedGuid);
+            }
+
+            wPCNode->setTlsFilePath(pcPath, false, resolvedGuid, false);
             if (wPCNode->getScanGuid() == tls::ScanGuid())
                 failedFileImport.insert(object);
             else if (forceCopy)

@@ -5,6 +5,8 @@
 #include "pointCloudEngine/PCE_graphics.h"
 #include "models/3d/Measures.h"
 #include "utils/Logger.h"
+#include "tls_core.h"
+#include <algorithm>
 #include <queue>
 #include <glm/gtx/quaternion.hpp>
 using namespace std::chrono;
@@ -24,6 +26,20 @@ TlScanOverseer::~TlScanOverseer()
     Logger::log(IOLog) << "Destroy TlScanOverseer" << Logger::endl;
 }
 
+void TlScanOverseer::logGuidLookupStatsLocked(const char* reason) const
+{
+    Logger::log(IOLog)
+        << "ScanGuidLookupStats [" << reason << "] "
+        << "calls=" << m_guidLookupStats.totalCalls
+        << ", success=" << m_guidLookupStats.successCount
+        << ", failed=" << m_guidLookupStats.failedOpenOrInvalidGuid
+        << ", cacheHit=" << m_guidLookupStats.cacheHitCount
+        << ", insertedActive=" << m_guidLookupStats.insertedActiveCount
+        << ", activeNow=" << m_activeScans.size()
+        << ", activePeak=" << m_guidLookupStats.activeScanPeak
+        << Logger::endl;
+}
+
 void TlScanOverseer::init()
 {
     Logger::log(IOLog) << "Init TlScanOverseer." << Logger::endl;
@@ -32,6 +48,7 @@ void TlScanOverseer::init()
 void TlScanOverseer::shutdown()
 {
     std::lock_guard<std::mutex> lock(m_activeMutex);
+    logGuidLookupStatsLocked("shutdown-begin");
         
     // Force the deletion of Scanresources even if the safe frame is not reached
     for (auto scan : m_scansToFree)
@@ -68,6 +85,11 @@ void TlScanOverseer::setWorkingScansTransfo(const std::vector<tls::PointCloudIns
 
 bool TlScanOverseer::getScanGuid(std::filesystem::path _filePath, tls::ScanGuid& _scanGuid)
 {
+    {
+        std::lock_guard<std::mutex> lock(m_activeMutex);
+        ++m_guidLookupStats.totalCalls;
+    }
+
     EmbeddedScan* newScan = new EmbeddedScan(_filePath);
     xg::Guid nullGuid;
 
@@ -76,6 +98,10 @@ bool TlScanOverseer::getScanGuid(std::filesystem::path _filePath, tls::ScanGuid&
         _scanGuid = nullGuid;
         // No memory leak
         delete newScan; 
+
+        std::lock_guard<std::mutex> lock(m_activeMutex);
+        ++m_guidLookupStats.failedOpenOrInvalidGuid;
+        logGuidLookupStatsLocked("failed-open-or-invalid-guid");
         return false;
     }
 
@@ -86,13 +112,43 @@ bool TlScanOverseer::getScanGuid(std::filesystem::path _filePath, tls::ScanGuid&
         _scanGuid = it_scan->second->getGuid();
         // No memory leak
         delete newScan;
+        ++m_guidLookupStats.successCount;
+        ++m_guidLookupStats.cacheHitCount;
+        if ((m_guidLookupStats.totalCalls % 100) == 0)
+            logGuidLookupStatsLocked("periodic");
         return true;
     }
 
     m_activeScans.insert({ newScan->getGuid(), newScan });
     _scanGuid = newScan->getGuid();
+    ++m_guidLookupStats.successCount;
+    ++m_guidLookupStats.insertedActiveCount;
+    m_guidLookupStats.activeScanPeak = std::max<uint64_t>(m_guidLookupStats.activeScanPeak, m_activeScans.size());
+    if ((m_guidLookupStats.totalCalls % 100) == 0)
+        logGuidLookupStatsLocked("periodic");
 
     return true;
+}
+
+bool TlScanOverseer::lookupScanGuid(const std::filesystem::path& filePath, tls::ScanGuid& scanGuid)
+{
+    scanGuid = tls::ScanGuid();
+
+    tls::ImageFile imageFile;
+    if (!imageFile.open(filePath, tls::usage::read))
+    {
+        return false;
+    }
+
+    // NOTE:
+    // This path is intentionally "header-only lookup":
+    // - no insertion in m_activeScans
+    // - no long-lived runtime scan object
+    // - deterministic handle release right after header read
+    scanGuid = imageFile.getPointCloudHeader(0).guid;
+    imageFile.close();
+
+    return scanGuid != tls::ScanGuid();
 }
 
 bool TlScanOverseer::getScanHeader(tls::ScanGuid scanGuid, tls::ScanHeader& info)
