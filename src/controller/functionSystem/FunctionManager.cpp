@@ -38,9 +38,32 @@ FunctionManager::~FunctionManager()
 ContextId FunctionManager::launchFunction(Controller& controller, const ContextType& type)
 {
     FUNCLOG << "launch context " << magic_enum::enum_name(type) << LOGENDL;
+
+    AContext* currentContext = getContext(m_actualCId);
+    if (currentContext != nullptr)
+    {
+        const ContextType currentType = currentContext->getType();
+        const ContextState currentState = currentContext->getState();
+        FUNCLOG << "current active context id=" << m_actualCId
+            << " type=" << magic_enum::enum_name(currentType)
+            << " state=" << magic_enum::enum_name(currentState) << LOGENDL;
+
+        // Save context can be requested several times by UI controls.
+        // Keep this launch idempotent while a save context is already active
+        // to avoid unnecessary abort/relaunch sequences.
+        if (type == ContextType::saveProject &&
+            currentType == ContextType::saveProject &&
+            currentState != ContextState::done &&
+            currentState != ContextState::abort)
+        {
+            FUNCLOG << "saveProject launch ignored: a save context is already active (id=" << m_actualCId << ")" << LOGENDL;
+            return m_actualCId;
+        }
+    }
     //NOTE (Aurélien) POC Undo/Redo context
     //controller->updateInfo(new GuiDataUndoRedoAble(true, true));
-    abort(controller, m_actualCId);
+    if (m_actualCId != INVALID_CONTEXT_ID)
+        abort(controller, m_actualCId);
 
     m_actualCId = s_contextIdGiver.giveAutoId();
 
@@ -189,7 +212,9 @@ void FunctionManager::abort(Controller& controller, const ContextId& id)
     AContext* context = getContext(id);
     if (context != nullptr)
     {
-        FUNCLOG << "Abort context " << magic_enum::enum_name(context->getType()) << LOGENDL;
+        FUNCLOG << "Abort context id=" << id
+            << " type=" << magic_enum::enum_name(context->getType())
+            << " state=" << magic_enum::enum_name(context->getState()) << LOGENDL;
         context->abort(controller);
     }
 }

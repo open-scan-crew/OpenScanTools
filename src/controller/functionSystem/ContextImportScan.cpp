@@ -64,12 +64,23 @@ ContextState ContextImportScan::launch(Controller& controller)
 
 	controller.updateInfo(new GuiDataProcessingSplashScreenStart(m_scanInfo.paths.size(), TEXT_IMPORTING_SCAN, QString()));
 	GraphManager& graphManager = controller.getGraphManager();
+	(void)graphManager;
 
+	uint64_t importSuccessCount = 0;
+	uint64_t importFailureCount = 0;
+	uint64_t importDuplicateCount = 0;
+	bool shouldRequestSave = false;
 
 	for (const std::filesystem::path& inputFile : m_scanInfo.paths)
 	{
 		if (m_state != ContextState::running)
+		{
+			FUNCLOG << "ContextImportScan interrupted before completion. "
+				<< "Imported=" << importSuccessCount
+				<< " Failed=" << importFailureCount
+				<< " Duplicates=" << importDuplicateCount << LOGENDL;
 			return ContextState::abort;
+		}
 		controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString::fromStdWString(inputFile.wstring())));
 		SaveLoadSystem::ErrorCode error;
 
@@ -77,6 +88,9 @@ ContextState ContextImportScan::launch(Controller& controller)
 
 		if (error != SaveLoadSystem::ErrorCode::Success)
 		{
+			++importFailureCount;
+			if (error == SaveLoadSystem::ErrorCode::Already_Exists)
+				++importDuplicateCount;
 			CONTROLLOG << "Error during ContextImportScan" << LOGENDL;
 			// Show a dedicated user-facing message for duplicate scans already present
 			// in project instead of reporting a generic failure.
@@ -84,8 +98,10 @@ ContextState ContextImportScan::launch(Controller& controller)
 				? QString(TEXT_SCAN_IMPORT_ALREADY_EXISTS_IGNORED)
 				: QString(TEXT_SCAN_IMPORT_FAILED).arg(QString::fromStdWString(inputFile.wstring()));
 			controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(log));
-			controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));
-			controller.getControlListener()->notifyUIControl(new control::project::StartSave());
+
+			// Important: never launch save from this error branch.
+			// Saving is performed once at the end of the batch to avoid
+			// launch/abort cascades between import and save contexts.
 			continue;
 		}
 
@@ -105,10 +121,26 @@ ContextState ContextImportScan::launch(Controller& controller)
 			}
 		}
 
+		++importSuccessCount;
+		shouldRequestSave = true;
 		updateStep(controller, QString(TEXT_SCAN_IMPORT_DONE_TEXT).arg(QString::fromStdWString(inputFile.stem().wstring())), 1);
 	}
 
-	controller.getControlListener()->notifyUIControl(new control::project::StartSave());
+	if (shouldRequestSave)
+	{
+		// Trigger exactly one save request per import batch.
+		// This prevents duplicate save context launches.
+		controller.getControlListener()->notifyUIControl(new control::project::StartSave());
+	}
+	else
+	{
+		CONTROLLOG << "ContextImportScan finished with no imported scan. Save request skipped." << LOGENDL;
+	}
+	CONTROLLOG << "ContextImportScan summary: Total=" << m_scanInfo.paths.size()
+		<< " Imported=" << importSuccessCount
+		<< " Failed=" << importFailureCount
+		<< " Duplicates=" << importDuplicateCount
+		<< " SaveRequested=" << (shouldRequestSave ? "true" : "false") << LOGENDL;
 		
 	controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));
 

@@ -11,9 +11,11 @@
 #include <algorithm>
 #include <array>
 #include <atomic>
+#include <cerrno>
 #include <cmath>
 #include <chrono>
 #include <condition_variable>
+#include <cstring>
 #include <future>
 #include <mutex>
 #include <set>
@@ -259,7 +261,9 @@ EmbeddedScan::EmbeddedScan(std::filesystem::path const& filepath)
     // open tls file
     if (!tls_img_file_.open(filepath, tls::usage::read))
     {
-        Logger::log(IOLog) << "An error occured while opening the TLS file '" << filepath << "'" << Logger::endl;
+        const int err = errno;
+        Logger::log(IOLog) << "An error occured while opening the TLS file '" << filepath
+            << "' (errno=" << err << ", strerror='" << std::strerror(err) << "')" << Logger::endl;
         return;
     }
 
@@ -312,11 +316,14 @@ EmbeddedScan::~EmbeddedScan()
     }
     delete[] m_pCellBuffers;
 
+    // Always close the underlying TLS file handle when the scan object is destroyed.
+    // This is critical during large import batches where many temporary EmbeddedScan
+    // objects are created to resolve GUID/header information.
+    const std::filesystem::path filepath = tls_img_file_.getPath();
+    releaseFileHandle();
+
     if (m_deleteFileWhenDestroyed)
     {
-        std::filesystem::path filepath = tls_img_file_.getPath();
-        tls_img_file_.close();
-
         if (std::filesystem::remove(filepath) == true)
         {
             Logger::log(IOLog) << "INFO - the file " << filepath << " has been successfully removed." << Logger::endl;
@@ -326,6 +333,15 @@ EmbeddedScan::~EmbeddedScan()
             Logger::log(IOLog) << "WARNING - the file " << filepath << " cannot be removed from the file system. The file may be accessed elsewhere." << Logger::endl;
         }
     }
+}
+
+void EmbeddedScan::releaseFileHandle()
+{
+    // Close the TLS backing file without destroying the scan object itself.
+    // Used by overseer eviction paths to release OS file descriptors early.
+    std::lock_guard<std::mutex> lock(m_tlsReadMutex);
+    tls_point_cloud_.reset();
+    tls_img_file_.close();
 }
 
 tls::ScanGuid EmbeddedScan::getGuid() const

@@ -144,6 +144,7 @@ public:
 
     bool canBeDeleted();
     void deleteFileWhenDestroyed(bool deletePhysicalFile);
+    void releaseFileHandle();
 
 protected:
     bool getVisibleTree_impl(uint32_t _cellId, std::vector<TlCellDrawInfo>& _result, const TlProjectionInfo& _projInfo, const TlFrustumTest& _frustumTest, std::vector<uint32_t>& _missingCells);
