@@ -1316,7 +1316,9 @@ SafePtr<PointCloudNode> SaveLoadSystem::ImportNewTlsFile(const std::filesystem::
     ControllerContext& context = controller.getContext();
 
     tls::ScanGuid scanGuid;
-    if (tlGetScanGuid(filePath, scanGuid) == false)
+    // Block B (import/drag&drop):
+    // Resolve GUID without creating a long-lived active scan upfront.
+    if (tlLookupScanGuid(filePath, scanGuid) == false)
     {
         IOLOG << "Error: " << filePath << " is not a valid tls file." << LOGENDL;
         errorCode = ErrorCode::Failed_To_Open;
@@ -1336,40 +1338,37 @@ SafePtr<PointCloudNode> SaveLoadSystem::ImportNewTlsFile(const std::filesystem::
     std::filesystem::path filename(filePath.filename());
     std::filesystem::path dst_path = context.cgetProjectInternalInfo().getPointCloudFolderPath(is_object) / filename;
     const bool fileAlreadyInProjectStorage = arePathsEquivalent(filePath, dst_path);
+    std::filesystem::path effectivePath = filePath;
+
     if (!fileAlreadyInProjectStorage)
     {
-        // Copy to project folder and force destination update to avoid keeping a source path
-        // when a file with the same name already exists in destination.
-        tlCopyScanFile(scanGuid, dst_path, true, true, false);
+        // Block B:
+        // Copy physically without requiring active runtime registration in TlScanOverseer.
+        // This avoids reaching the ~507 active scan resource ceiling during batch imports.
+        std::error_code sameFileEc;
+        if (!std::filesystem::equivalent(filePath, dst_path, sameFileEc))
+        {
+            try
+            {
+                std::filesystem::copy(filePath, dst_path, std::filesystem::copy_options::overwrite_existing);
+            }
+            catch (const std::exception& e)
+            {
+                IOLOG << "Error: TLS import copy failed from [" << filePath << "] to [" << dst_path << "]: " << e.what() << LOGENDL;
+                errorCode = ErrorCode::Failed_Write_Permission;
+                return SafePtr<PointCloudNode>();
+            }
+        }
+        effectivePath = dst_path;
     }
     else
     {
         IOLOG << "INFO - TLS file already in project storage, skip physical copy: " << dst_path << LOGENDL;
+        effectivePath = filePath;
     }
 
-    // Ensure copy queue is processed and the active scan path points to project storage
-    // before exposing the node to delete workflows.
-    std::filesystem::path currentPath;
-    bool copiedToProjectPath = false;
-    constexpr int maxRetry = 100; // 100 * 50ms = 5s max wait
-    for (int i = 0; i < maxRetry; ++i)
-    {
-        TlScanOverseer::getInstance().resourceManagement_sync();
-        if (tlGetCurrentScanPath(scanGuid, currentPath) && arePathsEquivalent(currentPath, dst_path))
-        {
-            copiedToProjectPath = true;
-            break;
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    }
-
-    if (!copiedToProjectPath)
-    {
-        IOLOG << "Error: TLS import copy to project path failed or timed out. Source [" << filePath
-            << "], destination [" << dst_path << "], current [" << currentPath << "]." << LOGENDL;
-        errorCode = ErrorCode::Failed_Write_Permission;
-        return SafePtr<PointCloudNode>();
-    }
+    // Register the authoritative path so lazy activation can resolve runtime access on demand.
+    TlScanOverseer::getInstance().registerScanPath(scanGuid, effectivePath);
 
     uint64_t nbScanBeforeImport = controller.getGraphManager().getNodesByTypes({ ElementType::Scan }).size();
     SafePtr<PointCloudNode> pc = make_safe<PointCloudNode>(is_object);
@@ -1385,7 +1384,7 @@ SafePtr<PointCloudNode> SaveLoadSystem::ImportNewTlsFile(const std::filesystem::
         wpc->setDefaultData(controller);
         if (!is_object)
             wpc->setManipulable(Config::isUnlockScanManipulation());
-        wpc->setTlsFilePath(dst_path, true, scanGuid);
+        wpc->setTlsFilePath(effectivePath, true, scanGuid);
         if (!is_object)
             wpc->setColor(Color32(rand() % 255, rand() % 255, rand() % 255, 255));
     }
