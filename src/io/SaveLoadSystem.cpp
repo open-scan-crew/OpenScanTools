@@ -1320,7 +1320,8 @@ SafePtr<PointCloudNode> SaveLoadSystem::ImportNewTlsFile(const std::filesystem::
     // Resolve GUID without creating a long-lived active scan upfront.
     if (tlLookupScanGuid(filePath, scanGuid) == false)
     {
-        IOLOG << "Error: " << filePath << " is not a valid tls file." << LOGENDL;
+        IOLOG << "Error: cannot resolve TLS GUID for [" << filePath
+            << "] (invalid tls content or file open access failure)." << LOGENDL;
         errorCode = ErrorCode::Failed_To_Open;
         return SafePtr<PointCloudNode>();
     }

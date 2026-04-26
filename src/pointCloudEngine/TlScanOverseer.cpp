@@ -254,6 +254,49 @@ bool TlScanOverseer::lookupScanGuid(const std::filesystem::path& filePath, tls::
     tls::ImageFile imageFile;
     if (!imageFile.open(filePath, tls::usage::read))
     {
+        static uint32_t s_lookupOpenFailCount = 0;
+        ++s_lookupOpenFailCount;
+        if ((s_lookupOpenFailCount % 50u) == 1u)
+        {
+            Logger::log(IOLog) << "LookupScanGuid failed: reason=OPEN_FAILED path=\"" << filePath
+                << "\" [occurrence=" << s_lookupOpenFailCount << "]" << Logger::endl;
+        }
+        return false;
+    }
+
+    // NOTE:
+    // This path is intentionally "header-only lookup":
+    // - no insertion in m_activeScans
+    // - no long-lived runtime scan object
+    // - deterministic handle release right after header read
+    scanGuid = imageFile.getPointCloudHeader(0).guid;
+    imageFile.close();
+
+    if (scanGuid == tls::ScanGuid())
+    {
+        static uint32_t s_lookupInvalidGuidCount = 0;
+        ++s_lookupInvalidGuidCount;
+        if ((s_lookupInvalidGuidCount % 50u) == 1u)
+        {
+            Logger::log(IOLog) << "LookupScanGuid failed: reason=INVALID_GUID_HEADER path=\"" << filePath
+                << "\" [occurrence=" << s_lookupInvalidGuidCount << "]" << Logger::endl;
+        }
+        return false;
+    }
+
+    // Pass 2.2.A:
+    // Persist GUID->path knowledge without forcing active runtime registration.
+    registerScanPath(scanGuid, filePath);
+    return true;
+}
+
+bool TlScanOverseer::lookupScanGuid(const std::filesystem::path& filePath, tls::ScanGuid& scanGuid)
+{
+    scanGuid = tls::ScanGuid();
+
+    tls::ImageFile imageFile;
+    if (!imageFile.open(filePath, tls::usage::read))
+    {
         return false;
     }
 
@@ -287,7 +330,7 @@ bool TlScanOverseer::getScanHeader(tls::ScanGuid scanGuid, tls::ScanHeader& info
     }
     else
     {
-        Logger::log(IOLog) << "Info: try to get information of a Scan not present, UUID = " << scanGuid << Logger::endl;
+        Logger::log(IOLog) << "GetScanHeader failed: reason=SCAN_NOT_ACTIVE_OR_UNRESOLVED guid=" << scanGuid << Logger::endl;
         return false;
     }
 }
@@ -314,7 +357,7 @@ bool TlScanOverseer::getScanPath(tls::ScanGuid scanGuid, std::filesystem::path& 
         return true;
     }
 
-    Logger::log(IOLog) << "Info: try to get information of a Scan not present, UUID = " << scanGuid << Logger::endl;
+    Logger::log(IOLog) << "GetScanPath failed: reason=SCAN_PATH_UNRESOLVED guid=" << scanGuid << Logger::endl;
     return false;
 }
 
@@ -354,7 +397,7 @@ void TlScanOverseer::freeScan_async(tls::ScanGuid scanGuid, bool deletePhysicalF
     }
     else
     {
-        Logger::log(IOLog) << "Info: Try to free a Scanfile not present, UUID = " << scanGuid << Logger::endl;
+        Logger::log(IOLog) << "FreeScan ignored: reason=SCAN_NOT_ACTIVE guid=" << scanGuid << Logger::endl;
     }
 }
 
@@ -505,7 +548,7 @@ bool TlScanOverseer::getScanView(tls::ScanGuid _scanGuid, const TlProjectionInfo
         auto it_scan = m_activeScans.find(_scanGuid);
         if (it_scan == m_activeScans.end())
         {
-            Logger::log(VKLog) << "Error: try to view a scan not present, UUID = " << _scanGuid << Logger::endl;
+            Logger::log(VKLog) << "GetScanView failed: reason=SCAN_NOT_ACTIVE_OR_BUDGET_LIMIT guid=" << _scanGuid << Logger::endl;
             return false;
         }
         else
