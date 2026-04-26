@@ -188,6 +188,13 @@ public:
     static void setWorkingScansTransfo(const std::vector<tls::PointCloudInstance>& workingScans);
 
     // Management of the active resources
+    // Register or update a known file path for a scan GUID.
+    // Used to decouple GUID resolution from runtime activation.
+    void registerScanPath(tls::ScanGuid scanGuid, const std::filesystem::path& scanPath);
+    bool getRegisteredScanPath(tls::ScanGuid scanGuid, std::filesystem::path& scanPath);
+
+    // Lightweight lookup: reads GUID from TLS header without registering a runtime-active scan.
+    bool lookupScanGuid(const std::filesystem::path& filePath, tls::ScanGuid& scanGuid);
     bool getScanGuid(std::filesystem::path filePath, tls::ScanGuid& scanGuid);
     bool getScanHeader(tls::ScanGuid scanGuid, tls::ScanHeader& scanHeader);
     bool getScanPath(tls::ScanGuid scanGuid, std::filesystem::path& scanPath);
@@ -430,12 +437,29 @@ private:
     static bool isCylinderCloseToPreviousCylinders(const std::vector<glm::dvec3>& cylinderCenters, const std::vector<glm::dvec3>& cylinderDirections, const std::vector<double>& cylinderRadii, const glm::dvec3& cCenter, const glm::dvec3& cDirection, const double& cRadius);
 
 private:
+    // Aggregated counters to diagnose massive GUID reload behaviors
+    // (large projects reopening hundreds/thousands of scans).
+    struct GuidLookupStats
+    {
+        uint64_t totalCalls = 0;
+        uint64_t successCount = 0;
+        uint64_t failedOpenOrInvalidGuid = 0;
+        uint64_t cacheHitCount = 0;
+        uint64_t insertedActiveCount = 0;
+        uint64_t activeScanPeak = 0;
+    };
+
+    void logGuidLookupStatsLocked(const char* reason) const;
+
     std::mutex m_activeMutex;
     std::atomic<bool> m_haltStream;
 
     // Accessible files and scans
     std::unordered_map<tls::ScanGuid, EmbeddedScan*> m_activeScans;
+    // Persistent GUID->path knowledge, independent from currently active runtime scans.
+    std::unordered_map<tls::ScanGuid, std::filesystem::path> m_scanPathByGuid;
     static thread_local std::vector<WorkingScanInfo> s_workingScansTransfo;
+    GuidLookupStats m_guidLookupStats;
 
     // Inaccessible scans waiting to be deleted (some frames after their last rendering)
     std::list<EmbeddedScan*> m_scansToFree;
