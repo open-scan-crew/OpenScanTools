@@ -6,6 +6,7 @@
 #include "models/3d/Measures.h"
 #include "utils/Logger.h"
 #include "tls_core.h"
+#include <cstdio>
 #include <algorithm>
 #include <queue>
 #include <glm/gtx/quaternion.hpp>
@@ -43,6 +44,15 @@ void TlScanOverseer::logGuidLookupStatsLocked(const char* reason) const
 void TlScanOverseer::init()
 {
     Logger::log(IOLog) << "Init TlScanOverseer." << Logger::endl;
+#ifdef _WIN32
+    // Pass B2.1 (hotfix):
+    // Raise CRT stream limit to reduce "open TLS failed" saturation around ~507 scans
+    // during large import/render batches on Windows.
+    constexpr int kRequestedMaxStdio = 2048;
+    const int appliedMaxStdio = _setmaxstdio(kRequestedMaxStdio);
+    Logger::log(IOLog) << "Init TlScanOverseer: _setmaxstdio requested=" << kRequestedMaxStdio
+        << ", applied=" << appliedMaxStdio << Logger::endl;
+#endif
 }
 
 void TlScanOverseer::shutdown()
