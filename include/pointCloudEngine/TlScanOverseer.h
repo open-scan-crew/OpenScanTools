@@ -188,6 +188,8 @@ public:
     static void setWorkingScansTransfo(const std::vector<tls::PointCloudInstance>& workingScans);
 
     // Management of the active resources
+    // Lightweight lookup: reads GUID from TLS header without registering a runtime-active scan.
+    bool lookupScanGuid(const std::filesystem::path& filePath, tls::ScanGuid& scanGuid);
     bool getScanGuid(std::filesystem::path filePath, tls::ScanGuid& scanGuid);
     bool getScanHeader(tls::ScanGuid scanGuid, tls::ScanHeader& scanHeader);
     bool getScanPath(tls::ScanGuid scanGuid, std::filesystem::path& scanPath);

@@ -5,6 +5,7 @@
 #include "pointCloudEngine/PCE_graphics.h"
 #include "models/3d/Measures.h"
 #include "utils/Logger.h"
+#include "tls_core.h"
 #include <algorithm>
 #include <queue>
 #include <glm/gtx/quaternion.hpp>
@@ -127,6 +128,27 @@ bool TlScanOverseer::getScanGuid(std::filesystem::path _filePath, tls::ScanGuid&
         logGuidLookupStatsLocked("periodic");
 
     return true;
+}
+
+bool TlScanOverseer::lookupScanGuid(const std::filesystem::path& filePath, tls::ScanGuid& scanGuid)
+{
+    scanGuid = tls::ScanGuid();
+
+    tls::ImageFile imageFile;
+    if (!imageFile.open(filePath, tls::usage::read))
+    {
+        return false;
+    }
+
+    // NOTE:
+    // This path is intentionally "header-only lookup":
+    // - no insertion in m_activeScans
+    // - no long-lived runtime scan object
+    // - deterministic handle release right after header read
+    scanGuid = imageFile.getPointCloudHeader(0).guid;
+    imageFile.close();
+
+    return scanGuid != tls::ScanGuid();
 }
 
 bool TlScanOverseer::getScanHeader(tls::ScanGuid scanGuid, tls::ScanHeader& info)
