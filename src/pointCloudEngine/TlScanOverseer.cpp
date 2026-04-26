@@ -180,27 +180,6 @@ bool TlScanOverseer::lookupScanGuid(const std::filesystem::path& filePath, tls::
     return true;
 }
 
-bool TlScanOverseer::lookupScanGuid(const std::filesystem::path& filePath, tls::ScanGuid& scanGuid)
-{
-    scanGuid = tls::ScanGuid();
-
-    tls::ImageFile imageFile;
-    if (!imageFile.open(filePath, tls::usage::read))
-    {
-        return false;
-    }
-
-    // NOTE:
-    // This path is intentionally "header-only lookup":
-    // - no insertion in m_activeScans
-    // - no long-lived runtime scan object
-    // - deterministic handle release right after header read
-    scanGuid = imageFile.getPointCloudHeader(0).guid;
-    imageFile.close();
-
-    return scanGuid != tls::ScanGuid();
-}
-
 bool TlScanOverseer::getScanHeader(tls::ScanGuid scanGuid, tls::ScanHeader& info)
 {
     std::lock_guard<std::mutex> lock(m_activeMutex);
