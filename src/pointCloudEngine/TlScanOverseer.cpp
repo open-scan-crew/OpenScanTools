@@ -62,6 +62,7 @@ void TlScanOverseer::shutdown()
         delete (scan.second);
     }
     m_activeScans.clear();
+    m_scanPathByGuid.clear();
 }
 
 void TlScanOverseer::setWorkingScansTransfo(const std::vector<tls::PointCloudInstance>& workingTransfo)
@@ -81,6 +82,25 @@ void TlScanOverseer::setWorkingScansTransfo(const std::vector<tls::PointCloudIns
             s_workingScansTransfo.push_back({ *it_scan->second, guid_transfo.transfo, guid_transfo.isClippable });
             //s_workingScansTransfo.emplace_back(*it_scan->second, guid_transfo.tranfo, guid_transfo.isClippable);
     }
+}
+
+void TlScanOverseer::registerScanPath(tls::ScanGuid scanGuid, const std::filesystem::path& scanPath)
+{
+    if (scanGuid == tls::ScanGuid() || scanPath.empty())
+        return;
+
+    std::lock_guard<std::mutex> lock(m_activeMutex);
+    m_scanPathByGuid.insert_or_assign(scanGuid, scanPath);
+}
+
+bool TlScanOverseer::getRegisteredScanPath(tls::ScanGuid scanGuid, std::filesystem::path& scanPath)
+{
+    std::lock_guard<std::mutex> lock(m_activeMutex);
+    auto it = m_scanPathByGuid.find(scanGuid);
+    if (it == m_scanPathByGuid.end())
+        return false;
+    scanPath = it->second;
+    return true;
 }
 
 bool TlScanOverseer::getScanGuid(std::filesystem::path _filePath, tls::ScanGuid& _scanGuid)
@@ -110,6 +130,8 @@ bool TlScanOverseer::getScanGuid(std::filesystem::path _filePath, tls::ScanGuid&
     if (it_scan != m_activeScans.end())
     {
         _scanGuid = it_scan->second->getGuid();
+        // Keep path registry in sync even on cache hits.
+        m_scanPathByGuid.insert_or_assign(_scanGuid, _filePath);
         // No memory leak
         delete newScan;
         ++m_guidLookupStats.successCount;
@@ -121,12 +143,40 @@ bool TlScanOverseer::getScanGuid(std::filesystem::path _filePath, tls::ScanGuid&
 
     m_activeScans.insert({ newScan->getGuid(), newScan });
     _scanGuid = newScan->getGuid();
+    m_scanPathByGuid.insert_or_assign(_scanGuid, _filePath);
     ++m_guidLookupStats.successCount;
     ++m_guidLookupStats.insertedActiveCount;
     m_guidLookupStats.activeScanPeak = std::max<uint64_t>(m_guidLookupStats.activeScanPeak, m_activeScans.size());
     if ((m_guidLookupStats.totalCalls % 100) == 0)
         logGuidLookupStatsLocked("periodic");
 
+    return true;
+}
+
+bool TlScanOverseer::lookupScanGuid(const std::filesystem::path& filePath, tls::ScanGuid& scanGuid)
+{
+    scanGuid = tls::ScanGuid();
+
+    tls::ImageFile imageFile;
+    if (!imageFile.open(filePath, tls::usage::read))
+    {
+        return false;
+    }
+
+    // NOTE:
+    // This path is intentionally "header-only lookup":
+    // - no insertion in m_activeScans
+    // - no long-lived runtime scan object
+    // - deterministic handle release right after header read
+    scanGuid = imageFile.getPointCloudHeader(0).guid;
+    imageFile.close();
+
+    if (scanGuid == tls::ScanGuid())
+        return false;
+
+    // Pass 2.2.A:
+    // Persist GUID->path knowledge without forcing active runtime registration.
+    registerScanPath(scanGuid, filePath);
     return true;
 }
 
@@ -297,6 +347,7 @@ bool TlScanOverseer::doFileCopy(scanCopyInfo& copyInfo)
                 delete oldScan;
 
                 m_activeScans.insert({ copyInfo.guid, newScanFile });
+                m_scanPathByGuid.insert_or_assign(copyInfo.guid, copyInfo.path);
                 return true;
             }
             else
@@ -315,7 +366,11 @@ bool TlScanOverseer::doFileCopy(scanCopyInfo& copyInfo)
             std::filesystem::copy(old_path, copyInfo.path, options);
 
             if (copyInfo.savePath || copyInfo.removeSource)
+            {
                 oldScan->setPath(copyInfo.path);
+                std::lock_guard<std::mutex> lock(m_activeMutex);
+                m_scanPathByGuid.insert_or_assign(copyInfo.guid, copyInfo.path);
+            }
 
             if (copyInfo.removeSource)
                 std::filesystem::remove(old_path);

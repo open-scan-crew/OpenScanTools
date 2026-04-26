@@ -188,6 +188,11 @@ public:
     static void setWorkingScansTransfo(const std::vector<tls::PointCloudInstance>& workingScans);
 
     // Management of the active resources
+    // Register or update a known file path for a scan GUID.
+    // Used to decouple GUID resolution from runtime activation.
+    void registerScanPath(tls::ScanGuid scanGuid, const std::filesystem::path& scanPath);
+    bool getRegisteredScanPath(tls::ScanGuid scanGuid, std::filesystem::path& scanPath);
+
     // Lightweight lookup: reads GUID from TLS header without registering a runtime-active scan.
     bool lookupScanGuid(const std::filesystem::path& filePath, tls::ScanGuid& scanGuid);
     bool getScanGuid(std::filesystem::path filePath, tls::ScanGuid& scanGuid);
@@ -451,6 +456,8 @@ private:
 
     // Accessible files and scans
     std::unordered_map<tls::ScanGuid, EmbeddedScan*> m_activeScans;
+    // Persistent GUID->path knowledge, independent from currently active runtime scans.
+    std::unordered_map<tls::ScanGuid, std::filesystem::path> m_scanPathByGuid;
     static thread_local std::vector<WorkingScanInfo> s_workingScansTransfo;
     GuidLookupStats m_guidLookupStats;
 
