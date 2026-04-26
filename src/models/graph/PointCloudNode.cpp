@@ -71,8 +71,13 @@ void PointCloudNode::setTlsFilePath(const std::filesystem::path& scanPath, bool 
 std::filesystem::path PointCloudNode::getTlsFilePath() const
 {
     std::filesystem::path file_path;
-    tlGetCurrentScanPath(m_scanGuid, file_path);
-    return file_path;
+    if (tlGetCurrentScanPath(m_scanGuid, file_path))
+        return file_path;
+
+    // Pass 2.2.C:
+    // Keep serialization robust when runtime scan activation is deferred.
+    // backup_file_path_ is populated during load/import setTlsFilePath calls.
+    return backup_file_path_;
 }
 
 void PointCloudNode::setManipulable(bool is_manipulable)
