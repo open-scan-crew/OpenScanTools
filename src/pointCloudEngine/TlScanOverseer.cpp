@@ -295,6 +295,7 @@ bool TlScanOverseer::getScanHeader(tls::ScanGuid scanGuid, tls::ScanHeader& info
 bool TlScanOverseer::getScanPath(tls::ScanGuid scanGuid, std::filesystem::path& scanPath)
 {
     std::lock_guard<std::mutex> lock(m_activeMutex);
+    ensureScanActive_locked(scanGuid);
 
     auto it_scan = m_activeScans.find(scanGuid);
     if (it_scan != m_activeScans.end())
