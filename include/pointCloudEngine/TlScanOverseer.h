@@ -435,6 +435,9 @@ private:
 
     std::vector<glm::dvec3> samplePoints(const int& numberOfPoints, const ClippingAssembly& clippingAssembly);
     static bool isCylinderCloseToPreviousCylinders(const std::vector<glm::dvec3>& cylinderCenters, const std::vector<glm::dvec3>& cylinderDirections, const std::vector<double>& cylinderRadii, const glm::dvec3& cCenter, const glm::dvec3& cDirection, const double& cRadius);
+    // Ensure a scan is available in m_activeScans.
+    // The caller must hold m_activeMutex.
+    bool ensureScanActive_locked(tls::ScanGuid scanGuid);
 
 private:
     // Aggregated counters to diagnose massive GUID reload behaviors

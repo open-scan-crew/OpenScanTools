@@ -73,6 +73,10 @@ void TlScanOverseer::setWorkingScansTransfo(const std::vector<tls::PointCloudIns
     // Else find the working scans instance in the active scans
     for (const tls::PointCloudInstance& guid_transfo : workingTransfo)
     {
+        // Pass 2.2.B:
+        // Ensure runtime activation on demand from the registered GUID->path map.
+        instance.ensureScanActive_locked(guid_transfo.header.guid);
+
         auto it_scan = instance.m_activeScans.find(guid_transfo.header.guid);
         if (it_scan == instance.m_activeScans.end())
         {
@@ -82,6 +86,31 @@ void TlScanOverseer::setWorkingScansTransfo(const std::vector<tls::PointCloudIns
             s_workingScansTransfo.push_back({ *it_scan->second, guid_transfo.transfo, guid_transfo.isClippable });
             //s_workingScansTransfo.emplace_back(*it_scan->second, guid_transfo.tranfo, guid_transfo.isClippable);
     }
+}
+
+bool TlScanOverseer::ensureScanActive_locked(tls::ScanGuid scanGuid)
+{
+    if (scanGuid == tls::ScanGuid())
+        return false;
+
+    if (m_activeScans.find(scanGuid) != m_activeScans.end())
+        return true;
+
+    auto itPath = m_scanPathByGuid.find(scanGuid);
+    if (itPath == m_scanPathByGuid.end())
+        return false;
+
+    EmbeddedScan* newScan = new EmbeddedScan(itPath->second);
+    if (newScan->getGuid() != scanGuid)
+    {
+        delete newScan;
+        return false;
+    }
+
+    m_activeScans.insert({ scanGuid, newScan });
+    ++m_guidLookupStats.insertedActiveCount;
+    m_guidLookupStats.activeScanPeak = std::max<uint64_t>(m_guidLookupStats.activeScanPeak, m_activeScans.size());
+    return true;
 }
 
 void TlScanOverseer::registerScanPath(tls::ScanGuid scanGuid, const std::filesystem::path& scanPath)
@@ -183,6 +212,7 @@ bool TlScanOverseer::lookupScanGuid(const std::filesystem::path& filePath, tls::
 bool TlScanOverseer::getScanHeader(tls::ScanGuid scanGuid, tls::ScanHeader& info)
 {
     std::lock_guard<std::mutex> lock(m_activeMutex);
+    ensureScanActive_locked(scanGuid);
 
     auto it_scan = m_activeScans.find(scanGuid);
     if (it_scan != m_activeScans.end())
@@ -200,6 +230,7 @@ bool TlScanOverseer::getScanHeader(tls::ScanGuid scanGuid, tls::ScanHeader& info
 bool TlScanOverseer::getScanPath(tls::ScanGuid scanGuid, std::filesystem::path& scanPath)
 {
     std::lock_guard<std::mutex> lock(m_activeMutex);
+    ensureScanActive_locked(scanGuid);
 
     auto it_scan = m_activeScans.find(scanGuid);
     if (it_scan != m_activeScans.end())
@@ -230,6 +261,10 @@ void TlScanOverseer::copyScanFile_async(const tls::ScanGuid& scanGuid, const std
 void TlScanOverseer::freeScan_async(tls::ScanGuid scanGuid, bool deletePhysicalFile)
 {
     std::lock_guard<std::mutex> lock(m_activeMutex);
+    // Pass 2.2.B:
+    // Deletion/free workflows may target a scan resolved by GUID/path registry
+    // but not yet active in runtime. Activate on demand before freeing.
+    ensureScanActive_locked(scanGuid);
 
     // Find the Scanfile
     auto it_scan = m_activeScans.find(scanGuid);
@@ -392,6 +427,7 @@ bool TlScanOverseer::getScanView(tls::ScanGuid _scanGuid, const TlProjectionInfo
     EmbeddedScan* scan;
     {
         std::lock_guard<std::mutex> lock(m_activeMutex);
+        ensureScanActive_locked(_scanGuid);
 
         auto it_scan = m_activeScans.find(_scanGuid);
         if (it_scan == m_activeScans.end())
