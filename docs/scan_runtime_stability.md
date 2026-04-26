@@ -1,183 +1,183 @@
-# Note technique — Stabilité runtime scans (chargement/import gros volumes)
+# Technical Note — Scan Runtime Stability (Large Load/Import Workloads)
 
-## 1) Contexte initial
+## 1) Initial context
 
-Le problème d’origine concernait les projets volumineux (plusieurs centaines de scans), avec un seuil récurrent autour de 507/508 scans :
-- échecs d’ouverture TLS,
-- UUID invalides,
-- scans absents ou marqués comme manquants,
-- instabilités lors d’imports massifs.
+The original issue affected projects with very large numbers of scans, with a recurring threshold around 507/508 scans:
+- TLS open failures,
+- invalid or null UUIDs,
+- missing scans,
+- unstable behavior during massive imports.
 
-Le comportement historique attendu (projets >1000 scans possibles) imposait de traiter le problème de manière systémique, pas uniquement locale.
-
----
-
-## 2) Stratégie globale appliquée
-
-La résolution a été menée de façon incrémentale pour limiter les régressions :
-
-1. **Plan initial en 3 passes**
-   - Pass 1 : instrumentation/mesure,
-   - Pass 2 : correction technique principale,
-   - Pass 3 : validation/robustesse finale.
-
-2. **Pass 2 subdivisée**
-   - 2.1 : séparation lookup GUID vs activation runtime,
-   - 2.2 : activation différée + stabilisation,
-   - 2.3 : finition (logs/documentation).
-
-3. **Pass 2.2 subdivisée**
-   - 2.2.A : registre GUID->path,
-   - 2.2.B : activation lazy à la demande,
-   - 2.2.C : robustesse persistance/save.
-
-4. **Pass 2.2.C ensuite scindée en blocs**
-   - Bloc A = 2.2.C (save/path fallback),
-   - Bloc B = import/drag&drop massif.
-
-5. **Bloc B subdivisé**
-   - B2.1 : hotfix immédiat capacité fichiers,
-   - B2.2 : politique structurelle budget/éviction,
-   - B2.3 : clarification logs + finalisation.
+Historically, the product was expected to handle very large projects (including >1000 scans), so the fix had to be systemic, not local.
 
 ---
 
-## 3) Détail des travaux réalisés
+## 2) Global resolution strategy
+
+The remediation was intentionally incremental to minimize regressions:
+
+1. **Initial 3-pass plan**
+   - Pass 1: instrumentation/measurement,
+   - Pass 2: main technical correction,
+   - Pass 3: final hardening/validation.
+
+2. **Pass 2 split**
+   - 2.1: GUID lookup vs runtime activation separation,
+   - 2.2: deferred activation + stabilization,
+   - 2.3: finishing (logs/documentation).
+
+3. **Pass 2.2 split**
+   - 2.2.A: GUID->path registry,
+   - 2.2.B: lazy runtime activation,
+   - 2.2.C: save/persistence robustness.
+
+4. **2.2.C split into blocks**
+   - Block A = 2.2.C (save/path fallback),
+   - Block B = massive import (drag&drop/import button).
+
+5. **Block B split**
+   - B2.1: immediate file-capacity hotfix,
+   - B2.2: structural budget/eviction policy,
+   - B2.3: logging clarification + finalization.
+
+---
+
+## 3) Work performed
 
 ### 3.1 Pass 1 — Instrumentation
 
-Objectif : prouver la cause en conditions réelles.
+Goal: prove the root cause under real workload.
 
-Mise en place de métriques d’activité autour de la résolution GUID :
-- nombre d’appels,
-- succès/échecs,
-- cache hit,
-- insertions actives,
-- pic de scans actifs.
+Added runtime metrics around GUID resolution:
+- total calls,
+- success/failure counts,
+- cache hits,
+- active insertions,
+- active peak.
 
-Résultat : confirmation d’un comportement de saturation sous gros volume.
-
----
-
-### 3.2 Pass 2.1 — Découplage lookup/activation
-
-Objectif : éviter d’activer des scans juste pour lire un GUID.
-
-Changements :
-- ajout d’un **lookup léger** (`tlLookupScanGuid`) qui lit l’en-tête TLS sans activer un `EmbeddedScan` runtime,
-- adaptation des chemins reload/import pour exploiter ce lookup quand possible.
-
-Effet : baisse de l’activation massive au chargement, mais besoin d’une vraie politique runtime pour l’affichage et opérations associées.
+Outcome: confirmed saturation behavior under heavy load.
 
 ---
 
-### 3.3 Pass 2.2.A — Registre GUID->path
+### 3.2 Pass 2.1 — Lookup/activation decoupling
 
-Objectif : conserver une source de vérité chemin même si le scan n’est pas actif.
+Goal: avoid activating scans just to read a GUID.
 
-Changements :
-- ajout d’un registre persistant `GUID -> path`,
-- synchronisation lors des opérations clés (lookup/copy/etc.).
+Changes:
+- introduced **lightweight lookup** (`tlLookupScanGuid`) that reads TLS header data without creating a runtime `EmbeddedScan`,
+- adjusted reload/import code paths to use lightweight lookup when possible.
 
-Effet : base nécessaire pour activation lazy et persistance robuste.
-
----
-
-### 3.4 Pass 2.2.B — Activation lazy runtime
-
-Objectif : activer un scan uniquement lorsqu’un besoin runtime l’exige.
-
-Changements :
-- helper d’activation lazy (`ensureScanActive_locked`),
-- intégration dans les points d’entrée runtime (vue, infos, path, free, etc.) selon le besoin.
-
-Effet : restauration du comportement utilisateur (rendu/opérations) avec activation à la demande.
+Outcome: reduced massive activation during load; further runtime policy work still required.
 
 ---
 
-### 3.5 Pass 2.2.C (Bloc A) — Robustesse save/persistance
+### 3.3 Pass 2.2.A — GUID->path registry
 
-Objectif : éviter des chemins vides/invalides en sauvegarde lorsque des scans ne sont pas actifs.
+Goal: preserve a path source of truth even when scans are not active.
 
-Changements :
-- fallback path basé registre/backup dans les chemins de sérialisation.
+Changes:
+- added persistent `GUID -> path` registry,
+- synchronized registry on key operations (lookup/copy/etc.).
 
-Effet : stabilisation save/reopen (pas de corruption de chemins liée à l’état runtime).
-
----
-
-### 3.6 Bloc B (import/drag&drop massif)
-
-#### B2.1 — Hotfix capacité fichiers (Windows)
-
-Objectif : supprimer le mur immédiat autour de 507/508 sur batch import.
-
-Changements :
-- augmentation de la limite CRT (`_setmaxstdio`) au démarrage (Windows).
-
-Effet : import 512 scans passe, disparition des échecs systématiques >507 observés initialement.
-
-#### B2.2 — Politique structurelle budget/éviction
-
-Objectif : empêcher la croissance non bornée des scans actifs.
-
-Changements :
-- budget de scans actifs,
-- éviction de scans supprimables avant nouvelle activation,
-- logs throttlés quand le budget bloque une activation.
-
-Effet : meilleure tenue dans les longues sessions et gros volumes.
-
-#### B2.3 — Clarification des logs
-
-Objectif : rendre le diagnostic terrain fiable et non ambigu.
-
-Changements :
-- différenciation explicite des causes (open fail, guid invalide, scan non actif, budget, path unresolved),
-- réduction du bruit (throttling),
-- messages opérationnels pour support/QA.
-
-Effet : lecture des incidents nettement améliorée.
+Outcome: foundation for lazy activation and robust persistence.
 
 ---
 
-## 4) Invariants techniques à retenir
+### 3.4 Pass 2.2.B — Lazy runtime activation
 
-1. **Lookup GUID ≠ activation runtime**.
-2. Le registre **GUID->path** est la base de résolution quand le scan n’est pas actif.
-3. L’activation runtime est **lazy** et désormais **bornée** (budget/éviction).
-4. La persistance ne doit pas dépendre uniquement d’un scan actif.
-5. Les erreurs doivent être loggées avec une cause explicite (diagnostic orienté action).
+Goal: activate scans only when runtime access actually needs them.
+
+Changes:
+- added lazy activation helper (`ensureScanActive_locked`),
+- integrated activation on key runtime entry points (view/info/path/free) as required.
+
+Outcome: restored user-visible behavior with on-demand activation.
 
 ---
 
-## 5) Résultat fonctionnel actuel (synthèse)
+### 3.5 Pass 2.2.C (Block A) — Save/persistence robustness
 
-Les campagnes de tests utilisateur menées sur :
-- projets petits et volumineux,
-- import massif (drag&drop + import button),
-- suppression avec/sans suppression physique,
+Goal: prevent empty/invalid paths during save when scans are not active.
+
+Changes:
+- added fallback path behavior using registry/backup path in serialization-related flows.
+
+Outcome: stable save/reopen behavior (no path corruption due to runtime inactive state).
+
+---
+
+### 3.6 Block B (massive import)
+
+#### B2.1 — File-capacity hotfix (Windows)
+
+Goal: remove immediate ~507/508 import wall.
+
+Changes:
+- raised CRT stream limit (`_setmaxstdio`) at startup (Windows).
+
+Outcome: 512-scan import succeeded; systematic >507 failures disappeared.
+
+#### B2.2 — Structural budget/eviction policy
+
+Goal: prevent unbounded growth of active scans.
+
+Changes:
+- active scan budget,
+- eviction of deletable active scans before new activation,
+- throttled warning logs when budget blocks activation.
+
+Outcome: improved stability for long sessions and large workloads.
+
+#### B2.3 — Log clarification
+
+Goal: make diagnostics reliable and unambiguous.
+
+Changes:
+- explicit cause-oriented logs (open failure, invalid GUID header, inactive scan, budget limit, unresolved path),
+- noise reduction via throttling,
+- operator-friendly messages for support/QA.
+
+Outcome: significantly improved incident readability.
+
+---
+
+## 4) Technical invariants
+
+1. **GUID lookup is not runtime activation**.
+2. **GUID->path registry** is the path source of truth when a scan is not active.
+3. Runtime activation is **lazy** and now **bounded** (budget/eviction).
+4. Persistence must not rely only on active runtime state.
+5. Errors must be logged with explicit causes.
+
+---
+
+## 5) Current functional status (summary)
+
+User validation across:
+- small and large projects,
+- massive import (drag&drop + import button),
+- deletion with/without physical file deletion,
 - save/reopen,
-- projets anciens,
+- legacy project opening,
 
-sont jugées probantes.
-
----
-
-## 6) Limites connues / suite
-
-Point identifié à traiter ultérieurement :
-- lorsqu’un scan est physiquement déplacé hors du dossier `Scans`, le log signale l’échec de résolution mais l’indicateur visuel `?` n’est pas toujours affiché de manière cohérente dans l’arborescence.
-
-Ce point est isolé et peut être traité dans une tâche dédiée de cohérence UI/état modèle.
+is considered successful.
 
 ---
 
-## 7) Recommandation d’exploitation
+## 6) Known limitation / follow-up
 
-Conserver :
-- les logs clarifiés,
-- les tests de charge 50/512/650 scans,
-- les scénarios suppression/save/reopen,
+Known point to address later:
+- when scans are physically moved outside the `Scans` folder, logs correctly report resolution failures but the `?` indicator is not always consistently displayed in the project tree.
 
-comme base de non-régression pour les prochaines évolutions du moteur scan.
+This is isolated and should be handled in a dedicated UI/model consistency task.
+
+---
+
+## 7) Operational recommendation
+
+Keep the following as non-regression baseline:
+- clarified logs,
+- load tests at 50/512/650 scans,
+- delete/save/reopen scenarios,
+
+for future scan-runtime evolutions.
