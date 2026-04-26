@@ -6,6 +6,7 @@
 #include "models/3d/Measures.h"
 #include "utils/Logger.h"
 #include <queue>
+#include <limits>
 #include <glm/gtx/quaternion.hpp>
 using namespace std::chrono;
 
@@ -46,6 +47,8 @@ void TlScanOverseer::shutdown()
     }
     m_activeScans.clear();
     m_knownScanPaths.clear();
+    m_scanLastUseTick.clear();
+    m_scanUseTick = 0;
 }
 
 void TlScanOverseer::setWorkingScansTransfo(const std::vector<tls::PointCloudInstance>& workingTransfo)
@@ -62,7 +65,10 @@ void TlScanOverseer::setWorkingScansTransfo(const std::vector<tls::PointCloudIns
             Logger::log(VKLog) << "Error: try to view a Scan not present, UUID = " << guid_transfo.header.guid << Logger::endl;
         }
         else
+        {
+            instance.touchScan_nolock(guid_transfo.header.guid);
             s_workingScansTransfo.push_back({ *scan, guid_transfo.transfo, guid_transfo.isClippable });
+        }
             //s_workingScansTransfo.emplace_back(*it_scan->second, guid_transfo.tranfo, guid_transfo.isClippable);
     }
 }
@@ -103,6 +109,7 @@ bool TlScanOverseer::getScanHeader(tls::ScanGuid scanGuid, tls::ScanHeader& info
     EmbeddedScan* scan = ensureScanLoaded_nolock(scanGuid);
     if (scan != nullptr)
     {
+        touchScan_nolock(scanGuid);
         scan->getInfo(info);
         return true;
     }
@@ -119,6 +126,7 @@ bool TlScanOverseer::getScanPath(tls::ScanGuid scanGuid, std::filesystem::path& 
 
     if (resolveScanPath_nolock(scanGuid, scanPath))
     {
+        touchScan_nolock(scanGuid);
         return true;
     }
     else
@@ -157,6 +165,7 @@ void TlScanOverseer::freeScan_async(tls::ScanGuid scanGuid, bool deletePhysicalF
         m_scansToFree.push_back(scanFile);
 
         m_activeScans.erase(it_scan);
+        m_scanLastUseTick.erase(scanGuid);
         if (deletePhysicalFile)
             m_knownScanPaths.erase(scanGuid);
     }
@@ -245,6 +254,7 @@ bool TlScanOverseer::doFileCopy(scanCopyInfo& copyInfo)
                 delete oldScan;
 
                 m_activeScans.insert({ copyInfo.guid, newScanFile });
+                touchScan_nolock(copyInfo.guid);
                 return true;
             }
             else
@@ -319,6 +329,7 @@ bool TlScanOverseer::getScanView(tls::ScanGuid _scanGuid, const TlProjectionInfo
         }
 
         // The current frame index lock the scan resources before the mutex is unlock
+        touchScan_nolock(_scanGuid);
         globalOk = scan->getGlobalDrawInfo(_scanDrawInfo);
     }
 
@@ -374,6 +385,7 @@ bool TlScanOverseer::testClippingEffect(tls::ScanGuid _scanGuid, const Transform
             Logger::log(VKLog) << "Error: try to view a Scan not present, UUID = " << _scanGuid << Logger::endl;
             return false;
         }
+        touchScan_nolock(_scanGuid);
     }
 
     return scan->testPointsClippedOut(_modelMat, _clippingAssembly);
@@ -391,6 +403,7 @@ bool TlScanOverseer::clipScan(tls::ScanGuid _scanGuid, const TransformationModul
             Logger::log(VKLog) << "Error: try to view a Scan not present, UUID = " << _scanGuid << Logger::endl;
             return false;
         }
+        touchScan_nolock(_scanGuid);
     }
 
     // Send the fileWriter to the TlScan and let it do the points/cells specific job.
@@ -409,6 +422,7 @@ bool TlScanOverseer::computeOutlierStats(tls::ScanGuid _scanGuid, const Transfor
             Logger::log(VKLog) << "Error: try to view a Scan not present, UUID = " << _scanGuid << Logger::endl;
             return false;
         }
+        touchScan_nolock(_scanGuid);
     }
 
     return scan->computeOutlierStats(_modelMat, _clippingAssembly, kNeighbors, samplingPercent, beta, stats, progress);
@@ -426,6 +440,7 @@ bool TlScanOverseer::filterOutliersAndWrite(tls::ScanGuid _scanGuid, const Trans
             Logger::log(VKLog) << "Error: try to view a Scan not present, UUID = " << _scanGuid << Logger::endl;
             return false;
         }
+        touchScan_nolock(_scanGuid);
     }
 
     return scan->filterOutliersAndWrite(_modelMat, _clippingAssembly, kNeighbors, stats, nSigma, beta, _outScan, removedPoints, progress);
@@ -443,6 +458,7 @@ bool TlScanOverseer::filterAndWrite(tls::ScanGuid scanGuid, const Transformation
             Logger::log(VKLog) << "Error: try to view a Scan not present, UUID = " << scanGuid << Logger::endl;
             return false;
         }
+        touchScan_nolock(scanGuid);
     }
 
     return scan->filterAndWrite(modelMat, clippingAssembly, colorimetricSettings, polygonalSelectorSettings, mode, outScan, keptPoints, progress);
@@ -460,6 +476,7 @@ bool TlScanOverseer::balanceColorsAndWrite(tls::ScanGuid scanGuid, const Transfo
             Logger::log(VKLog) << "Error: try to view a Scan not present, UUID = " << scanGuid << Logger::endl;
             return false;
         }
+        touchScan_nolock(scanGuid);
     }
 
     return scan->balanceColorsAndWrite(modelMat, clippingAssembly, kMin, kMax, trimPercent, sharpnessBlend, applyOnIntensity, applyOnRgb, externalPointsProvider, outScan, modifiedPoints, progress);
@@ -485,11 +502,17 @@ EmbeddedScan* TlScanOverseer::ensureScanLoaded_nolock(const tls::ScanGuid& scanG
 {
     auto itActive = m_activeScans.find(scanGuid);
     if (itActive != m_activeScans.end())
+    {
+        touchScan_nolock(scanGuid);
         return itActive->second;
+    }
 
     auto itPath = m_knownScanPaths.find(scanGuid);
     if (itPath == m_knownScanPaths.end())
         return nullptr;
+
+    // 2B.1 - Keep active scans under a bounded budget before opening a new file.
+    evictScansIfNeeded_nolock(1);
 
     EmbeddedScan* loadedScan = new EmbeddedScan(itPath->second);
     xg::Guid nullGuid;
@@ -512,6 +535,7 @@ EmbeddedScan* TlScanOverseer::ensureScanLoaded_nolock(const tls::ScanGuid& scanG
 
     m_activeScans.insert({ scanGuid, loadedScan });
     m_knownScanPaths.insert_or_assign(scanGuid, loadedScan->getPath());
+    touchScan_nolock(scanGuid);
     return loadedScan;
 }
 
@@ -533,6 +557,54 @@ bool TlScanOverseer::resolveScanPath_nolock(const tls::ScanGuid& scanGuid, std::
     }
 
     return false;
+}
+
+void TlScanOverseer::touchScan_nolock(const tls::ScanGuid& scanGuid)
+{
+    m_scanLastUseTick[scanGuid] = ++m_scanUseTick;
+}
+
+void TlScanOverseer::evictScansIfNeeded_nolock(size_t reserveSlots)
+{
+    if (m_maxActiveScans == 0)
+        return;
+
+    while (m_activeScans.size() + reserveSlots > m_maxActiveScans)
+    {
+        tls::ScanGuid candidateGuid;
+        uint64_t oldestTick = std::numeric_limits<uint64_t>::max();
+        auto candidateIt = m_activeScans.end();
+
+        for (auto it = m_activeScans.begin(); it != m_activeScans.end(); ++it)
+        {
+            EmbeddedScan* scan = it->second;
+            if (scan == nullptr || !scan->canBeDeleted())
+                continue;
+
+            const auto tickIt = m_scanLastUseTick.find(it->first);
+            const uint64_t lastTick = (tickIt != m_scanLastUseTick.end()) ? tickIt->second : 0;
+            if (lastTick < oldestTick)
+            {
+                oldestTick = lastTick;
+                candidateGuid = it->first;
+                candidateIt = it;
+            }
+        }
+
+        if (candidateIt == m_activeScans.end())
+        {
+            Logger::log(IOLog) << "WARNING - cannot evict scan resources although active budget is reached. "
+                << "ActiveScans=" << m_activeScans.size() << " Budget=" << m_maxActiveScans
+                << " ReserveSlots=" << reserveSlots << Logger::endl;
+            break;
+        }
+
+        EmbeddedScan* scanToEvict = candidateIt->second;
+        scanToEvict->deleteFileWhenDestroyed(false);
+        m_scansToFree.push_back(scanToEvict);
+        m_activeScans.erase(candidateIt);
+        m_scanLastUseTick.erase(candidateGuid);
+    }
 }
 
 //tls::ScanGuid TlScanOverseer::clipNewScan(tls::ScanGuid _scanGuid, const glm::dmat4& _modelMat, const ClippingAssembly& _clippingAssembly, const std::filesystem::path& _outPath, uint64_t& pointsDeletedCount)

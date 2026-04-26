@@ -420,6 +420,8 @@ private:
     ~TlScanOverseer();
     EmbeddedScan* ensureScanLoaded_nolock(const tls::ScanGuid& scanGuid);
     bool resolveScanPath_nolock(const tls::ScanGuid& scanGuid, std::filesystem::path& scanPath);
+    void touchScan_nolock(const tls::ScanGuid& scanGuid);
+    void evictScansIfNeeded_nolock(size_t reserveSlots = 0);
 
     struct WorkingScanInfo
     {
@@ -440,6 +442,9 @@ private:
     // m_activeScans contains only scans currently loaded in memory.
     std::unordered_map<tls::ScanGuid, std::filesystem::path> m_knownScanPaths;
     std::unordered_map<tls::ScanGuid, EmbeddedScan*> m_activeScans;
+    std::unordered_map<tls::ScanGuid, uint64_t> m_scanLastUseTick;
+    uint64_t m_scanUseTick = 0;
+    size_t m_maxActiveScans = 256;
     static thread_local std::vector<WorkingScanInfo> s_workingScansTransfo;
 
     // Inaccessible scans waiting to be deleted (some frames after their last rendering)
