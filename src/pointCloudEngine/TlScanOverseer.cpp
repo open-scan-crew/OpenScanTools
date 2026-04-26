@@ -45,6 +45,7 @@ void TlScanOverseer::shutdown()
         delete (scan.second);
     }
     m_activeScans.clear();
+    m_knownScanPaths.clear();
 }
 
 void TlScanOverseer::setWorkingScansTransfo(const std::vector<tls::PointCloudInstance>& workingTransfo)
@@ -55,13 +56,13 @@ void TlScanOverseer::setWorkingScansTransfo(const std::vector<tls::PointCloudIns
     // Else find the working scans instance in the active scans
     for (const tls::PointCloudInstance& guid_transfo : workingTransfo)
     {
-        auto it_scan = instance.m_activeScans.find(guid_transfo.header.guid);
-        if (it_scan == instance.m_activeScans.end())
+        EmbeddedScan* scan = instance.ensureScanLoaded_nolock(guid_transfo.header.guid);
+        if (scan == nullptr)
         {
             Logger::log(VKLog) << "Error: try to view a Scan not present, UUID = " << guid_transfo.header.guid << Logger::endl;
         }
         else
-            s_workingScansTransfo.push_back({ *it_scan->second, guid_transfo.transfo, guid_transfo.isClippable });
+            s_workingScansTransfo.push_back({ *scan, guid_transfo.transfo, guid_transfo.isClippable });
             //s_workingScansTransfo.emplace_back(*it_scan->second, guid_transfo.tranfo, guid_transfo.isClippable);
     }
 }
@@ -80,17 +81,17 @@ bool TlScanOverseer::getScanGuid(std::filesystem::path _filePath, tls::ScanGuid&
     }
 
     std::lock_guard<std::mutex> lock(m_activeMutex);
-    auto it_scan = m_activeScans.find(newScan->getGuid());
-    if (it_scan != m_activeScans.end())
-    {
-        _scanGuid = it_scan->second->getGuid();
-        // No memory leak
-        delete newScan;
-        return true;
-    }
-
-    m_activeScans.insert({ newScan->getGuid(), newScan });
     _scanGuid = newScan->getGuid();
+    m_knownScanPaths.insert_or_assign(_scanGuid, newScan->getPath());
+
+    // Keep already active scans untouched, but do not force every GUID lookup
+    // to remain active in memory. This allows mass import operations to register
+    // scans without accumulating one open file handle per scan.
+    auto it_scan = m_activeScans.find(_scanGuid);
+    if (it_scan != m_activeScans.end())
+        m_knownScanPaths.insert_or_assign(_scanGuid, it_scan->second->getPath());
+
+    delete newScan;
 
     return true;
 }
@@ -99,10 +100,10 @@ bool TlScanOverseer::getScanHeader(tls::ScanGuid scanGuid, tls::ScanHeader& info
 {
     std::lock_guard<std::mutex> lock(m_activeMutex);
 
-    auto it_scan = m_activeScans.find(scanGuid);
-    if (it_scan != m_activeScans.end())
+    EmbeddedScan* scan = ensureScanLoaded_nolock(scanGuid);
+    if (scan != nullptr)
     {
-        it_scan->second->getInfo(info);
+        scan->getInfo(info);
         return true;
     }
     else
@@ -116,10 +117,8 @@ bool TlScanOverseer::getScanPath(tls::ScanGuid scanGuid, std::filesystem::path& 
 {
     std::lock_guard<std::mutex> lock(m_activeMutex);
 
-    auto it_scan = m_activeScans.find(scanGuid);
-    if (it_scan != m_activeScans.end())
+    if (resolveScanPath_nolock(scanGuid, scanPath))
     {
-        scanPath = it_scan->second->getPath();
         return true;
     }
     else
@@ -158,9 +157,14 @@ void TlScanOverseer::freeScan_async(tls::ScanGuid scanGuid, bool deletePhysicalF
         m_scansToFree.push_back(scanFile);
 
         m_activeScans.erase(it_scan);
+        if (deletePhysicalFile)
+            m_knownScanPaths.erase(scanGuid);
     }
     else
     {
+        // Keep the path registry in sync if the object was already unloaded.
+        if (deletePhysicalFile)
+            m_knownScanPaths.erase(scanGuid);
         Logger::log(IOLog) << "Info: Try to free a Scanfile not present, UUID = " << scanGuid << Logger::endl;
     }
 }
@@ -259,7 +263,11 @@ bool TlScanOverseer::doFileCopy(scanCopyInfo& copyInfo)
             std::filesystem::copy(old_path, copyInfo.path, options);
 
             if (copyInfo.savePath || copyInfo.removeSource)
+            {
                 oldScan->setPath(copyInfo.path);
+                std::lock_guard<std::mutex> lock(m_activeMutex);
+                m_knownScanPaths.insert_or_assign(copyInfo.guid, copyInfo.path);
+            }
 
             if (copyInfo.removeSource)
                 std::filesystem::remove(old_path);
@@ -303,18 +311,15 @@ bool TlScanOverseer::getScanView(tls::ScanGuid _scanGuid, const TlProjectionInfo
     {
         std::lock_guard<std::mutex> lock(m_activeMutex);
 
-        auto it_scan = m_activeScans.find(_scanGuid);
-        if (it_scan == m_activeScans.end())
+        scan = ensureScanLoaded_nolock(_scanGuid);
+        if (scan == nullptr)
         {
             Logger::log(VKLog) << "Error: try to view a scan not present, UUID = " << _scanGuid << Logger::endl;
             return false;
         }
-        else
-        {
-            scan = it_scan->second;
-            // The current frame index lock the scan resources before the mutex is unlock
-            globalOk = scan->getGlobalDrawInfo(_scanDrawInfo);
-        }
+
+        // The current frame index lock the scan resources before the mutex is unlock
+        globalOk = scan->getGlobalDrawInfo(_scanDrawInfo);
     }
 
     _scanDrawInfo.cellDrawInfo.clear();
@@ -363,15 +368,11 @@ bool TlScanOverseer::testClippingEffect(tls::ScanGuid _scanGuid, const Transform
     {
         std::lock_guard<std::mutex> lock(m_activeMutex);
 
-        auto it_scan = m_activeScans.find(_scanGuid);
-        if (it_scan == m_activeScans.end())
+        scan = ensureScanLoaded_nolock(_scanGuid);
+        if (scan == nullptr)
         {
             Logger::log(VKLog) << "Error: try to view a Scan not present, UUID = " << _scanGuid << Logger::endl;
             return false;
-        }
-        else
-        {
-            scan = it_scan->second;
         }
     }
 
@@ -384,15 +385,11 @@ bool TlScanOverseer::clipScan(tls::ScanGuid _scanGuid, const TransformationModul
     {
         std::lock_guard<std::mutex> lock(m_activeMutex);
 
-        auto it_scan = m_activeScans.find(_scanGuid);
-        if (it_scan == m_activeScans.end())
+        scan = ensureScanLoaded_nolock(_scanGuid);
+        if (scan == nullptr)
         {
             Logger::log(VKLog) << "Error: try to view a Scan not present, UUID = " << _scanGuid << Logger::endl;
             return false;
-        }
-        else
-        {
-            scan = it_scan->second;
         }
     }
 
@@ -406,15 +403,11 @@ bool TlScanOverseer::computeOutlierStats(tls::ScanGuid _scanGuid, const Transfor
     {
         std::lock_guard<std::mutex> lock(m_activeMutex);
 
-        auto it_scan = m_activeScans.find(_scanGuid);
-        if (it_scan == m_activeScans.end())
+        scan = ensureScanLoaded_nolock(_scanGuid);
+        if (scan == nullptr)
         {
             Logger::log(VKLog) << "Error: try to view a Scan not present, UUID = " << _scanGuid << Logger::endl;
             return false;
-        }
-        else
-        {
-            scan = it_scan->second;
         }
     }
 
@@ -427,15 +420,11 @@ bool TlScanOverseer::filterOutliersAndWrite(tls::ScanGuid _scanGuid, const Trans
     {
         std::lock_guard<std::mutex> lock(m_activeMutex);
 
-        auto it_scan = m_activeScans.find(_scanGuid);
-        if (it_scan == m_activeScans.end())
+        scan = ensureScanLoaded_nolock(_scanGuid);
+        if (scan == nullptr)
         {
             Logger::log(VKLog) << "Error: try to view a Scan not present, UUID = " << _scanGuid << Logger::endl;
             return false;
-        }
-        else
-        {
-            scan = it_scan->second;
         }
     }
 
@@ -448,13 +437,12 @@ bool TlScanOverseer::filterAndWrite(tls::ScanGuid scanGuid, const Transformation
     {
         std::lock_guard<std::mutex> lock(m_activeMutex);
 
-        auto it_scan = m_activeScans.find(scanGuid);
-        if (it_scan == m_activeScans.end())
+        scan = ensureScanLoaded_nolock(scanGuid);
+        if (scan == nullptr)
         {
             Logger::log(VKLog) << "Error: try to view a Scan not present, UUID = " << scanGuid << Logger::endl;
             return false;
         }
-        scan = it_scan->second;
     }
 
     return scan->filterAndWrite(modelMat, clippingAssembly, colorimetricSettings, polygonalSelectorSettings, mode, outScan, keptPoints, progress);
@@ -466,13 +454,12 @@ bool TlScanOverseer::balanceColorsAndWrite(tls::ScanGuid scanGuid, const Transfo
     {
         std::lock_guard<std::mutex> lock(m_activeMutex);
 
-        auto it_scan = m_activeScans.find(scanGuid);
-        if (it_scan == m_activeScans.end())
+        scan = ensureScanLoaded_nolock(scanGuid);
+        if (scan == nullptr)
         {
             Logger::log(VKLog) << "Error: try to view a Scan not present, UUID = " << scanGuid << Logger::endl;
             return false;
         }
-        scan = it_scan->second;
     }
 
     return scan->balanceColorsAndWrite(modelMat, clippingAssembly, kMin, kMax, trimPercent, sharpnessBlend, applyOnIntensity, applyOnRgb, externalPointsProvider, outScan, modifiedPoints, progress);
@@ -492,6 +479,60 @@ void TlScanOverseer::collectPointsInGeometricBox(const GeometricBox& box, const 
         pair.scan.setComputeTransfo(pair.transfo.getCenter(), pair.transfo.getOrientation());
         pair.scan.collectPointsInGeometricBox(box, pair.transfo, localAssembly, result);
     }
+}
+
+EmbeddedScan* TlScanOverseer::ensureScanLoaded_nolock(const tls::ScanGuid& scanGuid)
+{
+    auto itActive = m_activeScans.find(scanGuid);
+    if (itActive != m_activeScans.end())
+        return itActive->second;
+
+    auto itPath = m_knownScanPaths.find(scanGuid);
+    if (itPath == m_knownScanPaths.end())
+        return nullptr;
+
+    EmbeddedScan* loadedScan = new EmbeddedScan(itPath->second);
+    xg::Guid nullGuid;
+    if (loadedScan->getGuid() == nullGuid)
+    {
+        Logger::log(IOLog) << "Error: failed to reload scan from registry, UUID = " << scanGuid
+            << " path = " << itPath->second << Logger::endl;
+        delete loadedScan;
+        return nullptr;
+    }
+
+    if (loadedScan->getGuid() != scanGuid)
+    {
+        Logger::log(IOLog) << "Error: scan GUID mismatch while reloading. Expected = "
+            << scanGuid << ", actual = " << loadedScan->getGuid()
+            << ", path = " << itPath->second << Logger::endl;
+        delete loadedScan;
+        return nullptr;
+    }
+
+    m_activeScans.insert({ scanGuid, loadedScan });
+    m_knownScanPaths.insert_or_assign(scanGuid, loadedScan->getPath());
+    return loadedScan;
+}
+
+bool TlScanOverseer::resolveScanPath_nolock(const tls::ScanGuid& scanGuid, std::filesystem::path& scanPath)
+{
+    auto itActive = m_activeScans.find(scanGuid);
+    if (itActive != m_activeScans.end())
+    {
+        scanPath = itActive->second->getPath();
+        m_knownScanPaths.insert_or_assign(scanGuid, scanPath);
+        return true;
+    }
+
+    auto itKnown = m_knownScanPaths.find(scanGuid);
+    if (itKnown != m_knownScanPaths.end())
+    {
+        scanPath = itKnown->second;
+        return true;
+    }
+
+    return false;
 }
 
 //tls::ScanGuid TlScanOverseer::clipNewScan(tls::ScanGuid _scanGuid, const glm::dmat4& _modelMat, const ClippingAssembly& _clippingAssembly, const std::filesystem::path& _outPath, uint64_t& pointsDeletedCount)

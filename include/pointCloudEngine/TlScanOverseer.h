@@ -418,6 +418,8 @@ public:
 private:
     TlScanOverseer();
     ~TlScanOverseer();
+    EmbeddedScan* ensureScanLoaded_nolock(const tls::ScanGuid& scanGuid);
+    bool resolveScanPath_nolock(const tls::ScanGuid& scanGuid, std::filesystem::path& scanPath);
 
     struct WorkingScanInfo
     {
@@ -434,6 +436,9 @@ private:
     std::atomic<bool> m_haltStream;
 
     // Accessible files and scans
+    // m_knownScanPaths is the persistent registry (GUID -> path).
+    // m_activeScans contains only scans currently loaded in memory.
+    std::unordered_map<tls::ScanGuid, std::filesystem::path> m_knownScanPaths;
     std::unordered_map<tls::ScanGuid, EmbeddedScan*> m_activeScans;
     static thread_local std::vector<WorkingScanInfo> s_workingScansTransfo;
 
