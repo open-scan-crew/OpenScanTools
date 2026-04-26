@@ -290,6 +290,33 @@ bool TlScanOverseer::lookupScanGuid(const std::filesystem::path& filePath, tls::
     return true;
 }
 
+bool TlScanOverseer::lookupScanGuid(const std::filesystem::path& filePath, tls::ScanGuid& scanGuid)
+{
+    scanGuid = tls::ScanGuid();
+
+    tls::ImageFile imageFile;
+    if (!imageFile.open(filePath, tls::usage::read))
+    {
+        return false;
+    }
+
+    // NOTE:
+    // This path is intentionally "header-only lookup":
+    // - no insertion in m_activeScans
+    // - no long-lived runtime scan object
+    // - deterministic handle release right after header read
+    scanGuid = imageFile.getPointCloudHeader(0).guid;
+    imageFile.close();
+
+    if (scanGuid == tls::ScanGuid())
+        return false;
+
+    // Pass 2.2.A:
+    // Persist GUID->path knowledge without forcing active runtime registration.
+    registerScanPath(scanGuid, filePath);
+    return true;
+}
+
 bool TlScanOverseer::getScanHeader(tls::ScanGuid scanGuid, tls::ScanHeader& info)
 {
     std::lock_guard<std::mutex> lock(m_activeMutex);
@@ -311,6 +338,7 @@ bool TlScanOverseer::getScanHeader(tls::ScanGuid scanGuid, tls::ScanHeader& info
 bool TlScanOverseer::getScanPath(tls::ScanGuid scanGuid, std::filesystem::path& scanPath)
 {
     std::lock_guard<std::mutex> lock(m_activeMutex);
+    ensureScanActive_locked(scanGuid);
 
     auto it_scan = m_activeScans.find(scanGuid);
     if (it_scan != m_activeScans.end())
