@@ -28,6 +28,8 @@
 //************************************************
 
 bool tlGetScanGuid(const std::filesystem::path& filePath, tls::ScanGuid& scanGuid);
+// Lightweight GUID lookup from file header only (does not register the scan as active runtime resource).
+bool tlLookupScanGuid(const std::filesystem::path& filePath, tls::ScanGuid& scanGuid);
 
 // Force the specified Scan to free all its system resources.
 // All other scans housed on the same file are kept alive.
