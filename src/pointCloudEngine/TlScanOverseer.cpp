@@ -18,6 +18,15 @@ constexpr double M_PI = 3.14159265358979323846;  /* pi */
 
 thread_local std::vector<TlScanOverseer::WorkingScanInfo> TlScanOverseer::s_workingScansTransfo = {};
 
+namespace
+{
+#ifdef _WIN32
+constexpr size_t kMaxActiveScanBudget = 1536;
+#else
+constexpr size_t kMaxActiveScanBudget = 768;
+#endif
+}
+
 TlScanOverseer::TlScanOverseer()
     : m_haltStream(false)
 {}
@@ -110,6 +119,26 @@ bool TlScanOverseer::ensureScanActive_locked(tls::ScanGuid scanGuid)
     if (itPath == m_scanPathByGuid.end())
         return false;
 
+    // Pass B2.2:
+    // Keep active runtime scans under a bounded budget by evicting deletable scans.
+    // This prevents unbounded growth during huge imports/navigation sessions.
+    if (m_activeScans.size() >= kMaxActiveScanBudget)
+    {
+        trimActiveScans_locked(kMaxActiveScanBudget - 1, scanGuid);
+    }
+    if (m_activeScans.size() >= kMaxActiveScanBudget)
+    {
+        static uint32_t s_budgetWarningCount = 0;
+        ++s_budgetWarningCount;
+        if ((s_budgetWarningCount % 50u) == 1u)
+        {
+            Logger::log(IOLog) << "Warning: active scan budget reached (" << m_activeScans.size()
+                << "/" << kMaxActiveScanBudget << "), cannot activate GUID=" << scanGuid
+                << " [occurrence=" << s_budgetWarningCount << "]" << Logger::endl;
+        }
+        return false;
+    }
+
     EmbeddedScan* newScan = new EmbeddedScan(itPath->second);
     if (newScan->getGuid() != scanGuid)
     {
@@ -121,6 +150,32 @@ bool TlScanOverseer::ensureScanActive_locked(tls::ScanGuid scanGuid)
     ++m_guidLookupStats.insertedActiveCount;
     m_guidLookupStats.activeScanPeak = std::max<uint64_t>(m_guidLookupStats.activeScanPeak, m_activeScans.size());
     return true;
+}
+
+void TlScanOverseer::trimActiveScans_locked(size_t targetMax, tls::ScanGuid preserveGuid)
+{
+    if (m_activeScans.size() <= targetMax)
+        return;
+
+    for (auto it = m_activeScans.begin(); it != m_activeScans.end() && m_activeScans.size() > targetMax; )
+    {
+        if (it->first == preserveGuid || it->second == nullptr)
+        {
+            ++it;
+            continue;
+        }
+
+        EmbeddedScan* scan = it->second;
+        if (scan->canBeDeleted())
+        {
+            m_scansToFree.push_back(scan);
+            it = m_activeScans.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
 }
 
 void TlScanOverseer::registerScanPath(tls::ScanGuid scanGuid, const std::filesystem::path& scanPath)

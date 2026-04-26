@@ -438,6 +438,8 @@ private:
     // Ensure a scan is available in m_activeScans.
     // The caller must hold m_activeMutex.
     bool ensureScanActive_locked(tls::ScanGuid scanGuid);
+    // Evict deletable active scans until size <= targetMax (excluding preserveGuid).
+    void trimActiveScans_locked(size_t targetMax, tls::ScanGuid preserveGuid);
 
 private:
     // Aggregated counters to diagnose massive GUID reload behaviors
