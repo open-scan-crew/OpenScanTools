@@ -420,6 +420,20 @@ namespace control::application
     private:
         bool start_;
     };
+
+    // Toggles whether OpenScanTools auto-frames the scene after Scantra signals
+    // a finished block adjustment. When disabled, the user-controlled camera
+    // position is preserved across adjustments. The flag is also persisted
+    // application-wide via QSettings (see ToolBarImportScantra).
+    class SetScantraAutoZoomOnAdjustment : public AControl
+    {
+    public:
+        SetScantraAutoZoomOnAdjustment(bool enabled);
+        void doFunction(Controller& controller) override;
+        ControlType getType() const override;
+    private:
+        bool enabled_;
+    };
 }
 
 #endif // !CONTROLAPPLICATION_H_

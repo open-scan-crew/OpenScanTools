@@ -11,6 +11,7 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/quaternion.hpp"
 
+#include <atomic>
 #include <filesystem>
 #include <thread>
 #include <unordered_set>
@@ -32,6 +33,12 @@ public:
 
     void project_created(const std::filesystem::path& path, const std::wstring& name);
     void project_opened(const std::filesystem::path& path);
+
+    // Controls whether OpenScanTools automatically re-frames (zooms-to-scene)
+    // the viewport after Scantra signals a finished block adjustment.
+    // Default: true (legacy behavior).
+    void setAutoZoomOnAdjustment(bool enabled);
+    bool getAutoZoomOnAdjustment() const;
 
 private:
     void run();
@@ -93,6 +100,9 @@ private:
     std::vector<Registration> scans_registered_;
     std::unordered_set<SafePtr<AGraphNode>> scan_selection_;
     GraphManager& graph_;
+
+    // Feature flag: see setAutoZoomOnAdjustment().
+    std::atomic<bool> auto_zoom_on_adjustment_{ true };
 };
 
 #endif

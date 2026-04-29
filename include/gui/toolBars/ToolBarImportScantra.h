@@ -21,8 +21,14 @@ private:
 
 public slots:
 	void slotImportScantra();
+	void slotDisableAutoZoomToggled(bool checked);
 
 private:
+	// Reads the persisted "disable auto-zoom" preference from QSettings and
+	// pushes it to the controller so the ScantraInterface picks it up on
+	// startup, regardless of whether the user toggles the checkbox later.
+	void loadAutoZoomPreference();
+
 	Ui::ToolBarImportScantra m_ui;
     IDataDispatcher &m_dataDispatcher;
 	QString m_openPath;

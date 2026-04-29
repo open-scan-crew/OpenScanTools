@@ -644,8 +644,27 @@ void ScantraInterface::manageVisibility(int current_station, int total_station, 
             }
         }
         controller_.actualizeTreeView(tree_update);
-        controller_.getControlListener()->notifyUIControl(new control::viewport::AdjustZoomToScene(SafePtr<CameraNode>()));
+        if (auto_zoom_on_adjustment_.load())
+        {
+            controller_.getControlListener()->notifyUIControl(new control::viewport::AdjustZoomToScene(SafePtr<CameraNode>()));
+        }
+        else
+        {
+            Logger::log(LoggerMode::IOLog) << "Auto-zoom on Scantra block adjustment is disabled by user setting.\n" << Logger::endl;
+        }
     }
+}
+
+void ScantraInterface::setAutoZoomOnAdjustment(bool enabled)
+{
+    auto_zoom_on_adjustment_.store(enabled);
+    Logger::log(LoggerMode::IOLog) << "Scantra auto-zoom on block adjustment set to "
+        << (enabled ? "ENABLED" : "DISABLED") << ".\n" << Logger::endl;
+}
+
+bool ScantraInterface::getAutoZoomOnAdjustment() const
+{
+    return auto_zoom_on_adjustment_.load();
 }
 
 void ScantraInterface::changeGraphicSettings()

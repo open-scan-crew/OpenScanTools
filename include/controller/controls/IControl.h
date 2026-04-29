@@ -101,6 +101,7 @@ enum class ControlType
 	refreshScanLink,
 	importScantraModifications,
 	switchScantraConnexion,
+	setScantraAutoZoomOnAdjustment,
 	convertImage,
 
     // control::exportPC

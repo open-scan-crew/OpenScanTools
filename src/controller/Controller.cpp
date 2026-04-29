@@ -201,6 +201,16 @@ void Controller::scantra_notify_project_opened()
     m_p->scantra_interface_.project_opened(proj_internal.getProjectFolderPath());
 }
 
+void Controller::setScantraAutoZoomOnAdjustment(bool enabled)
+{
+    m_p->scantra_interface_.setAutoZoomOnAdjustment(enabled);
+}
+
+bool Controller::getScantraAutoZoomOnAdjustment() const
+{
+    return m_p->scantra_interface_.getAutoZoomOnAdjustment();
+}
+
 uint32_t Controller::getNextUserId(ElementType type) const
 {
     return m_p->graphManager.getNextUserId({ type }, m_p->context.getIndexationMethod());

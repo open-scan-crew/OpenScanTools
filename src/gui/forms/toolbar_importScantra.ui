@@ -35,7 +35,7 @@
    <property name="verticalSpacing">
     <number>6</number>
    </property>
-   <item row="2" column="0">
+   <item row="3" column="0">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -56,6 +56,25 @@ The names of the scans must be the same between Scantra and OpenScanTools</strin
      </property>
      <property name="text">
       <string>Apply Scantra registration</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QCheckBox" name="disableAutoZoomCheckBox">
+     <property name="toolTip">
+      <string>When checked, OpenScanTools will NOT automatically zoom to the scene
+after Scantra finishes a block adjustment. Your current camera position
+and zoom level are preserved, which is useful when inspecting a specific
+detail across multiple adjustment iterations.
+
+When unchecked (default), the legacy behavior is used and the viewport
+is re-framed to the full scene after every adjustment.</string>
+     </property>
+     <property name="text">
+      <string>Disable Auto-Zoom on Block Adjustment</string>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
      </property>
     </widget>
    </item>

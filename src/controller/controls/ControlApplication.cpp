@@ -1051,4 +1051,23 @@ namespace control::application
         return ControlType::switchScantraConnexion;
     }
 
+    /*
+    ** SetScantraAutoZoomOnAdjustment
+    */
+
+    SetScantraAutoZoomOnAdjustment::SetScantraAutoZoomOnAdjustment(bool enabled)
+        : enabled_(enabled)
+    {
+    }
+
+    void SetScantraAutoZoomOnAdjustment::doFunction(Controller& controller)
+    {
+        controller.setScantraAutoZoomOnAdjustment(enabled_);
+    }
+
+    ControlType SetScantraAutoZoomOnAdjustment::getType() const
+    {
+        return ControlType::setScantraAutoZoomOnAdjustment;
+    }
+
 }
