@@ -205,6 +205,32 @@
     </widget>
    </item>
    <item>
+    <widget class="QGroupBox" name="groupBox_filteringExecution">
+     <property name="title">
+      <string>Filtering execution</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_filteringExecution">
+      <item>
+       <widget class="QRadioButton" name="radioButton_applyCurrentProject">
+        <property name="text">
+         <string>Apply filter on current project</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radioButton_exportFilteredAreas">
+        <property name="text">
+         <string>Export filtered areas</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="QCheckBox" name="checkBox_balanceIntensityRGB">
      <property name="text">
       <string>Apply on RGB and i</string>
