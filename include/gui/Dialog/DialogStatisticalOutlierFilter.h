@@ -34,6 +34,7 @@ private:
 
     Ui::DialogStatisticalOutlierFilter m_ui;
     OutlierFilterMode m_mode = OutlierFilterMode::Separate;
+    FilterExecutionMode m_executionMode = FilterExecutionMode::ExportFilteredAreas;
     OutlierPreset m_preset = OutlierPreset::Mid;
     int m_kNeighbors = 20;
     double m_nSigma = 1.0;
