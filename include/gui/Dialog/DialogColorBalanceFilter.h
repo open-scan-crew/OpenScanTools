@@ -33,11 +33,13 @@ private:
     void applyPreset(BalancePreset preset);
     void syncUiFromValues();
     void updateAvailability(bool rgbAvailable, bool intensityAvailable, bool rgbAndIntensityAvailable);
+    void updateOutputOptionsState();
 
     Ui::DialogColorBalanceFilter m_ui;
 
     BalancePreset m_preset = BalancePreset::Medium;
     ColorBalanceMode m_mode = ColorBalanceMode::Separate;
+    FilterExecutionMode m_executionMode = FilterExecutionMode::ExportFilteredAreas;
 
     int m_kMin = 24;
     int m_kMax = 40;

@@ -139,6 +139,7 @@ ContextState ContextColorBalanceFilter::feedMessage(IMessage* message, Controlle
         m_outputFileType = decodedMsg->outputFileType;
         m_outputFolder = decodedMsg->outputFolder;
         m_openFolderAfterExport = decodedMsg->openFolderAfterExport;
+        m_executionMode = decodedMsg->executionMode;
 
         m_warningModal = true;
         controller.updateInfo(new GuiDataModal(Yes | No, TEXT_COLOR_BALANCE_FILTER_QUESTION));
@@ -155,7 +156,16 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
 {
     GraphManager& graphManager = controller.getGraphManager();
 
-    if (!prepareOutputDirectory(controller, m_outputFolder))
+    const bool applyInPlace = (m_executionMode == FilterExecutionMode::ApplyOnCurrentProject);
+    std::filesystem::path runtimeOutputFolder = m_outputFolder;
+    if (applyInPlace)
+    {
+        runtimeOutputFolder = controller.getContext().cgetProjectInternalInfo().getPointCloudFolderPath(false) / "temp_cb_inplace";
+        m_outputFileType = FileType::TLS;
+        m_openFolderAfterExport = false;
+    }
+
+    if (!prepareOutputDirectory(controller, runtimeOutputFolder))
     {
         m_state = ContextState::abort;
         return m_state;
@@ -254,7 +264,7 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
         IScanFileWriter* scan_writer = nullptr;
         std::wstring log;
         std::wstring outputName = wScan->getName() + L"_CB";
-        if (!getScanFileWriter(m_outputFolder, outputName, m_outputFileType, log, &scan_writer, true) || scan_writer == nullptr)
+        if (!getScanFileWriter(runtimeOutputFolder, outputName, m_outputFileType, log, &scan_writer, true) || scan_writer == nullptr)
             continue;
 
         tls::ScanHeader header;
@@ -324,7 +334,23 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
         auto progressCallback = makeProgressCallback(scanCount, 0, 100);
         bool res = TlScanOverseer::getInstance().balanceColorsAndWrite(balanceGuid, balanceTransform, *clippingToUse, m_kMin, m_kMax, m_trimPercent, m_sharpnessBlend, applyOnIntensity, applyOnRgb, externalProvider, scan_writer, modifiedPointCount, progressCallback);
         res &= scan_writer->finalizePointCloud();
+        std::filesystem::path writtenPath = scan_writer->getFilePath();
         delete scan_writer;
+        if (res && applyInPlace)
+        {
+            tls::ScanGuid newGuid;
+            if (TlScanOverseer::getInstance().getScanGuid(writtenPath, newGuid))
+            {
+                std::filesystem::path absolutePath = wScan->getTlsFilePath();
+                TlScanOverseer::getInstance().freeScan_async(old_guid, false);
+                wScan->setTlsFilePath(writtenPath, false, tls::ScanGuid(), false);
+                TlScanOverseer::getInstance().copyScanFile_async(newGuid, absolutePath, false, true, true);
+            }
+            else
+            {
+                res = false;
+            }
+        }
         if (balanceGuid != old_guid)
         {
             TlScanOverseer::getInstance().freeScan_async(balanceGuid, false);
@@ -353,7 +379,7 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Total points updated: %1").arg(totalModifiedPoints)));
     controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));
 
-    if (m_openFolderAfterExport && !wasAborted)
+    if (!applyInPlace && m_openFolderAfterExport && !wasAborted)
         controller.updateInfo(new GuiDataOpenInExplorer(m_outputFolder));
 
     m_state = wasAborted ? ContextState::abort : ContextState::done;
