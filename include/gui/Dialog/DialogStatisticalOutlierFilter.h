@@ -31,6 +31,7 @@ private:
     void refreshUI();
     void applyPreset(OutlierPreset preset);
     void syncUiFromValues();
+    void updateOutputOptionsState();
 
     Ui::DialogStatisticalOutlierFilter m_ui;
     OutlierFilterMode m_mode = OutlierFilterMode::Separate;

@@ -118,11 +118,13 @@ DialogColorBalanceFilter::DialogColorBalanceFilter(IDataDispatcher& dataDispatch
     {
         if (checked)
             m_executionMode = FilterExecutionMode::ExportFilteredAreas;
+        updateOutputOptionsState();
     });
     connect(m_ui.radioButton_applyOnCurrentProject, &QRadioButton::toggled, this, [this](bool checked)
     {
         if (checked)
             m_executionMode = FilterExecutionMode::ApplyOnCurrentProject;
+        updateOutputOptionsState();
     });
     connect(m_ui.radioButton_balanceLight, &QRadioButton::toggled, this, [this](bool checked)
     {
@@ -294,6 +296,20 @@ void DialogColorBalanceFilter::syncUiFromValues()
         m_ui.comboBox_file_format->setCurrentIndex(formatIndex);
 
     m_ui.checkBox_balanceIntensityRGB->setEnabled(m_rgbAndIntensityAvailable);
+
+    updateOutputOptionsState();
+}
+
+void DialogColorBalanceFilter::updateOutputOptionsState()
+{
+    // Export-only options must stay disabled when in-place mode is selected.
+    const bool exportMode = (m_executionMode == FilterExecutionMode::ExportFilteredAreas);
+    m_ui.label_format->setEnabled(exportMode);
+    m_ui.comboBox_file_format->setEnabled(exportMode);
+    m_ui.label_folder->setEnabled(exportMode);
+    m_ui.lineEdit_folder->setEnabled(exportMode);
+    m_ui.toolButton_folder->setEnabled(exportMode);
+    m_ui.checkBox_openFolderAfterExport->setEnabled(exportMode);
 }
 
 void DialogColorBalanceFilter::updateAvailability(bool rgbAvailable, bool intensityAvailable, bool rgbAndIntensityAvailable)

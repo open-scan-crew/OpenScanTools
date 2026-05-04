@@ -81,11 +81,13 @@ DialogStatisticalOutlierFilter::DialogStatisticalOutlierFilter(IDataDispatcher& 
     {
         if (checked)
             m_executionMode = FilterExecutionMode::ExportFilteredAreas;
+        updateOutputOptionsState();
     });
     connect(m_ui.radioButton_applyOnCurrentProject, &QRadioButton::toggled, this, [this](bool checked)
     {
         if (checked)
             m_executionMode = FilterExecutionMode::ApplyOnCurrentProject;
+        updateOutputOptionsState();
     });
     connect(m_ui.radioButton_soLow, &QRadioButton::toggled, this, [this](bool checked)
     {
@@ -243,4 +245,18 @@ void DialogStatisticalOutlierFilter::syncUiFromValues()
     int formatIndex = m_ui.comboBox_file_format->findData(QVariant(static_cast<int>(m_outputFileType)));
     if (formatIndex >= 0)
         m_ui.comboBox_file_format->setCurrentIndex(formatIndex);
+
+    updateOutputOptionsState();
+}
+
+void DialogStatisticalOutlierFilter::updateOutputOptionsState()
+{
+    // Export-only options must stay disabled when in-place mode is selected.
+    const bool exportMode = (m_executionMode == FilterExecutionMode::ExportFilteredAreas);
+    m_ui.label_format->setEnabled(exportMode);
+    m_ui.comboBox_file_format->setEnabled(exportMode);
+    m_ui.label_folder->setEnabled(exportMode);
+    m_ui.lineEdit_folder->setEnabled(exportMode);
+    m_ui.toolButton_folder->setEnabled(exportMode);
+    m_ui.checkBox_openFolderAfterExport->setEnabled(exportMode);
 }

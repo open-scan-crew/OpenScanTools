@@ -191,19 +191,19 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_executionMode">
       <item>
+       <widget class="QRadioButton" name="radioButton_applyOnCurrentProject">
+        <property name="text">
+         <string>Apply filter on current project</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QRadioButton" name="radioButton_exportFilteredAreas">
         <property name="text">
          <string>Export filtered areas</string>
         </property>
         <property name="checked">
          <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="radioButton_applyOnCurrentProject">
-        <property name="text">
-         <string>Apply filter on current project</string>
         </property>
        </widget>
       </item>

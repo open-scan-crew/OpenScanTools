@@ -33,6 +33,7 @@ private:
     void applyPreset(BalancePreset preset);
     void syncUiFromValues();
     void updateAvailability(bool rgbAvailable, bool intensityAvailable, bool rgbAndIntensityAvailable);
+    void updateOutputOptionsState();
 
     Ui::DialogColorBalanceFilter m_ui;
 
