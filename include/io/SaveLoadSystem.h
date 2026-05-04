@@ -18,7 +18,7 @@ class Author;
 
 namespace SaveLoadSystem
 {
-    enum ErrorCode { Success = 0, Failed_Write_Permission, Failed_To_Open, Failed_To_Load };
+    enum ErrorCode { Success = 0, Failed_Write_Permission, Failed_To_Open, Failed_To_Load, Already_Exists };
     enum class ObjectsFileType { Tlo, Tld, Tlv, Tlo_Backup, Tld_Backup, Tlv_Backup };
 
     template<typename ListType>

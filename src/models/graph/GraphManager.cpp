@@ -20,6 +20,34 @@
 
 #include "pointCloudEngine/PCE_core.h"
 
+#include <algorithm>
+#include <cwctype>
+
+namespace
+{
+    std::wstring normalizePathKey(std::filesystem::path path)
+    {
+        path = path.lexically_normal();
+        std::wstring key = path.generic_wstring();
+#ifdef _WIN32
+        std::transform(key.begin(), key.end(), key.begin(), towlower);
+#endif
+        return key;
+    }
+
+    bool arePathsEquivalent(const std::filesystem::path& lhs, const std::filesystem::path& rhs)
+    {
+        if (lhs.empty() || rhs.empty())
+            return false;
+
+        std::error_code ec;
+        if (std::filesystem::equivalent(lhs, rhs, ec))
+            return true;
+
+        return normalizePathKey(lhs) == normalizePathKey(rhs);
+    }
+}
+
 GraphManager::GraphManager(IDataDispatcher& dataDispatcher)
     : m_root(make_safe<AGraphNode>())
     , m_meshManager(&MeshManager::getInstance())
@@ -638,7 +666,7 @@ bool GraphManager::isFilePathOrScanExists(const std::wstring& name, const std::f
         if (type == ElementType::Scan)
         {
             ReadPtr<PointCloudNode> readScan = static_pointer_cast<PointCloudNode>(objectPtr).cget();
-            if (readScan && (readScan->getName() == name || readScan->getTlsFilePath() == filePath))
+            if (readScan && (readScan->getName() == name || arePathsEquivalent(readScan->getTlsFilePath(), filePath)))
                 return (true);
         }
     }

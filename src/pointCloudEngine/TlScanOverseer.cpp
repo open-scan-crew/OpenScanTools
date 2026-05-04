@@ -5,6 +5,9 @@
 #include "pointCloudEngine/PCE_graphics.h"
 #include "models/3d/Measures.h"
 #include "utils/Logger.h"
+#include "tls_core.h"
+#include <cstdio>
+#include <algorithm>
 #include <queue>
 #include <glm/gtx/quaternion.hpp>
 using namespace std::chrono;
@@ -15,6 +18,15 @@ constexpr double M_PI = 3.14159265358979323846;  /* pi */
 
 thread_local std::vector<TlScanOverseer::WorkingScanInfo> TlScanOverseer::s_workingScansTransfo = {};
 
+namespace
+{
+#ifdef _WIN32
+constexpr size_t kMaxActiveScanBudget = 1536;
+#else
+constexpr size_t kMaxActiveScanBudget = 768;
+#endif
+}
+
 TlScanOverseer::TlScanOverseer()
     : m_haltStream(false)
 {}
@@ -24,14 +36,38 @@ TlScanOverseer::~TlScanOverseer()
     Logger::log(IOLog) << "Destroy TlScanOverseer" << Logger::endl;
 }
 
+void TlScanOverseer::logGuidLookupStatsLocked(const char* reason) const
+{
+    Logger::log(IOLog)
+        << "ScanGuidLookupStats [" << reason << "] "
+        << "calls=" << m_guidLookupStats.totalCalls
+        << ", success=" << m_guidLookupStats.successCount
+        << ", failed=" << m_guidLookupStats.failedOpenOrInvalidGuid
+        << ", cacheHit=" << m_guidLookupStats.cacheHitCount
+        << ", insertedActive=" << m_guidLookupStats.insertedActiveCount
+        << ", activeNow=" << m_activeScans.size()
+        << ", activePeak=" << m_guidLookupStats.activeScanPeak
+        << Logger::endl;
+}
+
 void TlScanOverseer::init()
 {
     Logger::log(IOLog) << "Init TlScanOverseer." << Logger::endl;
+#ifdef _WIN32
+    // Pass B2.1 (hotfix):
+    // Raise CRT stream limit to reduce "open TLS failed" saturation around ~507 scans
+    // during large import/render batches on Windows.
+    constexpr int kRequestedMaxStdio = 2048;
+    const int appliedMaxStdio = _setmaxstdio(kRequestedMaxStdio);
+    Logger::log(IOLog) << "Init TlScanOverseer: _setmaxstdio requested=" << kRequestedMaxStdio
+        << ", applied=" << appliedMaxStdio << Logger::endl;
+#endif
 }
 
 void TlScanOverseer::shutdown()
 {
     std::lock_guard<std::mutex> lock(m_activeMutex);
+    logGuidLookupStatsLocked("shutdown-begin");
         
     // Force the deletion of Scanresources even if the safe frame is not reached
     for (auto scan : m_scansToFree)
@@ -45,6 +81,7 @@ void TlScanOverseer::shutdown()
         delete (scan.second);
     }
     m_activeScans.clear();
+    m_scanPathByGuid.clear();
 }
 
 void TlScanOverseer::setWorkingScansTransfo(const std::vector<tls::PointCloudInstance>& workingTransfo)
@@ -55,6 +92,10 @@ void TlScanOverseer::setWorkingScansTransfo(const std::vector<tls::PointCloudIns
     // Else find the working scans instance in the active scans
     for (const tls::PointCloudInstance& guid_transfo : workingTransfo)
     {
+        // Pass 2.2.B:
+        // Ensure runtime activation on demand from the registered GUID->path map.
+        instance.ensureScanActive_locked(guid_transfo.header.guid);
+
         auto it_scan = instance.m_activeScans.find(guid_transfo.header.guid);
         if (it_scan == instance.m_activeScans.end())
         {
@@ -66,8 +107,103 @@ void TlScanOverseer::setWorkingScansTransfo(const std::vector<tls::PointCloudIns
     }
 }
 
+bool TlScanOverseer::ensureScanActive_locked(tls::ScanGuid scanGuid)
+{
+    if (scanGuid == tls::ScanGuid())
+        return false;
+
+    if (m_activeScans.find(scanGuid) != m_activeScans.end())
+        return true;
+
+    auto itPath = m_scanPathByGuid.find(scanGuid);
+    if (itPath == m_scanPathByGuid.end())
+        return false;
+
+    // Pass B2.2:
+    // Keep active runtime scans under a bounded budget by evicting deletable scans.
+    // This prevents unbounded growth during huge imports/navigation sessions.
+    if (m_activeScans.size() >= kMaxActiveScanBudget)
+    {
+        trimActiveScans_locked(kMaxActiveScanBudget - 1, scanGuid);
+    }
+    if (m_activeScans.size() >= kMaxActiveScanBudget)
+    {
+        static uint32_t s_budgetWarningCount = 0;
+        ++s_budgetWarningCount;
+        if ((s_budgetWarningCount % 50u) == 1u)
+        {
+            Logger::log(IOLog) << "Warning: active scan budget reached (" << m_activeScans.size()
+                << "/" << kMaxActiveScanBudget << "), cannot activate GUID=" << scanGuid
+                << " [occurrence=" << s_budgetWarningCount << "]" << Logger::endl;
+        }
+        return false;
+    }
+
+    EmbeddedScan* newScan = new EmbeddedScan(itPath->second);
+    if (newScan->getGuid() != scanGuid)
+    {
+        delete newScan;
+        return false;
+    }
+
+    m_activeScans.insert({ scanGuid, newScan });
+    ++m_guidLookupStats.insertedActiveCount;
+    m_guidLookupStats.activeScanPeak = std::max<uint64_t>(m_guidLookupStats.activeScanPeak, m_activeScans.size());
+    return true;
+}
+
+void TlScanOverseer::trimActiveScans_locked(size_t targetMax, tls::ScanGuid preserveGuid)
+{
+    if (m_activeScans.size() <= targetMax)
+        return;
+
+    for (auto it = m_activeScans.begin(); it != m_activeScans.end() && m_activeScans.size() > targetMax; )
+    {
+        if (it->first == preserveGuid || it->second == nullptr)
+        {
+            ++it;
+            continue;
+        }
+
+        EmbeddedScan* scan = it->second;
+        if (scan->canBeDeleted())
+        {
+            m_scansToFree.push_back(scan);
+            it = m_activeScans.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+}
+
+void TlScanOverseer::registerScanPath(tls::ScanGuid scanGuid, const std::filesystem::path& scanPath)
+{
+    if (scanGuid == tls::ScanGuid() || scanPath.empty())
+        return;
+
+    std::lock_guard<std::mutex> lock(m_activeMutex);
+    m_scanPathByGuid.insert_or_assign(scanGuid, scanPath);
+}
+
+bool TlScanOverseer::getRegisteredScanPath(tls::ScanGuid scanGuid, std::filesystem::path& scanPath)
+{
+    std::lock_guard<std::mutex> lock(m_activeMutex);
+    auto it = m_scanPathByGuid.find(scanGuid);
+    if (it == m_scanPathByGuid.end())
+        return false;
+    scanPath = it->second;
+    return true;
+}
+
 bool TlScanOverseer::getScanGuid(std::filesystem::path _filePath, tls::ScanGuid& _scanGuid)
 {
+    {
+        std::lock_guard<std::mutex> lock(m_activeMutex);
+        ++m_guidLookupStats.totalCalls;
+    }
+
     EmbeddedScan* newScan = new EmbeddedScan(_filePath);
     xg::Guid nullGuid;
 
@@ -76,6 +212,10 @@ bool TlScanOverseer::getScanGuid(std::filesystem::path _filePath, tls::ScanGuid&
         _scanGuid = nullGuid;
         // No memory leak
         delete newScan; 
+
+        std::lock_guard<std::mutex> lock(m_activeMutex);
+        ++m_guidLookupStats.failedOpenOrInvalidGuid;
+        logGuidLookupStatsLocked("failed-open-or-invalid-guid");
         return false;
     }
 
@@ -84,20 +224,76 @@ bool TlScanOverseer::getScanGuid(std::filesystem::path _filePath, tls::ScanGuid&
     if (it_scan != m_activeScans.end())
     {
         _scanGuid = it_scan->second->getGuid();
+        // Keep path registry in sync even on cache hits.
+        m_scanPathByGuid.insert_or_assign(_scanGuid, _filePath);
         // No memory leak
         delete newScan;
+        ++m_guidLookupStats.successCount;
+        ++m_guidLookupStats.cacheHitCount;
+        if ((m_guidLookupStats.totalCalls % 100) == 0)
+            logGuidLookupStatsLocked("periodic");
         return true;
     }
 
     m_activeScans.insert({ newScan->getGuid(), newScan });
     _scanGuid = newScan->getGuid();
+    m_scanPathByGuid.insert_or_assign(_scanGuid, _filePath);
+    ++m_guidLookupStats.successCount;
+    ++m_guidLookupStats.insertedActiveCount;
+    m_guidLookupStats.activeScanPeak = std::max<uint64_t>(m_guidLookupStats.activeScanPeak, m_activeScans.size());
+    if ((m_guidLookupStats.totalCalls % 100) == 0)
+        logGuidLookupStatsLocked("periodic");
 
+    return true;
+}
+
+bool TlScanOverseer::lookupScanGuid(const std::filesystem::path& filePath, tls::ScanGuid& scanGuid)
+{
+    scanGuid = tls::ScanGuid();
+
+    tls::ImageFile imageFile;
+    if (!imageFile.open(filePath, tls::usage::read))
+    {
+        static uint32_t s_lookupOpenFailCount = 0;
+        ++s_lookupOpenFailCount;
+        if ((s_lookupOpenFailCount % 50u) == 1u)
+        {
+            Logger::log(IOLog) << "LookupScanGuid failed: reason=OPEN_FAILED path=\"" << filePath
+                << "\" [occurrence=" << s_lookupOpenFailCount << "]" << Logger::endl;
+        }
+        return false;
+    }
+
+    // NOTE:
+    // This path is intentionally "header-only lookup":
+    // - no insertion in m_activeScans
+    // - no long-lived runtime scan object
+    // - deterministic handle release right after header read
+    scanGuid = imageFile.getPointCloudHeader(0).guid;
+    imageFile.close();
+
+    if (scanGuid == tls::ScanGuid())
+    {
+        static uint32_t s_lookupInvalidGuidCount = 0;
+        ++s_lookupInvalidGuidCount;
+        if ((s_lookupInvalidGuidCount % 50u) == 1u)
+        {
+            Logger::log(IOLog) << "LookupScanGuid failed: reason=INVALID_GUID_HEADER path=\"" << filePath
+                << "\" [occurrence=" << s_lookupInvalidGuidCount << "]" << Logger::endl;
+        }
+        return false;
+    }
+
+    // Pass 2.2.A:
+    // Persist GUID->path knowledge without forcing active runtime registration.
+    registerScanPath(scanGuid, filePath);
     return true;
 }
 
 bool TlScanOverseer::getScanHeader(tls::ScanGuid scanGuid, tls::ScanHeader& info)
 {
     std::lock_guard<std::mutex> lock(m_activeMutex);
+    ensureScanActive_locked(scanGuid);
 
     auto it_scan = m_activeScans.find(scanGuid);
     if (it_scan != m_activeScans.end())
@@ -107,7 +303,7 @@ bool TlScanOverseer::getScanHeader(tls::ScanGuid scanGuid, tls::ScanHeader& info
     }
     else
     {
-        Logger::log(IOLog) << "Info: try to get information of a Scan not present, UUID = " << scanGuid << Logger::endl;
+        Logger::log(IOLog) << "GetScanHeader failed: reason=SCAN_NOT_ACTIVE_OR_UNRESOLVED guid=" << scanGuid << Logger::endl;
         return false;
     }
 }
@@ -115,6 +311,7 @@ bool TlScanOverseer::getScanHeader(tls::ScanGuid scanGuid, tls::ScanHeader& info
 bool TlScanOverseer::getScanPath(tls::ScanGuid scanGuid, std::filesystem::path& scanPath)
 {
     std::lock_guard<std::mutex> lock(m_activeMutex);
+    ensureScanActive_locked(scanGuid);
 
     auto it_scan = m_activeScans.find(scanGuid);
     if (it_scan != m_activeScans.end())
@@ -122,11 +319,19 @@ bool TlScanOverseer::getScanPath(tls::ScanGuid scanGuid, std::filesystem::path& 
         scanPath = it_scan->second->getPath();
         return true;
     }
-    else
+
+    // Pass 2.2.C:
+    // Save/serialization paths must remain available even when scans are not
+    // currently active in runtime. Fall back to the persistent GUID->path map.
+    auto it_registered = m_scanPathByGuid.find(scanGuid);
+    if (it_registered != m_scanPathByGuid.end())
     {
-        Logger::log(IOLog) << "Info: try to get information of a Scan not present, UUID = " << scanGuid << Logger::endl;
-        return false;
+        scanPath = it_registered->second;
+        return true;
     }
+
+    Logger::log(IOLog) << "GetScanPath failed: reason=SCAN_PATH_UNRESOLVED guid=" << scanGuid << Logger::endl;
+    return false;
 }
 
 bool  TlScanOverseer::isScanLeftTofree()
@@ -145,6 +350,10 @@ void TlScanOverseer::copyScanFile_async(const tls::ScanGuid& scanGuid, const std
 void TlScanOverseer::freeScan_async(tls::ScanGuid scanGuid, bool deletePhysicalFile)
 {
     std::lock_guard<std::mutex> lock(m_activeMutex);
+    // Pass 2.2.B:
+    // Deletion/free workflows may target a scan resolved by GUID/path registry
+    // but not yet active in runtime. Activate on demand before freeing.
+    ensureScanActive_locked(scanGuid);
 
     // Find the Scanfile
     auto it_scan = m_activeScans.find(scanGuid);
@@ -161,7 +370,7 @@ void TlScanOverseer::freeScan_async(tls::ScanGuid scanGuid, bool deletePhysicalF
     }
     else
     {
-        Logger::log(IOLog) << "Info: Try to free a Scanfile not present, UUID = " << scanGuid << Logger::endl;
+        Logger::log(IOLog) << "FreeScan ignored: reason=SCAN_NOT_ACTIVE guid=" << scanGuid << Logger::endl;
     }
 }
 
@@ -208,6 +417,18 @@ bool TlScanOverseer::doFileCopy(scanCopyInfo& copyInfo)
     }
 
     try {
+        std::filesystem::path old_path = oldScan->getPath();
+
+        // Robust guard: even with "overwrite existing", trying to copy a file onto itself
+        // can throw on some platforms when path separators differ ('/' vs '\').
+        // Treat equivalent source/destination as a successful no-op.
+        std::error_code sameFileEc;
+        if (std::filesystem::equivalent(old_path, copyInfo.path, sameFileEc))
+        {
+            Logger::log(IOLog) << "INFO - source and destination are equivalent. Skip copy for {" << copyInfo.guid << "}." << Logger::endl;
+            return true;
+        }
+
         // Check that the destination path is free
         if (!copyInfo.overrideDestination && std::filesystem::exists(copyInfo.path))
         {
@@ -229,6 +450,7 @@ bool TlScanOverseer::doFileCopy(scanCopyInfo& copyInfo)
                 delete oldScan;
 
                 m_activeScans.insert({ copyInfo.guid, newScanFile });
+                m_scanPathByGuid.insert_or_assign(copyInfo.guid, copyInfo.path);
                 return true;
             }
             else
@@ -243,12 +465,15 @@ bool TlScanOverseer::doFileCopy(scanCopyInfo& copyInfo)
         {
             std::filesystem::copy_options options = std::filesystem::copy_options::none;
             options |= copyInfo.overrideDestination ? std::filesystem::copy_options::overwrite_existing : std::filesystem::copy_options::skip_existing;
-            std::filesystem::path old_path = oldScan->getPath();
 
             std::filesystem::copy(old_path, copyInfo.path, options);
 
             if (copyInfo.savePath || copyInfo.removeSource)
+            {
                 oldScan->setPath(copyInfo.path);
+                std::lock_guard<std::mutex> lock(m_activeMutex);
+                m_scanPathByGuid.insert_or_assign(copyInfo.guid, copyInfo.path);
+            }
 
             if (copyInfo.removeSource)
                 std::filesystem::remove(old_path);
@@ -291,11 +516,12 @@ bool TlScanOverseer::getScanView(tls::ScanGuid _scanGuid, const TlProjectionInfo
     EmbeddedScan* scan;
     {
         std::lock_guard<std::mutex> lock(m_activeMutex);
+        ensureScanActive_locked(_scanGuid);
 
         auto it_scan = m_activeScans.find(_scanGuid);
         if (it_scan == m_activeScans.end())
         {
-            Logger::log(VKLog) << "Error: try to view a scan not present, UUID = " << _scanGuid << Logger::endl;
+            Logger::log(VKLog) << "GetScanView failed: reason=SCAN_NOT_ACTIVE_OR_BUDGET_LIMIT guid=" << _scanGuid << Logger::endl;
             return false;
         }
         else

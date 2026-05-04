@@ -64,6 +64,7 @@
 #include <algorithm>
 #include <chrono>
 #include <thread>
+#include <cwctype>
 
 #define SAVELOADSYSTEMVERSION 2.0f
 
@@ -75,6 +76,33 @@ static const std::unordered_map<SaveLoadSystem::ObjectsFileType, std::pair<std::
 , {SaveLoadSystem::ObjectsFileType::Tld_Backup, {std::string(File_Extension_Tags) + File_Extension_Backup, Key_Tags}}
 , {SaveLoadSystem::ObjectsFileType::Tlv_Backup, {std::string(File_Extension_ViewPoints) + File_Extension_Backup, Key_ViewPoints}}
 };
+
+namespace
+{
+    std::wstring normalizePathKey(std::filesystem::path path)
+    {
+        path = path.lexically_normal();
+        std::wstring key = path.generic_wstring();
+#ifdef _WIN32
+        std::transform(key.begin(), key.end(), key.begin(), towlower);
+#endif
+        return key;
+    }
+
+    bool arePathsEquivalent(const std::filesystem::path& lhs, const std::filesystem::path& rhs)
+    {
+        if (lhs.empty() || rhs.empty())
+            return false;
+
+        std::error_code ec;
+        if (std::filesystem::equivalent(lhs, rhs, ec))
+            return true;
+
+        // Fallback for cases where equivalent() cannot resolve one path but both refer
+        // to the same location with different textual forms.
+        return normalizePathKey(lhs) == normalizePathKey(rhs);
+    }
+}
 
 
 std::filesystem::path getExplicitPath(const ProjectInternalInfo& project, const std::filesystem::path& file)
@@ -362,7 +390,22 @@ std::unordered_set<SafePtr<AGraphNode>> SaveLoadSystem::LoadFileObjects(Controll
                 continue;
 
             std::filesystem::path pcPath = findPointCloudPath(wPCNode, internalInfo, folder);
-            wPCNode->setTlsFilePath(pcPath, false, tls::ScanGuid(), false);
+            tls::ScanGuid resolvedGuid;
+            if (forceCopy)
+            {
+                // Keep the previous behavior for copy workflows:
+                // the scan must be registered as active to be used by tlCopyScanFile.
+                tlGetScanGuid(pcPath, resolvedGuid);
+            }
+            else
+            {
+                // Pass 2.1:
+                // For standard project reload, resolve GUID without activating
+                // a runtime scan resource (prevents massive active-scan buildup).
+                tlLookupScanGuid(pcPath, resolvedGuid);
+            }
+
+            wPCNode->setTlsFilePath(pcPath, false, resolvedGuid, false);
             if (wPCNode->getScanGuid() == tls::ScanGuid())
                 failedFileImport.insert(object);
             else if (forceCopy)
@@ -1273,9 +1316,12 @@ SafePtr<PointCloudNode> SaveLoadSystem::ImportNewTlsFile(const std::filesystem::
     ControllerContext& context = controller.getContext();
 
     tls::ScanGuid scanGuid;
-    if (tlGetScanGuid(filePath, scanGuid) == false)
+    // Block B (import/drag&drop):
+    // Resolve GUID without creating a long-lived active scan upfront.
+    if (tlLookupScanGuid(filePath, scanGuid) == false)
     {
-        IOLOG << "Error: " << filePath << " is not a valid tls file." << LOGENDL;
+        IOLOG << "Error: cannot resolve TLS GUID for [" << filePath
+            << "] (invalid tls content or file open access failure)." << LOGENDL;
         errorCode = ErrorCode::Failed_To_Open;
         return SafePtr<PointCloudNode>();
     }
@@ -1284,41 +1330,46 @@ SafePtr<PointCloudNode> SaveLoadSystem::ImportNewTlsFile(const std::filesystem::
     if (graphManager.isFilePathOrScanExists(filePath.stem().wstring(), filePath) == true)
     {
         IOLOG << "Error : file or name already exists in the project : " << filePath.stem().string() << LOGENDL;
-        // TODO - Ask the user if he want to save the Scanunder an other name (or append it)
-        //return ("Error : file or name already exists and the Scanhas been copied");
-        errorCode = ErrorCode::Failed_Write_Permission;
+        // Dedicated status so UI can report "already exists" as an ignored import
+        // instead of a generic write/open failure.
+        errorCode = ErrorCode::Already_Exists;
         return SafePtr<PointCloudNode>();
     }
 
     std::filesystem::path filename(filePath.filename());
     std::filesystem::path dst_path = context.cgetProjectInternalInfo().getPointCloudFolderPath(is_object) / filename;
-    // Copy to project folder and force destination update to avoid keeping a source path
-    // when a file with the same name already exists in destination.
-    tlCopyScanFile(scanGuid, dst_path, true, true, false);
+    const bool fileAlreadyInProjectStorage = arePathsEquivalent(filePath, dst_path);
+    std::filesystem::path effectivePath = filePath;
 
-    // Ensure copy queue is processed and the active scan path points to project storage
-    // before exposing the node to delete workflows.
-    std::filesystem::path currentPath;
-    bool copiedToProjectPath = false;
-    constexpr int maxRetry = 100; // 100 * 50ms = 5s max wait
-    for (int i = 0; i < maxRetry; ++i)
+    if (!fileAlreadyInProjectStorage)
     {
-        TlScanOverseer::getInstance().resourceManagement_sync();
-        if (tlGetCurrentScanPath(scanGuid, currentPath) && currentPath == dst_path)
+        // Block B:
+        // Copy physically without requiring active runtime registration in TlScanOverseer.
+        // This avoids reaching the ~507 active scan resource ceiling during batch imports.
+        std::error_code sameFileEc;
+        if (!std::filesystem::equivalent(filePath, dst_path, sameFileEc))
         {
-            copiedToProjectPath = true;
-            break;
+            try
+            {
+                std::filesystem::copy(filePath, dst_path, std::filesystem::copy_options::overwrite_existing);
+            }
+            catch (const std::exception& e)
+            {
+                IOLOG << "Error: TLS import copy failed from [" << filePath << "] to [" << dst_path << "]: " << e.what() << LOGENDL;
+                errorCode = ErrorCode::Failed_Write_Permission;
+                return SafePtr<PointCloudNode>();
+            }
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        effectivePath = dst_path;
+    }
+    else
+    {
+        IOLOG << "INFO - TLS file already in project storage, skip physical copy: " << dst_path << LOGENDL;
+        effectivePath = filePath;
     }
 
-    if (!copiedToProjectPath)
-    {
-        IOLOG << "Error: TLS import copy to project path failed or timed out. Source [" << filePath
-            << "], destination [" << dst_path << "], current [" << currentPath << "]." << LOGENDL;
-        errorCode = ErrorCode::Failed_Write_Permission;
-        return SafePtr<PointCloudNode>();
-    }
+    // Register the authoritative path so lazy activation can resolve runtime access on demand.
+    TlScanOverseer::getInstance().registerScanPath(scanGuid, effectivePath);
 
     uint64_t nbScanBeforeImport = controller.getGraphManager().getNodesByTypes({ ElementType::Scan }).size();
     SafePtr<PointCloudNode> pc = make_safe<PointCloudNode>(is_object);
@@ -1334,7 +1385,7 @@ SafePtr<PointCloudNode> SaveLoadSystem::ImportNewTlsFile(const std::filesystem::
         wpc->setDefaultData(controller);
         if (!is_object)
             wpc->setManipulable(Config::isUnlockScanManipulation());
-        wpc->setTlsFilePath(dst_path, true, scanGuid);
+        wpc->setTlsFilePath(effectivePath, true, scanGuid);
         if (!is_object)
             wpc->setColor(Color32(rand() % 255, rand() % 255, rand() % 255, 255));
     }
