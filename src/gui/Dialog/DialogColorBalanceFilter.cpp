@@ -114,6 +114,18 @@ DialogColorBalanceFilter::DialogColorBalanceFilter(IDataDispatcher& dataDispatch
         m_mode = ColorBalanceMode::Global;
         applyPreset(m_preset);
     });
+    connect(m_ui.radioButton_exportFilteredAreas, &QRadioButton::toggled, this, [this](bool checked)
+    {
+        if (checked)
+            m_executionMode = FilterExecutionMode::ExportFilteredAreas;
+        updateOutputOptionsState();
+    });
+    connect(m_ui.radioButton_applyOnCurrentProject, &QRadioButton::toggled, this, [this](bool checked)
+    {
+        if (checked)
+            m_executionMode = FilterExecutionMode::ApplyOnCurrentProject;
+        updateOutputOptionsState();
+    });
     connect(m_ui.radioButton_balanceLight, &QRadioButton::toggled, this, [this](bool checked)
     {
         if (checked)
@@ -212,7 +224,7 @@ void DialogColorBalanceFilter::startBalancing()
     bool openFolder = m_ui.checkBox_openFolderAfterExport->isChecked();
     bool applyOnIntensityAndRgb = m_ui.checkBox_balanceIntensityRGB->isChecked();
 
-    m_dataDispatcher.sendControl(new control::function::ForwardMessage(new ColorBalanceFilterMessage(kMin, kMax, trimPercent, sharpnessBlend, m_mode, applyOnIntensityAndRgb, m_outputFileType, m_outputFolder, openFolder)));
+    m_dataDispatcher.sendControl(new control::function::ForwardMessage(new ColorBalanceFilterMessage(kMin, kMax, trimPercent, sharpnessBlend, m_mode, m_executionMode, applyOnIntensityAndRgb, m_outputFileType, m_outputFolder, openFolder)));
 
     hide();
 }
@@ -260,6 +272,8 @@ void DialogColorBalanceFilter::syncUiFromValues()
     const QSignalBlocker blockSharpnessSlider(m_ui.horizontalSlider_sharpness);
     const QSignalBlocker blockSharpnessSpin(m_ui.spinBox_sharpness);
     const QSignalBlocker blockFormat(m_ui.comboBox_file_format);
+    const QSignalBlocker blockExportMode(m_ui.radioButton_exportFilteredAreas);
+    const QSignalBlocker blockInPlaceMode(m_ui.radioButton_applyOnCurrentProject);
 
     m_ui.radioButton_balanceLight->setChecked(m_preset == BalancePreset::Light);
     m_ui.radioButton_balanceMedium->setChecked(m_preset == BalancePreset::Medium);
@@ -267,6 +281,9 @@ void DialogColorBalanceFilter::syncUiFromValues()
 
     m_ui.radioButton_separate->setChecked(m_mode == ColorBalanceMode::Separate);
     m_ui.radioButton_global->setChecked(m_mode == ColorBalanceMode::Global);
+
+    m_ui.radioButton_exportFilteredAreas->setChecked(m_executionMode == FilterExecutionMode::ExportFilteredAreas);
+    m_ui.radioButton_applyOnCurrentProject->setChecked(m_executionMode == FilterExecutionMode::ApplyOnCurrentProject);
 
     m_ui.spinBox_kMin->setValue(m_kMin);
     m_ui.spinBox_kMax->setValue(m_kMax);
@@ -279,6 +296,20 @@ void DialogColorBalanceFilter::syncUiFromValues()
         m_ui.comboBox_file_format->setCurrentIndex(formatIndex);
 
     m_ui.checkBox_balanceIntensityRGB->setEnabled(m_rgbAndIntensityAvailable);
+
+    updateOutputOptionsState();
+}
+
+void DialogColorBalanceFilter::updateOutputOptionsState()
+{
+    // Export-only options must stay disabled when in-place mode is selected.
+    const bool exportMode = (m_executionMode == FilterExecutionMode::ExportFilteredAreas);
+    m_ui.label_format->setEnabled(exportMode);
+    m_ui.comboBox_file_format->setEnabled(exportMode);
+    m_ui.label_folder->setEnabled(exportMode);
+    m_ui.lineEdit_folder->setEnabled(exportMode);
+    m_ui.toolButton_folder->setEnabled(exportMode);
+    m_ui.checkBox_openFolderAfterExport->setEnabled(exportMode);
 }
 
 void DialogColorBalanceFilter::updateAvailability(bool rgbAvailable, bool intensityAvailable, bool rgbAndIntensityAvailable)
