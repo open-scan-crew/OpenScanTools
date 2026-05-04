@@ -34,6 +34,7 @@ private:
     FileType m_outputFileType = FileType::TLS;
     std::filesystem::path m_outputFolder;
     bool m_openFolderAfterExport = true;
+    FilterExecutionMode m_executionMode = FilterExecutionMode::ExportFilteredAreas;
 };
 
 #endif

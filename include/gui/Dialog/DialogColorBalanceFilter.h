@@ -38,6 +38,7 @@ private:
 
     BalancePreset m_preset = BalancePreset::Medium;
     ColorBalanceMode m_mode = ColorBalanceMode::Separate;
+    FilterExecutionMode m_executionMode = FilterExecutionMode::ExportFilteredAreas;
 
     int m_kMin = 24;
     int m_kMax = 40;
