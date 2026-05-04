@@ -77,6 +77,16 @@ DialogStatisticalOutlierFilter::DialogStatisticalOutlierFilter(IDataDispatcher& 
         if (checked)
             m_mode = OutlierFilterMode::Global;
     });
+    connect(m_ui.radioButton_exportFilteredAreas, &QRadioButton::toggled, this, [this](bool checked)
+    {
+        if (checked)
+            m_executionMode = FilterExecutionMode::ExportFilteredAreas;
+    });
+    connect(m_ui.radioButton_applyOnCurrentProject, &QRadioButton::toggled, this, [this](bool checked)
+    {
+        if (checked)
+            m_executionMode = FilterExecutionMode::ApplyOnCurrentProject;
+    });
     connect(m_ui.radioButton_soLow, &QRadioButton::toggled, this, [this](bool checked)
     {
         if (checked)
@@ -156,7 +166,7 @@ void DialogStatisticalOutlierFilter::startFiltering()
     m_outputFileType = static_cast<FileType>(m_ui.comboBox_file_format->currentData().toInt());
 
     bool openFolder = m_ui.checkBox_openFolderAfterExport->isChecked();
-    m_dataDispatcher.sendControl(new control::function::ForwardMessage(new StatisticalOutlierFilterMessage(kNeighbors, nSigma, samplingPercent, beta, m_mode, m_outputFileType, m_outputFolder, openFolder)));
+    m_dataDispatcher.sendControl(new control::function::ForwardMessage(new StatisticalOutlierFilterMessage(kNeighbors, nSigma, samplingPercent, beta, m_mode, m_executionMode, m_outputFileType, m_outputFolder, openFolder)));
 
     hide();
 }
@@ -216,10 +226,15 @@ void DialogStatisticalOutlierFilter::syncUiFromValues()
     const QSignalBlocker blockSampling(m_ui.spinBox_soSampling);
     const QSignalBlocker blockBeta(m_ui.doubleSpinBox_soBeta);
     const QSignalBlocker blockFormat(m_ui.comboBox_file_format);
+    const QSignalBlocker blockExportMode(m_ui.radioButton_exportFilteredAreas);
+    const QSignalBlocker blockInPlaceMode(m_ui.radioButton_applyOnCurrentProject);
 
     m_ui.radioButton_soLow->setChecked(m_preset == OutlierPreset::Low);
     m_ui.radioButton_soMid->setChecked(m_preset == OutlierPreset::Mid);
     m_ui.radioButton_soHigh->setChecked(m_preset == OutlierPreset::High);
+
+    m_ui.radioButton_exportFilteredAreas->setChecked(m_executionMode == FilterExecutionMode::ExportFilteredAreas);
+    m_ui.radioButton_applyOnCurrentProject->setChecked(m_executionMode == FilterExecutionMode::ApplyOnCurrentProject);
 
     m_ui.spinBox_kNeighbors->setValue(m_kNeighbors);
     m_ui.doubleSpinBox_nSigma->setValue(m_nSigma);

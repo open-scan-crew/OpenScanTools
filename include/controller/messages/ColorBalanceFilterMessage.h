@@ -3,6 +3,7 @@
 
 #include "controller/messages/IMessage.h"
 #include "io/FileUtils.h"
+#include "controller/messages/FilterExecutionMode.h"
 
 #include <string>
 
@@ -15,7 +16,7 @@ enum class ColorBalanceMode
 class ColorBalanceFilterMessage : public IMessage
 {
 public:
-    ColorBalanceFilterMessage(int kMinValue, int kMaxValue, double trimPercentValue, double sharpnessBlendValue, ColorBalanceMode modeValue, bool applyOnIntensityAndRgbValue, FileType outputFileTypeValue, const std::wstring& outputFolderValue, bool openFolderAfterExportValue);
+    ColorBalanceFilterMessage(int kMinValue, int kMaxValue, double trimPercentValue, double sharpnessBlendValue, ColorBalanceMode modeValue, FilterExecutionMode executionModeValue, bool applyOnIntensityAndRgbValue, FileType outputFileTypeValue, const std::wstring& outputFolderValue, bool openFolderAfterExportValue);
     ~ColorBalanceFilterMessage() {}
 
     MessageType getType() const override;
@@ -26,6 +27,7 @@ public:
     double trimPercent;
     double sharpnessBlend;
     ColorBalanceMode mode;
+    FilterExecutionMode executionMode;
     bool applyOnIntensityAndRgb;
     FileType outputFileType;
     std::wstring outputFolder;

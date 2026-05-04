@@ -126,6 +126,7 @@ ContextState ContextStatisticalOutlierFilter::feedMessage(IMessage* message, Con
         m_outputFileType = decodedMsg->outputFileType;
         m_outputFolder = decodedMsg->outputFolder;
         m_openFolderAfterExport = decodedMsg->openFolderAfterExport;
+        m_executionMode = decodedMsg->executionMode;
 
         m_warningModal = true;
         controller.updateInfo(new GuiDataModal(Yes | No, TEXT_STAT_OUTLIER_FILTER_QUESTION));
@@ -142,6 +143,14 @@ ContextState ContextStatisticalOutlierFilter::feedMessage(IMessage* message, Con
 ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
 {
     GraphManager& graphManager = controller.getGraphManager();
+
+    // Passe 1: expose the in-place mode in UI/controller flow, but keep current export behavior unchanged.
+    if (m_executionMode == FilterExecutionMode::ApplyOnCurrentProject)
+    {
+        controller.updateInfo(new GuiDataWarning(TEXT_FILTER_IN_PLACE_NOT_IMPLEMENTED));
+        m_state = ContextState::abort;
+        return m_state;
+    }
 
     if (!prepareOutputDirectory(controller, m_outputFolder))
     {
