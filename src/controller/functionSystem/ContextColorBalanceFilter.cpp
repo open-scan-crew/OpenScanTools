@@ -139,6 +139,7 @@ ContextState ContextColorBalanceFilter::feedMessage(IMessage* message, Controlle
         m_outputFileType = decodedMsg->outputFileType;
         m_outputFolder = decodedMsg->outputFolder;
         m_openFolderAfterExport = decodedMsg->openFolderAfterExport;
+        m_executionMode = decodedMsg->executionMode;
 
         m_warningModal = true;
         controller.updateInfo(new GuiDataModal(Yes | No, TEXT_COLOR_BALANCE_FILTER_QUESTION));
@@ -152,6 +153,14 @@ ContextState ContextColorBalanceFilter::feedMessage(IMessage* message, Controlle
 }
 
 ContextState ContextColorBalanceFilter::launch(Controller& controller)
+{
+    if (m_executionMode == ColorBalanceFilterExecutionMode::ApplyInProject)
+        return launchInPlaceMode(controller);
+
+    return launchExportMode(controller);
+}
+
+ContextState ContextColorBalanceFilter::launchExportMode(Controller& controller)
 {
     GraphManager& graphManager = controller.getGraphManager();
 
@@ -358,6 +367,15 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
 
     m_state = wasAborted ? ContextState::abort : ContextState::done;
     return (m_state);
+}
+
+
+ContextState ContextColorBalanceFilter::launchInPlaceMode(Controller& controller)
+{
+    // Pass 1 intentionally keeps in-project execution isolated from export logic.
+    // The in-place pipeline will be implemented in a dedicated patch pass.
+    controller.updateInfo(new GuiDataWarning(QString("Apply filter on current project is not available yet.")));
+    return (m_state = ContextState::abort);
 }
 
 bool ContextColorBalanceFilter::canAutoRelaunch() const
