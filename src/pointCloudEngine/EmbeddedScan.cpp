@@ -1234,6 +1234,11 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
                     filtered.push_back(visiblePoints[i]);
             }
 
+            std::vector<PointXYZIRGB> outputPoints;
+            outputPoints.reserve(filtered.size() + untouchedPoints.size());
+            outputPoints.insert(outputPoints.end(), filtered.begin(), filtered.end());
+            outputPoints.insert(outputPoints.end(), untouchedPoints.begin(), untouchedPoints.end());
+
             {
                 std::unique_lock<std::mutex> lock(writeMutex);
                 writeCv.wait(lock, [&]() { return cellIndex == nextWriteIndex; });
@@ -1936,6 +1941,11 @@ bool EmbeddedScan::balanceColorsAndWrite(const TransformationModule& src_transfo
                     filtered.push_back(updated);
                 }
             }
+
+            std::vector<PointXYZIRGB> outputPoints;
+            outputPoints.reserve(filtered.size() + untouchedPoints.size());
+            outputPoints.insert(outputPoints.end(), filtered.begin(), filtered.end());
+            outputPoints.insert(outputPoints.end(), untouchedPoints.begin(), untouchedPoints.end());
 
             {
                 std::unique_lock<std::mutex> lock(writeMutex);
