@@ -11,6 +11,7 @@
 #include <QtCore/QSignalBlocker>
 #include <QtCore/QStandardPaths>
 #include <QtWidgets/QFileDialog>
+#include <QtWidgets/QMessageBox>
 
 #include <unordered_map>
 #include <vector>
@@ -158,6 +159,20 @@ DialogColorBalanceFilter::DialogColorBalanceFilter(IDataDispatcher& dataDispatch
     {
         m_applyOnIntensityAndRgb = checked;
     });
+    connect(m_ui.radioButton_applyOnCurrentProject, &QRadioButton::toggled, this, [this](bool checked)
+    {
+        if (!checked)
+            return;
+        m_executionMode = FilterExecutionMode::ApplyOnCurrentProject;
+        updateExecutionModeUi();
+    });
+    connect(m_ui.radioButton_exportFilteredAreas, &QRadioButton::toggled, this, [this](bool checked)
+    {
+        if (!checked)
+            return;
+        m_executionMode = FilterExecutionMode::ExportFilteredAreas;
+        updateExecutionModeUi();
+    });
 
     m_openPath = QStandardPaths::locate(QStandardPaths::DocumentsLocation, QString(), QStandardPaths::LocateDirectory);
     m_dataDispatcher.registerObserverOnKey(this, guiDType::colorBalanceFilterDialogDisplay);
@@ -197,11 +212,25 @@ void DialogColorBalanceFilter::informData(IGuiData* data)
 
 void DialogColorBalanceFilter::startBalancing()
 {
-    m_outputFolder = m_ui.lineEdit_folder->text().toStdWString();
-    if (m_outputFolder.empty())
+    if (m_executionMode == FilterExecutionMode::ApplyOnCurrentProject)
     {
-        m_dataDispatcher.updateInformation(new GuiDataWarning(TEXT_NO_DIRECTORY_SELECTED));
-        return;
+        // Passe 2: explicit irreversible warning before in-place execution.
+        const auto answer = QMessageBox::warning(this,
+            tr("Apply filter on current project"),
+            tr("This action will modify the current project scans and cannot be undone.\nDo you want to continue?"),
+            QMessageBox::Yes | QMessageBox::No,
+            QMessageBox::No);
+        if (answer != QMessageBox::Yes)
+            return;
+    }
+    else
+    {
+        m_outputFolder = m_ui.lineEdit_folder->text().toStdWString();
+        if (m_outputFolder.empty())
+        {
+            m_dataDispatcher.updateInformation(new GuiDataWarning(TEXT_NO_DIRECTORY_SELECTED));
+            return;
+        }
     }
 
     int kMin = m_ui.spinBox_kMin->value();
@@ -212,7 +241,7 @@ void DialogColorBalanceFilter::startBalancing()
     bool openFolder = m_ui.checkBox_openFolderAfterExport->isChecked();
     bool applyOnIntensityAndRgb = m_ui.checkBox_balanceIntensityRGB->isChecked();
 
-    m_dataDispatcher.sendControl(new control::function::ForwardMessage(new ColorBalanceFilterMessage(kMin, kMax, trimPercent, sharpnessBlend, m_mode, applyOnIntensityAndRgb, m_outputFileType, m_outputFolder, openFolder)));
+    m_dataDispatcher.sendControl(new control::function::ForwardMessage(new ColorBalanceFilterMessage(kMin, kMax, trimPercent, sharpnessBlend, m_mode, applyOnIntensityAndRgb, m_outputFileType, m_outputFolder, openFolder, m_executionMode)));
 
     hide();
 }
@@ -278,7 +307,22 @@ void DialogColorBalanceFilter::syncUiFromValues()
     if (formatIndex >= 0)
         m_ui.comboBox_file_format->setCurrentIndex(formatIndex);
 
+    m_ui.radioButton_applyOnCurrentProject->setChecked(m_executionMode == FilterExecutionMode::ApplyOnCurrentProject);
+    m_ui.radioButton_exportFilteredAreas->setChecked(m_executionMode == FilterExecutionMode::ExportFilteredAreas);
+    updateExecutionModeUi();
+
     m_ui.checkBox_balanceIntensityRGB->setEnabled(m_rgbAndIntensityAvailable);
+}
+
+void DialogColorBalanceFilter::updateExecutionModeUi()
+{
+    const bool exportMode = m_executionMode == FilterExecutionMode::ExportFilteredAreas;
+    m_ui.label_format->setEnabled(exportMode);
+    m_ui.comboBox_file_format->setEnabled(exportMode);
+    m_ui.label_folder->setEnabled(exportMode);
+    m_ui.lineEdit_folder->setEnabled(exportMode);
+    m_ui.toolButton_folder->setEnabled(exportMode);
+    m_ui.checkBox_openFolderAfterExport->setEnabled(exportMode);
 }
 
 void DialogColorBalanceFilter::updateAvailability(bool rgbAvailable, bool intensityAvailable, bool rgbAndIntensityAvailable)

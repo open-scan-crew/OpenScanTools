@@ -32,6 +32,7 @@ private:
     void refreshUI();
     void applyPreset(BalancePreset preset);
     void syncUiFromValues();
+    void updateExecutionModeUi();
     void updateAvailability(bool rgbAvailable, bool intensityAvailable, bool rgbAndIntensityAvailable);
 
     Ui::DialogColorBalanceFilter m_ui;
@@ -48,6 +49,7 @@ private:
     bool m_intensityAvailable = false;
     bool m_rgbAndIntensityAvailable = false;
     FileType m_outputFileType = FileType::TLS;
+    FilterExecutionMode m_executionMode = FilterExecutionMode::ExportFilteredAreas;
 
     QString m_openPath;
     std::wstring m_outputFolder;

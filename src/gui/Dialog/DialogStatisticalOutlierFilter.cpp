@@ -11,6 +11,7 @@
 #include <QtCore/QSignalBlocker>
 #include <QtCore/qstandardpaths.h>
 #include <QtWidgets/qfiledialog.h>
+#include <QtWidgets/QMessageBox>
 
 #include <vector>
 
@@ -109,6 +110,20 @@ DialogStatisticalOutlierFilter::DialogStatisticalOutlierFilter(IDataDispatcher& 
     {
         m_beta = value;
     });
+    connect(m_ui.radioButton_applyOnCurrentProject, &QRadioButton::toggled, this, [this](bool checked)
+    {
+        if (!checked)
+            return;
+        m_executionMode = FilterExecutionMode::ApplyOnCurrentProject;
+        updateExecutionModeUi();
+    });
+    connect(m_ui.radioButton_exportFilteredAreas, &QRadioButton::toggled, this, [this](bool checked)
+    {
+        if (!checked)
+            return;
+        m_executionMode = FilterExecutionMode::ExportFilteredAreas;
+        updateExecutionModeUi();
+    });
 
     m_openPath = QStandardPaths::locate(QStandardPaths::DocumentsLocation, QString(), QStandardPaths::LocateDirectory);
     m_dataDispatcher.registerObserverOnKey(this, guiDType::statisticalOutlierFilterDialogDisplay);
@@ -142,11 +157,25 @@ void DialogStatisticalOutlierFilter::informData(IGuiData* data)
 
 void DialogStatisticalOutlierFilter::startFiltering()
 {
-    m_outputFolder = m_ui.lineEdit_folder->text().toStdWString();
-    if (m_outputFolder.empty())
+    if (m_executionMode == FilterExecutionMode::ApplyOnCurrentProject)
     {
-        m_dataDispatcher.updateInformation(new GuiDataWarning(TEXT_NO_DIRECTORY_SELECTED));
-        return;
+        // Passe 2: explicit irreversible warning before in-place execution.
+        const auto answer = QMessageBox::warning(this,
+            tr("Apply filter on current project"),
+            tr("This action will modify the current project scans and cannot be undone.\nDo you want to continue?"),
+            QMessageBox::Yes | QMessageBox::No,
+            QMessageBox::No);
+        if (answer != QMessageBox::Yes)
+            return;
+    }
+    else
+    {
+        m_outputFolder = m_ui.lineEdit_folder->text().toStdWString();
+        if (m_outputFolder.empty())
+        {
+            m_dataDispatcher.updateInformation(new GuiDataWarning(TEXT_NO_DIRECTORY_SELECTED));
+            return;
+        }
     }
 
     int kNeighbors = m_ui.spinBox_kNeighbors->value();
@@ -156,7 +185,7 @@ void DialogStatisticalOutlierFilter::startFiltering()
     m_outputFileType = static_cast<FileType>(m_ui.comboBox_file_format->currentData().toInt());
 
     bool openFolder = m_ui.checkBox_openFolderAfterExport->isChecked();
-    m_dataDispatcher.sendControl(new control::function::ForwardMessage(new StatisticalOutlierFilterMessage(kNeighbors, nSigma, samplingPercent, beta, m_mode, m_outputFileType, m_outputFolder, openFolder)));
+    m_dataDispatcher.sendControl(new control::function::ForwardMessage(new StatisticalOutlierFilterMessage(kNeighbors, nSigma, samplingPercent, beta, m_mode, m_outputFileType, m_outputFolder, openFolder, m_executionMode)));
 
     hide();
 }
@@ -228,4 +257,19 @@ void DialogStatisticalOutlierFilter::syncUiFromValues()
     int formatIndex = m_ui.comboBox_file_format->findData(QVariant(static_cast<int>(m_outputFileType)));
     if (formatIndex >= 0)
         m_ui.comboBox_file_format->setCurrentIndex(formatIndex);
+
+    m_ui.radioButton_applyOnCurrentProject->setChecked(m_executionMode == FilterExecutionMode::ApplyOnCurrentProject);
+    m_ui.radioButton_exportFilteredAreas->setChecked(m_executionMode == FilterExecutionMode::ExportFilteredAreas);
+    updateExecutionModeUi();
+}
+
+void DialogStatisticalOutlierFilter::updateExecutionModeUi()
+{
+    const bool exportMode = m_executionMode == FilterExecutionMode::ExportFilteredAreas;
+    m_ui.label_format->setEnabled(exportMode);
+    m_ui.comboBox_file_format->setEnabled(exportMode);
+    m_ui.label_folder->setEnabled(exportMode);
+    m_ui.lineEdit_folder->setEnabled(exportMode);
+    m_ui.toolButton_folder->setEnabled(exportMode);
+    m_ui.checkBox_openFolderAfterExport->setEnabled(exportMode);
 }

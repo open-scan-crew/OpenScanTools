@@ -31,6 +31,7 @@ private:
     void refreshUI();
     void applyPreset(OutlierPreset preset);
     void syncUiFromValues();
+    void updateExecutionModeUi();
 
     Ui::DialogStatisticalOutlierFilter m_ui;
     OutlierFilterMode m_mode = OutlierFilterMode::Separate;
@@ -40,6 +41,7 @@ private:
     int m_samplingPercent = 2;
     double m_beta = 4.0;
     FileType m_outputFileType = FileType::TLS;
+    FilterExecutionMode m_executionMode = FilterExecutionMode::ExportFilteredAreas;
     std::wstring m_outputFolder;
     QString m_openPath;
 };
