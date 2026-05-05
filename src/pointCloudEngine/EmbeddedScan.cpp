@@ -423,6 +423,26 @@ void clipIndividualPoints(const std::vector<PointXYZIRGB>& inPoints, std::vector
     }
 }
 
+// Split points for partial clipping processing:
+// - pointsInside: affected by filter logic
+// - pointsOutside: kept unchanged in output
+void splitPointsByClippingMask(const std::vector<PointXYZIRGB>& inPoints,
+                               std::vector<PointXYZIRGB>& pointsInside,
+                               std::vector<PointXYZIRGB>& pointsOutside,
+                               const ClippingAssembly& clippingAssembly)
+{
+    pointsInside.reserve(inPoints.size());
+    pointsOutside.reserve(inPoints.size());
+    for (const PointXYZIRGB& point : inPoints)
+    {
+        glm::dvec4 pos = { point.x, point.y, point.z, 1.0 };
+        if (clippingAssembly.testPoint(pos))
+            pointsInside.push_back(point);
+        else
+            pointsOutside.push_back(point);
+    }
+}
+
 bool EmbeddedScan::testPointsClippedOut(const TransformationModule& src_transfo, const ClippingAssembly& _clippingAssembly) const
 {
     ClippingAssembly localAssembly = _clippingAssembly;
@@ -866,8 +886,9 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
             }
 
             std::vector<PointXYZIRGB> visiblePoints;
+            std::vector<PointXYZIRGB> untouchedPoints;
             if (cell.second)
-                clipIndividualPoints(points, visiblePoints, localAssembly);
+                splitPointsByClippingMask(points, visiblePoints, untouchedPoints, localAssembly);
             else
                 visiblePoints.swap(points);
 
@@ -1011,7 +1032,7 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
     return true;
 }
 
-bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* writer, uint64_t& removedPoints, const ProgressCallback& progress)
+bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* writer, uint64_t& removedPoints, bool preserveUnclippedPoints, const ProgressCallback& progress)
 {
     ClippingAssembly localAssembly = deepCopyClippingAssembly(clippingAssembly);
     localAssembly.clearMatrix();
@@ -1019,7 +1040,26 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
     localAssembly.addTransformation(src_transfo_mat);
 
     std::vector<std::pair<uint32_t, bool>> cells;
-    getClippedCells_impl(m_uRootCell, localAssembly, cells);
+    if (preserveUnclippedPoints && !clippingAssembly.empty())
+    {
+        std::function<void(uint32_t)> collectAllLeafCells = [&](uint32_t cellId)
+        {
+            const TreeCell& cell = m_vTreeCells[cellId];
+            if (cell.m_isLeaf)
+            {
+                cells.push_back({ cellId, true });
+                return;
+            }
+            for (int childIndex = 0; childIndex < 8; ++childIndex)
+                if (cell.m_children[childIndex] != NO_CHILD)
+                    collectAllLeafCells(cell.m_children[childIndex]);
+        };
+        collectAllLeafCells(m_uRootCell);
+    }
+    else
+    {
+        getClippedCells_impl(m_uRootCell, localAssembly, cells);
+    }
 
     const size_t neighborCount = std::max(1, kNeighbors);
     double threshold = stats.mean + nSigma * stats.stddev;
@@ -1046,7 +1086,10 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
             }
 
             std::vector<PointXYZIRGB> visiblePoints;
-            if (cell.second)
+            std::vector<PointXYZIRGB> untouchedPoints;
+            if (cell.second && preserveUnclippedPoints)
+                splitPointsByClippingMask(points, visiblePoints, untouchedPoints, localAssembly);
+            else if (cell.second)
                 clipIndividualPoints(points, visiblePoints, localAssembly);
             else
                 visiblePoints.swap(points);
@@ -1090,7 +1133,18 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
             }
 
             removedPointsAtomic.fetch_add(visiblePoints.size() - filtered.size());
-            sequentialOk &= writer->mergePoints(filtered.data(), filtered.size(), src_transfo, pt_format_);
+            if (preserveUnclippedPoints)
+            {
+                std::vector<PointXYZIRGB> outputPoints;
+                outputPoints.reserve(filtered.size() + untouchedPoints.size());
+                outputPoints.insert(outputPoints.end(), filtered.begin(), filtered.end());
+                outputPoints.insert(outputPoints.end(), untouchedPoints.begin(), untouchedPoints.end());
+                sequentialOk &= writer->mergePoints(outputPoints.data(), outputPoints.size(), src_transfo, pt_format_);
+            }
+            else
+            {
+                sequentialOk &= writer->mergePoints(filtered.data(), filtered.size(), src_transfo, pt_format_);
+            }
 
             if (progress)
                 progress(cellIndex + 1, totalCells);
@@ -1139,7 +1193,10 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
             }
 
             std::vector<PointXYZIRGB> visiblePoints;
-            if (cell.second)
+            std::vector<PointXYZIRGB> untouchedPoints;
+            if (cell.second && preserveUnclippedPoints)
+                splitPointsByClippingMask(points, visiblePoints, untouchedPoints, threadAssembly);
+            else if (cell.second)
                 clipIndividualPoints(points, visiblePoints, threadAssembly);
             else
                 visiblePoints.swap(points);
@@ -1199,7 +1256,19 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
             {
                 std::unique_lock<std::mutex> lock(writeMutex);
                 writeCv.wait(lock, [&]() { return cellIndex == nextWriteIndex; });
-                bool ok = writer->mergePoints(filtered.data(), filtered.size(), src_transfo, pt_format_);
+                bool ok = false;
+                if (preserveUnclippedPoints)
+                {
+                    std::vector<PointXYZIRGB> outputPoints;
+                    outputPoints.reserve(filtered.size() + untouchedPoints.size());
+                    outputPoints.insert(outputPoints.end(), filtered.begin(), filtered.end());
+                    outputPoints.insert(outputPoints.end(), untouchedPoints.begin(), untouchedPoints.end());
+                    ok = writer->mergePoints(outputPoints.data(), outputPoints.size(), src_transfo, pt_format_);
+                }
+                else
+                {
+                    ok = writer->mergePoints(filtered.data(), filtered.size(), src_transfo, pt_format_);
+                }
                 if (!ok)
                     resultOk.store(false);
                 removedPointsAtomic.fetch_add(visiblePoints.size() - filtered.size());
@@ -1457,7 +1526,7 @@ bool EmbeddedScan::filterAndWrite(const TransformationModule& src_transfo,
     return resultOk.load();
 }
 
-bool EmbeddedScan::balanceColorsAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kMin, int kMax, double trimPercent, double sharpnessBlend, bool applyOnIntensity, bool applyOnRgb, const ExternalPointsProvider& externalPointsProvider, IScanFileWriter* writer, uint64_t& modifiedPoints, const ProgressCallback& progress)
+bool EmbeddedScan::balanceColorsAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kMin, int kMax, double trimPercent, double sharpnessBlend, bool applyOnIntensity, bool applyOnRgb, const ExternalPointsProvider& externalPointsProvider, IScanFileWriter* writer, uint64_t& modifiedPoints, bool preserveUnclippedPoints, const ProgressCallback& progress)
 {
     ClippingAssembly localAssembly = deepCopyClippingAssembly(clippingAssembly);
     localAssembly.clearMatrix();
@@ -1468,7 +1537,26 @@ bool EmbeddedScan::balanceColorsAndWrite(const TransformationModule& src_transfo
     const bool useSharpness = sharpness > 0.0;
 
     std::vector<std::pair<uint32_t, bool>> cells;
-    getClippedCells_impl(m_uRootCell, localAssembly, cells);
+    if (preserveUnclippedPoints && !clippingAssembly.empty())
+    {
+        std::function<void(uint32_t)> collectAllLeafCells = [&](uint32_t cellId)
+        {
+            const TreeCell& cell = m_vTreeCells[cellId];
+            if (cell.m_isLeaf)
+            {
+                cells.push_back({ cellId, true });
+                return;
+            }
+            for (int childIndex = 0; childIndex < 8; ++childIndex)
+                if (cell.m_children[childIndex] != NO_CHILD)
+                    collectAllLeafCells(cell.m_children[childIndex]);
+        };
+        collectAllLeafCells(m_uRootCell);
+    }
+    else
+    {
+        getClippedCells_impl(m_uRootCell, localAssembly, cells);
+    }
 
     const size_t totalCells = cells.size();
     if (progress && totalCells > 0)
@@ -1493,7 +1581,10 @@ bool EmbeddedScan::balanceColorsAndWrite(const TransformationModule& src_transfo
             }
 
             std::vector<PointXYZIRGB> visiblePoints;
-            if (cell.second)
+            std::vector<PointXYZIRGB> untouchedPoints;
+            if (cell.second && preserveUnclippedPoints)
+                splitPointsByClippingMask(points, visiblePoints, untouchedPoints, localAssembly);
+            else if (cell.second)
                 clipIndividualPoints(points, visiblePoints, localAssembly);
             else
                 visiblePoints.swap(points);
@@ -1583,7 +1674,18 @@ bool EmbeddedScan::balanceColorsAndWrite(const TransformationModule& src_transfo
             {
                 filtered = visiblePoints;
                 modifiedPointsAtomic.fetch_add(filtered.size());
-                sequentialOk &= writer->addPoints(filtered.data(), filtered.size());
+                if (preserveUnclippedPoints)
+                {
+                    std::vector<PointXYZIRGB> outputPoints;
+                    outputPoints.reserve(filtered.size() + untouchedPoints.size());
+                    outputPoints.insert(outputPoints.end(), filtered.begin(), filtered.end());
+                    outputPoints.insert(outputPoints.end(), untouchedPoints.begin(), untouchedPoints.end());
+                    sequentialOk &= writer->addPoints(outputPoints.data(), outputPoints.size());
+                }
+                else
+                {
+                    sequentialOk &= writer->addPoints(filtered.data(), filtered.size());
+                }
                 if (progress)
                     progress(cellIndex + 1, totalCells);
                 continue;
@@ -1651,7 +1753,18 @@ bool EmbeddedScan::balanceColorsAndWrite(const TransformationModule& src_transfo
             }
 
             modifiedPointsAtomic.fetch_add(filtered.size());
-            sequentialOk &= writer->addPoints(filtered.data(), filtered.size());
+            if (preserveUnclippedPoints)
+            {
+                std::vector<PointXYZIRGB> outputPoints;
+                outputPoints.reserve(filtered.size() + untouchedPoints.size());
+                outputPoints.insert(outputPoints.end(), filtered.begin(), filtered.end());
+                outputPoints.insert(outputPoints.end(), untouchedPoints.begin(), untouchedPoints.end());
+                sequentialOk &= writer->addPoints(outputPoints.data(), outputPoints.size());
+            }
+            else
+            {
+                sequentialOk &= writer->addPoints(filtered.data(), filtered.size());
+            }
 
             if (progress)
                 progress(cellIndex + 1, totalCells);
@@ -1695,7 +1808,10 @@ bool EmbeddedScan::balanceColorsAndWrite(const TransformationModule& src_transfo
             }
 
             std::vector<PointXYZIRGB> visiblePoints;
-            if (cell.second)
+            std::vector<PointXYZIRGB> untouchedPoints;
+            if (cell.second && preserveUnclippedPoints)
+                splitPointsByClippingMask(points, visiblePoints, untouchedPoints, threadAssembly);
+            else if (cell.second)
                 clipIndividualPoints(points, visiblePoints, threadAssembly);
             else
                 visiblePoints.swap(points);
@@ -1862,7 +1978,19 @@ bool EmbeddedScan::balanceColorsAndWrite(const TransformationModule& src_transfo
             {
                 std::unique_lock<std::mutex> lock(writeMutex);
                 writeCv.wait(lock, [&]() { return cellIndex == nextWriteIndex; });
-                bool ok = writer->addPoints(filtered.data(), filtered.size());
+                bool ok = false;
+                if (preserveUnclippedPoints)
+                {
+                    std::vector<PointXYZIRGB> outputPoints;
+                    outputPoints.reserve(filtered.size() + untouchedPoints.size());
+                    outputPoints.insert(outputPoints.end(), filtered.begin(), filtered.end());
+                    outputPoints.insert(outputPoints.end(), untouchedPoints.begin(), untouchedPoints.end());
+                    ok = writer->addPoints(outputPoints.data(), outputPoints.size());
+                }
+                else
+                {
+                    ok = writer->addPoints(filtered.data(), filtered.size());
+                }
                 if (!ok)
                     resultOk.store(false);
                 modifiedPointsAtomic.fetch_add(filtered.size());
