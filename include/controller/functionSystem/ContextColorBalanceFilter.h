@@ -2,6 +2,7 @@
 #define CONTEXT_COLOR_BALANCE_FILTER_H
 
 #include "controller/functionSystem/AContext.h"
+#include "controller/messages/FilterExecutionMode.h"
 #include "controller/messages/ColorBalanceFilterMessage.h"
 #include "io/FileUtils.h"
 #include "tls_def.h"

@@ -2,6 +2,7 @@
 #define COLOR_BALANCE_FILTER_MESSAGE_H
 
 #include "controller/messages/IMessage.h"
+#include "controller/messages/FilterExecutionMode.h"
 #include "io/FileUtils.h"
 
 #include <string>
