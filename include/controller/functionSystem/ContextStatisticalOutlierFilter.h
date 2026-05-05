@@ -23,6 +23,8 @@ public:
 
 private:
     bool prepareOutputDirectory(Controller& controller, const std::filesystem::path& folderPath);
+    ContextState launchExportMode(Controller& controller);
+    ContextState launchInPlaceMode(Controller& controller);
 
     bool m_warningModal = false;
     bool m_globalFiltering = false;
@@ -34,6 +36,7 @@ private:
     FileType m_outputFileType = FileType::TLS;
     std::filesystem::path m_outputFolder;
     bool m_openFolderAfterExport = true;
+    OutlierFilterExecutionMode m_executionMode = OutlierFilterExecutionMode::ExportFilteredAreas;
 };
 
 #endif

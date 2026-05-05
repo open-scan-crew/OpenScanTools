@@ -24,6 +24,8 @@ public:
 
 private:
     bool prepareOutputDirectory(Controller& controller, const std::filesystem::path& folderPath);
+    ContextState launchExportMode(Controller& controller);
+    ContextState launchInPlaceMode(Controller& controller);
 
     tls::ScanGuid m_panoramic;
     int m_kMin = 24;
@@ -36,6 +38,7 @@ private:
     std::filesystem::path m_outputFolder;
     bool m_openFolderAfterExport = false;
     bool m_warningModal = false;
+    ColorBalanceFilterExecutionMode m_executionMode = ColorBalanceFilterExecutionMode::ExportFilteredAreas;
 };
 
 #endif

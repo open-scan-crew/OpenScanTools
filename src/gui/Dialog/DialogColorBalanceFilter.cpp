@@ -212,7 +212,17 @@ void DialogColorBalanceFilter::startBalancing()
     bool openFolder = m_ui.checkBox_openFolderAfterExport->isChecked();
     bool applyOnIntensityAndRgb = m_ui.checkBox_balanceIntensityRGB->isChecked();
 
-    m_dataDispatcher.sendControl(new control::function::ForwardMessage(new ColorBalanceFilterMessage(kMin, kMax, trimPercent, sharpnessBlend, m_mode, applyOnIntensityAndRgb, m_outputFileType, m_outputFolder, openFolder)));
+    m_dataDispatcher.sendControl(new control::function::ForwardMessage(new ColorBalanceFilterMessage(
+        kMin,
+        kMax,
+        trimPercent,
+        sharpnessBlend,
+        m_mode,
+        ColorBalanceFilterExecutionMode::ExportFilteredAreas,
+        applyOnIntensityAndRgb,
+        m_outputFileType,
+        m_outputFolder,
+        openFolder)));
 
     hide();
 }

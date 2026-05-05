@@ -126,6 +126,7 @@ ContextState ContextStatisticalOutlierFilter::feedMessage(IMessage* message, Con
         m_outputFileType = decodedMsg->outputFileType;
         m_outputFolder = decodedMsg->outputFolder;
         m_openFolderAfterExport = decodedMsg->openFolderAfterExport;
+        m_executionMode = decodedMsg->executionMode;
 
         m_warningModal = true;
         controller.updateInfo(new GuiDataModal(Yes | No, TEXT_STAT_OUTLIER_FILTER_QUESTION));
@@ -140,6 +141,14 @@ ContextState ContextStatisticalOutlierFilter::feedMessage(IMessage* message, Con
 }
 
 ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
+{
+    if (m_executionMode == OutlierFilterExecutionMode::ApplyInProject)
+        return launchInPlaceMode(controller);
+
+    return launchExportMode(controller);
+}
+
+ContextState ContextStatisticalOutlierFilter::launchExportMode(Controller& controller)
 {
     GraphManager& graphManager = controller.getGraphManager();
 
@@ -290,6 +299,15 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
 
     m_state = wasAborted ? ContextState::abort : ContextState::done;
     return (m_state);
+}
+
+
+ContextState ContextStatisticalOutlierFilter::launchInPlaceMode(Controller& controller)
+{
+    // Pass 1 intentionally keeps in-project execution isolated from export logic.
+    // The in-place pipeline will be implemented in a dedicated patch pass.
+    controller.updateInfo(new GuiDataWarning(QString("Apply filter on current project is not available yet.")));
+    return (m_state = ContextState::abort);
 }
 
 bool ContextStatisticalOutlierFilter::canAutoRelaunch() const
