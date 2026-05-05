@@ -12,10 +12,16 @@ enum class OutlierFilterMode
     Global
 };
 
+enum class OutlierFilterExecutionMode
+{
+    ApplyInProject,
+    ExportFilteredAreas
+};
+
 class StatisticalOutlierFilterMessage : public IMessage
 {
 public:
-    StatisticalOutlierFilterMessage(int kNeighbors, double nSigma, int samplingPercent, double beta, OutlierFilterMode mode, FileType outputFileType, const std::wstring& outputFolder, bool openFolderAfterExport);
+    StatisticalOutlierFilterMessage(int kNeighbors, double nSigma, int samplingPercent, double beta, OutlierFilterMode mode, OutlierFilterExecutionMode executionMode, FileType outputFileType, const std::wstring& outputFolder, bool openFolderAfterExport);
     ~StatisticalOutlierFilterMessage() {}
 
     MessageType getType() const override;
@@ -26,6 +32,7 @@ public:
     int samplingPercent;
     double beta;
     OutlierFilterMode mode;
+    OutlierFilterExecutionMode executionMode;
     FileType outputFileType;
     std::wstring outputFolder;
     bool openFolderAfterExport;
