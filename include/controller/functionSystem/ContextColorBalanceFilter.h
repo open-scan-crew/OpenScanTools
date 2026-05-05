@@ -3,6 +3,7 @@
 
 #include "controller/functionSystem/AContext.h"
 #include "controller/messages/ColorBalanceFilterMessage.h"
+#include "controller/messages/FilterExecutionMode.h"
 #include "io/FileUtils.h"
 #include "tls_def.h"
 
@@ -36,6 +37,7 @@ private:
     std::filesystem::path m_outputFolder;
     bool m_openFolderAfterExport = false;
     bool m_warningModal = false;
+    FilterExecutionMode m_executionMode = FilterExecutionMode::ExportFilteredAreas;
 };
 
 #endif
