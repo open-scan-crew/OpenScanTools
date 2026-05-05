@@ -13,6 +13,12 @@ enum class OutlierFilterMode
     Global
 };
 
+enum class OutlierFilterExecutionMode
+{
+    ApplyInProject,
+    ExportFilteredAreas
+};
+
 class StatisticalOutlierFilterMessage : public IMessage
 {
 public:

@@ -13,6 +13,12 @@ enum class ColorBalanceMode
     Global
 };
 
+enum class ColorBalanceFilterExecutionMode
+{
+    ApplyInProject,
+    ExportFilteredAreas
+};
+
 class ColorBalanceFilterMessage : public IMessage
 {
 public:
