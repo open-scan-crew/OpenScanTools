@@ -1,5 +1,6 @@
 #include "gui/Dialog/DialogStatisticalOutlierFilter.h"
 
+#include "controller/messages/FilterExecutionMode.h"
 #include "controller/controls/ControlFunction.h"
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataIO.h"
@@ -156,7 +157,16 @@ void DialogStatisticalOutlierFilter::startFiltering()
     m_outputFileType = static_cast<FileType>(m_ui.comboBox_file_format->currentData().toInt());
 
     bool openFolder = m_ui.checkBox_openFolderAfterExport->isChecked();
-    m_dataDispatcher.sendControl(new control::function::ForwardMessage(new StatisticalOutlierFilterMessage(kNeighbors, nSigma, samplingPercent, beta, m_mode, m_outputFileType, m_outputFolder, openFolder)));
+    m_dataDispatcher.sendControl(new control::function::ForwardMessage(new StatisticalOutlierFilterMessage(
+        kNeighbors,
+        nSigma,
+        samplingPercent,
+        beta,
+        m_mode,
+        OutlierFilterExecutionMode::ExportFilteredAreas,
+        m_outputFileType,
+        m_outputFolder,
+        openFolder)));
 
     hide();
 }
