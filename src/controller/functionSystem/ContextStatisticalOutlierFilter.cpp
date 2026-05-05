@@ -126,6 +126,7 @@ ContextState ContextStatisticalOutlierFilter::feedMessage(IMessage* message, Con
         m_outputFileType = decodedMsg->outputFileType;
         m_outputFolder = decodedMsg->outputFolder;
         m_openFolderAfterExport = decodedMsg->openFolderAfterExport;
+        m_executionMode = decodedMsg->executionMode;
 
         m_warningModal = true;
         controller.updateInfo(new GuiDataModal(Yes | No, TEXT_STAT_OUTLIER_FILTER_QUESTION));
