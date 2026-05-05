@@ -48,6 +48,7 @@ private:
     bool m_intensityAvailable = false;
     bool m_rgbAndIntensityAvailable = false;
     FileType m_outputFileType = FileType::TLS;
+    FilterExecutionMode m_executionMode = FilterExecutionMode::ExportFilteredAreas;
 
     QString m_openPath;
     std::wstring m_outputFolder;
