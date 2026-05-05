@@ -2,6 +2,7 @@
 #define CONTEXT_STATISTICAL_OUTLIER_FILTER_H
 
 #include "controller/functionSystem/AContext.h"
+#include "controller/messages/FilterExecutionMode.h"
 #include "models/graph/TransformationModule.h"
 #include "io/FileUtils.h"
 
@@ -25,6 +26,7 @@ private:
     bool prepareOutputDirectory(Controller& controller, const std::filesystem::path& folderPath);
 
     bool m_warningModal = false;
+    FilterExecutionMode m_executionMode = FilterExecutionMode::ExportFilteredAreas;
     bool m_globalFiltering = false;
     int m_kNeighbors = 20;
     double m_nSigma = 1.0;
