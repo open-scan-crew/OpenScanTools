@@ -135,6 +135,7 @@ ContextState ContextColorBalanceFilter::feedMessage(IMessage* message, Controlle
         m_trimPercent = decodedMsg->trimPercent;
         m_sharpnessBlend = decodedMsg->sharpnessBlend;
         m_globalBalancing = decodedMsg->mode == ColorBalanceMode::Global;
+        m_executionMode = decodedMsg->executionMode;
         m_applyOnIntensityAndRgb = decodedMsg->applyOnIntensityAndRgb;
         m_outputFileType = decodedMsg->outputFileType;
         m_outputFolder = decodedMsg->outputFolder;
@@ -155,7 +156,12 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
 {
     GraphManager& graphManager = controller.getGraphManager();
 
-    if (!prepareOutputDirectory(controller, m_outputFolder))
+    const bool applyOnCurrentProject = (m_executionMode == FilterExecutionMode::ApplyOnCurrentProject);
+    std::filesystem::path outputFolder = m_outputFolder;
+    if (applyOnCurrentProject)
+        outputFolder = controller.getContext().cgetProjectInternalInfo().getPointCloudFolderPath(false) / "temp_color_balance_apply";
+
+    if (!prepareOutputDirectory(controller, outputFolder))
     {
         m_state = ContextState::abort;
         return m_state;
@@ -254,7 +260,7 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
         IScanFileWriter* scan_writer = nullptr;
         std::wstring log;
         std::wstring outputName = wScan->getName() + L"_CB";
-        if (!getScanFileWriter(m_outputFolder, outputName, m_outputFileType, log, &scan_writer, true) || scan_writer == nullptr)
+        if (!getScanFileWriter(outputFolder, outputName, applyOnCurrentProject ? FileType::TLS : m_outputFileType, log, &scan_writer, true) || scan_writer == nullptr)
             continue;
 
         tls::ScanHeader header;
@@ -324,6 +330,13 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
         auto progressCallback = makeProgressCallback(scanCount, 0, 100);
         bool res = TlScanOverseer::getInstance().balanceColorsAndWrite(balanceGuid, balanceTransform, *clippingToUse, m_kMin, m_kMax, m_trimPercent, m_sharpnessBlend, applyOnIntensity, applyOnRgb, externalProvider, scan_writer, modifiedPointCount, progressCallback);
         res &= scan_writer->finalizePointCloud();
+        std::filesystem::path writtenPath;
+        if (applyOnCurrentProject)
+        {
+            TlsFileWriter* tlsWriter = dynamic_cast<TlsFileWriter*>(scan_writer);
+            if (tlsWriter != nullptr)
+                writtenPath = tlsWriter->getFilePath();
+        }
         delete scan_writer;
         if (balanceGuid != old_guid)
         {
@@ -343,6 +356,18 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
         else
             controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Scan %1 not affected by color balance.").arg(qScanName)));
 
+        if (applyOnCurrentProject && !writtenPath.empty())
+        {
+            tls::ScanGuid newGuid = xg::Guid();
+            if (TlScanOverseer::getInstance().getScanGuid(writtenPath, newGuid))
+            {
+                std::filesystem::path absolutePath = wScan->getTlsFilePath();
+                TlScanOverseer::getInstance().freeScan_async(old_guid, false);
+                wScan->setTlsFilePath(writtenPath, false, tls::ScanGuid(), false);
+                TlScanOverseer::getInstance().copyScanFile_async(newGuid, absolutePath, false, true, true);
+            }
+        }
+
         if (m_state != ContextState::running)
         {
             wasAborted = true;
@@ -353,7 +378,7 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Total points updated: %1").arg(totalModifiedPoints)));
     controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));
 
-    if (m_openFolderAfterExport && !wasAborted)
+    if (m_openFolderAfterExport && !wasAborted && !applyOnCurrentProject)
         controller.updateInfo(new GuiDataOpenInExplorer(m_outputFolder));
 
     m_state = wasAborted ? ContextState::abort : ContextState::done;

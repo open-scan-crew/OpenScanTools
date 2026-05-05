@@ -12,6 +12,7 @@
 #include "gui/texts/ExportTexts.hpp"
 #include "gui/texts/SplashScreenTexts.hpp"
 #include "io/exports/IScanFileWriter.h"
+#include "io/exports/TlsFileWriter.h"
 #include "models/graph/GraphManager.h"
 #include "models/graph/PointCloudNode.h"
 #include "pointCloudEngine/PCE_core.h"
@@ -123,6 +124,7 @@ ContextState ContextStatisticalOutlierFilter::feedMessage(IMessage* message, Con
         m_samplingPercent = decodedMsg->samplingPercent;
         m_beta = decodedMsg->beta;
         m_globalFiltering = decodedMsg->mode == OutlierFilterMode::Global;
+        m_executionMode = decodedMsg->executionMode;
         m_outputFileType = decodedMsg->outputFileType;
         m_outputFolder = decodedMsg->outputFolder;
         m_openFolderAfterExport = decodedMsg->openFolderAfterExport;
@@ -143,7 +145,12 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
 {
     GraphManager& graphManager = controller.getGraphManager();
 
-    if (!prepareOutputDirectory(controller, m_outputFolder))
+    const bool applyOnCurrentProject = (m_executionMode == FilterExecutionMode::ApplyOnCurrentProject);
+    std::filesystem::path outputFolder = m_outputFolder;
+    if (applyOnCurrentProject)
+        outputFolder = controller.getContext().cgetProjectInternalInfo().getPointCloudFolderPath(false) / "temp_stat_outlier";
+
+    if (!prepareOutputDirectory(controller, outputFolder))
     {
         m_state = ContextState::abort;
         return m_state;
@@ -244,7 +251,7 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         IScanFileWriter* scan_writer = nullptr;
         std::wstring log;
         std::wstring outputName = wScan->getName() + L"_SOF";
-        if (!getScanFileWriter(m_outputFolder, outputName, m_outputFileType, log, &scan_writer, true) || scan_writer == nullptr)
+        if (!getScanFileWriter(outputFolder, outputName, applyOnCurrentProject ? FileType::TLS : m_outputFileType, log, &scan_writer, true) || scan_writer == nullptr)
             continue;
         tls::ScanHeader header;
         TlScanOverseer::getInstance().getScanHeader(old_guid, header);
@@ -261,6 +268,13 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         auto filterProgress = makeProgressCallback(scan_count, m_globalFiltering ? 0 : 50, m_globalFiltering ? 100 : 50);
         bool res = TlScanOverseer::getInstance().filterOutliersAndWrite(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, statsToUse, m_nSigma, m_beta, scan_writer, deleted_point_count, filterProgress);
         res &= scan_writer->finalizePointCloud();
+        std::filesystem::path writtenPath;
+        if (applyOnCurrentProject)
+        {
+            TlsFileWriter* tlsWriter = dynamic_cast<TlsFileWriter*>(scan_writer);
+            if (tlsWriter != nullptr)
+                writtenPath = tlsWriter->getFilePath();
+        }
         delete scan_writer;
 
         total_deleted_points += deleted_point_count;
@@ -275,6 +289,18 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         else
             controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Scan %1 not affected by outlier filter.").arg(qScanName)));
 
+        if (applyOnCurrentProject && !writtenPath.empty())
+        {
+            tls::ScanGuid newGuid = xg::Guid();
+            if (TlScanOverseer::getInstance().getScanGuid(writtenPath, newGuid))
+            {
+                std::filesystem::path absolutePath = wScan->getTlsFilePath();
+                TlScanOverseer::getInstance().freeScan_async(old_guid, false);
+                wScan->setTlsFilePath(writtenPath, false, tls::ScanGuid(), false);
+                TlScanOverseer::getInstance().copyScanFile_async(newGuid, absolutePath, false, true, true);
+            }
+        }
+
         if (m_state != ContextState::running)
         {
             wasAborted = true;
@@ -285,7 +311,7 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Total points deleted: %1").arg(total_deleted_points)));
     controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));
 
-    if (m_openFolderAfterExport && !wasAborted)
+    if (m_openFolderAfterExport && !wasAborted && !applyOnCurrentProject)
         controller.updateInfo(new GuiDataOpenInExplorer(m_outputFolder));
 
     m_state = wasAborted ? ContextState::abort : ContextState::done;
