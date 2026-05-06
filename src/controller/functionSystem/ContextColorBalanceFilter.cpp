@@ -280,6 +280,13 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
     std::unordered_set<SafePtr<AClippingNode>> clippings = graphManager.getActivatedOrSelectedClippingObjects();
     if (!clippings.empty())
         graphManager.getClippingAssembly(clippingAssembly, clippings);
+    if (applyOnProject && !clippingAssembly.empty())
+    {
+        controller.updateInfo(new GuiDataWarning(QObject::tr("Apply filter on current project with clipping is planned for next pass. Please disable clipping for now.")));
+        m_state = ContextState::abort;
+        return m_state;
+    }
+
     const bool useTempClippedScans = m_globalBalancing && !clippingAssembly.empty();
     std::filesystem::path tempFolder;
     if (useTempClippedScans)
