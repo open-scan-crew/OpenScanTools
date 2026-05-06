@@ -12,6 +12,7 @@
 #include "gui/texts/ExportTexts.hpp"
 #include "gui/texts/SplashScreenTexts.hpp"
 #include "io/exports/IScanFileWriter.h"
+#include "io/exports/TlsFileWriter.h"
 #include "models/graph/GraphManager.h"
 #include "models/graph/PointCloudNode.h"
 #include "pointCloudEngine/PCE_core.h"
@@ -123,12 +124,14 @@ ContextState ContextStatisticalOutlierFilter::feedMessage(IMessage* message, Con
         m_samplingPercent = decodedMsg->samplingPercent;
         m_beta = decodedMsg->beta;
         m_globalFiltering = decodedMsg->mode == OutlierFilterMode::Global;
+        m_executionMode = decodedMsg->executionMode;
         m_outputFileType = decodedMsg->outputFileType;
         m_outputFolder = decodedMsg->outputFolder;
         m_openFolderAfterExport = decodedMsg->openFolderAfterExport;
 
         m_warningModal = true;
-        controller.updateInfo(new GuiDataModal(Yes | No, TEXT_STAT_OUTLIER_FILTER_QUESTION));
+        const QString warningText = (m_executionMode == FilterExecutionMode::ApplyOnCurrentProject) ? TEXT_DELETE_POINTS_QUESTION : TEXT_STAT_OUTLIER_FILTER_QUESTION;
+        controller.updateInfo(new GuiDataModal(Yes | No, warningText));
         break;
     }
     break;
@@ -143,7 +146,8 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
 {
     GraphManager& graphManager = controller.getGraphManager();
 
-    if (!prepareOutputDirectory(controller, m_outputFolder))
+    const bool applyInPlace = (m_executionMode == FilterExecutionMode::ApplyOnCurrentProject);
+    if (!applyInPlace && !prepareOutputDirectory(controller, m_outputFolder))
     {
         m_state = ContextState::abort;
         return m_state;
@@ -160,6 +164,23 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
 
     ClippingAssembly clippingAssembly;
     graphManager.getClippingAssembly(clippingAssembly, true, false);
+    if (applyInPlace && !clippingAssembly.empty())
+    {
+        controller.updateInfo(new GuiDataWarning(QObject::tr("Apply filter on current project with active clipping is not available yet.")));
+        m_state = ContextState::abort;
+        return m_state;
+    }
+
+    std::filesystem::path inPlaceTempFolder;
+    if (applyInPlace)
+    {
+        inPlaceTempFolder = controller.getContext().cgetProjectInternalInfo().getPointCloudFolderPath(false) / "temp_stat_outlier";
+        if (!prepareOutputDirectory(controller, inPlaceTempFolder))
+        {
+            m_state = ContextState::abort;
+            return m_state;
+        }
+    }
 
     OutlierStats globalStats;
     bool wasAborted = false;
@@ -242,9 +263,21 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         tls::ScanGuid old_guid = wScan->getScanGuid();
 
         IScanFileWriter* scan_writer = nullptr;
+        TlsFileWriter* tlsWriter = nullptr;
         std::wstring log;
         std::wstring outputName = wScan->getName() + L"_SOF";
-        if (!getScanFileWriter(m_outputFolder, outputName, m_outputFileType, log, &scan_writer, true) || scan_writer == nullptr)
+        std::filesystem::path tempPath;
+        if (applyInPlace)
+        {
+            // In-place flow writes in temporary TLS files before replacing the scan file.
+            TlsFileWriter::getWriter(inPlaceTempFolder, wScan->getName(), log, (IScanFileWriter**)&tlsWriter);
+            scan_writer = tlsWriter;
+            if (tlsWriter != nullptr)
+                tempPath = tlsWriter->getFilePath();
+        }
+        else if (!getScanFileWriter(m_outputFolder, outputName, m_outputFileType, log, &scan_writer, true) || scan_writer == nullptr)
+            continue;
+        if (scan_writer == nullptr)
             continue;
         tls::ScanHeader header;
         TlScanOverseer::getInstance().getScanHeader(old_guid, header);
@@ -264,6 +297,22 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         delete scan_writer;
 
         total_deleted_points += deleted_point_count;
+
+        if (applyInPlace && res)
+        {
+            tls::ScanGuid newGuid;
+            if (!TlScanOverseer::getInstance().getScanGuid(tempPath, newGuid))
+            {
+                controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Failed to register in-place temporary scan for %1.").arg(QString::fromStdWString(wScan->getName()))));
+            }
+            else
+            {
+                std::filesystem::path absolutePath = wScan->getTlsFilePath();
+                TlScanOverseer::getInstance().freeScan_async(old_guid, false);
+                wScan->setTlsFilePath(tempPath, false, tls::ScanGuid(), false);
+                TlScanOverseer::getInstance().copyScanFile_async(newGuid, absolutePath, false, true, true);
+            }
+        }
 
         scan_count++;
         float seconds = std::chrono::duration<float, std::ratio<1>>(std::chrono::steady_clock::now() - startTime).count();
@@ -285,7 +334,7 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Total points deleted: %1").arg(total_deleted_points)));
     controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));
 
-    if (m_openFolderAfterExport && !wasAborted)
+    if (m_openFolderAfterExport && !wasAborted && !applyInPlace)
         controller.updateInfo(new GuiDataOpenInExplorer(m_outputFolder));
 
     m_state = wasAborted ? ContextState::abort : ContextState::done;

@@ -158,6 +158,18 @@ DialogColorBalanceFilter::DialogColorBalanceFilter(IDataDispatcher& dataDispatch
     {
         m_applyOnIntensityAndRgb = checked;
     });
+    connect(m_ui.radioButton_executionApplyCurrentProject, &QRadioButton::toggled, this, [this](bool checked)
+    {
+        if (checked)
+            m_executionMode = FilterExecutionMode::ApplyOnCurrentProject;
+        updateExecutionModeUi();
+    });
+    connect(m_ui.radioButton_executionExportFilteredAreas, &QRadioButton::toggled, this, [this](bool checked)
+    {
+        if (checked)
+            m_executionMode = FilterExecutionMode::ExportFilteredAreas;
+        updateExecutionModeUi();
+    });
 
     m_openPath = QStandardPaths::locate(QStandardPaths::DocumentsLocation, QString(), QStandardPaths::LocateDirectory);
     m_dataDispatcher.registerObserverOnKey(this, guiDType::colorBalanceFilterDialogDisplay);
@@ -198,7 +210,7 @@ void DialogColorBalanceFilter::informData(IGuiData* data)
 void DialogColorBalanceFilter::startBalancing()
 {
     m_outputFolder = m_ui.lineEdit_folder->text().toStdWString();
-    if (m_outputFolder.empty())
+    if (m_executionMode == FilterExecutionMode::ExportFilteredAreas && m_outputFolder.empty())
     {
         m_dataDispatcher.updateInformation(new GuiDataWarning(TEXT_NO_DIRECTORY_SELECTED));
         return;
@@ -212,7 +224,7 @@ void DialogColorBalanceFilter::startBalancing()
     bool openFolder = m_ui.checkBox_openFolderAfterExport->isChecked();
     bool applyOnIntensityAndRgb = m_ui.checkBox_balanceIntensityRGB->isChecked();
 
-    m_dataDispatcher.sendControl(new control::function::ForwardMessage(new ColorBalanceFilterMessage(kMin, kMax, trimPercent, sharpnessBlend, m_mode, applyOnIntensityAndRgb, m_outputFileType, m_outputFolder, openFolder)));
+    m_dataDispatcher.sendControl(new control::function::ForwardMessage(new ColorBalanceFilterMessage(kMin, kMax, trimPercent, sharpnessBlend, m_mode, applyOnIntensityAndRgb, m_executionMode, m_outputFileType, m_outputFolder, openFolder)));
 
     hide();
 }
@@ -260,6 +272,8 @@ void DialogColorBalanceFilter::syncUiFromValues()
     const QSignalBlocker blockSharpnessSlider(m_ui.horizontalSlider_sharpness);
     const QSignalBlocker blockSharpnessSpin(m_ui.spinBox_sharpness);
     const QSignalBlocker blockFormat(m_ui.comboBox_file_format);
+    const QSignalBlocker blockExecProject(m_ui.radioButton_executionApplyCurrentProject);
+    const QSignalBlocker blockExecExport(m_ui.radioButton_executionExportFilteredAreas);
 
     m_ui.radioButton_balanceLight->setChecked(m_preset == BalancePreset::Light);
     m_ui.radioButton_balanceMedium->setChecked(m_preset == BalancePreset::Medium);
@@ -277,8 +291,11 @@ void DialogColorBalanceFilter::syncUiFromValues()
     int formatIndex = m_ui.comboBox_file_format->findData(QVariant(static_cast<int>(m_outputFileType)));
     if (formatIndex >= 0)
         m_ui.comboBox_file_format->setCurrentIndex(formatIndex);
+    m_ui.radioButton_executionApplyCurrentProject->setChecked(m_executionMode == FilterExecutionMode::ApplyOnCurrentProject);
+    m_ui.radioButton_executionExportFilteredAreas->setChecked(m_executionMode == FilterExecutionMode::ExportFilteredAreas);
 
     m_ui.checkBox_balanceIntensityRGB->setEnabled(m_rgbAndIntensityAvailable);
+    updateExecutionModeUi();
 }
 
 void DialogColorBalanceFilter::updateAvailability(bool rgbAvailable, bool intensityAvailable, bool rgbAndIntensityAvailable)
@@ -291,4 +308,15 @@ void DialogColorBalanceFilter::updateAvailability(bool rgbAvailable, bool intens
     {
         m_applyOnIntensityAndRgb = false;
     }
+}
+
+void DialogColorBalanceFilter::updateExecutionModeUi()
+{
+    const bool exportMode = (m_executionMode == FilterExecutionMode::ExportFilteredAreas);
+    m_ui.label_format->setEnabled(exportMode);
+    m_ui.comboBox_file_format->setEnabled(exportMode);
+    m_ui.label_folder->setEnabled(exportMode);
+    m_ui.lineEdit_folder->setEnabled(exportMode);
+    m_ui.toolButton_folder->setEnabled(exportMode);
+    m_ui.checkBox_openFolderAfterExport->setEnabled(exportMode);
 }
