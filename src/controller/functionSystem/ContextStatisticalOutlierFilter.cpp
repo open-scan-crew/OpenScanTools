@@ -12,6 +12,7 @@
 #include "gui/texts/ExportTexts.hpp"
 #include "gui/texts/SplashScreenTexts.hpp"
 #include "io/exports/IScanFileWriter.h"
+#include "io/exports/TlsFileWriter.h"
 #include "models/graph/GraphManager.h"
 #include "models/graph/PointCloudNode.h"
 #include "pointCloudEngine/PCE_core.h"
@@ -21,6 +22,7 @@
 #include <algorithm>
 #include <cmath>
 #include <filesystem>
+#include <thread>
 
 // Note (Aurélien) QT::StandardButtons enum values in qmessagebox.h
 #define Yes 0x00004000
@@ -74,6 +76,28 @@ namespace
             return stats;
         }
     };
+    // Reuse robust scan replacement strategy already used in point deletion:
+    // load temp tls, then copy it over the original scan file path.
+    bool commitTempScanToProject(Controller& controller, WritePtr<PointCloudNode>& wScan, const std::filesystem::path& tempPath, const QString& scanName)
+    {
+        if (!wScan || tempPath.empty())
+            return false;
+
+        tls::ScanGuid newGuid;
+        if (!TlScanOverseer::getInstance().getScanGuid(tempPath, newGuid))
+        {
+            controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Failed to load temporary scan for %1.").arg(scanName)));
+            return false;
+        }
+
+        std::filesystem::path absolutePath = wScan->getTlsFilePath();
+        tls::ScanGuid oldGuid = wScan->getScanGuid();
+
+        TlScanOverseer::getInstance().freeScan_async(oldGuid, false);
+        wScan->setTlsFilePath(tempPath, false, tls::ScanGuid(), false);
+        TlScanOverseer::getInstance().copyScanFile_async(newGuid, absolutePath, false, true, true);
+        return true;
+    }
 }
 
 ContextStatisticalOutlierFilter::ContextStatisticalOutlierFilter(const ContextId& id)
@@ -147,7 +171,11 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
 {
     GraphManager& graphManager = controller.getGraphManager();
 
-    if (!prepareOutputDirectory(controller, m_outputFolder))
+    const bool applyOnProject = m_executionMode == FilterExecutionMode::ApplyOnProject;
+    const std::filesystem::path scanFolder = controller.getContext().cgetProjectInternalInfo().getPointCloudFolderPath(false);
+    const std::filesystem::path tempFolder = scanFolder / "temp_sof";
+    const std::filesystem::path outputFolder = applyOnProject ? tempFolder : m_outputFolder;
+    if (!prepareOutputDirectory(controller, outputFolder))
     {
         m_state = ContextState::abort;
         return m_state;
@@ -164,6 +192,12 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
 
     ClippingAssembly clippingAssembly;
     graphManager.getClippingAssembly(clippingAssembly, true, false);
+    if (applyOnProject && !clippingAssembly.empty())
+    {
+        controller.updateInfo(new GuiDataWarning(QObject::tr("Apply filter on current project with clipping is planned for next pass. Please disable clipping for now.")));
+        m_state = ContextState::abort;
+        return m_state;
+    }
 
     OutlierStats globalStats;
     bool wasAborted = false;
@@ -247,8 +281,21 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
 
         IScanFileWriter* scan_writer = nullptr;
         std::wstring log;
-        std::wstring outputName = wScan->getName() + L"_SOF";
-        if (!getScanFileWriter(m_outputFolder, outputName, m_outputFileType, log, &scan_writer, true) || scan_writer == nullptr)
+        std::filesystem::path tempPath;
+        if (applyOnProject)
+        {
+            TlsFileWriter* tlsWriter = nullptr;
+            TlsFileWriter::getWriter(outputFolder, wScan->getName(), log, (IScanFileWriter**)&tlsWriter);
+            scan_writer = tlsWriter;
+            if (tlsWriter != nullptr)
+                tempPath = tlsWriter->getFilePath();
+        }
+        else
+        {
+            std::wstring outputName = wScan->getName() + L"_SOF";
+            getScanFileWriter(outputFolder, outputName, m_outputFileType, log, &scan_writer, true);
+        }
+        if (scan_writer == nullptr)
             continue;
         tls::ScanHeader header;
         TlScanOverseer::getInstance().getScanHeader(old_guid, header);
@@ -275,9 +322,23 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         updateProgress(scan_count, 100, scan_count * 100);
 
         if (deleted_point_count > 0)
+        {
+            if (applyOnProject && res)
+            {
+                if (!commitTempScanToProject(controller, wScan, tempPath, qScanName))
+                    controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Failed to replace scan %1 after filtering.").arg(qScanName)));
+            }
             controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("%1 points deleted in scan %2 in %3 seconds.").arg(deleted_point_count).arg(qScanName).arg(seconds)));
+        }
         else
+        {
+            if (applyOnProject && !tempPath.empty())
+            {
+                std::error_code ec;
+                std::filesystem::remove(tempPath, ec);
+            }
             controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Scan %1 not affected by outlier filter.").arg(qScanName)));
+        }
 
         if (m_state != ContextState::running)
         {
@@ -289,7 +350,7 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Total points deleted: %1").arg(total_deleted_points)));
     controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));
 
-    if (m_openFolderAfterExport && !wasAborted)
+    if (!applyOnProject && m_openFolderAfterExport && !wasAborted)
         controller.updateInfo(new GuiDataOpenInExplorer(m_outputFolder));
 
     m_state = wasAborted ? ContextState::abort : ContextState::done;
