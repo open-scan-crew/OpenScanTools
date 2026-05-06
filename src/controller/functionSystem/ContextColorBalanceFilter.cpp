@@ -25,6 +25,7 @@
 #include <string>
 #include <system_error>
 #include <thread>
+#include <tuple>
 
 namespace
 {
@@ -136,12 +137,14 @@ ContextState ContextColorBalanceFilter::feedMessage(IMessage* message, Controlle
         m_sharpnessBlend = decodedMsg->sharpnessBlend;
         m_globalBalancing = decodedMsg->mode == ColorBalanceMode::Global;
         m_applyOnIntensityAndRgb = decodedMsg->applyOnIntensityAndRgb;
+        m_executionMode = decodedMsg->executionMode;
         m_outputFileType = decodedMsg->outputFileType;
         m_outputFolder = decodedMsg->outputFolder;
         m_openFolderAfterExport = decodedMsg->openFolderAfterExport;
 
         m_warningModal = true;
-        controller.updateInfo(new GuiDataModal(Yes | No, TEXT_COLOR_BALANCE_FILTER_QUESTION));
+        const QString warningText = (m_executionMode == FilterExecutionMode::ApplyOnCurrentProject) ? TEXT_COLOR_BALANCE_FILTER_IN_PLACE_QUESTION : TEXT_COLOR_BALANCE_FILTER_QUESTION;
+        controller.updateInfo(new GuiDataModal(Yes | No, warningText));
     }
     break;
     default:
@@ -155,7 +158,8 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
 {
     GraphManager& graphManager = controller.getGraphManager();
 
-    if (!prepareOutputDirectory(controller, m_outputFolder))
+    const bool applyInPlace = (m_executionMode == FilterExecutionMode::ApplyOnCurrentProject);
+    if (!applyInPlace && !prepareOutputDirectory(controller, m_outputFolder))
     {
         m_state = ContextState::abort;
         return m_state;
@@ -187,7 +191,7 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
     std::unordered_set<SafePtr<AClippingNode>> clippings = graphManager.getActivatedOrSelectedClippingObjects();
     if (!clippings.empty())
         graphManager.getClippingAssembly(clippingAssembly, clippings);
-    const bool useTempClippedScans = m_globalBalancing && !clippingAssembly.empty();
+    const bool useTempClippedScans = m_globalBalancing && !clippingAssembly.empty() && !applyInPlace;
     std::filesystem::path tempFolder;
     if (useTempClippedScans)
     {
@@ -203,6 +207,7 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
     uint64_t scanCount = 0;
     uint64_t totalModifiedPoints = 0;
     bool wasAborted = false;
+    std::vector<std::tuple<SafePtr<PointCloudNode>, tls::ScanGuid, tls::ScanGuid, std::filesystem::path>> pendingInPlaceReplacements;
 
     auto updateProgress = [&](uint64_t scansDone, int percent, uint64_t progressValue)
     {
@@ -252,9 +257,26 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
         tls::ScanGuid old_guid = wScan->getScanGuid();
 
         IScanFileWriter* scan_writer = nullptr;
+        TlsFileWriter* inplaceTlsWriter = nullptr;
         std::wstring log;
         std::wstring outputName = wScan->getName() + L"_CB";
-        if (!getScanFileWriter(m_outputFolder, outputName, m_outputFileType, log, &scan_writer, true) || scan_writer == nullptr)
+        std::filesystem::path inPlaceTempPath;
+        if (applyInPlace)
+        {
+            std::filesystem::path inPlaceTempFolder = controller.getContext().cgetProjectInternalInfo().getPointCloudFolderPath(false) / "temp_color_balance_inplace";
+            if (!prepareOutputDirectory(controller, inPlaceTempFolder))
+            {
+                m_state = ContextState::abort;
+                return m_state;
+            }
+            TlsFileWriter::getWriter(inPlaceTempFolder, wScan->getName(), log, (IScanFileWriter**)&inplaceTlsWriter);
+            scan_writer = inplaceTlsWriter;
+            if (inplaceTlsWriter != nullptr)
+                inPlaceTempPath = inplaceTlsWriter->getFilePath();
+        }
+        else if (!getScanFileWriter(m_outputFolder, outputName, m_outputFileType, log, &scan_writer, true) || scan_writer == nullptr)
+            continue;
+        if (scan_writer == nullptr)
             continue;
 
         tls::ScanHeader header;
@@ -331,6 +353,20 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
             deleteFileWithRetry(tempPath);
         }
 
+        if (applyInPlace && res)
+        {
+            tls::ScanGuid newGuid;
+            if (!TlScanOverseer::getInstance().getScanGuid(inPlaceTempPath, newGuid))
+            {
+                controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Failed to register in-place temporary scan for %1.").arg(QString::fromStdWString(wScan->getName()))));
+            }
+            else
+            {
+                // Defer replacement to the end so global mode can still access all original scans safely.
+                pendingInPlaceReplacements.emplace_back(scan, old_guid, newGuid, inPlaceTempPath);
+            }
+        }
+
         totalModifiedPoints += modifiedPointCount;
 
         scanCount++;
@@ -351,9 +387,27 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
     }
 
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Total points updated: %1").arg(totalModifiedPoints)));
+
+    if (applyInPlace && !wasAborted)
+    {
+        for (const auto& replacement : pendingInPlaceReplacements)
+        {
+            WritePtr<PointCloudNode> wScan = std::get<0>(replacement).get();
+            if (!wScan)
+                continue;
+            tls::ScanGuid oldGuid = std::get<1>(replacement);
+            tls::ScanGuid newGuid = std::get<2>(replacement);
+            const std::filesystem::path& tempPathForScan = std::get<3>(replacement);
+            std::filesystem::path absolutePath = wScan->getTlsFilePath();
+            TlScanOverseer::getInstance().freeScan_async(oldGuid, false);
+            wScan->setTlsFilePath(tempPathForScan, false, tls::ScanGuid(), false);
+            TlScanOverseer::getInstance().copyScanFile_async(newGuid, absolutePath, false, true, true);
+        }
+    }
+
     controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));
 
-    if (m_openFolderAfterExport && !wasAborted)
+    if (m_openFolderAfterExport && !wasAborted && !applyInPlace)
         controller.updateInfo(new GuiDataOpenInExplorer(m_outputFolder));
 
     m_state = wasAborted ? ContextState::abort : ContextState::done;
