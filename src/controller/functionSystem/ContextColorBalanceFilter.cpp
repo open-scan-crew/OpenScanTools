@@ -28,6 +28,68 @@
 
 namespace
 {
+    std::shared_ptr<IClippingGeometry> cloneGeometrySwappingMode(const std::shared_ptr<IClippingGeometry>& geom)
+    {
+        if (!geom)
+            return nullptr;
+
+        ClippingMode swappedMode = geom->mode;
+        if (geom->mode == ClippingMode::showInterior)
+            swappedMode = ClippingMode::showExterior;
+        else if (geom->mode == ClippingMode::showExterior)
+            swappedMode = ClippingMode::showInterior;
+
+        std::shared_ptr<IClippingGeometry> cloned;
+        switch (geom->getShape())
+        {
+        case ClippingShape::box:
+            cloned = std::make_shared<BoxClippingGeometry>(swappedMode, geom->matRT_inv, geom->params, geom->rampSteps);
+            break;
+        case ClippingShape::cylinder:
+            cloned = std::make_shared<CylinderClippingGeometry>(swappedMode, geom->matRT_inv, geom->params, geom->rampSteps);
+            break;
+        case ClippingShape::sphere:
+            cloned = std::make_shared<SphereClippingGeometry>(swappedMode, geom->matRT_inv, geom->params, geom->rampSteps);
+            break;
+        case ClippingShape::torus:
+            cloned = std::make_shared<TorusClippingGeometry>(swappedMode, geom->matRT_inv, geom->params, geom->rampSteps);
+            break;
+        default:
+            return nullptr;
+        }
+        cloned->color = geom->color;
+        cloned->gpuDrawId = geom->gpuDrawId;
+        cloned->isSelected = geom->isSelected;
+        cloned->clipperPhase = geom->clipperPhase;
+        return cloned;
+    }
+
+    ClippingAssembly buildComplementaryAssembly(const ClippingAssembly& clipping)
+    {
+        ClippingAssembly out;
+        for (const std::shared_ptr<IClippingGeometry>& geom : clipping.clippingUnion)
+        {
+            std::shared_ptr<IClippingGeometry> cloned = cloneGeometrySwappingMode(geom);
+            if (!cloned)
+                continue;
+            if (cloned->mode == ClippingMode::showInterior)
+                out.clippingUnion.push_back(cloned);
+            else
+                out.clippingIntersection.push_back(cloned);
+        }
+        for (const std::shared_ptr<IClippingGeometry>& geom : clipping.clippingIntersection)
+        {
+            std::shared_ptr<IClippingGeometry> cloned = cloneGeometrySwappingMode(geom);
+            if (!cloned)
+                continue;
+            if (cloned->mode == ClippingMode::showInterior)
+                out.clippingUnion.push_back(cloned);
+            else
+                out.clippingIntersection.push_back(cloned);
+        }
+        return out;
+    }
+
     void cleanupTempColorBalanceFiles(const std::filesystem::path& tempFolder)
     {
         if (!std::filesystem::is_directory(tempFolder))
@@ -65,6 +127,29 @@ namespace
                 return;
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
+    }
+
+    // Reuse robust scan replacement strategy already used in point deletion:
+    // load temp tls, then copy it over the original scan file path.
+    bool commitTempScanToProject(Controller& controller, WritePtr<PointCloudNode>& wScan, const std::filesystem::path& tempPath, const QString& scanName)
+    {
+        if (!wScan || tempPath.empty())
+            return false;
+
+        tls::ScanGuid newGuid;
+        if (!TlScanOverseer::getInstance().getScanGuid(tempPath, newGuid))
+        {
+            controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Failed to load temporary scan for %1.").arg(scanName)));
+            return false;
+        }
+
+        std::filesystem::path absolutePath = wScan->getTlsFilePath();
+        tls::ScanGuid oldGuid = wScan->getScanGuid();
+
+        TlScanOverseer::getInstance().freeScan_async(oldGuid, false);
+        wScan->setTlsFilePath(tempPath, false, tls::ScanGuid(), false);
+        TlScanOverseer::getInstance().copyScanFile_async(newGuid, absolutePath, false, true, true);
+        return true;
     }
 }
 
@@ -136,12 +221,16 @@ ContextState ContextColorBalanceFilter::feedMessage(IMessage* message, Controlle
         m_sharpnessBlend = decodedMsg->sharpnessBlend;
         m_globalBalancing = decodedMsg->mode == ColorBalanceMode::Global;
         m_applyOnIntensityAndRgb = decodedMsg->applyOnIntensityAndRgb;
+        m_executionMode = decodedMsg->executionMode;
         m_outputFileType = decodedMsg->outputFileType;
         m_outputFolder = decodedMsg->outputFolder;
         m_openFolderAfterExport = decodedMsg->openFolderAfterExport;
 
         m_warningModal = true;
-        controller.updateInfo(new GuiDataModal(Yes | No, TEXT_COLOR_BALANCE_FILTER_QUESTION));
+        if (m_executionMode == FilterExecutionMode::ApplyOnProject)
+            controller.updateInfo(new GuiDataModal(Yes | No, TEXT_COLOR_BALANCE_FILTER_APPLY_PROJECT_QUESTION));
+        else
+            controller.updateInfo(new GuiDataModal(Yes | No, TEXT_COLOR_BALANCE_FILTER_QUESTION));
     }
     break;
     default:
@@ -155,7 +244,11 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
 {
     GraphManager& graphManager = controller.getGraphManager();
 
-    if (!prepareOutputDirectory(controller, m_outputFolder))
+    const bool applyOnProject = m_executionMode == FilterExecutionMode::ApplyOnProject;
+    const std::filesystem::path scanFolder = controller.getContext().cgetProjectInternalInfo().getPointCloudFolderPath(false);
+    const std::filesystem::path tempFolderProject = scanFolder / "temp_cb";
+    const std::filesystem::path outputFolder = applyOnProject ? tempFolderProject : m_outputFolder;
+    if (!prepareOutputDirectory(controller, outputFolder))
     {
         m_state = ContextState::abort;
         return m_state;
@@ -191,7 +284,7 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
     std::filesystem::path tempFolder;
     if (useTempClippedScans)
     {
-        tempFolder = controller.getContext().cgetProjectInternalInfo().getPointCloudFolderPath(false) / "temp_color_balance";
+        tempFolder = scanFolder / "temp_color_balance";
         if (!prepareOutputDirectory(controller, tempFolder))
         {
             m_state = ContextState::abort;
@@ -253,8 +346,21 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
 
         IScanFileWriter* scan_writer = nullptr;
         std::wstring log;
-        std::wstring outputName = wScan->getName() + L"_CB";
-        if (!getScanFileWriter(m_outputFolder, outputName, m_outputFileType, log, &scan_writer, true) || scan_writer == nullptr)
+        std::filesystem::path tempPathProject;
+        if (applyOnProject)
+        {
+            TlsFileWriter* tlsWriter = nullptr;
+            TlsFileWriter::getWriter(outputFolder, wScan->getName(), log, (IScanFileWriter**)&tlsWriter);
+            scan_writer = tlsWriter;
+            if (tlsWriter != nullptr)
+                tempPathProject = tlsWriter->getFilePath();
+        }
+        else
+        {
+            std::wstring outputName = wScan->getName() + L"_CB";
+            getScanFileWriter(outputFolder, outputName, m_outputFileType, log, &scan_writer, true);
+        }
+        if (scan_writer == nullptr)
             continue;
 
         tls::ScanHeader header;
@@ -325,10 +431,79 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
         bool res = TlScanOverseer::getInstance().balanceColorsAndWrite(balanceGuid, balanceTransform, *clippingToUse, m_kMin, m_kMax, m_trimPercent, m_sharpnessBlend, applyOnIntensity, applyOnRgb, externalProvider, scan_writer, modifiedPointCount, progressCallback);
         res &= scan_writer->finalizePointCloud();
         delete scan_writer;
+        bool readyForCommit = res;
+        std::filesystem::path outsidePath;
+        std::filesystem::path mergedPath;
         if (balanceGuid != old_guid)
         {
             TlScanOverseer::getInstance().freeScan_async(balanceGuid, false);
             deleteFileWithRetry(tempPath);
+        }
+
+        if (applyOnProject && !clippingToUse->empty())
+        {
+            // 3A strategy:
+            // A = balanced clipped area, B = untouched outside-clipping area, final = A+B merged.
+            std::wstring logTmp;
+            TlsFileWriter* outsideWriter = nullptr;
+            TlsFileWriter::getWriter(outputFolder, wScan->getName() + L"_outside", logTmp, (IScanFileWriter**)&outsideWriter);
+            if (outsideWriter != nullptr)
+            {
+                tls::ScanHeader outsideHeader;
+                TlScanOverseer::getInstance().getScanHeader(old_guid, outsideHeader);
+                outsideHeader.guid = xg::newGuid();
+                outsideWriter->appendPointCloud(outsideHeader, wScan->getTransformation());
+                ClippingAssembly complement = buildComplementaryAssembly(*clippingToUse);
+                bool outsideOk = TlScanOverseer::getInstance().clipScan(old_guid, (TransformationModule)*&wScan, complement, outsideWriter);
+                outsideOk &= outsideWriter->finalizePointCloud();
+                outsidePath = outsideWriter->getFilePath();
+                delete outsideWriter;
+
+                tls::ScanGuid filteredGuid;
+                tls::ScanGuid outsideGuid;
+                if (res
+                    && TlScanOverseer::getInstance().getScanGuid(tempPathProject, filteredGuid)
+                    && outsideOk
+                    && TlScanOverseer::getInstance().getScanGuid(outsidePath, outsideGuid))
+                {
+                    TlsFileWriter* mergedWriter = nullptr;
+                    TlsFileWriter::getWriter(outputFolder, wScan->getName(), logTmp, (IScanFileWriter**)&mergedWriter);
+                    if (mergedWriter != nullptr)
+                    {
+                        mergedPath = mergedWriter->getFilePath();
+                        tls::ScanHeader mergedHeader;
+                        TlScanOverseer::getInstance().getScanHeader(old_guid, mergedHeader);
+                        mergedHeader.guid = xg::newGuid();
+                        mergedWriter->appendPointCloud(mergedHeader, wScan->getTransformation());
+                        ClippingAssembly emptyClipping;
+                        bool mergeOk = TlScanOverseer::getInstance().clipScan(filteredGuid, (TransformationModule)*&wScan, emptyClipping, mergedWriter);
+                        mergeOk &= TlScanOverseer::getInstance().clipScan(outsideGuid, (TransformationModule)*&wScan, emptyClipping, mergedWriter);
+                        mergeOk &= mergedWriter->finalizePointCloud();
+                        delete mergedWriter;
+                        TlScanOverseer::getInstance().freeScan_async(filteredGuid, false);
+                        TlScanOverseer::getInstance().freeScan_async(outsideGuid, false);
+                        if (mergeOk)
+                        {
+                            tempPathProject = mergedPath;
+                            readyForCommit = true;
+                        }
+                        else
+                        {
+                            // When clipping is active in in-place mode, commit must be done
+                            // only on the merged output (A+B). Never fallback to A only.
+                            readyForCommit = false;
+                        }
+                    }
+                }
+                else
+                {
+                    readyForCommit = false;
+                }
+            }
+            else
+            {
+                readyForCommit = false;
+            }
         }
 
         totalModifiedPoints += modifiedPointCount;
@@ -339,9 +514,30 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
         updateProgress(scanCount, 100, scanCount * 100);
 
         if (modifiedPointCount > 0)
+        {
+            if (applyOnProject && readyForCommit)
+            {
+                if (!commitTempScanToProject(controller, wScan, tempPathProject, qScanName))
+                    controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Failed to replace scan %1 after balancing.").arg(qScanName)));
+            }
+            else if (applyOnProject && !readyForCommit)
+            {
+                controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Fusion failed for scan %1. Original scan was kept.").arg(qScanName)));
+            }
             controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("%1 points updated in scan %2 in %3 seconds.").arg(modifiedPointCount).arg(qScanName).arg(seconds)));
+        }
         else
+        {
+            if (applyOnProject && !tempPathProject.empty())
+                deleteFileWithRetry(tempPathProject);
             controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Scan %1 not affected by color balance.").arg(qScanName)));
+        }
+
+        // Cleanup of intermediate files created for clipping in-place merge.
+        if (applyOnProject && !outsidePath.empty())
+            deleteFileWithRetry(outsidePath);
+        if (applyOnProject && !mergedPath.empty() && mergedPath != tempPathProject)
+            deleteFileWithRetry(mergedPath);
 
         if (m_state != ContextState::running)
         {
@@ -353,7 +549,7 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Total points updated: %1").arg(totalModifiedPoints)));
     controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));
 
-    if (m_openFolderAfterExport && !wasAborted)
+    if (!applyOnProject && m_openFolderAfterExport && !wasAborted)
         controller.updateInfo(new GuiDataOpenInExplorer(m_outputFolder));
 
     m_state = wasAborted ? ContextState::abort : ContextState::done;
