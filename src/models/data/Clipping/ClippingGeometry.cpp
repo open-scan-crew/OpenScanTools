@@ -497,7 +497,7 @@ void ClippingAssembly::clearMatrix()
     }
 }
 
-bool ClippingAssembly::empty()
+bool ClippingAssembly::empty() const
 {
     return (clippingIntersection.empty() && clippingUnion.empty());
 }

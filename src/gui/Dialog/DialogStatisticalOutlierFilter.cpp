@@ -109,10 +109,25 @@ DialogStatisticalOutlierFilter::DialogStatisticalOutlierFilter(IDataDispatcher& 
     {
         m_beta = value;
     });
+    connect(m_ui.radioButton_applyOnCurrentProject, &QRadioButton::toggled, this, [this](bool checked)
+    {
+        if (!checked)
+            return;
+        m_executionMode = FilterExecutionMode::ApplyOnProject;
+        updateExecutionUiState();
+    });
+    connect(m_ui.radioButton_exportFilteredAreas, &QRadioButton::toggled, this, [this](bool checked)
+    {
+        if (!checked)
+            return;
+        m_executionMode = FilterExecutionMode::ExportFilteredAreas;
+        updateExecutionUiState();
+    });
 
     m_openPath = QStandardPaths::locate(QStandardPaths::DocumentsLocation, QString(), QStandardPaths::LocateDirectory);
     m_dataDispatcher.registerObserverOnKey(this, guiDType::statisticalOutlierFilterDialogDisplay);
     m_dataDispatcher.registerObserverOnKey(this, guiDType::projectPath);
+    updateExecutionUiState();
     syncUiFromValues();
     adjustSize();
 }
@@ -143,7 +158,7 @@ void DialogStatisticalOutlierFilter::informData(IGuiData* data)
 void DialogStatisticalOutlierFilter::startFiltering()
 {
     m_outputFolder = m_ui.lineEdit_folder->text().toStdWString();
-    if (m_outputFolder.empty())
+    if (m_executionMode == FilterExecutionMode::ExportFilteredAreas && m_outputFolder.empty())
     {
         m_dataDispatcher.updateInformation(new GuiDataWarning(TEXT_NO_DIRECTORY_SELECTED));
         return;
@@ -156,7 +171,7 @@ void DialogStatisticalOutlierFilter::startFiltering()
     m_outputFileType = static_cast<FileType>(m_ui.comboBox_file_format->currentData().toInt());
 
     bool openFolder = m_ui.checkBox_openFolderAfterExport->isChecked();
-    m_dataDispatcher.sendControl(new control::function::ForwardMessage(new StatisticalOutlierFilterMessage(kNeighbors, nSigma, samplingPercent, beta, m_mode, m_outputFileType, m_outputFolder, openFolder)));
+    m_dataDispatcher.sendControl(new control::function::ForwardMessage(new StatisticalOutlierFilterMessage(kNeighbors, nSigma, samplingPercent, beta, m_mode, m_executionMode, m_outputFileType, m_outputFolder, openFolder)));
 
     hide();
 }
@@ -228,4 +243,15 @@ void DialogStatisticalOutlierFilter::syncUiFromValues()
     int formatIndex = m_ui.comboBox_file_format->findData(QVariant(static_cast<int>(m_outputFileType)));
     if (formatIndex >= 0)
         m_ui.comboBox_file_format->setCurrentIndex(formatIndex);
+}
+
+void DialogStatisticalOutlierFilter::updateExecutionUiState()
+{
+    const bool exportMode = m_executionMode == FilterExecutionMode::ExportFilteredAreas;
+    m_ui.label_format->setEnabled(exportMode);
+    m_ui.comboBox_file_format->setEnabled(exportMode);
+    m_ui.label_folder->setEnabled(exportMode);
+    m_ui.lineEdit_folder->setEnabled(exportMode);
+    m_ui.toolButton_folder->setEnabled(exportMode);
+    m_ui.checkBox_openFolderAfterExport->setEnabled(exportMode);
 }
