@@ -123,12 +123,14 @@ ContextState ContextStatisticalOutlierFilter::feedMessage(IMessage* message, Con
         m_samplingPercent = decodedMsg->samplingPercent;
         m_beta = decodedMsg->beta;
         m_globalFiltering = decodedMsg->mode == OutlierFilterMode::Global;
+        m_executionMode = decodedMsg->executionMode;
         m_outputFileType = decodedMsg->outputFileType;
         m_outputFolder = decodedMsg->outputFolder;
         m_openFolderAfterExport = decodedMsg->openFolderAfterExport;
 
         m_warningModal = true;
-        controller.updateInfo(new GuiDataModal(Yes | No, TEXT_STAT_OUTLIER_FILTER_QUESTION));
+        const QString warningText = (m_executionMode == FilterExecutionMode::ApplyOnCurrentProject) ? TEXT_DELETE_POINTS_QUESTION : TEXT_STAT_OUTLIER_FILTER_QUESTION;
+        controller.updateInfo(new GuiDataModal(Yes | No, warningText));
         break;
     }
     break;
@@ -142,6 +144,13 @@ ContextState ContextStatisticalOutlierFilter::feedMessage(IMessage* message, Con
 ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
 {
     GraphManager& graphManager = controller.getGraphManager();
+
+    if (m_executionMode == FilterExecutionMode::ApplyOnCurrentProject)
+    {
+        controller.updateInfo(new GuiDataWarning(QObject::tr("Apply filter on current project is not available yet.")));
+        m_state = ContextState::abort;
+        return m_state;
+    }
 
     if (!prepareOutputDirectory(controller, m_outputFolder))
     {

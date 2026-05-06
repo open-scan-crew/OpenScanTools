@@ -136,12 +136,14 @@ ContextState ContextColorBalanceFilter::feedMessage(IMessage* message, Controlle
         m_sharpnessBlend = decodedMsg->sharpnessBlend;
         m_globalBalancing = decodedMsg->mode == ColorBalanceMode::Global;
         m_applyOnIntensityAndRgb = decodedMsg->applyOnIntensityAndRgb;
+        m_executionMode = decodedMsg->executionMode;
         m_outputFileType = decodedMsg->outputFileType;
         m_outputFolder = decodedMsg->outputFolder;
         m_openFolderAfterExport = decodedMsg->openFolderAfterExport;
 
         m_warningModal = true;
-        controller.updateInfo(new GuiDataModal(Yes | No, TEXT_COLOR_BALANCE_FILTER_QUESTION));
+        const QString warningText = (m_executionMode == FilterExecutionMode::ApplyOnCurrentProject) ? TEXT_COLOR_BALANCE_FILTER_IN_PLACE_QUESTION : TEXT_COLOR_BALANCE_FILTER_QUESTION;
+        controller.updateInfo(new GuiDataModal(Yes | No, warningText));
     }
     break;
     default:
@@ -154,6 +156,13 @@ ContextState ContextColorBalanceFilter::feedMessage(IMessage* message, Controlle
 ContextState ContextColorBalanceFilter::launch(Controller& controller)
 {
     GraphManager& graphManager = controller.getGraphManager();
+
+    if (m_executionMode == FilterExecutionMode::ApplyOnCurrentProject)
+    {
+        controller.updateInfo(new GuiDataWarning(QObject::tr("Apply filter on current project is not available yet.")));
+        m_state = ContextState::abort;
+        return m_state;
+    }
 
     if (!prepareOutputDirectory(controller, m_outputFolder))
     {

@@ -4,6 +4,7 @@
 #include "gui/Dialog/ADialog.h"
 #include "ui_DialogColorBalanceFilter.h"
 #include "controller/messages/ColorBalanceFilterMessage.h"
+#include "controller/messages/FilterExecutionMode.h"
 #include "io/FileUtils.h"
 
 #include <QtCore/QString>
@@ -33,6 +34,7 @@ private:
     void applyPreset(BalancePreset preset);
     void syncUiFromValues();
     void updateAvailability(bool rgbAvailable, bool intensityAvailable, bool rgbAndIntensityAvailable);
+    void updateExecutionModeUi();
 
     Ui::DialogColorBalanceFilter m_ui;
 
@@ -47,6 +49,7 @@ private:
     bool m_rgbAvailable = false;
     bool m_intensityAvailable = false;
     bool m_rgbAndIntensityAvailable = false;
+    FilterExecutionMode m_executionMode = FilterExecutionMode::ExportFilteredAreas;
     FileType m_outputFileType = FileType::TLS;
 
     QString m_openPath;
