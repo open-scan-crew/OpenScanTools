@@ -28,6 +28,18 @@
 
 namespace
 {
+    bool resolveExecutionOutputFolder(Controller& controller, FilterExecutionMode executionMode, std::filesystem::path& outputFolder)
+    {
+        if (executionMode == FilterExecutionMode::ExportFilteredAreas)
+            return true;
+
+        // Passe 3A: route in-place mode to a dedicated temporary workspace.
+        // The final commit/replacement phase will be introduced in later passes.
+        std::filesystem::path pointCloudFolder = controller.getContext().cgetProjectInternalInfo().getPointCloudFolderPath(false);
+        outputFolder = pointCloudFolder / "temp_color_balance_inplace";
+        return true;
+    }
+
     void cleanupTempColorBalanceFiles(const std::filesystem::path& tempFolder)
     {
         if (!std::filesystem::is_directory(tempFolder))
@@ -65,6 +77,34 @@ namespace
                 return;
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
+    }
+
+    bool replaceScanFileInProject(const std::filesystem::path& sourcePath, const std::filesystem::path& targetPath)
+    {
+        if (sourcePath.empty() || targetPath.empty())
+            return false;
+
+        std::error_code ec;
+        const std::filesystem::path backupPath = targetPath;
+        const std::filesystem::path backupFile = backupPath.wstring() + L".bak";
+        std::filesystem::remove(backupFile, ec);
+        ec.clear();
+
+        std::filesystem::rename(targetPath, backupFile, ec);
+        if (ec)
+            return false;
+
+        ec.clear();
+        std::filesystem::rename(sourcePath, targetPath, ec);
+        if (ec)
+        {
+            std::error_code restoreEc;
+            std::filesystem::rename(backupFile, targetPath, restoreEc);
+            return false;
+        }
+
+        std::filesystem::remove(backupFile, ec);
+        return true;
     }
 }
 
@@ -139,6 +179,7 @@ ContextState ContextColorBalanceFilter::feedMessage(IMessage* message, Controlle
         m_outputFileType = decodedMsg->outputFileType;
         m_outputFolder = decodedMsg->outputFolder;
         m_openFolderAfterExport = decodedMsg->openFolderAfterExport;
+        m_executionMode = decodedMsg->executionMode;
 
         m_warningModal = true;
         controller.updateInfo(new GuiDataModal(Yes | No, TEXT_COLOR_BALANCE_FILTER_QUESTION));
@@ -154,8 +195,14 @@ ContextState ContextColorBalanceFilter::feedMessage(IMessage* message, Controlle
 ContextState ContextColorBalanceFilter::launch(Controller& controller)
 {
     GraphManager& graphManager = controller.getGraphManager();
+    std::filesystem::path effectiveOutputFolder = m_outputFolder;
+    if (!resolveExecutionOutputFolder(controller, m_executionMode, effectiveOutputFolder))
+    {
+        m_state = ContextState::abort;
+        return m_state;
+    }
 
-    if (!prepareOutputDirectory(controller, m_outputFolder))
+    if (!prepareOutputDirectory(controller, effectiveOutputFolder))
     {
         m_state = ContextState::abort;
         return m_state;
@@ -163,6 +210,8 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
 
     TlStreamLock streamLock;
     std::unordered_set<SafePtr<PointCloudNode>> scans = graphManager.getVisibleScans(m_panoramic);
+    if (m_executionMode == FilterExecutionMode::ApplyOnCurrentProject)
+        m_outputFileType = FileType::TLS;
 
     if (m_globalBalancing && scans.size() < 2)
     {
@@ -187,6 +236,12 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
     std::unordered_set<SafePtr<AClippingNode>> clippings = graphManager.getActivatedOrSelectedClippingObjects();
     if (!clippings.empty())
         graphManager.getClippingAssembly(clippingAssembly, clippings);
+    if (m_executionMode == FilterExecutionMode::ApplyOnCurrentProject && !clippingAssembly.empty())
+    {
+        controller.updateInfo(new GuiDataWarning(QString("Apply-on-project with active clipping is scheduled for the next pass.")));
+        m_state = ContextState::abort;
+        return m_state;
+    }
     const bool useTempClippedScans = m_globalBalancing && !clippingAssembly.empty();
     std::filesystem::path tempFolder;
     if (useTempClippedScans)
@@ -254,7 +309,7 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
         IScanFileWriter* scan_writer = nullptr;
         std::wstring log;
         std::wstring outputName = wScan->getName() + L"_CB";
-        if (!getScanFileWriter(m_outputFolder, outputName, m_outputFileType, log, &scan_writer, true) || scan_writer == nullptr)
+        if (!getScanFileWriter(effectiveOutputFolder, outputName, m_outputFileType, log, &scan_writer, true) || scan_writer == nullptr)
             continue;
 
         tls::ScanHeader header;
@@ -330,6 +385,26 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
             TlScanOverseer::getInstance().freeScan_async(balanceGuid, false);
             deleteFileWithRetry(tempPath);
         }
+        if (res && m_executionMode == FilterExecutionMode::ApplyOnCurrentProject)
+        {
+            std::filesystem::path originalScanPath;
+            if (!TlScanOverseer::getInstance().getScanPath(old_guid, originalScanPath))
+            {
+                controller.updateInfo(new GuiDataWarning(QString("Failed to resolve original scan path for in-place update.")));
+                m_state = ContextState::abort;
+                wasAborted = true;
+                break;
+            }
+
+            std::filesystem::path producedPath = effectiveOutputFolder / (outputName + L".tls");
+            if (!replaceScanFileInProject(producedPath, originalScanPath))
+            {
+                controller.updateInfo(new GuiDataWarning(QString("Failed to replace scan file during in-place update.")));
+                m_state = ContextState::abort;
+                wasAborted = true;
+                break;
+            }
+        }
 
         totalModifiedPoints += modifiedPointCount;
 
@@ -353,8 +428,8 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Total points updated: %1").arg(totalModifiedPoints)));
     controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));
 
-    if (m_openFolderAfterExport && !wasAborted)
-        controller.updateInfo(new GuiDataOpenInExplorer(m_outputFolder));
+    if (m_executionMode == FilterExecutionMode::ExportFilteredAreas && m_openFolderAfterExport && !wasAborted)
+        controller.updateInfo(new GuiDataOpenInExplorer(effectiveOutputFolder));
 
     m_state = wasAborted ? ContextState::abort : ContextState::done;
     return (m_state);

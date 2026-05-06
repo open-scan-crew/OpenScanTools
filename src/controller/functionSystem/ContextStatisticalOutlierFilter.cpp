@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <cmath>
 #include <filesystem>
+#include <system_error>
 
 // Note (Aurélien) QT::StandardButtons enum values in qmessagebox.h
 #define Yes 0x00004000
@@ -28,6 +29,46 @@
 
 namespace
 {
+    bool resolveExecutionOutputFolder(Controller& controller, FilterExecutionMode executionMode, std::filesystem::path& outputFolder)
+    {
+        if (executionMode == FilterExecutionMode::ExportFilteredAreas)
+            return true;
+
+        // Passe 3A: route in-place mode to a dedicated temporary workspace.
+        // The final commit/replacement phase will be introduced in later passes.
+        std::filesystem::path pointCloudFolder = controller.getContext().cgetProjectInternalInfo().getPointCloudFolderPath(false);
+        outputFolder = pointCloudFolder / "temp_statistical_outlier_inplace";
+        return true;
+    }
+
+    bool replaceScanFileInProject(const std::filesystem::path& sourcePath, const std::filesystem::path& targetPath)
+    {
+        if (sourcePath.empty() || targetPath.empty())
+            return false;
+
+        std::error_code ec;
+        const std::filesystem::path backupPath = targetPath;
+        const std::filesystem::path backupFile = backupPath.wstring() + L".bak";
+        std::filesystem::remove(backupFile, ec);
+        ec.clear();
+
+        std::filesystem::rename(targetPath, backupFile, ec);
+        if (ec)
+            return false;
+
+        ec.clear();
+        std::filesystem::rename(sourcePath, targetPath, ec);
+        if (ec)
+        {
+            std::error_code restoreEc;
+            std::filesystem::rename(backupFile, targetPath, restoreEc);
+            return false;
+        }
+
+        std::filesystem::remove(backupFile, ec);
+        return true;
+    }
+
     struct RunningStats
     {
         uint64_t count = 0;
@@ -126,6 +167,7 @@ ContextState ContextStatisticalOutlierFilter::feedMessage(IMessage* message, Con
         m_outputFileType = decodedMsg->outputFileType;
         m_outputFolder = decodedMsg->outputFolder;
         m_openFolderAfterExport = decodedMsg->openFolderAfterExport;
+        m_executionMode = decodedMsg->executionMode;
 
         m_warningModal = true;
         controller.updateInfo(new GuiDataModal(Yes | No, TEXT_STAT_OUTLIER_FILTER_QUESTION));
@@ -142,8 +184,14 @@ ContextState ContextStatisticalOutlierFilter::feedMessage(IMessage* message, Con
 ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
 {
     GraphManager& graphManager = controller.getGraphManager();
+    std::filesystem::path effectiveOutputFolder = m_outputFolder;
+    if (!resolveExecutionOutputFolder(controller, m_executionMode, effectiveOutputFolder))
+    {
+        m_state = ContextState::abort;
+        return m_state;
+    }
 
-    if (!prepareOutputDirectory(controller, m_outputFolder))
+    if (!prepareOutputDirectory(controller, effectiveOutputFolder))
     {
         m_state = ContextState::abort;
         return m_state;
@@ -152,6 +200,8 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
     TlStreamLock streamLock;
 
     std::unordered_set<SafePtr<PointCloudNode>> scans = graphManager.getVisibleScans(m_panoramic);
+    if (m_executionMode == FilterExecutionMode::ApplyOnCurrentProject)
+        m_outputFileType = FileType::TLS;
 
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString()));
     const uint64_t totalScans = scans.size();
@@ -160,6 +210,12 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
 
     ClippingAssembly clippingAssembly;
     graphManager.getClippingAssembly(clippingAssembly, true, false);
+    if (m_executionMode == FilterExecutionMode::ApplyOnCurrentProject && !clippingAssembly.empty())
+    {
+        controller.updateInfo(new GuiDataWarning(QString("Apply-on-project with active clipping is scheduled for the next pass.")));
+        m_state = ContextState::abort;
+        return m_state;
+    }
 
     OutlierStats globalStats;
     bool wasAborted = false;
@@ -244,7 +300,7 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         IScanFileWriter* scan_writer = nullptr;
         std::wstring log;
         std::wstring outputName = wScan->getName() + L"_SOF";
-        if (!getScanFileWriter(m_outputFolder, outputName, m_outputFileType, log, &scan_writer, true) || scan_writer == nullptr)
+        if (!getScanFileWriter(effectiveOutputFolder, outputName, m_outputFileType, log, &scan_writer, true) || scan_writer == nullptr)
             continue;
         tls::ScanHeader header;
         TlScanOverseer::getInstance().getScanHeader(old_guid, header);
@@ -262,6 +318,26 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         bool res = TlScanOverseer::getInstance().filterOutliersAndWrite(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, statsToUse, m_nSigma, m_beta, scan_writer, deleted_point_count, filterProgress);
         res &= scan_writer->finalizePointCloud();
         delete scan_writer;
+        if (res && m_executionMode == FilterExecutionMode::ApplyOnCurrentProject)
+        {
+            std::filesystem::path originalScanPath;
+            if (!TlScanOverseer::getInstance().getScanPath(old_guid, originalScanPath))
+            {
+                controller.updateInfo(new GuiDataWarning(QString("Failed to resolve original scan path for in-place update.")));
+                m_state = ContextState::abort;
+                wasAborted = true;
+                break;
+            }
+
+            std::filesystem::path producedPath = effectiveOutputFolder / (outputName + L".tls");
+            if (!replaceScanFileInProject(producedPath, originalScanPath))
+            {
+                controller.updateInfo(new GuiDataWarning(QString("Failed to replace scan file during in-place update.")));
+                m_state = ContextState::abort;
+                wasAborted = true;
+                break;
+            }
+        }
 
         total_deleted_points += deleted_point_count;
 
@@ -285,8 +361,8 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Total points deleted: %1").arg(total_deleted_points)));
     controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));
 
-    if (m_openFolderAfterExport && !wasAborted)
-        controller.updateInfo(new GuiDataOpenInExplorer(m_outputFolder));
+    if (m_executionMode == FilterExecutionMode::ExportFilteredAreas && m_openFolderAfterExport && !wasAborted)
+        controller.updateInfo(new GuiDataOpenInExplorer(effectiveOutputFolder));
 
     m_state = wasAborted ? ContextState::abort : ContextState::done;
     return (m_state);

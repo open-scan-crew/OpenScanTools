@@ -1,6 +1,6 @@
 #include "controller/messages/StatisticalOutlierFilterMessage.h"
 
-StatisticalOutlierFilterMessage::StatisticalOutlierFilterMessage(int kNeighborsValue, double nSigmaValue, int samplingPercentValue, double betaValue, OutlierFilterMode modeValue, FileType outputFileTypeValue, const std::wstring& outputFolderValue, bool openFolderAfterExportValue)
+StatisticalOutlierFilterMessage::StatisticalOutlierFilterMessage(int kNeighborsValue, double nSigmaValue, int samplingPercentValue, double betaValue, OutlierFilterMode modeValue, FileType outputFileTypeValue, const std::wstring& outputFolderValue, bool openFolderAfterExportValue, FilterExecutionMode executionModeValue)
     : kNeighbors(kNeighborsValue)
     , nSigma(nSigmaValue)
     , samplingPercent(samplingPercentValue)
@@ -9,6 +9,7 @@ StatisticalOutlierFilterMessage::StatisticalOutlierFilterMessage(int kNeighborsV
     , outputFileType(outputFileTypeValue)
     , outputFolder(outputFolderValue)
     , openFolderAfterExport(openFolderAfterExportValue)
+    , executionMode(executionModeValue)
 {}
 
 IMessage::MessageType StatisticalOutlierFilterMessage::getType() const
@@ -18,5 +19,5 @@ IMessage::MessageType StatisticalOutlierFilterMessage::getType() const
 
 IMessage* StatisticalOutlierFilterMessage::copy() const
 {
-    return new StatisticalOutlierFilterMessage(kNeighbors, nSigma, samplingPercent, beta, mode, outputFileType, outputFolder, openFolderAfterExport);
+    return new StatisticalOutlierFilterMessage(kNeighbors, nSigma, samplingPercent, beta, mode, outputFileType, outputFolder, openFolderAfterExport, executionMode);
 }
