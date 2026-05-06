@@ -66,6 +66,29 @@ namespace
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
     }
+
+    // Reuse robust scan replacement strategy already used in point deletion:
+    // load temp tls, then copy it over the original scan file path.
+    bool commitTempScanToProject(Controller& controller, WritePtr<PointCloudNode>& wScan, const std::filesystem::path& tempPath, const QString& scanName)
+    {
+        if (!wScan || tempPath.empty())
+            return false;
+
+        tls::ScanGuid newGuid;
+        if (!TlScanOverseer::getInstance().getScanGuid(tempPath, newGuid))
+        {
+            controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Failed to load temporary scan for %1.").arg(scanName)));
+            return false;
+        }
+
+        std::filesystem::path absolutePath = wScan->getTlsFilePath();
+        tls::ScanGuid oldGuid = wScan->getScanGuid();
+
+        TlScanOverseer::getInstance().freeScan_async(oldGuid, false);
+        wScan->setTlsFilePath(tempPath, false, tls::ScanGuid(), false);
+        TlScanOverseer::getInstance().copyScanFile_async(newGuid, absolutePath, false, true, true);
+        return true;
+    }
 }
 
 // Note (Aurélien) QT::StandardButtons enum values in qmessagebox.h
@@ -136,12 +159,16 @@ ContextState ContextColorBalanceFilter::feedMessage(IMessage* message, Controlle
         m_sharpnessBlend = decodedMsg->sharpnessBlend;
         m_globalBalancing = decodedMsg->mode == ColorBalanceMode::Global;
         m_applyOnIntensityAndRgb = decodedMsg->applyOnIntensityAndRgb;
+        m_executionMode = decodedMsg->executionMode;
         m_outputFileType = decodedMsg->outputFileType;
         m_outputFolder = decodedMsg->outputFolder;
         m_openFolderAfterExport = decodedMsg->openFolderAfterExport;
 
         m_warningModal = true;
-        controller.updateInfo(new GuiDataModal(Yes | No, TEXT_COLOR_BALANCE_FILTER_QUESTION));
+        if (m_executionMode == FilterExecutionMode::ApplyOnProject)
+            controller.updateInfo(new GuiDataModal(Yes | No, TEXT_COLOR_BALANCE_FILTER_APPLY_PROJECT_QUESTION));
+        else
+            controller.updateInfo(new GuiDataModal(Yes | No, TEXT_COLOR_BALANCE_FILTER_QUESTION));
     }
     break;
     default:
@@ -155,7 +182,11 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
 {
     GraphManager& graphManager = controller.getGraphManager();
 
-    if (!prepareOutputDirectory(controller, m_outputFolder))
+    const bool applyOnProject = m_executionMode == FilterExecutionMode::ApplyOnProject;
+    const std::filesystem::path scanFolder = controller.getContext().cgetProjectInternalInfo().getPointCloudFolderPath(false);
+    const std::filesystem::path tempFolderProject = scanFolder / "temp_cb";
+    const std::filesystem::path outputFolder = applyOnProject ? tempFolderProject : m_outputFolder;
+    if (!prepareOutputDirectory(controller, outputFolder))
     {
         m_state = ContextState::abort;
         return m_state;
@@ -187,11 +218,18 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
     std::unordered_set<SafePtr<AClippingNode>> clippings = graphManager.getActivatedOrSelectedClippingObjects();
     if (!clippings.empty())
         graphManager.getClippingAssembly(clippingAssembly, clippings);
+    if (applyOnProject && !clippingAssembly.empty())
+    {
+        controller.updateInfo(new GuiDataWarning(QObject::tr("Apply filter on current project with clipping is planned for next pass. Please disable clipping for now.")));
+        m_state = ContextState::abort;
+        return m_state;
+    }
+
     const bool useTempClippedScans = m_globalBalancing && !clippingAssembly.empty();
     std::filesystem::path tempFolder;
     if (useTempClippedScans)
     {
-        tempFolder = controller.getContext().cgetProjectInternalInfo().getPointCloudFolderPath(false) / "temp_color_balance";
+        tempFolder = scanFolder / "temp_color_balance";
         if (!prepareOutputDirectory(controller, tempFolder))
         {
             m_state = ContextState::abort;
@@ -253,8 +291,21 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
 
         IScanFileWriter* scan_writer = nullptr;
         std::wstring log;
-        std::wstring outputName = wScan->getName() + L"_CB";
-        if (!getScanFileWriter(m_outputFolder, outputName, m_outputFileType, log, &scan_writer, true) || scan_writer == nullptr)
+        std::filesystem::path tempPathProject;
+        if (applyOnProject)
+        {
+            TlsFileWriter* tlsWriter = nullptr;
+            TlsFileWriter::getWriter(outputFolder, wScan->getName(), log, (IScanFileWriter**)&tlsWriter);
+            scan_writer = tlsWriter;
+            if (tlsWriter != nullptr)
+                tempPathProject = tlsWriter->getFilePath();
+        }
+        else
+        {
+            std::wstring outputName = wScan->getName() + L"_CB";
+            getScanFileWriter(outputFolder, outputName, m_outputFileType, log, &scan_writer, true);
+        }
+        if (scan_writer == nullptr)
             continue;
 
         tls::ScanHeader header;
@@ -339,9 +390,20 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
         updateProgress(scanCount, 100, scanCount * 100);
 
         if (modifiedPointCount > 0)
+        {
+            if (applyOnProject && res)
+            {
+                if (!commitTempScanToProject(controller, wScan, tempPathProject, qScanName))
+                    controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Failed to replace scan %1 after balancing.").arg(qScanName)));
+            }
             controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("%1 points updated in scan %2 in %3 seconds.").arg(modifiedPointCount).arg(qScanName).arg(seconds)));
+        }
         else
+        {
+            if (applyOnProject && !tempPathProject.empty())
+                deleteFileWithRetry(tempPathProject);
             controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Scan %1 not affected by color balance.").arg(qScanName)));
+        }
 
         if (m_state != ContextState::running)
         {
@@ -353,7 +415,7 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Total points updated: %1").arg(totalModifiedPoints)));
     controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));
 
-    if (m_openFolderAfterExport && !wasAborted)
+    if (!applyOnProject && m_openFolderAfterExport && !wasAborted)
         controller.updateInfo(new GuiDataOpenInExplorer(m_outputFolder));
 
     m_state = wasAborted ? ContextState::abort : ContextState::done;

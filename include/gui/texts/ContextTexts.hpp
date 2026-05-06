@@ -106,6 +106,7 @@
 
 //ContextColorBalanceFilter
 #define TEXT_COLOR_BALANCE_FILTER_QUESTION QObject::tr("Warning: some points will be permanently modified.\nDepending on the size of the scans, the calculation time may be significant. We recommend that you first perform a test on a small clipped portion.\nDo you confirm?")
+#define TEXT_COLOR_BALANCE_FILTER_APPLY_PROJECT_QUESTION QObject::tr("Warning: points will be permanently modified. This action cannot be undone.\nDo you confirm?")
 
 //ContextDeleteTags
 #define TEXT_DELETE_TAGS_QUESTION QObject::tr("Warning: some tags use this template. Deleting the template will also delete the related tags.\nDo you confirm?")
