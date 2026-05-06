@@ -3,6 +3,7 @@
 
 #include "controller/functionSystem/AContext.h"
 #include "controller/messages/ColorBalanceFilterMessage.h"
+#include "controller/messages/FilterExecutionMode.h"
 #include "io/FileUtils.h"
 #include "tls_def.h"
 
@@ -35,6 +36,7 @@ private:
     FileType m_outputFileType = FileType::TLS;
     std::filesystem::path m_outputFolder;
     bool m_openFolderAfterExport = false;
+    FilterExecutionMode m_executionMode = FilterExecutionMode::ExportFilteredAreas;
     bool m_warningModal = false;
 };
 
