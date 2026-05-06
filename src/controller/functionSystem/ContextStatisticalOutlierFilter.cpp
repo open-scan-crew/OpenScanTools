@@ -123,12 +123,16 @@ ContextState ContextStatisticalOutlierFilter::feedMessage(IMessage* message, Con
         m_samplingPercent = decodedMsg->samplingPercent;
         m_beta = decodedMsg->beta;
         m_globalFiltering = decodedMsg->mode == OutlierFilterMode::Global;
+        m_executionMode = decodedMsg->executionMode;
         m_outputFileType = decodedMsg->outputFileType;
         m_outputFolder = decodedMsg->outputFolder;
         m_openFolderAfterExport = decodedMsg->openFolderAfterExport;
 
         m_warningModal = true;
-        controller.updateInfo(new GuiDataModal(Yes | No, TEXT_STAT_OUTLIER_FILTER_QUESTION));
+        if (m_executionMode == FilterExecutionMode::ApplyOnProject)
+            controller.updateInfo(new GuiDataModal(Yes | No, TEXT_DELETE_POINTS_QUESTION));
+        else
+            controller.updateInfo(new GuiDataModal(Yes | No, TEXT_STAT_OUTLIER_FILTER_QUESTION));
         break;
     }
     break;
