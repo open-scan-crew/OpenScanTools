@@ -4,6 +4,7 @@
 #include "controller/functionSystem/AContext.h"
 #include "models/graph/TransformationModule.h"
 #include "io/FileUtils.h"
+#include "controller/messages/FilterExecutionMode.h"
 
 #include "crossguid/guid.hpp"
 
@@ -34,6 +35,7 @@ private:
     FileType m_outputFileType = FileType::TLS;
     std::filesystem::path m_outputFolder;
     bool m_openFolderAfterExport = true;
+    FilterExecutionMode m_executionMode = FilterExecutionMode::ExportFilteredAreas;
 };
 
 #endif

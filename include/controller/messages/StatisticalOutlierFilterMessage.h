@@ -3,6 +3,7 @@
 
 #include "controller/messages/IMessage.h"
 #include "io/FileUtils.h"
+#include "controller/messages/FilterExecutionMode.h"
 
 #include <string>
 
@@ -15,7 +16,7 @@ enum class OutlierFilterMode
 class StatisticalOutlierFilterMessage : public IMessage
 {
 public:
-    StatisticalOutlierFilterMessage(int kNeighbors, double nSigma, int samplingPercent, double beta, OutlierFilterMode mode, FileType outputFileType, const std::wstring& outputFolder, bool openFolderAfterExport);
+    StatisticalOutlierFilterMessage(int kNeighbors, double nSigma, int samplingPercent, double beta, OutlierFilterMode mode, FileType outputFileType, const std::wstring& outputFolder, bool openFolderAfterExport, FilterExecutionMode executionMode);
     ~StatisticalOutlierFilterMessage() {}
 
     MessageType getType() const override;
@@ -29,6 +30,7 @@ public:
     FileType outputFileType;
     std::wstring outputFolder;
     bool openFolderAfterExport;
+    FilterExecutionMode executionMode;
 };
 
 #endif

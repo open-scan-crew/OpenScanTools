@@ -139,9 +139,16 @@ ContextState ContextColorBalanceFilter::feedMessage(IMessage* message, Controlle
         m_outputFileType = decodedMsg->outputFileType;
         m_outputFolder = decodedMsg->outputFolder;
         m_openFolderAfterExport = decodedMsg->openFolderAfterExport;
+        m_executionMode = decodedMsg->executionMode;
 
         m_warningModal = true;
-        controller.updateInfo(new GuiDataModal(Yes | No, TEXT_COLOR_BALANCE_FILTER_QUESTION));
+        QString warningText = TEXT_COLOR_BALANCE_FILTER_QUESTION;
+        if (m_executionMode == FilterExecutionMode::ApplyOnCurrentProject)
+        {
+            warningText = TEXT_DELETE_POINTS_QUESTION;
+            warningText.replace("deleted", "modified", Qt::CaseInsensitive);
+        }
+        controller.updateInfo(new GuiDataModal(Yes | No, warningText));
     }
     break;
     default:
