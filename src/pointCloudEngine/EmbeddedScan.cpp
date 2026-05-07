@@ -554,6 +554,34 @@ namespace
         }
     };
 
+    double safeCv(double mean, double stddev)
+    {
+        constexpr double kEpsilon = 1e-9;
+        if (std::abs(mean) <= kEpsilon)
+            return 0.0;
+        return stddev / std::abs(mean);
+    }
+
+    double clamp01(double value)
+    {
+        return std::clamp(value, 0.0, 1.0);
+    }
+
+    const char* toRiskClassString(SofPreAnalysisRiskClass riskClass)
+    {
+        switch (riskClass)
+        {
+        case SofPreAnalysisRiskClass::Low:
+            return "LOW";
+        case SofPreAnalysisRiskClass::Borderline:
+            return "BORDERLINE";
+        case SofPreAnalysisRiskClass::High:
+            return "HIGH";
+        default:
+            return "UNKNOWN";
+        }
+    }
+
     std::shared_ptr<IClippingGeometry> cloneClippingGeometry(const std::shared_ptr<IClippingGeometry>& geometry)
     {
         if (!geometry)
@@ -1007,6 +1035,152 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
     stats.count = running.count;
     stats.mean = running.mean;
     stats.stddev = running.stddev();
+
+    return true;
+}
+
+bool EmbeddedScan::computeOutlierPreAnalysis(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, int samplingPercent, double beta, SofPreAnalysisStats& preAnalysis, const ProgressCallback& progress)
+{
+    // Passe 1 (shadow mode) : on calcule des indicateurs robustes sans modifier la logique SOF existante.
+    ClippingAssembly localAssembly = deepCopyClippingAssembly(clippingAssembly);
+    localAssembly.clearMatrix();
+    glm::dmat4 src_transfo_mat = src_transfo.getTransformation();
+    localAssembly.addTransformation(src_transfo_mat);
+
+    std::vector<std::pair<uint32_t, bool>> cells;
+    getClippedCells_impl(m_uRootCell, localAssembly, cells);
+
+    const size_t neighborCount = std::max(1, kNeighbors);
+    const double samplingValue = std::clamp(static_cast<double>(samplingPercent), 1.0, 100.0);
+    const size_t sampleStep = std::max<size_t>(1, static_cast<size_t>(std::round(100.0 / samplingValue)));
+    const size_t totalCells = cells.size();
+
+    if (progress && totalCells > 0)
+        progress(0, totalCells);
+
+    RunningStats spacingStats;
+    RunningStats meanDistanceStats;
+    RunningStats zoneMeanDistanceStats;
+    RunningStats zoneSpacingStats;
+
+    uint64_t nonEmptyZones = 0;
+    uint64_t totalZones = 0;
+    uint64_t testedPointsEstimate = 0;
+    uint64_t occupiedCells = 0;
+
+    for (size_t cellIndex = 0; cellIndex < cells.size(); ++cellIndex)
+    {
+        const std::pair<uint32_t, bool>& cell = cells[cellIndex];
+        std::vector<PointXYZIRGB> points;
+        points.resize(tls_point_cloud_.getCellPointCount(cell.first));
+        if (!getCellPointsThreadSafe(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+        {
+            if (progress)
+                progress(cellIndex + 1, totalCells);
+            continue;
+        }
+
+        std::vector<PointXYZIRGB> visiblePoints;
+        if (cell.second)
+            clipIndividualPoints(points, visiblePoints, localAssembly);
+        else
+            visiblePoints.swap(points);
+
+        totalZones++;
+        if (visiblePoints.empty())
+        {
+            if (progress)
+                progress(cellIndex + 1, totalCells);
+            continue;
+        }
+
+        occupiedCells++;
+        nonEmptyZones++;
+        testedPointsEstimate += static_cast<uint64_t>(visiblePoints.size());
+
+        glm::dvec3 cellOrigin(m_vTreeCells[cell.first].m_position[0], m_vTreeCells[cell.first].m_position[1], m_vTreeCells[cell.first].m_position[2]);
+        double cellSize = m_vTreeCells[cell.first].m_size;
+        double avgSpacing = std::cbrt((cellSize * cellSize * cellSize) / std::max<size_t>(visiblePoints.size(), 1));
+        double voxelSize = std::max(cellSize / 128.0, avgSpacing * 2.0);
+        double maxRadius = std::clamp(beta * avgSpacing, cellSize / 8.0, cellSize);
+
+        spacingStats.add(avgSpacing);
+
+        std::vector<glm::dvec3> localPoints;
+        localPoints.reserve(visiblePoints.size());
+        for (const PointXYZIRGB& point : visiblePoints)
+            localPoints.emplace_back(point.x, point.y, point.z);
+
+        std::unordered_map<int64_t, std::vector<size_t>> grid;
+        grid.reserve(localPoints.size());
+        for (size_t i = 0; i < localPoints.size(); ++i)
+        {
+            GridIndex index = computeGridIndex(localPoints[i], cellOrigin, voxelSize);
+            grid[packGridIndex(index)].push_back(i);
+        }
+
+        RunningStats zoneMeanDistance;
+        for (size_t i = 0; i < localPoints.size(); i += sampleStep)
+        {
+            double meanDistance = 0.0;
+            if (computeMeanNeighborDistanceGrid(localPoints, grid, cellOrigin, voxelSize, i, neighborCount, maxRadius, meanDistance))
+            {
+                meanDistanceStats.add(meanDistance);
+                zoneMeanDistance.add(meanDistance);
+            }
+        }
+
+        if (zoneMeanDistance.count > 0)
+            zoneMeanDistanceStats.add(zoneMeanDistance.mean);
+        zoneSpacingStats.add(avgSpacing);
+
+        if (progress)
+            progress(cellIndex + 1, totalCells);
+    }
+
+    preAnalysis.occupiedCells = occupiedCells;
+    preAnalysis.testedPointsEstimate = testedPointsEstimate;
+    preAnalysis.spacingMean = spacingStats.mean;
+    preAnalysis.spacingStddev = spacingStats.stddev();
+    preAnalysis.spacingCv = safeCv(preAnalysis.spacingMean, preAnalysis.spacingStddev);
+    preAnalysis.meanDistanceMean = meanDistanceStats.mean;
+    preAnalysis.meanDistanceStddev = meanDistanceStats.stddev();
+    preAnalysis.meanDistanceCv = safeCv(preAnalysis.meanDistanceMean, preAnalysis.meanDistanceStddev);
+    preAnalysis.interZoneVarMeanDistance = zoneMeanDistanceStats.stddev() * zoneMeanDistanceStats.stddev();
+    preAnalysis.interZoneVarSpacing = zoneSpacingStats.stddev() * zoneSpacingStats.stddev();
+    preAnalysis.nonEmptyZoneRatio = totalZones == 0 ? 0.0 : static_cast<double>(nonEmptyZones) / static_cast<double>(totalZones);
+
+    const double sSpacing = clamp01((preAnalysis.spacingCv - 0.30) / 0.70);
+    const double sMeanDistance = clamp01((preAnalysis.meanDistanceCv - 0.30) / 0.70);
+    const double sInterZone = clamp01((std::sqrt(std::max(0.0, preAnalysis.interZoneVarMeanDistance)) - 0.02) / 0.08);
+    const double sSparse = clamp01((0.60 - preAnalysis.nonEmptyZoneRatio) / 0.60);
+    const double logPoints = std::log10(static_cast<double>(std::max<uint64_t>(preAnalysis.testedPointsEstimate, 1)));
+    const double sScale = clamp01((logPoints - 5.0) / 2.0);
+
+    preAnalysis.riskScore = 0.25 * sSpacing + 0.25 * sMeanDistance + 0.25 * sInterZone + 0.15 * sSparse + 0.10 * sScale;
+
+    if (preAnalysis.riskScore >= 0.60)
+        preAnalysis.riskClass = SofPreAnalysisRiskClass::High;
+    else if (preAnalysis.riskScore >= 0.45)
+        preAnalysis.riskClass = SofPreAnalysisRiskClass::Borderline;
+    else
+        preAnalysis.riskClass = SofPreAnalysisRiskClass::Low;
+
+    preAnalysis.recommendedAction = (preAnalysis.riskScore >= 0.60)
+        ? SofPreAnalysisAction::SubdivisionRecommended
+        : SofPreAnalysisAction::NoSubdivision;
+
+    Logger::log(LoggerMode::IOLog)
+        << "SOF_PRE_ANALYSIS"
+        << " occupiedCells=" << preAnalysis.occupiedCells
+        << " testedPointsEstimate=" << preAnalysis.testedPointsEstimate
+        << " spacingCv=" << preAnalysis.spacingCv
+        << " meanDistanceCv=" << preAnalysis.meanDistanceCv
+        << " interZoneVarMeanDistance=" << preAnalysis.interZoneVarMeanDistance
+        << " nonEmptyZoneRatio=" << preAnalysis.nonEmptyZoneRatio
+        << " riskScore=" << preAnalysis.riskScore
+        << " riskClass=" << toRiskClassString(preAnalysis.riskClass)
+        << Logger::endl;
 
     return true;
 }
