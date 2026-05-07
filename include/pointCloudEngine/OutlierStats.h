@@ -8,6 +8,7 @@ struct OutlierStats
     uint64_t count = 0;
     double mean = 0.0;
     double stddev = 0.0;
+    double percentileThreshold = 0.0;
 };
 
 #endif

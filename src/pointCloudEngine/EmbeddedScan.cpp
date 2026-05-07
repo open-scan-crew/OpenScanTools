@@ -34,6 +34,8 @@ namespace
     constexpr float kColorimetricMaxDistance = 1.7320508f;
     // Stabilize ray sign classification for near-zero components (orthographic axis-aligned views).
     constexpr double kRaySignEpsilon = 1e-12;
+    // B1 step 1: fixed percentile used to compute a robust outlier threshold.
+    constexpr double kSofFixedPercentile = 97.0;
 
     struct PreparedRayTracingDisplayFilter
     {
@@ -853,6 +855,7 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
     if (threadCount <= 1)
     {
         RunningStats running;
+        std::vector<double> sampledDistances;
         for (size_t cellIndex = 0; cellIndex < cells.size(); ++cellIndex)
         {
             const std::pair<uint32_t, bool>& cell = cells[cellIndex];
@@ -901,7 +904,10 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
             {
                 double meanDistance = 0.0;
                 if (computeMeanNeighborDistanceGrid(localPoints, grid, cellOrigin, voxelSize, i, neighborCount, maxRadius, meanDistance))
+                {
                     running.add(meanDistance);
+                    sampledDistances.push_back(meanDistance);
+                }
             }
 
             if (progress)
@@ -911,10 +917,18 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
         stats.count = running.count;
         stats.mean = running.mean;
         stats.stddev = running.stddev();
+        if (!sampledDistances.empty())
+        {
+            const double p = std::clamp(kSofFixedPercentile, 0.0, 100.0) / 100.0;
+            size_t idx = static_cast<size_t>(std::floor((sampledDistances.size() - 1) * p));
+            std::nth_element(sampledDistances.begin(), sampledDistances.begin() + idx, sampledDistances.end());
+            stats.percentileThreshold = sampledDistances[idx];
+        }
         return true;
     }
 
     std::vector<RunningStats> cellStats(totalCells);
+    std::vector<std::vector<double>> cellSampledDistances(totalCells);
     std::atomic<size_t> nextIndex{ 0 };
     std::atomic<size_t> completed{ 0 };
     std::mutex progressMutex;
@@ -952,6 +966,7 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
                 visiblePoints.swap(points);
 
             RunningStats running;
+            std::vector<double> sampledDistances;
             if (!visiblePoints.empty())
             {
                 glm::dvec3 cellOrigin(m_vTreeCells[cell.first].m_position[0], m_vTreeCells[cell.first].m_position[1], m_vTreeCells[cell.first].m_position[2]);
@@ -977,11 +992,15 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
                 {
                     double meanDistance = 0.0;
                     if (computeMeanNeighborDistanceGrid(localPoints, grid, cellOrigin, voxelSize, i, neighborCount, maxRadius, meanDistance))
+                    {
                         running.add(meanDistance);
+                        sampledDistances.push_back(meanDistance);
+                    }
                 }
             }
 
             cellStats[cellIndex] = running;
+            cellSampledDistances[cellIndex] = std::move(sampledDistances);
 
             if (progress)
             {
@@ -1007,11 +1026,23 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
     stats.count = running.count;
     stats.mean = running.mean;
     stats.stddev = running.stddev();
+    std::vector<double> sampledDistances;
+    for (auto& cellValues : cellSampledDistances)
+    {
+        sampledDistances.insert(sampledDistances.end(), cellValues.begin(), cellValues.end());
+    }
+    if (!sampledDistances.empty())
+    {
+        const double p = std::clamp(kSofFixedPercentile, 0.0, 100.0) / 100.0;
+        size_t idx = static_cast<size_t>(std::floor((sampledDistances.size() - 1) * p));
+        std::nth_element(sampledDistances.begin(), sampledDistances.begin() + idx, sampledDistances.end());
+        stats.percentileThreshold = sampledDistances[idx];
+    }
 
     return true;
 }
 
-bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* writer, uint64_t& removedPoints, const ProgressCallback& progress)
+bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* writer, uint64_t& removedPoints, uint64_t* testedPoints, uint64_t* keptPoints, const ProgressCallback& progress)
 {
     ClippingAssembly localAssembly = deepCopyClippingAssembly(clippingAssembly);
     localAssembly.clearMatrix();
@@ -1022,12 +1053,15 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
     getClippedCells_impl(m_uRootCell, localAssembly, cells);
 
     const size_t neighborCount = std::max(1, kNeighbors);
-    double threshold = stats.mean + nSigma * stats.stddev;
+    // B1 step 1: use fixed robust percentile threshold when available, otherwise fallback to legacy rule.
+    double threshold = stats.percentileThreshold > 0.0 ? stats.percentileThreshold : (stats.mean + nSigma * stats.stddev);
     const size_t totalCells = cells.size();
     if (progress && totalCells > 0)
         progress(0, totalCells);
     const size_t threadCount = resolveThreadCount(totalCells);
     std::atomic<uint64_t> removedPointsAtomic{ 0 };
+    std::atomic<uint64_t> testedPointsAtomic{ 0 };
+    std::atomic<uint64_t> keptPointsAtomic{ 0 };
     std::atomic<bool> resultOk{ true };
 
     if (threadCount <= 1)
@@ -1089,6 +1123,8 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
                 }
             }
 
+            testedPointsAtomic.fetch_add(static_cast<uint64_t>(visiblePoints.size()));
+            keptPointsAtomic.fetch_add(static_cast<uint64_t>(filtered.size()));
             removedPointsAtomic.fetch_add(visiblePoints.size() - filtered.size());
             sequentialOk &= writer->mergePoints(filtered.data(), filtered.size(), src_transfo, pt_format_);
 
@@ -1096,6 +1132,10 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
                 progress(cellIndex + 1, totalCells);
         }
         removedPoints = removedPointsAtomic.load();
+        if (testedPoints)
+            *testedPoints = testedPointsAtomic.load();
+        if (keptPoints)
+            *keptPoints = keptPointsAtomic.load();
         return sequentialOk;
     }
 
@@ -1202,6 +1242,8 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
                 bool ok = writer->mergePoints(filtered.data(), filtered.size(), src_transfo, pt_format_);
                 if (!ok)
                     resultOk.store(false);
+                testedPointsAtomic.fetch_add(static_cast<uint64_t>(visiblePoints.size()));
+                keptPointsAtomic.fetch_add(static_cast<uint64_t>(filtered.size()));
                 removedPointsAtomic.fetch_add(visiblePoints.size() - filtered.size());
                 ++nextWriteIndex;
             }
@@ -1225,6 +1267,10 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
         thread.join();
 
     removedPoints = removedPointsAtomic.load();
+    if (testedPoints)
+        *testedPoints = testedPointsAtomic.load();
+    if (keptPoints)
+        *keptPoints = keptPointsAtomic.load();
     return resultOk.load();
 }
 

@@ -162,9 +162,12 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
     graphManager.getClippingAssembly(clippingAssembly, true, false);
 
     OutlierStats globalStats;
+    double globalThreshold = 0.0;
     bool wasAborted = false;
     if (m_globalFiltering)
     {
+        // Diagnostic (Pass A): keep a dedicated timer for the global statistics pre-pass.
+        std::chrono::steady_clock::time_point globalStatsStart = std::chrono::steady_clock::now();
         RunningStats runningStats;
         for (const SafePtr<PointCloudNode>& scan : scans)
         {
@@ -189,8 +192,26 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
             OutlierStats stats;
             TlScanOverseer::getInstance().computeOutlierStats(wScan->getScanGuid(), (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, m_samplingPercent, m_beta, stats);
             runningStats.addStats(stats);
+
+            // Diagnostic (Pass A): log per-scan contribution to global statistics.
+            Logger::log(LoggerMode::IOLog)
+                << "[SOF][Diag][GlobalStatsInput] scan=\"" << wScan->getName()
+                << "\" points=" << wScan->getNbPoint()
+                << " sample_count=" << stats.count
+                << " mean=" << stats.mean
+                << " stddev=" << stats.stddev
+                << Logger::endl;
         }
         globalStats = runningStats.toStats();
+        globalThreshold = globalStats.mean + m_nSigma * globalStats.stddev;
+        double globalStatsSeconds = std::chrono::duration<double>(std::chrono::steady_clock::now() - globalStatsStart).count();
+        Logger::log(LoggerMode::IOLog)
+            << "[SOF][Diag][GlobalStatsSummary] sample_count=" << globalStats.count
+            << " mean=" << globalStats.mean
+            << " stddev=" << globalStats.stddev
+            << " threshold=" << globalThreshold
+            << " duration_s=" << globalStatsSeconds
+            << Logger::endl;
     }
 
     uint64_t scan_count = 0;
@@ -252,15 +273,24 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         scan_writer->appendPointCloud(header, wScan->getTransformation());
 
         OutlierStats statsToUse = globalStats;
+        double scanStatsSeconds = 0.0;
         if (!m_globalFiltering)
         {
+            // Diagnostic (Pass A): isolate statistics timing per scan in separate mode.
+            std::chrono::steady_clock::time_point scanStatsStart = std::chrono::steady_clock::now();
             auto statsProgress = makeProgressCallback(scan_count, 0, 50);
             TlScanOverseer::getInstance().computeOutlierStats(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, m_samplingPercent, m_beta, statsToUse, statsProgress);
+            scanStatsSeconds = std::chrono::duration<double>(std::chrono::steady_clock::now() - scanStatsStart).count();
         }
 
+        std::chrono::steady_clock::time_point scanFilterStart = std::chrono::steady_clock::now();
         auto filterProgress = makeProgressCallback(scan_count, m_globalFiltering ? 0 : 50, m_globalFiltering ? 100 : 50);
-        bool res = TlScanOverseer::getInstance().filterOutliersAndWrite(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, statsToUse, m_nSigma, m_beta, scan_writer, deleted_point_count, filterProgress);
+        // Diagnostic (Pass A): collect clipping-aware counters directly from filtering loop.
+        uint64_t testedPointCount = 0;
+        uint64_t keptTestedPointCount = 0;
+        bool res = TlScanOverseer::getInstance().filterOutliersAndWrite(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, statsToUse, m_nSigma, m_beta, scan_writer, deleted_point_count, &testedPointCount, &keptTestedPointCount, filterProgress);
         res &= scan_writer->finalizePointCloud();
+        double scanFilterSeconds = std::chrono::duration<double>(std::chrono::steady_clock::now() - scanFilterStart).count();
         delete scan_writer;
 
         total_deleted_points += deleted_point_count;
@@ -274,6 +304,37 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
             controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("%1 points deleted in scan %2 in %3 seconds.").arg(deleted_point_count).arg(qScanName).arg(seconds)));
         else
             controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Scan %1 not affected by outlier filter.").arg(qScanName)));
+
+        // Diagnostic (Pass A): unified per-scan KPI log for analysis across clipping sizes.
+        const bool usePercentileThreshold = statsToUse.percentileThreshold > 0.0;
+        const double threshold = usePercentileThreshold ? statsToUse.percentileThreshold : (statsToUse.mean + m_nSigma * statsToUse.stddev);
+        const uint64_t keptPointCount = initial_point_count >= deleted_point_count ? (initial_point_count - deleted_point_count) : 0;
+        const double removedRatio = (initial_point_count > 0)
+            ? (static_cast<double>(deleted_point_count) * 100.0 / static_cast<double>(initial_point_count))
+            : 0.0;
+        const double removedRatioOnTested = (testedPointCount > 0)
+            ? (static_cast<double>(deleted_point_count) * 100.0 / static_cast<double>(testedPointCount))
+            : 0.0;
+        Logger::log(LoggerMode::IOLog)
+            << "[SOF][Diag][ScanSummary] scan=\"" << wScan->getName()
+            << "\" mode=" << (m_globalFiltering ? "global" : "separate")
+            << " points_in=" << initial_point_count
+            << " points_kept_total_scan_based=" << keptPointCount
+            << " points_removed=" << deleted_point_count
+            << " removed_percent=" << removedRatio
+            << " points_tested=" << testedPointCount
+            << " points_kept_tested=" << keptTestedPointCount
+            << " removed_percent_of_tested=" << removedRatioOnTested
+            << " sample_count=" << statsToUse.count
+            << " mean=" << statsToUse.mean
+            << " stddev=" << statsToUse.stddev
+            << " threshold=" << threshold
+            << " threshold_method=" << (usePercentileThreshold ? "percentile_fixed" : "mean_plus_nsigma_stddev")
+            << " threshold_percentile_fixed=" << (usePercentileThreshold ? 97.0 : 0.0)
+            << " stats_duration_s=" << scanStatsSeconds
+            << " filter_duration_s=" << scanFilterSeconds
+            << " total_duration_s=" << seconds
+            << Logger::endl;
 
         if (m_state != ContextState::running)
         {
