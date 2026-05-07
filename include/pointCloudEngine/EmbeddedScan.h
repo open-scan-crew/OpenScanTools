@@ -117,6 +117,7 @@ public:
     // For File Clipping
     bool testPointsClippedOut(const TransformationModule& src_transfo, const ClippingAssembly& _clippingAssembly) const;
     bool clipAndWrite(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, IScanFileWriter* writer, const ProgressCallback& progress = {});
+    bool computeOutlierPreAnalysis(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, int samplingPercent, double beta, SofPreAnalysisStats& preAnalysis, const ProgressCallback& progress = {});
     bool computeOutlierStats(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, int samplingPercent, double beta, OutlierStats& stats, const ProgressCallback& progress = {});
     bool filterOutliersAndWrite(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* writer, uint64_t& removedPoints, const ProgressCallback& progress = {});
     bool filterAndWrite(const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, const ColorimetricFilterSettings& colorimetricSettings, const PolygonalSelectorSettings& polygonalSelectorSettings, UiRenderMode mode, IScanFileWriter* writer, uint64_t& keptPoints, const ProgressCallback& progress = {});
