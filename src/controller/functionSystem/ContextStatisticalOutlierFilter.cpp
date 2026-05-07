@@ -28,6 +28,40 @@
 
 namespace
 {
+    struct SofSubdivisionShadowConfig
+    {
+        bool enabled = false;
+        uint32_t factor = 1;
+        uint32_t subBoxCount = 1;
+        double haloMeters = 0.0;
+        uint32_t fallbackSubBoxCount = 0;
+    };
+
+    SofSubdivisionShadowConfig buildSubdivisionShadowConfig(const SofPreAnalysisStats& preAnalysis)
+    {
+        // Passe 2A: décision conservative en "shadow mode" uniquement.
+        SofSubdivisionShadowConfig config;
+        config.enabled = preAnalysis.riskClass == SofPreAnalysisRiskClass::High;
+        if (!config.enabled)
+            return config;
+
+        // Facteur borné pour éviter les explosions de coûts dès la passe d'ossature.
+        const uint32_t maxFactor = 4;
+        uint32_t suggestedFactor = preAnalysis.testedPointsEstimate > 50000000 ? 4 : 2;
+        config.factor = std::clamp(suggestedFactor, 2u, maxFactor);
+        config.subBoxCount = config.factor * config.factor * config.factor;
+
+        // Halo "proxy" basé sur les métriques existantes. La valeur n'est pas encore appliquée au filtre.
+        config.haloMeters = std::clamp(preAnalysis.spacingMean * 2.0, 0.01, 1.0);
+
+        // Fallback planifié (non exécuté en 2A) pour sous-zones peu peuplées.
+        uint32_t minPointsPerSubBox = 5000;
+        double avgPointsPerSubBox = static_cast<double>(std::max<uint64_t>(preAnalysis.testedPointsEstimate, 1)) / static_cast<double>(config.subBoxCount);
+        if (avgPointsPerSubBox < static_cast<double>(minPointsPerSubBox))
+            config.fallbackSubBoxCount = config.subBoxCount;
+        return config;
+    }
+
     struct RunningStats
     {
         uint64_t count = 0;
@@ -198,6 +232,8 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
     uint64_t preAnalysisLowCount = 0;
     uint64_t preAnalysisBorderlineCount = 0;
     uint64_t preAnalysisHighCount = 0;
+    uint64_t subdivisionShadowEnabledCount = 0;
+    uint64_t subdivisionShadowFallbackCount = 0;
     double preAnalysisRiskScoreSum = 0.0;
     auto updateProgress = [&](uint64_t scansDone, int percent, uint64_t progressValue)
     {
@@ -248,8 +284,20 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         auto preAnalysisStart = std::chrono::steady_clock::now();
         SofPreAnalysisStats preAnalysis;
         TlScanOverseer::getInstance().computeOutlierPreAnalysis(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, m_samplingPercent, m_beta, preAnalysis);
+        SofSubdivisionShadowConfig subdivisionShadow = buildSubdivisionShadowConfig(preAnalysis);
+        preAnalysis.subdivisionShadowEnabled = subdivisionShadow.enabled;
+        preAnalysis.subdivisionShadowFactor = subdivisionShadow.factor;
+        preAnalysis.subdivisionShadowSubBoxCount = subdivisionShadow.subBoxCount;
+        preAnalysis.subdivisionShadowHalo = subdivisionShadow.haloMeters;
+        preAnalysis.subdivisionShadowFallbackSubBoxCount = subdivisionShadow.fallbackSubBoxCount;
         float preAnalysisSeconds = std::chrono::duration<float, std::ratio<1>>(std::chrono::steady_clock::now() - preAnalysisStart).count();
         preAnalysisRiskScoreSum += preAnalysis.riskScore;
+        if (preAnalysis.subdivisionShadowEnabled)
+        {
+            ++subdivisionShadowEnabledCount;
+            if (preAnalysis.subdivisionShadowFallbackSubBoxCount > 0)
+                ++subdivisionShadowFallbackCount;
+        }
         switch (preAnalysis.riskClass)
         {
         case SofPreAnalysisRiskClass::Low:
@@ -303,13 +351,18 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
             ? "SUBDIVISION_RECOMMENDED"
             : "NO_SUBDIVISION";
         controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(
-            QString("SOF pre-analysis %1: risk=%2, action=%3, occupiedCells=%4, testedPoints=%5, time=%6s")
+            QString("SOF pre-analysis %1: risk=%2, action=%3, occupiedCells=%4, testedPoints=%5, time=%6s, subdivisionShadow=%7 factor=%8 subBoxes=%9 halo=%10 fallbackSubBoxes=%11")
                 .arg(qScanName)
                 .arg(preAnalysis.riskScore, 0, 'f', 3)
                 .arg(preAnalysisAction)
                 .arg(preAnalysis.occupiedCells)
                 .arg(preAnalysis.testedPointsEstimate)
-                .arg(preAnalysisSeconds, 0, 'f', 3)));
+                .arg(preAnalysisSeconds, 0, 'f', 3)
+                .arg(preAnalysis.subdivisionShadowEnabled ? "ON" : "OFF")
+                .arg(preAnalysis.subdivisionShadowFactor)
+                .arg(preAnalysis.subdivisionShadowSubBoxCount)
+                .arg(preAnalysis.subdivisionShadowHalo, 0, 'f', 3)
+                .arg(preAnalysis.subdivisionShadowFallbackSubBoxCount)));
 
         if (m_state != ContextState::running)
         {
@@ -320,11 +373,13 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
 
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Total points deleted: %1").arg(total_deleted_points)));
     double averageRisk = scan_count > 0 ? preAnalysisRiskScoreSum / static_cast<double>(scan_count) : 0.0;
-    controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("SOF pre-analysis summary: LOW=%1 BORDERLINE=%2 HIGH=%3 avgRisk=%4")
+    controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("SOF pre-analysis summary: LOW=%1 BORDERLINE=%2 HIGH=%3 avgRisk=%4 subdivisionShadowEnabled=%5 fallbackPlanned=%6")
         .arg(preAnalysisLowCount)
         .arg(preAnalysisBorderlineCount)
         .arg(preAnalysisHighCount)
-        .arg(averageRisk, 0, 'f', 3)));
+        .arg(averageRisk, 0, 'f', 3)
+        .arg(subdivisionShadowEnabledCount)
+        .arg(subdivisionShadowFallbackCount)));
     controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));
 
     if (m_openFolderAfterExport && !wasAborted)

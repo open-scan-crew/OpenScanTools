@@ -39,6 +39,11 @@ struct SofPreAnalysisStats
     double riskScore = 0.0;
     SofPreAnalysisRiskClass riskClass = SofPreAnalysisRiskClass::Low;
     SofPreAnalysisAction recommendedAction = SofPreAnalysisAction::NoSubdivision;
+    bool subdivisionShadowEnabled = false;
+    uint32_t subdivisionShadowFactor = 1;
+    uint32_t subdivisionShadowSubBoxCount = 1;
+    double subdivisionShadowHalo = 0.0;
+    uint32_t subdivisionShadowFallbackSubBoxCount = 0;
 };
 
 #endif
