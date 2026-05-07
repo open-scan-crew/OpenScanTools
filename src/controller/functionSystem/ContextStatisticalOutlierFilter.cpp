@@ -306,7 +306,8 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
             controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Scan %1 not affected by outlier filter.").arg(qScanName)));
 
         // Diagnostic (Pass A): unified per-scan KPI log for analysis across clipping sizes.
-        const double threshold = statsToUse.mean + m_nSigma * statsToUse.stddev;
+        const bool usePercentileThreshold = statsToUse.percentileThreshold > 0.0;
+        const double threshold = usePercentileThreshold ? statsToUse.percentileThreshold : (statsToUse.mean + m_nSigma * statsToUse.stddev);
         const uint64_t keptPointCount = initial_point_count >= deleted_point_count ? (initial_point_count - deleted_point_count) : 0;
         const double removedRatio = (initial_point_count > 0)
             ? (static_cast<double>(deleted_point_count) * 100.0 / static_cast<double>(initial_point_count))
@@ -328,6 +329,8 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
             << " mean=" << statsToUse.mean
             << " stddev=" << statsToUse.stddev
             << " threshold=" << threshold
+            << " threshold_method=" << (usePercentileThreshold ? "percentile_fixed" : "mean_plus_nsigma_stddev")
+            << " threshold_percentile_fixed=" << (usePercentileThreshold ? 97.0 : 0.0)
             << " stats_duration_s=" << scanStatsSeconds
             << " filter_duration_s=" << scanFilterSeconds
             << " total_duration_s=" << seconds
