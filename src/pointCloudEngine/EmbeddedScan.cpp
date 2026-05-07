@@ -36,6 +36,20 @@ namespace
     constexpr double kRaySignEpsilon = 1e-12;
     // B1 step 1: fixed percentile used to compute a robust outlier threshold.
     constexpr double kSofFixedPercentile = 97.0;
+    // B2.1: density classes based on avg spacing (local proxy of sparsity).
+    constexpr double kSofSpacingDenseMax = 0.004;
+    constexpr double kSofSpacingMediumMax = 0.012;
+    constexpr double kSofClassPercentiles[3] = { 95.0, 97.0, 99.0 };
+    constexpr size_t kSofClassMinSamples = 1000;
+
+    size_t resolveDensityClass(double avgSpacing)
+    {
+        if (avgSpacing <= kSofSpacingDenseMax)
+            return 0;
+        if (avgSpacing <= kSofSpacingMediumMax)
+            return 1;
+        return 2;
+    }
 
     struct PreparedRayTracingDisplayFilter
     {
@@ -856,6 +870,7 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
     {
         RunningStats running;
         std::vector<double> sampledDistances;
+        std::vector<double> sampledDistancesByClass[3];
         for (size_t cellIndex = 0; cellIndex < cells.size(); ++cellIndex)
         {
             const std::pair<uint32_t, bool>& cell = cells[cellIndex];
@@ -886,6 +901,7 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
             double avgSpacing = std::cbrt((cellSize * cellSize * cellSize) / std::max<size_t>(visiblePoints.size(), 1));
             double voxelSize = std::max(cellSize / 128.0, avgSpacing * 2.0);
             double maxRadius = std::clamp(beta * avgSpacing, cellSize / 8.0, cellSize);
+            const size_t densityClass = resolveDensityClass(avgSpacing);
 
             std::vector<glm::dvec3> localPoints;
             localPoints.reserve(visiblePoints.size());
@@ -907,6 +923,7 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
                 {
                     running.add(meanDistance);
                     sampledDistances.push_back(meanDistance);
+                    sampledDistancesByClass[densityClass].push_back(meanDistance);
                 }
             }
 
@@ -924,11 +941,23 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
             std::nth_element(sampledDistances.begin(), sampledDistances.begin() + idx, sampledDistances.end());
             stats.percentileThreshold = sampledDistances[idx];
         }
+        for (size_t classIndex = 0; classIndex < 3; ++classIndex)
+        {
+            auto& values = sampledDistancesByClass[classIndex];
+            stats.classSampleCounts[classIndex] = static_cast<uint64_t>(values.size());
+            if (values.size() < kSofClassMinSamples)
+                continue;
+            const double p = std::clamp(kSofClassPercentiles[classIndex], 0.0, 100.0) / 100.0;
+            size_t idx = static_cast<size_t>(std::floor((values.size() - 1) * p));
+            std::nth_element(values.begin(), values.begin() + idx, values.end());
+            stats.classThresholds[classIndex] = values[idx];
+        }
         return true;
     }
 
     std::vector<RunningStats> cellStats(totalCells);
     std::vector<std::vector<double>> cellSampledDistances(totalCells);
+    std::vector<std::array<std::vector<double>, 3>> cellSampledDistancesByClass(totalCells);
     std::atomic<size_t> nextIndex{ 0 };
     std::atomic<size_t> completed{ 0 };
     std::mutex progressMutex;
@@ -967,6 +996,7 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
 
             RunningStats running;
             std::vector<double> sampledDistances;
+            std::array<std::vector<double>, 3> sampledDistancesByClass;
             if (!visiblePoints.empty())
             {
                 glm::dvec3 cellOrigin(m_vTreeCells[cell.first].m_position[0], m_vTreeCells[cell.first].m_position[1], m_vTreeCells[cell.first].m_position[2]);
@@ -974,6 +1004,7 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
                 double avgSpacing = std::cbrt((cellSize * cellSize * cellSize) / std::max<size_t>(visiblePoints.size(), 1));
                 double voxelSize = std::max(cellSize / 128.0, avgSpacing * 2.0);
                 double maxRadius = std::clamp(beta * avgSpacing, cellSize / 8.0, cellSize);
+                const size_t densityClass = resolveDensityClass(avgSpacing);
 
                 std::vector<glm::dvec3> localPoints;
                 localPoints.reserve(visiblePoints.size());
@@ -995,12 +1026,14 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
                     {
                         running.add(meanDistance);
                         sampledDistances.push_back(meanDistance);
+                        sampledDistancesByClass[densityClass].push_back(meanDistance);
                     }
                 }
             }
 
             cellStats[cellIndex] = running;
             cellSampledDistances[cellIndex] = std::move(sampledDistances);
+            cellSampledDistancesByClass[cellIndex] = std::move(sampledDistancesByClass);
 
             if (progress)
             {
@@ -1038,6 +1071,27 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
         std::nth_element(sampledDistances.begin(), sampledDistances.begin() + idx, sampledDistances.end());
         stats.percentileThreshold = sampledDistances[idx];
     }
+    std::vector<double> sampledDistancesByClass[3];
+    for (auto& cellClassValues : cellSampledDistancesByClass)
+    {
+        for (size_t classIndex = 0; classIndex < 3; ++classIndex)
+        {
+            auto& dst = sampledDistancesByClass[classIndex];
+            auto& src = cellClassValues[classIndex];
+            dst.insert(dst.end(), src.begin(), src.end());
+        }
+    }
+    for (size_t classIndex = 0; classIndex < 3; ++classIndex)
+    {
+        auto& values = sampledDistancesByClass[classIndex];
+        stats.classSampleCounts[classIndex] = static_cast<uint64_t>(values.size());
+        if (values.size() < kSofClassMinSamples)
+            continue;
+        const double p = std::clamp(kSofClassPercentiles[classIndex], 0.0, 100.0) / 100.0;
+        size_t idx = static_cast<size_t>(std::floor((values.size() - 1) * p));
+        std::nth_element(values.begin(), values.begin() + idx, values.end());
+        stats.classThresholds[classIndex] = values[idx];
+    }
 
     return true;
 }
@@ -1053,8 +1107,8 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
     getClippedCells_impl(m_uRootCell, localAssembly, cells);
 
     const size_t neighborCount = std::max(1, kNeighbors);
-    // B1 step 1: use fixed robust percentile threshold when available, otherwise fallback to legacy rule.
-    double threshold = stats.percentileThreshold > 0.0 ? stats.percentileThreshold : (stats.mean + nSigma * stats.stddev);
+    // B2.1: use density-class percentile thresholds when available.
+    const double fallbackThreshold = stats.percentileThreshold > 0.0 ? stats.percentileThreshold : (stats.mean + nSigma * stats.stddev);
     const size_t totalCells = cells.size();
     if (progress && totalCells > 0)
         progress(0, totalCells);
@@ -1095,6 +1149,8 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
                 double avgSpacing = std::cbrt((cellSize * cellSize * cellSize) / std::max<size_t>(visiblePoints.size(), 1));
                 double voxelSize = std::max(cellSize / 128.0, avgSpacing * 2.0);
                 double maxRadius = std::clamp(beta * avgSpacing, cellSize / 8.0, cellSize);
+                const size_t densityClass = resolveDensityClass(avgSpacing);
+                const double threshold = stats.classThresholds[densityClass] > 0.0 ? stats.classThresholds[densityClass] : fallbackThreshold;
 
                 std::vector<glm::dvec3> localPoints;
                 localPoints.reserve(visiblePoints.size());
@@ -1209,6 +1265,8 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
             double avgSpacing = std::cbrt((cellSize * cellSize * cellSize) / std::max<size_t>(visiblePoints.size(), 1));
             double voxelSize = std::max(cellSize / 128.0, avgSpacing * 2.0);
             double maxRadius = std::clamp(beta * avgSpacing, cellSize / 8.0, cellSize);
+            const size_t densityClass = resolveDensityClass(avgSpacing);
+            const double threshold = stats.classThresholds[densityClass] > 0.0 ? stats.classThresholds[densityClass] : fallbackThreshold;
 
             std::vector<glm::dvec3> localPoints;
             localPoints.reserve(visiblePoints.size());

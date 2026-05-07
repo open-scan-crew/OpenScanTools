@@ -306,6 +306,7 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
             controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Scan %1 not affected by outlier filter.").arg(qScanName)));
 
         // Diagnostic (Pass A): unified per-scan KPI log for analysis across clipping sizes.
+        const bool useClassThresholds = statsToUse.classThresholds[0] > 0.0 || statsToUse.classThresholds[1] > 0.0 || statsToUse.classThresholds[2] > 0.0;
         const bool usePercentileThreshold = statsToUse.percentileThreshold > 0.0;
         const double threshold = usePercentileThreshold ? statsToUse.percentileThreshold : (statsToUse.mean + m_nSigma * statsToUse.stddev);
         const uint64_t keptPointCount = initial_point_count >= deleted_point_count ? (initial_point_count - deleted_point_count) : 0;
@@ -329,8 +330,14 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
             << " mean=" << statsToUse.mean
             << " stddev=" << statsToUse.stddev
             << " threshold=" << threshold
-            << " threshold_method=" << (usePercentileThreshold ? "percentile_fixed" : "mean_plus_nsigma_stddev")
+            << " threshold_method=" << (useClassThresholds ? "percentile_by_density_class" : (usePercentileThreshold ? "percentile_fixed" : "mean_plus_nsigma_stddev"))
             << " threshold_percentile_fixed=" << (usePercentileThreshold ? 97.0 : 0.0)
+            << " threshold_dense=" << statsToUse.classThresholds[0]
+            << " threshold_medium=" << statsToUse.classThresholds[1]
+            << " threshold_sparse=" << statsToUse.classThresholds[2]
+            << " samples_dense=" << statsToUse.classSampleCounts[0]
+            << " samples_medium=" << statsToUse.classSampleCounts[1]
+            << " samples_sparse=" << statsToUse.classSampleCounts[2]
             << " stats_duration_s=" << scanStatsSeconds
             << " filter_duration_s=" << scanFilterSeconds
             << " total_duration_s=" << seconds
