@@ -285,9 +285,10 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
 
         std::chrono::steady_clock::time_point scanFilterStart = std::chrono::steady_clock::now();
         auto filterProgress = makeProgressCallback(scan_count, m_globalFiltering ? 0 : 50, m_globalFiltering ? 100 : 50);
-        bool res = TlScanOverseer::getInstance().filterOutliersAndWrite(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, statsToUse, m_nSigma, m_beta, scan_writer, deleted_point_count, filterProgress);
-        // Diagnostic (Pass A): number of kept points actually written for the processed (clipped) domain.
-        const uint64_t keptWrittenPointCount = scan_writer->getScanPointCount();
+        // Diagnostic (Pass A): collect clipping-aware counters directly from filtering loop.
+        uint64_t testedPointCount = 0;
+        uint64_t keptTestedPointCount = 0;
+        bool res = TlScanOverseer::getInstance().filterOutliersAndWrite(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, statsToUse, m_nSigma, m_beta, scan_writer, deleted_point_count, &testedPointCount, &keptTestedPointCount, filterProgress);
         res &= scan_writer->finalizePointCloud();
         double scanFilterSeconds = std::chrono::duration<double>(std::chrono::steady_clock::now() - scanFilterStart).count();
         delete scan_writer;
@@ -307,7 +308,6 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         // Diagnostic (Pass A): unified per-scan KPI log for analysis across clipping sizes.
         const double threshold = statsToUse.mean + m_nSigma * statsToUse.stddev;
         const uint64_t keptPointCount = initial_point_count >= deleted_point_count ? (initial_point_count - deleted_point_count) : 0;
-        const uint64_t testedPointCount = keptWrittenPointCount + deleted_point_count;
         const double removedRatio = (initial_point_count > 0)
             ? (static_cast<double>(deleted_point_count) * 100.0 / static_cast<double>(initial_point_count))
             : 0.0;
@@ -322,7 +322,7 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
             << " points_removed=" << deleted_point_count
             << " removed_percent=" << removedRatio
             << " points_tested=" << testedPointCount
-            << " points_kept_tested=" << keptWrittenPointCount
+            << " points_kept_tested=" << keptTestedPointCount
             << " removed_percent_of_tested=" << removedRatioOnTested
             << " sample_count=" << statsToUse.count
             << " mean=" << statsToUse.mean

@@ -1011,7 +1011,7 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
     return true;
 }
 
-bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* writer, uint64_t& removedPoints, const ProgressCallback& progress)
+bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* writer, uint64_t& removedPoints, uint64_t* testedPoints, uint64_t* keptPoints, const ProgressCallback& progress)
 {
     ClippingAssembly localAssembly = deepCopyClippingAssembly(clippingAssembly);
     localAssembly.clearMatrix();
@@ -1028,6 +1028,8 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
         progress(0, totalCells);
     const size_t threadCount = resolveThreadCount(totalCells);
     std::atomic<uint64_t> removedPointsAtomic{ 0 };
+    std::atomic<uint64_t> testedPointsAtomic{ 0 };
+    std::atomic<uint64_t> keptPointsAtomic{ 0 };
     std::atomic<bool> resultOk{ true };
 
     if (threadCount <= 1)
@@ -1089,6 +1091,8 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
                 }
             }
 
+            testedPointsAtomic.fetch_add(static_cast<uint64_t>(visiblePoints.size()));
+            keptPointsAtomic.fetch_add(static_cast<uint64_t>(filtered.size()));
             removedPointsAtomic.fetch_add(visiblePoints.size() - filtered.size());
             sequentialOk &= writer->mergePoints(filtered.data(), filtered.size(), src_transfo, pt_format_);
 
@@ -1096,6 +1100,10 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
                 progress(cellIndex + 1, totalCells);
         }
         removedPoints = removedPointsAtomic.load();
+        if (testedPoints)
+            *testedPoints = testedPointsAtomic.load();
+        if (keptPoints)
+            *keptPoints = keptPointsAtomic.load();
         return sequentialOk;
     }
 
@@ -1202,6 +1210,8 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
                 bool ok = writer->mergePoints(filtered.data(), filtered.size(), src_transfo, pt_format_);
                 if (!ok)
                     resultOk.store(false);
+                testedPointsAtomic.fetch_add(static_cast<uint64_t>(visiblePoints.size()));
+                keptPointsAtomic.fetch_add(static_cast<uint64_t>(filtered.size()));
                 removedPointsAtomic.fetch_add(visiblePoints.size() - filtered.size());
                 ++nextWriteIndex;
             }
@@ -1225,6 +1235,10 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
         thread.join();
 
     removedPoints = removedPointsAtomic.load();
+    if (testedPoints)
+        *testedPoints = testedPointsAtomic.load();
+    if (keptPoints)
+        *keptPoints = keptPointsAtomic.load();
     return resultOk.load();
 }
 
