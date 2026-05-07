@@ -286,6 +286,8 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         std::chrono::steady_clock::time_point scanFilterStart = std::chrono::steady_clock::now();
         auto filterProgress = makeProgressCallback(scan_count, m_globalFiltering ? 0 : 50, m_globalFiltering ? 100 : 50);
         bool res = TlScanOverseer::getInstance().filterOutliersAndWrite(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, statsToUse, m_nSigma, m_beta, scan_writer, deleted_point_count, filterProgress);
+        // Diagnostic (Pass A): number of kept points actually written for the processed (clipped) domain.
+        const uint64_t keptWrittenPointCount = scan_writer->getScanPointCount();
         res &= scan_writer->finalizePointCloud();
         double scanFilterSeconds = std::chrono::duration<double>(std::chrono::steady_clock::now() - scanFilterStart).count();
         delete scan_writer;
@@ -305,16 +307,23 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         // Diagnostic (Pass A): unified per-scan KPI log for analysis across clipping sizes.
         const double threshold = statsToUse.mean + m_nSigma * statsToUse.stddev;
         const uint64_t keptPointCount = initial_point_count >= deleted_point_count ? (initial_point_count - deleted_point_count) : 0;
+        const uint64_t testedPointCount = keptWrittenPointCount + deleted_point_count;
         const double removedRatio = (initial_point_count > 0)
             ? (static_cast<double>(deleted_point_count) * 100.0 / static_cast<double>(initial_point_count))
+            : 0.0;
+        const double removedRatioOnTested = (testedPointCount > 0)
+            ? (static_cast<double>(deleted_point_count) * 100.0 / static_cast<double>(testedPointCount))
             : 0.0;
         Logger::log(LoggerMode::IOLog)
             << "[SOF][Diag][ScanSummary] scan=\"" << wScan->getName()
             << "\" mode=" << (m_globalFiltering ? "global" : "separate")
             << " points_in=" << initial_point_count
-            << " points_kept=" << keptPointCount
+            << " points_kept_total_scan_based=" << keptPointCount
             << " points_removed=" << deleted_point_count
             << " removed_percent=" << removedRatio
+            << " points_tested=" << testedPointCount
+            << " points_kept_tested=" << keptWrittenPointCount
+            << " removed_percent_of_tested=" << removedRatioOnTested
             << " sample_count=" << statsToUse.count
             << " mean=" << statsToUse.mean
             << " stddev=" << statsToUse.stddev
