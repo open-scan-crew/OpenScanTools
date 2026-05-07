@@ -195,6 +195,10 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
 
     uint64_t scan_count = 0;
     uint64_t total_deleted_points = 0;
+    uint64_t preAnalysisLowCount = 0;
+    uint64_t preAnalysisBorderlineCount = 0;
+    uint64_t preAnalysisHighCount = 0;
+    double preAnalysisRiskScoreSum = 0.0;
     auto updateProgress = [&](uint64_t scansDone, int percent, uint64_t progressValue)
     {
         QString state = QString("%1 - %2%")
@@ -241,6 +245,26 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
         tls::ScanGuid old_guid = wScan->getScanGuid();
 
+        auto preAnalysisStart = std::chrono::steady_clock::now();
+        SofPreAnalysisStats preAnalysis;
+        TlScanOverseer::getInstance().computeOutlierPreAnalysis(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, m_samplingPercent, m_beta, preAnalysis);
+        float preAnalysisSeconds = std::chrono::duration<float, std::ratio<1>>(std::chrono::steady_clock::now() - preAnalysisStart).count();
+        preAnalysisRiskScoreSum += preAnalysis.riskScore;
+        switch (preAnalysis.riskClass)
+        {
+        case SofPreAnalysisRiskClass::Low:
+            ++preAnalysisLowCount;
+            break;
+        case SofPreAnalysisRiskClass::Borderline:
+            ++preAnalysisBorderlineCount;
+            break;
+        case SofPreAnalysisRiskClass::High:
+            ++preAnalysisHighCount;
+            break;
+        default:
+            break;
+        }
+
         IScanFileWriter* scan_writer = nullptr;
         std::wstring log;
         std::wstring outputName = wScan->getName() + L"_SOF";
@@ -275,6 +299,18 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         else
             controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Scan %1 not affected by outlier filter.").arg(qScanName)));
 
+        QString preAnalysisAction = preAnalysis.recommendedAction == SofPreAnalysisAction::SubdivisionRecommended
+            ? "SUBDIVISION_RECOMMENDED"
+            : "NO_SUBDIVISION";
+        controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(
+            QString("SOF pre-analysis %1: risk=%2, action=%3, occupiedCells=%4, testedPoints=%5, time=%6s")
+                .arg(qScanName)
+                .arg(preAnalysis.riskScore, 0, 'f', 3)
+                .arg(preAnalysisAction)
+                .arg(preAnalysis.occupiedCells)
+                .arg(preAnalysis.testedPointsEstimate)
+                .arg(preAnalysisSeconds, 0, 'f', 3)));
+
         if (m_state != ContextState::running)
         {
             wasAborted = true;
@@ -283,6 +319,12 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
     }
 
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Total points deleted: %1").arg(total_deleted_points)));
+    double averageRisk = scan_count > 0 ? preAnalysisRiskScoreSum / static_cast<double>(scan_count) : 0.0;
+    controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("SOF pre-analysis summary: LOW=%1 BORDERLINE=%2 HIGH=%3 avgRisk=%4")
+        .arg(preAnalysisLowCount)
+        .arg(preAnalysisBorderlineCount)
+        .arg(preAnalysisHighCount)
+        .arg(averageRisk, 0, 'f', 3)));
     controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));
 
     if (m_openFolderAfterExport && !wasAborted)
