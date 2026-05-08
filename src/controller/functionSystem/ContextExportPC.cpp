@@ -245,6 +245,9 @@ ContextType ContextExportPC::getType() const
 
 void ContextExportPC::copyTls(Controller& controller, CopyTask task)
 {
+    // GUID contract (Pass 2.2-B):
+    // This is a physical copy path, so GUID must remain unchanged on purpose.
+    // Only transformation is overwritten after copy.
     try
     {
         std::filesystem::copy(task.src_path, task.dst_path, std::filesystem::copy_options::overwrite_existing);
@@ -539,7 +542,11 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
     {
         for (const tls::PointCloudInstance& pcInfo : pcInfos)
         {
-            // Filter out the tls that we can copy
+            // GUID contract (Pass 2.2-B):
+            // Keep pure TLS copy behavior unchanged by design:
+            // - same binary content lineage
+            // - same scan GUID
+            // This path is intentionally excluded from "new GUID on export" rules.
             if (m_parameters.outFileType == FileType::TLS &&
                 pcInfo.header.precision == m_parameters.encodingPrecision &&
                 clipping_assembly.empty())
@@ -574,7 +581,7 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
 
                 task.header = pcInfo.header;
                 task.header.name = is_rcp ? task.scan_name : task.file_name;
-                // Pass 2.2-A:
+                // Pass 2.2-A / 2.2-B contract:
                 // Rewritten scan/PCO TLS exports must not keep source GUIDs.
                 // NOTE: pure copy path above intentionally preserves GUID by design.
                 task.header.guid = xg::newGuid();
