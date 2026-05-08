@@ -122,6 +122,21 @@ namespace
     }
 
 
+    struct Sof2CCalibration
+    {
+        // 2C-1: HIGH-only calibration constants (BORDERLINE remains unchanged/off).
+        uint32_t maxSubBoxes = 64;
+        double minEstimatedPointsPerSubBox = 3000.0;
+        double minDenseRatio = 0.08;
+        float preAnalysisTimeBudgetSeconds = 20.0f;
+
+        double heterogeneityActivationThreshold = 0.55;
+        double heterogeneityNormalizationSpan = 1.75;
+        double localDeltaMin = 0.12;
+        double localDeltaMax = 0.30;
+        double nSigmaFloor = 0.10;
+    };
+
     struct SofHighRiskExecutionGuard
     {
         bool fallbackToParentScan = false;
@@ -130,27 +145,22 @@ namespace
         bool fallbackDueToRepeatedInstability = false;
     };
 
-    SofHighRiskExecutionGuard buildHighRiskExecutionGuard(const SofPreAnalysisStats& preAnalysis, float preAnalysisSeconds)
+    SofHighRiskExecutionGuard buildHighRiskExecutionGuard(const SofPreAnalysisStats& preAnalysis, float preAnalysisSeconds, const Sof2CCalibration& calibration)
     {
         SofHighRiskExecutionGuard guard;
 
         // 2B.B-2: scan-level guardrails before full sub-box execution is enabled.
-        const uint32_t maxSubBoxes = 64;
-        const double minEstimatedPointsPerSubBox = 5000.0;
-        const double minDenseRatio = 0.10;
-        const float preAnalysisTimeBudgetSeconds = 20.0f;
-
-        if (preAnalysis.subdivisionShadowSubBoxCount > maxSubBoxes)
+        if (preAnalysis.subdivisionShadowSubBoxCount > calibration.maxSubBoxes)
             guard.fallbackDueToSparsePlanning = true;
 
-        if (preAnalysis.subdivisionShadowEstimatedPointsPerSubBox < minEstimatedPointsPerSubBox ||
-            preAnalysis.subdivisionShadowEstimatedDenseSubBoxRatio < minDenseRatio ||
+        if (preAnalysis.subdivisionShadowEstimatedPointsPerSubBox < calibration.minEstimatedPointsPerSubBox ||
+            preAnalysis.subdivisionShadowEstimatedDenseSubBoxRatio < calibration.minDenseRatio ||
             preAnalysis.subdivisionShadowFallbackSubBoxCount > 0)
         {
             guard.fallbackDueToSparsePlanning = true;
         }
 
-        if (preAnalysisSeconds > preAnalysisTimeBudgetSeconds)
+        if (preAnalysisSeconds > calibration.preAnalysisTimeBudgetSeconds)
             guard.fallbackDueToTimeBudget = true;
 
         guard.fallbackToParentScan =
@@ -168,7 +178,7 @@ namespace
         double heterogeneityScore = 0.0;
     };
 
-    SofHighRiskAggressiveness buildHighRiskAggressiveness(const SofPreAnalysisStats& preAnalysis, bool enableHighRiskExecution, bool fallbackToParentScan)
+    SofHighRiskAggressiveness buildHighRiskAggressiveness(const SofPreAnalysisStats& preAnalysis, bool enableHighRiskExecution, bool fallbackToParentScan, const Sof2CCalibration& calibration)
     {
         SofHighRiskAggressiveness result;
         if (!enableHighRiskExecution || fallbackToParentScan)
@@ -176,7 +186,7 @@ namespace
 
         // 2B.B-3: activate local aggressiveness only for heterogeneous HIGH scans.
         const double heterogeneityScore = std::clamp(0.5 * preAnalysis.spacingCv + 0.5 * preAnalysis.meanDistanceCv, 0.0, 4.0);
-        const bool heterogeneous = heterogeneityScore >= 0.65;
+        const bool heterogeneous = heterogeneityScore >= calibration.heterogeneityActivationThreshold;
         if (!heterogeneous)
             return result;
 
@@ -184,10 +194,8 @@ namespace
         result.heterogeneityScore = heterogeneityScore;
 
         // Bounded dynamic delta to avoid global over-hardening.
-        const double minDelta = 0.10;
-        const double maxDelta = 0.25;
-        const double normalized = std::clamp((heterogeneityScore - 0.65) / 1.50, 0.0, 1.0);
-        result.delta = std::clamp(minDelta + normalized * (maxDelta - minDelta), minDelta, maxDelta);
+        const double normalized = std::clamp((heterogeneityScore - calibration.heterogeneityActivationThreshold) / calibration.heterogeneityNormalizationSpan, 0.0, 1.0);
+        result.delta = std::clamp(calibration.localDeltaMin + normalized * (calibration.localDeltaMax - calibration.localDeltaMin), calibration.localDeltaMin, calibration.localDeltaMax);
         return result;
     }
 
@@ -356,6 +364,8 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         globalStats = runningStats.toStats();
     }
 
+    const Sof2CCalibration sof2CCalibration;
+
     uint64_t scan_count = 0;
     uint64_t total_deleted_points = 0;
     uint64_t preAnalysisLowCount = 0;
@@ -431,11 +441,12 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         preAnalysis.subdivisionShadowEstimatedPointsPerSubBox = spatialDiag.estimatedPointsPerSubBox;
         preAnalysis.subdivisionShadowEstimatedDenseSubBoxRatio = spatialDiag.estimatedDenseSubBoxRatio;
         const float preAnalysisSeconds = preAnalysisRun.durationSeconds;
-        SofHighRiskExecutionGuard highRiskGuard = buildHighRiskExecutionGuard(preAnalysis, preAnalysisSeconds);
+        SofHighRiskExecutionGuard highRiskGuard = buildHighRiskExecutionGuard(preAnalysis, preAnalysisSeconds, sof2CCalibration);
         SofHighRiskAggressiveness highRiskAggressiveness = buildHighRiskAggressiveness(
             preAnalysis,
             preAnalysis.riskClass == SofPreAnalysisRiskClass::High,
-            highRiskGuard.fallbackToParentScan);
+            highRiskGuard.fallbackToParentScan,
+            sof2CCalibration);
         preAnalysisRiskScoreSum += preAnalysis.riskScore;
         if (preAnalysis.subdivisionShadowEnabled)
         {
@@ -498,7 +509,7 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
             // 2B.B-3: apply bounded local aggressiveness only on heterogeneous HIGH-risk scans.
             if (highRiskAggressiveness.active)
             {
-                effectiveNSigma = std::max(0.1, m_nSigma - highRiskAggressiveness.delta);
+                effectiveNSigma = std::max(sof2CCalibration.nSigmaFloor, m_nSigma - highRiskAggressiveness.delta);
                 ++highRiskAggressivenessActiveCount;
                 highRiskAggressivenessDeltaSum += highRiskAggressiveness.delta;
             }
@@ -577,6 +588,12 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         .arg(subdivisionShadowFallbackCount)));
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("SOF high-risk parent fallback count: %1").arg(highRiskInstabilityFallbackCount)));
     const double avgHighRiskDelta = highRiskAggressivenessActiveCount > 0 ? highRiskAggressivenessDeltaSum / static_cast<double>(highRiskAggressivenessActiveCount) : 0.0;
+    controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("SOF 2C calibration: minPtsPerSubBox=%1 minDenseRatio=%2 heterogeneityThreshold=%3 deltaRange=[%4,%5]")
+        .arg(sof2CCalibration.minEstimatedPointsPerSubBox, 0, 'f', 0)
+        .arg(sof2CCalibration.minDenseRatio, 0, 'f', 3)
+        .arg(sof2CCalibration.heterogeneityActivationThreshold, 0, 'f', 3)
+        .arg(sof2CCalibration.localDeltaMin, 0, 'f', 3)
+        .arg(sof2CCalibration.localDeltaMax, 0, 'f', 3)));
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("SOF high-risk local aggressiveness: active=%1 avgDelta=%2")
         .arg(highRiskAggressivenessActiveCount)
         .arg(avgHighRiskDelta, 0, 'f', 3)));
