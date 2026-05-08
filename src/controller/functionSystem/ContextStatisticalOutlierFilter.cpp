@@ -130,11 +130,11 @@ namespace
         double minDenseRatio = 0.08;
         float preAnalysisTimeBudgetSeconds = 20.0f;
 
-        double heterogeneityActivationThreshold = 0.55;
+        double heterogeneityActivationThreshold = 0.68;
         double heterogeneityNormalizationSpan = 1.75;
         double localDeltaMin = 0.12;
-        double localDeltaMax = 0.30;
-        double nSigmaFloor = 0.10;
+        double localDeltaMax = 0.22;
+        double nSigmaFloor = 0.22;
 
         // 2C-3: BORDERLINE remains OFF by default; optional experimental gate.
         bool enableBorderlineExperimental = false;
@@ -630,14 +630,16 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
             const double removalRatio = initial_point_count > 0
                 ? static_cast<double>(deleted_point_count) / static_cast<double>(initial_point_count)
                 : 0.0;
-            if (highRiskGuard.fallbackToParentScan && removalRatio < 0.002)
+            if (highRiskGuard.fallbackToParentScan && removalRatio < 0.004)
             {
-                highRiskAdaptiveDeltaScale = std::clamp(highRiskAdaptiveDeltaScale - 0.10, 0.60, 1.00);
+                // 2C short pass 1: faster backoff to protect sparse/remote zones from over-removal.
+                highRiskAdaptiveDeltaScale = std::clamp(highRiskAdaptiveDeltaScale - 0.15, 0.55, 1.00);
                 ++highRiskAdaptiveBackoffTriggerCount;
             }
-            else if (!highRiskGuard.fallbackToParentScan && removalRatio > 0.010)
+            else if (!highRiskGuard.fallbackToParentScan && removalRatio > 0.015)
             {
-                highRiskAdaptiveDeltaScale = std::clamp(highRiskAdaptiveDeltaScale + 0.05, 0.60, 1.00);
+                // Recovery is intentionally slower than backoff to keep conservative behavior sticky.
+                highRiskAdaptiveDeltaScale = std::clamp(highRiskAdaptiveDeltaScale + 0.03, 0.55, 1.00);
             }
         }
 
