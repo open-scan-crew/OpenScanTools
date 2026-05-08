@@ -121,6 +121,45 @@ namespace
         return result;
     }
 
+
+    struct SofHighRiskExecutionGuard
+    {
+        bool fallbackToParentScan = false;
+        bool fallbackDueToSparsePlanning = false;
+        bool fallbackDueToTimeBudget = false;
+        bool fallbackDueToRepeatedInstability = false;
+    };
+
+    SofHighRiskExecutionGuard buildHighRiskExecutionGuard(const SofPreAnalysisStats& preAnalysis, float preAnalysisSeconds)
+    {
+        SofHighRiskExecutionGuard guard;
+
+        // 2B.B-2: scan-level guardrails before full sub-box execution is enabled.
+        const uint32_t maxSubBoxes = 64;
+        const double minEstimatedPointsPerSubBox = 5000.0;
+        const double minDenseRatio = 0.10;
+        const float preAnalysisTimeBudgetSeconds = 20.0f;
+
+        if (preAnalysis.subdivisionShadowSubBoxCount > maxSubBoxes)
+            guard.fallbackDueToSparsePlanning = true;
+
+        if (preAnalysis.subdivisionShadowEstimatedPointsPerSubBox < minEstimatedPointsPerSubBox ||
+            preAnalysis.subdivisionShadowEstimatedDenseSubBoxRatio < minDenseRatio ||
+            preAnalysis.subdivisionShadowFallbackSubBoxCount > 0)
+        {
+            guard.fallbackDueToSparsePlanning = true;
+        }
+
+        if (preAnalysisSeconds > preAnalysisTimeBudgetSeconds)
+            guard.fallbackDueToTimeBudget = true;
+
+        guard.fallbackToParentScan =
+            guard.fallbackDueToSparsePlanning ||
+            guard.fallbackDueToTimeBudget ||
+            guard.fallbackDueToRepeatedInstability;
+
+        return guard;
+    }
     struct RunningStats
     {
         uint64_t count = 0;
@@ -294,6 +333,7 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
     uint64_t subdivisionShadowEnabledCount = 0;
     uint64_t subdivisionShadowFallbackCount = 0;
     double preAnalysisRiskScoreSum = 0.0;
+    uint64_t highRiskInstabilityFallbackCount = 0;
     auto updateProgress = [&](uint64_t scansDone, int percent, uint64_t progressValue)
     {
         QString state = QString("%1 - %2%")
@@ -358,6 +398,7 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         preAnalysis.subdivisionShadowEstimatedPointsPerSubBox = spatialDiag.estimatedPointsPerSubBox;
         preAnalysis.subdivisionShadowEstimatedDenseSubBoxRatio = spatialDiag.estimatedDenseSubBoxRatio;
         const float preAnalysisSeconds = preAnalysisRun.durationSeconds;
+        SofHighRiskExecutionGuard highRiskGuard = buildHighRiskExecutionGuard(preAnalysis, preAnalysisSeconds);
         preAnalysisRiskScoreSum += preAnalysis.riskScore;
         if (preAnalysis.subdivisionShadowEnabled)
         {
@@ -415,11 +456,15 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         // 2B.B-1 execution gate (HIGH only): keep the classic pipeline for LOW/BORDERLINE.
         // NOTE: full spatial subdivision (core/work halo ownership) is introduced incrementally in next passes.
         double effectiveNSigma = m_nSigma;
-        if (enableHighRiskSubdivisionExecution)
+        if (enableHighRiskSubdivisionExecution && !highRiskGuard.fallbackToParentScan)
         {
             // Local aggressiveness for HIGH-risk scans is bounded to avoid over-filtering.
             const double deltaHigh = 0.15;
             effectiveNSigma = std::max(0.1, m_nSigma - deltaHigh);
+        }
+        else if (enableHighRiskSubdivisionExecution && highRiskGuard.fallbackToParentScan)
+        {
+            ++highRiskInstabilityFallbackCount;
         }
 
         auto filterProgress = makeProgressCallback(scan_count, (m_globalFiltering && !forceLocalStatsForHighRisk) ? 0 : 50, (m_globalFiltering && !forceLocalStatsForHighRisk) ? 100 : 50);
@@ -462,9 +507,12 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         if (enableHighRiskSubdivisionExecution)
         {
             controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(
-                QString("SOF high-risk execution gate active for scan %1 (effectiveNSigma=%2)")
+                QString("SOF high-risk execution gate for scan %1 (effectiveNSigma=%2, fallbackParent=%3, sparsePlan=%4, timeBudget=%5)")
                     .arg(qScanName)
-                    .arg(std::max(0.1, m_nSigma - 0.15), 0, 'f', 3)));
+                    .arg(effectiveNSigma, 0, 'f', 3)
+                    .arg(highRiskGuard.fallbackToParentScan ? "YES" : "NO")
+                    .arg(highRiskGuard.fallbackDueToSparsePlanning ? "YES" : "NO")
+                    .arg(highRiskGuard.fallbackDueToTimeBudget ? "YES" : "NO")));
         }
 
         if (m_state != ContextState::running)
@@ -483,6 +531,7 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         .arg(averageRisk, 0, 'f', 3)
         .arg(subdivisionShadowEnabledCount)
         .arg(subdivisionShadowFallbackCount)));
+    controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("SOF high-risk parent fallback count: %1").arg(highRiskInstabilityFallbackCount)));
     controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));
 
     if (m_openFolderAfterExport && !wasAborted)
