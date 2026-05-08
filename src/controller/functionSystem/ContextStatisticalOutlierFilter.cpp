@@ -280,6 +280,39 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         uint64_t deleted_point_count = 0;
         std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
         tls::ScanGuid old_guid = wScan->getScanGuid();
+        QString qScanName = QString::fromStdWString(wScan->getName());
+
+        auto preAnalysisStart = std::chrono::steady_clock::now();
+        SofPreAnalysisStats preAnalysis;
+        TlScanOverseer::getInstance().computeOutlierPreAnalysis(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, m_samplingPercent, m_beta, preAnalysis);
+        SofSubdivisionShadowConfig subdivisionShadow = buildSubdivisionShadowConfig(preAnalysis);
+        preAnalysis.subdivisionShadowEnabled = subdivisionShadow.enabled;
+        preAnalysis.subdivisionShadowFactor = subdivisionShadow.factor;
+        preAnalysis.subdivisionShadowSubBoxCount = subdivisionShadow.subBoxCount;
+        preAnalysis.subdivisionShadowHalo = subdivisionShadow.haloMeters;
+        preAnalysis.subdivisionShadowFallbackSubBoxCount = subdivisionShadow.fallbackSubBoxCount;
+        float preAnalysisSeconds = std::chrono::duration<float, std::ratio<1>>(std::chrono::steady_clock::now() - preAnalysisStart).count();
+        preAnalysisRiskScoreSum += preAnalysis.riskScore;
+        if (preAnalysis.subdivisionShadowEnabled)
+        {
+            ++subdivisionShadowEnabledCount;
+            if (preAnalysis.subdivisionShadowFallbackSubBoxCount > 0)
+                ++subdivisionShadowFallbackCount;
+        }
+        switch (preAnalysis.riskClass)
+        {
+        case SofPreAnalysisRiskClass::Low:
+            ++preAnalysisLowCount;
+            break;
+        case SofPreAnalysisRiskClass::Borderline:
+            ++preAnalysisBorderlineCount;
+            break;
+        case SofPreAnalysisRiskClass::High:
+            ++preAnalysisHighCount;
+            break;
+        default:
+            break;
+        }
 
         auto preAnalysisStart = std::chrono::steady_clock::now();
         SofPreAnalysisStats preAnalysis;
@@ -324,13 +357,27 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         scan_writer->appendPointCloud(header, wScan->getTransformation());
 
         OutlierStats statsToUse = globalStats;
-        if (!m_globalFiltering)
+        const bool forceLocalStatsForHighRisk = preAnalysis.subdivisionShadowEnabled;
+        if (!m_globalFiltering || forceLocalStatsForHighRisk)
         {
             auto statsProgress = makeProgressCallback(scan_count, 0, 50);
             TlScanOverseer::getInstance().computeOutlierStats(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, m_samplingPercent, m_beta, statsToUse, statsProgress);
+
+            // Passe 2B: fallback de sécurité vers les stats globales si l'échantillon local est insuffisant.
+            const uint64_t minLocalSampleCount = 500;
+            if (forceLocalStatsForHighRisk && statsToUse.count < minLocalSampleCount)
+            {
+                uint64_t localSampleCount = statsToUse.count;
+                statsToUse = globalStats;
+                controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(
+                    QString("SOF fallback to global stats for scan %1 (local samples=%2 < %3)")
+                        .arg(qScanName)
+                        .arg(localSampleCount)
+                        .arg(minLocalSampleCount)));
+            }
         }
 
-        auto filterProgress = makeProgressCallback(scan_count, m_globalFiltering ? 0 : 50, m_globalFiltering ? 100 : 50);
+        auto filterProgress = makeProgressCallback(scan_count, (m_globalFiltering && !forceLocalStatsForHighRisk) ? 0 : 50, (m_globalFiltering && !forceLocalStatsForHighRisk) ? 100 : 50);
         bool res = TlScanOverseer::getInstance().filterOutliersAndWrite(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, statsToUse, m_nSigma, m_beta, scan_writer, deleted_point_count, filterProgress);
         res &= scan_writer->finalizePointCloud();
         delete scan_writer;
@@ -339,7 +386,6 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
 
         scan_count++;
         float seconds = std::chrono::duration<float, std::ratio<1>>(std::chrono::steady_clock::now() - startTime).count();
-        QString qScanName = QString::fromStdWString(wScan->getName());
         updateProgress(scan_count, 100, scan_count * 100);
 
         if (deleted_point_count > 0)
