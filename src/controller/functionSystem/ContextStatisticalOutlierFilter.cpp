@@ -392,6 +392,7 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
 
         OutlierStats statsToUse = globalStats;
         const bool forceLocalStatsForHighRisk = preAnalysis.subdivisionShadowEnabled;
+        const bool enableHighRiskSubdivisionExecution = preAnalysis.riskClass == SofPreAnalysisRiskClass::High;
         if (!m_globalFiltering || forceLocalStatsForHighRisk)
         {
             auto statsProgress = makeProgressCallback(scan_count, 0, 50);
@@ -411,8 +412,18 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
             }
         }
 
+        // 2B.B-1 execution gate (HIGH only): keep the classic pipeline for LOW/BORDERLINE.
+        // NOTE: full spatial subdivision (core/work halo ownership) is introduced incrementally in next passes.
+        double effectiveNSigma = m_nSigma;
+        if (enableHighRiskSubdivisionExecution)
+        {
+            // Local aggressiveness for HIGH-risk scans is bounded to avoid over-filtering.
+            const double deltaHigh = 0.15;
+            effectiveNSigma = std::max(0.1, m_nSigma - deltaHigh);
+        }
+
         auto filterProgress = makeProgressCallback(scan_count, (m_globalFiltering && !forceLocalStatsForHighRisk) ? 0 : 50, (m_globalFiltering && !forceLocalStatsForHighRisk) ? 100 : 50);
-        bool res = TlScanOverseer::getInstance().filterOutliersAndWrite(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, statsToUse, m_nSigma, m_beta, scan_writer, deleted_point_count, filterProgress);
+        bool res = TlScanOverseer::getInstance().filterOutliersAndWrite(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, statsToUse, effectiveNSigma, m_beta, scan_writer, deleted_point_count, filterProgress);
         res &= scan_writer->finalizePointCloud();
         delete scan_writer;
 
@@ -447,6 +458,14 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
                 .arg(preAnalysis.subdivisionShadowHaloStrongMeters, 0, 'f', 3)
                 .arg(preAnalysis.subdivisionShadowEstimatedPointsPerSubBox, 0, 'f', 1)
                 .arg(preAnalysis.subdivisionShadowEstimatedDenseSubBoxRatio, 0, 'f', 3)));
+
+        if (enableHighRiskSubdivisionExecution)
+        {
+            controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(
+                QString("SOF high-risk execution gate active for scan %1 (effectiveNSigma=%2)")
+                    .arg(qScanName)
+                    .arg(std::max(0.1, m_nSigma - 0.15), 0, 'f', 3)));
+        }
 
         if (m_state != ContextState::running)
         {
