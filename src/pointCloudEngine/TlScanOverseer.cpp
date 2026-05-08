@@ -142,8 +142,23 @@ bool TlScanOverseer::ensureScanActive_locked(tls::ScanGuid scanGuid)
     }
 
     EmbeddedScan* newScan = new EmbeddedScan(itPath->second);
-    if (newScan->getGuid() != scanGuid)
+    tls::ScanGuid expectedFileGuid = scanGuid;
+    auto itRuntimeToFile = m_runtimeGuidToFileGuid.find(scanGuid);
+    if (itRuntimeToFile != m_runtimeGuidToFileGuid.end())
     {
+        // Pass 2.1b hotfix:
+        // Runtime GUIDs may intentionally differ from TLS header GUIDs when collisions
+        // are detected across different files. Validate against the original file GUID.
+        expectedFileGuid = itRuntimeToFile->second;
+    }
+
+    if (newScan->getGuid() != expectedFileGuid)
+    {
+        Logger::log(IOLog) << "ensureScanActive_locked failed: runtimeGuid=" << scanGuid
+            << " expectedFileGuid=" << expectedFileGuid
+            << " actualFileGuid=" << newScan->getGuid()
+            << " path=\"" << itPath->second << "\""
+            << Logger::endl;
         delete newScan;
         return false;
     }
