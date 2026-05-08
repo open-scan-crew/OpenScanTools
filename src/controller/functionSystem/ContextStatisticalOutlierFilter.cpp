@@ -143,6 +143,7 @@ namespace
         bool fallbackDueToSparsePlanning = false;
         bool fallbackDueToTimeBudget = false;
         bool fallbackDueToRepeatedInstability = false;
+        double sparseSeverity = 0.0;
     };
 
     SofHighRiskExecutionGuard buildHighRiskExecutionGuard(const SofPreAnalysisStats& preAnalysis, float preAnalysisSeconds, const Sof2CCalibration& calibration)
@@ -153,12 +154,23 @@ namespace
         if (preAnalysis.subdivisionShadowSubBoxCount > calibration.maxSubBoxes)
             guard.fallbackDueToSparsePlanning = true;
 
-        if (preAnalysis.subdivisionShadowEstimatedPointsPerSubBox < calibration.minEstimatedPointsPerSubBox ||
-            preAnalysis.subdivisionShadowEstimatedDenseSubBoxRatio < calibration.minDenseRatio ||
-            preAnalysis.subdivisionShadowFallbackSubBoxCount > 0)
-        {
+        const bool lowEstimatedPoints = preAnalysis.subdivisionShadowEstimatedPointsPerSubBox < calibration.minEstimatedPointsPerSubBox;
+        const bool lowDenseRatio = preAnalysis.subdivisionShadowEstimatedDenseSubBoxRatio < calibration.minDenseRatio;
+        const double fallbackSubBoxRatio = preAnalysis.subdivisionShadowSubBoxCount > 0
+            ? static_cast<double>(preAnalysis.subdivisionShadowFallbackSubBoxCount) / static_cast<double>(preAnalysis.subdivisionShadowSubBoxCount)
+            : 0.0;
+
+        // 2C-2: avoid binary OR-only behavior; fallback only if sparse signals are materially combined.
+        guard.sparseSeverity = 0.0;
+        if (lowEstimatedPoints)
+            guard.sparseSeverity += 0.45;
+        if (lowDenseRatio)
+            guard.sparseSeverity += 0.35;
+        if (fallbackSubBoxRatio > 0.0)
+            guard.sparseSeverity += std::clamp(fallbackSubBoxRatio, 0.0, 1.0) * 0.40;
+
+        if ((lowEstimatedPoints && lowDenseRatio) || fallbackSubBoxRatio >= 0.50 || guard.sparseSeverity >= 0.75)
             guard.fallbackDueToSparsePlanning = true;
-        }
 
         if (preAnalysisSeconds > calibration.preAnalysisTimeBudgetSeconds)
             guard.fallbackDueToTimeBudget = true;
@@ -377,6 +389,8 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
     uint64_t highRiskInstabilityFallbackCount = 0;
     uint64_t highRiskAggressivenessActiveCount = 0;
     double highRiskAggressivenessDeltaSum = 0.0;
+    double highRiskAdaptiveDeltaScale = 1.0;
+    uint64_t highRiskAdaptiveBackoffTriggerCount = 0;
     auto updateProgress = [&](uint64_t scansDone, int percent, uint64_t progressValue)
     {
         QString state = QString("%1 - %2%")
@@ -509,7 +523,8 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
             // 2B.B-3: apply bounded local aggressiveness only on heterogeneous HIGH-risk scans.
             if (highRiskAggressiveness.active)
             {
-                effectiveNSigma = std::max(sof2CCalibration.nSigmaFloor, m_nSigma - highRiskAggressiveness.delta);
+                const double adaptedDelta = highRiskAggressiveness.delta * highRiskAdaptiveDeltaScale;
+                effectiveNSigma = std::max(sof2CCalibration.nSigmaFloor, m_nSigma - adaptedDelta);
                 ++highRiskAggressivenessActiveCount;
                 highRiskAggressivenessDeltaSum += highRiskAggressiveness.delta;
             }
@@ -568,6 +583,29 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
                     .arg(highRiskAggressiveness.active ? "YES" : "NO")
                     .arg(highRiskAggressiveness.delta, 0, 'f', 3)
                     .arg(highRiskAggressiveness.heterogeneityScore, 0, 'f', 3)));
+            controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(
+                QString("SOF high-risk diagnostics for scan %1 (adaptiveDeltaScale=%2, sparseSeverity=%3)")
+                    .arg(qScanName)
+                    .arg(highRiskAdaptiveDeltaScale, 0, 'f', 3)
+                    .arg(highRiskGuard.sparseSeverity, 0, 'f', 3)));
+        }
+
+
+        if (enableHighRiskSubdivisionExecution)
+        {
+            // 2C-2: adaptive safe-backoff if fallback happened and removal is still weak.
+            const double removalRatio = initial_point_count > 0
+                ? static_cast<double>(deleted_point_count) / static_cast<double>(initial_point_count)
+                : 0.0;
+            if (highRiskGuard.fallbackToParentScan && removalRatio < 0.002)
+            {
+                highRiskAdaptiveDeltaScale = std::clamp(highRiskAdaptiveDeltaScale - 0.10, 0.60, 1.00);
+                ++highRiskAdaptiveBackoffTriggerCount;
+            }
+            else if (!highRiskGuard.fallbackToParentScan && removalRatio > 0.010)
+            {
+                highRiskAdaptiveDeltaScale = std::clamp(highRiskAdaptiveDeltaScale + 0.05, 0.60, 1.00);
+            }
         }
 
         if (m_state != ContextState::running)
@@ -594,6 +632,9 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         .arg(sof2CCalibration.heterogeneityActivationThreshold, 0, 'f', 3)
         .arg(sof2CCalibration.localDeltaMin, 0, 'f', 3)
         .arg(sof2CCalibration.localDeltaMax, 0, 'f', 3)));
+    controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("SOF high-risk adaptive backoff: scale=%1 triggers=%2")
+        .arg(highRiskAdaptiveDeltaScale, 0, 'f', 3)
+        .arg(highRiskAdaptiveBackoffTriggerCount)));
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("SOF high-risk local aggressiveness: active=%1 avgDelta=%2")
         .arg(highRiskAggressivenessActiveCount)
         .arg(avgHighRiskDelta, 0, 'f', 3)));
