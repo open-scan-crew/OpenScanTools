@@ -82,6 +82,8 @@ void TlScanOverseer::shutdown()
     }
     m_activeScans.clear();
     m_scanPathByGuid.clear();
+    m_runtimeGuidByPath.clear();
+    m_runtimeGuidToFileGuid.clear();
 }
 
 void TlScanOverseer::setWorkingScansTransfo(const std::vector<tls::PointCloudInstance>& workingTransfo)
@@ -178,6 +180,40 @@ void TlScanOverseer::trimActiveScans_locked(size_t targetMax, tls::ScanGuid pres
     }
 }
 
+tls::ScanGuid TlScanOverseer::resolveRuntimeGuid_locked(const tls::ScanGuid& fileGuid, const std::filesystem::path& scanPath)
+{
+    if (fileGuid == tls::ScanGuid() || scanPath.empty())
+        return fileGuid;
+
+    const std::string pathKey = scanPath.lexically_normal().string();
+    auto itKnownPath = m_runtimeGuidByPath.find(pathKey);
+    if (itKnownPath != m_runtimeGuidByPath.end())
+        return itKnownPath->second;
+
+    // Check whether the same file GUID is already tied to another path.
+    bool guidAlreadyBoundToOtherPath = false;
+    for (const auto& [knownGuid, knownPath] : m_scanPathByGuid)
+    {
+        if (knownGuid == fileGuid && knownPath != scanPath)
+        {
+            guidAlreadyBoundToOtherPath = true;
+            break;
+        }
+    }
+
+    tls::ScanGuid runtimeGuid = fileGuid;
+    if (guidAlreadyBoundToOtherPath)
+    {
+        runtimeGuid = xg::newGuid();
+        Logger::log(IOLog) << "resolveRuntimeGuid collision: fileGuid=" << fileGuid
+            << " path=\"" << scanPath << "\" runtimeGuid=" << runtimeGuid << Logger::endl;
+    }
+
+    m_runtimeGuidByPath.insert_or_assign(pathKey, runtimeGuid);
+    m_runtimeGuidToFileGuid.insert_or_assign(runtimeGuid, fileGuid);
+    return runtimeGuid;
+}
+
 void TlScanOverseer::registerScanPath(tls::ScanGuid scanGuid, const std::filesystem::path& scanPath)
 {
     if (scanGuid == tls::ScanGuid() || scanPath.empty())
@@ -229,10 +265,11 @@ bool TlScanOverseer::getScanGuid(std::filesystem::path _filePath, tls::ScanGuid&
     }
 
     std::lock_guard<std::mutex> lock(m_activeMutex);
-    auto it_scan = m_activeScans.find(newScan->getGuid());
+    const tls::ScanGuid runtimeGuid = resolveRuntimeGuid_locked(newScan->getGuid(), _filePath);
+    auto it_scan = m_activeScans.find(runtimeGuid);
     if (it_scan != m_activeScans.end())
     {
-        _scanGuid = it_scan->second->getGuid();
+        _scanGuid = runtimeGuid;
         if (it_scan->second->getPath() != _filePath)
         {
             // Diagnostic trace:
@@ -253,8 +290,8 @@ bool TlScanOverseer::getScanGuid(std::filesystem::path _filePath, tls::ScanGuid&
         return true;
     }
 
-    m_activeScans.insert({ newScan->getGuid(), newScan });
-    _scanGuid = newScan->getGuid();
+    m_activeScans.insert({ runtimeGuid, newScan });
+    _scanGuid = runtimeGuid;
     Logger::log(IOLog) << "getScanGuid activated new scan guid=" << _scanGuid
         << " path=\"" << _filePath << "\" activeNow=" << m_activeScans.size()
         << Logger::endl;
@@ -305,9 +342,13 @@ bool TlScanOverseer::lookupScanGuid(const std::filesystem::path& filePath, tls::
         return false;
     }
 
-    // Pass 2.2.A:
-    // Persist GUID->path knowledge without forcing active runtime registration.
-    registerScanPath(scanGuid, filePath);
+    // Pass 2.1 hotfix:
+    // Normalize runtime identity so different files sharing the same header GUID do not alias.
+    {
+        std::lock_guard<std::mutex> lock(m_activeMutex);
+        scanGuid = resolveRuntimeGuid_locked(scanGuid, filePath);
+        m_scanPathByGuid.insert_or_assign(scanGuid, filePath);
+    }
     return true;
 }
 
