@@ -829,6 +829,17 @@ std::vector<tls::PointCloudInstance> GraphManager::getPointCloudInstances(const 
         result.push_back(tls::PointCloudInstance{ header, transfo, rPc->getClippable(), rPc->getPhase() });
     }
 
+    // Diagnostic trace:
+    // Summarize selected point-cloud instances to correlate tree visibility and runtime scan usage.
+    Logger::log(LoggerMode::IOLog)
+        << "GraphManager::getPointCloudInstances"
+        << " pano=" << pano
+        << " getScans=" << getScans
+        << " getPcos=" << getPcos
+        << " filterStatus=" << static_cast<int>(filterStatus)
+        << " resultCount=" << result.size()
+        << Logger::endl;
+
     return (result);
 }
 

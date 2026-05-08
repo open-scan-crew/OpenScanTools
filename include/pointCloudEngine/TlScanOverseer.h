@@ -438,6 +438,7 @@ private:
     // Ensure a scan is available in m_activeScans.
     // The caller must hold m_activeMutex.
     bool ensureScanActive_locked(tls::ScanGuid scanGuid);
+    tls::ScanGuid resolveRuntimeGuid_locked(const tls::ScanGuid& fileGuid, const std::filesystem::path& scanPath);
     // Evict deletable active scans until size <= targetMax (excluding preserveGuid).
     void trimActiveScans_locked(size_t targetMax, tls::ScanGuid preserveGuid);
 
@@ -463,6 +464,11 @@ private:
     std::unordered_map<tls::ScanGuid, EmbeddedScan*> m_activeScans;
     // Persistent GUID->path knowledge, independent from currently active runtime scans.
     std::unordered_map<tls::ScanGuid, std::filesystem::path> m_scanPathByGuid;
+    // Hotfix (Pass 2.1):
+    // Keep a stable runtime GUID per absolute path to prevent different files that share
+    // the same TLS header GUID from being merged into a single runtime identity.
+    std::unordered_map<std::string, tls::ScanGuid> m_runtimeGuidByPath;
+    std::unordered_map<tls::ScanGuid, tls::ScanGuid> m_runtimeGuidToFileGuid;
     static thread_local std::vector<WorkingScanInfo> s_workingScansTransfo;
     GuidLookupStats m_guidLookupStats;
 
