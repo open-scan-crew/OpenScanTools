@@ -135,6 +135,11 @@ namespace
         double localDeltaMin = 0.12;
         double localDeltaMax = 0.30;
         double nSigmaFloor = 0.10;
+
+        // 2C-3: BORDERLINE remains OFF by default; optional experimental gate.
+        bool enableBorderlineExperimental = false;
+        double borderlineRiskScoreThreshold = 0.55;
+        double borderlineDeltaScale = 0.60;
     };
 
     struct SofHighRiskExecutionGuard
@@ -209,6 +214,20 @@ namespace
         const double normalized = std::clamp((heterogeneityScore - calibration.heterogeneityActivationThreshold) / calibration.heterogeneityNormalizationSpan, 0.0, 1.0);
         result.delta = std::clamp(calibration.localDeltaMin + normalized * (calibration.localDeltaMax - calibration.localDeltaMin), calibration.localDeltaMin, calibration.localDeltaMax);
         return result;
+    }
+
+
+
+    bool isExperimentalBorderlineEnabled(const SofPreAnalysisStats& preAnalysis, const Sof2CCalibration& calibration)
+    {
+        // 2C-3 experimental policy: keep BORDERLINE off by default.
+        if (!calibration.enableBorderlineExperimental)
+            return false;
+
+        if (preAnalysis.riskClass != SofPreAnalysisRiskClass::Borderline)
+            return false;
+
+        return preAnalysis.riskScore >= calibration.borderlineRiskScoreThreshold;
     }
 
     struct RunningStats
@@ -383,6 +402,7 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
     uint64_t preAnalysisLowCount = 0;
     uint64_t preAnalysisBorderlineCount = 0;
     uint64_t preAnalysisHighCount = 0;
+    uint64_t preAnalysisBorderlineExperimentalEligibleCount = 0;
     uint64_t subdivisionShadowEnabledCount = 0;
     uint64_t subdivisionShadowFallbackCount = 0;
     double preAnalysisRiskScoreSum = 0.0;
@@ -461,6 +481,10 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
             preAnalysis.riskClass == SofPreAnalysisRiskClass::High,
             highRiskGuard.fallbackToParentScan,
             sof2CCalibration);
+        const bool borderlineExperimentalEnabled = isExperimentalBorderlineEnabled(preAnalysis, sof2CCalibration);
+        if (borderlineExperimentalEnabled)
+            ++preAnalysisBorderlineExperimentalEligibleCount;
+
         preAnalysisRiskScoreSum += preAnalysis.riskScore;
         if (preAnalysis.subdivisionShadowEnabled)
         {
@@ -496,6 +520,7 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         OutlierStats statsToUse = globalStats;
         const bool forceLocalStatsForHighRisk = preAnalysis.subdivisionShadowEnabled;
         const bool enableHighRiskSubdivisionExecution = preAnalysis.riskClass == SofPreAnalysisRiskClass::High;
+        const bool enableBorderlineExperimentalExecution = borderlineExperimentalEnabled;
         if (!m_globalFiltering || forceLocalStatsForHighRisk)
         {
             auto statsProgress = makeProgressCallback(scan_count, 0, 50);
@@ -532,6 +557,14 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         else if (enableHighRiskSubdivisionExecution && highRiskGuard.fallbackToParentScan)
         {
             ++highRiskInstabilityFallbackCount;
+        }
+
+        if (enableBorderlineExperimentalExecution)
+        {
+            // 2C-3 experimental branch: lighter-than-HIGH local hardening for near-HIGH borderline scans.
+            const double highLikeDelta = std::clamp(highRiskAggressiveness.delta, sof2CCalibration.localDeltaMin, sof2CCalibration.localDeltaMax);
+            const double borderlineDelta = highLikeDelta * sof2CCalibration.borderlineDeltaScale;
+            effectiveNSigma = std::max(sof2CCalibration.nSigmaFloor, m_nSigma - borderlineDelta);
         }
 
         auto filterProgress = makeProgressCallback(scan_count, (m_globalFiltering && !forceLocalStatsForHighRisk) ? 0 : 50, (m_globalFiltering && !forceLocalStatsForHighRisk) ? 100 : 50);
@@ -632,6 +665,11 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         .arg(sof2CCalibration.heterogeneityActivationThreshold, 0, 'f', 3)
         .arg(sof2CCalibration.localDeltaMin, 0, 'f', 3)
         .arg(sof2CCalibration.localDeltaMax, 0, 'f', 3)));
+    controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("SOF borderline experimental mode: enabled=%1 eligibleScans=%2 threshold=%3 deltaScale=%4")
+        .arg(sof2CCalibration.enableBorderlineExperimental ? "YES" : "NO")
+        .arg(preAnalysisBorderlineExperimentalEligibleCount)
+        .arg(sof2CCalibration.borderlineRiskScoreThreshold, 0, 'f', 3)
+        .arg(sof2CCalibration.borderlineDeltaScale, 0, 'f', 3)));
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("SOF high-risk adaptive backoff: scale=%1 triggers=%2")
         .arg(highRiskAdaptiveDeltaScale, 0, 'f', 3)
         .arg(highRiskAdaptiveBackoffTriggerCount)));
