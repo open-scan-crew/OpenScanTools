@@ -28,6 +28,72 @@
 
 namespace
 {
+    struct SofPreAnalysisRunResult
+    {
+        SofPreAnalysisStats stats;
+        float durationSeconds = 0.0f;
+    };
+
+    struct SofSubdivisionShadowConfig
+    {
+        bool enabled = false;
+        uint32_t factor = 1;
+        uint32_t subBoxCount = 1;
+        double haloMeters = 0.0;
+        uint32_t fallbackSubBoxCount = 0;
+    };
+
+    SofSubdivisionShadowConfig buildSubdivisionShadowConfig(const SofPreAnalysisStats& preAnalysis)
+    {
+        // Passe 2A: décision conservative en "shadow mode" uniquement.
+        SofSubdivisionShadowConfig config;
+        config.enabled = preAnalysis.riskClass == SofPreAnalysisRiskClass::High;
+        if (!config.enabled)
+            return config;
+
+        // Facteur borné pour éviter les explosions de coûts dès la passe d'ossature.
+        const uint32_t maxFactor = 4;
+        uint32_t suggestedFactor = preAnalysis.testedPointsEstimate > 50000000 ? 4 : 2;
+        config.factor = std::clamp(suggestedFactor, 2u, maxFactor);
+        config.subBoxCount = config.factor * config.factor * config.factor;
+
+        // Halo "proxy" basé sur les métriques existantes. La valeur n'est pas encore appliquée au filtre.
+        config.haloMeters = std::clamp(preAnalysis.spacingMean * 2.0, 0.01, 1.0);
+
+        // Fallback planifié (non exécuté en 2A) pour sous-zones peu peuplées.
+        uint32_t minPointsPerSubBox = 5000;
+        double avgPointsPerSubBox = static_cast<double>(std::max<uint64_t>(preAnalysis.testedPointsEstimate, 1)) / static_cast<double>(config.subBoxCount);
+        if (avgPointsPerSubBox < static_cast<double>(minPointsPerSubBox))
+            config.fallbackSubBoxCount = config.subBoxCount;
+        return config;
+    }
+
+    SofPreAnalysisRunResult runSofPreAnalysis(
+        const tls::ScanGuid& scanGuid,
+        const WritePtr<PointCloudNode>& wScan,
+        const ClippingAssembly& clipping,
+        uint16_t kNeighbors,
+        uint8_t samplingPercent,
+        double beta)
+    {
+        SofPreAnalysisRunResult result;
+        const auto preAnalysisStart = std::chrono::steady_clock::now();
+
+        TlScanOverseer::getInstance().computeOutlierPreAnalysis(
+            scanGuid,
+            (TransformationModule)*&wScan,
+            clipping,
+            kNeighbors,
+            samplingPercent,
+            beta,
+            result.stats);
+
+        result.durationSeconds = std::chrono::duration<float, std::ratio<1>>(
+            std::chrono::steady_clock::now() - preAnalysisStart)
+                                     .count();
+        return result;
+    }
+
     struct RunningStats
     {
         uint64_t count = 0;
@@ -195,6 +261,12 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
 
     uint64_t scan_count = 0;
     uint64_t total_deleted_points = 0;
+    uint64_t preAnalysisLowCount = 0;
+    uint64_t preAnalysisBorderlineCount = 0;
+    uint64_t preAnalysisHighCount = 0;
+    uint64_t subdivisionShadowEnabledCount = 0;
+    uint64_t subdivisionShadowFallbackCount = 0;
+    double preAnalysisRiskScoreSum = 0.0;
     auto updateProgress = [&](uint64_t scansDone, int percent, uint64_t progressValue)
     {
         QString state = QString("%1 - %2%")
@@ -240,6 +312,41 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         uint64_t deleted_point_count = 0;
         std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
         tls::ScanGuid old_guid = wScan->getScanGuid();
+        QString qScanName = QString::fromStdWString(wScan->getName());
+
+        // Pré-analyse centralisée dans un helper dédié pour éviter les duplications de déclarations
+        // lors de merges/cherry-picks sur ce bloc de code.
+        const SofPreAnalysisRunResult preAnalysisRun = runSofPreAnalysis(
+            old_guid, wScan, *clippingToUse, m_kNeighbors, m_samplingPercent, m_beta);
+        SofPreAnalysisStats preAnalysis = preAnalysisRun.stats;
+        SofSubdivisionShadowConfig subdivisionShadow = buildSubdivisionShadowConfig(preAnalysis);
+        preAnalysis.subdivisionShadowEnabled = subdivisionShadow.enabled;
+        preAnalysis.subdivisionShadowFactor = subdivisionShadow.factor;
+        preAnalysis.subdivisionShadowSubBoxCount = subdivisionShadow.subBoxCount;
+        preAnalysis.subdivisionShadowHalo = subdivisionShadow.haloMeters;
+        preAnalysis.subdivisionShadowFallbackSubBoxCount = subdivisionShadow.fallbackSubBoxCount;
+        const float preAnalysisSeconds = preAnalysisRun.durationSeconds;
+        preAnalysisRiskScoreSum += preAnalysis.riskScore;
+        if (preAnalysis.subdivisionShadowEnabled)
+        {
+            ++subdivisionShadowEnabledCount;
+            if (preAnalysis.subdivisionShadowFallbackSubBoxCount > 0)
+                ++subdivisionShadowFallbackCount;
+        }
+        switch (preAnalysis.riskClass)
+        {
+        case SofPreAnalysisRiskClass::Low:
+            ++preAnalysisLowCount;
+            break;
+        case SofPreAnalysisRiskClass::Borderline:
+            ++preAnalysisBorderlineCount;
+            break;
+        case SofPreAnalysisRiskClass::High:
+            ++preAnalysisHighCount;
+            break;
+        default:
+            break;
+        }
 
         IScanFileWriter* scan_writer = nullptr;
         std::wstring log;
@@ -252,13 +359,27 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         scan_writer->appendPointCloud(header, wScan->getTransformation());
 
         OutlierStats statsToUse = globalStats;
-        if (!m_globalFiltering)
+        const bool forceLocalStatsForHighRisk = preAnalysis.subdivisionShadowEnabled;
+        if (!m_globalFiltering || forceLocalStatsForHighRisk)
         {
             auto statsProgress = makeProgressCallback(scan_count, 0, 50);
             TlScanOverseer::getInstance().computeOutlierStats(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, m_samplingPercent, m_beta, statsToUse, statsProgress);
+
+            // Passe 2B: fallback de sécurité vers les stats globales si l'échantillon local est insuffisant.
+            const uint64_t minLocalSampleCount = 500;
+            if (forceLocalStatsForHighRisk && statsToUse.count < minLocalSampleCount)
+            {
+                uint64_t localSampleCount = statsToUse.count;
+                statsToUse = globalStats;
+                controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(
+                    QString("SOF fallback to global stats for scan %1 (local samples=%2 < %3)")
+                        .arg(qScanName)
+                        .arg(localSampleCount)
+                        .arg(minLocalSampleCount)));
+            }
         }
 
-        auto filterProgress = makeProgressCallback(scan_count, m_globalFiltering ? 0 : 50, m_globalFiltering ? 100 : 50);
+        auto filterProgress = makeProgressCallback(scan_count, (m_globalFiltering && !forceLocalStatsForHighRisk) ? 0 : 50, (m_globalFiltering && !forceLocalStatsForHighRisk) ? 100 : 50);
         bool res = TlScanOverseer::getInstance().filterOutliersAndWrite(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, statsToUse, m_nSigma, m_beta, scan_writer, deleted_point_count, filterProgress);
         res &= scan_writer->finalizePointCloud();
         delete scan_writer;
@@ -267,13 +388,29 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
 
         scan_count++;
         float seconds = std::chrono::duration<float, std::ratio<1>>(std::chrono::steady_clock::now() - startTime).count();
-        QString qScanName = QString::fromStdWString(wScan->getName());
         updateProgress(scan_count, 100, scan_count * 100);
 
         if (deleted_point_count > 0)
             controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("%1 points deleted in scan %2 in %3 seconds.").arg(deleted_point_count).arg(qScanName).arg(seconds)));
         else
             controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Scan %1 not affected by outlier filter.").arg(qScanName)));
+
+        QString preAnalysisAction = preAnalysis.recommendedAction == SofPreAnalysisAction::SubdivisionRecommended
+            ? "SUBDIVISION_RECOMMENDED"
+            : "NO_SUBDIVISION";
+        controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(
+            QString("SOF pre-analysis %1: risk=%2, action=%3, occupiedCells=%4, testedPoints=%5, time=%6s, subdivisionShadow=%7 factor=%8 subBoxes=%9 halo=%10 fallbackSubBoxes=%11")
+                .arg(qScanName)
+                .arg(preAnalysis.riskScore, 0, 'f', 3)
+                .arg(preAnalysisAction)
+                .arg(preAnalysis.occupiedCells)
+                .arg(preAnalysis.testedPointsEstimate)
+                .arg(preAnalysisSeconds, 0, 'f', 3)
+                .arg(preAnalysis.subdivisionShadowEnabled ? "ON" : "OFF")
+                .arg(preAnalysis.subdivisionShadowFactor)
+                .arg(preAnalysis.subdivisionShadowSubBoxCount)
+                .arg(preAnalysis.subdivisionShadowHalo, 0, 'f', 3)
+                .arg(preAnalysis.subdivisionShadowFallbackSubBoxCount)));
 
         if (m_state != ContextState::running)
         {
@@ -283,6 +420,14 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
     }
 
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("Total points deleted: %1").arg(total_deleted_points)));
+    double averageRisk = scan_count > 0 ? preAnalysisRiskScoreSum / static_cast<double>(scan_count) : 0.0;
+    controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("SOF pre-analysis summary: LOW=%1 BORDERLINE=%2 HIGH=%3 avgRisk=%4 subdivisionShadowEnabled=%5 fallbackPlanned=%6")
+        .arg(preAnalysisLowCount)
+        .arg(preAnalysisBorderlineCount)
+        .arg(preAnalysisHighCount)
+        .arg(averageRisk, 0, 'f', 3)
+        .arg(subdivisionShadowEnabledCount)
+        .arg(subdivisionShadowFallbackCount)));
     controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));
 
     if (m_openFolderAfterExport && !wasAborted)
