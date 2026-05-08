@@ -44,6 +44,13 @@ struct SofPreAnalysisStats
     uint32_t subdivisionShadowSubBoxCount = 1;
     double subdivisionShadowHalo = 0.0;
     uint32_t subdivisionShadowFallbackSubBoxCount = 0;
+
+    // Passe 2B.A (diagnostic spatial instrumenté): estimation virtuelle par sous-box.
+    // Ces métriques n'influencent pas le filtrage; elles servent uniquement à l'observabilité.
+    double subdivisionShadowHaloMediumMeters = 0.0;
+    double subdivisionShadowHaloStrongMeters = 0.0;
+    double subdivisionShadowEstimatedPointsPerSubBox = 0.0;
+    double subdivisionShadowEstimatedDenseSubBoxRatio = 0.0;
 };
 
 #endif

@@ -43,6 +43,14 @@ namespace
         uint32_t fallbackSubBoxCount = 0;
     };
 
+    struct SofSubdivisionSpatialDiagnostics
+    {
+        double haloMediumMeters = 0.0;
+        double haloStrongMeters = 0.0;
+        double estimatedPointsPerSubBox = 0.0;
+        double estimatedDenseSubBoxRatio = 0.0;
+    };
+
     SofSubdivisionShadowConfig buildSubdivisionShadowConfig(const SofPreAnalysisStats& preAnalysis)
     {
         // Passe 2A: décision conservative en "shadow mode" uniquement.
@@ -66,6 +74,25 @@ namespace
         if (avgPointsPerSubBox < static_cast<double>(minPointsPerSubBox))
             config.fallbackSubBoxCount = config.subBoxCount;
         return config;
+    }
+
+    SofSubdivisionSpatialDiagnostics buildSubdivisionSpatialDiagnostics(const SofPreAnalysisStats& preAnalysis, const SofSubdivisionShadowConfig& shadowConfig)
+    {
+        SofSubdivisionSpatialDiagnostics diag;
+        const uint32_t effectiveSubBoxCount = std::max(1u, shadowConfig.subBoxCount);
+
+        // Passe 2B.A: halo adaptatif moyen/fort pour le diagnostic spatial.
+        // Ces valeurs sont loggées pour calibration et n'impactent pas le filtre en sortie.
+        diag.haloMediumMeters = std::clamp(preAnalysis.spacingMean * 2.5, 0.01, 2.0);
+        diag.haloStrongMeters = std::clamp(preAnalysis.spacingMean * 3.5, 0.01, 2.0);
+
+        diag.estimatedPointsPerSubBox =
+            static_cast<double>(std::max<uint64_t>(preAnalysis.testedPointsEstimate, 1)) /
+            static_cast<double>(effectiveSubBoxCount);
+
+        const double heterogeneity = std::clamp(0.5 * preAnalysis.spacingCv + 0.5 * preAnalysis.meanDistanceCv, 0.0, 4.0);
+        diag.estimatedDenseSubBoxRatio = std::clamp(1.0 - (heterogeneity / 4.0), 0.0, 1.0);
+        return diag;
     }
 
     SofPreAnalysisRunResult runSofPreAnalysis(
@@ -325,6 +352,11 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         preAnalysis.subdivisionShadowSubBoxCount = subdivisionShadow.subBoxCount;
         preAnalysis.subdivisionShadowHalo = subdivisionShadow.haloMeters;
         preAnalysis.subdivisionShadowFallbackSubBoxCount = subdivisionShadow.fallbackSubBoxCount;
+        const SofSubdivisionSpatialDiagnostics spatialDiag = buildSubdivisionSpatialDiagnostics(preAnalysis, subdivisionShadow);
+        preAnalysis.subdivisionShadowHaloMediumMeters = spatialDiag.haloMediumMeters;
+        preAnalysis.subdivisionShadowHaloStrongMeters = spatialDiag.haloStrongMeters;
+        preAnalysis.subdivisionShadowEstimatedPointsPerSubBox = spatialDiag.estimatedPointsPerSubBox;
+        preAnalysis.subdivisionShadowEstimatedDenseSubBoxRatio = spatialDiag.estimatedDenseSubBoxRatio;
         const float preAnalysisSeconds = preAnalysisRun.durationSeconds;
         preAnalysisRiskScoreSum += preAnalysis.riskScore;
         if (preAnalysis.subdivisionShadowEnabled)
@@ -399,7 +431,7 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
             ? "SUBDIVISION_RECOMMENDED"
             : "NO_SUBDIVISION";
         controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(
-            QString("SOF pre-analysis %1: risk=%2, action=%3, occupiedCells=%4, testedPoints=%5, time=%6s, subdivisionShadow=%7 factor=%8 subBoxes=%9 halo=%10 fallbackSubBoxes=%11")
+            QString("SOF pre-analysis %1: risk=%2, action=%3, occupiedCells=%4, testedPoints=%5, time=%6s, subdivisionShadow=%7 factor=%8 subBoxes=%9 halo=%10 fallbackSubBoxes=%11 haloMedium=%12 haloStrong=%13 estPtsPerSubBox=%14 estDenseSubBoxRatio=%15")
                 .arg(qScanName)
                 .arg(preAnalysis.riskScore, 0, 'f', 3)
                 .arg(preAnalysisAction)
@@ -410,7 +442,11 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
                 .arg(preAnalysis.subdivisionShadowFactor)
                 .arg(preAnalysis.subdivisionShadowSubBoxCount)
                 .arg(preAnalysis.subdivisionShadowHalo, 0, 'f', 3)
-                .arg(preAnalysis.subdivisionShadowFallbackSubBoxCount)));
+                .arg(preAnalysis.subdivisionShadowFallbackSubBoxCount)
+                .arg(preAnalysis.subdivisionShadowHaloMediumMeters, 0, 'f', 3)
+                .arg(preAnalysis.subdivisionShadowHaloStrongMeters, 0, 'f', 3)
+                .arg(preAnalysis.subdivisionShadowEstimatedPointsPerSubBox, 0, 'f', 1)
+                .arg(preAnalysis.subdivisionShadowEstimatedDenseSubBoxRatio, 0, 'f', 3)));
 
         if (m_state != ContextState::running)
         {
