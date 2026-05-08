@@ -160,6 +160,37 @@ namespace
 
         return guard;
     }
+
+    struct SofHighRiskAggressiveness
+    {
+        bool active = false;
+        double delta = 0.0;
+        double heterogeneityScore = 0.0;
+    };
+
+    SofHighRiskAggressiveness buildHighRiskAggressiveness(const SofPreAnalysisStats& preAnalysis, bool enableHighRiskExecution, bool fallbackToParentScan)
+    {
+        SofHighRiskAggressiveness result;
+        if (!enableHighRiskExecution || fallbackToParentScan)
+            return result;
+
+        // 2B.B-3: activate local aggressiveness only for heterogeneous HIGH scans.
+        const double heterogeneityScore = std::clamp(0.5 * preAnalysis.spacingCv + 0.5 * preAnalysis.meanDistanceCv, 0.0, 4.0);
+        const bool heterogeneous = heterogeneityScore >= 0.65;
+        if (!heterogeneous)
+            return result;
+
+        result.active = true;
+        result.heterogeneityScore = heterogeneityScore;
+
+        // Bounded dynamic delta to avoid global over-hardening.
+        const double minDelta = 0.10;
+        const double maxDelta = 0.25;
+        const double normalized = std::clamp((heterogeneityScore - 0.65) / 1.50, 0.0, 1.0);
+        result.delta = std::clamp(minDelta + normalized * (maxDelta - minDelta), minDelta, maxDelta);
+        return result;
+    }
+
     struct RunningStats
     {
         uint64_t count = 0;
@@ -334,6 +365,8 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
     uint64_t subdivisionShadowFallbackCount = 0;
     double preAnalysisRiskScoreSum = 0.0;
     uint64_t highRiskInstabilityFallbackCount = 0;
+    uint64_t highRiskAggressivenessActiveCount = 0;
+    double highRiskAggressivenessDeltaSum = 0.0;
     auto updateProgress = [&](uint64_t scansDone, int percent, uint64_t progressValue)
     {
         QString state = QString("%1 - %2%")
@@ -399,6 +432,10 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         preAnalysis.subdivisionShadowEstimatedDenseSubBoxRatio = spatialDiag.estimatedDenseSubBoxRatio;
         const float preAnalysisSeconds = preAnalysisRun.durationSeconds;
         SofHighRiskExecutionGuard highRiskGuard = buildHighRiskExecutionGuard(preAnalysis, preAnalysisSeconds);
+        SofHighRiskAggressiveness highRiskAggressiveness = buildHighRiskAggressiveness(
+            preAnalysis,
+            preAnalysis.riskClass == SofPreAnalysisRiskClass::High,
+            highRiskGuard.fallbackToParentScan);
         preAnalysisRiskScoreSum += preAnalysis.riskScore;
         if (preAnalysis.subdivisionShadowEnabled)
         {
@@ -458,9 +495,13 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         double effectiveNSigma = m_nSigma;
         if (enableHighRiskSubdivisionExecution && !highRiskGuard.fallbackToParentScan)
         {
-            // Local aggressiveness for HIGH-risk scans is bounded to avoid over-filtering.
-            const double deltaHigh = 0.15;
-            effectiveNSigma = std::max(0.1, m_nSigma - deltaHigh);
+            // 2B.B-3: apply bounded local aggressiveness only on heterogeneous HIGH-risk scans.
+            if (highRiskAggressiveness.active)
+            {
+                effectiveNSigma = std::max(0.1, m_nSigma - highRiskAggressiveness.delta);
+                ++highRiskAggressivenessActiveCount;
+                highRiskAggressivenessDeltaSum += highRiskAggressiveness.delta;
+            }
         }
         else if (enableHighRiskSubdivisionExecution && highRiskGuard.fallbackToParentScan)
         {
@@ -507,12 +548,15 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         if (enableHighRiskSubdivisionExecution)
         {
             controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(
-                QString("SOF high-risk execution gate for scan %1 (effectiveNSigma=%2, fallbackParent=%3, sparsePlan=%4, timeBudget=%5)")
+                QString("SOF high-risk execution gate for scan %1 (effectiveNSigma=%2, fallbackParent=%3, sparsePlan=%4, timeBudget=%5, localAggressive=%6, delta=%7, heterogeneity=%8)")
                     .arg(qScanName)
                     .arg(effectiveNSigma, 0, 'f', 3)
                     .arg(highRiskGuard.fallbackToParentScan ? "YES" : "NO")
                     .arg(highRiskGuard.fallbackDueToSparsePlanning ? "YES" : "NO")
-                    .arg(highRiskGuard.fallbackDueToTimeBudget ? "YES" : "NO")));
+                    .arg(highRiskGuard.fallbackDueToTimeBudget ? "YES" : "NO")
+                    .arg(highRiskAggressiveness.active ? "YES" : "NO")
+                    .arg(highRiskAggressiveness.delta, 0, 'f', 3)
+                    .arg(highRiskAggressiveness.heterogeneityScore, 0, 'f', 3)));
         }
 
         if (m_state != ContextState::running)
@@ -532,6 +576,10 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         .arg(subdivisionShadowEnabledCount)
         .arg(subdivisionShadowFallbackCount)));
     controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("SOF high-risk parent fallback count: %1").arg(highRiskInstabilityFallbackCount)));
+    const double avgHighRiskDelta = highRiskAggressivenessActiveCount > 0 ? highRiskAggressivenessDeltaSum / static_cast<double>(highRiskAggressivenessActiveCount) : 0.0;
+    controller.updateInfo(new GuiDataProcessingSplashScreenLogUpdate(QString("SOF high-risk local aggressiveness: active=%1 avgDelta=%2")
+        .arg(highRiskAggressivenessActiveCount)
+        .arg(avgHighRiskDelta, 0, 'f', 3)));
     controller.updateInfo(new GuiDataProcessingSplashScreenEnd(TEXT_SPLASH_SCREEN_DONE));
 
     if (m_openFolderAfterExport && !wasAborted)
