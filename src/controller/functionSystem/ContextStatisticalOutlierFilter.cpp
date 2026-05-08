@@ -28,6 +28,12 @@
 
 namespace
 {
+    struct SofPreAnalysisRunResult
+    {
+        SofPreAnalysisStats stats;
+        float durationSeconds = 0.0f;
+    };
+
     struct SofSubdivisionShadowConfig
     {
         bool enabled = false;
@@ -60,6 +66,32 @@ namespace
         if (avgPointsPerSubBox < static_cast<double>(minPointsPerSubBox))
             config.fallbackSubBoxCount = config.subBoxCount;
         return config;
+    }
+
+    SofPreAnalysisRunResult runSofPreAnalysis(
+        const tls::ScanGuid& scanGuid,
+        const WritePtr<PointCloudNode>& wScan,
+        const ClippingAssembly& clipping,
+        uint16_t kNeighbors,
+        uint8_t samplingPercent,
+        double beta)
+    {
+        SofPreAnalysisRunResult result;
+        const auto preAnalysisStart = std::chrono::steady_clock::now();
+
+        TlScanOverseer::getInstance().computeOutlierPreAnalysis(
+            scanGuid,
+            (TransformationModule)*&wScan,
+            clipping,
+            kNeighbors,
+            samplingPercent,
+            beta,
+            result.stats);
+
+        result.durationSeconds = std::chrono::duration<float, std::ratio<1>>(
+            std::chrono::steady_clock::now() - preAnalysisStart)
+                                     .count();
+        return result;
     }
 
     struct RunningStats
@@ -282,48 +314,18 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         tls::ScanGuid old_guid = wScan->getScanGuid();
         QString qScanName = QString::fromStdWString(wScan->getName());
 
-        auto preAnalysisStart = std::chrono::steady_clock::now();
-        SofPreAnalysisStats preAnalysis;
-        TlScanOverseer::getInstance().computeOutlierPreAnalysis(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, m_samplingPercent, m_beta, preAnalysis);
+        // Pré-analyse centralisée dans un helper dédié pour éviter les duplications de déclarations
+        // lors de merges/cherry-picks sur ce bloc de code.
+        const SofPreAnalysisRunResult preAnalysisRun = runSofPreAnalysis(
+            old_guid, wScan, *clippingToUse, m_kNeighbors, m_samplingPercent, m_beta);
+        SofPreAnalysisStats preAnalysis = preAnalysisRun.stats;
         SofSubdivisionShadowConfig subdivisionShadow = buildSubdivisionShadowConfig(preAnalysis);
         preAnalysis.subdivisionShadowEnabled = subdivisionShadow.enabled;
         preAnalysis.subdivisionShadowFactor = subdivisionShadow.factor;
         preAnalysis.subdivisionShadowSubBoxCount = subdivisionShadow.subBoxCount;
         preAnalysis.subdivisionShadowHalo = subdivisionShadow.haloMeters;
         preAnalysis.subdivisionShadowFallbackSubBoxCount = subdivisionShadow.fallbackSubBoxCount;
-        float preAnalysisSeconds = std::chrono::duration<float, std::ratio<1>>(std::chrono::steady_clock::now() - preAnalysisStart).count();
-        preAnalysisRiskScoreSum += preAnalysis.riskScore;
-        if (preAnalysis.subdivisionShadowEnabled)
-        {
-            ++subdivisionShadowEnabledCount;
-            if (preAnalysis.subdivisionShadowFallbackSubBoxCount > 0)
-                ++subdivisionShadowFallbackCount;
-        }
-        switch (preAnalysis.riskClass)
-        {
-        case SofPreAnalysisRiskClass::Low:
-            ++preAnalysisLowCount;
-            break;
-        case SofPreAnalysisRiskClass::Borderline:
-            ++preAnalysisBorderlineCount;
-            break;
-        case SofPreAnalysisRiskClass::High:
-            ++preAnalysisHighCount;
-            break;
-        default:
-            break;
-        }
-
-        auto preAnalysisStart = std::chrono::steady_clock::now();
-        SofPreAnalysisStats preAnalysis;
-        TlScanOverseer::getInstance().computeOutlierPreAnalysis(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, m_samplingPercent, m_beta, preAnalysis);
-        SofSubdivisionShadowConfig subdivisionShadow = buildSubdivisionShadowConfig(preAnalysis);
-        preAnalysis.subdivisionShadowEnabled = subdivisionShadow.enabled;
-        preAnalysis.subdivisionShadowFactor = subdivisionShadow.factor;
-        preAnalysis.subdivisionShadowSubBoxCount = subdivisionShadow.subBoxCount;
-        preAnalysis.subdivisionShadowHalo = subdivisionShadow.haloMeters;
-        preAnalysis.subdivisionShadowFallbackSubBoxCount = subdivisionShadow.fallbackSubBoxCount;
-        float preAnalysisSeconds = std::chrono::duration<float, std::ratio<1>>(std::chrono::steady_clock::now() - preAnalysisStart).count();
+        const float preAnalysisSeconds = preAnalysisRun.durationSeconds;
         preAnalysisRiskScoreSum += preAnalysis.riskScore;
         if (preAnalysis.subdivisionShadowEnabled)
         {
