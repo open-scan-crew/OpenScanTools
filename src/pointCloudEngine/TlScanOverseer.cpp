@@ -184,6 +184,15 @@ void TlScanOverseer::registerScanPath(tls::ScanGuid scanGuid, const std::filesys
         return;
 
     std::lock_guard<std::mutex> lock(m_activeMutex);
+    auto itExisting = m_scanPathByGuid.find(scanGuid);
+    if (itExisting != m_scanPathByGuid.end() && itExisting->second != scanPath)
+    {
+        // Diagnostic trace:
+        // A single GUID observed on multiple physical paths indicates possible aliasing.
+        Logger::log(IOLog) << "registerScanPath GUID path remap detected guid=" << scanGuid
+            << " oldPath=\"" << itExisting->second << "\" newPath=\"" << scanPath << "\""
+            << Logger::endl;
+    }
     m_scanPathByGuid.insert_or_assign(scanGuid, scanPath);
 }
 
@@ -224,6 +233,15 @@ bool TlScanOverseer::getScanGuid(std::filesystem::path _filePath, tls::ScanGuid&
     if (it_scan != m_activeScans.end())
     {
         _scanGuid = it_scan->second->getGuid();
+        if (it_scan->second->getPath() != _filePath)
+        {
+            // Diagnostic trace:
+            // Runtime cache hit for the same GUID but different path.
+            Logger::log(IOLog) << "getScanGuid cache-hit GUID/path mismatch guid=" << _scanGuid
+                << " activePath=\"" << it_scan->second->getPath() << "\""
+                << " requestedPath=\"" << _filePath << "\""
+                << Logger::endl;
+        }
         // Keep path registry in sync even on cache hits.
         m_scanPathByGuid.insert_or_assign(_scanGuid, _filePath);
         // No memory leak
@@ -237,6 +255,9 @@ bool TlScanOverseer::getScanGuid(std::filesystem::path _filePath, tls::ScanGuid&
 
     m_activeScans.insert({ newScan->getGuid(), newScan });
     _scanGuid = newScan->getGuid();
+    Logger::log(IOLog) << "getScanGuid activated new scan guid=" << _scanGuid
+        << " path=\"" << _filePath << "\" activeNow=" << m_activeScans.size()
+        << Logger::endl;
     m_scanPathByGuid.insert_or_assign(_scanGuid, _filePath);
     ++m_guidLookupStats.successCount;
     ++m_guidLookupStats.insertedActiveCount;
