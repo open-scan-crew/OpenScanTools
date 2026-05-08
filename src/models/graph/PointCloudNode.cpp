@@ -1,6 +1,9 @@
 #include "models/graph/PointCloudNode.h"
 #include "pointCloudEngine/PCE_core.h"
 #include "vulkan/VulkanManager.h"
+#include "utils/Logger.h"
+
+#define IOLog LoggerMode::IOLog
 
 PointCloudNode::PointCloudNode(const PointCloudNode& data)
     : AGraphNode(data)
@@ -52,6 +55,9 @@ std::wstring PointCloudNode::getComposedName() const
 
 void PointCloudNode::setTlsFilePath(const std::filesystem::path& scanPath, bool init_position, const tls::ScanGuid& scanGuid, bool reset_name)
 {
+    const tls::ScanGuid previousGuid = m_scanGuid;
+    const std::filesystem::path previousPath = backup_file_path_;
+
     if (scanGuid != tls::ScanGuid())
         m_scanGuid = scanGuid;
     else
@@ -66,6 +72,20 @@ void PointCloudNode::setTlsFilePath(const std::filesystem::path& scanPath, bool 
         setPosition(glm::dvec3(scanHeader.transfo.translation[0], scanHeader.transfo.translation[1], scanHeader.transfo.translation[2]));
         setRotation({ scanHeader.transfo.quaternion[3], scanHeader.transfo.quaternion[0], scanHeader.transfo.quaternion[1], scanHeader.transfo.quaternion[2] });
     }
+
+    // Diagnostic trace:
+    // Keep a concise import/runtime mapping to detect accidental GUID/path aliasing.
+    Logger::log(IOLog)
+        << "PointCloudNode::setTlsFilePath"
+        << " nodeName=\"" << m_name << "\""
+        << " nodeType=" << (is_object_ ? "PCO" : "Scan")
+        << " oldGuid=" << previousGuid
+        << " newGuid=" << m_scanGuid
+        << " oldPath=\"" << previousPath << "\""
+        << " newPath=\"" << scanPath << "\""
+        << " initPosition=" << init_position
+        << " resetName=" << reset_name
+        << Logger::endl;
 }
 
 std::filesystem::path PointCloudNode::getTlsFilePath() const
