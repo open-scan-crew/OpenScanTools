@@ -34,6 +34,19 @@ typedef void (GraphManager::* GraphManagerMethod)(IGuiData*, bool);
 class GraphManager : public IPanel
 {
 public:
+    enum class FilterOutputMode
+    {
+        ActiveClippingOnly,
+        FullScansNoClipping,
+        FullScansSelectedInactiveClipping
+    };
+
+    struct FilterClippingConfiguration
+    {
+        FilterOutputMode mode = FilterOutputMode::FullScansNoClipping;
+        std::unordered_set<SafePtr<AClippingNode>> clippings;
+    };
+
 	GraphManager(IDataDispatcher& dataDispatcher);
 	~GraphManager();
 
@@ -82,6 +95,7 @@ public:
 	std::unordered_set<SafePtr<AClippingNode>> getClippingObjects(bool filterActive, bool filterSelected) const;
 	std::unordered_set<SafePtr<AClippingNode>> getRampObjects(bool filterActive, bool filterSelected) const;
 	std::unordered_set<SafePtr<AClippingNode>> getActivatedOrSelectedClippingObjects() const;
+    FilterClippingConfiguration getFilterClippingConfiguration() const;
 
 	std::unordered_set<SafePtr<BoxNode>> getGrids() const;
 	std::unordered_set<SafePtr<TagNode>> getTagsWithTemplate(SafePtr<sma::TagTemplate> tagTemplate) const;
