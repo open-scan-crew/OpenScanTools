@@ -1545,9 +1545,13 @@ bool EmbeddedScan::balanceColorsAndWrite(const TransformationModule& src_transfo
     if (threadCount <= 1)
     {
         bool sequentialOk = true;
+        // Track leaf cells processed through clipping traversal so we can append untouched leaves later.
+        std::unordered_set<uint32_t> processedLeafCells;
+        processedLeafCells.reserve(cells.size());
         for (size_t cellIndex = 0; cellIndex < cells.size(); ++cellIndex)
         {
             const std::pair<uint32_t, bool>& cell = cells[cellIndex];
+            processedLeafCells.insert(cell.first);
             std::vector<PointXYZIRGB> points;
             points.resize(tls_point_cloud_.getCellPointCount(cell.first));
             if (!getCellPointsThreadSafe(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
