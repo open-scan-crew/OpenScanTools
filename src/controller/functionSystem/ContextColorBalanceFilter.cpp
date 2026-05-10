@@ -323,6 +323,10 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
             };
         }
 
+        // In selected-inactive clipping mode we keep full scan output.
+        // The clipping selection is still used to build the external provider neighborhood.
+        ClippingAssembly emptyAssemblyForOutput;
+        const ClippingAssembly* outputAssembly = isSelectedInactiveMode ? &emptyAssemblyForOutput : clippingToUse;
         auto progressCallback = makeProgressCallback(scanCount, 0, 100);
         bool res = TlScanOverseer::getInstance().balanceColorsAndWrite(balanceGuid, balanceTransform, *clippingToUse, m_kMin, m_kMax, m_trimPercent, m_sharpnessBlend, applyOnIntensity, applyOnRgb, externalProvider, scan_writer, modifiedPointCount, progressCallback, isSelectedInactiveMode);
         res &= scan_writer->finalizePointCloud();

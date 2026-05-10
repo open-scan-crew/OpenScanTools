@@ -262,6 +262,10 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
             TlScanOverseer::getInstance().computeOutlierStats(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, m_samplingPercent, m_beta, statsToUse, statsProgress);
         }
 
+        // In selected-inactive clipping mode we keep full scan output.
+        // We still compute stats on clippingToUse, but filtering is written on full scan.
+        ClippingAssembly emptyAssembly;
+        const ClippingAssembly* outputAssembly = isSelectedInactiveMode ? &emptyAssembly : clippingToUse;
         auto filterProgress = makeProgressCallback(scan_count, m_globalFiltering ? 0 : 50, m_globalFiltering ? 100 : 50);
         bool res = TlScanOverseer::getInstance().filterOutliersAndWrite(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, statsToUse, m_nSigma, m_beta, scan_writer, deleted_point_count, filterProgress, isSelectedInactiveMode);
         res &= scan_writer->finalizePointCloud();
