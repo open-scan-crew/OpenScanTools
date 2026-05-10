@@ -328,7 +328,7 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
         ClippingAssembly emptyAssemblyForOutput;
         const ClippingAssembly* outputAssembly = isSelectedInactiveMode ? &emptyAssemblyForOutput : clippingToUse;
         auto progressCallback = makeProgressCallback(scanCount, 0, 100);
-        bool res = TlScanOverseer::getInstance().balanceColorsAndWrite(balanceGuid, balanceTransform, *outputAssembly, m_kMin, m_kMax, m_trimPercent, m_sharpnessBlend, applyOnIntensity, applyOnRgb, externalProvider, scan_writer, modifiedPointCount, progressCallback);
+        bool res = TlScanOverseer::getInstance().balanceColorsAndWrite(balanceGuid, balanceTransform, *clippingToUse, m_kMin, m_kMax, m_trimPercent, m_sharpnessBlend, applyOnIntensity, applyOnRgb, externalProvider, scan_writer, modifiedPointCount, progressCallback, isSelectedInactiveMode);
         res &= scan_writer->finalizePointCloud();
         delete scan_writer;
         if (balanceGuid != old_guid)

@@ -267,7 +267,7 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
         ClippingAssembly emptyAssembly;
         const ClippingAssembly* outputAssembly = isSelectedInactiveMode ? &emptyAssembly : clippingToUse;
         auto filterProgress = makeProgressCallback(scan_count, m_globalFiltering ? 0 : 50, m_globalFiltering ? 100 : 50);
-        bool res = TlScanOverseer::getInstance().filterOutliersAndWrite(old_guid, (TransformationModule)*&wScan, *outputAssembly, m_kNeighbors, statsToUse, m_nSigma, m_beta, scan_writer, deleted_point_count, filterProgress);
+        bool res = TlScanOverseer::getInstance().filterOutliersAndWrite(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, statsToUse, m_nSigma, m_beta, scan_writer, deleted_point_count, filterProgress, isSelectedInactiveMode);
         res &= scan_writer->finalizePointCloud();
         delete scan_writer;
 
