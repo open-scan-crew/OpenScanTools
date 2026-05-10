@@ -1569,6 +1569,15 @@ bool EmbeddedScan::balanceColorsAndWrite(const TransformationModule& src_transfo
 
             if (visiblePoints.empty())
             {
+                // In keepOutsidePoints mode, partially clipped cells may have no inside points
+                // but still contain outside points that must be preserved in the final full scan.
+                if (keepOutsidePoints && cell.second)
+                {
+                    std::vector<PointXYZIRGB> outsidePoints;
+                    clipIndividualPoints(points, outsidePoints, localAssembly, true);
+                    if (!outsidePoints.empty())
+                        sequentialOk &= writer->addPoints(outsidePoints.data(), outsidePoints.size());
+                }
                 if (progress)
                     progress(cellIndex + 1, totalCells);
                 continue;
