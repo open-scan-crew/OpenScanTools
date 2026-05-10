@@ -587,6 +587,38 @@ std::unordered_set<SafePtr<AClippingNode>> GraphManager::getActivatedOrSelectedC
         {return (clip->isClippingActive() || clip->isSelected()); });
 }
 
+GraphManager::FilterClippingConfiguration GraphManager::getFilterClippingConfiguration() const
+{
+    FilterClippingConfiguration config;
+
+    std::unordered_set<SafePtr<AClippingNode>> activeClippings = getClippingObjects(true, false);
+    if (!activeClippings.empty())
+    {
+        // Active clipping always has priority over selected inactive clipping.
+        config.mode = FilterOutputMode::ActiveClippingOnly;
+        config.clippings = std::move(activeClippings);
+        return config;
+    }
+
+    std::unordered_set<SafePtr<AClippingNode>> selectedClippings = getClippingObjects(false, true);
+    for (const SafePtr<AClippingNode>& clip : selectedClippings)
+    {
+        ReadPtr<AClippingNode> rClip = clip.cget();
+        if (rClip && !rClip->isClippingActive())
+            config.clippings.insert(clip);
+    }
+
+    if (!config.clippings.empty())
+    {
+        config.mode = FilterOutputMode::FullScansSelectedInactiveClipping;
+    }
+    else
+    {
+        config.mode = FilterOutputMode::FullScansNoClipping;
+    }
+    return config;
+}
+
 std::unordered_set<SafePtr<BoxNode>> GraphManager::getGrids() const
 {
     return getNodesOnFilter<BoxNode>(

@@ -413,12 +413,13 @@ bool EmbeddedScan::viewOctreeCB(std::vector<TlCellDrawInfo>& _cellDrawInfo, std:
     return (missingCells.size() == 0);
 }
 
-void clipIndividualPoints(const std::vector<PointXYZIRGB>& inPoints, std::vector<PointXYZIRGB>& outPoints, const ClippingAssembly& clippingAssembly)
+void clipIndividualPoints(const std::vector<PointXYZIRGB>& inPoints, std::vector<PointXYZIRGB>& outPoints, const ClippingAssembly& clippingAssembly, bool invert = false)
 {
     for (const PointXYZIRGB& point : inPoints)
     {
         glm::dvec4 pos = { point.x, point.y, point.z, 1.0 };
-        if (clippingAssembly.testPoint(pos))
+        bool inside = clippingAssembly.testPoint(pos);
+        if ((!invert && inside) || (invert && !inside))
             outPoints.push_back(point);
     }
 }
@@ -1011,7 +1012,7 @@ bool EmbeddedScan::computeOutlierStats(const TransformationModule& src_transfo, 
     return true;
 }
 
-bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* writer, uint64_t& removedPoints, const ProgressCallback& progress)
+bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* writer, uint64_t& removedPoints, const ProgressCallback& progress, bool keepOutsidePoints)
 {
     ClippingAssembly localAssembly = deepCopyClippingAssembly(clippingAssembly);
     localAssembly.clearMatrix();
@@ -1026,16 +1027,21 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
     const size_t totalCells = cells.size();
     if (progress && totalCells > 0)
         progress(0, totalCells);
-    const size_t threadCount = resolveThreadCount(totalCells);
+    // KeepOutsidePoints requires deterministic local merging (filtered inside + untouched outside),
+    // therefore we keep the sequential path for this mode.
+    const size_t threadCount = keepOutsidePoints ? 1 : resolveThreadCount(totalCells);
     std::atomic<uint64_t> removedPointsAtomic{ 0 };
     std::atomic<bool> resultOk{ true };
 
     if (threadCount <= 1)
     {
         bool sequentialOk = true;
+        std::unordered_set<uint32_t> processedLeafCells;
+        processedLeafCells.reserve(cells.size());
         for (size_t cellIndex = 0; cellIndex < cells.size(); ++cellIndex)
         {
             const std::pair<uint32_t, bool>& cell = cells[cellIndex];
+            processedLeafCells.insert(cell.first);
             std::vector<PointXYZIRGB> points;
             points.resize(tls_point_cloud_.getCellPointCount(cell.first));
             if (!getCellPointsThreadSafe(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
@@ -1089,12 +1095,66 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
                 }
             }
 
-            removedPointsAtomic.fetch_add(visiblePoints.size() - filtered.size());
-            sequentialOk &= writer->mergePoints(filtered.data(), filtered.size(), src_transfo, pt_format_);
+            if (keepOutsidePoints)
+            {
+                std::vector<PointXYZIRGB> outputPoints;
+                outputPoints.reserve(filtered.size() + points.size());
+                outputPoints.insert(outputPoints.end(), filtered.begin(), filtered.end());
+                if (cell.second)
+                {
+                    std::vector<PointXYZIRGB> outsidePoints;
+                    clipIndividualPoints(points, outsidePoints, localAssembly, true);
+                    outputPoints.insert(outputPoints.end(), outsidePoints.begin(), outsidePoints.end());
+                }
+                removedPointsAtomic.fetch_add(visiblePoints.size() - filtered.size());
+                sequentialOk &= writer->mergePoints(outputPoints.data(), outputPoints.size(), src_transfo, pt_format_);
+            }
+            else
+            {
+                removedPointsAtomic.fetch_add(visiblePoints.size() - filtered.size());
+                sequentialOk &= writer->mergePoints(filtered.data(), filtered.size(), src_transfo, pt_format_);
+            }
 
             if (progress)
                 progress(cellIndex + 1, totalCells);
         }
+
+        if (keepOutsidePoints)
+        {
+            // Keep all untouched leaves that were not traversed by clipping.
+            // This guarantees full scan export in case 3.
+            std::vector<uint32_t> allLeafCells;
+            allLeafCells.reserve(m_vTreeCells.size());
+            std::function<void(uint32_t)> collectLeaves = [&](uint32_t cellId)
+            {
+                const TreeCell& treeCell = m_vTreeCells[cellId];
+                if (treeCell.m_isLeaf)
+                {
+                    allLeafCells.push_back(cellId);
+                    return;
+                }
+                for (int j = 0; j < 8; ++j)
+                {
+                    if (treeCell.m_children[j] != NO_CHILD)
+                        collectLeaves(treeCell.m_children[j]);
+                }
+            };
+            collectLeaves(m_uRootCell);
+
+            for (uint32_t leafId : allLeafCells)
+            {
+                if (processedLeafCells.find(leafId) != processedLeafCells.end())
+                    continue;
+
+                std::vector<PointXYZIRGB> leafPoints;
+                leafPoints.resize(tls_point_cloud_.getCellPointCount(leafId));
+                if (!getCellPointsThreadSafe(leafId, reinterpret_cast<tls::Point*>(leafPoints.data()), leafPoints.size()))
+                    continue;
+
+                sequentialOk &= writer->mergePoints(leafPoints.data(), leafPoints.size(), src_transfo, pt_format_);
+            }
+        }
+
         removedPoints = removedPointsAtomic.load();
         return sequentialOk;
     }
@@ -1338,9 +1398,12 @@ bool EmbeddedScan::filterAndWrite(const TransformationModule& src_transfo,
     if (threadCount <= 1)
     {
         bool sequentialOk = true;
+        std::unordered_set<uint32_t> processedLeafCells;
+        processedLeafCells.reserve(cells.size());
         for (size_t cellIndex = 0; cellIndex < cells.size(); ++cellIndex)
         {
             const std::pair<uint32_t, bool>& cell = cells[cellIndex];
+            processedLeafCells.insert(cell.first);
             std::vector<PointXYZIRGB> points;
             points.resize(tls_point_cloud_.getCellPointCount(cell.first));
             if (!getCellPointsThreadSafe(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
@@ -1457,7 +1520,7 @@ bool EmbeddedScan::filterAndWrite(const TransformationModule& src_transfo,
     return resultOk.load();
 }
 
-bool EmbeddedScan::balanceColorsAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kMin, int kMax, double trimPercent, double sharpnessBlend, bool applyOnIntensity, bool applyOnRgb, const ExternalPointsProvider& externalPointsProvider, IScanFileWriter* writer, uint64_t& modifiedPoints, const ProgressCallback& progress)
+bool EmbeddedScan::balanceColorsAndWrite(const TransformationModule& src_transfo, const ClippingAssembly& clippingAssembly, int kMin, int kMax, double trimPercent, double sharpnessBlend, bool applyOnIntensity, bool applyOnRgb, const ExternalPointsProvider& externalPointsProvider, IScanFileWriter* writer, uint64_t& modifiedPoints, const ProgressCallback& progress, bool keepOutsidePoints)
 {
     ClippingAssembly localAssembly = deepCopyClippingAssembly(clippingAssembly);
     localAssembly.clearMatrix();
@@ -1473,7 +1536,9 @@ bool EmbeddedScan::balanceColorsAndWrite(const TransformationModule& src_transfo
     const size_t totalCells = cells.size();
     if (progress && totalCells > 0)
         progress(0, totalCells);
-    const size_t threadCount = resolveThreadCount(totalCells);
+    // KeepOutsidePoints requires deterministic local merging (balanced inside + untouched outside),
+    // therefore we keep the sequential path for this mode.
+    const size_t threadCount = keepOutsidePoints ? 1 : resolveThreadCount(totalCells);
     std::atomic<uint64_t> modifiedPointsAtomic{ 0 };
     std::atomic<bool> resultOk{ true };
 
@@ -1582,7 +1647,13 @@ bool EmbeddedScan::balanceColorsAndWrite(const TransformationModule& src_transfo
             if (effectiveKMax == 0 || effectiveKMin == 0)
             {
                 filtered = visiblePoints;
-                modifiedPointsAtomic.fetch_add(filtered.size());
+                if (keepOutsidePoints && cell.second)
+                {
+                    std::vector<PointXYZIRGB> outsidePoints;
+                    clipIndividualPoints(points, outsidePoints, localAssembly, true);
+                    filtered.insert(filtered.end(), outsidePoints.begin(), outsidePoints.end());
+                }
+                modifiedPointsAtomic.fetch_add(visiblePoints.size());
                 sequentialOk &= writer->addPoints(filtered.data(), filtered.size());
                 if (progress)
                     progress(cellIndex + 1, totalCells);
@@ -1650,11 +1721,53 @@ bool EmbeddedScan::balanceColorsAndWrite(const TransformationModule& src_transfo
                 filtered.push_back(updated);
             }
 
-            modifiedPointsAtomic.fetch_add(filtered.size());
+            if (keepOutsidePoints && cell.second)
+            {
+                std::vector<PointXYZIRGB> outsidePoints;
+                clipIndividualPoints(points, outsidePoints, localAssembly, true);
+                filtered.insert(filtered.end(), outsidePoints.begin(), outsidePoints.end());
+            }
+            modifiedPointsAtomic.fetch_add(visiblePoints.size());
             sequentialOk &= writer->addPoints(filtered.data(), filtered.size());
 
             if (progress)
                 progress(cellIndex + 1, totalCells);
+        }
+
+        if (keepOutsidePoints)
+        {
+            // Keep all untouched leaves that were not traversed by clipping.
+            // This guarantees full scan export in case 3.
+            std::vector<uint32_t> allLeafCells;
+            allLeafCells.reserve(m_vTreeCells.size());
+            std::function<void(uint32_t)> collectLeaves = [&](uint32_t cellId)
+            {
+                const TreeCell& treeCell = m_vTreeCells[cellId];
+                if (treeCell.m_isLeaf)
+                {
+                    allLeafCells.push_back(cellId);
+                    return;
+                }
+                for (int j = 0; j < 8; ++j)
+                {
+                    if (treeCell.m_children[j] != NO_CHILD)
+                        collectLeaves(treeCell.m_children[j]);
+                }
+            };
+            collectLeaves(m_uRootCell);
+
+            for (uint32_t leafId : allLeafCells)
+            {
+                if (processedLeafCells.find(leafId) != processedLeafCells.end())
+                    continue;
+
+                std::vector<PointXYZIRGB> leafPoints;
+                leafPoints.resize(tls_point_cloud_.getCellPointCount(leafId));
+                if (!getCellPointsThreadSafe(leafId, reinterpret_cast<tls::Point*>(leafPoints.data()), leafPoints.size()))
+                    continue;
+
+                sequentialOk &= writer->addPoints(leafPoints.data(), leafPoints.size());
+            }
         }
 
         modifiedPoints = modifiedPointsAtomic.load();
