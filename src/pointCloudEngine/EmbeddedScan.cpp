@@ -4445,8 +4445,22 @@ glm::dvec3 EmbeddedScan::getGlobalCoord(const glm::dvec3& localCoord) const
 
 bool EmbeddedScan::getCellPointsThreadSafe(uint32_t cellId, tls::Point* dst, size_t count) const
 {
-    std::lock_guard<std::mutex> lock(m_tlsReadMutex);
-    return tls_point_cloud_.getCellPoints(cellId, dst, count);
+    // Some cells can transiently fail to load while asynchronous streaming catches up.
+    // Retry a few times to avoid tiny missing square tiles in exported scans.
+    constexpr int kMaxAttempts = 3;
+    for (int attempt = 0; attempt < kMaxAttempts; ++attempt)
+    {
+        {
+            std::lock_guard<std::mutex> lock(m_tlsReadMutex);
+            if (tls_point_cloud_.getCellPoints(cellId, dst, count))
+                return true;
+        }
+
+        if (attempt + 1 < kMaxAttempts)
+            std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    }
+
+    return false;
 }
 
 
