@@ -97,7 +97,8 @@ ContextState ContextStatisticalOutlierFilter::start(Controller& controller)
         return (m_state = ContextState::abort);
     }
 
-    controller.updateInfo(new GuiDataStatisticalOutlierFilterDialogDisplay());
+    GraphManager::FilterClippingConfiguration clippingConfig = graphManager.getFilterClippingConfiguration();
+    controller.updateInfo(new GuiDataStatisticalOutlierFilterDialogDisplay((int)clippingConfig.mode));
 
     return (m_state = ContextState::waiting_for_input);
 }
@@ -159,7 +160,10 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
     controller.updateInfo(new GuiDataProcessingSplashScreenStart(totalProgressSteps, TEXT_EXPORT_STAT_OUTLIER_TITLE_PROGESS, TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(0).arg(totalScans)));
 
     ClippingAssembly clippingAssembly;
-    graphManager.getClippingAssembly(clippingAssembly, true, false);
+    GraphManager::FilterClippingConfiguration clippingConfig = graphManager.getFilterClippingConfiguration();
+    if (!clippingConfig.clippings.empty())
+        graphManager.getClippingAssembly(clippingAssembly, clippingConfig.clippings);
+    const bool isSelectedInactiveMode = clippingConfig.mode == GraphManager::FilterOutputMode::FullScansSelectedInactiveClipping;
 
     OutlierStats globalStats;
     bool wasAborted = false;
@@ -258,8 +262,12 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
             TlScanOverseer::getInstance().computeOutlierStats(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, m_samplingPercent, m_beta, statsToUse, statsProgress);
         }
 
+        // In selected-inactive clipping mode we keep full scan output.
+        // We still compute stats on clippingToUse, but filtering is written on full scan.
+        ClippingAssembly emptyAssembly;
+        const ClippingAssembly* outputAssembly = isSelectedInactiveMode ? &emptyAssembly : clippingToUse;
         auto filterProgress = makeProgressCallback(scan_count, m_globalFiltering ? 0 : 50, m_globalFiltering ? 100 : 50);
-        bool res = TlScanOverseer::getInstance().filterOutliersAndWrite(old_guid, (TransformationModule)*&wScan, *clippingToUse, m_kNeighbors, statsToUse, m_nSigma, m_beta, scan_writer, deleted_point_count, filterProgress);
+        bool res = TlScanOverseer::getInstance().filterOutliersAndWrite(old_guid, (TransformationModule)*&wScan, *outputAssembly, m_kNeighbors, statsToUse, m_nSigma, m_beta, scan_writer, deleted_point_count, filterProgress);
         res &= scan_writer->finalizePointCloud();
         delete scan_writer;
 
