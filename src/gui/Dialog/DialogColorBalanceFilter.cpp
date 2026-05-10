@@ -10,6 +10,7 @@
 
 #include <QtCore/QSignalBlocker>
 #include <QtCore/QStandardPaths>
+#include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QFileDialog>
 
 #include <unordered_map>
@@ -130,6 +131,14 @@ DialogColorBalanceFilter::DialogColorBalanceFilter(IDataDispatcher& dataDispatch
             applyPreset(BalancePreset::Strong);
     });
 
+    // Enforce classic radio behavior: one checked button in the preset group,
+    // and no uncheck on re-click of the currently checked button.
+    QButtonGroup* presetGroup = new QButtonGroup(this);
+    presetGroup->setExclusive(true);
+    presetGroup->addButton(m_ui.radioButton_balanceLight);
+    presetGroup->addButton(m_ui.radioButton_balanceMedium);
+    presetGroup->addButton(m_ui.radioButton_balanceStrong);
+
     connect(m_ui.spinBox_kMin, qOverload<int>(&QSpinBox::valueChanged), this, [this](int value)
     {
         m_kMin = value;
@@ -181,6 +190,7 @@ void DialogColorBalanceFilter::informData(IGuiData* data)
     {
         auto dialogData = static_cast<GuiDataColorBalanceFilterDialogDisplay*>(data);
         updateAvailability(dialogData->m_rgbAvailable, dialogData->m_intensityAvailable, dialogData->m_rgbAndIntensityAvailable);
+        m_outputMode = dialogData->m_outputMode;
         refreshUI();
     }
     break;
@@ -226,6 +236,7 @@ void DialogColorBalanceFilter::cancelBalancing()
 void DialogColorBalanceFilter::translateUI()
 {
     setWindowTitle(TEXT_EXPORT_TITLE_COLOR_BALANCE);
+    m_ui.groupBox_outputMode->setTitle(TEXT_EXPORT_OUTPUT_MODE_TITLE);
 }
 
 void DialogColorBalanceFilter::refreshUI()
@@ -279,6 +290,7 @@ void DialogColorBalanceFilter::syncUiFromValues()
         m_ui.comboBox_file_format->setCurrentIndex(formatIndex);
 
     m_ui.checkBox_balanceIntensityRGB->setEnabled(m_rgbAndIntensityAvailable);
+    updateOutputModeText();
 }
 
 void DialogColorBalanceFilter::updateAvailability(bool rgbAvailable, bool intensityAvailable, bool rgbAndIntensityAvailable)
@@ -290,5 +302,22 @@ void DialogColorBalanceFilter::updateAvailability(bool rgbAvailable, bool intens
     if (!m_rgbAndIntensityAvailable)
     {
         m_applyOnIntensityAndRgb = false;
+    }
+}
+
+void DialogColorBalanceFilter::updateOutputModeText()
+{
+    switch (m_outputMode)
+    {
+    case 0:
+        m_ui.label_outputMode->setText(TEXT_EXPORT_OUTPUT_MODE_CASE1);
+        break;
+    case 2:
+        m_ui.label_outputMode->setText(TEXT_EXPORT_OUTPUT_MODE_CASE3);
+        break;
+    case 1:
+    default:
+        m_ui.label_outputMode->setText(TEXT_EXPORT_OUTPUT_MODE_CASE2);
+        break;
     }
 }
