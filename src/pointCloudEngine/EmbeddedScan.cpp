@@ -1036,9 +1036,12 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
     if (threadCount <= 1)
     {
         bool sequentialOk = true;
+        std::unordered_set<uint32_t> processedLeafCells;
+        processedLeafCells.reserve(cells.size());
         for (size_t cellIndex = 0; cellIndex < cells.size(); ++cellIndex)
         {
             const std::pair<uint32_t, bool>& cell = cells[cellIndex];
+            processedLeafCells.insert(cell.first);
             std::vector<PointXYZIRGB> points;
             points.resize(tls_point_cloud_.getCellPointCount(cell.first));
             if (!getCellPointsThreadSafe(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
@@ -1115,6 +1118,43 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
             if (progress)
                 progress(cellIndex + 1, totalCells);
         }
+
+        if (keepOutsidePoints)
+        {
+            // Keep all untouched leaves that were not traversed by clipping.
+            // This guarantees full scan export in case 3.
+            std::vector<uint32_t> allLeafCells;
+            allLeafCells.reserve(m_vTreeCells.size());
+            std::function<void(uint32_t)> collectLeaves = [&](uint32_t cellId)
+            {
+                const TreeCell& treeCell = m_vTreeCells[cellId];
+                if (treeCell.m_isLeaf)
+                {
+                    allLeafCells.push_back(cellId);
+                    return;
+                }
+                for (int j = 0; j < 8; ++j)
+                {
+                    if (treeCell.m_children[j] != NO_CHILD)
+                        collectLeaves(treeCell.m_children[j]);
+                }
+            };
+            collectLeaves(m_uRootCell);
+
+            for (uint32_t leafId : allLeafCells)
+            {
+                if (processedLeafCells.find(leafId) != processedLeafCells.end())
+                    continue;
+
+                std::vector<PointXYZIRGB> leafPoints;
+                leafPoints.resize(tls_point_cloud_.getCellPointCount(leafId));
+                if (!getCellPointsThreadSafe(leafId, reinterpret_cast<tls::Point*>(leafPoints.data()), leafPoints.size()))
+                    continue;
+
+                sequentialOk &= writer->mergePoints(leafPoints.data(), leafPoints.size(), src_transfo, pt_format_);
+            }
+        }
+
         removedPoints = removedPointsAtomic.load();
         return sequentialOk;
     }
@@ -1358,9 +1398,12 @@ bool EmbeddedScan::filterAndWrite(const TransformationModule& src_transfo,
     if (threadCount <= 1)
     {
         bool sequentialOk = true;
+        std::unordered_set<uint32_t> processedLeafCells;
+        processedLeafCells.reserve(cells.size());
         for (size_t cellIndex = 0; cellIndex < cells.size(); ++cellIndex)
         {
             const std::pair<uint32_t, bool>& cell = cells[cellIndex];
+            processedLeafCells.insert(cell.first);
             std::vector<PointXYZIRGB> points;
             points.resize(tls_point_cloud_.getCellPointCount(cell.first));
             if (!getCellPointsThreadSafe(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
@@ -1689,6 +1732,42 @@ bool EmbeddedScan::balanceColorsAndWrite(const TransformationModule& src_transfo
 
             if (progress)
                 progress(cellIndex + 1, totalCells);
+        }
+
+        if (keepOutsidePoints)
+        {
+            // Keep all untouched leaves that were not traversed by clipping.
+            // This guarantees full scan export in case 3.
+            std::vector<uint32_t> allLeafCells;
+            allLeafCells.reserve(m_vTreeCells.size());
+            std::function<void(uint32_t)> collectLeaves = [&](uint32_t cellId)
+            {
+                const TreeCell& treeCell = m_vTreeCells[cellId];
+                if (treeCell.m_isLeaf)
+                {
+                    allLeafCells.push_back(cellId);
+                    return;
+                }
+                for (int j = 0; j < 8; ++j)
+                {
+                    if (treeCell.m_children[j] != NO_CHILD)
+                        collectLeaves(treeCell.m_children[j]);
+                }
+            };
+            collectLeaves(m_uRootCell);
+
+            for (uint32_t leafId : allLeafCells)
+            {
+                if (processedLeafCells.find(leafId) != processedLeafCells.end())
+                    continue;
+
+                std::vector<PointXYZIRGB> leafPoints;
+                leafPoints.resize(tls_point_cloud_.getCellPointCount(leafId));
+                if (!getCellPointsThreadSafe(leafId, reinterpret_cast<tls::Point*>(leafPoints.data()), leafPoints.size()))
+                    continue;
+
+                sequentialOk &= writer->addPoints(leafPoints.data(), leafPoints.size());
+            }
         }
 
         modifiedPoints = modifiedPointsAtomic.load();
