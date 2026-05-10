@@ -208,6 +208,19 @@ namespace control::project
         void undoFunction(Controller& controller) override;
         ControlType getType() const override;
     };
+
+    class SetAnimationLockImageSettings : public AControl
+    {
+    public:
+        explicit SetAnimationLockImageSettings(bool locked);
+        ~SetAnimationLockImageSettings();
+        void doFunction(Controller& controller) override;
+        bool canUndo() const override;
+        void undoFunction(Controller& controller) override;
+        ControlType getType() const override;
+    private:
+        bool m_locked;
+    };
 }
 
 #endif // !CONTROLPROJECT_H_

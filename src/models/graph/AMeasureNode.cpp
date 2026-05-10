@@ -1,4 +1,5 @@
 #include "models/graph/AMeasureNode.h"
+#include <algorithm>
 
 AMeasureNode::AMeasureNode()
     : AClippingNode()
@@ -35,7 +36,8 @@ void AMeasureNode::pushClippingGeometries(ClippingAssembly& clipAssembly, const 
             0.f, 0.f, 1.0f, 0.f,
             -center.x, -center.y, -center.z, 1.f);
 
-        glm::vec4 params(m_minClipDist, m_maxClipDist, glm::length(dir) / 2.0, 0.f);
+        const float halfLength = std::max(0.f, static_cast<float>(glm::length(dir) / 2.0 + getLengthThresholdClip()));
+        glm::vec4 params(m_minClipDist, m_maxClipDist, halfLength, 0.f);
 
         std::shared_ptr<IClippingGeometry> geom = std::make_shared<CylinderClippingGeometry>(m_clippingMode, localMat, params, 0);
         geom->isSelected = m_selected;

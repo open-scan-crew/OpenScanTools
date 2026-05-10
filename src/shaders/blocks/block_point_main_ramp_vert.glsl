@@ -19,14 +19,15 @@ void main()
     vec3 outColor = vec3(iNorm);
 
     vec4 localPos = vec4(vec3(posXY, posZ) * coordPrec + origin, 1.0);
+    vec4 worldPos4 = uScan.model * localPos;
 #ifdef _CLIPPING_ACTIVATED
-    gl_Position = uScan.model * localPos;
+    gl_Position = worldPos4;
 #else
-    gl_Position = uCam.projView * uScan.model * localPos;
+    gl_Position = uCam.projView * worldPos4;
 #endif
 
     // Apply the ramp on the color
-    vec4 rampPos = uCam.view * uScan.model * localPos;
+    vec4 rampPos = uCam.view * worldPos4;
 
     float r = pc.rampMax - pc.rampMin != 0 ? (length(rampPos.xyz) - pc.rampMin) / (pc.rampMax - pc.rampMin) : 0.f;
     if (r < 1.f && r > 0.0f)
@@ -39,5 +40,7 @@ void main()
     }
 
     fragColor = vec4(outColor, 1.0);
-    filterReject = evaluateColorimetricFilter(getRgbNorm(), getIntensityNorm());
+    filterReject = evaluateColorimetricFilter(getRgbNorm(), getIntensityNorm(), worldPos4.xyz);
+    if (gPolygonHighlight > 0.5)
+        fragColor.rgb = mix(fragColor.rgb, vec3(242.0 / 255.0, 214.0 / 255.0, 0.0), 0.85);
 }

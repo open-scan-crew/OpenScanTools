@@ -123,7 +123,7 @@
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>Create and edit tags templates</string>
+      <string>Create a new tag. You can select a pictogram (style) before creating. If you want to use a default name, enter it in the Attribute section.</string>
      </property>
      <property name="text">
       <string>Create</string>

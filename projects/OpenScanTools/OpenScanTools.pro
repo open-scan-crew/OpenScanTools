@@ -196,6 +196,7 @@ HEADERS += ../../ext/imgui/imconfig.h \
     ../../include/gui/toolBars/ToolBarAnimationGroup.h \
     ../../include/gui/toolBars/ToolBarMeasureShowOptions.h \
     ../../include/gui/toolBars/ToolBarClippingGroup.h \
+    ../../include/gui/toolBars/ToolBarPolygonalSelector.h \
     ../../include/gui/toolBars/ToolBarLucasExperimentGroup.h \
     ../../include/gui/toolBars/ToolBarExportPointCloud.h \
     ../../include/gui/toolBars/ToolBarOthersModelsGroup.h \
@@ -696,6 +697,7 @@ HEADERS += ../../ext/imgui/imconfig.h \
     ../../include/controller/functionSystem/ContextBoxAttachedCreation.h \
     ../../include/controller/functionSystem/ContextBoxDuplication.h \
     ../../include/controller/functionSystem/ContextClippingBoxCreation.h \
+    ../../include/controller/functionSystem/ContextPolygonalSelector.h \
     ../../include/controller/functionSystem/ContextBigCylinderFit.h \
     ../../include/controller/functionSystem/ContextConvertionScan.h \
     ../../include/controller/functionSystem/ContextCreateTag.h \
@@ -785,6 +787,7 @@ SOURCES += ../../ext/imgui/imgui.cpp \
     ../../src/gui/toolBars/ToolBarBaseMeasureGroup.cpp \
     ../../src/gui/toolBars/ToolBarBeamDetection.cpp \
     ../../src/gui/toolBars/ToolBarClippingGroup.cpp \
+    ../../src/gui/toolBars/ToolBarPolygonalSelector.cpp \
     ../../src/gui/toolBars/ToolBarClippingParameters.cpp \
     ../../src/gui/toolBars/ToolBarConnectPipeGroup.cpp \
     ../../src/gui/toolBars/ToolBarExportGroup.cpp \
@@ -1270,6 +1273,7 @@ SOURCES += ../../ext/imgui/imgui.cpp \
     ../../src/controller/functionSystem/ContextBoxAttachedCreation.cpp \
     ../../src/controller/functionSystem/ContextBoxDuplication.cpp \
     ../../src/controller/functionSystem/ContextClippingBoxCreation.cpp \
+    ../../src/controller/functionSystem/ContextPolygonalSelector.cpp \
     ../../src/controller/functionSystem/ContextBigCylinderFit.cpp \
     ../../src/controller/functionSystem/ContextColumnTilt.cpp \
     ../../src/controller/functionSystem/ContextConvertionScan.cpp \
@@ -1385,6 +1389,7 @@ FORMS += ../../src/gui/forms/AddHyperlinkDialog.ui \
     ../../src/gui/forms/toolbar_basemeasuregroup.ui \
     ../../src/gui/forms/toolbar_beamDetection.ui \
     ../../src/gui/forms/toolbar_clippingGroup.ui \
+    ../../src/gui/forms/toolbar_selector.ui \
     ../../src/gui/forms/ListListDialog.ui \
     ../../src/gui/forms/ListModifierDialog.ui \
     ../../src/gui/forms/ListNameDialog.ui \

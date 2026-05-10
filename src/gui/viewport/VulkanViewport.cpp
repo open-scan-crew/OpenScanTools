@@ -1,5 +1,6 @@
 #include "gui/viewport/VulkanViewport.h"
 #include "controller/controls/ControlPicking.h"
+#include "controller/controls/ControlFunction.h"
 #include "controller/controls/ControlViewport.h"
 
 #include "gui/GuiData/GuiDataRendering.h"
@@ -13,6 +14,7 @@
 #include "models/ElementType.h"
 
 #include "utils/math/trigo.h"
+#include "utils/Logger.h"
 
 #include "vulkan/TlFramebuffer_T.h"
 #include "vulkan/VulkanManager.h"
@@ -22,6 +24,69 @@
 
 #include <QtGui/qevent.h>
 #include <QApplication.h>
+#include <algorithm>
+#include <cmath>
+
+namespace
+{
+    bool blockExamineOnDoubleClick(ContextType contextType)
+    {
+        switch (contextType)
+        {
+        case ContextType::tagCreation:
+        case ContextType::tagDuplication:
+        case ContextType::tagMove:
+        case ContextType::tagDeletion:
+        case ContextType::beamBending:
+        case ContextType::columnTilt:
+        case ContextType::fitCylinder:
+        case ContextType::simpleMeasure:
+        case ContextType::pointsMeasure:
+        case ContextType::pointMeasure:
+        case ContextType::pointCreation:
+        case ContextType::Sphere:
+        case ContextType::Slab2Click:
+        case ContextType::Slab1Click:
+        case ContextType::ClicsSphere4:
+        case ContextType::pointToCylinder:
+        case ContextType::clippingBoxCreation:
+        case ContextType::clippingBoxAttached3Points:
+        case ContextType::clippingBoxAttached2Points:
+        case ContextType::polygonalSelector:
+        case ContextType::boxDuplication:
+        case ContextType::pointCloudObjectCreation:
+        case ContextType::pointCloudObjectDuplication:
+        case ContextType::meshObjectCreation:
+        case ContextType::meshObjectDuplication:
+        case ContextType::meshDistance:
+        case ContextType::bigCylinderFit:
+        case ContextType::pointToPlane:
+        case ContextType::pointToPlane3:
+        case ContextType::cylinderToPlane:
+        case ContextType::cylinderToPlane3:
+        case ContextType::cylinderToCylinder:
+        case ContextType::experiment:
+        case ContextType::deletePoints:
+        case ContextType::multipleCylinders:
+        case ContextType::cylinder2ClickExtend:
+        case ContextType::testCylinder:
+        case ContextType::pipeDetectionConnexion:
+        case ContextType::pipePostConnexion:
+        case ContextType::beamDetection:
+        case ContextType::viewpointCreation:
+        case ContextType::viewpointUpdate:
+        case ContextType::planeConnexion:
+        case ContextType::planeDetection:
+        case ContextType::setOfPoints:
+        case ContextType::peopleRemover:
+        case ContextType::fitTorus:
+        case ContextType::trajectory:
+            return true;
+        default:
+            return false;
+        }
+    }
+}
 
 
 double calcTranslationSpeedFactor(NavigationParameters navParam)
@@ -57,6 +122,7 @@ VulkanViewport::VulkanViewport(IDataDispatcher& dataDispatcher, float guiScale)
     registerGuiDataFunction(guiDType::renderAnimationSpeed, &VulkanViewport::onRenderAnimationSpeed);
     registerGuiDataFunction(guiDType::renderAnimationLoop, &VulkanViewport::onRenderAnimationLoop);
     registerGuiDataFunction(guiDType::renderStartAnimation, &VulkanViewport::onRenderStartAnimation);
+    registerGuiDataFunction(guiDType::renderPauseAnimation, &VulkanViewport::onRenderPauseAnimation);
     registerGuiDataFunction(guiDType::renderStopAnimation, &VulkanViewport::onRenderStopAnimation);
     registerGuiDataFunction(guiDType::renderCleanAnimationList, &VulkanViewport::onRenderCleanAnimationList);
     registerGuiDataFunction(guiDType::userOrientation, &VulkanViewport::onUserOrientation);
@@ -64,6 +130,8 @@ VulkanViewport::VulkanViewport(IDataDispatcher& dataDispatcher, float guiScale)
     registerGuiDataFunction(guiDType::quitEvent, &VulkanViewport::onQuitEvent);
     registerGuiDataFunction(guiDType::renderDecimationOptions, &VulkanViewport::onRenderDecimationOptions);
 	registerGuiDataFunction(guiDType::renderOctreePrecision, &VulkanViewport::onRenderOctreePrecision);
+    registerGuiDataFunction(guiDType::activatedFunctions, &VulkanViewport::onActivatedFunctions);
+    registerGuiDataFunction(guiDType::renderPolygonalSelector, &VulkanViewport::onRenderPolygonalSelectorPreview);
 }
 
 VulkanViewport::~VulkanViewport()
@@ -114,10 +182,80 @@ void VulkanViewport::onRenderAnimationLoop(IGuiData* data)
 
 void VulkanViewport::onRenderStartAnimation(IGuiData* data)
 {
+    auto startData = static_cast<GuiDataRenderStartAnimation*>(data);
     WritePtr<CameraNode> wCam = m_cam.get();
     if (!wCam)
         return;
-    wCam->startAnimation(m_saveImagesAnim);
+
+    if (startData->m_isOrbital)
+    {
+        // Debug-only animation traces removed (pass 1 log cleanup): keep runtime behavior unchanged.
+        m_viewpointStartInputLockArmed = false;
+        if (startData->m_resume && m_isOrbitalAnimationActive && m_isOrbitalAnimationPaused)
+        {
+            m_orbitalStartTime = std::chrono::steady_clock::now();
+            m_isOrbitalAnimationPaused = false;
+            return;
+        }
+
+        m_isOrbitalAnimationActive = true;
+        m_isOrbitalAnimationPaused = false;
+        m_orbitalDurationSeconds = std::max(0.001, startData->m_durationSeconds);
+        m_orbitalElapsedSeconds = 0.0;
+        m_orbitalAppliedAngle = 0.0;
+        m_orbitalAppliedRealAngle = 0.0;
+        m_orbitalVertical = startData->m_verticalOrbital;
+        m_orbitalDirectionSign = -1.0; // current vertical behavior: bottom -> top
+        const int maxDegrees = m_orbitalVertical ? 180 : 360;
+        const double requestedAngleRad = glm::radians(static_cast<double>(std::clamp(startData->m_orbitalDegrees, 1, maxDegrees)));
+        if (m_orbitalVertical)
+        {
+            const double phi = wCam->getPhi();
+            const double remainingUntilClamp = (m_orbitalDirectionSign >= 0.0)
+                ? std::max(0.0, 0.0 - phi)
+                : std::max(0.0, phi + M_PI);
+            m_orbitalTotalAngleRad = std::min(requestedAngleRad, remainingUntilClamp);
+        }
+        else
+        {
+            m_orbitalTotalAngleRad = requestedAngleRad;
+        }
+        m_orbitalStartTime = std::chrono::steady_clock::now();
+        m_orbitalUsesExamine = wCam->isExamineActive();
+        return;
+    }
+
+    if (startData->m_resume)
+    {
+        m_viewpointStartInputLockArmed = false;
+        wCam->resumeAnimation();
+    }
+    else
+    {
+        wCam->setViewpointRenderInterpolationEnabled(startData->m_interpolateViewpointRenderings);
+        const bool started = wCam->startAnimation(m_saveImagesAnim);
+        m_viewpointStartInputLockArmed = started;
+        if (started)
+            m_MI.resetDeltas();
+    }
+}
+
+void VulkanViewport::onRenderPauseAnimation(IGuiData* data)
+{
+    (void)data;
+    WritePtr<CameraNode> wCam = m_cam.get();
+    if (!wCam)
+        return;
+
+    if (m_isOrbitalAnimationActive && !m_isOrbitalAnimationPaused)
+    {
+        m_isOrbitalAnimationPaused = true;
+        const std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+        m_orbitalElapsedSeconds += std::chrono::duration<double>(now - m_orbitalStartTime).count();
+        return;
+    }
+
+    wCam->pauseAnimation();
 }
 
 void VulkanViewport::onRenderStopAnimation(IGuiData* data)
@@ -125,6 +263,16 @@ void VulkanViewport::onRenderStopAnimation(IGuiData* data)
     WritePtr<CameraNode> wCam = m_cam.get();
     if (!wCam)
         return;
+
+    m_isOrbitalAnimationActive = false;
+    m_isOrbitalAnimationPaused = false;
+    m_viewpointStartInputLockArmed = false;
+    m_orbitalElapsedSeconds = 0.0;
+    m_orbitalAppliedAngle = 0.0;
+    m_orbitalAppliedRealAngle = 0.0;
+    m_orbitalTotalAngleRad = 0.0;
+    m_orbitalVertical = false;
+    m_orbitalDirectionSign = 1.0;
     wCam->endAnimation();
 }
 
@@ -144,6 +292,9 @@ void VulkanViewport::onUserOrientation(IGuiData* data)
         return;
     wCam->setApplyUserOrientation(true);
     wCam->setUserOrientation(userOrientation->m_userOrientation);
+    // Persist toolbar user-orientation mode in camera/viewpoint display state.
+    wCam->m_viewpointUserOrientationEnabled = true;
+    wCam->m_viewpointUserOrientationId = userOrientation->m_userOrientation.getId().str();
     Logger::log(LoggerMode::GuiLog) << "Viewport - User orientation name : " << userOrientation->m_userOrientation.getName().toStdString() << Logger::endl;
 }
 
@@ -153,6 +304,8 @@ void VulkanViewport::onProjectOrientation(IGuiData* data)
     if (!wCam)
         return;
     wCam->setApplyUserOrientation(false);
+    wCam->m_viewpointUserOrientationEnabled = false;
+    wCam->m_viewpointUserOrientationId.clear();
 }
 
 void VulkanViewport::onQuitEvent(IGuiData* data)
@@ -169,6 +322,30 @@ void VulkanViewport::onRenderOctreePrecision(IGuiData* data)
 {
 	m_octreePrecision = static_cast<GuiDataRenderOctreePrecision*>(data)->m_precision;
 	m_refreshViewport = true;
+}
+
+void VulkanViewport::onActivatedFunctions(IGuiData* data)
+{
+    auto* functionData = static_cast<GuiDataActivatedFunctions*>(data);
+    m_isDoubleClickExamineBlocked = blockExamineOnDoubleClick(functionData->type);
+    m_lockNavigationForCurrentContext = (functionData->type == ContextType::polygonalSelector);
+    if (!m_lockNavigationForCurrentContext)
+    {
+        m_polygonalSelectorPreview.clear();
+        m_polygonalSelectorPreviewClosed = false;
+    }
+}
+
+
+void VulkanViewport::onRenderPolygonalSelectorPreview(IGuiData* data)
+{
+    auto* selectorData = static_cast<GuiDataRenderPolygonalSelector*>(data);
+    m_polygonalSelectorPreview = selectorData->m_previewVertices;
+    m_polygonalSelectorPreviewClosed = selectorData->m_previewClosed;
+
+    m_polygonalSelectorEnabled = selectorData->m_settings.enabled;
+    m_polygonalSelectorShowSelected = selectorData->m_settings.showSelected;
+    m_refreshViewport = true;
 }
 
 void VulkanViewport::initSurface()
@@ -212,10 +389,64 @@ void VulkanViewport::updateInputs(WritePtr<CameraNode>& wCam, SafePtr<Manipulato
     // Update automatic animation already running
     wCam->updateAnimation();
 
+    if (m_isOrbitalAnimationActive && !m_isOrbitalAnimationPaused)
+    {
+        const double elapsed = m_orbitalElapsedSeconds + std::chrono::duration<double>(std::chrono::steady_clock::now() - m_orbitalStartTime).count();
+        const double clampedElapsed = std::min(elapsed, m_orbitalDurationSeconds);
+        const double targetAngle = m_orbitalTotalAngleRad * (clampedElapsed / m_orbitalDurationSeconds);
+        const double deltaAngle = targetAngle - m_orbitalAppliedAngle;
+
+        if (deltaAngle > 0.0)
+        {
+            if (m_orbitalVertical)
+            {
+                const double signedDelta = m_orbitalDirectionSign * deltaAngle;
+                const double phiBefore = wCam->getPhi();
+                if (m_orbitalUsesExamine)
+                    wCam->moveAroundExamine(0.0, 0.0, signedDelta);
+                else
+                    wCam->pitch(signedDelta);
+                const double phiAfter = wCam->getPhi();
+                m_orbitalAppliedRealAngle += std::abs(phiAfter - phiBefore);
+            }
+            else
+            {
+                if (m_orbitalUsesExamine)
+                    wCam->moveAroundExamine(0.0, deltaAngle, 0.0);
+                else
+                    wCam->yaw(deltaAngle);
+                m_orbitalAppliedRealAngle = targetAngle;
+            }
+            m_orbitalAppliedAngle = targetAngle;
+        }
+
+        const bool reachedAngle = m_orbitalAppliedRealAngle + 1e-9 >= m_orbitalTotalAngleRad;
+        if (clampedElapsed >= m_orbitalDurationSeconds || reachedAngle)
+        {
+            m_isOrbitalAnimationActive = false;
+            m_isOrbitalAnimationPaused = false;
+            m_orbitalElapsedSeconds = 0.0;
+            m_orbitalAppliedAngle = 0.0;
+            m_orbitalAppliedRealAngle = 0.0;
+            m_orbitalTotalAngleRad = 0.0;
+            m_orbitalVertical = false;
+            m_orbitalDirectionSign = 1.0;
+            m_dataDispatcher.updateInformation(new GuiDataRenderStopAnimation());
+        }
+    }
+
     updateProjNaviMode(wCam); // here or after ?
 
+    bool skipUserInputThisFrame = false;
+    if (m_viewpointStartInputLockArmed)
+    {
+        skipUserInputThisFrame = true;
+        m_viewpointStartInputLockArmed = false;
+        m_MI.resetDeltas();
+    }
+
     // Skip inputs when in animation mode
-    if (!wCam->isAnimated())
+    if (!skipUserInputThisFrame && !wCam->isAnimated() && !m_isOrbitalAnimationActive)
     {
         updateMouseInputEffect(wCam, manipNode);
         applyMouseInput(wCam, manipNode);
@@ -334,6 +565,28 @@ Rect2D VulkanViewport::getHoverRect() const
     return m_hoverRect;
 }
 
+
+const std::vector<glm::vec2>& VulkanViewport::getPolygonalSelectorPreview() const
+{
+    return m_polygonalSelectorPreview;
+}
+
+bool VulkanViewport::isPolygonalSelectorPreviewClosed() const
+{
+    return m_polygonalSelectorPreviewClosed;
+}
+
+
+bool VulkanViewport::isPolygonalSelectorEnabled() const
+{
+    return m_polygonalSelectorEnabled;
+}
+
+bool VulkanViewport::isPolygonalSelectorShowSelected() const
+{
+    return m_polygonalSelectorShowSelected;
+}
+
 glm::ivec2 VulkanViewport::getMousePos() const
 {
     return glm::ivec2(m_MI.lastX, m_MI.lastY);
@@ -380,6 +633,9 @@ void VulkanViewport::doAction(const WritePtr<CameraNode>& wCam, SafePtr<Manipula
             break;
         case VulkanViewport::Action::Click:
             m_dataDispatcher.sendControl(new control::picking::Click(click));
+            break;
+        case VulkanViewport::Action::Validate:
+            m_dataDispatcher.sendControl(new control::function::Validate());
             break;
         case VulkanViewport::Action::Examine:
         {
@@ -517,9 +773,13 @@ void VulkanViewport::mousePressEvent(QMouseEvent *_event)
         m_MI.leftButtonPressed = true;
         break;
     case Qt::RightButton:
+        if (m_lockNavigationForCurrentContext)
+            break;
         m_MI.rightButtonPressed = true;
         break;
     case Qt::MiddleButton:
+        if (m_lockNavigationForCurrentContext)
+            break;
         m_MI.middleButtonPressed = true;
         break;
     default:
@@ -541,6 +801,11 @@ void VulkanViewport::mouseReleaseEvent(QMouseEvent *_event)
     case Qt::LeftButton:
     {
         m_MI.leftButtonPressed = false;
+        if (m_ignoreNextLeftReleaseClick)
+        {
+            m_ignoreNextLeftReleaseClick = false;
+            break;
+        }
         if (m_mouseInputEffect == MouseInputEffect::None)
         {
             m_actionToPull = Action::Click;
@@ -578,8 +843,16 @@ void VulkanViewport::mouseDoubleClickEvent(QMouseEvent* _event)
 
     if (_event->button() == Qt::LeftButton)
     {
-        m_forceObjectCenterOnExamine = true;
-        m_actionToPull = Action::Examine;
+        if (!m_isDoubleClickExamineBlocked)
+        {
+            m_forceObjectCenterOnExamine = true;
+            m_actionToPull = Action::Examine;
+        }
+        else
+        {
+            m_ignoreNextLeftReleaseClick = true;
+            m_actionToPull = Action::Validate;
+        }
     }
     else
         m_actionToPull = Action::DoubleClick;
@@ -732,12 +1005,24 @@ void VulkanViewport::keyReleaseEvent(QKeyEvent* _event)
 
 void VulkanViewport::wheelEvent(QWheelEvent* _event)
 {
+    if (m_lockNavigationForCurrentContext)
+        return;
+
     m_MI.wheel += m_navParams.wheelInverted ? _event->angleDelta().y() : -_event->angleDelta().y();
 }
 
 void VulkanViewport::updateMouseInputEffect(WritePtr<CameraNode>& wCam, SafePtr<ManipulatorNode>& manipNode)
 {
     std::lock_guard<std::mutex> lock(m_inputMutex);
+
+    if (m_lockNavigationForCurrentContext)
+    {
+        m_mouseInputEffect = MouseInputEffect::None;
+        m_MI.deltaX = 0;
+        m_MI.deltaY = 0;
+        m_MI.wheel = 0;
+        return;
+    }
 
     bool hasMoved = (m_MI.deltaX != 0) || (m_MI.deltaY != 0);
 
@@ -978,6 +1263,17 @@ void VulkanViewport::applyMouseInput(WritePtr<CameraNode>& wCam, SafePtr<Manipul
 void VulkanViewport::applyKeyboardInput(WritePtr<CameraNode>& wCam)
 {
     std::lock_guard<std::mutex> lock(m_inputMutex);
+
+    if (m_lockNavigationForCurrentContext)
+    {
+        if (wCam)
+        {
+            wCam->setSpeedRight(0.0);
+            wCam->setSpeedForward(0.0);
+            wCam->setSpeedUp(0.0);
+        }
+        return;
+    }
 
     double leftRightSum(0.);
     double upDownSum(0.);

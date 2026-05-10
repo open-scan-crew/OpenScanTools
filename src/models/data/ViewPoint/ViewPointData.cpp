@@ -5,6 +5,57 @@
 
 #include "models/graph/AClippingNode.h"
 #include "models/graph/ViewPointNode.h"
+#include "models/graph/PointCloudNode.h"
+
+namespace
+{
+	bool supportsViewpointTransform(ElementType type)
+	{
+		return type == ElementType::Box ||
+			type == ElementType::Cylinder ||
+			type == ElementType::Sphere ||
+			type == ElementType::MeshObject ||
+			type == ElementType::Tag ||
+			type == ElementType::Point ||
+			type == ElementType::PCO;
+	}
+
+	bool supportsViewpointColor(ElementType type)
+	{
+		return type == ElementType::Box ||
+			type == ElementType::Cylinder ||
+			type == ElementType::Sphere ||
+			type == ElementType::MeshObject ||
+			type == ElementType::Tag ||
+			type == ElementType::Point ||
+			type == ElementType::PCO ||
+			type == ElementType::Cluster ||
+			type == ElementType::Scan;
+	}
+
+	bool supportsViewpointClippable(ElementType type)
+	{
+		return type == ElementType::Scan || type == ElementType::PCO;
+	}
+
+	bool supportsViewpointClippingDistances(ElementType type)
+	{
+		return type == ElementType::Box ||
+			type == ElementType::Tag ||
+			type == ElementType::Point ||
+			type == ElementType::Cylinder ||
+			type == ElementType::Sphere ||
+			type == ElementType::SimpleMeasure ||
+			type == ElementType::PolylineMeasure;
+	}
+
+	bool supportsLengthThreshold(ElementType type)
+	{
+		return type == ElementType::Cylinder ||
+			type == ElementType::SimpleMeasure ||
+			type == ElementType::PolylineMeasure;
+	}
+}
 
 ViewPointData::ViewPointData()
 {}
@@ -27,6 +78,10 @@ void ViewPointData::copyViewPointData(const ViewPointData& data)
 	m_activeRamps = data.getActiveRamps();
 	m_visibleObjects = data.getVisibleObjects();
 	m_scanClusterColors = data.getScanClusterColors();
+	m_objectsClippable = data.getObjectsClippable();
+	m_objectsTransform = data.getObjectsTransform();
+	m_objectsClippingDistances = data.getObjectsClippingDistances();
+	m_objectsRampDistances = data.getObjectsRampDistances();
 }
 
 void ViewPointData::setPanoramicScan(SafePtr<PointCloudNode> id)
@@ -62,6 +117,26 @@ void ViewPointData::setVisibleObjects(const std::unordered_set<SafePtr<AGraphNod
 void ViewPointData::setScanClusterColors(const std::unordered_map<SafePtr<AGraphNode>, Color32>& map)
 {
 	m_scanClusterColors = map;
+}
+
+void ViewPointData::setObjectsClippable(const std::unordered_map<SafePtr<AGraphNode>, bool>& map)
+{
+	m_objectsClippable = map;
+}
+
+void ViewPointData::setObjectsTransform(const std::unordered_map<SafePtr<AGraphNode>, TransformationModule>& map)
+{
+	m_objectsTransform = map;
+}
+
+void ViewPointData::setObjectsClippingDistances(const std::unordered_map<SafePtr<AGraphNode>, ClippingDistances>& map)
+{
+	m_objectsClippingDistances = map;
+}
+
+void ViewPointData::setObjectsRampDistances(const std::unordered_map<SafePtr<AGraphNode>, RampDistances>& map)
+{
+	m_objectsRampDistances = map;
 }
 
 bool ViewPointData::isPanoramicScan() const
@@ -109,6 +184,26 @@ const std::unordered_map<SafePtr<AGraphNode>, Color32>& ViewPointData::getScanCl
 	return m_scanClusterColors;
 }
 
+const std::unordered_map<SafePtr<AGraphNode>, bool>& ViewPointData::getObjectsClippable() const
+{
+	return m_objectsClippable;
+}
+
+const std::unordered_map<SafePtr<AGraphNode>, TransformationModule>& ViewPointData::getObjectsTransform() const
+{
+	return m_objectsTransform;
+}
+
+const std::unordered_map<SafePtr<AGraphNode>, ViewPointData::ClippingDistances>& ViewPointData::getObjectsClippingDistances() const
+{
+	return m_objectsClippingDistances;
+}
+
+const std::unordered_map<SafePtr<AGraphNode>, ViewPointData::RampDistances>& ViewPointData::getObjectsRampDistances() const
+{
+	return m_objectsRampDistances;
+}
+
 void ViewPointData::updateViewpointsObjectsValue(Controller& controller, SafePtr<ViewPointNode> viewpoint)
 {
 	GraphManager& graphManager = controller.getGraphManager();
@@ -131,11 +226,46 @@ void ViewPointData::updateViewpointsObjectsValue(Controller& controller, SafePtr
 	std::unordered_set<SafePtr<AClippingNode>> activeRamps = graphManager.getRampObjects(true, false);
 
 	std::unordered_map<SafePtr<AGraphNode>, Color32> scanClusterColors;
-	for (const SafePtr<AGraphNode>& object : graphManager.getNodesByTypes({ ElementType::Cluster, ElementType::Scan }))
+	std::unordered_map<SafePtr<AGraphNode>, bool> objectsClippable;
+	std::unordered_map<SafePtr<AGraphNode>, TransformationModule> objectsTransform;
+	std::unordered_map<SafePtr<AGraphNode>, ClippingDistances> objectsClippingDistances;
+	std::unordered_map<SafePtr<AGraphNode>, RampDistances> objectsRampDistances;
+	for (const SafePtr<AGraphNode>& object : graphManager.getProjectNodes())
 	{
 		ReadPtr<AGraphNode> rObject = object.cget();
-		if (rObject)
+		if (!rObject)
+			continue;
+
+		const ElementType type = rObject->getType();
+
+		if (supportsViewpointColor(type))
 			scanClusterColors[object] = rObject->getColor();
+
+		if (supportsViewpointClippable(type))
+		{
+			const PointCloudNode* pointCloud = static_cast<const PointCloudNode*>(rObject.operator->());
+			objectsClippable[object] = pointCloud->getClippable();
+		}
+
+		if (supportsViewpointTransform(type))
+			objectsTransform[object] = rObject->getTransformationModule();
+
+		if (supportsViewpointClippingDistances(type))
+		{
+			const AClippingNode* clippingObject = static_cast<const AClippingNode*>(rObject.operator->());
+			ClippingDistances clipDistances;
+			clipDistances.minClip = clippingObject->getMinClipDist();
+			clipDistances.maxClip = clippingObject->getMaxClipDist();
+			clipDistances.lengthThreshold = supportsLengthThreshold(type) ? clippingObject->getLengthThresholdClip() : 0.f;
+			objectsClippingDistances[object] = clipDistances;
+
+			RampDistances rampDistances;
+			rampDistances.minRamp = clippingObject->getRampMin();
+			rampDistances.maxRamp = clippingObject->getRampMax();
+			rampDistances.stepsRamp = clippingObject->getRampSteps();
+			rampDistances.rampClamped = clippingObject->isRampClamped();
+			objectsRampDistances[object] = rampDistances;
+		}
 	}
 
 	std::unordered_set<SafePtr<AGraphNode>> visible;
@@ -152,5 +282,9 @@ void ViewPointData::updateViewpointsObjectsValue(Controller& controller, SafePtr
 	wVP->setPhaseClippings(phases);
 	wVP->setActiveRamps(activeRamps);
 	wVP->setScanClusterColors(scanClusterColors);
+	wVP->setObjectsClippable(objectsClippable);
+	wVP->setObjectsTransform(objectsTransform);
+	wVP->setObjectsClippingDistances(objectsClippingDistances);
+	wVP->setObjectsRampDistances(objectsRampDistances);
 	wVP->setVisibleObjects(visible);
 }

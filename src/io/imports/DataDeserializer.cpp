@@ -4,6 +4,7 @@
 #include "utils/Logger.h"
 
 #include "models/application/UserOrientation.h"
+#include "models/application/ViewPointAnimation.h"
 #include "models/project/ProjectInfos.h"
 #include "models/application/Author.h"
 
@@ -11,6 +12,7 @@
 #include "controller/ControllerContext.h"
 
 #include "utils/ProjectColor.hpp"
+#include "pointCloudEngine/PCE_core.h"
 
 #include "models/graph/TagNode.h"
 #include "models/graph/PointNode.h"
@@ -38,6 +40,27 @@
 #include "models/graph/MeshObjectNode.h"
 
 #include "magic_enum/magic_enum.hpp"
+
+#include <algorithm>
+#include <string>
+
+namespace
+{
+std::string makePolygonNameFromIndex(size_t index)
+{
+    return std::string("polygon_") + std::to_string(index + 1);
+}
+
+uint32_t getPolygonSuffix(const std::string& name)
+{
+    if (name.rfind("polygon_", 0) != 0)
+        return 0;
+
+    bool ok = false;
+    int suffix = QString::fromStdString(name.substr(8)).toInt(&ok);
+    return (ok && suffix > 0) ? static_cast<uint32_t>(suffix) : 0;
+}
+}
 
 #define IOLOG Logger::log(LoggerMode::IOLog)
 
@@ -216,6 +239,14 @@ bool ImportClippingData(const nlohmann::json& json, ClippingData& data)
         IOLOG << "ImportClippingData MaxClipDistance read error" << LOGENDL;
     }
 
+    if (json.find(Key_LengthThresholdClip) != json.end())
+        data.setLengthThresholdClip((json.at(Key_LengthThresholdClip).get<float>()));
+    else
+    {
+        IOLOG << "ImportClippingData LengthThresholdClip read missing, default used" << LOGENDL;
+        data.setLengthThresholdClip(0.f);
+    }
+
     if (json.find(Key_Active) != json.end())
         data.setClippingActive((json.at(Key_Active).get<bool>()));
     else
@@ -348,7 +379,19 @@ bool ImportPointCloudNode(const nlohmann::json& json, PointCloudNode& data)
     bool retVal = true;
 
     if (json.find(Key_Path) != json.end())
-        data.setTlsFilePath(Utils::from_utf8(json.at(Key_Path).get<std::string>()), false);
+    {
+        const std::filesystem::path scanPath = Utils::from_utf8(json.at(Key_Path).get<std::string>());
+        tls::ScanGuid scanGuid;
+
+        // Pass 2.1:
+        // Use a lightweight GUID lookup during project reload to avoid
+        // registering hundreds of scans as active runtime resources.
+        // Runtime activation is handled later by rendering/streaming needs.
+        if (!tlLookupScanGuid(scanPath, scanGuid))
+            scanGuid = tls::ScanGuid();
+
+        data.setTlsFilePath(scanPath, false, scanGuid, false);
+    }
     else
     {
         IOLOG << "Scan Path read error" << LOGENDL;
@@ -473,6 +516,22 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
         retVal = false;
     }
 
+    // Pass 3 - cartoon RGB options (retro-compatible defaults when keys are absent).
+    if (json.find(Key_Cartoon_Value_Levels) != json.end())
+        data.m_cartoonValueLevels = json.at(Key_Cartoon_Value_Levels).get<int>();
+    else
+        data.m_cartoonValueLevels = 6;
+
+    if (json.find(Key_Cartoon_Saturation_Min_Percent) != json.end())
+        data.m_cartoonSaturationMinPercent = json.at(Key_Cartoon_Saturation_Min_Percent).get<int>();
+    else
+        data.m_cartoonSaturationMinPercent = 12;
+
+    if (json.find(Key_Cartoon_Saturation_Levels) != json.end())
+        data.m_cartoonSaturationLevels = json.at(Key_Cartoon_Saturation_Levels).get<int>();
+    else
+        data.m_cartoonSaturationLevels = 4;
+
     if (json.find(Key_Flat_Color) != json.end())
     {
         nlohmann::json color = json.at(Key_Flat_Color);
@@ -545,14 +604,20 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
         data.m_flashAdvanced = false;
     }
 
-    if (json.find(Key_FlashControl) != json.end())
-    {
-        data.m_flashControl = json.at(Key_FlashControl).get<float>();
-    }
+    if (json.find(Key_HighlightKneeStart) != json.end())
+        data.m_highlightKneeStart = json.at(Key_HighlightKneeStart).get<float>();
     else
-    {
-        data.m_flashControl = 50.f;
-    }
+        data.m_highlightKneeStart = 15.f;
+
+    if (json.find(Key_HighlightKneeSoftness) != json.end())
+        data.m_highlightKneeSoftness = json.at(Key_HighlightKneeSoftness).get<float>();
+    else
+        data.m_highlightKneeSoftness = 50.f;
+
+    if (json.find(Key_AdvancedFlashBoost) != json.end())
+        data.m_advancedFlashBoost = json.at(Key_AdvancedFlashBoost).get<float>();
+    else
+        data.m_advancedFlashBoost = 50.f;
 
     if (json.find(Key_Transparency) != json.end())
     {
@@ -713,6 +778,145 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
         }
     }
 
+    if (json.find(Key_Polygonal_Selector) != json.end())
+    {
+        const auto& selectorJson = json.at(Key_Polygonal_Selector);
+        if (selectorJson.find(Key_Polygonal_Selector_Enabled) != selectorJson.end())
+            data.m_polygonalSelector.enabled = selectorJson.at(Key_Polygonal_Selector_Enabled).get<bool>();
+        if (selectorJson.find(Key_Polygonal_Selector_Show) != selectorJson.end())
+            data.m_polygonalSelector.showSelected = selectorJson.at(Key_Polygonal_Selector_Show).get<bool>();
+        if (selectorJson.find(Key_Polygonal_Selector_Active) != selectorJson.end())
+            data.m_polygonalSelector.active = selectorJson.at(Key_Polygonal_Selector_Active).get<bool>();
+        if (selectorJson.find(Key_Polygonal_Selector_PendingApply) != selectorJson.end())
+            data.m_polygonalSelector.pendingApply = selectorJson.at(Key_Polygonal_Selector_PendingApply).get<bool>();
+        if (selectorJson.find(Key_Polygonal_Selector_AppliedCount) != selectorJson.end())
+            data.m_polygonalSelector.appliedPolygonCount = selectorJson.at(Key_Polygonal_Selector_AppliedCount).get<uint32_t>();
+        if (selectorJson.find(Key_Polygonal_Selector_NextId) != selectorJson.end())
+            data.m_polygonalSelector.nextPolygonId = selectorJson.at(Key_Polygonal_Selector_NextId).get<uint32_t>();
+
+        if (selectorJson.find(Key_Polygonal_Selector_Polygons) != selectorJson.end())
+        {
+            data.m_polygonalSelector.polygons.clear();
+            const auto& polygons = selectorJson.at(Key_Polygonal_Selector_Polygons);
+            for (const auto& polygonJson : polygons)
+            {
+                PolygonalSelectorPolygon polygon;
+
+                if (polygonJson.find(Key_Polygonal_Selector_Name) != polygonJson.end())
+                    polygon.name = polygonJson.at(Key_Polygonal_Selector_Name).get<std::string>();
+
+                if (polygonJson.find(Key_Polygonal_Selector_Vertices) != polygonJson.end())
+                {
+                    const auto& vertices = polygonJson.at(Key_Polygonal_Selector_Vertices);
+                    for (const auto& vertexJson : vertices)
+                    {
+                        if (vertexJson.size() >= 2)
+                            polygon.normalizedVertices.emplace_back(vertexJson.at(0).get<float>(), vertexJson.at(1).get<float>());
+                    }
+                }
+
+                if (polygonJson.find(Key_Polygonal_Selector_Camera) != polygonJson.end())
+                {
+                    const auto& cameraJson = polygonJson.at(Key_Polygonal_Selector_Camera);
+
+                    auto readMat4 = [](const nlohmann::json& arr, glm::dmat4& out)
+                    {
+                        if (!arr.is_array() || arr.size() != 16)
+                            return;
+                        for (int c = 0; c < 4; ++c)
+                            for (int r = 0; r < 4; ++r)
+                                out[c][r] = arr.at(c * 4 + r).get<double>();
+                    };
+
+                    if (cameraJson.find(Key_Polygonal_Selector_Cam_View) != cameraJson.end())
+                        readMat4(cameraJson.at(Key_Polygonal_Selector_Cam_View), polygon.camera.view);
+                    if (cameraJson.find(Key_Polygonal_Selector_Cam_Proj) != cameraJson.end())
+                        readMat4(cameraJson.at(Key_Polygonal_Selector_Cam_Proj), polygon.camera.proj);
+                    if (cameraJson.find(Key_Polygonal_Selector_Cam_Viewport) != cameraJson.end())
+                    {
+                        const auto& viewport = cameraJson.at(Key_Polygonal_Selector_Cam_Viewport);
+                        if (viewport.size() >= 2)
+                        {
+                            polygon.camera.viewportWidth = viewport.at(0).get<uint32_t>();
+                            polygon.camera.viewportHeight = viewport.at(1).get<uint32_t>();
+                        }
+                    }
+                    if (cameraJson.find(Key_Polygonal_Selector_Cam_Perspective) != cameraJson.end())
+                        polygon.camera.perspective = cameraJson.at(Key_Polygonal_Selector_Cam_Perspective).get<bool>();
+                }
+
+                auto readSnapshotClip = [](const nlohmann::json& clipJson, PolygonalSelectorPolygon::SnapshotClip& clip)
+                {
+                    if (clipJson.find(Key_Polygonal_Selector_SnapshotClipShape) != clipJson.end())
+                        clip.shape = clipJson.at(Key_Polygonal_Selector_SnapshotClipShape).get<int32_t>();
+                    if (clipJson.find(Key_Polygonal_Selector_SnapshotClipMode) != clipJson.end())
+                        clip.mode = clipJson.at(Key_Polygonal_Selector_SnapshotClipMode).get<int32_t>();
+
+                    if (clipJson.find(Key_Polygonal_Selector_SnapshotClipMat) != clipJson.end())
+                    {
+                        const auto& mat = clipJson.at(Key_Polygonal_Selector_SnapshotClipMat);
+                        if (mat.is_array() && mat.size() == 16)
+                        {
+                            for (int c = 0; c < 4; ++c)
+                                for (int r = 0; r < 4; ++r)
+                                    clip.matRTInv[c][r] = mat.at(c * 4 + r).get<double>();
+                        }
+                    }
+
+                    if (clipJson.find(Key_Polygonal_Selector_SnapshotClipParams) != clipJson.end())
+                    {
+                        const auto& params = clipJson.at(Key_Polygonal_Selector_SnapshotClipParams);
+                        if (params.is_array() && params.size() >= 4)
+                        {
+                            clip.params.x = params.at(0).get<float>();
+                            clip.params.y = params.at(1).get<float>();
+                            clip.params.z = params.at(2).get<float>();
+                            clip.params.w = params.at(3).get<float>();
+                        }
+                    }
+                };
+
+                if (polygonJson.find(Key_Polygonal_Selector_SnapshotUnion) != polygonJson.end())
+                {
+                    for (const auto& clipJson : polygonJson.at(Key_Polygonal_Selector_SnapshotUnion))
+                    {
+                        PolygonalSelectorPolygon::SnapshotClip clip;
+                        readSnapshotClip(clipJson, clip);
+                        polygon.snapshotUnion.push_back(clip);
+                    }
+                }
+
+                if (polygonJson.find(Key_Polygonal_Selector_SnapshotIntersection) != polygonJson.end())
+                {
+                    for (const auto& clipJson : polygonJson.at(Key_Polygonal_Selector_SnapshotIntersection))
+                    {
+                        PolygonalSelectorPolygon::SnapshotClip clip;
+                        readSnapshotClip(clipJson, clip);
+                        polygon.snapshotIntersection.push_back(clip);
+                    }
+                }
+
+                data.m_polygonalSelector.polygons.push_back(std::move(polygon));
+            }
+
+            for (size_t i = 0; i < data.m_polygonalSelector.polygons.size(); ++i)
+            {
+                if (data.m_polygonalSelector.polygons[i].name.empty())
+                    data.m_polygonalSelector.polygons[i].name = makePolygonNameFromIndex(i);
+            }
+
+            uint32_t maxSuffix = 0;
+            for (const PolygonalSelectorPolygon& polygon : data.m_polygonalSelector.polygons)
+                maxSuffix = std::max<uint32_t>(maxSuffix, getPolygonSuffix(polygon.name));
+            data.m_polygonalSelector.nextPolygonId = std::max<uint32_t>(data.m_polygonalSelector.nextPolygonId, maxSuffix + 1);
+            data.m_polygonalSelector.nextPolygonId = std::max<uint32_t>(data.m_polygonalSelector.nextPolygonId, 1u);
+
+            data.m_polygonalSelector.appliedPolygonCount = std::min<uint32_t>(
+                data.m_polygonalSelector.appliedPolygonCount,
+                static_cast<uint32_t>(data.m_polygonalSelector.polygons.size()));
+        }
+    }
+
     if (json.find(Key_Marker_Rendering_Parameters) != json.end())
     {
         nlohmann::json options = json.at(Key_Marker_Rendering_Parameters);
@@ -747,13 +951,22 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
             IOLOG << "ViewPoint PostRenderingAmbientOcclusion malformed" << LOGENDL;
     }
 
-    if (json.find(Key_Edge_Aware_Blur) != json.end())
+    if (json.find(Key_Color_Noise_Reduction) != json.end())
     {
-        nlohmann::json options = json.at(Key_Edge_Aware_Blur);
+        nlohmann::json options = json.at(Key_Color_Noise_Reduction);
         if (options.size() == 5)
-            data.m_edgeAwareBlur = { options[0], options[1], options[2], options[3], options[4] };
+            data.m_colorNoiseReduction = { options[0], options[1], options[2], options[3], options[4] };
         else
-            IOLOG << "ViewPoint EdgeAwareBlur malformed" << LOGENDL;
+            IOLOG << "ViewPoint ColorNoiseReduction malformed" << LOGENDL;
+    }
+    else if (json.find(Key_Edge_Aware_Blur_Legacy) != json.end())
+    {
+        // Backward compatibility: old projects used "EdgeAwareBlur".
+        nlohmann::json options = json.at(Key_Edge_Aware_Blur_Legacy);
+        if (options.size() == 5)
+            data.m_colorNoiseReduction = { options[0], options[1], options[2], options[3], options[4] };
+        else
+            IOLOG << "ViewPoint EdgeAwareBlur (legacy) malformed" << LOGENDL;
     }
 
     if (json.find(Key_Depth_Lining) != json.end())
@@ -799,15 +1012,61 @@ bool ImportDisplayParameters(const nlohmann::json& json, DisplayParameters& data
         retVal = false;
     }
 
+    // Pass 4 compat: accept former OrthoGrid linewidth spelling used by some legacy files.
+    constexpr const char* Legacy_Key_Ortho_Grid_LineWidth = "OrthoGridLineWidth";
     if (json.find(Key_Ortho_Grid_Linewidth) != json.end())
     {
         data.m_orthoGridLineWidth = json.at(Key_Ortho_Grid_Linewidth).get<uint32_t>();
+    }
+    else if (json.find(Legacy_Key_Ortho_Grid_LineWidth) != json.end())
+    {
+        data.m_orthoGridLineWidth = json.at(Legacy_Key_Ortho_Grid_LineWidth).get<uint32_t>();
     }
     else
     {
         IOLOG << "ViewPoint Key_Ortho_Grid_Linewidth read error" << LOGENDL;
         retVal = false;
     }
+
+    // Pass 4 compat: read image-group settings from nested block first (canonical),
+    // then fallback to root-level keys for migration from intermediate formats.
+    const nlohmann::json* imageSrc = nullptr;
+    if (json.find(Key_Image_Group_Settings) != json.end() && json.at(Key_Image_Group_Settings).is_object())
+        imageSrc = &json.at(Key_Image_Group_Settings);
+    else
+        imageSrc = &json;
+
+    if (imageSrc->find(Key_Image_Group_Use_Frame) != imageSrc->end())
+        data.m_imageUseFrame = imageSrc->at(Key_Image_Group_Use_Frame).get<bool>();
+    if (imageSrc->find(Key_Image_Group_Show_Grid) != imageSrc->end())
+        data.m_imageShowGrid = imageSrc->at(Key_Image_Group_Show_Grid).get<bool>();
+    if (imageSrc->find(Key_Image_Group_Ratio_Image) != imageSrc->end())
+        data.m_imageRatioImageMode = imageSrc->at(Key_Image_Group_Ratio_Image).get<bool>();
+    if (imageSrc->find(Key_Image_Group_Ratio_Image_Id) != imageSrc->end())
+        data.m_imageRatioImageIndex = imageSrc->at(Key_Image_Group_Ratio_Image_Id).get<int>();
+    if (imageSrc->find(Key_Image_Group_Ratio_Print_Id) != imageSrc->end())
+        data.m_imageRatioPrintIndex = imageSrc->at(Key_Image_Group_Ratio_Print_Id).get<int>();
+    if (imageSrc->find(Key_Image_Group_Portrait) != imageSrc->end())
+        data.m_imagePortrait = imageSrc->at(Key_Image_Group_Portrait).get<bool>();
+    if (imageSrc->find(Key_Image_Group_Width) != imageSrc->end())
+        data.m_imageWidth = imageSrc->at(Key_Image_Group_Width).get<uint32_t>();
+    if (imageSrc->find(Key_Image_Group_Height) != imageSrc->end())
+        data.m_imageHeight = imageSrc->at(Key_Image_Group_Height).get<uint32_t>();
+    if (imageSrc->find(Key_Image_Group_Alpha) != imageSrc->end())
+        data.m_imageAlpha = imageSrc->at(Key_Image_Group_Alpha).get<bool>();
+    if (imageSrc->find(Key_Image_Group_Format) != imageSrc->end())
+        data.m_imageFormat = imageSrc->at(Key_Image_Group_Format).get<int>();
+    if (imageSrc->find(Key_Image_Group_Antialiasing) != imageSrc->end())
+        data.m_imageAntialiasing = imageSrc->at(Key_Image_Group_Antialiasing).get<int>();
+    if (imageSrc->find(Key_Image_Group_Scale_Index) != imageSrc->end())
+        data.m_imageScaleIndex = imageSrc->at(Key_Image_Group_Scale_Index).get<int>();
+    if (imageSrc->find(Key_Image_Group_Dpi_Index) != imageSrc->end())
+        data.m_imageDpiIndex = imageSrc->at(Key_Image_Group_Dpi_Index).get<int>();
+
+    if (json.find(Key_Viewpoint_User_Orientation_Enabled) != json.end())
+        data.m_viewpointUserOrientationEnabled = json.at(Key_Viewpoint_User_Orientation_Enabled).get<bool>();
+    if (json.find(Key_Viewpoint_User_Orientation_Id) != json.end())
+        data.m_viewpointUserOrientationId = json.at(Key_Viewpoint_User_Orientation_Id).get<std::string>();
 
     return retVal;
 }
@@ -1760,13 +2019,22 @@ bool ImportColumnTiltMeasureData(const nlohmann::json& json, ColumnTiltMeasureDa
 bool ImportViewPointData(const nlohmann::json& json, ViewPointData& data, const std::unordered_map<xg::Guid, SafePtr<AGraphNode>>& nodeById)
 {
     bool retVal(true);
-    if (json.find(Key_Edge_Aware_Blur) != json.end())
+    if (json.find(Key_Color_Noise_Reduction) != json.end())
     {
-        nlohmann::json options = json.at(Key_Edge_Aware_Blur);
+        nlohmann::json options = json.at(Key_Color_Noise_Reduction);
         if (options.size() == 5)
-            data.m_edgeAwareBlur = { options[0], options[1], options[2], options[3], options[4] };
+            data.m_colorNoiseReduction = { options[0], options[1], options[2], options[3], options[4] };
         else
-            IOLOG << "ViewPoint EdgeAwareBlur malformed" << LOGENDL;
+            IOLOG << "ViewPoint ColorNoiseReduction malformed" << LOGENDL;
+    }
+    else if (json.find(Key_Edge_Aware_Blur_Legacy) != json.end())
+    {
+        // Backward compatibility: old projects used "EdgeAwareBlur".
+        nlohmann::json options = json.at(Key_Edge_Aware_Blur_Legacy);
+        if (options.size() == 5)
+            data.m_colorNoiseReduction = { options[0], options[1], options[2], options[3], options[4] };
+        else
+            IOLOG << "ViewPoint EdgeAwareBlur (legacy) malformed" << LOGENDL;
     }
 
     if (json.find(Key_Depth_Lining) != json.end())
@@ -1892,9 +2160,81 @@ bool ImportViewPointData(const nlohmann::json& json, ViewPointData& data, const 
         retVal = false;
     }
 
-    if (json.find(Key_Objects_Colors) != json.end())
+    std::unordered_map<SafePtr<AGraphNode>, TransformationModule> objectsTransform;
+    std::unordered_map<SafePtr<AGraphNode>, ViewPointData::ClippingDistances> objectsClippingDistances;
+    std::unordered_map<SafePtr<AGraphNode>, ViewPointData::RampDistances> objectsRampDistances;
+    std::unordered_map<SafePtr<AGraphNode>, Color32> objectColors;
+    std::unordered_map<SafePtr<AGraphNode>, bool> objectClippable;
+
+    const bool hasObjectStates = json.find(Key_ViewPoint_Object_States) != json.end();
+    if (hasObjectStates)
     {
-        std::unordered_map<SafePtr<AGraphNode>, Color32> map;
+        for (const nlohmann::json& objectState : json.at(Key_ViewPoint_Object_States))
+        {
+            if (objectState.find(Key_Id) == objectState.end())
+                continue;
+
+            xg::Guid guid = xg::Guid(objectState.at(Key_Id).get<std::string>());
+            auto itNode = nodeById.find(guid);
+            if (itNode == nodeById.end())
+            {
+                IOLOG << "ViewPoint ObjectState couldnt find object" << LOGENDL;
+                continue;
+            }
+
+            const SafePtr<AGraphNode>& objectNode = itNode->second;
+            if (!objectNode)
+                continue;
+
+            if (objectState.find(Key_ViewPoint_Object_Transform) != objectState.end())
+            {
+                TransformationModule transform;
+                ImportTransformationModule(objectState.at(Key_ViewPoint_Object_Transform), transform);
+                objectsTransform[objectNode] = transform;
+            }
+
+            if (objectState.find(Key_ColorRGBA) != objectState.end())
+            {
+                const nlohmann::json& color = objectState.at(Key_ColorRGBA);
+                if (!color.is_null() && color.size() == 4)
+                    objectColors[objectNode] = Color32(color[0], color[1], color[2], color[3]);
+            }
+
+            if (objectState.find(Key_Clippable) != objectState.end())
+                objectClippable[objectNode] = objectState.at(Key_Clippable).get<bool>();
+
+            if (objectState.find(Key_ViewPoint_Object_Clip) != objectState.end())
+            {
+                const nlohmann::json& clip = objectState.at(Key_ViewPoint_Object_Clip);
+                ViewPointData::ClippingDistances distances;
+                if (clip.find(Key_MinClipDistance) != clip.end())
+                    distances.minClip = clip.at(Key_MinClipDistance).get<float>();
+                if (clip.find(Key_MaxClipDistance) != clip.end())
+                    distances.maxClip = clip.at(Key_MaxClipDistance).get<float>();
+                if (clip.find(Key_LengthThresholdClip) != clip.end())
+                    distances.lengthThreshold = clip.at(Key_LengthThresholdClip).get<float>();
+                objectsClippingDistances[objectNode] = distances;
+            }
+
+            if (objectState.find(Key_ViewPoint_Object_Ramp) != objectState.end())
+            {
+                const nlohmann::json& ramp = objectState.at(Key_ViewPoint_Object_Ramp);
+                ViewPointData::RampDistances distances;
+                if (ramp.find(Key_MinRampDistance) != ramp.end())
+                    distances.minRamp = ramp.at(Key_MinRampDistance).get<float>();
+                if (ramp.find(Key_MaxRampDistance) != ramp.end())
+                    distances.maxRamp = ramp.at(Key_MaxRampDistance).get<float>();
+                if (ramp.find(Key_RampSteps) != ramp.end())
+                    distances.stepsRamp = ramp.at(Key_RampSteps).get<int>();
+                if (ramp.find(Key_RampClamped) != ramp.end())
+                    distances.rampClamped = ramp.at(Key_RampClamped).get<bool>();
+                objectsRampDistances[objectNode] = distances;
+            }
+        }
+    }
+
+    if (!hasObjectStates && json.find(Key_Objects_Colors) != json.end())
+    {
         for (const nlohmann::json& child : json.at(Key_Objects_Colors))
         {
             Color32 color = Color32(child[1].get<uint8_t>(), child[2].get<uint8_t>(), child[3].get<uint8_t>(), child[4].get<uint8_t>());
@@ -1906,14 +2246,40 @@ bool ImportViewPointData(const nlohmann::json& json, ViewPointData& data, const 
             }
             SafePtr<AGraphNode> childNode = nodeById.at(guid);
             if (childNode)
-                map[childNode] = color;
+                objectColors[childNode] = color;
         }
-        data.setScanClusterColors(map);
     }
-    else
+    else if (!hasObjectStates)
     {
         IOLOG << "ViewPoint ObjectsColors read error" << LOGENDL;
     }
+
+    if (!hasObjectStates && json.find(Key_Objects_Clippable) != json.end())
+    {
+        for (const nlohmann::json& child : json.at(Key_Objects_Clippable))
+        {
+            bool clippable = child[1].get<bool>();
+            xg::Guid guid = xg::Guid(child[0].get<std::string>());
+            if (nodeById.find(guid) == nodeById.end())
+            {
+                IOLOG << "ViewPoint ObjectsClippable couldnt find object" << LOGENDL;
+                continue;
+            }
+            SafePtr<AGraphNode> childNode = nodeById.at(guid);
+            if (childNode)
+                objectClippable[childNode] = clippable;
+        }
+    }
+    else if (!hasObjectStates)
+    {
+        IOLOG << "ViewPoint ObjectsClippable read missing" << LOGENDL;
+    }
+
+    data.setScanClusterColors(objectColors);
+    data.setObjectsClippable(objectClippable);
+    data.setObjectsTransform(objectsTransform);
+    data.setObjectsClippingDistances(objectsClippingDistances);
+    data.setObjectsRampDistances(objectsRampDistances);
 
     //if (json.find(Key_Active_Scans) != json.end())
     //{
@@ -2615,6 +2981,66 @@ bool DataDeserializer::DeserializeUserOrientation(const nlohmann::json& json, Us
     return retVal;
 }
 
+bool DataDeserializer::DeserializeViewPointAnimation(const nlohmann::json& json, ViewPointAnimationConfig& data)
+{
+    bool retVal = true;
+
+    if (json.find(Key_Id) != json.end())
+        data.setId(xg::Guid(json.at(Key_Id).get<std::string>()));
+    else
+        retVal = false;
+
+    if (json.find(Key_Name) != json.end())
+        data.setName(QString::fromStdWString(Utils::from_utf8(json.at(Key_Name).get<std::string>())));
+    else
+        retVal = false;
+
+    if (json.find(Key_Order) != json.end())
+        data.setOrder(json.at(Key_Order).get<uint32_t>());
+    else
+        retVal = false;
+
+    ViewPointAnimationMode mode = ViewPointAnimationMode::PositionAsTime;
+    if (json.find(Key_AnimationMode) != json.end())
+    {
+        auto modeOpt = magic_enum::enum_cast<ViewPointAnimationMode>(json.at(Key_AnimationMode).get<std::string>());
+        mode = modeOpt.has_value() ? modeOpt.value() : ViewPointAnimationMode::PositionAsTime;
+    }
+    data.setMode(mode);
+
+    bool smoothTransitions = false;
+    if (json.find(Key_SmoothTransitions) != json.end())
+        smoothTransitions = json.at(Key_SmoothTransitions).get<bool>();
+    data.setSmoothTransitions(smoothTransitions);
+
+    std::vector<ViewPointAnimationLine> lines;
+    if (json.find(Key_AnimationLines) != json.end() && json.at(Key_AnimationLines).is_array())
+    {
+        for (const nlohmann::json& lineJson : json.at(Key_AnimationLines))
+        {
+            ViewPointAnimationLine line;
+            if (lineJson.find(Key_ViewPointId) != lineJson.end())
+                line.viewpointId = xg::Guid(lineJson.at(Key_ViewPointId).get<std::string>());
+            else
+            {
+                retVal = false;
+                continue;
+            }
+
+            if (lineJson.find(Key_Name) != lineJson.end())
+                line.viewpointName = QString::fromStdWString(Utils::from_utf8(lineJson.at(Key_Name).get<std::string>()));
+
+            if (lineJson.find(Key_Position) != lineJson.end())
+                line.position = lineJson.at(Key_Position).get<double>();
+
+            lines.push_back(line);
+        }
+    }
+    data.setLines(lines);
+
+    return retVal;
+}
+
 bool DataDeserializer::DeserializeProjectInfos(const nlohmann::json& json, const Controller& controller, ProjectInfos& data)
 {
     bool retVal(true);
@@ -2703,6 +3129,14 @@ bool DataDeserializer::DeserializeProjectInfos(const nlohmann::json& json, const
         IOLOG << "ProjectInfos DefaultClipDistances reset" << LOGENDL;
     }
 
+    if (json.find(Key_DefaultLengthThresholdClip) != json.end())
+        data.m_defaultLengthThresholdClip = std::max(0.f, json.at(Key_DefaultLengthThresholdClip).get<float>());
+    else
+    {
+        data.m_defaultLengthThresholdClip = 0.0f;
+        IOLOG << "ProjectInfos DefaultLengthThresholdClip reset" << LOGENDL;
+    }
+
     if (json.find(Key_DefaultRampDistances) != json.end())
     {
         nlohmann::json distances = json.at(Key_DefaultRampDistances);
@@ -2724,6 +3158,12 @@ bool DataDeserializer::DeserializeProjectInfos(const nlohmann::json& json, const
     {
         data.m_defaultRampSteps = 8;
     }
+
+    // Backward compatibility: old projects don't carry this key.
+    if (json.find(Key_AnimationLockImageSettings) != json.end())
+        data.m_animationLockImageSettings = json.at(Key_AnimationLockImageSettings).get<bool>();
+    else
+        data.m_animationLockImageSettings = false;
 
     if (json.find(Key_DefaultScanId) != json.end())
         data.m_defaultScan = xg::Guid(json.at(Key_DefaultScanId).get<std::string>());

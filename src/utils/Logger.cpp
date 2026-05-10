@@ -11,6 +11,9 @@
 #include <mutex>
 #include <iostream>
 #include <fstream>
+#include <vector>
+#include <algorithm>
+#include <system_error>
 
 #ifdef WIN32
 #if defined(_MSC_VER) || defined(_MSC_EXTENSIONS)
@@ -63,7 +66,8 @@ std::filesystem::path Logger::getOpenScanToolsPath()
 
 void Logger::init()
 {
-    for (uint32_t iterator(0); iterator == LoggerMode::LOGGER_MODE_MAX_ENUM; iterator++)
+    // Initialize every mode as disabled before loading configuration.
+    for (uint32_t iterator(0); iterator < LoggerMode::LOGGER_MODE_MAX_ENUM; iterator++)
         Logger::setStatusToMode((LoggerMode)iterator, false);
     Logger::setStatusToMode(LoggerMode::LogConfig, true);
     Logger::logInFile();
@@ -114,6 +118,11 @@ void Logger::logInFile()
     path = OSTPath.string() + "\\log_" + str + ".log";
 
     out.open(path);
+
+    // Keep log directory size under control:
+    // - only managed .log files are considered,
+    // - current session log is always protected.
+    cleanupOldLogs(OSTPath, std::filesystem::path(path));
 }
 
 void Logger::stopLog()
@@ -184,4 +193,63 @@ void Logger::flushLog(LoggerMode mode, const std::stringbuf& log)
 #endif // _DEBUG
     out << timeBuffer << " ; T[" << std::this_thread::get_id() << "] ; " << magic_enum::enum_name(mode) << " ; " << log.str();
     out.flush();
+}
+
+void Logger::cleanupOldLogs(const std::filesystem::path& logDirectory, const std::filesystem::path& currentLogFile)
+{
+    if (maxLogFilesToKeep == 0 || !std::filesystem::exists(logDirectory))
+        return;
+
+    std::error_code ec;
+    std::vector<std::pair<std::filesystem::path, std::filesystem::file_time_type>> managedLogs;
+
+    for (const auto& entry : std::filesystem::directory_iterator(logDirectory, ec))
+    {
+        if (ec)
+            return;
+
+        if (!entry.is_regular_file(ec) || ec)
+            continue;
+
+        const std::filesystem::path filePath = entry.path();
+        const std::string filename = filePath.filename().string();
+
+        // Ignore files that are not OpenScanTools managed logs.
+        if (filePath.extension() != ".log" || filename.rfind("log_", 0) != 0)
+            continue;
+
+        // Never delete current session log file.
+        if (std::filesystem::equivalent(filePath, currentLogFile, ec))
+        {
+            ec.clear();
+            continue;
+        }
+
+        const auto lastWrite = std::filesystem::last_write_time(filePath, ec);
+        if (ec)
+        {
+            ec.clear();
+            continue;
+        }
+
+        managedLogs.emplace_back(filePath, lastWrite);
+    }
+
+    if (managedLogs.empty())
+        return;
+
+    std::sort(managedLogs.begin(), managedLogs.end(), [](const auto& lhs, const auto& rhs)
+    {
+        return lhs.second > rhs.second;
+    });
+
+    const std::size_t maxPreviousLogsToKeep = (maxLogFilesToKeep > 0) ? (maxLogFilesToKeep - 1) : 0;
+    if (managedLogs.size() <= maxPreviousLogsToKeep)
+        return;
+
+    for (std::size_t idx = maxPreviousLogsToKeep; idx < managedLogs.size(); ++idx)
+    {
+        std::filesystem::remove(managedLogs[idx].first, ec);
+        ec.clear(); // best effort cleanup: never fail application startup.
+    }
 }

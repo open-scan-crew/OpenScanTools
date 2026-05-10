@@ -53,6 +53,9 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="toolTip">
+      <string>If the diameter of the pipe line is constant, this option is recommended.</string>
+     </property>
      <property name="text">
       <string>Keep Diameter</string>
      </property>
@@ -128,7 +131,8 @@
          </sizepolicy>
         </property>
         <property name="toolTip">
-         <string>Use this method to create an elbow each time you create a pair of pipes.</string>
+         <string>Use this method to create an elbow each time you create a pair of pipes.
+For T-connections, the main pipe must be extended on both sides.</string>
         </property>
         <property name="text">
          <string>Detect and Connect</string>

@@ -3,6 +3,7 @@
 #include "vulkan/VulkanManager.h"
 #include "utils/Logger.h"
 #include "utils/Config.h"
+#include "utils/ColorimetricFilterUtils.h"
 #include "models/graph/TransformationModule.h"
 
 #include "tls_impl.h"
@@ -27,6 +28,226 @@ float EmbeddedScan::decode_time_ = 0.f;
 float EmbeddedScan::merge_time_ = 0.f;
 
 using namespace std::chrono;
+
+namespace
+{
+    constexpr float kColorimetricMaxDistance = 1.7320508f;
+    // Stabilize ray sign classification for near-zero components (orthographic axis-aligned views).
+    constexpr double kRaySignEpsilon = 1e-12;
+
+    struct PreparedRayTracingDisplayFilter
+    {
+        bool anyFilterEnabled = false;
+        bool colorimetricFilterEnabled = false;
+        bool colorimetricIntensityMode = false;
+        float colorimetricTolerance = 0.0f;
+        float colorimetricRgbThreshold = 0.0f;
+        bool colorimetricShowColors = true;
+        std::array<ColorimetricFilterUtils::OrderedColorEntry, 4> orderedColorEntries = {};
+        bool polygonFilterEnabled = false;
+        bool polygonShowSelected = true;
+        uint32_t polygonAppliedCount = 0;
+        const std::vector<PolygonalSelectorPolygon>* polygons = nullptr;
+    };
+
+    bool pointInPolygon(const glm::vec2& point, const std::vector<glm::vec2>& polygonVertices)
+    {
+        if (polygonVertices.size() < 3)
+            return false;
+
+        bool inside = false;
+        glm::vec2 previous = polygonVertices.back();
+        for (const glm::vec2& current : polygonVertices)
+        {
+            bool condY = (current.y > point.y) != (previous.y > point.y);
+            if (condY)
+            {
+                float denominator = previous.y - current.y;
+                if (std::abs(denominator) > 1e-7f)
+                {
+                    float xCross = (previous.x - current.x) * (point.y - current.y) / denominator + current.x;
+                    if (point.x < xCross)
+                        inside = !inside;
+                }
+            }
+            previous = current;
+        }
+
+        return inside;
+    }
+
+    bool isPointInsidePolygonSelection(const glm::dvec3& worldPoint, const PolygonalSelectorPolygon& polygon)
+    {
+        if (polygon.normalizedVertices.size() < 3)
+            return false;
+
+        glm::dvec4 clip = polygon.camera.proj * polygon.camera.view * glm::dvec4(worldPoint, 1.0);
+        if (clip.w <= 1e-7)
+            return false;
+
+        glm::dvec3 ndc = glm::dvec3(clip) / clip.w;
+        if (ndc.z < -1.0 || ndc.z > 1.0)
+            return false;
+        if (ndc.x < -1.0 || ndc.x > 1.0 || ndc.y < -1.0 || ndc.y > 1.0)
+            return false;
+
+        glm::vec2 uv = glm::vec2(ndc.x, ndc.y) * 0.5f + glm::vec2(0.5f, 0.5f);
+        return pointInPolygon(uv, polygon.normalizedVertices);
+    }
+
+    bool snapshotClipAcceptsPoint(const PolygonalSelectorPolygon::SnapshotClip& clip, const glm::dvec4& point4)
+    {
+        glm::dvec4 localPt = clip.matRTInv * point4;
+
+        bool inside = false;
+        if (clip.shape == static_cast<int32_t>(ClippingShape::box))
+        {
+            inside = (std::abs(localPt.x) <= clip.params.x)
+                && (std::abs(localPt.y) <= clip.params.y)
+                && (std::abs(localPt.z) <= clip.params.z);
+        }
+        else if (clip.shape == static_cast<int32_t>(ClippingShape::cylinder))
+        {
+            const double dxy = std::sqrt(localPt.x * localPt.x + localPt.y * localPt.y);
+            inside = (dxy >= clip.params.x)
+                && (dxy <= clip.params.y)
+                && (std::abs(localPt.z) <= clip.params.z);
+        }
+        else if (clip.shape == static_cast<int32_t>(ClippingShape::sphere))
+        {
+            const double dxyz = std::sqrt(localPt.x * localPt.x + localPt.y * localPt.y + localPt.z * localPt.z);
+            inside = (dxyz >= clip.params.x)
+                && (dxyz <= clip.params.y);
+        }
+        else
+        {
+            return false;
+        }
+
+        return (clip.mode == static_cast<int32_t>(ClippingMode::showInterior)) ? inside : !inside;
+    }
+
+    bool pointPassesPolygonSnapshot(const glm::dvec3& worldPoint, const PolygonalSelectorPolygon& polygon)
+    {
+        if (polygon.snapshotUnion.empty() && polygon.snapshotIntersection.empty())
+            return true;
+
+        glm::dvec4 point4(worldPoint, 1.0);
+
+        for (const PolygonalSelectorPolygon::SnapshotClip& clip : polygon.snapshotIntersection)
+        {
+            if (!snapshotClipAcceptsPoint(clip, point4))
+                return false;
+        }
+
+        if (polygon.snapshotUnion.empty())
+            return true;
+
+        for (const PolygonalSelectorPolygon::SnapshotClip& clip : polygon.snapshotUnion)
+        {
+            if (snapshotClipAcceptsPoint(clip, point4))
+                return true;
+        }
+        return false;
+    }
+
+    PreparedRayTracingDisplayFilter prepareRayTracingDisplayFilter(const RayTracingDisplayFilterSettings* settings)
+    {
+        PreparedRayTracingDisplayFilter prepared;
+        if (!settings || !settings->enabled)
+            return prepared;
+
+        const ColorimetricFilterSettings& colorFilter = settings->colorimetricFilter;
+        if (colorFilter.enabled)
+        {
+            prepared.orderedColorEntries = ColorimetricFilterUtils::normalizeSettings(colorFilter, settings->renderMode);
+            for (const auto& entry : prepared.orderedColorEntries)
+            {
+                if (entry.enabled)
+                {
+                    prepared.colorimetricFilterEnabled = true;
+                    break;
+                }
+            }
+
+            prepared.colorimetricIntensityMode = (settings->renderMode == UiRenderMode::Intensity || settings->renderMode == UiRenderMode::Fake_Color);
+            prepared.colorimetricTolerance = ColorimetricFilterUtils::clampTolerancePercent(colorFilter.tolerance) / 100.0f;
+            prepared.colorimetricRgbThreshold = prepared.colorimetricTolerance * kColorimetricMaxDistance;
+            prepared.colorimetricShowColors = colorFilter.showColors;
+        }
+
+        const PolygonalSelectorSettings& polygonSelector = settings->polygonalSelector;
+        if (polygonSelector.enabled && polygonSelector.active && polygonSelector.appliedPolygonCount > 0 && !polygonSelector.polygons.empty())
+        {
+            prepared.polygonFilterEnabled = true;
+            prepared.polygonShowSelected = polygonSelector.showSelected;
+            prepared.polygonAppliedCount = std::min<uint32_t>(polygonSelector.appliedPolygonCount, static_cast<uint32_t>(polygonSelector.polygons.size()));
+            prepared.polygons = &polygonSelector.polygons;
+        }
+
+        prepared.anyFilterEnabled = prepared.colorimetricFilterEnabled || prepared.polygonFilterEnabled;
+        return prepared;
+    }
+
+    bool isPointRejectedByDisplayFilters(const PreparedRayTracingDisplayFilter& preparedFilter, const tls::Point& pointData, const glm::dvec3& worldPoint)
+    {
+        if (!preparedFilter.anyFilterEnabled)
+            return false;
+
+        bool rejectByColorimetric = false;
+        if (preparedFilter.colorimetricFilterEnabled)
+        {
+            bool match = false;
+            float intensityNorm = static_cast<float>(pointData.i) / 255.0f;
+            glm::vec3 rgb = glm::vec3(pointData.r, pointData.g, pointData.b) / 255.0f;
+
+            if (preparedFilter.colorimetricIntensityMode)
+            {
+                if (preparedFilter.orderedColorEntries[0].enabled)
+                {
+                    float refIntensity = ColorimetricFilterUtils::normalizeIntensity(preparedFilter.orderedColorEntries[0].color);
+                    match = std::abs(intensityNorm - refIntensity) <= preparedFilter.colorimetricTolerance;
+                }
+            }
+            else
+            {
+                for (const auto& entry : preparedFilter.orderedColorEntries)
+                {
+                    if (!entry.enabled)
+                        continue;
+
+                    glm::vec3 referenceRgb = ColorimetricFilterUtils::normalizeRgb(entry.color);
+                    if (glm::distance(rgb, referenceRgb) <= preparedFilter.colorimetricRgbThreshold)
+                    {
+                        match = true;
+                        break;
+                    }
+                }
+            }
+
+            rejectByColorimetric = preparedFilter.colorimetricShowColors ? !match : match;
+        }
+
+        bool rejectByPolygon = false;
+        if (preparedFilter.polygonFilterEnabled && preparedFilter.polygons)
+        {
+            bool insideAppliedPolygon = false;
+            for (uint32_t polygonIndex = 0; polygonIndex < preparedFilter.polygonAppliedCount; ++polygonIndex)
+            {
+                if (isPointInsidePolygonSelection(worldPoint, preparedFilter.polygons->at(polygonIndex)))
+                {
+                    if (pointPassesPolygonSnapshot(worldPoint, preparedFilter.polygons->at(polygonIndex)))
+                        insideAppliedPolygon = true;
+                    break;
+                }
+            }
+
+            rejectByPolygon = preparedFilter.polygonShowSelected ? !insideAppliedPolygon : insideAppliedPolygon;
+        }
+
+        return rejectByColorimetric || rejectByPolygon;
+    }
+}
 
 EmbeddedScan::EmbeddedScan(std::filesystem::path const& filepath)
     : pt_format_(tls::PointFormat::TL_POINT_FORMAT_UNDEFINED)
@@ -1004,6 +1225,235 @@ bool EmbeddedScan::filterOutliersAndWrite(const TransformationModule& src_transf
         thread.join();
 
     removedPoints = removedPointsAtomic.load();
+    return resultOk.load();
+}
+
+bool EmbeddedScan::filterAndWrite(const TransformationModule& src_transfo,
+                                  const ClippingAssembly& clippingAssembly,
+                                  const ColorimetricFilterSettings& colorimetricSettings,
+                                  const PolygonalSelectorSettings& polygonalSelectorSettings,
+                                  UiRenderMode mode,
+                                  IScanFileWriter* writer,
+                                  uint64_t& keptPoints,
+                                  const ProgressCallback& progress)
+{
+    ClippingAssembly localAssembly = deepCopyClippingAssembly(clippingAssembly);
+    localAssembly.clearMatrix();
+    glm::dmat4 src_transfo_mat = src_transfo.getTransformation();
+    localAssembly.addTransformation(src_transfo_mat);
+
+    std::vector<std::pair<uint32_t, bool>> cells;
+    getClippedCells_impl(m_uRootCell, localAssembly, cells);
+
+    auto ordered = ColorimetricFilterUtils::normalizeSettings(colorimetricSettings, mode);
+    bool hasActiveColors = false;
+    for (const auto& entry : ordered)
+    {
+        if (entry.enabled)
+        {
+            hasActiveColors = true;
+            break;
+        }
+    }
+
+    const bool intensityMode = (mode == UiRenderMode::Intensity || mode == UiRenderMode::Fake_Color);
+    const float tolerance = ColorimetricFilterUtils::clampTolerancePercent(colorimetricSettings.tolerance) / 100.0f;
+    const float rgbThreshold = tolerance * 1.7320508f;
+
+    const uint32_t appliedPolygonCount = std::min<uint32_t>(polygonalSelectorSettings.appliedPolygonCount, static_cast<uint32_t>(polygonalSelectorSettings.polygons.size()));
+    const bool hasActivePolygonalFilter = polygonalSelectorSettings.enabled
+        && polygonalSelectorSettings.active
+        && appliedPolygonCount > 0
+        && !polygonalSelectorSettings.polygons.empty();
+
+    auto shouldKeepPoint = [&](const PointXYZIRGB& pt)
+    {
+        bool rejectByColorimetric = false;
+        if (colorimetricSettings.enabled && hasActiveColors)
+        {
+            const float intensityNorm = static_cast<float>(pt.i) / 255.0f;
+            const glm::vec3 rgb(static_cast<float>(pt.r) / 255.0f,
+                                static_cast<float>(pt.g) / 255.0f,
+                                static_cast<float>(pt.b) / 255.0f);
+
+            bool match = false;
+            if (intensityMode)
+            {
+                if (ordered[0].enabled)
+                {
+                    const float refIntensity = static_cast<float>(ordered[0].color.Red()) / 255.0f;
+                    match = std::abs(intensityNorm - refIntensity) <= tolerance;
+                }
+            }
+            else
+            {
+                for (const auto& entry : ordered)
+                {
+                    if (!entry.enabled)
+                        continue;
+
+                    glm::vec3 ref = ColorimetricFilterUtils::normalizeRgb(entry.color);
+                    if (glm::distance(rgb, ref) <= rgbThreshold)
+                    {
+                        match = true;
+                        break;
+                    }
+                }
+            }
+
+            rejectByColorimetric = colorimetricSettings.showColors ? !match : match;
+        }
+
+        bool rejectByPolygon = false;
+        if (hasActivePolygonalFilter)
+        {
+            glm::dvec4 worldPoint4 = src_transfo_mat * glm::dvec4(pt.x, pt.y, pt.z, 1.0);
+            glm::dvec3 worldPoint(worldPoint4.x, worldPoint4.y, worldPoint4.z);
+
+            bool insideAppliedPolygon = false;
+            for (uint32_t polygonIndex = 0; polygonIndex < appliedPolygonCount; ++polygonIndex)
+            {
+                if (isPointInsidePolygonSelection(worldPoint, polygonalSelectorSettings.polygons[polygonIndex]))
+                {
+                    if (pointPassesPolygonSnapshot(worldPoint, polygonalSelectorSettings.polygons[polygonIndex]))
+                        insideAppliedPolygon = true;
+                    break;
+                }
+            }
+
+            rejectByPolygon = polygonalSelectorSettings.showSelected ? !insideAppliedPolygon : insideAppliedPolygon;
+        }
+
+        return !(rejectByColorimetric || rejectByPolygon);
+    };
+
+    const size_t totalCells = cells.size();
+    if (progress && totalCells > 0)
+        progress(0, totalCells);
+
+    const size_t threadCount = resolveThreadCount(totalCells);
+    std::atomic<uint64_t> keptPointsAtomic{ 0 };
+    std::atomic<bool> resultOk{ true };
+
+    if (threadCount <= 1)
+    {
+        bool sequentialOk = true;
+        for (size_t cellIndex = 0; cellIndex < cells.size(); ++cellIndex)
+        {
+            const std::pair<uint32_t, bool>& cell = cells[cellIndex];
+            std::vector<PointXYZIRGB> points;
+            points.resize(tls_point_cloud_.getCellPointCount(cell.first));
+            if (!getCellPointsThreadSafe(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+            {
+                if (progress)
+                    progress(cellIndex + 1, totalCells);
+                continue;
+            }
+
+            std::vector<PointXYZIRGB> visiblePoints;
+            if (cell.second)
+                clipIndividualPoints(points, visiblePoints, localAssembly);
+            else
+                visiblePoints = std::move(points);
+
+            std::vector<PointXYZIRGB> filtered;
+            filtered.reserve(visiblePoints.size());
+            for (const PointXYZIRGB& pt : visiblePoints)
+            {
+                if (shouldKeepPoint(pt))
+                    filtered.push_back(pt);
+            }
+
+            keptPointsAtomic.fetch_add(filtered.size());
+            sequentialOk &= writer->mergePoints(filtered.data(), filtered.size(), src_transfo, pt_format_);
+
+            if (progress)
+                progress(cellIndex + 1, totalCells);
+        }
+
+        keptPoints = keptPointsAtomic.load();
+        return sequentialOk;
+    }
+
+    std::atomic<size_t> nextCell{ 0 };
+    std::atomic<size_t> completed{ 0 };
+    std::mutex writeMutex;
+    std::condition_variable writeCv;
+    size_t nextWriteIndex = 0;
+    std::mutex progressMutex;
+
+    auto worker = [&]()
+    {
+        while (true)
+        {
+            size_t cellIndex = nextCell.fetch_add(1);
+            if (cellIndex >= cells.size())
+                break;
+
+            const std::pair<uint32_t, bool>& cell = cells[cellIndex];
+            std::vector<PointXYZIRGB> points;
+            points.resize(tls_point_cloud_.getCellPointCount(cell.first));
+            if (!getCellPointsThreadSafe(cell.first, reinterpret_cast<tls::Point*>(points.data()), points.size()))
+            {
+                {
+                    std::unique_lock<std::mutex> lock(writeMutex);
+                    writeCv.wait(lock, [&]() { return cellIndex == nextWriteIndex; });
+                    ++nextWriteIndex;
+                }
+                writeCv.notify_all();
+
+                if (progress)
+                {
+                    size_t done = completed.fetch_add(1) + 1;
+                    std::lock_guard<std::mutex> guard(progressMutex);
+                    progress(done, totalCells);
+                }
+                continue;
+            }
+
+            std::vector<PointXYZIRGB> visiblePoints;
+            if (cell.second)
+                clipIndividualPoints(points, visiblePoints, localAssembly);
+            else
+                visiblePoints = std::move(points);
+
+            std::vector<PointXYZIRGB> filtered;
+            filtered.reserve(visiblePoints.size());
+            for (const PointXYZIRGB& pt : visiblePoints)
+            {
+                if (shouldKeepPoint(pt))
+                    filtered.push_back(pt);
+            }
+
+            {
+                std::unique_lock<std::mutex> lock(writeMutex);
+                writeCv.wait(lock, [&]() { return cellIndex == nextWriteIndex; });
+                bool ok = writer->mergePoints(filtered.data(), filtered.size(), src_transfo, pt_format_);
+                if (!ok)
+                    resultOk.store(false);
+                keptPointsAtomic.fetch_add(filtered.size());
+                ++nextWriteIndex;
+            }
+            writeCv.notify_all();
+
+            if (progress)
+            {
+                size_t done = completed.fetch_add(1) + 1;
+                std::lock_guard<std::mutex> guard(progressMutex);
+                progress(done, totalCells);
+            }
+        }
+    };
+
+    std::vector<std::thread> threads;
+    threads.reserve(threadCount);
+    for (size_t i = 1; i < threadCount; ++i)
+        threads.emplace_back(worker);
+    worker();
+    for (auto& thread : threads)
+        thread.join();
+
+    keptPoints = keptPointsAtomic.load();
     return resultOk.load();
 }
 
@@ -2385,7 +2835,7 @@ void EmbeddedScan::samplePointsByQuota(size_t quotaMax, const std::vector<uint32
 
 
 // NOTE(robin) - Here we can make the treatment faster by selecting the best in local coordinates, then return it in global coordinates.
-bool EmbeddedScan::beginRayTracing(const glm::dvec3& globalRay, const glm::dvec3& globalRayOrigin, glm::dvec3& bestPoint, const double& cosAngleThreshold, const ClippingAssembly& clippingAssembly, const bool& isOrtho)
+bool EmbeddedScan::beginRayTracing(const glm::dvec3& globalRay, const glm::dvec3& globalRayOrigin, glm::dvec3& bestPoint, const double& cosAngleThreshold, const ClippingAssembly& clippingAssembly, const bool& isOrtho, const RayTracingDisplayFilterSettings* displayFilterSettings)
 {
     TreeCell root = m_vTreeCells[m_uRootCell];
     double rootSize = root.m_size;
@@ -2457,14 +2907,14 @@ bool EmbeddedScan::beginRayTracing(const glm::dvec3& globalRay, const glm::dvec3
 	//glm::dvec3 targetGlobal = findBestPointIterative(leafList, globalRay / glm::length(globalRay), globalRayOrigin, cosAngleThreshold, rayRadius, clippingAssembly, isOrtho, success);
 
     // NOTE(robin) - On utilise les rayons et les clippingAssembly dans l'espace local du scan
-	glm::dvec3 targetGlobal = findBestPointIterative(leafList, trueLocalRay, trueLocalRayOrigin, cosAngleThreshold, rayRadius, localAssembly, isOrtho, success);
+	glm::dvec3 targetGlobal = findBestPointIterative(leafList, trueLocalRay, trueLocalRayOrigin, cosAngleThreshold, rayRadius, localAssembly, isOrtho, displayFilterSettings, success);
 
     bestPoint = targetGlobal;
 
     return success;
 }
 
-bool EmbeddedScan::beginRayTracingWithPoint(const glm::dvec3& globalRay, const glm::dvec3& globalRayOrigin, glm::dvec3& bestPoint, PointXYZIRGB& bestPointData, const double& cosAngleThreshold, const ClippingAssembly& clippingAssembly, const bool& isOrtho)
+bool EmbeddedScan::beginRayTracingWithPoint(const glm::dvec3& globalRay, const glm::dvec3& globalRayOrigin, glm::dvec3& bestPoint, PointXYZIRGB& bestPointData, const double& cosAngleThreshold, const ClippingAssembly& clippingAssembly, const bool& isOrtho, const RayTracingDisplayFilterSettings* displayFilterSettings)
 {
     TreeCell root = m_vTreeCells[m_uRootCell];
     double rootSize = root.m_size;
@@ -2530,7 +2980,7 @@ bool EmbeddedScan::beginRayTracingWithPoint(const glm::dvec3& globalRay, const g
     double rayRadius = 0.0015;
     bool success = false;
     tls::Point localPoint{};
-    glm::dvec3 targetGlobal = findBestPointIterativeWithPoint(leafList, trueLocalRay, trueLocalRayOrigin, cosAngleThreshold, rayRadius, localAssembly, isOrtho, localPoint, success);
+    glm::dvec3 targetGlobal = findBestPointIterativeWithPoint(leafList, trueLocalRay, trueLocalRayOrigin, cosAngleThreshold, rayRadius, localAssembly, isOrtho, displayFilterSettings, localPoint, success);
 
     bestPoint = targetGlobal;
     if (success)
@@ -2541,7 +2991,7 @@ bool EmbeddedScan::beginRayTracingWithPoint(const glm::dvec3& globalRay, const g
     return success;
 }
 
-glm::dvec3 EmbeddedScan::findBestPointIterative(const std::vector<uint32_t>& leafList, const glm::dvec3& rayDirection, const glm::dvec3& rayOrigin, const double& cosAngleThreshold, const double& rayRadius, const ClippingAssembly& localClippingAssembly, const bool& isOrtho, bool& success)
+glm::dvec3 EmbeddedScan::findBestPointIterative(const std::vector<uint32_t>& leafList, const glm::dvec3& rayDirection, const glm::dvec3& rayOrigin, const double& cosAngleThreshold, const double& rayRadius, const ClippingAssembly& localClippingAssembly, const bool& isOrtho, const RayTracingDisplayFilterSettings* displayFilterSettings, bool& success)
 {
 	double dMin(DBL_MAX), bestCosAngle(-1), currCosAngle(0), currDistance(0), distanceThreshold(0.01);
 	success = false;
@@ -2553,15 +3003,23 @@ glm::dvec3 EmbeddedScan::findBestPointIterative(const std::vector<uint32_t>& lea
 	std::vector<glm::dvec3> goodAnglePoints;
 
 	glm::dvec3 result(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN());
+    const PreparedRayTracingDisplayFilter preparedFilter = prepareRayTracingDisplayFilter(displayFilterSettings);
 
 	for (int leafStep = 0; leafStep < (int)leafList.size(); leafStep++)
 	{
-        std::vector<glm::dvec3> decodedPoints;
-        getDecodedPoints({ leafList[leafStep] }, decodedPoints, false);
+        std::vector<tls::Point> cellPoints;
+        cellPoints.resize(tls_point_cloud_.getCellPointCount(leafList[leafStep]));
+        if (!getCellPointsThreadSafe(leafList[leafStep], cellPoints.data(), cellPoints.size()))
+            continue;
 
-        for (const glm::dvec3& point : decodedPoints)
+        for (const tls::Point& pointData : cellPoints)
         {
+            glm::dvec3 point(pointData.x, pointData.y, pointData.z);
             if (!localClippingAssembly.testPoint(glm::dvec4(point, 1.0)))
+            {
+                continue;
+            }
+            if (preparedFilter.anyFilterEnabled && isPointRejectedByDisplayFilters(preparedFilter, pointData, getGlobalCoord(point)))
             {
                 continue;
             }
@@ -2697,7 +3155,7 @@ glm::dvec3 EmbeddedScan::findBestPointIterative(const std::vector<uint32_t>& lea
 	return getGlobalCoord(result);
 }
 
-glm::dvec3 EmbeddedScan::findBestPointIterativeWithPoint(const std::vector<uint32_t>& leafList, const glm::dvec3& rayDirection, const glm::dvec3& rayOrigin, const double& cosAngleThreshold, const double& rayRadius, const ClippingAssembly& localClippingAssembly, const bool& isOrtho, tls::Point& outPoint, bool& success)
+glm::dvec3 EmbeddedScan::findBestPointIterativeWithPoint(const std::vector<uint32_t>& leafList, const glm::dvec3& rayDirection, const glm::dvec3& rayOrigin, const double& cosAngleThreshold, const double& rayRadius, const ClippingAssembly& localClippingAssembly, const bool& isOrtho, const RayTracingDisplayFilterSettings* displayFilterSettings, tls::Point& outPoint, bool& success)
 {
     double dMin(DBL_MAX), bestCosAngle(-1), currCosAngle(0), currDistance(0), distanceThreshold(0.01);
     success = false;
@@ -2709,6 +3167,7 @@ glm::dvec3 EmbeddedScan::findBestPointIterativeWithPoint(const std::vector<uint3
     std::vector<tls::Point> goodAnglePoints;
 
     glm::dvec3 result(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN());
+    const PreparedRayTracingDisplayFilter preparedFilter = prepareRayTracingDisplayFilter(displayFilterSettings);
 
     for (int leafStep = 0; leafStep < (int)leafList.size(); leafStep++)
     {
@@ -2721,6 +3180,10 @@ glm::dvec3 EmbeddedScan::findBestPointIterativeWithPoint(const std::vector<uint3
         {
             glm::dvec3 point(pointData.x, pointData.y, pointData.z);
             if (!localClippingAssembly.testPoint(glm::dvec4(point, 1.0)))
+            {
+                continue;
+            }
+            if (preparedFilter.anyFilterEnabled && isPointRejectedByDisplayFilters(preparedFilter, pointData, getGlobalCoord(point)))
             {
                 continue;
             }
@@ -2858,11 +3321,21 @@ int EmbeddedScan::updateRay(glm::dvec3& localRay, glm::dvec3& localRayOrigin, co
 {
     int result(0);
     TreeCell root = m_vTreeCells[m_uRootCell];
-    double norm = glm::length(localRay);
+    const double norm = glm::length(localRay);
+
+    // Defensive guard: degenerate ray cannot be normalized safely.
+    if (norm <= std::numeric_limits<double>::epsilon())
+        return result;
+
     localRay = localRay / norm;
     for (int loop = 0; loop < 3; loop++)
     {
-        if (localRay[loop] < 0)
+        // Freeze near-zero components to avoid unstable sign flips around +/- epsilon.
+        if (std::abs(localRay[loop]) <= kRaySignEpsilon)
+            localRay[loop] = 0.0;
+
+        // Mirror remapping must only apply to robustly negative components.
+        if (localRay[loop] < -kRaySignEpsilon)
         {
             localRay[loop] = -localRay[loop];
             localRayOrigin[loop] = 2 * root.m_position[loop] + rootSize - localRayOrigin[loop];
@@ -4372,16 +4845,17 @@ void EmbeddedScan::rayTraversal(const glm::dvec3& targetPoint, const VoxelGrid& 
         case 0:
         {
             //all positive
+            // Each axis time must be guarded with its own ray component to avoid copy/paste axis mismatch.
             xTime = (voxelGrid.m_xMin + (currX + 1) * voxelSize - currPoint[0]) / ray[0];
             if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
                 xTime = DBL_MAX;
               
             yTime = (voxelGrid.m_yMin + (currY + 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
                
             zTime = (voxelGrid.m_zMin + (currZ + 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position
@@ -4423,11 +4897,11 @@ void EmbeddedScan::rayTraversal(const glm::dvec3& targetPoint, const VoxelGrid& 
                 xTime = DBL_MAX;
                
             yTime = (voxelGrid.m_yMin + (currY + 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
                 
             zTime = (voxelGrid.m_zMin + (currZ + 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position
@@ -4468,11 +4942,11 @@ void EmbeddedScan::rayTraversal(const glm::dvec3& targetPoint, const VoxelGrid& 
                 xTime = DBL_MAX;
                
             yTime = (voxelGrid.m_yMin + (currY - 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
                
             zTime = (voxelGrid.m_zMin + (currZ + 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position
@@ -4513,11 +4987,11 @@ void EmbeddedScan::rayTraversal(const glm::dvec3& targetPoint, const VoxelGrid& 
                 xTime = DBL_MAX;
               
             yTime = (voxelGrid.m_yMin + (currY - 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
                
             zTime = (voxelGrid.m_zMin + (currZ + 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position
@@ -4558,11 +5032,11 @@ void EmbeddedScan::rayTraversal(const glm::dvec3& targetPoint, const VoxelGrid& 
                 xTime = DBL_MAX;
               
             yTime = (voxelGrid.m_yMin + (currY + 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
               
             zTime = (voxelGrid.m_zMin + (currZ - 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position
@@ -4603,11 +5077,11 @@ void EmbeddedScan::rayTraversal(const glm::dvec3& targetPoint, const VoxelGrid& 
                 xTime = DBL_MAX;
               
             yTime = (voxelGrid.m_yMin + (currY + 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
               
             zTime = (voxelGrid.m_zMin + (currZ - 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position
@@ -4648,11 +5122,11 @@ void EmbeddedScan::rayTraversal(const glm::dvec3& targetPoint, const VoxelGrid& 
                 xTime = DBL_MAX;
               
             yTime = (voxelGrid.m_yMin + (currY - 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
               
             zTime = (voxelGrid.m_zMin + (currZ - 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position
@@ -4693,11 +5167,11 @@ void EmbeddedScan::rayTraversal(const glm::dvec3& targetPoint, const VoxelGrid& 
                 xTime = DBL_MAX;
                
             yTime = (voxelGrid.m_yMin + (currY - 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
                 
             zTime = (voxelGrid.m_zMin + (currZ - 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position
@@ -4807,16 +5281,17 @@ void EmbeddedScan::octreeRayTraversal(const glm::dvec3& targetPoint, const Octre
         case 0:
         {
             //all positive
+            // Keep per-axis zero checks aligned with the corresponding time computation.
             xTime = (tMin + (currX + 1) * voxelSize - currPoint[0]) / ray[0];
             if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
                 xTime = DBL_MAX;
 
             yTime = (tMin + (currY + 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
 
             zTime = (tMin + (currZ + 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position
@@ -4858,11 +5333,11 @@ void EmbeddedScan::octreeRayTraversal(const glm::dvec3& targetPoint, const Octre
                 xTime = DBL_MAX;
 
             yTime = (tMin + (currY + 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
 
             zTime = (tMin + (currZ + 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position
@@ -4903,11 +5378,11 @@ void EmbeddedScan::octreeRayTraversal(const glm::dvec3& targetPoint, const Octre
                 xTime = DBL_MAX;
 
             yTime = (tMin + (currY - 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
 
             zTime = (tMin + (currZ + 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position
@@ -4948,11 +5423,11 @@ void EmbeddedScan::octreeRayTraversal(const glm::dvec3& targetPoint, const Octre
                 xTime = DBL_MAX;
 
             yTime = (tMin + (currY - 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
 
             zTime = (tMin + (currZ + 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position
@@ -4993,11 +5468,11 @@ void EmbeddedScan::octreeRayTraversal(const glm::dvec3& targetPoint, const Octre
                 xTime = DBL_MAX;
 
             yTime = (tMin + (currY + 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
 
             zTime = (tMin + (currZ - 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position
@@ -5038,11 +5513,11 @@ void EmbeddedScan::octreeRayTraversal(const glm::dvec3& targetPoint, const Octre
                 xTime = DBL_MAX;
 
             yTime = (tMin + (currY + 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
 
             zTime = (tMin + (currZ - 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position
@@ -5083,11 +5558,11 @@ void EmbeddedScan::octreeRayTraversal(const glm::dvec3& targetPoint, const Octre
                 xTime = DBL_MAX;
 
             yTime = (tMin + (currY - 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
 
             zTime = (tMin + (currZ - 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position
@@ -5128,11 +5603,11 @@ void EmbeddedScan::octreeRayTraversal(const glm::dvec3& targetPoint, const Octre
                 xTime = DBL_MAX;
 
             yTime = (tMin + (currY - 1) * voxelSize - currPoint[1]) / ray[1];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.y)) <= std::numeric_limits<double>::epsilon())
                 yTime = DBL_MAX;
 
             zTime = (tMin + (currZ - 1) * voxelSize - currPoint[2]) / ray[2];
-            if (std::fabs(abs(ray.x)) <= std::numeric_limits<double>::epsilon())
+            if (std::fabs(abs(ray.z)) <= std::numeric_limits<double>::epsilon())
                 zTime = DBL_MAX;
 
             //minimal time defines next voxel, and next starting position

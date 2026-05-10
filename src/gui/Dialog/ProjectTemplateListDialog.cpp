@@ -111,7 +111,6 @@ void ProjectTemplateListDialog::clickOnItem(const QModelIndex &idx)
 		m_ui.updateBtn->setEnabled(false);
 		m_ui.RenameBtn->setEnabled(false);
 	}
-	GUI_LOG << "click on item" << LOGENDL;
 }
 
 
@@ -156,7 +155,6 @@ void ProjectTemplateListDialog::deleteTemplate()
 			ItemNode* item = static_cast<ItemNode*>(m_model->itemFromIndex(index));
 			m_dataDispatcher.sendControl(new control::projectTemplate::DeleteTemplate(item->getWStrData()));
 		}
-		GUI_LOG << "delete " << list.size() << " templates." << LOGENDL;
 	}
 	else
 		GUI_LOG << "templates not deleted" << LOGENDL;

@@ -1,4 +1,5 @@
 #include "models/graph/CylinderNode.h"
+#include <algorithm>
 #include "vulkan/MeshManager.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
@@ -44,7 +45,7 @@ void CylinderNode::pushClippingGeometries(ClippingAssembly& clipAssembly, const 
     glm::vec4 params;
     params.x = r + m_minClipDist;
     params.y = r + m_maxClipDist;
-    params.z = getLength() / 2;
+    params.z = std::max(0.f, static_cast<float>(getLength() / 2 + getLengthThresholdClip()));
     params.w = 0.f; // not used
 
     std::shared_ptr<IClippingGeometry> geom = std::make_shared<CylinderClippingGeometry>(m_clippingMode, transfo.getInverseRotationTranslation(), params, m_rampSteps);

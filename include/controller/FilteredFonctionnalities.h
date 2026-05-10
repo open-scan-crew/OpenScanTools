@@ -66,10 +66,11 @@ static const std::unordered_map<ControlType, std::unordered_set<LicenceVersion>>
 	{ControlType::editProject, {LicenceVersion::Free}},
 	{ControlType::saveCreateProject, {LicenceVersion::Standard}},
 	{ControlType::saveCloseProject, {LicenceVersion::Free}},
-	{ControlType::saveCloseLoadProject, {LicenceVersion::Free}},
-	{ControlType::saveCloseLoadProjectCentral, {LicenceVersion::Free}},
-	{ControlType::saveQuitProject, {LicenceVersion::Free}},
-	{ControlType::functionImportScanProject, {LicenceVersion::Standard}},
+		{ControlType::saveCloseLoadProject, {LicenceVersion::Free}},
+		{ControlType::saveCloseLoadProjectCentral, {LicenceVersion::Free}},
+		{ControlType::saveQuitProject, {LicenceVersion::Free}},
+		{ControlType::setAnimationLockImageSettingsProject, {LicenceVersion::Free}},
+		{ControlType::functionImportScanProject, {LicenceVersion::Standard}},
 	{ControlType::importScanProject, {LicenceVersion::Standard}},
 	{ControlType::applyProjectTransformation, {LicenceVersion::Free}},
 	{ControlType::applyUserTransformation, {LicenceVersion::Free}},
@@ -112,6 +113,8 @@ static const std::unordered_map<ControlType, std::unordered_set<LicenceVersion>>
 	{ControlType::startGridExport, {LicenceVersion::Standard}},
 	{ControlType::startDeletePoints, {LicenceVersion::Standard}},
 	{ControlType::startStatisticalOutlierFilter, {LicenceVersion::Standard}},
+	{ControlType::startColorBalanceFilter, {LicenceVersion::Standard}},
+	{ControlType::startFilteredScansExport, {LicenceVersion::Standard}},
 
 	// control::function
 	{ControlType::functionAbort, {LicenceVersion::Free}}, 
@@ -238,6 +241,7 @@ static const std::unordered_map<ControlType, std::unordered_set<LicenceVersion>>
 	{ControlType::clickPicking, {LicenceVersion::Free} },
 	{ControlType::findScanFromPicking, {LicenceVersion::Standard} },
 	{ControlType::pickTemperatureFromPicking, {LicenceVersion::Standard} },
+	{ControlType::pickMinMaxTemperatureFromClipping, {LicenceVersion::Standard} },
 
 	// control::viewport
 	{ControlType::multiSelect, {LicenceVersion::Free} },
@@ -363,6 +367,11 @@ static const std::unordered_map<ControlType, std::unordered_set<LicenceVersion>>
 	// control::animation
 	{ControlType::addAnimationKeyPoint, {LicenceVersion::Standard} },
 	{ControlType::addScansAnimationKeyPoint, {LicenceVersion::Standard} },
+	{ControlType::prepareViewpointsAnimation, {LicenceVersion::Free} },
+	{ControlType::refreshViewpointsAnimationState, {LicenceVersion::Free} },
+	{ControlType::createEditViewPointAnimation, {LicenceVersion::Free} },
+	{ControlType::deleteViewPointAnimation, {LicenceVersion::Free} },
+	{ControlType::sendViewPointAnimationData, {LicenceVersion::Free} },
 
 	// control::Measure
 	{ControlType::SendPipeDetectionOptions, {LicenceVersion::Free} },

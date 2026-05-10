@@ -51,7 +51,7 @@
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>Import a PCO from file</string>
+      <string>Import a point cloud object from a file.</string>
      </property>
      <property name="text">
       <string>Import from file</string>
@@ -86,7 +86,7 @@
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>Creates a box that includes the whole point cloud.</string>
+      <string>Use an active box to extract a portion of the point cloud and use it as an object..</string>
      </property>
      <property name="text">
       <string>Import from box</string>
@@ -156,7 +156,7 @@
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>Select a PCO before</string>
+      <string>Select a point cloud object, then use this feature to create a copy. Please check the duplication settings first.</string>
      </property>
      <property name="text">
       <string>Copy point cloud object</string>

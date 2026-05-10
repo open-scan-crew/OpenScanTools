@@ -36,10 +36,12 @@ public:
 
 	float m_defaultMinClipDistance;
 	float m_defaultMaxClipDistance;
+	float m_defaultLengthThresholdClip;
 	ClippingMode m_defaultClipMode;
 	float m_defaultMinRampDistance;
 	float m_defaultMaxRampDistance;
 	int m_defaultRampSteps = 8;
+	bool m_animationLockImageSettings = false;
 
 	xg::Guid	m_defaultScan;
 	glm::dvec3 m_importScanTranslation;

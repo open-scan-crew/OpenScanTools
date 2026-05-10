@@ -7,6 +7,11 @@ bool tlGetScanGuid(const std::filesystem::path& filePath, tls::ScanGuid& scanGui
     return TlScanOverseer::getInstance().getScanGuid(filePath, scanGuid);
 }
 
+bool tlLookupScanGuid(const std::filesystem::path& filePath, tls::ScanGuid& scanGuid)
+{
+    return TlScanOverseer::getInstance().lookupScanGuid(filePath, scanGuid);
+}
+
 void tlFreeScan(tls::ScanGuid scanGuid)
 {
     TlScanOverseer::getInstance().freeScan_async(scanGuid, false);

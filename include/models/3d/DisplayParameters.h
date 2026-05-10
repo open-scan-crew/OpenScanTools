@@ -9,6 +9,48 @@
 
 #include <glm/glm.hpp>
 #include <array>
+#include <cstdint>
+#include <string>
+#include <vector>
+
+struct PolygonalSelectorCameraSnapshot
+{
+    glm::dmat4 view = glm::dmat4(1.0);
+    glm::dmat4 proj = glm::dmat4(1.0);
+    uint32_t viewportWidth = 0;
+    uint32_t viewportHeight = 0;
+    bool perspective = true;
+};
+
+struct PolygonalSelectorPolygon
+{
+    struct SnapshotClip
+    {
+        int32_t shape = 0; // ClippingShape
+        int32_t mode = 0;  // ClippingMode
+        glm::dmat4 matRTInv = glm::dmat4(1.0);
+        glm::vec4 params = glm::vec4(0.0f);
+    };
+
+    std::string name;
+    std::vector<glm::vec2> normalizedVertices;
+    PolygonalSelectorCameraSnapshot camera;
+    std::vector<SnapshotClip> snapshotUnion;
+    std::vector<SnapshotClip> snapshotIntersection;
+};
+
+struct PolygonalSelectorSettings
+{
+    bool enabled = false;
+    bool showSelected = true;
+    bool active = false;
+    bool pendingApply = false;
+    uint32_t appliedPolygonCount = 0;
+    int32_t highlightedPolygonIndex = -1;
+    bool manageMode = false;
+    uint32_t nextPolygonId = 1;
+    std::vector<PolygonalSelectorPolygon> polygons;
+};
 
 struct ColorimetricFilterSettings
 {
@@ -38,6 +80,10 @@ public:
     float          m_luminance = 0.f;
     float          m_hue = 0.f;
     glm::vec3      m_flatColor = glm::vec3(0.5f);
+    // Cartoon RGB (display-only) parameters.
+    int            m_cartoonValueLevels = 6;
+    int            m_cartoonSaturationMinPercent = 12; // [0..100]
+    int            m_cartoonSaturationLevels = 4;
 
     // Ramp Distance
     float          m_distRampMin = 0.f;
@@ -49,13 +95,15 @@ public:
     bool           m_negativeEffect = false;
     bool           m_reduceFlash = true;
     bool           m_flashAdvanced = false;
-    float          m_flashControl = 80.f; // [0.0, 100.0]
+    float          m_highlightKneeStart = 15.f; // [0.0, 100.0]
+    float          m_highlightKneeSoftness = 50.f; // [0.0, 100.0]
+    float          m_advancedFlashBoost = 50.f; // [0.0, 100.0]
     float          m_transparency = 10.f; // [0.0, 100.0]
 
     // Post processing
     PostRenderingNormals    m_postRenderingNormals = { true, false, true, 0.4f, 1.f };
     PostRenderingAmbientOcclusion m_postRenderingAmbientOcclusion = {};
-    EdgeAwareBlur           m_edgeAwareBlur = {};
+    ColorNoiseReduction           m_colorNoiseReduction = {};
     DepthLining             m_depthLining = {};
 
     // GUI
@@ -73,12 +121,32 @@ public:
     bool                    m_displayAllMarkersTexts = true;
     bool                    m_displayAllMeasures = true;
     ColorimetricFilterSettings m_colorimetricFilter = {};
+    PolygonalSelectorSettings m_polygonalSelector = {};
 
     //Ortho
     bool            m_orthoGridActive = false;
     Color32         m_orthoGridColor = Color32(128, 128, 128);
     float           m_orthoGridStep = 5.f;
     uint32_t        m_orthoGridLineWidth = 1;
+
+    // HD export UI state persisted in project + viewpoints.
+    bool            m_imageUseFrame = false;
+    bool            m_imageShowGrid = false;
+    bool            m_imageRatioImageMode = true;
+    int             m_imageRatioImageIndex = 3; // 3/2
+    int             m_imageRatioPrintIndex = 0; // ISO A
+    bool            m_imagePortrait = false;
+    uint32_t        m_imageWidth = 3000;
+    uint32_t        m_imageHeight = 2000;
+    bool            m_imageAlpha = false;
+    int             m_imageFormat = 1;
+    int             m_imageAntialiasing = 0;
+    int             m_imageScaleIndex = 14; // 1/50
+    int             m_imageDpiIndex = 2;    // 150
+
+    // User orientation viewpoint state (enabled + selected UO id).
+    bool            m_viewpointUserOrientationEnabled = false;
+    std::string     m_viewpointUserOrientationId;
 
 };
 

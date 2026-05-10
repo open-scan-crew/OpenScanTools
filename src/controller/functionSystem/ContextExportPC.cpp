@@ -245,6 +245,9 @@ ContextType ContextExportPC::getType() const
 
 void ContextExportPC::copyTls(Controller& controller, CopyTask task)
 {
+    // GUID contract (Pass 2.2-B):
+    // This is a physical copy path, so GUID must remain unchanged on purpose.
+    // Only transformation is overwritten after copy.
     try
     {
         std::filesystem::copy(task.src_path, task.dst_path, std::filesystem::copy_options::overwrite_existing);
@@ -316,6 +319,8 @@ bool ContextExportPC::processExport(Controller& controller, CSVWriter* csv_write
     };
 
     size_t units_done = 0;
+    ClippingAssembly emptyClippingAssembly;
+
     // For each new output file
     for (const ExportTask& task : export_tasks)
     {
@@ -342,12 +347,19 @@ bool ContextExportPC::processExport(Controller& controller, CSVWriter* csv_write
                 break;
 
             const tls::PointCloudInstance& pc = task.input_pcs[pc_index];
-            const ClippingAssembly* clippingsToUse = &task.clippings;
-            ClippingAssembly resolvedAssembly;
+
+            const bool isPointCloudClippable = pc.isClippable;
+
+            const ClippingAssembly* clippingAssemblyForCurrentPointCloud = &emptyClippingAssembly;
+            ClippingAssembly phaseResolvedClippingAssembly;
             if (task.clippings.hasPhaseClipping())
             {
-                resolvedAssembly = task.clippings.resolveByPhase(pc.phase);
-                clippingsToUse = &resolvedAssembly;
+                phaseResolvedClippingAssembly = task.clippings.resolveByPhase(pc.phase);
+                clippingAssemblyForCurrentPointCloud = isPointCloudClippable ? &phaseResolvedClippingAssembly : &emptyClippingAssembly;
+            }
+            else
+            {
+                clippingAssemblyForCurrentPointCloud = isPointCloudClippable ? &task.clippings : &emptyClippingAssembly;
             }
 
             size_t pc_count = task.input_pcs.size();
@@ -355,7 +367,7 @@ bool ContextExportPC::processExport(Controller& controller, CSVWriter* csv_write
             int next_percent = static_cast<int>(((pc_index + 1) * 100) / pc_count);
             int span_percent = std::max(1, next_percent - base_percent);
             auto progressCallback = makeProgressCallback(units_done, base_percent, span_percent);
-            success &= TlScanOverseer::getInstance().clipScan(pc.header.guid, pc.transfo, *clippingsToUse, scanFileWriter.get(), progressCallback);
+            success &= TlScanOverseer::getInstance().clipScan(pc.header.guid, pc.transfo, *clippingAssemblyForCurrentPointCloud, scanFileWriter.get(), progressCallback);
         }
 
         // TODO - FileType::RCP & m_parameters.pointDensity
@@ -481,6 +493,10 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
             }
 
             task.header.name = is_rcp ? task.scan_name : r_clipping->getComposedName();
+            // Pass 2.2-A:
+            // Clipping-based TLS exports must get a fresh scan GUID to avoid reusing
+            // source scan identities across exported files.
+            task.header.guid = xg::newGuid();
             task.header.precision = m_parameters.encodingPrecision;
             task.header.format = common_format;
 
@@ -508,6 +524,9 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
         }
 
         task.header.name = is_rcp ? task.scan_name : m_parameters.fileName.wstring();
+        // Pass 2.2-A:
+        // Merged TLS exports are reconstructed outputs and therefore require a new GUID.
+        task.header.guid = xg::newGuid();
         task.header.precision = m_parameters.encodingPrecision;
         task.header.format = common_format;
 
@@ -523,7 +542,11 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
     {
         for (const tls::PointCloudInstance& pcInfo : pcInfos)
         {
-            // Filter out the tls that we can copy
+            // GUID contract (Pass 2.2-B):
+            // Keep pure TLS copy behavior unchanged by design:
+            // - same binary content lineage
+            // - same scan GUID
+            // This path is intentionally excluded from "new GUID on export" rules.
             if (m_parameters.outFileType == FileType::TLS &&
                 pcInfo.header.precision == m_parameters.encodingPrecision &&
                 clipping_assembly.empty())
@@ -558,6 +581,10 @@ void ContextExportPC::prepareTasks(Controller& controller, std::vector<ContextEx
 
                 task.header = pcInfo.header;
                 task.header.name = is_rcp ? task.scan_name : task.file_name;
+                // Pass 2.2-A / 2.2-B contract:
+                // Rewritten scan/PCO TLS exports must not keep source GUIDs.
+                // NOTE: pure copy path above intentionally preserves GUID by design.
+                task.header.guid = xg::newGuid();
                 task.header.precision = m_parameters.encodingPrecision;
                 task.header.format = pcInfo.header.format;
 

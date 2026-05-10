@@ -16,7 +16,6 @@ AuthorListDialog::AuthorListDialog(IDataDispatcher& dataDispatcher, QWidget *par
 	m_ui.setupUi(this);
 	this->show();
 	
-	GUI_LOG << "create AuthorListDialog" << LOGENDL;
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::sendAuthorsList);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::closeAuthorList);
@@ -39,7 +38,6 @@ AuthorListDialog::AuthorListDialog(IDataDispatcher& dataDispatcher, QWidget *par
 
 AuthorListDialog::~AuthorListDialog()
 {
-	GUI_LOG << "destroy AuthorListDialog" << LOGENDL;
 	m_dataDispatcher.sendControl(new control::author::SaveAuthors());
 	m_dataDispatcher.unregisterObserver(this);
 }
@@ -114,19 +112,13 @@ void AuthorListDialog::deleteAuthor()
 
 	if (reply == QMessageBox::Yes)
 	{
-		std::wstringstream ss;
 		QModelIndexList list = m_ui.AuthorListView->selectionModel()->selectedIndexes();
-
-		int i = 0;
 
 		foreach (const QModelIndex &index, list)
 		{
-			ss << ((i == 0) ? L"" : L", ");
 			AuthorListNode *list = static_cast<AuthorListNode*>(model->itemFromIndex(index));
-			ss << list->text().toStdWString();
 			m_dataDispatcher.sendControl(new control::author::DeleteAuthor(list->getAuthor()));
 		}
-		GUI_LOG << "delete " << ss.str() << LOGENDL;
 	}
 	else
 		GUI_LOG << "list not deleted" << LOGENDL;

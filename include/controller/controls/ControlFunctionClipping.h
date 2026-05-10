@@ -99,6 +99,15 @@ namespace control::function::clipping
 		ControlType getType() const override;
 	};
 
+	class ActivatePolygonalSelector : public AControl
+	{
+	public:
+		ActivatePolygonalSelector();
+		~ActivatePolygonalSelector();
+		void doFunction(Controller& controller) override;
+		ControlType getType() const override;
+	};
+
 }
 
 #endif // !CONTROL_FUNCTION_TAG_H_

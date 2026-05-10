@@ -1,4 +1,5 @@
 #include "io/exports/DataSerializer.h"
+#include "io/PersistenceSchema.h"
 
 #include "utils/Logger.h"
 
@@ -29,10 +30,12 @@
 #include "models/application/TagTemplate.h"
 
 #include "models/application/UserOrientation.h"
+#include "models/application/ViewPointAnimation.h"
 #include "models/project/ProjectInfos.h"
 #include "models/application/Author.h"
 
 #include "magic_enum/magic_enum.hpp"
+#include <algorithm>
 
 #define IOLOG Logger::log(LoggerMode::IOLog)
 
@@ -149,6 +152,7 @@ void ExportClippingData(nlohmann::json& json, const ClippingData& data)
 	json[Key_ClippingMode] = magic_enum::enum_name(data.getClippingMode());
 	json[Key_MinClipDistance] = data.getMinClipDist();
 	json[Key_MaxClipDistance] = data.getMaxClipDist();
+	json[Key_LengthThresholdClip] = data.getLengthThresholdClip();
 	json[Key_Active] = data.isClippingActive();
 
 
@@ -353,6 +357,9 @@ void ExportRenderingParameters(nlohmann::json& json, const RenderingParameters& 
 	json[Key_Saturation] = params.m_saturation;
 	json[Key_Luminance] = params.m_luminance;
 	json[Key_Blending] = params.m_hue;
+	json[Key_Cartoon_Value_Levels] = params.m_cartoonValueLevels;
+	json[Key_Cartoon_Saturation_Min_Percent] = params.m_cartoonSaturationMinPercent;
+	json[Key_Cartoon_Saturation_Levels] = params.m_cartoonSaturationLevels;
 	json[Key_Flat_Color] = { params.m_flatColor.x, params.m_flatColor.y, params.m_flatColor.z };
 
 	json[Key_DistRamp] = { params.m_distRampMin, params.m_distRampMax };
@@ -362,12 +369,14 @@ void ExportRenderingParameters(nlohmann::json& json, const RenderingParameters& 
 	json[Key_NegativeEffect] = params.m_negativeEffect;
 	json[Key_ReduceFlash] = params.m_reduceFlash;
     json[Key_FlashAdvanced] = params.m_flashAdvanced;
-    json[Key_FlashControl] = params.m_flashControl;
+    json[Key_HighlightKneeStart] = params.m_highlightKneeStart;
+    json[Key_HighlightKneeSoftness] = params.m_highlightKneeSoftness;
+    json[Key_AdvancedFlashBoost] = params.m_advancedFlashBoost;
 	json[Key_Transparency] = params.m_transparency;
 
     json[Key_Post_Rendering_Normals] = { params.m_postRenderingNormals.show, params.m_postRenderingNormals.inverseTone, params.m_postRenderingNormals.blendColor, params.m_postRenderingNormals.normalStrength, params.m_postRenderingNormals.gloss };
     json[Key_Post_Rendering_Ambient_Occlusion] = { params.m_postRenderingAmbientOcclusion.enabled, params.m_postRenderingAmbientOcclusion.radius, params.m_postRenderingAmbientOcclusion.intensity };
-    json[Key_Edge_Aware_Blur] = { params.m_edgeAwareBlur.enabled, params.m_edgeAwareBlur.radius, params.m_edgeAwareBlur.depthThreshold, params.m_edgeAwareBlur.blendStrength, params.m_edgeAwareBlur.resolutionScale };
+    json[Key_Color_Noise_Reduction] = { params.m_colorNoiseReduction.enabled, params.m_colorNoiseReduction.radius, params.m_colorNoiseReduction.depthAwareThreshold, params.m_colorNoiseReduction.strength, params.m_colorNoiseReduction.resolutionScale };
     json[Key_Depth_Lining] = { params.m_depthLining.enabled, params.m_depthLining.strength, params.m_depthLining.threshold, params.m_depthLining.sensitivity, params.m_depthLining.strongMode };
 
     json[Key_Display_Guizmo] = params.m_displayGizmo;
@@ -402,10 +411,90 @@ void ExportRenderingParameters(nlohmann::json& json, const RenderingParameters& 
 		} }
 	};
 
-	json[Key_Ortho_Grid_Active] = params.m_orthoGridActive;
-	json[Key_Ortho_Grid_Color] = { params.m_orthoGridColor.r, params.m_orthoGridColor.g, params.m_orthoGridColor.b, params.m_orthoGridColor.a };
-	json[Key_Ortho_Grid_Step] = params.m_orthoGridStep;
-	json[Key_Ortho_Grid_Step] = params.m_orthoGridLineWidth;
+	json[Key_Polygonal_Selector] = {
+		{ Key_Polygonal_Selector_Enabled, params.m_polygonalSelector.enabled },
+		{ Key_Polygonal_Selector_Show, params.m_polygonalSelector.showSelected },
+		{ Key_Polygonal_Selector_Active, params.m_polygonalSelector.active },
+		{ Key_Polygonal_Selector_PendingApply, params.m_polygonalSelector.pendingApply },
+		{ Key_Polygonal_Selector_AppliedCount, params.m_polygonalSelector.appliedPolygonCount },
+		{ Key_Polygonal_Selector_NextId, params.m_polygonalSelector.nextPolygonId },
+		{ Key_Polygonal_Selector_Polygons, nlohmann::json::array() }
+	};
+
+	for (const PolygonalSelectorPolygon& polygon : params.m_polygonalSelector.polygons)
+	{
+		nlohmann::json polygonJson;
+		polygonJson[Key_Polygonal_Selector_Name] = polygon.name;
+		polygonJson[Key_Polygonal_Selector_Vertices] = nlohmann::json::array();
+		for (const glm::vec2& vertex : polygon.normalizedVertices)
+			polygonJson[Key_Polygonal_Selector_Vertices].push_back({ vertex.x, vertex.y });
+
+		polygonJson[Key_Polygonal_Selector_Camera] = {
+			{ Key_Polygonal_Selector_Cam_View, {
+				polygon.camera.view[0][0], polygon.camera.view[0][1], polygon.camera.view[0][2], polygon.camera.view[0][3],
+				polygon.camera.view[1][0], polygon.camera.view[1][1], polygon.camera.view[1][2], polygon.camera.view[1][3],
+				polygon.camera.view[2][0], polygon.camera.view[2][1], polygon.camera.view[2][2], polygon.camera.view[2][3],
+				polygon.camera.view[3][0], polygon.camera.view[3][1], polygon.camera.view[3][2], polygon.camera.view[3][3]
+			} },
+			{ Key_Polygonal_Selector_Cam_Proj, {
+				polygon.camera.proj[0][0], polygon.camera.proj[0][1], polygon.camera.proj[0][2], polygon.camera.proj[0][3],
+				polygon.camera.proj[1][0], polygon.camera.proj[1][1], polygon.camera.proj[1][2], polygon.camera.proj[1][3],
+				polygon.camera.proj[2][0], polygon.camera.proj[2][1], polygon.camera.proj[2][2], polygon.camera.proj[2][3],
+				polygon.camera.proj[3][0], polygon.camera.proj[3][1], polygon.camera.proj[3][2], polygon.camera.proj[3][3]
+			} },
+			{ Key_Polygonal_Selector_Cam_Viewport, { polygon.camera.viewportWidth, polygon.camera.viewportHeight } },
+			{ Key_Polygonal_Selector_Cam_Perspective, polygon.camera.perspective }
+		};
+
+		auto writeSnapshotClip = [](const PolygonalSelectorPolygon::SnapshotClip& clip)
+		{
+			return nlohmann::json{
+				{ Key_Polygonal_Selector_SnapshotClipShape, clip.shape },
+				{ Key_Polygonal_Selector_SnapshotClipMode, clip.mode },
+				{ Key_Polygonal_Selector_SnapshotClipMat, {
+					clip.matRTInv[0][0], clip.matRTInv[0][1], clip.matRTInv[0][2], clip.matRTInv[0][3],
+					clip.matRTInv[1][0], clip.matRTInv[1][1], clip.matRTInv[1][2], clip.matRTInv[1][3],
+					clip.matRTInv[2][0], clip.matRTInv[2][1], clip.matRTInv[2][2], clip.matRTInv[2][3],
+					clip.matRTInv[3][0], clip.matRTInv[3][1], clip.matRTInv[3][2], clip.matRTInv[3][3]
+				} },
+				{ Key_Polygonal_Selector_SnapshotClipParams, { clip.params.x, clip.params.y, clip.params.z, clip.params.w } }
+			};
+		};
+
+		polygonJson[Key_Polygonal_Selector_SnapshotUnion] = nlohmann::json::array();
+		for (const PolygonalSelectorPolygon::SnapshotClip& clip : polygon.snapshotUnion)
+			polygonJson[Key_Polygonal_Selector_SnapshotUnion].push_back(writeSnapshotClip(clip));
+
+		polygonJson[Key_Polygonal_Selector_SnapshotIntersection] = nlohmann::json::array();
+		for (const PolygonalSelectorPolygon::SnapshotClip& clip : polygon.snapshotIntersection)
+			polygonJson[Key_Polygonal_Selector_SnapshotIntersection].push_back(writeSnapshotClip(clip));
+
+		json[Key_Polygonal_Selector][Key_Polygonal_Selector_Polygons].push_back(polygonJson);
+	}
+
+	// Single source of truth: keep OrthoGrid serialization in one helper.
+	persistence::writeOrthoGrid(json, params);
+
+	// Persist HD export toolbar state (project + viewpoints).
+	json[Key_Image_Group_Settings] = {
+		{ Key_Image_Group_Use_Frame, params.m_imageUseFrame },
+		{ Key_Image_Group_Show_Grid, params.m_imageShowGrid },
+		{ Key_Image_Group_Ratio_Image, params.m_imageRatioImageMode },
+		{ Key_Image_Group_Ratio_Image_Id, params.m_imageRatioImageIndex },
+		{ Key_Image_Group_Ratio_Print_Id, params.m_imageRatioPrintIndex },
+		{ Key_Image_Group_Portrait, params.m_imagePortrait },
+		{ Key_Image_Group_Width, params.m_imageWidth },
+		{ Key_Image_Group_Height, params.m_imageHeight },
+		{ Key_Image_Group_Alpha, params.m_imageAlpha },
+		{ Key_Image_Group_Format, params.m_imageFormat },
+		{ Key_Image_Group_Antialiasing, params.m_imageAntialiasing },
+		{ Key_Image_Group_Scale_Index, params.m_imageScaleIndex },
+		{ Key_Image_Group_Dpi_Index, params.m_imageDpiIndex }
+	};
+
+	// Persist user orientation viewpoint mode (project + viewpoints).
+	json[Key_Viewpoint_User_Orientation_Enabled] = params.m_viewpointUserOrientationEnabled;
+	json[Key_Viewpoint_User_Orientation_Id] = params.m_viewpointUserOrientationId;
 }
 
 void ExportViewPointData(nlohmann::json& json, const ViewPointData& data)
@@ -413,9 +502,9 @@ void ExportViewPointData(nlohmann::json& json, const ViewPointData& data)
         ExportRenderingParameters(json, data);
 
         const DisplayParameters& displayParams = data.getDisplayParameters();
-        json[Key_Edge_Aware_Blur] = { displayParams.m_edgeAwareBlur.enabled, displayParams.m_edgeAwareBlur.radius,
-                displayParams.m_edgeAwareBlur.depthThreshold, displayParams.m_edgeAwareBlur.blendStrength,
-                displayParams.m_edgeAwareBlur.resolutionScale };
+        json[Key_Color_Noise_Reduction] = { displayParams.m_colorNoiseReduction.enabled, displayParams.m_colorNoiseReduction.radius,
+                displayParams.m_colorNoiseReduction.depthAwareThreshold, displayParams.m_colorNoiseReduction.strength,
+                displayParams.m_colorNoiseReduction.resolutionScale };
         json[Key_Post_Rendering_Ambient_Occlusion] = { displayParams.m_postRenderingAmbientOcclusion.enabled, displayParams.m_postRenderingAmbientOcclusion.radius, displayParams.m_postRenderingAmbientOcclusion.intensity };
         json[Key_Depth_Lining] = { displayParams.m_depthLining.enabled, displayParams.m_depthLining.strength,
                 displayParams.m_depthLining.threshold, displayParams.m_depthLining.sensitivity,
@@ -472,14 +561,132 @@ void ExportViewPointData(nlohmann::json& json, const ViewPointData& data)
 	json[Key_Visible_Objects] = childrenElem;
 
 	childrenElem.clear();
-	for (std::pair<SafePtr<AGraphNode>,Color32> colorSet : data.getScanClusterColors())
+	for (const std::pair<SafePtr<AGraphNode>, TransformationModule>& transformSet : data.getObjectsTransform())
+	{
+		ReadPtr<AGraphNode> rObj = transformSet.first.cget();
+		if (!rObj)
+			continue;
+
+		const TransformationModule& transfo = transformSet.second;
+		nlohmann::json objState;
+		objState[Key_Id] = rObj->getId();
+		objState[Key_ViewPoint_Object_Transform] =
+		{
+			{ Key_Center, { transfo.getCenter().x, transfo.getCenter().y, transfo.getCenter().z } },
+			{ Key_Quaternion, { transfo.getOrientation()[0], transfo.getOrientation()[1], transfo.getOrientation()[2], transfo.getOrientation()[3] } },
+			{ Key_Size, { transfo.getScale().x, transfo.getScale().y, transfo.getScale().z } }
+		};
+
+		auto colorIt = data.getScanClusterColors().find(transformSet.first);
+		if (colorIt != data.getScanClusterColors().end())
+			objState[Key_ColorRGBA] = { colorIt->second.r, colorIt->second.g, colorIt->second.b, colorIt->second.a };
+
+		auto clippableIt = data.getObjectsClippable().find(transformSet.first);
+		if (clippableIt != data.getObjectsClippable().end())
+			objState[Key_Clippable] = clippableIt->second;
+
+		auto clipIt = data.getObjectsClippingDistances().find(transformSet.first);
+		if (clipIt != data.getObjectsClippingDistances().end())
+		{
+			objState[Key_ViewPoint_Object_Clip] =
+			{
+				{ Key_MinClipDistance, clipIt->second.minClip },
+				{ Key_MaxClipDistance, clipIt->second.maxClip },
+				{ Key_LengthThresholdClip, clipIt->second.lengthThreshold }
+			};
+		}
+
+		auto rampIt = data.getObjectsRampDistances().find(transformSet.first);
+			if (rampIt != data.getObjectsRampDistances().end())
+			{
+				objState[Key_ViewPoint_Object_Ramp] =
+				{
+					{ Key_MinRampDistance, rampIt->second.minRamp },
+					{ Key_MaxRampDistance, rampIt->second.maxRamp },
+					{ Key_RampSteps, rampIt->second.stepsRamp },
+					{ Key_RampClamped, rampIt->second.rampClamped }
+				};
+			}
+
+		childrenElem.push_back(objState);
+	}
+
+	for (const std::pair<SafePtr<AGraphNode>, Color32>& colorSet : data.getScanClusterColors())
 	{
 		ReadPtr<AGraphNode> rObj = colorSet.first.cget();
 		if (!rObj)
 			continue;
-		childrenElem.push_back({ rObj->getId(), colorSet.second.r, colorSet.second.g, colorSet.second.b, colorSet.second.a });
+		const std::string objectId = rObj->getId().str();
+		auto it = std::find_if(childrenElem.begin(), childrenElem.end(), [&objectId](const nlohmann::json& state)
+			{
+				return state.find(Key_Id) != state.end() && state.at(Key_Id).get<std::string>() == objectId;
+			});
+		if (it != childrenElem.end())
+			continue;
+		childrenElem.push_back({ { Key_Id, rObj->getId() }, { Key_ColorRGBA, { colorSet.second.r, colorSet.second.g, colorSet.second.b, colorSet.second.a } } });
 	}
-	json[Key_Objects_Colors] = childrenElem;
+
+	for (const std::pair<SafePtr<AGraphNode>, bool>& clippableSet : data.getObjectsClippable())
+	{
+		ReadPtr<AGraphNode> rObj = clippableSet.first.cget();
+		if (!rObj)
+			continue;
+		const std::string objectId = rObj->getId().str();
+		auto it = std::find_if(childrenElem.begin(), childrenElem.end(), [&objectId](const nlohmann::json& state)
+			{
+				return state.find(Key_Id) != state.end() && state.at(Key_Id).get<std::string>() == objectId;
+			});
+		if (it != childrenElem.end())
+			continue;
+		childrenElem.push_back({ { Key_Id, rObj->getId() }, { Key_Clippable, clippableSet.second } });
+	}
+
+	for (const std::pair<SafePtr<AGraphNode>, ViewPointData::ClippingDistances>& clipSet : data.getObjectsClippingDistances())
+	{
+		ReadPtr<AGraphNode> rObj = clipSet.first.cget();
+		if (!rObj)
+			continue;
+		const std::string objectId = rObj->getId().str();
+		auto it = std::find_if(childrenElem.begin(), childrenElem.end(), [&objectId](const nlohmann::json& state)
+			{
+				return state.find(Key_Id) != state.end() && state.at(Key_Id).get<std::string>() == objectId;
+			});
+		if (it != childrenElem.end())
+			continue;
+		childrenElem.push_back({
+			{ Key_Id, rObj->getId() },
+			{ Key_ViewPoint_Object_Clip, {
+				{ Key_MinClipDistance, clipSet.second.minClip },
+				{ Key_MaxClipDistance, clipSet.second.maxClip },
+				{ Key_LengthThresholdClip, clipSet.second.lengthThreshold }
+			} }
+		});
+	}
+
+	for (const std::pair<SafePtr<AGraphNode>, ViewPointData::RampDistances>& rampSet : data.getObjectsRampDistances())
+	{
+		ReadPtr<AGraphNode> rObj = rampSet.first.cget();
+		if (!rObj)
+			continue;
+		const std::string objectId = rObj->getId().str();
+		auto it = std::find_if(childrenElem.begin(), childrenElem.end(), [&objectId](const nlohmann::json& state)
+			{
+				return state.find(Key_Id) != state.end() && state.at(Key_Id).get<std::string>() == objectId;
+			});
+		if (it != childrenElem.end())
+			continue;
+			childrenElem.push_back({
+				{ Key_Id, rObj->getId() },
+				{ Key_ViewPoint_Object_Ramp, {
+					{ Key_MinRampDistance, rampSet.second.minRamp },
+					{ Key_MaxRampDistance, rampSet.second.maxRamp },
+					{ Key_RampSteps, rampSet.second.stepsRamp },
+					{ Key_RampClamped, rampSet.second.rampClamped }
+				} }
+			});
+		}
+
+	json[Key_ViewPoint_Object_States] = childrenElem;
 }
 
 void DataSerializer::Serialize(nlohmann::json& json, const SafePtr<TagNode>& object)
@@ -754,6 +961,29 @@ nlohmann::json DataSerializer::Serialize(const UserOrientation& data)
 	return json;
 }
 
+nlohmann::json DataSerializer::Serialize(const ViewPointAnimationConfig& data)
+{
+	nlohmann::json json;
+	json[Key_Id] = data.getId();
+	json[Key_Name] = Utils::to_utf8(data.getName().toStdWString());
+	json[Key_Order] = data.getOrder();
+	json[Key_AnimationMode] = magic_enum::enum_name(data.getMode());
+	json[Key_SmoothTransitions] = data.getSmoothTransitions();
+
+	nlohmann::json lines = nlohmann::json::array();
+	for (const ViewPointAnimationLine& line : data.getLines())
+	{
+		nlohmann::json lineJson;
+		lineJson[Key_ViewPointId] = line.viewpointId;
+		lineJson[Key_Name] = Utils::to_utf8(line.viewpointName.toStdWString());
+		lineJson[Key_Position] = line.position;
+		lines.push_back(lineJson);
+	}
+	json[Key_AnimationLines] = lines;
+
+	return json;
+}
+
 nlohmann::json DataSerializer::Serialize(const Author& auth)
 {
 	nlohmann::json jauthor;
@@ -777,8 +1007,10 @@ nlohmann::json DataSerializer::Serialize(const ProjectInfos& data)
 	json[Key_ColumnTiltTolerance] = data.m_columnTiltTolerance;
 	json[Key_DefaultClipMode] = data.m_defaultClipMode;
 	json[Key_DefaultClipDistances] = { data.m_defaultMinClipDistance, data.m_defaultMaxClipDistance };
+	json[Key_DefaultLengthThresholdClip] = data.m_defaultLengthThresholdClip;
 	json[Key_DefaultRampDistances] = { data.m_defaultMinRampDistance, data.m_defaultMaxRampDistance };
 	json[Key_DefaultRampSteps] = data.m_defaultRampSteps;
+	json[Key_AnimationLockImageSettings] = data.m_animationLockImageSettings;
 	json[Key_ImportScanTranslation] = { data.m_importScanTranslation.x, data.m_importScanTranslation.y, data.m_importScanTranslation.z };
 	json[Key_Project_Id] = data.m_id;
 	json[Key_CustomScanFolderPath] = Utils::to_utf8(data.m_customScanFolderPath.wstring());

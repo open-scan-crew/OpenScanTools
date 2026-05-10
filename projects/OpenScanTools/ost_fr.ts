@@ -188,6 +188,156 @@
     </message>
 </context>
 <context>
+    <name>DialogAnimationConfig</name>
+    <message>
+        <location filename="../../src/gui/forms/DialogAnimationConfig.ui" line="14"/>
+        <source>Animation configurator</source>
+        <translation>Configurateur d&apos;animation</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/DialogAnimationConfig.ui" line="20"/>
+        <source>Keeps a constant speed during the whole video.</source>
+        <translation>Conserve une vitesse constante durant toute l&apos;animation.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/DialogAnimationConfig.ui" line="23"/>
+        <source>Constant speed</source>
+        <translation>Vitesse constante</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/DialogAnimationConfig.ui" line="30"/>
+        <source>Name your animation</source>
+        <translation>Nommez l&apos;animation</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/DialogAnimationConfig.ui" line="37"/>
+        <source>Delete item</source>
+        <translation>Supprimer l&apos;élément</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/DialogAnimationConfig.ui" line="44"/>
+        <source>Ok</source>
+        <translation>Ok</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/DialogAnimationConfig.ui" line="51"/>
+        <source>Delete</source>
+        <translation>Supprimer</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/DialogAnimationConfig.ui" line="58"/>
+        <source>Cancel</source>
+        <translation>Annuler</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/DialogAnimationConfig.ui" line="65"/>
+        <source>Keeps a constant time between each pair of viewpoints.</source>
+        <translation>Conserve une durée constante entre chaque paire de points de vue.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/DialogAnimationConfig.ui" line="68"/>
+        <source>Constant intervals</source>
+        <translation>Intervalles fixes</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/DialogAnimationConfig.ui" line="75"/>
+        <source>Improves the transitions for the &quot;Position as time&quot; and &quot;Constant intervals&quot; modes.</source>
+        <translation>Adoucit les transitions pour les modes &quot;Intervalles fixes&quot; et &quot;Temps de position&quot;.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/DialogAnimationConfig.ui" line="78"/>
+        <source>Smooth transitions</source>
+        <translation>Adoucir les transitions</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/DialogAnimationConfig.ui" line="85"/>
+        <source>Uses the value of the field Position to set the time. Values must be in ascending order, starting at 0 for the first row.</source>
+        <translation>Utilise la valeur du champ Position pour définir le temps de passage. Les valeurs doivent être ascendantes en démarrant à 0 pour la 1ère ligne.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/DialogAnimationConfig.ui" line="88"/>
+        <source>Position as time</source>
+        <translation>Temps de position</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/DialogAnimationConfig.ui" line="95"/>
+        <source>Speed and duration management</source>
+        <translation>Management de la vitesse et de la durée</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/DialogAnimationConfig.ui" line="102"/>
+        <source>Add viewpoint</source>
+        <translation>Ajouter point de vue</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/DialogAnimationConfig.ui" line="112"/>
+        <source>Move up</source>
+        <translation>Monter</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/DialogAnimationConfig.ui" line="119"/>
+        <source>Move down</source>
+        <translation>Descendre</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/DialogAnimationConfig.ui" line="126"/>
+        <source>Clean list</source>
+        <translation>Effacer liste</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/Dialog/DialogAnimationConfig.cpp" line="120"/>
+        <source>Viewpoint name</source>
+        <translation>Nom du point de vue</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/Dialog/DialogAnimationConfig.cpp" line="120"/>
+        <source>Position</source>
+        <translation>Position</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/Dialog/DialogAnimationConfig.cpp" line="144"/>
+        <source>Select viewpoint</source>
+        <translation>Sélectionner le point de vue</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/Dialog/DialogAnimationConfig.cpp" line="157"/>
+        <source>Only viewpoints in perspective mode are allowed</source>
+        <translation>Seuls les points de vue en mode perspective sont autorisés</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/Dialog/DialogAnimationConfig.cpp" line="180"/>
+        <source>You must select a viewpoint before adding a new line.</source>
+        <translation>Vous devez sélectionner une ligne avant d&apos;en ajouter une nouvelle.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/Dialog/DialogAnimationConfig.cpp" line="341"/>
+        <source>You must select a viewpoint for each line.</source>
+        <translation>Vous devez sélectionner un point de vue pour chaque ligne.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/Dialog/DialogAnimationConfig.cpp" line="384"/>
+        <source>Animation name is required.</source>
+        <translation>Un nom est requis pour l&apos;animation.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/Dialog/DialogAnimationConfig.cpp" line="394"/>
+        <source>Animation name already exists.</source>
+        <translation>Ce nom d&apos;animation existe déjà.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/Dialog/DialogAnimationConfig.cpp" line="402"/>
+        <source>You must add at least 2 lines for the viewpoints</source>
+        <translation>Vous devez ajouter au minimum 2 lignes pour les points de vue</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/Dialog/DialogAnimationConfig.cpp" line="464"/>
+        <source>Warning: the added element is not consistent in terms of rendering modes with the other elements in the list.
+This may lead to erratic behaviour in the animation and video creation.</source>
+        <translation>Attention: l&apos;élément ajouté n&apos;est pas cohérent en matière de rendus par rapport aux autres.
+Cela peut conduire à un comportement erratique durant l&apos;animation.</translation>
+    </message>
+</context>
+<context>
     <name>DialogColorBalanceFilter</name>
     <message>
         <location filename="../../src/gui/forms/DialogColorBalanceFilter.ui" line="14"/>
@@ -731,122 +881,92 @@
         <translation>Génération de vidéo</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="91"/>
-        <source>Orbital 360</source>
-        <translation>Orbital 360</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="98"/>
-        <source>Between 2 viewpoints</source>
-        <translation>Entre 2 points de vue</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="74"/>
-        <source>Select viewpoint 1</source>
-        <translation>Sélect. point de vue 1</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="67"/>
-        <source>Select viewpoint 2</source>
-        <translation>Sélect. point de vue 2</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="81"/>
-        <source>Interpolate rendering values</source>
-        <translation>Interpoler les valeurs de rendu</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="111"/>
+        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="32"/>
         <source>Folder</source>
         <translation>Dossier</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="118"/>
+        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="39"/>
         <source>FPS</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="140"/>
+        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="61"/>
         <source>HD image (longer)</source>
         <translation>Image HD (plus long)</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="150"/>
+        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="71"/>
         <source>Simple Screenshot (quicker)</source>
         <translation>Capture d&apos;écran simple (rapide)</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="160"/>
+        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="81"/>
         <source>Output</source>
         <translation>Format de sortie</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="180"/>
+        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="101"/>
         <source>Open folder after export</source>
         <translation>Ouvrir le dossier après l’export</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="190"/>
+        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="111"/>
         <source>Video Name</source>
         <translation>Nom de la vidéo</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="207"/>
+        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="118"/>
         <source>Enter output file or header name</source>
         <translation>Nom du fichier ou préfixe du fichier</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="219"/>
+        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="130"/>
         <source>Generate</source>
         <translation>Générer</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="239"/>
+        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="150"/>
         <source>Cancel</source>
         <translation>Annuler</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="248"/>
+        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="159"/>
         <source>Enter output folder</source>
         <translation>Dossier de destination</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="255"/>
-        <source>Video length (seconds)</source>
-        <translation>Longueur de vidéo (secondes)</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="262"/>
+        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="166"/>
         <source>Select Out File</source>
         <translation>Sélect fichier de sortie</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="273"/>
+        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="177"/>
         <source>Image render</source>
         <translation>Rendu d&apos;image</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="280"/>
+        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="184"/>
         <source>Select Out Folder</source>
         <translation>Sélect dossier destination</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="316"/>
+        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="220"/>
         <source>To use mp4, you must first install ffmpeg, then specify its path in the general settings.</source>
         <translation>Pour utiliser le mp4, installez ffmpeg et déclarez son chemin d&apos;accès dans les paramètres.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="319"/>
+        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="223"/>
         <source>MP4 (H.265)</source>
         <translation>MP4 (H.265)</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="336"/>
+        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="240"/>
         <source>Bitrate kbps</source>
         <translation>Flux kbps</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="362"/>
+        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="266"/>
         <source>The output uses the frame ratio defined. 
 Resolution and image format have to be set in the image editor. For mp4, do not exceed 4K. 
 To get a preview, please click generate and then stop after a few frames.</source>
@@ -855,7 +975,7 @@ La résolution et le format d&apos;images sont à définir dans la section Image
 Pour obtenir une prévisualisation, cliquez sur générer puis stoppez après quelques images.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="326"/>
+        <location filename="../../src/gui/forms/DialogExportVideo.ui" line="230"/>
         <source>Images</source>
         <translation></translation>
     </message>
@@ -1438,7 +1558,7 @@ du modèle comme les scans</translation>
         <translation>Annuler</translation>
     </message>
     <message>
-        <location filename="../../src/gui/Dialog/DialogRecentProjects.cpp" line="60"/>
+        <location filename="../../src/gui/Dialog/DialogRecentProjects.cpp" line="58"/>
         <source>You must select a project.</source>
         <translation>Vous devez sélectionner un projet.</translation>
     </message>
@@ -2426,22 +2546,22 @@ Perspective</translation>
 <context>
     <name>DisplayPresetManager</name>
     <message>
-        <location filename="../../src/gui/DisplayPresetManager.cpp" line="943"/>
+        <location filename="../../src/gui/DisplayPresetManager.cpp" line="1193"/>
         <source>Please enter a name for the preset.</source>
         <translation>Veuillez saisir un nom pour le préréglage.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/DisplayPresetManager.cpp" line="949"/>
+        <location filename="../../src/gui/DisplayPresetManager.cpp" line="1199"/>
         <source>Initial cannot be used to name the preset. Please enter another name</source>
         <translation>Initial ne peut pas être utilisé. Veuillez saisir un autre nom</translation>
     </message>
     <message>
-        <location filename="../../src/gui/DisplayPresetManager.cpp" line="954"/>
+        <location filename="../../src/gui/DisplayPresetManager.cpp" line="1204"/>
         <source>Raw rendering cannot be used to name the preset. Please enter another name</source>
         <translation>Raw rendering ne peut pas être utilisé. Veuillez saisir un autre nom</translation>
     </message>
     <message>
-        <location filename="../../src/gui/DisplayPresetManager.cpp" line="960"/>
+        <location filename="../../src/gui/DisplayPresetManager.cpp" line="1210"/>
         <source>This name is already used and cannot be used to name the preset. Please enter another name</source>
         <translation>Ce nom est déjà utilisé. Veuillez entrer un autre nom</translation>
     </message>
@@ -2784,8 +2904,8 @@ Veuillez spécifier le dossier parent de ces fichiers. (Ces fichiers vont être 
     </message>
     <message>
         <location filename="../../src/gui/forms/Property_Box.ui" line="62"/>
-        <source>It&apos;s replacing the box by a grid</source>
-        <translation>Cela remplace la box en grille</translation>
+        <source>This feature divides a box into a grid. Use this if you want to split your scan export into smaller files.</source>
+        <translation>Divise une box en grille. A utiliser si vous voulez scinder votre export de scans en fichiers plus légers.</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/Property_Box.ui" line="65"/>
@@ -4255,26 +4375,26 @@ Veuillez spécifier le dossier parent de ces fichiers. (Ces fichiers vont être 
         <translation>Identifiant</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="127"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="128"/>
         <source>
  Would you like to continue the conversion?</source>
         <translation>
  Voulez-vous continuer la conversion?</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="128"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="129"/>
         <source>
  Would you like to force the conversion?</source>
         <translation>
  Voulez-vous forcer la conversion?</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="129"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="130"/>
         <source>Conversion done!</source>
         <translation>Conversion effectuée!</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="130"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="131"/>
         <source>File: %1 is not a valid point cloud file.
 Conversion stopped.
 </source>
@@ -4283,7 +4403,7 @@ La conversion est interrompue.
 </translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="131"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="132"/>
         <source>File: %1 failed to write.
 Conversion stopped.
 </source>
@@ -4292,28 +4412,28 @@ La conversion est interrompue.
 </translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="133"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="134"/>
         <source>Conversion done in: %1 seconds.</source>
         <translation>Conversion effectuée en: %1 secondes.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="135"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="136"/>
         <source>%1 imported in %2 seconds.</source>
         <translation>%1 importé en %2 secondes.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="136"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="137"/>
         <source>Scan import %1 failed.</source>
         <translation>L&apos;import du scan %1 a échoué.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="117"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="118"/>
         <source>Failed to copy file: %1
 It will be skipped.</source>
         <translation>Le fichier %1 n&apos;a pas pu être copié. Il sera ignoré.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="45"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="48"/>
         <source>Export %1 file(s)</source>
         <translation>Exporter en fichier(s) %1</translation>
     </message>
@@ -4403,32 +4523,43 @@ est vide.</translation>
         <translation>Export d&apos;objets nuage de points</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="23"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="22"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="38"/>
+        <source>Filtered Scans Export</source>
+        <translation>Export scans filtrés</translation>
+    </message>
+    <message>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="24"/>
+        <source>Please activate a filter first.</source>
+        <translation>Activez un filtre au préalable.</translation>
+    </message>
+    <message>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="25"/>
         <source>Something wrong happened...</source>
         <translation>Un événement imprévu s&apos;est produit...</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="24"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="26"/>
         <source>Failed to create destination file: %1</source>
         <translation>Echec de création du fichier:%1</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="29"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="31"/>
         <source>You must activate or select some clippings first</source>
         <translation>Vous devez d&apos;abord activer ou sélectionner au moins une clipping</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="32"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="34"/>
         <source>No visible scan to export</source>
         <translation>Pas de scan visible à exporter</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="36"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="39"/>
         <source>Export Point Cloud in gridded boxes</source>
         <translation>Exporter les nuages de points en grilles</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="37"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="40"/>
         <source>Dialog export point cloud</source>
         <translation></translation>
     </message>
@@ -4448,11 +4579,6 @@ est vide.</translation>
         <source>The project has been modified.
 Do you want to save it before closing?</source>
         <translation>Le projet a été modifié. Voulez-vous le sauvegarder avant de fermer?</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/toolBars/MainToolBar.cpp" line="21"/>
-        <source>Import scans</source>
-        <translation>Importer scans</translation>
     </message>
     <message>
         <location filename="../../src/gui/toolBars/MainToolBar.cpp" line="29"/>
@@ -4518,12 +4644,12 @@ Do you want to save it before closing?</source>
         <translation>Affichage du texte</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="63"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="64"/>
         <source>Normals</source>
         <translation>Normales</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="65"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="66"/>
         <source>Transparency</source>
         <translation>Transparence</translation>
     </message>
@@ -4687,17 +4813,17 @@ Le fichier .tld : [%1] n&apos;a pas d&apos;auteur.</translation>
         <translation>Erreur: création de projet impossible.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="123"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="124"/>
         <source>The format of the scan is not supported.</source>
         <translation>Format de scan non supporté.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="124"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="125"/>
         <source>%1 could not be converted.</source>
         <translation>%1 n&apos;a pas pu être converti.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="125"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="126"/>
         <source>Conversion in progress</source>
         <translation>Conversion en cours</translation>
     </message>
@@ -4728,23 +4854,23 @@ Le fichier .tld : [%1] n&apos;a pas d&apos;auteur.</translation>
     </message>
     <message>
         <location filename="../../include/gui/texts/ExportTexts.hpp" line="20"/>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="34"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="36"/>
         <source>Statistical Outlier Filter</source>
         <translation>Filtre Statistical Outlier</translation>
     </message>
     <message>
         <location filename="../../include/gui/texts/ExportTexts.hpp" line="21"/>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="35"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="37"/>
         <source>Color balance</source>
         <translation>Balance de couleurs</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="22"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="23"/>
         <source>Global color balance requires at least two visible scans.</source>
         <translation>La balance des couleurs globale nécessite au moins deux scans visibles.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="25"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="27"/>
         <source>
 
 Scan export done in: %1 seconds</source>
@@ -4753,7 +4879,7 @@ Scan export done in: %1 seconds</source>
 Export de scan effectué en: %1 secondes</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="26"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="28"/>
         <source>
 
 Clipping export done in: %1 seconds</source>
@@ -4762,7 +4888,7 @@ Clipping export done in: %1 seconds</source>
 Export de clipping effectué en: %1 secondes</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="27"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="29"/>
         <source>
 
 Scan export failed in: %1 seconds</source>
@@ -4771,7 +4897,7 @@ Scan export failed in: %1 seconds</source>
 Echec de l&apos;export de scan en: %1 secondes</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="28"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="30"/>
         <source>
 
 Clipping export failed in: %1 seconds</source>
@@ -4780,7 +4906,7 @@ Clipping export failed in: %1 seconds</source>
 Echec d&apos;export de clipping en: %1 secondes</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="33"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="35"/>
         <source>Export Point Cloud in clippings</source>
         <translation>Exporter les points des clippings</translation>
     </message>
@@ -5104,11 +5230,16 @@ Les modifications ne peuvent pas être sauvegardé avec le visualiseur gratuit.<
     </message>
     <message>
         <location filename="../../include/gui/texts/ContextTexts.hpp" line="101"/>
-        <source>You must activate some clippings to run this feature</source>
-        <translation>Vous devez activer le clipping pour utiliser cette fonction</translation>
+        <source>You must activate some clippings or filters to run this feature</source>
+        <translation>Vous devez activer des clippings pour utiliser cette fonction</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="104"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="102"/>
+        <source>To use this feature, please create one clipping box on the desired area and activate it (Show interior mode). Then, hide the box (click the visibility icon in the tree panel). The function will not run if several clipping boxes are active at the same time, or if the clipping box is visible on screen.</source>
+        <translation>Pour utiliser cette fonction, créez une clipping box et activez-la en mode &quot;Montrer intérieur&quot;. Ensuite, masquez la box (utilisez l&apos;icône de visibilité dans l&apos;arborescence). La fonction ne démarre pas si plusieurs boxes sont actives simultanément, ou si la box est visible à l&apos;écran.</translation>
+    </message>
+    <message>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="105"/>
         <source>Warning: some points will be permanently deleted.
 Depending on the size of the scans and the filter settings, the calculation time may be significant. We recommend that you first perform a test on a small clipped portion.
 Do you confirm?</source>
@@ -5117,7 +5248,7 @@ En fonction de la taille des scans et des paramètres du filtre, le temps de cal
 Confirmez-vous ?</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="107"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="108"/>
         <source>Warning: some points will be permanently modified.
 Depending on the size of the scans, the calculation time may be significant. We recommend that you first perform a test on a small clipped portion.
 Do you confirm?</source>
@@ -5126,72 +5257,87 @@ En fonction de la taille des scans, le temps de calcul peut être important. Nou
 Confirmez-vous ?</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="140"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="141"/>
         <source>Point is from scan : %1</source>
         <translation>Le point provient du scan : %1</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="141"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="142"/>
         <source>No scan found</source>
         <translation>Pas de scan trouvé</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="144"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="145"/>
         <source>Generate video.</source>
         <translation>Générer vidéo.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="145"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="146"/>
         <source>Frames : %1 / %2</source>
         <translation>Images : %1 / %2</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="147"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="148"/>
         <source>Fail</source>
         <translation>Échec</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="148"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="149"/>
         <source>Sequence generated in %1 seconds</source>
         <translation>Séquence généreé en %1 secondes</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="151"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="152"/>
+        <source>At least two perspective viewpoints are required to start the animation.</source>
+        <translation>Au moins 2 points de vue sont requis pour démarrer l&apos;animation.</translation>
+    </message>
+    <message>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="153"/>
+        <source>The table of viewpoints contains inconsistent time values. Times must be increasing. Example: if you have entered 5 in the Position field for a row in the table, then you must enter a higher value in the next row, for example 6.</source>
+        <translation>La table des points de vue contient des temps incogérents. Les temps doivent être croissants.</translation>
+    </message>
+    <message>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="154"/>
+        <source>Some viewpoints are inconsistent and cannot be used for interpolation.</source>
+        <translation>Certains points de vue ont un rendu incohérent par rapport aux autres, ce qui ne permet pas l&apos;interpolation.</translation>
+    </message>
+    <message>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="157"/>
         <source>Select a temporary position for the manipulator.</source>
         <translation>Sélectionnez une position temporaire pour le manipulateur.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="154"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="160"/>
         <source>Select the first base position.</source>
         <translation>Sélectionnez la première position de base.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="155"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="161"/>
         <source>Select the second base position.</source>
         <translation>Sélectionnez la deuxième position de base.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="156"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="162"/>
         <source>Select the third base position.</source>
         <translation>Sélectionnez la troisième position de base.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="157"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="163"/>
         <source>Select the first target position.</source>
         <translation>Sélectionnez la première position cible.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="158"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="164"/>
         <source>Select the second target position.</source>
         <translation>Sélectionnez la deuxième position cible.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="159"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="165"/>
         <source>Select the third target position.</source>
         <translation>Sélectionnez la troisième position cible.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="161"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="167"/>
         <source>Please select objects</source>
         <translation>Veuillez sélectionner des objets</translation>
     </message>
@@ -5216,14 +5362,14 @@ Confirmez-vous ?</translation>
         <translation>Fichiers Filmbox (*.fbx)</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="121"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="122"/>
         <source>The detected coordinates are too large, which may deteriorate the navigation.
 We advise you to truncate them. Suggested values:</source>
         <translation>Les coordonnées détectées sont trop grandes, ce qui peut dégrader la navigation.
 Nous vous conseillons de les tronquer. Valeurs proposées:</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="122"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="123"/>
         <source>You can either translate the coordinates to work on a local system, or keep them</source>
         <translation>Vous pouvez translater les coordonnées pour travailler dans un repère local, ou les laisser inchangées</translation>
     </message>
@@ -5356,10 +5502,10 @@ Attention: vous ne pouvez pas annuler cette action.</translation>
     <message>
         <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="62"/>
         <source>Objects clipping</source>
-        <translation></translation>
+        <translation>Clipping d&apos;objets</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="42"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="45"/>
         <source>Displayed</source>
         <translation>Affiché</translation>
     </message>
@@ -5616,12 +5762,12 @@ Les modifications ne peuvent pas être sauvegardé avec le visualiseur gratuit.<
         <translation>Vous êtes en train d&apos;ouvrir un projet central !</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="46"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="49"/>
         <source>Export shared files</source>
         <translation>Export en fichiers de partage</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="43"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="46"/>
         <source>None</source>
         <translation>Aucun</translation>
     </message>
@@ -5856,14 +6002,14 @@ Vous confirmez ?</translation>
         <translation>Entrer valeur</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="110"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="111"/>
         <source>Warning: some tags use this template. Deleting the template will also delete the related tags.
 Do you confirm?</source>
         <translation>Attention: certains tags utilisent ce modèle. Supprimer le modèle supprimera aussi les tags associés.
 Vous confirmez?</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="113"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="114"/>
         <source>Warning: all the tags that use this template will be modified accordingly.
 Do you confirm?</source>
         <translation>Attention: tous les tags utilisant ce modèle seront modifiés en conséquence.
@@ -6129,7 +6275,7 @@ Vous confirmez?</translation>
         <translation>Echec de création de l&apos;objet nuage de points.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="116"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="117"/>
         <source>Failed to create directory: %1</source>
         <translation>Echec de création du dossier: %1</translation>
     </message>
@@ -6155,17 +6301,17 @@ Vous confirmez?</translation>
     </message>
     <message>
         <location filename="../../include/gui/texts/ExportTexts.hpp" line="18"/>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="30"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="32"/>
         <source>Grids Export</source>
         <translation>Export de grilles</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="31"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="33"/>
         <source>Select grid(s) first</source>
         <translation>Sélectionnez des grilles d&apos;abord</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="38"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="41"/>
         <source>The selected directory is not valid for exports (invalid path OR no write permission)</source>
         <translation>Le dossier sélectionné n&apos;est pas valable pour les exports (chemin invalide OU pas de droits en écriture)</translation>
     </message>
@@ -6246,13 +6392,13 @@ Vous confirmez?</translation>
     </message>
     <message>
         <location filename="../../src/gui/toolBars/MainToolBar.cpp" line="16"/>
-        <source>New</source>
-        <translation>Nouveau</translation>
+        <source>Create a new project</source>
+        <translation>Créer un nouveau projet</translation>
     </message>
     <message>
         <location filename="../../src/gui/toolBars/MainToolBar.cpp" line="17"/>
-        <source>Open</source>
-        <translation>Ouvrir</translation>
+        <source>Open project</source>
+        <translation>Ouvrir le projet</translation>
     </message>
     <message>
         <location filename="../../src/gui/toolBars/MainToolBar.cpp" line="19"/>
@@ -6263,6 +6409,11 @@ Vous confirmez?</translation>
         <location filename="../../src/gui/toolBars/MainToolBar.cpp" line="20"/>
         <source>Close Project</source>
         <translation>Fermer le projet</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/toolBars/MainToolBar.cpp" line="21"/>
+        <source>Import Scans - please create a project or use an existing project before importing.</source>
+        <translation>Importer les scans. Au préalable, créez un projet ou ouvrez un projet existant.</translation>
     </message>
     <message>
         <location filename="../../src/gui/toolBars/MainToolBar.cpp" line="22"/>
@@ -6315,7 +6466,7 @@ Vous confirmez?</translation>
         <translation>Quitter</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="40"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="43"/>
         <location filename="../../include/gui/texts/DefaultUserLists.hpp" line="6"/>
         <source>All</source>
         <translation>Tous</translation>
@@ -6338,15 +6489,15 @@ Vous confirmez?</translation>
     <message>
         <location filename="../../include/gui/Texts.hpp" line="277"/>
         <source>Error : Same selected viewpoints.</source>
-        <translation>Erreur : Même points de vue séléctionnés</translation>
+        <translation>Erreur : mêmes points de vue séléctionnés.</translation>
     </message>
     <message>
         <location filename="../../include/gui/Texts.hpp" line="278"/>
         <source>Error : Orthographic viewpoint not allowed.</source>
-        <translation>Erreur : Les points de vue en orthographique ne sont pas autorisé</translation>
+        <translation>Erreur : les points de vue en orthographique ne sont pas autorisés.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="126"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="127"/>
         <source>Some files already exist in the project folder:
  %1 
 You can overwrite them by setting the overwrite option.</source>
@@ -6355,7 +6506,7 @@ You can overwrite them by setting the overwrite option.</source>
 Vous pouvez les remplacer en activant l&apos;option.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="132"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="133"/>
         <source>File: %1 already exists.
 Skipping conversion.
 </source>
@@ -6365,7 +6516,7 @@ Conversion ignorée.
     </message>
     <message>
         <location filename="../../include/gui/texts/ExportTexts.hpp" line="12"/>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="41"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="44"/>
         <source>Selected</source>
         <translation>Sélection</translation>
     </message>
@@ -6835,7 +6986,12 @@ Conversion ignorée.
         <translation>Naviguer</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="66"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="63"/>
+        <source>Polygonal selector</source>
+        <translation>Sélection polygonale</translation>
+    </message>
+    <message>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="67"/>
         <source>Enhance</source>
         <translation>Améliorer</translation>
     </message>
@@ -6855,7 +7011,7 @@ Conversion ignorée.
         <translation>Importer des scans</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="64"/>
+        <location filename="../../include/gui/texts/MainGuiTexts.hpp" line="65"/>
         <source>Ortho Grid</source>
         <translation>Grille orthographique</translation>
     </message>
@@ -6937,66 +7093,71 @@ Fichier non trouvé :
     </message>
     <message>
         <location filename="../../include/gui/texts/RenderingTexts.hpp" line="9"/>
+        <source>Cartoon RGB</source>
+        <translation>Cartoon RGB</translation>
+    </message>
+    <message>
+        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="10"/>
         <source>Intensity &amp; RGB</source>
         <translation>Intensité &amp; RVB</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="10"/>
+        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="11"/>
         <source>Colored</source>
         <translation>Coloré</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="11"/>
+        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="12"/>
         <source>Colored by Scans</source>
         <translation>Coloré par Scans</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="12"/>
+        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="13"/>
         <source>Colored by Clusters</source>
         <translation>Coloré par Groupes</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="13"/>
+        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="14"/>
         <source>Flat</source>
         <translation>Plat</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="14"/>
+        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="15"/>
         <source>Distance Ramp</source>
         <translation>Rampe de distance</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="15"/>
+        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="16"/>
         <source>Raw Distance Ramp</source>
         <translation>Rampe brute de distance</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="16"/>
+        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="17"/>
         <source>False Color</source>
         <translation>Fausse couleur</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="17"/>
+        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="18"/>
         <source>Normals Colored</source>
         <translation>Normales Colorées</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="20"/>
+        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="21"/>
         <source>Contrast</source>
         <translation>Contraste</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="21"/>
+        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="22"/>
         <source>Brightness</source>
         <translation>Luminosité</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="22"/>
+        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="23"/>
         <source>Saturation</source>
         <translation>Saturation</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="23"/>
+        <location filename="../../include/gui/texts/RenderingTexts.hpp" line="24"/>
         <source>Luminance</source>
         <translation>Luminance</translation>
     </message>
@@ -7204,7 +7365,7 @@ Fichier non trouvé :
         <translation>Discipline</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="134"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="135"/>
         <source>%1 imported</source>
         <translation>%1 importé</translation>
     </message>
@@ -7254,12 +7415,40 @@ Fichier non trouvé :
         <translation>Sans objet</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="146"/>
+        <location filename="../../src/controller/controls/ControlPicking.cpp" line="225"/>
+        <source>You must import a valid temperature scale file first.</source>
+        <translation>Vous devez importer un fichier d&apos;échelle de température valide.</translation>
+    </message>
+    <message>
+        <location filename="../../src/controller/controls/ControlPicking.cpp" line="247"/>
+        <source>Find min max temperature</source>
+        <translation>Trouver min max</translation>
+    </message>
+    <message>
+        <location filename="../../src/controller/controls/ControlPicking.cpp" line="247"/>
+        <source>Please wait...</source>
+        <translation>Merci de patienter...</translation>
+    </message>
+    <message>
+        <location filename="../../src/controller/controls/ControlPicking.cpp" line="258"/>
+        <location filename="../../src/controller/controls/ControlPicking.cpp" line="296"/>
+        <location filename="../../src/controller/controls/ControlPicking.cpp" line="297"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="147"/>
         <source>Done</source>
         <translation>Terminé</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="120"/>
+        <location filename="../../src/controller/controls/ControlPicking.cpp" line="259"/>
+        <source>No visible scan found in the project.</source>
+        <translation>Aucun scan visible dans le projet.</translation>
+    </message>
+    <message>
+        <location filename="../../src/controller/controls/ControlPicking.cpp" line="301"/>
+        <source>No temperature from the current scale was found in the clipped area.</source>
+        <translation>Aucune température de l&apos;échelle n&apos;a été trouvée dans la zone de recherche.</translation>
+    </message>
+    <message>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="121"/>
         <source>Importing</source>
         <translation>Importation</translation>
     </message>
@@ -7521,19 +7710,24 @@ Attention : vous ne pouvez pas annuler cette action.</translation>
         <translation>Erreur : l&apos;application a crash. Veuillez nous envoyer le fichier log pour le support. Vous pouvez trouver le fichier log dans C:\Documents\OpenScanTools.</translation>
     </message>
     <message>
-        <location filename="../../src/controller/Controller.cpp" line="115"/>
+        <location filename="../../src/controller/Controller.cpp" line="151"/>
         <source>Error : The project couldn&apos;t be saved.</source>
         <translation>Erreur : The projet n’a pas pu être sauvegardé.</translation>
     </message>
     <message>
-        <location filename="../../src/controller/functionSystem/ContextPickTemperature.cpp" line="105"/>
+        <location filename="../../src/controller/functionSystem/ContextPickTemperature.cpp" line="124"/>
         <source>Pick a point to read temperature</source>
         <translation>Cliquez sur un point pour lire sa température</translation>
     </message>
     <message>
-        <location filename="../../src/controller/functionSystem/ContextPickColorimetric.cpp" line="102"/>
+        <location filename="../../src/controller/functionSystem/ContextPickColorimetric.cpp" line="121"/>
         <source>Pick a point to extract its color</source>
         <translation>Prélevez un point pour extraire sa couleur</translation>
+    </message>
+    <message>
+        <location filename="../../src/controller/controls/ControlAnimation.cpp" line="335"/>
+        <source>Animation name already exists.</source>
+        <translation>Ce nom d&apos;animation existe déjà.</translation>
     </message>
 </context>
 <context>
@@ -7544,19 +7738,9 @@ Attention : vous ne pouvez pas annuler cette action.</translation>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="41"/>
-        <source>Perspective mode</source>
-        <translation>Mode perspective</translation>
-    </message>
-    <message>
         <location filename="../../src/gui/forms/quickbar_navigation.ui" line="44"/>
         <source>Perspective</source>
         <translation>Perspective</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="61"/>
-        <source>Orthographic mode</source>
-        <translation>Mode orthographique</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/quickbar_navigation.ui" line="64"/>
@@ -7570,9 +7754,19 @@ Attention : vous ne pouvez pas annuler cette action.</translation>
         <translation>Explorer</translation>
     </message>
     <message>
+        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="41"/>
+        <source>Perspective mode - also use shortcut p</source>
+        <translation>Mode perspective - utiliser également le raccourci clavier p</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="61"/>
+        <source>Orthographic mode - also use shortcut o</source>
+        <translation>Mode orthographique - utiliser aussi le raccourci clavier o</translation>
+    </message>
+    <message>
         <location filename="../../src/gui/forms/quickbar_navigation.ui" line="101"/>
-        <source>Examine</source>
-        <translation>Examen</translation>
+        <source>Examine target - also use double click or x shortcut</source>
+        <translation>Point de rotation d&apos;examen - utiliser également le double-clic ou le raccourci clavier x</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/quickbar_navigation.ui" line="104"/>
@@ -7600,43 +7794,68 @@ Attention : vous ne pouvez pas annuler cette action.</translation>
         <translation>Rotation 90°</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="158"/>
+        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="155"/>
+        <source>Predefined views</source>
+        <translation>Vues prédéfinies</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="162"/>
         <source>Align view along a vertical plane defined by 2 points.</source>
         <translation>Aligner la vue selon un plan vertical défini par 2 points.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="161"/>
-        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="181"/>
-        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="201"/>
-        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="254"/>
-        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="274"/>
-        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="294"/>
-        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="361"/>
+        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="165"/>
+        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="185"/>
+        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="205"/>
+        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="261"/>
+        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="284"/>
+        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="307"/>
+        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="377"/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="178"/>
+        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="182"/>
         <source>Align view along a plane defined by 3 points.</source>
         <translation>Aligner la vue selon un plan défini par 3 points.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="198"/>
+        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="202"/>
         <source>Align view on the nearest box face.</source>
         <translation>Aligner la vue sur la face la plus proche de la box sélectionnée.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="218"/>
-        <source>Guizmo</source>
-        <translation>Gizmo</translation>
+        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="222"/>
+        <source>Show - hide XYZ axis</source>
+        <translation>Montrer les axes XYZ</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="338"/>
+        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="258"/>
+        <source>Translation manipulators</source>
+        <translation>Manipulateurs de translation</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="281"/>
+        <source>Rotation manipulators</source>
+        <translation>Manipulateurs de rotation</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="304"/>
+        <source>Extrusion manipulators</source>
+        <translation>Manipulateurs d&apos;extrusion</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="334"/>
+        <source>Move manipulators</source>
+        <translation>Déplacer les manipulateurs</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="354"/>
         <source>Refresh</source>
         <translation>Rafraîchir</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="358"/>
+        <location filename="../../src/gui/forms/quickbar_navigation.ui" line="374"/>
         <source>Hide (N)</source>
         <translation>Masquer (N)</translation>
     </message>
@@ -7686,12 +7905,12 @@ Attention : vous ne pouvez pas annuler cette action.</translation>
 <context>
     <name>SubPropertyClipping</name>
     <message>
-        <location filename="../../src/gui/forms/SubProperty_Clipping.ui" line="226"/>
+        <location filename="../../src/gui/forms/SubProperty_Clipping.ui" line="231"/>
         <source>Show interior</source>
         <translation>Montrer intérieur</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/SubProperty_Clipping.ui" line="213"/>
+        <location filename="../../src/gui/forms/SubProperty_Clipping.ui" line="218"/>
         <source>Show exterior</source>
         <translation>Montrer extérieur</translation>
     </message>
@@ -7708,7 +7927,7 @@ Attention : vous ne pouvez pas annuler cette action.</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/SubProperty_Clipping.ui" line="94"/>
-        <location filename="../../src/gui/forms/SubProperty_Clipping.ui" line="249"/>
+        <location filename="../../src/gui/forms/SubProperty_Clipping.ui" line="264"/>
         <source>Max</source>
         <translation></translation>
     </message>
@@ -7728,9 +7947,23 @@ Attention : vous ne pouvez pas annuler cette action.</translation>
         <translation>Clipping</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/SubProperty_Clipping.ui" line="200"/>
+        <location filename="../../src/gui/forms/SubProperty_Clipping.ui" line="197"/>
+        <source>By phase: use this for scans of the same area taken at different times.
+Give names to the phases of your scans. Give the object (box, tag, etc.) a phase name.
+Scans with the same phase as the object are then clipped in interior mode, while those with a different phase are clipped in exterior mode.</source>
+        <translation>Par phase: à utiliser pour des scans effectués à différentes périodes dans une même zone.
+Donnez des noms de phase à vos scans. Donnez un nom de phase à l&apos;objet (box, tag etc...).
+Les scans ayant la même phase que l&apos;objet sont clippés en mode intérieur, ceux ayant une phase différente sont clippés en mode extérieur.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/SubProperty_Clipping.ui" line="205"/>
         <source>By phase</source>
         <translation>Par phase</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/SubProperty_Clipping.ui" line="254"/>
+        <source>Length threshold</source>
+        <translation>Seuil de longueur</translation>
     </message>
 </context>
 <context>
@@ -7894,24 +8127,6 @@ Attention : vous ne pouvez pas annuler cette action.</translation>
         <location filename="../../src/gui/forms/toolbar_exportgroup.ui" line="83"/>
         <source>CSV</source>
         <translation>CSV</translation>
-    </message>
-</context>
-<context>
-    <name>ToolBarExportVideo</name>
-    <message>
-        <location filename="../../src/gui/forms/toolbar_exportVideo.ui" line="20"/>
-        <source>Form</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/toolbar_exportVideo.ui" line="54"/>
-        <source>Video generation. Please make sure you are in perspective mode and that you selected a frame in the image section.</source>
-        <translation>Génération de vidéo. Veuillez être en mode perspective et sélectionner un cadre dans la section image.</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/toolbar_exportVideo.ui" line="60"/>
-        <source>Generate video</source>
-        <translation>Générer vidéo</translation>
     </message>
 </context>
 <context>
@@ -8117,6 +8332,11 @@ Attention : vous ne pouvez pas annuler cette action.</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_imagegroup.ui" line="315"/>
+        <source>Improves images. Requires more computing time.</source>
+        <translation>Améliore les images. Requiert plus de temps de calcul.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_imagegroup.ui" line="318"/>
         <source>Antialiasing</source>
         <translation>Antialiasing</translation>
     </message>
@@ -8156,22 +8376,22 @@ Attention : vous ne pouvez pas annuler cette action.</translation>
         <translation>Format:</translation>
     </message>
     <message>
-        <location filename="../../src/gui/toolBars/ToolBarImageGroup.cpp" line="300"/>
+        <location filename="../../src/gui/toolBars/ToolBarImageGroup.cpp" line="303"/>
         <source>Off</source>
         <translation>Aucun</translation>
     </message>
     <message>
-        <location filename="../../src/gui/toolBars/ToolBarImageGroup.cpp" line="301"/>
+        <location filename="../../src/gui/toolBars/ToolBarImageGroup.cpp" line="304"/>
         <source>Low</source>
         <translation>Bas</translation>
     </message>
     <message>
-        <location filename="../../src/gui/toolBars/ToolBarImageGroup.cpp" line="302"/>
+        <location filename="../../src/gui/toolBars/ToolBarImageGroup.cpp" line="305"/>
         <source>Mid</source>
         <translation>Moyen</translation>
     </message>
     <message>
-        <location filename="../../src/gui/toolBars/ToolBarImageGroup.cpp" line="303"/>
+        <location filename="../../src/gui/toolBars/ToolBarImageGroup.cpp" line="306"/>
         <source>High</source>
         <translation>Elevé</translation>
     </message>
@@ -8442,11 +8662,16 @@ Exemple: incliner un objet selon une pente.</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_orthoGrid.ui" line="68"/>
+        <source>This feature displays a grid when the orthographic mode is enabled. If you export the HD image, the grid will be included.</source>
+        <translation>Cette fonction affiche une grille quand le mode ortho est actif. Si vous exportez une image HD, la grille sera incluse.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_orthoGrid.ui" line="71"/>
         <source>Display Grid</source>
         <translation>Afficher la grille</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_orthoGrid.ui" line="108"/>
+        <location filename="../../src/gui/forms/toolbar_orthoGrid.ui" line="111"/>
         <source>5</source>
         <translation>5</translation>
     </message>
@@ -8456,7 +8681,7 @@ Exemple: incliner un objet selon une pente.</translation>
         <translation>Pas de la grille</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_orthoGrid.ui" line="98"/>
+        <location filename="../../src/gui/forms/toolbar_orthoGrid.ui" line="101"/>
         <source>Grid Color</source>
         <translation>Couleur de grille</translation>
     </message>
@@ -8479,19 +8704,9 @@ Exemple: incliner un objet selon une pente.</translation>
         <translation>Enregistrer</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_projectgroup.ui" line="220"/>
-        <source>New project</source>
-        <translation>Nouveau projet</translation>
-    </message>
-    <message>
         <location filename="../../src/gui/forms/toolbar_projectgroup.ui" line="188"/>
         <source>Save project. CTRL+S</source>
         <translation>Sauvegarder le projet. CTRL+S</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/toolbar_projectgroup.ui" line="60"/>
-        <source>Import Scans</source>
-        <translation>Importer des scans</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_projectgroup.ui" line="124"/>
@@ -8502,6 +8717,16 @@ Exemple: incliner un objet selon une pente.</translation>
         <location filename="../../src/gui/forms/toolbar_projectgroup.ui" line="92"/>
         <source>Open project</source>
         <translation>Ouvrir le projet</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_projectgroup.ui" line="60"/>
+        <source>Import Scans - please create a project or use an existing project before importing.</source>
+        <translation>Importer les scans. Au préalable, créez un projet ou ouvrez un projet existant.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_projectgroup.ui" line="220"/>
+        <source>Create a new project</source>
+        <translation>Créer un nouveau projet</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_projectgroup.ui" line="252"/>
@@ -8558,19 +8783,19 @@ Exemple: incliner un objet selon une pente.</translation>
 <context>
     <name>ToolBarRenderRampGroup</name>
     <message>
-        <location filename="../../src/gui/toolBars/ToolBarRenderRampGroup.cpp" line="20"/>
-        <location filename="../../src/gui/toolBars/ToolBarRenderRampGroup.cpp" line="107"/>
+        <location filename="../../src/gui/toolBars/ToolBarRenderRampGroup.cpp" line="21"/>
         <location filename="../../src/gui/toolBars/ToolBarRenderRampGroup.cpp" line="113"/>
+        <location filename="../../src/gui/toolBars/ToolBarRenderRampGroup.cpp" line="119"/>
         <source>No file found</source>
         <translation>Aucun fichier trouvé</translation>
     </message>
     <message>
-        <location filename="../../src/gui/toolBars/ToolBarRenderRampGroup.cpp" line="29"/>
+        <location filename="../../src/gui/toolBars/ToolBarRenderRampGroup.cpp" line="30"/>
         <source>Import Temperature Scale</source>
         <translation>Importer échelle température</translation>
     </message>
     <message>
-        <location filename="../../src/gui/toolBars/ToolBarRenderRampGroup.cpp" line="29"/>
+        <location filename="../../src/gui/toolBars/ToolBarRenderRampGroup.cpp" line="30"/>
         <source>Text files (*.txt);;All files (*)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8708,8 +8933,8 @@ Exemple: incliner un objet selon une pente.</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_taggroup.ui" line="126"/>
-        <source>Create and edit tags templates</source>
-        <translation>Créer et éditer des modèles</translation>
+        <source>Create a new tag. You can select a pictogram (style) before creating. If you want to use a default name, enter it in the Attribute section.</source>
+        <translation>Créer un nouveau tag. Vous pouvez sélectionner un pictogramme (style). Si vous voulez utiliser un nom par défaut, entrez-le dans la section Attributs.</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_taggroup.ui" line="129"/>
@@ -9963,39 +10188,135 @@ Exemple: incliner un objet selon une pente.</translation>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="35"/>
-        <source>Clean animation list</source>
-        <translation>Effacer liste d&apos;animation</translation>
+        <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="38"/>
+        <source>Creates an orbital animation, around the central target. If no target is specified, the camera rotates on its own axis.
+If you want a vertical rotation, please check the Vertical checkbox.</source>
+        <translation>Crée une animation orbitale autour de la cible centrale. Si aucune cible n&apos;est définie, la caméra tourne sur elle-même.
+Si vous désirez une animation verticale, cochez la case ci-dessous.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="48"/>
-        <source>Scans list</source>
-        <translation>Liste de Scans</translation>
+        <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="42"/>
+        <source>Orbital</source>
+        <translation>Orbitale</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="58"/>
-        <source>Start animation</source>
-        <translation>Démarrer anim.</translation>
+        <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="52"/>
+        <source>Degrees</source>
+        <translation>Degrés</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="68"/>
-        <source>Speed</source>
-        <translation>Vitesse</translation>
+        <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="78"/>
+        <source>Creates a vertical orbital animation. Rotation is limited to 180 degrees (it stops when vertical).</source>
+        <translation>Crée une animation verticale. La limite est de 180 degrés (la caméra ne dépasse pas la verticale).</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="85"/>
-        <source>Stop animation</source>
-        <translation>Stopper anim.</translation>
+        <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="81"/>
+        <source>Vertical</source>
+        <translation>Verticale</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="95"/>
-        <source>Record Perf</source>
-        <translation>Enreg. perf.</translation>
+        <source>Creates an animation that uses viewpoints. It uses the selected animation.</source>
+        <translation>Crée une animation qui utilise les points de vue.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="98"/>
+        <source>Use viewpoints</source>
+        <translation>Utiliser points de vue</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="111"/>
+        <source>Interpolates renderings such as: transparency, normals, gloss, fov, hue, contrast / brightness, objects positions and size.
+The different viewpoints must be consistent to interpolate. For example, you can&apos;t interpolate values if transparency is activated on some viewpoints and not the others.</source>
+        <translation>Interpole les rendus et éléments tels que: transparence, normales, éclat, fov,fausses couleurs, contraste/luminosité, poisitons et dimensions des objets.
+Les divers points de vue de l&apos;animation doivent être cohérents pour l&apos;interpolation. Par exemple, si le rendu est transparent sur un point de vue et pas un autre,
+alors la transparence ne pourra pas être interpolée.</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="115"/>
-        <source>Loop</source>
-        <translation>Boucle</translation>
+        <source>Interpolate renderings</source>
+        <translation>Interpoler rendus</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="122"/>
+        <source>Select animation</source>
+        <translation>Sélec. animation</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="139"/>
+        <source>Edit an existing animation.</source>
+        <translation>Editer une animation existante.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="142"/>
+        <source>Edit</source>
+        <translation>Editer</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="152"/>
+        <source>Create a new animation that uses viewpoints. Viewpoints must be in perspective mode.</source>
+        <translation>Créer une animation qui utilise les points de vue. Les points de vue doivent être en mode perspective.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="155"/>
+        <source>New</source>
+        <translation>Nouveau</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="169"/>
+        <source>Length (s)</source>
+        <translation>Durée (s)</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="176"/>
+        <source>To be use for orbital and viewpoints animations.
+In case you define an animation between viewpoints with positions as time, this field is greyed out. </source>
+        <translation>A utiliser pour les animation orbitales et entre points de vue.
+Pour les animations entre points de vue en mode &quot;Temps de position&quot;, ce champ est grisé. </translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="190"/>
+        <source>0.00</source>
+        <translation>0.00</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="203"/>
+        <source>Start</source>
+        <translation>Démarrer</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="213"/>
+        <source>Pause</source>
+        <translation>Pause</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="223"/>
+        <source>Stop</source>
+        <translation>Stop</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="233"/>
+        <source>Generates a video that uses the animation settings.</source>
+        <translation>Génère une vidéo qui utilise les paramètres de l&apos;animation.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="239"/>
+        <source>Generate video</source>
+        <translation>Générer vidéo</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="246"/>
+        <source>Keep current image settings (resolution, frame, ratio, format, antialiasing) when opening a viewpoint from the tree.
+If unchecked, a double click on a viewpoint will load the viewpoint settings.
+Tip: Leave the checkbox selected for video editing.</source>
+        <translation>Conserver les paramètres d&apos;image actuels (résolution, cadre, ratio, format, antialiasing) lors de l&apos;ouverture d&apos;un point de vue à partir de l&apos;arborescence.
+Si cette option n&apos;est pas cochée, un double-clic sur un point de vue chargera les paramètres de ce dernier.
+Conseil: laissez cette case cochée pour l&apos;édition vidéo.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_animationgroup.ui" line="251"/>
+        <source>Lock image settings</source>
+        <translation>Verrou param. img</translation>
     </message>
 </context>
 <context>
@@ -10006,27 +10327,52 @@ Exemple: incliner un objet selon une pente.</translation>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_attributesgroup.ui" line="66"/>
+        <location filename="../../src/gui/forms/toolbar_attributesgroup.ui" line="62"/>
+        <source>The identifier will be applied to new objects.</source>
+        <translation>L&apos;identifiant sera appliqué aux nouveaux objets.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_attributesgroup.ui" line="69"/>
         <source>Identifier</source>
         <translation>Identifiant</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_attributesgroup.ui" line="152"/>
+        <location filename="../../src/gui/forms/toolbar_attributesgroup.ui" line="82"/>
+        <source>The name will be applied to new objects.</source>
+        <translation>Le nom sera appliqué aux nouveaux objets.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_attributesgroup.ui" line="112"/>
+        <source>The selected phase will be applied to new objects.</source>
+        <translation>La phase sélectionnée sera appliquée aux nouveaux objets.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_attributesgroup.ui" line="138"/>
+        <source>The selected discipline will be applied to new objects.</source>
+        <translation>La discipline sélectionnée sera appliquée aux nouveaux objets.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_attributesgroup.ui" line="164"/>
+        <source>The color defined will be applied to new objects.</source>
+        <translation>La couleur définie sera appliquée aux nouveaux objets.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_attributesgroup.ui" line="167"/>
         <source>Color</source>
         <translation>Couleur</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_attributesgroup.ui" line="96"/>
+        <location filename="../../src/gui/forms/toolbar_attributesgroup.ui" line="102"/>
         <source>Phase</source>
         <translation>Phase</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_attributesgroup.ui" line="119"/>
+        <location filename="../../src/gui/forms/toolbar_attributesgroup.ui" line="128"/>
         <source>Discipline</source>
         <translation>Discipline</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_attributesgroup.ui" line="83"/>
+        <location filename="../../src/gui/forms/toolbar_attributesgroup.ui" line="89"/>
         <source>Name</source>
         <translation>Nom</translation>
     </message>
@@ -10184,6 +10530,16 @@ Exemple: incliner un objet selon une pente.</translation>
         <source>Show Interior</source>
         <translation>Montrer intérieur</translation>
     </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_clippingParameters.ui" line="156"/>
+        <source>Allows you to extend the clipping length for lines and cylindrical clippings.</source>
+        <translation>Permet d&apos;allonger la longueur de clipping pour les lignes et les cylindres.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_clippingParameters.ui" line="159"/>
+        <source>Length threshold</source>
+        <translation>Seuil de longueur</translation>
+    </message>
 </context>
 <context>
     <name>toolbar_clippinggroup</name>
@@ -10191,6 +10547,11 @@ Exemple: incliner un objet selon une pente.</translation>
         <location filename="../../src/gui/forms/toolbar_clippingGroup.ui" line="14"/>
         <source>Form</source>
         <translation></translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_clippingGroup.ui" line="54"/>
+        <source>Create a box aligned to a 3 point plane</source>
+        <translation>Crée une box accrochée à un plan à 3 points</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_clippingGroup.ui" line="197"/>
@@ -10216,11 +10577,6 @@ Exemple: incliner un objet selon une pente.</translation>
         <location filename="../../src/gui/forms/toolbar_clippingGroup.ui" line="238"/>
         <source>Local</source>
         <translation>Locale</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/toolbar_clippingGroup.ui" line="54"/>
-        <source>Create a box aligned to a 3 point plan</source>
-        <translation>Créer une boite alignée sur un plan à 3 points</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_clippingGroup.ui" line="57"/>
@@ -10267,62 +10623,113 @@ Exemple: incliner un objet selon une pente.</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="61"/>
+        <source>Shows points whose colours or intensity are within the defined range.</source>
+        <translation>Montre les points dont les couleurs ou l&apos;intensité sont dans la plage définie.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="64"/>
         <source>Show colors</source>
         <translation>Montrer couleurs</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="71"/>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="74"/>
+        <source>Hide points whose colours or intensity are within the defined range.</source>
+        <translation>Masque les points dont les couleurs ou l&apos;intensité sont dans la plage définie.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="77"/>
         <source>Hide colors</source>
         <translation>Masquer couleurs</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="78"/>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="84"/>
         <source>Color 1</source>
         <translation>Couleur 1</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="85"/>
-        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="106"/>
-        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="127"/>
-        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="148"/>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="91"/>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="116"/>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="140"/>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="164"/>
         <source>R, G, B</source>
         <translation>R,G,B</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="92"/>
-        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="113"/>
-        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="134"/>
-        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="155"/>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="98"/>
+        <source>Pick color 1 or intensity. If you want to pick the intensity, activate either the intensity mode or the false color mode in the rendering tab.
+You can pick up to 4 colors, but only 1 intensity.</source>
+        <translation>Prélever la couleur 1 ou l&apos;intensité. Si vous voulez prélever une intensité, activez le mode intensité ou fausses couleurs dans les paramètres de rendus.
+Vous pouvez prélever jusqu&apos;à 4 couleurs, mais une seule intensité.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="102"/>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="126"/>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="150"/>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="174"/>
         <source>Pick</source>
         <translation>Prélever</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="99"/>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="109"/>
         <source>Color 2</source>
         <translation>Couleur 2</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="120"/>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="123"/>
+        <source>Pick color 2</source>
+        <translation>Prélever couleur 2</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="133"/>
         <source>Color 3</source>
         <translation>Couleur 3</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="141"/>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="147"/>
+        <source>Pick color 3</source>
+        <translation>Prélever couleur 3</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="157"/>
         <source>Color 4</source>
         <translation>Couleur 4</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="170"/>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="171"/>
+        <source>Pick color 4</source>
+        <translation>Prélever couleur 4</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="189"/>
+        <source>Apply the current filter. To export the result, please go to the Export tab.
+If you want to clean the point cloud using this filter, go to the Edition tab.
+Tip: create viewpoints to store multiple filters.</source>
+        <translation>Applique le filtre en cours. Pour exporter le résultat, allez dans l&apos;onglet Export.
+Si vous voulez nettoyer le nuage de points, allez dans l&apos;onglet Edition.
+Astuce: créez des points de vue pour enregistrer plusieurs filtres.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="194"/>
         <source>Apply</source>
         <translation>Appliquer</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="177"/>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="201"/>
+        <source>Deactivate the filter. It is still available if you apply again.</source>
+        <translation>Désactive le filtre en cours. Il reste disponible si vous l&apos;appliquez à nouveau.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="204"/>
         <source>Deactivate</source>
         <translation>Désactiver</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="184"/>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="211"/>
+        <source>This will reset the filter.</source>
+        <translation>Réinitialise le filtre.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_colorimetric_filter.ui" line="214"/>
         <source>Reset</source>
         <translation>Réinitialiser</translation>
     </message>
@@ -10335,63 +10742,70 @@ Exemple: incliner un objet selon une pente.</translation>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_connectpipegroup.ui" line="150"/>
+        <location filename="../../src/gui/forms/toolbar_connectpipegroup.ui" line="57"/>
+        <source>If the diameter of the pipe line is constant, this option is recommended.</source>
+        <translation>Si le diamètre de la ligne de tube est constant, cette option est recommandée.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_connectpipegroup.ui" line="134"/>
+        <source>Use this method to create an elbow each time you create a pair of pipes.
+For T-connections, the main pipe must be extended on both sides.</source>
+        <translation>Utilisez cette méthode pour créer un coude à chaque création de 2 tubes.
+Pour les connections en T, prolongez le tube principal de part et d&apos;autre d&apos;abord.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_connectpipegroup.ui" line="154"/>
         <source>Use this method to create the elbows once the pipes are created (Selected pipes). Warning: use the pipes of the same line</source>
         <translation>Utilisez cette méthode pour créer les coudes une fois que les tubes sont créés (Tubes sélectionnés). Attention : utilisez sur des tubes d&apos;une même ligne</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_connectpipegroup.ui" line="190"/>
+        <location filename="../../src/gui/forms/toolbar_connectpipegroup.ui" line="194"/>
         <source>Standard angles: 22°30, 30°, 45°, 60°, 90°, 180°</source>
         <translation>Angles standards : 22°30, 30°, 45°, 60°, 90°, 180°</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_connectpipegroup.ui" line="193"/>
+        <location filename="../../src/gui/forms/toolbar_connectpipegroup.ui" line="197"/>
         <source>Standard angle</source>
         <translation>Angle standard</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_connectpipegroup.ui" line="209"/>
+        <location filename="../../src/gui/forms/toolbar_connectpipegroup.ui" line="213"/>
         <source>Free angle</source>
         <translation>Angle libre</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_connectpipegroup.ui" line="69"/>
+        <location filename="../../src/gui/forms/toolbar_connectpipegroup.ui" line="72"/>
         <source>Bending radius / External diameter. Common average values: EN 3D=1,3 ; EN 5D=2.3 ; ASME short=1 ; ASME long= 1.5</source>
         <translation>Rayon de la courbe/Diamètre externe. Valeurs fréquentes : EN 3D=1,3 ; EN 5D=2.3 ; ASME short=1 ; ASME long= 1.5</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_connectpipegroup.ui" line="72"/>
+        <location filename="../../src/gui/forms/toolbar_connectpipegroup.ui" line="75"/>
         <source>R/Dext</source>
         <translation>R/Dext</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_connectpipegroup.ui" line="85"/>
+        <location filename="../../src/gui/forms/toolbar_connectpipegroup.ui" line="88"/>
         <source>1.3</source>
         <translation>1.3</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_connectpipegroup.ui" line="100"/>
+        <location filename="../../src/gui/forms/toolbar_connectpipegroup.ui" line="103"/>
         <source>Connect pipes</source>
         <translation>Connexion
 des tubes</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_connectpipegroup.ui" line="57"/>
+        <location filename="../../src/gui/forms/toolbar_connectpipegroup.ui" line="60"/>
         <source>Keep Diameter</source>
         <translation>Garder le diamètre</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_connectpipegroup.ui" line="131"/>
-        <source>Use this method to create an elbow each time you create a pair of pipes.</source>
-        <translation>Utilisez cette méthode pour créer un coude à chaque fois que vous créez une paire de tubes.</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/toolbar_connectpipegroup.ui" line="134"/>
+        <location filename="../../src/gui/forms/toolbar_connectpipegroup.ui" line="138"/>
         <source>Detect and Connect</source>
         <translation>Détecter et connecter</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_connectpipegroup.ui" line="153"/>
+        <location filename="../../src/gui/forms/toolbar_connectpipegroup.ui" line="157"/>
         <source>Post-connection</source>
         <translation>Post-connexion</translation>
     </message>
@@ -10405,43 +10819,59 @@ des tubes</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="47"/>
-        <source>Use it on a clipping box splitted into a grid.</source>
-        <translation>Exporte une boite découpée ne grille.</translation>
+        <source>Use it on a scan clipped by a box splitted into a grid.
+The gridded box must selected before starting this function.</source>
+        <translation>A utiliser sur un scan segmenté par une box divisée en grille.
+La box en grille doit être sélectionnée avant d&apos;utiliser la fonction.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="73"/>
+        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="74"/>
         <source>Export PCO</source>
         <translation>Exporter des objets nuages de points</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="76"/>
+        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="77"/>
         <source>Point Cloud Objects</source>
         <translation>Objets nuage de points</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="108"/>
-        <source>Export scanning positions.</source>
-        <translation>Exporter des stations de scan.</translation>
+        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="109"/>
+        <source>Export full scans.</source>
+        <translation>Exporte les scans complets.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="111"/>
+        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="112"/>
         <source>Scans</source>
         <translation>Scans</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="146"/>
+        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="135"/>
+        <source>Export points using active filters (colorimetric, polygons). This function may take some time even if few points are exported, as it scans the entire scan.
+Tip to save time if the area is small: create a clipping box on the area and activate it.
+This will limit the calculation to this box.</source>
+        <translation>Exporte les points utilisant des filtres actifs (colorimétrique et polygones). Cette fonction peut prendre un certain temps même si peu de points sont exportés.
+En effet, la fonction doit parcourir l&apos;ensemble du nuage de points. Astuce pour gagner du temps: créez et activez une clipping box autour de la zone.
+Cela limitera le temps de calcul.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="172"/>
+        <source>Export scans that are clipped by objects (boxes, tags, pipes...).You must select or activate some clippings before using this function.</source>
+        <translation>Exporte les scans segmentés par des objets (box, tags, tubes...). Vous devez sélectionner ou activer des clippings avant utilisation.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="140"/>
+        <source>Filtered scans</source>
+        <translation>Scans filtrés</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="175"/>
         <source>Clipping</source>
         <translation>Clipping</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="50"/>
+        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="51"/>
         <source>Gridded Box</source>
         <translation>Box en grille</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/toolbar_exportPointCloud.ui" line="143"/>
-        <source>Export single or multiple clipping boxes.</source>
-        <translation>Exporter une ou des clipping boxes.</translation>
     </message>
 </context>
 <context>
@@ -10525,35 +10955,40 @@ des tubes</translation>
     <message>
         <location filename="../../src/gui/forms/toolbar_measuregroup.ui" line="44"/>
         <source>Click on a point then on a pipe.</source>
-        <translation>Clique sur un point puis sur un tuyeau.</translation>
+        <translation>Clique sur un point puis sur un tube.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_measuregroup.ui" line="134"/>
+        <location filename="../../src/gui/forms/toolbar_measuregroup.ui" line="76"/>
+        <source>Use if the surface is uneven.</source>
+        <translation>A utiliser si le plan est irrégulier.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_measuregroup.ui" line="137"/>
         <source>Click on a point and then on a plane.</source>
         <translation>Cliquez sur un point puis sur un plan.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_measuregroup.ui" line="137"/>
+        <location filename="../../src/gui/forms/toolbar_measuregroup.ui" line="140"/>
         <source>Point - Plane</source>
         <translation>Point - Plan</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_measuregroup.ui" line="195"/>
+        <location filename="../../src/gui/forms/toolbar_measuregroup.ui" line="198"/>
         <source>Click on 2 pipes</source>
         <translation>Cliquer sur 2 tubes</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_measuregroup.ui" line="102"/>
+        <location filename="../../src/gui/forms/toolbar_measuregroup.ui" line="105"/>
         <source>Click on a pipe then a plane</source>
-        <translation>Clique sur un tuyeau puis sur un plan</translation>
+        <translation>Cliquer sur un tube puis sur un plan</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_measuregroup.ui" line="198"/>
+        <location filename="../../src/gui/forms/toolbar_measuregroup.ui" line="201"/>
         <source>Pipe - Pipe</source>
         <translation>Tube - Tube</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_measuregroup.ui" line="166"/>
+        <location filename="../../src/gui/forms/toolbar_measuregroup.ui" line="169"/>
         <source>Shortest distance between a mesh and a point</source>
         <translation>Distance la plus courte entre un modèle et un point</translation>
     </message>
@@ -10563,17 +10998,17 @@ des tubes</translation>
         <translation>Point - Tube</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_measuregroup.ui" line="76"/>
+        <location filename="../../src/gui/forms/toolbar_measuregroup.ui" line="79"/>
         <source>3 Points Plane</source>
         <translation>Plan à 3 points</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_measuregroup.ui" line="169"/>
+        <location filename="../../src/gui/forms/toolbar_measuregroup.ui" line="172"/>
         <source>Point - Mesh</source>
         <translation>Point - Modèle</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_measuregroup.ui" line="105"/>
+        <location filename="../../src/gui/forms/toolbar_measuregroup.ui" line="108"/>
         <source>Pipe - Plane</source>
         <translation>Tube - Plan</translation>
     </message>
@@ -10586,19 +11021,19 @@ des tubes</translation>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_measuressimple.ui" line="53"/>
-        <source>Polyline measurement. ESC to finish</source>
-        <translation>Mesure poyligne. Echappe  pour finir</translation>
-    </message>
-    <message>
         <location filename="../../src/gui/forms/toolbar_measuressimple.ui" line="56"/>
         <source>Polyline</source>
         <translation>Polyligne</translation>
     </message>
     <message>
+        <location filename="../../src/gui/forms/toolbar_measuressimple.ui" line="53"/>
+        <source>Polyline measurement. To finish: double click, Enter/Return, or ESC.</source>
+        <translation>Mesure polyligne. Pour finir: double-clic, Entrée/Retour, ou Echap.</translation>
+    </message>
+    <message>
         <location filename="../../src/gui/forms/toolbar_measuressimple.ui" line="85"/>
-        <source>Simple measure between 2 points . Key D</source>
-        <translation>Mesure simple entre 2 points. Touche D</translation>
+        <source>Simple measure between 2 points . Shortcut d</source>
+        <translation>Mesure simple entre 2 points. Egalement raccourci clavier d</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_measuressimple.ui" line="88"/>
@@ -10695,24 +11130,9 @@ des tubes</translation>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_pcobjectgroup.ui" line="54"/>
-        <source>Import a PCO from file</source>
-        <translation>Importe un nuage de points à partir d&apos;un fichier</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/toolbar_pcobjectgroup.ui" line="89"/>
-        <source>Creates a box that includes the whole point cloud.</source>
-        <translation>Crée une clipping box qui englobe la totalité du nuage de points.</translation>
-    </message>
-    <message>
         <location filename="../../src/gui/forms/toolbar_pcobjectgroup.ui" line="127"/>
         <source>Show duplication settings</source>
         <translation>Montrer les paramètres de duplication</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/toolbar_pcobjectgroup.ui" line="159"/>
-        <source>Select a PCO before</source>
-        <translation>Sélectionne un nuage de points avant</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_pcobjectgroup.ui" line="162"/>
@@ -10725,9 +11145,25 @@ des tubes</translation>
         <translation>Paramètres de copie</translation>
     </message>
     <message>
+        <location filename="../../src/gui/forms/toolbar_pcobjectgroup.ui" line="54"/>
+        <source>Import a point cloud object from a file.</source>
+        <translation>Importer un objet nuage de points depuis un fichier.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_pcobjectgroup.ui" line="89"/>
+        <source>Use an active box to extract a portion of the point cloud and use it as an object..</source>
+        <translation>Utilise une box active pour en extraire une portion de nuage de points et l&apos;utiliser comme objet.</translation>
+    </message>
+    <message>
         <location filename="../../src/gui/forms/toolbar_pcobjectgroup.ui" line="92"/>
         <source>Import from box</source>
         <translation>Importer depuis box</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_pcobjectgroup.ui" line="159"/>
+        <source>Select a point cloud object, then use this feature to create a copy. Please check the duplication settings first.</source>
+        <translation>Sélectionnez un nuage de points objet, puis utilisez cette fonction pour créer une copie.
+Voir également les paramètres de copie.</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_pcobjectgroup.ui" line="57"/>
@@ -10743,97 +11179,119 @@ des tubes</translation>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="42"/>
-        <source>Please enter the insulation thickness below</source>
-        <translation>Veuillez entrer l&apos;épaisseur d&apos;isolant ci-dessous</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="45"/>
+        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="48"/>
         <source>Insulated pipe</source>
         <translation>Tube isolé</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="109"/>
+        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="118"/>
         <source>Fast algorithm. Works for most pipes</source>
         <translation>Algorithme rapide, fonctionne pour la plupart des tubes</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="112"/>
+        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="121"/>
         <source>Fast</source>
         <translation>Rapide</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="125"/>
-        <source>Please enter the insulation thickness</source>
-        <translation>Veuillez entrer l&apos;épaisseur d&apos;isolant</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="134"/>
+        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="143"/>
         <source>Thickness</source>
         <translation>Epaisseur</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="141"/>
-        <source>Use it for large pipes or pipes that are difficult to detect with the standard detection. Do 2 clics on the perimeter (not to close to eachother), and 2 clics along the axis.</source>
-        <translation>A utiliser pour les tubes de gros diamètres difficiles à détecter avec le mode standard. Faire 2 clics sur le périmètre (pas trop proches) et 2 clics sur l&apos;axe.</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="144"/>
+        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="154"/>
         <source>Robust mode</source>
         <translation>Mode robuste</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="164"/>
-        <source>Do a single click on a representative area of the pipe to detect it. Avoid clicking close to the elbows or accessoires.</source>
-        <translation>Cliquez sur une portion représentative, et correctemet scannée, du tube. Evitez de cliquer près des coudes, des accessoires, ou des passages de murs.</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="167"/>
+        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="177"/>
         <source>Detect pipe</source>
         <translation>Détecter tube</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="35"/>
+        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="38"/>
         <source>No extension</source>
         <translation>Pas d&apos;extension</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="92"/>
+        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="35"/>
+        <source>Creates a section of pipe.</source>
+        <translation>Crée une portion de tube.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="45"/>
+        <source>Please enter the insulation thickness below. The detection will take this thickness into account to create the inner pipe.</source>
+        <translation>Saisissez une épaisseur d&apos;isolant ci-dessous. La détection en tiendra compte pour créer le tube intérieur.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="88"/>
+        <source>Extends the pipe automatically. Deformations may limit extension.</source>
+        <translation>Etend le tube automatiquement. Les déformations peuvent limiter l&apos;extension.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="98"/>
+        <source>Click on two points along the length of the tube to constrain the modelling.</source>
+        <translation>Cliquez sur 2 points le long du tube pour contraindre la modélisation.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="101"/>
         <source>Manual extension</source>
         <translation>Extension manuelle</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="99"/>
+        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="108"/>
         <source>More robust algorithm. Takes more time.</source>
         <translation>Algorithme plus optimisé mais moins rapide.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="102"/>
+        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="111"/>
         <source>Optimized</source>
         <translation>Optimisé</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="75"/>
+        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="134"/>
+        <source>Please enter the insulation thickness.</source>
+        <translation>Saisissez l&apos;épaisseur d&apos;isolant.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="150"/>
+        <source>Use it for large pipes or pipes that are difficult to detect with the standard detection.
+Do 2 clics on the perimeter (not to close to eachother), and 2 clics along the axis.</source>
+        <translation>A utiliser pour les diamètres importants ou en cas de difficulté avec la détection classique.
+Faire 2 clics (pas trop rapprochés) sur le périmètre, puis 2 sur la longueur.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="174"/>
+        <source>Choose a representative area of the pipe to detect it. Avoid clicking close to the elbows or accessories.</source>
+        <translation>Choisissez une portion représentative du tube et évitez de cliquer près des coudes ou des accessoires.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="197"/>
+        <source>Select a standard. You can add new standards with the Manage Standards button.</source>
+        <translation>Sélectionnez un standard. Vous pouvez ajouter des standards via le bouton &quot;Gérer standards&quot;.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="78"/>
         <source>Use it if you have noise in your point cloud.</source>
         <translation>A utiliser en cas de bruit numérique dans le nuage de points.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="78"/>
+        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="81"/>
         <source>Noisy data</source>
         <translation>Données bruitées</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="85"/>
+        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="91"/>
         <source>Auto extend</source>
         <translation>Extension auto</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="52"/>
+        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="55"/>
         <source>Pipe standard manager. Create and edit your own lists of standard diameters.</source>
         <translation>Gestion de standards de tubes. Créez et éditez vos propres listes de diamètres standard.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="55"/>
+        <location filename="../../src/gui/forms/toolbar_pipegroup.ui" line="58"/>
         <source>Manage Standards</source>
         <translation>Gérer standards</translation>
     </message>
@@ -10847,37 +11305,41 @@ des tubes</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_pointEdition.ui" line="51"/>
-        <source>Apply a color balance to the point clouds to get a smoother rendering. This option will modify the scans files.</source>
-        <translation>Applique une balance des couleurs aux scans pour obtenir un rendu plus lisse. Cette option modifiera les scans.</translation>
+        <source>Apply a color balance to the point clouds to get a smoother rendering. You can apply the filter to clipped scans.
+The result will be exported to the folder of your choice.</source>
+        <translation>Applique une balance de couleurs aux nuages de points. Vous pouvez l&apos;appliquer à des scans clippés.
+Le résultat sera exporté dans le dossier de votre choix.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_pointEdition.ui" line="54"/>
+        <location filename="../../src/gui/forms/toolbar_pointEdition.ui" line="72"/>
+        <source>This statistical outlier filter allows you to remove invalid points. You can apply the filter to clipped scans.
+The result will be exported to the folder of your choice.</source>
+        <translation>Ce filtre statistique permet de supprimer des points non valides. Vous pouvez l&apos;appliquer à des scans clippés.
+Le résultat sera exporté dans le dossier de votre choix.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_pointEdition.ui" line="55"/>
         <source>Color balance</source>
         <translation>Balance de couleurs</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_pointEdition.ui" line="71"/>
-        <source>This statistical outlier filter allows you to remove invalid points. The result will be exported to the folder of your choice.
-You can apply the filter to clipped scans.</source>
-        <translation>Ce filtre statistique vous permet de supprimer les points invalides. Le résultat sera exporté vers le dossier de votre choix.
-Vous pouvez appliquer le filtre aux scans clippés.</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/toolbar_pointEdition.ui" line="75"/>
+        <location filename="../../src/gui/forms/toolbar_pointEdition.ui" line="76"/>
         <source>Stat outlier filter</source>
         <translation>Filtre stat outlier</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_pointEdition.ui" line="101"/>
-        <source>This will use the clipping to clean the point cloud.
-Warning: the points will be deleted so that the result will be as shown on the screen.
-It is recommended to activate the desired clippings before starting the cleaning.</source>
-        <translation>Le clipping est utilisé pour nettoyer le nuage de points.
-Attention: les points seront supprimés de sorte que le résultat sera celui affiché à l&apos;écran.
-Il est recommandé d&apos;activer les clippings désirés avant de démarrer le nettoyage.</translation>
+        <location filename="../../src/gui/forms/toolbar_pointEdition.ui" line="102"/>
+        <source>This will use the clipping/filter to clean the point cloud.
+The points will be deleted so that the result will be as shown on the screen (what you see is what you get).
+Activate clippings and / or filters before starting the cleaning.
+Warning: this will permanently remove points (no undo).</source>
+        <translation>Cette fonction utilise les clippings et filtres pour nettoyer les scans.
+Les points seront supprimés de sorte que le résultat sera celui affiché à l&apos;écran.
+Activez des clippings ou filtres avant de démarrer le nettoyage.
+Attention: des points seront définitivement supprimés.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_pointEdition.ui" line="106"/>
+        <location filename="../../src/gui/forms/toolbar_pointEdition.ui" line="108"/>
         <source>Clean point cloud</source>
         <translation>Nettoyer les points</translation>
     </message>
@@ -10914,21 +11376,38 @@ Il est recommandé d&apos;activer les clippings désirés avant de démarrer le 
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_render_ramp_group.ui" line="29"/>
+        <source>Number of graduations on the scale.</source>
+        <translation>Nombre de graduations sur l&apos;échelle.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_render_ramp_group.ui" line="32"/>
         <source>Graduation count</source>
         <translation>Graduation</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_render_ramp_group.ui" line="49"/>
+        <location filename="../../src/gui/forms/toolbar_render_ramp_group.ui" line="52"/>
+        <source>Shows the temperature scale in case you imported the scale file.
+If the color ramp scale option is also selected, the temperature scale takes precedence.</source>
+        <translation>Montre l&apos;échelle de températures dans le cas où un fichier de températures a été importé.
+Si l&apos;échelle de rampe de couleurs est également activée, l&apos;échelle de températures est prioritaire.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_render_ramp_group.ui" line="56"/>
         <source>Show temperature scale</source>
         <translation>Montrer échelle température</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_render_ramp_group.ui" line="56"/>
+        <location filename="../../src/gui/forms/toolbar_render_ramp_group.ui" line="63"/>
+        <source>Show the color ramp scale. As a ramp can be assigned to multiple objects, only the selected object will have its scale displayed.</source>
+        <translation>Montre l&apos;échelle de rampe de couleurs. Une rampe pouvant être affectée à plusieurs objets, seul l&apos;objet sélectionné verra son échelle affichée.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_render_ramp_group.ui" line="66"/>
         <source>Show Selected Ramp Scale</source>
         <translation>Montrer l&apos;échelle de rampe de l&apos;objet sélectionné</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_render_ramp_group.ui" line="63"/>
+        <location filename="../../src/gui/forms/toolbar_render_ramp_group.ui" line="73"/>
         <source>Import a text file that contains 4 columns: R,G,B, temperature in Celsius degrees.
 Values: 0-255 for RGB. For temperature, the decimal point must be a dot.
 Separator for columns: tab, space, or ;</source>
@@ -10937,17 +11416,37 @@ Valeurs de 0 à 255 pour RGB. Pour la température, le séparateur de décimales
 Séparateur de colonnes: tabulation, espace, ou ;</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_render_ramp_group.ui" line="68"/>
+        <location filename="../../src/gui/forms/toolbar_render_ramp_group.ui" line="78"/>
         <source>Import Temperature scale</source>
         <translation>Importer échelle température</translation>
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_render_ramp_group.ui" line="92"/>
+        <source>Create 2 tags in one active clipping box (Show interior mode): one at minimum temperature and one at maximum temperature.Please make sure that only one clipping box is activated.</source>
+        <translation>Crée 2 tags dans une zone de clipping (mode &quot;Montrer intérieur&quot;): un pour la température min, l&apos;autre pour la température max. Assurez-vous d&apos;avoir une seule clipping active.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_render_ramp_group.ui" line="95"/>
+        <source>Find min max temp.</source>
+        <translation>Trouver min max.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_render_ramp_group.ui" line="112"/>
+        <source>Pick temperature readings from the point cloud. You can continue clicking once the window is open.</source>
+        <translation>Prélever une température dans le scan. Vous pouvez continuer à prélever une fois la fenêtre ouverte.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_render_ramp_group.ui" line="115"/>
         <source>Pick temperature</source>
         <translation>Prélever température</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_render_ramp_group.ui" line="99"/>
+        <location filename="../../src/gui/forms/toolbar_render_ramp_group.ui" line="122"/>
+        <source>Center zero on the scale. Only valid for the color ramp (temperature scale not affected).</source>
+        <translation>Centre le zéro sur l&apos;échelle de rampe de couleurs (échelle de températures non affectée).</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_render_ramp_group.ui" line="125"/>
         <source>Center 0 for boxes</source>
         <translation>Centrer sur 0 pour les Box</translation>
     </message>
@@ -10960,27 +11459,22 @@ Séparateur de colonnes: tabulation, espace, ou ;</translation>
         <translation>Paramètres d&apos;amélioration</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_renderenhancegroup.ui" line="62"/>
-        <source>Smooth render</source>
-        <translation>Adoucir</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/toolbar_renderenhancegroup.ui" line="69"/>
+        <location filename="../../src/gui/forms/toolbar_renderenhancegroup.ui" line="72"/>
         <source>Radius</source>
         <translation>Rayon</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_renderenhancegroup.ui" line="183"/>
-        <source>Mix</source>
-        <translation>Mix</translation>
+        <location filename="../../src/gui/forms/toolbar_renderenhancegroup.ui" line="99"/>
+        <source>This feature accentuates contours.</source>
+        <translation>Accentue les contours.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_renderenhancegroup.ui" line="96"/>
+        <location filename="../../src/gui/forms/toolbar_renderenhancegroup.ui" line="102"/>
         <source>Contours</source>
         <translation>Contours</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_renderenhancegroup.ui" line="125"/>
+        <location filename="../../src/gui/forms/toolbar_renderenhancegroup.ui" line="131"/>
         <source>Intense mode</source>
         <translation>Mode intense</translation>
     </message>
@@ -10990,7 +11484,18 @@ Séparateur de colonnes: tabulation, espace, ou ;</translation>
         <translation>Sensibilité</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_renderenhancegroup.ui" line="89"/>
+        <location filename="../../src/gui/forms/toolbar_renderenhancegroup.ui" line="62"/>
+        <source>Reduces color spray/noise on scans while preserving geometric edges.</source>
+        <translation>Réduit le bruit des couleurs et l&apos;effet moucheté tout en conservant les arêtes.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_renderenhancegroup.ui" line="65"/>
+        <source>Color noise reduction</source>
+        <translation>Réduction bruit</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_renderenhancegroup.ui" line="92"/>
+        <location filename="../../src/gui/forms/toolbar_renderenhancegroup.ui" line="189"/>
         <source>Strength</source>
         <translation>Force</translation>
     </message>
@@ -11003,42 +11508,58 @@ Séparateur de colonnes: tabulation, espace, ou ;</translation>
         <translation>Param. de rendu</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendernormalsgroup.ui" line="168"/>
+        <location filename="../../src/gui/forms/toolbar_rendernormalsgroup.ui" line="174"/>
         <source>Two types of normals are available: normal type 1 (greyed out), normal type 2 (ticked).</source>
         <translation>Deux types de normales sont disponibles: type 1 (case grisée), type 2 (case cochée).</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendernormalsgroup.ui" line="92"/>
+        <location filename="../../src/gui/forms/toolbar_rendernormalsgroup.ui" line="95"/>
         <source>Amb. occl.</source>
         <translation>Occlusion amb.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendernormalsgroup.ui" line="112"/>
+        <location filename="../../src/gui/forms/toolbar_rendernormalsgroup.ui" line="92"/>
+        <source>Ambient occlusion.</source>
+        <translation>Occlusion ambiante.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_rendernormalsgroup.ui" line="115"/>
         <source>Intensity</source>
         <translation>Intensité</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendernormalsgroup.ui" line="132"/>
+        <location filename="../../src/gui/forms/toolbar_rendernormalsgroup.ui" line="135"/>
         <source> %</source>
         <translation> %</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendernormalsgroup.ui" line="158"/>
+        <location filename="../../src/gui/forms/toolbar_rendernormalsgroup.ui" line="161"/>
+        <source>Blends the normals and the colors to get a smoother result. When activated, you may need to increase the saturation to accentuate the colors.</source>
+        <translation>Mélange les normales et les couleurs pour obtenir un rendu plus doux.
+Si activé, vous pouvez augmenter la saturation pour accentuer les couleurs.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_rendernormalsgroup.ui" line="164"/>
         <source>Blend colors</source>
         <translation>Mélange</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendernormalsgroup.ui" line="210"/>
+        <location filename="../../src/gui/forms/toolbar_rendernormalsgroup.ui" line="216"/>
         <source>Size</source>
         <translation>Taille</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendernormalsgroup.ui" line="217"/>
+        <location filename="../../src/gui/forms/toolbar_rendernormalsgroup.ui" line="223"/>
+        <source>This will give a more &quot;metallic&quot; rendering to the point cloud.</source>
+        <translation>Donne un aspect plus métallique aux nuages de points.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_rendernormalsgroup.ui" line="226"/>
         <source>Gloss</source>
         <translation>Éclat</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendernormalsgroup.ui" line="174"/>
+        <location filename="../../src/gui/forms/toolbar_rendernormalsgroup.ui" line="180"/>
         <source>Normals</source>
         <translation>Normales</translation>
     </message>
@@ -11051,98 +11572,138 @@ Séparateur de colonnes: tabulation, espace, ou ;</translation>
         <translation>Param. de rendu</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="35"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="55"/>
         <source>Two types of normals are available: normal type 1 (greyed out), normal type 2 (ticked).</source>
         <translation>Deux types de normales sont disponibles: type 1 (case grisée), type2 (case cochée).</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="363"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="552"/>
+        <source>Fill in the empty spaces between the dots. If insufficient, also increase the point size.</source>
+        <translation>Remplis les espaces vides entre les points. Si insuffisant, grossir également les points.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="493"/>
+        <source>Max 240 steps.</source>
+        <translation>240 nuances max.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="122"/>
+        <source>Edit a preset that you aldready created. Initial/raw presets cannot be edited.</source>
+        <translation>Editer un préréglage déjà existant.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="125"/>
         <source>Edit</source>
         <translation>Editer</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="377"/>
-        <source>Use this section to save renderings and visibility parameters. The initial preset is provided as standard and cannot be deleted.</source>
-        <translation>Utilisez cette section pour enregistrer les rendus et les paramètres de visibilité. Le préréglage initial est fourni en standard et ne peut pas être supprimé.</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="380"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="48"/>
         <source>Presets</source>
         <translation>Préréglages</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="397"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="176"/>
+        <source>Create a new preset. The created presets will be available in all projects.</source>
+        <translation>Créer un nouveau préréglage. Les préréglages seront utilisables sur tous les projets.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="179"/>
         <source>New</source>
         <translation>Nouveau</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="414"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="35"/>
         <source>Hue</source>
         <translation>Teinte</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="38"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="58"/>
         <source>Normals</source>
         <translation>Normales</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="407"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="78"/>
         <source>Transp</source>
         <translation>Transp</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="305"/>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="312"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="518"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="525"/>
         <source>These values apply to tags, points, spheres, cylinders. The ramps on the boxes are determined by their thickness (Z, blue axis).</source>
         <translation>Ces valeurs s&apos;appliquent aux tags, points, sphères, cylindres. Les rampes sur les boites sont déterminées par leur épaisseur (Z, axe bleu).</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="370"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="418"/>
         <source>Point size</source>
         <translation>Taille point</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="198"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="319"/>
         <source>Contrast</source>
         <translation>Contraste</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="157"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="278"/>
         <source>Brightness</source>
         <translation>Luminosité</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="390"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="45"/>
+        <source>Use this section to save renderings and visibility parameters. The initial/raw presets are provided as standard and cannot be deleted.</source>
+        <translation>Utilisez cette section pour enregistrer les rendus. Les rendus initial/raw sont fournis par défaut et ne peuvent être modifiés.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="411"/>
         <source>Selected Color</source>
         <translation>Couleur sélectionnée</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="269"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="479"/>
         <source>Ramp Steps</source>
         <translation>Nbre couleurs</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="231"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="559"/>
+        <source>%</source>
+        <translation>%</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="594"/>
         <source>Mode</source>
         <translation>Mode</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="424"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="601"/>
+        <source>Sat min</source>
+        <translation>Sat min</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="608"/>
+        <source>Levels</source>
+        <translation>Niveaux</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="641"/>
+        <source>Sat levels</source>
+        <translation>Niv sat</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="394"/>
         <source>Objects transp.</source>
         <translation>Transp. objets</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="356"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="186"/>
         <source>Gap filling</source>
         <translation>Rempl. espaces</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="276"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="486"/>
         <source>Ramp Min</source>
         <translation>Rampe Min</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="319"/>
+        <location filename="../../src/gui/forms/toolbar_rendersettingsgroup.ui" line="532"/>
         <source>Ramp Max</source>
         <translation>Rampe Max</translation>
     </message>
@@ -11155,11 +11716,6 @@ Séparateur de colonnes: tabulation, espace, ou ;</translation>
         <translation>Groupe de rendu transparent</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendertransparencygroup.ui" line="71"/>
-        <source>Flash control</source>
-        <translation>Contrôle flash</translation>
-    </message>
-    <message>
         <location filename="../../src/gui/forms/toolbar_rendertransparencygroup.ui" line="113"/>
         <source>The advanced mode allows you to remove the white flash.</source>
         <translation>Le mode avancé vous permet de supprimer le flash blanc.</translation>
@@ -11170,12 +11726,22 @@ Séparateur de colonnes: tabulation, espace, ou ;</translation>
         <translation>Avancé</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendertransparencygroup.ui" line="156"/>
+        <location filename="../../src/gui/forms/toolbar_rendertransparencygroup.ui" line="136"/>
+        <source>Knee softness</source>
+        <translation>Progressivité</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_rendertransparencygroup.ui" line="184"/>
+        <source>Advanced boost</source>
+        <translation>Boost avancé</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_rendertransparencygroup.ui" line="252"/>
         <source>Basic</source>
         <translation>Basique</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendertransparencygroup.ui" line="182"/>
+        <location filename="../../src/gui/forms/toolbar_rendertransparencygroup.ui" line="278"/>
         <source>Negative Effect</source>
         <translation>Effet négatif</translation>
     </message>
@@ -11185,9 +11751,113 @@ Séparateur de colonnes: tabulation, espace, ou ;</translation>
         <translation>Accentuer le contraste</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_rendertransparencygroup.ui" line="149"/>
+        <location filename="../../src/gui/forms/toolbar_rendertransparencygroup.ui" line="71"/>
+        <source>Knee start</source>
+        <translation>Seuil transition</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_rendertransparencygroup.ui" line="245"/>
         <source>transparency</source>
         <translation>transparence</translation>
+    </message>
+</context>
+<context>
+    <name>toolbar_selector</name>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="17"/>
+        <source>Click this button, then create a polygon. To finish a polygon: double click, Enter/return/ESC.
+To recall the function, press Enter/Return again.You can create up to 16 polygons per filter.</source>
+        <translation>Cliquez sur ce bouton puis créez un polygone. Pour terminer un polygone: double-clic, Entrée/retour/Echap.
+Pour rappeler la fonction, appuyez sur Entrée/retour. Vous pouvez créer jusqu&apos;à 16 polygones par filtre.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="21"/>
+        <source>Selector</source>
+        <translation>Sélecteur</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="41"/>
+        <source>Show the points inside the polygons.</source>
+        <translation>Montrer les points inclus dans les polygones.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="44"/>
+        <source>Show selected</source>
+        <translation>Montrer</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="54"/>
+        <source>Show the points outside the polygons.</source>
+        <translation>Masquer les points inclus dans les polygones.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="57"/>
+        <source>Hide selected</source>
+        <translation>Masquer</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="64"/>
+        <source>Apply the current filter. To export the result, please go to the Export tab.
+If you want to clean the point cloud using this filter, go to the Edition tab.
+Tip: create viewpoints to store multiple filters.</source>
+        <translation>Applique le filtre en cours. Pour exporter le résultat, allez dans l&apos;onglet Export.
+Si vous voulez nettoyer le nuage de points, allez dans l&apos;onglet Edition.
+Astuce: créez des points de vue pour enregistrer plusieurs filtres.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="69"/>
+        <source>Apply</source>
+        <translation>Appliquer</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="76"/>
+        <source>Deactivate the filter. It is still available if you apply again.</source>
+        <translation>Désactive le filtre en cours. Il reste disponible si vous l&apos;appliquez à nouveau.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="79"/>
+        <source>Deactivate</source>
+        <translation>Désactiver</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="86"/>
+        <source>This will reset the filter.</source>
+        <translation>Réinitialise le filtre.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="89"/>
+        <source>Reset</source>
+        <translation>Réinitialiser</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="111"/>
+        <source>List</source>
+        <translation>Liste</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="118"/>
+        <source>List of polygons created in the filter. Check &quot;Manage&quot; to select a polygon.</source>
+        <translation>Liste des polygones créés dans le filtre. Cochez &quot;Gérer&quot; pour sélectionner un polygone.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="125"/>
+        <source>Check this box to select a polygon you want to delete. Uncheck to exit.</source>
+        <translation>Cochez cette case pour pouvoir sélectionner un polygone à supprimer.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="128"/>
+        <source>Manage</source>
+        <translation>Gérer</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="139"/>
+        <source>Delete the selected polygon.</source>
+        <translation>Supprime le polygone sélectionné.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_selector.ui" line="142"/>
+        <source>Delete</source>
+        <translation>Supprimer</translation>
     </message>
 </context>
 <context>
@@ -11254,59 +11924,78 @@ Séparateur de colonnes: tabulation, espace, ou ;</translation>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="124"/>
+        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="48"/>
+        <source>Max tilt / height ratio</source>
+        <translation>Ratio max déport / hauteur</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="131"/>
+        <source>Click 3 points on the lower beam face: 2 at the extremities, one in the middle.</source>
+        <translation>Cliquez sur 3 points de la face inférieure de la poutre: 2 aux extrémités, 1 vers le milieu.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="134"/>
         <source>Manual</source>
         <translation>Manuel</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="137"/>
-        <source>First, set an axis perpendicular to the tilt direction. Then, click on a point at the bottom and one at the top of the column face.</source>
-        <translation>Définissez d&apos;abord un axe perpendiculaire à la direction recherchée pour le déport, en cliquant sur 2 points. Ensuite, cliquez sur un point en bas et un en haut de la face du poteau. L&apos;axe est conservé jusqu&apos;à ce que la fonction soit quittée.</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="140"/>
+        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="151"/>
         <source>Column Tilt</source>
         <translation>Déport de poteau</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="48"/>
+        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="51"/>
         <source>Max t/h 1/</source>
         <translation>Max d/h 1/</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="77"/>
-        <source>Calculates the max bending value for beams without roll.
-Click on 2 points on the bottom face, close to the extremity. A tag is created at the max bending point.</source>
-        <translation>Calcule la flèche maximale pour les poutres sans roulis.
-Cliquez sur 2 points de la face inférieure, près des extrémités. Un tag est créé au point de flexion maximale.</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="61"/>
+        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="64"/>
         <source>Max ratio tilt / height. Enter 0 to ignore.</source>
         <translation>Ratio déport / hauteur maxi autorisé. Saisir 0 pour ignorer.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="64"/>
+        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="67"/>
         <source>150</source>
         <translation>150</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="81"/>
+        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="80"/>
+        <source>Calculates the max bending value for beams without roll.
+Click on 2 points on the bottom face, close to the extremity. A tag is created at the max bending point.
+Tag colors: green=within tolerance, red=outside tolerance, orange=not reliable.</source>
+        <translation>Calcule la flèche maximale pour des poutres sans roulis.
+Cliquez sur 2 points de la face inférieure, proches des extrémités. Un tag est créé à l&apos;endroit de la flèche max.
+Couleur du tag: vert=dans la tolérance, rouge=hors tolérance, orange=résultat peu fiable.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="85"/>
         <source>Beam Bending</source>
         <translation>Flexion de poutre</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="117"/>
+        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="121"/>
+        <source>Max bending / lentgh ratio</source>
+        <translation>Ratio max flèche / longueur</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="124"/>
         <source>Max b/l 1/</source>
         <translation>Max f/l 1/</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="107"/>
+        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="147"/>
+        <source>First, set an axis perpendicular to the tilt direction. Then, click on a point at the bottom and one at the top of the column face.
+Tag colors: green=within tolerance, red=outside tolerance, orange=not reliable.</source>
+        <translation>D&apos;abord, définissez un axe perpendiculaire à la direction du déport recherché. Ensuite, cliquez sur un point en bas et un en haut du poteau.
+Couleur du tag: vert=dans la tolérance, rouge=hors tolérance, orange=résultat peu fiable.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="111"/>
         <source>Max ratio bending / length. Enter 0 to ignore.</source>
         <translation>Ratio flèche / longueur maxi autorisé. Saisir 0 pour ignorer.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="110"/>
+        <location filename="../../src/gui/forms/toolbar_structAnalysis.ui" line="114"/>
         <source>200</source>
         <translation>200</translation>
     </message>
@@ -11320,6 +12009,13 @@ Cliquez sur 2 points de la face inférieure, près des extrémités. Un tag est 
     </message>
     <message>
         <location filename="../../src/gui/forms/toolbar_viewPoint.ui" line="35"/>
+        <source>Viewpoints store all visibility settings and filters.
+They allow you to save various views without having to reset the settings.</source>
+        <translation>Les points de vue enregistrent tous les paramètres de visibilité et filtres.
+Ils vous permettent de sauvegarder diverses vues sans nécessité de reprendre les réglages.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_viewPoint.ui" line="39"/>
         <source>Create</source>
         <translation>Créer</translation>
     </message>

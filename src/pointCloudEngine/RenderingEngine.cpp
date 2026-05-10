@@ -260,6 +260,10 @@ void RenderingEngine::run()
 
     while (m_stopEngine.load() == false)
     {
+        VulkanManager::getInstance().waitIfRenderPauseRequested();
+        if (m_stopEngine.load() == true)
+            break;
+
         // Introduit une pause possible dans le rendu pour faire autre chose (image HD)
         if (m_doHDRender.load() == true)
             updateHD();
@@ -358,16 +362,16 @@ void RenderingEngine::updateHD()
     // Should be input parameters
     // NOTE: Gap filling relies on a 3x3 kernel. A base 2px border keeps a one-pixel safety zone
     // after the image transfer cropping and avoids visible seams between tiles when the texel
-    // threshold is low (e.g., 2). Post-processing passes like edge-aware blur and depth lining can
+    // threshold is low (e.g., 2). Post-processing passes like color-noise reduction and depth lining can
     // require a larger footprint, so the border is expanded accordingly.
     auto computeTileBorder = [](const DisplayParameters& display) {
         constexpr uint32_t baseBorder = 2;
         uint32_t border = baseBorder;
 
-        if (display.m_edgeAwareBlur.enabled)
+        if (display.m_colorNoiseReduction.enabled)
         {
-            const float resolutionScale = std::max(display.m_edgeAwareBlur.resolutionScale, 0.1f);
-            const uint32_t blurFootprint = static_cast<uint32_t>(std::ceil(display.m_edgeAwareBlur.radius / resolutionScale));
+            const float resolutionScale = std::max(display.m_colorNoiseReduction.resolutionScale, 0.1f);
+            const uint32_t blurFootprint = static_cast<uint32_t>(std::ceil(display.m_colorNoiseReduction.radius / resolutionScale));
             border = std::max(border, blurFootprint + 1u); // +1 to keep a safety band after cropping
         }
 
@@ -878,16 +882,16 @@ bool RenderingEngine::updateFramebuffer(VulkanViewport& viewport)
             m_postRenderer.processDepthLining(cmdBuffer, display.m_depthLining, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
         }
 
-        if (display.m_edgeAwareBlur.enabled)
+        if (display.m_colorNoiseReduction.enabled)
         {
-            vkm.beginPostTreatmentEdgeAwareBlur(framebuffer);
-            m_postRenderer.processEdgeAwareBlur(cmdBuffer, display.m_edgeAwareBlur, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
+            vkm.beginPostTreatmentColorNoiseReduction(framebuffer);
+            m_postRenderer.processColorNoiseReduction(cmdBuffer, display.m_colorNoiseReduction, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
         }
 
         if (display.m_blendMode != BlendMode::Opaque && display.m_transparency > 0.f)
         {
             vkm.beginPostTreatmentTransparency(framebuffer);
-            m_postRenderer.setConstantHDR(display.m_transparency, display.m_negativeEffect, display.m_reduceFlash, display.m_flashAdvanced, display.m_flashControl, framebuffer->extent, display.m_backgroundColor, cmdBuffer);
+            m_postRenderer.setConstantHDR(display.m_transparency, display.m_negativeEffect, display.m_reduceFlash, display.m_flashAdvanced, display.m_highlightKneeStart, display.m_highlightKneeSoftness, display.m_advancedFlashBoost, framebuffer->extent, display.m_backgroundColor, cmdBuffer);
             m_postRenderer.processTransparencyHDR(cmdBuffer, framebuffer->descSetSamplers, framebuffer->extent);
         }
     }
@@ -1055,16 +1059,16 @@ bool RenderingEngine::renderVirtualViewport(TlFramebuffer framebuffer, const Cam
         m_postRenderer.processDepthLining(cmdBuffer, displayParam.m_depthLining, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
     }
 
-    if (displayParam.m_edgeAwareBlur.enabled)
+    if (displayParam.m_colorNoiseReduction.enabled)
     {
-        vkm.beginPostTreatmentEdgeAwareBlur(framebuffer);
-        m_postRenderer.processEdgeAwareBlur(cmdBuffer, displayParam.m_edgeAwareBlur, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
+        vkm.beginPostTreatmentColorNoiseReduction(framebuffer);
+        m_postRenderer.processColorNoiseReduction(cmdBuffer, displayParam.m_colorNoiseReduction, framebuffer->descSetSamplers, framebuffer->descSetCorrectedDepth, framebuffer->extent);
     }
 
     if (displayParam.m_blendMode != BlendMode::Opaque && displayParam.m_transparency > 0.f)
     {
         vkm.beginPostTreatmentTransparency(framebuffer);
-        m_postRenderer.setConstantHDR(displayParam.m_transparency, displayParam.m_negativeEffect, displayParam.m_reduceFlash, displayParam.m_flashAdvanced, displayParam.m_flashControl, framebuffer->extent, displayParam.m_backgroundColor, cmdBuffer);
+        m_postRenderer.setConstantHDR(displayParam.m_transparency, displayParam.m_negativeEffect, displayParam.m_reduceFlash, displayParam.m_flashAdvanced, displayParam.m_highlightKneeStart, displayParam.m_highlightKneeSoftness, displayParam.m_advancedFlashBoost, framebuffer->extent, displayParam.m_backgroundColor, cmdBuffer);
         m_postRenderer.processTransparencyHDR(cmdBuffer, framebuffer->descSetSamplers, framebuffer->extent);
     }
 
@@ -1141,6 +1145,35 @@ void RenderingEngine::drawSelectionRect(VkCommandBuffer, const VulkanViewport& v
         {
             dl->AddRectFilled(ImVec2(rect.c0.x, rect.c0.y), ImVec2(rect.c1.x, rect.c1.y), IM_COL32(112, 28, 222, 55));
             dl->AddRect(ImVec2(rect.c0.x, rect.c0.y), ImVec2(rect.c1.x, rect.c1.y), IM_COL32(112, 28, 222, 150), 0.f, 0, 2.f);
+        }
+    }
+
+    // Polygonal selector preview
+    {
+        const std::vector<glm::vec2>& preview = viewport.getPolygonalSelectorPreview();
+        if (!preview.empty())
+        {
+            ImU32 selectorColor = IM_COL32(242, 214, 0, 255);
+            const float thickness = 2.0f;
+
+            for (size_t i = 1; i < preview.size(); ++i)
+            {
+                ImVec2 p0(preview[i - 1].x * extent.width, preview[i - 1].y * extent.height);
+                ImVec2 p1(preview[i].x * extent.width, preview[i].y * extent.height);
+                dl->AddLine(p0, p1, selectorColor, thickness);
+            }
+
+            for (const glm::vec2& p : preview)
+            {
+                dl->AddCircleFilled(ImVec2(p.x * extent.width, p.y * extent.height), 3.0f, selectorColor);
+            }
+
+            if (viewport.isPolygonalSelectorPreviewClosed() && preview.size() > 2)
+            {
+                ImVec2 first(preview.front().x * extent.width, preview.front().y * extent.height);
+                ImVec2 last(preview.back().x * extent.width, preview.back().y * extent.height);
+                dl->AddLine(last, first, selectorColor, thickness);
+            }
         }
     }
 

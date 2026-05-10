@@ -8,6 +8,7 @@
 #include "gui/GuiData/GuiDataRendering.h"
 #include "gui/toolBars/ToolBarRenderSettings.h"
 #include "gui/toolBars/ToolBarShowHideGroup.h"
+#include "io/PersistenceSchema.h"
 #include "io/SerializerKeys.h"
 #include "utils/JsonWriter.h"
 #include "utils/System.h"
@@ -17,9 +18,25 @@
 
 #include <algorithm>
 #include <fstream>
+#include <string>
 
 namespace
 {
+	std::string makePolygonNameFromIndex(size_t index)
+	{
+		return std::string("polygon_") + std::to_string(index + 1);
+	}
+
+	uint32_t getPolygonSuffix(const std::string& name)
+	{
+		if (name.rfind("polygon_", 0) != 0)
+			return 0;
+
+		bool ok = false;
+		int suffix = QString::fromStdString(name.substr(8)).toInt(&ok);
+		return (ok && suffix > 0) ? static_cast<uint32_t>(suffix) : 0;
+	}
+
 	const QString kInitialPresetName = QStringLiteral("Initial");
 	const QString kRawPresetName = QStringLiteral("Raw rendering");
 	const char kDisplayPresetFileName[] = "Display_presets.tlt";
@@ -47,21 +64,26 @@ namespace
 		json[Key_Saturation] = params.m_saturation;
 		json[Key_Luminance] = params.m_luminance;
 		json[Key_Blending] = params.m_hue;
+		json[Key_Cartoon_Value_Levels] = params.m_cartoonValueLevels;
+		json[Key_Cartoon_Saturation_Min_Percent] = params.m_cartoonSaturationMinPercent;
+		json[Key_Cartoon_Saturation_Levels] = params.m_cartoonSaturationLevels;
 		json[Key_Flat_Color] = { params.m_flatColor.x, params.m_flatColor.y, params.m_flatColor.z };
 
-		json[Key_DistRamp] = { params.m_distRampMin, params.m_distRampMax };
-		json[Key_DistRampSteps] = params.m_distRampSteps;
+			json[Key_DistRamp] = { params.m_distRampMin, params.m_distRampMax };
+			json[Key_DistRampSteps] = params.m_distRampSteps;
 
 		json[Key_Blend_Mode] = magic_enum::enum_name(params.m_blendMode);
 		json[Key_NegativeEffect] = params.m_negativeEffect;
 		json[Key_ReduceFlash] = params.m_reduceFlash;
 		json[Key_FlashAdvanced] = params.m_flashAdvanced;
-		json[Key_FlashControl] = params.m_flashControl;
+		json[Key_HighlightKneeStart] = params.m_highlightKneeStart;
+		json[Key_HighlightKneeSoftness] = params.m_highlightKneeSoftness;
+		json[Key_AdvancedFlashBoost] = params.m_advancedFlashBoost;
 		json[Key_Transparency] = params.m_transparency;
 
 		json[Key_Post_Rendering_Normals] = { params.m_postRenderingNormals.show, params.m_postRenderingNormals.inverseTone, params.m_postRenderingNormals.blendColor, params.m_postRenderingNormals.normalStrength, params.m_postRenderingNormals.gloss };
 		json[Key_Post_Rendering_Ambient_Occlusion] = { params.m_postRenderingAmbientOcclusion.enabled, params.m_postRenderingAmbientOcclusion.radius, params.m_postRenderingAmbientOcclusion.intensity };
-		json[Key_Edge_Aware_Blur] = { params.m_edgeAwareBlur.enabled, params.m_edgeAwareBlur.radius, params.m_edgeAwareBlur.depthThreshold, params.m_edgeAwareBlur.blendStrength, params.m_edgeAwareBlur.resolutionScale };
+		json[Key_Color_Noise_Reduction] = { params.m_colorNoiseReduction.enabled, params.m_colorNoiseReduction.radius, params.m_colorNoiseReduction.depthAwareThreshold, params.m_colorNoiseReduction.strength, params.m_colorNoiseReduction.resolutionScale };
 		json[Key_Depth_Lining] = { params.m_depthLining.enabled, params.m_depthLining.strength, params.m_depthLining.threshold, params.m_depthLining.sensitivity, params.m_depthLining.strongMode };
 
 		json[Key_Display_Guizmo] = params.m_displayGizmo;
@@ -96,10 +118,69 @@ namespace
 			} }
 		};
 
-		json[Key_Ortho_Grid_Active] = params.m_orthoGridActive;
-		json[Key_Ortho_Grid_Color] = { params.m_orthoGridColor.r, params.m_orthoGridColor.g, params.m_orthoGridColor.b, params.m_orthoGridColor.a };
-		json[Key_Ortho_Grid_Step] = params.m_orthoGridStep;
-		json[Key_Ortho_Grid_Linewidth] = params.m_orthoGridLineWidth;
+		json[Key_Polygonal_Selector] = {
+			{ Key_Polygonal_Selector_Enabled, params.m_polygonalSelector.enabled },
+			{ Key_Polygonal_Selector_Show, params.m_polygonalSelector.showSelected },
+			{ Key_Polygonal_Selector_Active, params.m_polygonalSelector.active },
+			{ Key_Polygonal_Selector_PendingApply, params.m_polygonalSelector.pendingApply },
+			{ Key_Polygonal_Selector_AppliedCount, params.m_polygonalSelector.appliedPolygonCount },
+			{ Key_Polygonal_Selector_NextId, params.m_polygonalSelector.nextPolygonId },
+			{ Key_Polygonal_Selector_Polygons, nlohmann::json::array() }
+		};
+
+		for (const PolygonalSelectorPolygon& polygon : params.m_polygonalSelector.polygons)
+		{
+			nlohmann::json polygonJson;
+			polygonJson[Key_Polygonal_Selector_Name] = polygon.name;
+			polygonJson[Key_Polygonal_Selector_Vertices] = nlohmann::json::array();
+			for (const glm::vec2& vertex : polygon.normalizedVertices)
+				polygonJson[Key_Polygonal_Selector_Vertices].push_back({ vertex.x, vertex.y });
+			polygonJson[Key_Polygonal_Selector_Camera] = {
+				{ Key_Polygonal_Selector_Cam_View, {
+					polygon.camera.view[0][0], polygon.camera.view[0][1], polygon.camera.view[0][2], polygon.camera.view[0][3],
+					polygon.camera.view[1][0], polygon.camera.view[1][1], polygon.camera.view[1][2], polygon.camera.view[1][3],
+					polygon.camera.view[2][0], polygon.camera.view[2][1], polygon.camera.view[2][2], polygon.camera.view[2][3],
+					polygon.camera.view[3][0], polygon.camera.view[3][1], polygon.camera.view[3][2], polygon.camera.view[3][3]
+				} },
+				{ Key_Polygonal_Selector_Cam_Proj, {
+					polygon.camera.proj[0][0], polygon.camera.proj[0][1], polygon.camera.proj[0][2], polygon.camera.proj[0][3],
+					polygon.camera.proj[1][0], polygon.camera.proj[1][1], polygon.camera.proj[1][2], polygon.camera.proj[1][3],
+					polygon.camera.proj[2][0], polygon.camera.proj[2][1], polygon.camera.proj[2][2], polygon.camera.proj[2][3],
+					polygon.camera.proj[3][0], polygon.camera.proj[3][1], polygon.camera.proj[3][2], polygon.camera.proj[3][3]
+				} },
+				{ Key_Polygonal_Selector_Cam_Viewport, { polygon.camera.viewportWidth, polygon.camera.viewportHeight } },
+				{ Key_Polygonal_Selector_Cam_Perspective, polygon.camera.perspective }
+			};
+
+			auto writeSnapshotClip = [](const PolygonalSelectorPolygon::SnapshotClip& clip)
+			{
+				return nlohmann::json{
+					{ Key_Polygonal_Selector_SnapshotClipShape, clip.shape },
+					{ Key_Polygonal_Selector_SnapshotClipMode, clip.mode },
+					{ Key_Polygonal_Selector_SnapshotClipMat, {
+						clip.matRTInv[0][0], clip.matRTInv[0][1], clip.matRTInv[0][2], clip.matRTInv[0][3],
+						clip.matRTInv[1][0], clip.matRTInv[1][1], clip.matRTInv[1][2], clip.matRTInv[1][3],
+						clip.matRTInv[2][0], clip.matRTInv[2][1], clip.matRTInv[2][2], clip.matRTInv[2][3],
+						clip.matRTInv[3][0], clip.matRTInv[3][1], clip.matRTInv[3][2], clip.matRTInv[3][3]
+					} },
+					{ Key_Polygonal_Selector_SnapshotClipParams, { clip.params.x, clip.params.y, clip.params.z, clip.params.w } }
+				};
+			};
+
+			polygonJson[Key_Polygonal_Selector_SnapshotUnion] = nlohmann::json::array();
+			for (const PolygonalSelectorPolygon::SnapshotClip& clip : polygon.snapshotUnion)
+				polygonJson[Key_Polygonal_Selector_SnapshotUnion].push_back(writeSnapshotClip(clip));
+
+			polygonJson[Key_Polygonal_Selector_SnapshotIntersection] = nlohmann::json::array();
+			for (const PolygonalSelectorPolygon::SnapshotClip& clip : polygon.snapshotIntersection)
+				polygonJson[Key_Polygonal_Selector_SnapshotIntersection].push_back(writeSnapshotClip(clip));
+
+			json[Key_Polygonal_Selector][Key_Polygonal_Selector_Polygons].push_back(polygonJson);
+		}
+
+			// Single source of truth: keep OrthoGrid serialization aligned
+			// with project and viewpoint serializers.
+			persistence::writeOrthoGrid(json, params);
 
 		return json;
 	}
@@ -173,6 +254,22 @@ namespace
 		else
 			retVal = false;
 
+		// Pass 3 - cartoon RGB options (with robust defaults for retro compatibility).
+		if (json.find(Key_Cartoon_Value_Levels) != json.end())
+			data.m_cartoonValueLevels = json.at(Key_Cartoon_Value_Levels).get<int>();
+		else
+			data.m_cartoonValueLevels = 6;
+
+		if (json.find(Key_Cartoon_Saturation_Min_Percent) != json.end())
+			data.m_cartoonSaturationMinPercent = json.at(Key_Cartoon_Saturation_Min_Percent).get<int>();
+		else
+			data.m_cartoonSaturationMinPercent = 12;
+
+		if (json.find(Key_Cartoon_Saturation_Levels) != json.end())
+			data.m_cartoonSaturationLevels = json.at(Key_Cartoon_Saturation_Levels).get<int>();
+		else
+			data.m_cartoonSaturationLevels = 4;
+
 		if (json.find(Key_Flat_Color) != json.end())
 		{
 			nlohmann::json color = json.at(Key_Flat_Color);
@@ -220,10 +317,20 @@ namespace
 		else
 			data.m_flashAdvanced = false;
 
-		if (json.find(Key_FlashControl) != json.end())
-			data.m_flashControl = json.at(Key_FlashControl).get<float>();
+		if (json.find(Key_HighlightKneeStart) != json.end())
+			data.m_highlightKneeStart = json.at(Key_HighlightKneeStart).get<float>();
 		else
-			data.m_flashControl = 50.f;
+			data.m_highlightKneeStart = 15.f;
+
+		if (json.find(Key_HighlightKneeSoftness) != json.end())
+			data.m_highlightKneeSoftness = json.at(Key_HighlightKneeSoftness).get<float>();
+		else
+			data.m_highlightKneeSoftness = 50.f;
+
+		if (json.find(Key_AdvancedFlashBoost) != json.end())
+			data.m_advancedFlashBoost = json.at(Key_AdvancedFlashBoost).get<float>();
+		else
+			data.m_advancedFlashBoost = 50.f;
 
 		if (json.find(Key_Transparency) != json.end())
 			data.m_transparency = json.at(Key_Transparency).get<float>();
@@ -329,6 +436,141 @@ namespace
 			}
 		}
 
+		if (json.find(Key_Polygonal_Selector) != json.end())
+		{
+			const auto& selectorJson = json.at(Key_Polygonal_Selector);
+			if (selectorJson.find(Key_Polygonal_Selector_Enabled) != selectorJson.end())
+				data.m_polygonalSelector.enabled = selectorJson.at(Key_Polygonal_Selector_Enabled).get<bool>();
+			if (selectorJson.find(Key_Polygonal_Selector_Show) != selectorJson.end())
+				data.m_polygonalSelector.showSelected = selectorJson.at(Key_Polygonal_Selector_Show).get<bool>();
+			if (selectorJson.find(Key_Polygonal_Selector_Active) != selectorJson.end())
+				data.m_polygonalSelector.active = selectorJson.at(Key_Polygonal_Selector_Active).get<bool>();
+			if (selectorJson.find(Key_Polygonal_Selector_PendingApply) != selectorJson.end())
+				data.m_polygonalSelector.pendingApply = selectorJson.at(Key_Polygonal_Selector_PendingApply).get<bool>();
+			if (selectorJson.find(Key_Polygonal_Selector_AppliedCount) != selectorJson.end())
+				data.m_polygonalSelector.appliedPolygonCount = selectorJson.at(Key_Polygonal_Selector_AppliedCount).get<uint32_t>();
+			if (selectorJson.find(Key_Polygonal_Selector_NextId) != selectorJson.end())
+				data.m_polygonalSelector.nextPolygonId = selectorJson.at(Key_Polygonal_Selector_NextId).get<uint32_t>();
+
+			if (selectorJson.find(Key_Polygonal_Selector_Polygons) != selectorJson.end())
+			{
+				data.m_polygonalSelector.polygons.clear();
+				const auto& polygons = selectorJson.at(Key_Polygonal_Selector_Polygons);
+				for (const auto& polygonJson : polygons)
+				{
+					PolygonalSelectorPolygon polygon;
+					if (polygonJson.find(Key_Polygonal_Selector_Name) != polygonJson.end())
+						polygon.name = polygonJson.at(Key_Polygonal_Selector_Name).get<std::string>();
+
+					if (polygonJson.find(Key_Polygonal_Selector_Vertices) != polygonJson.end())
+					{
+						for (const auto& vertexJson : polygonJson.at(Key_Polygonal_Selector_Vertices))
+						{
+							if (vertexJson.size() >= 2)
+								polygon.normalizedVertices.emplace_back(vertexJson.at(0).get<float>(), vertexJson.at(1).get<float>());
+						}
+					}
+					if (polygonJson.find(Key_Polygonal_Selector_Camera) != polygonJson.end())
+					{
+						const auto& cameraJson = polygonJson.at(Key_Polygonal_Selector_Camera);
+
+						auto readMat4 = [](const nlohmann::json& arr, glm::dmat4& out)
+						{
+							if (!arr.is_array() || arr.size() != 16)
+								return;
+							for (int c = 0; c < 4; ++c)
+								for (int r = 0; r < 4; ++r)
+									out[c][r] = arr.at(c * 4 + r).get<double>();
+						};
+
+						if (cameraJson.find(Key_Polygonal_Selector_Cam_View) != cameraJson.end())
+							readMat4(cameraJson.at(Key_Polygonal_Selector_Cam_View), polygon.camera.view);
+						if (cameraJson.find(Key_Polygonal_Selector_Cam_Proj) != cameraJson.end())
+							readMat4(cameraJson.at(Key_Polygonal_Selector_Cam_Proj), polygon.camera.proj);
+						if (cameraJson.find(Key_Polygonal_Selector_Cam_Viewport) != cameraJson.end())
+						{
+							const auto& viewport = cameraJson.at(Key_Polygonal_Selector_Cam_Viewport);
+							if (viewport.size() >= 2)
+							{
+								polygon.camera.viewportWidth = viewport.at(0).get<uint32_t>();
+								polygon.camera.viewportHeight = viewport.at(1).get<uint32_t>();
+							}
+						}
+					if (cameraJson.find(Key_Polygonal_Selector_Cam_Perspective) != cameraJson.end())
+						polygon.camera.perspective = cameraJson.at(Key_Polygonal_Selector_Cam_Perspective).get<bool>();
+				}
+
+				auto readSnapshotClip = [](const nlohmann::json& clipJson, PolygonalSelectorPolygon::SnapshotClip& clip)
+				{
+					if (clipJson.find(Key_Polygonal_Selector_SnapshotClipShape) != clipJson.end())
+						clip.shape = clipJson.at(Key_Polygonal_Selector_SnapshotClipShape).get<int32_t>();
+					if (clipJson.find(Key_Polygonal_Selector_SnapshotClipMode) != clipJson.end())
+						clip.mode = clipJson.at(Key_Polygonal_Selector_SnapshotClipMode).get<int32_t>();
+
+					if (clipJson.find(Key_Polygonal_Selector_SnapshotClipMat) != clipJson.end())
+					{
+						const auto& mat = clipJson.at(Key_Polygonal_Selector_SnapshotClipMat);
+						if (mat.is_array() && mat.size() == 16)
+						{
+							for (int c = 0; c < 4; ++c)
+								for (int r = 0; r < 4; ++r)
+									clip.matRTInv[c][r] = mat.at(c * 4 + r).get<double>();
+						}
+					}
+
+					if (clipJson.find(Key_Polygonal_Selector_SnapshotClipParams) != clipJson.end())
+					{
+						const auto& params = clipJson.at(Key_Polygonal_Selector_SnapshotClipParams);
+						if (params.is_array() && params.size() >= 4)
+						{
+							clip.params.x = params.at(0).get<float>();
+							clip.params.y = params.at(1).get<float>();
+							clip.params.z = params.at(2).get<float>();
+							clip.params.w = params.at(3).get<float>();
+						}
+					}
+				};
+
+				if (polygonJson.find(Key_Polygonal_Selector_SnapshotUnion) != polygonJson.end())
+				{
+					for (const auto& clipJson : polygonJson.at(Key_Polygonal_Selector_SnapshotUnion))
+					{
+						PolygonalSelectorPolygon::SnapshotClip clip;
+						readSnapshotClip(clipJson, clip);
+						polygon.snapshotUnion.push_back(clip);
+					}
+				}
+
+				if (polygonJson.find(Key_Polygonal_Selector_SnapshotIntersection) != polygonJson.end())
+				{
+					for (const auto& clipJson : polygonJson.at(Key_Polygonal_Selector_SnapshotIntersection))
+					{
+						PolygonalSelectorPolygon::SnapshotClip clip;
+						readSnapshotClip(clipJson, clip);
+						polygon.snapshotIntersection.push_back(clip);
+					}
+				}
+				data.m_polygonalSelector.polygons.push_back(std::move(polygon));
+			}
+
+				for (size_t i = 0; i < data.m_polygonalSelector.polygons.size(); ++i)
+				{
+					if (data.m_polygonalSelector.polygons[i].name.empty())
+						data.m_polygonalSelector.polygons[i].name = makePolygonNameFromIndex(i);
+				}
+
+				uint32_t maxSuffix = 0;
+				for (const PolygonalSelectorPolygon& polygon : data.m_polygonalSelector.polygons)
+					maxSuffix = std::max<uint32_t>(maxSuffix, getPolygonSuffix(polygon.name));
+				data.m_polygonalSelector.nextPolygonId = std::max<uint32_t>(data.m_polygonalSelector.nextPolygonId, maxSuffix + 1);
+				data.m_polygonalSelector.nextPolygonId = std::max<uint32_t>(data.m_polygonalSelector.nextPolygonId, 1u);
+
+				data.m_polygonalSelector.appliedPolygonCount = std::min<uint32_t>(
+					data.m_polygonalSelector.appliedPolygonCount,
+					static_cast<uint32_t>(data.m_polygonalSelector.polygons.size()));
+			}
+		}
+
 		if (json.find(Key_Marker_Rendering_Parameters) != json.end())
 		{
 			nlohmann::json options = json.at(Key_Marker_Rendering_Parameters);
@@ -357,11 +599,18 @@ namespace
 				data.m_postRenderingAmbientOcclusion = { options[0], options[1], options[2] };
 		}
 
-		if (json.find(Key_Edge_Aware_Blur) != json.end())
+		if (json.find(Key_Color_Noise_Reduction) != json.end())
 		{
-			nlohmann::json options = json.at(Key_Edge_Aware_Blur);
+			nlohmann::json options = json.at(Key_Color_Noise_Reduction);
 			if (options.size() == 5)
-				data.m_edgeAwareBlur = { options[0], options[1], options[2], options[3], options[4] };
+				data.m_colorNoiseReduction = { options[0], options[1], options[2], options[3], options[4] };
+		}
+		else if (json.find(Key_Edge_Aware_Blur_Legacy) != json.end())
+		{
+			// Backward compatibility with legacy display presets.
+			nlohmann::json options = json.at(Key_Edge_Aware_Blur_Legacy);
+			if (options.size() == 5)
+				data.m_colorNoiseReduction = { options[0], options[1], options[2], options[3], options[4] };
 		}
 
 		if (json.find(Key_Depth_Lining) != json.end())
@@ -722,12 +971,13 @@ void DisplayPresetManager::applyPreset(const DisplayPreset& preset)
 	m_dataDispatcher.updateInformation(new GuiDataRenderFlatColor(params.m_flatColor, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderDistanceRampValues(params.m_distRampMin, params.m_distRampMax, params.m_distRampSteps, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderTransparency(params.m_blendMode, params.m_transparency, m_focusCamera), this);
-	m_dataDispatcher.updateInformation(new GuiDataRenderTransparencyOptions(params.m_negativeEffect, params.m_reduceFlash, params.m_flashAdvanced, params.m_flashControl, 0.f, m_focusCamera), this);
+	m_dataDispatcher.updateInformation(new GuiDataRenderTransparencyOptions(params.m_negativeEffect, params.m_reduceFlash, params.m_flashAdvanced, params.m_highlightKneeStart, params.m_highlightKneeSoftness, params.m_advancedFlashBoost, 0.f, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataPostRenderingNormals(params.m_postRenderingNormals, false, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderAmbientOcclusion(params.m_postRenderingAmbientOcclusion, m_focusCamera), this);
-	m_dataDispatcher.updateInformation(new GuiDataEdgeAwareBlur(params.m_edgeAwareBlur, m_focusCamera), this);
+	m_dataDispatcher.updateInformation(new GuiDataColorNoiseReduction(params.m_colorNoiseReduction, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataDepthLining(params.m_depthLining, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderColorimetricFilter(params.m_colorimetricFilter, m_focusCamera), this);
+	m_dataDispatcher.updateInformation(new GuiDataRenderPolygonalSelector(params.m_polygonalSelector, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataMarkerDisplayOptions(params.m_markerOptions, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderTextFilter(params.m_textOptions.m_filter, m_focusCamera), this);
 	m_dataDispatcher.updateInformation(new GuiDataRenderTextTheme(params.m_textOptions.m_textTheme, m_focusCamera), this);
@@ -817,7 +1067,7 @@ DisplayPresetManager::DisplayPreset DisplayPresetManager::getRawPreset() const
 	parameters.m_saturation = 0.f;
 	parameters.m_postRenderingNormals.show = false;
 	parameters.m_postRenderingAmbientOcclusion.enabled = false;
-	parameters.m_edgeAwareBlur.enabled = false;
+	parameters.m_colorNoiseReduction.enabled = false;
 	parameters.m_depthLining.enabled = false;
 	preset.displayParameters = parameters;
 	preset.showHideState = getDefaultShowHideState();

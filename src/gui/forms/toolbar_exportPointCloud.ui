@@ -44,7 +44,8 @@
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>Use it on a clipping box splitted into a grid.</string>
+      <string>Use it on a scan clipped by a box splitted into a grid.
+The gridded box must selected before starting this function.</string>
      </property>
      <property name="text">
       <string>Gridded Box</string>
@@ -105,7 +106,7 @@
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>Export scanning positions.</string>
+      <string>Export full scans.</string>
      </property>
      <property name="text">
       <string>Scans</string>
@@ -113,6 +114,34 @@
      <property name="icon">
       <iconset resource="../../../openscantools.qrc">
        <normaloff>:/icons/100x100/export_pointcloud.png</normaloff>:/icons/100x100/export_pointcloud.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>20</width>
+       <height>20</height>
+      </size>
+     </property>
+     <property name="toolButtonStyle">
+      <enum>Qt::ToolButtonTextBesideIcon</enum>
+     </property>
+     <property name="autoRaise">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QToolButton" name="toolButton_FilteredScans">
+     <property name="toolTip">
+      <string>Export points using active filters (colorimetric, polygons). This function may take some time even if few points are exported, as it scans the entire scan.
+Tip to save time if the area is small: create a clipping box on the area and activate it.
+This will limit the calculation to this box.</string>
+     </property>
+     <property name="text">
+      <string>Filtered scans</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../../openscantools.qrc">
+       <normaloff>:/icons/100x100/filter_export.png</normaloff>:/icons/100x100/filter_export.png</iconset>
      </property>
      <property name="iconSize">
       <size>
@@ -140,7 +169,7 @@
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>Export single or multiple clipping boxes.</string>
+      <string>Export scans that are clipped by objects (boxes, tags, pipes...).You must select or activate some clippings before using this function.</string>
      </property>
      <property name="text">
       <string>Clipping</string>
@@ -196,6 +225,7 @@
   <tabstop>toolButton_grid</tabstop>
   <tabstop>toolButton_clipping</tabstop>
   <tabstop>toolButton_scans</tabstop>
+  <tabstop>toolButton_FilteredScans</tabstop>
   <tabstop>toolButton_pco</tabstop>
  </tabstops>
  <resources>

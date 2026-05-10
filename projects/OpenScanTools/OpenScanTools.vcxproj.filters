@@ -889,6 +889,9 @@
     <ClCompile Include="..\..\src\controller\functionSystem\ContextClippingBoxCreation.cpp">
       <Filter>src\controller\contexts</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextPolygonalSelector.cpp">
+      <Filter>src\controller\contexts</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\controller\messages\ColorMessage.cpp">
       <Filter>src\controller\messages</Filter>
     </ClCompile>
@@ -917,6 +920,9 @@
       <Filter>src\gui\widgets\CustomWidgets</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarClippingGroup.cpp">
+      <Filter>src\gui\toolBars</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\toolBars\ToolBarPolygonalSelector.cpp">
       <Filter>src\gui\toolBars</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\gui\widgets\CustomWidgets\ACustomLineEdit.cpp">
@@ -1255,6 +1261,9 @@
     <ClCompile Include="..\..\src\models\application\UserOrientation.cpp">
       <Filter>src\models\application</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\models\application\ViewPointAnimation.cpp">
+      <Filter>src\models\application</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\controller\Controller_p.cpp">
       <Filter>src\controller</Filter>
     </ClCompile>
@@ -1271,6 +1280,9 @@
       <Filter>src\controller\contexts</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\controller\functionSystem\ContextColorBalanceFilter.cpp">
+      <Filter>src\controller\contexts</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\controller\functionSystem\ContextFilteredScansExport.cpp">
       <Filter>src\controller\contexts</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\gui\toolBars\ToolBarPointEdition.cpp">
@@ -1855,8 +1867,8 @@
     <ClCompile Include="..\..\src\gui\Dialog\DialogExportVideo.cpp">
       <Filter>src\gui\Dialog</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\gui\toolBars\ToolBarExportVideo.cpp">
-      <Filter>src\gui\toolBars</Filter>
+    <ClCompile Include="..\..\src\gui\Dialog\DialogAnimationConfig.cpp">
+      <Filter>src\gui\Dialog</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\controller\functionSystem\ContextExportVideoHD.cpp">
       <Filter>src\controller\contexts</Filter>
@@ -2125,6 +2137,9 @@
       <Filter>include\gui\widgets</Filter>
     </QtMoc>
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarClippingGroup.h">
+      <Filter>include\gui\toolBars</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\include\gui\toolBars\ToolBarPolygonalSelector.h">
       <Filter>include\gui\toolBars</Filter>
     </QtMoc>
     <QtMoc Include="..\..\include\gui\widgets\CustomWidgets\ACustomLineEdit.h">
@@ -2445,10 +2460,10 @@
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarAutoSeeding.h">
       <Filter>include\gui\toolBars</Filter>
     </QtMoc>
-    <QtMoc Include="..\..\include\gui\toolBars\ToolBarExportVideo.h">
-      <Filter>include\gui\toolBars</Filter>
-    </QtMoc>
     <QtMoc Include="..\..\include\gui\Dialog\DialogExportVideo.h">
+      <Filter>include\gui\Dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\include\gui\Dialog\DialogAnimationConfig.h">
       <Filter>include\gui\Dialog</Filter>
     </QtMoc>
     <QtMoc Include="..\..\include\gui\toolBars\ToolBarManipulateObjects.h">
@@ -2879,6 +2894,9 @@
     <ClInclude Include="..\..\include\controller\functionSystem\ContextClippingBoxCreation.h">
       <Filter>include\controller\contexts</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextPolygonalSelector.h">
+      <Filter>include\controller\contexts</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\include\controller\messages\ColorMessage.h">
       <Filter>include\controller\messages</Filter>
     </ClInclude>
@@ -3161,6 +3179,9 @@
     <ClInclude Include="..\..\include\models\application\UserOrientation.h">
       <Filter>include\models\application</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\models\application\ViewPointAnimation.h">
+      <Filter>include\models\application</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\include\controller\Controller_p.h">
       <Filter>include\controller</Filter>
     </ClInclude>
@@ -3171,6 +3192,9 @@
       <Filter>include\controller\contexts</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\controller\functionSystem\ContextColorBalanceFilter.h">
+      <Filter>include\controller\contexts</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\controller\functionSystem\ContextFilteredScansExport.h">
       <Filter>include\controller\contexts</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\controller\messages\DeletePointsMessage.h">
@@ -4335,6 +4359,9 @@
     <QtUic Include="..\..\src\gui\forms\toolbar_colorimetric_filter.ui">
       <Filter>Form Files</Filter>
     </QtUic>
+    <QtUic Include="..\..\src\gui\forms\toolbar_selector.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
     <QtUic Include="..\..\src\gui\forms\MultiProperty.ui">
       <Filter>Form Files</Filter>
     </QtUic>
@@ -4365,9 +4392,6 @@
     <QtUic Include="..\..\src\gui\forms\DialogExportVideo.ui">
       <Filter>Form Files</Filter>
     </QtUic>
-    <QtUic Include="..\..\src\gui\forms\toolbar_exportVideo.ui">
-      <Filter>Form Files</Filter>
-    </QtUic>
     <QtUic Include="..\..\src\gui\forms\toolbar_autoSeeding.ui">
       <Filter>Form Files</Filter>
     </QtUic>
@@ -4381,6 +4405,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\gui\forms\DialogImportPCObject.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="..\..\src\gui\forms\DialogAnimationConfig.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>
@@ -4401,6 +4428,9 @@
       <Filter>shaders\glsl_blocks</Filter>
     </None>
     <None Include="..\..\src\shaders\blocks\block_point_rgb_main_standard_vert.glsl">
+      <Filter>shaders\glsl_blocks</Filter>
+    </None>
+    <None Include="..\..\src\shaders\blocks\block_point_rgb_main_cartoon_vert.glsl">
       <Filter>shaders\glsl_blocks</Filter>
     </None>
     <None Include="..\..\src\shaders\blocks\block_point_input_geom.glsl">
@@ -4471,7 +4501,13 @@
     <CustomBuild Include="..\..\src\shaders\point_rgb_standard.vert">
       <Filter>shaders\glsl_assembled</Filter>
     </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\point_rgb_cartoon.vert">
+      <Filter>shaders\glsl_assembled</Filter>
+    </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_rgb_standard_clip.vert">
+      <Filter>shaders\glsl_assembled</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\shaders\point_rgb_cartoon_clip.vert">
       <Filter>shaders\glsl_assembled</Filter>
     </CustomBuild>
     <CustomBuild Include="..\..\src\shaders\point_rgbi_standard.vert">

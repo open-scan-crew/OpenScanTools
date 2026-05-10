@@ -4,16 +4,18 @@
 #include <string>
 #include <unordered_map>
 #include <glm/glm.hpp>
+#include "pointCloudEngine/RenderingLimits.h"
 
 // RenderColorInput
 enum class UiRenderMode
 {
     Intensity,
-    RGB,
+    RGB,    
     IntensityRGB_Combined,
     Grey_Colored,
     Scans_Color,
     Clusters_Color,
+    Cartoon_RGB,
     Flat,
     Distance_Ramp,
     Flat_Distance_Ramp,
@@ -26,6 +28,7 @@ enum RenderMode
 {
     Intensity,
     RGB,
+    RGB_Cartoon,
     IntensityRGB_Combined,
     Grey_Colored,
     Flat,
@@ -46,6 +49,7 @@ std::unordered_map<UiRenderMode, std::string> getTradUiRenderMode();
 const static std::unordered_map<UiRenderMode, RenderMode> correspUiRenderMode = {
     { UiRenderMode::Intensity, RenderMode::Intensity},
     { UiRenderMode::RGB, RenderMode::RGB},
+    { UiRenderMode::Cartoon_RGB, RenderMode::RGB_Cartoon},
     { UiRenderMode::IntensityRGB_Combined, RenderMode::IntensityRGB_Combined},
     { UiRenderMode::Grey_Colored, RenderMode::Grey_Colored},
     { UiRenderMode::Scans_Color, RenderMode::Grey_Colored},
@@ -87,12 +91,15 @@ struct PostRenderingAmbientOcclusion
     float intensity = 0.4f;
 };
 
-struct EdgeAwareBlur
+struct ColorNoiseReduction
 {
     bool enabled = true;
-    float radius = 2.0f;
-    float depthThreshold = 0.35f;
-    float blendStrength = 0.25f;
+    float radius = 5.0f;
+    // Internal depth gate used to preserve geometric edges.
+    // Intentionally not exposed in the UI for pass 1.
+    float depthAwareThreshold = 0.05f;
+    // User-facing intensity of the spray/noise reduction.
+    float strength = 0.45f;
     float resolutionScale = 1.0f; // 1.0 = full res, 0.5 = half res
 };
 
@@ -109,6 +116,16 @@ struct ColorimetricFilterUniform
 {
     glm::vec4 colors[4] = {};
     glm::vec4 settings = {}; // x: enabled, y: showColors, z: tolerance(0-1), w: intensityMode
+
+    glm::vec4 polygonSettings = {}; // x: enabled, y: showSelected, z: active, w: appliedPolygonCount
+    glm::vec4 polygonCounts = {};   // x: totalPolygonCount, y: pendingApply(0/1), z: highlightedPolygonIndex, w: manageMode(0/1)
+    glm::mat4 polygonViewProj[MAX_POLYGONAL_SELECTOR_POLYGONS] = {};
+    glm::vec4 polygonVertices[MAX_POLYGONAL_SELECTOR_POLYGONS * MAX_POLYGONAL_SELECTOR_VERTICES] = {}; // xy: normalized screen coords
+    glm::vec4 polygonMeta[MAX_POLYGONAL_SELECTOR_POLYGONS] = {}; // x: vertexCount
+    glm::vec4 polygonSnapshotCounts[MAX_POLYGONAL_SELECTOR_POLYGONS] = {}; // x: unionCount, y: intersectionCount
+    glm::mat4 polygonSnapshotMat[MAX_POLYGONAL_SELECTOR_POLYGONS * MAX_POLYGONAL_SELECTOR_SNAPSHOT_CLIPS] = {};
+    glm::vec4 polygonSnapshotParams[MAX_POLYGONAL_SELECTOR_POLYGONS * MAX_POLYGONAL_SELECTOR_SNAPSHOT_CLIPS] = {};
+    glm::vec4 polygonSnapshotMeta[MAX_POLYGONAL_SELECTOR_POLYGONS * MAX_POLYGONAL_SELECTOR_SNAPSHOT_CLIPS] = {}; // x: shape, y: mode
 };
 
 enum class ProjectionMode

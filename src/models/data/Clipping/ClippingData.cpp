@@ -1,6 +1,8 @@
 #include "models/data/Clipping/ClippingData.h"
 #include "controller/ControllerContext.h"
 
+#include <algorithm>
+
 ClippingData::ClippingData(const ClippingData& data)
 {
     copyClippingData(data);
@@ -18,6 +20,7 @@ void ClippingData::copyClippingData(const ClippingData& data)
     m_clippingActive = data.isClippingActive();
     m_minClipDist = data.getMinClipDist();
     m_maxClipDist = data.getMaxClipDist();
+    m_lengthThresholdClip = data.getLengthThresholdClip();
 
     m_rampActive = data.isRampActive();
     m_rampMin = data.getRampMin();
@@ -44,6 +47,11 @@ void ClippingData::setMinClipDist(float minDist)
 void ClippingData::setMaxClipDist(float maxDist)
 {
     m_maxClipDist = maxDist;
+}
+
+void ClippingData::setLengthThresholdClip(float lengthThreshold)
+{
+    m_lengthThresholdClip = std::max(0.f, lengthThreshold);
 }
 
 void ClippingData::setRampActive(bool active)
@@ -77,6 +85,7 @@ void ClippingData::setDefaultData(const ControllerContext& context)
     setClippingMode(projInfos.m_defaultClipMode);
     setMinClipDist(projInfos.m_defaultMinClipDistance);
     setMaxClipDist(projInfos.m_defaultMaxClipDistance);
+    setLengthThresholdClip(projInfos.m_defaultLengthThresholdClip);
     setRampMin(projInfos.m_defaultMinRampDistance);
     setRampMax(projInfos.m_defaultMaxRampDistance);
     setRampSteps(projInfos.m_defaultRampSteps);
@@ -100,6 +109,11 @@ float ClippingData::getMinClipDist() const
 float ClippingData::getMaxClipDist() const
 {
     return (m_maxClipDist);
+}
+
+float ClippingData::getLengthThresholdClip() const
+{
+    return m_lengthThresholdClip;
 }
 
 bool ClippingData::isRampActive() const

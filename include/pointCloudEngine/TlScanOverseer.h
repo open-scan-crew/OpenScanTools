@@ -19,6 +19,8 @@
 #include "pointCloudEngine/OctreeRayTracing.h"
 #include "pointCloudEngine/OutlierStats.h"
 #include "models/pointCloud/PointXYZIRGB.h"
+#include "models/3d/DisplayParameters.h"
+#include "pointCloudEngine/RayTracingDisplayFilter.h"
 
 /*
 template<typename T>
@@ -186,6 +188,13 @@ public:
     static void setWorkingScansTransfo(const std::vector<tls::PointCloudInstance>& workingScans);
 
     // Management of the active resources
+    // Register or update a known file path for a scan GUID.
+    // Used to decouple GUID resolution from runtime activation.
+    void registerScanPath(tls::ScanGuid scanGuid, const std::filesystem::path& scanPath);
+    bool getRegisteredScanPath(tls::ScanGuid scanGuid, std::filesystem::path& scanPath);
+
+    // Lightweight lookup: reads GUID from TLS header without registering a runtime-active scan.
+    bool lookupScanGuid(const std::filesystem::path& filePath, tls::ScanGuid& scanGuid);
     bool getScanGuid(std::filesystem::path filePath, tls::ScanGuid& scanGuid);
     bool getScanHeader(tls::ScanGuid scanGuid, tls::ScanHeader& scanHeader);
     bool getScanPath(tls::ScanGuid scanGuid, std::filesystem::path& scanPath);
@@ -222,13 +231,14 @@ public:
     bool clipScan(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, IScanFileWriter* outScan, const ProgressCallback& progress = {});
     bool computeOutlierStats(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, int samplingPercent, double beta, OutlierStats& stats, const ProgressCallback& progress = {});
     bool filterOutliersAndWrite(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kNeighbors, const OutlierStats& stats, double nSigma, double beta, IScanFileWriter* outScan, uint64_t& removedPoints, const ProgressCallback& progress = {});
+    bool filterAndWrite(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, const ColorimetricFilterSettings& colorimetricSettings, const PolygonalSelectorSettings& polygonalSelectorSettings, UiRenderMode mode, IScanFileWriter* outScan, uint64_t& keptPoints, const ProgressCallback& progress = {});
     bool balanceColorsAndWrite(tls::ScanGuid scanGuid, const TransformationModule& modelMat, const ClippingAssembly& clippingAssembly, int kMin, int kMax, double trimPercent, double sharpnessBlend, bool applyOnIntensity, bool applyOnRgb, const std::function<void(const GeometricBox&, std::vector<PointXYZIRGB>&)>& externalPointsProvider, IScanFileWriter* outScan, uint64_t& modifiedPoints, const ProgressCallback& progress = {});
     void collectPointsInGeometricBox(const GeometricBox& box, const ClippingAssembly& clippingAssembly, const tls::ScanGuid& excludedGuid, std::vector<PointXYZIRGB>& result);
     //tls::ScanGuid clipNewScan(tls::ScanGuid scanGuid, const glm::dmat4& modelMat, const ClippingAssembly& clippingAssembly, const std::filesystem::path& outPath, uint64_t& pointDeletedCount);
 
     // Lucas functions
-    bool rayTracing(const glm::dvec3& ray, const glm::dvec3& rayOrigin, glm::dvec3& bestPoint, const double& cosAngleThreshold, const ClippingAssembly& clippingAssembly, const bool& isOrtho, std::string& scanName);
-    bool rayTracingWithPoint(const glm::dvec3& ray, const glm::dvec3& rayOrigin, glm::dvec3& bestPoint, PointXYZIRGB& bestPointData, const double& cosAngleThreshold, const ClippingAssembly& clippingAssembly, const bool& isOrtho, std::string& scanName);
+    bool rayTracing(const glm::dvec3& ray, const glm::dvec3& rayOrigin, glm::dvec3& bestPoint, const double& cosAngleThreshold, const ClippingAssembly& clippingAssembly, const bool& isOrtho, std::string& scanName, const RayTracingDisplayFilterSettings* displayFilterSettings = nullptr);
+    bool rayTracingWithPoint(const glm::dvec3& ray, const glm::dvec3& rayOrigin, glm::dvec3& bestPoint, PointXYZIRGB& bestPointData, const double& cosAngleThreshold, const ClippingAssembly& clippingAssembly, const bool& isOrtho, std::string& scanName, const RayTracingDisplayFilterSettings* displayFilterSettings = nullptr);
     bool findNeighborsBucketsDirected(const glm::dvec3& globalSeedPoint, const glm::dvec3& directedPoint, const double& radius, std::vector<std::vector<glm::dvec3>>& neighborList, int numberOfBuckets, const ClippingAssembly& clippingAssembly);
     bool findNeighborsBuckets(const glm::dvec3& globalSeedPoint, const double& radius, std::vector<std::vector<glm::dvec3>>& neighborList, int numberOfBuckets, const ClippingAssembly& clippingAssembly);
     bool findNeighborsBucketsTest(const glm::dvec3& globalSeedPoint, const double& radius, std::vector<std::vector<glm::dvec3>>& neighborList, int numberOfBuckets, const ClippingAssembly& clippingAssembly, std::vector<glm::dquat>& rotations, std::vector<glm::dvec3>& positions, std::vector<double>& scales);
@@ -425,14 +435,42 @@ private:
 
     std::vector<glm::dvec3> samplePoints(const int& numberOfPoints, const ClippingAssembly& clippingAssembly);
     static bool isCylinderCloseToPreviousCylinders(const std::vector<glm::dvec3>& cylinderCenters, const std::vector<glm::dvec3>& cylinderDirections, const std::vector<double>& cylinderRadii, const glm::dvec3& cCenter, const glm::dvec3& cDirection, const double& cRadius);
+    // Ensure a scan is available in m_activeScans.
+    // The caller must hold m_activeMutex.
+    bool ensureScanActive_locked(tls::ScanGuid scanGuid);
+    tls::ScanGuid resolveRuntimeGuid_locked(const tls::ScanGuid& fileGuid, const std::filesystem::path& scanPath);
+    // Evict deletable active scans until size <= targetMax (excluding preserveGuid).
+    void trimActiveScans_locked(size_t targetMax, tls::ScanGuid preserveGuid);
 
 private:
+    // Aggregated counters to diagnose massive GUID reload behaviors
+    // (large projects reopening hundreds/thousands of scans).
+    struct GuidLookupStats
+    {
+        uint64_t totalCalls = 0;
+        uint64_t successCount = 0;
+        uint64_t failedOpenOrInvalidGuid = 0;
+        uint64_t cacheHitCount = 0;
+        uint64_t insertedActiveCount = 0;
+        uint64_t activeScanPeak = 0;
+    };
+
+    void logGuidLookupStatsLocked(const char* reason) const;
+
     std::mutex m_activeMutex;
     std::atomic<bool> m_haltStream;
 
     // Accessible files and scans
     std::unordered_map<tls::ScanGuid, EmbeddedScan*> m_activeScans;
+    // Persistent GUID->path knowledge, independent from currently active runtime scans.
+    std::unordered_map<tls::ScanGuid, std::filesystem::path> m_scanPathByGuid;
+    // Hotfix (Pass 2.1):
+    // Keep a stable runtime GUID per absolute path to prevent different files that share
+    // the same TLS header GUID from being merged into a single runtime identity.
+    std::unordered_map<std::string, tls::ScanGuid> m_runtimeGuidByPath;
+    std::unordered_map<tls::ScanGuid, tls::ScanGuid> m_runtimeGuidToFileGuid;
     static thread_local std::vector<WorkingScanInfo> s_workingScansTransfo;
+    GuidLookupStats m_guidLookupStats;
 
     // Inaccessible scans waiting to be deleted (some frames after their last rendering)
     std::list<EmbeddedScan*> m_scansToFree;

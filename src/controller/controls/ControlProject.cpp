@@ -15,6 +15,7 @@
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataTemplate.h"
 #include "gui/GuiData/GuiDataIO.h"
+#include "gui/GuiData/GuiDataUserOrientation.h"
 #include "gui/Texts.hpp"
 #include "gui/texts/ContextTexts.hpp"
 
@@ -25,6 +26,7 @@
 #include "models/graph/GraphManager.h"
 
 #include "pointCloudEngine/PCE_core.h"
+#include "vulkan/VulkanManager.h"
 
 #include "utils/FilesAndFoldersDefinitions.h"
 #include "utils/Config.h"
@@ -113,8 +115,10 @@ namespace control::project
             if (lang == LanguageType::Nothing)
                 lang = Config::getLanguage();
 
+            // Keep project bootstrap files consistent with what the loader expects.
             SaveLoadSystem::ExportTemplates(sma::GenerateDefaultTemplates(lang), slsError, context.cgetProjectInternalInfo().getTemplatesFolderPath() / File_Templates);
             SaveLoadSystem::ExportLists(generateDefaultLists(lang), context.cgetProjectInternalInfo().getTemplatesFolderPath() / File_Lists);
+            SaveLoadSystem::ExportLists(generateDefaultPipeStandardList(), context.cgetProjectInternalInfo().getTemplatesFolderPath() / File_Pipes);
         }
         else
         {
@@ -228,6 +232,28 @@ namespace control::project
         controller.updateInfo(new GuiDataSendTemplateList(controller.getContext().getTemplates()));
 
         controller.updateInfo(new GuiDataCameraInfo(controller.getGraphManager().getCameraNode()));
+        {
+            ReadPtr<CameraNode> rCam = controller.getGraphManager().getCameraNode().cget();
+            if (rCam && rCam->m_viewpointUserOrientationEnabled && !rCam->m_viewpointUserOrientationId.empty())
+            {
+                auto itUo = context.getUserOrientations().find(xg::Guid(rCam->m_viewpointUserOrientationId));
+                if (itUo != context.getUserOrientations().end())
+                {
+                    context.setActiveUserOrientation(itUo->second);
+                    controller.updateInfo(new GuiDataSetUserOrientation(itUo->second));
+                }
+                else
+                {
+                    context.setActiveUserOrientation(UserOrientation());
+                    controller.updateInfo(new GuiDataUnsetUserOrientation());
+                }
+            }
+            else
+            {
+                context.setActiveUserOrientation(UserOrientation());
+                controller.updateInfo(new GuiDataUnsetUserOrientation());
+            }
+        }
 
         controller.updateInfo(new GuiDataGlobalColorPickerValue(controller.getContext().getActiveColor()));
 
@@ -249,7 +275,7 @@ namespace control::project
 
         /*Note (Aurélien) : Temporary (or not), set default clipping parameters*/
         const ProjectInfos& info(controller.getContext().cgetProjectInfo());
-        controller.updateInfo(new GuiDataDefaultClipParams(info.m_defaultMinClipDistance, info.m_defaultMaxClipDistance, info.m_defaultClipMode));
+        controller.updateInfo(new GuiDataDefaultClipParams(info.m_defaultMinClipDistance, info.m_defaultMaxClipDistance, info.m_defaultLengthThresholdClip, info.m_defaultClipMode));
         controller.updateInfo(new GuiDataDefaultRampParams(info.m_defaultMinRampDistance, info.m_defaultMaxRampDistance, info.m_defaultRampSteps));
         loadTemperatureScale(controller);
 
@@ -386,6 +412,17 @@ namespace control::project
 
         controller.updateInfo(new GuiDataSplashScreenStart(TEXT_PROJECT_CLOSING, GuiDataSplashScreenStart::SplashScreenType::Display));
 
+        // Ensure any running animation is stopped before pausing the render loop.
+        // This avoids shutdown deadlocks when quitting while an animation is active.
+        CONTROLLOG << "control::project::Close stopping active animation before render pause" << LOGENDL;
+        controller.updateInfo(new GuiDataRenderStopAnimation());
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+        constexpr auto kRenderPauseTimeout = std::chrono::milliseconds(2000);
+        bool renderPaused = VulkanManager::getInstance().requestRenderPauseAndWait(kRenderPauseTimeout);
+        if (!renderPaused)
+            CONTROLLOG << "control::project::Close render pause ack timeout" << LOGENDL;
+
         // Close all project info in the Gui
         controller.getGraphManager().cleanProjectObjects();
         controller.updateInfo(new GuiDataUndoRedoAble(false, false));
@@ -404,6 +441,8 @@ namespace control::project
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             counter++;
         }
+
+        VulkanManager::getInstance().resumeRender();
         controller.updateInfo(new GuiDataSplashScreenEnd(GuiDataSplashScreenEnd::SplashScreenType::Display));
 
         CONTROLLOG << "control::project::Close[end]" << LOGENDL;
@@ -793,5 +832,35 @@ namespace control::project
     ControlType ShowProperties::getType() const
     {
         return (ControlType::showPropertiesProject);
+    }
+
+    SetAnimationLockImageSettings::SetAnimationLockImageSettings(bool locked)
+        : m_locked(locked)
+    {}
+
+    SetAnimationLockImageSettings::~SetAnimationLockImageSettings()
+    {}
+
+    void SetAnimationLockImageSettings::doFunction(Controller& controller)
+    {
+        ProjectInfos& infos = controller.getContext().getProjectInfo();
+        infos.m_animationLockImageSettings = m_locked;
+        controller.updateInfo(new GuiDataProjectProperties(controller.getContext(), controller.getGraphManager(), false));
+        controller.updateInfo(new GuiDataRenderViewpointImageSettingsLock(m_locked));
+    }
+
+    bool SetAnimationLockImageSettings::canUndo() const
+    {
+        return false;
+    }
+
+    void SetAnimationLockImageSettings::undoFunction(Controller& controller)
+    {
+        (void)controller;
+    }
+
+    ControlType SetAnimationLockImageSettings::getType() const
+    {
+        return ControlType::setAnimationLockImageSettingsProject;
     }
 }

@@ -50,7 +50,7 @@
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>Polyline measurement. ESC to finish</string>
+      <string>Polyline measurement. To finish: double click, Enter/Return, or ESC.</string>
      </property>
      <property name="text">
       <string>Polyline</string>
@@ -82,7 +82,7 @@
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>Simple measure between 2 points . Key D</string>
+      <string>Simple measure between 2 points . Shortcut d</string>
      </property>
      <property name="text">
       <string>Simple</string>

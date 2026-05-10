@@ -58,6 +58,9 @@
        <height>0</height>
       </size>
      </property>
+     <property name="toolTip">
+      <string>The identifier will be applied to new objects.</string>
+     </property>
     </widget>
    </item>
    <item row="0" column="0">
@@ -74,6 +77,9 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="toolTip">
+      <string>The name will be applied to new objects.</string>
      </property>
     </widget>
    </item>
@@ -102,6 +108,9 @@
    </item>
    <item row="1" column="4">
     <widget class="QComboBox" name="phaseComboBox">
+     <property name="toolTip">
+      <string>The selected phase will be applied to new objects.</string>
+     </property>
      <property name="currentText">
       <string/>
      </property>
@@ -125,6 +134,9 @@
    </item>
    <item row="0" column="4">
     <widget class="QComboBox" name="disciplineComboBox">
+     <property name="toolTip">
+      <string>The selected discipline will be applied to new objects.</string>
+     </property>
      <property name="currentText">
       <string/>
      </property>
@@ -148,6 +160,9 @@
    </item>
    <item row="2" column="0">
     <widget class="QLabel" name="colorLabel">
+     <property name="toolTip">
+      <string>The color defined will be applied to new objects.</string>
+     </property>
      <property name="text">
       <string>Color</string>
      </property>

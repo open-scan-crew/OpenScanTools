@@ -16,12 +16,12 @@ public:
 	bool begin(const std::filesystem::path& fileName);
 	bool end();
 
-	bool text(std::wstring name, int layer, const glm::vec3& center, float radius);
-	bool point(float x, float y, float z, int layer);
+	bool text(std::wstring name, int layer, const glm::dvec3& center, double radius);
+	bool point(double x, double y, double z, int layer);
 
-	bool drawFace(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, int layer);
-	bool drawLine(const glm::vec3& p1, const glm::vec3& p2, int layer);
-	bool drawTarget(const glm::vec3& center, int layer);
+	bool drawFace(const glm::dvec3& p1, const glm::dvec3& p2, const glm::dvec3& p3, int layer);
+	bool drawLine(const glm::dvec3& p1, const glm::dvec3& p2, int layer);
+	bool drawTarget(const glm::dvec3& center, int layer);
 
 protected:
 

@@ -20,6 +20,34 @@
 
 #include "pointCloudEngine/PCE_core.h"
 
+#include <algorithm>
+#include <cwctype>
+
+namespace
+{
+    std::wstring normalizePathKey(std::filesystem::path path)
+    {
+        path = path.lexically_normal();
+        std::wstring key = path.generic_wstring();
+#ifdef _WIN32
+        std::transform(key.begin(), key.end(), key.begin(), towlower);
+#endif
+        return key;
+    }
+
+    bool arePathsEquivalent(const std::filesystem::path& lhs, const std::filesystem::path& rhs)
+    {
+        if (lhs.empty() || rhs.empty())
+            return false;
+
+        std::error_code ec;
+        if (std::filesystem::equivalent(lhs, rhs, ec))
+            return true;
+
+        return normalizePathKey(lhs) == normalizePathKey(rhs);
+    }
+}
+
 GraphManager::GraphManager(IDataDispatcher& dataDispatcher)
     : m_root(make_safe<AGraphNode>())
     , m_meshManager(&MeshManager::getInstance())
@@ -595,12 +623,21 @@ uint32_t GraphManager::getActiveClippingAndRampCount() const
 
 uint32_t GraphManager::getPCOcounters(const tls::ScanGuid& scan) const
 {
+    return getPCOcounters(scan, true);
+}
+
+uint32_t GraphManager::getPCOcounters(const tls::ScanGuid& scan, bool includeDeadNodes) const
+{
     return (uint32_t)getNodesOnFilter<PointCloudNode>(
-            [](ReadPtr<AGraphNode>& node)
-            { return node->getType() == ElementType::PCO || node->getType() == ElementType::Scan; },
-            [&scan](ReadPtr<PointCloudNode>& node)
-            { return node->getScanGuid() == scan; }
-        ).size();
+        [](ReadPtr<AGraphNode>& node)
+        { return node->getType() == ElementType::PCO || node->getType() == ElementType::Scan; },
+        [&scan, includeDeadNodes](ReadPtr<PointCloudNode>& node)
+        {
+            if (!includeDeadNodes && node->isDead())
+                return false;
+            return node->getScanGuid() == scan;
+        }
+    ).size();
 }
 
 std::unordered_set<SafePtr<TagNode>> GraphManager::getTagsWithTemplate(SafePtr<sma::TagTemplate> tagTemplate) const
@@ -629,7 +666,7 @@ bool GraphManager::isFilePathOrScanExists(const std::wstring& name, const std::f
         if (type == ElementType::Scan)
         {
             ReadPtr<PointCloudNode> readScan = static_pointer_cast<PointCloudNode>(objectPtr).cget();
-            if (readScan && (readScan->getName() == name || readScan->getTlsFilePath() == filePath))
+            if (readScan && (readScan->getName() == name || arePathsEquivalent(readScan->getTlsFilePath(), filePath)))
                 return (true);
         }
     }
@@ -717,6 +754,8 @@ std::unordered_set<SafePtr<PointCloudNode>> GraphManager::getVisibleScans(const 
         [](ReadPtr<AGraphNode>& node) {
             return node->getType() == ElementType::Scan; },
         [&pano](ReadPtr<PointCloudNode>& scan) {
+            if (scan->isDead())
+                return false;
             return ((pano == xg::Guid() && scan->isVisible()) || scan->getScanGuid() == pano); }
             );
 }
@@ -740,7 +779,7 @@ std::vector<tls::PointCloudInstance> GraphManager::getPointCloudInstances(const 
                 },
                 [&pano](ReadPtr<PointCloudNode>& node)
                 {
-                    return (pano != xg::Guid() && node->getScanGuid() == pano);
+                    return !node->isDead() && (pano != xg::Guid() && node->getScanGuid() == pano);
                 }
             );
 
@@ -769,7 +808,7 @@ std::vector<tls::PointCloudInstance> GraphManager::getPointCloudInstances(const 
                 bool verifState = (filterStatus == ObjectStatusFilter::ALL ||
                     (filterStatus == ObjectStatusFilter::VISIBLE && node->isVisible()) ||
                     (filterStatus == ObjectStatusFilter::SELECTED && node->isSelected()));
-                return verifType && verifState;
+                return !node->isDead() && verifType && verifState;
             }
         );
 
@@ -789,6 +828,17 @@ std::vector<tls::PointCloudInstance> GraphManager::getPointCloudInstances(const 
             transfo = rPc->getCumulTransformationModule();
         result.push_back(tls::PointCloudInstance{ header, transfo, rPc->getClippable(), rPc->getPhase() });
     }
+
+    // Diagnostic trace:
+    // Summarize selected point-cloud instances to correlate tree visibility and runtime scan usage.
+    Logger::log(LoggerMode::IOLog)
+        << "GraphManager::getPointCloudInstances"
+        << " pano=" << pano
+        << " getScans=" << getScans
+        << " getPcos=" << getPcos
+        << " filterStatus=" << static_cast<int>(filterStatus)
+        << " resultCount=" << result.size()
+        << Logger::endl;
 
     return (result);
 }

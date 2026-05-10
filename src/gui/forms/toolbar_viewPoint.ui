@@ -31,6 +31,10 @@
    </property>
    <item row="0" column="0">
     <widget class="QToolButton" name="createToolButton">
+     <property name="toolTip">
+      <string>Viewpoints store all visibility settings and filters.
+They allow you to save various views without having to reset the settings.</string>
+     </property>
      <property name="text">
       <string>Create</string>
      </property>

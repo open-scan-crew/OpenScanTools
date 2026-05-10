@@ -99,7 +99,6 @@ void StandardListDialog::clickOnItem(const QModelIndex &idx)
 		m_ui.DuplicateBtn->setEnabled(true);
 		m_ui.ExportBtn->setEnabled(true);
 	}
-	GUI_LOG << "click on item" << LOGENDL;
 }
 
 void StandardListDialog::addNewList()

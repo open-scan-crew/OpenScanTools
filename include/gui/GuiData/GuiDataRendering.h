@@ -12,9 +12,11 @@
 #include "utils/Color32.hpp"
 #include "utils/safe_ptr.h"
 #include "models/3d/NavigationTypes.h"
+#include "models/application/ViewPointAnimation.h"
 
 #include <filesystem>
 #include <cstdint>
+#include <vector>
 
 class IPanel;
 
@@ -236,6 +238,19 @@ public:
 	int m_saturation;
 };
 
+class GuiDataRenderCartoonOptions : public GuiDataActiveCamera
+{
+public:
+	GuiDataRenderCartoonOptions(int valueLevels, int saturationMinPercent, int saturationLevels, SafePtr<CameraNode> camera);
+	~GuiDataRenderCartoonOptions() {};
+	virtual guiDType getType() override;
+
+public:
+	int m_valueLevels;
+	int m_saturationMinPercent;
+	int m_saturationLevels;
+};
+
 class GuiDataRenderTransparency : public GuiDataActiveCamera
 {
 public:
@@ -251,15 +266,17 @@ public:
 class GuiDataRenderTransparencyOptions : public GuiDataActiveCamera
 {
 public:
-	GuiDataRenderTransparencyOptions(bool negativeColors, bool reduceFlash, bool flashAdvanced, float flashControl, float hlt, SafePtr<CameraNode> camera);
+	GuiDataRenderTransparencyOptions(bool negativeColors, bool reduceFlash, bool flashAdvanced, float kneeStart, float kneeSoftness, float advancedBoost, float hlt, SafePtr<CameraNode> camera);
 	~GuiDataRenderTransparencyOptions() {};
 	virtual guiDType getType() override;
 
 public:
 	bool m_negativeEffect;
 	bool m_reduceFlash;
-    bool m_flashAdvanced;
-    float m_flashControl;
+	bool m_flashAdvanced;
+	float m_highlightKneeStart;
+	float m_highlightKneeSoftness;
+	float m_advancedFlashBoost;
 	float m_highLuminosityThreshold;
 };
 
@@ -327,15 +344,15 @@ public:
 	PostRenderingAmbientOcclusion m_ao;
 };
 
-class GuiDataEdgeAwareBlur : public GuiDataActiveCamera
+class GuiDataColorNoiseReduction : public GuiDataActiveCamera
 {
 public:
-        GuiDataEdgeAwareBlur(const EdgeAwareBlur& blurSettings, SafePtr<CameraNode> camera);
-        ~GuiDataEdgeAwareBlur() {};
+        GuiDataColorNoiseReduction(const ColorNoiseReduction& blurSettings, SafePtr<CameraNode> camera);
+        ~GuiDataColorNoiseReduction() {};
         virtual guiDType getType() override;
 
 public:
-        EdgeAwareBlur m_blur;
+        ColorNoiseReduction m_blur;
 };
 
 class GuiDataDepthLining : public GuiDataActiveCamera
@@ -375,8 +392,38 @@ public:
 class GuiDataRenderStartAnimation : public IGuiData
 {
 public:
-	GuiDataRenderStartAnimation() {}
+	GuiDataRenderStartAnimation(bool isOrbital = false, double durationSeconds = 0.0, bool resume = false, int orbitalDegrees = 360, bool interpolateViewpointRenderings = false, bool verticalOrbital = false)
+		: m_isOrbital(isOrbital)
+		, m_durationSeconds(durationSeconds)
+		, m_resume(resume)
+		, m_orbitalDegrees(orbitalDegrees)
+		, m_interpolateViewpointRenderings(interpolateViewpointRenderings)
+		, m_verticalOrbital(verticalOrbital)
+	{}
 	~GuiDataRenderStartAnimation() {}
+	virtual guiDType getType() override;
+
+	const bool m_isOrbital;
+	const double m_durationSeconds;
+	const bool m_resume;
+	const int m_orbitalDegrees;
+	const bool m_interpolateViewpointRenderings;
+	const bool m_verticalOrbital;
+};
+
+class GuiDataRenderPauseAnimation : public IGuiData
+{
+public:
+	GuiDataRenderPauseAnimation() {}
+	~GuiDataRenderPauseAnimation() {}
+	virtual guiDType getType() override;
+};
+
+class GuiDataRenderAnimationPlaybackStart : public IGuiData
+{
+public:
+	GuiDataRenderAnimationPlaybackStart() {}
+	~GuiDataRenderAnimationPlaybackStart() {}
 	virtual guiDType getType() override;
 };
 
@@ -413,6 +460,37 @@ public:
 	virtual guiDType getType() override;
 
 	const uint16_t m_speed;
+};
+
+class GuiDataRenderAnimationToolbarState : public IGuiData
+{
+public:
+	GuiDataRenderAnimationToolbarState(bool canStart);
+	~GuiDataRenderAnimationToolbarState() {}
+	virtual guiDType getType() override;
+
+	const bool m_canStart;
+};
+
+class GuiDataRenderViewpointImageSettingsLock : public IGuiData
+{
+public:
+	GuiDataRenderViewpointImageSettingsLock(bool lockImageSettings);
+	~GuiDataRenderViewpointImageSettingsLock() {}
+	virtual guiDType getType() override;
+
+	const bool m_lockImageSettings;
+};
+
+class GuiDataSendViewPointAnimationData : public IGuiData
+{
+public:
+	GuiDataSendViewPointAnimationData(const std::vector<ViewPointAnimationConfig>& animations, const std::vector<AnimationViewpointInfo>& viewpoints);
+	~GuiDataSendViewPointAnimationData() {}
+	virtual guiDType getType() override;
+
+	const std::vector<ViewPointAnimationConfig> m_animations;
+	const std::vector<AnimationViewpointInfo> m_viewpoints;
 };
 
 class GuiDataRenderRecordPerformances : public IGuiData
@@ -623,6 +701,18 @@ public:
 	virtual guiDType getType() override;
 public:
 	ColorimetricFilterSettings m_settings;
+};
+
+class GuiDataRenderPolygonalSelector : public GuiDataActiveCamera
+{
+public:
+	GuiDataRenderPolygonalSelector(const PolygonalSelectorSettings& settings, const SafePtr<CameraNode>& camera, const std::vector<glm::vec2>& previewVertices = {}, bool previewClosed = false);
+	~GuiDataRenderPolygonalSelector() {};
+	virtual guiDType getType() override;
+public:
+	PolygonalSelectorSettings m_settings;
+	std::vector<glm::vec2> m_previewVertices;
+	bool m_previewClosed = false;
 };
 
 class GuiDataColorimetricFilterPickValue : public IGuiData

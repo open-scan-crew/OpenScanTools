@@ -8,6 +8,7 @@
 #include "io/exports/DataSerializer.h"
 #include "io/imports/DataDeserializer.h"
 #include "pointCloudEngine/PCE_core.h"
+#include "pointCloudEngine/TlScanOverseer.h"
 
 #include "utils/Config.h"
 #include "utils/Logger.h"
@@ -49,6 +50,7 @@
 #include "models/application/Author.h"
 #include "models/application/Ids.hpp"
 #include "models/application/List.h"
+#include "models/application/ViewPointAnimation.h"
 
 
 // External libs
@@ -60,6 +62,9 @@
 #include <filesystem>
 #include <fstream>
 #include <algorithm>
+#include <chrono>
+#include <thread>
+#include <cwctype>
 
 #define SAVELOADSYSTEMVERSION 2.0f
 
@@ -71,6 +76,33 @@ static const std::unordered_map<SaveLoadSystem::ObjectsFileType, std::pair<std::
 , {SaveLoadSystem::ObjectsFileType::Tld_Backup, {std::string(File_Extension_Tags) + File_Extension_Backup, Key_Tags}}
 , {SaveLoadSystem::ObjectsFileType::Tlv_Backup, {std::string(File_Extension_ViewPoints) + File_Extension_Backup, Key_ViewPoints}}
 };
+
+namespace
+{
+    std::wstring normalizePathKey(std::filesystem::path path)
+    {
+        path = path.lexically_normal();
+        std::wstring key = path.generic_wstring();
+#ifdef _WIN32
+        std::transform(key.begin(), key.end(), key.begin(), towlower);
+#endif
+        return key;
+    }
+
+    bool arePathsEquivalent(const std::filesystem::path& lhs, const std::filesystem::path& rhs)
+    {
+        if (lhs.empty() || rhs.empty())
+            return false;
+
+        std::error_code ec;
+        if (std::filesystem::equivalent(lhs, rhs, ec))
+            return true;
+
+        // Fallback for cases where equivalent() cannot resolve one path but both refer
+        // to the same location with different textual forms.
+        return normalizePathKey(lhs) == normalizePathKey(rhs);
+    }
+}
 
 
 std::filesystem::path getExplicitPath(const ProjectInternalInfo& project, const std::filesystem::path& file)
@@ -86,6 +118,14 @@ nlohmann::json exportUserOrientationBlock(const ControllerContext& context)
     IOLOG << "export UserOrientation" << LOGENDL;
     for (const std::pair<userOrientationId, UserOrientation>& orientation : context.cgetUserOrientations())
         structureObject.push_back(DataSerializer::Serialize(orientation.second));
+    return structureObject;
+}
+
+nlohmann::json exportViewPointAnimationBlock(const ControllerContext& context)
+{
+    nlohmann::json structureObject = nlohmann::json::array();
+    for (const std::pair<viewPointAnimationId, ViewPointAnimationConfig>& animation : context.cgetViewPointAnimations())
+        structureObject.push_back(DataSerializer::Serialize(animation.second));
     return structureObject;
 }
 
@@ -114,6 +154,10 @@ std::unordered_map<StandardType, std::vector<StandardList>> ImportStandards(cons
         IOLOG << "Error : Cannot find " << importPath << LOGENDL;
         return (standards);
     }
+
+    // Standards are optional in object files. Absence of the key is not an import error.
+    if (jsonTemplates.find(Key_Standards) == jsonTemplates.end())
+        return (standards);
 
     if (!DataDeserializer::DeserializeStandards(jsonTemplates, standards))
         IOLOG << "Error import standards" << LOGENDL;
@@ -346,7 +390,22 @@ std::unordered_set<SafePtr<AGraphNode>> SaveLoadSystem::LoadFileObjects(Controll
                 continue;
 
             std::filesystem::path pcPath = findPointCloudPath(wPCNode, internalInfo, folder);
-            wPCNode->setTlsFilePath(pcPath, false);
+            tls::ScanGuid resolvedGuid;
+            if (forceCopy)
+            {
+                // Keep the previous behavior for copy workflows:
+                // the scan must be registered as active to be used by tlCopyScanFile.
+                tlGetScanGuid(pcPath, resolvedGuid);
+            }
+            else
+            {
+                // Pass 2.1:
+                // For standard project reload, resolve GUID without activating
+                // a runtime scan resource (prevents massive active-scan buildup).
+                tlLookupScanGuid(pcPath, resolvedGuid);
+            }
+
+            wPCNode->setTlsFilePath(pcPath, false, resolvedGuid, false);
             if (wPCNode->getScanGuid() == tls::ScanGuid())
                 failedFileImport.insert(object);
             else if (forceCopy)
@@ -365,13 +424,16 @@ std::unordered_set<SafePtr<AGraphNode>> SaveLoadSystem::LoadFileObjects(Controll
                 WritePtr<MeshObjectNode> wMesh = mesh.get();
                 if (!wMesh)
                     continue;
-                if (MeshManager::getInstance().isMeshLoaded(wMesh->getMeshId()))
+                MeshManager& meshManager = MeshManager::getInstance();
+                if (meshManager.isMeshLoaded(wMesh->getMeshId()))
+                {
+                    meshManager.addMeshInstance(wMesh->getMeshId());
                     continue;
+                }
                 if (folder.empty())
                     folder = internalInfo.getObjectsFilesFolderPath();
                 from = folder / wMesh->getFilePath().filename();
 
-                MeshManager& meshManager = MeshManager::getInstance();
                 ret = meshManager.reloadMeshFile(*&wMesh, folder, &controller);
             }
 
@@ -767,7 +829,6 @@ void LoadTagFile(Controller& controller, std::unordered_map<SafePtr<AGraphNode>,
             loadObj[tagNode] = std::pair(guid, iterator);
         }
     }
-
     controller.getContext().addProjectAuthors({ author });
     IOLOG << "project import tag from " << tagFilePath.stem() << LOGENDL;
 
@@ -1106,16 +1167,28 @@ void SaveLoadSystem::importJsonProject(const std::filesystem::path& importPath, 
 
     for (const std::filesystem::path& p : objectPathsList)
     {
+        // Ignore folders and unrelated files to avoid noisy "Cannot find" import logs.
+        if (!std::filesystem::is_regular_file(p))
+            continue;
+
+        const std::filesystem::path extension = p.extension();
+        const bool isObjectPayload = extension == File_Extension_Tags
+                                  || extension == File_Extension_Objects
+                                  || extension == File_Extension_ViewPoints;
+
+        if (!isObjectPayload)
+            continue;
+
         controller.getContext().setUserLists(ImportLists<UserList>(p));
         controller.getContext().setTemplates(ImportTemplates(controller, p));
         for (const auto& standardType : ImportStandards(p))
             controller.getContext().setStandards(standardType.second, standardType.first);
 
-        if (p.extension() == File_Extension_Tags)
+        if (extension == File_Extension_Tags)
             LoadTagFile(controller, loadObjs, p);
-        else if (p.extension() == File_Extension_Objects)
+        else if (extension == File_Extension_Objects)
             LoadObjFile(controller, loadObjs, p);
-        else if (p.extension() == File_Extension_ViewPoints)
+        else if (extension == File_Extension_ViewPoints)
             LoadViewPointsFile(controller, loadObjs, p);
     }
 
@@ -1171,6 +1244,16 @@ void SaveLoadSystem::importJsonProject(const std::filesystem::path& importPath, 
     {
         controller.updateInfo(new GuiDataSendUserOrientationList(std::unordered_map<uint32_t, std::pair<userOrientationId, QString>>()));
         errorMsg += TEXT_TEMPLATE_INVALID_USER_ORIENTATION.toStdString();
+    }
+
+    if (jsonProject.find(Key_ViewPointAnimations) != jsonProject.end() && jsonProject.at(Key_ViewPointAnimations).is_array())
+    {
+        for (const nlohmann::json& animationJson : jsonProject.at(Key_ViewPointAnimations))
+        {
+            ViewPointAnimationConfig config;
+            if (DataDeserializer::DeserializeViewPointAnimation(animationJson, config))
+                context.getViewPointAnimations().insert_or_assign(config.getId(), config);
+        }
     }
 
     IOLOG << "Importation over\n" << LOGENDL;
@@ -1233,9 +1316,12 @@ SafePtr<PointCloudNode> SaveLoadSystem::ImportNewTlsFile(const std::filesystem::
     ControllerContext& context = controller.getContext();
 
     tls::ScanGuid scanGuid;
-    if (tlGetScanGuid(filePath, scanGuid) == false)
+    // Block B (import/drag&drop):
+    // Resolve GUID without creating a long-lived active scan upfront.
+    if (tlLookupScanGuid(filePath, scanGuid) == false)
     {
-        IOLOG << "Error: " << filePath << " is not a valid tls file." << LOGENDL;
+        IOLOG << "Error: cannot resolve TLS GUID for [" << filePath
+            << "] (invalid tls content or file open access failure)." << LOGENDL;
         errorCode = ErrorCode::Failed_To_Open;
         return SafePtr<PointCloudNode>();
     }
@@ -1244,20 +1330,46 @@ SafePtr<PointCloudNode> SaveLoadSystem::ImportNewTlsFile(const std::filesystem::
     if (graphManager.isFilePathOrScanExists(filePath.stem().wstring(), filePath) == true)
     {
         IOLOG << "Error : file or name already exists in the project : " << filePath.stem().string() << LOGENDL;
-        // TODO - Ask the user if he want to save the Scanunder an other name (or append it)
-        //return ("Error : file or name already exists and the Scanhas been copied");
-        errorCode = ErrorCode::Failed_Write_Permission;
+        // Dedicated status so UI can report "already exists" as an ignored import
+        // instead of a generic write/open failure.
+        errorCode = ErrorCode::Already_Exists;
         return SafePtr<PointCloudNode>();
     }
 
     std::filesystem::path filename(filePath.filename());
     std::filesystem::path dst_path = context.cgetProjectInternalInfo().getPointCloudFolderPath(is_object) / filename;
-    // Asynchronous copy
-    // The availability of the name in the filesystem is checked by the PCE
-    if (!std::filesystem::exists(dst_path))
-        tlCopyScanFile(scanGuid, dst_path, true, false, false);
+    const bool fileAlreadyInProjectStorage = arePathsEquivalent(filePath, dst_path);
+    std::filesystem::path effectivePath = filePath;
+
+    if (!fileAlreadyInProjectStorage)
+    {
+        // Block B:
+        // Copy physically without requiring active runtime registration in TlScanOverseer.
+        // This avoids reaching the ~507 active scan resource ceiling during batch imports.
+        std::error_code sameFileEc;
+        if (!std::filesystem::equivalent(filePath, dst_path, sameFileEc))
+        {
+            try
+            {
+                std::filesystem::copy(filePath, dst_path, std::filesystem::copy_options::overwrite_existing);
+            }
+            catch (const std::exception& e)
+            {
+                IOLOG << "Error: TLS import copy failed from [" << filePath << "] to [" << dst_path << "]: " << e.what() << LOGENDL;
+                errorCode = ErrorCode::Failed_Write_Permission;
+                return SafePtr<PointCloudNode>();
+            }
+        }
+        effectivePath = dst_path;
+    }
     else
-        IOLOG << "INFO: " << filePath << " already exist." << LOGENDL;
+    {
+        IOLOG << "INFO - TLS file already in project storage, skip physical copy: " << dst_path << LOGENDL;
+        effectivePath = filePath;
+    }
+
+    // Register the authoritative path so lazy activation can resolve runtime access on demand.
+    TlScanOverseer::getInstance().registerScanPath(scanGuid, effectivePath);
 
     uint64_t nbScanBeforeImport = controller.getGraphManager().getNodesByTypes({ ElementType::Scan }).size();
     SafePtr<PointCloudNode> pc = make_safe<PointCloudNode>(is_object);
@@ -1273,7 +1385,7 @@ SafePtr<PointCloudNode> SaveLoadSystem::ImportNewTlsFile(const std::filesystem::
         wpc->setDefaultData(controller);
         if (!is_object)
             wpc->setManipulable(Config::isUnlockScanManipulation());
-        wpc->setTlsFilePath(dst_path, true, scanGuid);
+        wpc->setTlsFilePath(effectivePath, true, scanGuid);
         if (!is_object)
             wpc->setColor(Color32(rand() % 255, rand() % 255, rand() % 255, 255));
     }
@@ -1528,6 +1640,7 @@ bool SaveLoadSystem::ExportProject(Controller& controller, const std::unordered_
     }
 
     jsonProject[Key_UserOrientations] = exportUserOrientationBlock(context);
+    jsonProject[Key_ViewPointAnimations] = exportViewPointAnimationBlock(context);
 
     if (!utils::writeJsonFile(exportPath, jsonProject))
     {
@@ -2051,16 +2164,28 @@ void SaveLoadSystem::importAuthorObjects(const std::vector<std::filesystem::path
     std::unordered_map<SafePtr<AGraphNode>, std::pair<xg::Guid, nlohmann::json>> loadObjs;
     for (const std::filesystem::path& p : importFiles)
     {
+        // Keep import resilient to folder selections and unsupported files.
+        if (!std::filesystem::is_regular_file(p))
+            continue;
+
+        const std::filesystem::path extension = p.extension();
+        const bool isObjectPayload = extension == File_Extension_Tags
+                                  || extension == File_Extension_Objects
+                                  || extension == File_Extension_ViewPoints;
+
+        if (!isObjectPayload)
+            continue;
+
         controller.getContext().setUserLists(ImportLists<UserList>(p));
         controller.getContext().setTemplates(ImportTemplates(controller, p));
         for (const auto& standardType : ImportStandards(p))
             controller.getContext().setStandards(standardType.second, standardType.first);
 
-        if (p.extension() == File_Extension_Tags)
+        if (extension == File_Extension_Tags)
             LoadTagFile(controller, loadObjs, p);
-        else if (p.extension() == File_Extension_Objects)
+        else if (extension == File_Extension_Objects)
             LoadObjFile(controller, loadObjs, p);
-        else if (p.extension() == File_Extension_ViewPoints)
+        else if (extension == File_Extension_ViewPoints)
             LoadViewPointsFile(controller, loadObjs, p);
     }
 

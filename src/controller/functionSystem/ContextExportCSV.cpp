@@ -323,7 +323,7 @@ ContextState ContextExportCSV::launch(Controller& controller)
             }
 
             glm::dvec3 decalExport = (m_primitiveExportParam.exportWithScanImportTranslation ? -controller.getContext().getProjectInfo().m_importScanTranslation : glm::dvec3(0.));
-            glm::vec3 position = transfoModule.getCenter() + decalExport;
+            glm::dvec3 position = transfoModule.getCenter() + decalExport;
 
             switch (type)
             {
@@ -332,7 +332,7 @@ ContextState ContextExportCSV::launch(Controller& controller)
                 ReadPtr<PointCloudNode> readScan = static_pointer_cast<PointCloudNode>(dataPtr).cget();
                 if (!readScan)
                     continue;
-                glm::vec3 rotation = tls::math::quat_to_euler_zyx_deg(transfoModule.getOrientation());
+                glm::dvec3 rotation = tls::math::quat_to_euler_zyx_deg(transfoModule.getOrientation());
                 writer << readScan->getName() << position.x << position.y << position.z << rotation.x << rotation.y << rotation.z << readScan->getNbPoint();
             }
             break;
@@ -362,7 +362,7 @@ ContextState ContextExportCSV::launch(Controller& controller)
                 if (!readBbm)
                     continue;
                 Color32 color = readBbm->getColor();
-                glm::vec3 position = readBbm->getMaxBendingPos() + decalExport;
+                glm::dvec3 position = readBbm->getMaxBendingPos() + decalExport;
                 double tolerance(context.cgetProjectInfo().m_beamBendingTolerance);
                 if (tolerance)
                     tolerance = 1.0 / tolerance;
@@ -377,7 +377,7 @@ ContextState ContextExportCSV::launch(Controller& controller)
                 if (!readCtm)
                     continue;
                 Color32 color = readCtm->getColor();
-                glm::vec3 position = readCtm->getTopPoint() + decalExport;
+                glm::dvec3 position = readCtm->getTopPoint() + decalExport;
                 double tolerance(context.cgetProjectInfo().m_columnTiltTolerance);
                 if (tolerance)
                     tolerance = 1.0 / tolerance;
@@ -430,7 +430,7 @@ ContextState ContextExportCSV::launch(Controller& controller)
                 if (!readBox)
                     continue;
                 Color32 color = readBox->getColor();
-                glm::vec3 size = readBox->getSize();
+                glm::dvec3 size = readBox->getSize();
                 glm::dvec3 eulers(tls::math::quat_to_euler_zyx_deg(readBox->getOrientation()));
                 writer << position.x << position.y << position.z << eulers.x << eulers.y << eulers.z << size.x << size.y << size.z << Utils::wRoundFloat(objectVolume, DECIMAL);
             }
@@ -441,9 +441,9 @@ ContextState ContextExportCSV::launch(Controller& controller)
                 if (!readPtp)
                     continue;
 
-                glm::vec3 pipe1Pos = readPtp->getPipe1Center() + decalExport;
-                glm::vec3 pipe2Pos = readPtp->getPipe2Center() + decalExport;
-                glm::vec3 projPos = readPtp->getProjPoint() + decalExport;
+                glm::dvec3 pipe1Pos = readPtp->getPipe1Center() + decalExport;
+                glm::dvec3 pipe2Pos = readPtp->getPipe2Center() + decalExport;
+                glm::dvec3 projPos = readPtp->getProjPoint() + decalExport;
 
                 writer << readPtp->getCenterP1ToAxeP2() << readPtp->getP1ToP2Horizontal() << readPtp->getP1ToP2Vertical() << readPtp->getTotalFootprint() <<
                     readPtp->getFreeDist() << readPtp->getFreeDistHorizontal() << readPtp->getFreeDistVertical() << readPtp->getPipe1Diameter() << readPtp->getPipe2Diameter() <<
@@ -457,10 +457,10 @@ ContextState ContextExportCSV::launch(Controller& controller)
                 if (!readPtpl)
                     continue;
 
-                glm::vec3 pipePos = readPtpl->getPipeCenter() + decalExport;
-                glm::vec3 planePos = readPtpl->getPointOnPlane() + decalExport;
-                glm::vec3 normVec = readPtpl->getNormalOnPlane();
-                glm::vec3 projPos = readPtpl->getProjPoint() + decalExport;
+                glm::dvec3 pipePos = readPtpl->getPipeCenter() + decalExport;
+                glm::dvec3 planePos = readPtpl->getPointOnPlane() + decalExport;
+                glm::dvec3 normVec = readPtpl->getNormalOnPlane();
+                glm::dvec3 projPos = readPtpl->getProjPoint() + decalExport;
 
                 writer << readPtpl->getCenterToPlaneDist() << readPtpl->getPlaneCenterHorizontal() << readPtpl->getPlaneCenterVertical() << readPtpl->getTotalFootprint() <<
                     readPtpl->getFreeDist() << readPtpl->getFreeDistHorizontal() << readPtpl->getFreeDistVertical() << readPtpl->getPipeDiameter() << readPtpl->getPointOnPlaneToProj() <<
@@ -474,9 +474,9 @@ ContextState ContextExportCSV::launch(Controller& controller)
                 if (!potp)
                     continue;
 
-                glm::vec3 pipePos = potp->getPipeCenter() + decalExport;
-                glm::vec3 pointPos = potp->getPointCoord() + decalExport;
-                glm::vec3 projPos = potp->getProjPoint() + decalExport;
+                glm::dvec3 pipePos = potp->getPipeCenter() + decalExport;
+                glm::dvec3 pointPos = potp->getPointCoord() + decalExport;
+                glm::dvec3 projPos = potp->getProjPoint() + decalExport;
 
                 writer << potp->getPointToAxeDist() << potp->getPointToAxeHorizontal() << potp->getPointToAxeVertical() << potp->getTotalFootprint() <<
                     potp->getFreeDist() << potp->getFreeDistHorizontal() << potp->getFreeDistVertical() << potp->getPipeDiameter() << potp->getPipeCenterToProj() <<
@@ -490,10 +490,10 @@ ContextState ContextExportCSV::launch(Controller& controller)
                 if (!potpl)
                     continue;
 
-                glm::vec3 pointPos = potpl->getPointCoord() + decalExport;
-                glm::vec3 planePos = potpl->getPointOnPlane() + decalExport;
-                glm::vec3 normVec = potpl->getNormalToPlane();
-                glm::vec3 projPos = potpl->getProjPoint() + decalExport;
+                glm::dvec3 pointPos = potpl->getPointCoord() + decalExport;
+                glm::dvec3 planePos = potpl->getPointOnPlane() + decalExport;
+                glm::dvec3 normVec = potpl->getNormalToPlane();
+                glm::dvec3 projPos = potpl->getProjPoint() + decalExport;
 
                 writer << potpl->getPointToPlaneD() << potpl->getHorizontal() << potpl->getVertical() << potpl->getPointProjToPlaneD() <<
                     planePos.x << planePos.y << planePos.z << pointPos.x << pointPos.y << pointPos.z <<
@@ -506,8 +506,8 @@ ContextState ContextExportCSV::launch(Controller& controller)
                 if (!sm)
                     continue;
 
-                glm::vec3 originPos = sm->getMeasure().origin + decalExport;
-                glm::vec3 finalPos = sm->getMeasure().final + decalExport;
+                glm::dvec3 originPos = sm->getMeasure().origin + decalExport;
+                glm::dvec3 finalPos = sm->getMeasure().final + decalExport;
 
                 writer << sm->getMeasure().getDistanceTotal() << sm->getMeasure().getDistanceHorizontal() << sm->getMeasure().getDistanceAlongZ()
                     << sm->getMeasure().getDistanceAlongX() << sm->getMeasure().getDistanceAlongY() << sm->getMeasure().getAngleHorizontal()
@@ -530,13 +530,13 @@ ContextState ContextExportCSV::launch(Controller& controller)
                     totalH += m.getDistanceHorizontal();
                 }
 
-                glm::vec3 originPos = pm->getFirstPos() + decalExport;
+                glm::dvec3 originPos = pm->getFirstPos() + decalExport;
 
                 writer << total << totalH << hV.getDistanceHorizontal() << hV.getDistanceAlongZ() << area.z << area.x << area.y
                     << originPos.x << originPos.y << originPos.z;
                 for (const Measure& m : pm->getMeasures())
                 {
-                    glm::vec3 nextPos = m.final + decalExport;
+                    glm::dvec3 nextPos = m.final + decalExport;
                     writer << nextPos.x << nextPos.y << nextPos.z << m.getDistanceTotal() << m.getDistanceHorizontal() << m.getDistanceAlongZ();
                 }
 

@@ -141,9 +141,9 @@
         <property name="checked">
          <bool>true</bool>
         </property>
-      </widget>
-     </item>
-    </layout>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
    <item row="0" column="4">
@@ -157,7 +157,7 @@
      <property name="checked">
       <bool>true</bool>
      </property>
-   </widget>
+    </widget>
    </item>
    <item row="1" column="11">
     <widget class="QLabel" name="label_scale">
@@ -311,6 +311,9 @@
    </item>
    <item row="0" column="11">
     <widget class="QLabel" name="label_antialiasing">
+     <property name="toolTip">
+      <string>Improves images. Requires more computing time.</string>
+     </property>
      <property name="text">
       <string>Antialiasing</string>
      </property>

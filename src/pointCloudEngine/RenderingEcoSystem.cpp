@@ -55,6 +55,7 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
     std::hash<uint64_t> hash_fn_64;
     std::hash<bool> hash_fn_b;
     std::hash<float> hash_fn_f;
+    std::hash<double> hash_fn_d;
     std::hash<int> hash_fn_i;
     std::hash<std::wstring> hash_fn_w;
 
@@ -112,6 +113,11 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
     hash += hash_fn_f(display.m_saturation);
     hash += hash_fn_f(display.m_luminance);
     hash += hash_fn_f(display.m_hue);
+    // Keep Cartoon uniforms in the frame hash so editing these UI settings triggers
+    // an immediate point-cloud refresh without requiring camera interaction.
+    hash += hash_fn_i(display.m_cartoonValueLevels);
+    hash += hash_fn_i(display.m_cartoonSaturationMinPercent);
+    hash += hash_fn_i(display.m_cartoonSaturationLevels);
     hash += hash_vec3(display.m_flatColor);
     hash += hash_fn_f(display.m_distRampMin);
     hash += hash_fn_f(display.m_distRampMax);
@@ -121,7 +127,9 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
     hash += hash_fn_32((uint32_t)display.m_negativeEffect);
     hash += hash_fn_32((uint32_t)display.m_reduceFlash);
     hash += hash_fn_32((uint32_t)display.m_flashAdvanced);
-    hash += hash_fn_f(display.m_flashControl);
+    hash += hash_fn_f(display.m_highlightKneeStart);
+    hash += hash_fn_f(display.m_highlightKneeSoftness);
+    hash += hash_fn_f(display.m_advancedFlashBoost);
     hash += hash_fn_f(display.m_transparency);
 
     hash += hash_fn_b(display.m_postRenderingNormals.show);
@@ -132,11 +140,11 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
     hash += hash_fn_b(display.m_postRenderingAmbientOcclusion.enabled);
     hash += hash_fn_f(display.m_postRenderingAmbientOcclusion.radius);
     hash += hash_fn_f(display.m_postRenderingAmbientOcclusion.intensity);
-    hash += hash_fn_b(display.m_edgeAwareBlur.enabled);
-    hash += hash_fn_f(display.m_edgeAwareBlur.radius);
-    hash += hash_fn_f(display.m_edgeAwareBlur.depthThreshold);
-    hash += hash_fn_f(display.m_edgeAwareBlur.blendStrength);
-    hash += hash_fn_f(display.m_edgeAwareBlur.resolutionScale);
+    hash += hash_fn_b(display.m_colorNoiseReduction.enabled);
+    hash += hash_fn_f(display.m_colorNoiseReduction.radius);
+    hash += hash_fn_f(display.m_colorNoiseReduction.depthAwareThreshold);
+    hash += hash_fn_f(display.m_colorNoiseReduction.strength);
+    hash += hash_fn_f(display.m_colorNoiseReduction.resolutionScale);
     hash += hash_fn_b(display.m_depthLining.enabled);
     hash += hash_fn_f(display.m_depthLining.strength);
     hash += hash_fn_f(display.m_depthLining.threshold);
@@ -149,6 +157,60 @@ uint64_t HashFrame::hashRenderingData(VkExtent2D viewportExtent, const glm::dmat
     {
         hash += hash_fn_32(*reinterpret_cast<uint32_t const*>(&display.m_colorimetricFilter.colors[i]));
         hash += hash_fn_b(display.m_colorimetricFilter.colorsEnabled[i]);
+    }
+
+    hash += hash_fn_b(display.m_polygonalSelector.enabled);
+    hash += hash_fn_b(display.m_polygonalSelector.showSelected);
+    hash += hash_fn_b(display.m_polygonalSelector.active);
+    hash += hash_fn_b(display.m_polygonalSelector.pendingApply);
+    hash += hash_fn_32(display.m_polygonalSelector.appliedPolygonCount);
+    hash += hash_fn_64(static_cast<uint64_t>(display.m_polygonalSelector.polygons.size()));
+    for (const PolygonalSelectorPolygon& polygon : display.m_polygonalSelector.polygons)
+    {
+        hash += hash_fn_64(static_cast<uint64_t>(polygon.normalizedVertices.size()));
+        for (const glm::vec2& vertex : polygon.normalizedVertices)
+        {
+            hash += hash_fn_f(vertex.x);
+            hash += hash_fn_f(vertex.y);
+        }
+
+        for (int c = 0; c < 4; ++c)
+            for (int r = 0; r < 4; ++r)
+            {
+                hash += hash_fn_d(polygon.camera.view[c][r]);
+                hash += hash_fn_d(polygon.camera.proj[c][r]);
+            }
+        hash += hash_fn_32(polygon.camera.viewportWidth);
+        hash += hash_fn_32(polygon.camera.viewportHeight);
+        hash += hash_fn_b(polygon.camera.perspective);
+
+        hash += hash_fn_64(static_cast<uint64_t>(polygon.snapshotUnion.size()));
+        for (const PolygonalSelectorPolygon::SnapshotClip& clip : polygon.snapshotUnion)
+        {
+            hash += hash_fn_32(static_cast<uint32_t>(clip.shape));
+            hash += hash_fn_32(static_cast<uint32_t>(clip.mode));
+            hash += hash_fn_f(clip.params.x);
+            hash += hash_fn_f(clip.params.y);
+            hash += hash_fn_f(clip.params.z);
+            hash += hash_fn_f(clip.params.w);
+            for (int c = 0; c < 4; ++c)
+                for (int r = 0; r < 4; ++r)
+                    hash += hash_fn_d(clip.matRTInv[c][r]);
+        }
+
+        hash += hash_fn_64(static_cast<uint64_t>(polygon.snapshotIntersection.size()));
+        for (const PolygonalSelectorPolygon::SnapshotClip& clip : polygon.snapshotIntersection)
+        {
+            hash += hash_fn_32(static_cast<uint32_t>(clip.shape));
+            hash += hash_fn_32(static_cast<uint32_t>(clip.mode));
+            hash += hash_fn_f(clip.params.x);
+            hash += hash_fn_f(clip.params.y);
+            hash += hash_fn_f(clip.params.z);
+            hash += hash_fn_f(clip.params.w);
+            for (int c = 0; c < 4; ++c)
+                for (int r = 0; r < 4; ++r)
+                    hash += hash_fn_d(clip.matRTInv[c][r]);
+        }
     }
 
     //hash += hash_fn_f(display.m_alphaObject);             // Do not affect the point cloud

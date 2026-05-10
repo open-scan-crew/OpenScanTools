@@ -3,6 +3,7 @@
 
 #include "gui/IPanel.h"
 #include "gui/IDataDispatcher.h"
+#include "controller/functionSystem/AContext.h"
 
 #include <QtWidgets/qshortcut.h>
 #include <deque>
@@ -25,6 +26,7 @@ public:
 public slots :
 	void slotDelete();
 	void slotAbort();
+	void slotValidateCurrentContext();
 	void slotBackground();
 	void slotManipulatorTranslation();
 	void slotManipulatorRotation();
@@ -57,6 +59,7 @@ private:
 private:
 	bool m_isEditing;
 	bool m_notInContext;
+	ContextType m_activeContext;
 	IDataDispatcher& m_dataDispatcher;
 
 	std::deque<ShortcutDef> m_shortcutDefs;

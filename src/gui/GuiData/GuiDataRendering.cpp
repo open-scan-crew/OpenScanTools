@@ -220,6 +220,19 @@ guiDType GuiDataRenderSaturation::getType()
 	return guiDType::renderSaturation;
 }
 
+//*** Cartoon RGB options ***//
+GuiDataRenderCartoonOptions::GuiDataRenderCartoonOptions(int valueLevels, int saturationMinPercent, int saturationLevels, SafePtr<CameraNode> camera)
+	: GuiDataActiveCamera(camera)
+	, m_valueLevels(valueLevels)
+	, m_saturationMinPercent(saturationMinPercent)
+	, m_saturationLevels(saturationLevels)
+{}
+
+guiDType GuiDataRenderCartoonOptions::getType()
+{
+	return guiDType::renderCartoonOptions;
+}
+
 //*** Transparency ***//
 GuiDataRenderTransparency::GuiDataRenderTransparency(BlendMode mode, float _transparencyValue, SafePtr<CameraNode> camera)
 	: GuiDataActiveCamera(camera)
@@ -234,12 +247,14 @@ guiDType GuiDataRenderTransparency::getType()
 
 //*** Transparency Options ***//
 
-GuiDataRenderTransparencyOptions::GuiDataRenderTransparencyOptions(bool negativeEffect, bool reduceFlash, bool flashAdvanced, float flashControl, float hlt, SafePtr<CameraNode> camera)
+GuiDataRenderTransparencyOptions::GuiDataRenderTransparencyOptions(bool negativeEffect, bool reduceFlash, bool flashAdvanced, float kneeStart, float kneeSoftness, float advancedBoost, float hlt, SafePtr<CameraNode> camera)
 	: GuiDataActiveCamera(camera)
 	, m_negativeEffect(negativeEffect)
 	, m_reduceFlash(reduceFlash)
-    , m_flashAdvanced(flashAdvanced)
-    , m_flashControl(flashControl)
+	, m_flashAdvanced(flashAdvanced)
+	, m_highlightKneeStart(kneeStart)
+	, m_highlightKneeSoftness(kneeSoftness)
+	, m_advancedFlashBoost(advancedBoost)
 	, m_highLuminosityThreshold(hlt)
 {}
 
@@ -333,14 +348,14 @@ guiDType GuiDataRenderAmbientOcclusion::getType()
 	return guiDType::renderAmbientOcclusion;
 }
 
-GuiDataEdgeAwareBlur::GuiDataEdgeAwareBlur(const EdgeAwareBlur& blurSettings, SafePtr<CameraNode> camera)
+GuiDataColorNoiseReduction::GuiDataColorNoiseReduction(const ColorNoiseReduction& blurSettings, SafePtr<CameraNode> camera)
         : GuiDataActiveCamera(camera)
         , m_blur(blurSettings)
 {}
 
-guiDType GuiDataEdgeAwareBlur::getType()
+guiDType GuiDataColorNoiseReduction::getType()
 {
-        return  guiDType::renderEdgeAwareBlur;
+        return  guiDType::renderColorNoiseReduction;
 }
 
 GuiDataDepthLining::GuiDataDepthLining(const DepthLining& liningSettings, SafePtr<CameraNode> camera)
@@ -386,6 +401,16 @@ guiDType GuiDataRenderStartAnimation::getType()
 	return guiDType::renderStartAnimation;
 }
 
+guiDType GuiDataRenderPauseAnimation::getType()
+{
+	return guiDType::renderPauseAnimation;
+}
+
+guiDType GuiDataRenderAnimationPlaybackStart::getType()
+{
+	return guiDType::renderAnimationPlaybackStart;
+}
+
 guiDType GuiDataRenderStopAnimation::getType()
 {
 	return guiDType::renderStopAnimation;
@@ -405,6 +430,24 @@ guiDType GuiDataRenderAnimationSpeed::getType()
 	return guiDType::renderAnimationSpeed;
 }
 
+GuiDataRenderAnimationToolbarState::GuiDataRenderAnimationToolbarState(bool canStart)
+	: m_canStart(canStart)
+{}
+
+guiDType GuiDataRenderAnimationToolbarState::getType()
+{
+	return guiDType::renderAnimationToolbarState;
+}
+
+GuiDataRenderViewpointImageSettingsLock::GuiDataRenderViewpointImageSettingsLock(bool lockImageSettings)
+	: m_lockImageSettings(lockImageSettings)
+{}
+
+guiDType GuiDataRenderViewpointImageSettingsLock::getType()
+{
+	return guiDType::renderViewpointImageSettingsLock;
+}
+
 GuiDataRenderAnimationLoop::GuiDataRenderAnimationLoop(const bool& loop)
 	:_loop(loop)
 {}
@@ -412,6 +455,16 @@ GuiDataRenderAnimationLoop::GuiDataRenderAnimationLoop(const bool& loop)
 guiDType GuiDataRenderAnimationLoop::getType()
 {
 	return guiDType::renderAnimationLoop;
+}
+
+GuiDataSendViewPointAnimationData::GuiDataSendViewPointAnimationData(const std::vector<ViewPointAnimationConfig>& animations, const std::vector<AnimationViewpointInfo>& viewpoints)
+	: m_animations(animations)
+	, m_viewpoints(viewpoints)
+{}
+
+guiDType GuiDataSendViewPointAnimationData::getType()
+{
+	return guiDType::sendViewPointAnimationData;
 }
 
 GuiDataRenderRecordPerformances::GuiDataRenderRecordPerformances(const std::filesystem::path& file)
@@ -646,6 +699,18 @@ GuiDataRenderColorimetricFilter::GuiDataRenderColorimetricFilter(const Colorimet
 guiDType GuiDataRenderColorimetricFilter::getType()
 {
 	return guiDType::renderColorimetricFilter;
+}
+
+GuiDataRenderPolygonalSelector::GuiDataRenderPolygonalSelector(const PolygonalSelectorSettings& settings, const SafePtr<CameraNode>& camera, const std::vector<glm::vec2>& previewVertices, bool previewClosed)
+	: GuiDataActiveCamera(camera)
+	, m_settings(settings)
+	, m_previewVertices(previewVertices)
+	, m_previewClosed(previewClosed)
+{}
+
+guiDType GuiDataRenderPolygonalSelector::getType()
+{
+	return guiDType::renderPolygonalSelector;
 }
 
 GuiDataColorimetricFilterPickValue::GuiDataColorimetricFilterPickValue(const Color32& color, uint8_t intensity)

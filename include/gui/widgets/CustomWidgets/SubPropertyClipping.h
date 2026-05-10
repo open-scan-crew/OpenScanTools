@@ -35,6 +35,7 @@ public slots:
 	void onActiveClipping();
 	void onMinClipDistEdit();
 	void onMaxClipDistEdit();
+	void onLengthThresholdClipEdit();
 
 	void onRampActive(bool active);
 	void onRampMin();

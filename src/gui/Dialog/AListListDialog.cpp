@@ -12,7 +12,6 @@ AListListDialog::AListListDialog(IDataDispatcher& dataDispatcher, QWidget *paren
 	, m_openPath(QStandardPaths::locate(QStandardPaths::DocumentsLocation, QString(), QStandardPaths::LocateDirectory))
 {
 	m_ui.setupUi(this);
-	GUI_LOG << "create AListListDialog" << LOGENDL;
 
 	m_ui.RemoveBtn->setEnabled(false);
 	m_ui.EditBtn->setEnabled(false);
@@ -50,7 +49,6 @@ AListListDialog::AListListDialog(IDataDispatcher& dataDispatcher, QWidget *paren
 
 AListListDialog::~AListListDialog()
 {
-	GUI_LOG << "destroy AListListDialog" << LOGENDL;
 	m_dataDispatcher.unregisterObserver(this);
 }
 
@@ -71,7 +69,6 @@ void AListListDialog::onProjectPath(IGuiData* data)
 
 void AListListDialog::showTreeMenu(QPoint p)
 {
-	//GUI_LOG << "show Tree Menu" << LOGENDL;
 	m_idSaved = m_ui.listListView->indexAt(p);
 	if (m_idSaved.isValid() == false)
 		return;

@@ -53,6 +53,17 @@ namespace control
             void undoFunction(Controller& controller) override;
             ControlType getType() const override;
         };
+
+        class StartFilteredScansExport : public AControl
+        {
+        public:
+            StartFilteredScansExport();
+            ~StartFilteredScansExport();
+            void doFunction(Controller& controller) override;
+            bool canUndo() const override;
+            void undoFunction(Controller& controller) override;
+            ControlType getType() const override;
+        };
     }
 }
 

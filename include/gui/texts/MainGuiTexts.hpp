@@ -60,6 +60,7 @@
 #define TEXT_TEXT_DISPLAY QObject::tr("Text Display")
 #define TEXT_MARKER_DISPLAY_OPTIONS QObject::tr("Marker Display Options")
 #define TEXT_CLIPPING_GROUP_NAME QObject::tr("Objects clipping")
+#define TEXT_POLYGONAL_SELECTOR QObject::tr("Polygonal selector")
 #define TEXT_NORMALS_OPTIONS QObject::tr("Normals")
 #define TEXT_ORTHO_GRID QObject::tr("Ortho Grid")
 #define TEXT_TAB_TRANSPARENCY QObject::tr("Transparency")

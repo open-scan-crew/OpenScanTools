@@ -11,8 +11,10 @@
 
 #include "glm/glm.hpp"
 
+#include <chrono>
 #include <mutex>
 #include <unordered_map>
+#include <vector>
 
 #include <QtGui/QWindow.h>
 
@@ -109,6 +111,7 @@ public:
         None,
         DoubleClick,
         Click,
+        Validate,
         Examine,
         BeginManipulation,
         EndManipulation
@@ -128,6 +131,10 @@ public:
     void refreshHoveredId(uint32_t textId);
     Rect2D getSelectionRect() const;
     Rect2D getHoverRect() const;
+    const std::vector<glm::vec2>& getPolygonalSelectorPreview() const;
+    bool isPolygonalSelectorPreviewClosed() const;
+    bool isPolygonalSelectorEnabled() const;
+    bool isPolygonalSelectorShowSelected() const;
     glm::ivec2 getMousePos() const;
     glm::vec2 getMousePosNormalized() const;
     void setMissingScanPart(bool isMissingScanPart);
@@ -175,6 +182,7 @@ protected:
     void onRenderAnimationSpeed(IGuiData* data); // FIXME - Move to CameraNode
     void onRenderAnimationLoop(IGuiData* data);  // FIXME - Move to CameraNode
     void onRenderStartAnimation(IGuiData* data);  // FIXME - Move to CameraNode
+    void onRenderPauseAnimation(IGuiData* data);  // FIXME - Move to CameraNode
     void onRenderStopAnimation(IGuiData* data);  // FIXME - Move to CameraNode
     void onRenderCleanAnimationList(IGuiData* data);  // FIXME - Move to CameraNode
     void onUserOrientation(IGuiData* data); // FIXME - Move to CameraNode
@@ -182,6 +190,8 @@ protected:
     void onQuitEvent(IGuiData* data);
     void onRenderDecimationOptions(IGuiData* data);
 	void onRenderOctreePrecision(IGuiData* data);
+    void onActivatedFunctions(IGuiData* data);
+    void onRenderPolygonalSelectorPreview(IGuiData* data);
 
 private:
     void initSurface();
@@ -229,6 +239,13 @@ private:
     PickingManager m_pickingManager;
     Action m_actionToPull;
     bool m_forceObjectCenterOnExamine = false;
+    bool m_isDoubleClickExamineBlocked = false;
+    bool m_ignoreNextLeftReleaseClick = false;
+    bool m_lockNavigationForCurrentContext = false;
+    std::vector<glm::vec2> m_polygonalSelectorPreview;
+    bool m_polygonalSelectorPreviewClosed = false;
+    bool m_polygonalSelectorEnabled = false;
+    bool m_polygonalSelectorShowSelected = true;
 
     // Window state
     bool m_initialized;
@@ -278,6 +295,20 @@ private:
 
     // Animation
     bool m_saveImagesAnim;
+    bool m_isOrbitalAnimationActive = false;
+    bool m_isOrbitalAnimationPaused = false;
+    // One-frame guard to avoid applying stale user input on the same frame
+    // as a viewpoints animation start.
+    bool m_viewpointStartInputLockArmed = false;
+    bool m_orbitalUsesExamine = false;
+    bool m_orbitalVertical = false;
+    double m_orbitalDirectionSign = 1.0;
+    double m_orbitalDurationSeconds = 0.0;
+    double m_orbitalElapsedSeconds = 0.0;
+    double m_orbitalAppliedAngle = 0.0; // theoretical target reached
+    double m_orbitalAppliedRealAngle = 0.0; // physically applied by camera (after constraints)
+    double m_orbitalTotalAngleRad = 0.0;
+    std::chrono::steady_clock::time_point m_orbitalStartTime;
 };
 
 #endif // VULKAN_VIEWPORT_H_

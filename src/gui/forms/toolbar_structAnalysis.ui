@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>364</width>
+    <width>385</width>
     <height>98</height>
    </rect>
   </property>
@@ -44,6 +44,9 @@
    </item>
    <item row="0" column="2">
     <widget class="QLabel" name="tiltLabel">
+     <property name="toolTip">
+      <string>Max tilt / height ratio</string>
+     </property>
      <property name="text">
       <string>Max t/h 1/</string>
      </property>
@@ -75,7 +78,8 @@
      </property>
      <property name="toolTip">
       <string>Calculates the max bending value for beams without roll.
-Click on 2 points on the bottom face, close to the extremity. A tag is created at the max bending point.</string>
+Click on 2 points on the bottom face, close to the extremity. A tag is created at the max bending point.
+Tag colors: green=within tolerance, red=outside tolerance, orange=not reliable.</string>
      </property>
      <property name="text">
       <string>Beam Bending</string>
@@ -113,6 +117,9 @@ Click on 2 points on the bottom face, close to the extremity. A tag is created a
    </item>
    <item row="1" column="2">
     <widget class="QLabel" name="bendingLabel">
+     <property name="toolTip">
+      <string>Max bending / lentgh ratio</string>
+     </property>
      <property name="text">
       <string>Max b/l 1/</string>
      </property>
@@ -120,6 +127,9 @@ Click on 2 points on the bottom face, close to the extremity. A tag is created a
    </item>
    <item row="1" column="1">
     <widget class="QCheckBox" name="manualBeamBendingCheckBox">
+     <property name="toolTip">
+      <string>Click 3 points on the lower beam face: 2 at the extremities, one in the middle.</string>
+     </property>
      <property name="text">
       <string>Manual</string>
      </property>
@@ -134,7 +144,8 @@ Click on 2 points on the bottom face, close to the extremity. A tag is created a
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>First, set an axis perpendicular to the tilt direction. Then, click on a point at the bottom and one at the top of the column face.</string>
+      <string>First, set an axis perpendicular to the tilt direction. Then, click on a point at the bottom and one at the top of the column face.
+Tag colors: green=within tolerance, red=outside tolerance, orange=not reliable.</string>
      </property>
      <property name="text">
       <string>Column Tilt</string>

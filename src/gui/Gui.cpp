@@ -61,6 +61,7 @@
 #include "gui/toolBars/ToolBarRenderTransparency.h"
 #include "gui/toolBars/ToolBarRenderEnhance.h"
 #include "gui/toolBars/ToolBarClippingGroup.h"
+#include "gui/toolBars/ToolBarPolygonalSelector.h"
 #include "gui/toolBars/ToolBarMeasureShowOptions.h"
 #include "gui/toolBars/ToolBarStructureAnalysis.h"
 #include "gui/toolBars/ToolBarOthersModelsGroup.h"
@@ -83,7 +84,7 @@
 #include "gui/toolBars/ToolBarSlabGroup.h"
 #include "gui/toolBars/ToolBarOrthoGrid.h"
 #include "gui/toolBars/ToolBarAutoSeeding.h"
-#include "gui/toolBars/ToolBarExportVideo.h"
+#include "gui/toolBars/ToolBarAnimationGroup.h"
 #include "gui/toolBars/ToolBarManipulateObjects.h"
 #include "gui/toolBars/ToolBarConvertImage.h"
 #include "gui/DisplayPresetManager.h"
@@ -112,6 +113,7 @@
 #include "controller/controls/ControlProject.h"
 #include "controller/controls/ControlApplication.h"
 #include "controller/controls/ControlModal.h"
+#include "controller/controls/ControlAuthor.h"
 #include "controller/controls/ControlFunction.h"
 #include "controller/controls/ControlIO.h"
 
@@ -337,8 +339,9 @@ Gui::Gui(Controller& controller)
     // Add groups to the Clipping Tab
 	ribbonTabContent = new RibbonTabContent();
 	ribbonTabContent->addWidget(TEXT_ATTRIBUTE, new ToolBarAttributesGroup(controller, this, m_guiScale));
-	ribbonTabContent->addWidget(TEXT_BOX, new ToolBarClippingGroup(m_dataDispatcher, this, m_guiScale));
+	ribbonTabContent->addWidget(TEXT_BOX, new ToolBarClippingGroup(m_dataDispatcher, this, m_guiScale));	
 	ribbonTabContent->addWidget(TEXT_CLIPPING_GROUP_NAME, new ToolBarClippingParameters(m_dataDispatcher, this, m_guiScale));
+	ribbonTabContent->addWidget(TEXT_POLYGONAL_SELECTOR, new ToolBarPolygonalSelector(m_dataDispatcher, this, m_guiScale));
     m_ribbon->addTab(TEXT_CLIPPING, ribbonTabContent);
 
 	// Add groups to the Edition
@@ -362,7 +365,7 @@ Gui::Gui(Controller& controller)
 	ribbonTabContent->addWidget(TEXT_SHARE, new ToolBarShareGroup(m_dataDispatcher, this, m_guiScale));
 	ribbonTabContent->addWidget(TEXT_POINT_CLOUD, new ToolBarExportPointCloud(m_dataDispatcher, this, m_guiScale));
 	ribbonTabContent->addWidget(TEXT_IMAGE, new ToolBarImageGroup(m_dataDispatcher, this, m_guiScale));
-	ribbonTabContent->addWidget(TEXT_VIDEO, new ToolBarExportVideo(m_dataDispatcher, this, m_guiScale));
+	ribbonTabContent->addWidget(TEXT_ANIMATION, new ToolBarAnimationGroup(m_dataDispatcher, this, m_guiScale));
 	m_ribbon->addTab(TEXT_EXPORT, ribbonTabContent);
 
 	// Add groups to the Filter Tab
@@ -534,7 +537,11 @@ void Gui::informData(IGuiData *data)
 void Gui::launch()
 {
 	show();
-	m_projectGroup->manageAuthors(false);
+    m_dataDispatcher.sendControl(new control::author::SendAuthorList());
+
+    bool hasSessionAuthor = !Config::getSessionAuthorId().empty() || !Config::getSessionAuthorName().empty();
+    if (!hasSessionAuthor)
+	    m_projectGroup->manageAuthors(false);
 }
 
 void Gui::showWarningMBox(IGuiData * data)

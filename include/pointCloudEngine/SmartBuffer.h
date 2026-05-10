@@ -22,8 +22,10 @@ class SimpleBuffer
 public:
     VmaAllocation alloc = VK_NULL_HANDLE;
     VkBuffer buffer = VK_NULL_HANDLE;
-    // TODO - Remove and use the VmaAllocationInfo
+    // Logical VkBuffer size (buffer creation size)
     VkDeviceSize size = 0;
+    // Real allocation size returned by VMA (can be greater than `size`)
+    VkDeviceSize allocationSize = 0;
     bool isLocalMem = false;
 };
 

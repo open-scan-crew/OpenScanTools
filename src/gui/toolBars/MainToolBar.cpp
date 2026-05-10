@@ -13,12 +13,12 @@
 
 
 // MainToolBar
-#define TEXT_MAIN_TOOLBAR_NEW QObject::tr("New")
-#define TEXT_MAIN_TOOLBAR_OPEN QObject::tr("Open")
+#define TEXT_MAIN_TOOLBAR_NEW QObject::tr("Create a new project")
+#define TEXT_MAIN_TOOLBAR_OPEN QObject::tr("Open project")
 #define TEXT_MAIN_TOOLBAR_RECENT_PROJECTS QObject::tr("Recent Projects")
 #define TEXT_MAIN_TOOLBAR_SAVE QObject::tr("Save")
 #define TEXT_MAIN_TOOLBAR_CLOSE_PROJECT QObject::tr("Close Project")
-#define TEXT_MAIN_TOOLBAR_IMPORT_TLS QObject::tr("Import scans")
+#define TEXT_MAIN_TOOLBAR_IMPORT_TLS QObject::tr("Import Scans - please create a project or use an existing project before importing.")
 #define TEXT_MAIN_TOOLBAR_UNDO QObject::tr("Undo")
 #define TEXT_MAIN_TOOLBAR_REDO QObject::tr("Redo")
 #define TEXT_MAIN_TOOLBAR_MAX_SCREEN QObject::tr("Enter Maximize Screen")

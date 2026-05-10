@@ -59,7 +59,7 @@
        <item row="11" column="0" colspan="3">
         <widget class="QPushButton" name="boxExpand">
          <property name="toolTip">
-          <string>It's replacing the box by a grid</string>
+          <string>This feature divides a box into a grid. Use this if you want to split your scan export into smaller files.</string>
          </property>
          <property name="text">
           <string>Expand to Grid</string>

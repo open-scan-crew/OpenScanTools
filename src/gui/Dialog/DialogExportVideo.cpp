@@ -7,9 +7,8 @@
 #include "gui/GuiData/GuiDataGeneralProject.h"
 #include "gui/GuiData/GuiDataMessages.h"
 #include "gui/GuiData/GuiDataIO.h"
+#include "gui/texts/ContextTexts.hpp"
 #include "utils/Config.h"
-
-#include "models/graph/ViewPointNode.h"
 
 #include <QtWidgets/qfiledialog.h>
 #include <QtWidgets/QApplication>
@@ -17,6 +16,7 @@
 #include <QtWidgets/QSpinBox>
 #include <QtCore/QProcess>
 #include <QtCore/qstandardpaths.h>
+#include <algorithm>
 #include <filesystem>
 
 namespace
@@ -45,12 +45,6 @@ DialogExportVideo::DialogExportVideo(IDataDispatcher& dataDispatcher, QWidget *p
 
 	m_openPath = QStandardPaths::locate(QStandardPaths::DocumentsLocation, QString(), QStandardPaths::LocateDirectory);
 
-	connect(m_ui.betweenViewpointsRadioButton, &QPushButton::clicked, this, &DialogExportVideo::onAnimationModeSelection);
-	connect(m_ui.orbital360RadioButton, &QPushButton::clicked, this, &DialogExportVideo::onAnimationModeSelection);
-
-	connect(m_ui.pushButtonViewPoint1, &QPushButton::clicked, this, &DialogExportVideo::onViewpoint1Click);
-	connect(m_ui.pushButtonViewPoint2, &QPushButton::clicked, this, &DialogExportVideo::onViewpoint2Click);
-
     connect(m_ui.folderToolButton, &QToolButton::clicked, this, &DialogExportVideo::onSelectOutFolder);
 	connect(m_ui.fileToolButton, &QToolButton::clicked, this, &DialogExportVideo::onSelectOutFile);
 
@@ -58,12 +52,17 @@ DialogExportVideo::DialogExportVideo(IDataDispatcher& dataDispatcher, QWidget *p
     connect(m_ui.cancelPushButton, &QPushButton::clicked, this, &DialogExportVideo::cancelGeneration);
 
     m_dataDispatcher.registerObserverOnKey(this, guiDType::projectPath);
-    m_dataDispatcher.registerObserverOnKey(this, guiDType::objectSelected);
 	this->setMinimumWidth(344 * guiScale);
 	adjustSize();
 
     connect(m_ui.mp4RadioButton, &QRadioButton::toggled, this, &DialogExportVideo::onOutputTypeChanged);
     connect(m_ui.imageRadioButton, &QRadioButton::toggled, this, &DialogExportVideo::onOutputTypeChanged);
+
+    // The option to choose between an HD image and a screenshot has been hidden and set to HD image by default, so as not to add an extra layer of complexity for the user. However, both options are still available in case they are needed in the future.
+    m_ui.imageHDRadioButton->setChecked(true);
+    m_ui.label_4->setVisible(false);
+    m_ui.widget->setVisible(false);
+
     onOutputTypeChanged();
 }
 
@@ -80,64 +79,9 @@ void DialogExportVideo::informData(IGuiData *data)
 		{
 			auto dataType = static_cast<GuiDataProjectPath*>(data);
 			m_openPath = QString::fromStdWString(dataType->m_path.wstring());
-			m_ui.lineEditViewPoint1->clear();
-			m_ui.lineEditViewPoint2->clear();
-			m_parameters.start.reset();
-			m_parameters.finish.reset();
-		}
-		break;
-		case guiDType::objectSelected:
-		{
-			if (m_viewpointToEdit != 1 && m_viewpointToEdit != 2)
-				return;
-			auto dataType = static_cast<GuiDataObjectSelected*>(data);
-			if (dataType->m_type != ElementType::ViewPoint)
-				return;
-
-			SafePtr<ViewPointNode> viewpoint = static_pointer_cast<ViewPointNode>(dataType->m_object);
-			ReadPtr<ViewPointNode> rViewpoint = viewpoint.cget();
-			if (!rViewpoint)
-				return;
-			if (rViewpoint->getProjectionMode() == ProjectionMode::Orthographic)
-			{
-				m_dataDispatcher.updateInformation(new GuiDataWarning(TEXT_EXPORT_VIDEO_ORTHO_VIEWPOINT));
-				return;
-			}
-
-			if (m_viewpointToEdit == 1)
-			{
-				m_parameters.start = viewpoint;
-				m_ui.lineEditViewPoint1->setText(QString::fromStdWString(rViewpoint->getComposedName()));
-			}
-			else if(m_viewpointToEdit == 2)
-			{
-				m_parameters.finish = viewpoint;
-				m_ui.lineEditViewPoint2->setText(QString::fromStdWString(rViewpoint->getComposedName()));
-			}
-
-			m_viewpointToEdit = -1;
 		}
 		break;
     }
-}
-
-void DialogExportVideo::onAnimationModeSelection()
-{
-	bool betweenViewpoints = m_ui.betweenViewpointsRadioButton->isChecked();
-	m_ui.betweenViewpointsWidget->setEnabled(betweenViewpoints);
-	m_parameters.animMode = betweenViewpoints ? VideoAnimationMode::BETWEENVIEWPOINTS : VideoAnimationMode::ORBITAL;
-}
-
-void DialogExportVideo::onViewpoint1Click()
-{
-	m_ui.lineEditViewPoint1->clear();
-	m_viewpointToEdit = 1;
-}
-
-void DialogExportVideo::onViewpoint2Click()
-{
-	m_ui.lineEditViewPoint2->clear();
-	m_viewpointToEdit = 2;
 }
 
 void DialogExportVideo::onSelectOutFolder()
@@ -184,18 +128,12 @@ void DialogExportVideo::startGeneration()
         return;
     }
 
-	m_parameters.animMode = m_ui.betweenViewpointsRadioButton->isChecked() ? VideoAnimationMode::BETWEENVIEWPOINTS : VideoAnimationMode::ORBITAL;
+	m_parameters.animMode = m_animationMode;
 	if (m_parameters.animMode == VideoAnimationMode::BETWEENVIEWPOINTS)
 	{
-		if (!m_parameters.start || !m_parameters.finish)
+		if (m_animationConfigId == xg::Guid())
 		{
-			m_dataDispatcher.updateInformation(new GuiDataWarning(TEXT_EXPORT_VIDEO_MISSING_VIEWPOINTS));
-			return;
-		}
-
-		if (m_parameters.start == m_parameters.finish)
-		{
-			m_dataDispatcher.updateInformation(new GuiDataWarning(TEXT_EXPORT_VIDEO_SAME_VIEWPOINTS));
+			m_dataDispatcher.updateInformation(new GuiDataWarning(TEXT_CONTEXT_ANIMATION_NEED_TWO_VIEWPOINTS));
 			return;
 		}
 	}
@@ -227,11 +165,14 @@ void DialogExportVideo::startGeneration()
         m_parameters.outputFilePath.clear();
     }
 
-	m_parameters.length = m_ui.lengthSpinBox->value();
+	m_parameters.length = m_length;
+	m_parameters.viewPointAnimation = m_animationConfigId;
+	m_parameters.orbitalDegrees = m_orbitalDegrees;
+	m_parameters.verticalOrbital = m_verticalOrbital;
 	m_parameters.fps = m_ui.fpsSpinBox->value();
 	m_parameters.hdImage = m_ui.imageHDRadioButton->isChecked();
 	m_parameters.openFolderAfterExport = m_ui.openExplorerFolderCheckBox->isChecked();
-	m_parameters.interpolateRenderingBetweenViewpoints = m_ui.interpolateCheckBox->isChecked();
+	m_parameters.interpolateRenderingBetweenViewpoints = m_interpolateRenderings;
 
 	m_dataDispatcher.sendControl(new control::io::GenerateVideoHD(exportBasePath, m_parameters));
 
@@ -311,4 +252,35 @@ bool DialogExportVideo::isX265Available() const
     QString output = ffmpegCheck.readAllStandardOutput();
     output.append(ffmpegCheck.readAllStandardError());
     return output.contains("libx265", Qt::CaseInsensitive) || output.contains("x265", Qt::CaseInsensitive);
+}
+
+void DialogExportVideo::setAnimationMode(VideoAnimationMode mode)
+{
+	m_animationMode = mode;
+}
+
+void DialogExportVideo::setLength(int length)
+{
+	m_length = length;
+}
+
+void DialogExportVideo::setInterpolateRenderings(bool interpolate)
+{
+	m_interpolateRenderings = interpolate;
+}
+
+void DialogExportVideo::setAnimationConfigId(const viewPointAnimationId& id)
+{
+	m_animationConfigId = id;
+}
+
+void DialogExportVideo::setOrbitalDegrees(int degrees)
+{
+	m_orbitalDegrees = std::clamp(degrees, 1, m_verticalOrbital ? 180 : 360);
+}
+
+void DialogExportVideo::setVerticalOrbital(bool vertical)
+{
+	m_verticalOrbital = vertical;
+	m_orbitalDegrees = std::clamp(m_orbitalDegrees, 1, m_verticalOrbital ? 180 : 360);
 }

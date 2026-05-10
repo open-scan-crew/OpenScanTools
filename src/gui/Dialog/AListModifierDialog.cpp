@@ -19,12 +19,10 @@ AListModifierDialog::AListModifierDialog(IDataDispatcher& dataDispatcher, QDialo
 	//connect(m_ui.lineEditIndex, SIGNAL(editingFinished()), this, SLOT(changeUserIndex()));
 	QObject::connect(m_ui.NameLineEdit, SIGNAL(editingFinished()), this, SLOT(renameElem()));
 	QObject::connect(m_ui.RemoveBtn, SIGNAL(clicked()), this, SLOT(deleteElem()));
-	GUI_LOG << "create AListModifierDialog" << LOGENDL;
 }
 
 AListModifierDialog::~AListModifierDialog()
 {
-	GUI_LOG << "destroy AListModifierDialog" << LOGENDL;
 	m_dataDispatcher.unregisterObserver(this);
 }
 

@@ -1,6 +1,8 @@
 #include "controller/Controls/ControlClippingEdition.h"
 #include "controller/Controller.h"
 #include "controller/ControllerContext.h"
+
+#include <algorithm>
 #include "controller/controls/AEditionControl.hxx"
 
 #include "pointCloudEngine/RenderingLimits.h"
@@ -197,6 +199,29 @@ namespace control::clippingEdition
     }
 
     /*
+    ** SetLengthThresholdClip
+    */
+
+    SetLengthThresholdClip::SetLengthThresholdClip(SafePtr<AClippingNode> clipping, float value)
+        : ATEditionControl({ clipping }, value, "SetLengthThresholdClip", &ClippingData::setLengthThresholdClip, &ClippingData::getLengthThresholdClip)
+    {
+    }
+
+    SetLengthThresholdClip::SetLengthThresholdClip(const std::unordered_set<SafePtr<AClippingNode>>& clippings, float value)
+        : ATEditionControl(clippings, value, "SetLengthThresholdClip", &ClippingData::setLengthThresholdClip, &ClippingData::getLengthThresholdClip)
+    {
+    }
+
+    SetLengthThresholdClip::~SetLengthThresholdClip()
+    {
+    }
+
+    ControlType SetLengthThresholdClip::getType() const
+    {
+        return ControlType::setLengthThresholdClip;
+    }
+
+    /*
     ** SetDefaultMinClipDistance
     */
 
@@ -246,6 +271,32 @@ namespace control::clippingEdition
     ControlType SetDefaultMaxClipDistance::getType() const
     {
         return (ControlType::setDefaultMaxClipDistance);
+    }
+
+    /*
+    ** SetDefaultLengthThresholdClip
+    */
+
+    SetDefaultLengthThresholdClip::SetDefaultLengthThresholdClip(float value)
+        : m_value(value)
+    {}
+
+    SetDefaultLengthThresholdClip::~SetDefaultLengthThresholdClip()
+    {}
+
+    void SetDefaultLengthThresholdClip::doFunction(Controller& controller)
+    {
+        ProjectInfos& info = controller.getContext().getProjectInfo();
+
+        CONTROLLOG << "control::clippingEdition::SetDefaultLengthThresholdClip do : change value from " << info.m_defaultLengthThresholdClip << " to " << m_value << LOGENDL;
+        info.m_defaultLengthThresholdClip = std::max(0.f, m_value);
+
+        CONTROLLOG << "control::clippingEdition::SetDefaultLengthThresholdClip do : done" << LOGENDL;
+    }
+
+    ControlType SetDefaultLengthThresholdClip::getType() const
+    {
+        return (ControlType::setDefaultLengthThresholdClip);
     }
 
     /*

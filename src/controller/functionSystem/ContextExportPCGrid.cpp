@@ -204,6 +204,10 @@ ContextState ContextExportPCGrid::process(Controller& controller)
 
             tls::ScanHeader dstScanHeader;
             dstScanHeader.name = stringStream.str();
+            // Pass 2.2-A / 2.2-B contract:
+            // Grid TLS exports are rebuilt outputs and must use explicit fresh GUIDs
+            // (never copied from input scan GUIDs).
+            dstScanHeader.guid = xg::newGuid();
             dstScanHeader.transfo = tls::Transformation{ {0, 0, 0, 1}, {boxe.getCenter().x, boxe.getCenter().y, boxe.getCenter().z} };
             // Initialize precision and point count
             dstScanHeader.precision = m_parameters.encodingPrecision;

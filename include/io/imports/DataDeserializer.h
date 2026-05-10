@@ -32,6 +32,7 @@ class CameraNode;
 class Author;
 class ProjectInfos;
 class UserOrientation;
+class ViewPointAnimationConfig;
 
 namespace sma
 {
@@ -74,6 +75,7 @@ namespace DataDeserializer
     bool DeserializeStandards(const nlohmann::json& json, std::unordered_map<StandardType, std::vector<StandardList>>& data);
 
     bool DeserializeUserOrientation(const nlohmann::json& json, UserOrientation& data);
+    bool DeserializeViewPointAnimation(const nlohmann::json& json, ViewPointAnimationConfig& data);
     bool DeserializeAuthor(const nlohmann::json& json, Author& auth);
     bool DeserializeProjectInfos(const nlohmann::json& json, const Controller& controller, ProjectInfos& data);
     bool DeserializeTagTemplate(const nlohmann::json& json, const Controller& controller, sma::TagTemplate& data);

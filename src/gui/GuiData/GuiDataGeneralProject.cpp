@@ -223,9 +223,10 @@ guiDType GuiDataTolerances::getType()
 }
 
 // **** GuiDataDefaultClipParams ****
-GuiDataDefaultClipParams::GuiDataDefaultClipParams(float min, float max, ClippingMode mode)
+GuiDataDefaultClipParams::GuiDataDefaultClipParams(float min, float max, float lengthThreshold, ClippingMode mode)
 	: m_minClipDistance(min)
 	, m_maxClipDistance(max)
+	, m_lengthThresholdClip(lengthThreshold)
 	, m_mode(mode)
 {}
 

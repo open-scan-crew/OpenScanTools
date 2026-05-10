@@ -29,6 +29,7 @@
 #include "controller/functionSystem/ContextDeletePoints.h"
 #include "controller/functionSystem/ContextStatisticalOutlierFilter.h"
 #include "controller/functionSystem/ContextColorBalanceFilter.h"
+#include "controller/functionSystem/ContextFilteredScansExport.h"
 #include "controller/functionSystem/ContextMultipleCylindersMeasure.h"
 #include "controller/functionSystem/ContextPointCreation.h"
 #include "controller/functionSystem/Context4ClicsSphere.h"
@@ -61,6 +62,7 @@
 #include "controller/functionSystem/ContextTrajectory.h"
 #include "controller/functionSystem/ContextMoveManip.h"
 #include "controller/functionSystem/ContextManipulateObjects.h"
+#include "controller/functionSystem/ContextPolygonalSelector.h"
 
 
 #ifndef PORTABLE
@@ -166,6 +168,8 @@ AContext* ContextFactory::createContext(const ContextType& type, ContextId& id, 
 			return new ContextCreateBoxAttached2Points(id);
 		case ContextType::clippingBoxAttached3Points:
 			return new ContextCreateBoxAttached3Points(id);
+		case ContextType::polygonalSelector:
+			return new ContextPolygonalSelector(id);
 		case ContextType::boxDuplication:
 			return new ContextBoxDuplication(id);
 		case ContextType::pointCloudObjectDuplication:
@@ -196,6 +200,8 @@ AContext* ContextFactory::createContext(const ContextType& type, ContextId& id, 
 			return new ContextStatisticalOutlierFilter(id);
 		case ContextType::colorBalanceFilter:
 			return new ContextColorBalanceFilter(id);
+		case ContextType::filteredScansExport:
+			return new ContextFilteredScansExport(id);
 		case ContextType::pointCreation:
 			return new ContextPointCreation(id);
 		case ContextType::Sphere:

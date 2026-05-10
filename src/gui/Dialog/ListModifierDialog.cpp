@@ -17,7 +17,6 @@ ListModifierDialog::ListModifierDialog(IDataDispatcher& dataDispatcher, QDialog 
 
 ListModifierDialog::~ListModifierDialog()
 {
-	GUI_LOG << "destroy ListModifierDialog" << LOGENDL;
 }
 
 void ListModifierDialog::getList(IGuiData *data)
@@ -118,19 +117,13 @@ void ListModifierDialog::renameElem()
 
 void ListModifierDialog::deleteElem()
 {
-	std::wstringstream ss;
 	QModelIndexList list = m_ui.listView->selectionModel()->selectedIndexes();
-
-	int i = 0;
 
 	foreach(const QModelIndex &index, list)
 	{
-		ss << ((i == 0) ? "" : ", ");
 		ItemNode *element = static_cast<ItemNode*>(model->itemFromIndex(index));
-		ss << element->getWStrData();
 		m_dataDispatcher.sendControl(new control::userlist::RemoveItemFromList(m_list, element->getWStrData()));
 	}
-	GUI_LOG << "delete " << ss.str() << LOGENDL;
 }
 
 void ListModifierDialog::clearList()
