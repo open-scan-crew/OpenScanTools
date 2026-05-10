@@ -110,7 +110,8 @@ ContextState ContextColorBalanceFilter::start(Controller& controller)
             rgbAndIntensityAvailable = true;
     }
 
-    controller.updateInfo(new GuiDataColorBalanceFilterDialogDisplay(rgbAvailable, intensityAvailable, rgbAndIntensityAvailable));
+    GraphManager::FilterClippingConfiguration clippingConfig = graphManager.getFilterClippingConfiguration();
+    controller.updateInfo(new GuiDataColorBalanceFilterDialogDisplay(rgbAvailable, intensityAvailable, rgbAndIntensityAvailable, (int)clippingConfig.mode));
     return (m_state = ContextState::waiting_for_input);
 }
 
@@ -184,9 +185,9 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
     controller.updateInfo(new GuiDataProcessingSplashScreenStart(totalProgressSteps, TEXT_EXPORT_COLOR_BALANCE_TITLE_PROGRESS, TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(0).arg(totalScans)));
 
     ClippingAssembly clippingAssembly;
-    std::unordered_set<SafePtr<AClippingNode>> clippings = graphManager.getActivatedOrSelectedClippingObjects();
-    if (!clippings.empty())
-        graphManager.getClippingAssembly(clippingAssembly, clippings);
+    GraphManager::FilterClippingConfiguration clippingConfig = graphManager.getFilterClippingConfiguration();
+    if (!clippingConfig.clippings.empty())
+        graphManager.getClippingAssembly(clippingAssembly, clippingConfig.clippings);
     const bool useTempClippedScans = m_globalBalancing && !clippingAssembly.empty();
     std::filesystem::path tempFolder;
     if (useTempClippedScans)

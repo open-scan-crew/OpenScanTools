@@ -127,7 +127,11 @@ void DialogStatisticalOutlierFilter::informData(IGuiData* data)
     switch (data->getType())
     {
     case guiDType::statisticalOutlierFilterDialogDisplay:
+    {
+        auto dialogData = static_cast<GuiDataStatisticalOutlierFilterDialogDisplay*>(data);
+        m_outputMode = dialogData->m_outputMode;
         refreshUI();
+    }
         break;
     case guiDType::projectPath:
     {
@@ -170,6 +174,7 @@ void DialogStatisticalOutlierFilter::cancelFiltering()
 void DialogStatisticalOutlierFilter::translateUI()
 {
     setWindowTitle(TEXT_EXPORT_TITLE_STAT_OUTLIER);
+    m_ui.groupBox_outputMode->setTitle(TEXT_EXPORT_OUTPUT_MODE_TITLE);
 }
 
 void DialogStatisticalOutlierFilter::refreshUI()
@@ -228,4 +233,22 @@ void DialogStatisticalOutlierFilter::syncUiFromValues()
     int formatIndex = m_ui.comboBox_file_format->findData(QVariant(static_cast<int>(m_outputFileType)));
     if (formatIndex >= 0)
         m_ui.comboBox_file_format->setCurrentIndex(formatIndex);
+    updateOutputModeText();
+}
+
+void DialogStatisticalOutlierFilter::updateOutputModeText()
+{
+    switch (m_outputMode)
+    {
+    case 0:
+        m_ui.label_outputMode->setText(TEXT_EXPORT_OUTPUT_MODE_CASE1);
+        break;
+    case 2:
+        m_ui.label_outputMode->setText(TEXT_EXPORT_OUTPUT_MODE_CASE3);
+        break;
+    case 1:
+    default:
+        m_ui.label_outputMode->setText(TEXT_EXPORT_OUTPUT_MODE_CASE2);
+        break;
+    }
 }
