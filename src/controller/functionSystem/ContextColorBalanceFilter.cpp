@@ -188,6 +188,7 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
     GraphManager::FilterClippingConfiguration clippingConfig = graphManager.getFilterClippingConfiguration();
     if (!clippingConfig.clippings.empty())
         graphManager.getClippingAssembly(clippingAssembly, clippingConfig.clippings);
+    const bool isSelectedInactiveMode = clippingConfig.mode == GraphManager::FilterOutputMode::FullScansSelectedInactiveClipping;
     const bool useTempClippedScans = m_globalBalancing && !clippingAssembly.empty();
     std::filesystem::path tempFolder;
     if (useTempClippedScans)
@@ -322,8 +323,12 @@ ContextState ContextColorBalanceFilter::launch(Controller& controller)
             };
         }
 
+        // In selected-inactive clipping mode we keep full scan output.
+        // The clipping selection is still used to build the external provider neighborhood.
+        ClippingAssembly emptyAssemblyForOutput;
+        const ClippingAssembly* outputAssembly = isSelectedInactiveMode ? &emptyAssemblyForOutput : clippingToUse;
         auto progressCallback = makeProgressCallback(scanCount, 0, 100);
-        bool res = TlScanOverseer::getInstance().balanceColorsAndWrite(balanceGuid, balanceTransform, *clippingToUse, m_kMin, m_kMax, m_trimPercent, m_sharpnessBlend, applyOnIntensity, applyOnRgb, externalProvider, scan_writer, modifiedPointCount, progressCallback);
+        bool res = TlScanOverseer::getInstance().balanceColorsAndWrite(balanceGuid, balanceTransform, *outputAssembly, m_kMin, m_kMax, m_trimPercent, m_sharpnessBlend, applyOnIntensity, applyOnRgb, externalProvider, scan_writer, modifiedPointCount, progressCallback);
         res &= scan_writer->finalizePointCloud();
         delete scan_writer;
         if (balanceGuid != old_guid)
