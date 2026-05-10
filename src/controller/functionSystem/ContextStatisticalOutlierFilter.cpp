@@ -97,7 +97,8 @@ ContextState ContextStatisticalOutlierFilter::start(Controller& controller)
         return (m_state = ContextState::abort);
     }
 
-    controller.updateInfo(new GuiDataStatisticalOutlierFilterDialogDisplay());
+    GraphManager::FilterClippingConfiguration clippingConfig = graphManager.getFilterClippingConfiguration();
+    controller.updateInfo(new GuiDataStatisticalOutlierFilterDialogDisplay((int)clippingConfig.mode));
 
     return (m_state = ContextState::waiting_for_input);
 }
@@ -159,7 +160,9 @@ ContextState ContextStatisticalOutlierFilter::launch(Controller& controller)
     controller.updateInfo(new GuiDataProcessingSplashScreenStart(totalProgressSteps, TEXT_EXPORT_STAT_OUTLIER_TITLE_PROGESS, TEXT_SPLASH_SCREEN_SCAN_PROCESSING.arg(0).arg(totalScans)));
 
     ClippingAssembly clippingAssembly;
-    graphManager.getClippingAssembly(clippingAssembly, true, false);
+    GraphManager::FilterClippingConfiguration clippingConfig = graphManager.getFilterClippingConfiguration();
+    if (!clippingConfig.clippings.empty())
+        graphManager.getClippingAssembly(clippingAssembly, clippingConfig.clippings);
 
     OutlierStats globalStats;
     bool wasAborted = false;

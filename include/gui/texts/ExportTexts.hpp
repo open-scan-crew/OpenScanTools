@@ -39,6 +39,10 @@
 #define TEXT_EXPORT_GRID_TITLE_PROGESS QObject::tr("Export Point Cloud in gridded boxes")
 #define TEXT_EXPORT_DIALOG_NAME QObject::tr("Dialog export point cloud")
 #define TEXT_EXPORT_INVALID_DIRECTORY QObject::tr("The selected directory is not valid for exports (invalid path OR no write permission)")
+#define TEXT_EXPORT_OUTPUT_MODE_TITLE QObject::tr("Output mode")
+#define TEXT_EXPORT_OUTPUT_MODE_CASE1 QObject::tr("The filter will be applied to the active clipped areas. Only these areas will be exported.")
+#define TEXT_EXPORT_OUTPUT_MODE_CASE2 QObject::tr("The filter will be applied to the active full scans (no active clipping). Full filtered scans will be exported.")
+#define TEXT_EXPORT_OUTPUT_MODE_CASE3 QObject::tr("The filter will be applied to the selected but inactive clipped areas, while preserving the rest of the scans. Full scans containing filtered areas will be exported.")
 
 #define TEXT_EXPORT_FILTER_ALL QObject::tr("All")
 #define TEXT_EXPORT_FILTER_SELECTED QObject::tr("Selected")
