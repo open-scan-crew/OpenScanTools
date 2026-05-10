@@ -10,6 +10,7 @@
 
 #include <QtCore/QSignalBlocker>
 #include <QtCore/qstandardpaths.h>
+#include <QtWidgets/QButtonGroup>
 #include <QtWidgets/qfiledialog.h>
 
 #include <vector>
@@ -92,6 +93,14 @@ DialogStatisticalOutlierFilter::DialogStatisticalOutlierFilter(IDataDispatcher& 
         if (checked)
             applyPreset(OutlierPreset::High);
     });
+
+    // Enforce classic radio behavior: one checked button in the preset group,
+    // and no uncheck on re-click of the currently checked button.
+    QButtonGroup* presetGroup = new QButtonGroup(this);
+    presetGroup->setExclusive(true);
+    presetGroup->addButton(m_ui.radioButton_soLow);
+    presetGroup->addButton(m_ui.radioButton_soMid);
+    presetGroup->addButton(m_ui.radioButton_soHigh);
 
     connect(m_ui.spinBox_kNeighbors, qOverload<int>(&QSpinBox::valueChanged), this, [this](int value)
     {

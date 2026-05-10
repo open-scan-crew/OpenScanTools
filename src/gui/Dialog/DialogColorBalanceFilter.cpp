@@ -10,6 +10,7 @@
 
 #include <QtCore/QSignalBlocker>
 #include <QtCore/QStandardPaths>
+#include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QFileDialog>
 
 #include <unordered_map>
@@ -129,6 +130,14 @@ DialogColorBalanceFilter::DialogColorBalanceFilter(IDataDispatcher& dataDispatch
         if (checked)
             applyPreset(BalancePreset::Strong);
     });
+
+    // Enforce classic radio behavior: one checked button in the preset group,
+    // and no uncheck on re-click of the currently checked button.
+    QButtonGroup* presetGroup = new QButtonGroup(this);
+    presetGroup->setExclusive(true);
+    presetGroup->addButton(m_ui.radioButton_balanceLight);
+    presetGroup->addButton(m_ui.radioButton_balanceMedium);
+    presetGroup->addButton(m_ui.radioButton_balanceStrong);
 
     connect(m_ui.spinBox_kMin, qOverload<int>(&QSpinBox::valueChanged), this, [this](int value)
     {
