@@ -300,7 +300,8 @@ guiDType GuiDataDeletePointsDialogDisplay::getType()
     return (guiDType::deletePointsDialogDisplay);
 }
 
-GuiDataStatisticalOutlierFilterDialogDisplay::GuiDataStatisticalOutlierFilterDialogDisplay()
+GuiDataStatisticalOutlierFilterDialogDisplay::GuiDataStatisticalOutlierFilterDialogDisplay(int outputMode)
+    : m_outputMode(outputMode)
 {
 }
 
@@ -313,10 +314,11 @@ guiDType GuiDataStatisticalOutlierFilterDialogDisplay::getType()
     return guiDType::statisticalOutlierFilterDialogDisplay;
 }
 
-GuiDataColorBalanceFilterDialogDisplay::GuiDataColorBalanceFilterDialogDisplay(bool rgbAvailable, bool intensityAvailable, bool rgbAndIntensityAvailable)
+GuiDataColorBalanceFilterDialogDisplay::GuiDataColorBalanceFilterDialogDisplay(bool rgbAvailable, bool intensityAvailable, bool rgbAndIntensityAvailable, int outputMode)
     : m_rgbAvailable(rgbAvailable)
     , m_intensityAvailable(intensityAvailable)
     , m_rgbAndIntensityAvailable(rgbAndIntensityAvailable)
+    , m_outputMode(outputMode)
 {
 }
 

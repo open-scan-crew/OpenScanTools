@@ -33,6 +33,7 @@ private:
     void applyPreset(BalancePreset preset);
     void syncUiFromValues();
     void updateAvailability(bool rgbAvailable, bool intensityAvailable, bool rgbAndIntensityAvailable);
+    void updateOutputModeText();
 
     Ui::DialogColorBalanceFilter m_ui;
 
@@ -47,6 +48,7 @@ private:
     bool m_rgbAvailable = false;
     bool m_intensityAvailable = false;
     bool m_rgbAndIntensityAvailable = false;
+    int m_outputMode = 1;
     FileType m_outputFileType = FileType::TLS;
 
     QString m_openPath;
