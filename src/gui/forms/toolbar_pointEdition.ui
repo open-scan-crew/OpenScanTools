@@ -48,8 +48,10 @@
    <item row="2" column="0">
     <widget class="QToolButton" name="toolbutton_colorbalance">
      <property name="toolTip">
-      <string>Apply a color balance to the point clouds to get a smoother rendering. You can apply the filter to clipped scans.
-The result will be exported to the folder of your choice.</string>
+      <string>Apply a color balance to the point clouds to get a smoother rendering. 3 methods are available:
+1- no clipping: full active scans are filtered and exported,
+2- active clippings: clipped areas are filtered and exported,
+3- clippings selected but inactive: the areas in the selected clippings are filtered, the rest of the scans remain unchanged, and the entire result is exported.</string>
      </property>
      <property name="text">
       <string>Color balance</string>
@@ -69,8 +71,10 @@ The result will be exported to the folder of your choice.</string>
    <item row="1" column="0">
     <widget class="QToolButton" name="toolButton_statisticalOutlierFilter">
      <property name="toolTip">
-      <string>This statistical outlier filter allows you to remove invalid points. You can apply the filter to clipped scans.
-The result will be exported to the folder of your choice.</string>
+      <string>This statistical outlier filter allows you to remove invalid points. 3 methods are available:
+1- no clipping: full active scans are filtered and exported,
+2- active clippings: clipped areas are filtered and exported,
+3- clippings selected but inactive: the areas in the selected clippings are filtered, the rest of the scans remain unchanged, and the entire result is exported.</string>
      </property>
      <property name="text">
       <string>Stat outlier filter</string>

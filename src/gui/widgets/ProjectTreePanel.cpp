@@ -113,12 +113,27 @@ void ProjectTreePanel::actualizeNodes(IGuiData* data)
                     treetypes.insert(treetype);
         }
 
-        for (TreeType treetype : treetypes)
+        // If deleted/invalid nodes cannot be read anymore, we can no longer infer
+        // their tree types from the payload. In that case, fall back to refreshing
+        // all roots to keep the tree view consistent without user collapse/expand.
+        if (treetypes.empty())
         {
-            if (m_rootNodes.find(treetype) != m_rootNodes.end())
+            for (const auto& [rootType, rootNodes] : m_rootNodes)
             {
-                for (TreeNode* treenode : m_rootNodes[treetype])
+                (void)rootType; // explicit unused name for readability
+                for (TreeNode* treenode : rootNodes)
                     nodesToUpdate.insert(treenode);
+            }
+        }
+        else
+        {
+            for (TreeType treetype : treetypes)
+            {
+                if (m_rootNodes.find(treetype) != m_rootNodes.end())
+                {
+                    for (TreeNode* treenode : m_rootNodes[treetype])
+                        nodesToUpdate.insert(treenode);
+                }
             }
         }
 
