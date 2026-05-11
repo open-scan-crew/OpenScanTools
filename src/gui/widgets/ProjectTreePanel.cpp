@@ -122,6 +122,18 @@ void ProjectTreePanel::actualizeNodes(IGuiData* data)
             }
         }
 
+        // If all nodes from the update payload are already invalid (e.g. just deleted),
+        // no TreeType can be extracted from model objects. In that case we force a broad
+        // refresh of all root nodes to keep the tree view in sync without manual collapse/expand.
+        if (nodesToUpdate.empty() && !actualizeNodes->m_objects.empty())
+        {
+            for (const auto& rootNodeByType : m_rootNodes)
+            {
+                for (TreeNode* treenode : rootNodeByType.second)
+                    nodesToUpdate.insert(treenode);
+            }
+        }
+
 
         for (TreeNode* node : nodesToUpdate)
             updateNode(node);
