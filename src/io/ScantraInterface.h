@@ -29,6 +29,7 @@ public:
 
     int startInterface();
     int stopInterface();
+    void setLockAutoZoomExtent(bool lockZoom);
 
     void project_created(const std::filesystem::path& path, const std::wstring& name);
     void project_opened(const std::filesystem::path& path);
@@ -82,6 +83,7 @@ private:
 
     std::unordered_set<SafePtr<AGraphNode>> scan_selection_;
     GraphManager& graph_;
+    bool lock_auto_zoom_extent_ = false;
 };
 
 #endif

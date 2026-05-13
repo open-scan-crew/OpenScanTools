@@ -224,6 +224,11 @@ void Controller::stopScantraInterface()
     m_p->scantra_interface_.stopInterface();
 }
 
+void Controller::setScantraAutoZoomLocked(bool lockZoom)
+{
+    m_p->scantra_interface_.setLockAutoZoomExtent(lockZoom);
+}
+
 void Controller::scantra_notify_project_created()
 {
     const ProjectInfos& proj_infos = m_p->context.cgetProjectInfo();

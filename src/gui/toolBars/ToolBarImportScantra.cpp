@@ -20,6 +20,11 @@ ToolBarImportScantra::ToolBarImportScantra(IDataDispatcher &dataDispatcher, QWid
 	m_openPath = QStandardPaths::locate(QStandardPaths::DocumentsLocation, QString(), QStandardPaths::LocateDirectory);
 
 	connect(m_ui.importScanTraButton, &QPushButton::clicked, this, &ToolBarImportScantra::slotImportScantra);
+	connect(m_ui.lockScantraZoomExtentCheckBox, &QCheckBox::toggled, this, [this](bool checked) {
+		// This option only controls the automatic zoom triggered by Scantra live adjustments.
+		m_dataDispatcher.sendControl(new control::application::SetScantraAutoZoomLock(checked));
+	});
+	m_ui.lockScantraZoomExtentCheckBox->setChecked(false);
 
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectLoaded);
 	m_dataDispatcher.registerObserverOnKey(this, guiDType::projectPath);
