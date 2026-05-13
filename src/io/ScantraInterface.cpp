@@ -569,15 +569,13 @@ void ScantraInterface::applyRegistration()
             continue;
 
         glm::dvec3 ref_pos(0.0, 0.0, 0.0);
-        glm::dquat ref_rot(1.0, 0.0, 0.0, 0.0);
         
-        // If the referential is null, then the ref coordinates are unchanged.
+        // If the referential is null, then the reference translation is unchanged.
         {
             ReadPtr<AGraphNode> rDatum = reg.referential.cget();
             if (rDatum)
             {
                 ref_pos = rDatum->getCenter();
-                ref_rot = rDatum->getRotation();
             }
         }
 
@@ -585,11 +583,11 @@ void ScantraInterface::applyRegistration()
             WritePtr<AGraphNode> wScan = reg.station.get();
             if (wScan)
             {
-                wScan->setPosition(ref_pos);
-                wScan->setRotation(ref_rot);
-
-                wScan->addLocalTranslation(reg.position);
-                wScan->addPreRotation(reg.rotation);
+                // Translation remains anchored to the referential position.
+                // The station orientation comes from the adjustment result and must not inherit
+                // the referential tilt, otherwise non-reference stations are over-rotated.
+                wScan->setPosition(ref_pos + reg.position);
+                wScan->setRotation(glm::normalize(reg.rotation));
             }
         }
     }
