@@ -1051,4 +1051,24 @@ namespace control::application
         return ControlType::switchScantraConnexion;
     }
 
+    /*
+    ** SetScantraAutoZoomLock
+    */
+
+    SetScantraAutoZoomLock::SetScantraAutoZoomLock(bool lockZoom)
+        : lock_zoom_(lockZoom)
+    {
+    }
+
+    void SetScantraAutoZoomLock::doFunction(Controller& controller)
+    {
+        // This flag only applies to Scantra live adjustment updates.
+        controller.setScantraAutoZoomLocked(lock_zoom_);
+    }
+
+    ControlType SetScantraAutoZoomLock::getType() const
+    {
+        return ControlType::setScantraAutoZoomLock;
+    }
+
 }

@@ -80,6 +80,7 @@ public:
 
     void startScantraInterface();
     void stopScantraInterface();
+    void setScantraAutoZoomLocked(bool lockZoom);
     void scantra_notify_project_created();
     void scantra_notify_project_opened();
 
