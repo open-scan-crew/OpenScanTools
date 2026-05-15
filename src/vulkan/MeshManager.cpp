@@ -39,7 +39,8 @@ const std::map<GenericMeshType, std::map<ManipulationMode, std::unordered_set<Se
     }},
     {GenericMeshType::Cylinder, {
         {ManipulationMode::Translation, { Selection::X, Selection::Y, Selection::Z }},
-        {ManipulationMode::Rotation, {}},
+        // Enable cylinder rotation gizmo on all three axes.
+        {ManipulationMode::Rotation, { Selection::X, Selection::Y, Selection::Z }},
         {ManipulationMode::Extrusion, { Selection::Z, Selection::_Z }},
         {ManipulationMode::Scale, { Selection::XY }}
     }},
