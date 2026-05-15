@@ -152,6 +152,12 @@ int ScantraInterface::stopInterface()
     return 0;
 }
 
+void ScantraInterface::setLockAutoZoomExtent(bool lockZoom)
+{
+    // Keep default behavior unless explicitly locked by the Scantra toolbar checkbox.
+    lock_auto_zoom_extent_ = lockZoom;
+}
+
 void ScantraInterface::project_created(const std::filesystem::path& path, const std::wstring& name)
 {
     if (!data_)
@@ -601,7 +607,11 @@ void ScantraInterface::manageVisibility(int current_station, int total_station, 
             }
         }
         controller_.actualizeTreeView(tree_update);
-        controller_.getControlListener()->notifyUIControl(new control::viewport::AdjustZoomToScene(SafePtr<CameraNode>()));
+        if (!lock_auto_zoom_extent_)
+        {
+            // This zoom is specific to Scantra live block adjustment updates.
+            controller_.getControlListener()->notifyUIControl(new control::viewport::AdjustZoomToScene(SafePtr<CameraNode>()));
+        }
     }
 }
 

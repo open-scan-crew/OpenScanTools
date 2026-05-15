@@ -420,6 +420,16 @@ namespace control::application
     private:
         bool start_;
     };
+
+    class SetScantraAutoZoomLock : public AControl
+    {
+    public:
+        SetScantraAutoZoomLock(bool lockZoom);
+        void doFunction(Controller& controller) override;
+        ControlType getType() const override;
+    private:
+        bool lock_zoom_;
+    };
 }
 
 #endif // !CONTROLAPPLICATION_H_
