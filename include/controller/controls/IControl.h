@@ -48,6 +48,7 @@ enum class ControlType
 	setNavigationParameters,
 	setPerspectiveZBounds,
 	setOrthoGridParams,
+	setScantraAutoZoomLock,
 	unlockScanManipulation,
 	setMultithreadedCalculation,
 	// setOrthoZBounds, // TODO

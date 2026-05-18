@@ -460,17 +460,22 @@ Cela peut conduire à un comportement erratique durant l&apos;animation.</transl
         <translation>Ouvrir le dossier après l’export</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogColorBalanceFilter.ui" line="281"/>
+        <location filename="../../src/gui/forms/DialogColorBalanceFilter.ui" line="266"/>
+        <source>Output mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/DialogColorBalanceFilter.ui" line="300"/>
         <source>Ok</source>
         <translation>Ok</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogColorBalanceFilter.ui" line="288"/>
+        <location filename="../../src/gui/forms/DialogColorBalanceFilter.ui" line="307"/>
         <source>Cancel</source>
         <translation>Annuler</translation>
     </message>
     <message>
-        <location filename="../../src/gui/Dialog/DialogColorBalanceFilter.cpp" line="92"/>
+        <location filename="../../src/gui/Dialog/DialogColorBalanceFilter.cpp" line="93"/>
         <source>Open Directory</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2490,17 +2495,22 @@ Perspective</translation>
         <translation>Ouvrir le dossier après l’export</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogStatisticalOutlierFilter.ui" line="254"/>
+        <location filename="../../src/gui/forms/DialogStatisticalOutlierFilter.ui" line="239"/>
+        <source>Output mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/DialogStatisticalOutlierFilter.ui" line="273"/>
         <source>Ok</source>
         <translation>Ok</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/DialogStatisticalOutlierFilter.ui" line="261"/>
+        <location filename="../../src/gui/forms/DialogStatisticalOutlierFilter.ui" line="280"/>
         <source>Cancel</source>
         <translation>Annuler</translation>
     </message>
     <message>
-        <location filename="../../src/gui/Dialog/DialogStatisticalOutlierFilter.cpp" line="60"/>
+        <location filename="../../src/gui/Dialog/DialogStatisticalOutlierFilter.cpp" line="61"/>
         <source>Open Directory</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4433,7 +4443,7 @@ It will be skipped.</source>
         <translation>Le fichier %1 n&apos;a pas pu être copié. Il sera ignoré.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="48"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="52"/>
         <source>Export %1 file(s)</source>
         <translation>Exporter en fichier(s) %1</translation>
     </message>
@@ -4911,6 +4921,26 @@ Echec d&apos;export de clipping en: %1 secondes</translation>
         <translation>Exporter les points des clippings</translation>
     </message>
     <message>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="42"/>
+        <source>Output mode</source>
+        <translation>Mode de sortie</translation>
+    </message>
+    <message>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="43"/>
+        <source>The filter will be applied to the active clipped areas. Only these areas will be exported.</source>
+        <translation>Le filtre sera appliqué aux clippings actifs. Seules ces zones seront exportées.</translation>
+    </message>
+    <message>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="44"/>
+        <source>The filter will be applied to the active full scans (no active clipping). Full filtered scans will be exported.</source>
+        <translation>Le filtre sera appliqué aux scans visibles entiers (pas de clipping). Les scans visibles seront exportés en totalité.</translation>
+    </message>
+    <message>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="45"/>
+        <source>The filter will be applied to the selected but inactive clipped areas, while preserving the rest of the scans. Full scans containing filtered areas will be exported.</source>
+        <translation>Le filtre sera appliqué aux clippings sélectionnés mais inactifs, en conservant le reste des scans visibles. Les scans entiers avec zones filtrées seront exportés.</translation>
+    </message>
+    <message>
         <location filename="../../include/gui/texts/ContextTexts.hpp" line="88"/>
         <source>You must select tags of which you are the author.</source>
         <translation>Vous devez sélectionner des tags dont vous êtes l&apos;auteur.</translation>
@@ -5257,87 +5287,92 @@ En fonction de la taille des scans, le temps de calcul peut être important. Nou
 Confirmez-vous ?</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="141"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="138"/>
+        <source>The scan already exists in the project. Import ignored.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="142"/>
         <source>Point is from scan : %1</source>
         <translation>Le point provient du scan : %1</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="142"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="143"/>
         <source>No scan found</source>
         <translation>Pas de scan trouvé</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="145"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="146"/>
         <source>Generate video.</source>
         <translation>Générer vidéo.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="146"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="147"/>
         <source>Frames : %1 / %2</source>
         <translation>Images : %1 / %2</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="148"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="149"/>
         <source>Fail</source>
         <translation>Échec</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="149"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="150"/>
         <source>Sequence generated in %1 seconds</source>
         <translation>Séquence généreé en %1 secondes</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="152"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="153"/>
         <source>At least two perspective viewpoints are required to start the animation.</source>
         <translation>Au moins 2 points de vue sont requis pour démarrer l&apos;animation.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="153"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="154"/>
         <source>The table of viewpoints contains inconsistent time values. Times must be increasing. Example: if you have entered 5 in the Position field for a row in the table, then you must enter a higher value in the next row, for example 6.</source>
         <translation>La table des points de vue contient des temps incogérents. Les temps doivent être croissants.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="154"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="155"/>
         <source>Some viewpoints are inconsistent and cannot be used for interpolation.</source>
         <translation>Certains points de vue ont un rendu incohérent par rapport aux autres, ce qui ne permet pas l&apos;interpolation.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="157"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="158"/>
         <source>Select a temporary position for the manipulator.</source>
         <translation>Sélectionnez une position temporaire pour le manipulateur.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="160"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="161"/>
         <source>Select the first base position.</source>
         <translation>Sélectionnez la première position de base.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="161"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="162"/>
         <source>Select the second base position.</source>
         <translation>Sélectionnez la deuxième position de base.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="162"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="163"/>
         <source>Select the third base position.</source>
         <translation>Sélectionnez la troisième position de base.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="163"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="164"/>
         <source>Select the first target position.</source>
         <translation>Sélectionnez la première position cible.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="164"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="165"/>
         <source>Select the second target position.</source>
         <translation>Sélectionnez la deuxième position cible.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="165"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="166"/>
         <source>Select the third target position.</source>
         <translation>Sélectionnez la troisième position cible.</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="167"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="168"/>
         <source>Please select objects</source>
         <translation>Veuillez sélectionner des objets</translation>
     </message>
@@ -5505,7 +5540,7 @@ Attention: vous ne pouvez pas annuler cette action.</translation>
         <translation>Clipping d&apos;objets</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="45"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="49"/>
         <source>Displayed</source>
         <translation>Affiché</translation>
     </message>
@@ -5762,12 +5797,12 @@ Les modifications ne peuvent pas être sauvegardé avec le visualiseur gratuit.<
         <translation>Vous êtes en train d&apos;ouvrir un projet central !</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="49"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="53"/>
         <source>Export shared files</source>
         <translation>Export en fichiers de partage</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="46"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="50"/>
         <source>None</source>
         <translation>Aucun</translation>
     </message>
@@ -6466,7 +6501,7 @@ Vous confirmez?</translation>
         <translation>Quitter</translation>
     </message>
     <message>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="43"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="47"/>
         <location filename="../../include/gui/texts/DefaultUserLists.hpp" line="6"/>
         <source>All</source>
         <translation>Tous</translation>
@@ -6516,7 +6551,7 @@ Conversion ignorée.
     </message>
     <message>
         <location filename="../../include/gui/texts/ExportTexts.hpp" line="12"/>
-        <location filename="../../include/gui/texts/ExportTexts.hpp" line="44"/>
+        <location filename="../../include/gui/texts/ExportTexts.hpp" line="48"/>
         <source>Selected</source>
         <translation>Sélection</translation>
     </message>
@@ -7433,7 +7468,7 @@ Fichier non trouvé :
         <location filename="../../src/controller/controls/ControlPicking.cpp" line="258"/>
         <location filename="../../src/controller/controls/ControlPicking.cpp" line="296"/>
         <location filename="../../src/controller/controls/ControlPicking.cpp" line="297"/>
-        <location filename="../../include/gui/texts/ContextTexts.hpp" line="147"/>
+        <location filename="../../include/gui/texts/ContextTexts.hpp" line="148"/>
         <source>Done</source>
         <translation>Terminé</translation>
     </message>
@@ -11304,31 +11339,39 @@ Faire 2 clics (pas trop rapprochés) sur le périmètre, puis 2 sur la longueur.
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_pointEdition.ui" line="51"/>
-        <source>Apply a color balance to the point clouds to get a smoother rendering. You can apply the filter to clipped scans.
-The result will be exported to the folder of your choice.</source>
-        <translation>Applique une balance de couleurs aux nuages de points. Vous pouvez l&apos;appliquer à des scans clippés.
-Le résultat sera exporté dans le dossier de votre choix.</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/toolbar_pointEdition.ui" line="72"/>
-        <source>This statistical outlier filter allows you to remove invalid points. You can apply the filter to clipped scans.
-The result will be exported to the folder of your choice.</source>
-        <translation>Ce filtre statistique permet de supprimer des points non valides. Vous pouvez l&apos;appliquer à des scans clippés.
-Le résultat sera exporté dans le dossier de votre choix.</translation>
-    </message>
-    <message>
-        <location filename="../../src/gui/forms/toolbar_pointEdition.ui" line="55"/>
+        <location filename="../../src/gui/forms/toolbar_pointEdition.ui" line="57"/>
         <source>Color balance</source>
         <translation>Balance de couleurs</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_pointEdition.ui" line="76"/>
+        <location filename="../../src/gui/forms/toolbar_pointEdition.ui" line="51"/>
+        <source>Apply a color balance to the point clouds to get a smoother rendering. 3 methods are available:
+1- no clipping: full active scans are filtered and exported,
+2- active clippings: clipped areas are filtered and exported,
+3- clippings selected but inactive: the areas in the selected clippings are filtered, the rest of the scans remain unchanged, and the entire result is exported.</source>
+        <translation>Applique un lissage des couleurs. 3 méthodes sont disponibles:
+1- aucun clipping: la totalité des scans visibles sont traités et exportés,
+2- clippings actifs: les zones clippées sont traitées et exportées,
+3- clippings inactifs mais sélectionnés: les zones sélectionnées sont traitées, le reste des scans reste inchangé, et le résultat global est exporté.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_pointEdition.ui" line="74"/>
+        <source>This statistical outlier filter allows you to remove invalid points. 3 methods are available:
+1- no clipping: full active scans are filtered and exported,
+2- active clippings: clipped areas are filtered and exported,
+3- clippings selected but inactive: the areas in the selected clippings are filtered, the rest of the scans remain unchanged, and the entire result is exported.</source>
+        <translation>Applique un filtre statistique. 3 méthodes sont disponibles:
+1- aucun clipping: la totalité des scans visibles sont traités et exportés,
+2- clippings actifs: les zones clippées sont traitées et exportées,
+3- clippings inactifs mais sélectionnés: les zones sélectionnées sont traitées, le reste des scans reste inchangé, et le résultat global est exporté.</translation>
+    </message>
+    <message>
+        <location filename="../../src/gui/forms/toolbar_pointEdition.ui" line="80"/>
         <source>Stat outlier filter</source>
         <translation>Filtre stat outlier</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_pointEdition.ui" line="102"/>
+        <location filename="../../src/gui/forms/toolbar_pointEdition.ui" line="106"/>
         <source>This will use the clipping/filter to clean the point cloud.
 The points will be deleted so that the result will be as shown on the screen (what you see is what you get).
 Activate clippings and / or filters before starting the cleaning.
@@ -11339,7 +11382,7 @@ Activez des clippings ou filtres avant de démarrer le nettoyage.
 Attention: des points seront définitivement supprimés.</translation>
     </message>
     <message>
-        <location filename="../../src/gui/forms/toolbar_pointEdition.ui" line="108"/>
+        <location filename="../../src/gui/forms/toolbar_pointEdition.ui" line="112"/>
         <source>Clean point cloud</source>
         <translation>Nettoyer les points</translation>
     </message>

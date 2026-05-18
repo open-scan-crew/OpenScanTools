@@ -152,6 +152,12 @@ int ScantraInterface::stopInterface()
     return 0;
 }
 
+void ScantraInterface::setLockAutoZoomExtent(bool lockZoom)
+{
+    // Keep default behavior unless explicitly locked by the Scantra toolbar checkbox.
+    lock_auto_zoom_extent_ = lockZoom;
+}
+
 void ScantraInterface::project_created(const std::filesystem::path& path, const std::wstring& name)
 {
     if (!data_)
@@ -474,33 +480,26 @@ void ScantraInterface::editStationAdjustment()
     glm::dquat station_rot(q0, qx, qy, qz);
 
     SafePtr<AGraphNode> scan = getScanOnName(station_id);
-    SafePtr<AGraphNode> datum = getScanOnName(datum_id);
-
     // Reset the geometric link. All computation are done in the global space.
     AGraphNode::addGeometricLink(graph_.getRoot(), scan);
-
-    if (datum == scan)
     {
         WritePtr<AGraphNode> wScan = scan.get();
         if (wScan)
         {
-            wScan->setPosition(station_pos); // should be (0, 0, 0)
-            wScan->setRotation(station_rot); // should be (1, 0, 0, 0)
+            // Apply Scantra pose directly in world coordinates.
+            // This mirrors the manual SCDB import logic and prevents propagating
+            // the datum scan tilt as a global axis for the whole campaign.
+            wScan->setPosition(station_pos);
+            wScan->setRotation(station_rot);
         }
     }
-    else
-    {
-        // Wait for registration
-        scans_registered_.push_back({
-            datum,
-            scan,
-            station_pos,
-            station_rot
-            });
-    }
 
-    if (current_entry == total_entry - 1)
-        applyRegistration();
+    // Keep datum lookup for diagnostics and future protocol checks.
+    SafePtr<AGraphNode> datum = getScanOnName(datum_id);
+    if (datum != scan)
+    {
+        log << "Info: datum differs from station. Pose applied as absolute transform to preserve global frame consistency.\n";
+    }
 
     // On recoit les stations une par une.
     // Il faut rendre invisible les stations que l’on ne recevra pas
@@ -561,42 +560,6 @@ SafePtr<AGraphNode> ScantraInterface::getScanOnName(std::wstring _name)
     return *scan_uset.begin();
 }
 
-void ScantraInterface::applyRegistration()
-{
-    for (auto reg : scans_registered_)
-    {
-        if (reg.referential == reg.station)
-            continue;
-
-        glm::dvec3 ref_pos(0.0, 0.0, 0.0);
-        glm::dquat ref_rot(1.0, 0.0, 0.0, 0.0);
-        
-        // If the referential is null, then the ref coordinates are unchanged.
-        {
-            ReadPtr<AGraphNode> rDatum = reg.referential.cget();
-            if (rDatum)
-            {
-                ref_pos = rDatum->getCenter();
-                ref_rot = rDatum->getRotation();
-            }
-        }
-
-        {
-            WritePtr<AGraphNode> wScan = reg.station.get();
-            if (wScan)
-            {
-                wScan->setPosition(ref_pos);
-                wScan->setRotation(ref_rot);
-
-                wScan->addLocalTranslation(reg.position);
-                wScan->addPreRotation(reg.rotation);
-            }
-        }
-    }
-
-    scans_registered_.clear();
-}
-
 void ScantraInterface::manageVisibility(int current_station, int total_station, SafePtr<AGraphNode> scan)
 {
     if (current_station == 0)
@@ -644,7 +607,11 @@ void ScantraInterface::manageVisibility(int current_station, int total_station, 
             }
         }
         controller_.actualizeTreeView(tree_update);
-        controller_.getControlListener()->notifyUIControl(new control::viewport::AdjustZoomToScene(SafePtr<CameraNode>()));
+        if (!lock_auto_zoom_extent_)
+        {
+            // This zoom is specific to Scantra live block adjustment updates.
+            controller_.getControlListener()->notifyUIControl(new control::viewport::AdjustZoomToScene(SafePtr<CameraNode>()));
+        }
     }
 }
 

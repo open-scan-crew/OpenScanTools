@@ -234,6 +234,25 @@
     </widget>
    </item>
    <item>
+    <widget class="QGroupBox" name="groupBox_outputMode">
+     <property name="title">
+      <string>Output mode</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_outputMode">
+      <item>
+       <widget class="QLabel" name="label_outputMode">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_buttons">
      <item>
       <spacer name="horizontalSpacer">

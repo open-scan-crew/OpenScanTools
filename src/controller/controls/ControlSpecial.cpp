@@ -117,7 +117,8 @@ namespace control::special
 		SaveLoadSystem::LoadFileObjects(controller, fileObjectsToReload, "", false);
 
         controller.changeSelection({});
-		controller.actualizeTreeView(m_elemsDeleted);
+		// Refresh restored nodes in tree after undoing deletion.
+		controller.actualizeTreeView(toActualize);
 
 
 		CONTROLLOG << "control::special::DeleteElement undo" << LOGENDL;
