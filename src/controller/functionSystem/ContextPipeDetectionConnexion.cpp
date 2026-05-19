@@ -19,6 +19,23 @@
 #include "models/graph/GraphManager.h"
 
 #include <glm/gtx/quaternion.hpp>
+#include <cstdlib>
+#include <algorithm>
+#include <string>
+
+namespace
+{
+	// Temporary metrics switch for pass 1 instrumentation.
+	bool isPipeMetricsEnabled()
+	{
+		const char* envValue = std::getenv("OPENSCANTOOLS_PIPE_METRICS");
+		if (!envValue)
+			return false;
+		std::string value(envValue);
+		std::transform(value.begin(), value.end(), value.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+		return value == "1" || value == "true" || value == "on" || value == "yes";
+	}
+}
 
 ContextPipeDetectionConnexion::ContextPipeDetectionConnexion(const ContextId& id)
 	: ARayTracingContext(id)
@@ -101,6 +118,7 @@ ContextState ContextPipeDetectionConnexion::launch(Controller& controller)
 		m_state = ContextState::running;
 		controller.updateInfo(new GuiDataTmpMessage(TEXT_LUCAS_SEARCH_ONGOING, 0));
 		bool success = false;
+		const bool metricsEnabled = isPipeMetricsEnabled();
 		ClippingAssembly clippingAssembly;
 		GraphManager& graphManager = controller.getGraphManager();
 
@@ -165,6 +183,12 @@ ContextState ContextPipeDetectionConnexion::launch(Controller& controller)
 
 		if (!abortPipeErrorText.isEmpty())
 		{
+			if (metricsEnabled)
+			{
+				Logger::log(LoggerMode::DataLog) << "[PIPE_METRICS] ContextPipeDetectionConnexion fail extendMode=" << static_cast<int>(m_options.extendMode)
+					<< " noisy=" << m_options.noisy << " optimized=" << m_options.optimized
+					<< " reason=" << abortPipeErrorText.toStdString().c_str() << Logger::endl;
+			}
 			if (m_state == ContextState::running)
 			{
 				resetClickUsages(controller);
@@ -172,6 +196,12 @@ ContextState ContextPipeDetectionConnexion::launch(Controller& controller)
 			}
 			else
 				return m_state == ContextState::done ? ARayTracingContext::validate(controller) : ((m_state == ContextState::abort) ? ARayTracingContext::abort(controller) : m_state);
+		}
+		else if (metricsEnabled)
+		{
+			Logger::log(LoggerMode::DataLog) << "[PIPE_METRICS] ContextPipeDetectionConnexion success extendMode=" << static_cast<int>(m_options.extendMode)
+				<< " noisy=" << m_options.noisy << " optimized=" << m_options.optimized
+				<< " radius=" << cylinderRadius << Logger::endl;
 		}
 
 		SafePtr<StandardList> currentStandard = controller.getContext().getCurrentStandard(StandardType::Pipe);
