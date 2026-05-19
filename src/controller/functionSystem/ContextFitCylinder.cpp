@@ -12,6 +12,23 @@
 #include "models/graph/GraphManager.h"
 
 #include <glm/gtx/quaternion.hpp>
+#include <cstdlib>
+#include <algorithm>
+#include <string>
+
+namespace
+{
+	// Temporary metrics switch for pass 1 instrumentation.
+	bool isPipeMetricsEnabled()
+	{
+		const char* envValue = std::getenv("OPENSCANTOOLS_PIPE_METRICS");
+		if (!envValue)
+			return false;
+		std::string value(envValue);
+		std::transform(value.begin(), value.end(), value.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+		return value == "1" || value == "true" || value == "on" || value == "yes";
+	}
+}
 
 ContextFitCylinder::ContextFitCylinder(const ContextId& id)
     : ARayTracingContext(id)
@@ -62,6 +79,7 @@ ContextState ContextFitCylinder::launch(Controller& controller)
 	std::chrono::steady_clock::time_point tp_0 = std::chrono::steady_clock::now();
 	controller.updateInfo(new GuiDataTmpMessage(TEXT_LUCAS_SEARCH_ONGOING, 0));
 	bool success = false;
+	const bool metricsEnabled = isPipeMetricsEnabled();
 
 	GraphManager& graphManager = controller.getGraphManager();
 
@@ -140,6 +158,12 @@ ContextState ContextFitCylinder::launch(Controller& controller)
 
 	if (!abortPipeErrorText.isEmpty())
 	{
+		if (metricsEnabled)
+		{
+			Logger::log(LoggerMode::DataLog) << "[PIPE_METRICS] ContextFitCylinder fail extendMode=" << static_cast<int>(m_options.extendMode)
+				<< " noisy=" << m_options.noisy << " optimized=" << m_options.optimized
+				<< " reason=" << abortPipeErrorText.toStdString().c_str() << Logger::endl;
+		}
 		if (m_state == ContextState::running)
 		{
 			resetClickUsages(controller);
@@ -147,6 +171,12 @@ ContextState ContextFitCylinder::launch(Controller& controller)
 		}
 		else
 			return m_state == ContextState::done ? ARayTracingContext::validate(controller) : ((m_state == ContextState::abort) ? ARayTracingContext::abort(controller) : m_state);
+	}
+	else if (metricsEnabled)
+	{
+		Logger::log(LoggerMode::DataLog) << "[PIPE_METRICS] ContextFitCylinder success extendMode=" << static_cast<int>(m_options.extendMode)
+			<< " noisy=" << m_options.noisy << " optimized=" << m_options.optimized
+			<< " radius=" << cylinderRadius << Logger::endl;
 	}
 
 	controller.updateInfo(new GuiDataTmpMessage(QString(TEXT_CYLINDER_FOUND).arg(2 * cylinderRadius, cylinderCenter.x, cylinderCenter.y, cylinderCenter.z)));
