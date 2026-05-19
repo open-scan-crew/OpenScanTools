@@ -9,6 +9,7 @@
 #include <cstdio>
 #include <algorithm>
 #include <queue>
+#include <cstdlib>
 #include <glm/gtx/quaternion.hpp>
 using namespace std::chrono;
 
@@ -25,6 +26,24 @@ constexpr size_t kMaxActiveScanBudget = 1536;
 #else
 constexpr size_t kMaxActiveScanBudget = 768;
 #endif
+
+bool isPipeMetricsEnabled()
+{
+    const char* envValue = std::getenv("OPENSCANTOOLS_PIPE_METRICS");
+    if (!envValue)
+        return false;
+    std::string value(envValue);
+    std::transform(value.begin(), value.end(), value.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+    return value == "1" || value == "true" || value == "on" || value == "yes";
+}
+
+size_t countBucketPoints(const std::vector<std::vector<glm::dvec3>>& buckets)
+{
+    size_t total = 0;
+    for (const auto& bucket : buckets)
+        total += bucket.size();
+    return total;
+}
 }
 
 TlScanOverseer::TlScanOverseer()
@@ -1053,6 +1072,8 @@ bool TlScanOverseer::nearestNeighbor(const glm::dvec3& globalPoint, glm::dvec3& 
 
 bool TlScanOverseer::fitCylinder(const glm::dvec3& globalSeedPoint, const double& radius, const double& threshold, double& cylinderRadius, glm::dvec3& cylinderDirection, glm::dvec3& cylinderCenter, const FitCylinderMode& mode, const ClippingAssembly& clippingAssembly)
 {
+    const bool metricsEnabled = isPipeMetricsEnabled();
+    auto t0 = std::chrono::steady_clock::now();
     std::vector<std::vector<glm::dvec3>> neighborList, secondList;
     std::vector<glm::dvec3> temp;
     glm::dvec3 cCenter, cDirection;
@@ -1086,10 +1107,28 @@ bool TlScanOverseer::fitCylinder(const glm::dvec3& globalSeedPoint, const double
         secondList.push_back(temp);
     }
     findNeighborsBuckets(globalSeedPoint, searchRadius, neighborList, numberOfBuckets, clippingAssembly);
+    if (metricsEnabled)
+    {
+        Logger::log(LoggerMode::DataLog) << "[PIPE_METRICS] fitCylinder start mode=" << static_cast<int>(mode)
+            << " threshold=" << threshold << " inputRadius=" << radius << " searchRadius=" << searchRadius
+            << " buckets=" << numberOfBuckets << " neighbors=" << countBucketPoints(neighborList) << Logger::endl;
+    }
     if (!OctreeRayTracing::beginCylinderFit(neighborList, threshold, cylinderRadius, cylinderDirection, cylinderCenter, 10000))
+    {
+        if (metricsEnabled)
+        {
+            auto elapsedMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t0).count();
+            Logger::log(LoggerMode::DataLog) << "[PIPE_METRICS] fitCylinder result=fail elapsedMs=" << elapsedMs << Logger::endl;
+        }
         return false;
+    }
     if (!doubleCheck)
     {
+        if (metricsEnabled)
+        {
+            auto elapsedMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t0).count();
+            Logger::log(LoggerMode::DataLog) << "[PIPE_METRICS] fitCylinder result=success radius=" << cylinderRadius << " elapsedMs=" << elapsedMs << Logger::endl;
+        }
         return true;
         if (numberOfBuckets > 2)
         {
@@ -1116,7 +1155,13 @@ bool TlScanOverseer::fitCylinder(const glm::dvec3& globalSeedPoint, const double
     vecCCenter.push_back(cylinderCenter);
     vecCDirection.push_back(cylinderDirection);
     vecCRadius.push_back(cylinderRadius);
-    return (isCylinderCloseToPreviousCylinders(vecCCenter, vecCDirection, vecCRadius, cCenter, cDirection, cRadius));
+    const bool success = isCylinderCloseToPreviousCylinders(vecCCenter, vecCDirection, vecCRadius, cCenter, cDirection, cRadius);
+    if (metricsEnabled)
+    {
+        auto elapsedMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t0).count();
+        Logger::log(LoggerMode::DataLog) << "[PIPE_METRICS] fitCylinder doubleCheck result=" << (success ? "success" : "fail") << " elapsedMs=" << elapsedMs << Logger::endl;
+    }
+    return success;
 }
 
 //for testing
@@ -1190,6 +1235,8 @@ bool TlScanOverseer::fitCylinderTest(const glm::dvec3& globalSeedPoint, const do
 
 bool TlScanOverseer::fitCylinderMultipleSeeds(const std::vector<glm::dvec3>& globalSeedPoint, const double& radius, const double& threshold, double& cylinderRadius, glm::dvec3& cylinderDirection, glm::dvec3& cylinderCenter, const FitCylinderMode& mode, const ClippingAssembly& clippingAssembly)
 {
+    const bool metricsEnabled = isPipeMetricsEnabled();
+    auto t0 = std::chrono::steady_clock::now();
     if ((int)globalSeedPoint.size() != 2)
         return false;
     std::vector<std::vector<glm::dvec3>> neighborList, secondList;
@@ -1228,11 +1275,29 @@ bool TlScanOverseer::fitCylinderMultipleSeeds(const std::vector<glm::dvec3>& glo
         //findNeighborsBuckets(globalSeedPoint[i], searchRadius, neighborList, numberOfBuckets, clippingAssembly);
     findNeighborsBucketsDirected(globalSeedPoint[0], globalSeedPoint[1], searchRadius, neighborList, numberOfBuckets, clippingAssembly);
     findNeighborsBucketsDirected(globalSeedPoint[1], globalSeedPoint[0], searchRadius, neighborList, numberOfBuckets, clippingAssembly);
+    if (metricsEnabled)
+    {
+        Logger::log(LoggerMode::DataLog) << "[PIPE_METRICS] fitCylinderMultipleSeeds start mode=" << static_cast<int>(mode)
+            << " threshold=" << threshold << " inputRadius=" << radius << " searchRadius=" << searchRadius
+            << " buckets=" << numberOfBuckets << " neighbors=" << countBucketPoints(neighborList) << Logger::endl;
+    }
 
     if (!OctreeRayTracing::beginCylinderFit(neighborList, threshold, cylinderRadius, cylinderDirection, cylinderCenter, 10000))
+    {
+        if (metricsEnabled)
+        {
+            auto elapsedMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t0).count();
+            Logger::log(LoggerMode::DataLog) << "[PIPE_METRICS] fitCylinderMultipleSeeds result=fail elapsedMs=" << elapsedMs << Logger::endl;
+        }
         return false;
+    }
     if (!doubleCheck)
     {
+        if (metricsEnabled)
+        {
+            auto elapsedMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t0).count();
+            Logger::log(LoggerMode::DataLog) << "[PIPE_METRICS] fitCylinderMultipleSeeds result=success radius=" << cylinderRadius << " elapsedMs=" << elapsedMs << Logger::endl;
+        }
         return true;
         /*if (numberOfBuckets > 2)
         {
@@ -1259,7 +1324,13 @@ bool TlScanOverseer::fitCylinderMultipleSeeds(const std::vector<glm::dvec3>& glo
     vecCCenter.push_back(cylinderCenter);
     vecCDirection.push_back(cylinderDirection);
     vecCRadius.push_back(cylinderRadius);
-    return (isCylinderCloseToPreviousCylinders(vecCCenter, vecCDirection, vecCRadius, cCenter, cDirection, cRadius));
+    const bool success = isCylinderCloseToPreviousCylinders(vecCCenter, vecCDirection, vecCRadius, cCenter, cDirection, cRadius);
+    if (metricsEnabled)
+    {
+        auto elapsedMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t0).count();
+        Logger::log(LoggerMode::DataLog) << "[PIPE_METRICS] fitCylinderMultipleSeeds doubleCheck result=" << (success ? "success" : "fail") << " elapsedMs=" << elapsedMs << Logger::endl;
+    }
+    return success;
 }
 
 /*bool TlScanOverseer::fitBigCylinder2(const glm::dvec3& seedPoint1, const glm::dvec3& seedPoint2, const double& radius, const double& threshold, double& cylinderRadius, glm::dvec3& cylinderDirection, glm::dvec3& cylinderCenter, const ClippingAssembly& clippingAssembly)
