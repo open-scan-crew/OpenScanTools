@@ -1,3 +1,40 @@
+OpenScanTools – Project Evolution Notice
+==============================================================================
+
+OpenScanTools has significantly evolved over time and gained a growing user base.
+It has become increasingly difficult to maintain this project as a fully public open-source repository, due to a lack of active contributors and the scale of the development, maintenance and support work required.
+To ensure the long-term sustainability of the software and allow continued development under manageable conditions, the project is now transitioning to a new development model.
+
+Public Legacy Repository
+==============================================================================
+
+This public repository will remain available as the historical open source version of OpenScanTools under the GPLv3 license.
+The latest version of OpenScanTools available is v1.1.2.
+This repository will continue to provide:
+* access to the existing source code,
+* the current feature set,
+* community visibility,
+* historical reference for the project.
+You can still use, modify, and redistribute it freely.
+
+Future Development (v2.0+)
+==============================================================================
+
+Future active development will move to a private repository maintained by Yan Koch (company Scankukai).
+This new development branch will introduce:
+* new advanced features,
+* bug fixes,
+* long-term product support,
+* professional services,
+* Core mode (free): includes all historical features from v1.1.2,
+* Professional mode: includes all Core mode features + new advanced features.
+
+New versions (v2.0+) will be distributed as closed-source binaries with license management.
+The existing public repository will therefore become a legacy/community environment, while the private branch will continue the main evolution of the software.
+
+
+
+
 Prerequisites for building the project OpenScanTools in Debug, Release
 
 Install Qt 5
@@ -46,11 +83,3 @@ Build with Inno Setup:
 ==============================================================================
 * Download and install the last version of Inno Setup : https://jrsoftware.org/isdl.php
 * Launch OpenScanTools.sln solution with Visual Studio
-
-Dev team:
-==============================================================================
-* Yan Koch: Founder - Product manager, specialist of industrial 3D scanning, compulsive creator of user stories :-),
-* Robin Kervadec: Senior Developer, creator of the 3D point cloud engine (Vulkan), 3D rendering, software architecture, scan conversion, and many cool features...
-* Quentin Moiteaux: Junior Developer: many features like the import export of 3D models, tree structure, annotations, animation module...
-* Lucas Silve: advanced Maths, objects detection, raytracing, analysis tools...
-* Aurélien Milliat: Senior Developer: software architecture, clipping & multi-clipping features, gridded boxes, VR specialist and Teacher (I'm sorry we didn't create a VR module in OST).
