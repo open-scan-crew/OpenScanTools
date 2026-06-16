@@ -21,9 +21,9 @@ thread_local std::vector<TlScanOverseer::WorkingScanInfo> TlScanOverseer::s_work
 namespace
 {
 #ifdef _WIN32
-constexpr size_t kMaxActiveScanBudget = 1536;
+constexpr size_t kMaxActiveScanBudget = 5120; // Previous value 1536. New value is equal to kRequestedMaxStdio - 1024
 #else
-constexpr size_t kMaxActiveScanBudget = 768;
+constexpr size_t kMaxActiveScanBudget = 2560; // Previous value 768. New value is equal to upper value * 0.5
 #endif
 }
 
@@ -57,7 +57,7 @@ void TlScanOverseer::init()
     // Pass B2.1 (hotfix):
     // Raise CRT stream limit to reduce "open TLS failed" saturation around ~507 scans
     // during large import/render batches on Windows.
-    constexpr int kRequestedMaxStdio = 2048;
+    constexpr int kRequestedMaxStdio = 6140; // Previous value 2048
     const int appliedMaxStdio = _setmaxstdio(kRequestedMaxStdio);
     Logger::log(IOLog) << "Init TlScanOverseer: _setmaxstdio requested=" << kRequestedMaxStdio
         << ", applied=" << appliedMaxStdio << Logger::endl;
