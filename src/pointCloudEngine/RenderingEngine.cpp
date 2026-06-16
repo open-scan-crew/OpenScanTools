@@ -635,6 +635,12 @@ void RenderingEngine::updateHD()
                     imgWriter.writeTile(tileBuffer.data(), tileWidth, tileHeight, tileOffsetW, tileOffsetH);
                 }
 
+                // Keep HD tile generation memory-bounded: wait for the tile work to finish,
+                // then advance the frame so Vulkan/VMA deferred resources can be reclaimed
+                // before the next tile starts.
+                vkm.waitIdle();
+                vkm.startNextFrame();
+
                 // Copy du rendu dans l'image de destination
                 if (m_showProgressBar)
                     m_dataDispatcher.updateInformation(new GuiDataProcessingSplashScreenProgressBarUpdate(TEXT_SCREENSHOT_PROCESSING.arg(count).arg(tileCountX * tileCountY), count));
