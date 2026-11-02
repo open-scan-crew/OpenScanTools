@@ -26,8 +26,7 @@ This new development branch will introduce:
 * bug fixes,
 * long-term product support,
 * professional services,
-* Core mode (free): includes all historical features from v1.1.2,
-* Professional mode: includes all Core mode features + new advanced features.
+* Standard and Professional versions: include all new features.
 
 New versions (v2.0+) will be distributed as closed-source binaries with license management.
 The existing public repository will therefore become a legacy/community environment, while the private branch will continue the main evolution of the software.
